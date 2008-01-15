@@ -72,6 +72,7 @@ private:
 
     /// InputTag for L1 particle collections
     edm::InputTag m_l1CollectionsTag;
+    edm::InputTag m_l1MuonCollectionTag;
 
 };
 

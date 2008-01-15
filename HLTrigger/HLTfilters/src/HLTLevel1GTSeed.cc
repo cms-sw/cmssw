@@ -79,6 +79,9 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
     // InputTag for L1 particle collections
     m_l1CollectionsTag = parSet.getParameter<edm::InputTag>("L1CollectionsTag");
 
+    // InputTag for L1 particle collections
+    m_l1MuonCollectionTag = parSet.getParameter<edm::InputTag>("L1MuonCollectionTag");
+
     // check logical expression - add/remove spaces if needed
     L1GtLogicParser logicParser(m_l1SeedsLogicalExpression);
     if ( !logicParser.checkLogicalExpression(m_l1SeedsLogicalExpression)) {
@@ -94,6 +97,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
         << "Input tag for GT DAQ record:        " << m_l1GtReadoutRecordTag.label() << " \n" 
         << "Input tag for GT object map record: " << m_l1GtObjectMapTag.label() << " \n" 
         << "Input tag for L1 extra collections: " << m_l1CollectionsTag.label() << " \n" 
+        << "Input tag for L1 muon  collections: " << m_l1MuonCollectionTag.label() << " \n" 
         << std::endl;
 
     // register the products
@@ -370,7 +374,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     if (listMuon.size()) {
 
         edm::Handle<l1extra::L1MuonParticleCollection> l1Muon;
-        edm::InputTag l1MuonTag(edm::InputTag(m_l1CollectionsTag.label()) );
+        edm::InputTag l1MuonTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
         iEvent.getByLabel(l1MuonTag, l1Muon);
 
         for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
