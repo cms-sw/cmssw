@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //	   Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiPixelOfflineClient.cc,v 1.3 2007/10/19 14:37:13 merkelp Exp $
+// $Id: SiPixelOfflineClient.cc,v 1.4 2007/12/12 18:44:43 merkelp Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 

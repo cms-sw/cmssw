@@ -34,7 +34,7 @@
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutorQTest.h"

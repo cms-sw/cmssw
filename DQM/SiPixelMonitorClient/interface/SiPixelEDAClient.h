@@ -6,7 +6,7 @@
 
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -63,6 +63,11 @@ private:
   int tkMapFrequency_;
   int summaryFrequency_;
   unsigned int staticUpdateFrequency_;
+
+  float qflag_;
+  int allMods_;
+  int errorMods_;
+
 
   SiPixelTrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;

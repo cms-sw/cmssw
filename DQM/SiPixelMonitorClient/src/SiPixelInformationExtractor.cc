@@ -7,6 +7,7 @@
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelEDAClient.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -663,7 +664,6 @@ void SiPixelInformationExtractor::plotHisto(DaqMonitorBEInterface * bei,
 //============================================================================================================
 // --  Plot Selected Monitor Elements
 // 
-//void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui, 
 void SiPixelInformationExtractor::plotTkMapHistos(DaqMonitorBEInterface    * bei, 
                                                   multimap<string, string> & req_map, 
 						  string                     sname) 
@@ -2345,4 +2345,63 @@ void SiPixelInformationExtractor::setLines(MonitorElement * me,
      //std::cout<<",warning="<<warning<<",error="<<error<<std::endl;
    }
 	  
+}
+
+
+
+void SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface * bei,
+                                                           int allMods,
+							   int errorMods){
+cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
+//   cout << ACRed << ACBold
+//        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
+//        << ACPlain
+//        << " Enter" 
+//        << endl ;
+
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  cout<<"currDir="<<currDir<<" , dname="<<dname<<endl;
+  
+  QRegExp rx("Module_");
+ 
+  if(rx.search(dname)!=-1){
+    allMods++;
+  
+    vector<string> meVec = bei->getMEs();
+   
+    for (vector<string>::const_iterator it = meVec.begin();
+	 it != meVec.end(); it++) {
+      string full_path = currDir + "/" + (*it);
+      MonitorElement * me = bei->get(full_path);
+    
+      if (!me) continue;
+      dqm::qtests::QR_map my_map = me->getQReports();
+      if (my_map.size() > 0) {
+        string image_name;
+        selectImage(image_name,my_map);
+        if(image_name!="images/LI_green.gif") {
+          errorMods++;
+        }	
+      }
+    }
+  }
+  
+  float qflag=0.;
+  if(allMods>0) qflag = float(errorMods)/float(allMods);
+  cout<<"allMods="<<allMods<<" , errorMods="<<errorMods<<" , qflag="<<qflag<<endl;
+  
+  vector<string> subDirVec = bei->getSubdirs();  
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    bei->cd(*ic);
+    computeGlobalQualityFlag(bei,allMods,errorMods);
+    bei->goUp();
+  }
+//   cout << ACGreen << ACBold
+//        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
+//        << ACPlain
+//        << " Done" 
+//        << endl ;
+cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 }

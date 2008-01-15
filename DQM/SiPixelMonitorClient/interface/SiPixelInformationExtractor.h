@@ -1,7 +1,7 @@
 #ifndef _SiPixelInformationExtractor_h_
 #define _SiPixelInformationExtractor_h_
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
@@ -97,6 +97,9 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
+  void computeGlobalQualityFlag(DaqMonitorBEInterface                   * bei,
+                                int                                       allMods,
+				int                                       errorMods);
 
 
  private:
@@ -171,7 +174,6 @@ class SiPixelInformationExtractor {
 			       double                                   & channelFraction);
   
   
-  
   std::ostringstream                     pictureBuffer_ ;
   map<std::string, std::string>          namedPictureBuffer ;
   
@@ -201,5 +203,6 @@ class SiPixelInformationExtractor {
   bool  readQTestMap_;
   bool  readMeMap_;
   bool  flagHotModule_;
+  
 };
 #endif

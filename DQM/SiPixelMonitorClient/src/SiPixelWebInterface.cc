@@ -259,7 +259,12 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 	 << ACPlain << "Plot error overview Histogram" << endl ;
 
     theActionFlag = PlotErrorOverviewHistogram;
+  } else if  (requestID == "globalQFlag") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest]  " 
+         << ACPlain << "Compute global Pixel quality flag" << endl;
+    theActionFlag = ComputeGlobalQualityFlag;
   }
+      
   
   configureCustomRequest(in, out);
   
@@ -436,6 +441,10 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 	 << ACPlain << "Plot error overview Histogram" << endl ;
 
     theActionFlag = PlotErrorOverviewHistogram;
+  } else if  (requestID == "globalQFlag") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleEDARequest]  " 
+         << ACPlain << "Compute global Pixel quality flag" << endl;
+    theActionFlag = ComputeGlobalQualityFlag;
   }
     
   performAction();
@@ -639,6 +648,11 @@ void SiPixelWebInterface::performAction() {
     {
       //actionExecutor_->checkQTestResults(bei);
       //infoExtractor_->plotErrorOverviewHistos(bei);
+      break;
+    }
+  case SiPixelWebInterface::ComputeGlobalQualityFlag  :
+    {
+      infoExtractor_->computeGlobalQualityFlag(bei,allMods_,errorMods_);
       break;
     }
   case SiPixelWebInterface::NoAction :
