@@ -63,6 +63,7 @@ namespace pos{
 					unsigned int channel,
 					unsigned int roc) const;
 					  
+    std::vector<PixelROCName> getROCsFromChannel(const PixelChannel& aChannel) const;
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
 
     void writeASCII(std::string dir="") const;

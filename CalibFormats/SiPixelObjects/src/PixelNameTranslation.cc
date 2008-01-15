@@ -529,23 +529,23 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
 
 }
 
+std::vector<PixelROCName> PixelNameTranslation::getROCsFromChannel(const PixelChannel& aChannel) const
+{
+	const PixelHdwAddress& channelHdwAddress = getHdwAddress(aChannel);
+	return getROCsFromFEDChannel( channelHdwAddress.fednumber(), channelHdwAddress.fedchannel() );
+}
+
 std::vector<PixelROCName> PixelNameTranslation::getROCsFromModule(const PixelModuleName& aModule) const
 {
-	const std::vector<PixelHdwAddress>* hdwAddresses = getHdwAddress(aModule);
-
 	std::vector<PixelROCName> returnThis;
-
-	// Return empty vector if this module was not found in the configuration.
-	if ( hdwAddresses == 0 ) return returnThis;
-
-	for ( std::vector<PixelHdwAddress>::const_iterator hdwAddress_itr = hdwAddresses->begin(); hdwAddress_itr != hdwAddresses->end(); ++hdwAddress_itr)
+	
+	std::set<PixelChannel> channelsOnThisModule = getChannelsOnModule(aModule);
+	for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
 	{
-		unsigned int fednumber = (*hdwAddress_itr).fednumber();
-		unsigned int fedchannel = (*hdwAddress_itr).fedchannel();
-		std::vector<PixelROCName> ROCsAtThisHdwAddress = getROCsFromFEDChannel(fednumber, fedchannel);
-		for ( std::vector<PixelROCName>::const_iterator ROCName_itr = ROCsAtThisHdwAddress.begin(); ROCName_itr != ROCsAtThisHdwAddress.end(); ++ROCName_itr )
+		std::vector<PixelROCName> ROCsOnThisChannel = getROCsFromChannel( *channelsOnThisModule_itr );
+		for ( std::vector<PixelROCName>::const_iterator ROCsOnThisChannel_itr = ROCsOnThisChannel.begin(); ROCsOnThisChannel_itr != ROCsOnThisChannel.end(); ROCsOnThisChannel_itr++ )
 		{
-			returnThis.push_back(*ROCName_itr);
+			returnThis.push_back(*ROCsOnThisChannel_itr);
 		}
 	}
 
