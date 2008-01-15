@@ -8,6 +8,7 @@
 <use name=RecoTracker/TrackProducer>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
+<use name=DataFormats/VertexReco>
 <use name=clhep>
 <use name=boost>
 <use name=roottmva>
@@ -21,5 +22,6 @@
 <use name=RecoTracker/TrackProducer>
 <use name=clhep>
 <use name=boost>
+<use name=DataFormats/VertexReco>
 
 </export>
