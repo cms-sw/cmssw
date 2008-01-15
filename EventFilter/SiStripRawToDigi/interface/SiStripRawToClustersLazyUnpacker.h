@@ -25,20 +25,21 @@
 //stl
 #include <vector>
 
+//#define USE_FED9U_EVENT_STREAMLINE
+
 class SiStripRawToClustersLazyUnpacker : public edm::SiStripLazyUnpacker<SiStripCluster> {
 
  public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
-  typedef edm::SiStripLazyUnpacker<SiStripCluster> Base;
 
   SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&,
 				   const SiStripClusterizerFactory&,
 				   const FEDRawDataCollection&); 
   
-  ~SiStripRawToClustersLazyUnpacker();
+  virtual ~SiStripRawToClustersLazyUnpacker();
 
-  virtual void fill(uint32_t&); 
+  virtual void fill(const uint32_t&, record_type&); 
 
  private:
 
@@ -54,7 +55,11 @@ class SiStripRawToClustersLazyUnpacker : public edm::SiStripLazyUnpacker<SiStrip
   const SiStripClusterizerFactory* clusterizer_;
 
   //Fed9UEvent cache
+#ifdef USE_FED9U_EVENT_STREAMLINE
+  std::vector< Fed9U::Fed9UEventStreamLine* > fedEvents_;
+#else
   std::vector< Fed9U::Fed9UEvent* > fedEvents_;
+#endif
 
   //RawToDigi
   SiStripRawToDigiUnpacker rawToDigi_;

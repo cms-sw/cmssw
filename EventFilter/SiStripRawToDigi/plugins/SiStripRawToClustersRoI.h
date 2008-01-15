@@ -69,9 +69,6 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   /** Record of all region numbers */
   std::vector<uint32_t> allregions_;
 
-  /** Input module label of SiStripLazyGetter */
-  std::string inputModuleLabel_;
-
   /** Layers of SST to unpack (from innermost) */
   int nlayers_;
 
@@ -84,6 +81,7 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   bool bjets_;
 
   /** reco module labels to define regions of interest */
+  edm::InputTag siStripLazyGetter_;
   edm::InputTag electronBarrelL2_;
   edm::InputTag electronEndcapL2_;
   edm::InputTag muonL2_;

@@ -9,7 +9,6 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
 
   cabling_(),
   allregions_(),
-  inputModuleLabel_(conf.getUntrackedParameter<string>("InputModuleLabel","")),
   nlayers_(conf.getUntrackedParameter<int>("Layers",-1)),
   global_(conf.getUntrackedParameter<bool>("Global",true)),
   random_(conf.getUntrackedParameter<bool>("Random",false)),
@@ -17,6 +16,7 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
   muons_(conf.getUntrackedParameter<bool>("Muons",false)),
   taujets_(conf.getUntrackedParameter<bool>("TauJets",false)),
   bjets_(conf.getUntrackedParameter<bool>("BJets",false)),
+  siStripLazyGetter_(conf.getParameter<edm::InputTag>("SiStripLazyGetter")),
   electronBarrelL2_(conf.getParameter<edm::InputTag>("ElectronBarrelL2")),
   electronEndcapL2_(conf.getParameter<edm::InputTag>("ElectronEndcapL2")),
   muonL2_(conf.getParameter<edm::InputTag>("MuonL2")),
@@ -31,33 +31,14 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
   bjetdeta_(conf.getUntrackedParameter<double>("BJetEtaWindow",0.2)),
   bjetdphi_(conf.getUntrackedParameter<double>("BJetPhiWindow",0.2))
 {
-  LogTrace(mlRawToCluster_)
-    << "[SiStripRawToClustersRoI::" 
-    << __func__ 
-    << "]"
-    << " Constructing object...";
-  
   produces< RefGetter >();
 }
 
-SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {
-
-  LogTrace(mlRawToCluster_)
-    << "[SiStripRawToClustersRoI::" 
-    << __func__ 
-    << "]"
-    << " Destructing object...";
-}
+SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {}
 
 void SiStripRawToClustersRoI::beginJob(const edm::EventSetup& setup) {
 
-  LogTrace(mlRawToCluster_) 
-    << "[SiStripRawToClustersRoI::"
-    << __func__ 
-    << "]";
-
   setup.get<SiStripRegionCablingRcd>().get(cabling_);
-
   allregions_.reserve(cabling_->getRegionCabling().size());
   for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
     for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {  
@@ -74,12 +55,14 @@ void SiStripRawToClustersRoI::endJob() {}
 void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& setup) {
   
   edm::Handle< LazyGetter > lazygetter;
-  event.getByLabel(inputModuleLabel_,"",lazygetter);
-  
-  /* All regions */
+  event.getByLabel(siStripLazyGetter_,lazygetter);
+
+  /// All regions 
   
   if (global_) {
     std::auto_ptr<RefGetter> globalrefgetter(new RefGetter(lazygetter,allregions_));
+    /*//unpack
+      for (RefGetter::const_iterator iReg = globalrefgetter->begin(); iReg != globalrefgetter->end(); iReg++) *iReg;*/
     event.put(globalrefgetter);
     return;
   }
@@ -87,54 +70,52 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
   std::auto_ptr<RefGetter> refgetter(new RefGetter(allregions_.size()));
   refgetter->reserve(10000);
   
-  /* Random region number. Starts from 0. */
+  /// Random region number. Starts from 0.
   
   if (random_) {random(*refgetter,lazygetter);}
   
-  /* Seeded by L2 electrons. */
+  /// Seeded by L2 electrons.
 
   if (electrons_) {
-    edm::Handle<reco::SuperClusterCollection> barrelcollection;
-    edm::Handle<reco::SuperClusterCollection> endcapcollection;
-    event.getByLabel(electronBarrelL2_,barrelcollection);
-    if (barrelcollection.isValid()) {
-      electrons(*barrelcollection,*refgetter,lazygetter);
-    }
-    event.getByLabel(electronEndcapL2_,endcapcollection);
-    if (endcapcollection.isValid()) {
-      electrons(*endcapcollection,*refgetter,lazygetter);
-    }
+      try {
+	edm::Handle<reco::SuperClusterCollection> barrelcollection;
+	edm::Handle<reco::SuperClusterCollection> endcapcollection;
+	event.getByLabel(electronBarrelL2_,barrelcollection);
+	event.getByLabel(electronEndcapL2_,endcapcollection);
+	electrons(*barrelcollection,*refgetter,lazygetter);
+	electrons(*endcapcollection,*refgetter,lazygetter);
+      } catch(...) {}
   }
 
-  /* Seeded by L2 muons. */
+  /// Seeded by L2 muons.
 
   if (muons_) {
-    edm::Handle<reco::TrackCollection> collection;
-    event.getByLabel(muonL2_,collection);
-    if (collection.isValid()) {
-      muons(*collection,*refgetter,lazygetter);
+      try {
+	edm::Handle<reco::TrackCollection> collection;
+	event.getByLabel(muonL2_,collection);
+	muons(*collection,*refgetter,lazygetter);
+      } catch(...) {}
     }
-  }
   
-  /* Seeded by L2 taujets. */
+  /// Seeded by L2 taujets.
 
   if (taujets_) {
-    edm::Handle<reco::CaloJetCollection> collection;
-    event.getByLabel(taujetL2_,collection);
-    if (collection.isValid()) {
-      taujets(*collection,*refgetter,lazygetter);
+      try {
+	edm::Handle<reco::CaloJetCollection> collection;
+	event.getByLabel(taujetL2_,collection);
+	taujets(*collection,*refgetter,lazygetter);
+      } catch(...) {}
     }
-  }
   
-  /* Seeded by L2 bjets. */
+  /// Seeded by L2 bjets.
 
   if (bjets_) {
-    edm::Handle<reco::CaloJetCollection> collection;
-    event.getByLabel(bjetL2_,collection);
-    if (collection.isValid()) {
-      bjets(*collection,*refgetter,lazygetter);
+      try {
+	edm::Handle<reco::CaloJetCollection> collection;
+	event.getByLabel(bjetL2_,collection);
+	bjets(*collection,*refgetter,lazygetter);
+      } catch(...) {}
     }
-  }
   
   event.put(refgetter);
 }

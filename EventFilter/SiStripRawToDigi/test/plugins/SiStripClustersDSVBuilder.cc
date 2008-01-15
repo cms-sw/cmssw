@@ -1,73 +1,46 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClustersDSVBuilder.h"
-
-//FWCore
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//Data Formats
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
 using namespace std;
 using namespace sistrip;
 
-// -----------------------------------------------------------------------------
-//
 SiStripClustersDSVBuilder::SiStripClustersDSVBuilder( const edm::ParameterSet& conf ) :
 
-  inputModuleLabel_(conf.getUntrackedParameter<string>("InputModuleLabel","")),
-  outputProductLabel_(conf.getUntrackedParameter<string>("OutputProductLabel",""))
-  
+  siStripLazyGetter_(conf.getParameter<edm::InputTag>("SiStripLazyGetter")),
+  siStripRefGetter_(conf.getParameter<edm::InputTag>("SiStripRefGetter"))
 {
-  LogTrace(mlRawToCluster_)
-    << "[SiStripClustersDSVBuilder::" 
-    << __func__ 
-    << "]"
-    << " Constructing object...";
-  
-  produces< DSV >(outputProductLabel_);
+  produces< DSV >();
 }
 
-// -----------------------------------------------------------------------------
-/** */
-SiStripClustersDSVBuilder::~SiStripClustersDSVBuilder() {
+SiStripClustersDSVBuilder::~SiStripClustersDSVBuilder() {}
 
-  LogTrace(mlRawToCluster_)
-    << "[SiStripClustersDSVBuilder::" 
-    << __func__ 
-    << "]"
-    << " Destructing object...";
-}
+void SiStripClustersDSVBuilder::beginJob( const edm::EventSetup& setup) {}
 
-// -----------------------------------------------------------------------------
-void SiStripClustersDSVBuilder::beginJob( const edm::EventSetup& setup) {
+void SiStripClustersDSVBuilder::endJob() {}
 
-  LogTrace(mlRawToCluster_) 
-    << "[SiStripClustersDSVBuilder::"
-    << __func__ 
-    << "]";
-}
-
-// -----------------------------------------------------------------------------
-void SiStripClustersDSVBuilder::endJob() {;}
-
-// -----------------------------------------------------------------------------
-/** */
-void SiStripClustersDSVBuilder::produce( edm::Event& event, 
-					 const edm::EventSetup& setup ) {  
+void SiStripClustersDSVBuilder::produce( edm::Event& event,const edm::EventSetup& setup ) {  
  
-  //Retrieve RefGetter with demand from event
-  edm::Handle< RefGetter > demandclusters;
-  event.getByLabel(inputModuleLabel_,demandclusters);
+  /// Retrieve RefGetter with demand from event
+
+  edm::Handle< LazyGetter > lazygetter;
+  edm::Handle< RefGetter > refgetter;
+  event.getByLabel(siStripLazyGetter_, lazygetter);
+  event.getByLabel(siStripRefGetter_,refgetter);
  
-  //Construct product
+  /// Convert
+
   auto_ptr<DSV> dsv(new DSV);
-  RefGetter::const_iterator iregion = demandclusters->begin();
-  for(;iregion!=demandclusters->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
-    for (;icluster!=iregion->end();icluster++) {
+  RefGetter::const_iterator iregion = refgetter->begin();
+  for(;iregion!=refgetter->end();++iregion) {
+    vector<SiStripCluster>::const_iterator icluster = lazygetter->begin_record()+iregion->start();
+    for (;icluster!=lazygetter->begin_record()+iregion->finish();icluster++) {
       DetSet& detset = dsv->find_or_insert(icluster->geographicalId());
       detset.push_back(*icluster);
     }
   }
-  //add to event
+
+  /// add to event
   event.put(dsv);
 }

@@ -25,7 +25,6 @@ SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
   
   clusterizer_ = new SiStripClusterizerFactory(conf);
   produces< LazyGetter >();
-  produces< RefGetter >();
 }
 
 SiStripRawToClusters::~SiStripRawToClusters() {
@@ -41,6 +40,7 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
 
+  clusterizer_->eventSetup(setup);
 }
 
 void SiStripRawToClusters::endJob() {}
@@ -50,9 +50,8 @@ void SiStripRawToClusters::produce( edm::Event& event,const edm::EventSetup& set
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
   setup.get<SiStripRegionCablingRcd>().get(cabling_);
-  clusterizer_->eventSetup(setup);
   boost::shared_ptr<LazyUnpacker> unpacker(new LazyUnpacker(*cabling_,*clusterizer_,*buffers));
-  std::auto_ptr<LazyGetter> collection(new LazyGetter(unpacker));
+  std::auto_ptr<LazyGetter> collection(new LazyGetter(cabling_->getRegionCabling().size()*SiStripRegionCabling::ALLSUBDETS*SiStripRegionCabling::ALLLAYERS,unpacker));
   event.put(collection);
 }
 

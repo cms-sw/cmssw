@@ -1,18 +1,13 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToClustersDummyUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToClustersDummyUnpacker_H
 
-//FWCore
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//DataFormats
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-//stl
 #include <string>
 #include <memory>
 #include "boost/bind.hpp"
@@ -27,6 +22,7 @@ class SiStripRawToClustersDummyUnpacker : public edm::EDAnalyzer {
  public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
+  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripRawToClustersDummyUnpacker( const edm::ParameterSet& );
@@ -39,7 +35,8 @@ class SiStripRawToClustersDummyUnpacker : public edm::EDAnalyzer {
  private: 
 
   /** Input label */
-  std::string inputModuleLabel_;
+  edm::InputTag siStripLazyGetter_;
+  edm::InputTag siStripRefGetter_;
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClustersDummyRoI_H

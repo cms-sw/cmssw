@@ -1,19 +1,14 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripClustersDSVBuilder_H
 #define EventFilter_SiStripRawToDigi_SiStripClustersDSVBuilder_H
 
-//FWCore
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-//stl
 #include <memory>
 #include "boost/bind.hpp"
 
@@ -23,6 +18,7 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
 
   typedef edm::DetSet<SiStripCluster> DetSet;
   typedef edm::DetSetVector<SiStripCluster> DSV;
+  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripClustersDSVBuilder( const edm::ParameterSet& );
@@ -34,11 +30,9 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
   
  private: 
 
-  /** Input label */
-  std::string inputModuleLabel_;
-
-  /** Output Product label */
-  std::string outputProductLabel_;
+  /** Input labels */
+  edm::InputTag siStripLazyGetter_;
+  edm::InputTag siStripRefGetter_;
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripClustersDSVBuilder_H
