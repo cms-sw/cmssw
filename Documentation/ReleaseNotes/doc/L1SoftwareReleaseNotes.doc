@@ -3,10 +3,17 @@
 
 
 - General:
+The main change for this release was a major upgrade of the GT emulator.
 
 - Main changes and new features:
+   * GT emulator takes trigger menu from dummy ESProducer/DB
+   * GT emulator timing improved
+   * Digi2Raw complete for all subsystems
+   * GCT default jet algorithm changed to match hardware algo
+   * GCT default jet corrections based on 17X
 
 - Major bug fixes:
+   * CondDB tools write-read bug fixed (see 170 release notes)
 
 - Known issues:
 
