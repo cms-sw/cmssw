@@ -331,7 +331,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
 	      TkStripMeasurementDet*  theConcreteDetUpdatable = 
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	      theConcreteDetUpdatable->update(icluster,iregion->end(),lazyClusterHandle,tmpId);
+	      theConcreteDetUpdatable->update(icluster,endIterator,lazyClusterHandle,tmpId);
 	    }	 
 	  }else if( icluster == (endIterator-1)){	   
 	    const TkStripMeasurementDet* theConcreteDet = 
@@ -343,7 +343,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
 	    //std::cout << "=== option3. fill det with id,#clust: " << tmpId  << " , " 
 	    //      << iregion->end() - beginIterator << std::endl;
-	    theConcreteDetUpdatable->update(beginIterator,iregion->end(),lazyClusterHandle,tmpId);	 
+	    theConcreteDetUpdatable->update(beginIterator,endIterator,lazyClusterHandle,tmpId);	 
 	  }	  
 	}//end loop cluster in one ragion
       }
