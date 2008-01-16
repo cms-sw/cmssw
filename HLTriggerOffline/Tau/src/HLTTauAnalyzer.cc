@@ -505,6 +505,13 @@ void HLTTauAnalyzer::endJob()
   out << "Efficiency MC "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
   out <<endl;
 
+  //HLT Efficiency
+  ComputeEfficiency(nEventsL1,nEventsL3,Eff,Efferr);
+  out << "HLT Efficiency "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+  ComputeEfficiency(nEventsL1McMatched,nEventsL3McMatched,Eff,Efferr);
+  out << "HLT Efficiency Mc Matched Events "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+  out <<endl;
+
   //Total Efficiency
   ComputeEfficiency(nEventsTot,nEventsL3,Eff,Efferr);
   out << "Total Efficiency "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
