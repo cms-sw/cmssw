@@ -1,0 +1,40 @@
+#include "PhysicsTools/PatAlgos/interface/PATJetCleaner.h"
+
+template<typename JetIn, typename JetOut>
+pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig) :
+  jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" ))
+{
+  // produces vector of electrons
+  produces<std::vector<JetOut> >();
+
+  // producers also backmatch to the electrons
+  produces<reco::CandRefValueMap>();
+}
+
+
+template<typename JetIn, typename JetOut>
+pat::PATJetCleaner<JetIn,JetOut>::~PATJetCleaner() {
+}
+
+
+template<typename JetIn, typename JetOut>
+void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+
+  typedef typename edm::Ref< std::vector<JetIn> > JetInRef;
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+    // read the source jet
+    const JetIn & srcJet = helper_.srcAt(idx);
+
+    // clone the jet and convert it to the new type
+    JetOut ourJet = static_cast<JetOut>(srcJet);
+
+    // write the muon
+    helper_.addItem(idx, ourJet);
+  }
+
+  helper_.done();
+ 
+}
+

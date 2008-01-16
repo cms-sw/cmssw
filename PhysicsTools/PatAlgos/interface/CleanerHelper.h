@@ -14,7 +14,14 @@
 
 namespace pat { namespace helper {
 
-template<typename T, typename T2=T, typename Collection=std::vector<T2> >
+template<typename T>
+struct NullSorter {
+        bool operator()( const T & t1, const T & t2 ) const {
+            return (&t1) < (&t2);
+        }
+}; 
+
+template<typename T, typename T2=T, typename Collection = std::vector<T2>, typename Comparator = NullSorter<T2> >
 class CleanerHelper {
     public:
         CleanerHelper() { } // needed for EDM Modules
@@ -89,16 +96,16 @@ class CleanerHelper {
 }; // class
 
 
-template<typename T, typename T2, typename Collection>
-CleanerHelper<T,T2,Collection>::CleanerHelper(const edm::InputTag &src, const std::string &instanceName) :
+template<typename T, typename T2, typename Collection, typename Comparator>
+CleanerHelper<T,T2,Collection,Comparator>::CleanerHelper(const edm::InputTag &src, const std::string &instanceName) :
     src_(src),
     label_(instanceName) 
 { 
 }
 
 
-template<typename T, typename T2, typename Collection>
-void CleanerHelper<T,T2,Collection>::newEvent(edm::Event &iEvent) 
+template<typename T, typename T2, typename Collection, typename Comparator>
+void CleanerHelper<T,T2,Collection,Comparator>::newEvent(edm::Event &iEvent) 
 {
     cleanup(); // just in case
 
@@ -110,8 +117,8 @@ void CleanerHelper<T,T2,Collection>::newEvent(edm::Event &iEvent)
     outRefProd_ = event_->getRefBeforePut<Collection>(label_);
 }
 
-template<typename T, typename T2, typename Collection>
-size_t CleanerHelper<T,T2,Collection>::addItem(size_t idx, const T2 &value, const uint32_t mark) 
+template<typename T, typename T2, typename Collection, typename Comparator>
+size_t CleanerHelper<T,T2,Collection,Comparator>::addItem(size_t idx, const T2 &value, const uint32_t mark) 
 {
     selected_.push_back(value);
     marks_.push_back(mark);
@@ -120,8 +127,8 @@ size_t CleanerHelper<T,T2,Collection>::addItem(size_t idx, const T2 &value, cons
     return selected_.size() - 1;
 }
 
-template<typename T, typename T2, typename Collection>
-void CleanerHelper<T,T2,Collection>::done() {
+template<typename T, typename T2, typename Collection, typename Comparator>
+void CleanerHelper<T,T2,Collection,Comparator>::done() {
     if (event_ == 0) throw cms::Exception("CleanerHelper") << 
         "You're calling done() without calling newEvent() before";
 
@@ -157,8 +164,8 @@ void CleanerHelper<T,T2,Collection>::done() {
     cleanup();
 }
 
-template<typename T, typename T2, typename Collection>
-void CleanerHelper<T,T2,Collection>::cleanup() {
+template<typename T, typename T2, typename Collection, typename Comparator>
+void CleanerHelper<T,T2,Collection,Comparator>::cleanup() {
     selected_.clear();
     marks_.clear();
     originalRefs_.clear();

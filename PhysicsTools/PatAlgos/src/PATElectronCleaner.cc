@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATElectronCleaner.cc,v 1.1 2008/01/16 01:20:42 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
@@ -92,3 +92,5 @@ void PATElectronCleaner::removeDuplicates() {
   }
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(pat::PATElectronCleaner);

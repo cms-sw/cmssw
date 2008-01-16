@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.2 2008/01/15 22:05:03 gpetrucc Exp $
+// $Id: PATMuonCleaner.cc,v 1.3 2008/01/16 01:24:10 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
@@ -56,3 +56,6 @@ void PATMuonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 }
 
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(pat::PATMuonCleaner);

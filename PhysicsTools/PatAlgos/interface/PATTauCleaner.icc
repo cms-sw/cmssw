@@ -33,7 +33,7 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
   iEvent.getByLabel(tauDiscSrc_, TauIsolator);
 
   typedef typename edm::Ref< std::vector<TauIn> > TauInRef;
-  for (size_t idx = 0, size = helper_.size(); idx < size; ++idx) {
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
     // read the source tau
     const TauIn & srcTau = helper_.srcAt(idx);
     TauInRef      srcRef = helper_.srcRefAt(idx).template castTo<TauInRef>();

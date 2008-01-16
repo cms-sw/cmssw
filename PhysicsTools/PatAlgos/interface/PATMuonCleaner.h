@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.1 2008/01/15 18:51:46 gpetrucc Exp $
+// $Id: PATMuonCleaner.h,v 1.2 2008/01/15 22:05:01 gpetrucc Exp $
 //
 
 /**
@@ -12,7 +12,7 @@
    At the moment it really does <b>no cleaning at all</b>, but this will be implemented later.
  
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf, 
-  \version  $Id: PATMuonCleaner.h,v 1.1 2008/01/15 18:51:46 gpetrucc Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.2 2008/01/15 22:05:01 gpetrucc Exp $
 */
 
 
@@ -22,7 +22,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include <string>
 
@@ -40,7 +43,10 @@ namespace pat {
     private:
       // configurables
       edm::InputTag muonSrc_;
-      pat::helper::CleanerHelper<reco::Muon> helper_;
+      pat::helper::CleanerHelper< reco::Muon, 
+                                  reco::Muon,
+                                  reco::MuonCollection, 
+                                  GreaterByPt<reco::Muon> > helper_;
   };
 
 

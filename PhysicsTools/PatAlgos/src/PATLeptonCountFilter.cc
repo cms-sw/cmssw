@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATLeptonCountFilter.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATLeptonCountFilter.h"
@@ -43,3 +43,7 @@ bool PATLeptonCountFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
   nrLeptons += (countTaus_      ? taus->size()      : 0);
   return nrLeptons >= minNumber_ && nrLeptons <= maxNumber_;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(pat::PATLeptonCountFilter);
+

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: PATElectronCleaner.h,v 1.1 2008/01/16 01:20:37 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.1 2008/01/16 01:20:37 gpetrucc Exp $
 */
 
 
@@ -23,7 +23,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include <string>
 
@@ -41,7 +44,10 @@ namespace pat {
 
       edm::InputTag electronSrc_;
       bool          removeDuplicates_;
-      pat::helper::CleanerHelper<reco::PixelMatchGsfElectron> helper_;
+      pat::helper::CleanerHelper< reco::PixelMatchGsfElectron, 
+                                  reco::PixelMatchGsfElectron,
+                                  reco::PixelMatchGsfElectronCollection, 
+                                  GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
   
   };
 
