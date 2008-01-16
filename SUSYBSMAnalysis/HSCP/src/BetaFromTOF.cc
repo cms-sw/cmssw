@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.10 2008/01/06 11:28:36 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.11 2008/01/14 23:24:47 ptraczyk Exp $
 //
 //
 
@@ -222,8 +222,13 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     TrackRef staMuon = mi->standAloneMuon();
 
     double betaMeasurements[4]={0,0,0,0};
+    double stationHits[4]={0,0,0,0};
     double invbeta=0;
     DriftTubeTOF tof;
+    
+    tof.nHits=0;
+    tof.nStations=0;
+
   for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
 
     // find the standalone muon matching the global muon
@@ -253,11 +258,16 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // Look for reconstructed 4D Segments
         DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
-  
+        
+         
         for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
+
+          stationHits[station-1]++;
 
           // match with the current recHit
           if ((rechit->localPosition()-(*hi)->localPosition()).mag()<0.01) {
+
+            cout << *rechit << endl;
 
             // Check if both phi and theta segments exist in the 4D Segment
 	    if ((rechit->hasPhi() && rechit->hasZed()) || !onlyMatched) {
@@ -374,6 +384,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (debug)
       cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
 
+
     tof.invBeta=invbeta;
     tof.invBetaErr=invbetaerr;
       
@@ -388,6 +399,13 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       y.push_back(dsegm.at(i)+dstnc.at(i)/30.);
       vertexTime+=dsegm.at(i)*hitWeight.at(i)/totalWeight;
 //      cout << "    x: " << x.at(i) << "   y: " << y.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+    }
+
+    if ((invbetaerr>0.07) || (stationHits[0]>1)) {
+      cout << " *** Beta: " << invbeta << " +/- " << invbetaerr << "   All Hits: " << dstnc.size() << endl;
+      for (int a=0;a<4;a++) cout << "     St: " << a+1 << "   4d hits: " << stationHits[a] << endl;
+      for (int i=0;i<dstnc.size();i++)
+        cout << "    x: " << dstnc.at(i) << "   y: " << dsegm.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
     }
 
     for (int i=0;i<dstnc.size();i++) {
@@ -421,8 +439,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     break;
   }  //candTrack
 
-    outputCollection->setValue(muId,tof); //invbeta);
- 
+    outputCollection->setValue(muId,tof); 
+
     invbeta=0;    
     int mcount=0;
     
