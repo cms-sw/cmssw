@@ -33,6 +33,7 @@
 // user include files
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {
