@@ -82,6 +82,8 @@
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 
   <class pattern="edm::AssociationMap<*>::const_iterator" />
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  <class name="edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >" />
+  <class name="edm::Wrapper<edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
 
   <class name="reco::CompositeCandidateCollection" />
   <class name="edm::Wrapper<reco::CompositeCandidateCollection>" />
