@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.1 2008/01/15 18:51:45 gpetrucc Exp $
+// $Id: PATMuonCleaner.cc,v 1.2 2008/01/15 22:05:03 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
@@ -37,9 +37,9 @@ void PATMuonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // start a new event
   helper_.newEvent(iEvent);
   
-  for (size_t idx = 0, size = helper_.size(); idx < size; ++idx) {
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
     // read the source muon
-    const reco::Muon &srcMuon = helper_[idx];    
+    const reco::Muon &srcMuon = helper_.srcAt(idx);    
 
     // clone the muon so we can modify it
     reco::Muon ourMuon = srcMuon; 
