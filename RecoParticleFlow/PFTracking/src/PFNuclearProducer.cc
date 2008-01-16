@@ -8,6 +8,7 @@ using namespace edm;
 PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig):
   pfTransformer_(0)
 {
+  produces<reco::PFRecTrackCollection>();
   produces<reco::PFNuclearInteractionCollection>();
 
   nuclearContainers_ = 
@@ -27,7 +28,12 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //create the empty collections 
   auto_ptr< reco::PFNuclearInteractionCollection > 
     pfNuclearColl (new reco::PFNuclearInteractionCollection);
+  auto_ptr< reco::PFRecTrackCollection > 
+    pfNuclearRecTrackColl (new reco::PFRecTrackCollection);
   
+  reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
+  int hid=0;
+
   // loop on the nuclear interaction collections
   for (uint istr=0; istr<nuclearContainers_.size();istr++){
     
@@ -37,7 +43,7 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     // loop on all NuclearInteraction 
     for( uint icoll=0; icoll < nuclColl.size(); icoll++) {
-      reco::PFRecTrackCollection pfRecTkcoll;
+      reco::PFRecTrackRefVector pfRecTkcoll;
 
       // convert the secondary tracks
       for(trackRef_iterator it = nuclColl[icoll].secondaryTracks_begin(); it!=nuclColl[icoll].secondaryTracks_end(); it++){
@@ -46,14 +52,16 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
        				it->key(), (reco::TrackRef)((*it).castTo<reco::TrackRef>()) );
         Trajectory FakeTraj;
         bool valid = pfTransformer_->addPoints( pftrack, **it, FakeTraj);
-        if(valid)
-	  pfRecTkcoll.push_back(pftrack);		
+        if(valid) {
+	  pfRecTkcoll.push_back(reco::PFRecTrackRef( pfTrackRefProd, hid++ ));	
+          pfNuclearRecTrackColl->push_back(pftrack);
+        }
       }
       reco::NuclearInteractionRef niRef(nuclCollH, icoll);
       pfNuclearColl->push_back( reco::PFNuclearInteraction( niRef, pfRecTkcoll ));
-
     }
   }
+  iEvent.put(pfNuclearRecTrackColl);
   iEvent.put(pfNuclearColl);
 }
 

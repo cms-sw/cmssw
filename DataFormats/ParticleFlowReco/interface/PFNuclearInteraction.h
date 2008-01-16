@@ -17,14 +17,14 @@ class PFNuclearInteraction {
   public :
   
     PFNuclearInteraction() {}
-    PFNuclearInteraction( const NuclearInteractionRef& nuclref, const PFRecTrackCollection& pfSeconds) : nuclInterRef_(nuclref), pfSecTracks_(pfSeconds) {}
+    PFNuclearInteraction( const NuclearInteractionRef& nuclref, const PFRecTrackRefVector& pfSeconds) : nuclInterRef_(nuclref), pfSecTracks_(pfSeconds) {}
     
   private :
     // Reference to the initial NuclearInteraction
     NuclearInteractionRef nuclInterRef_;
     
     // Collection of the secondary PFRecTracks
-    PFRecTrackCollection pfSecTracks_;
+    PFRecTrackRefVector pfSecTracks_;
 
  };
 
