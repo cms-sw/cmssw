@@ -16,12 +16,12 @@ namespace edm {
    public:
       SubEvent(int id = -1): sub_id(id) {} 
       virtual ~SubEvent() {}
-      std::vector<HepMC::GenParticle*>&       getParticles(HepMC::GenEvent& evt);
-      HepMC::GenVertex*                   getVertex(HepMC::GenEvent& evt);
-      HepMC::GenParticle*                 getParticle(HepMC::GenEvent& evt, int index);
-      HepMC::GenParticle*                 getBoson(); 
-      HepMC::GenParticle*                 getParton1();
-      HepMC::GenParticle*                 getParton2();
+      std::vector<HepMC::GenParticle*>       getParticles(const HepMC::GenEvent& evt) const;
+      HepMC::GenVertex*                   getVertex(const HepMC::GenEvent& evt) const;
+      HepMC::GenParticle*                 getParticle(const HepMC::GenEvent& evt, int index) const;
+      HepMC::GenParticle*                 getBoson(const HepMC::GenEvent& evt); 
+      HepMC::GenParticle*                 getParton1(const HepMC::GenEvent& evt);
+      HepMC::GenParticle*                 getParton2(const HepMC::GenEvent& evt);
 
    private:
       int                    sub_id;

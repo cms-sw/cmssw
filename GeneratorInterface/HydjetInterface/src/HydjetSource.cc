@@ -112,7 +112,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   // heavy ion record in the final CMSSW Event
 
-  HepMC::HeavyIon hi(
+  HepMC::HeavyIon* hi = new HepMC::HeavyIon(
     nsub_,                               // Ncoll_hard/N of SubEvents
     static_cast<int>(hyfpar.npart / 2),  // Npart_proj
     static_cast<int>(hyfpar.npart / 2),  // Npart_targ
@@ -128,7 +128,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
     hyjpar.sigin                         // sigma_inel_NN
   );
 
-  evt->set_heavy_ion(hi);
+  evt->set_heavy_ion(*hi);
 }
 
 
@@ -198,13 +198,10 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
    // put the vertices in the GenEvent, for each SubEvent
    // The SubEvent information is kept by storing indeces of main vertices 
    // of subevents as a vector in GenHIEvent.
- 
+
    int nhard = nhard_;
    
    vector<HepMC::GenVertex*>  sub_vertices(nsub_); 
-   vector<HepMC::GenVertex*>  prods(nhard);
-   vector<int>                mother_ids(nhard);
-   vector<int>                type(nhard);
 
    int ihy  = 0;   
    int ipar = 0;
@@ -212,6 +209,8 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
      
       int sub_up = (isub+1)*10000; // Upper limit in mother index, determining the range of Sub-Event
       vector<HepMC::GenParticle*> particles;
+      vector<int>                 mother_ids;
+      vector<HepMC::GenVertex*>   prods;
 
       sub_vertices[isub] = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),isub);
       evt->add_vertex(sub_vertices[isub]);
@@ -220,8 +219,8 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       while(ihy<nhard && hyjets.khj[2][ihy] < sub_up){
 	
 	 particles.push_back(build_hyjet(ihy,ipar+1));
-	 prods[ipar]=build_hyjet_vertex(ihy,isub);
-	 mother_ids[ipar]=hyjets.khj[2][ihy];
+	 prods.push_back(build_hyjet_vertex(ihy,isub));
+	 mother_ids.push_back(hyjets.khj[2][ihy]);
 
 	 ipar++;
 	 ihy++;
@@ -444,15 +443,6 @@ bool HydjetSource::produce(Event & e)
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
   add_heavy_ion_rec(evt);
-
-  cout<<"Number of particles = "<<evt->particles_size()<<endl;
-  cout<<"Number of Vertices = "<<evt->vertices_size()<<endl;
-  cout<<"Number of SubEvents = "<<subvector.size()<<endl;
-
-  cout<<"nsoft = "<<nsoft_<<endl;
-  cout<<"nsub = "<<nsub_<<endl;
-  cout<<"nhard = "<<nhard_<<endl;
-
 
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
   bare_product->addHepMCData(evt );
