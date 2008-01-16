@@ -111,12 +111,11 @@ def _findAndHandleParameterIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            newValues.extend(_handleInclude(v.filename,
-                                            otherFiles,
-                                            recurseFiles,
-                                            onlyParameters.parseFile,
-                                            _validateLabelledList,
-                                            _findAndHandleParameterIncludesRecursive))
+            newValues.extend(v.extract(l, otherFiles,
+                                       recurseFiles,
+                                       onlyParameters.parseFile,
+                                       _validateLabelledList,
+                                       _findAndHandleParameterIncludesRecursive))
         else:
             newValues.append((l,v))
     return newValues
@@ -128,12 +127,11 @@ def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            newValues.extend(_handleInclude(v.filename,
-                                            otherFiles,
-                                            recurseFiles,
-                                            onlyProcessBody.parseFile,
-                                            _validateLabelledList,
-                                            _findAndHandleProcessBlockIncludesRecursive))
+            newValues.extend(v.extract(l, otherFiles,
+                                       recurseFiles,
+                                       onlyProcessBody.parseFile,
+                                       _validateLabelledList,
+                                       _findAndHandleProcessBlockIncludesRecursive))
         else:
             newValues.append((l,v))
     return newValues
@@ -164,8 +162,6 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
             raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
         try:
             values = validator(values)
-        except pp.ParseException, e:
-            raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
         except Exception, e:
             raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
         return values
@@ -402,6 +398,49 @@ class _IncludeNode(cms._ParameterTypeBase):
     """
     def __init__(self,filename):
         self.filename = filename
+    def parse(self, parser, validator):
+        """Only the top-level nodes.  No recursion"""
+        global _fileStack
+        _fileStack.append(self.filename)
+        try:
+            #factory = _fileFactory
+            #f = factory(fileName)
+            f = _fileFactory(self.filename)
+            try:
+                values = parser(f)
+                values = validator(values)
+            except pp.ParseException, e:
+                raise RuntimeError('include file '+self.filename+' had the parsing error \n'+str(e))
+            except Exception, e:
+                raise RuntimeError('include file '+self.filename+' had the error \n'+str(e))
+            return values
+        finally:
+            _fileStack.pop()
+
+
+
+    def extract(self, label, otherFiles,recurseFiles,parser,validator,recursor):
+        """reads in the file with name 'fileName' making sure it does not recursively include itself
+        by looking in 'otherFiles' then applies the 'parser' to the contents of the file,
+        runs the validator and then applies the recursor to see if other files must now be included"""
+        fileName = self.filename
+        if fileName in recurseFiles:
+            raise RuntimeError('the file '+fileName+' eventually includes itself')
+        if fileName in otherFiles:
+            return list()
+        newRecurseFiles = recurseFiles.copy()
+        newRecurseFiles.add(fileName)
+        otherFiles.add(fileName)
+        values = self.parse(parser, validator)
+        values =recursor(values,otherFiles,newRecurseFiles)
+        try:
+            values = validator(values)
+        except pp.ParseException, e:
+           raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
+        except Exception, e:
+            raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
+        return values
+
     def pythonFileRoot(self):
         # translate, e.g., "SimMuon/DT/data/my-mod.cfi" to "SimMuon/DT/data/my_mod_cfi"
         return self.filename.replace('.','_').replace('-','_')
@@ -410,7 +449,7 @@ class _IncludeNode(cms._ParameterTypeBase):
     def pythonModuleName(self):
         # we want something like "SimMuon.DT.mod_cfi"
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options):
         if options.isCfg: 
             #return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
             return "process.load(\"" + self.pythonModuleName() + "\")\n"
@@ -443,6 +482,37 @@ class _IncludeNode(cms._ParameterTypeBase):
                 os.chdir(pythonDir)
             os.chdir(cwd)
           
+
+class _IncludeFromNode(_IncludeNode):
+    """An IncludeNode with a label, so it will only
+       extract the named node, plus any IncludeNodes,
+       which are presumed to be blocks"""
+    def __init__(self,fromLabel, filename):
+        super(_IncludeFromNode,self).__init__(filename)
+        self._fromLabel = fromLabel
+    def extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor):
+        import copy
+        # First, expand everything, so blocks 
+        expandedValues = _IncludeNode.extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor)
+        d = dict(expandedValues)
+        found = False
+        for l,v in expandedValues:
+           if l == self._fromLabel:
+               found = True
+               # I don't know how to replace it, so I'll just have to copy
+               expandedValues.append((newLabel, copy.deepcopy(v)))
+        if not found:
+            raise RuntimeError("the file "+self.filename+" does not contain a "+self._fromLabel
+                                         +"\n from file "+_fileStack[-1])
+        return expandedValues
+    def dumpPythonAs(self, newLabel, options):
+        result = "import copy\n" +_IncludeNode.dumpPython(self, options) + "\n"
+        result += newLabel + " = copy.deepcopy("
+        if options.isCfg:
+            result += "process."
+        result += self._fromLabel+")\n"
+        return result
+
 
 def _makeInclude(s,loc,toks):
     return (toks[0][0],_IncludeNode(toks[0][0]))
@@ -556,7 +626,8 @@ class _MakeFrom(object):
         global _fileStack
         label = toks[0][0]
         inc = toks[0][1]
-        
+        return _IncludeFromNode(label, inc[0])
+
         try:
             values = _findAndHandleProcessBlockIncludes((inc,))
         except Exception, e:
@@ -1361,7 +1432,11 @@ def dumpPython(d, options):
     if options.isCfg:
         prefix = 'process.'
     for key,value in d:
-        if isinstance(value,_IncludeNode):
+        if isinstance(value,_IncludeFromNode):
+            value.createFile(False)
+            newLabel = prefix + key
+            includes += value.dumpPythonAs(prefix+key, options)
+        elif isinstance(value,_IncludeNode):
             value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
@@ -1805,13 +1880,15 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'module foo = TestProd {}')
                 t=plugin.parseString("module bar = foo from 'Sub/Pack/data/foo.cfi'")
-                d=dict(iter(t))
+                t = _findAndHandleProcessBlockIncludes(t)
+                d = dict(iter(t))
                 self.assertEqual(type(d['bar']),cms.EDProducer)
                 self.assertEqual(d['bar'].type_(),"TestProd")
                 
                 
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'es_module foo = TestProd {}')
                 t=plugin.parseString("es_module bar = foo from 'Sub/Pack/data/foo.cfi'")
+                t = _findAndHandleProcessBlockIncludes(t)
                 d=dict(iter(t))
                 self.assertEqual(type(d['bar']),cms.ESProducer)
                 self.assertEqual(d['bar'].type_(),"TestProd")
@@ -1945,10 +2022,12 @@ process RECO = {
             t=process.parseString("""
 process RECO = {
   include "FWCore/ParameterSet/test/chainIncludeBlock.cfi"
+  replace CaloJetParameters.inputEMin = 0.1
   module i = iterativeConeNoBlock from "FWCore/ParameterSet/test/chainIncludeModule2.cfi"
 }
 """)
             self.assertEqual(t[0].i.jetType.value(), "CaloJet")
+            self.assertEqual(t[0].i.inputEMin.value(), 0.1)
 
 
 
