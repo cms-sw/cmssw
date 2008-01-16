@@ -6,9 +6,15 @@
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
 #include "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
 
-DEFINE_FWK_MODULE(pat::PATElectronProducer);
-DEFINE_FWK_MODULE(pat::PATMuonProducer);
-DEFINE_FWK_MODULE(pat::PATTauProducer);
-DEFINE_FWK_MODULE(pat::PATJetProducer);
-DEFINE_FWK_MODULE(pat::PATMETProducer);
+typedef pat::PATElectronProducer PATElectronProducer;
+typedef pat::PATMuonProducer     PATMuonProducer;
+typedef pat::PATTauProducer      PATTauProducer;
+typedef pat::PATJetProducer      PATJetProducer;
+typedef pat::PATMETProducer      PATMETProducer;
+
+DEFINE_FWK_MODULE(PATElectronProducer);
+DEFINE_FWK_MODULE(PATMuonProducer);
+DEFINE_FWK_MODULE(PATTauProducer);
+DEFINE_FWK_MODULE(PATJetProducer);
+DEFINE_FWK_MODULE(PATMETProducer);
 
