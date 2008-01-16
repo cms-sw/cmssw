@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Lepton.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+  \version  $Id: Lepton.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 */
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -23,15 +23,8 @@
 namespace pat {
 
 
-  class TauProducer;
-  class LeptonLRCalc;
-
-
   template <class LeptonType>
   class Lepton : public PATObject<LeptonType> {
-
-    friend class PATTauProducer;
-    friend class LeptonLRCalc;
 
     public:
 
@@ -39,17 +32,15 @@ namespace pat {
       Lepton(const LeptonType & aLepton);
       virtual ~Lepton();
 
-      reco::GenParticleCandidate getGenLepton() const;
-      float getLRVar(const unsigned int i) const;
-      float getLRVal(const unsigned int i) const;
-      float getLRComb() const;
-
-    protected:
+      reco::GenParticleCandidate genLepton() const;
+      float lrVar(const unsigned int i) const;
+      float lrVal(const unsigned int i) const;
+      float lrComb() const;
+      unsigned int lrSize() const;
 
       void setGenLepton(const reco::GenParticleCandidate & gl);
       void setLRVarVal(const std::pair<float, float> lrVarVal, const unsigned int i);
       void setLRComb(const float lr);
-      unsigned int getLRSize() const;
 
     protected:
 
@@ -88,7 +79,7 @@ namespace pat {
 
   /// return the match to the generated lepton
   template <class LeptonType>
-  reco::GenParticleCandidate Lepton<LeptonType>::getGenLepton() const {
+  reco::GenParticleCandidate Lepton<LeptonType>::genLepton() const {
     return (genLepton_.size() > 0 ?
       genLepton_.front() :
       reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true)
@@ -98,28 +89,28 @@ namespace pat {
 
   /// return the i'th lepton likelihood ratio variable
   template <class LeptonType>
-  float Lepton<LeptonType>::getLRVar(const unsigned int i) const {
+  float Lepton<LeptonType>::lrVar(const unsigned int i) const {
     return (i < lrVarVal_.size() ? lrVarVal_[i].first  : 0);
   }
 
 
   /// return the lepton likelihood value for the i'th variable
   template <class LeptonType>
-  float Lepton<LeptonType>::getLRVal(const unsigned int i) const {
+  float Lepton<LeptonType>::lrVal(const unsigned int i) const {
     return (i < lrVarVal_.size() ? lrVarVal_[i].second : 1);
   }
 
 
   /// return the combined lepton likelihood ratio value
   template <class LeptonType>
-  float Lepton<LeptonType>::getLRComb() const {
+  float Lepton<LeptonType>::lrComb() const {
     return lrComb_;
   }
 
 
   /// method to give back the size of the LR vector
   template <class LeptonType>
-  unsigned int Lepton<LeptonType>::getLRSize() const {
+  unsigned int Lepton<LeptonType>::lrSize() const {
     return lrVarVal_.size();
   }
 

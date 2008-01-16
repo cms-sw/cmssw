@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Electron.h,v 1.1 2008/01/15 12:59:25 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+  \version  $Id: Electron.h,v 1.1 2008/01/15 12:59:25 lowette Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -30,24 +30,20 @@ namespace pat {
 
   class Electron : public Lepton<ElectronType> {
 
-    friend class PATElectronProducer;
-
     public:
 
       Electron();
       Electron(const ElectronType & anElectron);
       virtual ~Electron();
 
-      float getTrackIso() const;
-      float getCaloIso() const;
-      float getLeptonID() const;
-      float getElectronIDRobust() const;
-      float getEgammaTkIso() const;
-      int getEgammaTkNumIso() const;
-      float getEgammaEcalIso() const;
-      float getEgammaHcalIso() const;
-
-    protected:
+      float trackIso() const;
+      float caloIso() const;
+      float leptonID() const;
+      float electronIDRobust() const;
+      float egammaTkIso() const;
+      int   egammaTkNumIso() const;
+      float egammaEcalIso() const;
+      float egammaHcalIso() const;
 
       void setTrackIso(float trackIso);
       void setCaloIso(float caloIso);
@@ -65,7 +61,7 @@ namespace pat {
       float leptonID_;
       float electronIDRobust_;
       float egammaTkIso_;
-      int egammaTkNumIso_;
+      int   egammaTkNumIso_;
       float egammaEcalIso_;
       float egammaHcalIso_;
 

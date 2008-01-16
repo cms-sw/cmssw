@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: ObjectResolutionCalc.h,v 1.1 2008/01/15 13:20:55 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_ObjectResolutionCalc_h
@@ -10,7 +10,7 @@
   \brief    Class to calculate MC resolutions for pat objects
 
   \author   Jan Heyninck, Petra Van Mulders, Christophe Delaere
-  \version  $Id: ObjectResolutionCalc.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: ObjectResolutionCalc.h,v 1.1 2008/01/15 13:20:55 lowette Exp $
 */
 
 
@@ -45,8 +45,8 @@ namespace pat {
       ObjectResolutionCalc(TString resopath, bool useNN);
       ~ObjectResolutionCalc();
 
-      float getObsRes(int obs, int eta, float eT);
-      int   getEtaBin(float eta);
+      float obsRes(int obs, int eta, float eT);
+      int   etaBin(float eta);
       void  operator()(Electron & obj);
       void  operator()(Muon & obj);
       void  operator()(Tau & obj);

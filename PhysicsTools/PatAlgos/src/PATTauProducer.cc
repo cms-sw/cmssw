@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATTauProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -110,7 +110,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       const reco::PFJet *pfJet = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
         aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
-        aTau.setEoverP(thePFTau->energy()/thePFTau->leadTrack()->p());
+        aTau.setEOverP(thePFTau->energy()/thePFTau->leadTrack()->p());
       }
       // add the tau to the vector of pat::Tau's
       patTaus->push_back(aTau);
@@ -127,7 +127,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       const reco::CaloJet *tauJet = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
       if(tauJet) {
         aTau.setEmEnergyFraction(tauJet->emEnergyFraction());
-        aTau.setEoverP(tauJet->energy()/theCaloTau->leadTrack()->p());
+        aTau.setEOverP(tauJet->energy()/theCaloTau->leadTrack()->p());
       }
       // add the tau to the vector of pat::Tau's
       patTaus->push_back(aTau);

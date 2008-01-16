@@ -3,6 +3,8 @@
   <!-- To check: -->
   <!-- These dont belong here, and maybe they already exist in the meantime -->
   <class name="std::pair<int, float>" />
+  <class name="std::pair<float, float>" />
+  <class name="std::pair<std::string, float>" />
   <class name="std::vector<std::pair<int, float> > " />
   <class name="std::vector<std::vector<std::pair<int, float> > >" />
   <class name="std::vector<std::pair<float, float> >" />

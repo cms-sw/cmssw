@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: MET.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -13,7 +13,7 @@
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+  \version  $Id: MET.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 */
 
 
@@ -29,17 +29,13 @@ namespace pat {
 
   class MET : public PATObject<METType> {
 
-    friend class PATMETProducer;
-
     public:
 
       MET();
       MET(const METType & aMET);
       virtual ~MET();
 
-      reco::Particle getGenMET() const;
-
-    protected:
+      reco::Particle genMET() const;
 
       void setGenMET(const reco::Particle & gm);
 

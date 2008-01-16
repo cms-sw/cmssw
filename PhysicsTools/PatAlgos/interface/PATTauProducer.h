@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATTauProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id$
+  \version  $Id: PATTauProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 */
 
 
@@ -24,13 +24,15 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 #include <string>
 
 
 namespace pat {
 
 
-  class Tau;
+//  class Tau;
   class ObjectResolutionCalc;
   class LeptonLRCalc;
 
@@ -65,7 +67,5 @@ namespace pat {
 
 
 }
-
-#include "DataFormats/PatCandidates/interface/Tau.h"
 
 #endif

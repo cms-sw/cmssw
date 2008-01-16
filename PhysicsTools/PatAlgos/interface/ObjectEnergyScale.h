@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: ObjectEnergyScale.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectEnergyScale_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectEnergyScale.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectEnergyScale.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: ObjectEnergyScale.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 */
 
 
@@ -122,7 +122,7 @@ float pat::ObjectEnergyScale<T>::getSmearing(T& object)
   // overwrite config file parameter 'initialResolution' if required
   if ( useDefaultIniRes_ ) {
     // get initial resolution from input object (and calculate relative initial resolution from absolute value)
-    iniRes_ = (1. / sin(object.theta()) * object.getResET() - object.et() * cos(object.theta()) / pow(sin(object.theta()),2) * object.getResTheta()) / object.energy(); // conversion of resET and resTheta into energy resolution
+    iniRes_ = (1. / sin(object.theta()) * object.resolutionET() - object.et() * cos(object.theta()) / pow(sin(object.theta()),2) * object.resolutionTheta()) / object.energy(); // conversion of resET and resTheta into energy resolution
   } else if ( ! useIniResByFraction_ ) {
     // calculate relative initial resolution from absolute value
     iniRes_ = iniRes_ / object.energy();

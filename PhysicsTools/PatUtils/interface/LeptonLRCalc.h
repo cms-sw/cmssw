@@ -1,5 +1,5 @@
 //
-// $Id: LeptonLRCalc.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: LeptonLRCalc.h,v 1.1 2008/01/15 13:20:51 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonLRCalc_h
@@ -13,7 +13,7 @@
    likelihood as originally defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonLRCalc.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: LeptonLRCalc.h,v 1.1 2008/01/15 13:20:51 lowette Exp $
 */
 
 
@@ -46,30 +46,30 @@ namespace pat {
       LeptonLRCalc(const edm::EventSetup & iSetup, std::string electronLRFile = "", std::string muonLRFile = "", std::string tauLRFile = "");
       ~LeptonLRCalc();
 
-      double getCalIsoE(const Electron & electron);
-      double getCalIsoE(const Muon & muon);
-      double getCalIsoE(const Tau & tau);
-      double getTrIsoPt(const Electron & electron);
-      double getTrIsoPt(const Muon & muon);
-      double getTrIsoPt(const Tau & tau);
-      double getLepId(const Electron & electron);
-      double getLepId(const Muon & muon);
-      double getLepId(const Tau & tau);
-      double getLogPt(const Electron & electron);
-      double getLogPt(const Muon & muon);
-      double getLogPt(const Tau & tau);
-      double getJetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      double getJetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      double getJetIsoA(const Tau & tau, const edm::Event & iEvent);
-      double getVtxSign(const Electron & electron, const edm::Event & iEvent);
-      double getVtxSign(const Muon & muon, const edm::Event & iEvent);
-      double getVtxSign(const Tau & tau, const edm::Event & iEvent);
-      double getCalIsoELR(double CalIsoE, LeptonType theType);
-      double getTrIsoPtLR(double TrIsoPt, LeptonType theType);
-      double getLepIdLR(double lepId, LeptonType theType);
-      double getLogPtLR(double LogPt, LeptonType theType);
-      double getJetIsoALR(double jetIsoA, LeptonType theType);
-      double getVtxSignLR(double vtxSign, LeptonType theType);
+      double calIsoE(const Electron & electron);
+      double calIsoE(const Muon & muon);
+      double calIsoE(const Tau & tau);
+      double trIsoPt(const Electron & electron);
+      double trIsoPt(const Muon & muon);
+      double trIsoPt(const Tau & tau);
+      double lepId(const Electron & electron);
+      double lepId(const Muon & muon);
+      double lepId(const Tau & tau);
+      double logPt(const Electron & electron);
+      double logPt(const Muon & muon);
+      double logPt(const Tau & tau);
+      double jetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      double jetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      double jetIsoA(const Tau & tau, const edm::Event & iEvent);
+      double vtxSign(const Electron & electron, const edm::Event & iEvent);
+      double vtxSign(const Muon & muon, const edm::Event & iEvent);
+      double vtxSign(const Tau & tau, const edm::Event & iEvent);
+      double calIsoELR(double CalIsoE, const LeptonType & theType);
+      double trIsoPtLR(double TrIsoPt, const LeptonType & theType);
+      double lepIdLR(double lepId, const LeptonType & theType);
+      double logPtLR(double LogPt, const LeptonType & theType);
+      double jetIsoALR(double jetIsoA, const LeptonType & theType);
+      double vtxSignLR(double vtxSign, const LeptonType & theType);
       void calcLRVars(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
       void calcLRVars(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
       void calcLRVars(Tau & tau, const edm::Event & iEvent);

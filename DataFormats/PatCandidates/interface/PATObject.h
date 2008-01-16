@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: PATObject.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -12,7 +12,7 @@
    PATObject is the templated base PAT object that wraps around reco objects.
 
   \author   Steven Lowette
-  \version  $Id: PATObject.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+  \version  $Id: PATObject.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
 */
 
 #include <vector>
@@ -30,26 +30,26 @@ namespace pat {
       PATObject(ObjectType obj);
       virtual ~PATObject() {}
 
-      float getResA() const;
-      float getResB() const;
-      float getResC() const;
-      float getResD() const;
-      float getResET() const;
-      float getResEta() const;
-      float getResPhi() const;
-      float getResTheta() const;
-      std::vector<float> getCovM() const;
+      float resolutionA() const;
+      float resolutionB() const;
+      float resolutionC() const;
+      float resolutionD() const;
+      float resolutionET() const;
+      float resolutionEta() const;
+      float resolutionPhi() const;
+      float resolutionTheta() const;
+      const std::vector<float> & covMatrix() const;
 
       // FIXME: make these protected, once we have a base kinfit interface class
-      void setResA(float a);
-      void setResB(float b);
-      void setResC(float c);
-      void setResD(float d);
-      void setResET(float et);
-      void setResEta(float eta);
-      void setResPhi(float phi);
-      void setResTheta(float theta);
-      void setCovM(std::vector<float>);
+      void setResolutionA(float a);
+      void setResolutionB(float b);
+      void setResolutionC(float c);
+      void setResolutionD(float d);
+      void setResolutionET(float et);
+      void setResolutionEta(float eta);
+      void setResolutionPhi(float phi);
+      void setResolutionTheta(float theta);
+      void setCovMatrix(const std::vector<float> & c);
 
     protected:
 
@@ -62,7 +62,7 @@ namespace pat {
       float resC_;
       float resD_;
       float resTheta_;
-      // covariance matrix (vector instead of matrix -> compact when not used)
+      // covariance matrix
       std::vector<float> covM_;
 
   };
@@ -78,25 +78,25 @@ namespace pat {
     resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
   }
 
-  template <class ObjectType> float PATObject<ObjectType>::getResET() const { return resET_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResEta() const { return resEta_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResPhi() const { return resPhi_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResA() const { return resA_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResB() const { return resB_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResC() const { return resC_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResD() const { return resD_; }
-  template <class ObjectType> float PATObject<ObjectType>::getResTheta() const { return resTheta_; }
-  template <class ObjectType> std::vector<float> PATObject<ObjectType>::getCovM() const { return covM_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionET() const { return resET_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionEta() const { return resEta_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionPhi() const { return resPhi_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionA() const { return resA_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionB() const { return resB_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionC() const { return resC_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionD() const { return resD_; }
+  template <class ObjectType> float PATObject<ObjectType>::resolutionTheta() const { return resTheta_; }
+  template <class ObjectType> const std::vector<float> & PATObject<ObjectType>::covMatrix() const { return covM_; }
 
-  template <class ObjectType> void PATObject<ObjectType>::setResET(float et) { resET_ = et; }
-  template <class ObjectType> void PATObject<ObjectType>::setResEta(float eta) { resEta_ = eta; }
-  template <class ObjectType> void PATObject<ObjectType>::setResPhi(float phi) { resPhi_ = phi; }
-  template <class ObjectType> void PATObject<ObjectType>::setResA(float a) { resA_ = a; }
-  template <class ObjectType> void PATObject<ObjectType>::setResB(float b) { resB_ = b; }
-  template <class ObjectType> void PATObject<ObjectType>::setResC(float c) { resC_ = c; }
-  template <class ObjectType> void PATObject<ObjectType>::setResD(float d) { resD_ = d; }
-  template <class ObjectType> void PATObject<ObjectType>::setResTheta(float theta) { resTheta_ = theta; }
-  template <class ObjectType> void PATObject<ObjectType>::setCovM(std::vector<float> c) {
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionET(float et) { resET_ = et; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionEta(float eta) { resEta_ = eta; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionPhi(float phi) { resPhi_ = phi; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionA(float a) { resA_ = a; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionB(float b) { resB_ = b; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionC(float c) { resC_ = c; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionD(float d) { resD_ = d; }
+  template <class ObjectType> void PATObject<ObjectType>::setResolutionTheta(float theta) { resTheta_ = theta; }
+  template <class ObjectType> void PATObject<ObjectType>::setCovMatrix(const std::vector<float> & c) {
     covM_.clear();
     for (size_t i = 0; i < c.size(); i++) covM_.push_back(c[i]); 
   }

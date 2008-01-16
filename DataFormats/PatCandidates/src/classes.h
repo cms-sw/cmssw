@@ -26,6 +26,8 @@ namespace {
     // To check:
     // These don't belong here, and maybe they already exist in the meantime
     std::pair<int,float>  dummy0;
+    std::pair<float,float>  dummy0_1;
+    std::pair<std::string,float>  dummy0_2;
     std::vector<std::pair<int, float> >    dummy1;
     std::vector<std::vector<std::pair<int, float> >  >  dummy2;
     std::vector<std::pair<float, float> >                 v_p_dbl_dbl;

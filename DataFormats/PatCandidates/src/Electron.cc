@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Electron.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -24,49 +24,49 @@ Electron::~Electron() {
 
 
 /// return the tracker isolation variable
-float Electron::getTrackIso() const {
+float Electron::trackIso() const {
   return trackIso_;
 }
 
 
 /// return the calorimeter isolation variable
-float Electron::getCaloIso() const {
+float Electron::caloIso() const {
   return caloIso_;
 }
 
 
 /// return the lepton ID discriminator
-float Electron::getLeptonID() const {
+float Electron::leptonID() const {
   return leptonID_;
 }
 
 
 /// return the "robust cuts-based" electron id
-float Electron::getElectronIDRobust() const {
+float Electron::electronIDRobust() const {
   return electronIDRobust_;
 }
 
 
 /// return tracker isolation as calc. by Egamma POG producer
-float Electron::getEgammaTkIso() const {
+float Electron::egammaTkIso() const {
   return egammaTkIso_;
 }
 
 
 /// return "number of tracks" isolation as calc. by Egamma POG producer
-int Electron::getEgammaTkNumIso() const {
+int Electron::egammaTkNumIso() const {
   return egammaTkNumIso_;
 }
 
 
 /// return ecal isolation as calc. by Egamma POG producer
-float Electron::getEgammaEcalIso() const {
+float Electron::egammaEcalIso() const {
   return egammaEcalIso_;
 }
 
 
 /// return hcal isolation as calc. by Egamma POG producer
-float Electron::getEgammaHcalIso() const {
+float Electron::egammaHcalIso() const {
   return egammaHcalIso_;
 }
 

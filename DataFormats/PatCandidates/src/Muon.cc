@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Muon.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -24,19 +24,19 @@ Muon::~Muon() {
 
 
 /// return the tracker isolation variable
-float Muon::getTrackIso() const {
+float Muon::trackIso() const {
   return trackIso_;
 }
 
 
 /// return the calorimeter isolation variable
-float Muon::getCaloIso() const {
+float Muon::caloIso() const {
   return caloIso_;
 }
 
 
 /// return the lepton ID discriminator
-float Muon::getLeptonID() const {
+float Muon::leptonID() const {
   return leptonID_;
 }
 

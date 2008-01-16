@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -242,9 +242,9 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // add resolution info if demanded
     if (addResolutions_) {
       (*theResoCalc_)(ajet);
-      Jet abjet(ajet.getBCorrJet());
+      Jet abjet(ajet.bCorrJet());
       (*theBResoCalc_)(abjet);
-      ajet.setBResolutions(abjet.getResET(), abjet.getResEta(), abjet.getResPhi(), abjet.getResA(), abjet.getResB(), abjet.getResC(), abjet.getResD(), abjet.getResTheta());
+      ajet.setBResolutions(abjet.resolutionET(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
     }
 
     // add b-tag info if available & required
@@ -286,13 +286,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
       }
     }
-    
+
     // Associate tracks with jet (at least temporary)
     simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
-    
+
     // PUT HERE EVERYTHING WHICH NEEDS TRACKS
     if (addJetCharge_) {
-      ajet.jetCharge_ = static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks_));
+      ajet.setJetCharge(static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks())));
     }
 
     // drop jet track association if the user does not want it
@@ -317,7 +317,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 std::vector<Electron> PATJetProducer::selectIsolated(const std::vector<Electron> &electrons, float isoCut) {
   std::vector<Electron> output;
   for (size_t ie=0; ie<electrons.size(); ie++) {
-    if (electrons[ie].getTrackIso() < isoCut) {
+    if (electrons[ie].trackIso() < isoCut) {
       output.push_back(electrons[ie]);
     }
   }
@@ -333,7 +333,7 @@ std::vector<Electron> PATJetProducer::selectIsolated(const std::vector<Electron>
 std::vector<pat::Muon> PATJetProducer::selectIsolated(const std::vector<Muon> &muons, float isoCut) {
   std::vector<Muon> output;
   for (size_t iu=0; iu<muons.size(); iu++) {
-    if (muons[iu].getTrackIso() < isoCut) {
+    if (muons[iu].trackIso() < isoCut) {
       output.push_back(muons[iu]);
     }
   }

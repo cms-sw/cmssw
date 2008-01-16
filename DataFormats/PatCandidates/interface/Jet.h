@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Jet.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.1 2008/01/07 11:48:25 lowette Exp $
+  \version  $Id: Jet.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -31,77 +31,76 @@ namespace pat {
 
   class Jet : public PATObject<JetType> {
 
-    friend class PATJetProducer;
-
     public:
 
       Jet();
       Jet(const JetType & aJet);
       virtual ~Jet();
 
-      reco::Particle  getGenParton() const;
-      reco::GenJet    getGenJet() const;
-      int             getPartonFlavour() const;
-      float           getNoCorrF() const;
-      float           getUdsCorrF() const;
-      float           getGluCorrF() const;
-      float           getCCorrF() const;
-      float           getBCorrF() const;
-      JetType         getRecJet() const;
-      Jet             getNoCorrJet() const;
-      Jet             getUdsCorrJet() const;
-      Jet             getGluCorrJet() const;
-      Jet             getCCorrJet() const;
-      Jet             getBCorrJet() const;
-      Jet             getMCFlavCorrJet() const;
-      Jet             getWCorrJet() const;
-      float           getBDiscriminator(std::string theLabel) const;
-      reco::JetTagRef getBJetTagRef(std::string theLabel) const;
-      void            dumpBTagLabels() const;
-      float           getLRPhysicsJetVar(unsigned int i) const;
-      float           getLRPhysicsJetVal(unsigned int i) const;
-      float           getLRPhysicsJetLRval() const;
-      float           getLRPhysicsJetProb() const;
-      float           getJetCharge() const;
+      reco::Particle  genParton() const;
+      reco::GenJet    genJet() const;
+      int             partonFlavour() const;
+      float           noCorrF() const;
+      float           udsCorrF() const;
+      float           gluCorrF() const;
+      float           cCorrF() const;
+      float           bCorrF() const;
+      JetType         recJet() const;
+      Jet             noCorrJet() const;
+      Jet             udsCorrJet() const;
+      Jet             gluCorrJet() const;
+      Jet             cCorrJet() const;
+      Jet             bCorrJet() const;
+      Jet             mcFlavCorrJet() const;
+      Jet             wCorrJet() const;
+      float           bDiscriminator(std::string theLabel) const;
+      reco::JetTagRef bJetTagRef(std::string theLabel) const;
+      float           lrPhysicsJetVar(unsigned int i) const;
+      float           lrPhysicsJetVal(unsigned int i) const;
+      float           lrPhysicsJetLRval() const;
+      float           lrPhysicsJetProb() const;
+      float           jetCharge() const;
       const reco::TrackRefVector &
-                      getAssociatedTracks() const;
-
-    protected:
+                      associatedTracks() const;
 
       void            setGenParton(const reco::Particle & gp);
       void            setGenJet(const reco::GenJet & gj);
-      void            setPartonFlavour(int jetFl);
-      void            setScaleCalibFactors(float noCorrF, float udsCorrF, float gCorrF, float cCorrF, float bCorrF);
+      void            setPartonFlavour(int partonFl);
+      void            setScaleCalibFactors(float noCorrF, float udsCorrF, float gluCorrF, float cCorrF, float bCorrF);
       void            setBResolutions(float bResET_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       void            addBDiscriminatorPair(std::pair<std::string, float> & thePair);
       void            addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair);
       void            setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec);
       void            setLRPhysicsJetLRval(float clr);
       void            setLRPhysicsJetProb(float plr);
+      void            setJetCharge(float jetCharge);
+
+    public:
+
+      reco::TrackRefVector associatedTracks_;
 
     protected:
 
       // MC info
       std::vector<reco::Particle> genParton_;
       std::vector<reco::GenJet>   genJet_;
-      int jetFlavour_;
+      int partonFlavour_;
       // energy scale correction factors
       // WARNING! noCorrF brings you back to the uncorrected jet, the other
       //          factors bring you from uncorrected to the desired correction
-      float noCorrF_, udsCorrF_, gCorrF_, cCorrF_, bCorrF_;
+      float noCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_;
       // additional resolutions for the b-jet hypothesis
       float bResET_, bResEta_, bResPhi_, bResA_, bResB_, bResC_, bResD_, bResTheta_;
       std::vector<float> bCovM_;
       // b-tag related members
-      std::vector<std::pair<std::string, float> >          pairDiscriVector_;
+      std::vector<std::pair<std::string, float> >           pairDiscriVector_;
       std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;
       // jet cleaning members (not used yet)
       std::vector<std::pair<float, float> > lrPhysicsJetVarVal_;
       float lrPhysicsJetLRval_;
       float lrPhysicsJetProb_;
       // jet charge members
-      float  jetCharge_;
-      reco::TrackRefVector associatedTracks_;
+      float jetCharge_;
 
   };
 

@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: ObjectSpatialResolution.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectSpatialResolution_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectSpatialResolution.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectSpatialResolution.h,v 1.1 2008/01/07 11:48:27 lowette Exp $
+  \version  $Id: ObjectSpatialResolution.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 */
 
 
@@ -123,10 +123,10 @@ void pat::ObjectSpatialResolution<T>::smearAngles(T& object)
   // overwrite config file parameters 'initialResolution...' if required
   if ( useDefaultIniRes_ ) {
     // get initial resolutions from input object
-    iniResPhi_   = object.getResPhi();    // overwrites config file parameter "initialResolution"
+    iniResPhi_   = object.resolutionPhi();    // overwrites config file parameter "initialResolution"
     iniResPolar_ = usePolarTheta_      ?
-                   object.getResTheta():
-                   object.getResEta();    // overwrites config file parameter "initialResolution"
+                   object.resolutionTheta():
+                   object.resolutionEta();    // overwrites config file parameter "initialResolution"
   }
   // smear phi
   double finalResPhi = useWorsenResPhiByFactor_                            ?

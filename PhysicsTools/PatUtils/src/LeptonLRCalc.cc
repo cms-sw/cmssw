@@ -1,5 +1,5 @@
 //
-// $Id: LeptonLRCalc.cc,v 1.1 2008/01/07 11:48:27 lowette Exp $
+// $Id: LeptonLRCalc.cc,v 1.1 2008/01/15 13:21:23 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -47,85 +47,85 @@ LeptonLRCalc::~LeptonLRCalc() {
 
 
 // return the value for the CalIsoE
-double LeptonLRCalc::getCalIsoE(const Electron & electron) {
-  return electron.getCaloIso();
+double LeptonLRCalc::calIsoE(const Electron & electron) {
+  return electron.caloIso();
 }
-double LeptonLRCalc::getCalIsoE(const Muon & muon) {
-  return muon.getCaloIso();
+double LeptonLRCalc::calIsoE(const Muon & muon) {
+  return muon.caloIso();
 }
-double LeptonLRCalc::getCalIsoE(const Tau & tau) {
+double LeptonLRCalc::calIsoE(const Tau & tau) {
   //TODO
   return 0.;
 }
 
 
 // return the value for the TrIsoPt
-double LeptonLRCalc::getTrIsoPt(const Electron & electron) {
-  return electron.getTrackIso();
+double LeptonLRCalc::trIsoPt(const Electron & electron) {
+  return electron.trackIso();
 }
-double LeptonLRCalc::getTrIsoPt(const Muon & muon) {
-  return muon.getTrackIso();
+double LeptonLRCalc::trIsoPt(const Muon & muon) {
+  return muon.trackIso();
 }
-double LeptonLRCalc::getTrIsoPt(const Tau & tau) {
+double LeptonLRCalc::trIsoPt(const Tau & tau) {
   //TODO
   return 0.;
 }
 
 
 // return the value for the LepId
-double LeptonLRCalc::getLepId(const Electron & electron) {
-  return electron.getLeptonID();
+double LeptonLRCalc::lepId(const Electron & electron) {
+  return electron.leptonID();
 }
-double LeptonLRCalc::getLepId(const Muon & muon) {
-  return muon.getLeptonID();
+double LeptonLRCalc::lepId(const Muon & muon) {
+  return muon.leptonID();
 }
-double LeptonLRCalc::getLepId(const Tau & tau) {
+double LeptonLRCalc::lepId(const Tau & tau) {
   //TODO
   return 1.;
 }
 
 
 // return the value for the LogPt
-double LeptonLRCalc::getLogPt(const Electron & electron) {
+double LeptonLRCalc::logPt(const Electron & electron) {
   return log(electron.pt());
 }
-double LeptonLRCalc::getLogPt(const Muon & muon) {
+double LeptonLRCalc::logPt(const Muon & muon) {
   return log(muon.pt());
 }
-double LeptonLRCalc::getLogPt(const Tau & tau) {
-  //  return log(tau.getJetTag()->jet().pt());
+double LeptonLRCalc::logPt(const Tau & tau) {
+  //  return log(tau.jetTag()->jet().pt());
   return log(tau.pt());
 }
 
 
 // return the value for the JetIsoA
-double LeptonLRCalc::getJetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+double LeptonLRCalc::jetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
   return theJetIsoACalc_->calculate(electron, trackHandle, iEvent);
 }
-double LeptonLRCalc::getJetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+double LeptonLRCalc::jetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
   return theJetIsoACalc_->calculate(muon, trackHandle, iEvent);
 }
-double LeptonLRCalc::getJetIsoA(const Tau & tau, const edm::Event & iEvent) {
+double LeptonLRCalc::jetIsoA(const Tau & tau, const edm::Event & iEvent) {
   //TODO
   return 0.;
 }
 
 
 // return the value for the VtxSign
-double LeptonLRCalc::getVtxSign(const Electron & electron, const edm::Event & iEvent) {
+double LeptonLRCalc::vtxSign(const Electron & electron, const edm::Event & iEvent) {
   return theVtxSignCalc_->calculate(electron, iEvent);
 }
-double LeptonLRCalc::getVtxSign(const Muon & muon, const edm::Event & iEvent) {
+double LeptonLRCalc::vtxSign(const Muon & muon, const edm::Event & iEvent) {
   return theVtxSignCalc_->calculate(muon, iEvent);
 }
-double LeptonLRCalc::getVtxSign(const Tau & tau, const edm::Event & iEvent) {
+double LeptonLRCalc::vtxSign(const Tau & tau, const edm::Event & iEvent) {
   //TODO
   return 1.;
 }
 
 
 // return the LR value for the CalIsoE
-double LeptonLRCalc::getCalIsoELR(double calIsoE, LeptonType theType) {
+double LeptonLRCalc::calIsoELR(double calIsoE, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -140,7 +140,7 @@ double LeptonLRCalc::getCalIsoELR(double calIsoE, LeptonType theType) {
 
 
 // return the LR value for the TrIsoPt
-double LeptonLRCalc::getTrIsoPtLR(double trIsoPt, LeptonType theType) {
+double LeptonLRCalc::trIsoPtLR(double trIsoPt, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -157,7 +157,7 @@ trIsoPt <= 0.01 ? trIsoPt = -1 : trIsoPt = log(trIsoPt);
 
 
 // return the LR value for the LeptonID
-double LeptonLRCalc::getLepIdLR(double lepId, LeptonType theType) {
+double LeptonLRCalc::lepIdLR(double lepId, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -172,7 +172,7 @@ double LeptonLRCalc::getLepIdLR(double lepId, LeptonType theType) {
 
 
 // return the LR value for the LogPt
-double LeptonLRCalc::getLogPtLR(double logPt, LeptonType theType) {
+double LeptonLRCalc::logPtLR(double logPt, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -187,7 +187,7 @@ double LeptonLRCalc::getLogPtLR(double logPt, LeptonType theType) {
 
 
 // return the LR value for the JetIsoA
-double LeptonLRCalc::getJetIsoALR(double jetIsoA, LeptonType theType) {
+double LeptonLRCalc::jetIsoALR(double jetIsoA, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -202,7 +202,7 @@ double LeptonLRCalc::getJetIsoALR(double jetIsoA, LeptonType theType) {
 
 
 // return the LR value for the VtxSign
-double LeptonLRCalc::getVtxSignLR(double vtxSign, LeptonType theType) {
+double LeptonLRCalc::vtxSignLR(double vtxSign, const LeptonType & theType) {
   double lrVal = 1;
   if (theType == ElectronT) {
     if (!fitsElectronRead_) readFitsElectron();
@@ -218,12 +218,12 @@ double LeptonLRCalc::getVtxSignLR(double vtxSign, LeptonType theType) {
 
 // do the LR variable calculations for an electron
 void LeptonLRCalc::calcLRVars(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
-  electron.setLRVarVal(std::pair<double, double>(this->getCalIsoE(electron), 0), 0);
-  electron.setLRVarVal(std::pair<double, double>(this->getTrIsoPt(electron), 0), 1);
-  electron.setLRVarVal(std::pair<double, double>(this->getLepId(electron), 0), 2);
-  electron.setLRVarVal(std::pair<double, double>(this->getLogPt(electron), 0), 3);
-  electron.setLRVarVal(std::pair<double, double>(this->getJetIsoA(electron, trackHandle, iEvent), 0), 4);
-  electron.setLRVarVal(std::pair<double, double>(this->getVtxSign(electron, iEvent), 0), 5);
+  electron.setLRVarVal(std::pair<double, double>(this->calIsoE(electron), 0), 0);
+  electron.setLRVarVal(std::pair<double, double>(this->trIsoPt(electron), 0), 1);
+  electron.setLRVarVal(std::pair<double, double>(this->lepId(electron), 0), 2);
+  electron.setLRVarVal(std::pair<double, double>(this->logPt(electron), 0), 3);
+  electron.setLRVarVal(std::pair<double, double>(this->jetIsoA(electron, trackHandle, iEvent), 0), 4);
+  electron.setLRVarVal(std::pair<double, double>(this->vtxSign(electron, iEvent), 0), 5);
 }
 
 
@@ -232,12 +232,12 @@ void LeptonLRCalc::calcLRVals(Electron & electron, const edm::Handle<reco::Track
   this->calcLRVars(electron, trackHandle, iEvent);
   // store the LR values
   LeptonType electronType = ElectronT;
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(0), this->getCalIsoELR(electron.getLRVar(0), electronType)), 0);
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(1), this->getTrIsoPtLR(electron.getLRVar(1), electronType)), 1);
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(2), this->getLepIdLR(electron.getLRVar(2), electronType)), 2);
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(3), this->getLogPtLR(electron.getLRVar(3), electronType)), 3);
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(4), this->getJetIsoALR(electron.getLRVar(4), electronType)), 4);
-  electron.setLRVarVal(std::pair<double, double>(electron.getLRVar(5), this->getVtxSignLR(electron.getLRVar(5), electronType)), 5);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(0), this->calIsoELR(electron.lrVar(0), electronType)), 0);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(1), this->trIsoPtLR(electron.lrVar(1), electronType)), 1);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(2), this->lepIdLR(electron.lrVar(2), electronType)), 2);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(3), this->logPtLR(electron.lrVar(3), electronType)), 3);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(4), this->jetIsoALR(electron.lrVar(4), electronType)), 4);
+  electron.setLRVarVal(std::pair<double, double>(electron.lrVar(5), this->vtxSignLR(electron.lrVar(5), electronType)), 5);
 }
 
 
@@ -246,14 +246,14 @@ void LeptonLRCalc::calcLikelihood(Electron & electron, const edm::Handle<reco::T
   this->calcLRVals(electron, trackHandle, iEvent);
   // combine through dumb product of the lr values
   double lrComb = 1;
-  for (unsigned int i = 0; i < electron.getLRSize(); i++) {
-    lrComb *= (electron.getLRVal(i) / electronFitMax_[i]);
+  for (unsigned int i = 0; i < electron.lrSize(); i++) {
+    lrComb *= (electron.lrVal(i) / electronFitMax_[i]);
   }
   // combine via the product of s/b
 //  double combSOverB = 1;
 //  // lr = s/(s+b) -> (s+b)/s = 1/lr = 1+b/s -> (1-lr)/lr = b/s -> s/b = lr/(1-lr)
-//  for (unsigned int i = 0; i < electron.getLRSize(); i++) {
-//    combSOverB *= electron.getLRVal(i) / (1 - electron.getLRVal(i));
+//  for (unsigned int i = 0; i < electron.lrSize(); i++) {
+//    combSOverB *= electron.lrVal(i) / (1 - electron.lrVal(i));
 //  }
 //  // lr = 1/[(s+b)/s] -> lr = 1/(1+1/(s/b))
 //  double lrComb = 1 / (1 + 1/combSOverB);
@@ -263,12 +263,12 @@ void LeptonLRCalc::calcLikelihood(Electron & electron, const edm::Handle<reco::T
 
 // do the LR variable calculations for a muon
 void LeptonLRCalc::calcLRVars(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
-  muon.setLRVarVal(std::pair<double, double>(this->getCalIsoE(muon), 0), 0);
-  muon.setLRVarVal(std::pair<double, double>(this->getTrIsoPt(muon), 0), 1);
-  muon.setLRVarVal(std::pair<double, double>(this->getLepId(muon), 0), 2);
-  muon.setLRVarVal(std::pair<double, double>(this->getLogPt(muon), 0), 3);
-  muon.setLRVarVal(std::pair<double, double>(this->getJetIsoA(muon, trackHandle, iEvent), 0), 4);
-  muon.setLRVarVal(std::pair<double, double>(this->getVtxSign(muon, iEvent), 0), 5);
+  muon.setLRVarVal(std::pair<double, double>(this->calIsoE(muon), 0), 0);
+  muon.setLRVarVal(std::pair<double, double>(this->trIsoPt(muon), 0), 1);
+  muon.setLRVarVal(std::pair<double, double>(this->lepId(muon), 0), 2);
+  muon.setLRVarVal(std::pair<double, double>(this->logPt(muon), 0), 3);
+  muon.setLRVarVal(std::pair<double, double>(this->jetIsoA(muon, trackHandle, iEvent), 0), 4);
+  muon.setLRVarVal(std::pair<double, double>(this->vtxSign(muon, iEvent), 0), 5);
 }
 
 
@@ -277,12 +277,12 @@ void LeptonLRCalc::calcLRVals(Muon & muon, const edm::Handle<reco::TrackCollecti
   this->calcLRVars(muon, trackHandle, iEvent);
   // store the LR values
   LeptonType muonType = MuonT;
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(0), this->getCalIsoELR(muon.getLRVar(0), muonType)), 0);
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(1), this->getTrIsoPtLR(muon.getLRVar(1), muonType)), 1);
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(2), this->getLepIdLR(muon.getLRVar(2), muonType)), 2);
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(3), this->getLogPtLR(muon.getLRVar(3), muonType)), 3);
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(4), this->getJetIsoALR(muon.getLRVar(4), muonType)), 4);
-  muon.setLRVarVal(std::pair<double, double>(muon.getLRVar(5), this->getVtxSignLR(muon.getLRVar(5), muonType)), 5);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(0), this->calIsoELR(muon.lrVar(0), muonType)), 0);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(1), this->trIsoPtLR(muon.lrVar(1), muonType)), 1);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(2), this->lepIdLR(muon.lrVar(2), muonType)), 2);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(3), this->logPtLR(muon.lrVar(3), muonType)), 3);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(4), this->jetIsoALR(muon.lrVar(4), muonType)), 4);
+  muon.setLRVarVal(std::pair<double, double>(muon.lrVar(5), this->vtxSignLR(muon.lrVar(5), muonType)), 5);
 }
 
 
@@ -291,14 +291,14 @@ void LeptonLRCalc::calcLikelihood(Muon & muon, const edm::Handle<reco::TrackColl
   this->calcLRVals(muon, trackHandle, iEvent);
   // combine through dumb product of the lr values
   double lrComb = 1;
-  for (unsigned int i = 0; i < muon.getLRSize(); i++) {
-    lrComb *= (muon.getLRVal(i) / muonFitMax_[i]);
+  for (unsigned int i = 0; i < muon.lrSize(); i++) {
+    lrComb *= (muon.lrVal(i) / muonFitMax_[i]);
   }
 //  // combine via the product of s/b
 //  double combSOverB = 1;
 //  // lr = s/(s+b) -> (s+b)/s = 1/lr = 1+b/s -> (1-lr)/lr = b/s -> s/b = lr/(1-lr)
-//  for (unsigned int i = 0; i < muon.getLRSize(); i++) {
-//    combSOverB *= muon.getLRVal(i) / (1 - muon.getLRVal(i));
+//  for (unsigned int i = 0; i < muon.lrSize(); i++) {
+//    combSOverB *= muon.lrVal(i) / (1 - muon.lrVal(i));
 //  }
 //  // lr = 1/[(s+b)/s] -> lr = 1/(1+1/(s/b))
 //  double lrComb = 1 / (1 + 1/combSOverB);
@@ -307,12 +307,12 @@ void LeptonLRCalc::calcLikelihood(Muon & muon, const edm::Handle<reco::TrackColl
 
 // do the LR variable calculations for a tau
 void LeptonLRCalc::calcLRVars(Tau & tau, const edm::Event & iEvent) {
-  tau.setLRVarVal(std::pair<double, double>(this->getCalIsoE(tau), 0), 0);
-  tau.setLRVarVal(std::pair<double, double>(this->getTrIsoPt(tau), 0), 1);
-  tau.setLRVarVal(std::pair<double, double>(this->getLepId(tau), 0), 2);
-  tau.setLRVarVal(std::pair<double, double>(this->getLogPt(tau), 0), 3);
-  tau.setLRVarVal(std::pair<double, double>(this->getJetIsoA(tau, iEvent), 0), 4);
-  tau.setLRVarVal(std::pair<double, double>(this->getVtxSign(tau, iEvent), 0), 5);
+  tau.setLRVarVal(std::pair<double, double>(this->calIsoE(tau), 0), 0);
+  tau.setLRVarVal(std::pair<double, double>(this->trIsoPt(tau), 0), 1);
+  tau.setLRVarVal(std::pair<double, double>(this->lepId(tau), 0), 2);
+  tau.setLRVarVal(std::pair<double, double>(this->logPt(tau), 0), 3);
+  tau.setLRVarVal(std::pair<double, double>(this->jetIsoA(tau, iEvent), 0), 4);
+  tau.setLRVarVal(std::pair<double, double>(this->vtxSign(tau, iEvent), 0), 5);
 }
 
 // do the LR calculations for a tau
@@ -320,12 +320,12 @@ void LeptonLRCalc::calcLRVals(Tau & tau, const edm::Event & iEvent) {
   this->calcLRVars(tau, iEvent);
   // store the LR values
   LeptonType tauType = TauT;
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(0), this->getCalIsoELR(tau.getLRVar(0), tauType)), 0);
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(1), this->getTrIsoPtLR(tau.getLRVar(1), tauType)), 1);
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(2), this->getLepIdLR(tau.getLRVar(2), tauType)), 2);
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(3), this->getLogPtLR(tau.getLRVar(3), tauType)), 3);
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(4), this->getJetIsoALR(tau.getLRVar(4), tauType)), 4);
-  tau.setLRVarVal(std::pair<double, double>(tau.getLRVar(5), this->getVtxSignLR(tau.getLRVar(5), tauType)), 5);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(0), this->calIsoELR(tau.lrVar(0), tauType)), 0);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(1), this->trIsoPtLR(tau.lrVar(1), tauType)), 1);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(2), this->lepIdLR(tau.lrVar(2), tauType)), 2);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(3), this->logPtLR(tau.lrVar(3), tauType)), 3);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(4), this->jetIsoALR(tau.lrVar(4), tauType)), 4);
+  tau.setLRVarVal(std::pair<double, double>(tau.lrVar(5), this->vtxSignLR(tau.lrVar(5), tauType)), 5);
 }
 
 // calculate the combined likelihood
@@ -333,14 +333,14 @@ void LeptonLRCalc::calcLikelihood(Tau & tau, const edm::Event & iEvent) {
   this->calcLRVals(tau, iEvent);
   // combine through dumb product of the lr values
 //  double lrComb;
-//  for (unsigned int i = 0; i < tau.getLRSize(); i++) {
-//    lrComb *= tau.getLRVal(i);
+//  for (unsigned int i = 0; i < tau.lrSize(); i++) {
+//    lrComb *= tau.lrVal(i);
 //  }
   // combine via the product of s/b
   double combSOverB = 1;
   // lr = s/(s+b) -> (s+b)/s = 1/lr = 1+b/s -> (1-lr)/lr = b/s -> s/b = lr/(1-lr)
-  for (unsigned int i = 0; i < tau.getLRSize(); i++) {
-    combSOverB *= tau.getLRVal(i) / (1 - tau.getLRVal(i));
+  for (unsigned int i = 0; i < tau.lrSize(); i++) {
+    combSOverB *= tau.lrVal(i) / (1 - tau.lrVal(i));
   }
   // lr = 1/[(s+b)/s] -> lr = 1/(1+1/(s/b))
   double lrComb = 1 / (1 + 1/combSOverB);
