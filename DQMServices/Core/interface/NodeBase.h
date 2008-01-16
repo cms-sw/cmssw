@@ -11,7 +11,7 @@ class MonitorElementRootFolder;
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/ProfileTimer.h"
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 // ROOT classes
 #include <TNamed.h>

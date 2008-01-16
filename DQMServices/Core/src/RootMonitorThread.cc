@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorData.h"
 #include "DQMServices/Core/interface/RootMonitorThread.h"
 #include "DQMServices/Core/interface/SocketUtils.h"

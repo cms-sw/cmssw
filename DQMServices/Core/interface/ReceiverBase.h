@@ -2,7 +2,7 @@
 #define _RECEIVER_BASE_H_
 
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/NodeBase.h"
 #include "DQMServices/Core/interface/MonitorData.h"
 

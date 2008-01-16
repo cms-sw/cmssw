@@ -1,6 +1,6 @@
 #include "DQMServices/Core/interface/NodeBase.h"
 #include "DQMServices/Core/interface/MonitorData.h"
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/SocketUtils.h"
 #include "DQMServices/Core/interface/DQMMessage.h"
 #include <sys/socket.h>

@@ -96,7 +96,7 @@ void ClientRoot::init(unsigned port, int timeout_msecs)
   setReconnectDelay(5);
   setWait2Subscribe(timeout_msecs);
   // get hold of back-end interface instance
-  ReceiverBase::bei = DaqMonitorROOTBackEnd::instance();
+  ReceiverBase::bei = DaqMonitorBEInterface::instance();
   
   // Should be set to true by MonitorUIRoot if client runs in standalone mode
   doNotBlockUpdate = false;

@@ -1,7 +1,7 @@
 #ifndef DQM_Tag_Helper_h
 #define DQM_Tag_Helper_h
 
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/DQMDefinitions.h"
 
 #include <string>
@@ -13,9 +13,9 @@ class DQMTagHelper
 {
  public:
  private:
-  DaqMonitorROOTBackEnd * bei;
+  DaqMonitorBEInterface * bei;
 
-  DQMTagHelper(DaqMonitorROOTBackEnd * useThis){bei = useThis;}
+  DQMTagHelper(DaqMonitorBEInterface * useThis){bei = useThis;}
 
   ~DQMTagHelper(){}
 
@@ -79,7 +79,7 @@ class DQMTagHelper
   void getTags(const dqm::me_util::dir_tags & tags, 
 	       std::vector<std::string> & put_here) const;
 
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   friend class ReceiverBase;
   friend class SenderBase;
 

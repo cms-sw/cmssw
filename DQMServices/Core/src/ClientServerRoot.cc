@@ -42,7 +42,7 @@ void ClientServerRoot::init()
 {
   s_fail_consec_max = 10;
   actAsServer_= true;  clients.clear();
-  SenderBase::bei = DaqMonitorROOTBackEnd::instance();
+  SenderBase::bei = DaqMonitorBEInterface::instance();
 }
 
 // remove node when disconnected;

@@ -1,6 +1,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/src/ClientRoot.h"
 #include "DQMServices/Core/interface/MonitorUIRoot.h"
@@ -88,7 +88,7 @@ MonitorUIRoot::MonitorUIRoot() : MonitorUserInterface()
 // to be called by ctors
 void MonitorUIRoot::init()
 {  
-  bei = DaqMonitorROOTBackEnd::instance();
+  bei = DaqMonitorBEInterface::instance();
 
   if(myc)
     {

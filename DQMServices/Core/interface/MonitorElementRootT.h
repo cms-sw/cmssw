@@ -108,7 +108,7 @@ class MonitorElementRootFolder : public MonitorElementRootObject
   /// whether ME should be removed
   /// from subscription menu if removeElement is called;
   /// true by default; change values only via ReceiverBase::removeMonitorable,
-  /// DaqMonitorROOTBackEnd::extractXXX (TH1F, TH2F, ...)
+  /// DaqMonitorBEInterface:extractXXX (TH1F, TH2F, ...)
   dqm::me_util::ME_flag canDeleteFromMenu;
   /// whether ME has been requested; false by default; change value via
   /// method modifySubscription in ReceiverBase class
@@ -138,7 +138,7 @@ class MonitorElementRootFolder : public MonitorElementRootObject
   /// get name of root folder
   std::string getRootName() const {return rootFolderName_;}
   
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   friend class SenderBase;
   friend class ReceiverBase;
   friend class DQMTagHelper;
@@ -332,7 +332,7 @@ class MonitorElementRootString : public MonitorElementString,
 
 };
 
-/// class should be created (ctor) by DaqMonitorROOTBackEnd class 
+/// class should be created (ctor) by DaqMonitorBEInterface class 
 /// and deleted (dtor) by MonitorElement class 
 class MERootQReport : public MonitorElementRootString, public QReport
 {
@@ -372,7 +372,7 @@ class MERootQReport : public MonitorElementRootString, public QReport
   }
   void resetUpdate(){this->MonitorElementString::resetUpdate();}
   /// for calling the constructors
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   /// for calling the destructors
   friend class MonitorElement;
 };
@@ -430,7 +430,7 @@ class MonitorElementRootH1 : public MonitorElementRootObject
 
   void Fill(float x, float y, float z, float w){Fill(x,y,w);}
 
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
 
   void copyFrom(TH1F * just_in);
   /// for description: see DQMServices/Core/interface/MonitorElement.h
@@ -499,7 +499,7 @@ class MonitorElementRootH2 : public MonitorElementRootObject
   }
   void Fill(float x){Fill(x, 0, 0, 0);}
 
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   void copyFrom(TH2F * just_in);
   /// for description: see DQMServices/Core/interface/MonitorElement.h
   void softReset(void);
@@ -571,7 +571,7 @@ class MonitorElementRootProf : public MonitorElementRootObject
   }
   void Fill(float x){Fill(x, 0, 0, 0);}
  
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   void copyFrom(TProfile * just_in);
   /// for description: see DQMServices/Core/interface/MonitorElement.h
   void softReset(void);
@@ -649,7 +649,7 @@ class MonitorElementRootProf2D : public MonitorElementRootObject
   }
   void Fill(float x){Fill(x, 0);}
  
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   void copyFrom(TProfile2D * just_in);
   /// for description: see DQMServices/Core/interface/MonitorElement.h
   void softReset(void);
@@ -725,7 +725,7 @@ class MonitorElementRootH3 :  public MonitorElementRootObject
   }
   void Fill(float x){Fill(x, 0);}
 
-  friend class DaqMonitorROOTBackEnd;
+  friend class DaqMonitorBEInterface;
   void copyFrom(TH3F * just_in);
 
   /// for description: see DQMServices/Core/interface/MonitorElement.h
