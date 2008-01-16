@@ -13,10 +13,9 @@ The main change for this release was a major upgrade of the GT emulator.
    * GCT default jet corrections based on 17X
 
 - Major bug fixes:
-   * CondDB tools write-read bug fixed (see 170 release notes)
 
 - Known issues:
-
+   * Outstanding bug in write-read of CondFormats other than L1TriggerKey
 
 <hr>
 Last updated: @DATE@ Jim Brooke
