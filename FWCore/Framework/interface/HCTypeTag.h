@@ -18,7 +18,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.4 2005/09/01 23:30:48 wmtan Exp $
+// $Id: HCTypeTag.h,v 1.5 2005/11/11 20:55:54 chrjones Exp $
 //
 //
 
@@ -41,7 +41,7 @@ class HCTypeTag : public TypeIDBase
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      HCTypeTag() : m_name(0) {}
+      HCTypeTag() : m_name("") {}
       //virtual ~HCTypeTag();  
 
       // ---------- member functions ---------------------------
