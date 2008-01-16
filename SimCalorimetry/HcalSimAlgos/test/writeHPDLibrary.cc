@@ -21,6 +21,7 @@ int main () {
   
   maker.newHpdEvent ("HPD01", event);
 
+  event.clear ();
   for (size_t i = 0; i < 10; i++) data[i] = i*10;
   id = HcalDetId (HcalBarrel, 2, 1, 1);
   event.addChannel (id, data);
@@ -32,6 +33,7 @@ int main () {
   maker.newHpdEvent ("HPD02", event);
   maker.newHpdEvent ("HPD02", event);
 
+  event.clear ();
   for (size_t i = 0; i < 10; i++) data[i] = i*100;
   id = HcalDetId (HcalBarrel, 3, 1, 1);
   event.addChannel (id, data);

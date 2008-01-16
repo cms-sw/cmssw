@@ -5,7 +5,7 @@
 // Object to store correlated noise data for one HPD 
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: BasicJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
+// $Id: HPDNoiseData.h,v 1.1 2008/01/16 02:12:37 fedor Exp $
 // --------------------------------------------------------
 
 #include "TObject.h"
@@ -29,6 +29,8 @@ class HPDNoiseData {
   std::vector<HcalDetId> getAllDetIds () const;
   /// retrive frame for the given index
   const HPDNoiseDataFrame& getDataFrame (size_t i) const;
+  /// reset event to empty state
+  void clear () {mData.clear ();}
  private:
   std::vector<HPDNoiseDataFrame> mData;
 
