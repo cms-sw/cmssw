@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.4 2007/10/02 20:39:31 chrjones Exp $
+// $Id: View.h,v 1.5 2007/12/21 22:46:51 wmtan Exp $
 //
 
 #include <vector>
@@ -22,6 +22,8 @@ EDProduct that is a sequence.
 #include "boost/iterator/indirect_iterator.hpp"
 
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
@@ -121,7 +123,9 @@ namespace edm
     const_reference at(size_type pos) const;
     const_reference operator[](size_type pos) const;
     RefToBase<value_type> refAt(size_type i) const;
+    Ptr<value_type> ptrAt(size_type i) const;
     const RefToBaseVector<T> & refVector() const { return refs_; }
+    const PtrVector<T> & ptrVector() const { return ptrs_; }
 
     const_reference front() const;
     const_reference back() const;
@@ -142,6 +146,7 @@ namespace edm
   private:
     seq_t items_;
     RefToBaseVector<T> refs_;
+    PtrVector<T> ptrs_;
     ViewBase* doClone() const;
   };
 
@@ -161,15 +166,16 @@ namespace edm
   inline
   View<T>::View() : 
     items_(),
-    refs_()
+    refs_(),
+    ptrs_()
   { }
 
   template <typename T>
   View<T>::View(std::vector<void const*> const& pointers,
 		helper_vector_ptr const& helpers) : 
     items_(),
-    refs_()
-  {
+    refs_(),
+    ptrs_() {
     size_type numElements = pointers.size();
 
     // If the two input vectors are not of the same size, there is a
@@ -182,8 +188,13 @@ namespace edm
       for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
 	items_.push_back(static_cast<pointer>(pointers[i]));
       }
-      RefToBaseVector<T> temp( helpers );
+      RefToBaseVector<T> temp(helpers);
       refs_.swap(temp); 
+      ptrs_.reserve(refs_.size());
+      for(typename RefToBaseVector<T>::const_iterator i = refs_.begin(); i != refs_.end(); ++i) {
+	RefToBase<T> ref = *i;
+	ptrs_.push_back(Ptr<T>(ref.id(), ref.key(), ref.productGetter()));
+      }
     }
   }
 
@@ -199,6 +210,7 @@ namespace edm
     this->ViewBase::swap(other);
     items_.swap(other.items_);
     refs_.swap(other.refs_);
+    ptrs_.swap(other.ptrs_);
   }
 
   template <typename T>
@@ -287,6 +299,15 @@ namespace edm
   View<T>::refAt(size_type i) const
   {
     return refs_[i];
+  }
+
+  template <typename T>
+  inline
+  Ptr<T> 
+  View<T>::ptrAt(size_type i) const
+  {
+    RefToBase<T> ref = refAt(i);
+    return Ptr<T>(ref.id(), ref.key(), ref.productGetter());
   }
 
   template <typename T>
