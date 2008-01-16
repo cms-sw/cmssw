@@ -11,13 +11,16 @@
 // #include <DataFormats/Common/interface/Ref.h>
 // #include "DataFormats/Common/interface/RefToBase.h"
 
- #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 //#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 // basic cpp:
 #include <string>

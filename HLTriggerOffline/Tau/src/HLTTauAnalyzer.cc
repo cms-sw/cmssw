@@ -6,8 +6,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -20,6 +19,7 @@ using std::endl;
 using namespace reco;
 using namespace edm;
 using namespace l1extra;
+using namespace trigger;
 
 HLTTauAnalyzer::HLTTauAnalyzer(const edm::ParameterSet& iConfig):
 
@@ -141,26 +141,29 @@ void HLTTauAnalyzer::MakeLevel1Analysis( const edm::Event& iEvent )
  // Retrieve L1 trigger decision and particles maps in order to get taus, electrons, muons 
  // (this will disapear with 1_7_0) according to the requested L1 trigger name
 
-edm::Handle<reco::HLTFilterObjectWithRefs> l1TriggeredTaus;
-iEvent.getByLabel(l1TauTrigger,l1TriggeredTaus);
-  
+edm::Handle<TriggerFilterObjectWithRefs> l1TriggeredTaus;
+ if(!iEvent.getByLabel(l1TauTrigger,l1TriggeredTaus)) return;
+
+  std::vector<L1JetParticleRef> tauCandRefVec;
+  l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+
  bool  L1TauFired = false;
- if(l1TriggeredTaus->size() >= nbTaus) L1TauFired = true;
+ if(tauCandRefVec.size() >= nbTaus) L1TauFired = true;
   
   if( L1TauFired ) {
 
    isL1Accepted = true;
    
    nEventsL1++;
-   edm::RefToBase<reco::Candidate> tauL1CandRef;
+   L1JetParticleRef tauL1CandRef;
    size_t NbMatchedTaus = 0;
    size_t NbMatchedLeps = 0;
 
 
 
-   for( unsigned int i=0; i <l1TriggeredTaus->size();i++)
+   for( unsigned int i=0; i <tauCandRefVec.size();i++)
      {  
-       tauL1CandRef = l1TriggeredTaus->getParticleRef(i);
+       tauL1CandRef = tauCandRefVec[i];
        //Avoid taking other from taujets in combined triggers
        if(typeid(*tauL1CandRef) == typeid(L1JetParticle)){
        
@@ -209,9 +212,11 @@ void HLTTauAnalyzer::MakeLevel2METAnalysis( const edm::Event& iEvent )
 {
   if(!isL1Accepted) return;
   isL2METAccepted = false;
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoMET;
-  iEvent.getByLabel( metReco,recoMET );
-  if(recoMET->size() > 0) {
+  edm::Handle<TriggerFilterObjectWithRefs> recoMET;
+  if(!iEvent.getByLabel( metReco,recoMET )) return;
+VRmet metRefVec;
+ recoMET->getObjects(trigger::TriggerMET,metRefVec);
+  if(metRefVec.size() > 0) {
     isL2METAccepted = true;
     nEventsL2MET++;
   }
