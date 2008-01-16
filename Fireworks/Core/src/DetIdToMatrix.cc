@@ -2,8 +2,12 @@
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TEveGeoShapeExtract.h"
+#include "TEveTrans.h"
+#include "TColor.h"
+#include "TROOT.h"
 #include <iostream>
-
+#include <sstream>
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -93,4 +97,51 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds()
 }
    
 
-  
+TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name)
+{
+   if ( ! manager_ || ! path || ! name ) return 0;
+   manager_->cd(path);
+   TGeoMatrix* matrix = manager_->GetCurrentMatrix();
+   const Double_t* rm = matrix->GetRotationMatrix();
+   const Double_t* tv = matrix->GetTranslation();
+   TEveTrans t;
+   t(1,1) = rm[0]; t(1,2) = rm[1]; t(1,3) = rm[2];
+   t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
+   t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
+   t(1,4) = tv[0]; t(2,4) = tv[1]; t(3,4) = tv[2];
+   
+   TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(name,path);
+   extract->SetTrans(t.Array());
+   
+   TGeoVolume* volume = manager_->GetCurrentVolume();
+   Int_t ci = volume->GetLineColor();
+   TColor* c = gROOT->GetColor(ci);
+   Float_t rgba[4] = { 1, 0, 0, 1 };
+   if (c) {
+      rgba[0] = c->GetRed();
+      rgba[1] = c->GetGreen();
+      rgba[2] = c->GetBlue();
+   }
+   
+   extract->SetRGBA(rgba);
+   extract->SetRnrSelf(kTRUE);
+   extract->SetRnrElements(kTRUE);
+   extract->SetShape( manager_->GetCurrentVolume()->GetShape() );
+   return extract;
+}
+
+TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id )
+{
+   std::ostringstream s;
+   s << id;
+   return getExtract( getPath(id), s.str().c_str() );
+}
+
+TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/)
+{
+   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( elementListName );
+   for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
+     container->AddElement( getExtract(itr->first) );
+   return container;
+}
+

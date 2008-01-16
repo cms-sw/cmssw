@@ -9,6 +9,8 @@
 //
 class TGeoManager;
 class TGeoVolume;
+class TEveGeoShapeExtract;
+class TEveElementList;
 #include "TGeoMatrix.h" 
 #include <map>
 #include <string>
@@ -32,12 +34,20 @@ class DetIdToMatrix
    // get path to the detector volume in the geometry manager
    const char* getPath( unsigned int id );
    
+   // extract globally positioned shape for stand alone use
+   TEveGeoShapeExtract* getExtract( unsigned int id );
+   
+   TEveGeoShapeExtract* getExtract( const char* path, const char* name );
+
    // get the detector volume in the geometry manager
    const TGeoVolume* getVolume( unsigned int id );
    
    // get all known detector ids
    std::vector<unsigned int> getAllIds();
 
+   // extract shapes of all known elements
+   TEveGeoShapeExtract* getAllExtracts(const char* elementListName = "CMS");
+   
  private:
    std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_; 
