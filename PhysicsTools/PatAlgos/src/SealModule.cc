@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -83,3 +82,21 @@ DEFINE_FWK_MODULE(pat::MuonSpatialResolution);
 DEFINE_FWK_MODULE(pat::TauSpatialResolution);
 DEFINE_FWK_MODULE(pat::JetSpatialResolution);
 DEFINE_FWK_MODULE(pat::METSpatialResolution);
+
+
+// PLEASE DONT MOVE THE CLEANERS ABOVE THE OBJECT SELECTORS
+// There is a problem with the definition of helper namespace
+// I'll check it in more detail later
+//             Giovanni
+#include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
+#include "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
+#include "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
+#include "PhysicsTools/PatAlgos/interface/PATTauCleaner.icc"
+DEFINE_FWK_MODULE(pat::PATElectronCleaner);
+DEFINE_FWK_MODULE(pat::PATMuonCleaner);
+DEFINE_FWK_MODULE(pat::PATPFTauCleaner);
+DEFINE_FWK_MODULE(pat::PATPFTau2BaseCleaner);
+DEFINE_FWK_MODULE(pat::PATCaloTauCleaner);
+DEFINE_FWK_MODULE(pat::PATCaloTau2BaseCleaner);
+
+
