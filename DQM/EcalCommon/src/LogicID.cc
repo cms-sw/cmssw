@@ -1,11 +1,11 @@
-// $Id: LogicID.cc,v 1.4 2007/12/18 13:18:07 dellaric Exp $
+// $Id: LogicID.cc,v 1.5 2007/12/18 13:32:19 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/12/18 13:18:07 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/12/18 13:32:19 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -31,7 +31,7 @@ void LogicID::init( EcalCondDBInterface* eConn ) {
 
 //-------------------------------------------------------------------------
 
-EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2  ) throw( std::runtime_error ) {
+EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2, int id3 ) throw( std::runtime_error ) {
 
   if( init_ ) {
     if( name == "EB_crystal_number" ) {
