@@ -101,7 +101,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
   match(outmatched,outrphi,outstereo,tracker,matcher,trackdirection);
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  inputhandle,
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  refGetterhandle,
+					  edm::Handle<edm::SiStripLazyGetter<SiStripCluster> >  lazyGetterhandle,
 	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
 					  const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher)
 {
@@ -110,16 +111,20 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
   int nstereo=0;
   
   
-  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = inputhandle->begin();
-  for(;iregion!=inputhandle->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
+  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = refGetterhandle->begin();
+  for(;iregion!=refGetterhandle->end();++iregion) {
     
     DetId detIdold(0);
     typedef SiStripRecHit2DCollectionNew::FastFiller Coll;
     typedef std::auto_ptr<Coll>  CollPointer;
     CollPointer collectorrphi;
     CollPointer collectorstereo;
-    for (;icluster!=iregion->end();icluster++) {
+
+    const edm::RegionIndex<SiStripCluster>& region = *iregion;
+    const uint32_t start = region.start();
+    const uint32_t finish = region.finish();
+    for (uint32_t i = start; i < finish; i++) {
+      edm::RegionIndex<SiStripCluster>::const_iterator icluster = region.begin()+(i-start);
       DetId detId(icluster->geographicalId());
       if (detId!=detIdold) {
 	detIdold=detId;
@@ -137,8 +142,9 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
         
         StripSubdetector specDetId=StripSubdetector(icluster->geographicalId());
 	StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*icluster,*stripdet);
-	edm::SiStripRefGetter<SiStripCluster>::value_ref cluster = edm::makeRefToSiStripRefGetter(inputhandle,icluster);
-	
+	edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > cluster =
+	  edm::makeRefToSiStripLazyGetter(lazyGetterhandle,i);
+
 	if(!specDetId.stereo()){ 
 	  collectorrphi->push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
 	  nmono++;

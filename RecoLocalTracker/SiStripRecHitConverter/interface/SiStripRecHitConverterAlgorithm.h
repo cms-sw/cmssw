@@ -48,6 +48,7 @@ class SiStripRecHitConverterAlgorithm
 	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
 	     const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
     void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> > input,
+	     edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > input2,
 	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
 	     const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher);
 

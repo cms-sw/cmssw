@@ -79,10 +79,17 @@ namespace cms
     // Step A: Get Inputs 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     bool regional = conf_.getParameter<bool>("Regional");
+    std::string lazyGetterProducer;
+    
     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
     edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refclusters;
+    edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazygetter;
 
-    if (regional) e.getByLabel(clusterProducer, refclusters);
+    if (regional) {
+      std::string lazyGetterProducer = conf_.getParameter<std::string>("LazyGetterProducer");
+      e.getByLabel(clusterProducer, refclusters);
+      e.getByLabel(lazyGetterProducer, lazygetter);
+    }
     else e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
@@ -91,7 +98,7 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DCollectionNew> outputstereo(new SiStripRecHit2DCollectionNew);
 
     // Step C: Invoke the seed finding algorithm
-    if (regional) recHitConverterAlgorithm_.run(refclusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
+    if (regional) recHitConverterAlgorithm_.run(refclusters,lazygetter,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
     else recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
 
    // Step Z: temporary write also the old collection
