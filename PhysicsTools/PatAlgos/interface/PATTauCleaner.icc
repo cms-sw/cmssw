@@ -1,0 +1,54 @@
+#include "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
+
+#include <DataFormats/TauReco/interface/PFTau.h>
+#include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
+#include <DataFormats/TauReco/interface/CaloTau.h>
+#include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet & iConfig) :
+  tauSrc_(iConfig.getParameter<edm::InputTag>( "tauSource" )),
+  tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource"))
+{
+  // produces vector of electrons
+  produces<std::vector<TauOut> >();
+
+  // producers also backmatch to the electrons
+  produces<reco::CandRefValueMap>();
+}
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+pat::PATTauCleaner<TauIn,TauOut,TauTag>::~PATTauCleaner() {
+}
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+  edm::Handle<TauTag> TauIsolator;
+  iEvent.getByLabel(tauDiscSrc_, TauIsolator);
+
+  typedef typename edm::Ref< std::vector<TauIn> > TauInRef;
+  for (size_t idx = 0, size = helper_.size(); idx < size; ++idx) {
+    // read the source tau
+    const TauIn & srcTau = helper_.srcAt(idx);
+    TauInRef      srcRef = helper_.srcRefAt(idx).template castTo<TauInRef>();
+
+    // perform the selection
+    if (!(*TauIsolator)[srcRef]) continue; // now there is no real selection for muons
+
+    // clone the tau and convert it to the new type
+    TauOut ourTau = static_cast<TauOut>(srcTau);
+
+    // write the muon
+    helper_.addItem(idx, ourTau);
+  }
+
+  helper_.done();
+ 
+}
+
