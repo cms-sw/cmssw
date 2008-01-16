@@ -25,8 +25,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 
-#include "DataFormats/Common/interface/DetSet2RangeMap.h"
-
 
 
 namespace cms
@@ -37,20 +35,13 @@ namespace cms
     conf_(conf),
     matchedRecHitsTag_( conf.getParameter<std::string>( "matchedRecHits" ) ), 
     rphiRecHitsTag_( conf.getParameter<std::string>( "rphiRecHits" ) ), 
-    stereoRecHitsTag_( conf.getParameter<std::string>( "stereoRecHits" ) ),
-    np_("New"),
-    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
+    stereoRecHitsTag_( conf.getParameter<std::string>( "stereoRecHits" ) )
   {
     produces<SiStripMatchedRecHit2DCollection>( matchedRecHitsTag_ );
     produces<SiStripRecHit2DCollection>( rphiRecHitsTag_ );
     produces<SiStripRecHit2DCollection>( stereoRecHitsTag_ );
-
-    if (m_newCont) {
-      produces<SiStripMatchedRecHit2DCollectionNew>( matchedRecHitsTag_+np_ );
-      produces<SiStripRecHit2DCollectionNew>( rphiRecHitsTag_+np_ );
-      produces<SiStripRecHit2DCollectionNew>( stereoRecHitsTag_+np_ );
-    }
   }
+
 
   // Virtual destructor needed.
   SiStripRecHitConverter::~SiStripRecHitConverter() { }  
@@ -79,46 +70,30 @@ namespace cms
     // Step A: Get Inputs 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     bool regional = conf_.getParameter<bool>("Regional");
-    std::string lazyGetterProducer;
-    
     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
     edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refclusters;
     edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazygetter;
 
-    if (regional) {
-      std::string lazyGetterProducer = conf_.getParameter<std::string>("LazyGetterProducer");
+    if (regional){
+      std::string lazyGetterProducer=conf_.getParameter<std::string>("LazyGetterProducer");
       e.getByLabel(clusterProducer, refclusters);
       e.getByLabel(lazyGetterProducer, lazygetter);
     }
     else e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
-    std::auto_ptr<SiStripMatchedRecHit2DCollectionNew> outputmatched(new SiStripMatchedRecHit2DCollectionNew);
-    std::auto_ptr<SiStripRecHit2DCollectionNew> outputrphi(new SiStripRecHit2DCollectionNew);
-    std::auto_ptr<SiStripRecHit2DCollectionNew> outputstereo(new SiStripRecHit2DCollectionNew);
+    std::auto_ptr<SiStripMatchedRecHit2DCollection> outputmatched(new SiStripMatchedRecHit2DCollection);
+    std::auto_ptr<SiStripRecHit2DCollection> outputrphi(new SiStripRecHit2DCollection);
+    std::auto_ptr<SiStripRecHit2DCollection> outputstereo(new SiStripRecHit2DCollection);
 
     // Step C: Invoke the seed finding algorithm
     if (regional) recHitConverterAlgorithm_.run(refclusters,lazygetter,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
     else recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
 
-   // Step Z: temporary write also the old collection
-    std::auto_ptr<SiStripMatchedRecHit2DCollection> outputmatchedOld(new SiStripMatchedRecHit2DCollection);
-    std::auto_ptr<SiStripRecHit2DCollection> outputrphiOld(new SiStripRecHit2DCollection);
-    std::auto_ptr<SiStripRecHit2DCollection> outputstereoOld(new SiStripRecHit2DCollection);
-
-    edmNew::copy(*outputmatched,*outputmatchedOld);
-    edmNew::copy(*outputrphi,*outputrphiOld);
-    edmNew::copy(*outputstereo,*outputstereoOld);
-    e.put(outputmatchedOld, matchedRecHitsTag_);
-    e.put(outputrphiOld, rphiRecHitsTag_);
-    e.put(outputstereoOld,stereoRecHitsTag_);
- 
     // Step D: write output to file
-    if (m_newCont) {
-      e.put(outputmatched, matchedRecHitsTag_+np_ );
-      e.put(outputrphi, rphiRecHitsTag_+np_ );
-      e.put(outputstereo,stereoRecHitsTag_+np_ );
-    }
+    e.put(outputmatched, matchedRecHitsTag_ );
+    e.put(outputrphi, rphiRecHitsTag_ );
+    e.put(outputstereo,stereoRecHitsTag_ );
   }
 
 }
