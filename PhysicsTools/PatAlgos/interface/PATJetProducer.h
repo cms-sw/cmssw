@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id$
+  \version  $Id: PATJetProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 */
 
 
@@ -89,7 +89,7 @@ namespace pat {
       // tools
       ObjectResolutionCalc             * theResoCalc_;
       ObjectResolutionCalc             * theBResoCalc_;
-      helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
+      ::helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
       JetCharge                        * jetCharge_;
       GreaterByEt<Jet>                   eTComparator_;
 
