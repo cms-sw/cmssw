@@ -116,7 +116,7 @@ EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
   event.getByLabel(digiProducer_, ebdigiCollection_, hEBDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
-  EBDigiCollection* result = hEBDigis.product();
+  const EBDigiCollection* result = hEBDigis.product();
   static bool firstCall= true;
   if(firstCall){
     checkWeights(event, hEBDigis.id());
@@ -132,7 +132,7 @@ EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
   event.getByLabel(digiProducer_, eedigiCollection_, hEEDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
-  EEDigiCollection* result = hEEDigis.product();
+  const EEDigiCollection* result = hEEDigis.product();
   static bool firstCall = true;
   if(firstCall){
     checkWeights(event, hEEDigis.id());
