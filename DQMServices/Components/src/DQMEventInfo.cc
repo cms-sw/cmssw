@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2007/11/21 20:44:43 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/16 21:44:17 $
+ * $Revision: 1.11.2.1 $
  * $Author: ameyer $
  *
  */
@@ -43,8 +43,8 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   string currentfolder = subsystemname + "/" +  eventinfofolder ;
   cout << "currentfolder " << currentfolder << endl;
 
-  evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 5.0);
-  if(evtRateWindow_<=0) evtRateWindow_=1.0;
+  evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
+  if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
   cout << "Event Rate averaged over " << evtRateWindow_ << " minutes" << endl;
 
   dbe_->setCurrentFolder(currentfolder) ;
@@ -64,7 +64,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   processTimeStamp_->Fill(-1);
   processEvents_ = dbe_->bookInt("processedEvents");
   processEvents_->Fill(pEvent_);
-  processEventRate_ = dbe_->bookInt("procesEventRate");
+  processEventRate_ = dbe_->bookFloat("processEventRate");
   processEventRate_->Fill(-1); 
   nUpdates_= dbe_->bookInt("processUpdates");
   nUpdates_->Fill(-1);
@@ -104,9 +104,11 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
   processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
 
-  float time = getUTCtime(&currentTime_,&lastAvgTime_);
+  float time = getUTCtime(&lastAvgTime_,&currentTime_);
+  std::cout << " time " << time << " " << evtRateCount_ << std::endl ;
   if(time>=(evtRateWindow_*60.0)){
-    processEventRate_->Fill(evtRateCount_*60.0/time);
+    processEventRate_->Fill((float)evtRateCount_/time);
+    evtRateCount_ = 0;
     lastAvgTime_ = currentTime_;    
   }
 
