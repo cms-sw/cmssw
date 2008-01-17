@@ -157,80 +157,72 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   theMuonService_->update(eventSetup);
     
   // get a SimMuon Track from the event.
-  int nSimMuon = 0;
   Handle<SimTrackContainer> simTracks;
   event.getByLabel(simTrackLabel_, simTracks);
   SimTrackContainer::const_iterator candSimMuon = simTracks->end();
   for ( SimTrackContainer::const_iterator iSimTrack = simTracks->begin();
         iSimTrack!=simTracks->end(); iSimTrack++ ) {
     if ( abs(iSimTrack->type()) != 13 ) continue;
-    candSimMuon = iSimTrack;
-    nSimMuon++;
-  }
-  if ( nSimMuon >= 2 ) LogInfo("EventInfo") << "More than 1 simMuon, n = " << nSimMuon;
-  if ( nSimMuon == 0 ) {
-    LogInfo("EventInfo") << "No SimTrack!!"; 
-    return;
-  }
 
-  SimTrack simTrack = *candSimMuon;
-  const double simPt  = simTrack.momentum().perp();
-  const double simEta = simTrack.momentum().eta();
-  const double simPhi = simTrack.momentum().phi();
-  if ( simPt  < minPt_  || simPt  > maxPt_  ) return;
-  if ( simEta < minEta_ || simEta > maxEta_ ) return;
-  if ( simPhi < minPhi_ || simPhi > maxPhi_ ) return;
+    const SimTrack& simTrack = *iSimTrack;
+    const double simPt  = simTrack.momentum().pt();
+    const double simEta = simTrack.momentum().eta();
+    const double simPhi = simTrack.momentum().phi();
+    if ( simPt  < minPt_  || simPt  > maxPt_  ) return;
+    if ( simEta < minEta_ || simEta > maxEta_ ) return;
+    if ( simPhi < minPhi_ || simPhi > maxPhi_ ) return;
 
-  hSimEtaVsPhi_->Fill(simEta, simPhi);
-  
-  // Get and fill Number of Hits
-  int nDtSimHits  = getNSimHits(event, "MuonDTHits" , simTrack.trackId());
-  int nCSCSimHits = getNSimHits(event, "MuonCSCHits", simTrack.trackId()); 
-  int nRPCSimHits = getNSimHits(event, "MuonRPCHits", simTrack.trackId());
-  int nSimHits = nDtSimHits+nCSCSimHits+nRPCSimHits;
+    hSimEtaVsPhi_->Fill(simEta, simPhi);
+    
+    // Get and fill Number of Hits
+    int nDtSimHits  = getNSimHits(event, "MuonDTHits" , simTrack.trackId());
+    int nCSCSimHits = getNSimHits(event, "MuonCSCHits", simTrack.trackId()); 
+    int nRPCSimHits = getNSimHits(event, "MuonRPCHits", simTrack.trackId());
+    int nSimHits = nDtSimHits+nCSCSimHits+nRPCSimHits;
 
-  hEtaVsNDtSimHits_ ->Fill(simEta, nDtSimHits );
-  hEtaVsNCSCSimHits_->Fill(simEta, nCSCSimHits);
-  hEtaVsNRPCSimHits_->Fill(simEta, nRPCSimHits);
-  hEtaVsNSimHits_->Fill(simEta, nSimHits);
+    hEtaVsNDtSimHits_ ->Fill(simEta, nDtSimHits );
+    hEtaVsNCSCSimHits_->Fill(simEta, nCSCSimHits);
+    hEtaVsNRPCSimHits_->Fill(simEta, nRPCSimHits);
+    hEtaVsNSimHits_->Fill(simEta, nSimHits);
 
-  Handle<TrajectorySeedCollection> seeds;
-  event.getByLabel(seedLabel_, seeds);
-  if ( seeds->size() > 0 ) {
-    pair<TSOS, TrajectorySeed> seedInfo = matchTrack(simTrack, seeds);
-    hSeedEtaVsPhi_->Fill(simEta, simPhi);
-    hSeedEtaVsNHits_->Fill(simEta, seedInfo.second.nHits());
-    hSeedResol_->fillInfo(simTrack, seedInfo.first);
-  }
+    Handle<TrajectorySeedCollection> seeds;
+    event.getByLabel(seedLabel_, seeds);
+    if ( seeds->size() > 0 ) {
+      pair<TSOS, TrajectorySeed> seedInfo = matchTrack(simTrack, seeds);
+      hSeedEtaVsPhi_->Fill(simEta, simPhi);
+      hSeedEtaVsNHits_->Fill(simEta, seedInfo.second.nHits());
+      hSeedResol_->fillInfo(simTrack, seedInfo.first);
+    }
 
-  Handle<TrackCollection> staTracks;
-  event.getByLabel(staTrackLabel_, staTracks);
-  if ( staTracks->size() > 0 ) {
-    pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks);
-    hStaEtaVsPhi_->Fill(simEta, simPhi);
-    hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
-    hStaResol_->fillInfo(simTrack, staInfo.first);
+    Handle<TrackCollection> staTracks;
+    event.getByLabel(staTrackLabel_, staTracks);
+    if ( staTracks->size() > 0 ) {
+      pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks);
+      hStaEtaVsPhi_->Fill(simEta, simPhi);
+      hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
+      hStaResol_->fillInfo(simTrack, staInfo.first);
 
-    Handle<TrackCollection> tkTracks;
-    event.getByLabel(tkTrackLabel_, tkTracks);
-    if ( tkTracks->size() > 0 
-         && staInfo.second.track().pt() > staMinPt_
-         && staInfo.second.track().innerMomentum().Rho() > staMinRho_
-         && staInfo.second.track().innerMomentum().R() > staMinR_ ) {  
-      pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks);
-      if ( tkInfo.second.track().p() > tkMinP_ && tkInfo.second.track().pt() > tkMinPt_ ) {
-        hTkEtaVsPhi_->Fill(simEta, simPhi);
+      Handle<TrackCollection> tkTracks;
+      event.getByLabel(tkTrackLabel_, tkTracks);
+      if ( tkTracks->size() > 0 
+           && staInfo.second.track().pt() > staMinPt_
+           && staInfo.second.track().innerMomentum().Rho() > staMinRho_
+           && staInfo.second.track().innerMomentum().R() > staMinR_ ) {  
+        pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks);
+        if ( tkInfo.second.track().p() > tkMinP_ && tkInfo.second.track().pt() > tkMinPt_ ) {
+          hTkEtaVsPhi_->Fill(simEta, simPhi);
+        }
       }
     }
-  }
 
-  Handle<TrackCollection> glbTracks;
-  event.getByLabel(glbTrackLabel_, glbTracks);
-  if ( glbTracks->size() > 0 ) {
-    pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks);
-    hGlbEtaVsPhi_->Fill(simEta, simPhi);
-    hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.numberOfValidHits());
-    hGlbResol_->fillInfo(simTrack, glbInfo.first);
+    Handle<TrackCollection> glbTracks;
+    event.getByLabel(glbTrackLabel_, glbTracks);
+    if ( glbTracks->size() > 0 ) {
+      pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks);
+      hGlbEtaVsPhi_->Fill(simEta, simPhi);
+      hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.numberOfValidHits());
+      hGlbResol_->fillInfo(simTrack, glbInfo.first);
+    }  
   }
 }
 
