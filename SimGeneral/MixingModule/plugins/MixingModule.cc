@@ -245,8 +245,8 @@ namespace edm
     e->getMany((*sel_),result_t);
     int str=result_t.size();
     if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
-    LogDebug("MixingModule") <<result_t[0].product()->size()<<"  Simtracks added, eventNr "<<eventNr;
     if (str>0) {
+      LogDebug("MixingModule") <<result_t[0].product()->size()<<"  Simtracks added, eventNr "<<eventNr;
       if (result_t[0].isValid()) {
 	cfTracks_->addPileups(bcr,result_t[0].product(),eventNr,vertexoffset);
       }
