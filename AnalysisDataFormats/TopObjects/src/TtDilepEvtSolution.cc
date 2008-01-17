@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.12 2007/10/30 09:59:07 delaer Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.13 2007/11/24 11:03:16 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -103,3 +103,55 @@ void TtDilepEvtSolution::setBestSol(bool bs)       { bestSol_ = bs; }
 void TtDilepEvtSolution::setRecTopMass(double j)   { topmass_ = j; }
 void TtDilepEvtSolution::setRecWeightMax(double j) { weightmax_ = j; }
 
+// method to get info on the outcome of the different jet combination methods
+double TtDilepEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
+  double val = -999.;
+  for(size_t i=0; i<lrSignalEvtVarVal_.size(); i++){
+    if(lrSignalEvtVarVal_[i].first == selObs) val = lrSignalEvtVarVal_[i].second;
+  }
+  return val;
+}
+
+// methods to set the outcome of the signal selection LR
+void TtDilepEvtSolution::setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval) {
+  lrSignalEvtVarVal_.clear();
+  for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);
+}
+
+
+void TtDilepEvtSolution::setLRSignalEvtLRval(double clr) {lrSignalEvtLRval_ = clr;}
+void TtDilepEvtSolution::setLRSignalEvtProb(double plr)  {lrSignalEvtProb_ = plr;}
+
+reco::Particle TtDilepEvtSolution::getLeptPos() const {
+  reco::Particle p;
+  if (wpDecay_ == "muon")     {
+    p = reco::Particle(+1, getMuonp().p4() );
+    p.setPdgId(-11);
+  }
+  if (wpDecay_ == "electron") {
+    p = reco::Particle(+1, getElectronp().p4() );
+    p.setPdgId(-13);
+  }
+  if (wmDecay_ == "tau") {
+    p = reco::Particle(+1, getTaup().p4() );
+    p.setPdgId(-15);
+  }
+  return p;
+}
+
+reco::Particle TtDilepEvtSolution::getLeptNeg() const {
+  reco::Particle p;
+  if (wmDecay_ == "electron") {
+    p = reco::Particle(-1, getElectronm().p4() );
+    p.setPdgId(11);
+  }
+  if (wmDecay_ == "muon")     {
+    p = reco::Particle(-1, getMuonm().p4() );
+    p.setPdgId(13);
+  }
+  if (wmDecay_ == "tau") {
+    p = reco::Particle(-1, getTaum().p4() );
+    p.setPdgId(15);
+  }
+  return p;
+}

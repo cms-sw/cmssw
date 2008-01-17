@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.14 2007/10/30 16:13:44 delaer Exp $
+// $Id: TtDilepEvtSolution.h,v 1.12.2.2 2007/11/25 19:03:36 lowette Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -25,6 +25,8 @@ class TtDilepEvtSolution {
 
   friend class TtDilepKinSolver;
   friend class TtDilepEvtSolutionMaker;
+  friend class TtDilepLRSignalSelObservables;
+  friend class TtLRSignalSelCalc;
 
   public:
 
@@ -66,7 +68,21 @@ class TtDilepEvtSolution {
     bool   getBestSol()      const { return bestSol_; }
     double getRecTopMass()   const {return topmass_; }
     double getRecWeightMax() const {return weightmax_; }
-    
+
+  /**
+   * Returns the 4-vector of the positive lepton, with the charge and the pdgId
+   */
+    reco::Particle getLeptPos() const;
+  /**
+   * Returns the 4-vector of the negative lepton, with the charge and the pdgId
+   */
+    reco::Particle getLeptNeg() const;
+
+    // methods to get info on the outcome of the signal selection LR
+    double                    getLRSignalEvtObsVal(unsigned int) const;
+    double                    getLRSignalEvtLRval() const      { return lrSignalEvtLRval_; }
+    double                    getLRSignalEvtProb() const       { return lrSignalEvtProb_; }
+
   protected:
 
     // method to set the generated event
@@ -87,6 +103,11 @@ class TtDilepEvtSolution {
     void setRecTopMass(double j);
     void setRecWeightMax(double j);
 
+    // methods to set the outcome of the signal selection LR
+    void                      setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval);
+    void                      setLRSignalEvtLRval(double clr);
+    void                      setLRSignalEvtProb(double plr);
+
   private:
 
     // particle content
@@ -103,6 +124,9 @@ class TtDilepEvtSolution {
     bool bestSol_;
     double topmass_;
     double weightmax_;
+
+    double lrSignalEvtLRval_, lrSignalEvtProb_;
+    std::vector<std::pair<unsigned int, double> > lrSignalEvtVarVal_;
 
 };
 
