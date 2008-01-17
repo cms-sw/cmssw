@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2007/11/13 13:20:52 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/17 08:11:13 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -54,7 +54,7 @@ bool enableCleanup_;
 
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 
 MonitorElement* meEvent_[18];

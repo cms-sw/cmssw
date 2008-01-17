@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/17 10:15:04 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -46,7 +46,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
 
   for (int i = 0; i < 36; i++) {
