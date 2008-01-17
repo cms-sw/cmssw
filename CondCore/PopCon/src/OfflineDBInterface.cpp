@@ -57,15 +57,15 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
   popcon::PayloadIOV piov;
   session=new cond::DBSession;
   session->configuration().setAuthenticationMethod( cond::XML );
-  session->configuration().setMessageLevel( cond::Error ); 
-  cond::Connection con(m_connect,0);
+  session->configuration().setMessageLevel( cond::Error );
   session->open();
+  cond::Connection con(m_connect,-1);
   con.connect(session);
   cond::CoralTransaction& coraldb=con.coralTransaction();
   cond::MetaData metadata_svc(coraldb);
   std::vector<std::string> alltags;
   std::vector<std::string> alltokens;
-  coraldb.start(true);
+  coraldb.start(false);
   metadata_svc.listAllTags(alltags);
   //get the pool tokens
   for(std::vector<std::string>::iterator it = alltags.begin(); it != alltags.end(); it++){
