@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTPInputAnalyzer.cc,v 1.3 2007/09/28 13:41:08 uberthon Exp $
+// $Id: EcalTPInputAnalyzer.cc,v 1.4 2007/12/19 14:22:01 uberthon Exp $
 //
 //
 
@@ -131,6 +131,13 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //       ecal_fgvb_[subdet]->Fill(d.fineGrain());
 //   }
 }
+
+void
+EcalTPInputAnalyzer::endJob(){
+  histEndc ->Write();
+  histBar  ->Write();
+}
+  
     
 
 
