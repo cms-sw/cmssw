@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.6 2007/10/02 10:03:50 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.7 2007/11/28 14:35:38 azzi Exp $
 //
 //
 
@@ -80,11 +80,13 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   conf_(conf)
 {
   alias = conf.getParameter<std::string>("@module_label");
-  produces<edm::DetSetVector<SiStripDigi> >().setBranchAlias( alias );
+  edm::ParameterSet ParamSet=conf_.getParameter<edm::ParameterSet>("DigiModeList");
+  
+  produces<edm::DetSetVector<SiStripDigi> >(ParamSet.getParameter<std::string>("ZSDigi")).setBranchAlias( ParamSet.getParameter<std::string>("ZSDigi") );
   produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias ( alias + "siStripDigiSimLink");
-  produces<edm::DetSetVector<SiStripRawDigi> >("ScopeMode").setBranchAlias( alias + "ScopeMode");
-  produces<edm::DetSetVector<SiStripRawDigi> >("VirginRaw").setBranchAlias( alias + "VirginRaw");
-  produces<edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw").setBranchAlias( alias + "ProcessedRaw");
+  produces<edm::DetSetVector<SiStripRawDigi> >(ParamSet.getParameter<std::string>("SCDigi")).setBranchAlias( alias + ParamSet.getParameter<std::string>("SCDigi") );
+  produces<edm::DetSetVector<SiStripRawDigi> >(ParamSet.getParameter<std::string>("VRDigi")).setBranchAlias( alias + ParamSet.getParameter<std::string>("VRDigi") );
+  produces<edm::DetSetVector<SiStripRawDigi> >(ParamSet.getParameter<std::string>("PRDigi")).setBranchAlias( alias + ParamSet.getParameter<std::string>("PRDigi") );
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
   useConfFromDB = conf.getParameter<bool>("TrackerConfigurationFromDB");
@@ -217,13 +219,15 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
     std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
     std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
-    
+
     // Step D: write output to file
-    iEvent.put(output);
+    edm::ParameterSet ParamSet=conf_.getParameter<edm::ParameterSet>("DigiModeList");
+    
+    iEvent.put(output,ParamSet.getParameter<std::string>("ZSDigi"));
     iEvent.put(outputlink);
-    iEvent.put(output_scopemode,"ScopeMode");
-    iEvent.put(output_virginraw,"VirginRaw");
-    iEvent.put(output_processedraw,"ProcessedRaw");
+    iEvent.put(output_scopemode,   ParamSet.getParameter<std::string>("SCDigi"));
+    iEvent.put(output_virginraw,   ParamSet.getParameter<std::string>("VRDigi"));
+    iEvent.put(output_processedraw,ParamSet.getParameter<std::string>("PRDigi"));
   }else{
     // Step C: create output collection
     std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>(theRawDigiVector));
@@ -233,10 +237,12 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
     
     // Step D: write output to file
-    iEvent.put(output);
+    edm::ParameterSet ParamSet=conf_.getParameter<edm::ParameterSet>("DigiModeList");
+    
+    iEvent.put(output,ParamSet.getParameter<std::string>("ZSDigi"));
     iEvent.put(outputlink);
-    iEvent.put(output_scopemode,"ScopeMode");
-    iEvent.put(output_virginraw,"VirginRaw");
-    iEvent.put(output_processedraw,"ProcessedRaw");
+    iEvent.put(output_scopemode,   ParamSet.getParameter<std::string>("SCDigi"));
+    iEvent.put(output_virginraw,   ParamSet.getParameter<std::string>("VRDigi"));
+    iEvent.put(output_processedraw,ParamSet.getParameter<std::string>("PRDigi"));
   }
 }
