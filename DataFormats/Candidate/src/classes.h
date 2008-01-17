@@ -69,6 +69,7 @@ namespace {
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
     edm::Wrapper<edm::Association<reco::CandidateCollection> > wacc1;
     edm::Wrapper<reco::CompositeCandidateCollection> wcc1;
+    edm::Wrapper<reco::CandRefValueMap> wcrvm1;
     edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef> hcc1;
     edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
