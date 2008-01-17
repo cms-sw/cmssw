@@ -8,12 +8,14 @@
 
 #include "PhysicsTools/PatAlgos/interface/PATObjectSelector.h"
 
-DEFINE_FWK_MODULE(pat::PATElectronSelector);
-DEFINE_FWK_MODULE(pat::PATMuonSelector);
-DEFINE_FWK_MODULE(pat::PATTauSelector);
-DEFINE_FWK_MODULE(pat::PATJetSelector);
-DEFINE_FWK_MODULE(pat::PATMETSelector);
-DEFINE_FWK_MODULE(pat::PATParticleSelector);
+using namespace pat;
+
+DEFINE_FWK_MODULE(PATElectronSelector);
+DEFINE_FWK_MODULE(PATMuonSelector);
+DEFINE_FWK_MODULE(PATTauSelector);
+DEFINE_FWK_MODULE(PATJetSelector);
+DEFINE_FWK_MODULE(PATMETSelector);
+DEFINE_FWK_MODULE(PATParticleSelector);
 
 
 

@@ -17,9 +17,10 @@ namespace pat {
   typedef ObjectEnergyScale<pat::MET>      METEnergyScale;
 }
 
-DEFINE_FWK_MODULE(pat::ElectronEnergyScale);
-DEFINE_FWK_MODULE(pat::MuonEnergyScale);
-DEFINE_FWK_MODULE(pat::TauEnergyScale);
-DEFINE_FWK_MODULE(pat::JetEnergyScale);
-DEFINE_FWK_MODULE(pat::METEnergyScale);
+using namespace pat;
+DEFINE_FWK_MODULE(ElectronEnergyScale);
+DEFINE_FWK_MODULE(MuonEnergyScale);
+DEFINE_FWK_MODULE(TauEnergyScale);
+DEFINE_FWK_MODULE(JetEnergyScale);
+DEFINE_FWK_MODULE(METEnergyScale);
 

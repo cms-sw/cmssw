@@ -17,11 +17,11 @@ namespace pat {
   typedef ObjectSpatialResolution<pat::MET>      METSpatialResolution;
 }
 
-DEFINE_FWK_MODULE(pat::ElectronSpatialResolution);
-DEFINE_FWK_MODULE(pat::MuonSpatialResolution);
-DEFINE_FWK_MODULE(pat::TauSpatialResolution);
-DEFINE_FWK_MODULE(pat::JetSpatialResolution);
-DEFINE_FWK_MODULE(pat::METSpatialResolution);
+using namespace pat;
+DEFINE_FWK_MODULE(ElectronSpatialResolution);
+DEFINE_FWK_MODULE(MuonSpatialResolution);
+DEFINE_FWK_MODULE(TauSpatialResolution);
+DEFINE_FWK_MODULE(JetSpatialResolution);
+DEFINE_FWK_MODULE(METSpatialResolution);
 
 
-// the cleaners get their modules made inside their own cc files

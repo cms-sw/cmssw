@@ -1,5 +1,5 @@
 //
-// $Id: PATLeptonCountFilter.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATLeptonCountFilter.cc,v 1.2 2008/01/16 16:04:42 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATLeptonCountFilter.h"
@@ -45,5 +45,5 @@ bool PATLeptonCountFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(pat::PATLeptonCountFilter);
+DEFINE_FWK_MODULE(PATLeptonCountFilter);
 

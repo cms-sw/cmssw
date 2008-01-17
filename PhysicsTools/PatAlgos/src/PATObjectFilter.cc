@@ -9,18 +9,20 @@
 
 #include "PhysicsTools/PatAlgos/interface/PATObjectFilter.h"
 
-DEFINE_FWK_MODULE(pat::PATElectronMinFilter);
-DEFINE_FWK_MODULE(pat::PATMuonMinFilter);
-DEFINE_FWK_MODULE(pat::PATTauMinFilter);
-DEFINE_FWK_MODULE(pat::PATJetMinFilter);
-DEFINE_FWK_MODULE(pat::PATMETMinFilter);
-DEFINE_FWK_MODULE(pat::PATParticleMinFilter);
+using namespace pat;
 
-DEFINE_FWK_MODULE(pat::PATElectronMaxFilter);
-DEFINE_FWK_MODULE(pat::PATMuonMaxFilter);
-DEFINE_FWK_MODULE(pat::PATTauMaxFilter);
-DEFINE_FWK_MODULE(pat::PATJetMaxFilter);
-DEFINE_FWK_MODULE(pat::PATMETMaxFilter);
-DEFINE_FWK_MODULE(pat::PATParticleMaxFilter);
+DEFINE_FWK_MODULE(PATElectronMinFilter);
+DEFINE_FWK_MODULE(PATMuonMinFilter);
+DEFINE_FWK_MODULE(PATTauMinFilter);
+DEFINE_FWK_MODULE(PATJetMinFilter);
+DEFINE_FWK_MODULE(PATMETMinFilter);
+DEFINE_FWK_MODULE(PATParticleMinFilter);
+
+DEFINE_FWK_MODULE(PATElectronMaxFilter);
+DEFINE_FWK_MODULE(PATMuonMaxFilter);
+DEFINE_FWK_MODULE(PATTauMaxFilter);
+DEFINE_FWK_MODULE(PATJetMaxFilter);
+DEFINE_FWK_MODULE(PATMETMaxFilter);
+DEFINE_FWK_MODULE(PATParticleMaxFilter);
 
 
