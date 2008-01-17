@@ -31,6 +31,7 @@ int main(){
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
 			3.0,                       // eicIsolationThreshold
+			false,                     // ignoreHcalIfNoEcalMip
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,

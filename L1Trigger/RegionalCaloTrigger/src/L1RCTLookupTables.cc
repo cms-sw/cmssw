@@ -47,6 +47,11 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       etIn7Bits = 0x7F;
       etIn9Bits = 0x1FF;
     }
+  else if(rctParameters_->ignoreHcalIfNoEcalMip() && ecalInput == 0 && hcalInput > 0)
+    {
+      etIn7Bits = 0;
+      etIn9Bits = 0;
+    }
   else
     {
       etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
