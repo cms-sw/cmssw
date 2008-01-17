@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: CandCombiner.h,v 1.15 2007/11/14 09:55:39 llista Exp $
+ * $Id: CandCombiner.h,v 1.16 2008/01/11 08:13:29 andreasp Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -90,7 +90,7 @@ namespace reco {
     private:
       /// process an event
       void produce( edm::Event& evt, const edm::EventSetup& es ) {
-	Init::init( combiner_.setup(), es );
+	Init::init( combiner_.setup(), evt, es );
 	int n = labels_.size();
 	std::vector<edm::Handle<InputCollection> > colls( n );
 	for( int i = 0; i < n; ++i )
