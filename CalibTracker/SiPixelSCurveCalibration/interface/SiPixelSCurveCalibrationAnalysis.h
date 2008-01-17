@@ -14,7 +14,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id$
+// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.12 2007/11/27 10:03:32 friis Exp $
 //
 //
 
@@ -71,6 +71,7 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
 
    private:
       //configuration options
+      bool                      useDetectorHierarchyFolders_;
       bool                      saveCurvesThatFlaggedBad_;
       bool                      write2dHistograms_;
       bool                      write2dFitResult_; 
