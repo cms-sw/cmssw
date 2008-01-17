@@ -3,7 +3,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Wed Nov  7 17:30:40 CET 2007
-// $Id: HSCP_Trigger.cc,v 1.2 2007/12/12 08:06:49 querten Exp $
+// $Id: HSCP_Trigger_MainFunctions.cc,v 1.1 2007/12/13 06:53:14 querten Exp $
 //
 //
 
@@ -136,6 +136,7 @@ HSCP_Trigger_L1InterestingPath(int Path)
     if(Path == l1extra::L1ParticleMap::kSingleEG15)               return true;
     if(Path == l1extra::L1ParticleMap::kSingleJet100)             return true;
     if(Path == l1extra::L1ParticleMap::kSingleTauJet80)           return true;
+//    if(Path == l1extra::L1ParticleMap::kHTT200)                   return true;
     if(Path == l1extra::L1ParticleMap::kHTT250)                   return true;
     if(Path == l1extra::L1ParticleMap::kETM30)                    return true;
     if(Path == l1extra::L1ParticleMap::kDoubleMu3)                return true;
@@ -151,9 +152,9 @@ HSCP_Trigger_L1InterestingPath(int Path)
     if(Path == l1extra::L1ParticleMap::kTripleJet50)              return true;
     if(Path == l1extra::L1ParticleMap::kQuadJet30)                return true;
 //    if(Path == l1extra::L1ParticleMap::kExclusiveDoubleIsoEG4)    return true;
-    if(Path == l1extra::L1ParticleMap::kExclusiveDoubleJet60)     return true;
-    if(Path == l1extra::L1ParticleMap::kExclusiveJet25_Gap_Jet25) return true;
-    if(Path == l1extra::L1ParticleMap::kIsoEG10_Jet20_ForJet10)   return true;
+//    if(Path == l1extra::L1ParticleMap::kExclusiveDoubleJet60)     return true;
+//    if(Path == l1extra::L1ParticleMap::kExclusiveJet25_Gap_Jet25) return true;
+//    if(Path == l1extra::L1ParticleMap::kIsoEG10_Jet20_ForJet10)   return true;
 
     return false;
 }
