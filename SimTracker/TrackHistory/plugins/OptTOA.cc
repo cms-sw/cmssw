@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.1 2007/09/24 22:51:47 bazterra Exp $
+// $Id: OptTOA.cc,v 1.2 2008/01/14 11:57:22 fambrogl Exp $
 //
 //
 
@@ -238,7 +238,7 @@ private:
 
   double d0Pull(
     const edm::ESHandle<MagneticField> &,
-    const reco::TrackRef,
+    const edm::RefToBase<reco::Track>,
     reco::RecoToSimCollection &,
     bool
   );
@@ -422,6 +422,7 @@ OptTOA::LoopOverJetTracksAssociation(
       reco::TrackRefVector tracks = jetTracks->second;
       for(std::size_t index = 0; index < tracks.size(); index++)
 	{
+	  edm::RefToBase<reco::Track> track(tracks[index]);
 	  double pt = tracks[index]->pt();
 	  double chi2 = tracks[index]->normalizedChi2();
 	  std::size_t hits = tracks[index]->recHitsSize();
@@ -436,7 +437,6 @@ OptTOA::LoopOverJetTracksAssociation(
 	  double d0 = tracks[index]->d0();
 	  
 	  // If the track is not fake then get the orginal particles
-	  edm::RefToBase<reco::Track> track(tracks[index]);
 	  if (tracer.evaluate(track, association, associationByHits_))
 	    {
 	      const HepMC::GenParticle * particle = tracer.particle();
@@ -486,7 +486,7 @@ OptTOA::LoopOverJetTracksAssociation(
 
 double OptTOA::d0Pull(
   const edm::ESHandle<MagneticField> & theMF,
-  const reco::TrackRef track,
+  const edm::RefToBase<reco::Track> track,
   reco::RecoToSimCollection & association,  
   bool associationByHits
 )
