@@ -2,7 +2,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Fri Dec  7 10:40:51 CET 2007
-// $Id: SlowHSCPFilter_MainFunctions.h,v 1.1 2007/12/11 12:37:48 querten Exp $
+// $Id: SlowHSCPFilter_MainFunctions.cc,v 1.1 2007/12/16 08:35:38 querten Exp $
 //
 //
 
@@ -117,7 +117,7 @@ GetTrueL1MuonsAndTime(const edm::Event& iEvent, const edm::EventSetup& iSetup, i
 //     if(abs(RPC_Hits[k].particleType()) >10000){
 //        unsigned int HSCP_Id      = ComesFromWhichHSCP(RPC_Hits[k].trackId(), PrimaryHSCPTracks);
 //        const RPCRoll* RPC_Layer  = RPC_Geom->roll( (RPCDetId) RPC_Hits[k].detUnitId() );
-//        GlobalPoint GP            = RPC_Layer->toGlobal(DT_Hits[k].entryPoint());
+//        GlobalPoint GP            = RPC_Layer->toGlobal(RPC_Hits[k].entryPoint());
 //        double DistFromIP         = sqrt( GP.x()*GP.x() + GP.y()*GP.y() + GP.z()*GP.z() ) ;
 //        double T0                 = DistFromIP / 29.9;  //(10/c)
 ////        printf("RPC_Hits %3i : TrackID = %6i   :  DistFromIP = %8.2fcm : tof = %6.2fns",k,HSCP_Id, DistFromIP, RPC_Hits[k].timeOfFlight());
