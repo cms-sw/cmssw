@@ -133,6 +133,12 @@ class DDLParser
   /// Is the file already parsed?
   bool isParsed(const std::string& filename);
 
+  /// Clear the file list - see Warning!
+  /**
+   *  This could result in mangled geometry if the Core has not been cleared.
+   **/
+  void clearFiles () ;
+
  protected:
   
   /// Parse File.  Just to hold some common looking code.
