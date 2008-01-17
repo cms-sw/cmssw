@@ -39,47 +39,69 @@ class DaqMonitorBEInterface: public StringUtil
 
  public:
   
+//-------------------------------------------------------------------------
+// ---------------------- Constructors ------------------------------------
   DaqMonitorBEInterface(edm::ParameterSet const &pset);
   virtual ~DaqMonitorBEInterface();
- 
-  void reParseConfig(const edm::ParameterSet &pset){}
- 
-  // ---------------------- Booking ------------------------------------
-  /// other methods of book 1D
+
+//-------------------------------------------------------------------------
+  /// set verbose level (0 turns all non-error messages off)
+  void setVerbose(unsigned level){DQM_VERBOSE = level;}
+
+// ---------------------- public navigation -------------------------------
+  /// set the last directory in fullpath as the current directory(create if needed);
+  /// to be invoked by user to specify directories for monitoring objects 
+  /// before booking;
+  /// commands book1D (etc) & removeElement(name) imply elements in this directory!;
+  void setCurrentFolder(std::string fullpath);
+  /// cd to subdirectory (if there)
+  void cd(std::string subdir_path);
+  /// go to top directory (ie. root)
+  void cd(void) {setCurrentFolder("/");}
+  /// return pathname of current directory
+  std::string pwd(void) const {return fCurrentFolder->getPathname();}
+  /// equivalent to "cd .."
+  void goUp(void);
+
+  /// get list of subdirectories of current directory
+  std::vector<std::string> getSubdirs(void) const;
+  /// get list of (non-dir) MEs of current directory
+  std::vector<std::string> getMEs(void) const;
+
+  /// true if directory (or any subfolder at any level below it) contains
+  /// at least one valid (i.e. non-null) monitoring element
+  bool containsAnyMEs(std::string pathname) const;
+  /// true if directory (or any subfolder at any level below it) contains
+  /// at least one monitorable element
+  bool containsAnyMonitorable(std::string pathname) const;
+  /// true if directory exists
+  bool dirExists(std::string inpath) const {return pathExists(inpath, Own);}
+//-------------------------------------------------------------------------
+// ---------------------- public ME booking -------------------------------
+
+  /// book 1D histogram
   MonitorElement * book1D(std::string name, std::string title, 
 			  int nchX, double lowX, double highX)
-  {return book1D(name, title, nchX, lowX, highX, fCurrentFolder);}
+             {return book1D(name, title, nchX, lowX, highX, fCurrentFolder);}
   /// book 1D variable bin histogram
   MonitorElement * book1D(std::string name, std::string title,
 			  int nchX, float *xbinsize)
-  {return book1D(name, title, nchX, xbinsize, fCurrentFolder);}
-//book 1D histogram using existing histogram
-  MonitorElement * clone1D(std::string name, TH1F* source)
-  {return book1D(name,source,fCurrentFolder);}
-
+             {return book1D(name, title, nchX, xbinsize, fCurrentFolder);}
 
   /// book 2D histogram
   MonitorElement * book2D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
 			  double lowY, double highY)
-  {return book2D(name, title, nchX, lowX, highX, nchY, lowY, highY, 
-		  fCurrentFolder);}
-//book 2D histogram using existing histogram
-  MonitorElement * clone2D(std::string name, TH2F* source)
-  {return book2D(name,source,fCurrentFolder);}
-
+             {return book2D(name, title, nchX, lowX, highX, 
+	                                 nchY, lowY, highY, fCurrentFolder);}
   /// book 3D histogram
   MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
 			  double lowY, double highY, int nchZ,
 			  double lowZ, double highZ)
-  {return book3D(name, title, nchX, lowX, highX, nchY, lowY, highY,
-		  nchZ, lowZ, highZ, fCurrentFolder);}
-//book 3D histogram using existing histogram
-  MonitorElement * clone3D(std::string name, TH3F* source)
-  {return book3D(name,source,fCurrentFolder);}
-
-
+             {return book3D(name, title, nchX, lowX, highX, 
+	                                 nchY, lowY, highY,
+		                         nchZ, lowZ, highZ, fCurrentFolder);}
   /// book profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -87,12 +109,8 @@ class DaqMonitorBEInterface: public StringUtil
 			       std::string title,int nchX, double lowX,
 			       double highX, int nchY, double lowY, 
 			       double highY, char * option = "s")
-  {return bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY,
-		      fCurrentFolder, option);}
-//book TProfile using existing profile
-  MonitorElement * cloneProfile(std::string name, TProfile* source)
-  {return bookProfile(name,source,fCurrentFolder);}
-
+             {return bookProfile(name, title, nchX, lowX, highX, 
+	                                      nchY, lowY, highY, fCurrentFolder, option);}
 
   /// book 2-D profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
@@ -103,125 +121,22 @@ class DaqMonitorBEInterface: public StringUtil
 				 int nchY, double lowY,double highY,
 				 int nchZ, double lowZ,double highZ,
 				 char * option = "s")
-  {return bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, 
-			highY, nchZ, lowZ, highZ, fCurrentFolder,
-			option);}
-//book TProfile2D using existing profile
-  MonitorElement * cloneProfile2D(std::string name, TProfile2D* source)
-  {return bookProfile2D(name,source,fCurrentFolder);}
-
+              {return bookProfile2D(name, title, nchX, lowX, highX, 
+	                                         nchY, lowY, highY, 
+						 nchZ, lowZ, highZ, fCurrentFolder, option);}
 
   /// book float
   MonitorElement * bookFloat(std::string s)
-  {return bookFloat(s, fCurrentFolder);}
+              {return bookFloat(s, fCurrentFolder);}
   /// book int
   MonitorElement * bookInt(std::string s)
-  {return bookInt(s, fCurrentFolder);}
+              {return bookInt(s, fCurrentFolder);}
   /// book string
   MonitorElement * bookString(std::string s, std::string v)
-  {return bookString(s, v, fCurrentFolder);}
-  
-  // ---------------- Navigation -----------------------
-  
-  /// return pathname of current directory
-  std::string pwd(void) const {return fCurrentFolder->getPathname();}
-  /// go to top directory (ie. root)
-  void cd(void) {setCurrentFolder("/");}
-  /// equivalent to "cd .."
-  void goUp(void);
-  /// set the last directory in fullpath as the current directory(create if needed);
-  /// to be invoked by user to specify directories for monitoring objects 
-  /// before booking;
-  /// commands book1D (etc) & removeElement(name) imply elements in this directory!;
-  void setCurrentFolder(std::string fullpath);
-  /// cd to subdirectory (if there)
-  void cd(std::string subdir_path);
-  /// Use this for saving monitoring objects in ROOT files with dir structure;
-  /// cd into directory (create first if it doesn't exist);
-  /// returns success flag
-  bool cdInto(std::string inpath) const;
+              {return bookString(s, v, fCurrentFolder);}
 
-  /// name of global monitoring folder (containing all sources subdirectories)
-  static const std::string monitorDirName;
-  static const std::string referenceDirName;
-  static const std::string collateDirName;
-  static const std::string dqmPatchVersion;
-  // ---------------- Miscellaneous -----------------------------
-  
-  /// true if directory exists
-  bool dirExists(std::string inpath) const
-  {return pathExists(inpath, Own);}
-  /// show directory structure
-  void showDirStructure(void) const;
-  /// save directory with monitoring objects into root file <filename>;
-  /// include quality test results with status >= minimum_status 
-  /// (defined in Core/interface/QTestStatus.h);
-  /// if directory="", save full monitoring structure
-
-  void save(std::string filename, std::string dir_fullpath="",
-	    int minimum_status=dqm::qstatus::STATUS_OK);
-  /// open/read root file <filename>, and copy MonitorElements;
-  /// if flag=true, overwrite identical MonitorElements (default: false);
-  /// if directory != "", read only selected directory
-  /// if prepend !="", prepend string to path
-  void open(std::string filename, bool overwrite = false,
-	    std::string directory="",std::string prepend="");
-
-  // ------------------- Reference ME -------------------------------
-  
-  /// reference histogram (from file) 
-  void             readReferenceME(std::string filename); // read from file
-  bool             makeReferenceME(MonitorElement* me );  // copy into Referencedir
-  bool             isReferenceME(MonitorElement* me) const; // check for existing
-  bool             isCollateME(MonitorElement* me) const; // check for existing
-  MonitorElement * getReferenceME(MonitorElement * me) const; // refme for given me
-  void             deleteME(MonitorElement *me) ; // delete ME (for all me)
-
-  // ------------------- File Versioning ---------------------------
-
-  std::string getFileReleaseVersion(std::string filename);
-  std::string getFileDQMPatchVersion(std::string filename);
-  std::string getDQMPatchVersion() { return "DQMPATCH:"+dqmPatchVersion; } 
-
-  // ---------------------------------------------------------------
-  
-  /// get list of subdirectories of current directory
-  std::vector<std::string> getSubdirs(void) const;
-  /// get list of (non-dir) MEs of current directory
-  std::vector<std::string> getMEs(void) const;
-
-
-  /// set verbose level (0 turns all non-error messages off)
-  void setVerbose(unsigned level){DQM_VERBOSE = level;}
-  /// get verbose level
-  unsigned getVerbose(void) const {return DQM_VERBOSE;}
-
-  // -------------------- Deleting ----------------------------------
-  /// remove directory
-  void rmdir(std::string fullpath);
-  /// erase monitoring element in current directory 
-  /// (opposite of book1D,2D,etc. action);
-  void removeElement(std::string name) {removeElement(fCurrentFolder, name);}
-  /// erase all monitoring elements in current directory (not including subfolders);
-  void removeContents(void) {removeContents(fCurrentFolder);}
-
-  /// remove all references for directories starting w/ pathname;
-  /// put contents of directories in removeContents (if applicable)
-  void removeReferences(std::string pathname, dqm::me_util::rootDir & rDir);
-
-  /// add <name> of folder to private method removedContents
-  void add2RemovedContents(const MonitorElementRootFolder * subdir, 
-			   std::string name);
-  /// add contents of folder to private method removedContents
-  void add2RemovedContents(const MonitorElementRootFolder * subdir);
-
-  /// acquire and release lock
-  void lock();
-  void unlock();
-
-  /// ------------- Tags (e.g. detector-IDs;) -----------------
-  /// Property similar to "Labels" of google-mail) 
-
+//-------------------------------------------------------------------------
+// ---------------------- public tagging ----------------------------------
   /// tag ME as <myTag> (myTag > 0)
   void tag(MonitorElement * me, unsigned int myTag);
   /// opposite action of tag method (myTag > 0)
@@ -241,12 +156,161 @@ class DaqMonitorBEInterface: public StringUtil
   /// opposite action of tagAllContents method
   void untagAllContents(std::string pathname, unsigned int myTag);
 
-  // ------------------- Public "getters" ------------------------------
+//-------------------------------------------------------------------------
+// ---------------------- public ME getters -------------------------------
+
   /// get ME from full pathname (e.g. "my/long/dir/my_histo")
   MonitorElement * get(std::string fullpath) const;
-
   /// get all MonitorElements tagged as <tag>
   std::vector<MonitorElement *> get(unsigned int tag) const;
+  /// get vector with all children of folder
+  /// (does NOT include contents of subfolders)
+  std::vector<MonitorElement *> getContents(std::string pathname) const;
+  /// same as above for tagged MonitorElements
+  std::vector<MonitorElement *> getContents
+       (std::string pathname, unsigned int tag) const;
+  /// get contents;
+  /// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>;
+  /// if showContents = false, change form to <dir pathname>:
+  /// (useful for subscription requests; meant to imply "all contents")
+  void getContents(std::vector<std::string> & put_here, 
+		   bool showContents = true) const;
+
+// ---------------------- temporarily public for Ecal/Hcal/ -------------
+  /// reset contents (does not erase contents permanently)
+  /// (makes copy of current contents; will be subtracted from future contents)
+  void softReset(MonitorElement * me);
+
+// ---------------------- Public deleting ---------------------------------
+  /// remove directory
+  void rmdir(std::string fullpath);
+  /// erase all monitoring elements in current directory (not including subfolders);
+  void removeContents(void) {removeContents(fCurrentFolder);}
+  /// erase monitoring element in current directory 
+  /// (opposite of book1D,2D,etc. action);
+  void removeElement(std::string name) {removeElement(fCurrentFolder, name);}
+  /// remove Monitor Element <name> from <pathname> in <Dir>
+  void remove(const std::string & pathname, const std::string & name,
+		  dqm::me_util::rootDir & Dir);
+
+//-------------------------------------------------------------------------
+// ---------------------- public I/O --------------------------------------
+
+  /// save directory with monitoring objects into root file <filename>;
+  /// include quality test results with status >= minimum_status 
+  /// (defined in Core/interface/QTestStatus.h);
+  /// if directory="", save full monitoring structure
+  void save(std::string filename, std::string dir_fullpath="",
+	    int minimum_status=dqm::qstatus::STATUS_OK);
+  /// open/read root file <filename>, and copy MonitorElements;
+  /// if flag=true, overwrite identical MonitorElements (default: false);
+  /// if directory != "", read only selected directory
+  /// if prepend !="", prepend string to path
+  void open(std::string filename, bool overwrite = false,
+	    std::string directory="",std::string prepend="");
+  /// version info
+  std::string getFileReleaseVersion(std::string filename);
+  std::string getFileDQMPatchVersion(std::string filename);
+  std::string getDQMPatchVersion() { return "DQMPATCH:"+dqmPatchVersion; } 
+
+//-------------------------------------------------------------------------
+// ---------------------- Public print methods -----------------------------
+  void showDirStructure(void) const;
+
+//-------------------------------------------------------------------------
+// ---------------------- Quality Test methods -----------------------------
+  /// get QCriterion corresponding to <qtname> 
+  /// (null pointer if QCriterion does not exist)
+  QCriterion * getQCriterion(std::string qtname) const;
+  /// create quality test with unique name <qtname> (analogous to ME name);
+  /// quality test can then be attached to ME with useQTest method
+  /// (<algo_name> must match one of known algorithms)
+  QCriterion * createQTest(std::string algo_name, std::string qtname);
+
+  /// attach quality test <qc> to directory contents ==> FAST
+  /// if tag != 0, this applies to tagged contents
+  /// (need exact pathname without wildcards, e.g. A/B/C);
+  ///
+  void useQTest(std::string search_string, std::string qtname) const;
+  /// attach quality test <qc> to all ME matching <search_string>;
+  /// if tag != 0, this applies to tagged contents
+  /// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+  /// (b) include wildcards (e.g. A/?/C/histo, A/B/\*/histo or A/B/\*): SLOW
+  void useQTest(unsigned int tag, std::string search_string, 
+		const dqm::me_util::rootDir & Dir, QCriterion * qc) const;
+
+  /// get QReport from ME (null pointer if no such QReport)
+  QReport * getQReport(MonitorElement * me, std::string qtname);
+
+  /// run quality tests (also finds updated contents in last monitoring cycle,
+  /// including newly added content) 
+  void runQTests(void);
+
+  /// get "global" folder <inpath> status (one of:STATUS_OK, WARNING, ERROR, OTHER);
+  /// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
+  /// see Core/interface/QTestStatus.h for details on "OTHER" 
+  int getStatus(std::string inpath = "") const;
+
+ private:
+
+ 
+  void reParseConfig(const edm::ParameterSet &pset){}
+ 
+  // ------------ Operations for MEs that are normally never reset ---------
+  /// reverts action of softReset
+  void disableSoftReset(MonitorElement * me);
+
+  /// acquire and release lock
+  void lock();
+  void unlock();
+
+  
+  // ---------------- Navigation -----------------------
+  
+
+  /// Use this for saving monitoring objects in ROOT files with dir structure;
+  /// cd into directory (create first if it doesn't exist);
+  /// returns success flag
+  bool cdInto(std::string inpath) const;
+
+  /// name of global monitoring folder (containing all sources subdirectories)
+  static const std::string monitorDirName;
+  static const std::string referenceDirName;
+  static const std::string collateDirName;
+  static const std::string dqmPatchVersion;
+  // ---------------- Miscellaneous -----------------------------
+  
+
+  // ------------------- Reference ME -------------------------------
+  
+  /// reference histogram (from file) 
+  void             readReferenceME(std::string filename); // read from file
+  bool             makeReferenceME(MonitorElement* me );  // copy into Referencedir
+  bool             isReferenceME(MonitorElement* me) const; // check for existing
+  bool             isCollateME(MonitorElement* me) const; // check for existing
+  MonitorElement * getReferenceME(MonitorElement * me) const; // refme for given me
+  void             deleteME(MonitorElement *me) ; // delete ME (for all me)
+
+
+  // ---------------------------------------------------------------
+  
+
+  /// get verbose level
+  unsigned getVerbose(void) const {return DQM_VERBOSE;}
+
+
+  /// remove all references for directories starting w/ pathname;
+  /// put contents of directories in removeContents (if applicable)
+  void removeReferences(std::string pathname, dqm::me_util::rootDir & rDir);
+
+  /// add <name> of folder to private method removedContents
+  void add2RemovedContents(const MonitorElementRootFolder * subdir, 
+			   std::string name);
+  /// add contents of folder to private method removedContents
+  void add2RemovedContents(const MonitorElementRootFolder * subdir);
+
+
+
 
   // ------------------- Private "getters" ------------------------------
   
@@ -328,18 +392,6 @@ class DaqMonitorBEInterface: public StringUtil
   void getAddedTags(std::vector<std::string> & put_here) const;
   void getRemovedTags(std::vector<std::string> & put_here) const;
 
-  /// get contents;
-  /// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>;
-  /// if showContents = false, change form to <dir pathname>:
-  /// (useful for subscription requests; meant to imply "all contents")
-  void getContents(std::vector<std::string> & put_here, 
-		   bool showContents = true) const;
-  /// get vector with all children of folder
-  /// (does NOT include contents of subfolders)
-  std::vector<MonitorElement *> getContents(std::string pathname) const;
-  /// same as above for tagged MonitorElements
-  std::vector<MonitorElement *> getContents
-       (std::string pathname, unsigned int tag) const;
   /// get vector with all children of folder in <rDir>
   /// (does NOT include contents of subfolders)
   void getContents(std::string & pathname, 
@@ -551,6 +603,28 @@ class DaqMonitorBEInterface: public StringUtil
   /// used for registering monitorables before user has subscribed to <name>
   void addElement(std::string name, std::string pathname);
 
+
+  // ---------------------- Booking ------------------------------------
+  //book 1D histogram using existing histogram
+  MonitorElement * clone1D(std::string name, TH1F* source)
+                            {return book1D(name,source,fCurrentFolder);}
+
+  //book 2D histogram using existing histogram
+  MonitorElement * clone2D(std::string name, TH2F* source)
+  {return book2D(name,source,fCurrentFolder);}
+
+  //book 3D histogram using existing histogram
+  MonitorElement * clone3D(std::string name, TH3F* source)
+  {return book3D(name,source,fCurrentFolder);}
+
+  //book TProfile using existing profile
+  MonitorElement * cloneProfile(std::string name, TProfile* source)
+  {return bookProfile(name,source,fCurrentFolder);}
+
+  //book TProfile2D using existing profile
+  MonitorElement * cloneProfile2D(std::string name, TProfile2D* source)
+  {return bookProfile2D(name,source,fCurrentFolder);}
+
   ///  book 1D histogram based on TH1F
   MonitorElement * book1D(std::string name, TH1F* source,
                            MonitorElementRootFolder * dir);
@@ -647,12 +721,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// check against null objects (true if object exists)
   bool checkElement(const MonitorElement * const me) const;
   
-  /// true if directory (or any subfolder at any level below it) contains
-  /// at least one valid (i.e. non-null) monitoring element
-  bool containsAnyMEs(std::string pathname) const;
-  /// true if directory (or any subfolder at any level below it) contains
-  /// at least one monitorable element
-  bool containsAnyMonitorable(std::string pathname) const;
 
   /// true if Monitoring Element <me> is needed by any subscriber
   bool isNeeded(std::string pathname, std::string me) const;
@@ -670,9 +738,6 @@ class DaqMonitorBEInterface: public StringUtil
   void removeCopies(const std::string & pathname);
   /// remove Monitor Element <name> from all subscribers, tags & CME directories
   void removeCopies(const std::string & pathname, const std::string & name);
-  /// remove Monitor Element <name> from <pathname> in <Dir>
-  void remove(const std::string & pathname, const std::string & name,
-		  dqm::me_util::rootDir & Dir);
   // -------------------- Deleting ----------------------------------
   /// delete directory and all contents;
   /// delete directory (all contents + subfolders);
@@ -762,10 +827,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// set of updated quality reports since last monitoring cycle
   std::set<QReport *> updatedQReports;
 
-  /// get "global" folder <inpath> status (one of:STATUS_OK, WARNING, ERROR, OTHER);
-  /// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
-  /// see Core/interface/QTestStatus.h for details on "OTHER" 
-  int getStatus(std::string inpath = "") const;
   /// same as above for tag;
   int getStatus(unsigned int tag) const;
   /// same as above for vector with MonitorElements
@@ -776,14 +837,6 @@ class DaqMonitorBEInterface: public StringUtil
   bool hasWarning(const std::vector<MonitorElement *> & ME_group) const;
   bool hasOtherReport(const std::vector<MonitorElement *> & ME_group) const;
   
-  // ------------ Operations for MEs that are normally never reset ---------
-
-  /// reset contents (does not erase contents permanently)
-  /// (makes copy of current contents; will be subtracted from future contents)
-  void softReset(MonitorElement * me);
-
-  /// reverts action of softReset
-  void disableSoftReset(MonitorElement * me);
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
 
@@ -813,38 +866,14 @@ class DaqMonitorBEInterface: public StringUtil
   bool qreportExists(MonitorElement * me, std::string qtname) const
   {return me->qreportExists(qtname);}
 
-  /// get QCriterion corresponding to <qtname> 
-  /// (null pointer if QCriterion does not exist)
-  QCriterion * getQCriterion(std::string qtname) const;
 
-  /// get QReport from ME (null pointer if no such QReport)
-  QReport * getQReport(MonitorElement * me, std::string qtname);
-
-  /// run quality tests (also finds updated contents in last monitoring cycle,
-  /// including newly added content) 
-  void runQTests(void);
 
   /// set of all available algorithms for quality tests
   std::set<std::string> availableAlgorithms;
 
 
-  /// create quality test with unique name <qtname> (analogous to ME name);
-  /// quality test can then be attached to ME with useQTest method
-  /// (<algo_name> must match one of known algorithms)
-  QCriterion * createQTest(std::string algo_name, std::string qtname);
 
-  /// attach quality test <qc> to all ME matching <search_string>;
-  /// if tag != 0, this applies to tagged contents
-  /// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
-  /// (b) include wildcards (e.g. A/?/C/histo, A/B/\*/histo or A/B/\*): SLOW
-  void useQTest(unsigned int tag, std::string search_string, 
-		const dqm::me_util::rootDir & Dir, QCriterion * qc) const;
 
-  /// attach quality test <qc> to directory contents ==> FAST
-  /// if tag != 0, this applies to tagged contents
-  /// (need exact pathname without wildcards, e.g. A/B/C);
-  ///
-  void useQTest(std::string search_string, std::string qtname) const;
   ///
   void useQTest(unsigned int tag, std::string search_string, 
               std::string qtname) const;
@@ -878,11 +907,16 @@ class DaqMonitorBEInterface: public StringUtil
   inline bool wasResetCalled() const
   {return rMonitoringDiffWasCalled && rMonitorableDiffWasCalled;}
 
-  /// make new directory structure for Subscribers, Tags and CMEsx
-  void makeDirStructure(dqm::me_util::rootDir & Dir, std::string name);
  
-  DQMTagHelper * tagHelper;
- private:
+
+
+
+
+
+ //-------------------------------------------------------------------------------
+ //-------------------------------------------------------------------------------
+ 
+ 
   /// use to printout warning when calling quality tests twice without
   /// having called resetMonitoringDiff, resetMonitorableDiff in between...
   /// (to be reset in MonitorUserInterface::runQualityTests)
@@ -908,23 +942,47 @@ class DaqMonitorBEInterface: public StringUtil
   DaqMonitorBEInterface(const DaqMonitorBEInterface&);
   const DaqMonitorBEInterface& operator=(const DaqMonitorBEInterface&);
 
-  friend class NodeBase;
-  friend class SenderBase;
-  friend class ReceiverBase;
+  /// make new directory structure for Subscribers, Tags and CMEsx
+  void makeDirStructure(dqm::me_util::rootDir & Dir, std::string name);
+
+  // ------ these were friends before
+  friend class edm::DQMHttpSource;   // In EventFilter/StorageManager
+
   friend class MonitorUserInterface;
   friend class MonitorUIRoot;
   friend class DQMTagHelper;
-  friend class ClientRoot;
+
+  friend class ClientRoot;             // these will likely be removed
   friend class ClientServerRoot;
-  friend class edm::DQMHttpSource;
+  friend class NodeBase;
+  friend class SenderBase;
+  friend class ReceiverBase;
 
-  // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
-  // template classes, so I have to find a workaround for now
-  // error: "...is not a template type" - christos May26, 2005
+  // ------ these friends from within DQMServices added since V01-00-01
+  friend class RootMonitorThread;
+  friend class QTestStatusChecker;
 
-  /// ROOT objects are saved here when they are booked (set by "setCurrentFolder")
+  friend class ROOTtoMEConverter;      // need clone methods
+  friend class MEtoROOTConverter;
+
+  // ------ example executables        // can all be removed ???
+  friend class DQMLocalGUI;
+  friend class DQMBackEndInterfaceExample;
+  friend class DQMMonitorUIRootStandaloneExample;
+  friend class DQMReadFileExample;
+  friend class DQMBackEndInterfaceQTestsExample;
+  
+  // ------ old web GUI class using lock and unlock
+  friend class WebInterface;           // 
+  friend class ClientWithWebInterface; // needs getUpdatedContents
+  friend class MuonDQMClient;          // needs getUpdatedContents
+  friend class SiPixelWebClient;       // needs getUpdatedContents
+        
+  // ----------------------- private data members
   MonitorElementRootFolder * fCurrentFolder;
+  DQMTagHelper * tagHelper;
 
+  // ----------------------- singleton admin -----------------------------------
   static DaqMonitorBEInterface *instance();
   static DaqMonitorBEInterface *theinstance;
 
