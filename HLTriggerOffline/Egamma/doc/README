@@ -16,15 +16,20 @@ Instructions for running code:
 
 		> cmsRun HLTRecoWithoutFilters.cfg
 
+   If you want to run on larger samples, you will probably want to run on a batch or on the grid.
+   I have several sample scripts in ../test/HLTStudyData/ for running on the batches at FNAL and CERN as well as using CRAB.
+   Getting grid credentials... now that's a different story.
+
 For Validation:
-4. Edit macros/Get*Eff.C, where * is the name of one of the Egamma HLT paths: SingleElectron, 
+4. Edit ../macros/Get*Eff.C, where * is the name of one of the Egamma HLT paths: SingleElectron, 
    RelaxedSingleElectron, etc.  Change the TFile argument to the file created in 3.  Change the cuts 
    at the beginning of the file to the cuts you would like to test.  These are currently the cuts in 
-   the actual HLT code as of 1_6_0.
+   the actual HLT code as of 1_6_0.  This should probably be updated to follow the newer format (files
+   should be consolidated and user-defined multi-cut functions should be eliminated).
 
 5. Do the following:
 
-                > cd <path-to-HLTriggerOffline/Egamma>/macros
+                > cd ../macros
 		> root.exe
 		[] .L CopyTreeMulti.C; // Only if running a Double trigger
 		[] .x Get*Eff.C
@@ -34,25 +39,22 @@ For Validation:
    macros/images/EffV(Et/eta/phi)(SE/RSE/etc.).gif.
 
 Bugs:
-- Root scripts produce a long series of errors that do no affect the output.  I see no way to get rid
-  of these in the current version of root (unfortunately).
+- Root scripts produce a long series of errors that do no affect the output.  These will probably be eliminated
+  if the code is updated using the new SUM$ function described in other files.
 - When eff = 1, the errors are calculated using some Bayesian algorithm in this version root.  This is
-  changed to the more usual "error = 0 for eff = 1" way of working in newer versions of root.
+  changed to the more usual "error = 0 for eff = 1" way of working in newer versions of root (that we are not
+  using for some reason).
 
-For Optimization:
-6. Repeat 2-3 for a background sample, giving the output a different name.
+For Rates, Plots, Optimization, ...:
+6. Most of the files for these functions are documented with comments.  They are all located in ../macros with
+   self-explanatory (I think) names.  Old Vars refers to files meant to study IHcal, E/p, while New Vars refers to
+   files meant to study H/E, |1/E - 1/p|.  Note that I have added H/E and |1/E - 1/p| to the output of the
+   CMSSW part of the code.  However, I have not updated the root scripts yet because not all the background samples
+   contain this update!  More details in the actual files where relevant.  In order to run any of these scripts, do
+   the following in the macros directory:
 
-7. Edit macros/GetOptimization.C.  Change the signal and background file names to reflect those from 3.
-   and 6.  Then do:
+		> root.exe
+		[] .L <Script-Name>.C++
+		[] <Script-Name>
 
-		> root.exe // in macros directory
-		[] .L GetOptimization.C++;
-		[] GetOptimization();
-
-  The output will be a graph of Efficiency vs. Background for each e/gamma trigger path filter and graphs 
-  of timing vs. filter for the isolated streams in both electrons and photons.
-
-Bugs:
-- If no signal events or background events pass any of the cuts imposed, an error will be produced
-- No error bars yet
-- Code is messy for now and difficult to modify; should be changed very soon.
+  Warning: the output is generally to file names defined in the script file.

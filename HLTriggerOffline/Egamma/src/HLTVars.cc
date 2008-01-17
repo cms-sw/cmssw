@@ -104,8 +104,7 @@ class HLTVars : public edm::EDProducer {
       double region_phi_size_;
       double barrel_end_;
       double endcap_end_;
-      bool do_elec_eta_filter_;
-      bool do_phot_eta_filter_;
+  int singlePass;
 };
 
 //
@@ -155,8 +154,6 @@ HLTVars::HLTVars(const edm::ParameterSet& iConfig)
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");
    endcap_end_           = iConfig.getParameter<double> ("endcap_end");
-   do_elec_eta_filter_   = iConfig.getParameter<bool> ("do_elec_eta_filter");
-   do_phot_eta_filter_   = iConfig.getParameter<bool> ("do_phot_eta_filter");
 }
 
 
@@ -167,7 +164,6 @@ HLTVars::~HLTVars()
    // (e.g. close files, deallocate resources etc.)
 
 }
-
 
 //
 // member functions
@@ -382,7 +378,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    try{iEvent.getByLabel("myTimer", hltTimes);} catch(...){};
 
    /* Check all the labels that need to be checked */
-   bool doL1Iso = l1IsoEmParts.isValid();
+   //   bool doL1Iso = l1IsoEmParts.isValid();
    bool doL1MatchIso = l1IsoRecoEcalCands.isValid();
    bool doElecIHcalIso = l1IsoElecIHcalMap.isValid();
    bool doPhotIHcalIso = l1IsoPhotIHcalMap.isValid();
@@ -391,7 +387,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool doElecItrackIso = l1IsoElecItrackMap.isValid();
    bool doIEcalIso = l1IsoIEcalMap.isValid();
    bool doPhotItrackIso = l1IsoPhotItrackMap.isValid();
-   bool doL1NonIso = l1NonIsoEmParts.isValid();
+   //   bool doL1NonIso = l1NonIsoEmParts.isValid();
    bool doL1MatchNonIso = l1NonIsoRecoEcalCands.isValid();
    bool doElecIHcalNonIso = l1NonIsoElecIHcalMap.isValid();
    bool doPhotIHcalNonIso = l1NonIsoPhotIHcalMap.isValid();
@@ -428,6 +424,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nMCElecs = 0;
    int nMCPhots = 0;
    int nMCParts = 0;
+   int nMCW = 0;
    if (mcParts.isValid()) {
      for( GenParticleCandidateCollection::const_iterator mcpart = mcParts->begin(); mcpart != mcParts->end(); ++ mcpart ) {
        if (abs(mcpart->pdgId()) == 11 && mcpart->status() == 3) {
@@ -436,11 +433,14 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (mcPhi < 0) mcPhi += TWOPI;
 	 double mcEt = mcpart->et();
 	 struct CaloVars oneCutVars = { mcEt, mcEta, mcPhi };
-	 mcSingleElecs->push_back(oneCutVars);
-	 mcDoubleElecs->push_back(oneCutVars);
-         if (fabs(mcpart->eta()) < 2.5 && (fabs(mcpart->eta()) < 1.4442 || fabs(mcpart->eta()) > 1.566)) {
-           nMCElecs++; // Tells us how many MC electrons pass eta cut in order to check that filter
-         }
+	 //         if (fabs(mcpart->eta()) < 2.5 && (fabs(mcpart->eta()) < 1.4442 || fabs(mcpart->eta()) > 1.566)) {
+  	   mcSingleElecs->push_back(oneCutVars);
+	   mcDoubleElecs->push_back(oneCutVars);
+           nMCElecs++; // Tells us how many status 3 MC electrons pass eta cut in order to check that filter
+	   //         }
+       }
+       if (abs(mcpart->pdgId()) == 24) {
+	 nMCW++;
        }
        if (abs(mcpart->pdgId()) == 22 && mcpart->status() == 3) {
          double mcEta = mcpart->eta();
@@ -448,11 +448,11 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if (mcPhi < 0) mcPhi += TWOPI;
          double mcEt = mcpart->et();
          struct CaloVars oneCutVars = { mcEt, mcEta, mcPhi };
-         mcSinglePhots->push_back(oneCutVars);
-         mcDoublePhots->push_back(oneCutVars);
-         if (fabs(mcpart->eta()) < 2.5 && (fabs(mcpart->eta()) < 1.4442 || fabs(mcpart->eta()) > 1.566)) {
+	 //         if (fabs(mcpart->eta()) < 2.5 && (fabs(mcpart->eta()) < 1.4442 || fabs(mcpart->eta()) > 1.566)) {
+           mcSinglePhots->push_back(oneCutVars);
+           mcDoublePhots->push_back(oneCutVars);
            nMCPhots++;
-         }
+	   //         }
        }
        if (mcpart->status() == 3) {
 	 if (fabs(mcpart->eta()) < 2.5 && (fabs(mcpart->eta()) < 1.4442 || fabs(mcpart->eta()) > 1.566)) {
@@ -461,6 +461,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
    }
+   std::cout<<"MC Elecs: "<<nMCElecs<<std::endl;
 
    double l1MatchIsoTime = 0.;
    double EtIsoTime = 0.;
@@ -655,7 +656,11 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        if (doL1MatchIso) l1Match = L1Match(*recoecalcand, l1IsoEmParts, l1CaloGeom);
        double Et = recoecalcand->et();
        float ElecIHcal = 99999.;
-       if (doElecIHcalIso) ElecIHcal = HcalIsol(recr, l1IsoElecIHcalMap);
+       float ElecHoE = 99999.;
+       if (doElecIHcalIso && Et != 0) {
+	 ElecIHcal = HcalIsol(recr, l1IsoElecIHcalMap);
+	 ElecHoE = ElecIHcal / Et;
+       }
        int pixMatch = 0;
        if (doPixMatchIso) pixMatch = ElectronPixelMatch(recr, l1IsoPixMatchBarrelMap, l1IsoPixMatchEndcapMap);
        float IEcal = 99999.;
@@ -665,41 +670,41 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        float PhotItrack = 99999.;
        if (doPhotItrackIso) PhotItrack = PhotonTrackIsol(recr, l1IsoPhotItrackMap);
        float Eoverp = 99999.;
+       float EpMatch = 99999.;
        float ElecItrack = 99999.;
        double eta = recoecalcand->eta();
        double phi = recoecalcand->phi();
        CaloVars matchElec = MCMatch(recr2, *mcSingleElecs);
        CaloVars matchPhot = MCMatch(recr2, *mcSinglePhots);
        if (phi < 0) phi += TWOPI;
-       struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi}; 
+       struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, ElecHoE, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi}; 
        struct PhotHLTCutVars photStruct = {l1Match, Et, IEcal, PhotIHcal, PhotItrack, eta, phi, matchPhot.Et, matchPhot.eta, matchPhot.phi};
-       if (Et > 5.0) {
-	 SingleElecsPT->push_back(elecStructPT);
-	 RelaxedSingleElecsPT->push_back(elecStructPT);
-	 DoubleElecsPT->push_back(elecStructPT);
-	 RelaxedDoubleElecsPT->push_back(elecStructPT);
-	 SinglePhots->push_back(photStruct);
-	 RelaxedSinglePhots->push_back(photStruct);
-	 DoublePhots->push_back(photStruct);
-	 RelaxedDoublePhots->push_back(photStruct);
-       }
+       SingleElecsPT->push_back(elecStructPT);
+       RelaxedSingleElecsPT->push_back(elecStructPT);
+       DoubleElecsPT->push_back(elecStructPT);
+       RelaxedDoubleElecsPT->push_back(elecStructPT);
+       SinglePhots->push_back(photStruct);
+       RelaxedSinglePhots->push_back(photStruct);
+       DoublePhots->push_back(photStruct);
+       RelaxedDoublePhots->push_back(photStruct);
        if(doEoverpIso) { 
          for (ElectronCollection::const_iterator eleccand = l1IsoElecs->begin(); eleccand != l1IsoElecs->end(); ++eleccand) {
            ElectronRef electronref(ElectronRef(l1IsoElecs, eleccand - l1IsoElecs->begin()));
            const SuperClusterRef theClus = electronref->superCluster();
            if (&(*recr2) == &(*theClus)) {
              Eoverp = ElectronEoverp(electronref);
-             if (doElecItrackIso) ElecItrack = ElectronTrackIsol(electronref, l1IsoElecItrackMap);
+	     if (doElecItrackIso) ElecItrack = ElectronTrackIsol(electronref, l1IsoElecItrackMap);
 	     eta = electronref->eta();
  	     phi = electronref->phi();
              if (phi < 0) phi += TWOPI;
-             struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, pixMatch, Eoverp, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
-             if (Et > 5.0) {
-	       SingleElecs->push_back(elecStruct);
-	       RelaxedSingleElecs->push_back(elecStruct);
-	       DoubleElecs->push_back(elecStruct);
-	       RelaxedDoubleElecs->push_back(elecStruct);
+	     if (Et != 0) {
+	       EpMatch = fabs(1/Et - Eoverp/Et) * sin(2.*atan(exp(-eta)));
 	     }
+             struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, ElecHoE, pixMatch, Eoverp, EpMatch, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
+	     SingleElecs->push_back(elecStruct);
+	     RelaxedSingleElecs->push_back(elecStruct);
+	     DoubleElecs->push_back(elecStruct);
+	     RelaxedDoubleElecs->push_back(elecStruct);
 	     Eoverp = 99999.;
 	     ElecItrack = 99999.;
 	     eta = recoecalcand->eta();
@@ -718,7 +723,11 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        if (doL1MatchNonIso) l1Match = L1Match(*recoecalcand, l1NonIsoEmParts, l1CaloGeom);
        double Et = recoecalcand->et();
        float ElecIHcal = 99999.;
-       if (doElecIHcalNonIso) ElecIHcal = HcalIsol(recr, l1NonIsoElecIHcalMap);
+       float ElecHoE = 99999.;
+       if (doElecIHcalNonIso && Et != 0) {
+	 ElecIHcal = HcalIsol(recr, l1NonIsoElecIHcalMap);
+	 ElecHoE = ElecIHcal / Et;
+       }
        int pixMatch = 0;
        if (doPixMatchNonIso) pixMatch = ElectronPixelMatch(recr, l1NonIsoPixMatchBarrelMap, l1NonIsoPixMatchEndcapMap);
        float IEcal = 99999.;
@@ -728,20 +737,19 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        float PhotItrack = 99999.;
        if (doPhotItrackNonIso) PhotItrack = PhotonTrackIsol(recr, l1NonIsoPhotItrackMap);
        float Eoverp = 99999.;
+       float EpMatch = 99999.;
        float ElecItrack = 99999.;
        double eta = recoecalcand->eta();
        double phi = recoecalcand->phi(); 
        CaloVars matchElec = MCMatch(recr2, *mcSingleElecs);
        CaloVars matchPhot = MCMatch(recr2, *mcSinglePhots);
        if (phi < 0) phi += TWOPI;
-       struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
+       struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, ElecHoE, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
        struct PhotHLTCutVars photStruct = {l1Match, Et, IEcal, PhotIHcal, PhotItrack, eta, phi, matchPhot.Et, matchPhot.eta, matchPhot.phi};
-       if (Et > 5.0) {
-	 RelaxedSingleElecsPT->push_back(elecStructPT);
-	 RelaxedDoubleElecsPT->push_back(elecStructPT);
-	 RelaxedSinglePhots->push_back(photStruct);
-	 RelaxedDoublePhots->push_back(photStruct);
-       }
+       RelaxedSingleElecsPT->push_back(elecStructPT);
+       RelaxedDoubleElecsPT->push_back(elecStructPT);
+       RelaxedSinglePhots->push_back(photStruct);
+       RelaxedDoublePhots->push_back(photStruct);
        if(doEoverpNonIso) {
          for (ElectronCollection::const_iterator eleccand = l1NonIsoElecs->begin(); eleccand != l1NonIsoElecs->end(); ++eleccand) {
            ElectronRef electronref(ElectronRef(l1NonIsoElecs, eleccand - l1NonIsoElecs->begin()));
@@ -752,11 +760,12 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
 	     eta = electronref->eta();
 	     phi = electronref->phi();
              if (phi < 0) phi += TWOPI;
-             struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, pixMatch, Eoverp, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
-	     if (Et > 5.0) {
-	       RelaxedSingleElecs->push_back(elecStruct);
-	       RelaxedDoubleElecs->push_back(elecStruct);
+	     if (Et != 0) {
+	       EpMatch = fabs(1/Et - Eoverp/Et) * sin(2.*atan(exp(-eta)));
 	     }
+	     struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, ElecHoE, pixMatch, Eoverp, EpMatch, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
+	     RelaxedSingleElecs->push_back(elecStruct);
+	     RelaxedDoubleElecs->push_back(elecStruct);
 	     Eoverp = 99999.;
 	     ElecItrack = 99999.;
 	     eta = recoecalcand->eta();
@@ -767,25 +776,74 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
      }
    }
 
-   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1IsoSingleEG) iEvent.put(SingleElecsPT, "SingleElecsPT"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecsPT, "RelaxedSingleElecsPT"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoubleElecsPT, "DoubleElecsPT"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecsPT, "RelaxedDoubleElecsPT"); 
-
-   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1IsoSingleEG) iEvent.put(SingleElecs, "SingleElecs"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecs, "RelaxedSingleElecs"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoubleElecs, "DoubleElecs"); 
-   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecs, "RelaxedDoubleElecs"); 
-
-   if (((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) && L1IsoSingleEG) iEvent.put(SinglePhots, "SinglePhots"); 
-   if (((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSinglePhots, "RelaxedSinglePhots"); 
-   if (((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoublePhots, "DoublePhots"); 
-   if (((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoublePhots, "RelaxedDoublePhots"); 
-
-   if ((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) iEvent.put(mcSingleElecs, "mcSingleElecs");
-   if ((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) iEvent.put(mcDoubleElecs, "mcDoubleElecs");
-   if ((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) iEvent.put(mcSinglePhots, "mcSinglePhots");
-   if ((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) iEvent.put(mcDoublePhots, "mcDoublePhots");
+   if (SingleElecsPT->empty()) {
+     struct ElecHLTCutVarsPreTrack elecStructPT = {false, 0., 99999., 99999., 0, 99999., 99999., 0., 99999., 99999.};
+     RelaxedSingleElecsPT->push_back(elecStructPT);
+   }
+   if (DoubleElecsPT->empty()) {
+     struct ElecHLTCutVarsPreTrack elecStructPT = {false, 0., 99999., 99999., 0, 99999., 99999., 0., 99999., 99999.};
+     RelaxedSingleElecsPT->push_back(elecStructPT);
+   }
+   if (RelaxedSingleElecsPT->empty()) {
+     struct ElecHLTCutVarsPreTrack elecStructPT = {false, 0., 99999., 99999., 0, 99999., 99999., 0., 99999., 99999.};
+     RelaxedSingleElecsPT->push_back(elecStructPT);
+   }
+   if (RelaxedDoubleElecsPT->empty()) {
+     struct ElecHLTCutVarsPreTrack elecStructPT = {false, 0., 99999., 99999., 0, 99999., 99999., 0., 99999., 99999.};
+     RelaxedDoubleElecsPT->push_back(elecStructPT);
+   }
+   if (SingleElecs->empty()) {
+     struct ElecHLTCutVars elecStruct = {false, 0., 99999., 99999., 0, 99999., 99999., 99999., 99999., 99999., 0., 99999., 99999.};
+     SingleElecs->push_back(elecStruct);
+   }
+   if (RelaxedSingleElecs->empty()) {
+     struct ElecHLTCutVars elecStruct = {false, 0., 99999., 99999., 0, 99999., 99999., 99999., 99999., 99999., 0., 99999., 99999.};
+     RelaxedSingleElecs->push_back(elecStruct);
+   }
+   if (DoubleElecs->empty()) {
+     struct ElecHLTCutVars elecStruct = {false, 0., 99999., 99999., 0, 99999., 99999., 99999., 99999., 99999., 0., 99999., 99999.};
+     DoubleElecs->push_back(elecStruct);
+   }
+   if (RelaxedDoubleElecs->empty()) {
+     struct ElecHLTCutVars elecStruct = {false, 0., 99999., 99999., 0, 99999., 99999., 99999., 99999., 99999., 0., 99999., 99999.};
+     RelaxedDoubleElecs->push_back(elecStruct);
+   }
+   if (SinglePhots->empty()) {
+     struct PhotHLTCutVars photStruct = {false, 0., 99999., 99999., 999999., 99999., 99999., 0., 99999., 99999.};
+     SinglePhots->push_back(photStruct);
+   }
+   if (RelaxedSinglePhots->empty()) {
+     struct PhotHLTCutVars photStruct = {false, 0., 99999., 99999., 999999., 99999., 99999., 0., 99999., 99999.};
+     RelaxedSinglePhots->push_back(photStruct);
+   }
+   if (DoublePhots->empty()) {
+     struct PhotHLTCutVars photStruct = {false, 0., 99999., 99999., 999999., 99999., 99999., 0., 99999., 99999.};
+     DoublePhots->push_back(photStruct);
+   }
+   if (RelaxedDoublePhots->empty()) {
+     struct PhotHLTCutVars photStruct = {false, 0., 99999., 99999., 999999., 99999., 99999., 0., 99999., 99999.};
+     RelaxedDoublePhots->push_back(photStruct);
+   }
+   
+   if (L1IsoSingleEG) {iEvent.put(SingleElecsPT, "SingleElecsPT"); singlePass++;}
+   if (L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecsPT, "RelaxedSingleElecsPT"); 
+   if (L1IsoDoubleEG) iEvent.put(DoubleElecsPT, "DoubleElecsPT"); 
+   if (L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecsPT, "RelaxedDoubleElecsPT"); 
+   
+   if (L1IsoSingleEG) iEvent.put(SingleElecs, "SingleElecs"); 
+   if (L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecs, "RelaxedSingleElecs"); 
+   if (L1IsoDoubleEG) iEvent.put(DoubleElecs, "DoubleElecs"); 
+   if (L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecs, "RelaxedDoubleElecs"); 
+   
+   if (L1IsoSingleEG) iEvent.put(SinglePhots, "SinglePhots"); 
+   if (L1NonIsoSingleEG) iEvent.put(RelaxedSinglePhots, "RelaxedSinglePhots"); 
+   if (L1IsoDoubleEG) iEvent.put(DoublePhots, "DoublePhots"); 
+   if (L1NonIsoDoubleEG) iEvent.put(RelaxedDoublePhots, "RelaxedDoublePhots"); 
+   
+   iEvent.put(mcSingleElecs, "mcSingleElecs");
+   iEvent.put(mcDoubleElecs, "mcDoubleElecs");
+   iEvent.put(mcSinglePhots, "mcSinglePhots");
+   iEvent.put(mcDoublePhots, "mcDoublePhots");
 
    iEvent.put(IsoTiming, "IsoTiming");
    iEvent.put(NonIsoTiming, "NonIsoTiming");
@@ -795,11 +853,13 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
 void 
 HLTVars::beginJob(const edm::EventSetup&)
 {
+  singlePass = 0;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HLTVars::endJob() {
+  std::cout<<"Pass: "<<singlePass<<std::endl;
 }
 
 //define this as a plug-in

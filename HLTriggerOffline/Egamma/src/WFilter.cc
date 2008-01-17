@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MCEtaFilter
-// Class:      MCEtaFilter
+// Package:    WFilter
+// Class:      WFilter
 // 
-/**\class MCEtaFilter MCEtaFilter.cc HLTriggerOffline/Egamma/src/MCEtaFilter.cc
+/**\class WFilter WFilter.cc HLTriggerOffline/Egamma/src/WFilter.cc
 
  Description: Applies genertor-level eta cuts to include electrons in Ecal fiducial volume
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 27 00:21:27 CEST 2007
-// $Id: MCEtaFilter.cc,v 1.1 2007/09/14 19:05:50 jberger Exp $
+// $Id: WFilter.cc,v 1.1 2007/09/14 19:05:50 jberger Exp $
 //
 //
 
@@ -35,10 +35,10 @@
 // class declaration
 //
 
-class MCEtaFilter : public edm::EDFilter {
+class WFilter : public edm::EDFilter {
    public:
-      explicit MCEtaFilter(const edm::ParameterSet&);
-      ~MCEtaFilter();
+      explicit WFilter(const edm::ParameterSet&);
+      ~WFilter();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -46,9 +46,8 @@ class MCEtaFilter : public edm::EDFilter {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-     edm::InputTag candTag_;
-     int ncandcut_;
-     int pathId_;
+      bool accept;
+      int nE_min_;
 };
 
 //
@@ -62,21 +61,20 @@ class MCEtaFilter : public edm::EDFilter {
 //
 // constructors and destructor
 //
-MCEtaFilter::MCEtaFilter(const edm::ParameterSet& iConfig)
+WFilter::WFilter(const edm::ParameterSet& iConfig)
 {
+  nE_min_ = iConfig.getParameter<int> ("nE_min");
+
    //now do what ever initialization is needed
-  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  ncandcut_ = iConfig.getParameter<int> ("ncandcut");
-  pathId_ = iConfig.getParameter<int> ("id");
+   accept = false;
 }
 
 
-MCEtaFilter::~MCEtaFilter()
+WFilter::~WFilter()
 {
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -86,45 +84,45 @@ MCEtaFilter::~MCEtaFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-MCEtaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+WFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   accept = false;
+
    Handle<HepMCProduct> mcProd;
-   iEvent.getByLabel(candTag_, mcProd);
+   iEvent.getByLabel("source", mcProd);
    const HepMC::GenEvent * mcEvent = mcProd->GetEvent();
 
-   int candidates = 0;
-   bool accept = false;
-   int electronN = 0;
+   int nE = 0;
    for(HepMC::GenEvent::particle_const_iterator mcpart = mcEvent->particles_begin(); mcpart != mcEvent->particles_end(); ++ mcpart ) {
-     double Et = (*mcpart)->momentum().perp();
-     double eta = (*mcpart)->momentum().eta();
      int id = (*mcpart)->pdg_id();
-     int status = (*mcpart)->status();
-     electronN++;
-     if ((pathId_ == -1 || abs(id) == pathId_) && status == 3) {
-       if (fabs(eta) < 2.7 && Et > 5.) {
-         candidates++;
+     if (abs(id) == 11) {
+       for (HepMC::GenVertex::particles_in_const_iterator parent = (*mcpart)->production_vertex()->particles_in_const_begin(); parent != (*mcpart)->production_vertex()->particles_in_const_end(); ++ parent) {
+	 std::cout<<"Parent ID: "<<(*parent)->pdg_id()<<std::endl;
+	 if (abs((*parent)->pdg_id()) == 24) {
+	   std::cout<<"Particle ID: "<<id<<std::endl;
+	   nE++;
+	 }
        }
      }
    }
 
-   if (candidates >= ncandcut_) accept = true;
+   if (nE >= nE_min_) accept = true;
 
    return accept;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MCEtaFilter::beginJob(const edm::EventSetup&)
+WFilter::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-MCEtaFilter::endJob() {
+WFilter::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MCEtaFilter);
+DEFINE_FWK_MODULE(WFilter);

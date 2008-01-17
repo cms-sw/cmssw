@@ -9,6 +9,7 @@ struct ElecHLTCutVarsPreTrack {
   bool l1Match;
   float Et; // transverse energy
   float IHcal; // electron Hcal isolation (CMS Note 2006/078)
+  float HoE;
   int pixMatch;
   float eta;
   float phi;
@@ -21,8 +22,10 @@ struct ElecHLTCutVars {
   bool l1Match;
   float Et; // transverse energy
   float IHcal; // electron Hcal isolation (CMS Note 2006/078)
+  float HoE;
   int pixMatch;
   float Eoverp;
+  float EpMatch;
   float Itrack; // electron track isolation (CMS Note 2006/078)
   float eta;
   float phi;
