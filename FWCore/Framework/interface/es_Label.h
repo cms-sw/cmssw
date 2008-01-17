@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 30 09:35:20 EDT 2005
-// $Id: es_Label.h,v 1.2 2006/08/31 23:26:24 wmtan Exp $
+// $Id: es_Label.h,v 1.3 2007/11/07 07:54:03 wmtan Exp $
 //
 
 // system include files
 #include "boost/shared_ptr.hpp"
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"

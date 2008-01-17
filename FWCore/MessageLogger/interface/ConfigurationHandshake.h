@@ -8,6 +8,7 @@
 
 namespace edm
 {
+  class ParameterSet;
 
 typedef edm::Exception* Pointer_to_new_exception_on_heap;
 typedef Pointer_to_new_exception_on_heap* Place_for_passing_exception_ptr;

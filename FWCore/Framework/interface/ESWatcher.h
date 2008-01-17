@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 22 18:19:24 EDT 2006
-// $Id$
+// $Id: ESWatcher.h,v 1.1 2006/09/23 01:41:26 chrjones Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
 
 // user include files

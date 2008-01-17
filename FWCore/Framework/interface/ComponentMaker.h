@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.15 2007/07/30 19:14:21 chrjones Exp $
+// $Id: ComponentMaker.h,v 1.17 2007/08/27 16:10:11 wmtan Exp $
 //
 
 // system include files
@@ -27,11 +27,11 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 
 namespace edm {
-   class ParameterSet;
    namespace eventsetup {
       class EventSetupProvider;
       class DataProxyProvider;
