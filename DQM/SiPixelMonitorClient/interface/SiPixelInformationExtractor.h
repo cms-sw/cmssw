@@ -26,6 +26,7 @@
 #include <vector>
 #include <string>
 #include <map>
+class SiPixelEDAClient;
 
 class SiPixelInformationExtractor {
 

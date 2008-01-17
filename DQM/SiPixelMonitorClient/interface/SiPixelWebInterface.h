@@ -7,6 +7,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 class SiPixelActionExecutor;
 class SiPixelInformationExtractor;
+class SiPixelEDAClient;
 
 class SiPixelWebInterface : public WebInterface
 {

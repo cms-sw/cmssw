@@ -38,6 +38,11 @@ public:
   //  void handleWebRequest(xgi::Input *in, 
   //                        xgi::Output *out); 
 
+  float qflag_;
+  int allMods_;
+  int errorMods_;
+
+
 protected:
 
   void beginJob(const edm::EventSetup& eSetup);
@@ -63,11 +68,6 @@ private:
   int tkMapFrequency_;
   int summaryFrequency_;
   unsigned int staticUpdateFrequency_;
-
-  float qflag_;
-  int allMods_;
-  int errorMods_;
-
 
   SiPixelTrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;

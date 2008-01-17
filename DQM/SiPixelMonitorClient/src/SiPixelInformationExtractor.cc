@@ -2388,7 +2388,7 @@ cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
   }
   
   float qflag=0.;
-  if(allMods>0) qflag = float(errorMods)/float(allMods);
+  if(allMods>0) qflag = (float(allMods)-float(errorMods))/float(allMods);
   cout<<"allMods="<<allMods<<" , errorMods="<<errorMods<<" , qflag="<<qflag<<endl;
   
   vector<string> subDirVec = bei->getSubdirs();  
