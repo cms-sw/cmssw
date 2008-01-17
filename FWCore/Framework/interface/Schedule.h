@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.41 2008/01/10 17:35:35 wmtan Exp $
+  $Id: Schedule.h,v 1.42 2008/01/11 20:29:59 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -253,8 +253,7 @@ namespace edm {
     template <typename T>
     void runEndPaths(T&, EventSetup const&, BranchActionType const&);
 
-    template <typename T>
-    void setupOnDemandSystem(T& principal, EventSetup const& es);
+    void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
@@ -364,7 +363,7 @@ namespace edm {
 
     if (isEvent) {
       ++total_events_;
-      setupOnDemandSystem(ep, es);
+      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep), es);
     }
     try {
       //If the CallPrePost object is used, it must live for the entire time the event is
@@ -456,22 +455,6 @@ namespace edm {
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
   
-  template <typename T>
-  void 
-  Schedule::setupOnDemandSystem(T& ep,
-				EventSetup const& es) {
-    // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled_);
-    typedef std::vector<boost::shared_ptr<Provenance> > branches;
-    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      std::auto_ptr<Provenance> prov(new Provenance(**itBranch));
-      ep.addGroup(prov, true);
-    }
-  }
-
 }
 
 #endif

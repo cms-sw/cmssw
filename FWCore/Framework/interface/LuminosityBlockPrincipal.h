@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.24 2007/11/19 18:43:32 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.25 2008/01/10 17:35:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@ $Id: LuminosityBlockPrincipal.h,v 1.24 2007/11/19 18:43:32 wmtan Exp $
 namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
-  class LuminosityBlockPrincipal : private Principal {
+  class LuminosityBlockPrincipal : public Principal {
   typedef Principal Base;
   public:
     LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
@@ -79,6 +79,7 @@ namespace edm {
       return aux().run();
     }
 
+/*
     using Base::addGroup;
     using Base::addToProcessHistory;
     using Base::getAllProvenance;
@@ -102,10 +103,12 @@ namespace edm {
     using Base::readImmediate;
     using Base::size;
     using Base::store;
+*/
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
   private:
+    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
     virtual bool unscheduledFill(Provenance const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/src/Group.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
@@ -33,6 +34,33 @@ namespace edm {
   RunPrincipal &
   EventPrincipal::runPrincipal() {
     return luminosityBlockPrincipal().runPrincipal();
+  }
+
+  void
+  EventPrincipal::addGroup(std::auto_ptr<Provenance> prov, bool onDemand) {
+    std::auto_ptr<Group> g(new Group(prov, onDemand));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+    Group const* group = getExistingGroup(*g);
+    if (group != 0) {
+      if(!group->onDemand()) {
+        BranchDescription const& bd = group->productDescription();
+	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "addGroup_: Problem found while adding product provenance, "
+	  << "product already exists for ("
+	  << bd.friendlyClassName() << ","
+	  << bd.moduleLabel() << ","
+	  << bd.productInstanceName() << ","
+	  << bd.processName()
+	  << ")\n";
+      }
+      replaceGroup(g);
+    } else {
+      addGroup_(g);
+    }
   }
 
   void

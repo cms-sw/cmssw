@@ -966,4 +966,20 @@ namespace edm {
   Schedule::addToAllWorkers(Worker* w) {
     if (!search_all(all_workers_, w)) all_workers_.push_back(w);
   }
+
+  void 
+  Schedule::setupOnDemandSystem(EventPrincipal& ep,
+				EventSetup const& es) {
+    // NOTE: who owns the productdescrption?  Just copied by value
+    unscheduled_->setEventSetup(es);
+    ep.setUnscheduledHandler(unscheduled_);
+    typedef std::vector<boost::shared_ptr<Provenance> > branches;
+    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
+        itBranch != itBranchEnd;
+        ++itBranch) {
+      std::auto_ptr<Provenance> prov(new Provenance(**itBranch));
+      ep.addGroup(prov, true);
+    }
+  }
+
 }

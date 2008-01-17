@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.18 2007/11/07 08:04:54 wmtan Exp $
+  $Id: Principal.cc,v 1.19 2008/01/10 17:36:23 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -49,6 +49,12 @@ namespace edm {
     return size();
   }
    
+  Group const *
+  Principal::getExistingGroup(Group const& group) const {
+    unsigned int index = group.index();
+    return groups_[index].get();
+  }
+
   void 
   Principal::addGroup_(std::auto_ptr<Group> group) {
     BranchDescription const& bd = group->productDescription();
@@ -57,47 +63,34 @@ namespace edm {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     assert (bd.productID().isValid());
-    assert (bd.productID().id() <= groups_.size());
-    unsigned int index = bd.productID().id()-1;
+    unsigned int index = group->index();
+    assert (index < groups_.size());
     SharedGroupPtr g(group);
-    if (groups_[index].get() != 0) {
-      if(!groups_[index]->replace(*g)) {
-	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	  << "addGroup_: Problem found while adding product provenance, "
-	  << "product already exists for ("
-	  << bd.friendlyClassName() << ","
-	  << bd.moduleLabel() << ","
-	  << bd.productInstanceName() << ","
-	  << bd.processName()
-	  << ")\n";
-      }
-    } else {
-      groups_[index] = g;
-    }
-    if (!g->onDemand()) {
-      ++size_;
-    }
-    if (g->branchEntryDescription() == 0) {
-      g->provenance().setStore(store_);
-    }
+    if (g->branchEntryDescription() == 0) g->provenance().setStore(store_);
+    if (!g->onDemand()) ++size_;
+    groups_[index] = g;
+  }
+
+  void 
+  Principal::replaceGroup(std::auto_ptr<Group> group) {
+    BranchDescription const& bd = group->productDescription();
+    unsigned int index = group->index();
+    SharedGroupPtr g(group);
+    if (g->branchEntryDescription() == 0) g->provenance().setStore(store_);
+    if (groups_[index]->onDemand()) ++size_;
+    groups_[index]->replace(*g);
   }
 
   void
   Principal::addGroup(ConstBranchDescription const& bd) {
     std::auto_ptr<Group> g(new Group(bd));
-    addGroup_(g);
-  }
-
-  void
-  Principal::addGroup(std::auto_ptr<Provenance> prov, bool onDemand) {
-    std::auto_ptr<Group> g(new Group(prov, onDemand));
-    addGroup_(g);
+    addOrReplaceGroup(g);
   }
 
   void
   Principal::addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov) {
     std::auto_ptr<Group> g(new Group(prod, prov));
-    addGroup_(g);
+    addOrReplaceGroup(g);
   }
 
   void
@@ -151,7 +144,7 @@ namespace edm {
 
   Principal::SharedConstGroupPtr const
   Principal::getGroup(ProductID const& oid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
-    unsigned int index = oid.id()-1;
+    unsigned int index = Group::index(oid);
     if (index < 0 || index >= groups_.size() || groups_[index].get() == 0) {
       return SharedConstGroupPtr();
     }

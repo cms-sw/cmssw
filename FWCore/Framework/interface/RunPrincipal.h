@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.18 2007/07/31 23:58:54 wmtan Exp $
+$Id: RunPrincipal.h,v 1.19 2008/01/10 17:35:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,7 @@ $Id: RunPrincipal.h,v 1.18 2007/07/31 23:58:54 wmtan Exp $
 
 namespace edm {
   class UnscheduledHandler;
-  class RunPrincipal : private Principal {
+  class RunPrincipal : public Principal {
   typedef Principal Base;
   public:
     RunPrincipal(RunNumber_t const& id,
@@ -59,6 +59,7 @@ namespace edm {
       aux_.setEndTime(time);
     }
 
+/*
     using Base::addGroup;
     using Base::addToProcessHistory;
     using Base::getAllProvenance;
@@ -82,10 +83,13 @@ namespace edm {
     using Base::readImmediate;
     using Base::size;
     using Base::store;
+*/
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
   private:
+    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+
     virtual bool unscheduledFill(Provenance const&) const {return false;}
 
     RunAuxiliary aux_;

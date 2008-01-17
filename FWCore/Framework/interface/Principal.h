@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.10 2007/06/22 23:26:32 wmtan Exp $
+$Id: Principal.h,v 1.11 2008/01/10 17:35:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -117,7 +117,7 @@ namespace edm {
 
     void addGroup(ConstBranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
+    // void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
 
     void addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov);
 
@@ -133,7 +133,17 @@ namespace edm {
     // current Process.
     void addToProcessHistory() const;
 
+  protected:
+    // ----- Add a new Group
+    // *this takes ownership of the Group, which in turn owns its
+    // data.
+    void addGroup_(std::auto_ptr<Group> g);
+    Group const*  getExistingGroup(Group const& g) const;
+    void replaceGroup(std::auto_ptr<Group> g);
+
   private:
+    virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
+
     // We need a custom iterator to skip non-existent groups.
     class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
     public:
@@ -164,11 +174,6 @@ namespace edm {
     }
 
     const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
-
-    // ----- Add a new Group
-    // *this takes ownership of the Group, which in turn owns its
-    // data.
-    void addGroup_(std::auto_ptr<Group> g);
 
     SharedConstGroupPtr const getGroup(ProductID const& oid,
                                        bool resolveProd,

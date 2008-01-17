@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.27 2007/06/14 17:52:18 wmtan Exp $
+$Id: Group.cc,v 1.28 2007/10/04 22:45:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Common/interface/BasicHandle.h"
@@ -84,17 +84,9 @@ namespace edm {
     std::swap(onDemand_, other.onDemand_);
   }
 
-  bool
+  void
   Group::replace(Group& g) {
-    if(onDemand_) {
-      // The old one is a "placeholder" group for unscheduled processing.
-      // This new one is the one generated 'unscheduled'.
-      // NOTE: other API's of Principal do NOT give out the Provenance*
-      // to "onDemand" groups, so no need to preserve the old Provenance.
-      this->swap(g);
-      return true;
-    }
-    return false;
+    this->swap(g);
   }
 
   Type

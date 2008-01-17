@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.21 2007/05/29 19:27:01 wmtan Exp $
+$Id: Group.h,v 1.22 2007/06/14 17:52:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,8 +35,6 @@ namespace edm {
 
     void swap(Group& other);
 
-    // drop (write) on output: choose not to write, output module
-
     // product is not available (dropped or never created)
     bool productUnavailable() const;
 
@@ -55,16 +53,17 @@ namespace edm {
 
     BranchEntryDescription const* branchEntryDescription() const {return provenance_->branchEntryDescription().get();}
 
-    BranchDescription const& productDescription() const { return provenance_->product(); }
+    BranchDescription const& productDescription() const {return provenance_->product();}
 
-    std::string const& moduleLabel() const 
-    { return provenance_->moduleLabel(); }
+    unsigned int index() const {return provenance_->product().productID().id()-1;}
 
-    std::string const& productInstanceName() const 
-    { return provenance_->productInstanceName(); }
+    static unsigned int index(ProductID const& pid) {return pid.id()-1;}
 
-    std::string const& processName() const
-    { return provenance_->processName(); }
+    std::string const& moduleLabel() const {return provenance_->moduleLabel();}
+
+    std::string const& productInstanceName() const {return provenance_->productInstanceName();}
+
+    std::string const& processName() const {return provenance_->processName();}
 
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning
@@ -79,8 +78,8 @@ namespace edm {
     // Write the group to the stream.
     void write(std::ostream& os) const;
 
-    // Figure out what to do if a duplicate group is created.
-    bool replace(Group& g);
+    // Replace the existing group with a new one
+    void replace(Group& g);
 
     // Return the type of the product stored in this Group.
     // We are relying on the fact that Type instances are small, and
