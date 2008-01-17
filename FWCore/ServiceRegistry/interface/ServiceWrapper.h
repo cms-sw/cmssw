@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id: ServiceWrapper.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ServiceWrapper.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
 //
 
 // system include files
+#include <memory>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceWrapperBase.h"

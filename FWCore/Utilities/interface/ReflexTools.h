@@ -7,11 +7,13 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.6 2007/05/08 16:55:00 paterno Exp $
+$Id: ReflexTools.h,v 1.7 2007/07/09 07:29:53 llista Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <ostream>
+#include <set>
+#include <string>
 #include <vector>
 
 #include "Reflex/Type.h"
