@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.13 2007/10/31 14:58:27 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.14 2007/11/24 11:14:22 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -10,6 +10,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
 
 #include <memory>
 #include <vector>
@@ -41,6 +42,9 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   
   // define what will be produced
   produces<std::vector<TtDilepEvtSolution> >();
+
+  myLRSignalSelObservables = new TtDilepLRSignalSelObservables();
+  myLRSignalSelObservables->jetSource(jetSource_);
 }
 
 /// destructor
@@ -331,6 +335,10 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	  solver.useWeightFromMC(useMCforBest_);
           asol = solver.addKinSolInfo(&asol);
         }
+
+     // these lines calculate the observables to be used in the TtDilepSignalSelection LR
+      (*myLRSignalSelObservables)(asol, iEvent);
+
         evtsols->push_back(asol);
       }
     } 

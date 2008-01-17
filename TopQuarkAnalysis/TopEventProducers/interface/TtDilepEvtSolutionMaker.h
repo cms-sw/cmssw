@@ -8,6 +8,8 @@
 
 #include <DataFormats/Candidate/interface/Candidate.h>
 
+class TtDilepLRSignalSelObservables;
+
 class TtDilepEvtSolutionMaker : public edm::EDProducer {
 
   public:
@@ -37,6 +39,7 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     bool matchToGenEvt_, calcTopMass_, useMCforBest_;
     bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_, tautauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
+   TtDilepLRSignalSelObservables        * myLRSignalSelObservables;
 
 };
 
