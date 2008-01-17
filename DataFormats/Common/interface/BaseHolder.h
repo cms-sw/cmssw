@@ -1,7 +1,11 @@
 #ifndef DataFormats_Common_BaseHolder_h
 #define DataFormats_Common_BaseHolder_h
 
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include <string>
+
 namespace edm {
+  class ProductID;
   class RefHolderBase;
 
   namespace reftobase {

@@ -3,8 +3,10 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
+#include "boost/shared_ptr.hpp"
 
 namespace edm {
+  template <typename T> class RefToBase;
   namespace reftobase {
     class RefVectorHolderBase {
     public:

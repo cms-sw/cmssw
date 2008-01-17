@@ -4,6 +4,8 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {
   template<typename T> class RefToBase;
 

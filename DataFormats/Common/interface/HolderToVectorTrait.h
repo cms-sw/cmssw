@@ -5,6 +5,8 @@
 
 namespace edm {
   namespace reftobase {
+    class RefVectorHolderBase;
+    template <typename T> class BaseVectorHolder;
 
     template <typename T, typename REF>
     struct InvaidHolderToVector {

@@ -1,6 +1,9 @@
 #ifndef DataFormats_Common_RefTraits_h
 #define DataFormats_Common_RefTraits_h
 
+#include <functional>
+#include <algorithm>
+
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
   template<typename T> class RefToBaseVector;

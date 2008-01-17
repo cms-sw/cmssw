@@ -1,8 +1,11 @@
 #ifndef DataFormats_Common_BaseVectorHolder_h
 #define DataFormats_Common_BaseVectorHolder_h
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/BaseHolder.h"
 
 namespace edm {
+  class ProductID;
+  template <typename T> class RefToBase;
   namespace reftobase {
     template <typename T>
     class BaseVectorHolder {

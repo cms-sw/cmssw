@@ -4,12 +4,13 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.15 2007/10/02 10:48:30 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.16 2007/12/21 22:42:30 wmtan Exp $
  *
  */
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "boost/shared_ptr.hpp"
+#include <vector>
 
 namespace edm {
   template<typename T> class RefToBase;

@@ -2,12 +2,14 @@
 #define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.6 2007/11/29 13:48:13 llista Exp $
+ * $Id: RefHolderBase.h,v 1.7 2007/12/21 22:42:30 wmtan Exp $
  *
  */
 #include "Reflex/Type.h"
 
 namespace edm {
+  class ProductID;
+  class EDProductGetter;
   namespace reftobase {
     using ROOT::Reflex::Type;
 
