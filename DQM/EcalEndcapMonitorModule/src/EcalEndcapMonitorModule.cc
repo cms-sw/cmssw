@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/06 11:42:56 $
- * $Revision: 1.37 $
+ * $Date: 2008/01/15 10:43:22 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -418,9 +418,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
-  // pause the shipping of monitoring elements
-  dbe_->lock();
-
   Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
@@ -556,9 +553,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalEndcapMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
-
-  // resume the shipping of monitoring elements
-  dbe_->unlock();
 
 }
 

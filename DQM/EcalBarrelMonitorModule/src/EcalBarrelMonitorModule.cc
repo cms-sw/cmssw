@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/05 09:34:41 $
- * $Revision: 1.161 $
+ * $Date: 2008/01/06 11:42:55 $
+ * $Revision: 1.162 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -418,9 +418,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
-  // pause the shipping of monitoring elements
-  dbe_->lock();
-
   Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
@@ -554,9 +551,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalBarrelMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
-
-  // resume the shipping of monitoring elements
-  dbe_->unlock();
 
 }
 
