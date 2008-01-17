@@ -272,10 +272,13 @@ def _makeLabeledInputTag(s,loc,toks):
     if len(toks[0])==4:
         tracked = False
         del toks[0][0]
-    values = list(iter(toks[0][2]))
-    if len(values) == 1:
-        values +=''
-    p = cms.InputTag(*values)
+    if isinstance(toks[0][2], str):
+        p = cms.InputTag(toks[0][2])
+    else:
+        values = list(iter(toks[0][2]))
+        if len(values) == 1:
+            values +=''
+        p = cms.InputTag(*values)
     if not tracked:
         cms.untracked(p)
     return (toks[0][1],p)
@@ -493,13 +496,16 @@ class _IncludeFromNode(_IncludeNode):
     def extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor):
         import copy
         # First, expand everything, so blocks 
+        # don't worry about re-parsing
+        if self.filename in otherFiles:
+            otherFiles.remove(self.filename)
         expandedValues = _IncludeNode.extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor)
-        d = dict(expandedValues)
         found = False
         for l,v in expandedValues:
            if l == self._fromLabel:
                found = True
                # I don't know how to replace it, so I'll just have to copy
+               expandedValues.remove((l,v))
                expandedValues.append((newLabel, copy.deepcopy(v)))
         if not found:
             raise RuntimeError("the file "+self.filename+" does not contain a "+self._fromLabel
@@ -565,9 +571,16 @@ fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+_equalTo
 
 inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums),"")+
                           pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums)))))
+anyInputTag = inputTagFormat|quotedString
+
+#inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
+#                             inputTagFormat
+#                             ).setParseAction(_makeLabeledInputTag)
 inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
-                             inputTagFormat
+                             anyInputTag
                              ).setParseAction(_makeLabeledInputTag)
+
+
 vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeBegin
                                +pp.Group(pp.Optional(pp.delimitedList(inputTagFormat)))
@@ -627,32 +640,6 @@ class _MakeFrom(object):
         label = toks[0][0]
         inc = toks[0][1]
         return _IncludeFromNode(label, inc[0])
-
-        try:
-            values = _findAndHandleProcessBlockIncludes((inc,))
-        except Exception, e:
-            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
-                                         +"\n from file "+_fileStack[-1])
-        values = self._tryUsingBlocks(values)
-        d = dict(values)
-        if label not in d:
-            raise pp.ParseFatalException(s,loc,"the file "+inc.filename+" does not contain a "+label
-                                         +"\n from file "+_fileStack[-1])
-        return d[label]
-
-    def _tryUsingBlocks(self, values):
-        # apply replaces to blocks before you do anything else
-        d = _DictAdapter(dict(values))
-        for key, node in values:
-            if isinstance(node, _ReplaceNode) \
-               and  isinstance(getattr(d,node.rootLabel()),cms.PSet):
-                node.do(d)
-        #try to resolve any usings, but don't get upset if you can't.
-        try:
-            _findAndHandleProcessUsingBlock(values)
-        except Exception, e:
-            pass
-        return values
 
 def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
@@ -1630,7 +1617,9 @@ if __name__=="__main__":
             self.assertEqual(d['blah'].moduleLabel,'tag')
             self.assertEqual(d['blah'].productInstanceLabel,'')
 
-            t = onlyParameters.parseString("InputTag blah = tag:youIt")
+            t = onlyParameters.parseString("InputTag blah =tag:youIt")
+            # FAILS!
+            #  = onlyParameters.parseString("InputTag blah = \"tag:youIt\"")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.InputTag)
             self.assertEqual(d['blah'].moduleLabel,'tag')
