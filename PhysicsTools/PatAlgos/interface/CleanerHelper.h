@@ -49,6 +49,7 @@ class CleanerHelper {
         /// A const reference to the selected items. 
         /// Must be const, to avoid people doing push_back or remove by hand and breaking the refs.
         const Collection & selected() const { return selected_; }
+
         /// Size of the collection of selected items
         size_t size() const { return selected_.size(); }
         /// A reference to the i-th selected item (const)
@@ -86,7 +87,6 @@ class CleanerHelper {
         // new at every event
         edm::Event *event_;
         edm::Handle< edm::View<T> > sourceView_;
-        edm::RefProd<Collection> outRefProd_;
         std::vector<reco::CandidateBaseRef> originalRefs_;
         Collection selected_;
         std::vector<uint32_t> marks_;
@@ -111,10 +111,7 @@ void CleanerHelper<T,T2,Collection,Comparator>::newEvent(edm::Event &iEvent)
 
     event_ = & iEvent;
 
-    edm::Handle< edm::View<T> > sourceView_;
     event_->getByLabel(src_, sourceView_);
-
-    outRefProd_ = event_->getRefBeforePut<Collection>(label_);
 }
 
 template<typename T, typename T2, typename Collection, typename Comparator>
@@ -153,12 +150,15 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
         sortedRefs_.push_back( originalRefs_[idx] );
     }
 
+    // FIRST put the collection
+    edm::OrphanHandle<Collection> newRefProd = event_->put(sorted);
+
+    // THEN fill the map and put it in the event
     // fill in backrefs
-    backRefFiller.insert(outRefProd_, sortedRefs_.begin(), sortedRefs_.end());
+    backRefFiller.insert(newRefProd, sortedRefs_.begin(), sortedRefs_.end());
     backRefFiller.fill();
 
     // put objects in Event
-    event_->put(sorted);
     event_->put(backRefs);
 
     cleanup();
