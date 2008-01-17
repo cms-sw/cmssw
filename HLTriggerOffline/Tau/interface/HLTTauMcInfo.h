@@ -30,6 +30,8 @@ public:
   double etaMax;
   double ptMin;
   int m_PDG;
+  edm::InputTag pfTauCollection_, pfTauDiscriminatorProd_;
+  bool usePFTauMatching_;
 
 };
 

@@ -1,5 +1,8 @@
 #include "HLTriggerOffline/Tau/interface/HLTTauMcInfo.h"
 #include "TLorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 
 using namespace edm;
 using namespace reco;
@@ -9,6 +12,9 @@ using namespace std;
 HLTTauMcInfo::HLTTauMcInfo(const edm::ParameterSet& iConfig)
 {
   genParticles = iConfig.getParameter<InputTag>("GenParticles");
+  pfTauCollection_ = iConfig.getParameter<InputTag>("PFTauProducer");
+  pfTauDiscriminatorProd_ = iConfig.getParameter<InputTag>("PFTauDiscriminator");
+  usePFTauMatching_ = iConfig.getParameter<bool>("UsePFTauMatching");
   m_PDG = iConfig.getParameter<int>("BosonPID");
   etaMax = iConfig.getParameter<double>("EtaMax");
   ptMin = iConfig.getParameter<double>("PtMin");
@@ -21,6 +27,9 @@ HLTTauMcInfo::~HLTTauMcInfo(){ }
 
 void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
+  std::vector<LorentzVector> product_Jets_tmp;
+  product_Jets_tmp.clear();
+
   auto_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
@@ -74,7 +83,7 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		  TLorentzVector jetMom=tau-taunet;
 		  LorentzVector vec(jetMom.Px(),jetMom.Py(),jetMom.Pz(),jetMom.E());
 		  if(jetMom.Perp() > ptMin && fabs(jetMom.Eta()) < etaMax)
-		    product_Jets->push_back(vec);
+		    product_Jets_tmp.push_back(vec);
 		}
 	      
 	      }
@@ -83,7 +92,29 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   }
 
   delete myGenEvent;
+  if(usePFTauMatching_)
+    {
+      Handle<PFTauCollection> thePFTauHandle;
+      iEvent.getByLabel(pfTauCollection_,thePFTauHandle);
   
+      Handle<PFTauDiscriminatorByIsolation> thePFTauDiscriminatorByIsolation;
+      iEvent.getByLabel(pfTauDiscriminatorProd_,thePFTauDiscriminatorByIsolation);
+
+      for(int it =0; it<product_Jets_tmp.size();it++)
+	{ 
+	  for (PFTauCollection::size_type iPFTau=0;iPFTau<thePFTauHandle->size();iPFTau++) {
+	    PFTauRef thePFTau(thePFTauHandle,iPFTau);
+	    if((*thePFTauDiscriminatorByIsolation)[thePFTau] ==1)
+	      {
+		LorentzVector lvPFTau=(*thePFTau).p4();
+		if(deltaR(lvPFTau,product_Jets_tmp[it]) < 0.3)
+		  product_Jets->push_back(product_Jets_tmp[it]);
+	      }
+	  }
+	}
+
+    }
+
   LorentzVector neutrina(neutrina_tmp.Px(),neutrina_tmp.Py(),neutrina_tmp.Pz(),neutrina_tmp.E());
   product_Neutrina->push_back(neutrina);
   iEvent.put(product_Leptons,"Leptons");
