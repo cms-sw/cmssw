@@ -14,10 +14,10 @@ pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::Pixel
 {
     using namespace std;
 
-    vector<bool> bad;
-    fill(bad.begin(), bad.end(), false);
-
     size_t size = electrons.size();
+
+    vector<bool> bad(size, false);
+
     for (size_t ie = 0; ie < size; ++ie) {
         if (bad[ie]) continue; // if already marked bad
 
