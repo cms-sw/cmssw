@@ -10,14 +10,16 @@ TrackerCrate.showData = function (evt) {
        if (evt.type == "mouseover") {
     var myPoly = evt.currentTarget;
        var myTracker = myPoly.getAttribute("POS");
-          myTracker = myTracker+"  value="+myPoly.getAttribute("value");
-               myTracker = myTracker+"  count="+myPoly.getAttribute("count");
-             var textfield=document.getElementById('currentElementText');
+          var myTracker1 = "  value="+myPoly.getAttribute("value");
+               myTracker1 = myTracker1+"  count="+myPoly.getAttribute("count");
+             var textfield=document.getElementById('line1');
         textfield.firstChild.nodeValue=myTracker;
+              textfield=document.getElementById('line2');
+        textfield.firstChild.nodeValue=myTracker1;
         opacity=0.2;
         myPoly.setAttribute("style","cursor:crosshair; fill-opacity: "+opacity) ;
 
-      top.document.getElementById('currentElementText').setAttribute("value",myTracker);
+      //top.document.getElementById('currentElementText').setAttribute("value",myTracker);
      }
             if (evt.type == "click") {
 	    var detid = myPoly.getAttribute("detid");

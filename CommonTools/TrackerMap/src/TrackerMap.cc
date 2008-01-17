@@ -572,7 +572,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
-  if(filetype=="xml")temporary_file=false;
+  if(filetype=="xml"||filetype=="svg")temporary_file=false;
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
@@ -622,8 +622,21 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
+     if(filetype=="svg"){
+      saveAsSingleLayer=false;
+      ostringstream outs;
+    outs << outputfilename<<".svg";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+  *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
+  *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+  *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
+  *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
+  *savefile << "<svg:g id=\"fedtrackermap\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+     }
   for (int crate=1; crate < (ncrates+1); crate++){
-    if(!temporary_file){
+    if(filetype=="xml"){
       saveAsSingleLayer=true;
       ostringstream outs;
     outs << outputfilename<<"crate" <<crate<< ".xml";
@@ -657,11 +670,20 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       }
     }
    if(!temporary_file){
-    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> - </text> </svg>" << endl;
+    if(filetype=="xml"){
+    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
+    *savefile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
+    *savefile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
+    *savefile << " </text> </svg>" << endl;
     savefile->close();
      saveAsSingleLayer=false;
       }
+      }
     }
+    if(filetype=="svg"){
+    *savefile << "</g> </svg> </svg> " << endl;
+    savefile->close();
+      }
   if(!print_total && !useApvPairValue){
 //Restore module value
     for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
@@ -1221,7 +1243,11 @@ for (int layer=1; layer < 44; layer++){
         }
       }
     }
-    *xmlfile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> - </text> </svg>" << endl;
+    *xmlfile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\">" << endl;
+    *xmlfile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
+    *xmlfile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
+    *xmlfile << "<tspan id=\"line3\" x=\"40\" y=\"90\"> </tspan> " << endl;
+    *xmlfile << " </text> </svg>" << endl;
     xmlfile->close();
   }
 saveAsSingleLayer=false;

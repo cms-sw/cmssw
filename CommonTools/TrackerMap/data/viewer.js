@@ -5,6 +5,7 @@ function Tabs (active,inactive) {
    tab = new Array();
    panels = new Array();
    zoomAmount = new Array();
+   single = new Array();
    activeColor = active;
    inactiveColor = inactive;
 
@@ -13,6 +14,7 @@ function Tabs (active,inactive) {
                           var index = tab.length;
                           tab[index] = tabItem;
 			  zoomAmount[index]=1.05;
+			  single[index]=false;
                           tabItem.addEventListener("click",function() {
                                  tabs.showPanel(index);},false);
                           };
@@ -56,6 +58,8 @@ function setUpTabs() {
    setFull('layer2');
    setFull('layer1');
 }
+
+
 
 // create a mouse point
 function mousePoint(x,y) {
@@ -160,122 +164,140 @@ function zoomIt(inOrOut) {
  if (inOrOut == "TIB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=33;
+       layer=34;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-350px";
   imgObject.style.left     =  "-400px";
 	 imageWidth=2000;
 	 imageHeight=1030;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "TOB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=37;
+       layer=38;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-350px";
   imgObject.style.left     =  "-1000px";
 	 imageWidth=2000;
 	 imageHeight=1030;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "TID+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=18;
+       layer=19;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-240px";
   imgObject.style.left     =  "-600px";
 	 imageWidth=3000;
 	 imageHeight=1600;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "TEC+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=21;
+       layer=22;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-120px";
   imgObject.style.left     =  "-600px";
 	 imageWidth=1500;
 	 imageHeight=800;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "TID-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=9;
+       layer=10;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-1120px";
   imgObject.style.left     =  "-600px";
 	 imageWidth=3000;
 	 imageHeight=1600;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "TEC-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=0;
+       layer=1;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-510px";
   imgObject.style.left     =  "-600px";
 	 imageWidth=1500;
 	 imageHeight=800;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "PIXB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=30;
+       layer=31;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-600px";
   imgObject.style.left     =  "0px";
 	 imageWidth=3000;
 	 imageHeight=1600;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "FPIX-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=13;
+       layer=14;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-1020px";
   imgObject.style.left     =  "0px";
 	 imageWidth=3000;
 	 imageHeight=1600;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
  if (inOrOut == "FPIX+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
-       layer=15;
+       layer=16;
+       if(single[current])setSingle('layer1',layer); else {
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-240px";
   imgObject.style.left     =  "0px";
 	 imageWidth=3000;
 	 imageHeight=1600;
 	 displayImage();
+	 }
  return false;
 }																			 
 }																			 
-	if (inOrOut == "SVG") {if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);return false;}																 
-	if (inOrOut == "Full") {if(tmapObject=='img1')setFull('layer1');else setFull('layer2');return false;}																 
+	if (inOrOut == "SVG") {single[current]=true;if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);return false;}																 
+	if (inOrOut == "Full") {single[current]=false;if(tmapObject=='img1')setFull('layer1');else setFull('layer2');return false;}																 
 	if (inOrOut == "<") {
         if(tmapObject=='img1'){layer=layer-1;if(layer==0)layer=43;}
         else{crate=crate-1;if(crate==0)crate=ncrates;}
@@ -284,7 +306,7 @@ if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);r
         if(tmapObject=='img1'){layer=layer+1;if(layer==44)layer=1;}
         else{crate=crate+1;if(crate==ncrates)crate=1;}
 if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);return false;}																 
-	if (inOrOut == "Home") {
+	if (!single[current]&&inOrOut == "Home") {
 	 zoomAmount[current]=1.05;
 	 imageWidth=1000;
 	 imageHeight=550;
@@ -292,14 +314,14 @@ if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);r
   document.getElementById(tmapObject).style.left     =  "0px";
 	 displayImage();
 	  }
-	if (inOrOut == "+") {
+	if (!single[current]&&inOrOut == "+") {
 	 imageWidth=document.getElementById(tmapObject).getAttribute('width');
 	 imageHeight=document.getElementById(tmapObject).getAttribute('height');
 	 imageWidth=Math.floor(imageWidth*zoomAmount[current]);
 	 imageHeight=Math.floor(imageHeight*zoomAmount[current]);
 	 displayImage();
 	  }
-	if (inOrOut == "-") {
+	if (!single[current]&&inOrOut == "-") {
 	 imageWidth=document.getElementById(tmapObject).getAttribute('width');
 	 imageHeight=document.getElementById(tmapObject).getAttribute('height');
 	 imageWidth=Math.floor(imageWidth/zoomAmount[current]);
