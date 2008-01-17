@@ -13,9 +13,9 @@ int main () {
     if (reader.valid (handle)) {
       std::cout << "   rate: " << reader.rate (handle);
       std::cout << "   entries: " << reader.totalEntries (handle) << std::endl;
-      for (unsigned long ievt = 0; ievt < reader.totalEntries (handle); ++ievt) {
+      for (unsigned long ievt = 0; ievt < 5; ++ievt) {
 	HPDNoiseData* data;
-	reader.getEntry (handle, ievt, &data);
+	reader.getEntry (handle, &data);
 	std::cout << "entry # " << ievt << std::endl;
 	std::cout << *data << std::endl;
       }

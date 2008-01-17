@@ -5,7 +5,7 @@
 // Engine to read HPD noise events from the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: BasicJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
+// $Id: HPDNoiseReader.h,v 1.1 2008/01/16 02:12:39 fedor Exp $
 // --------------------------------------------------------
 
 #include <string>
@@ -31,7 +31,9 @@ class HPDNoiseReader {
   float rate (Handle fHandle) const;
   /// total number of noise events for the HPD instance in the library
   unsigned long totalEntries (Handle fHandle) const;
-  /// retrive one entry from the library
+  /// retrive one entry from the sequentially
+  void getEntry (Handle fHandle, HPDNoiseData** fData);
+  /// retrive one entry from the library directly
   void getEntry (Handle fHandle, unsigned long fEntry, HPDNoiseData** fData);
   
  private:
@@ -42,6 +44,7 @@ class HPDNoiseReader {
   TFile* mFile;
   std::vector <TTree*> mTrees;
   std::vector <float> mRates;
+  std::vector <size_t> mCurrentEntry;
   HPDNoiseData* mBuffer;
 };
 

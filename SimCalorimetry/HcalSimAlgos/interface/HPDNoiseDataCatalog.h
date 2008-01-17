@@ -5,7 +5,7 @@
 // Object to store HPD instance name and noise rate for the instance
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: BasicJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
+// $Id: HPDNoiseDataCatalog.h,v 1.1 2008/01/16 02:12:38 fedor Exp $
 // --------------------------------------------------------
 
 #include <iostream>
@@ -29,6 +29,8 @@ class HPDNoiseDataCatalog : public TObject {
   float getRate (size_t i) const {return (i < mRate.size()) ? mRate[i] : 0.;}
   /// get name of the instance
   const std::string& getName (size_t i) const {return mHpdName[i];}
+  /// set noise rate
+  void setRate (const std::string& fName, float fRate);
  private:
   std::vector<std::string> mHpdName;
   std::vector<float> mRate;

@@ -2,7 +2,7 @@
 // Engine to read HPD noise events from the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: BasicJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
+// $Id: HPDNoiseReader.cc,v 1.1 2008/01/16 02:12:41 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseReader.h"
@@ -22,7 +22,6 @@ HPDNoiseReader::HPDNoiseReader (const std::string& fFileName) {
   HPDNoiseDataCatalog* catalog;
   mFile->GetObject ("HPDNoiseDataCatalog;1", catalog);
   if (catalog) {
-    std::cout << "HPDNoiseReader::HPDNoiseReader-> catalog: " << *catalog << std::endl;
     // initiate trees
     const std::vector<std::string> names = catalog->allNames();
     for (size_t i = 0; i < names.size(); ++i) {
@@ -30,6 +29,7 @@ HPDNoiseReader::HPDNoiseReader (const std::string& fFileName) {
       if (tree) {
 	mTrees.push_back (tree);
 	mRates.push_back (catalog->getRate (i));
+	mCurrentEntry.push_back (0);
       }
       else {
 	std::cerr << "HPDNoiseReader::HPDNoiseReader-> Can not open tree " << names[i] << " in file " << fFileName << std::endl;
@@ -78,6 +78,15 @@ void HPDNoiseReader::grabEntry (Handle fHandle, unsigned long fEntry) {
   TBranch* branch = mTrees[fHandle]->GetBranch ("HPDNoiseData");
   branch->SetAddress (&mBuffer);
   branch->GetEntry (fEntry);
+  mCurrentEntry [fHandle] = fEntry;
+}
+
+void HPDNoiseReader::getEntry (Handle fHandle, HPDNoiseData** fData) {
+  if (!valid (fHandle)) return;
+  unsigned int entry = mCurrentEntry [fHandle];
+  if (++entry >= totalEntries (fHandle)) entry = 0; // roll over  
+  grabEntry (fHandle, entry);
+  *fData = mBuffer;
 }
 
 void HPDNoiseReader::getEntry (Handle fHandle, unsigned long fEntry, HPDNoiseData** fData) {
