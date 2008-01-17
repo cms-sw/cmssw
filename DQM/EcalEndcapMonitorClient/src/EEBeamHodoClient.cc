@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.15 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

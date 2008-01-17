@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2007/12/28 17:21:28 $
- * $Revision: 1.47 $
+ * $Date: 2008/01/05 09:38:56 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

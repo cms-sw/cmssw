@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.49 $
+ * $Date: 2008/01/15 10:43:17 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

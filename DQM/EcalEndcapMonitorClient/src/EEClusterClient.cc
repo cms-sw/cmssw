@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/11 07:22:16 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGaxis.h"
 #include "TGraph.h"

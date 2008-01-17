@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/15 10:43:17 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <math.h>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

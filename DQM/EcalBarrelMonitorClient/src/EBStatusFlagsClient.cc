@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2007/12/25 10:08:35 $
- * $Revision: 1.111 $
+ * $Date: 2008/01/09 18:46:40 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

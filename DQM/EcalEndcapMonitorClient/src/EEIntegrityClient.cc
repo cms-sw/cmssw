@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.49 $
+ * $Date: 2008/01/15 10:43:10 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

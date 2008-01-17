@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/09 18:46:41 $
- * $Revision: 1.102 $
+ * $Date: 2008/01/09 19:57:09 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <map>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

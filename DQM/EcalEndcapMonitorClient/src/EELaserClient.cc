@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.66 $
+ * $Date: 2008/01/15 10:43:10 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <math.h>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

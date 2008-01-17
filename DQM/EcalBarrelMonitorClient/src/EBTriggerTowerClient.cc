@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/12/28 17:21:28 $
- * $Revision: 1.82 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

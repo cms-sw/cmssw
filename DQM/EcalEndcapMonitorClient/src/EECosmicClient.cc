@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/09 11:07:48 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/13 14:09:22 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

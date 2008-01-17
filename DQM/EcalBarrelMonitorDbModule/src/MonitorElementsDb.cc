@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.6 2007/04/07 07:50:41 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.7 2007/12/04 08:51:19 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2007/04/07 07:50:41 $
+  \version $Revision: 1.7 $
+  \date $Date: 2007/12/04 08:51:19 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -44,6 +44,7 @@
 #include "CoralBase/AttributeSpecification.h"
 
 #include "TROOT.h"
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TPaveStats.h"
 

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.30 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <math.h>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

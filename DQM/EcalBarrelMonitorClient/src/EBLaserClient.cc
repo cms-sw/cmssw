@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/01/02 18:03:18 $
- * $Revision: 1.207 $
+ * $Date: 2008/01/05 09:38:56 $
+ * $Revision: 1.208 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <math.h>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"

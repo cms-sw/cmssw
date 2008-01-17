@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2007/12/25 10:08:30 $
- * $Revision: 1.43 $
+ * $Date: 2008/01/09 18:46:48 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"

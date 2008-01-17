@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/01/02 18:03:19 $
- * $Revision: 1.177 $
+ * $Date: 2008/01/05 09:38:56 $
+ * $Revision: 1.178 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <math.h>
 
+#include "TCanvas.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"
