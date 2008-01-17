@@ -59,4 +59,20 @@ void GPFRecHit::setInitialColor()
   if (option_=="f") SetFillColor(color_);
   else              SetLineColor(color_);
 }
-   
+//_________________________________________________________________________
+void GPFRecHit::setColor()
+{
+  if (option_=="f") SetFillColor(color_);
+  else              SetLineColor(color_);
+}
+
+//_________________________________________________________________________
+void GPFRecHit::setNewSize() 
+{
+ //not implemented
+}
+//_________________________________________________________________________
+void GPFRecHit::setNewStyle()
+{
+ //not implemented
+}

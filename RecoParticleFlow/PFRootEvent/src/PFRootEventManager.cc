@@ -18,10 +18,14 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
+#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
+
+
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
@@ -56,25 +60,16 @@ PFRootEventManager::PFRootEventManager(const char* file)
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
-  //   pfCandidatesOther_(new reco::PFCandidateCollection),
-  outFile_(0)
-{
+  outFile_(0) {
   
-  //   options_ = 0;
-  //   tree_ = 0;
-
-  //   outEvent_ = 0;
-  //   outTree_ = 0;
-
-  //   jetAlgo_ = 0;
   
   //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-               ,500,-50,50);
+	       ,100,-100,100);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-               ,500,-50,50);
+	       ,100,-100,100);
 
   readOptions(file, true, true);
  
@@ -123,21 +118,10 @@ void PFRootEventManager::readOptions(const char* file,
     return;
   }
 
-  clusteringIsOn_ = true;
-  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
-  
-
-  bool clusteringDebug = false;
-  options_->GetOpt("clustering", "debug", clusteringDebug );
-
 
   debug_ = false; 
   options_->GetOpt("rootevent", "debug", debug_);
 
-  findRecHitNeighbours_ = true;
-  options_->GetOpt("clustering", "findRecHitNeighbours", 
-                   findRecHitNeighbours_);
-  
   
   // output root file   ------------------------------------------
 
@@ -160,6 +144,29 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
+// PFJet benchmark options and output jetfile to be open before input file!!!--
+
+  doPFJetBenchmark_ = false;
+  options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
+  
+  if (doPFJetBenchmark_) {
+    string outjetfilename;
+    options_->GetOpt("pfjet_benchmark", "outjetfile", outjetfilename);
+	
+	bool pfjBenchmarkDebug;
+    options_->GetOpt("pfjet_benchmark", "debug", pfjBenchmarkDebug);
+    
+    bool PlotAgainstReco;
+    options_->GetOpt("pfjet_benchmark", "PlotAgainstReco", PlotAgainstReco);
+    
+    double deltaRMax=0.1;
+	options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
+    PFJetBenchmark_.setup(
+	            outjetfilename, 
+				pfjBenchmarkDebug,
+				PlotAgainstReco,
+				deltaRMax);
+	}
 
 
   // input root file --------------------------------------------
@@ -189,6 +196,16 @@ void PFRootEventManager::readOptions(const char* file,
   
   // clustering parameters -----------------------------------------------
 
+  doClustering_ = true;
+  options_->GetOpt("clustering", "on/off", doClustering_);
+  
+  bool clusteringDebug = false;
+  options_->GetOpt("clustering", "debug", clusteringDebug );
+
+  findRecHitNeighbours_ = true;
+  options_->GetOpt("clustering", "findRecHitNeighbours", 
+                   findRecHitNeighbours_);
+  
   double threshEcalBarrel = 0.1;
   options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel);
   
@@ -367,6 +384,9 @@ void PFRootEventManager::readOptions(const char* file,
   // options for particle flow ---------------------------------------------
 
 
+  doParticleFlow_ = true;
+  options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
+
   string map_ECAL_eta;
   options_->GetOpt("particle_flow", "resolution_map_ECAL_eta", map_ECAL_eta);
   string map_ECAL_phi;
@@ -514,52 +534,86 @@ void PFRootEventManager::readOptions(const char* file,
   pfAlgo_.setDebug( pfAlgoDebug );
   //   pfAlgoOther_.setDebug( pfAlgoDebug );
 
-  // print flags -------------
-
-  printRecHits_ = false;
-  options_->GetOpt("print", "rechits", printRecHits_ );
-  
-  printClusters_ = false;
-  options_->GetOpt("print", "clusters", printClusters_ );
-  
-  printPFBlocks_ = true;
-  options_->GetOpt("print", "PFBlocks", printPFBlocks_ );
-  
-  printPFCandidates_ = true;
-  options_->GetOpt("print", "PFCandidates", printPFCandidates_ );
-  
-  printTrueParticles_ = true;
-  options_->GetOpt("print", "true_particles", printTrueParticles_ );
-  
-  printMCtruth_ = true;
-  options_->GetOpt("print", "MC_truth", printMCtruth_ );
-  
-  verbosity_ = VERBOSE;
-  options_->GetOpt("print", "verbosity", verbosity_ );
-  cout<<"verbosity : "<<verbosity_<<endl;
 
   // jets options ---------------------------------
-  doJets_ = false;
-  options_->GetOpt("jets", "dojets", doJets_);
-  
+
+  doJets_ = true;
+  options_->GetOpt("jets", "on/off", doJets_);
+
   jetsDebug_ = false;
+  options_->GetOpt("jets", "debug", jetsDebug_);
+
+  jetAlgoType_=3; //FastJet as Default
+  options_->GetOpt("jets", "algo", jetAlgoType_);
+
+  double mEtInputCut = 0.5;
+  options_->GetOpt("jets", "EtInputCut",  mEtInputCut);           
+
+  double mEInputCut = 0.;
+  options_->GetOpt("jets", "EInputCut",  mEInputCut);  
+
+  double seedThreshold  = 1.0;
+  options_->GetOpt("jets", "seedThreshold", seedThreshold);
+
+  double coneRadius = 0.5;
+  options_->GetOpt("jets", "coneRadius", coneRadius);             
+
+  double coneAreaFraction= 1.0;
+  options_->GetOpt("jets", "coneAreaFraction",  coneAreaFraction);   
+
+  int maxPairSize=2;
+  options_->GetOpt("jets", "maxPairSize",  maxPairSize);  
+
+  int maxIterations=100;
+  options_->GetOpt("jets", "maxIterations",  maxIterations);      
+
+  double overlapThreshold  = 0.75;
+  options_->GetOpt("jets", "overlapThreshold", overlapThreshold);
+
+  double ptMin = 10.;
+  options_->GetOpt("jets", "ptMin",  ptMin);      
+
+  double rparam = 1.0;
+  options_->GetOpt("jets", "rParam",  rparam);    
+ 
+  jetMaker_.setmEtInputCut (mEtInputCut);
+  jetMaker_.setmEInputCut(mEInputCut); 
+  jetMaker_.setSeedThreshold(seedThreshold); 
+  jetMaker_.setConeRadius(coneRadius);
+  jetMaker_.setConeAreaFraction(coneAreaFraction);
+  jetMaker_.setMaxPairSize(maxPairSize);
+  jetMaker_.setMaxIterations(maxIterations) ;
+  jetMaker_.setOverlapThreshold(overlapThreshold) ;
+  jetMaker_.setPtMin (ptMin);
+  jetMaker_.setRParam (rparam);
+  jetMaker_.setDebug(jetsDebug_);
+  jetMaker_.updateParameter();
+  cout <<"Opt: jetsDebug " << jetsDebug_  <<endl; 
+  cout <<"Opt: algoType " << jetAlgoType_  <<endl; 
+  cout <<"----------------------------------" << endl;
+
+
+  // tau benchmark options ---------------------------------
+
+  doTauBenchmark_ = false;
+  options_->GetOpt("tau_benchmark", "on/off", doTauBenchmark_);
   
-  if (doJets_) {
+  if (doTauBenchmark_) {
     double coneAngle = 0.5;
-    options_->GetOpt("jets", "cone_angle", coneAngle);
+    options_->GetOpt("tau_benchmark", "cone_angle", coneAngle);
     
     double seedEt    = 0.4;
-    options_->GetOpt("jets", "seed_et", seedEt);
+    options_->GetOpt("tau_benchmark", "seed_et", seedEt);
     
     double coneMerge = 100.0;
-    options_->GetOpt("jets", "cone_merge", coneMerge);
+    options_->GetOpt("tau_benchmark", "cone_merge", coneMerge);
     
-    options_->GetOpt("jets", "jets_debug", jetsDebug_);
+    options_->GetOpt("tau_benchmark", "debug", tauBenchmarkDebug_);
 
     // cout<<"jets debug "<<jetsDebug_<<endl;
     
-    if( jetsDebug_ ) {
-      cout << "Jet Options : ";
+    if( tauBenchmarkDebug_ ) {
+      cout << "Tau Benchmark Options : ";
       cout << "Angle=" << coneAngle << " seedEt=" << seedEt 
            << " Merge=" << coneMerge << endl;
     }
@@ -568,6 +622,36 @@ void PFRootEventManager::readOptions(const char* file,
     jetAlgo_.SetSeedEt(seedEt);
     jetAlgo_.SetConeMerge(coneMerge);   
   }
+
+
+
+  // print flags -------------
+
+  printRecHits_ = false;
+  options_->GetOpt("print", "rechits", printRecHits_ );
+  
+  printClusters_ = false;
+  options_->GetOpt("print", "clusters", printClusters_ );
+  
+  printPFBlocks_ = false;
+  options_->GetOpt("print", "PFBlocks", printPFBlocks_ );
+  
+  printPFCandidates_ = true;
+  options_->GetOpt("print", "PFCandidates", printPFCandidates_ );
+  
+  printPFJets_ = true;
+  options_->GetOpt("print", "jets", printPFJets_ );
+ 
+  printSimParticles_ = true;
+  options_->GetOpt("print", "simParticles", printSimParticles_ );
+
+  printGenParticles_ = true;
+  options_->GetOpt("print", "GenParticles", printGenParticles_ );
+  
+  verbosity_ = VERBOSE;
+  options_->GetOpt("print", "verbosity", verbosity_ );
+  cout<<"verbosity : "<<verbosity_<<endl;
+
 
 }
 
@@ -656,7 +740,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   clustersPSBranch_ = 0;
 
 
-  if( !clusteringIsOn_ ) {
+  if( !doClustering_ ) {
     string clustersECALbranchname;
     options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
     
@@ -752,9 +836,70 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<caloTowersBranchName<< endl;
     }
   }    
+  
+  // GenParticlesCand   
+  string genParticleCandBranchName;
+  genParticleBaseCandidatesBranch_ = 0;
+  options_->GetOpt("root","genParticleBaseCandidates_branch", 
+		   genParticleCandBranchName);
+  if(!genParticleCandBranchName.empty() ){  
+    genParticleBaseCandidatesBranch_= 
+      tree_->GetBranch(genParticleCandBranchName.c_str()); 
+    if(!genParticleBaseCandidatesBranch_) {
+      cerr<<"PFRootEventanager::ReadOptions : "
+	  <<"genParticleBaseCandidates_branch not found : "
+          <<genParticleCandBranchName<< endl;
+    }  
+  }
+       
+  // calo tower base candidates 
+  string caloTowerCandBranchName;
+  caloTowerBaseCandidatesBranch_ = 0;
+  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
+		   caloTowerCandBranchName);
+  if(!caloTowerCandBranchName.empty() ){  
+    caloTowerBaseCandidatesBranch_= 
+      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
+    if(!caloTowerBaseCandidatesBranch_) {
+      cerr<<"PFRootEventanager::ReadOptions : "
+	  <<"caloTowerBaseCandidates_branch not found : "
+          <<caloTowerCandBranchName<< endl;
+    }  
+  }
 
-  setAddresses();
-} 
+      
+  string genJetBranchName; 
+  options_->GetOpt("root","genJetBranchName", genJetBranchName);
+  if(!genJetBranchName.empty() ) {
+    genJetBranch_= tree_->GetBranch(genJetBranchName.c_str()); 
+    if(!genJetBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :genJetBranch_ not found : "
+          <<genJetBranchName<< endl;
+    }
+  }
+  
+  string recCaloBranchName;
+  options_->GetOpt("root","recCaloJetBranchName", recCaloBranchName);
+  if(!recCaloBranchName.empty() ) {
+    recCaloBranch_= tree_->GetBranch(recCaloBranchName.c_str()); 
+    if(!recCaloBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :recCaloBranch_ not found : "
+          <<recCaloBranchName<< endl;
+    }
+  }
+  string recPFBranchName; 
+  options_->GetOpt("root","recPFJetBranchName", recPFBranchName);
+  if(!recPFBranchName.empty() ) {
+    recPFBranch_= tree_->GetBranch(recPFBranchName.c_str()); 
+    if(!recPFBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :recPFBranch_ not found : "
+          <<recPFBranchName<< endl;
+    }
+  }
+ setAddresses();
+
+}
+
 
 
 
@@ -774,6 +919,14 @@ void PFRootEventManager::setAddresses() {
     MCTruthBranch_->SetAddress(&MCTruth_);
   }
   if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
+  if( genParticleBaseCandidatesBranch_ ) 
+    genParticleBaseCandidatesBranch_->SetAddress(&genParticleBaseCandidates_);
+  if( caloTowerBaseCandidatesBranch_ ) {
+    caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
+  }
+  if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
+  if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
+  if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
 }
 
 
@@ -796,6 +949,7 @@ PFRootEventManager::~PFRootEventManager() {
 
 
 void PFRootEventManager::write() {
+if(doPFJetBenchmark_) PFJetBenchmark_.write();
   if(!outFile_) return;
   else {
     outFile_->cd(); 
@@ -820,14 +974,6 @@ bool PFRootEventManager::processEntry(int entry) {
      entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
   
-
-  //   if(fromRealData_) {
-  //     if( !readFromRealData(entry) ) return false;
-  //   }
-  //   else {
-  //     if(! readFromSimulation(entry) ) return false;
-  //   } 
-
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
@@ -839,7 +985,7 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
   }  
 
-  if( clusteringIsOn_ ) clustering(); 
+  if( doClustering_ ) clustering(); 
   else if( verbosity_ == VERBOSE )
     cout<<"clustering is OFF - clusters come from the input file"<<endl; 
 
@@ -855,33 +1001,59 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }
 
-  particleFlow();
+  
+  if(doParticleFlow_) particleFlow();
 
+  if(doJets_) {
+    reconstructGenJets();
+    reconstructCaloJets();
+    reconstructPFJets();
+  }
+  
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
-  double deltaEt=0;
-  // double deltaEt1=0;
-  if( goodevent && doJets_) { 
-    deltaEt  = makeJets( *pfCandidates_ ); 
-    // deltaEt1 = makeJets( *pfCandidatesOther_ ); 
-  }
+  
+  // evaluate PFJet Benchmark 
+  
+	if(doPFJetBenchmark_) { // start PFJet Benchmark
+	double deltaEt=0;
+	double deltaChargedEnergy = 0.;
+	double deltaEmEnergy = 0.;
+	PFJetBenchmark_.process(pfJets_, genJets_);
+	deltaEt = PFJetBenchmark_.deltaEtMax_;
+	deltaChargedEnergy = PFJetBenchmark_.deltaChargedEnergyMax_;
+	deltaEmEnergy = PFJetBenchmark_.deltaEmEnergyMax_;
+	if( verbosity_ == VERBOSE ){ //start debug print
+	cout << " =====================PFJetBenchmark =================" << endl;
+	cout<<"delta Et max "<<deltaEt
+	    <<" deltaChargedEnergy Max " << deltaChargedEnergy
+	    << " deltaEmEnergy Max "<< deltaEmEnergy << endl;
+	 } // end debug print
+	//if (deltaEmEnergy>10.) return true;
+	//else return false;
+	}// end PFJet Benchmark
+  
+  // evaluate tau Benchmark 
+  
+	if( goodevent && doTauBenchmark_) { // start tau Benchmark
+	double deltaEt = 0.;
+	deltaEt  = tauBenchmark( *pfCandidates_ ); 
+	if( verbosity_ == VERBOSE ) cout<<"delta E_t ="<<deltaEt <<endl;
+  //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
+
+
+  //   if( deltaEt>0.4 ) {
+  //     cout<<deltaEt<<endl;
+  //     return true;
+  //   }  
+  //   else return false;
+
+  
+  } // end tau Benchmark
   
   if(goodevent && outTree_) 
     outTree_->Fill();
   
- 
-  if( verbosity_ == VERBOSE )
-    cout<<"delta E_t ="<<deltaEt<<endl;
-  //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
-
-  
-  
-//   if( deltaEt>0.4 ) {
-//     cout<<deltaEt<<endl;
-//     return true;
-//   }  
-//   else return false;
-
   return goodevent;
 
 }
@@ -889,6 +1061,11 @@ bool PFRootEventManager::processEntry(int entry) {
 
 
 bool PFRootEventManager::readFromSimulation(int entry) {
+
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start reading from simulation"<<endl;
+  }
+
 
   if(!tree_) return false;
   
@@ -912,13 +1089,13 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsPSBranch_) {
     rechitsPSBranch_->GetEntry(entry);  
   }
-  if(clustersECALBranch_ && !clusteringIsOn_) {
+  if(clustersECALBranch_ && !doClustering_) {
     clustersECALBranch_->GetEntry(entry);
   }
-  if(clustersHCALBranch_ && !clusteringIsOn_) {
+  if(clustersHCALBranch_ && !doClustering_) {
     clustersHCALBranch_->GetEntry(entry);
   }
-  if(clustersPSBranch_ && !clusteringIsOn_) {
+  if(clustersPSBranch_ && !doClustering_) {
     clustersPSBranch_->GetEntry(entry);
   }
   if(clustersIslandBarrelBranch_) {
@@ -930,6 +1107,22 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
+  if(genParticleBaseCandidatesBranch_) {
+    genParticleBaseCandidatesBranch_->GetEntry(entry);
+  }
+  if(caloTowerBaseCandidatesBranch_) {
+    caloTowerBaseCandidatesBranch_->GetEntry(entry);
+  }
+  if(genJetBranch_) {
+    genJetBranch_->GetEntry(entry);
+  }
+  if(recCaloBranch_) {
+    recCaloBranch_->GetEntry(entry);
+  }
+  if(recPFBranch_) {
+    recPFBranch_->GetEntry(entry);
+    }
+
   tree_->GetEntry( entry, 0 );
 
   // now can use the tree
@@ -966,27 +1159,27 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   //       fillOutEventWithCaloTowers( caloTowers_ );
   //   } 
 
-  if(rechitsECALBranch_) {
-    PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
-  }
-  if(rechitsHCALBranch_) {
-    PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
-  }
-  if(rechitsPSBranch_) {
-    PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
-  }
-  if(clustersECALBranch_ && !clusteringIsOn_) {
-    for(unsigned i=0; i<clustersECAL_->size(); i++) 
-      (*clustersECAL_)[i].calculatePositionREP();
-  }
-  if(clustersHCALBranch_ && !clusteringIsOn_) {
-    for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-      (*clustersHCAL_)[i].calculatePositionREP();    
-  }
-  if(clustersPSBranch_ && !clusteringIsOn_) {
-    for(unsigned i=0; i<clustersPS_->size(); i++) 
-      (*clustersPS_)[i].calculatePositionREP();    
-  }
+//   if(rechitsECALBranch_) {
+//     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
+//   }
+//   if(rechitsHCALBranch_) {
+//     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
+//   }
+//   if(rechitsPSBranch_) {
+//     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
+//   }
+//   if(clustersECALBranch_ && !doClustering_) {
+//     for(unsigned i=0; i<clustersECAL_->size(); i++) 
+//       (*clustersECAL_)[i].calculatePositionREP();
+//   }
+//   if(clustersHCALBranch_ && !doClustering_) {
+//     for(unsigned i=0; i<clustersHCAL_->size(); i++) 
+//       (*clustersHCAL_)[i].calculatePositionREP();    
+//   }
+//   if(clustersPSBranch_ && !doClustering_) {
+//     for(unsigned i=0; i<clustersPS_->size(); i++) 
+//       (*clustersPS_)[i].calculatePositionREP();    
+//   }
 
   return goodevent;
 }
@@ -1218,6 +1411,10 @@ void PFRootEventManager::setRecHitNeigbours
 
 
 void PFRootEventManager::clustering() {
+
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start clustering"<<endl;
+  }
   
   // ECAL clustering -------------------------------------------
 
@@ -1402,7 +1599,7 @@ PFRootEventManager::fillOutEventWithBlocks( const reco::PFBlockCollection&
   
   for ( unsigned i=0;  i < blocks.size(); i++) {
 
-    const reco::PFBlock& block = blocks[i];
+    //    const reco::PFBlock& block = blocks[i];
     
     EventColin::Block outblock;
  
@@ -1414,6 +1611,11 @@ PFRootEventManager::fillOutEventWithBlocks( const reco::PFBlockCollection&
 
 void PFRootEventManager::particleFlow() {
   
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start particle flow"<<endl;
+  }
+
+
   if( debug_) {
     cout<<"PFRootEventManager::particleFlow start"<<endl;
     //     cout<<"number of elements in memory: "
@@ -1465,7 +1667,107 @@ void PFRootEventManager::particleFlow() {
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
 
-double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidates) {
+
+
+void PFRootEventManager::reconstructGenJets() {
+
+  genJets_.clear();
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start reconstruct GenJets"<<endl;
+  }
+  
+
+//   vector<ProtoJet> protoJets;
+//   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
+
+//   JetMaker mjet;
+//   typedef vector <ProtoJet>::const_iterator IPJ;
+//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+//     genJets_.push_back(mjet.makeGenJet(*ipj));  
+//   } 
+}
+
+
+void PFRootEventManager::reconstructCaloJets() {
+
+  caloJets_.clear();
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start reconstruct CaloJets"<<endl;
+  }
+
+  //   reco::CandidateCollection baseCandidates;
+  //   for(unsigned i=0; i<caloTowers_.size(); i++) {
+  //     baseCandidates.push_back( caloTowers_[i].clone() );
+  //   }
+ 
+  //   reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
+
+  //COLIN: geometry needed to make a calo jet from a proto jet !!
+  //   JetMaker mjet;
+  //   typedef vector <ProtoJet>::const_iterator IPJ;
+  //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+  //     caloJets_.push_back(mjet.makeCaloJet(*ipj));  
+  //   } 
+}
+
+
+void PFRootEventManager::reconstructPFJets() {
+
+  pfJets_.clear();
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start reconstruct PFJets"<<endl;
+  }
+
+//   reco::CandidateCollection baseCandidates;
+//   for(unsigned i=0; i<pfCandidates_->size(); i++) {
+//     baseCandidates.push_back( (*pfCandidates_)[i].clone() );
+//   }
+
+//   vector<ProtoJet> protoJets;
+//   reconstructFWLiteJets(baseCandidates, protoJets );
+
+//   JetMaker mjet;
+//   typedef vector <ProtoJet>::const_iterator IPJ;
+//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+//     pfJets_.push_back(mjet.makePFJet(*ipj));  
+//     //	  cout << protojet->print(); print method does not exist for protojets
+//     //  	  cout << pfJets_.print(); //print method does exist forPFjets
+//   } 
+}
+
+
+
+void PFRootEventManager::reconstructFWLiteJets(const reco::CandidateCollection& Candidates, vector<ProtoJet>& output ) {
+
+  // cout<<"!!! Make FWLite Jets  "<<endl;  
+  JetReco::InputCollection input;
+  // vector<ProtoJet> output;
+  jetMaker_.applyCuts (Candidates, &input);     
+  if (jetAlgoType_==1) {// ICone 
+    /// Produce jet collection using CMS Iterative Cone Algorithm       
+    jetMaker_.makeIterativeConeJets(input, &output);
+  }
+  if (jetAlgoType_==2) {// MCone
+    jetMaker_.makeMidpointJets(input, &output);
+  }     
+  if (jetAlgoType_==3) {// Fastjet
+    jetMaker_.makeFastJets(input, &output);  
+  }
+  if((jetAlgoType_>3)||(jetAlgoType_<0)) {
+    cout<<"Unknown Jet Algo ! " <<jetAlgoType_ << endl;
+  }
+  if (jetsDebug_) cout<<"Proto Jet Size " <<output.size()<<endl;
+  
+  // try reset?
+  // pfJets_.reset(new PFJetCollection);
+
+}
+
+
+
+
+double 
+PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates) {
   //std::cout << "building jets from MC particles," 
   //    << "PF particles and caloTowers" << std::endl;
   
@@ -1501,7 +1803,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
                           tpatvtx.momentum().E());
 
         partTOTMC += partMC;
-        if (jetsDebug_) {
+        if (tauBenchmarkDebug_) {
           //pdgcode
           int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
           cout << pdgcode << endl;
@@ -1542,7 +1844,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   tpatvtx.momentum().E());
     
   partTOTMC += partMC;
-  if (jetsDebug_) {
+  if (tauBenchmarkDebug_) {
   //pdgcode
   int pdgcode = ptc.pdgCode();
   cout << pdgcode << endl;
@@ -1555,7 +1857,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   }//debug?
   }//loop true particles
   */
-  if (jetsDebug_) {
+  if (tauBenchmarkDebug_) {
     cout << " ET Vector=" << partTOTMC.Et() 
          << " " << partTOTMC.Eta() 
          << " " << partTOTMC.Phi() << endl; cout << endl;
@@ -1587,7 +1889,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
     //     allemenergy.push_back( caloTowers_[i].emEnergy() );
     //     allhadenergy.push_back( caloTowers_[i].hadEnergy() );
   }//loop calo towers
-  if ( jetsDebug_)  
+  if ( tauBenchmarkDebug_)  
     cout << " RETRIEVED " << allcalotowers.size() 
          << " CALOTOWER 4-VECTORS " << endl;
   
@@ -1621,7 +1923,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
     
     if(outEvent_) outEvent_->addJetEHT( jet );
 
-    if ( jetsDebug_) {
+    if ( tauBenchmarkDebug_) {
       cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 
            << jetmom.Pz() << " " << jetmom.E() 
@@ -1635,7 +1937,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   //////////////////////////////////////////////////////////////////
   //PARTICLE FLOW JETS
   vector<TLorentzVector> allrecparticles;
-  //   if ( jetsDebug_) {
+  //   if ( tauBenchmarkDebug_) {
   //     cout << endl;
   //     cout << " THERE ARE " << pfBlocks_.size() << " EFLOW BLOCKS" << endl;
   //   }//debug
@@ -1648,13 +1950,13 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   
   for(unsigned i=0; i<candidates.size(); i++) {
   
-    //       if (jetsDebug_) 
+    //       if (tauBenchmarkDebug_) 
     //  cout << " there are " << recparticles.size() 
     //       << " particle in this block" << endl;
     
     const reco::PFCandidate& candidate = candidates[i];
 
-    if (jetsDebug_) {
+    if (tauBenchmarkDebug_) {
       cout << i << " " << candidate << endl;
       int type = candidate.particleId();
       cout << " type= " << type << " " << candidate.charge() 
@@ -1674,7 +1976,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   }//loop on candidates
   
 
-  if (jetsDebug_) 
+  if (tauBenchmarkDebug_) 
     cout << " THERE ARE " << allrecparticles.size() 
          << " RECONSTRUCTED 4-VECTORS" << endl;
 
@@ -1682,7 +1984,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   const vector< PFJetAlgorithm::Jet >&  PFjets 
     = jetAlgo_.FindJets( &allrecparticles );
 
-  if (jetsDebug_) 
+  if (tauBenchmarkDebug_) 
     cout << PFjets.size() << " PF Jets found" << endl;
   double JetPFETmax = 0.0;
   for ( unsigned i = 0; i < PFjets.size(); i++) {
@@ -1698,7 +2000,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
 
     if(outEvent_) outEvent_->addJetPF( jet );
 
-    if (jetsDebug_) {
+    if (tauBenchmarkDebug_) {
       cout <<" Rec jet : "<< PFjets[i] <<endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 
            << jetmom.Pz() << " " << jetmom.E() 
@@ -1720,7 +2022,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   h_deltaETvisible_MCPF_ ->Fill(deltaEt);
 
   if (verbosity_ == VERBOSE ) {
-    cout << "makeJets E_T(PF) - E_T(true) = " << deltaEt << endl;
+    cout << "tau benchmark E_T(PF) - E_T(true) = " << deltaEt << endl;
   }
 
   return deltaEt/partTOTMC.Et();
@@ -1882,12 +2184,32 @@ void  PFRootEventManager::print(ostream& out) const {
     out<<"Particle Flow Candidates =================================="<<endl;
     out<<pfAlgo_<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
-      out<<(*pfCandidates_)[i]<<endl;
+      out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
     out<<endl;
   }
-  if( printTrueParticles_ ) {
-    out<<"True Particles  ==========================================="<<endl;
+  if(printPFJets_) {
+    out<<"Jets  ====================================================="<<endl;
+    out<<"Particle Flow: "<<endl;
+    for(unsigned i=0; i<pfJets_.size(); i++) {      
+      out<<i<<pfJets_[i].print()<<endl;
+    }    
+    out<<endl;
+    out<<"Generated: "<<endl;
+    for(unsigned i=0; i<genJets_.size(); i++) {      
+      out<<i<<genJets_[i].print()<<endl;
+	// <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
+    }        
+    out<<endl;
+    out<<"Calo: "<<endl;
+    for(unsigned i=0; i<caloJets_.size(); i++) {      
+      out<<"pt = "<<caloJets_[i].pt()<<endl;
+    }        
+    out<<endl;  
+  }
+  if( printSimParticles_ ) {
+    out<<"Sim Particles  ==========================================="<<endl;
+
     for(unsigned i=0; i<trueParticles_.size(); i++) {
       if( trackInsideGCut( trueParticles_[i]) ) 
         out<<"\t"<<trueParticles_[i]<<endl;
@@ -1896,8 +2218,8 @@ void  PFRootEventManager::print(ostream& out) const {
   }
 
   
-  if ( printMCtruth_ ) { 
-    out<<"MC truth  ==========================================="<<endl;
+  if ( printGenParticles_ ) { 
+    out<<"GenParticles ==========================================="<<endl;
     printMCTruth(out);
   }
 }
@@ -1906,7 +2228,8 @@ void  PFRootEventManager::print(ostream& out) const {
 void
 PFRootEventManager::printMCTruth(std::ostream& out,
                                  int maxNLines) const {
-
+				 
+				 
   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
   if(!myGenEvent) return;
 
@@ -2096,8 +2419,8 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
 
   if(!out) return;
   
-  double eta = rh.positionREP().Eta();
-  double phi = rh.positionREP().Phi();
+  double eta = rh.positionXYZ().Eta();
+  double phi = rh.positionXYZ().Phi();
 
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -2110,8 +2433,8 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
   
   if(!out) return;
 
-  double eta = cluster.positionREP().Eta();
-  double phi = cluster.positionREP().Phi();
+  double eta = cluster.positionXYZ().Eta();
+  double phi = cluster.positionXYZ().Phi();
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if( !cutg || cutg->IsInside( eta, phi ) ) 
@@ -2153,8 +2476,8 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
   mask.reserve( rechits.size() );
   for(unsigned i=0; i<rechits.size(); i++) {
     
-    double eta = rechits[i].positionREP().Eta();
-    double phi = rechits[i].positionREP().Phi();
+    double eta = rechits[i].positionXYZ().Eta();
+    double phi = rechits[i].positionXYZ().Phi();
 
     if( cutg->IsInside( eta, phi ) )
       mask.push_back( true );
@@ -2175,8 +2498,8 @@ PFRootEventManager::fillClusterMask(vector<bool>& mask,
   mask.reserve( clusters.size() );
   for(unsigned i=0; i<clusters.size(); i++) {
     
-    double eta = clusters[i].positionREP().Eta();
-    double phi = clusters[i].positionREP().Phi();
+    double eta = clusters[i].positionXYZ().Eta();
+    double phi = clusters[i].positionXYZ().Phi();
 
     if( cutg->IsInside( eta, phi ) )
       mask.push_back( true );
@@ -2254,3 +2577,20 @@ PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer,
 
 
 
+//-----------------------------------------------------------
+void 
+PFRootEventManager::readCMSSWJets() {
+
+  cout<<"CMSSW Gen jets : size = " <<  genJetsCMSSW_.size() << endl;
+  for ( unsigned i = 0; i < genJetsCMSSW_.size(); i++) {
+     cout<<"Gen jet Et : " <<  genJetsCMSSW_[i].et() << endl;
+  }
+  cout<<"CMSSW PF jets : size = " <<  pfJetsCMSSW_.size() << endl;
+  for ( unsigned i = 0; i < pfJetsCMSSW_.size(); i++) {
+     cout<<"PF jet Et : " <<  pfJetsCMSSW_[i].et() << endl;
+  }
+  cout<<"CMSSW Calo jets : size = " <<  caloJetsCMSSW_.size() << endl;
+  for ( unsigned i = 0; i < caloJetsCMSSW_.size(); i++) {
+     cout<<"Calo jet Et : " << caloJetsCMSSW_[i].et() << endl;
+  }
+}

@@ -9,13 +9,15 @@
 GPFCluster::GPFCluster(DisplayManager * display,
                        int view,int ident,
                        const reco::PFCluster* clus,
-                       double x,double y,int color)
-  : GPFBase(display,view,ident, color ),
-    TMarker(x,y,20),clus_(clus) {
+                       double x,double y,TAttMarker *attm)
+  : GPFBase(display,view,ident, attm ),
+    TMarker(x,y,1),clus_(clus) {
 
   ResetBit(kCanDelete);
   en_=clus_->energy();
-  SetMarkerColor(color_);
+  SetMarkerColor(markerAttr_->GetMarkerColor());
+  SetMarkerStyle(markerAttr_->GetMarkerStyle());
+  SetMarkerSize(markerAttr_->GetMarkerSize());
 }   
                     
 //_________________________________________________________________
@@ -45,12 +47,27 @@ void GPFCluster::draw()
   TMarker::Draw();
 }
 //_________________________________________________________________
-void GPFCluster::setColor(int color)
+void GPFCluster::setColor()
 {
-  SetMarkerColor(color);
+  SetMarkerColor(markerAttr_->GetMarkerColor());
+}
+//_________________________________________________________________
+void GPFCluster::setColor(int newcol)
+{
+  SetMarkerColor(newcol);
 }
 //_________________________________________________________________
 void GPFCluster::setInitialColor()
 {
-  SetMarkerColor(color_);
+  SetMarkerColor(markerAttr_->GetMarkerColor());
+}
+//_________________________________________________________________
+void GPFCluster::setNewStyle()
+{
+  SetMarkerStyle(markerAttr_->GetMarkerStyle());
+}
+//_________________________________________________________________
+void GPFCluster::setNewSize()
+{
+  SetMarkerSize(markerAttr_->GetMarkerSize());
 }

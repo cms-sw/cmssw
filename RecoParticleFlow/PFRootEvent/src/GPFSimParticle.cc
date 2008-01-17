@@ -10,23 +10,18 @@
 GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, 
 			       const reco::PFSimParticle *ptc, 
 			       int size, double *x, double *y,
-                               double pt,int markerstyle, int color,
+                               double pt,TAttMarker *attm, TAttLine *attl,
 			       std::string option)
-  : GPFBase(display,view,ident, color),
+  : GPFBase(display,view,ident,attm,attl),
     TGraph(size,x,y), part_(ptc), pt_(pt), option_(option) 
 {
     
   ResetBit(kCanDelete);
-  
-  int    linestyle = 2;
-  double markersize = 0.8;
-  
-  SetLineColor(color_);
-  SetLineStyle(linestyle);
-  SetMarkerStyle(markerstyle);
-  SetMarkerSize(markersize);
-  SetMarkerColor(color_);
-  
+  SetLineColor(lineAttr_->GetLineColor());
+  SetLineStyle(lineAttr_->GetLineStyle());
+  SetMarkerStyle(markerAttr_->GetMarkerStyle());
+  SetMarkerSize(markerAttr_->GetMarkerSize());
+  SetMarkerColor(markerAttr_->GetMarkerColor());
 }                    
 //____________________________________________________________________________________________________________
 void GPFSimParticle::Print()
@@ -54,18 +49,34 @@ void GPFSimParticle::draw()
   TGraph::Draw(option_.data());
 }
 //_______________________________________________________________________________
-void GPFSimParticle::setColor(int color)
+void GPFSimParticle::setColor()
 {
-  if (option_=="f") SetFillColor(color);
-  else              SetLineColor(color);
-  SetMarkerColor(color);
+  if (option_=="f") SetFillColor(lineAttr_->GetLineColor());
+  else              SetLineColor(lineAttr_->GetLineColor());
+  SetMarkerColor(markerAttr_->GetMarkerColor());
+}
+//_______________________________________________________________________________
+void GPFSimParticle::setColor(int newcol)
+{
+  if (option_=="f") SetFillColor(newcol);
+  else              SetLineColor(newcol);
+  SetMarkerColor(newcol);
 }
 //_____________________________________________________________________________
 void GPFSimParticle::setInitialColor()
 {
-  if (option_=="f") SetFillColor(color_);
-  else              SetLineColor(color_);
-  SetMarkerColor(color_);
+  if (option_=="f") SetFillColor(lineAttr_->GetLineColor());
+  else              SetLineColor(lineAttr_->GetLineColor());
+  SetMarkerColor(markerAttr_->GetMarkerColor());
 }
-
+//_____________________________________________________________________________
+void GPFSimParticle::setNewSize()
+{
+ SetMarkerSize(markerAttr_->GetMarkerSize());
+}
+//____________________________________________________________________________
+void GPFSimParticle::setNewStyle()
+{
+ SetMarkerStyle(markerAttr_->GetMarkerStyle());
+}
 

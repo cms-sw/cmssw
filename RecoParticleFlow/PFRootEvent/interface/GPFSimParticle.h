@@ -20,13 +20,16 @@ class GPFSimParticle : public GPFBase, public TGraph {
   GPFSimParticle(DisplayManager *dm,int view, int ident, 
 		 const reco::PFSimParticle *ptc, 
 		 int size, double *x, double *y,
-                 double pt,int markerstyle, int color,
+                 double pt,TAttMarker *attm,TAttLine *attl,
 		 std::string option);
                  
   virtual void     draw();
   double           getPt() { return pt_;}
-  void             setColor(int newcolor);
+  void             setColor();
+  void             setColor(int newcol);
   void             setInitialColor();
+  void             setNewStyle();
+  void             setNewSize();
      
   //overridden ROOT method
   virtual void     Print();     // *MENU*

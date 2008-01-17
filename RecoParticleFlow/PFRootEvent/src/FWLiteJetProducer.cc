@@ -18,7 +18,7 @@ using namespace reco;
 using namespace std;
 using namespace JetReco;
 
-//-----------------------------------------------------------
+//--------------test Mac/afs------------------
 
 FWLiteJetProducer::FWLiteJetProducer(){	
 
@@ -34,6 +34,7 @@ FWLiteJetProducer::FWLiteJetProducer(){
   rparam_=1.;
   algoIC_=0;
   algoMC_=0;
+  debug_=0;
 }
 
 
@@ -84,10 +85,24 @@ void FWLiteJetProducer::print() {
 void FWLiteJetProducer::applyCuts(const reco::CandidateCollection& Candidates, JetReco::InputCollection* input){
   //!!!!
   edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(10001) );
-  // FIXME - NOT YET WORKING & COMPILING  
-  //  fillInputs (  CandidateHandle, &input, mEtInputCut_, mEInputCut_);
+// <<<<<<< FWLiteJetProducer.cc
+//   // FIXME - NOT YET WORKING & COMPILING  
+//   //  fillInputs (  CandidateHandle, &input, mEtInputCut_, mEInputCut_);
 
 
+// =======
+//   input->reserve ( Candidates.size());  
+//   //cout<<" Candidate " << CandidateHandle->size()<<Candidates.size() << endl;
+//   for (unsigned i = 0; i <Candidates.size() ; i++) {
+//     const reco::Candidate* constituent = &Candidates[i];        
+
+//     if ((mEtInputCut_ <= 0 || constituent->et() > mEtInputCut_) &&
+//         (mEInputCut_ <= 0 || constituent->energy() > mEInputCut_)) {                    
+//       input->push_back (InputItem(CandidateHandle,i));  
+//      if (debug_) std::cout<<" FWLiteJetProducer: Jet Candidate ET " << constituent->et() << std::endl;	                
+//     }
+//   }
+// >>>>>>> 1.3.2.3
 }
 
 //-----------------------------------------------------------
