@@ -55,6 +55,9 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   tkMinPt_ = pset.getParameter<double>("tkMinPt");
   tkMinP_  = pset.getParameter<double>("tkMinP");
 
+  // Matching criteria
+  maxDeltaR_ = pset.getUntrackedParameter<double>("maxDeltaR", -999.);
+
   seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
   // the service parameters
@@ -188,7 +191,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     Handle<TrajectorySeedCollection> seeds;
     event.getByLabel(seedLabel_, seeds);
     if ( seeds->size() > 0 ) {
-      pair<TSOS, TrajectorySeed> seedInfo = matchTrack(simTrack, seeds);
+      pair<TSOS, TrajectorySeed> seedInfo = matchTrack(simTrack, seeds, maxDeltaR_);
       hSeedEtaVsPhi_->Fill(simEta, simPhi);
       hSeedEtaVsNHits_->Fill(simEta, seedInfo.second.nHits());
       hSeedResol_->fillInfo(simTrack, seedInfo.first);
@@ -197,7 +200,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     Handle<TrackCollection> staTracks;
     event.getByLabel(staTrackLabel_, staTracks);
     if ( staTracks->size() > 0 ) {
-      pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks);
+      pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks, maxDeltaR_);
       hStaEtaVsPhi_->Fill(simEta, simPhi);
       hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
       hStaResol_->fillInfo(simTrack, staInfo.first);
@@ -208,7 +211,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
            && staInfo.second.track().pt() > staMinPt_
            && staInfo.second.track().innerMomentum().Rho() > staMinRho_
            && staInfo.second.track().innerMomentum().R() > staMinR_ ) {  
-        pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks);
+        pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks, maxDeltaR_);
         if ( tkInfo.second.track().p() > tkMinP_ && tkInfo.second.track().pt() > tkMinPt_ ) {
           hTkEtaVsPhi_->Fill(simEta, simPhi);
         }
@@ -218,7 +221,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     Handle<TrackCollection> glbTracks;
     event.getByLabel(glbTrackLabel_, glbTracks);
     if ( glbTracks->size() > 0 ) {
-      pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks);
+      pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks, maxDeltaR_);
       hGlbEtaVsPhi_->Fill(simEta, simPhi);
       hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.numberOfValidHits());
       hGlbResol_->fillInfo(simTrack, glbInfo.first);
@@ -227,9 +230,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 }
 
 pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrack, 
-                                                          Handle<TrackCollection> recTracks)
+                                                         Handle<TrackCollection> recTracks,
+                                                         const double maxDeltaR)
 {
-  double candDeltaR = -999.0;
+  double candDeltaR = maxDeltaR;
 
   TransientTrack candTrack;
   TSOS candTSOS;
@@ -257,9 +261,10 @@ pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrac
 }
 
 pair<TSOS, TrajectorySeed> RecoMuonValidator::matchTrack(const SimTrack& simTrack,
-                                                          Handle<TrajectorySeedCollection> seeds)
+                                                         Handle<TrajectorySeedCollection> seeds,
+                                                         const double maxDeltaR)
 {
-  double candDeltaR = -999.0;
+  double candDeltaR = maxDeltaR;
 
   TrajectorySeed candSeed;
   TSOS candTSOS;

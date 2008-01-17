@@ -139,9 +139,11 @@ class RecoMuonValidator : public edm::EDAnalyzer
  protected:
   typedef TrajectoryStateOnSurface TSOS;
   std::pair<TSOS, reco::TransientTrack> matchTrack(const SimTrack& simTrack,
-                                             edm::Handle<reco::TrackCollection> recTrack);
+                                                   edm::Handle<reco::TrackCollection> recTrack,
+                                                   const double maxDeltaR = -999.);
   std::pair<TSOS, TrajectorySeed> matchTrack(const SimTrack& simTrack, 
-                                             edm::Handle<TrajectorySeedCollection> seeds);
+                                             edm::Handle<TrajectorySeedCollection> seeds,
+                                             const double maxDeltaR = -999.);
   TSOS getSeedTSOS(const TrajectorySeed& seed);
   int getNSimHits(const edm::Event& event, std::string simHitLabel, unsigned int trackId);
 
@@ -156,6 +158,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   double widthPull_;
   double staMinPt_, staMinRho_, staMinR_;
   double tkMinP_, tkMinPt_;
+  double maxDeltaR_;
 
   edm::InputTag simTrackLabel_;
   edm::InputTag staTrackLabel_;
