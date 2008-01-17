@@ -2,7 +2,8 @@
 
 template<typename METIn, typename METOut>
 pat::PATMETCleaner<METIn,METOut>::PATMETCleaner(const edm::ParameterSet & iConfig) :
-  metSrc_(iConfig.getParameter<edm::InputTag>( "metSource" ))
+  metSrc_(iConfig.getParameter<edm::InputTag>( "metSource" )),
+  helper_(metSrc_)
 {
   // produces vector of electrons
   produces<std::vector<METOut> >();

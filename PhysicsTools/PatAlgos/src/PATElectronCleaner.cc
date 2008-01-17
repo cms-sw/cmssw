@@ -1,8 +1,9 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.1 2008/01/16 01:20:42 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.2 2008/01/16 16:04:42 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
+
 
 #include <vector>
 #include <memory>
@@ -55,9 +56,6 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   helper_.done(); // he does event.put by itself
 }
 
-/* --- Comment by Giovanni Petrucciani, when porting to PAT Cleaners ---
- * Now it directly manipulater the "helper_" to mark items not to be saved 
- */
 /* --- Original comment from TQAF follows ----
  * it is possible that there are multiple electron objects in the collection that correspond to the same
  * real physics object - a supercluster with two tracks reconstructed to it, or a track that points to two different SC
@@ -65,32 +63,14 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
  * NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly   
  */
 void PATElectronCleaner::removeDuplicates() {
-  size_t size = helper_.size();
-  for (size_t ie = 0; ie < size; ++ie) {
-      if (helper_.mark(ie) != 0) continue; // if already marked bad
-
-      reco::GsfTrackRef thistrack  = helper_[ie].gsfTrack();
-      reco::SuperClusterRef thissc = helper_[ie].superCluster();
-
-      for (size_t je = ie+1; je < size; ++je) {
-          if (helper_.mark(je) != 0) continue; // if already marked bad
-
-          if ( ( thistrack == helper_[je].gsfTrack()) ||
-                  (thissc  == helper_[je].superCluster()) ) {
-              // we have a match, arbitrate and mark one for removal
-              // keep the one with E/P closer to unity
-              float diff1 = fabs(helper_[ie].eSuperClusterOverP()-1);
-              float diff2 = fabs(helper_[je].eSuperClusterOverP()-1);
-
-              if (diff1<diff2) {
-                  helper_.setMark(je, 1);
-              } else {
-                  helper_.setMark(ie, 1);
-              }
-          }
-      }
-  }
+    std::auto_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(helper_.selected());
+    for (std::vector<size_t>::const_iterator it = duplicates->begin(),
+                                             ed = duplicates->end();
+                                it != ed;
+                                ++it) {
+        helper_.setMark(*it, 1);
+    }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(pat::PATElectronCleaner);
+DEFINE_FWK_MODULE(PATElectronCleaner);

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: PATJetCleaner.h,v 1.1 2008/01/16 16:04:36 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: PATJetCleaner.h,v 1.1 2008/01/16 16:04:36 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -50,6 +51,8 @@ namespace pat {
                                  JetOut,
                                  std::vector<JetOut>,
                                  GreaterByEt<JetOut> > helper_;
+
+      pat::helper::OverlapHelper overlapHelper_;
 
   };
 

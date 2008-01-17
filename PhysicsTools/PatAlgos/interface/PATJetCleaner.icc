@@ -2,13 +2,17 @@
 
 template<typename JetIn, typename JetOut>
 pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig) :
-  jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" ))
+  jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" )),
+  helper_(jetSrc_)
 {
   // produces vector of electrons
   produces<std::vector<JetOut> >();
-
   // producers also backmatch to the electrons
   produces<reco::CandRefValueMap>();
+
+  if (iConfig.exists("removeOverlaps")) {
+    overlapHelper_ = pat::helper::OverlapHelper(iConfig.getParameter< std::vector<edm::ParameterSet> >("removeOverlaps"));
+  } 
 }
 
 
@@ -32,6 +36,14 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
 
     // write the muon
     helper_.addItem(idx, ourJet);
+  }
+
+  if (overlapHelper_.enabled()) {
+     typedef typename pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected().begin(), helper_.selected().end() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.setMark( i, (*result)[i] );
+     }
   }
 
   helper_.done();

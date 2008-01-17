@@ -10,7 +10,8 @@
 template<typename TauIn, typename TauOut, typename TauTag>
 pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet & iConfig) :
   tauSrc_(iConfig.getParameter<edm::InputTag>( "tauSource" )),
-  tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource"))
+  tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource")),
+  helper_(tauSrc_)
 {
   // produces vector of electrons
   produces<std::vector<TauOut> >();

@@ -2,8 +2,8 @@
 
 #include "PhysicsTools/PatAlgos/interface/PATMETCleaner.h"
 #include "PhysicsTools/PatAlgos/interface/PATMETCleaner.icc"
-
-DEFINE_FWK_MODULE(pat::PATBaseMETCleaner);
-DEFINE_FWK_MODULE(pat::PATCaloMETCleaner);
-DEFINE_FWK_MODULE(pat::PATCalo2BaseMETCleaner);
+using namespace pat;
+DEFINE_FWK_MODULE(PATBaseMETCleaner);
+DEFINE_FWK_MODULE(PATCaloMETCleaner);
+DEFINE_FWK_MODULE(PATCalo2BaseMETCleaner);
 
