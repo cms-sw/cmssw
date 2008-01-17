@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.h,v 1.11 2007/03/21 16:38:13 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.h,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
@@ -31,6 +31,7 @@ class SiStripDigiToRawModule : public edm::EDProducer {
  private:
 
   std::string inputModuleLabel_;
+  std::string inputDigiLabel_;
   SiStripDigiToRaw* digiToRaw_;
   uint32_t eventCounter_;
 

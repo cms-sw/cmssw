@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.2 2007/10/09 17:03:29 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -24,6 +24,7 @@ using namespace std;
 */
 SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
+  inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
   digiToRaw_(0),
   eventCounter_(0)
 {
@@ -62,7 +63,7 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
 
   edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
-  iEvent.getByLabel( inputModuleLabel_, digis );
+  iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, digis );
 
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
   
