@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/01/09 18:46:48 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/17 09:34:43 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -169,10 +169,6 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
   }
 
   return status;
-
-}
-
-void EEStatusFlagsClient::softReset(void){
 
 }
 

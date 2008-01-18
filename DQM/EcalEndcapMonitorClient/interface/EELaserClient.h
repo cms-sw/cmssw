@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/12/15 11:34:30 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -39,9 +39,6 @@ EELaserClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EELaserClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

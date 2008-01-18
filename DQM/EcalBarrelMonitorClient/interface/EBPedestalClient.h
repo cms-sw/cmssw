@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.62 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,9 +40,6 @@ EBPedestalClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBPedestalClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

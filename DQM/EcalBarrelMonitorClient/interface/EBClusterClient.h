@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/12/15 11:34:18 $
- * $Revision: 1.18 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -41,9 +41,6 @@ EBClusterClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBClusterClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

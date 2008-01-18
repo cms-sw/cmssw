@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/01/15 10:43:10 $
- * $Revision: 1.67 $
+ * $Date: 2008/01/17 09:34:42 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1719,10 +1719,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   }
 
   return status;
-
-}
-
-void EELaserClient::softReset(void){
 
 }
 

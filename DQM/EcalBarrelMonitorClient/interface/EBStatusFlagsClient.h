@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/09 18:46:40 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -39,9 +39,6 @@ EBStatusFlagsClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBStatusFlagsClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

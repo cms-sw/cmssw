@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/01/05 09:38:56 $
- * $Revision: 1.63 $
+ * $Date: 2008/01/17 09:34:41 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -314,18 +314,6 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   }
 
   return status;
-
-}
-
-void EBTimingClient::softReset(void){
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
-
-  }
 
 }
 

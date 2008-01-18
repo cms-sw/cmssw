@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/05 09:38:57 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/17 09:34:42 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -341,10 +341,6 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   }
 
   return status;
-
-}
-
-void EEBeamCaloClient::softReset(void){
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/12/15 11:34:31 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,9 +40,6 @@ EEPedestalClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEPedestalClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

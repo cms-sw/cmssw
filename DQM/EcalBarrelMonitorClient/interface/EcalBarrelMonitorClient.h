@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/12/29 12:58:55 $
- * $Revision: 1.93 $
+ * $Date: 2007/12/30 08:34:35 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,9 +51,6 @@ EcalBarrelMonitorClient(const edm::ParameterSet & ps);
 void subscribe(void);
 void subscribeNew(void);
 void unsubscribe(void);
-
-/// softReset
-void softReset(void);
 
 // Initialize
 void initialize(const edm::ParameterSet & ps);

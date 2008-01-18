@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/13 14:09:22 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/17 09:34:42 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -258,20 +258,6 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   }
 
   return status;
-
-}
-
-void EECosmicClient::softReset(void){
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
-    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
-
-  }
 
 }
 

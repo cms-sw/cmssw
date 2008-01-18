@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/12/16 21:58:17 $
- * $Revision: 1.12 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -41,9 +41,6 @@ EEClusterClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEClusterClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

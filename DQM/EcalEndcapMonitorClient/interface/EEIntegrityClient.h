@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2007/12/15 11:34:30 $
- * $Revision: 1.9 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,9 +40,6 @@ EEIntegrityClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEIntegrityClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

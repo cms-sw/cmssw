@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/01/09 18:46:40 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/17 09:34:41 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -167,10 +167,6 @@ bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
   }
 
   return status;
-
-}
-
-void EBStatusFlagsClient::softReset(void){
 
 }
 

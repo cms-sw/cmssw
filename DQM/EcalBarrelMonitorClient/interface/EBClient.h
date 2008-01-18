@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.12 2007/12/15 10:11:51 dellaric Exp $
+// $Id: EBClient.h,v 1.13 2007/12/15 11:34:18 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.12 $
-  \date $Date: 2007/12/15 10:11:51 $
+  \version $Revision: 1.13 $
+  \date $Date: 2007/12/15 11:34:18 $
 */
 
 
@@ -22,11 +22,6 @@ class MonRunIOV;
 class EBClient {
 
  public:
-
-  /*! \fn virtual void softReset(void)
-    \brief softReset Monitoring Elements
-  */
-  virtual void softReset(void)  = 0;
 
   /*! \fn virtual void analyze(void)
     \brief analyze method

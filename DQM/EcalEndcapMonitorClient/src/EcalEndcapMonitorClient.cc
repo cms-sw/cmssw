@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/30 19:55:23 $
- * $Revision: 1.120 $
+ * $Date: 2008/01/09 18:46:48 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -813,12 +813,6 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   }
 
-  if ( subrun_ != -1 ) {
-    if ( enableSubRunDb_ ) {
-      this->softReset();
-    }
-  }
-
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
@@ -1303,22 +1297,6 @@ void EcalEndcapMonitorClient::unsubscribe(void) {
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: unsubscribe" << endl;
 
   mui_->unsubscribe("*/EcalEndcap/*");
-
-}
-
-void EcalEndcapMonitorClient::softReset(void) {
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool done = false;
-    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
-        done = true;
-        clients_[i]->softReset();
-      }
-    }
-  }
-
-  summaryClient_->softReset();
 
 }
 

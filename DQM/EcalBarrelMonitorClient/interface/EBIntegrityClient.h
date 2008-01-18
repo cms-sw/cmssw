@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.55 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,9 +40,6 @@ EBIntegrityClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBIntegrityClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

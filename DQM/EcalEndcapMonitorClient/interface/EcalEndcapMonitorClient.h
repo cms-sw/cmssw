@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/12/29 12:58:57 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/30 08:34:36 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,9 +51,6 @@ EcalEndcapMonitorClient(const edm::ParameterSet & ps);
 void subscribe(void);
 void subscribeNew(void);
 void unsubscribe(void);
-
-/// softReset
-void softReset(void);
 
 // Initialize
 void initialize(const edm::ParameterSet & ps);

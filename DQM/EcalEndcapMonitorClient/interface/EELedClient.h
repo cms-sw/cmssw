@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/12/15 11:34:31 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -39,9 +39,6 @@ EELedClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EELedClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

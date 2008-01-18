@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/01/05 09:38:56 $
- * $Revision: 1.116 $
+ * $Date: 2008/01/17 09:34:41 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -302,18 +302,6 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   }
 
   return status;
-
-}
-
-void EBPedestalOnlineClient::softReset(void){
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
-
-  }
 
 }
 

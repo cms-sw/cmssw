@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/11 07:22:16 $
- * $Revision: 1.32 $
+ * $Date: 2008/01/17 09:34:42 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -213,10 +213,6 @@ bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
   bool status = true;
 
   return status;
-
-}
-
-void EEClusterClient::softReset(void){
 
 }
 

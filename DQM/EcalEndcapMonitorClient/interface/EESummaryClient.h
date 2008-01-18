@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.15 $
+ * $Date: 2008/01/09 18:46:47 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -38,9 +38,6 @@ EESummaryClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EESummaryClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

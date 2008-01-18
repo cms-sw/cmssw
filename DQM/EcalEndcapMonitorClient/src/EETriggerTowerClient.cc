@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/15 10:43:17 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/17 09:34:43 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -358,34 +358,6 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
   }
 
   return status;
-
-}
-
-void EETriggerTowerClient::softReset(void){
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
-    if ( mei01_[ism-1] ) dbe_->softReset(mei01_[ism-1]);
-    if ( mei02_[ism-1] ) dbe_->softReset(mei02_[ism-1]);
-    if ( mej01_[ism-1] ) dbe_->softReset(mej01_[ism-1]);
-    if ( mej02_[ism-1] ) dbe_->softReset(mej02_[ism-1]);
-
-    if ( mel01_[ism-1] ) dbe_->softReset(mel01_[ism-1]);
-    if ( mem01_[ism-1] ) dbe_->softReset(mem01_[ism-1]);
-    if ( men01_[ism-1] ) dbe_->softReset(men01_[ism-1]);
-
-//     for (int j=0; j<34; j++) {
-//
-//       if ( mek01_[ism-1][j] ) dbe_->softReset(mek01_[ism-1][j]);
-//       if ( mek02_[ism-1][j] ) dbe_->softReset(mek02_[ism-1][j]);
-//
-//     }
-
-  }
 
 }
 

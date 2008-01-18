@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.25 $
+ * $Date: 2008/01/09 18:46:40 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -38,9 +38,6 @@ EBSummaryClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBSummaryClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

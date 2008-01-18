@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.61 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,9 +40,6 @@ EBTestPulseClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTestPulseClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

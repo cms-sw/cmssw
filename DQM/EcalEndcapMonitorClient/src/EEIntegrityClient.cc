@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/15 10:43:10 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/17 09:34:42 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -689,10 +689,6 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   }
 
   return status;
-
-}
-
-void EEIntegrityClient::softReset(void){
 
 }
 

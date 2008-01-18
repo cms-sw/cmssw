@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsClient.h
  *
- * $Date: 2007/12/15 11:34:31 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/09 18:46:47 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -39,9 +39,6 @@ EEStatusFlagsClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEStatusFlagsClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

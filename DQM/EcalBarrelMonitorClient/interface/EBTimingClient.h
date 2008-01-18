@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -39,9 +39,6 @@ EBTimingClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTimingClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);

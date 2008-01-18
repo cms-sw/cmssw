@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/01/15 10:43:13 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/17 09:34:43 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -652,10 +652,6 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   }
 
   return status;
-
-}
-
-void EEPedestalClient::softReset(void){
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/01/05 09:38:56 $
- * $Revision: 1.208 $
+ * $Date: 2008/01/17 09:34:41 $
+ * $Revision: 1.209 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1690,10 +1690,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   }
 
   return status;
-
-}
-
-void EBLaserClient::softReset(void){
 
 }
 

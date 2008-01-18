@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/01/05 09:38:56 $
- * $Revision: 1.68 $
+ * $Date: 2008/01/17 09:34:41 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -341,10 +341,6 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   }
 
   return status;
-
-}
-
-void EBBeamCaloClient::softReset(void){
 
 }
 

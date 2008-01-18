@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2007/12/15 11:34:18 $
- * $Revision: 1.28 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -39,9 +39,6 @@ EBBeamCaloClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBBeamCaloClient();
-
-/// softReset
-void softReset(void);
 
 /// Analyze
 void analyze(void);
