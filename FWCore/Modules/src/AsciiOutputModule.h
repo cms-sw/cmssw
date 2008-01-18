@@ -1,13 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.4 2008/01/05 05:28:53 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.5 2008/01/14 16:49:23 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/MessageLogger/src/MessageLogger.cc"
 
 
 namespace edm {

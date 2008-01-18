@@ -2,13 +2,12 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.26 2007/12/29 00:28:57 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.27 2007/12/31 22:43:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
 #include <iostream>
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"

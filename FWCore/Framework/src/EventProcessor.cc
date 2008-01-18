@@ -9,10 +9,7 @@
 #include <signal.h>
 
 #include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
 #include "boost/thread/xtime.hpp"
-
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"

@@ -1,11 +1,10 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.2 2008/01/02 23:52:42 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
 
-#include <iostream>
 #include <sstream>
 
 namespace {

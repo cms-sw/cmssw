@@ -1,7 +1,5 @@
 #include <algorithm>
-#include <set>
 #include <sstream>
-#include <string>
 
 #include "boost/thread/tss.hpp"
 

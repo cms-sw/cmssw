@@ -13,7 +13,7 @@
 //
 // Original Author:  Weng Yao
 //         Created:  Tue Oct  2 13:49:56 EDT 2007
-// $Id$
+// $Id: PrintEventSetupContent.cc,v 1.1 2007/11/01 23:24:39 chrjones Exp $
 //
 //
 
@@ -22,13 +22,10 @@
 #include <memory>
 #include <map>
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Modules/src/EventSetupRecordDataGetter.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"//add by Yao

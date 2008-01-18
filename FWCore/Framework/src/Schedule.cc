@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

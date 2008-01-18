@@ -8,14 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id$
+// $Id: ParameterSetDescription.cc,v 1.1 2007/09/17 21:04:38 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // constants, enums and typedefs

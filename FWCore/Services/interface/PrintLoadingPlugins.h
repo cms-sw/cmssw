@@ -3,9 +3,6 @@
 
 #include "FWCore/Services/interface/PrintLoadingPlugins.h"
 #include <boost/filesystem/path.hpp>
-#include "sigc++/signal.h"
-#include "FWCore/ServiceRegistry/interface/ServicesManager.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 // -*- C++ -*-
 //
@@ -23,7 +20,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 11:17:02 EST 2007
-// $Id$
+// $Id: PrintLoadingPlugins.h,v 1.1 2008/01/14 18:14:24 chrjones Exp $
 //
 
 // system include files

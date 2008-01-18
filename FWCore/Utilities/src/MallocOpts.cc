@@ -6,7 +6,7 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.cc,v 1.4 2008/01/10 14:14:28 jbk Exp $
+// $Id: MallocOpts.cc,v 1.5 2008/01/10 18:12:46 jbk Exp $
 //
 // ------------------ resetting malloc options -----------------------
 
@@ -16,7 +16,6 @@
 #include <malloc.h>
 #include <sstream>
 #include <iostream>
-#include <string>
 
 namespace edm
 {

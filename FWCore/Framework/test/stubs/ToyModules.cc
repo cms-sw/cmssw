@@ -15,7 +15,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"

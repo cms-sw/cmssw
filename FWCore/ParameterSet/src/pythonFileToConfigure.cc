@@ -10,7 +10,6 @@
 #include <boost/python.hpp>
 #include "FWCore/ParameterSet/interface/pythonFileToConfigure.h"
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 
 std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)

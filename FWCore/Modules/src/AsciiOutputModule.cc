@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.11 2007/06/29 16:36:04 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.12 2008/01/14 16:49:22 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <iterator>
 #include <ostream>
-#include <string>
 #include "FWCore/Modules/src/AsciiOutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
