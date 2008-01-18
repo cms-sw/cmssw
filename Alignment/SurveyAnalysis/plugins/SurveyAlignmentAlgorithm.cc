@@ -1,4 +1,3 @@
-// #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
