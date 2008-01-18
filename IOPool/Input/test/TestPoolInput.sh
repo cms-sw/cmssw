@@ -101,7 +101,7 @@ process TESTRECO = {
 	}
 }
 !
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest.cfg' $?
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest2.cfg' $?
 
 cat > ${LOCAL_TMP_DIR}/PoolInputTest3.cfg << !
 # Configuration file for PoolInputTest
@@ -121,6 +121,41 @@ process TESTRECO = {
 	}
 }
 !
-cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest.cfg' $?
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest3.cfg || die 'Failure using PoolInputTest3.cfg' $?
 
 
+cat > ${LOCAL_TMP_DIR}/PoolEmptyTest.cfg << !
+# Configuration file for PoolInputTest
+process WRITEEMPTY = {
+	untracked PSet maxEvents = {untracked int32 input = -1}
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
+	path p = {Thing}
+	module Thing = ThingProducer {untracked int32 debugLevel = 1}
+	module output = PoolOutputModule {
+		untracked string fileName = '${LOCAL_TMP_DIR}/PoolEmptyTest.root'
+	}
+	source = TestRunLumiSource {
+	      untracked vint32 runLumiEvent = {0, 0, 0}
+	}
+        endpath ep = {output}
+}
+!
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolEmptyTest.cfg || die 'Failure using PoolEmptyTest.cfg' $?
+
+cat > ${LOCAL_TMP_DIR}/PoolEmptyTest2.cfg << !
+# Configuration file for PoolInputTest
+process READEMPTY = {
+	untracked PSet maxEvents = {untracked int32 input = -1}
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
+	path p = {Thing}
+	module Thing = ThingProducer {untracked int32 debugLevel = 1}
+	module output = PoolOutputModule {
+		untracked string fileName = '${LOCAL_TMP_DIR}/PoolEmptyTestOut.root'
+	}
+	source = PoolSource {
+		untracked vstring fileNames = {'file:${LOCAL_TMP_DIR}/PoolEmptyTest.root'}
+	}
+        endpath ep = {output}
+}
+!
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolEmptyTest2.cfg || die 'Failure using PoolEmptyTest2.cfg' $?
