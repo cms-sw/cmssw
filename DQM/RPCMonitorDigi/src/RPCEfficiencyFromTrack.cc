@@ -55,11 +55,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
-
-
-
-
-
 #include <memory>
 #include <cmath>
 #include "TFile.h"
@@ -137,7 +132,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   std::map<RPCDetId, int> buff;
 
  
-
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
@@ -165,9 +159,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
   std::vector<RPCDetId> rollRec;
   rollRec.clear();
-
-
-
 
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
@@ -197,7 +188,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 	      recFound++;
 	    }
-	    if(recFound==1)rollRec.push_back(rollId);
+	    if(recFound>0)rollRec.push_back(rollId);
 	  }
 	  if(rollRec.size()==0){
 	    for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
@@ -221,7 +212,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	  }
 	}
-	
+
 	
 	//EndCap
 	if(track.innermostMeasurementState().isValid() && reg!=0 && MeasureEndCap==true){
@@ -261,7 +252,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
 
-    if(rollRec.size()>=4){
+    if(rollRec.size()>=2){
       //Efficiency      
       for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
 	const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
