@@ -9,6 +9,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
@@ -34,6 +35,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagRecTracks_ 
     = iConfig.getParameter<InputTag>("RecTracks");
 
+  inputTagPFNuclear_ 
+    = iConfig.getParameter<InputTag>("PFNuclear");
 
   inputTagPFClustersECAL_ 
     = iConfig.getParameter<InputTag>("PFClustersECAL");
@@ -49,6 +52,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
+  useNuclear_ =
+     iConfig.getUntrackedParameter<bool>("useNuclear",false);
 
 
   produces<reco::PFBlockCollection>();
@@ -161,6 +166,16 @@ void PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get rectracks: "
 			       <<inputTagRecTracks_<<endl;
   
+  // get PFNuclearInteractions
+
+  Handle< reco::PFNuclearInteractionCollection > pfNuclears;
+  if( useNuclear_ ) {
+    found = iEvent.getByLabel(inputTagPFNuclear_, pfNuclears);
+
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get PFNuclearInteractions : "
+                               <<inputTagPFNuclear_<<endl;
+  }
   
   // get ECAL, HCAL and PS clusters
   
@@ -193,6 +208,7 @@ void PFBlockProducer::produce(Event& iEvent,
   
   
   pfBlockAlgo_.setInput( recTracks, 
+                         pfNuclears,
 			 clustersECAL,
 			 clustersHCAL,
 			 clustersPS );
