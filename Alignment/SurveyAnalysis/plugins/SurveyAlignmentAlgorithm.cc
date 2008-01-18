@@ -35,6 +35,5 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 // Plug in to framework
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");
