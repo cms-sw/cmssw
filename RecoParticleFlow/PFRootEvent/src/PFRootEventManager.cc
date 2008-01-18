@@ -1735,7 +1735,7 @@ void PFRootEventManager::reconstructCaloJets() {
 
 
 void PFRootEventManager::reconstructPFJets() {
-
+//edm::Handle<edm::View <Candidate> > CandidateHandle(pfCandidates_.get(), edm::ProductID(10001) );
   pfJets_.clear();
   basePFCandidates_.clear();
  /// basePFCandidates to be declared in PFRootEventManager.h
@@ -1743,7 +1743,7 @@ void PFRootEventManager::reconstructPFJets() {
   if (verbosity_ == VERBOSE ) {
     cout <<"start reconstruct PFJets"<<endl;
   }
-
+  
   for(unsigned i=0; i<pfCandidates_->size(); i++) {
     basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );
   }
@@ -1754,10 +1754,11 @@ void PFRootEventManager::reconstructPFJets() {
   typedef vector <ProtoJet>::const_iterator IPJ;
   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
   const ProtoJet& protojet = *ipj;
-  
-  if (verbosity_ == VERBOSE ) { // Debug MDN3
   const ProtoJet::Constituents& constituents = protojet.getTowerList();
   unsigned nconstit = constituents.size();
+  
+  if (verbosity_ == VERBOSE ) { // Debug MDN3
+  
   
   cout << "PF protojet PT " << protojet.pt() << " nb of constituents " << nconstit << endl;
     ProtoJet::Constituents::const_iterator constituent = constituents.begin();
@@ -1774,16 +1775,36 @@ void PFRootEventManager::reconstructPFJets() {
    }
   } // end Debug MDN2
 	
-// the following does not compile
- // PFJet::Specific specific;
- // JetMaker::makeSpecific(constituents, &specific);
- // PFJet pfj = PFJet(protojet.p4(), specific, constituents);
-  
-//    pfJets_.push_back(pfj); 
-//	Jet newJet = pfj.back());
-//	newJet.setJetArea(protojet.jetArea()); 
-//	newJet.setPileup(protojet.pileup());
-//	newJet.setNPasses(protojet.nPasses());
+
+   reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+   PFJet::Specific specific;
+   JetMaker::makeSpecific(constituents, &specific);
+   pfJets_.push_back (PFJet (protojet.p4(), vertex, specific));
+   Jet newJet = pfJets_.back(); // returns reference to the last element of vector pfJets_
+   // last step is to copy the constituents into the jet
+   // I do not know how to transform constituents CandidateRef into CandidateBaseRef
+   // namespace reco {
+   //class Jet : public CompositeRefBaseCandidate {
+   // public:
+   //  typedef reco::CandidateBaseRefVector Constituents;
+
+
+//// the following does not compile	
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+    for (; constituent != constituents.end(); ++constituent) {
+	//CandidateBaseRef baseRef = constituent->masterClone ();
+	const Candidate* candidate = constituent->get ();
+	//newJet.addDaughter (candidate);  does not work
+	//no matching function for call to `reco::Jet::addDaughter(const reco::Candidate*&)'
+	// candidates are: void reco::CompositeRefBaseCandidate::addDaughter(const reco::CandidateBaseRef&)
+    //newJet.addDaughter (constituent);  does not work either
+
+
+  }
+
+  	newJet.setJetArea(protojet.jetArea()); 
+  	newJet.setPileup(protojet.pileup());
+  	newJet.setNPasses(protojet.nPasses());
   } 
 }
 
