@@ -25,7 +25,7 @@ RPCGeomServ::name()
       {
 	std::stringstream os;
 	os << std::setw(2)<<std::setfill('+')<<_id->ring()
-	   <<std::setfill(' ')<<"/";
+	   <<std::setfill(' ')<<"_";
 	buf += os.str();
       }
       
@@ -37,15 +37,15 @@ RPCGeomServ::name()
 	    os<<"in";
 	  else
 	    os<<"out";
-	os<<"/";
+	//os<<"_";
 	buf += os.str();
       }
       
       
       {
 	std::stringstream os;
-	os <<"S"<<std::setw(2)<<std::setfill('0')
-	   <<_id->sector()<<std::setfill(' ');
+	//	os <<"S"<<std::setw(2)<<std::setfill('0')
+	//   <<_id->sector()<<std::setfill(' ');
 	if (_id->station()>2){
 	  
 	  if (_id->sector()== 4 && _id->station()==4){
@@ -69,6 +69,12 @@ RPCGeomServ::name()
 	      os <<"+";
 	  }
 	}
+	
+
+
+	os<<"_";
+	os <<"S"<<std::setw(2)<<std::setfill('0')
+	   <<_id->sector()<<std::setfill(' ');
 	os<<"_";
 	buf += os.str();
       }
@@ -89,13 +95,13 @@ RPCGeomServ::name()
       {
 	std::stringstream os;
 	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
-	   <<std::setfill(' ')<<"/";
+	   <<std::setfill(' ')<<"_";
 	buf += os.str();    
       }
       
       {
 	std::stringstream os;
-	os <<"RE"<<_id->station()<<"/"<<_id->ring();
+	os <<"RE"<<_id->station()<<"_"<<_id->ring();
 	os <<"S"<<std::setw(2)<<std::setfill('0')<<this->segment();
 	  
 	buf += os.str();
