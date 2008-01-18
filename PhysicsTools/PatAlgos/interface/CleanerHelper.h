@@ -119,8 +119,36 @@ size_t CleanerHelper<T,T2,Collection,Comparator>::addItem(size_t idx, const T2 &
 {
     selected_.push_back(value);
     marks_.push_back(mark);
-    edm::RefToBase<T> backRef(sourceView_, idx); // I need to pass from RefToBase<T> to reach RefToBase<Candidate>
-    originalRefs_.push_back(reco::CandidateBaseRef(backRef));
+
+    edm::RefToBase<T> backRef(sourceView_, idx); // That's all I can get from a View
+
+    // === OPTION 1 ===
+    //
+    // originalRefs_.push_back(reco::CandidateBaseRef(backRef));   // <== DOES NOT WORK
+    // 
+    //   NOTE: the above apparently creates problems with dictionaries as it look like it requires a dictionary for
+    //      edm::reftobase::Holder<Candidate, edm::RefToBase<T> >
+    //   which is usually not provided (if T is a final type like CaloJet usually there is not even the dict for RefToBase<T>!)
+    //   if the RefToBase constructor from RefToBase gets fixed as in
+    //     https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/1308.html 
+    //   then it should work
+
+    // === OPTION 2 ===
+    //
+    // edm::Ref< std::vector<T> > plainRef = backRef.template castTo< edm::Ref< std::vector<T> > >();
+    // originalRefs_.push_back(reco::CandidateBaseRef(plainRef));    
+    //  
+    //   NOTE:: this works if I'm reading a std::vector<T>, but I don't think it works in the general case
+
+    // === OPTION 3 ===
+    boost::shared_ptr<edm::reftobase::RefHolderBase> holderBase(backRef.holder().release());
+    originalRefs_.push_back(reco::CandidateBaseRef(holderBase));
+    //
+    //   NOTE: this should force the conversion into and IndirectHolder,
+    //     and avoid dictionary problems even if we can't fix RefToBase directly.
+    //
+    // May the Source be with you, Luke
+
     return selected_.size() - 1;
 }
 
