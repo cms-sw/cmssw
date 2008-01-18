@@ -1,5 +1,6 @@
 <library file=*.cc name="DQMSiStripCommissioningSourcesPlugins">
   <use name=DQM/SiStripCommissioningSources>
+  <use name=DataFormats/SiStripCommon>
   <flags EDM_PLUGIN=1>
 </library>
 
