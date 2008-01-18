@@ -32,7 +32,8 @@ namespace reco {
       PS2, 
       ECAL, 
       HCAL, 
-      MUON
+      MUON,
+      TRACKNUCL
     };
     
 
@@ -47,7 +48,8 @@ namespace reco {
     PFBlockElement(Type type) :  
       type_(type), 
       locked_(false),
-      index_( static_cast<unsigned>(-1) ) {
+      index_( static_cast<unsigned>(-1) ),
+      isSecondary_(false) {
     }
 
 
@@ -83,6 +85,8 @@ namespace reco {
     virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
 
+    void setIsSecondary(bool val) { isSecondary_ = val; }
+    bool isSecondary() { return isSecondary_; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
@@ -99,6 +103,9 @@ namespace reco {
     
     /// index in block vector 
     unsigned   index_;
+
+    /// flag to say if the element is secondary or not
+    bool isSecondary_;
 
   };
 }
