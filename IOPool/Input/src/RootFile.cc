@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.106 2008/01/03 19:22:55 wmtan Exp $
+$Id: RootFile.cc,v 1.107 2008/01/10 17:31:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -184,11 +184,13 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(remainingEvents);
-    RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-    if (currentRun < startAtRun_) {
-      fileIndexIter_ = fileIndex_.findPosition(startAtRun_, 0U, 0U);      
+    if (fileIndexIter_ != fileIndexEnd_) {
+      RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+      if (currentRun < startAtRun_) {
+        fileIndexIter_ = fileIndex_.findPosition(startAtRun_, 0U, 0U);      
+      }
+      assert(fileIndexIter_ == fileIndexEnd_ || fileIndexIter_->getEntryType() == FileIndex::kRun);
     }
-    assert(fileIndexIter_ == fileIndexEnd_ || fileIndexIter_->getEntryType() == FileIndex::kRun);
 
     reportOpened();
   }
@@ -220,6 +222,7 @@ namespace edm {
 
   int
   RootFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
+    if (fileIndexBegin_ == fileIndexEnd_) return 0;
     int defaultOffset = (fileIndexBegin_->run_ != 0 ? 0 : 1);
     forcedRunOffset_ = (forcedRunNumber != 0U ? forcedRunNumber - fileIndexBegin_->run_ : defaultOffset);
     if (forcedRunOffset_ != 0) {
