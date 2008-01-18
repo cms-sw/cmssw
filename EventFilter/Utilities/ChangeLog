@@ -1,3 +1,9 @@
+2008-01-18  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-15
+	* add scripts/edmConfDBDiff (for lack of a better place to put
+	it)
+
 2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-14
