@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.14 2007/11/24 11:14:22 lowette Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.15 2008/01/17 10:48:55 speer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -170,14 +170,35 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	tauIdx = &selTaup;
 	leptonFoundMmTp = true;
       }
-      // loop over the vector of taus to find the first one (highest Pt)
-      // that has the charge opposite to the muon one, and does not match in eta-phi
+      // loop over the vector of taus to find the ones
+      // that have the charge opposite to the muon one, and do not match in eta-phi
+      std::vector<std::vector<TopTau>::const_iterator> subset1;
       for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
         if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(muons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
-	  leptonFound = true; 
+          leptonFound = true;
+          subset1.push_back(tau);
 	}
       }
+      // if there are more than one tau selected, use the most isolated one
+      float bestIsol = 10.;
+      std::vector<std::vector<TopTau>::const_iterator> subset2;
+      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
+        if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
+	else if((*tau)->getEcalIsolation()<bestIsol) {
+	  *tauIdx = *tau - taus->begin();
+	  bestIsol = (*tau)->getEcalIsolation();
+	}
+      }
+      // if there are more than one tau with ecalIsol==0, take the smallest E/P
+      float bestEP = 100.;
+      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+        if((*tau)->getEoverP()<bestEP) {
+	  *tauIdx = *tau - taus->begin();
+	  bestEP = (*tau)->getEoverP();
+	}
+      }
+      
       // check that one combination has been found
       if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; } 
       // discard the jet that matches the tau (if one) 
@@ -203,14 +224,35 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	tauIdx = &selTaup;
 	leptonFoundEmTp = true;
       }
-      // loop over the vector of taus to find the first one (highest Pt)
-      // that has the charge opposite to the electron one, and does not match in eta-phi
+      // loop over the vector of taus to find the ones
+      // that have the charge opposite to the muon one, and do not match in eta-phi
+      std::vector<std::vector<TopTau>::const_iterator> subset1;
       for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
         if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(electrons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
 	  leptonFound = true; 
+          subset1.push_back(tau);
 	}
       }
+      // if there are more than one tau selected, use the most isolated one
+      float bestIsol = 10.;
+      std::vector<std::vector<TopTau>::const_iterator> subset2;
+      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
+        if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
+	else if((*tau)->getEcalIsolation()<bestIsol) {
+	  *tauIdx = *tau - taus->begin();
+	  bestIsol = (*tau)->getEcalIsolation();
+	}
+      }
+      // if there are more than one tau with ecalIsol==0, take the smallest E/P
+      float bestEP = 100.;
+      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+        if((*tau)->getEoverP()<bestEP) {
+	  *tauIdx = *tau - taus->begin();
+	  bestEP = (*tau)->getEoverP();
+	}
+      }
+
       // check that one combination has been found
       if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; } 
       // discard the jet that matches the tau (if one) 

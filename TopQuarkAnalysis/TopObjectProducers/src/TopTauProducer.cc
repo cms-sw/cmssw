@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.12 2007/11/02 20:14:24 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.13 2007/11/02 21:35:38 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -20,6 +20,9 @@
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+#include <DataFormats/ParticleFlowReco/interface/PFBlock.h>
+#include <DataFormats/ParticleFlowReco/interface/PFBlockElement.h>
+#include <DataFormats/ParticleFlowReco/interface/PFCluster.h>
 
 #include <vector>
 #include <memory>
@@ -116,8 +119,24 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // set the additional variables
       const reco::PFJet *pfJet = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
-        aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
-        aTau.setEoverP(thePFTau->energy()/thePFTau->leadTrack()->p());
+        float ECALenergy=0.;
+	float HCALenergy=0.;
+	PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
+	for(int i=0;i<(int)myPFCands.size();i++){
+	  if(myPFCands[i]->blockRef()->elements().size()!=0){
+	    for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
+	      if((*iPFBlockElement).type()==PFBlockElement::HCAL) 
+	         HCALenergy += (*iPFBlockElement).clusterRef()->energy();
+	      else if((*iPFBlockElement).type()==PFBlockElement::ECAL)
+	         ECALenergy += (*iPFBlockElement).clusterRef()->energy();
+	    }
+	  }
+	}
+        aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
+        aTau.setEoverP((HCALenergy+ECALenergy)/thePFTau->leadTrack()->p());
+	aTau.setHhotOverP(thePFTau->maximumHCALPFClusterEt()/thePFTau->leadTrack()->p());
+	aTau.setHtotOverP(HCALenergy/thePFTau->leadTrack()->p());
+	aTau.setEcalIsolation(thePFTau->isolationPFGammaCandsEtSum());
       }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
@@ -135,6 +154,9 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if(tauJet) {
         aTau.setEmEnergyFraction(tauJet->emEnergyFraction());
         aTau.setEoverP(tauJet->energy()/theCaloTau->leadTrack()->p());
+	aTau.setHhotOverP(theCaloTau->maximumHCALhitEt()/theCaloTau->leadTrack()->p());
+	aTau.setHtotOverP(tauJet->energy()*tauJet->energyFractionHadronic()/theCaloTau->leadTrack()->p());
+	aTau.setEcalIsolation(theCaloTau->isolationECALhitsEtSum());
       }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
