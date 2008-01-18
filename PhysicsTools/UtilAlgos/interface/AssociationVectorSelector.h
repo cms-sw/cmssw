@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: AssociationVectorSelector.h,v 1.1 2008/01/10 15:21:10 llista Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -65,7 +65,8 @@ void AssociationVectorSelector<KeyRefProd, CVal, KeySelector, ValSelector>::prod
   // new association must be created after the
   // selected collection is full because it uses the size
   KeyRefProd ref = evt.getRefBeforePut<collection_t>();
-  auto_ptr<association_t> selectedAssociation(new association_t(ref, selected.get()));
+  //  auto_ptr<association_t> selectedAssociation(new association_t(ref, selected.get())); // why the second argument ? it's not there in 1.6.9
+  auto_ptr<association_t> selectedAssociation(new association_t(ref)); 
   size = selected->size();
   OrphanHandle<collection_t> oh = evt.put(selected);
   for(size_t i = 0; i != size; ++i)
