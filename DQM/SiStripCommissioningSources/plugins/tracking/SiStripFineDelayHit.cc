@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.21 2008/01/16 20:29:04 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.1 2008/01/17 16:51:42 delaer Exp $
 //
 //
 
@@ -356,86 +356,87 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const reco::TrackCollection *tracks=trackCollection.product();
    edm::ESHandle<TrackerGeometry> tracker;
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-   if (!tracks->size()) return;
-   anglefinder_->init(iEvent,iSetup);
-   LogDebug("produce") << "Found " << tracks->size() << " tracks.";
-   // look at the hits if one needs them
-   edm::Handle< edm::DetSetVector<SiStripDigi> > hits;
-   const edm::DetSetVector<SiStripDigi>* hitSet = NULL;
-   if(homeMadeClusters_) {
-     iEvent.getByLabel(digiLabel_,hits);
-     hitSet = hits.product();
-   }
-   // look at the clusters 
-   edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
-   iEvent.getByLabel(clusterLabel_, clusters);
-   const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
-   // look at the trajectories if they are in the event
-   std::vector<Trajectory> trajVec;
-   if(trajInEvent_) {
-     edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
-     iEvent.getByLabel(trackLabel_,TrajectoryCollection);
-     trajVec = *(TrajectoryCollection.product());
-   }	       
-   // loop on tracks
-   for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); itrack++) {
-     // first check the track Pt
-     if((itrack->px()*itrack->px()+itrack->py()*itrack->py()+itrack->pz()*itrack->pz())<minTrackP2_) continue;
-     // check that we have something in the layer we are interested in
-     std::vector< std::pair<uint32_t,std::pair<double,double> > > intersections;
-     if(mode_==1) {
-       // Retrieve commissioning information from "event summary" 
-       edm::Handle<SiStripEventSummary> summary;
-       iEvent.getByLabel( inputModuleLabel_, summary );
-       /* TODO: define the protocol with Laurent
-       uint32_t mask = const_cast<SiStripEventSummary*>(summary.product())->maskScanned();
-       uint32_t pattern = const_cast<SiStripEventSummary*>(summary.product())->deviceScanned();
-       intersections = detId(*tracker,&(*itrack),trajVec,mask,pattern);
-       */
-     } else {
-       // for latency scans, no layer is specified -> no cut on detid
-       intersections = detId(*tracker,&(*itrack),trajVec);
+   if (tracks->size()) {
+     anglefinder_->init(iEvent,iSetup);
+     LogDebug("produce") << "Found " << tracks->size() << " tracks.";
+     // look at the hits if one needs them
+     edm::Handle< edm::DetSetVector<SiStripDigi> > hits;
+     const edm::DetSetVector<SiStripDigi>* hitSet = NULL;
+     if(homeMadeClusters_) {
+       iEvent.getByLabel(digiLabel_,hits);
+       hitSet = hits.product();
      }
-     LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
-     for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();it++) {
-       std::pair<const SiStripCluster*,double> candidateCluster = closestCluster(*tracker,&(*itrack),it->first,*clusterSet,*hitSet);
-       if(candidateCluster.first) {
-         LogDebug("produce") << "    Found a cluster.";
-         // cut on the distance 
-	 if(candidateCluster.second>maxClusterDistance_) continue; 
-         LogDebug("produce") << "    The cluster is close enough.";
-	 // build the rawdigi corresponding to the leading strip and save it
-	 // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
-	 const std::vector< uint16_t >& amplitudes = candidateCluster.first->amplitudes();
-	 uint16_t leadingCharge = 0;
-	 uint16_t leadingStrip = candidateCluster.first->firstStrip();
-	 uint16_t leadingPosition = 0;
-	 for(std::vector< uint16_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
-	   if(leadingCharge<*amplit) {
-	     leadingCharge = *amplit;
-	     leadingPosition = leadingStrip;
-	   }
-	 }
-	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
-         LogDebug("produce") << "    Time and charge:" << it->second.first << " " << leadingCharge << " at " << leadingPosition;
-	 if(leadingCharge>255) leadingCharge=255;
-	 // apply some correction to the leading charge, but only if it has not saturated.
-	 if(leadingCharge<255) {
-	   // correct the leading charge for the crossing angle (expressed in degrees)
-  	   leadingCharge = uint16_t((leadingCharge*TMath::Cos(it->second.second/180.*TMath::Pi())));
-	   // correct for modulethickness for TEC
-	   if(((((it->first)>>25)&0x7f)==0xe)&&((((it->first)>>5)&0x7)>4)) leadingCharge = uint16_t((leadingCharge*0.64));
-	 }
-	 //code the time of flight in the digi
-	 unsigned int tof = abs(int(round(it->second.first*10)));
-	 tof = tof>255 ? 255 : tof;
-	 SiStripRawDigi newSiStrip(leadingCharge + (tof<<8));
-	 newds.push_back(newSiStrip);
-	 //store into the detsetvector
-	 output.push_back(newds);
-	 LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added." << std::endl;
+     // look at the clusters 
+     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
+     iEvent.getByLabel(clusterLabel_, clusters);
+     const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
+     // look at the trajectories if they are in the event
+     std::vector<Trajectory> trajVec;
+     if(trajInEvent_) {
+       edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+       iEvent.getByLabel(trackLabel_,TrajectoryCollection);
+       trajVec = *(TrajectoryCollection.product());
+     }	       
+     // loop on tracks
+     for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); itrack++) {
+       // first check the track Pt
+       if((itrack->px()*itrack->px()+itrack->py()*itrack->py()+itrack->pz()*itrack->pz())<minTrackP2_) continue;
+       // check that we have something in the layer we are interested in
+       std::vector< std::pair<uint32_t,std::pair<double,double> > > intersections;
+       if(mode_==1) {
+         // Retrieve commissioning information from "event summary" 
+         edm::Handle<SiStripEventSummary> summary;
+         iEvent.getByLabel( inputModuleLabel_, summary );
+         /* TODO: define the protocol with Laurent
+         uint32_t mask = const_cast<SiStripEventSummary*>(summary.product())->maskScanned();
+         uint32_t pattern = const_cast<SiStripEventSummary*>(summary.product())->deviceScanned();
+         intersections = detId(*tracker,&(*itrack),trajVec,mask,pattern);
+         */
+       } else {
+         // for latency scans, no layer is specified -> no cut on detid
+         intersections = detId(*tracker,&(*itrack),trajVec);
        }
-       if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
+       LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
+       for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();it++) {
+         std::pair<const SiStripCluster*,double> candidateCluster = closestCluster(*tracker,&(*itrack),it->first,*clusterSet,*hitSet);
+         if(candidateCluster.first) {
+           LogDebug("produce") << "    Found a cluster.";
+           // cut on the distance 
+  	 if(candidateCluster.second>maxClusterDistance_) continue; 
+           LogDebug("produce") << "    The cluster is close enough.";
+  	 // build the rawdigi corresponding to the leading strip and save it
+  	 // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
+  	 const std::vector< uint16_t >& amplitudes = candidateCluster.first->amplitudes();
+  	 uint16_t leadingCharge = 0;
+  	 uint16_t leadingStrip = candidateCluster.first->firstStrip();
+  	 uint16_t leadingPosition = 0;
+  	 for(std::vector< uint16_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
+  	   if(leadingCharge<*amplit) {
+  	     leadingCharge = *amplit;
+  	     leadingPosition = leadingStrip;
+  	   }
+  	 }
+  	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
+           LogDebug("produce") << "    Time and charge:" << it->second.first << " " << leadingCharge << " at " << leadingPosition;
+  	 if(leadingCharge>255) leadingCharge=255;
+  	 // apply some correction to the leading charge, but only if it has not saturated.
+  	 if(leadingCharge<255) {
+  	   // correct the leading charge for the crossing angle (expressed in degrees)
+    	   leadingCharge = uint16_t((leadingCharge*TMath::Cos(it->second.second/180.*TMath::Pi())));
+  	   // correct for modulethickness for TEC
+  	   if(((((it->first)>>25)&0x7f)==0xe)&&((((it->first)>>5)&0x7)>4)) leadingCharge = uint16_t((leadingCharge*0.64));
+  	 }
+  	 //code the time of flight in the digi
+  	 unsigned int tof = abs(int(round(it->second.first*10)));
+  	 tof = tof>255 ? 255 : tof;
+  	 SiStripRawDigi newSiStrip(leadingCharge + (tof<<8));
+  	 newds.push_back(newSiStrip);
+  	 //store into the detsetvector
+  	 output.push_back(newds);
+  	 LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added." << std::endl;
+         }
+         if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
+       }
      }
    }
    // add the selected hits to the event.
