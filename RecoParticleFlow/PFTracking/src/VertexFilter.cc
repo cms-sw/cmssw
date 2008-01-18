@@ -191,8 +191,8 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			   aTrack.outerDetId(),
 			   aTrack.innerStateCovariance(),
 			   aTrack.innerDetId(),
-			   aTrack.seedDirection(),
-			   aTrack.seedRef());
+			   aTrack.seedDirection());
+	
 
     //unsigned nHits = aTrack.numberOfValidHits();
     unsigned nHits = aTrack.recHitsSize();

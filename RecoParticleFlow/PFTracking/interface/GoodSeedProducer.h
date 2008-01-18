@@ -81,6 +81,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Minimum transverse momentum and maximum pseudorapidity
       double minPt_;
+      double maxPt_;
       double maxEta_;
 
       ///Cut on the energy of the clusters
