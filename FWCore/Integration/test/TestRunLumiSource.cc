@@ -1,8 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.4 2007/12/31 22:43:58 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.5 2008/01/18 00:52:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

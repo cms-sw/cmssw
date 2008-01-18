@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "TH1F.h"
 
 namespace edmtest {
   //struct ThingWithHist {
