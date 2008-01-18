@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.1 2007/11/20 15:44:22 arizzi Exp $
+// $Id: HSCParticleProducer.cc,v 1.2 2007/11/21 13:18:06 arizzi Exp $
 //
 //
 
@@ -159,7 +159,11 @@ using namespace susybsm;
    DeDxBetaCollection   tkInfos;
    for(size_t i=0; i<dedx.size() ; i++)
     {
-      if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>8 && dedxHits[i].second.size() >= 10)
+        int usedhits=0;
+        for(reco::DeDxHitCollection::const_iterator it_hits = dedxHits[i].second.begin(); it_hits!=dedxHits[i].second.end();it_hits++) 
+         {  if(it_hits->subDet() != 1 && it_hits->subDet() != 2 ) usedhits++;       }
+
+       if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>8 && usedhits >= 9)
        {
         float dedxVal= dedx[i].second;
         float dedxFitVal= dedxFit[i];
@@ -169,7 +173,9 @@ using namespace susybsm;
 	tk.track=dedx[i].first;
         tk.invBeta2 = k*dedxVal;
         tk.invBeta2Fit = k2*dedxFitVal;
-        tk.nDeDxHits = dedxHits[i].second.size(); 
+        //tk.nDeDxHits = dedxHits[i].second.size();
+        tk.nDeDxHits = usedhits;
+ 
         tkInfos.push_back(tk);
         }
     }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: DeDxBetaWithLikelihood.cc,v 1.2 2007/10/11 14:17:19 arizzi Exp $
+// $Id: DeDxBetaWithLikelihood.cc,v 1.3 2007/10/15 09:32:52 arizzi Exp $
 //
 //
 
@@ -134,13 +134,20 @@ float DeDxBetaWithLikelihood::fit(const reco::TrackDeDxHits & dedxVec)
  
  double mpv=-5.;
  double chi=-5.;
+ int entries = 0; 
  if(dedxVec.second.size() < 1) return 0;
  tmpNt->Reset();
  // copy data into a tree:
  for (unsigned int i=0; i<dedxVec.second.size();i++) {
-// cout << dedxVec.second[i].charge() << endl;
-   tmpNt->Fill(dedxVec.second[i].charge());
+// cdout << dedxVec.second[i].charge() << endl;
+   if(dedxVec.second[i].subDet() != 1 && dedxVec.second[i].subDet() != 2 )
+   {
+     tmpNt->Fill(dedxVec.second[i].charge());
+     entries++; 
+   }
  }
+ if( entries < 1) return 0;
+
  // fit:
  f1->SetParameters(1, 3.0 , 0.3);
  f1->SetParLimits(0, 1, 1); // fix the normalization parameter to 1
@@ -152,7 +159,7 @@ float DeDxBetaWithLikelihood::fit(const reco::TrackDeDxHits & dedxVec)
     return 0;
  }
  return mpv;
- return 0.123123; 
+// return 0.123123; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
