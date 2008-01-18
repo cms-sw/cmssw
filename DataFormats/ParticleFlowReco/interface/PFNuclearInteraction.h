@@ -15,9 +15,34 @@ namespace reco {
 class PFNuclearInteraction {
 
   public :
+   typedef NuclearInteraction::trackRef_iterator trackRef_iterator;
+   typedef PFRecTrackRefVector::const_iterator   pfTrackref_iterator;
+
+  public :
   
     PFNuclearInteraction() {}
     PFNuclearInteraction( const NuclearInteractionRef& nuclref, const PFRecTrackRefVector& pfSeconds) : nuclInterRef_(nuclref), pfSecTracks_(pfSeconds) {}
+
+    /// \return the base reference to the primary track
+    const edm::RefToBase<reco::Track>& primaryTrack() const { return nuclInterRef_->primaryTrack(); }
+
+    /// \return first iterator over secondary tracks
+    trackRef_iterator secondaryTracks_begin() const { return nuclInterRef_->secondaryTracks_begin(); }
+
+    /// \return last iterator over secondary tracks
+    trackRef_iterator secondaryTracks_end() const { return nuclInterRef_->secondaryTracks_end(); }
+
+    /// \return first iterator over secondary PFRecTracks
+    pfTrackref_iterator secPFRecTracks_begin() const { return pfSecTracks_.begin(); }
+
+    /// \return last iterator over secondary PFRecTracks
+    pfTrackref_iterator secPFRecTracks_end() const { return pfSecTracks_.end(); }
+     
+    /// \return the likelihood
+    double likelihood() const { return nuclInterRef_->likelihood(); }
+
+    /// \return the initial nuclear interaction
+    const NuclearInteractionRef& nuclInterRef() const { return nuclInterRef_; }
     
   private :
     // Reference to the initial NuclearInteraction
