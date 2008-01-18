@@ -1,4 +1,4 @@
-2007-11-28  Marco Zanetti  <marco.zanetti@cern.ch>
+2008-01-18  Marco Zanetti  <marco.zanetti@cern.ch>
 		
 	* tag V00-06-05
 	* overwriting of EventID fixed. sizeof(EventID) = 3 also in BU.cc 
