@@ -84,8 +84,8 @@ private:
   HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
   reco::TrackCollection::const_iterator theAssociatedRecoPart;
   const HepMC::GenEvent* evt;
-  std::pair<double,double> getGenAngle(edm::RefToBase<reco::Candidate> candref, HepMC::GenEvent evt );
-  std::pair<double,double> getRecoAngle(edm::RefToBase<reco::Candidate> candref,reco::TrackCollection tracks );
+  std::pair<double,double> getGenAngle(double eta, double phi, HepMC::GenEvent evt );
+  std::pair<double,double> getRecoAngle(double eta, double phi,reco::TrackCollection tracks );
   double theNumberOfEvents,theNumberOfL1Events;
   TDirectory *ratedir;  
   TDirectory *distribdir;
