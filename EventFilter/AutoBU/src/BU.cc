@@ -629,8 +629,8 @@ void BU::exportParameters()
   gui_->addStandardParam("replay",            &replay_);
   gui_->addStandardParam("overwriteEvtId",    &overwriteEvtId_);
   gui_->addStandardParam("crc",               &crc_);
-  gui_->addStandardParam("firstEvent",        &firstEvent_);
-  gui_->addStandardParam("queueSize",         &queueSize_);
+  gui_->addStandardParam("firstEvent_",       &firstEvent_);
+  gui_->addStandardParam("queueSize_",        &queueSize_);
   gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   gui_->addStandardParam("msgBufferSize",     &msgBufferSize_);
   gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);
@@ -733,8 +733,7 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned char* fedAddr=event->FEDData(fedId).data();
       if (overwriteEvtId_.value_) {
 	fedh_t *fedHeader=(fedh_t*)fedAddr;
-	fedHeader->eventid = evtNumber;
-	fedHeader->eventid|=0x50000000;
+	fedHeader->eventid = (fedHeader->eventid & 0xFF000000) + (evtNumber & 0x00FFFFFF);
       }
       if (fedSize>0) evt->writeFed(fedId,fedAddr,fedSize);
     }
