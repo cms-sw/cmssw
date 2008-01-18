@@ -2,7 +2,7 @@
 #define Framework_TestRunLumiSource_h
 
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.h,v 1.2 2007/12/03 00:44:18 wmtan Exp $
+$Id: TestRunLumiSource.h,v 1.3 2007/12/11 00:34:31 wmtan Exp $
 
 This source is intended only for test purposes.  With it one can
 create data files with arbitrary sequences of run number, lumi
@@ -82,6 +82,7 @@ namespace edm {
     // last lumi, or last run.
     std::vector<int> runLumiEvent_;
     std::vector<int>::size_type currentIndex_;
+    bool firstTime_;
   };
 }
 #endif
