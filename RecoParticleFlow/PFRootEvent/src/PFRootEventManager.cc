@@ -1677,16 +1677,39 @@ void PFRootEventManager::reconstructGenJets() {
   }
   
 
-//   vector<ProtoJet> protoJets;
-//   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
 
-//   JetMaker mjet;
-//   typedef vector <ProtoJet>::const_iterator IPJ;
-//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-//     genJets_.push_back(mjet.makeGenJet(*ipj));  
-//   } 
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+  const ProtoJet& protojet = *ipj;
+  if (verbosity_ == VERBOSE ) { // Debug MDN1
+  const ProtoJet::Constituents& constituents = protojet.getTowerList();
+  unsigned nconstit = constituents.size();
+  cout << "Gen protojet PT " << protojet.pt() << " nb of constituents " << nconstit << endl;
+  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+  int i =0;
+    for (; constituent != constituents.end(); ++constituent) {
+	  const Candidate* candidate = constituent->get ();
+	  ++i;
+	     cout << "      #" << i << " p/pt/eta/phi: " 
+	  << candidate->p() << '/' << candidate->pt() << '/' 
+	  << candidate->eta() << '/' << candidate->phi() 
+	  << std::endl; 
+   }
+  } // end Debug MDN1
+
+  //GenJet::Specific specific;
+  //JetMaker::makeSpecific(constituents, &specific);
+  //GenJet genj = GenJet(protojet.p4(), specific, constituents);
+  
+//	genJets_.push_back(genj); 
+//	Jet newJet = genj.back());
+//	newJet.setJetArea(protojet.jetArea()); 
+//	newJet.setPileup(protojet.pileup());
+//	newJet.setNPasses(protojet.nPasses());
+  } 
 }
-
 
 void PFRootEventManager::reconstructCaloJets() {
 
@@ -1700,7 +1723,7 @@ void PFRootEventManager::reconstructCaloJets() {
   //     baseCandidates.push_back( caloTowers_[i].clone() );
   //   }
  
-  //   reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
+  reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
 
   //COLIN: geometry needed to make a calo jet from a proto jet !!
   //   JetMaker mjet;
@@ -1714,25 +1737,54 @@ void PFRootEventManager::reconstructCaloJets() {
 void PFRootEventManager::reconstructPFJets() {
 
   pfJets_.clear();
+  basePFCandidates_.clear();
+ /// basePFCandidates to be declared in PFRootEventManager.h
+  //reco::CandidateCollection basePFCandidates_;
   if (verbosity_ == VERBOSE ) {
     cout <<"start reconstruct PFJets"<<endl;
   }
 
-//   reco::CandidateCollection baseCandidates;
-//   for(unsigned i=0; i<pfCandidates_->size(); i++) {
-//     baseCandidates.push_back( (*pfCandidates_)[i].clone() );
-//   }
+  for(unsigned i=0; i<pfCandidates_->size(); i++) {
+    basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );
+  }
 
-//   vector<ProtoJet> protoJets;
-//   reconstructFWLiteJets(baseCandidates, protoJets );
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(basePFCandidates_, protoJets );
 
-//   JetMaker mjet;
-//   typedef vector <ProtoJet>::const_iterator IPJ;
-//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-//     pfJets_.push_back(mjet.makePFJet(*ipj));  
-//     //	  cout << protojet->print(); print method does not exist for protojets
-//     //  	  cout << pfJets_.print(); //print method does exist forPFjets
-//   } 
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+  const ProtoJet& protojet = *ipj;
+  
+  if (verbosity_ == VERBOSE ) { // Debug MDN3
+  const ProtoJet::Constituents& constituents = protojet.getTowerList();
+  unsigned nconstit = constituents.size();
+  
+  cout << "PF protojet PT " << protojet.pt() << " nb of constituents " << nconstit << endl;
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+  int i =0;
+    for (; constituent != constituents.end(); ++constituent) {
+	  const Candidate* candidate = constituent->get ();
+	  ++i;
+	     cout << "      #" << i << " p/pt/eta/phi: " 
+	  << candidate->p() << '/' << candidate->pt() << '/' 
+	  << candidate->eta() << '/' << candidate->phi() 
+	  << std::endl;
+	  const PFCandidate* pfCand = dynamic_cast<const PFCandidate*> (candidate);
+	  cout << " pfcand  part ID " << pfCand->particleId() << " PT " << pfCand->pt()<< endl;  
+   }
+  } // end Debug MDN2
+	
+// the following does not compile
+ // PFJet::Specific specific;
+ // JetMaker::makeSpecific(constituents, &specific);
+ // PFJet pfj = PFJet(protojet.p4(), specific, constituents);
+  
+//    pfJets_.push_back(pfj); 
+//	Jet newJet = pfj.back());
+//	newJet.setJetArea(protojet.jetArea()); 
+//	newJet.setPileup(protojet.pileup());
+//	newJet.setNPasses(protojet.nPasses());
+  } 
 }
 
 

@@ -39,10 +39,10 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
-#include "DataFormats/JetReco/interface/BasicJetfwd.h"
-#include "DataFormats/JetReco/interface/PFJetfwd.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -439,6 +439,9 @@ class PFRootEventManager {
 
   /// PF Jets
   reco::PFJetCollection pfJets_;
+  
+  /// baseCandidates constituents of PFJets (suggestion of Fedor)
+  reco::CandidateCollection basePFCandidates_;
 
   /// gen Jets
   reco::GenJetCollection genJets_;
