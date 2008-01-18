@@ -48,7 +48,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
-    edm::LogWarning("TkStripMeasurementDet") << " DetID " << id_ << " inactive";
+    //    LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " inactive";
     return result;
   }
  
@@ -56,7 +56,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
-    edm::LogWarning("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
+    //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
     uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
@@ -144,15 +144,15 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
-        edm::LogWarning("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
-        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+       //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
+       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
      } else { 
-        edm::LogWarning("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
-        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+       //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
+       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
      }
   }
   else {
-    edm::LogWarning("TkStripMeasurementDet") << " DetID " << id_ << " full: " << (result.size()) << " compatible hits";
+    //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " full: " << (result.size()) << " compatible hits";
     // sort results according to estimator value
     if ( result.size() > 1) {
       sort( result.begin(), result.end(), TrajMeasLessEstim());
@@ -293,9 +293,9 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
         if ((bsbc != bsbe) && (bsbc->first <= cur)) { cur++; continue; }
         safegood++; cur++;
     }
-    LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<", "<<
-        " safegood = " << safegood << " while good = " << good <<
-        "; I am  " << (safegood == good ? "safe" : "STUPID"); // no offense to anyone, of course
+    //LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<", "<<
+    //        " safegood = " << safegood << " while good = " << good <<
+    //        "; I am  " << (safegood == good ? "safe" : "STUPID"); // no offense to anyone, of course
 #endif // of #ifdef  RecoTracker_MeasurementDet_TkStripMeasurementDet_RECOUNT_IN_SLOW_AND_STUPID_BUT_SAFE_WAY
 
     return (good >= 1); //to be tuned
