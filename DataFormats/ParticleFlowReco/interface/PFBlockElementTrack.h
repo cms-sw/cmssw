@@ -16,7 +16,7 @@ namespace reco {
   public:
     PFBlockElementTrack() {} 
 
-    PFBlockElementTrack(const PFRecTrackRef& ref );
+    PFBlockElementTrack(const PFRecTrackRef& ref , Type type_=TRACK );
 
     PFBlockElement* clone() const { return new PFBlockElementTrack(*this); }
     
