@@ -29,9 +29,9 @@ void SurveyOutput::write(unsigned int iter)
   {
     const Alignable* ali = theAlignables[i];
 
-    const align::GlobalVector& shifts = ali->displacement();
+    align::GlobalVector shifts = ali->displacement() * 1e4; // cm to um
 
-    align::EulerAngles angles = align::toAngles( ali->rotation() );
+    align::EulerAngles angles = align::toAngles( ali->rotation() ) * 1e3; // to mrad
 
     nt->Fill( shifts.x(), shifts.y(), shifts.z(),
 	      angles(1), angles(2), angles(3) );
