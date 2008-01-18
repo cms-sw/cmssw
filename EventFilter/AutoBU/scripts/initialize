@@ -32,9 +32,9 @@ my $user     = $ENV{"USER"};
 
 # set variables
 my $BUport = 40000;
-my $EPport = 40001;
-my $SMport = 40002;
-my $MNport = 40003;
+my $SMport = 40001;
+my $EPport = 40002;
+
 
 my $BUappname = "evf::BU";
 my $RBappname = "evf::FUResourceBroker";
@@ -76,15 +76,17 @@ foreach $param (@ARGV) {
     if    ($hostname eq "fillme")    { $hostname=$param; }
     elsif ($param    eq "-host")     { $hostname="fillme"; }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
+    elsif ($doEP     == -1)          { $doEP    =$param; }
+    elsif ($param    eq "-nEP")      { $doEP    =    -1; }
     elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
-    #elsif ($param    eq "-noSM")     { $doSM=0;$doDQM=0; }
     elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     else { die ("Unknown parameter $param!\n"); }
 }
 
 print "hostname = $hostname\n";
+print "\$doEP=$doEP\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
@@ -178,10 +180,12 @@ my @RBproperties = ("buClassName", "string",     $BUappname,
 		    "rawCellSize", "unsignedInt","0x200000",
 		    "recoCellSize","unsignedInt","0x200000",
 		    "dqmCellSize", "unsignedInt","0x200000");
-if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
+
+if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
 		    "collReconnSec","integer","-1");
+
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
@@ -221,8 +225,8 @@ if ($doSM) {
 print XML makeXmlContextTrailer();
 
 # EP context
-if ($doEP) {
-    print XML makeXmlContextHeader("EP",$hostname,$EPport);
+for ($i=0;$i<$doEP;$i++) {
+    print XML makeXmlContextHeader("EP",$hostname,$EPport+$i);
     print XML makeXmlAppHeader(1,$EPappname,$EPlocalid);
     print XML makeXmlAppProperties($EPappname,@EPproperties);
     print XML makeXmlAppTrailer(1,$EPlibpath,$EPlibname);
@@ -358,15 +362,17 @@ close (CTL);
 print "\nstart xdaq.exe on $hostname:$BUport\n";
 `nice -n 15 xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
 
-if ($doEP) {
-    print "\nstart xdaq.exe on $hostname:$EPport\n";
-    `nice -n 15 xdaq.exe -h $hostname -p $EPport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EPport.log &`;
-}
-
 if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
     `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
 }
+
+for ($i=0;$i<$doEP;$i++) {
+    $port = $EPport + $i;
+    print "\nstart xdaq.exe on $hostname:$port\n";
+    `nice -n 15 xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
+}
+
 
 
 ################################################################################
