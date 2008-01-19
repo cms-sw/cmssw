@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.C,v 1.2 2007/12/17 00:33:29 dmytro Exp $
+// $Id: TracksProxy3DBuilder.C,v 1.3 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -22,36 +22,18 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 
-class FWDataProxyBuilder;
-
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#endif
 
-// forward declarations
-class FWRPZDataProxyBuilder;
+#include "Fireworks/Core/interface/TracksProxy3DBuilder.h"
 
-class TracksProxy3DBuilder : public FWRPZDataProxyBuilder
+
+void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-
-   public:
-      TracksProxy3DBuilder() {}
-      virtual ~TracksProxy3DBuilder() {}
-
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product)
-  {
     std::cout <<"build called"<<std::endl;
 
     //since we created it, we know the type (would like to do this better)
@@ -113,15 +95,5 @@ class TracksProxy3DBuilder : public FWRPZDataProxyBuilder
       //cout <<" *";
     }
     
-  }
-
-
-      TracksProxy3DBuilder(const TracksProxy3DBuilder&); // stop default
-
-      const TracksProxy3DBuilder& operator=(const TracksProxy3DBuilder&); // stop default
-
-      // ---------- member data --------------------------------
-
-};
-
+}
 

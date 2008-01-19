@@ -8,4 +8,5 @@
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
   <class name="DetIdToMatrix"/>
+  <class name="TracksProxy3DBuilder"/>
 </lcgdict>
