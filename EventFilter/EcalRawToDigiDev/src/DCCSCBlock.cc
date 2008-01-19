@@ -24,7 +24,6 @@ void DCCSCBlock::updateCollectors(){
   //  
   //  invalidGains_           = unpacker_->invalidGainsCollection();
   //  invalidGainsSwitch_     = unpacker_->invalidGainsSwitchCollection();
-  //  invalidGainsSwitchStay_ = unpacker_->invalidGainsSwitchStayCollection();
   //  invalidChIds_           = unpacker_->invalidChIdsCollection();
 
 }
@@ -190,17 +189,6 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         }
       }
    
-      bool wrongGainStaysTheSame=false;
-   
-      if (firstGainWrong!=-1 && firstGainWrong<9){
-        short gainWrong = xtalGains_[firstGainWrong];
-        // does wrong gain stay the same after the forbidden transition?
-        for (unsigned short u=firstGainWrong+1; u<nTSamples_; u++){
-          if( gainWrong == xtalGains_[u]) wrongGainStaysTheSame=true; 
-          else                            wrongGainStaysTheSame=false; 
-        }// END loop on samples after forbidden transition
-      }// if firstGainWrong!=0 && firstGainWrong<8
-
       if (numGainWrong>0) {
 
     
@@ -213,17 +201,6 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
          errorOnXtal = true;
       } 
 
-      if(wrongGainStaysTheSame){
-
-        edm::LogWarning("EcalRawToDigiDevGainSwitch")
-          <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n A wrong gain switch stay was found in strip "<<stripId<<" and xtal "<<xtalId;
-	//      
-	//(*invalidGainsSwitchStay_)->push_back(*pDetId_);
-	//
-        errorOnXtal = true;  
-      }
-  
       //Add frame to collection only if all data format and gain rules are respected
       if(errorOnXtal&&frameAdded) {
 	(*digis_)->pop_back();

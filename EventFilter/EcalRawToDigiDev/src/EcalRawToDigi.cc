@@ -120,7 +120,6 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   // Integrity for xtal data
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
   // Integrity Errors
@@ -212,10 +211,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // create the collection for invalid gain Switch
   std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch(new EBDetIdCollection);
   theUnpacker_->setInvalidGainsSwitchCollection(&productInvalidGainsSwitch);
-   
-  // create the collection for invalid gain switch stay
-  std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay(new EBDetIdCollection);
-  theUnpacker_->setInvalidGainsSwitchStayCollection(&productInvalidGainsSwitch);
    
   // create the collection for invalid chids
   std::auto_ptr< EBDetIdCollection> productInvalidChIds(new EBDetIdCollection);
@@ -317,7 +312,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productDigisEE,"eeDigis");
       e.put(productInvalidGains,"EcalIntegrityGainErrors");
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
-      e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
       e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
       e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
       e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");

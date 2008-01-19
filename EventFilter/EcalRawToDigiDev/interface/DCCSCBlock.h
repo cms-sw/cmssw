@@ -44,7 +44,6 @@ class DCCSCBlock : public DCCFEBlock {
 	 
     auto_ptr<EEDetIdCollection>            * invalidGains_;  
     auto_ptr<EEDetIdCollection>            * invalidGainsSwitch_ ;
-    auto_ptr<EEDetIdCollection>            * invalidGainsSwitchStay_;
     auto_ptr<EEDetIdCollection>            * invalidChIds_;
 	*/
     

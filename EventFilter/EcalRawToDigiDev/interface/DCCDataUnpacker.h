@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/08/14 15:18:31 $
- * $Revision: 1.8 $
+ * $Date: 2007/10/19 14:36:15 $
+ * $Revision: 1.9 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -89,9 +89,6 @@ public :
   void setInvalidGainsSwitchCollection( std::auto_ptr<EBDetIdCollection>              * x )
   { invalidGainsSwitch_     = x; }
  
-  void setInvalidGainsSwitchStayCollection( std::auto_ptr<EBDetIdCollection>          * x )
-  { invalidGainsSwitchStay_ = x; }
- 
   void setInvalidChIdsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
   { invalidChIds_           = x; }
  
@@ -148,9 +145,6 @@ public :
   std::auto_ptr<EBDetIdCollection>            * invalidGainsSwitchCollection()
   { return invalidGainsSwitch_;    }
   
-  std::auto_ptr<EBDetIdCollection>            * invalidGainsSwitchStayCollection()
-  { return invalidGainsSwitchStay_;}
-  
   std::auto_ptr<EBDetIdCollection>            * invalidChIdsCollection()
   { return invalidChIds_;          }
 
@@ -196,7 +190,6 @@ protected :
   std::auto_ptr<EcalRawDataCollection>             * dccHeaders_;
   std::auto_ptr<EBDetIdCollection>                    * invalidGains_;
   std::auto_ptr<EBDetIdCollection>                    * invalidGainsSwitch_;
-  std::auto_ptr<EBDetIdCollection>                    * invalidGainsSwitchStay_;
   std::auto_ptr<EBDetIdCollection>                    * invalidChIds_;
   std::auto_ptr<EBSrFlagCollection>                   * ebSrFlags_;
   std::auto_ptr<EESrFlagCollection>                   * eeSrFlags_;
