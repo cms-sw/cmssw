@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.2 2008/01/12 17:23:50 chrjones Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
 
+      void addElements();
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
@@ -88,7 +89,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
       TEveProjectionManager* m_rhoZProjMgr;
-
+      std::vector<TEveElement*> m_rhoPhiGeom;
+      std::vector<TEveElement*> m_rhoZGeom;
 };
 
 

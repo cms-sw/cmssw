@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.2 2008/01/12 17:23:50 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TEveGeoShapeExtract.h"
+#include "TEvePolygonSetProjected.h"
 
 #include <iostream>
 #include <exception>
@@ -33,6 +34,7 @@
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 #include "vis_macros.h"
 
@@ -142,9 +144,15 @@ FWRhoPhiZViewManager::newEventAvailable()
      // NOTE: this should be encapsulated and made configurable 
      //       somewhere else.
      m_rhoPhiProjMgr->DestroyElements();
-     m_rhoZProjMgr->DestroyElements();
+     for ( std::vector<TEveElement*>::iterator element = m_rhoPhiGeom.begin(); 
+	   element != m_rhoPhiGeom.end(); ++element )
+       m_rhoPhiProjMgr->AddElement(*element);
      
-	  
+     m_rhoZProjMgr->DestroyElements();
+     for ( std::vector<TEveElement*>::iterator element = m_rhoZGeom.begin(); 
+	   element != m_rhoZGeom.end(); ++element )
+       m_rhoZProjMgr->AddElement(*element);
+     
      // FIXME - standard way of loading geomtry failed
      // ----------- from here 
      if ( ! m_geom ) {
@@ -157,27 +165,64 @@ FWRhoPhiZViewManager::newEventAvailable()
 	TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
 	f.Close();
 	m_geom = gsre;
+     
+	hide_tracker_endcap(m_geom);
+	m_rhoPhiProjMgr->ImportElements(m_geom);
+
+	// muon system
+	if ( m_detIdToGeo ) {
+	   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
+	   // rho-phi view
+	   for ( Int_t i=0; i<1000; ++i) {
+	      TEveGeoShapeExtract* extract = m_detIdToGeo->getExtract(574980096+(i << 18));
+	      if ( extract ) container->AddElement( extract );
+	   }
+	   m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+	}
+     
+	show_tracker_endcap(m_geom);
+	m_rhoZProjMgr->ImportElements(m_geom);
+	
+	for ( std::list<TEveElement*>::iterator element = m_rhoPhiProjMgr->BeginChildren();
+	      element != m_rhoPhiProjMgr->EndChildren(); ++element )
+	  {
+	     (*element)->IncDenyDestroy();
+	     // set colors
+	     if ( TEvePolygonSetProjected* set = dynamic_cast<TEvePolygonSetProjected*>(*element) )
+	       if ( strcmp(set->GetName(),"NLT MuonRhoPhi") == 0)
+		 for ( std::list<TEveElement*>::iterator chamber = set->BeginChildren();
+		       chamber != set->EndChildren(); ++chamber )
+		   (*chamber)->SetMainTransparency(90);
+	     
+	     m_rhoPhiGeom.push_back( *element );
+	  }
+	
+	for ( std::list<TEveElement*>::iterator element = m_rhoZProjMgr->BeginChildren();
+	      element != m_rhoZProjMgr->EndChildren(); ++element )
+	  {
+	     (*element)->IncDenyDestroy();
+	     m_rhoZGeom.push_back( *element );
+	  }
      }
-     // ---------- to here
-
-     hide_tracker_endcap(m_geom);
-     m_rhoPhiProjMgr->ImportElements(m_geom);
-
-     show_tracker_endcap(m_geom);
-     m_rhoZProjMgr->ImportElements(m_geom);
-
-     for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
-	   proxy != m_3dmodelProxies.end(); ++proxy )  {
-       m_rhoPhiProjMgr->ImportElements(proxy->product);
-        m_rhoZProjMgr->ImportElements(proxy->product);
-     }  
-     for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
-          proxy != m_2dmodelProxies.end(); ++proxy )  {
-        m_rhoPhiProjMgr->ImportElements(proxy->rhoPhiProduct);
-        m_rhoZProjMgr->ImportElements(proxy->rhoZProduct);
-     }  
+     addElements();
   }
 }
+
+void FWRhoPhiZViewManager::addElements()
+{
+   for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
+	 proxy != m_3dmodelProxies.end(); ++proxy )  {
+      m_rhoPhiProjMgr->ImportElements(proxy->product);
+      m_rhoZProjMgr->ImportElements(proxy->product);
+   }  
+   
+   for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
+	 proxy != m_2dmodelProxies.end(); ++proxy )  {
+      m_rhoPhiProjMgr->ImportElements(proxy->rhoPhiProduct);
+      m_rhoZProjMgr->ImportElements(proxy->rhoZProduct);
+   }  
+}
+
 
 void 
 FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
