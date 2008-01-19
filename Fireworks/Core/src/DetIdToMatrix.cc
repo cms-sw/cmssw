@@ -59,7 +59,7 @@ void DetIdToMatrix::loadMap(const char* fileName)
    f.Close();
 }
 
-const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id )
+const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
 {
    std::map<unsigned int, TGeoHMatrix>::const_iterator itr = idToMatrix_.find(id);
    if ( itr != idToMatrix_.end() )
@@ -68,7 +68,7 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id )
      return 0;
 }
 
-const char* DetIdToMatrix::getPath( unsigned int id )
+const char* DetIdToMatrix::getPath( unsigned int id ) const 
 {
    std::map<unsigned int, std::string>::const_iterator itr = idToPath_.find(id);
    if ( itr != idToPath_.end() )
@@ -77,7 +77,7 @@ const char* DetIdToMatrix::getPath( unsigned int id )
      return 0;
 }
    
-const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id )
+const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id ) const
 {
    std::map<unsigned int, std::string>::const_iterator itr = idToPath_.find(id);
    if ( itr != idToPath_.end() ) {
@@ -88,7 +88,7 @@ const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id )
      return 0;
 }
    
-std::vector<unsigned int> DetIdToMatrix::getAllIds()
+std::vector<unsigned int> DetIdToMatrix::getAllIds() const
 {
    std::vector<unsigned int> ids;
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
@@ -97,7 +97,7 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds()
 }
    
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name)
+TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name) const
 {
    if ( ! manager_ || ! path || ! name ) return 0;
    manager_->cd(path);
@@ -130,14 +130,14 @@ TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* nam
    return extract;
 }
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id )
+TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id ) const
 {
    std::ostringstream s;
    s << id;
    return getExtract( getPath(id), s.str().c_str() );
 }
 
-TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/)
+TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/) const
 {
    TEveGeoShapeExtract* container = new TEveGeoShapeExtract( elementListName );
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )

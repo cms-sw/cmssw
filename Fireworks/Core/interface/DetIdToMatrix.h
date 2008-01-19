@@ -29,29 +29,29 @@ class DetIdToMatrix
    void loadMap(const char* fileName);
 
    // get matrix for full local to global transformation
-   const TGeoHMatrix* getMatrix( unsigned int id );
+   const TGeoHMatrix* getMatrix( unsigned int id ) const;
 
    // get path to the detector volume in the geometry manager
-   const char* getPath( unsigned int id );
+   const char* getPath( unsigned int id ) const;
    
    // extract globally positioned shape for stand alone use
-   TEveGeoShapeExtract* getExtract( unsigned int id );
+   TEveGeoShapeExtract* getExtract( unsigned int id ) const;
    
-   TEveGeoShapeExtract* getExtract( const char* path, const char* name );
+   TEveGeoShapeExtract* getExtract( const char* path, const char* name ) const;
 
    // get the detector volume in the geometry manager
-   const TGeoVolume* getVolume( unsigned int id );
+   const TGeoVolume* getVolume( unsigned int id ) const;
    
    // get all known detector ids
-   std::vector<unsigned int> getAllIds();
+   std::vector<unsigned int> getAllIds() const;
 
    // extract shapes of all known elements
-   TEveGeoShapeExtract* getAllExtracts(const char* elementListName = "CMS");
+   TEveGeoShapeExtract* getAllExtracts(const char* elementListName = "CMS") const;
    
  private:
    std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_; 
-   TGeoManager* manager_;
+   mutable TGeoManager* manager_;
 	
 };
 
