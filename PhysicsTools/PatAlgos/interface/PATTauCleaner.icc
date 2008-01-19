@@ -15,9 +15,12 @@ pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet &
 {
   // produces vector of electrons
   produces<std::vector<TauOut> >();
-
   // producers also backmatch to the electrons
   produces<reco::CandRefValueMap>();
+
+  if (iConfig.exists("removeOverlaps")) {
+    overlapHelper_ = pat::helper::OverlapHelper(iConfig.getParameter< std::vector<edm::ParameterSet> >("removeOverlaps"));
+  }
 }
 
 
@@ -47,6 +50,14 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
 
     // write the muon
     helper_.addItem(idx, ourTau);
+  }
+
+  if (overlapHelper_.enabled()) {
+     typedef typename pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.setMark( i, (*result)[i] );
+     }
   }
 
   helper_.done();

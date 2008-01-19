@@ -1,5 +1,5 @@
 //
-// $Id: PATTauCleaner.h,v 1.1 2008/01/16 01:22:39 gpetrucc Exp $
+// $Id: PATTauCleaner.h,v 1.2 2008/01/16 16:04:37 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauCleaner.h,v 1.1 2008/01/16 01:22:39 gpetrucc Exp $
+  \version  $Id: PATTauCleaner.h,v 1.2 2008/01/16 16:04:37 gpetrucc Exp $
 */
 
 
@@ -23,6 +23,8 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
+
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include <DataFormats/TauReco/interface/PFTau.h>
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
@@ -51,11 +53,14 @@ namespace pat {
       // configurables
       edm::InputTag tauSrc_;
       edm::InputTag tauDiscSrc_;
+      // main helper
       pat::helper::CleanerHelper<TauIn,
                                  TauOut,
                                  std::vector<TauOut>,
                                  GreaterByPt<TauOut> > helper_;
 
+      // deltaR overlap helper
+      pat::helper::OverlapHelper overlapHelper_;
   };
 
   typedef PATTauCleaner<reco::PFTau,reco::PFTau,reco::PFTauDiscriminatorByIsolation>       PATPFTauCleaner;
