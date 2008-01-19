@@ -976,7 +976,6 @@ class DaqMonitorBEInterface: public StringUtil
   friend class WebInterface;           // 
   friend class ClientWithWebInterface; // needs getUpdatedContents
   friend class MuonDQMClient;          // needs getUpdatedContents
-  friend class SiPixelWebClient;       // needs getUpdatedContents
         
   // ----------------------- private data members
   MonitorElementRootFolder * fCurrentFolder;
