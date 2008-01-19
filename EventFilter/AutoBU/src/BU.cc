@@ -87,7 +87,6 @@ BU::BU(xdaq::ApplicationStub *s)
   , sumOfSquares_(0)
   , sumOfSizes_(0)
   , i2oPool_(0)
-  , init_(true)
 {
   // initialize state machine
   fsm_.initialize<evf::BU>(this);
@@ -123,8 +122,8 @@ BU::BU(xdaq::ApplicationStub *s)
   // web interface
   xgi::bind(this,&evf::BU::webPageRequest,"Default");
   gui_=new WebGUI(this,&fsm_);
-  gui_->setSmallAppIcon("/daq/evb/bu/images/bu32x32.gif");
-  gui_->setLargeAppIcon("/daq/evb/bu/images/bu64x64.gif");
+  gui_->setSmallAppIcon("/rubuilder/bu/images/bu32x32.gif");
+  gui_->setLargeAppIcon("/rubuilder/bu/images/bu64x64.gif");
   
   vector<toolbox::lang::Method*> methods=gui_->getMethods();
   vector<toolbox::lang::Method*>::iterator it;
@@ -134,6 +133,8 @@ BU::BU(xdaq::ApplicationStub *s)
       xgi::bind(this,&evf::BU::webPageRequest,name);
     }
   }
+  xgi::bind(this,&evf::BU::customWebPage,"customWebPage");
+  
   
   // determine valid fed ids
   for (unsigned int i=0;i<(unsigned int)FEDNumbering::lastFEDId()+1;i++)
@@ -194,7 +195,7 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
 {
   isHalting_=false;
   try {
-    LOG4CPLUS_INFO(log_,"Start enabling ...isBuilding = " << (int)isBuilding_ << " isSending = " << (int)isSending_ );
+    LOG4CPLUS_INFO(log_,"Start enabling ...");
     if (!isBuilding_) startBuildingWorkLoop();
     if (!isSending_)  startSendingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished enabling!");
@@ -215,19 +216,20 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
 
-    if (0!=PlaybackRawDataProvider::instance() && (!replay_.value_ || nbEventsBuilt_<events_.size()))
-      { 
-	lock();
-	freeIds_.push(events_.size()); 
-	unlock();
-	postBuild();
-	while (!builtIds_.empty()) {
-	  LOG4CPLUS_INFO(log_,"wait to flush ...builtIds=" << builtIds_.size() );
-	  ::sleep(1);
-	}
-	PlaybackRawDataProvider::instance()->setFreeToEof(); // let the playback go to the last event and exit
+    if (0!=PlaybackRawDataProvider::instance()&&
+	(!replay_.value_ || nbEventsBuilt_<events_.size())) { 
+      lock();
+      freeIds_.push(events_.size()); 
+      unlock();
+      postBuild();
+      while (!builtIds_.empty()) {
+	LOG4CPLUS_INFO(log_,"wait to flush ... #builtIds="<<builtIds_.size());
+	::sleep(1);
       }
-
+      // let the playback go to the last event and exit
+      PlaybackRawDataProvider::instance()->setFreeToEof(); 
+    }
+    
     lock();
     builtIds_.push(events_.size());
     unlock();
@@ -237,13 +239,13 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
       LOG4CPLUS_INFO(log_,"wait to flush ...");
       ::sleep(1);
     }
-    if (0!=PlaybackRawDataProvider::instance() && (replay_.value_ && nbEventsBuilt_>=events_.size()))
-      {
-	lock();
-	freeIds_.push(events_.size());
-	unlock();
-	postBuild();
-      }
+    if (0!=PlaybackRawDataProvider::instance()&&
+	(replay_.value_ && nbEventsBuilt_>=events_.size())) {
+      lock();
+      freeIds_.push(events_.size());
+      unlock();
+      postBuild();
+    }
     LOG4CPLUS_INFO(log_,"Finished stopping!");
     fsm_.fireEvent("StopDone",this);
   }
@@ -251,7 +253,6 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
     string msg = "stopping FAILED: " + (string)e.what();
     fsm_.fireFailed(msg,this);
   }
-  init_ = true;
   return false;
 }
 
@@ -384,6 +385,14 @@ void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
 
 
 //______________________________________________________________________________
+void BU::customWebPage(xgi::Input*in,xgi::Output*out)
+  throw (xgi::exception::Exception)
+{
+  *out<<"<html></html>"<<endl;
+}
+
+
+//______________________________________________________________________________
 void BU::startBuildingWorkLoop() throw (evf::Exception)
 {
   try {
@@ -413,35 +422,31 @@ bool BU::building(toolbox::task::WorkLoop* wl)
   unlock();
   
   if (buResourceId>=events_.size()) {
-    LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.buResourceId = " << buResourceId << " events_size() = " << events_.size());
+    LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.");
     isBuilding_=false;
     return false;
   }
-
+  
   if (!isHalting_) {
     BUEvent* evt=events_[buResourceId];
-    if(generateEvent(evt))
-      {
-	lock();
-	nbEventsBuilt_++;
-	builtIds_.push(buResourceId);
-	unlock();
-	
-	postSend();
-      }
-    else
-      {
-	LOG4CPLUS_INFO(log_,"building:received null post");
-	lock();
-	unsigned int saveBUResourceId = buResourceId;
-	//	buResourceId = freeIds_.front(); freeIds_.pop();
-	freeIds_.push(saveBUResourceId);
-	unlock();
-	LOG4CPLUS_INFO(log_,"building:going out of loop");
-	isBuilding_=false;
-	LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.isBuilding = " << (int)isBuilding_);
-	return false;
-      }
+    if(generateEvent(evt)) {
+      lock();
+      nbEventsBuilt_++;
+      builtIds_.push(buResourceId);
+      unlock();
+      
+      postSend();
+    }
+    else {
+      LOG4CPLUS_INFO(log_,"building:received null post");
+      lock();
+      unsigned int saveBUResourceId = buResourceId;
+      //buResourceId = freeIds_.front(); freeIds_.pop();
+      freeIds_.push(saveBUResourceId);
+      unlock();
+      isBuilding_=false;
+      return false;
+    }
   }
   return true;
 }
@@ -637,11 +642,12 @@ void BU::exportParameters()
   gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
+  gui_->addStandardParam("monSleepSec",       &monSleepSec_);
 
   
   gui_->exportParameters();
 
-  gui_->addItemChangedListener("crc",         this);
+  gui_->addItemChangedListener("crc",this);
   
 }
 
@@ -718,8 +724,7 @@ bool BU::generateEvent(BUEvent* evt)
     }  
   // PLAYBACK mode
   if (0!=PlaybackRawDataProvider::instance()) {
-    if(init_)LOG4CPLUS_INFO(log_,"AutoBU::using pbprovider at 0x" << hex 
-			    << (unsigned int) PlaybackRawDataProvider::instance() << dec);
+    
     unsigned int runNumber,evtNumber;
 
     FEDRawDataCollection* event=
@@ -733,7 +738,7 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned char* fedAddr=event->FEDData(fedId).data();
       if (overwriteEvtId_.value_) {
 	fedh_t *fedHeader=(fedh_t*)fedAddr;
-	fedHeader->eventid = (fedHeader->eventid & 0xFF000000) + (evtNumber & 0x00FFFFFF);
+	fedHeader->eventid=(fedHeader->eventid&0xFF000000)+(evtNumber&0x00FFFFFF);
       }
       if (fedSize>0) evt->writeFed(fedId,fedAddr,fedSize);
     }
@@ -761,7 +766,6 @@ bool BU::generateEvent(BUEvent* evt)
     }
     
   }
-  init_ = false;
   return true;
 }
 
@@ -1090,7 +1094,6 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
   
   fflush(stdout);	
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////

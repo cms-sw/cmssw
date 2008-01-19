@@ -87,7 +87,9 @@ namespace evf {
     // Hyper DAQ web interface [see Utilities/WebGUI]
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
-  
+    void customWebPage(xgi::Input*in,xgi::Output*out)
+      throw (xgi::exception::Exception);
+    
     // build events (random or playback)
     void startBuildingWorkLoop() throw (evf::Exception);
     bool building(toolbox::task::WorkLoop* wl);
@@ -100,7 +102,7 @@ namespace evf {
     void startMonitoringWorkLoop() throw (evf::Exception);
     bool monitoring(toolbox::task::WorkLoop* wl);
     
-    
+
   private:
     //
     // private member functions
@@ -238,9 +240,6 @@ namespace evf {
     sem_t                           buildSem_;
     sem_t                           sendSem_;
     sem_t                           rqstSem_;
-
-    // logic
-    bool init_;
 
   
     //
