@@ -77,9 +77,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
       <<"\n => Skipping to next fed block...";
-    
-    //TODO : add this to a dcc empty event collection 	 
-    
+   
     return;
     
   } 
@@ -87,7 +85,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   //Check if event size allows at least building the header
   else if( eventSize_ < HEADERSIZE ){    
     
-    edm::LogWarning("EcalRawToDigiDev")
+    edm::LogError("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
       <<"\n => Skipping to next fed block..."; 
@@ -108,9 +106,9 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   if( eventSize_ != blockLength_*8 ){
     
-    edm::LogWarning("EcalRawToDigiDev")
-      <<"\n Event "<<l1_<<" in dcc "<< fedId_
-      <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
+    edm::LogError("EcalRawToDigiDev")
+      <<"\n Event (L1A) "<<l1_<<" in fed: "<< fedId_
+      <<"\n size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
       <<"\n => Skipping to next fed block..."; 
     //TODO : add this to a dcc size error collection 
     return;
