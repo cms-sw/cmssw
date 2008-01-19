@@ -2,13 +2,21 @@
 
 #include <algorithm>
 
-/* --- Original comment from TQAF follows ----
- * it is possible that there are multiple electron objects in the collection that correspond to the same
- * real physics object - a supercluster with two tracks reconstructed to it, or a track that points to two different SC
- *  (i would guess the latter doesn't actually happen).
- * NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly   
- */
 
+std::auto_ptr< std::vector<size_t> > 
+pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::PixelMatchGsfElectron> &electrons) const {
+    return duplicatesToRemove< std::vector<reco::PixelMatchGsfElectron> >(electrons);
+}
+
+std::auto_ptr< std::vector<size_t> > 
+pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::PixelMatchGsfElectron>   &electrons) const {
+    return duplicatesToRemove< edm::View<reco::PixelMatchGsfElectron> >(electrons);
+}
+
+
+
+
+/*
 std::auto_ptr< std::vector<size_t> >
 pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::PixelMatchGsfElectron> &electrons) 
 {
@@ -51,3 +59,4 @@ pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::Pixel
 
     return ret;
 }
+*/
