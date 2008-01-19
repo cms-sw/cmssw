@@ -7,4 +7,5 @@
   <class name="FWPhysicsObjectDesc"/>
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
+  <class name="DetIdToMatrix"/>
 </lcgdict>

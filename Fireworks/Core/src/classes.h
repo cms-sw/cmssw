@@ -8,6 +8,7 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 namespace {
    struct Fireworks_Core {
