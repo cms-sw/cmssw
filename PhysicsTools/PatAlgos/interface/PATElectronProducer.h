@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATElectronProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id$
+  \version  $Id: PATElectronProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
 */
 
 
@@ -26,9 +26,12 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
+
+//#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
+//#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
+
 #include "DataFormats/Candidate/interface/CandAssociation.h"
+
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -63,8 +66,10 @@ namespace pat {
                         const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
       void setEgammaIso(Electron & anElectron,
                         const edm::Handle<std::vector<ElectronType> > & elecs,
-                        const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-                        const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+                        const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
+                        const edm::Handle<reco::CandViewIntAssociations>    tkNumIsoHandle,
+                        //const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
+                        //const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
                         const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
                         const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
                         int idx);

@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATElectronProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -96,8 +96,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     trkIsolation_= new TrackerIsolationPt();
     iEvent.getByLabel(tracksSrc_, trackHandle);
   }
-  edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle;
-  edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle;
+  edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle;
+  edm::Handle<reco::CandViewIntAssociations> tkNumIsoHandle;
+  //edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle;
+  //edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle;
   edm::Handle<CandViewDoubleAssociations> ecalIsoHandle;
   edm::Handle<CandViewDoubleAssociations> hcalIsoHandle;
   if (addEgammaIso_) {
@@ -280,8 +282,10 @@ double PATElectronProducer::electronID(const edm::Handle<std::vector<ElectronTyp
 //fill the Electron with the isolation quantities calculated by the egamma producers
 void PATElectronProducer::setEgammaIso(Electron &anElectron,
                                     const edm::Handle<std::vector<ElectronType> > & elecs,
-                                    const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-                                    const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+                                    //const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
+                                    //const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+                                    const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
+                                    const edm::Handle<reco::CandViewIntAssociations>    tkNumIsoHandle,
                                     const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
                                     const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
                                     int idx) {
@@ -289,8 +293,8 @@ void PATElectronProducer::setEgammaIso(Electron &anElectron,
   edm::Ref<std::vector<ElectronType> > elecsRef( elecs, idx );
   reco::CandidateBaseRef candRef(elecsRef);
   //reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
-  anElectron.setEgammaTkIso((*tkIsoHandle)[elecsRef]);
-  anElectron.setEgammaTkNumIso((*tkNumIsoHandle)[elecsRef]);
+  anElectron.setEgammaTkIso((*tkIsoHandle)[candRef]);
+  anElectron.setEgammaTkNumIso((*tkNumIsoHandle)[candRef]);
   anElectron.setEgammaEcalIso((*ecalIsoHandle)[candRef]);
   anElectron.setEgammaHcalIso((*hcalIsoHandle)[candRef]);
 }
