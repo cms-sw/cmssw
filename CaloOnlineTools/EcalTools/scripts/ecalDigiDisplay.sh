@@ -232,9 +232,8 @@ echo ""
 echo ""
 echo ""
 echo "-------------------------------------------------------------------------------------------------------------------------"
-echo "digi dump completed. To see the results edit: 
-echo  "$log_dir$data_file".$$.digi"
+echo "digi dump completed. To see the results edit: "
+echo  "$log_dir$data_file.$$.digi"
 echo "-------------------------------------------------------------------------------------------------------------------------"
 echo ""
 echo ""
-
