@@ -181,7 +181,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
   else {
-    edm::LogWarning("EcalRawToDigiDev")
+    edm::LogError("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event has an unsupported trigger type "<<triggerType_
       <<"\n => Skipping to next fed block..."; 
