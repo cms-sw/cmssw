@@ -1,3 +1,9 @@
+2008-01-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-08-01
+	* remove doublicated publication of 'nbRawCells' parameter to info
+	spaces
+
 2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-08-00

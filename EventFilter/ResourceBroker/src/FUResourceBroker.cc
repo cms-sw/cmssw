@@ -668,7 +668,6 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("nbClients",               &nbClients_);
   gui_->addStandardParam("clientPrcIds",            &clientPrcIds_);
   gui_->addStandardParam("nbRawCells",              &nbRawCells_);
-  gui_->addStandardParam("nbRawCells",              &nbRawCells_);
   gui_->addStandardParam("nbRecoCells",             &nbRecoCells_);
   gui_->addStandardParam("nbDqmCells",              &nbDqmCells_);
   gui_->addStandardParam("rawCellSize",             &rawCellSize_);
