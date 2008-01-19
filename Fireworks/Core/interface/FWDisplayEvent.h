@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.9 2008/01/15 19:48:34 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.10 2008/01/15 22:39:42 chrjones Exp $
 //
 
 // system include files
@@ -25,7 +25,9 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
+
 // user include files
+#include "DetIdToMatrix.h"
 
 // forward declarations
 class TGPictureButton;
@@ -64,6 +66,8 @@ class FWDisplayEvent
 				const std::string&);
       
       void registerPhysicsObject(const FWPhysicsObjectDesc&);
+   
+      const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 
@@ -86,7 +90,8 @@ class FWDisplayEvent
       TGPictureButton* m_advanceButton;
       TGPictureButton* m_backwardButton;
       TGPictureButton* m_stopButton;
-   
+          
+      DetIdToMatrix    m_detIdToGeo;
 };
 
 

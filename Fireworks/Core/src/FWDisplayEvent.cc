@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.14 2008/01/15 19:48:33 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.15 2008/01/15 22:39:41 chrjones Exp $
 //
 
 // system include files
@@ -72,6 +72,7 @@ FWDisplayEvent::FWDisplayEvent() :
 
   TEveManager::Create();
   TEveBrowser* browser = gEve->GetBrowser();
+
   //should check to see if already has our tab
   {
     browser->StartEmbedding(TRootBrowser::kLeft);
@@ -123,11 +124,18 @@ FWDisplayEvent::FWDisplayEvent() :
     browser->SetTabTitle("Event Control",0);
   }
 
-  boost::shared_ptr<FWViewManagerBase> rpzViewManager(
-		  new FWRhoPhiZViewManager());
+   
+  // prepare geometry service
+  // ATTN: this should be made configurable
+  const char* geomtryFile = "cmsGeom10.root";
+  m_detIdToGeo.loadGeometry( geomtryFile );
+  m_detIdToGeo.loadMap( geomtryFile );
+   
+  boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager() );
+  rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
-  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>(
-                        new FW3DLegoViewManager()));
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager()));
+   
   gSystem->ProcessEvents();
 }
 
@@ -261,6 +269,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   }
    
   m_eiManager->newEvent(&iEvent);
+  m_eiManager->setGeom(&m_detIdToGeo);
   m_viewManager->newEventAvailable();
 
   //check for input at least once
@@ -277,3 +286,4 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 //
 // static member functions
 //
+
