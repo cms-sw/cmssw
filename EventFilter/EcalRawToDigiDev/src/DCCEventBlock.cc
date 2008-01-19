@@ -256,7 +256,7 @@ void DCCEventBlock::addHeaderToCollection(){
   
   EcalDCCHeaderBlock theDCCheader;
 
-  // container for fed_id (601-645 for ECAL) 
+  // container for fed_id (601-654 for ECAL) 
   theDCCheader.setFedId(fedId_);
   
   
