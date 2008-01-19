@@ -9,10 +9,6 @@
 
 MuonsProxy3DBuilder::MuonsProxy3DBuilder()
 {
-   // ATTN: this should be made configurable
-   const char* geomtryFile = "cmsGeom10.root";
-   detIdToMatrix_.loadGeometry( geomtryFile );
-   detIdToMatrix_.loadMap( geomtryFile );
 }
 
 MuonsProxy3DBuilder::~MuonsProxy3DBuilder()
@@ -112,6 +108,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	Double_t localTrajectoryPoint[3];
 	Double_t globalTrajectoryPoint[3];
 	TEveStraightLineSet* segmentSet = new TEveStraightLineSet;
+	segmentSet->SetLineWidth(4);
 	std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
 	for ( ; chamber != matches.end(); ++ chamber )
 	  {
@@ -121,7 +118,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	     localTrajectoryPoint[2] = 0;
 	     
 	     DetId id = chamber->id;
-	     const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix( chamber->id.rawId() );
+	     const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
 	     if ( matrix ) {
 		// make muon segment 20 cm long along local z-axis
 		matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );

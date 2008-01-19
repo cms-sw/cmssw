@@ -13,9 +13,14 @@ class MuonsProxy3DBuilder : public FWRPZDataProxyBuilder
  public:
    MuonsProxy3DBuilder();
    virtual ~MuonsProxy3DBuilder();
+	
  private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
-   DetIdToMatrix detIdToMatrix_;
+   
+   MuonsProxy3DBuilder(const MuonsProxy3DBuilder&); // stop default
+   
+   const MuonsProxy3DBuilder& operator=(const MuonsProxy3DBuilder&); // stop default
+
 };
 
 #endif
