@@ -1,4 +1,4 @@
-#include "RecoTauTag/CombinedTauTag/interface/ECALBounds.h"
+#include "RecoTauTag/TauTagTools/interface/ECALBounds.h"
 
 void ECALBounds::initialize(){
   const float epsilon = 0.001; // should not matter at all
