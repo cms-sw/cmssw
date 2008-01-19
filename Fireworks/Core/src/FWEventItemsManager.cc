@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.2 2008/01/15 22:39:41 chrjones Exp $
 //
 
 // system include files
@@ -79,6 +79,17 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
     (*it)->setEvent(iEvent);
   }
 }
+
+void 
+FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
+{
+  for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+      it != m_items.end();
+      ++it) {
+    (*it)->setGeom(geom);
+  }
+}
+
 
 void 
 FWEventItemsManager::newItem(const FWEventItem*)

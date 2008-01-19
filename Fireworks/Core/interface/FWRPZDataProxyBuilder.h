@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id$
+// $Id: FWRPZDataProxyBuilder.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ class FWRPZDataProxyBuilder
       void setItem(const FWEventItem* iItem);
       void build(TEveElementList** product);
 
-   private:
+   protected:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.2 2008/01/15 22:39:42 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@ namespace fwlite {
 }
 class FWEventItem;
 class FWPhysicsObjectDesc;
+class DetIdToMatrix;
 
 class FWEventItemsManager
 {
@@ -55,6 +56,7 @@ class FWEventItemsManager
       const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
 
       void newEvent(const fwlite::Event* iEvent);
+      void setGeom(const DetIdToMatrix* geom);
 
    private:
       void newItem(const FWEventItem*); //*SIGNAL*

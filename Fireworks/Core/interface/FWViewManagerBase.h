@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.2 2008/01/11 00:49:03 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.3 2008/01/12 17:22:27 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 // forward declarations
 class FWEventItem;
 class TClass;
+class DetIdToMatrix;
 
 class FWViewManagerBase
 {
@@ -46,6 +47,8 @@ class FWViewManagerBase
 
       virtual void registerProxyBuilder(const std::string&, 
 					const std::string&) = 0;
+      virtual void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
+      virtual const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){ return m_detIdToGeo; }
       
       /** returns 'true' if the name of the builder matches the naming
        conventions for builders used by this View
@@ -57,6 +60,8 @@ class FWViewManagerBase
       template<typename TIter>
         FWViewManagerBase(TIter iBegin,TIter iEnd):
          m_builderNamePostfixes(iBegin,iEnd) {}
+      
+      const DetIdToMatrix* m_detIdToGeo;
 
       /*handles dynamic loading of a library or macro containing the class
          named iNameOfClass which inherits from iBaseClass.  The returned

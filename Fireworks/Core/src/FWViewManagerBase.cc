@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.2 2008/01/11 00:49:03 chrjones Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 // constructors and destructor
 //
 FWViewManagerBase::FWViewManagerBase(const char* iPostfix):
+  m_detIdToGeo(0),
   m_builderNamePostfixes(&iPostfix, &iPostfix+1)
 {
 }

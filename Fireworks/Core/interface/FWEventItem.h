@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWEventItem.h,v 1.2 2008/01/15 22:39:42 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 
 // forward declarations
 class TClass;
+class DetIdToMatrix;
 namespace fwlite {
   class Event;
 }
@@ -68,6 +69,8 @@ class FWEventItem
 
       // ---------- member functions ---------------------------
       void setEvent(const fwlite::Event* iEvent);
+      void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
+      const DetIdToMatrix* getGeom() const { return m_detIdToGeo; }
 
       void setLabels(const std::string& iModule,
 		     const std::string& iProductInstance,
@@ -91,6 +94,7 @@ class FWEventItem
       std::string m_processName;
       const fwlite::Event* m_event;
       ROOT::Reflex::Type m_wrapperType;
+      const DetIdToMatrix* m_detIdToGeo;
 };
 
 
