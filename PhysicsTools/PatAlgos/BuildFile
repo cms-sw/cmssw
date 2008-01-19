@@ -14,3 +14,4 @@
 <use name=root>
 
 <flags EDM_PLUGIN=1>
+<flags CXXFLAGS="-O0 -ggdb -DDEBUG">
