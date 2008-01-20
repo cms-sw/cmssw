@@ -97,19 +97,20 @@ void PhotonsWithConversionsAnalyzer::beginJob( const edm::EventSetup& setup)
   h_MCphoEta_ = fs->make<TH1F>("MCphoEta","MC photon eta",40,-3., 3.);
 
 
-  //// visible MC Converted photons
+  //// MC Converted photons
   h_MCConvE_ = fs->make<TH1F>("MCConvE","MC converted photon energy",100,0.,100.);
   h_MCConvPt_ = fs->make<TH1F>("MCConvPt","MC converted photon pt",100,0.,100.);
   h_MCConvEta_ = fs->make<TH1F>("MCConvEta","MC converted photon eta",50, 0., 2.5);
 
   //// Reconstructed Converted photons
-  h_scE_ = fs->make<TH1F>("scE","Uncorrected converted photons : SC Energy ",100,0., 200.);
-  h_scEta_ = fs->make<TH1F>("scEta","Uncorrected converted photons:  SC Eta ",40,-3., 3.);
-  h_scPhi_ = fs->make<TH1F>("scPhi","Uncorrected converted photons: SC Phi ",40, -3.14, 3.14);
+  h_scE_ = fs->make<TH1F>("scE","SC Energy ",100,0., 200.);
+  h_scEt_ = fs->make<TH1F>("scEt","SC Et ",100,0., 200.);
+  h_scEta_ = fs->make<TH1F>("scEta","SC Eta ",40,-3., 3.);
+  h_scPhi_ = fs->make<TH1F>("scPhi","SC Phi ",40, -3.14, 3.14);
   //
-  h_phoE_ = fs->make<TH1F>("phoE","Uncorrected converted photons :  Energy ",100,0., 200.);
-  h_phoEta_ = fs->make<TH1F>("phoEta","Uncorrected converted photons:   Eta ",40,-3., 3.);
-  h_phoPhi_ = fs->make<TH1F>("phoPhi","Uncorrected converted photons:  Phi ",40,  -3.14, 3.14);
+  h_phoE_ = fs->make<TH1F>("phoE","Photon Energy ",100,0., 200.);
+  h_phoEta_ = fs->make<TH1F>("phoEta","Photon Eta ",40,-3., 3.);
+  h_phoPhi_ = fs->make<TH1F>("phoPhi","Photon  Phi ",40,  -3.14, 3.14);
 
   // Recontructed tracks from converted photon candidates
   h2_tk_nHitsVsR_ = fs->make<TH2F>("tknHitsVsR","Tracks Hits vs R  ", 12,0.,120.,20,0.5, 20.5);
@@ -217,15 +218,12 @@ void PhotonsWithConversionsAnalyzer::analyze( const edm::Event& e, const edm::Ev
     float mcPhi= (*mcPho).fourMomentum().phi();
     float mcEta= (*mcPho).fourMomentum().pseudoRapidity();
     mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() ); 
-    
-    if ( ! (  fabs(mcEta) <= BARL || ( fabs(mcEta) >= END_LO && fabs(mcEta) <=END_HI ) ) ) {
-          continue;
-    } // all ecal fiducial region
+        
+    if ( (*mcPho).fourMomentum().et() < 20 ) continue;
+    //    if ( ! (  fabs(mcEta) <= BARL || ( fabs(mcEta) >= END_LO && fabs(mcEta) <=END_HI ) ) ) {
+    //     continue;
+    //} // all ecal fiducial region
 
-
-    //    std::cout << " ConvertedPhotonAnalyzer MC Photons before matching  " <<  std::endl;
-    // std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion() << " mcMatchingPhoton energy " << (*mcPho).fourMomentum().e()  << " conversion vertex R " << (*mcPho).vertex().perp() << " Z " <<  (*mcPho).vertex().z() <<  " x " << (*mcPho).vertex().x() << " y " <<(*mcPho).vertex().y()  << " z " << (*mcPho).vertex().z() <<  std::endl;
-    //std::cout << " ConvertedPhotonAnalyzer mcEta " << mcEta<< " mcPhi " << mcPhi <<  std::endl;
     
 
     h_MCphoE_->Fill(  (*mcPho).fourMomentum().e());
@@ -284,6 +282,7 @@ void PhotonsWithConversionsAnalyzer::analyze( const edm::Event& e, const edm::Ev
       h_deltaEta_-> Fill ( (*iPho).superCluster()->position().eta()- mcEta);
       
       h_scE_->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
       h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
       h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
 

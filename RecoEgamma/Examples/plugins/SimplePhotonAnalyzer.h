@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2007/03/25 11:06:31 $
- ** $Revision: 1.3 $
+ ** $Date: 2007/07/05 10:34:46 $
+ ** $Revision: 1.1 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -46,15 +46,13 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       std::string mcProducer_;
       std::string mcCollection_;
       std::string photonCollectionProducer_;       
-      std::string photonCorrCollectionProducer_;       
-      std::string uncorrectedPhotonCollection_;
-      std::string vertexProducer_;
-            
-      
-      std::string correctedPhotonCollection_;
+      std::string photonCollection_;       
 
+
+      std::string vertexProducer_;
 
       TH1F* h1_scE_;
+      TH1F* h1_scEt_;
       TH1F* h1_scEta_;
       TH1F* h1_scPhi_;
 

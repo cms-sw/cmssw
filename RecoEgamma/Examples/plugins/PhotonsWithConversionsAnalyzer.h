@@ -79,6 +79,7 @@ class PhotonsWithConversionsAnalyzer : public edm::EDAnalyzer
 
      // SC from reco photons
      TH1F* h_scE_;
+     TH1F* h_scEt_;
      TH1F* h_scEta_;
      TH1F* h_scPhi_;
      //
