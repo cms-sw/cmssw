@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/18 16:32:51 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/20 16:50:32 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,7 +27,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -235,91 +234,6 @@ void EEOccupancyClient::cleanup(void) {
 bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
-
-  EcalLogicID ecid;
-
-  MonPedestalsOnlineDat p;
-  map<EcalLogicID, MonPedestalsOnlineDat> dataset;
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
-
-    float num03;
-    float mean03;
-    float rms03;
-
-    for ( int ix = 1; ix <= 50; ix++ ) {
-      for ( int iy = 1; iy <= 50; iy++ ) {
-
-        int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism);
-
-        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-
-        bool update03;
-
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
-
-        if ( update03 ) {
-
-          if ( ix == 1 && iy == 1 ) {
-
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G12 (" << ix << "," << iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
-
-          }
-
-          p.setADCMeanG12(mean03);
-          p.setADCRMSG12(rms03);
-
-          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
-            p.setTaskStatus(true);
-          } else {
-            p.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset[ecid] = p;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
-        }
-
-      }
-    }
-
-  }
-
-  if ( econn ) {
-    try {
-      cout << "Inserting MonPedestalsOnlineDat ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   return status;
 

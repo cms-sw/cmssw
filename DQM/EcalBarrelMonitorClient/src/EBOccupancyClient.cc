@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/18 16:32:51 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/20 16:50:34 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -224,82 +223,6 @@ void EBOccupancyClient::cleanup(void) {
 bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
-
-  EcalLogicID ecid;
-
-  MonPedestalsOnlineDat p;
-  map<EcalLogicID, MonPedestalsOnlineDat> dataset;
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
-
-    float num03;
-    float mean03;
-    float rms03;
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        bool update03;
-
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
-
-        if ( update03 ) {
-
-          if ( ie == 1 && ip == 1 ) {
-
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
-
-          }
-
-          p.setADCMeanG12(mean03);
-          p.setADCRMSG12(rms03);
-
-          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
-            p.setTaskStatus(true);
-          } else {
-            p.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
-
-          int ic = Numbers::indexEB(ism, ie, ip);
-
-          if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset[ecid] = p;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
-        }
-
-      }
-    }
-
-  }
-
-  if ( econn ) {
-    try {
-      cout << "Inserting MonPedestalsOnlineDat ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   return status;
 
