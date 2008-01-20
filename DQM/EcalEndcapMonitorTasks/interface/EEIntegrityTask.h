@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/11/10 15:33:55 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/13 13:20:52 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
  */
@@ -68,7 +68,6 @@ edm::InputTag EcalElectronicsIdCollection6_;
 MonitorElement* meIntegrityChId[18];
 MonitorElement* meIntegrityGain[18];
 MonitorElement* meIntegrityGainSwitch[18];
-MonitorElement* meIntegrityGainSwitchStay[18];
 MonitorElement* meIntegrityTTId[18];
 MonitorElement* meIntegrityTTBlockSize[18];
 MonitorElement* meIntegrityMemChId[18];

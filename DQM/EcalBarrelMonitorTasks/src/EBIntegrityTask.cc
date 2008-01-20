@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/12/29 13:38:56 $
- * $Revision: 1.57 $
+ * $Date: 2008/01/05 09:34:56 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
  */
@@ -45,7 +45,6 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
   EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
   EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
-  EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
@@ -58,7 +57,6 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
     meIntegrityGain[i] = 0;
     meIntegrityChId[i] = 0;
     meIntegrityGainSwitch[i] = 0;
-    meIntegrityGainSwitchStay[i] = 0;
     meIntegrityTTId[i] = 0;
     meIntegrityTTBlockSize[i] = 0;
     meIntegrityMemChId[i] = 0;
@@ -129,16 +127,6 @@ void EBIntegrityTask::setup(void){
       meIntegrityGainSwitch[i]->setAxisTitle("ieta", 1);
       meIntegrityGainSwitch[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
-    }
-
-    // checking when channel has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT gain switch stay %s", Numbers::sEB(i+1).c_str());
-      meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      meIntegrityGainSwitchStay[i]->setAxisTitle("ieta", 1);
-      meIntegrityGainSwitchStay[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid ID
@@ -234,12 +222,6 @@ void EBIntegrityTask::cleanup(void){
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityGainSwitch[i] ) dbe_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
-    }
-
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36; i++) {
-      if ( meIntegrityGainSwitchStay[i] ) dbe_->removeElement( meIntegrityGainSwitchStay[i]->getName() );
-      meIntegrityGainSwitchStay[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
@@ -401,38 +383,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EBDetIdCollection> ids4;
+  Handle<EcalElectronicsIdCollection> ids4;
 
-  if ( e.getByLabel(EBDetIdCollection4_, ids4) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
 
-    for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
-
-      EBDetId id = (*idItr);
-
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
-
-      int ism = Numbers::iSM( id );
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
-
-      if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
-
-    }
-
-  } else {
-
-    LogWarning("EBIntegrityTask") << EBDetIdCollection4_ << " not available";
-
-  }
-
-  Handle<EcalElectronicsIdCollection> ids5;
-
-  if ( e.getByLabel(EcalElectronicsIdCollection1_, ids5) ) {
-
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -458,11 +413,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids6;
+  Handle<EcalElectronicsIdCollection> ids5;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection2_, ids6) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -488,11 +443,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids7;
+  Handle<EcalElectronicsIdCollection> ids6;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection3_, ids7) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -513,11 +468,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids8;
+  Handle<EcalElectronicsIdCollection> ids7;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection4_, ids8) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -538,11 +493,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids9;
+  Handle<EcalElectronicsIdCollection> ids8;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection5_, ids9) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -570,11 +525,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids10;
+  Handle<EcalElectronicsIdCollection> ids9;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection6_, ids10) ) {
+  if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
