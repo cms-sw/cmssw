@@ -243,9 +243,10 @@ namespace pos{
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	//std::cout << "Will return PixelLowVoltageMap" << std::endl;
-	assert(dir=="lowvoltage");
+	std::cout << "Will fetch PixelLowVoltageMap" << std::endl;
+	assert(dir=="lowvoltagemap");
 	data = (T*) new PixelLowVoltageMap(fullpath+"lowvoltagemap.dat");
+	std::cout << "Will return the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
@@ -395,9 +396,10 @@ namespace pos{
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	//std::cout << "Will return PixelLowVoltageMap" << std::endl;
-	assert(dir=="lowvoltage");
+	std::cout << "Will fetch1 PixelLowVoltageMap" << std::endl;
+	assert(dir=="lowvoltagemap");
 	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
+	std::cout << "Will return1 the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
