@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/18 18:04:08 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -103,7 +103,6 @@ TH2F* h06_[18];
 TH2F* h07_[18];
 TH2F* h08_[18];
 TH2F* h09_[18];
-TH2F* h10_[18];
 
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];

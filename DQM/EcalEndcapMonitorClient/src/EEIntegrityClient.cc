@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/18 18:05:42 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -92,7 +92,6 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
     h07_[ism-1] = 0;
     h08_[ism-1] = 0;
     h09_[ism-1] = 0;
-    h10_[ism-1] = 0;
 
   }
 
@@ -239,7 +238,6 @@ void EEIntegrityClient::cleanup(void) {
       if ( h07_[ism-1] ) delete h07_[ism-1];
       if ( h08_[ism-1] ) delete h08_[ism-1];
       if ( h09_[ism-1] ) delete h09_[ism-1];
-      if ( h10_[ism-1] ) delete h10_[ism-1];
     }
 
     h_[ism-1] = 0;
@@ -254,7 +252,6 @@ void EEIntegrityClient::cleanup(void) {
     h07_[ism-1] = 0;
     h08_[ism-1] = 0;
     h09_[ism-1] = 0;
-    h10_[ism-1] = 0;
 
   }
 
@@ -306,12 +303,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h06_[ism-1], true);
 
+    UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h10_[ism-1], true);
 
     float num00;
 
@@ -324,7 +320,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       if ( num00 > 0 ) update0 = true;
     }
 
-    float num01, num02, num03, num04;
+    float num01, num02, num03;
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -336,7 +332,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-        num01 = num02 = num03 = num04 = 0.;
+        num01 = num02 = num03 = 0.;
 
         bool update1 = false;
 
@@ -359,28 +355,23 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( num03 > 0 ) update1 = true;
         }
 
-        if ( h04_[ism-1] ) {
-          num04  = h04_[ism-1]->GetBinContent(ix, iy);
-          if ( num04 > 0 ) update1 = true;
-        }
-
         if ( update0 || update1 ) {
 
           if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
+            cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
 
             cout << endl;
 
           }
 
           c1.setProcessedEvents(int(numTot));
-          c1.setProblematicEvents(int(num01+num02+num03+num04));
+          c1.setProblematicEvents(int(num01+num02+num03));
           c1.setProblemsGainZero(int(num01));
           c1.setProblemsID(int(num02));
-          c1.setProblemsGainSwitch(int(num03+num04));
+          c1.setProblemsGainSwitch(int(num03));
 
           bool val;
 
@@ -389,13 +380,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             float errorRate1 = num00 / numTot;
             if ( errorRate1 > threshCry_ )
               val = false;
-            errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
             if ( errorRate1 > threshCry_ )
               val = false;
           } else {
             if ( num00 > 0 )
               val = false;
-            if ( ( num01 + num02 + num03 + num04 ) > 0 )
+            if ( ( num01 + num02 + num03 ) > 0 )
               val = false;
           }
           c1.setTaskStatus(val);
@@ -420,12 +411,12 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       }
     }
 
-    float num05, num06;
+    float num04, num05;
 
     for ( int ixt = 1; ixt <= 10; ixt++ ) {
       for ( int iyt = 1; iyt <= 10; iyt++ ) {
 
-        num05 = num06 = 0.;
+        num04 = num05 = 0.;
 
         bool update1 = false;
 
@@ -440,20 +431,20 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
         }
 
+        if ( h04_[ism-1] ) {
+          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
+            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              num04  = h04_[ism-1]->GetBinContent(ix, iy);
+              if ( num04 > 0 ) update1 = true;
+            }
+          }
+        }
+
         if ( h05_[ism-1] ) {
           for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
               num05  = h05_[ism-1]->GetBinContent(ix, iy);
               if ( num05 > 0 ) update1 = true;
-            }
-          }
-        }
-
-        if ( h06_[ism-1] ) {
-          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
-            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
-              num06  = h06_[ism-1]->GetBinContent(ix, iy);
-              if ( num06 > 0 ) update1 = true;
             }
           }
         }
@@ -464,16 +455,16 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num05 << " " << num06 << endl;
+            cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num04 << " " << num05 << endl;
 
             cout << endl;
 
           }
 
           c2.setProcessedEvents(int(numTot));
-          c2.setProblematicEvents(int(num05+num06));
-          c2.setProblemsID(int(num05));
-          c2.setProblemsSize(int(num06));
+          c2.setProblematicEvents(int(num04+num05));
+          c2.setProblemsID(int(num04));
+          c2.setProblemsSize(int(num05));
           c2.setProblemsLV1(int(-1.));
           c2.setProblemsBunchX(int(-1.));
 
@@ -484,13 +475,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             float errorRate2 = num00 / numTot;
             if ( errorRate2 > threshCry_ )
               val = false;
-            errorRate2 = ( num05 + num06 ) / numTot / 2.;
+            errorRate2 = ( num04 + num05 ) / numTot / 2.;
             if ( errorRate2 > threshCry_ )
               val = false;
           } else {
             if ( num00 > 0 )
               val = false;
-            if ( ( num05 + num06 ) > 0 )
+            if ( ( num04 + num05 ) > 0 )
               val = false;
           }
           c2.setTaskStatus(val);
@@ -513,12 +504,12 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       }
     }
 
-    float num07, num08;
+    float num06, num07;
 
     for ( int ix = 1; ix <= 10; ix++ ) {
       for ( int iy = 1; iy <= 5; iy++ ) {
 
-        num07 = num08 = 0.;
+        num06 = num07 = 0.;
 
         bool update1 = false;
 
@@ -526,14 +517,14 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ix, iy);
 
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(ix, iy);
+          if ( num06 > 0 ) update1 = true;
+        }
+
         if ( h07_[ism-1] ) {
           num07  = h07_[ism-1]->GetBinContent(ix, iy);
           if ( num07 > 0 ) update1 = true;
-        }
-
-        if ( h08_[ism-1] ) {
-          num08  = h08_[ism-1]->GetBinContent(ix, iy);
-          if ( num08 > 0 ) update1 = true;
         }
 
         if ( update0 || update1 ) {
@@ -542,16 +533,16 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
             cout << "Preparing dataset for mem of SM=" << ism << endl;
 
-            cout << "(" << ix << "," << iy << ") " << num07 << " " << num08 << endl;
+            cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << endl;
 
             cout << endl;
 
           }
 
           c3.setProcessedEvents( int (numTot));
-          c3.setProblematicEvents(int (num07+num08));
-          c3.setProblemsID(int (num07) );
-          c3.setProblemsGainZero(int (num08));
+          c3.setProblematicEvents(int (num06+num07));
+          c3.setProblemsID(int (num06) );
+          c3.setProblemsGainZero(int (num07));
           // c3.setProblemsGainSwitch(int prob);
 
           bool val;
@@ -561,13 +552,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             float errorRate1 = num00 / numTot;
             if ( errorRate1 > threshCry_ )
               val = false;
-            errorRate1 = ( num07 + num08 ) / numTot / 2.;
+            errorRate1 = ( num06 + num07 ) / numTot / 2.;
             if ( errorRate1 > threshCry_ )
               val = false;
           } else {
             if ( num00 > 0 )
              val = false;
-            if ( ( num07 + num08 ) > 0 )
+            if ( ( num06 + num07 ) > 0 )
               val = false;
           }
           c3. setTaskStatus(val);
@@ -590,11 +581,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       }
     }
 
-    float num09, num10;
+    float num08, num09;
 
     for ( int ixt = 1; ixt <= 2; ixt++ ) {
 
-      num09 = num10 = 0.;
+      num08 = num09 = 0.;
 
       bool update1 = false;
 
@@ -609,14 +600,14 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         }
       }
 
+      if ( h08_[ism-1] ) {
+        num08  = h08_[ism-1]->GetBinContent(ixt, 1);
+        if ( num08 > 0 ) update1 = true;
+      }
+
       if ( h09_[ism-1] ) {
         num09  = h09_[ism-1]->GetBinContent(ixt, 1);
         if ( num09 > 0 ) update1 = true;
-      }
-
-      if ( h10_[ism-1] ) {
-        num10  = h10_[ism-1]->GetBinContent(ixt, 1);
-        if ( num10 > 0 ) update1 = true;
       }
 
       if ( update0 || update1 ) {
@@ -625,16 +616,16 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-          cout << "(" << ixt <<  ") " << num09 << " " << num10 << endl;
+          cout << "(" << ixt <<  ") " << num08 << " " << num09 << endl;
 
           cout << endl;
 
         }
 
         c4.setProcessedEvents( int(numTot) );
-        c4.setProblematicEvents( int(num09 + num10) );
-        c4.setProblemsID( int(num09) );
-        c4.setProblemsSize(int (num10) );
+        c4.setProblematicEvents( int(num08 + num09) );
+        c4.setProblemsID( int(num08) );
+        c4.setProblemsSize(int (num09) );
         // setProblemsLV1(int LV1);
         // setProblemsBunchX(int bunchX);
 
@@ -645,13 +636,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           float errorRate2 = num00 / numTot;
           if ( errorRate2 > threshCry_ )
             val = false;
-          errorRate2 = ( num09 + num10 ) / numTot / 2.;
+          errorRate2 = ( num08 + num09 ) / numTot / 2.;
           if ( errorRate2 > threshCry_ )
             val = false;
         } else {
           if ( num00 > 0 )
             val = false;
-          if ( ( num09 + num10 ) > 0 )
+          if ( ( num08 + num09 ) > 0 )
             val = false;
         }
         c4.setTaskStatus(val);
@@ -760,33 +751,29 @@ void EEIntegrityClient::analyze(void){
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
-    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
-
     sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    h10_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
+    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     float num00;
 
@@ -804,12 +791,12 @@ void EEIntegrityClient::analyze(void){
       update0 = true;
     }
 
-    float num01, num02, num03, num04, num05, num06;
+    float num01, num02, num03, num04, num05;
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        num01 = num02 = num03 = num04 = num05 = num06 = 0.;
+        num01 = num02 = num03 = num04 = num05 = 0.;
 
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
 
@@ -837,16 +824,11 @@ void EEIntegrityClient::analyze(void){
 
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(ix, iy);
-          update1 = true;
+          update2 = true;
         }
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(ix, iy);
-          update2 = true;
-        }
-
-        if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(ix, iy);
           update2 = true;
         }
 
@@ -860,19 +842,19 @@ void EEIntegrityClient::analyze(void){
             float errorRate1 =  num00 / numTot;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
+            errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num05 + num06 ) / numTot / 2.;
+            float errorRate2 = ( num04 + num05 ) / numTot / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {
             val = 2.;
             if ( num00 > 0 )
               val = 0.;
-            if ( ( num01 + num02 + num03 + num04 ) > 0 )
+            if ( ( num01 + num02 + num03 ) > 0 )
               val = 0.;
-            if ( ( num05 + num06 ) > 0 )
+            if ( ( num04 + num05 ) > 0 )
               val = 0.;
           }
 
@@ -943,12 +925,12 @@ void EEIntegrityClient::analyze(void){
     }// end of loop on crystals to fill summary plot
 
     // summaries for mem channels
-    float num07, num08, num09, num10;
+    float num06, num07, num08, num09;
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
-        num07 = num08 = num09 = num10 = 0.;
+        num06 = num07 = num08 = num09 = 0.;
 
         // initialize summary histo for mem
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
@@ -960,26 +942,26 @@ void EEIntegrityClient::analyze(void){
 
         if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, ip);
 
-        if ( h07_[ism-1] ) {
-          num07  = h07_[ism-1]->GetBinContent(ie, ip);
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
-        if ( h08_[ism-1] ) {
-          num08  = h08_[ism-1]->GetBinContent(ie, ip);
+        if ( h07_[ism-1] ) {
+          num07  = h07_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
         int ipt = 1;
 
-        if ( h09_[ism-1] ) {
-          num09  = h09_[ism-1]->GetBinContent(iet, ipt);
+        if ( h08_[ism-1] ) {
+          num08  = h08_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 
-        if ( h10_[ism-1] ) {
-          num10  = h10_[ism-1]->GetBinContent(iet, ipt);
+        if ( h09_[ism-1] ) {
+          num09  = h09_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 
@@ -991,17 +973,17 @@ void EEIntegrityClient::analyze(void){
           val = 1.;
           // numer of events on a channel
           if ( numTotmem > 0 ) {
-            float errorRate1 = ( num07 + num08 ) / numTotmem / 2.;
+            float errorRate1 = ( num06 + num06 ) / numTotmem / 2.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
-            float errorRate2 = ( num09 + num10 ) / numTotmem / 2.;
+            float errorRate2 = ( num08 + num09 ) / numTotmem / 2.;
             if ( errorRate2 > threshCry_ )
               val = 0.;
           } else {
             val = 2.;
-            if ( ( num07 + num08 ) > 0 )
+            if ( ( num06 + num07 ) > 0 )
               val = 0.;
-            if ( ( num09 + num10 ) > 0 )
+            if ( ( num08 + num09 ) > 0 )
               val = 0.;
           }
 
@@ -1134,7 +1116,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy4.SetMarkerSize(2);
   dummy4.SetMinimum(0.1);
 
-  string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
+  string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[9], imgName, meName;
 
   TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
   TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, 2*csize);
@@ -1295,7 +1277,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     // Monitoring elements plots
 
-    for ( int iCanvas = 1; iCanvas <= 6; iCanvas++ ) {
+    for ( int iCanvas = 1; iCanvas <= 5; iCanvas++ ) {
 
       imgNameME[iCanvas-1] = "";
 
@@ -1315,9 +1297,6 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         break;
       case 5:
         obj2f = h05_[ism-1];
-        break;
-      case 6:
-        obj2f = h06_[ism-1];
         break;
       default:
         break;
@@ -1444,12 +1423,15 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     // MeM Monitoring elements plots
 
-    for ( int iCanvas = 7; iCanvas <= 10; iCanvas++ ) {
+    for ( int iCanvas = 6; iCanvas <= 9; iCanvas++ ) {
 
       imgNameME[iCanvas-1] = "";
 
       obj2f = 0;
       switch ( iCanvas ) {
+      case 6:
+        obj2f = h06_[ism-1];
+        break;
       case 7:
         obj2f = h07_[ism-1];
         break;
@@ -1458,9 +1440,6 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         break;
       case 9:
         obj2f = h09_[ism-1];
-        break;
-      case 10:
-        obj2f = h10_[ism-1];
         break;
       default:
         break;
@@ -1483,7 +1462,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         gStyle->SetPalette(10, pCol5);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
-        if ( iCanvas < 9 ){
+        if ( iCanvas <= 7 ){
           obj2f->GetXaxis()->SetNdivisions(10);
           obj2f->GetYaxis()->SetNdivisions(5);
           cMeMem->SetGridx();
@@ -1545,17 +1524,15 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "cellpadding=\"10\"> " << endl;
+    htmlFile << "<tr align=\"left\">" << endl;
 
-    for ( int iCanvas = 3 ; iCanvas <= 4 ; iCanvas++ ) {
+    int iCanvas = 3;
 
-      if ( imgNameME[iCanvas-1].size() != 0 )
-        htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
-      else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    }
+    if ( imgNameME[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
@@ -1565,7 +1542,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 5 ; iCanvas <= 6 ; iCanvas++ ) {
+    for ( int iCanvas = 4 ; iCanvas <= 5 ; iCanvas++ ) {
 
       if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
@@ -1600,7 +1577,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 7 ; iCanvas <= 8 ; iCanvas++ ) {
+    for ( int iCanvas = 6 ; iCanvas <= 7 ; iCanvas++ ) {
 
       if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
@@ -1617,7 +1594,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 9 ; iCanvas <= 10 ; iCanvas++ ) {
+    for ( int iCanvas = 8 ; iCanvas <= 9 ; iCanvas++ ) {
 
       if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;

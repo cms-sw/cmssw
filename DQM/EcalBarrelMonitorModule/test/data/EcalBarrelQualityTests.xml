@@ -48,22 +48,6 @@
         <TestName activate="true">EB_Integrity_Gain_Switch_Quality</TestName>
 </LINK>
 
-<QTEST name="EB_Integrity_Gain_Switch_Stay_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
-        <PARAM name="error">1.00</PARAM>
-        <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">-1.0</PARAM>
-        <PARAM name="maxMean">0.0</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
-        <PARAM name="minEntries">0</PARAM>
-</QTEST>
-
-<LINK name="*EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay EB*">
-        <TestName activate="true">EB_Integrity_Gain_Switch_Stay_Quality</TestName>
-</LINK>
-
 <QTEST name="EB_Integrity_TtId_Quality">
         <TYPE>ContentsWithinExpectedTH2F</TYPE>
         <PARAM name="error">1.00</PARAM>

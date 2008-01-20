@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.56 $
+ * $Date: 2008/01/18 18:04:04 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -103,7 +103,6 @@ TH2F* h06_[36];
 TH2F* h07_[36];
 TH2F* h08_[36];
 TH2F* h09_[36];
-TH2F* h10_[36];
 
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
