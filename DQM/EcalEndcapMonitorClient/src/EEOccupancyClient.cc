@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/18 16:32:51 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -473,6 +473,9 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
+
+  htmlFile << "WORK IN PROGRESS" << std::endl;
+  return;
 
   // Produce the plots to be shown as .png files from existing histograms
 

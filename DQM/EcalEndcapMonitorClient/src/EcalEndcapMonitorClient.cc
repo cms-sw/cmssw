@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/09 18:46:48 $
- * $Revision: 1.121 $
+ * $Date: 2008/01/18 18:08:43 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,9 +45,10 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
 
-#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
+#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
+#include <DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h>
+#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
@@ -427,6 +428,32 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   }
 
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Occupancy" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EEOccupancyClient(ps) );
+    clientsNames_.push_back( "Occupancy" );
+
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cosmic" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EECosmicClient(ps) );
@@ -611,6 +638,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   clientsStatus_.insert(pair<string,int>( "Timing",         10 ));
   clientsStatus_.insert(pair<string,int>( "Led",            11 ));
   clientsStatus_.insert(pair<string,int>( "StatusFlags",    12 ));
+  clientsStatus_.insert(pair<string,int>( "Occupancy",      13 ));
 
   summaryClient_ = new EESummaryClient(ps);
 

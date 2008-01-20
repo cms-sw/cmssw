@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/01/09 18:46:41 $
- * $Revision: 1.362 $
+ * $Date: 2008/01/18 18:08:42 $
+ * $Revision: 1.363 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,9 +45,10 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
@@ -418,6 +419,30 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   }
 
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Occupancy" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EBOccupancyClient(ps) );
+    clientsNames_.push_back( "Occupancy" );
+    
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cosmic" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EBCosmicClient(ps) );
@@ -582,6 +607,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clientsStatus_.insert(pair<string,int>( "Timing",         10 ));
   clientsStatus_.insert(pair<string,int>( "Led",            11 ));
   clientsStatus_.insert(pair<string,int>( "StatusFlags",    12 ));
+  clientsStatus_.insert(pair<string,int>( "Occupancy",      13 ));
 
   summaryClient_ = new EBSummaryClient(ps);
 
