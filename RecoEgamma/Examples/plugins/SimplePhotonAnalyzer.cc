@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/11/11 16:08:46 $ 
- ** $Revision: 1.4 $
+ ** $Date: 2007/11/14 15:12:17 $ 
+ ** $Revision: 1.5 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -26,12 +26,10 @@
 SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
 //========================================================================
 {
-
-
   photonCollectionProducer_ = ps.getParameter<std::string>("phoProducer");
-  photonCorrCollectionProducer_ = ps.getParameter<std::string>("corrPhoProducer");
-  uncorrectedPhotonCollection_ = ps.getParameter<std::string>("uncorrectedPhotonCollection");
-  correctedPhotonCollection_ = ps.getParameter<std::string>("correctedPhotonCollection");
+  photonCollection_ = ps.getParameter<std::string>("photonCollection");
+
+
   mcProducer_ = ps.getParameter<std::string>("mcProducer");
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
   vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
@@ -59,6 +57,7 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   // go to *OUR* rootfile and book histograms
   rootFile_->cd();
 
+  h1_scEt_ = new TH1F("scEt","Uncorrected photons : SC Et ",100,0.,100.);
   h1_scE_ = new TH1F("scE","Uncorrected photons : SC Energy ",100,0.,100.);
   h1_scEta_ = new TH1F("scEta","Uncorrected photons:  SC Eta ",40,-3., 3.);
   h1_scPhi_ = new TH1F("scPhi","Uncorrected photons: SC Phi ",40,-3.14, 3.14);
@@ -90,20 +89,12 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
   //  ----- barrel with island
 
-  // Get theuncorrected  photon collection
- Handle<reco::PhotonCollection> uncorrectedPhotonHandle; 
- evt.getByLabel(photonCollectionProducer_, uncorrectedPhotonCollection_ , uncorrectedPhotonHandle);
- const reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
 
+  // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
 
-
-
-  // Get the  corrected  photon collection
- Handle<reco::PhotonCollection> correctedPhotonHandle; 
- evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
- const reco::PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
-
-
+  Handle<reco::PhotonCollection> photonHandle; 
+  evt.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
+  const reco::PhotonCollection photonCollection = *(photonHandle.product());
 
 
   // Get the primary event vertex
@@ -112,7 +103,6 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   reco::VertexCollection vertexCollection = *(vertexHandle.product());
   math::XYZPoint vtx(0.,0.,0.);
   if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
-
 
 
   /// Get the MC truth
@@ -139,7 +129,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       int iMatch=-1;
 
       // loop over uncorrected  Photon candidates 
-      for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+      for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
 	/////  Set event vertex
 	reco::Photon localPho = reco::Photon(*iPho);
@@ -170,6 +160,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       if (iMatch>-1) {
 	std::cout << "h1" << std::endl;
 	h1_scE_->Fill( localPhotons[iMatch].superCluster()->energy() );
+	h1_scEt_->Fill( localPhotons[iMatch].superCluster()->energy()/cosh(localPhotons[iMatch].superCluster()->position().eta()) );
 	h1_scEta_->Fill( localPhotons[iMatch].superCluster()->position().eta() );
 	h1_scPhi_->Fill( localPhotons[iMatch].superCluster()->position().phi() );
 	std::cout << "h2" << std::endl;
@@ -184,45 +175,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       index=0;
       iMatch=-1;
 
-      // loop over corrected  Photon candidates 
-      for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 
-	/////  Set event vertex
-	reco::Photon localPho = reco::Photon(*iPho);
-	localPho.setVertex(vtx);
-	localPhotons.push_back(localPho);
-
-	/// Match reconstructed photon candidates with the nearest generated photonPho;
-	float phiClu=localPho.phi();
-	float etaClu=localPho.eta();
-	float phiPho=(*p)->momentum().phi();
-	float etaPho=(*p)->momentum().eta();
-	float deltaPhi = phiClu-phiPho;
-	float deltaEta = etaClu-etaPho;
-
-	if ( deltaPhi > pi )  deltaPhi -= twopi;
-	if ( deltaPhi < -pi) deltaPhi += twopi;
-	deltaPhi=pow(deltaPhi,2);
-	deltaEta=pow(deltaEta,2);
-	float delta = sqrt( deltaPhi+deltaEta); 
-	if ( delta<0.1 && delta < minDelta ) {
-	  minDelta=delta;
-	  iMatch=index;
-	}
-	index++;
-      } // End loop over corrected photons
-    
-      /// Plot kinematic disctributions for matched photons
-      if (iMatch>-1) {
-	h1_corrPho_E_->Fill( localPhotons[iMatch].energy() );
-	h1_corrPho_Eta_->Fill( localPhotons[iMatch].eta() );
-	h1_corrPho_Phi_->Fill( localPhotons[iMatch].phi() );
-	h1_corrPho_R9_->Fill( localPhotons[iMatch].r9() );
-
-	h1_recEoverTrueE_ -> Fill( localPhotons[iMatch].energy()/ (*p)->momentum().e() );
-	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
-	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
-      }
 
     } // End loop over MC particles
 
@@ -239,6 +192,7 @@ SimplePhotonAnalyzer::endJob() {
   rootFile_->cd();
 
   h1_scE_  -> Write();
+  h1_scEt_  -> Write();
   h1_scEta_-> Write();
   h1_scPhi_-> Write();
 
