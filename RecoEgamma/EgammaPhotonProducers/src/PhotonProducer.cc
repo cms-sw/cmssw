@@ -40,6 +40,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
+  minSCEt_        = conf_.getParameter<double>("minSCEt");
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
   vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
@@ -173,53 +174,55 @@ void PhotonProducer::fillPhotonCollection(
 
     // get SuperClusterRef
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
-
+    iSC++;
+    lSC++;
+    
     // calculate HoE
     double HoE = hOverE(scRef,mhbhe);
-
+    
     // preselection
-    if (HoE<maxHOverE_) {
-
-      // get ClusterShapeRef
-      seedShpItr = clshpMap.find(aClus->seed());
-      assert(seedShpItr != clshpMap.end());
-      const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-
-      // recalculate position of seed BasicCluster taking shower depth for unconverted photon
-      math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
-
-      // compute position of ECAL shower
-      double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
-      math::XYZPoint caloPosition;
-      if (r9>0.93) {
-	caloPosition = unconvPos;
-      } else {
-	caloPosition = aClus->position();
-      }
-
-      // does the SuperCluster have a matched pixel seed?
-      bool hasSeed = false;
-      for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
-	if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
-	    fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
-	  hasSeed=true;
-	  break;
-	}
-      }
-
-      // compute momentum vector of photon from primary vertex and cluster position
-      math::XYZVector direction = caloPosition - vtx;
-      math::XYZVector momentum = direction.unit() * aClus->energy();
-      const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
-
-      reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
-      outputPhotonCollection.push_back(newCandidate);
-      iSC++;
+    if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    if (HoE>=maxHOverE_)  continue;
+    
+    
+    // get ClusterShapeRef
+    seedShpItr = clshpMap.find(aClus->seed());
+    assert(seedShpItr != clshpMap.end());
+    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
+    
+    // recalculate position of seed BasicCluster taking shower depth for unconverted photon
+    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
+    
+    // compute position of ECAL shower
+    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
+    math::XYZPoint caloPosition;
+    if (r9>0.93) {
+      caloPosition = unconvPos;
+    } else {
+      caloPosition = aClus->position();
     }
-    lSC++;
-
+    
+    // does the SuperCluster have a matched pixel seed?
+    bool hasSeed = false;
+    for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
+      if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
+	  fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
+	hasSeed=true;
+	break;
+      }
+    }
+    
+    // compute momentum vector of photon from primary vertex and cluster position
+    math::XYZVector direction = caloPosition - vtx;
+    math::XYZVector momentum = direction.unit() * aClus->energy();
+    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+    
+    reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
+    outputPhotonCollection.push_back(newCandidate);
+    
+    
   }
-
+  
 }
 
 double PhotonProducer::hOverE(const reco::SuperClusterRef & scRef,
