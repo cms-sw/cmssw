@@ -251,6 +251,34 @@ class DaqMonitorBEInterface: public StringUtil
   /// see Core/interface/QTestStatus.h for details on "OTHER" 
   int getStatus(std::string inpath = "") const;
 
+  
+  // ------------------------------------------------------------------------
+  // -- these data and methods needed by collector.cpp and IGUANA DQM only --
+  
+  /// new added & removed monitorable since last cycle; 
+  /// format: <dir pathname>:<obj1>,<obj2>,...
+  /// reset after all recipients have been informed (ie. in resetStuff)
+  std::vector<std::string> addedMonitorable;
+  /// all tags for full monitoring structure 
+  dqm::me_util::dir_tags allTags;
+
+  /// get added monitorable (since last cycle)
+  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
+  void getAddedMonitorable(std::vector<std::string> & put_here) const;
+  /// get removed monitorable (since last cycle)
+  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
+  void getRemovedMonitorable(std::vector<std::string> & put_here) const;
+  /// get added contents (since last cycle)
+  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
+  void getAddedContents(std::vector<std::string> & put_here) const;
+  /// get removed contents (since last cycle)
+  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
+  void getRemovedContents(std::vector<std::string> & put_here) const;
+  /// get updated contents (since last cycle)
+  /// COMPLEMENTARY to addedContents, removedContents
+  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
+  void getUpdatedContents(std::vector<std::string> & put_here) const;
+
  private:
 
  
@@ -333,22 +361,6 @@ class DaqMonitorBEInterface: public StringUtil
   void getMonitorable(std::vector<std::string> & put_here,
 		      bool showContents = true) const;
 
-  /// get added monitorable (since last cycle)
-  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getAddedMonitorable(std::vector<std::string> & put_here) const;
-  /// get removed monitorable (since last cycle)
-  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getRemovedMonitorable(std::vector<std::string> & put_here) const;
-  /// get added contents (since last cycle)
-  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getAddedContents(std::vector<std::string> & put_here) const;
-  /// get removed contents (since last cycle)
-  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getRemovedContents(std::vector<std::string> & put_here) const;
-  /// get updated contents (since last cycle)
-  /// COMPLEMENTARY to addedContents, removedContents
-  /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getUpdatedContents(std::vector<std::string> & put_here) const;
  
 
   /// get folder corresponding to inpath wrt to root (create subdirs if necessary)
@@ -798,18 +810,12 @@ class DaqMonitorBEInterface: public StringUtil
 
   SubcRequests requests;
 
-  /// new added & removed monitorable since last cycle; 
-  /// format: <dir pathname>:<obj1>,<obj2>,...
-  /// reset after all recipients have been informed (ie. in resetStuff)
-  std::vector<std::string> addedMonitorable;
   std::vector<std::string> removedMonitorable;
   /// new added & removed contents since last cycle;
   /// reset after all recipients have been informed (ie. in resetStuff);
   /// Note: these do not include objects in subscriber's folders
   dqm::me_util::monit_map addedContents;
   dqm::me_util::monit_map removedContents;
-  /// all tags for full monitoring structure 
-  dqm::me_util::dir_tags allTags;
   /// added and removed tags since last cycle;
   /// reset after all recipients have been informed (ie. in resetStuff);
   dqm::me_util::dir_tags addedTags;
@@ -965,7 +971,7 @@ class DaqMonitorBEInterface: public StringUtil
   friend class ROOTtoMEConverter;      // need clone methods
   friend class MEtoROOTConverter;
 
-  // ------ example executables        // can all be removed ???
+  // ------ example executables        // can all be removed !!?
   friend class DQMLocalGUI;
   friend class DQMBackEndInterfaceExample;
   friend class DQMMonitorUIRootStandaloneExample;
@@ -974,8 +980,6 @@ class DaqMonitorBEInterface: public StringUtil
   
   // ------ old web GUI class using lock and unlock
   friend class WebInterface;           // 
-  friend class ClientWithWebInterface; // needs getUpdatedContents
-  friend class MuonDQMClient;          // needs getUpdatedContents
         
   // ----------------------- private data members
   MonitorElementRootFolder * fCurrentFolder;
