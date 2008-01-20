@@ -102,6 +102,7 @@ namespace cms
     edm::InputTag src_;
     int   theVerboseLevel;              // algorithm's verbosity
     bool m_newCont; // save also in emdNew::DetSetVector
+    bool errorsFromDB_;
   };
 }
 

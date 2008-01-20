@@ -59,7 +59,8 @@ namespace cms
     ready_(false),        // since we obviously aren't
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0)),
-    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
+    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false)),
+    errorsFromDB_(conf.getUntrackedParameter<bool>("errorsFromDB",false))
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
@@ -82,9 +83,12 @@ namespace cms
     edm::ESHandle<MagneticField> magfield;
     c.get<IdealMagneticFieldRecord>().get(magfield);
 
-		edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
-		c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
-		
+    edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
+
+    if(errorsFromDB_) {
+      c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
+    }
+	
     setupCPE(magfield.product(),parmErrors.product());
   }
 
