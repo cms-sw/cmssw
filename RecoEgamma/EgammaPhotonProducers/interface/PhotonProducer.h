@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.10 2007/10/15 18:13:37 futyand Exp $ 
- **  $Date: 2007/10/15 18:13:37 $ 
- **  $Revision: 1.10 $
+ **  $Id: PhotonProducer.h,v 1.11 2007/12/10 21:08:36 futyand Exp $ 
+ **  $Date: 2007/12/10 21:08:36 $ 
+ **  $Revision: 1.11 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -69,6 +69,7 @@ class PhotonProducer : public edm::EDProducer {
   std::string hbheInstanceName_;
   double hOverEConeSize_;
   double maxHOverE_;
+  double minSCEt_;
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
   edm::ParameterSet conf_;
