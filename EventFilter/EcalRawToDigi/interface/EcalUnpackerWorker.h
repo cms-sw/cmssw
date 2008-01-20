@@ -56,7 +56,7 @@ class EcalUnpackerWorker {
   mutable std::auto_ptr<EcalRawDataCollection> productDccHeaders;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGains;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch;
-  mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay;
+  //  mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidChIds;
   mutable std::auto_ptr<EBSrFlagCollection> productEBSrFlags;
   mutable std::auto_ptr<EESrFlagCollection> productEESrFlags;
