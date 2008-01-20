@@ -56,7 +56,6 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setDccHeadersCollection(&productDccHeaders); 
   unpacker_->setInvalidGainsCollection(&productInvalidGains); 
   unpacker_->setInvalidGainsSwitchCollection(&productInvalidGainsSwitch);
-  // GF
   //  unpacker_->setInvalidGainsSwitchStayCollection(&productInvalidGainsSwitch);
   unpacker_->setInvalidChIdsCollection(&productInvalidChIds);
   unpacker_->setEBSrFlagsCollection(&productEBSrFlags);
@@ -125,7 +124,6 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
   productDccHeaders.reset(new EcalRawDataCollection);
   productInvalidGains.reset(new EBDetIdCollection);
   productInvalidGainsSwitch.reset(new EBDetIdCollection);
-  //GF
   //  productInvalidGainsSwitchStay.reset(new EBDetIdCollection);
   productInvalidChIds.reset(new EBDetIdCollection);
   productEBSrFlags.reset(new EBSrFlagCollection);
