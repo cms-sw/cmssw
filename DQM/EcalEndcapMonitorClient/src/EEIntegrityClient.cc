@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/18 18:05:42 $
- * $Revision: 1.52 $
+ * $Date: 2008/01/20 13:34:28 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -731,11 +731,11 @@ void EEIntegrityClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT occupancy %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT MEM digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 

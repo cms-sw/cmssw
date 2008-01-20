@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.104 $
+ * $Date: 2008/01/18 18:04:59 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -162,13 +162,13 @@ void EBSummaryClient::setup(void) {
   }
 
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
-  sprintf(histo, "EBOT occupancy summary");
+  sprintf(histo, "EBOT digi occupancy summary");
   meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meOccupancy_->setAxisTitle("jphi", 1);
   meOccupancy_->setAxisTitle("jeta", 2);
 
   if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
-  sprintf(histo, "EBOT occupancy summary 1D");
+  sprintf(histo, "EBOT digi occupancy summary 1D");
   meOccupancy1D_ = dbe_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);

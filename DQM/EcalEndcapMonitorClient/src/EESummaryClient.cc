@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.80 $
+ * $Date: 2008/01/18 18:05:43 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -193,19 +193,19 @@ void EESummaryClient::setup(void) {
   }
 
   if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
-  sprintf(histo, "EEOT EE - occupancy summary");
+  sprintf(histo, "EEOT EE - digi occupancy summary");
   meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meOccupancy_[0]->setAxisTitle("jx", 1);
   meOccupancy_[0]->setAxisTitle("jy", 2);
 
   if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
-  sprintf(histo, "EEOT EE + occupancy summary");
+  sprintf(histo, "EEOT EE + digi occupancy summary");
   meOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meOccupancy_[1]->setAxisTitle("jx", 1);
   meOccupancy_[1]->setAxisTitle("jy", 2);
 
   if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
-  sprintf(histo, "EEIT occupancy summary 1D");
+  sprintf(histo, "EEIT digi occupancy summary 1D");
   meOccupancy1D_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/17 10:15:04 $
- * $Revision: 1.32 $
+ * $Date: 2008/01/17 15:35:51 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -83,12 +83,12 @@ void EBOccupancyTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBOT occupancy %s", Numbers::sEB(i+1).c_str());
+      sprintf(histo, "EBOT digi occupancy %s", Numbers::sEB(i+1).c_str());
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBOT MEM occupancy %s", Numbers::sEB(i+1).c_str());
+      sprintf(histo, "EBOT MEM digi occupancy %s", Numbers::sEB(i+1).c_str());
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meOccupancyMem_[i], i+1);
     }

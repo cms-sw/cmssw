@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.182 $
+ * $Date: 2008/01/20 13:34:27 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -703,11 +703,11 @@ void EBIntegrityClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 

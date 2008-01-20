@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/17 10:15:33 $
- * $Revision: 1.18 $
+ * $Date: 2008/01/17 15:35:51 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -83,12 +83,12 @@ void EEOccupancyTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEOT occupancy %s", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancy_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEOT MEM occupancy %s", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EEOT MEM digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
