@@ -633,20 +633,17 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     for( reco::ConversionCollection::iterator  itCP = cpCollection.begin(); itCP != cpCollection.end(); itCP++) {
       
       reco::ConversionRef cpRef(reco::ConversionRef(cpHandle,icp));
+      icp++;      
       if ( &(*itCP->superCluster())  != &(*aClus)  ) continue; 
       if ( !(*itCP).isConverted() ) continue;  
 
 
       photon->addConversion(cpRef);     
  
-      icp++;      
+      
     }		     
     
-    
-
-    
     outputPhotonCollection.push_back(*photon);    
-
 
   }
 
