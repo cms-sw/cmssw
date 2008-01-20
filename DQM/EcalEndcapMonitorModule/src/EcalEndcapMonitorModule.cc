@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/15 10:43:22 $
- * $Revision: 1.38 $
+ * $Date: 2008/01/17 19:23:53 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
 
   cout << endl;
@@ -460,9 +460,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
@@ -471,9 +471,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int counter[18] = { 0 };
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
+      EcalRecHit hit = (*hitItr);
       EEDetId id = hit.id();
 
       int ix = id.ix();
@@ -491,9 +491,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       LogDebug("EcalEndcapMonitor") << " det id = " << id;
       LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
-      float xval = hit.amplitude();
+      float xval = hit.energy();
 
-      LogDebug("EcalEndcapMonitor") << " hit amplitude " << xval;
+      LogDebug("EcalEndcapMonitor") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 
@@ -513,7 +513,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalEndcapMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
+    LogWarning("EcalEndcapMonitorModule") << EcalRecHitCollection_ << " not available";
 
   }
 

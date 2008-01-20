@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/06 11:42:55 $
- * $Revision: 1.162 $
+ * $Date: 2008/01/17 19:23:52 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
 
   cout << endl;
@@ -459,9 +459,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
@@ -470,9 +470,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int counter[36] = { 0 };
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
+      EcalRecHit hit = (*hitItr);
       EBDetId id = hit.id();
 
       int ic = id.ic();
@@ -489,9 +489,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
       LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
-      float xval = hit.amplitude();
+      float xval = hit.energy();
 
-      LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
+      LogDebug("EcalBarrelMonitor") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 
@@ -511,7 +511,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
+    LogWarning("EcalBarrelMonitorModule") << EcalRecHitCollection_ << " not available";
 
   }
 
