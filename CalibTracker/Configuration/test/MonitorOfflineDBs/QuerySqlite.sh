@@ -3,6 +3,9 @@
 workdir=`dirname $0`
 cd $workdir
 
+subdet=strip
+[ "c$1" != "c" ] && subdet=$1
+
 if [ "c${CMSSW_RELEASE_BASE}" == "c" ]; then
     echo -e "\nSetting scramv1 runtime"
     cd /afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/cmssw/CMSSW_1_6_0
@@ -14,13 +17,13 @@ export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
 [ ! -e log ] && mkdir log
 
 dblist=(`echo "select distinct db from DBtags ;" | sqlite3 dbfile.db`)
-accountlist=(`echo "select distinct account from DBtags order by account;" | sqlite3 dbfile.db`)
+accountlist=(`echo "select distinct account from DBtags where account like \"%$subdet%\" order by account;" | sqlite3 dbfile.db` )
 
 
 nc=${#dblist[@]}
 nr=${#accountlist[@]}
 
-echo $nc $nr
+#echo $nc $nr
 
 ir=0
 for account in ${accountlist[@]}
@@ -40,7 +43,7 @@ for account in ${accountlist[@]}
   let ir=$ir+1
 done
 
-echo ${value[@]}
+#echo ${value[@]}
 echo -e "\t\t\t ${dblist[@]}"
 
 export value
@@ -59,7 +62,7 @@ export webadd="http://test"
 export htmlpath=`echo $webpath | sed -e "s@/data1@$webadd@"`
 
 webdir=/afs/cern.ch/user/g/giordano/WWW/MonitorCondDBSiStripAccount
-webfile=$webdir/table.html
+webfile=$webdir/table_$subdet.html
 webfiletmp=tmptest.html
 
 rm -f ${webfiletmp}*

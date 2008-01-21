@@ -15,11 +15,11 @@ path=/afs/cern.ch/cms/DB/conddb/*.xml
 
 sqlite3 dbfile.db < CreateSqliteTable.sql
 
-#grep -i "connection name"  $path | grep -i strip | awk  -F"\"" '{print $2}' | grep -v frontier | grep -v AUDIT_TEST | sort | uniq 
+#grep -i "connection name"  $path | grep -i '\(strip\)\|\(pixel\)' | awk  -F"\"" '{print $2}' | grep -v frontier | grep -v AUDIT_TEST | sort | uniq 
 
 
 #get connection string
-for connection in `grep -i "connection name"  $path | grep -i strip | awk  -F"\"" '{print $2}' | grep -v frontier | grep -v AUDIT_TEST | sort | uniq `
+for connection in `grep -i "connection name"  $path | grep -i '\(strip\)\|\(pixel\)' | awk  -F"\"" '{print $2}' | grep -v frontier | grep -v AUDIT_TEST | sort | uniq `
   do
   #echo -e "\n$connection"
 
@@ -32,13 +32,22 @@ for connection in `grep -i "connection name"  $path | grep -i strip | awk  -F"\"
  account=`echo $connection | awk -F"/" '{print $4}' `
 
  #echo $user  $pass $type $db $account
- #echo "\"select name from $account.metadata;\" |  sqlplus -S $user/$pass@$db | grep -i strip"
+ echo $user @ $db
+ #echo "echo \"select name from $account.metadata;\" |  sqlplus -S $user/$pass@$db "
+ 
+ result=`echo "select name from $account.metadata;" | sqlplus -S $user/$pass@$db | grep "\([a-Z]\)\|\([0-9]\)" | grep -v "rows selected" | grep -v '^NAME$'`
+ #echo $result
+ if [ `echo $result | grep -c "ERROR at line"` -eq 0 ]; then
+     for tag in `echo $result | tr " " "\n"`
+       do
+       #echo $tag
+       echo "INSERT INTO DBtags values('$db' , '$account' , '$tag');" | sqlite3 dbfile.db
+     done
+ else
+     echo $result | tr "\t" "\n" 
+ fi
 
- for tag in `echo "select name from $account.metadata;" | sqlplus -S $user/$pass@$db | grep -i strip`
-   do
-   #echo $tag
-   echo "INSERT INTO DBtags values('$db' , '$account' , '$tag');" | sqlite3 dbfile.db
- done
 done
 
-./QuerySqlite.sh
+./QuerySqlite.sh strip
+./QuerySqlite.sh pixel
