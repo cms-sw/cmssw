@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 22:39:47 CEST 2007
-// $Id$
+// $Id: EcalRawToRecHitProducer.h,v 1.1 2007/12/06 20:01:11 vlimant Exp $
 //
 //
 
@@ -65,6 +65,7 @@ private:
   virtual void endJob() ;
   
   // ----------member data ---------------------------
+  edm::InputTag lsourceTag_;
   edm::InputTag sourceTag_;
   edm::InputTag fedListTag_;
   

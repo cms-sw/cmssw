@@ -2,6 +2,7 @@
 
 EcalRawToRecHitProducer::EcalRawToRecHitProducer(const edm::ParameterSet& iConfig)
 {
+  lsourceTag_=iConfig.getParameter<edm::InputTag>("lazyGetterTag");
   sourceTag_=iConfig.getParameter<edm::InputTag>("sourceTag");
 
   splitOutput_=iConfig.getParameter<bool>("splitOutput");
@@ -42,11 +43,18 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   MyWatcher watcher("Producer");
   LogDebug("EcalRawToRecHit|Producer")<<watcher.lap();
 
+  //retrieve a lazygetter
+  edm::Handle<EcalRecHitLazyGetter> lgetter;
+  iEvent.getByLabel(lsourceTag_, lgetter);
+  LogDebug("EcalRawToRecHit|Producer")<<"lazy getter retreived."
+				      <<watcher.lap();
+  
   //retrieve a refgetter
   edm::Handle<EcalRecHitRefGetter> rgetter;
   iEvent.getByLabel(sourceTag_ ,rgetter);
   LogDebug("EcalRawToRecHit|Producer")<<"ref getter retreived."
 				      <<watcher.lap();
+
  
   if (splitOutput_){
     //prepare the output collection
@@ -55,10 +63,12 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //loop the refgetter
     uint iR=0;
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
-    for (;iRegion!=rgetter->end();++iRegion){
+    EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
+    for (;iRegion!=iRegionEnd;++iRegion){
       LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR<<watcher.lap();
-      std::vector<EcalRecHit>::const_iterator iRecHit=iRegion->begin();
-      for (;iRecHit!=iRegion->end();iRecHit++){
+      std::vector<EcalRecHit>::const_iterator iRecHit=lgetter->begin_record()+iRegion->start();
+      std::vector<EcalRecHit>::const_iterator iRecHitEnd =lgetter->begin_record()+iRegion->finish();
+      for (;iRecHit!=iRecHitEnd;iRecHit++){
 	DetId detid =iRecHit->id();
 	//split barrel and endcap
 	int EcalNum=detid.subdetId(); //1 stands for Barrel, 2 for endcaps
@@ -87,9 +97,11 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     std::auto_ptr< EcalRecHitCollection > rechits( new EcalRecHitCollection);
     //loop the refgetter
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
-    for (;iRegion!=rgetter->end();++iRegion){
-      std::vector<EcalRecHit>::const_iterator iRecHit=iRegion->begin();
-      for (;iRecHit!=iRegion->end();iRecHit++){
+    EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
+    for (;iRegion!=iRegionEnd;++iRegion){
+      std::vector<EcalRecHit>::const_iterator iRecHit=lgetter->begin_record()+iRegion->start();
+      std::vector<EcalRecHit>::const_iterator iRecHitEnd=lgetter->begin_record()+iRegion->finish();
+      for (;iRecHit!=iRecHitEnd;iRecHit++){
 	rechits->push_back(*iRecHit);
       }//loop over things in region
     }//loop over regions
