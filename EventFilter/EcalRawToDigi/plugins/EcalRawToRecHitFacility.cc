@@ -68,7 +68,7 @@ EcalRawToRecHitFacility::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 				      << watcher.lap();
   
   //store the lazy getter
-  std::auto_ptr<EcalRecHitLazyGetter> collection(new EcalRecHitLazyGetter(unpacker));
+  std::auto_ptr<EcalRecHitLazyGetter> collection(new EcalRecHitLazyGetter(EcalRegionCabling::maxElementIndex(),unpacker));
   LogDebug("EcalRawToRecHit|Facility")<<"lazy getter created."
 				      << watcher.lap();
   

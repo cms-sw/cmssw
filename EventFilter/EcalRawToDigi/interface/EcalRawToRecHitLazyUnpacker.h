@@ -19,10 +19,10 @@ class EcalRawToRecHitLazyUnpacker : public edm::LazyUnpacker<EcalRecHit> {
 			      const EcalUnpackerWorker & worker,
 			      const FEDRawDataCollection& fedcollection);
   
-  ~EcalRawToRecHitLazyUnpacker();
+  virtual ~EcalRawToRecHitLazyUnpacker();
 
   // mandatory for actual unpacking stuff
-  virtual void fill(uint32_t&);
+  virtual void fill(const uint32_t&, record_type &);
 
  private:
   
