@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
+// $Id: Jet.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
+  \version  $Id: Jet.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -37,8 +37,8 @@ namespace pat {
       Jet(const JetType & aJet);
       virtual ~Jet();
 
-      reco::Particle  genParton() const;
-      reco::GenJet    genJet() const;
+      const reco::Particle * genParton() const;
+      const reco::GenJet *   genJet() const;
       int             partonFlavour() const;
       float           noCorrF() const;
       float           udsCorrF() const;

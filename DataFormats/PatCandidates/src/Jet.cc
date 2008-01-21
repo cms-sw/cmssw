@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
+// $Id: Jet.cc,v 1.2 2008/01/16 20:33:26 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -29,20 +29,14 @@ Jet::~Jet() {
 
 
 /// return the matched generated parton
-reco::Particle Jet::genParton() const {
-  return (genParton_.size() > 0 ?
-    genParton_.front() :
-    reco::Particle(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0))
-  );
+const reco::Particle * Jet::genParton() const {
+  return (genParton_.size() > 0 ? &genParton_.front() : 0);
 }
 
 
 /// return the matched generated jet
-reco::GenJet Jet::genJet() const {
-  return (genJet_.size() > 0 ?
-    genJet_.front() :
-    reco::GenJet(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::GenJet::Specific(), reco::Jet::Constituents())
-  );
+const reco::GenJet * Jet::genJet() const {
+  return (genJet_.size() > 0 ? &genJet_.front() : 0);
 }
 
 

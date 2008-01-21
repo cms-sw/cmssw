@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
+// $Id: Lepton.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.1 2008/01/15 12:59:26 lowette Exp $
+  \version  $Id: Lepton.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
 */
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -32,19 +32,19 @@ namespace pat {
       Lepton(const LeptonType & aLepton);
       virtual ~Lepton();
 
-      reco::GenParticleCandidate genLepton() const;
+      const reco::Particle * genLepton() const;
       float lrVar(const unsigned int i) const;
       float lrVal(const unsigned int i) const;
       float lrComb() const;
       unsigned int lrSize() const;
 
-      void setGenLepton(const reco::GenParticleCandidate & gl);
+      void setGenLepton(const reco::Particle & gl);
       void setLRVarVal(const std::pair<float, float> lrVarVal, const unsigned int i);
       void setLRComb(const float lr);
 
     protected:
 
-      std::vector<reco::GenParticleCandidate> genLepton_;
+      std::vector<reco::Particle> genLepton_;
       std::vector<std::pair<float, float> > lrVarVal_;
       float lrComb_;
 
@@ -79,11 +79,8 @@ namespace pat {
 
   /// return the match to the generated lepton
   template <class LeptonType>
-  reco::GenParticleCandidate Lepton<LeptonType>::genLepton() const {
-    return (genLepton_.size() > 0 ?
-      genLepton_.front() :
-      reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true)
-    );
+  const reco::Particle * Lepton<LeptonType>::genLepton() const {
+    return (genLepton_.size() > 0 ? &genLepton_.front() : 0);
   }
 
 
@@ -117,7 +114,7 @@ namespace pat {
 
   /// method to set the generated lepton
   template <class LeptonType>
-  void Lepton<LeptonType>::setGenLepton(const reco::GenParticleCandidate & gl) {
+  void Lepton<LeptonType>::setGenLepton(const reco::Particle & gl) {
     genLepton_.clear();
     genLepton_.push_back(gl);
   }
