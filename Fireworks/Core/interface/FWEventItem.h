@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.3 2008/01/19 04:51:12 dmytro Exp $
+// $Id: FWEventItem.h,v 1.4 2008/01/21 01:17:09 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@ class FWEventItem
    
       FWEventItem(FWModelChangeManager* iCM,
                   FWSelectionManager* iSM,
+                  unsigned int iItemId,
                   const std::string& iName,
 		  const TClass* iClass,
 		  const FWDisplayProperties& iProperties =
@@ -64,6 +65,7 @@ class FWEventItem
    
       FWEventItem(FWModelChangeManager* iCM,
                   FWSelectionManager* iSM,
+                  unsigned int iItemId,
                   const FWPhysicsObjectDesc& iDesc);
       //virtual ~FWEventItem();
 
@@ -76,7 +78,10 @@ class FWEventItem
 #endif
       const void* data(const std::type_info&) const;
       const FWDisplayProperties& defaultDisplayProperties() const;
-
+   
+      /**Unique ID for the item. This number starts at 0 and increments by one for each
+       new item.*/
+      unsigned int id() const;
       const std::string& name() const;
       const TClass* type() const;
 
@@ -114,6 +119,7 @@ class FWEventItem
       // ---------- member data --------------------------------
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
+      unsigned int m_id;
       std::string m_name;
       const TClass* m_type;
       boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr 

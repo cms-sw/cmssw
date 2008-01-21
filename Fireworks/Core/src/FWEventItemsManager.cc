@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.3 2008/01/19 04:56:05 dmytro Exp $
+// $Id: FWEventItemsManager.cc,v 1.4 2008/01/21 01:17:21 chrjones Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ FWEventItemsManager::~FWEventItemsManager()
 const FWEventItem* 
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
-  m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,iItem) );
+  m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,m_items.size(),iItem) );
   newItem(m_items.back());
   return m_items.back();
 }

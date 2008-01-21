@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.2 2008/01/15 22:39:41 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.3 2008/01/21 01:17:22 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 //
 FWEventItem::FWEventItem(FWModelChangeManager* iCM,
                          FWSelectionManager* iSM,
+                         unsigned int iId,
                          const std::string& iName,
 			 const TClass* iClass,
 			 const FWDisplayProperties& iProperties,
@@ -44,6 +45,7 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
 			 const std::string& iProcessName) :
   m_changeManager(iCM),
   m_selectionManager(iSM),
+  m_id(iId),
   m_name(iName),
   m_type(iClass),
   m_colProxy(iClass->GetCollectionProxy()?iClass->GetCollectionProxy()->Generate():
@@ -68,9 +70,11 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
 
 FWEventItem::FWEventItem(FWModelChangeManager* iCM,
                          FWSelectionManager* iSM,
+                         unsigned int iId,
                          const FWPhysicsObjectDesc& iDesc) :
 m_changeManager(iCM),
 m_selectionManager(iSM),
+m_id(iId),
 m_name(iDesc.name()),
 m_type(iDesc.type()),
 m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate():
@@ -263,6 +267,12 @@ const FWDisplayProperties&
 FWEventItem::defaultDisplayProperties() const
 {
   return m_displayProperties;
+}
+
+unsigned int 
+FWEventItem::id() const
+{
+   return m_id;
 }
 
 const std::string& 
