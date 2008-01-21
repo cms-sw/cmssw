@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.107 2008/01/10 17:31:04 wmtan Exp $
+$Id: RootFile.cc,v 1.108 2008/01/18 00:53:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -233,7 +233,8 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   RootFile::createFileBlock() const {
-    return boost::shared_ptr<FileBlock>(new FileBlock(eventTree_.tree(),
+    return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
+						     eventTree_.tree(),
 						     eventTree_.metaTree(),
 						     lumiTree_.tree(),
 						     lumiTree_.metaTree(),

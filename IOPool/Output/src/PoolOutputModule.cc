@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.97 2008/01/08 21:47:08 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.98 2008/01/10 17:32:57 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -46,7 +46,7 @@ namespace edm {
 
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
-      if (fb.tree() == 0) {
+      if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 3) {
 	fastCloning_ = false;
       }
       doOpenFile();
