@@ -141,6 +141,9 @@ class HSCP_Trigger : public edm::EDAnalyzer {
       TH2D*     MC_Muon_Eta_Vs_Beta;
 
 
+      double EtaOfHSCP;
+      bool   UseOnlyL1MuonInBarel;
+
 
 
    std::string   TXT_File_Name;
@@ -200,9 +203,10 @@ class HSCP_Trigger : public edm::EDAnalyzer {
 HSCP_Trigger::HSCP_Trigger(const edm::ParameterSet& iConfig)
 
 {
-      DeltaTMax   = iConfig.getUntrackedParameter<double >("DeltaTMax");
+   UseOnlyL1MuonInBarel = iConfig.getUntrackedParameter<bool>("UseOnlyL1MuonInBarel");
+   DeltaTMax            = iConfig.getUntrackedParameter<double >("DeltaTMax");
 
-               TXT_File_Name    = iConfig.getUntrackedParameter<std::string>("TextFileName");
+   TXT_File_Name    = iConfig.getUntrackedParameter<std::string>("TextFileName");
 
 
    std::string HistoFileName = iConfig.getUntrackedParameter<std::string>("HistoFileName");
@@ -265,6 +269,8 @@ HSCP_Trigger::HSCP_Trigger(const edm::ParameterSet& iConfig)
    NEventsBeforeEtaCut = 0;
    NEvents             = 0;
    NEventsPassL1       = 0;
+
+   EtaOfHSCP = iConfig.getUntrackedParameter<double>("AtLeastOneHSCPInEta");
 
    TableL1Bis_Sequence  = iConfig.getUntrackedParameter<std::vector<unsigned int> >("L1_IncPath_Sequence");
    TableHLTBis_Sequence = iConfig.getUntrackedParameter<std::vector<unsigned int> >("HLT_IncPath_Sequence");
@@ -393,7 +399,13 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<l1extra::L1MuonParticleCollection> L1_Muons_h;
   iEvent.getByLabel("l1extraParticles", L1_Muons_h);
-  const l1extra::L1MuonParticleCollection L1_Muons = *L1_Muons_h.product();
+  const l1extra::L1MuonParticleCollection L1_MuonsT = *L1_Muons_h.product();
+
+  l1extra::L1MuonParticleCollection L1_Muons;
+  for(unsigned int i=0;i<L1_MuonsT.size();i++){
+	if(L1_MuonsT[i].eta()<=0.9)			     L1_Muons.push_back(L1_MuonsT[i]);
+        if(L1_MuonsT[i].eta()> 0.9 && !UseOnlyL1MuonInBarel) L1_Muons.push_back(L1_MuonsT[i]);
+  }
 
   Handle<reco::RecoChargedCandidateCollection>  HLT_Muons_h ;
   InputTag muontag("hltL3MuonCandidates","","HLT");
@@ -421,7 +433,7 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(abs(MC_Cand[i].pdgId())>10000 && MC_Cand[i].status()==1 )
         printf("MC  Cand %2i : (%+8.2f,%+8.2f,%+8.2f,%+8.2f)  Pt = %8.2f  PdgId = %+i  Eta = %+6.2f\n",i,MC_Cand[i].energy(), MC_Cand[i].px(),MC_Cand[i].py(),MC_Cand[i].pz(), MC_Cand[i].pt(), MC_Cand[i].pdgId(), MC_Cand[i].eta());
 	
-	if(abs(MC_Cand[i].pdgId())>10000 && MC_Cand[i].status()==1 && fabs(MC_Cand[i].eta())<=2.4){
+	if(abs(MC_Cand[i].pdgId())>10000 && MC_Cand[i].status()==1 && fabs(MC_Cand[i].eta())<=EtaOfHSCP){
 		CentralEta = true;
 		if(MC_Cand[i].p()/MC_Cand[i].energy() > HSCPbeta) HSCPbeta = MC_Cand[i].p()/MC_Cand[i].energy();	
 	}
@@ -752,8 +764,8 @@ HSCP_Trigger::endJob() {
 
   fprintf(f,"\n@@@@@@@@@@@@@@@@@@@@@@@@@ ETA CUT @@@@@@@@@@@@@@@@@@@@@@@@@@\n\n");
   fprintf(f,"Number of Events\t\t\t\t\t= %i\n",NEventsBeforeEtaCut);
-  fprintf(f,"Number of Events with a central HSCP (eta < 2.4)\t= %i\n",NEvents);
-  fprintf(f,"Ratio  of Events with a central HSCP (eta < 2.4)\t= %5.2f%%\n",NEvents/(0.01*NEventsBeforeEtaCut));
+  fprintf(f,"Number of Events with a central HSCP (eta < %6.2f)\t= %i\n",EtaOfHSCP, NEvents);
+  fprintf(f,"Ratio  of Events with a central HSCP (eta < %6.2f)\t= %5.2f%%\n",EtaOfHSCP, NEvents/(0.01*NEventsBeforeEtaCut));
   fprintf(f,"\n   -->  Trigger Tables are done using only these events\n");
 
 
@@ -861,6 +873,8 @@ HSCP_Trigger::endJob() {
 	bool tot = false;
         Inc  = false;
         for(unsigned int k=0;k<TableHLT_N;k++){
+	   if(!HSCP_Trigger_HLTInterestingPath(k))continue;
+
            if( (HLT_Trigger_Bits[e])[HLTOrdered[k]]){
                 TableHLT_AbsEff[k]++;    if(!Inc)TableHLT_IncEff[k]++;        Inc = true;
            }
@@ -888,6 +902,8 @@ HSCP_Trigger::endJob() {
         tot = false;
         Inc = false;
         for(unsigned int k=0;k<TableHLTBis_N;k++){
+           if(!HSCP_Trigger_HLTInterestingPath(k)) continue;
+
            if( (HLT_Trigger_Bits[e])[TableHLTBis_Sequence[k]]){
                 TableHLTBis_AbsEff[k]++;  if(!Inc)TableHLTBis_IncEff[k]++;      Inc = true;
            }
@@ -917,6 +933,7 @@ HSCP_Trigger::endJob() {
   fprintf(f,"%25s | %15s | %15s\n"  ,"Trigger","Absolute Eff", "Incremental Eff");
   fprintf(f,"----------------------------------------------------------\n");
   for(unsigned int k=0;k<TableL1_N;k++){
+     if(!HSCP_Trigger_L1InterestingPath(L1Ordered[k])) continue;
      fprintf(f,"%25s |     %6.2f%%     |     %6.2f%%\n",L1_Names[L1Ordered[k]].c_str(),TableL1_AbsEff[k]/(0.01*NEvents), TableL1_IncEff[k]/(0.01*NEvents));}
   fprintf(f,"%25s |     %6.2f%%     |     %6.2f%%\n","L1_Others"   ,TableL1_AbsEff[TableL1_N]/(0.01*NEvents), TableL1_IncEff[TableL1_N]/(0.01*NEvents));
   fprintf(f,"----------------------------------------------------------\n");
@@ -928,6 +945,7 @@ HSCP_Trigger::endJob() {
   fprintf(f,"%25s | %15s | %15s\n"  ,"Trigger","Absolute Eff", "Incremental Eff");
   fprintf(f,"----------------------------------------------------------\n");
   for(unsigned int k=0;k<TableHLT_N;k++){
+      if(!HSCP_Trigger_HLTInterestingPath(HLTOrdered[k])) continue;
       fprintf(f,"%25s |     %6.2f%%     |     %6.2f%%\n",HLT_Names[HLTOrdered[k]].c_str(),TableHLT_AbsEff[k]/(0.01*NEvents), TableHLT_IncEff[k]/(0.01*NEvents));}
   fprintf(f,"----------------------------------------------------------\n");
   fprintf(f,"%25s |     %6.2f%%     |     %6.2f%%\n","HLT_Previous_Paths",TableHLT_AbsEff[TableHLT_N]/(0.01*NEvents), TableHLT_IncEff[TableHLT_N]/(0.01*NEvents));
