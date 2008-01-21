@@ -14,30 +14,31 @@
 #include <algorithm>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber) :
-      type_(pset.getParameter<std::string>("type")),
-      minBunch_(minb),
-      maxBunch_(maxb),
-      averageNumber_(averageNumber),
-      intAverage_(static_cast<int>(averageNumber)),
-      poisson_(type_ == "poisson"),
-      fixed_(type_ == "fixed"),
-      none_(type_ == "none"),
-      input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
-      poissonDistribution_(0),
-      fileSeqNr_(-1) {
+  PileUp::PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback) :
+    type_(pset.getParameter<std::string>("type")),
+    minBunch_(minb),
+    maxBunch_(maxb),
+    averageNumber_(averageNumber),
+    intAverage_(static_cast<int>(averageNumber)),
+    poisson_(type_ == "poisson"),
+    fixed_(type_ == "fixed"),
+    none_(type_ == "none"),
+    input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
+    poissonDistribution_(0),
+    playback_(playback)
+  {
 
-   edm::Service<edm::RandomNumberGenerator> rng;
-   if (!rng.isAvailable()) {
-     throw cms::Exception("Configuration")
-       << "PileUp requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file.  You must add the service\n"
-          "in the configuration file or remove the modules that require it.";
-   }
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if (!rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+	<< "PileUp requires the RandomNumberGeneratorService\n"
+	"which is not present in the configuration file.  You must add the service\n"
+	"in the configuration file or remove the modules that require it.";
+    }
 
-   CLHEP::HepRandomEngine& engine = rng->getEngine();
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-   poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
+    poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
 
     if (!(poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
@@ -51,19 +52,28 @@ namespace edm {
   }
 
   void
-  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,const edm::EventID &id, const int fileNr) {
+  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents) {
     for (int i = minBunch_; i <= maxBunch_; ++i) {
       EventPrincipalVector eventVector;
-      int n = (none_ ? 0 : (poisson_ ? poissonDistribution_->fire() : intAverage_));
+      int n;
+      
+      if (!playback_){
+	n = (none_ ? 0 : (poisson_ ? poissonDistribution_->fire() : intAverage_));
+	nrEvents[i-minBunch_]=n;
+      }else {
+	n=nrEvents[i-minBunch_];
+      }
       eventVector.reserve(n);
       while (n > 0) {
         EventPrincipalVector oneResult;
         oneResult.reserve(n);
-        if (id==EventID(0,0))   {
-	  input_->readManyRandom(n, oneResult,fileSeqNr_);     // no playback
+	if (!playback_)   {
+	  unsigned int file;   //FIXME: need unsigned filenr?
+	  input_->readManyRandom(n, oneResult,file);     //no playback
+          ids[i-minBunch_]=oneResult[0]->id(); 
+	  fileNrs[i-minBunch_]=file;
 	} else  {
-	  input_->readMany(n, oneResult,id,fileNr);             // playback
-	  //	  std::cout<<" have read playback with fileseqnr "<<fileNr<<" id: "<<id<<std::endl;
+	  input_->readMany(n, oneResult,ids[i-minBunch_],fileNrs[i-minBunch_]);  // playback
 	}
         LogDebug("readPileup") << "READ: " << oneResult.size();
         std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
@@ -72,4 +82,4 @@ namespace edm {
       result.push_back(eventVector);
     }
   }
-}
+} //namespace edm

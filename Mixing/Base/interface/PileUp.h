@@ -15,17 +15,17 @@ namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber);
+    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback);
     ~PileUp();
 
-    void readPileUp(std::vector<EventPrincipalVector> & result,const edm::EventID &id= EventID(0,0), const int fileNr=-1);
+    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents);
 
     //    int minBunch() const {return minBunch_;}
     //    int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
-    int getStartFileNr() {return fileSeqNr_;}
+    //    int getStartFileNr() {return fileSeqNr_;}
 
   private:
     std::string const type_;
@@ -38,7 +38,9 @@ namespace edm {
     bool const none_;
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
-    unsigned int fileSeqNr_;
+
+    //playback info
+    bool playback_;
   };
 }
 

@@ -53,7 +53,7 @@ namespace edm {
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
-      virtual void setEventStartInfo(edm::EventID &id,int fileNr,const unsigned int source) {;} //to be set in CF
+      virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
       virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 
   protected:
@@ -63,12 +63,13 @@ namespace edm {
       int const minBunch_;
       int const maxBunch_;
 
-      // for playback
-      edm::EventID id_;
-      int fileNr_;
+      // playback info
       bool playback_;
+      std::vector<edm::EventID> eventIDs_;
+      std::vector<int> fileSeqNrs_;
+      std::vector<unsigned int> nrEvents_;
 
-    private:
+  private:
 
       boost::shared_ptr<PileUp> input_;
       boost::shared_ptr<PileUp> cosmics_;
@@ -77,7 +78,6 @@ namespace edm {
       ModuleDescription md_;
 
       unsigned int eventId_;
-
       const static unsigned int maxNbSources;
   };
 
