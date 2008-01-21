@@ -8,19 +8,19 @@
 EcalDCCHeaderRuntypeDecoder::EcalDCCHeaderRuntypeDecoder(){;}
 EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
 
-bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,             // dcc header word 1, bits 56-59
-					  ulong detTrigType,      // dcc header word 3, bits 0-31
-					  ulong runType,             // dcc header word 3, bits 32-65
+bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global header,     bits 56-59
+					  ulong detTrigType,         // dcc header word 2, bits 32-47
+					  ulong runType,             // dcc header word 2, bits  0-31
 					  EcalDCCHeaderBlock* EcalDCCHeaderInfos)
 {
   
   //  uint DCCNumberMask   = 63;//2^6-1
 
   uint WhichHalfOffSet    = 64;//2^6 
-  uint TypeOffSet            = 256;//2^8
-  uint SubTypeOffSet     = 2048;//2^11
-  uint SettingOffSet         = 131072;//2^17;
-  uint GainModeOffSet    = 16384;//2^14
+  uint TypeOffSet         = 256;//2^8
+  uint SubTypeOffSet      = 2048;//2^11
+  uint SettingOffSet      = 131072;//2^17;
+  uint GainModeOffSet     = 16384;//2^14
   
   uint TwoBitsMask = 3;
   uint ThreeBitsMask = 7;
