@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.10 2008/01/15 22:39:42 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.11 2008/01/19 05:16:55 dmytro Exp $
 //
 
 // system include files
@@ -33,6 +33,8 @@
 class TGPictureButton;
 class FWEventItemsManager;
 class FWViewManagerManager;
+class FWModelChangeManager;
+class FWSelectionManager;
 class FWEventItem;
 class FWPhysicsObjectDesc;
 
@@ -74,6 +76,8 @@ class FWDisplayEvent
       const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
 
       // ---------- member data --------------------------------
+      std::auto_ptr<FWModelChangeManager> m_changeManager;
+      std::auto_ptr<FWSelectionManager> m_selectionManager;
       std::auto_ptr<FWEventItemsManager> m_eiManager;
       std::auto_ptr<FWViewManagerManager> m_viewManager;
 

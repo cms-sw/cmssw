@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.2 2008/01/15 22:39:41 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.3 2008/01/19 04:56:05 dmytro Exp $
 //
 
 // system include files
@@ -29,7 +29,10 @@
 //
 // constructors and destructor
 //
-FWEventItemsManager::FWEventItemsManager()
+FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager, 
+FWSelectionManager* iSelMgr):
+m_changeManager(iManager),
+m_selectionManager(iSelMgr)
 {
 }
 
@@ -65,7 +68,7 @@ FWEventItemsManager::~FWEventItemsManager()
 const FWEventItem* 
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
-  m_items.push_back(new FWEventItem(iItem) );
+  m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,iItem) );
   newItem(m_items.back());
   return m_items.back();
 }

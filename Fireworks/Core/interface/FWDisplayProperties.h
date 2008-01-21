@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id$
+// $Id: FWDisplayProperties.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,13 @@ class FWDisplayProperties
 
       bool isVisible() const {
 	return m_isVisible;
+      }
+   
+      bool operator==(const FWDisplayProperties& iRHS) const {
+         return m_color == iRHS.m_color && m_isVisible == iRHS.m_isVisible;
+      }
+      bool operator!=(const FWDisplayProperties& iRHS) const {
+         return not (*this == iRHS);
       }
       // ---------- static member functions --------------------
 

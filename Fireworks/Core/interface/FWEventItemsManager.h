@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.2 2008/01/15 22:39:42 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.3 2008/01/19 04:51:13 dmytro Exp $
 //
 
 // system include files
@@ -31,13 +31,16 @@ namespace fwlite {
 }
 class FWEventItem;
 class FWPhysicsObjectDesc;
+class FWModelChangeManager;
+class FWSelectionManager;
 class DetIdToMatrix;
 
 class FWEventItemsManager
 {
    RQ_OBJECT("FWEventItemsManager")
    public:
-      FWEventItemsManager();
+      //does not take ownership of the object to which it points but does keep reference
+      FWEventItemsManager(FWModelChangeManager*,FWSelectionManager*);
       virtual ~FWEventItemsManager();
 
       typedef std::vector<FWEventItem*>::const_iterator const_iterator;
@@ -49,10 +52,6 @@ class FWEventItemsManager
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      /** copies the FWEventItem internally.  Returns 0 if
-          it was not added because an FWEventItem with the same name
-          already exists
-       */
       const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
 
       void newEvent(const fwlite::Event* iEvent);
@@ -67,6 +66,8 @@ class FWEventItemsManager
 
       // ---------- member data --------------------------------
       std::vector<FWEventItem*> m_items;
+      FWModelChangeManager* m_changeManager;
+      FWSelectionManager* m_selectionManager;
 
 };
 

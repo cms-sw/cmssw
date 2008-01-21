@@ -8,16 +8,20 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.2 2008/01/15 22:39:41 chrjones Exp $
 //
 
 // system include files
 #include <TClass.h>
+#include "TVirtualCollectionProxy.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 
 //
 // constants, enums and typedefs
@@ -30,14 +34,20 @@
 //
 // constructors and destructor
 //
-FWEventItem::FWEventItem(const std::string& iName,
+FWEventItem::FWEventItem(FWModelChangeManager* iCM,
+                         FWSelectionManager* iSM,
+                         const std::string& iName,
 			 const TClass* iClass,
 			 const FWDisplayProperties& iProperties,
 			 const std::string& iModuleLabel,
 			 const std::string& iProductInstanceLabel,
 			 const std::string& iProcessName) :
+  m_changeManager(iCM),
+  m_selectionManager(iSM),
   m_name(iName),
   m_type(iClass),
+  m_colProxy(iClass->GetCollectionProxy()?iClass->GetCollectionProxy()->Generate():
+                                          static_cast<TVirtualCollectionProxy*>(0)),
   m_data(0),
   m_displayProperties(iProperties),
   m_moduleLabel(iModuleLabel),
@@ -56,9 +66,15 @@ FWEventItem::FWEventItem(const std::string& iName,
   assert(m_wrapperType != ROOT::Reflex::Type());
 }
 
-FWEventItem::FWEventItem(const FWPhysicsObjectDesc& iDesc) :
+FWEventItem::FWEventItem(FWModelChangeManager* iCM,
+                         FWSelectionManager* iSM,
+                         const FWPhysicsObjectDesc& iDesc) :
+m_changeManager(iCM),
+m_selectionManager(iSM),
 m_name(iDesc.name()),
 m_type(iDesc.type()),
+m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate():
+                                        static_cast<TVirtualCollectionProxy*>(0)),
 m_data(0),
 m_displayProperties(iDesc.displayProperties()),
 m_moduleLabel(iDesc.moduleLabel()),
@@ -75,6 +91,9 @@ m_event(0)
    m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
    
    assert(m_wrapperType != ROOT::Reflex::Type());
+   if(0==m_colProxy) {
+      m_itemInfos.reserve(1);
+   }
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
@@ -103,8 +122,12 @@ FWEventItem::~FWEventItem()
 void 
 FWEventItem::setEvent(const fwlite::Event* iEvent) 
 {
-  m_event = iEvent;
-  m_data = 0;
+   m_event = iEvent;
+   m_data = 0;
+   if(m_colProxy.get()) {
+      m_colProxy->PopProxy();
+   }
+   m_itemInfos.clear();
 }
 
 void 
@@ -116,12 +139,61 @@ FWEventItem::setLabels(const std::string& iModule,
   m_productInstanceLabel = iProductInstance;
   m_processName = iProcess;
   m_data = 0;
+   if(m_colProxy.get()) {
+      m_colProxy->PopProxy();
+   }
+   m_itemInfos.clear();
 }
 
 void 
 FWEventItem::setName(const std::string& iName) 
 {
   m_name = iName;
+}
+
+void 
+FWEventItem::unselect(int iIndex) const
+{
+   //check if this is a change
+   if(bool& sel = m_itemInfos.at(iIndex).m_isSelected) {
+      sel=false;
+      FWModelId id(this,iIndex);
+      m_selectionManager->unselect(id);
+      m_changeManager->changed(id);
+   }
+}
+void
+FWEventItem::select(int iIndex) const
+{
+   bool& sel = m_itemInfos.at(iIndex).m_isSelected;
+   if(not sel) {
+      sel = true;
+      FWModelId id(this,iIndex);
+      m_selectionManager->select(id);
+      m_changeManager->changed(id);
+   }
+}
+void 
+FWEventItem::toggleSelect(int iIndex) const
+{
+   bool& sel = m_itemInfos.at(iIndex).m_isSelected;
+   sel = not sel;
+   FWModelId id(this,iIndex);
+   m_selectionManager->select(id);
+   m_changeManager->changed(id);
+}
+
+void 
+FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps) const
+{
+   FWDisplayProperties& prop = m_itemInfos.at(iIndex).m_displayProperties;
+   if( prop
+      != iProps ) {
+      prop = iProps;
+      FWModelId id(this,iIndex);
+      m_selectionManager->select(id);
+      m_changeManager->changed(id);
+   }
 }
 
 //
@@ -168,14 +240,27 @@ FWEventItem::data(const std::type_info& iInfo) const
       if(product.TypeOf().IsTypedef()) {
 	product = Object(product.TypeOf().ToType(),product.Address());
       }
-      m_data = product.Address();
+      setData(product.Address());
     }
   }
   return m_data;
 }
 
+void 
+FWEventItem::setData(const void* iData) const
+{
+   m_data = iData;
+   if(m_colProxy) {
+      m_colProxy->PushProxy(const_cast<void*>(m_data));
+      m_itemInfos.reserve(m_colProxy->Size());
+      m_itemInfos.resize(m_colProxy->Size(),ModelInfo(m_displayProperties,false));
+   } else {
+      m_itemInfos.push_back(ModelInfo(m_displayProperties,false));
+   }
+}
+
 const FWDisplayProperties& 
-FWEventItem::displayProperties() const
+FWEventItem::defaultDisplayProperties() const
 {
   return m_displayProperties;
 }
@@ -209,6 +294,18 @@ FWEventItem::processName() const
   return m_processName;
 }
 
+const FWEventItem::ModelInfo& 
+FWEventItem::modelInfo(int iIndex) const
+{
+   return m_itemInfos.at(iIndex);
+}
+
+size_t
+FWEventItem::size() const
+{
+   return m_itemInfos.size();
+}
+   
 //
 // static member functions
 //

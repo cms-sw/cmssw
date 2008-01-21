@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.2 2008/01/11 00:49:03 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.3 2008/01/19 04:56:06 dmytro Exp $
 //
 
 // system include files
@@ -16,9 +16,11 @@
 #include "TROOT.h"
 #include <string>
 #include <iostream>
+#include <boost/bind.hpp>
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 
 //
@@ -34,7 +36,8 @@
 //
 FWViewManagerBase::FWViewManagerBase(const char* iPostfix):
   m_detIdToGeo(0),
-  m_builderNamePostfixes(&iPostfix, &iPostfix+1)
+  m_builderNamePostfixes(&iPostfix, &iPostfix+1),
+  m_changeManager(0)
 {
 }
 
@@ -93,6 +96,21 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
    return baseClassInst;
 }
 
+void 
+FWViewManagerBase::modelsHaveChangedSlot(const std::set<FWModelId>& iId)
+{
+   //forward call to the virtual function
+   this->modelsHaveChanged(iId);
+}
+
+void 
+FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
+{
+   assert(0!=iCM);
+   m_changeManager = iCM;
+   m_changeManager->changes_.connect(boost::bind(&FWViewManagerBase::modelsHaveChangedSlot,this,_1));
+}
+
 //
 // const member functions
 //
@@ -107,6 +125,19 @@ FWViewManagerBase::useableBuilder(const std::string& iName) const
     }
   }
   return false;
+}
+
+FWModelChangeManager& 
+FWViewManagerBase::changeManager() const
+{
+   assert(m_changeManager != 0);
+   return *m_changeManager;
+}
+
+const DetIdToMatrix* 
+FWViewManagerBase::detIdToGeo() const
+{
+   return m_detIdToGeo;
 }
 
 //

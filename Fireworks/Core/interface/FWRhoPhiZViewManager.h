@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.2 2008/01/12 17:23:50 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.3 2008/01/19 05:14:41 dmytro Exp $
 //
 
 // system include files
@@ -73,6 +73,9 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       void registerProxyBuilder(const std::string&, 
 				const std::string&);
+
+   protected:
+      virtual void modelsHaveChanged(const std::set<FWModelId>& );
 
    private:
       FWRhoPhiZViewManager(const FWRhoPhiZViewManager&); // stop default

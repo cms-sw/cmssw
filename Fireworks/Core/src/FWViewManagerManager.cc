@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id$
+// $Id: FWViewManagerManager.cc,v 1.1 2008/01/15 19:48:33 chrjones Exp $
 //
 
 // system include files
@@ -30,7 +30,8 @@
 //
 // constructors and destructor
 //
-FWViewManagerManager::FWViewManagerManager()
+FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM):
+m_changeManager(iCM)
 {
 }
 
@@ -62,6 +63,7 @@ void
 FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
 {
    m_viewManagers.push_back(iManager);
+   iManager->setChangeManager(m_changeManager);
 }
 void 
 FWViewManagerManager::registerEventItem(const FWEventItem*iItem)

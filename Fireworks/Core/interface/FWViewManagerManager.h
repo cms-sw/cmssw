@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id$
+// $Id: FWViewManagerManager.h,v 1.1 2008/01/15 19:48:34 chrjones Exp $
 //
 
 // system include files
@@ -28,12 +28,13 @@
 // forward declarations
 class FWViewManagerBase;
 class FWEventItem;
+class FWModelChangeManager;
 
 class FWViewManagerManager
 {
 
    public:
-      FWViewManagerManager();
+      FWViewManagerManager(FWModelChangeManager*);
       virtual ~FWViewManagerManager();
 
       // ---------- const member functions ---------------------
@@ -53,7 +54,8 @@ class FWViewManagerManager
 
       // ---------- member data --------------------------------
       std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
-
+      FWModelChangeManager* m_changeManager;
+   
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.15 2008/01/15 22:39:41 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.16 2008/01/19 05:16:54 dmytro Exp $
 //
 
 // system include files
@@ -34,6 +34,8 @@
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 //
@@ -48,12 +50,14 @@
 // constructors and destructor
 //
 FWDisplayEvent::FWDisplayEvent() :
-  m_eiManager(new FWEventItemsManager),
-  m_viewManager( new FWViewManagerManager),
+  m_changeManager(new FWModelChangeManager),
+  m_selectionManager(new FWSelectionManager(m_changeManager.get())),
+  m_eiManager(new FWEventItemsManager(m_changeManager.get(),
+                                      m_selectionManager.get())),
+  m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_continueProcessingEvents(false),
   m_waitForUserAction(true),
   m_code(0)
-
 {
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
   if(0 == cmspath) {

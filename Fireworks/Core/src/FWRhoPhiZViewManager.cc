@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.2 2008/01/12 17:23:50 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.3 2008/01/19 05:14:40 dmytro Exp $
 //
 
 // system include files
@@ -170,11 +170,11 @@ FWRhoPhiZViewManager::newEventAvailable()
 	m_rhoPhiProjMgr->ImportElements(m_geom);
 
 	// muon system
-	if ( m_detIdToGeo ) {
+	if ( detIdToGeo() ) {
 	   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
 	   // rho-phi view
 	   for ( Int_t i=0; i<1000; ++i) {
-	      TEveGeoShapeExtract* extract = m_detIdToGeo->getExtract(574980096+(i << 18));
+	      TEveGeoShapeExtract* extract = detIdToGeo()->getExtract(574980096+(i << 18));
 	      if ( extract ) container->AddElement( extract );
 	   }
 	   m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
@@ -264,6 +264,11 @@ FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
       is2dType = true;
    }
    m_typeToBuilder[iType]=make_pair(iBuilder,is2dType);
+}
+
+void 
+FWRhoPhiZViewManager::modelsHaveChanged(const std::set<FWModelId>& )
+{
 }
 
 //
