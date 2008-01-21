@@ -5,10 +5,11 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.3 2007/11/04 02:45:07 wmtan Exp $
+$Id: FileBlock.h,v 1.4 2007/11/30 07:06:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 class TTree;
 #include <map>
 #include <string>
@@ -18,16 +19,19 @@ namespace edm {
   class BranchDescription;
   class FileBlock {
   public:
-    FileBlock() : tree_(0), metaTree_(0),
-         lumiTree_(0), lumiMetaTree_(0),
-         runTree_(0), runMetaTree_(0),
-	 fastClonable_(false), sortedNewBranchNames_(), oldBranchNames_() {}
-    FileBlock(TTree const* ev, TTree const* meta,
+    FileBlock() : fileFormatVersion_(),
+	tree_(0), metaTree_(0),
+	lumiTree_(0), lumiMetaTree_(0),
+	runTree_(0), runMetaTree_(0),
+	fastClonable_(false), sortedNewBranchNames_(), oldBranchNames_() {}
+    FileBlock(FileFormatVersion const& version,
+	TTree const* ev, TTree const* meta,
 	TTree const* lumi, TTree const* lumiMeta,
 	TTree const* run, TTree const* runMeta,
 	bool fastClone,
 	std::vector<std::string> const& newNames,
 	std::vector<std::string> const& oldNames) :
+	  fileFormatVersion_(version),
 	  tree_(const_cast<TTree *>(ev)), 
 	  metaTree_(const_cast<TTree *>(meta)), 
 	  lumiTree_(const_cast<TTree *>(lumi)), 
@@ -39,6 +43,7 @@ namespace edm {
 	  oldBranchNames_(oldNames) {}
     ~FileBlock() {}
 
+    FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
     TTree * const tree() const {return tree_;}
     TTree * const metaTree() const {return metaTree_;}
     TTree * const lumiTree() const {return lumiTree_;}
@@ -50,6 +55,7 @@ namespace edm {
     std::vector<std::string> const& oldBranchNames() const {return oldBranchNames_;}
 
   private:
+    FileFormatVersion fileFormatVersion_;
     // We use bare pointers because ROOT owns these.
     TTree * tree_;
     TTree * metaTree_;
