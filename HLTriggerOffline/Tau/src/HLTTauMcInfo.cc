@@ -112,8 +112,16 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	      }
 	  }
 	}
-
+      
+    }else{
+      for(int it =0; it<product_Jets_tmp.size();it++)
+	{ 
+	  product_Jets->push_back(product_Jets_tmp[it]);
+	}
     }
+
+
+
 
   LorentzVector neutrina(neutrina_tmp.Px(),neutrina_tmp.Py(),neutrina_tmp.Pz(),neutrina_tmp.E());
   product_Neutrina->push_back(neutrina);
