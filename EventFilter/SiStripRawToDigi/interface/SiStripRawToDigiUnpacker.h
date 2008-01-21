@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.18 2007/11/29 17:09:46 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.19 2007/12/12 13:09:26 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -59,6 +59,8 @@ class SiStripRawToDigiUnpacker {
   
   void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
 
+  inline void quiet( bool );
+  
  private:
   
   /** Private default constructor. */
@@ -97,6 +99,8 @@ class SiStripRawToDigiUnpacker {
 
   bool first_;
 
+  bool quiet_;
+
 };
 
 // ---------- inline methods ----------
@@ -130,6 +134,8 @@ sistrip::FedReadoutMode SiStripRawToDigiUnpacker::fedReadoutMode( const uint16_t
   else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
   else                                         { return sistrip::UNKNOWN_FED_READOUT_MODE; }
 }
+
+void SiStripRawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

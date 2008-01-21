@@ -37,7 +37,8 @@ SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes,
   fedEvent_(0),
   event_(0),
   once_(true),
-  first_(true)
+  first_(true),
+  quiet_(true)
 {
   LogTrace(mlRawToDigi_)
     << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
@@ -161,7 +162,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }
     
     // Check to see if EventSummary info is set
-    if ( !summary.isSet() ) {
+    if ( !quiet_ && !summary.isSet() ) {
       std::stringstream ss;
       ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	 << " EventSummary is not set correctly!"
