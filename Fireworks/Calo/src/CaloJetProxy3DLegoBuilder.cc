@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.1 2008/01/07 14:15:18 chrjones Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
 			78, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
   }
   (*product)->Reset();
-  (*product)->SetFillColor(iItem->displayProperties().color());
+  (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
 
   const reco::CaloJetCollection* jets=0;
   iItem->get(jets);

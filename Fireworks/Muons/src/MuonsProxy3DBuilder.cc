@@ -23,7 +23,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"trackerMuons",true);
       *product = tList;
-      tList->SetMainColor(iItem->displayProperties().color());
+      tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
    } else {
       tList->DestroyElements();

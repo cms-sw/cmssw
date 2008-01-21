@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.C,v 1.3 2008/01/07 05:48:45 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.1 2008/01/19 19:03:49 dmytro Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     if(0 == tlist) {
       tlist =  new TEveTrackList(iItem->name().c_str());
       *product = tlist;
-      tlist->SetMainColor(iItem->displayProperties().color());
+      tlist->SetMainColor(iItem->defaultDisplayProperties().color());
       TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
       //units are kG
       rnrStyle->SetMagField( -4.0*10.);
@@ -87,7 +87,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       t.sign = it->charge();
       
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-      trk->SetMainColor(iItem->displayProperties().color());
+      trk->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(trk,tlist);
       //cout << it->px()<<" "
       //   <<it->py()<<" "
