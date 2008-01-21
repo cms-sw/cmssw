@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.105 $
+ * $Date: 2008/01/20 17:11:37 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  *
 */
@@ -1012,21 +1012,30 @@ void EBSummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // right now a summary of Integrity and PO
+  // Integrity, PedestalOnline, Laser, TPG EmulError, Status Flags contribute
   int nGlobalErrors = 0;
   int nValidChannels = 0;
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meIntegrity_ && mePedestalOnline_) {
+      if(meIntegrity_ && mePedestalOnline_ && meLaserL1_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
 
         float xval = -1;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
+	float val_ls = meLaserL1_->getBinContent(ipx,iex);
+	float val_tm = meTiming_->getBinContent(ipx,iex);
+	float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
+	float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 
         // turn each dark color (masked channel) to bright green
-        if(val_in>2) val_in=1;
-        if(val_po>2) val_po=1;
+	// for laser turn also yellow into bright green
+        if(val_in>2)  val_in=1;
+        if(val_po>2)  val_po=1;
+	if(val_ls>=2) val_ls=1;
+	if(val_tm>2)  val_tm=1;
+	if(val_sf>2)  val_sf=1;
+	if(val_ee>2)  val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1034,10 +1043,9 @@ void EBSummaryClient::analyze(void){
         //  2 = yellow
 
         if(val_in==-1) xval=-1;
-        else if(val_in==0) xval=0;
-        else if(val_po==0) xval=0;
-        else if(val_in==2) xval=2;
-        else if(val_po==2) xval=2;
+	else if(val_in == 0) xval=0;
+	else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
+	else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
