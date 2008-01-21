@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.11 2007/12/04 03:50:39 mironov Exp $
+// $Id: HydjetSource.h,v 1.12 2008/01/09 16:59:24 yilmaz Exp $
 
 /** \class HydjetSource
 *
@@ -71,7 +71,6 @@ namespace edm
     double            hadfreeztemp_;          // hadron freez-out temperature
                                               // DEFAULT=0.14MeV, allowed ranges [0.08,0.2]MeV
     std::string       hymode_;                // Hydjet running mode
-    bool              shad_;                  // Switch for nuclear Shadowing
     unsigned int      maxEventsToPrint_;      // Events to print if verbosity  
     double            maxlongy_;              // max longitudinal collective rapidity: 
                                               // controls width of eta-spectra
