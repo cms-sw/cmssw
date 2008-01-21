@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.2 2008/01/19 03:50:01 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.3 2008/01/21 16:26:17 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -97,8 +97,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
   edm::Handle<reco::CandViewDoubleAssociations> tkIso;
   edm::Handle<reco::CandViewIntAssociations> tkNumIso;
-  edm::Handle<CandViewDoubleAssociations> ecalIso;
-  edm::Handle<CandViewDoubleAssociations> hcalIso;
+  edm::Handle<reco::CandViewDoubleAssociations> ecalIso;
+  edm::Handle<reco::CandViewDoubleAssociations> hcalIso;
   if (addEgammaIso_) {
     iEvent.getByLabel(egammaTkIsoSrc_,tkIso);
     iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIso);
