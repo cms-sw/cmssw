@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/15 13:20:26 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonJetIsolationAngle_h
@@ -14,12 +14,12 @@
    CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/15 13:20:26 lowette Exp $
 */
 
 
-#include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -38,12 +38,12 @@ namespace pat {
       LeptonJetIsolationAngle();
       ~LeptonJetIsolationAngle();
 
-      float calculate(const Electron & anElectron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      float calculate(const Muon & aMuon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      float calculate(const Electron & anElectron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      float calculate(const Muon & aMuon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
 
     private:
 
-      float calculate(const HepLorentzVector & aLepton, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      float calculate(const HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
       float spaceAngle(const HepLorentzVector & aLepton, const reco::CaloJet & aJet);
 
     private:

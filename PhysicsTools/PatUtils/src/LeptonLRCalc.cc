@@ -1,5 +1,5 @@
 //
-// $Id: LeptonLRCalc.cc,v 1.1 2008/01/15 13:21:23 lowette Exp $
+// $Id: LeptonLRCalc.cc,v 1.2 2008/01/16 20:33:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -99,10 +99,10 @@ double LeptonLRCalc::logPt(const Tau & tau) {
 
 
 // return the value for the JetIsoA
-double LeptonLRCalc::jetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+double LeptonLRCalc::jetIsoA(const Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   return theJetIsoACalc_->calculate(electron, trackHandle, iEvent);
 }
-double LeptonLRCalc::jetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+double LeptonLRCalc::jetIsoA(const Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   return theJetIsoACalc_->calculate(muon, trackHandle, iEvent);
 }
 double LeptonLRCalc::jetIsoA(const Tau & tau, const edm::Event & iEvent) {
@@ -217,7 +217,7 @@ double LeptonLRCalc::vtxSignLR(double vtxSign, const LeptonType & theType) {
 
 
 // do the LR variable calculations for an electron
-void LeptonLRCalc::calcLRVars(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLRVars(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   electron.setLRVarVal(std::pair<double, double>(this->calIsoE(electron), 0), 0);
   electron.setLRVarVal(std::pair<double, double>(this->trIsoPt(electron), 0), 1);
   electron.setLRVarVal(std::pair<double, double>(this->lepId(electron), 0), 2);
@@ -228,7 +228,7 @@ void LeptonLRCalc::calcLRVars(Electron & electron, const edm::Handle<reco::Track
 
 
 // do the LR calculations for an electron
-void LeptonLRCalc::calcLRVals(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLRVals(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   this->calcLRVars(electron, trackHandle, iEvent);
   // store the LR values
   LeptonType electronType = ElectronT;
@@ -242,7 +242,7 @@ void LeptonLRCalc::calcLRVals(Electron & electron, const edm::Handle<reco::Track
 
 
 // calculate the combined likelihood
-void LeptonLRCalc::calcLikelihood(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLikelihood(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   this->calcLRVals(electron, trackHandle, iEvent);
   // combine through dumb product of the lr values
   double lrComb = 1;
@@ -262,7 +262,7 @@ void LeptonLRCalc::calcLikelihood(Electron & electron, const edm::Handle<reco::T
 
 
 // do the LR variable calculations for a muon
-void LeptonLRCalc::calcLRVars(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLRVars(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   muon.setLRVarVal(std::pair<double, double>(this->calIsoE(muon), 0), 0);
   muon.setLRVarVal(std::pair<double, double>(this->trIsoPt(muon), 0), 1);
   muon.setLRVarVal(std::pair<double, double>(this->lepId(muon), 0), 2);
@@ -273,7 +273,7 @@ void LeptonLRCalc::calcLRVars(Muon & muon, const edm::Handle<reco::TrackCollecti
 
 
 // do the LR calculations for a muon
-void LeptonLRCalc::calcLRVals(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLRVals(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   this->calcLRVars(muon, trackHandle, iEvent);
   // store the LR values
   LeptonType muonType = MuonT;
@@ -287,7 +287,7 @@ void LeptonLRCalc::calcLRVals(Muon & muon, const edm::Handle<reco::TrackCollecti
 
 
 // calculate the combined likelihood
-void LeptonLRCalc::calcLikelihood(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+void LeptonLRCalc::calcLikelihood(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   this->calcLRVals(muon, trackHandle, iEvent);
   // combine through dumb product of the lr values
   double lrComb = 1;

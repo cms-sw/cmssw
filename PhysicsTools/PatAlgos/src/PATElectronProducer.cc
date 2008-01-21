@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.2 2008/01/19 03:50:01 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -78,43 +78,39 @@ PATElectronProducer::~PATElectronProducer() {
 void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // Get the collection of electrons from the event
-  edm::Handle<std::vector<ElectronType> > electronsHandle;
-  iEvent.getByLabel(electronSrc_, electronsHandle);
-  std::vector<ElectronType> electrons = *electronsHandle;
+  edm::Handle<edm::View<ElectronType> > electrons;
+  iEvent.getByLabel(electronSrc_, electrons);
 
 
   // prepare the MC matching
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<edm::View<reco::Candidate> > particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
-    matchTruth(*particles, electrons) ;
+    matchTruth(*particles, *electrons) ;
   }
 
   // prepare isolation calculation
-  edm::Handle<reco::TrackCollection> trackHandle;
+  edm::Handle<edm::View<reco::Track> > tracks;
   if (addTrkIso_) {
     trkIsolation_= new TrackerIsolationPt();
-    iEvent.getByLabel(tracksSrc_, trackHandle);
+    iEvent.getByLabel(tracksSrc_, tracks);
   }
-  edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle;
-  edm::Handle<reco::CandViewIntAssociations> tkNumIsoHandle;
-  //edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle;
-  //edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle;
-  edm::Handle<CandViewDoubleAssociations> ecalIsoHandle;
-  edm::Handle<CandViewDoubleAssociations> hcalIsoHandle;
+  edm::Handle<reco::CandViewDoubleAssociations> tkIso;
+  edm::Handle<reco::CandViewIntAssociations> tkNumIso;
+  edm::Handle<CandViewDoubleAssociations> ecalIso;
+  edm::Handle<CandViewDoubleAssociations> hcalIso;
   if (addEgammaIso_) {
-    iEvent.getByLabel(egammaTkIsoSrc_,tkIsoHandle);
-    iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIsoHandle);
-    iEvent.getByLabel(egammaEcalIsoSrc_,ecalIsoHandle);
-    iEvent.getByLabel(egammaHcalIsoSrc_,hcalIsoHandle);
+    iEvent.getByLabel(egammaTkIsoSrc_,tkIso);
+    iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIso);
+    iEvent.getByLabel(egammaEcalIsoSrc_,ecalIso);
+    iEvent.getByLabel(egammaHcalIsoSrc_,hcalIso);
   }
   std::vector<CaloTower> towers;
   if (addCalIso_) {
     calIsolation_= new CaloIsolationEnergy();
-    edm::Handle<CaloTowerCollection> towerHandle;
-    iEvent.getByLabel(towerSrc_, towerHandle);
-    CaloTowerCollection towerColl = *(towerHandle.product());
-    for (CaloTowerCollection::const_iterator itTower = towerColl.begin(); itTower != towerColl.end(); itTower++) {
+    edm::Handle<edm::View<CaloTower> > towersH;
+    iEvent.getByLabel(towerSrc_, towersH);
+    for (edm::View<CaloTower>::const_iterator itTower = towersH->begin(); itTower != towersH->end(); itTower++) {
       towers.push_back(*itTower);
     }
   }
@@ -131,12 +127,13 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
-  for (size_t e = 0; e < electrons.size(); ++e) {
+  for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron
-    Electron anElectron(electrons[e]);
+    Electron anElectron(*itElectron);
+    unsigned int idx = itElectron - electrons->begin();
     // match to generated final state electrons
     if (addGenMatch_) {
-      anElectron.setGenLepton(findTruth(*particles, electrons[e]));
+      anElectron.setGenLepton(findTruth(*particles, *itElectron));
     }
     // add resolution info
     if(addResolutions_){
@@ -144,7 +141,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     // do tracker isolation
     if (addTrkIso_) {
-      anElectron.setTrackIso(trkIsolation_->calculate(anElectron, *trackHandle));
+      anElectron.setTrackIso(trkIsolation_->calculate(anElectron, *tracks));
     }
     // do calorimeter isolation
     if (addCalIso_) {
@@ -152,18 +149,18 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     // add isolation from egamma producers
     if (addEgammaIso_) {
-      setEgammaIso(anElectron,electronsHandle,tkIsoHandle,tkNumIsoHandle,ecalIsoHandle,hcalIsoHandle,e);
+      setEgammaIso(anElectron, electrons, tkIso, tkNumIso, ecalIso, hcalIso, idx);
     }
     // add electron ID info
     if (addElecID_) {
-      anElectron.setLeptonID(electronID(electronsHandle, elecIDs, e));
+      anElectron.setLeptonID(electronID(electrons, elecIDs, idx));
     }
     if (addElecIDRobust_) {
-      anElectron.setElectronIDRobust(electronID(electronsHandle, elecIDRobusts, e));
+      anElectron.setElectronIDRobust(electronID(electrons, elecIDRobusts, idx));
     }
     // add lepton LR info
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(anElectron, trackHandle, iEvent);
+      theLeptonLRCalc_->calcLikelihood(anElectron, tracks, iEvent);
     }
     // add sel to selected
     patElectrons->push_back(anElectron);
@@ -216,60 +213,56 @@ void PATElectronProducer::removeGhosts(std::vector<ElectronType> & elecs) {
 }
 
 
-reco::GenParticleCandidate PATElectronProducer::findTruth(const reco::CandidateCollection & parts, const ElectronType & elec) {
+reco::GenParticleCandidate PATElectronProducer::findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec) {
   reco::GenParticleCandidate theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
-  for(unsigned int i=0; i!= pairGenRecoElectronsVector_.size(); i++){
-    std::pair<const reco::Candidate*, ElectronType*> pairGenRecoElectrons;
-    pairGenRecoElectrons = pairGenRecoElectronsVector_[i];
-    if(   fabs(elec.pt() - (pairGenRecoElectrons.second)->pt()) < 0.00001   ) {
-      reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(pairGenRecoElectrons.first)));
-      theGenElectron = aGenElectron;
+  for(std::vector<std::pair<const reco::Candidate *, const ElectronType *> >::const_iterator pairGenRecoElectrons = pairGenRecoElectronsVector_.begin(); pairGenRecoElectrons != pairGenRecoElectronsVector_.end(); ++pairGenRecoElectrons){
+    if (fabs(elec.pt() - (pairGenRecoElectrons->second)->pt()) < 0.00001) {
+      theGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(pairGenRecoElectrons->first)));
     }
   }
   return theGenElectron;
 }
 
 
-void PATElectronProducer::matchTruth(const reco::CandidateCollection & particles, std::vector<ElectronType> & electrons) {
+void PATElectronProducer::matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons) {
   pairGenRecoElectronsVector_.clear();
-  for(reco::CandidateCollection::const_iterator itGenElectron = particles.begin(); itGenElectron != particles.end(); ++itGenElectron) {
+  for(edm::View<reco::Candidate>::const_iterator itGenElectron = particles.begin(); itGenElectron != particles.end(); ++itGenElectron) {
     reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenElectron)));
     if (abs(aGenElectron.pdgId())==11 && aGenElectron.status()==1){
-      ElectronType* bestRecoElectron = 0;
+      const ElectronType * bestRecoElectron = 0;
       bool recoElectronFound = false;
       float bestDR = 100000;
       //loop over reconstructed electrons
-      for (size_t e = 0; e < electrons.size(); ++e) {
-	double recoEtOnGenEt = electrons[e].et()/aGenElectron.et();
+      for (edm::View<ElectronType>::const_iterator itElectron = electrons.begin(); itElectron != electrons.end(); ++itElectron) {
+	float recoEtOnGenEt = itElectron->et()/aGenElectron.et();
 	// if the charge is the same and the energy comparable
 	//FIXME set recoEtOnGenEt cut configurable 
-	  float currDR = DeltaR<reco::Candidate>()(aGenElectron, electrons[e]);
-	  //if ( aGenElectron.charge()==electrons[e].charge() && recoEtOnGenEt > minRecoOnGenEt_ 
+	  float currDR = DeltaR<reco::Candidate>()(aGenElectron, *itElectron);
+	  //if ( aGenElectron.charge()==itElectron->charge() && recoEtOnGenEt > minRecoOnGenEt_ 
 	  //     &&  recoEtOnGenEt < maxRecoOnGenEt_ && currDR < maxDeltaR_ ) {
 	  if (  recoEtOnGenEt > minRecoOnGenEt_ 
 		&&  recoEtOnGenEt < maxRecoOnGenEt_ && currDR < maxDeltaR_ ) {
 	    //if the reco electrons is the closest one
 	    if ( currDR < bestDR) {
-	      bestRecoElectron = &electrons[e];
+	      bestRecoElectron = &(*itElectron);
 	      bestDR = currDR;
 	      recoElectronFound = true;
 	    }
 	  }
       }
       if(recoElectronFound == true){
-	pairGenRecoElectronsVector_.push_back(
-					       std::pair<const reco::Candidate*,ElectronType*>(&*itGenElectron, bestRecoElectron)
-					       );
+	pairGenRecoElectronsVector_.push_back(std::pair<const reco::Candidate *, const ElectronType *>(&*itGenElectron, bestRecoElectron));
       }
     }
   }
 }
 
 
-double PATElectronProducer::electronID(const edm::Handle<std::vector<ElectronType> > & elecs,
-                                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx) {
+double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType> > & electrons,
+                                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
+	                               unsigned int idx) {
   //find elecID for elec with index idx
-  edm::Ref<std::vector<ElectronType> > elecsRef( elecs, idx );
+  edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
   reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
 
   //return corresponding elecID (only 
@@ -280,23 +273,20 @@ double PATElectronProducer::electronID(const edm::Handle<std::vector<ElectronTyp
 
 
 //fill the Electron with the isolation quantities calculated by the egamma producers
-void PATElectronProducer::setEgammaIso(Electron &anElectron,
-                                    const edm::Handle<std::vector<ElectronType> > & elecs,
-                                    //const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-                                    //const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
-                                    const edm::Handle<reco::CandViewIntAssociations>    tkNumIsoHandle,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
-                                    int idx) {
+void PATElectronProducer::setEgammaIso(Electron & anElectron,
+                                    const edm::Handle<edm::View<ElectronType> > & electrons,
+                                    const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
+                                    const edm::Handle<reco::CandViewIntAssociations>    tkNumIso,
+                                    const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
+                                    const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
+                                    unsigned int idx) {
   //find isolations for elec with index idx
-  edm::Ref<std::vector<ElectronType> > elecsRef( elecs, idx );
+  edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
   reco::CandidateBaseRef candRef(elecsRef);
-  //reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
-  anElectron.setEgammaTkIso((*tkIsoHandle)[candRef]);
-  anElectron.setEgammaTkNumIso((*tkNumIsoHandle)[candRef]);
-  anElectron.setEgammaEcalIso((*ecalIsoHandle)[candRef]);
-  anElectron.setEgammaHcalIso((*hcalIsoHandle)[candRef]);
+  anElectron.setEgammaTkIso((*tkIso)[candRef]);
+  anElectron.setEgammaTkNumIso((*tkNumIso)[candRef]);
+  anElectron.setEgammaEcalIso((*ecalIso)[candRef]);
+  anElectron.setEgammaHcalIso((*hcalIso)[candRef]);
 }
 
 
@@ -306,7 +296,7 @@ void PATElectronProducer::setEgammaIso(Electron &anElectron,
 //NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly
 
 //this function removes the duplicates/triplicates/multiplicates from the input vector
-void PATElectronProducer::removeEleDupes(std::vector<Electron> *electrons) {
+void PATElectronProducer::removeEleDupes(std::vector<Electron> * electrons) {
   
   //contains indices of duplicate electrons marked for removal
   //I do it this way because removal during the loop is more confusing

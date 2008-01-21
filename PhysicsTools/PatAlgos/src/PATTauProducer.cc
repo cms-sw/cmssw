@@ -1,11 +1,12 @@
 //
-// $Id: PATTauProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.2 2008/01/16 20:33:09 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -84,7 +85,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<edm::View<reco::Candidate> > particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
@@ -142,7 +143,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 5.; // this is the upper limit on the candidate matching. 
       // find the closest generated tau. No charge cut is applied
-      for (reco::CandidateCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
+      for (edm::View<reco::Candidate>::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
         reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
         if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
 	  float currDR = DeltaR<reco::Candidate>()(aGenTau, *aTau);

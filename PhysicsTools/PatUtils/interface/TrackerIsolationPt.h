@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.h,v 1.1 2008/01/07 11:48:27 lowette Exp $
+// $Id: TrackerIsolationPt.h,v 1.1 2008/01/15 13:20:58 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_TrackerIsolationPt_h
@@ -13,10 +13,11 @@
    around the lepton's direction, without doing track extrapolation
 
   \author   Steven Lowette
-  \version  $Id: TrackerIsolationPt.h,v 1.1 2008/01/07 11:48:27 lowette Exp $
+  \version  $Id: TrackerIsolationPt.h,v 1.1 2008/01/15 13:20:58 lowette Exp $
 */
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -34,12 +35,12 @@ namespace pat {
       TrackerIsolationPt();
       virtual ~TrackerIsolationPt();
 
-      float calculate(const Electron & theElectron, const reco::TrackCollection & theTracks, float isoConeElectron = 0.3) const;
-      float calculate(const Muon & theMuon, const reco::TrackCollection & theTracks, float isoConeMuon = 0.3) const;
+      float calculate(const Electron & theElectron, const edm::View<reco::Track> & theTracks, float isoConeElectron = 0.3) const;
+      float calculate(const Muon & theMuon, const edm::View<reco::Track> & theTracks, float isoConeMuon = 0.3) const;
 
     private:
 
-      float calculate(const reco::Track & theTrack, const reco::TrackCollection & theTracks, float isoCone) const;
+      float calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const;
 
   };
 

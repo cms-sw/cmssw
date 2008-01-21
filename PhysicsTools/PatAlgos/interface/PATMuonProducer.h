@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATMuonProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id$
+  \version  $Id: PATMuonProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 */
 
 
@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
@@ -47,8 +48,8 @@ namespace pat {
 
     private:
 
-      reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const MuonType & muon);  
-      void matchTruth(const reco::CandidateCollection & parts, std::vector<MuonType> & muons);
+      reco::GenParticleCandidate findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon);  
+      void matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons);
 
     private:
 
@@ -78,7 +79,7 @@ namespace pat {
       GreaterByPt<Muon>      pTComparator_;
       // other
 // FIXME!!!!! this should not be persistent, even not a member!!!
-      std::vector<std::pair<const reco::Candidate *, MuonType *> > pairGenRecoMuonsVector_;
+      std::vector<std::pair<const reco::Candidate *, const MuonType *> > pairGenRecoMuonsVector_;
 
   };
 

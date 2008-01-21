@@ -1,11 +1,12 @@
 //
-// $Id$
+// $Id: PATMETProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
@@ -44,30 +45,31 @@ PATMETProducer::~PATMETProducer() {
 void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
   // Get the vector of MET's from the event
-  edm::Handle<std::vector<METType> > mets;
+  edm::Handle<edm::View<METType> > mets;
   iEvent.getByLabel(metSrc_, mets);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<edm::View<reco::Candidate> > particles;
   if (addGenMET_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
 
   // read in the muons if demanded
-  edm::Handle<std::vector<MuonType> > muons;
+  edm::Handle<edm::View<MuonType> > muons;
   if (addMuonCorr_) {
     iEvent.getByLabel(muonSrc_, muons);
   }
   
   // loop over mets
   std::vector<MET> * patMETs = new std::vector<MET>(); 
-  for (size_t j = 0; j < mets->size(); j++) {
+  for (edm::View<METType>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
     // construct the MET
-    MET amet((*mets)[j]);
+    MET amet(*itMET);
     // calculate the generated MET (just sum of neutrinos)
     if (addGenMET_) {
       reco::Particle theGenMET(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0));
-      for(reco::CandidateCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
+//      for(reco::CandidateCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
+      for(edm::View<reco::Candidate>::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
         reco::Candidate * aTmpGenPart = const_cast<reco::Candidate *>(&*itGenPart);
         reco::GenParticleCandidate aGenPart = *(dynamic_cast<reco::GenParticleCandidate *>(aTmpGenPart));
         if ((aGenPart.status()==1) &&
@@ -83,12 +85,12 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
     // correct for muons if demanded
     if (addMuonCorr_) {
-      for (size_t m = 0; m < muons->size(); m++) {
+      for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); itMuon++) {
         amet.setP4(reco::Particle::LorentzVector(
-            amet.px()-(*muons)[m].px(),
-            amet.py()-(*muons)[m].py(),
+            amet.px()-itMuon->px(),
+            amet.py()-itMuon->py(),
             0,
-            sqrt(pow(amet.px()-(*muons)[m].px(), 2)+pow(amet.py()-(*muons)[m].py(), 2))
+            sqrt(pow(amet.px()-itMuon->px(), 2)+pow(amet.py()-itMuon->py(), 2))
         ));
       }
     }

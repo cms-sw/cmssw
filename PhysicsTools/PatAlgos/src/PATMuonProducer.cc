@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATMuonProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -72,15 +72,14 @@ PATMuonProducer::~PATMuonProducer() {
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // Get the collection of muons from the event
-  edm::Handle<std::vector<MuonType> > muonsHandle;
-  iEvent.getByLabel(muonSrc_, muonsHandle);
-  std::vector<MuonType> muons = *muonsHandle;
+  edm::Handle<edm::View<MuonType> > muons;
+  iEvent.getByLabel(muonSrc_, muons);
 
   // prepare the MC matching
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<edm::View<reco::Candidate> > particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
-    matchTruth(*particles, muons);
+    matchTruth(*particles, *muons);
   }
 
   // prepare isolation calculation
@@ -102,20 +101,20 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   }
 
   // prepare LR calculation
-  edm::Handle<reco::TrackCollection> trackHandle;
+  edm::Handle<edm::View<reco::Track> > tracks;
   if (addLRValues_) {
-    iEvent.getByLabel(tracksSrc_, trackHandle);
+    iEvent.getByLabel(tracksSrc_, tracks);
     theLeptonLRCalc_ = new LeptonLRCalc(iSetup, "", edm::FileInPath(muonLRFile_).fullPath(), "");
   }
 
   // loop over muons
   std::vector<Muon> * patMuons = new std::vector<Muon>();
-  for (size_t m = 0; m < muons.size(); ++m) {
+  for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
     // construct the muon
-    Muon aMuon(muons[m]);
+    Muon aMuon(*itMuon);
     // match to generated final state muons
     if (addGenMatch_) {
-      aMuon.setGenLepton(findTruth(*particles, muons[m]));
+      aMuon.setGenLepton(findTruth(*particles, *itMuon));
     }
     // add resolution info
     if (addResolutions_) {
@@ -128,11 +127,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         // use the muon embedded muon isolation
         sumPtAndNTracks03.first = aMuon.getIsolationR03().sumPt;
         // use the muon isolation from the isolation maps (not yet stored in the 152 reco samples)
-        //const reco::MuIsoDeposit & depTracker = (*trackerIso)[muons[m].combinedMuon()];
+        //const reco::MuIsoDeposit & depTracker = (*trackerIso)[itMuon->combinedMuon()];
         //// cone hardcoded, corresponds to default in recent CMSSW versions
         //sumPtAndNTracks03 = depTracker.depositAndCountWithin(0.3);
       } else {
-        const reco::MuIsoDeposit & depTracker = (*trackerIso)[muons[m].track()];
+        const reco::MuIsoDeposit & depTracker = (*trackerIso)[itMuon->track()];
         // cone hardcoded, corresponds to default in recent CMSSW versions
         sumPtAndNTracks03 = depTracker.depositAndCountWithin(0.3);
       }
@@ -144,27 +143,27 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         // use the muon embedded muon isolation
         aMuon.setCaloIso(aMuon.getIsolationR03().emEt + aMuon.getIsolationR03().hadEt + aMuon.getIsolationR03().hoEt);
         // use the muon isolation from the isolation maps (not yet stored in the 152 reco samples)
-        //const reco::MuIsoDeposit & depEcal = (*ecalIso)[muons[m].combinedMuon()];
-        //const reco::MuIsoDeposit & depHcal = (*hcalIso)[muons[m].combinedMuon()];
-        //const reco::MuIsoDeposit & depHOcal = (*hocalIso)[muons[m].combinedMuon()];
+        //const reco::MuIsoDeposit & depEcal = (*ecalIso)[itMuon->combinedMuon()];
+        //const reco::MuIsoDeposit & depHcal = (*hcalIso)[itMuon->combinedMuon()];
+        //const reco::MuIsoDeposit & depHOcal = (*hocalIso)[itMuon->combinedMuon()];
         //// cone hardcoded, corresponds to default in recent CMSSW versions
         //aMuon.setCaloIso(depEcal.depositWithin(0.3)+depHcal.depositWithin(0.3)+depHOcal.depositWithin(0.3));
       } else {
-        const reco::MuIsoDeposit & depEcal = (*ecalIso)[muons[m].track()];
-        const reco::MuIsoDeposit & depHcal = (*hcalIso)[muons[m].track()];
+        const reco::MuIsoDeposit & depEcal = (*ecalIso)[itMuon->track()];
+        const reco::MuIsoDeposit & depHcal = (*hcalIso)[itMuon->track()];
         // cone hardcoded, corresponds to default in recent CMSSW versions
         aMuon.setCaloIso(depEcal.depositWithin(0.3)+depHcal.depositWithin(0.3));
       }
     }
     // add muon ID info
     if (addMuonID_) {
-//      aMuon.setLeptonID((float) TMath::Prob((Float_t) muons[m].combinedMuon()->chi2(), (Int_t) muons[m].combinedMuon()->ndof()));
+//      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
 // no combinedMuon in fastsim
-      aMuon.setLeptonID((float) TMath::Prob((Float_t) muons[m].track()->chi2(), (Int_t) muons[m].track()->ndof()));
+      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->track()->chi2(), (Int_t) itMuon->track()->ndof()));
     }
     // add lepton LR info
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(aMuon, trackHandle, iEvent);
+      theLeptonLRCalc_->calcLikelihood(aMuon, tracks, iEvent);
     }
     // add sel to selected
     patMuons->push_back(aMuon);
@@ -182,45 +181,41 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 }
 
 
-reco::GenParticleCandidate PATMuonProducer::findTruth(const reco::CandidateCollection & parts, const MuonType & muon) {
-  reco::GenParticleCandidate gen;
-  for(unsigned int idx=0; idx!=pairGenRecoMuonsVector_.size(); ++idx){
-    std::pair<const reco::Candidate*, MuonType*> pairGenRecoMuons;
-    pairGenRecoMuons = pairGenRecoMuonsVector_[idx];
-    float dR = DeltaR<reco::Candidate>()( muon, *(pairGenRecoMuons.second));
+reco::GenParticleCandidate PATMuonProducer::findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon) {
+  reco::GenParticleCandidate gen(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
+  for (std::vector<std::pair<const reco::Candidate*, const MuonType*> >::const_iterator pairGenRecoMuons = pairGenRecoMuonsVector_.begin(); pairGenRecoMuons != pairGenRecoMuonsVector_.end(); ++pairGenRecoMuons) {
+    float dR = DeltaR<reco::Candidate>()( muon, *(pairGenRecoMuons->second));
     if( !(dR > 0) ){
-      gen = *(dynamic_cast<const reco::GenParticleCandidate*>( pairGenRecoMuons.first ) );
+      gen = *(dynamic_cast<const reco::GenParticleCandidate*>( pairGenRecoMuons->first ) );
     }
   }
   return gen;
 }
 
 
-void PATMuonProducer::matchTruth(const reco::CandidateCollection & parts, std::vector<MuonType> & muons) {
+void PATMuonProducer::matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons) {
   pairGenRecoMuonsVector_.clear();
-  reco::CandidateCollection::const_iterator part = parts.begin();
-  for( ; part != parts.end(); ++part ){
+  for(edm::View<reco::Candidate>::const_iterator part = parts.begin(); part != parts.end(); ++part){
     reco::GenParticleCandidate gen = *(dynamic_cast<const reco::GenParticleCandidate*>( &(*part)) );
     if( abs(gen.pdgId())==13 && gen.status()==1 ){
       bool  found = false;
       float minDR = 99999;
-      MuonType* rec = 0;
-      MuonTypeCollection::iterator muon = muons.begin();
-      for ( ; muon !=muons.end(); ++muon){
-	float dR = DeltaR<reco::Candidate>()( gen, *muon);
-	float ptRecOverGen = muon->pt()/gen.pt();
+      const MuonType * rec = 0;
+      for (edm::View<MuonType>::const_iterator itMuon = muons.begin() ; itMuon != muons.end(); ++itMuon){
+	float dR = DeltaR<reco::Candidate>()( gen, *itMuon);
+	float ptRecOverGen = itMuon->pt()/gen.pt();
 	if ( ( ptRecOverGen > minRecoOnGenEt_ ) && 
 	     ( ptRecOverGen < maxRecoOnGenEt_ ) && 
 	     ( dR < maxDeltaR_) ){
 	  if ( dR < minDR ){
-	    rec = &(*muon);
+	    rec = &(*itMuon);
 	    minDR = dR;
 	    found = true;
 	  }
 	}
       }
       if( found == true ){
-	pairGenRecoMuonsVector_.push_back( std::pair<const reco::Candidate*,MuonType*>(&(*part), rec ) );
+	pairGenRecoMuonsVector_.push_back( std::pair<const reco::Candidate*, const MuonType *>(&(*part), rec ) );
       }
     }
   }

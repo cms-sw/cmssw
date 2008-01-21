@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.2 2008/01/16 20:33:09 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -90,22 +90,23 @@ PATJetProducer::~PATJetProducer() {
 void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // Get the vector of jets
-  edm::Handle<std::vector<JetType> > jets;
+  edm::Handle<edm::View<JetType> > jets;
   iEvent.getByLabel(jetsSrc_, jets);
   // TEMP Jet cleaning from electrons
-  edm::Handle<std::vector<Electron> > electronsHandle;
-  iEvent.getByLabel(electronsLabel_, electronsHandle);
-  std::vector<Electron> electrons=*electronsHandle;
-  edm::Handle<std::vector<Muon> > muonsHandle;
-  iEvent.getByLabel(muonsLabel_, muonsHandle);
-  std::vector<Muon> muons=*muonsHandle;
+  edm::Handle<edm::View<Electron> > electrons;
+  if (doJetCleaning_) iEvent.getByLabel(electronsLabel_, electrons);
+  std::vector<Electron> isoElectrons;
+  edm::Handle<edm::View<Muon> > muons;
+  if (doJetCleaning_) iEvent.getByLabel(muonsLabel_, muons);
+  std::vector<Muon> isoMuons;
   // TEMP End
 
   if (doJetCleaning_) {
     // TEMP Jet cleaning from electrons
     //select isolated leptons to remove from jets collection
-    electrons=selectIsolated(electrons,ELEISOCUT_);
-    muons=selectIsolated(muons,MUISOCUT_);
+    isoElectrons = selectIsolated(*electrons, ELEISOCUT_);
+    // disabled for muons because not used yet
+    // isoMuons = selectIsolated(*muons, MUISOCUT_);
     // TEMP End
   }
 
@@ -114,14 +115,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<edm::View<reco::Candidate> > particles;
   if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_, particles);
   // Get the vector of GenJets from the event if needed
-  edm::Handle<reco::GenJetCollection> genJets;
+  edm::Handle<edm::View<reco::GenJet> > genJets;
   if (addGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJets);
 /* TO BE IMPLEMENTED FOR >= 1_5_X
   // Get the vector of PartonJets from the event if needed
-  edm::Handle<reco::SomePartonJetType> particles;
+  edm::Handle<edm::View<reco::SomePartonJetType> > partonJets;
   if (addPartonJetMatch_) iEvent.getByLabel(partonJetSrc_, partonJets);
 */
 
@@ -140,7 +141,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // loop over jets
   std::vector<Jet> * patJets = new std::vector<Jet>(); 
-  for (size_t j = 0; j < jets->size(); j++) {
+  for (edm::View<JetType>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     if (doJetCleaning_) {
     // TEMP Jet cleaning from electrons
@@ -148,8 +149,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       //if it does, then it needs to be cleaned (ie don't put it in the Jet collection)
       //FIXME: don't do muons until have a sensible cut value on their isolation
       float mindr=9999.;
-      for (size_t ie=0; ie<electrons.size(); ie++) {
-        float dr=DeltaR<reco::Candidate>()((*jets)[j],electrons[ie]);
+      for (std::vector<Electron>::const_iterator itElectron = isoElectrons.begin(); itElectron != isoElectrons.end(); ++itElectron) {
+        float dr=DeltaR<reco::Candidate>()(*itJet, *itElectron);
         if (dr<mindr) {
           mindr=dr;
         }
@@ -168,24 +169,24 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     const JetCorrector * cJetCorr       = JetCorrector::getJetCorrector("L5FlavorJetCorrectorC", iSetup);
     const JetCorrector * bJetCorr       = JetCorrector::getJetCorrector("L5FlavorJetCorrectorB", iSetup);
     // calculate the energy correction factors
-    float scaleDefault = defaultJetCorr->correction((*jets)[j]);
-    float scaleUds     = scaleDefault * udsJetCorr->correction((*jets)[j]);
-    float scaleGlu     = scaleDefault * gluJetCorr->correction((*jets)[j]);
-    float scaleC       = scaleDefault * cJetCorr->correction((*jets)[j]);
-    float scaleB       = scaleDefault * bJetCorr->correction((*jets)[j]);
+    float scaleDefault = defaultJetCorr->correction(*itJet);
+    float scaleUds     = scaleDefault * udsJetCorr->correction(*itJet);
+    float scaleGlu     = scaleDefault * gluJetCorr->correction(*itJet);
+    float scaleC       = scaleDefault * cJetCorr->correction(*itJet);
+    float scaleB       = scaleDefault * bJetCorr->correction(*itJet);
 
     // construct the Jet
-    Jet ajet((*jets)[j]);
-    ajet.setP4(scaleDefault*(*jets)[j].p4());
+    Jet ajet(*itJet);
+    ajet.setP4(scaleDefault * itJet->p4());
     ajet.setScaleCalibFactors(1./scaleDefault, scaleUds, scaleGlu, scaleC, scaleB);
 
     // get the MC flavour information for this jet
     if (getJetMCFlavour_) {
       for (reco::CandMatchMap::const_iterator f = JetPartonMap->begin(); f != JetPartonMap->end(); f++) {
         const reco::Candidate * jetClone = f->key->masterClone().get();
-        // if (jetClone == &((*jets)[j])) { // comparison by address doesn't work
-        if (fabs(jetClone->eta() - (*jets)[j].eta()) < 0.001 &&
-            fabs(jetClone->phi() - (*jets)[j].phi()) < 0.001) {
+        // if (jetClone == &(*itJet) { // comparison by address doesn't work
+        if (fabs(jetClone->eta() - itJet->eta()) < 0.001 &&
+            fabs(jetClone->phi() - itJet->phi()) < 0.001) {
           ajet.setPartonFlavour(f->val->pdgId());
         }
       }
@@ -196,7 +197,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 0;
       // find the closest parton
-      for (reco::CandidateCollection::const_iterator itParton = particles->begin(); itParton != particles->end(); ++itParton) {
+      for (edm::View<reco::Candidate>::const_iterator itParton = particles->begin(); itParton != particles->end(); ++itParton) {
         reco::GenParticleCandidate aParton = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itParton)));
         if (aParton.status()==3 &&
             (abs(aParton.pdgId())==1 || abs(aParton.pdgId())==2 ||
@@ -221,7 +222,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       reco::GenJet bestGenJet;//0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
       float bestDR = 0;
       // find the closest parton
-      for (reco::GenJetCollection::const_iterator itGenJet = genJets->begin(); itGenJet != genJets->end(); ++itGenJet) {
+      for (edm::View<reco::GenJet>::const_iterator itGenJet = genJets->begin(); itGenJet != genJets->end(); ++itGenJet) {
 // do we need some criteria?      if (itGenJet->status()==3) {
           float currDR = DeltaR<reco::Candidate>()(*itGenJet, ajet);
           // matching with hard-cut at 0.4
@@ -261,7 +262,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
             continue;
           }
-          if (DeltaR<reco::Candidate>()( (*jets)[j], *jet_p ) < 0.00001) {
+          if (DeltaR<reco::Candidate>()(*itJet, *jet_p) < 0.00001) {
             //********store discriminators*********
             if (addDiscriminators_) {
 	      //look only at the tagger present in tagModuleLabelsToKeep_
@@ -314,11 +315,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 // TEMP Jet cleaning from electrons
 //takes a vector of electrons and returns a vector that only contains the ones that are isolated
 //The second argument is the isolation cut to use
-std::vector<Electron> PATJetProducer::selectIsolated(const std::vector<Electron> &electrons, float isoCut) {
+std::vector<Electron> PATJetProducer::selectIsolated(const edm::View<Electron> & electrons, float isoCut) {
   std::vector<Electron> output;
-  for (size_t ie=0; ie<electrons.size(); ie++) {
-    if (electrons[ie].trackIso() < isoCut) {
-      output.push_back(electrons[ie]);
+  for (edm::View<Electron>::const_iterator itElectron = electrons.begin(); itElectron != electrons.end(); ++itElectron) {
+    if (itElectron->trackIso() < isoCut) {
+      output.push_back(*itElectron);
     }
   }
   return output;
@@ -330,11 +331,11 @@ std::vector<Electron> PATJetProducer::selectIsolated(const std::vector<Electron>
 //takes a vector of muons and returns a vector that only contains the ones that are isolated
 //The second argument is the isolation cut to use
 //FIXME I could combine this with the one for electrons using templates?
-std::vector<pat::Muon> PATJetProducer::selectIsolated(const std::vector<Muon> &muons, float isoCut) {
+std::vector<pat::Muon> PATJetProducer::selectIsolated(const edm::View<Muon> & muons, float isoCut) {
   std::vector<Muon> output;
-  for (size_t iu=0; iu<muons.size(); iu++) {
-    if (muons[iu].trackIso() < isoCut) {
-      output.push_back(muons[iu]);
+  for (edm::View<Muon>::const_iterator itMuon = muons.begin(); itMuon != muons.end(); ++itMuon) {
+    if (itMuon->trackIso() < isoCut) {
+      output.push_back(*itMuon);
     }
   }
   return output;

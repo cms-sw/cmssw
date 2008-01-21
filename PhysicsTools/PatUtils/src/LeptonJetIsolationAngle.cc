@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.cc,v 1.1 2008/01/07 11:48:27 lowette Exp $
+// $Id: LeptonJetIsolationAngle.cc,v 1.1 2008/01/15 13:21:23 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
@@ -25,18 +25,18 @@ LeptonJetIsolationAngle::~LeptonJetIsolationAngle() {
 
 
 // calculate the JetIsoA for the lepton object
-float LeptonJetIsolationAngle::calculate(const Electron & theElectron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+float LeptonJetIsolationAngle::calculate(const Electron & theElectron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   HepLorentzVector theElectronHLV(theElectron.px(), theElectron.py(), theElectron.pz(), theElectron.energy());
   return this->calculate(theElectronHLV, trackHandle, iEvent);
 }
-float LeptonJetIsolationAngle::calculate(const Muon & theMuon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+float LeptonJetIsolationAngle::calculate(const Muon & theMuon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   HepLorentzVector theMuonHLV(theMuon.px(), theMuon.py(), theMuon.pz(), theMuon.energy());
   return this->calculate(theMuonHLV, trackHandle, iEvent);
 }
 
 
 // calculate the JetIsoA for the lepton's HLV
-float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent) {
+float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent) {
   // FIXME: this is an ugly temporary workaround, JetMET+egamma should come up with a better tool
   // retrieve the jets
   edm::Handle<reco::CaloJetCollection> jetHandle;

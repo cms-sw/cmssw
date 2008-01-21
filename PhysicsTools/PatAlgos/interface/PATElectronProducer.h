@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: PATElectronProducer.h,v 1.2 2008/01/19 03:50:00 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: PATElectronProducer.h,v 1.2 2008/01/19 03:50:00 gpetrucc Exp $
 */
 
 
@@ -27,11 +27,7 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-//#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
-//#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
-
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -60,20 +56,19 @@ namespace pat {
     private:
 
       void removeGhosts(std::vector<ElectronType> & elecs);
-      reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const ElectronType & elec);
-      void matchTruth(const reco::CandidateCollection & particles, std::vector<ElectronType> & electrons);
-      double electronID(const edm::Handle<std::vector<ElectronType> > & elecs, 
-                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
+      reco::GenParticleCandidate findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec);
+      void matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons);
+      double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
+                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
+	                unsigned int idx);
       void setEgammaIso(Electron & anElectron,
-                        const edm::Handle<std::vector<ElectronType> > & elecs,
-                        const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
-                        const edm::Handle<reco::CandViewIntAssociations>    tkNumIsoHandle,
-                        //const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-                        //const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
-                        const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
-                        const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
-                        int idx);
-      void removeEleDupes(std::vector<Electron> *electrons);
+                        const edm::Handle<edm::View<ElectronType> > & elecs,
+                        const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
+                        const edm::Handle<reco::CandViewIntAssociations>    tkNumIso,
+                        const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
+                        const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
+                        unsigned int idx);
+      void removeEleDupes(std::vector<Electron> * electrons);
 
     private:
 
@@ -112,7 +107,7 @@ namespace pat {
       GreaterByPt<Electron>       pTComparator_;
       // other
 // FIXME!!!!! this should not be persistent, even not a member!!!
-      std::vector<std::pair<const reco::Candidate *, ElectronType *> > pairGenRecoElectronsVector_;
+      std::vector<std::pair<const reco::Candidate *, const ElectronType *> > pairGenRecoElectronsVector_;
 
   };
 

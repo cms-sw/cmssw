@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.cc,v 1.1 2008/01/07 11:48:27 lowette Exp $
+// $Id: TrackerIsolationPt.cc,v 1.1 2008/01/15 13:21:30 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
@@ -29,16 +29,16 @@ TrackerIsolationPt::~TrackerIsolationPt() {
 
 
 /// calculate the TrackIsoPt for the lepton object
-float TrackerIsolationPt::calculate(const Electron & theElectron, const reco::TrackCollection & theTracks, float isoConeElectron) const {
+float TrackerIsolationPt::calculate(const Electron & theElectron, const edm::View<reco::Track> & theTracks, float isoConeElectron) const {
   return this->calculate(*theElectron.gsfTrack(), theTracks, isoConeElectron);
 }
-float TrackerIsolationPt::calculate(const Muon & theMuon, const reco::TrackCollection & theTracks, float isoConeMuon) const {
+float TrackerIsolationPt::calculate(const Muon & theMuon, const edm::View<reco::Track> & theTracks, float isoConeMuon) const {
   return this->calculate(*theMuon.track(), theTracks, isoConeMuon);
 }
 
 
 /// calculate the TrackIsoPt for the lepton's track
-float TrackerIsolationPt::calculate(const reco::Track & theTrack, const reco::TrackCollection & theTracks, float isoCone) const {
+float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const {
   // initialize some variables
   float isoPtLepton = 0;
   const reco::Track * closestTrackDRPT = 0, * closestTrackDR = 0;
@@ -46,7 +46,7 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const reco::Tr
   // use all these pointless vector conversions because the momenta from tracks
   // are completely unusable; bah, these math-vectors are worthless!
   HepLorentzVector lepton(theTrack.px(), theTrack.py(), theTrack.pz(), theTrack.p());
-  for (std::vector<reco::Track>::const_iterator itTrack = theTracks.begin(); itTrack != theTracks.end(); itTrack++) {
+  for (edm::View<reco::Track>::const_iterator itTrack = theTracks.begin(); itTrack != theTracks.end(); itTrack++) {
     HepLorentzVector track(itTrack->px(), itTrack->py(), itTrack->pz(), itTrack->p());
     float dR = lepton.deltaR(track);
     if (dR < isoCone) {

@@ -1,5 +1,5 @@
 //
-// $Id: LeptonLRCalc.h,v 1.1 2008/01/15 13:20:51 lowette Exp $
+// $Id: LeptonLRCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonLRCalc_h
@@ -13,12 +13,13 @@
    likelihood as originally defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonLRCalc.h,v 1.1 2008/01/15 13:20:51 lowette Exp $
+  \version  $Id: LeptonLRCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
 */
 
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -58,8 +59,8 @@ namespace pat {
       double logPt(const Electron & electron);
       double logPt(const Muon & muon);
       double logPt(const Tau & tau);
-      double jetIsoA(const Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      double jetIsoA(const Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      double jetIsoA(const Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      double jetIsoA(const Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
       double jetIsoA(const Tau & tau, const edm::Event & iEvent);
       double vtxSign(const Electron & electron, const edm::Event & iEvent);
       double vtxSign(const Muon & muon, const edm::Event & iEvent);
@@ -70,14 +71,14 @@ namespace pat {
       double logPtLR(double LogPt, const LeptonType & theType);
       double jetIsoALR(double jetIsoA, const LeptonType & theType);
       double vtxSignLR(double vtxSign, const LeptonType & theType);
-      void calcLRVars(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      void calcLRVars(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      void calcLRVars(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      void calcLRVars(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
       void calcLRVars(Tau & tau, const edm::Event & iEvent);
-      void calcLRVals(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      void calcLRVals(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      void calcLRVals(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      void calcLRVals(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
       void calcLRVals(Tau & tau, const edm::Event & iEvent);
-      void calcLikelihood(Electron & electron, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
-      void calcLikelihood(Muon & muon, const edm::Handle<reco::TrackCollection> & trackHandle, const edm::Event & iEvent);
+      void calcLikelihood(Electron & electron, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
+      void calcLikelihood(Muon & muon, const edm::Handle<edm::View<reco::Track> > & trackHandle, const edm::Event & iEvent);
       void calcLikelihood(Tau & tau, const edm::Event & iEvent);
 
     private:

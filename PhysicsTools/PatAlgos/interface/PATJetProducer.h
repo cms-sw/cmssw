@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: PATJetProducer.h,v 1.2 2008/01/16 01:17:01 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: PATJetProducer.h,v 1.2 2008/01/16 01:17:01 gpetrucc Exp $
 */
 
 
@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "PhysicsTools/JetCharge/interface/JetCharge.h"
@@ -52,9 +53,11 @@ namespace pat {
     private:
 
       // TEMP Jet cleaning from electrons
-      std::vector<Electron> selectIsolated(const std::vector<Electron> & electrons, float isoCut);
-      std::vector<Muon>     selectIsolated(const std::vector<Muon> & muons,         float isoCut);
+      std::vector<Electron> selectIsolated(const edm::View<Electron> & electrons, float isoCut);
+      std::vector<Muon>     selectIsolated(const edm::View<Muon> & muons,         float isoCut);
       // TEMP End
+
+    private:
 
       // configurables
       edm::InputTag            jetsSrc_;
