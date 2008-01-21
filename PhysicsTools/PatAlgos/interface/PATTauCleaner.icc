@@ -1,10 +1,12 @@
 #include "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
 
+#include <DataFormats/TauReco/interface/Tau.h>
+/* > 1.8.X functionality
 #include <DataFormats/TauReco/interface/PFTau.h>
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
-
+*/
 
 
 template<typename TauIn, typename TauOut, typename TauTag>
@@ -13,9 +15,9 @@ pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet &
   tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource")),
   helper_(tauSrc_)
 {
-  // produces vector of electrons
+  // produces vector of taus
   produces<std::vector<TauOut> >();
-  // producers also backmatch to the electrons
+  // producers also backmatch to the taus
   produces<reco::CandRefValueMap>();
 
   if (iConfig.exists("removeOverlaps")) {

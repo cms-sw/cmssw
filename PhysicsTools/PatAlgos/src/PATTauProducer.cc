@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.2 2008/01/16 20:33:09 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.3 2008/01/21 16:26:17 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -11,10 +11,12 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
+/* > 1.8.X functionality
 #include <DataFormats/TauReco/interface/PFTau.h>
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+*/
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -56,6 +58,11 @@ PATTauProducer::~PATTauProducer() {
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
  
   // Get the collection of taus from the event
+  edm::Handle<edm::View<TauType> > taus;
+  iEvent.getByLabel(tauSrc_, taus);
+
+/* > 1.8.X functionality; FIXME: should be switched to use edm::Views.
+  // Get the collection of taus from the event
   edm::Handle<PFTauCollection> PFtaus;
   edm::Handle<PFTauDiscriminatorByIsolation> PFtauIsolator;
   edm::Handle<CaloTauCollection> Calotaus; 
@@ -83,6 +90,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if(hasCalotaus && hasPFtaus) {
     edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
   }
+*/
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<edm::View<reco::Candidate> > particles;
@@ -98,6 +106,12 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // collection of produced objects
   std::vector<Tau> * patTaus = new std::vector<Tau>(); 
 
+  // 1.6.X functionality
+  for (edm::View<reco::Tau>::const_iterator itTau = taus->begin(); itTau != taus->end(); ++itTau) {
+    Tau aTau(*itTau);
+    patTaus->push_back(aTau);
+  }
+/* > 1.8.X functionality
   // loop over taus and prepare pat::Tau's
   if(hasPFtaus) {
     for (PFTauCollection::size_type iPFTau=0;iPFTau<PFtaus->size();iPFTau++) {
@@ -134,6 +148,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       patTaus->push_back(aTau);
     }
   }
+*/
 
   // loop on the resulting collection of taus, and set other informations
   for(std::vector<Tau>::iterator aTau = patTaus->begin();aTau<patTaus->end(); ++aTau) {
