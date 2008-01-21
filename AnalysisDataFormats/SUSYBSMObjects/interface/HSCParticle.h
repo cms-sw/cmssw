@@ -68,6 +68,7 @@ class DeDxBeta {
       const reco::Track & staTrack() const {return *dt.first->standAloneMuon(); } 
       const reco::Track & combinedTrack() const {return *dt.first->combinedMuon(); } 
       const reco::Track & trackerTrack() const {return *tk.track; } 
+      bool  emptyDTInfo() const { return  ( ! hasDt ) || (dt.second.nHits ==0  && dt.second.nStations ==0) ;  }
  };
 
 typedef  std::vector<HSCParticle> HSCParticleCollection;
