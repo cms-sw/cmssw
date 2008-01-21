@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/10/23 15:30:05 $
- *  $Revision: 1.40 $
+ *  $Date: 2007/11/23 09:31:09 $
+ *  $Revision: 1.41 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -68,8 +68,6 @@ EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
-  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
 
   // mem channels' integrity
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
@@ -132,9 +130,6 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   // create the collection of Ecal Integrity Gain Switch
   std::auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
 
-  // create the collection of Ecal Integrity Gain Switch Stay
-  std::auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
-
   // create the collection of Ecal Integrity Mem towerBlock_id errors
   std::auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
   
@@ -185,7 +180,7 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 				       *productDCCHeader, 
 				       *productDCCSize, 
 				       *productTTId, *productBlockSize, 
-				       *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+				       *productChId, *productGain, *productGainSwitch, 
 				       *productMemTtId,  *productMemBlockSize,
 				       *productMemGain,  *productMemChIdErrors,
 				       *productTriggerPrimitives);
@@ -223,7 +218,6 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(productChId,"EcalIntegrityChIdErrors");
   e.put(productGain,"EcalIntegrityGainErrors");
   e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
-  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
 
   e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
   e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
