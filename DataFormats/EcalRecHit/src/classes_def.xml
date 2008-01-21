@@ -27,11 +27,15 @@
   <class name="edm::Wrapper< edm::DetSetVector<EcalRecHit> >"/>
   <class name="edm::Wrapper< std::vector< std::vector < edm::DetSet<EcalRecHit> > > >"/>
 
-  <class pattern="__gnu_cxx::__normal_iterator<*>"/>
-  <class pattern="edm::RefGetter<*>"/>
-  <class pattern="edm::RefGetter<*>"> <field name="regions_" transient="true"/> </class>
-  <class pattern="edm::LazyGetter<*>"> <field name="unpacker_" transient="true"/> </class>
-  <class pattern="edm::Ref<*>"/>
-  <class pattern="std::vector<edm::Ref*>"/>
-  <class pattern="edm::Wrapper<*>"/>
+  <class name="edm::RegionIndex<EcalRecHit>"><field name="getter_" transient="true"/> </class>
+  <class name="std::vector< edm::RegionIndex<EcalRecHit> >"/>
+  <class name="edm::LazyGetter<EcalRecHit>"><field name="unpacker_" transient="true"/> </class>
+  <class name="edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> >"/>
+  <class name="std::vector<edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > >"/>
+  <class name="edm::RefGetter<EcalRecHit>"/>
+
+  <class name="edm::Wrapper< edm::LazyGetter<EcalRecHit> >"/>
+  <class name="edm::Wrapper< edm::RefGetter<EcalRecHit> >"/>
+ 
+  <class name="edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> >"/>
 </lcgdict>

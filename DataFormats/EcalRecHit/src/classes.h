@@ -42,6 +42,7 @@ namespace {
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
+#include "boost/cstdint.hpp" 
 
 namespace {
   namespace {
@@ -56,7 +57,12 @@ namespace {
 
 namespace {
   namespace {
-    edm::Wrapper< edm::LazyGetter<EcalRecHit> > dummy78;
-    edm::Wrapper< edm::RefGetter<EcalRecHit> > dummy79;
+    edm::Wrapper< edm::RegionIndex<EcalRecHit> > dummy71;
+    edm::Wrapper< std::vector< edm::RegionIndex<EcalRecHit> > > dummy72;
+    edm::Wrapper< edm::LazyGetter<EcalRecHit> > dummy73;
+    edm::Wrapper< edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > > dummy74;
+    edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > > > dummy75;
+    edm::Wrapper< edm::RefGetter<EcalRecHit> > dummy76;
+    edm::Wrapper< edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> > > dummy77;
   }
 }
