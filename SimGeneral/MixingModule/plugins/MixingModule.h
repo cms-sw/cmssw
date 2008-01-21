@@ -62,7 +62,7 @@ namespace edm
       virtual void setBcrOffset();
       virtual void setSourceOffset(const unsigned int s);
       virtual void getSubdetectorNames();
-      virtual void setEventStartInfo(edm::EventID&, int, const unsigned int s); // set in CF-s
+      virtual void setEventStartInfo(const unsigned int s); // set in CF-s
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       // internally used information : subdetectors present in input

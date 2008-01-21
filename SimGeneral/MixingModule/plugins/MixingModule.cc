@@ -26,7 +26,7 @@ namespace edm
 
   // Constructor 
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
-							    playbackInfo_(0),label_(ps.getParameter<std::string>("Label"))
+							    label_(ps.getParameter<std::string>("Label"))
 
   {
     // get the subdetector names
@@ -100,8 +100,8 @@ namespace edm
     cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
     cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
 
-    playbackInfo_=new CrossingFramePlaybackInfo(); //FIXME: dependent on existence of rndmstore?
-
+    //create playback info
+    playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_); 
   }
  
 
@@ -127,6 +127,7 @@ namespace edm
       cfSimHits_[desc.productInstanceName_]->addSignals(resultsim[ii].product(),e.id());
     }
 
+    // CaloHits
     std::map<std::string,CrossingFrame<PCaloHit> * >::iterator it2;
 
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
@@ -292,8 +293,8 @@ namespace edm
     cfHepMC_->setBcrOffset();
   }
 
-  void MixingModule::setEventStartInfo(edm::EventID& id, int fileNr, const unsigned int s) {
-   playbackInfo_->setEventStartInfo(id,fileNr,s); //FIXME: make dependent of rndmstore esistent?
+  void MixingModule::setEventStartInfo(const unsigned int s) {
+   playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
   }
 
   void MixingModule::setSourceOffset(const unsigned int is) {
@@ -330,26 +331,26 @@ namespace edm
       std::auto_ptr<CrossingFrame<edm::HepMCProduct> > pOut(cfHepMC_);
       e.put(pOut);
     }
-
+  
     if (playbackInfo_) {
       std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
       e.put(pOut);
     }
   }
   void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
-    // set event start info in BMixingModule
-    id_=EventID(0,0);
-    fileNr_=-1;
+    // read event start info from event
+    // and set it in BMixingModule
+    //    id_=EventID(0,0);
+    //    fileNr_=-1;
     if (playback_) {
  
       edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;
-      bool got;
-      got=e.get((*sel_), playbackInfo_H);
+      bool got=e.get((*sel_), playbackInfo_H);
       if (got) {
-	id_=playbackInfo_H->getStartEventId(s);
-	fileNr_=playbackInfo_H->getStartFileNr(s); 
+	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
       }else{
 	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
+	//FIXME: defaults
       }
     }
   }
