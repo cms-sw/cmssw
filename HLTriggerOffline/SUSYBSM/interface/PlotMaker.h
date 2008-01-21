@@ -6,6 +6,8 @@
 *  Class to produce some plots of Off-line variables in the TriggerValidation Code
 *
 *  Author: Massimiliano Chiorboli      Date: September 2007
+//         Maurizio Pierini
+//         Maria Spiropulu
 *
 */
 #include <memory>
@@ -20,13 +22,28 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+
+//l1extra
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
+//#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+
 
 #include "TH1.h"
 #include "TH2.h"
@@ -45,7 +62,10 @@ class PlotMaker {
 
  private:
 
+  
+
   void setBits(std::vector<int>* l1bits, std::vector<int>* hltbits) {l1bits_=l1bits; hltbits_=hltbits;}
+  double invariantMass(reco::Particle*,reco::Particle*);
   std::vector<int>* l1bits_;
   std::vector<int>* hltbits_;
     
@@ -164,6 +184,13 @@ class PlotMaker {
   std::vector<TH1D*> hJet2PhiAfterL1;
   std::vector<TH1D*> hJet2PhiAfterHLT;
 
+  TH1D* hDiJetInvMass;
+  std::vector<TH1D*> hDiJetInvMassAfterL1;
+  std::vector<TH1D*> hDiJetInvMassAfterHLT;
+
+
+
+
   //Electrons
   TH1D* hL1EmIsoMult;
   TH1D* hL1EmNotIsoMult;
@@ -229,6 +256,11 @@ class PlotMaker {
   std::vector<TH1D*> hElec2PhiAfterL1;
   std::vector<TH1D*> hElec2PhiAfterHLT;
   
+  TH1D* hDiElecInvMass;
+  std::vector<TH1D*> hDiElecInvMassAfterL1;
+  std::vector<TH1D*> hDiElecInvMassAfterHLT;
+
+
   //Muons
   TH1D* hL1MuonMult;
   TH1D* hMuonMult;
@@ -273,6 +305,10 @@ class PlotMaker {
   std::vector<TH1D*> hMuon2PhiAfterL1;
   std::vector<TH1D*> hMuon2PhiAfterHLT;
 
+  TH1D* hDiMuonInvMass;
+  std::vector<TH1D*> hDiMuonInvMassAfterL1;
+  std::vector<TH1D*> hDiMuonInvMassAfterHLT;
+
 
   //Photons
   TH1D* hPhotonMult;
@@ -297,6 +333,9 @@ class PlotMaker {
   std::vector<TH1D*> hPhoton2PhiAfterL1;
   std::vector<TH1D*> hPhoton2PhiAfterHLT;
   
+  TH1D* hDiPhotonInvMass;
+  std::vector<TH1D*> hDiPhotonInvMassAfterL1;
+  std::vector<TH1D*> hDiPhotonInvMassAfterHLT;
 
   
   //MET

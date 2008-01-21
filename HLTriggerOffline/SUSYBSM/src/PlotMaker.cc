@@ -3,6 +3,8 @@
 *  Class to produce some plots of Off-line variables in the TriggerValidation Code
 *
 *  Author: Massimiliano Chiorboli      Date: September 2007
+//         Maurizio Pierini
+//         Maria Spiropulu
 *
 */
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMaker.h"
@@ -11,19 +13,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TDirectory.h"
 
+#include "HLTriggerOffline/SUSYBSM/interface/PtSorter.h"
+
+
 using namespace edm;
 using namespace reco;
 using namespace std;
 using namespace l1extra;
-
-class PtSorter {
-public:
-  template <class T> bool operator() ( const T& a, const T& b ) {
-    return ( a.pt() > b.pt() );
-  }
-};
-
-
 
 PlotMaker::PlotMaker(edm::ParameterSet objectList)
 {
@@ -168,6 +164,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
     hL1TauJet2Eta->Fill(theL1TauJetCollection[1].eta());
     hL1TauJet2Phi->Fill(theL1TauJetCollection[1].phi());
   }
+
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1TauJetMultAfterL1[i]->Fill(theL1TauJetCollection.size());
@@ -357,11 +354,20 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   int nJets = 0;
+  std::vector<double> diJetInvMass;
   for(unsigned int i=0; i<theCaloJetCollection.size(); i++) {
-    if(theCaloJetCollection[i].pt() > def_jetPtMin ) nJets++;
+    if(theCaloJetCollection[i].pt() > def_jetPtMin ) {
+      nJets++;
+      for(unsigned int j=i+1; j<theCaloJetCollection.size(); j++) {
+	if(theCaloJetCollection[j].pt() > def_jetPtMin ) {
+	  diJetInvMass.push_back(invariantMass(&theCaloJetCollection[i],&theCaloJetCollection[j]));
+	}
+      }
+    }
   } 
-
+  
   hJetMult->Fill(nJets);
+  for(unsigned int j=0; j<diJetInvMass.size(); j++) {hDiJetInvMass->Fill(diJetInvMass[j]);}
   if(theCaloJetCollection.size()>0) {
     hJet1Pt->Fill(theCaloJetCollection[0].pt());
     hJet1Eta->Fill(theCaloJetCollection[0].eta());
@@ -376,6 +382,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hJetMultAfterL1[i]->Fill(nJets);
+      for(unsigned int j=0; j<diJetInvMass.size(); j++) {hDiJetInvMassAfterL1[i]->Fill(diJetInvMass[j]);}
       if(theCaloJetCollection.size()>0) {
 	hJet1PtAfterL1[i]->Fill(theCaloJetCollection[0].pt());
 	hJet1EtaAfterL1[i]->Fill(theCaloJetCollection[0].eta());
@@ -391,6 +398,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hJetMultAfterHLT[i]->Fill(nJets);
+      for(unsigned int j=0; j<diJetInvMass.size(); j++) {hDiJetInvMassAfterHLT[i]->Fill(diJetInvMass[j]);}
       if(theCaloJetCollection.size()>0) {
 	hJet1PtAfterHLT[i]->Fill(theCaloJetCollection[0].pt());
 	hJet1EtaAfterHLT[i]->Fill(theCaloJetCollection[0].eta());
@@ -410,11 +418,21 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   int nElectrons = 0;
+  std::vector<double> diElecInvMass;
   for(unsigned int i=0; i<theElectronCollection.size(); i++) {
-    if(theElectronCollection[i].pt() > def_electronPtMin ) nElectrons++;
-  } 
+    if(theElectronCollection[i].pt() > def_electronPtMin ) {
+      nElectrons++;
+      for(unsigned int j=i+1; j<theElectronCollection.size(); j++) {
+	if(theElectronCollection[j].pt() > def_electronPtMin ) {
+	  if(theElectronCollection[i].charge()*theElectronCollection[j].charge() < 0)
+	    diElecInvMass.push_back(invariantMass(&theElectronCollection[i],&theElectronCollection[j]));
+	}
+      }
+    }
+  }
 
   hElecMult->Fill(nElectrons);
+  for(unsigned int j=0; j<diElecInvMass.size(); j++) {hDiElecInvMass->Fill(diElecInvMass[j]);}
   if(theElectronCollection.size()>0) {
     hElec1Pt->Fill(theElectronCollection[0].pt());
     hElec1Eta->Fill(theElectronCollection[0].eta());
@@ -429,6 +447,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hElecMultAfterL1[i]->Fill(nElectrons);
+      for(unsigned int j=0; j<diElecInvMass.size(); j++) {hDiElecInvMassAfterL1[i]->Fill(diElecInvMass[j]);}
       if(theElectronCollection.size()>0) {
 	hElec1PtAfterL1[i]->Fill(theElectronCollection[0].pt());
 	hElec1EtaAfterL1[i]->Fill(theElectronCollection[0].eta());
@@ -444,6 +463,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hElecMultAfterHLT[i]->Fill(nElectrons);
+      for(unsigned int j=0; j<diElecInvMass.size(); j++) {hDiElecInvMassAfterHLT[i]->Fill(diElecInvMass[j]);}
       if(theElectronCollection.size()>0) {
 	hElec1PtAfterHLT[i]->Fill(theElectronCollection[0].pt());
 	hElec1EtaAfterHLT[i]->Fill(theElectronCollection[0].eta());
@@ -463,11 +483,22 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   int nMuons = 0;
+  std::vector<double> diMuonInvMass;
   for(unsigned int i=0; i<theMuonCollection.size(); i++) {
-    if(theMuonCollection[i].pt() > def_muonPtMin ) nMuons++;
-  } 
+    if(theMuonCollection[i].pt() > def_muonPtMin ) {
+      nMuons++;
+      for(unsigned int j=i+1; j<theMuonCollection.size(); j++) {
+	if(theMuonCollection[j].pt() > def_muonPtMin ) {
+	  if(theMuonCollection[i].charge()*theMuonCollection[j].charge() < 0)
+	    diMuonInvMass.push_back(invariantMass(&theMuonCollection[i],&theMuonCollection[j]));
+	}
+      }
+    }
+  }
+
 
   hMuonMult->Fill(nMuons);
+  for(unsigned int j=0; j<diMuonInvMass.size(); j++) {hDiMuonInvMass->Fill(diMuonInvMass[j]);}
   if(theMuonCollection.size()>0) {
     hMuon1Pt->Fill(theMuonCollection[0].pt());
     hMuon1Eta->Fill(theMuonCollection[0].eta());
@@ -482,6 +513,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hMuonMultAfterL1[i]->Fill(nMuons);
+      for(unsigned int j=0; j<diMuonInvMass.size(); j++) {hDiMuonInvMassAfterL1[i]->Fill(diMuonInvMass[j]);}
       if(theMuonCollection.size()>0) {
 	hMuon1PtAfterL1[i]->Fill(theMuonCollection[0].pt());
 	hMuon1EtaAfterL1[i]->Fill(theMuonCollection[0].eta());
@@ -497,6 +529,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hMuonMultAfterHLT[i]->Fill(nMuons);
+      for(unsigned int j=0; j<diMuonInvMass.size(); j++) {hDiMuonInvMassAfterHLT[i]->Fill(diMuonInvMass[j]);}
       if(theMuonCollection.size()>0) {
 	hMuon1PtAfterHLT[i]->Fill(theMuonCollection[0].pt());
 	hMuon1EtaAfterHLT[i]->Fill(theMuonCollection[0].eta());
@@ -515,11 +548,20 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   int nPhotons = 0;
+  std::vector<double> diPhotonInvMass;
   for(unsigned int i=0; i<thePhotonCollection.size(); i++) {
-    if(thePhotonCollection[i].pt() > def_photonPtMin ) nPhotons++;
-  } 
+    if(thePhotonCollection[i].pt() > def_photonPtMin ) {
+      nPhotons++;
+      for(unsigned int j=i+1; j<thePhotonCollection.size(); j++) {
+	if(thePhotonCollection[j].pt() > def_photonPtMin ) {
+	  diPhotonInvMass.push_back(invariantMass(&thePhotonCollection[i],&thePhotonCollection[j]));
+	}
+      }
+    }
+  }
 
   hPhotonMult->Fill(nPhotons);
+  for(unsigned int j=0; j<diPhotonInvMass.size(); j++) {hDiPhotonInvMass->Fill(diPhotonInvMass[j]);}
   if(thePhotonCollection.size()>0) {
     hPhoton1Pt->Fill(thePhotonCollection[0].et());
     hPhoton1Eta->Fill(thePhotonCollection[0].eta());
@@ -533,6 +575,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hPhotonMultAfterL1[i]->Fill(nPhotons);
+      for(unsigned int j=0; j<diPhotonInvMass.size(); j++) {hDiPhotonInvMassAfterL1[i]->Fill(diPhotonInvMass[j]);}
       if(thePhotonCollection.size()>0) {
 	hPhoton1PtAfterL1[i]->Fill(thePhotonCollection[0].et());
 	hPhoton1EtaAfterL1[i]->Fill(thePhotonCollection[0].eta());
@@ -548,6 +591,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hPhotonMultAfterHLT[i]->Fill(nPhotons);
+      for(unsigned int j=0; j<diPhotonInvMass.size(); j++) {hDiPhotonInvMassAfterHLT[i]->Fill(diPhotonInvMass[j]);}
       if(thePhotonCollection.size()>0) {
 	hPhoton1PtAfterHLT[i]->Fill(thePhotonCollection[0].et());
 	hPhoton1EtaAfterHLT[i]->Fill(thePhotonCollection[0].eta());
@@ -1029,6 +1073,9 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hJet1Phi  = new TH1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2 , 3.2 );
   hJet2Phi  = new TH1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2 , 3.2 );
   
+  hDiJetInvMass = new TH1D("DiJetInvMass", "DiJet Invariant Mass", 1000, 0, 1000);
+  
+
   gDirectory->cd("/RecoJets/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "JetMult_" + (*l1Names_)[i];
@@ -1052,6 +1099,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Phi_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
     hJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    
+    myHistoName = "DiJetInvMass_" + (*l1Names_)[i];
+    myHistoTitle = "DiJet Invariant Mass for L1 path " + (*l1Names_)[i];
+    hDiJetInvMassAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
 
   gDirectory->cd("/RecoJets/HLT");
@@ -1077,6 +1129,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Phi_" + (*hlNames_)[i];
     myHistoTitle = "Jet 2 Phi for HLT path " + (*hlNames_)[i];
     hJet2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiJetInvMass_" + (*hlNames_)[i];
+    myHistoTitle = "DiJet Invariant Mass for HLT path " + (*hlNames_)[i];
+    hDiJetInvMassAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
   gDirectory->cd();
 
@@ -1095,6 +1152,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hElec2Eta  = new TH1D("Elec2Eta",  "Elec 2 Eta ",        100, -3, 3);
   hElec1Phi  = new TH1D("Elec1Phi",  "Elec 1 Phi ",        100, -3.2, 3.2);
   hElec2Phi  = new TH1D("Elec2Phi",  "Elec 2 Phi ",        100, -3.2, 3.2);
+
+  hDiElecInvMass = new TH1D("DiElecInvMass", "DiElec Invariant Mass", 1000, 0, 1000);
   
   gDirectory->cd("/RecoElectrons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -1119,6 +1178,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Phi_" + (*l1Names_)[i];
     myHistoTitle = "Elec 2 Phi for L1 path " + (*l1Names_)[i];
     hElec2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiElecInvMass_" + (*l1Names_)[i];
+    myHistoTitle = "DiElec Invariant Mass for L1 path " + (*l1Names_)[i];
+    hDiElecInvMassAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
 
   gDirectory->cd("/RecoElectrons/HLT");
@@ -1144,6 +1208,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Phi_" + (*hlNames_)[i];
     myHistoTitle = "Elec 2 Phi for HLT path " + (*hlNames_)[i];
     hElec2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiElecInvMass_" + (*hlNames_)[i];
+    myHistoTitle = "DiElec Invariant Mass for HLT path " + (*hlNames_)[i];
+    hDiElecInvMassAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
   gDirectory->cd();
 
@@ -1161,6 +1230,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hMuon1Phi  = new TH1D("Muon1Phi",  "Muon 1 Phi ",        100, -3.2, 3.2);
   hMuon2Phi  = new TH1D("Muon2Phi",  "Muon 2 Phi ",        100, -3.2, 3.2);
   
+  hDiMuonInvMass = new TH1D("DiMuonInvMass", "DiMuon Invariant Mass", 1000, 0, 1000);
+
   gDirectory->cd("/RecoMuons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "MuonMult_" + (*l1Names_)[i];
@@ -1184,6 +1255,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Phi_" + (*l1Names_)[i];
     myHistoTitle = "Muon 2 Phi for L1 path " + (*l1Names_)[i];
     hMuon2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiMuonInvMass_" + (*l1Names_)[i];
+    myHistoTitle = "DiMuon Invariant Mass for L1 path " + (*l1Names_)[i];
+    hDiMuonInvMassAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
 
   gDirectory->cd("/RecoMuons/HLT");
@@ -1209,6 +1285,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Phi_" + (*hlNames_)[i];
     myHistoTitle = "Muon 2 Phi for HLT path " + (*hlNames_)[i];
     hMuon2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiMuonInvMass_" + (*hlNames_)[i];
+    myHistoTitle = "DiMuon Invariant Mass for HLT path " + (*hlNames_)[i];
+    hDiMuonInvMassAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
   gDirectory->cd();
 
@@ -1227,6 +1308,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hPhoton1Phi  = new TH1D("Photon1Phi",  "Photon 1 Phi ",        100, -3.2, 3.2);
   hPhoton2Phi  = new TH1D("Photon2Phi",  "Photon 2 Phi ",        100, -3.2, 3.2);
   
+  hDiPhotonInvMass = new TH1D("DiPhotonInvMass", "DiPhoton Invariant Mass", 1000, 0, 1000);
+
   gDirectory->cd("/RecoPhotons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "PhotonMult_" + (*l1Names_)[i];
@@ -1250,6 +1333,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Photon2Phi_" + (*l1Names_)[i];
     myHistoTitle = "Photon 2 Phi for L1 path " + (*l1Names_)[i];
     hPhoton2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiPhotonInvMass_" + (*l1Names_)[i];
+    myHistoTitle = "DiPhoton Invariant Mass for L1 path " + (*l1Names_)[i];
+    hDiPhotonInvMassAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
 
   gDirectory->cd("/RecoPhotons/HLT");
@@ -1275,6 +1363,11 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Photon2Phi_" + (*hlNames_)[i];
     myHistoTitle = "Photon 2 Phi for HLT path " + (*hlNames_)[i];
     hPhoton2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+
+    myHistoName = "DiPhotonInvMass_" + (*hlNames_)[i];
+    myHistoTitle = "DiPhoton Invariant Mass for HLT path " + (*hlNames_)[i];
+    hDiPhotonInvMassAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 1000, 0, 1000));
+
   }
   gDirectory->cd();
 
@@ -1325,9 +1418,9 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 {
 
 
-  //***********************************************
-  // Get the L1 Objects
-  //***********************************************
+  //**************************************************
+  // Get the L1 Objects through the l1extra Collection
+  //**************************************************
 
   //Get the EM objects
 
@@ -1397,3 +1490,21 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
   iEvent.getByLabel(m_calometSrc, theCaloMETCollectionHandle);
   theCaloMETCollection = *theCaloMETCollectionHandle;
 }
+
+double PlotMaker::invariantMass(reco::Particle* p1, reco::Particle* p2) {
+  double mass = sqrt( (p1->energy() + p2->energy())*(p1->energy() + p2->energy()) -
+	       (p1->px() + p2->px())*(p1->px() + p2->px()) -
+	       (p1->py() + p2->py())*(p1->py() + p2->py()) -
+	       (p1->pz() + p2->pz())*(p1->pz() + p2->pz()) );
+
+
+//   cout << "p1->energy() = " << p1->energy() << " p2->energy() = " << p2->energy() << endl;
+//   cout << "p1->px() = " << p1->px() << " p2->px() = " << p2->px() << endl;
+//   cout << "p1->py() = " << p1->py() << " p2->py() = " << p2->py() << endl;
+//   cout << "p1->pz() = " << p1->pz() << " p2->pz() = " << p2->pz() << endl;
+//   cout << "invmass = " << mass << endl;
+
+
+  return mass;
+}
+
