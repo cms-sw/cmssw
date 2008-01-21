@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.17 2008/01/15 09:51:10 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.18 2008/01/21 10:17:41 arizzi Exp $
 //
 //
 
@@ -99,12 +99,17 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_dedxFitCtrl;
       TH1F * h_dedxMIP;
       TH1F * h_dedxFitMIP;
-      TH2F * h_dedxMassMuVsPtError;	
+      TH2F * h_dedxMassMuVsPtError;
+      TH1F * h_dedxMIPbeta;
+      TH1F * h_dedxMIPbetaCut;
+	
 // RECO TOF
       TH2F * h_tofBetap;
       TH2F * h_tofMassp;
       TH1F * h_tofMass;
       TH1F * h_tofMass2;
+      TH1F * h_tofBeta;
+      TH1F * h_tofBetaCut;
 //ANALYSIS
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
@@ -291,7 +296,12 @@ Handle< double > genFilterEff;
       double mass2 = p*p*(invbeta*invbeta-1);
            
       cout << " Muon p: " << p << " invBeta: " << invbeta << " Mass: " << mass << endl;
-      
+      h_tofBeta->Fill(1./invbeta , w);
+
+      if( betaReco[i].second.invBetaErr < 0.07)  h_tofBetaCut->Fill(1./invbeta , w);
+
+      h_tofBeta->Fill(1./invbeta , w);
+ 
       h_tofBetap->Fill(p,invbeta,w);
       h_tofMassp->Fill(p,mass,w);
       h_tofMass->Fill(mass,w);
@@ -335,6 +345,10 @@ Handle< double > genFilterEff;
 
          h_dedxFit->Fill(p, dedxFitVal,w);   
          h_dedxFitCtrl->Fill(p, dedxFitVal,w);   
+         float k=0.4;  //919/2.75*0.0012;
+         float k2=0.432; //919/2.55*0.0012;
+         float mass=p*sqrt(k*dedxVal-1);
+         float mass2=p*sqrt(k2*dedxFitVal-1);
 
          if(p > 5 && p < 30 )  
           {
@@ -344,11 +358,14 @@ Handle< double > genFilterEff;
               {
               std::cout << dedx[i].first->normalizedChi2() << " " << dedx[i].first->numberOfValidHits() << " " << p <<std::endl;
               }
-          }
-         float k=0.4;  //919/2.75*0.0012;
-         float k2=0.432; //919/2.55*0.0012;
-         float mass=p*sqrt(k*dedxVal-1);
-         float mass2=p*sqrt(k2*dedxFitVal-1);
+
+         h_dedxMIPbeta->Fill(1./sqrt(k*dedxVal),w);
+         if(usedhits >= 12)
+         h_dedxMIPbetaCut->Fill(1./sqrt(k*dedxVal),w);
+         
+         }
+
+
 
          h_dedxMass->Fill(mass,w); 
          h_dedxMassFit->Fill(mass2,w); 
@@ -519,6 +536,8 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedx =  subDir.make<TH2F>( "dedx_p"  , "\\frac{dE}{dX} vs p", 100,  0., 1500., 100,0,8 );
   h_dedxCtrl =  subDir.make<TH2F>( "dedx_lowp"  , "\\frac{dE}{dX} vs p", 100,  0., 3., 100,0,8 );
   h_dedxMIP =  subDir.make<TH1F>( "dedxMIP"  , "\\frac{dE}{dX}  ",100,0,8 );
+  h_dedxMIPbeta = subDir.make<TH1F>( "dedxMIP_beta"  , "\\frac{dE}{dX}  ",100,0,1);
+  h_dedxMIPbetaCut = subDir.make<TH1F>( "dedxMIP_beta_cut"  , "\\frac{dE}{dX}  ",100,0,1);
   h_dedxFit =  subDir.make<TH2F>( "dedx_p_FIT"  , "\\frac{dE}{dX} vs p", 100,  0., 1500., 100,0,8 );
   h_dedxFitCtrl =  subDir.make<TH2F>( "dedx_lowp_FIT"  , "\\frac{dE}{dX} vs p", 100,  0., 3., 100,0,8 );
   h_dedxFitMIP =  subDir.make<TH1F>( "dedxMIP_FIT"  , "\\frac{dE}{dX}  ",100,0,8 );
@@ -538,6 +557,8 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_tofMassp =  subDirTof.make<TH2F>("tof_mass_p","Mass vs p", 100,0,1500,100,0,1000);
   h_tofMass =  subDirTof.make<TH1F>("tof_mass","Mass from DT TOF",100,0,1000);
   h_tofMass2 =  subDirTof.make<TH1F>("tof_mass2","Mass squared from DT TOF",100,-10000,100000);
+  h_tofBeta = subDirTof.make<TH1F>( "tof_beta"  , " tof beta  ",100,0,1);
+  h_tofBetaCut = subDirTof.make<TH1F>( "tof_beta_cut"  , " tof beta cut  ",100,0,1);
 
 //-------- Analysis ----------------
  TFileDirectory subDirAn =  fs->mkdir( "Analysis" );
