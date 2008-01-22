@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.11 2007/12/28 21:01:44 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.12 2008/01/08 17:42:19 pjanot Exp $
 //
 //
 
@@ -617,6 +617,7 @@ ParamL3MuonProducer::findId(const reco::Track& aTrack) const {
     if ( !aHit->get()->isValid() ) continue;
     const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
     trackId = rechit->simtrackId();
+    break;
   }
   return trackId;
 }

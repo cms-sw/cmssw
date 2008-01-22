@@ -13,6 +13,10 @@ namespace edm {
   class EventSetup;
 }
 
+namespace reco { 
+  class Track;
+}
+
 class TrackCandidateProducer : public edm::EDProducer
 {
  public:
@@ -25,6 +29,10 @@ class TrackCandidateProducer : public edm::EDProducer
   
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
   
+ private:
+
+  int findId(const reco::Track& aTrack) const;
+
  private:
 
   const TrackerGeometry*  theGeometry;

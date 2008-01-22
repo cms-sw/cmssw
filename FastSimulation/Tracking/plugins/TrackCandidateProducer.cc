@@ -170,8 +170,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
       edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
       reco::TrackRef aTrackRef = anAssociation->val;
-      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
-      unsigned recoTrackId = rechit->simtrackId();
+
+      // FInd the simtrack id of the reconstructed track
+      int recoTrackId = findId(*aTrackRef);
+      if ( recoTrackId < 0 ) continue;
+
 #ifdef FAMOS_DEBUG
       std::cout << recoTrackId << " ";
 #endif
@@ -223,24 +226,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     std::vector<TrackerRecHit> theTrackerRecHits;
     unsigned theNumberOfCrossedLayers = 0;
  
-    // Check if the track has already been reconstructed
-    /*
-      reco::TrackRef aTrackRef;
-      edm::Ref<std::vector<Trajectory> > aTrajectoryRef;
-      int recoTrackId = -1;
-      if ( isTrackCollection ) { 
-      for ( ; anAssociation != lastAssociation && recoTrackId < simTrackId; ++anAssociation ) { 
-      aTrajectoryRef = anAssociation->key;
-      aTrackRef = anAssociation->val;
-      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
-      recoTrackId = rechit->simtrackId();
-      // std::cout << "The Reco Track Id : " << recoTrackId << std::endl;
-      } 
-      }
-    */
-
     // The track has indeed been reconstructed already -> Save the pertaining info
-    // if ( isTrackCollection && recoTrackId == simTrackId ) { 
     TrackMap::const_iterator theTrackIt = theTrackMap.find(simTrackId);
     if ( isTrackCollection && theTrackIt != theTrackMap.end() ) { 
 
@@ -475,4 +461,17 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 }
 
+int 
+TrackCandidateProducer::findId(const reco::Track& aTrack) const {
+  int trackId = -1;
+  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
+  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
+  for ( ; aHit!=lastHit; ++aHit ) {
+    if ( !aHit->get()->isValid() ) continue;
+    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    trackId = rechit->simtrackId();
+    break;
+  }
+  return trackId;
+}
 

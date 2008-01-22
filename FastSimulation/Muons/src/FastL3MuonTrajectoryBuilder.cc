@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/28 21:00:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/08 17:43:50 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -249,6 +249,7 @@ FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
     if ( !aHit->get()->isValid() ) continue;
     const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
     trackId = rechit->simtrackId();
+    break;
   }
   return trackId;
 }

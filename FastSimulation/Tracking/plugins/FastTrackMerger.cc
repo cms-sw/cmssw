@@ -333,6 +333,7 @@ FastTrackMerger::findId(const reco::Track& aTrack) const {
     if ( !aHit->get()->isValid() ) continue;
     const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
     trackId = rechit->simtrackId();
+    break;
   }
   return trackId;
 }
