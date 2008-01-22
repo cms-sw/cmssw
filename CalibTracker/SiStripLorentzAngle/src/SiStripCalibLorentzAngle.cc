@@ -44,8 +44,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 
   fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
 
-  std::vector<MonitorElement*> histolist= dbe_->getAllContents("/");
+  std::vector<MonitorElement*> histolist= dbe_->getContents("/", true);
   std::vector<MonitorElement*>::iterator histo;
+  
   LocalPoint p =LocalPoint(0,0,0);
   for(histo=histolist.begin();histo!=histolist.end();++histo){
     if((*histo)->getEntries()>100){
