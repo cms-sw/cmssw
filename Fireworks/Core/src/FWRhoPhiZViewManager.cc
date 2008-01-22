@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.4 2008/01/21 01:17:22 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.5 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -269,10 +269,12 @@ FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
 void 
 FWRhoPhiZViewManager::modelChangesComing()
 {
+   gEve->DisableRedraw();
 }
 void 
 FWRhoPhiZViewManager::modelChangesDone()
 {
+   gEve->EnableRedraw();
 }
 
 //
