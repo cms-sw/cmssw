@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.18 2008/01/21 10:17:41 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.19 2008/01/21 14:26:08 arizzi Exp $
 //
 //
 
@@ -119,6 +119,11 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_massVsBeta;
       TH2F * h_massVsPtError;
       TH2F * h_massVsMassError;
+
+//ANALYSIS TK
+      TH2F * h_massVsBeta_tk;
+      TH2F * h_massVsPtError_tk;
+      TH2F * h_massVsMassError_tk;
       	
 //Counters
       double selected;
@@ -451,6 +456,8 @@ for(int i=0; i < candidates.size();i++)
     {
       h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
     }
+
+
 if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1)
  { 
   double avgMass = (candidates[i].massDt()+candidates[i].massTk())/2.;
@@ -486,12 +493,26 @@ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() &&
  }
  }
 
-
-if(candidates[i].tk.invBeta2 > 1.5 && candidates[i].hasDt && highptmu ) 
+//////if(candidates[i].tk.invBeta2 > 1.56 && candidates[i].hasDt && ) 
+if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].massTk() > 100 && candidates[i].dt.first->standAloneMuon()->pt() > 100 && candidates[i].tk.invBeta2 > 1.56  )
  {
    h_dedxMassMu->Fill(candidates[i].massTk(),w); 
    h_dedxMassMuVsPtError->Fill(candidates[i].massTk(),candidates[i].tk.track->ptError()/candidates[i].tk.track->pt(),w);
 
+  double ptMassError=(candidates[i].tk.track->ptError()/candidates[i].tk.track->pt());
+  ptMassError*=ptMassError;
+  double dedxError = 0.2*sqrt(10./candidates[i].tk.nDeDxHits)*0.4/candidates[i].tk.invBeta2;    //TODO: FIXED IT!!!
+  double tkBetaMassError = dedxError/(2.*candidates[i].tk.invBeta2-1);
+  tkBetaMassError*=tkBetaMassError;
+
+  double tkMassError=sqrt(ptMassError+tkBetaMassError);
+
+  h_massVsMassError_tk->Fill(candidates[i].massTk(),tkMassError,w);
+  h_massVsBeta_tk->Fill(candidates[i].massTk(),1./sqrt(candidates[i].tk.invBeta2Fit),w);
+  h_massVsPtError_tk->Fill(candidates[i].massTk(),log10(candidates[i].tk.track->ptError()),w);
+
+
+ 
  }
 }
 
@@ -578,6 +599,13 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_massVsBeta =  subDirAn.make<TH2F>("avgMass_vs_avgBeta","Mass(avg) vs Beta(avg)", 100,0,1200,50,0,1);
   h_massVsPtError =  subDirAn.make<TH2F>("avgMass_vs_ptError","Mass(avg) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
   h_massVsMassError =  subDirAn.make<TH2F>("avgMass_vs_MassError","Mass(avg) vs log(masstError)", 100,0,1200,100,0,2);
+
+//--------- Analysis tk ------
+ TFileDirectory subDirAnTk =  fs->mkdir( "AnalysisTk" );
+  h_massVsBeta_tk =  subDirAnTk.make<TH2F>("tkMass_vs_tkBeta","Mass(tk) vs Beta(tk)", 100,0,1200,50,0,1);
+  h_massVsPtError_tk =  subDirAnTk.make<TH2F>("tkMass_vs_ptError","Mass(tk) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
+  h_massVsMassError_tk =  subDirAnTk.make<TH2F>("tkMass_vs_MassError","Mass(tk) vs mass error", 100,0,1200,100,0,2);
+
 
 
 //------------ SIM ----------------
