@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
+// $Id: PATObject.h,v 1.2 2008/01/16 20:33:23 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -12,8 +12,10 @@
    PATObject is the templated base PAT object that wraps around reco objects.
 
   \author   Steven Lowette
-  \version  $Id: PATObject.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
+  \version  $Id: PATObject.h,v 1.2 2008/01/16 20:33:23 lowette Exp $
 */
+
+#include <DataFormats/Common/interface/Ref.h>
 
 #include <vector>
 
@@ -27,9 +29,11 @@ namespace pat {
     public:
 
       PATObject();
-      PATObject(ObjectType obj);
+      PATObject(const ObjectType & obj);
+      PATObject(const edm::Ref<std::vector<ObjectType> > & ref);
       virtual ~PATObject() {}
 
+      const ObjectType * originalObject() const;
       float resolutionA() const;
       float resolutionB() const;
       float resolutionC() const;
@@ -40,7 +44,6 @@ namespace pat {
       float resolutionTheta() const;
       const std::vector<float> & covMatrix() const;
 
-      // FIXME: make these protected, once we have a base kinfit interface class
       void setResolutionA(float a);
       void setResolutionB(float b);
       void setResolutionC(float c);
@@ -53,6 +56,8 @@ namespace pat {
 
     protected:
 
+      // reference back to the original object
+      edm::Ref<std::vector<ObjectType> > refToOrig_;
       // resolution members
       float resET_;
       float resEta_;
@@ -72,10 +77,32 @@ namespace pat {
     resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0), resTheta_(0) {
   }
 
-  /// constructor from a base object
-  template <class ObjectType> PATObject<ObjectType>::PATObject(ObjectType obj) :
+  /// constructor from a base object (leaves invalid reference to original object!)
+  template <class ObjectType> PATObject<ObjectType>::PATObject(const ObjectType & obj) :
     ObjectType(obj),
+    refToOrig_(edm::ProductID(0)),
     resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+  }
+
+  /// constructor from a ref to an object
+  template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::Ref<std::vector<ObjectType> > & ref) :
+    ObjectType(*ref),
+    refToOrig_(ref),
+    resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+  }
+
+  /// access to the original object; returns zero for null Ref and throws for unavailable collection
+  template <class ObjectType> const ObjectType * PATObject<ObjectType>::originalObject() const {
+    if (refToOrig_.isNull()) {
+      // this object was not produced from a reference, so no link to the
+      // original object exists -> return a 0-pointer
+      return 0;
+    } else if (!refToOrig_.isAvailable()) {
+      throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
+      return 0;
+    } else {
+      return refToOrig_.get();
+    }
   }
 
   template <class ObjectType> float PATObject<ObjectType>::resolutionET() const { return resET_; }

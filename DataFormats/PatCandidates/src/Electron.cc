@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
+// $Id: Electron.cc,v 1.2 2008/01/16 20:33:26 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -15,6 +15,11 @@ Electron::Electron() : Lepton<ElectronType>() {
 
 /// constructor from ElectronType
 Electron::Electron(const ElectronType & anElectron) : Lepton<ElectronType>(anElectron) {
+}
+
+
+/// constructor from ref to ElectronType
+Electron::Electron(const edm::Ref<std::vector<ElectronType> > & anElectronRef) : Lepton<ElectronType>(anElectronRef) {
 }
 
 

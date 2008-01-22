@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
+// $Id: Muon.cc,v 1.2 2008/01/16 20:33:28 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -15,6 +15,11 @@ Muon::Muon() : Lepton<MuonType>() {
 
 /// constructor from MuonType
 Muon::Muon(const MuonType & aMuon) : Lepton<MuonType>(aMuon) {
+}
+
+
+/// constructor from ref to MuonType
+Muon::Muon(const edm::Ref<std::vector<MuonType> > & aMuonRef) : Lepton<MuonType>(aMuonRef) {
 }
 
 

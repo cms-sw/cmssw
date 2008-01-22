@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.1 2008/01/15 13:30:13 lowette Exp $
+// $Id: PATMuonProducer.cc,v 1.2 2008/01/21 16:26:17 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -110,8 +110,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // loop over muons
   std::vector<Muon> * patMuons = new std::vector<Muon>();
   for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
-    // construct the muon
-    Muon aMuon(*itMuon);
+    // construct the Muon from the ref -> save ref to original object
+    unsigned int idx = itMuon - muons->begin();
+    edm::Ref<std::vector<MuonType> > muonsRef = muons->refAt(idx).castTo<edm::Ref<std::vector<MuonType> > >();
+    Muon aMuon(muonsRef);
     // match to generated final state muons
     if (addGenMatch_) {
       aMuon.setGenLepton(findTruth(*particles, *itMuon));

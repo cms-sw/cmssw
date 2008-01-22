@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.4 2008/01/21 17:27:49 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.5 2008/01/22 13:23:09 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -128,9 +128,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
-    // construct the Electron
-    Electron anElectron(*itElectron);
+    // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
+    edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
+    Electron anElectron(elecsRef);
     // match to generated final state electrons
     if (addGenMatch_) {
       anElectron.setGenLepton(findTruth(*particles, *itElectron));

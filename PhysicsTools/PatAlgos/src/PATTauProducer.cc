@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.3 2008/01/21 16:26:17 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.4 2008/01/21 18:04:42 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -108,7 +108,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // 1.6.X functionality
   for (edm::View<reco::Tau>::const_iterator itTau = taus->begin(); itTau != taus->end(); ++itTau) {
-    Tau aTau(*itTau);
+    // construct the Tau from the ref -> save ref to original object
+    unsigned int idx = itTau - taus->begin();
+    edm::Ref<std::vector<TauType> > tausRef = taus->refAt(idx).castTo<edm::Ref<std::vector<TauType> > >();
+    Tau aTau(tausRef);
     patTaus->push_back(aTau);
   }
 /* > 1.8.X functionality

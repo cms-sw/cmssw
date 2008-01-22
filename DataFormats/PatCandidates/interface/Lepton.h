@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
+// $Id: Lepton.h,v 1.3 2008/01/21 22:01:25 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
+  \version  $Id: Lepton.h,v 1.3 2008/01/21 22:01:25 lowette Exp $
 */
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -30,6 +30,7 @@ namespace pat {
 
       Lepton();
       Lepton(const LeptonType & aLepton);
+      Lepton(const edm::Ref<std::vector<LeptonType> > & aLeptonRef);
       virtual ~Lepton();
 
       const reco::Particle * genLepton() const;
@@ -67,6 +68,14 @@ namespace pat {
   template <class LeptonType>
   Lepton<LeptonType>::Lepton(const LeptonType & aLepton) :
     PATObject<LeptonType>(aLepton),
+    lrComb_(0) {
+  }
+
+
+  /// constructor from ref to LeptonType
+  template <class LeptonType>
+  Lepton<LeptonType>::Lepton(const edm::Ref<std::vector<LeptonType> > & aLeptonRef) :
+    PATObject<LeptonType>(aLeptonRef),
     lrComb_(0) {
   }
 
