@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/01/18 18:05:42 $
- * $Revision: 1.18 $
+ * $Date: 2008/01/22 19:01:04 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -240,7 +240,7 @@ void EEBeamHodoClient::analyze(void){
 
   int smId = 1;
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.90 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -83,7 +83,7 @@ void EBTestPulseTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");

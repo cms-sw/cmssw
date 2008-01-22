@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/01/18 18:05:43 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/22 19:01:05 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -134,7 +134,7 @@ void EEPedestalOnlineClient::endRun(void) {
 
 void EEPedestalOnlineClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
 
@@ -338,7 +338,7 @@ void EEPedestalOnlineClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -112,7 +112,7 @@ void EBBeamHodoTask::setup(void){
 
   smId =1;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBBeamHodoTask");

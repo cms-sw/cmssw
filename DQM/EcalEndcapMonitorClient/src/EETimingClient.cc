@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/01/18 18:05:43 $
- * $Revision: 1.54 $
+ * $Date: 2008/01/22 19:01:05 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -135,7 +135,7 @@ void EETimingClient::endRun(void) {
 
 void EETimingClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EETimingClient" );
 
@@ -349,7 +349,7 @@ void EETimingClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

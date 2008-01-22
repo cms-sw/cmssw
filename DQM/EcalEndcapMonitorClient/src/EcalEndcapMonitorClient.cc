@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/18 18:08:43 $
- * $Revision: 1.122 $
+ * $Date: 2008/01/20 16:50:32 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1342,7 +1342,7 @@ void EcalEndcapMonitorClient::analyze(void){
     mui_->doMonitoring();
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
   string s;

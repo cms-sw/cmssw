@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/01/05 09:35:49 $
- * $Revision: 1.16 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -112,7 +112,7 @@ void EEBeamHodoTask::setup(void){
 
   smId =1;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEBeamHodoTask");

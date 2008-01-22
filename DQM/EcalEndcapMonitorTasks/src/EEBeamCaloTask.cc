@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/01/05 09:35:49 $
- * $Revision: 1.21 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.22 $
  * \author A. Ghezzi
  *
  */
@@ -113,7 +113,7 @@ void EEBeamCaloTask::setup(void){
 
   init_ = true;
   profileArranged_= false;
-  Char_t histo[200];
+  char histo[200];
 
   PreviousTableStatus_[0]=0;//let's start with stable...
   PreviousTableStatus_[1]=0;//let's start with stable...

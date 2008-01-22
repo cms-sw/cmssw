@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/18 18:06:49 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/22 19:01:04 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -192,7 +192,7 @@ void EELedClient::endRun(void) {
 
 void EELedClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
 
@@ -775,7 +775,7 @@ void EELedClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/20 16:50:34 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/20 17:14:25 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -136,7 +136,7 @@ void EBOccupancyClient::endRun(void) {
 
 void EBOccupancyClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
 
@@ -246,7 +246,7 @@ void EBOccupancyClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

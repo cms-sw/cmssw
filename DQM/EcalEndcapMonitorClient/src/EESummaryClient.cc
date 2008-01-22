@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/20 17:11:32 $
- * $Revision: 1.82 $
+ * $Date: 2008/01/21 08:11:06 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -169,7 +169,7 @@ void EESummaryClient::endRun(void) {
 
 void EESummaryClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 

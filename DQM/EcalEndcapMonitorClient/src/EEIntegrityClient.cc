@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/20 13:34:28 $
- * $Revision: 1.53 $
+ * $Date: 2008/01/20 17:11:28 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -153,7 +153,7 @@ void EEIntegrityClient::endRun(void) {
 
 void EEIntegrityClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEIntegrityClient" );
 
@@ -719,7 +719,7 @@ void EEIntegrityClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask3);
   EcalErrorMask::fetchDataSet(&mask4);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

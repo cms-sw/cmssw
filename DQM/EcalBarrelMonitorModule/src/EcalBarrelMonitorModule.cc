@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/20 16:41:47 $
- * $Revision: 1.164 $
+ * $Date: 2008/01/20 17:11:37 $
+ * $Revision: 1.165 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -207,7 +207,7 @@ void EcalBarrelMonitorModule::setup(void){
 
   if ( enableMonitorDaemon_ ) sleep(5);
 
-  Char_t histo[20];
+  char histo[20];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/22 18:48:08 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -15,11 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -168,7 +164,7 @@ void EBStatusFlagsClient::analyze(void){
     if ( verbose_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

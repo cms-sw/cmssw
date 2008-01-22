@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/01/18 18:04:58 $
- * $Revision: 1.70 $
+ * $Date: 2008/01/22 18:48:07 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -17,13 +17,11 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -143,7 +141,7 @@ void EBBeamCaloClient::endRun(void) {
 
 void EBBeamCaloClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBBeamCaloClient" );
 
@@ -345,7 +343,7 @@ void EBBeamCaloClient::analyze(void){
     if ( verbose_ ) cout << "EBBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me = 0;
 

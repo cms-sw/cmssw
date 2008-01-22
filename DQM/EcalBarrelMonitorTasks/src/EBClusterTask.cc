@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/01/11 10:14:10 $
- * $Revision: 1.45 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -100,7 +100,7 @@ void EBClusterTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");

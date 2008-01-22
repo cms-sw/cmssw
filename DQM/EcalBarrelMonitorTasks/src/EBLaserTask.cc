@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.103 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  *
 */
@@ -122,7 +122,7 @@ void EBLaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBLaserTask");

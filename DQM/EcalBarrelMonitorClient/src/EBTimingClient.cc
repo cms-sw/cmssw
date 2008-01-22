@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/01/18 18:05:00 $
- * $Revision: 1.65 $
+ * $Date: 2008/01/22 18:48:08 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,6 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
-
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
@@ -133,7 +132,7 @@ void EBTimingClient::endRun(void) {
 
 void EBTimingClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
 
@@ -329,7 +328,7 @@ void EBTimingClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

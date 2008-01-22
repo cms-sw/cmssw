@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/01/15 10:43:27 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -81,7 +81,7 @@ void EETestPulseTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask");

@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/01/15 10:43:23 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -122,7 +122,7 @@ void EELaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask");

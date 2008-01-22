@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.96 $
+ * $Date: 2008/01/22 18:48:07 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,13 +16,11 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -251,7 +249,7 @@ void EBCosmicClient::analyze(void){
     if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

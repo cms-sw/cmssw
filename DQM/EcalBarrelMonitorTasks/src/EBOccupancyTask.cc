@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/20 17:11:38 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 18:07:25 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -89,7 +89,7 @@ void EBOccupancyTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.118 $
+ * $Date: 2008/01/22 18:48:08 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,7 +16,6 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
-
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
@@ -132,7 +131,7 @@ void EBPedestalOnlineClient::endRun(void) {
 
 void EBPedestalOnlineClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
@@ -318,7 +317,7 @@ void EBPedestalOnlineClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

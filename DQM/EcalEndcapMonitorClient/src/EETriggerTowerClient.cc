@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/18 18:05:43 $
- * $Revision: 1.52 $
+ * $Date: 2008/01/22 19:01:05 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -152,7 +152,7 @@ void EETriggerTowerClient::endRun(void) {
 
 void EETriggerTowerClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
 
@@ -371,7 +371,7 @@ void EETriggerTowerClient::analyze(void){
 void EETriggerTowerClient::analyze(const char* nameext,
                                    const char* folder,
                                    bool emulated) {
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

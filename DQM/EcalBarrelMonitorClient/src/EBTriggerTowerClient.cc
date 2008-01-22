@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/01/18 18:05:00 $
- * $Revision: 1.85 $
+ * $Date: 2008/01/22 18:48:08 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,11 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -150,7 +146,7 @@ void EBTriggerTowerClient::endRun(void) {
 
 void EBTriggerTowerClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
 
@@ -369,7 +365,7 @@ void EBTriggerTowerClient::analyze(void){
 void EBTriggerTowerClient::analyze(const char* nameext,
                                    const char* folder,
                                    bool emulated) {
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

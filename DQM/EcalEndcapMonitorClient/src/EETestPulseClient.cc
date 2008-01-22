@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/01/18 18:05:43 $
- * $Revision: 1.60 $
+ * $Date: 2008/01/22 19:01:05 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -169,7 +169,7 @@ void EETestPulseClient::endRun(void) {
 
 void EETestPulseClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EETestPulseClient" );
 
@@ -689,7 +689,7 @@ void EETestPulseClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

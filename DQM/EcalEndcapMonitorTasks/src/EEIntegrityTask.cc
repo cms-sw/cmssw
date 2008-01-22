@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/01/15 10:43:23 $
- * $Revision: 1.25 $
+ * $Date: 2008/01/20 11:13:32 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
  */
@@ -89,7 +89,7 @@ void EEIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/01/18 18:04:58 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/22 18:48:07 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,11 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -240,7 +236,7 @@ void EBBeamHodoClient::analyze(void){
 
   int smId = 1;
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

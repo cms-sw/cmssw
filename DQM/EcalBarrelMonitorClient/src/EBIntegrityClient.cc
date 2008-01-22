@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/01/20 13:34:27 $
- * $Revision: 1.183 $
+ * $Date: 2008/01/20 17:11:37 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -151,7 +151,7 @@ void EBIntegrityClient::endRun(void) {
 
 void EBIntegrityClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
 
@@ -691,7 +691,7 @@ void EBIntegrityClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask3);
   EcalErrorMask::fetchDataSet(&mask4);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

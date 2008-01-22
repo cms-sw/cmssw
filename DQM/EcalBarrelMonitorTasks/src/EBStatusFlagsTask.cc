@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/01/09 18:46:45 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -67,7 +67,7 @@ void EBStatusFlagsTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");

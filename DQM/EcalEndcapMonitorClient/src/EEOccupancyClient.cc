@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/20 16:50:32 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/20 17:14:28 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -138,7 +138,7 @@ void EEOccupancyClient::endRun(void) {
 
 void EEOccupancyClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEOccupancyClient" );
 
@@ -257,7 +257,7 @@ void EEOccupancyClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

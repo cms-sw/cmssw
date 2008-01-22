@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/01/18 18:05:43 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/22 19:01:05 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -170,7 +170,7 @@ void EEStatusFlagsClient::analyze(void){
     if ( verbose_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

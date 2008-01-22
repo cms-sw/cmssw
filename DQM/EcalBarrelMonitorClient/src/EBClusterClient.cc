@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/22 18:48:07 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -18,11 +18,7 @@
 #include "TStyle.h"
 #include "TGaxis.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
@@ -208,7 +204,7 @@ void EBClusterClient::analyze(void){
     if ( verbose_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

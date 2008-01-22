@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/11 10:14:03 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -113,7 +113,7 @@ void EEClusterTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEClusterTask");

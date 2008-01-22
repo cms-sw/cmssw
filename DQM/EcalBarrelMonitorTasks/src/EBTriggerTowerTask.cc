@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/01/05 09:46:11 $
- * $Revision: 1.59 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.60 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -13,7 +13,6 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 

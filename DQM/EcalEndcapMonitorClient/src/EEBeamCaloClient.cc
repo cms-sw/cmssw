@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/18 18:05:42 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/22 19:01:03 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -143,7 +143,7 @@ void EEBeamCaloClient::endRun(void) {
 
 void EEBeamCaloClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
 
@@ -345,7 +345,7 @@ void EEBeamCaloClient::analyze(void){
     if ( verbose_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me = 0;
 

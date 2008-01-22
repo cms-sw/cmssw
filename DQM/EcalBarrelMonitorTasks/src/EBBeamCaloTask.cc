@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.59 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.60 $
  * \author A. Ghezzi
  *
  */
@@ -113,7 +113,7 @@ void EBBeamCaloTask::setup(void){
 
   init_ = true;
   profileArranged_= false;
-  Char_t histo[200];
+  char histo[200];
 
   PreviousTableStatus_[0]=0;//let's start with stable...
   PreviousTableStatus_[1]=0;//let's start with stable...

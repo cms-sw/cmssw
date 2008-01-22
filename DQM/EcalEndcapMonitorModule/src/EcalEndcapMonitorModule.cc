@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/20 16:41:52 $
- * $Revision: 1.40 $
+ * $Date: 2008/01/20 17:11:38 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -207,7 +207,7 @@ void EcalEndcapMonitorModule::setup(void){
 
   if ( enableMonitorDaemon_ ) sleep(5);
 
-  Char_t histo[20];
+  char histo[20];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/20 17:11:37 $
- * $Revision: 1.106 $
+ * $Date: 2008/01/21 08:10:45 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  *
 */
@@ -144,7 +144,7 @@ void EBSummaryClient::endRun(void) {
 
 void EBSummaryClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
 

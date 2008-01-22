@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.58 $
+ * $Date: 2008/01/20 11:13:34 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
  */
@@ -89,7 +89,7 @@ void EBIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");

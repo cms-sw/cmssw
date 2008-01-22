@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/20 17:11:39 $
- * $Revision: 1.20 $
+ * $Date: 2008/01/22 18:07:50 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -89,7 +89,7 @@ void EEOccupancyTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");

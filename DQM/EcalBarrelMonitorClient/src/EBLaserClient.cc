@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/01/18 18:04:59 $
- * $Revision: 1.210 $
+ * $Date: 2008/01/22 18:48:07 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,8 +16,6 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
-
-
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
@@ -274,7 +272,7 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
 
@@ -1726,7 +1724,7 @@ void EBLaserClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

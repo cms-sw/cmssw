@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/01/15 10:43:27 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/22 19:14:57 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,7 @@ void EEStatusFlagsTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask");

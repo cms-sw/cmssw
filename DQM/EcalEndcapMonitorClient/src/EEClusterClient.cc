@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/18 18:05:42 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 19:01:04 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -214,7 +214,7 @@ void EEClusterClient::analyze(void){
     if ( verbose_ ) cout << "EEClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
