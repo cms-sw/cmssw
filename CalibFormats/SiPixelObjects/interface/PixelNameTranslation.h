@@ -68,6 +68,8 @@ namespace pos{
 
     void writeASCII(std::string dir="") const;
     
+    bool ROCexists(PixelROCName theROC) ; // Added by Dario
+
   private:
   
     const PixelChannel& getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const;

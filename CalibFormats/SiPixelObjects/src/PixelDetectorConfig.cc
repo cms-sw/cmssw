@@ -69,15 +69,15 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tCould not open:"<<filename<<std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tOpened:"<<filename<<std::endl;
     }
 	
     if (in.eof()){
-      std::cout << "eof before reading anything!"<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof before reading anything!"<<std::endl;
       ::abort();
     }
 
@@ -121,7 +121,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 
     //std::cout << "Read module:"<<module<<std::endl;
 
-    if (in.eof()) std::cout << "eof after reading first module name"
+    if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof after reading first module name"
 			    << std::endl;
 
     while (!in.eof()){

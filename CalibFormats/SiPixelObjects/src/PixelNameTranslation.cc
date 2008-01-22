@@ -65,8 +65,8 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 	
    PixelROCName aROC(rocname);
    if (aROC.rocname()!=rocname){
-     std::cout << "Rocname:"<<rocname<<std::endl;
-     std::cout << "Parsed to:"<<aROC.rocname()<<std::endl;
+     std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tRocname:"<<rocname<<std::endl;
+     std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tParsed to:"<<aROC.rocname()<<std::endl;
      assert(0);
    }
    PixelHdwAddress hdwAdd(fecnumber,mfec,mfecchannel,
@@ -143,11 +143,11 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tCould not open: " << filename <<std::endl;
 	assert(0);
     }
     else {
-	std::cout << "Opened:"<<filename<<std::endl;
+	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tReading from: "   << filename <<std::endl;
     }
 
     std::string dummy;
@@ -186,8 +186,8 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	if (!in.eof() ){
 	    PixelROCName aROC(rocname);
 	    if (aROC.rocname()!=rocname){
-	      std::cout << "Rocname:"<<rocname<<std::endl;
-	      std::cout << "Parsed to:"<<aROC.rocname()<<std::endl;
+	      std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tRocname:"<<rocname<<std::endl;
+	      std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tParsed to:"<<aROC.rocname()<<std::endl;
 	      assert(0);
 	    }
 
@@ -489,7 +489,7 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
 			return channelTranslationTable_itr->first;
 		}
 	}
-	std::cout << "ERROR: no channel found for hardware address " << aHdwAddress << std::endl;
+	std::cout << "[PixelNameTranslation::getChannelFromHdwAddress()]\tERROR: no channel found for hardware address " << aHdwAddress << std::endl;
 	assert(0);
 }
 
@@ -499,6 +499,14 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
   std::string filename=dir+"translation.dat";
 
   std::ofstream out(filename.c_str());
+  
+  std::cout << "[PixelNameTranslation::writeASCII()]\t\tfilename: " 
+            << filename 
+	    << " status: " 
+	    << out 
+	    << "   " 
+	    << out.is_open() 
+	    <<endl ;
 
   out << "# name                          TBMchannel  FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
 
@@ -550,4 +558,12 @@ std::vector<PixelROCName> PixelNameTranslation::getROCsFromModule(const PixelMod
 	}
 
 	return returnThis;
+}
+
+//====================================================================================
+// Added by Dario
+bool PixelNameTranslation::ROCexists(PixelROCName theROC)
+{
+ if (translationtable_.find(theROC)==translationtable_.end()) {return false ;}
+ return true ;
 }
