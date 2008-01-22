@@ -156,7 +156,7 @@ foreach (@Candle)
 	{
 	    if ($_ eq "EdmSize")
 	    {
-		$Command="$FileName{$candle}"."_SIM.root ";
+		$Command="$FileName{$candle}"."_"."$_".".root ";
 	    }
 	    else
 	    {
