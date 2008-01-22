@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/22 19:01:04 $
- * $Revision: 1.39 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,13 +18,11 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"

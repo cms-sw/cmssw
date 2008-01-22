@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/22 19:01:04 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,11 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"

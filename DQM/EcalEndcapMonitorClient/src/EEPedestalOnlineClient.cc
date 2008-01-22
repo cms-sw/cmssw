@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/01/22 19:01:05 $
- * $Revision: 1.52 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,7 +18,6 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
-
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 

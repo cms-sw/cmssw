@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/01/22 19:01:04 $
- * $Revision: 1.19 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,11 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"

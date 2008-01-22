@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/01/22 19:01:04 $
- * $Revision: 1.70 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,8 +18,6 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
-
-
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 

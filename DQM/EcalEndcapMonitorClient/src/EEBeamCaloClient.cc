@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/22 19:01:03 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -17,13 +17,11 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"

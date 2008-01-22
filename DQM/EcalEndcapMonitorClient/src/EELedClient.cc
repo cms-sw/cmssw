@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/22 19:01:04 $
- * $Revision: 1.52 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,15 +19,12 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
-
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
