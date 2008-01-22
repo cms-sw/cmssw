@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -18,8 +18,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 
 // system include files
-#include <vector>
-#include <ostream>
 
 // user include files
 //   base class

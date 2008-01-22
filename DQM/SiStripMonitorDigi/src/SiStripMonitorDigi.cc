@@ -3,10 +3,9 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.21 2007/06/08 15:44:36 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.22 2007/11/18 18:03:58 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
-#include "TH1F.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

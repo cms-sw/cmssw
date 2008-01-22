@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.7 2007/12/21 17:41:20 berryhil Exp $
+ * $Id: L1TCompare.cc,v 1.8 2007/12/21 20:04:50 wsun Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.8  2007/12/21 20:04:50  wsun
+ * Migrated L1EtMissParticle -> L1EtMissParticleCollection.
+ *
  * Revision 1.7  2007/12/21 17:41:20  berryhil
  *
  *
@@ -36,16 +39,12 @@
 
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 // L1Extra
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // Ecal

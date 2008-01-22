@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.3 2007/10/23 07:23:21 fronga Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.4 2008/01/14 15:22:09 fronga Exp $
 //
 //
 
@@ -22,18 +22,12 @@
 
 
 // user include files
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "Math/ProbFuncMathMore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"

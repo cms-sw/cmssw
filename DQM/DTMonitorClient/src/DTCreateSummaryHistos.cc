@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/18 12:37:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/09/19 13:40:40 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -11,34 +11,22 @@
 #include <DQM/DTMonitorClient/src/DTCreateSummaryHistos.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TCanvas.h"
 #include "TFile.h"
-#include "TPostScript.h"
 #include "TProfile.h"
 
 using namespace edm;

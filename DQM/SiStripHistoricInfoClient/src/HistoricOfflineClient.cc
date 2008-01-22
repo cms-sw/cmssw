@@ -1,8 +1,4 @@
 #include "DQM/SiStripHistoricInfoClient/interface/HistoricOfflineClient.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,13 +8,9 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Core/interface/MonitorElementT.h"
 #include <string>
-#include <memory>
 #include "TNamed.h"
-#include "TH1F.h"
 
 //---- default constructor / destructor
 HistoricOfflineClient::HistoricOfflineClient(const edm::ParameterSet& iConfig) { dbe_ = edm::Service<DaqMonitorBEInterface>().operator->(); dbe_->setVerbose(0); }

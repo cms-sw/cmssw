@@ -2,7 +2,6 @@
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
 #include "TLorentzVector.h"
 

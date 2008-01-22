@@ -1,9 +1,4 @@
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
-#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
-#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrix.h"
 
 void CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix(){

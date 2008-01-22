@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2007/12/13 23:16:01 $
- * $Revision: 1.2 $
+ * $Date: 2007/12/20 20:05:14 $
+ * $Revision: 1.3 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -16,23 +16,16 @@
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/EcalPedOffset.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/EDProduct.h" 
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 using namespace cms ;

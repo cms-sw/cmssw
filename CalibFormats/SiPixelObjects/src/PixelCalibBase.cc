@@ -2,7 +2,6 @@
 // Base class for pixel calibration data
 //
 
-#include <string>
 #include <iostream>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
 

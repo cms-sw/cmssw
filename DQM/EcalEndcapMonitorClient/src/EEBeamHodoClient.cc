@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.17 $
+ * $Date: 2008/01/18 18:05:42 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,23 +15,13 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/09 14:33:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/06 17:30:31 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -13,12 +13,8 @@
 #include "DTChamberEfficiencyTask.h"
 
 //Framework
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -26,17 +22,11 @@
 
 //Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iterator>
 #include <iostream>
 #include <cmath>
-#include "TH1F.h"
-#include "TH2F.h"
 using namespace edm;
 using namespace std;
 

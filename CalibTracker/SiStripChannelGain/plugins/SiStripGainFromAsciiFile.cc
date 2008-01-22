@@ -1,16 +1,11 @@
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainFromAsciiFile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 
 #include <iostream>
 #include <fstream>

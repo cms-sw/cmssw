@@ -8,8 +8,6 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h"
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <assert.h>
 
 

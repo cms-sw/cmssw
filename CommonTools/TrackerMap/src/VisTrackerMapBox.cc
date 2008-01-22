@@ -1,7 +1,5 @@
 #include "CommonTools/TrackerMap/interface/VisTrackerMapBox.h"
-#include "CommonTools/TrackerMap/interface/VisTrackerMap.h"
 #include <qlayout.h>
-#include <qpushbutton.h>
 #include <qscrollview.h>
 
 VisTrackerMapBox::VisTrackerMapBox( QWidget *parent, const char *name )

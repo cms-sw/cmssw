@@ -3,12 +3,11 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Id: $
+ * $Id: EcalContainmentCorrectionAnalyzer.cc,v 1.1 2007/07/16 17:26:29 meridian Exp $
  *
 */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
 #include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"

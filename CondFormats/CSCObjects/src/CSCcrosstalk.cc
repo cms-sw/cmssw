@@ -1,5 +1,4 @@
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

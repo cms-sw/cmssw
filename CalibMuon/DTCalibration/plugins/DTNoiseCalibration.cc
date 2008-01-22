@@ -1,22 +1,18 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/06 15:08:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 08:16:05 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
 
 #include "CalibMuon/DTCalibration/plugins/DTNoiseCalibration.h"
-#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 // Framework
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 
 // Geometry
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -27,18 +23,13 @@
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 // Database
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
-#include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
-#include "TCanvas.h"
-#include "TLegend.h"
 
 using namespace edm;
 using namespace std;

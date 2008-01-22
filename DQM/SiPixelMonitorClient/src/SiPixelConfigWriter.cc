@@ -1,7 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 
 
-#include <iostream>
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
 using namespace xercesc;

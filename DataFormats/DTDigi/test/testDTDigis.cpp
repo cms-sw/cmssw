@@ -3,7 +3,7 @@
    Test suit for DTDigis
 
    \author Stefano ARGIRO
-   \version $Id: testDTDigis.cpp,v 1.1 2006/03/24 14:16:11 argiro Exp $
+   \version $Id: testDTDigis.cpp,v 1.2 2006/04/05 15:03:08 namapane Exp $
    \date 29 Jun 2005
 
    \note This test is not exaustive     
@@ -137,4 +137,3 @@ void testDTDigis::testTime2TDCConversion(){
 
 }
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

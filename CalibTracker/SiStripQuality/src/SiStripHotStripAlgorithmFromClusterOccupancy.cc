@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include <sstream>
 #include <iostream>
 
 SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy(){

@@ -12,7 +12,6 @@
 #include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskAllPixels.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include <fstream>
 #include <map>
 #include <iostream>

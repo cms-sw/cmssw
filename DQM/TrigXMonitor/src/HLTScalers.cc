@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.5 2007/12/04 20:24:33 wittich Exp $
+// $Id: HLTScalers.cc,v 1.6 2007/12/11 17:24:55 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.6  2007/12/11 17:24:55  wittich
+// - add extra monitoring histos (eg hlt exceptions and correlations)
+//
 // Revision 1.5  2007/12/04 20:24:33  wittich
 // - make hlt histograms variable width depending on path
 // - add strings for path names
@@ -29,7 +32,6 @@
 // FW
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,7 +42,6 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 
 // L1
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"

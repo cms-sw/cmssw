@@ -13,13 +13,11 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.4 2007/12/7 20:50:33 dutta Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.1 2007/12/10 20:28:02 dutta Exp $
 //
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -32,19 +30,14 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorQuality.h"
 
-#include "TH1F.h"
 // std
 #include <cstdlib>
-#include <string>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
@@ -188,6 +181,5 @@ void SiStripMonitorQuality::resetME(MonitorElement* me){
   if (hist1) hist1->Reset();
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorQuality);
 

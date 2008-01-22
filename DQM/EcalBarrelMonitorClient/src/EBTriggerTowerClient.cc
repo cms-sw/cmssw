@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.84 $
+ * $Date: 2008/01/18 18:05:00 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,22 +16,13 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>

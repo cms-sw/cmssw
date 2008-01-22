@@ -9,12 +9,9 @@
 // implementation
 //
 
-#include <string>
 #include <iostream>
 #include <ios>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimCommon.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTrimBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 using namespace pos;

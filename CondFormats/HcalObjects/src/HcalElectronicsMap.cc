@@ -3,15 +3,13 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/07/15 20:38:14 $
-$Revision: 1.21 $
+$Date: 2007/09/18 06:48:38 $
+$Revision: 1.22 $
 */
 
 #include <iostream>
 #include <set>
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

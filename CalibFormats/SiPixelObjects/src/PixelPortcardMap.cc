@@ -7,9 +7,7 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 
-#include <string>
 #include <cassert>
 
 using namespace pos;

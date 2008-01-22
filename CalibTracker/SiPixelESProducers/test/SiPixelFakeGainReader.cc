@@ -1,8 +1,6 @@
 #include <memory>
 
 #include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainReader.h"
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

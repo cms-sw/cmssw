@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2007/12/13 09:52:12 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/18 20:33:42 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -14,27 +14,18 @@
 #include <iostream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-#include "SealKernel/Exception.h"
 #include "SealKernel/IMessageService.h"
 #include "PluginManager/PluginManager.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 
 #include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 

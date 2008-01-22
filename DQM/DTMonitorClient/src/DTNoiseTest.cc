@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/10/09 11:14:56 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/07 15:29:10 $
+ * $Revision: 1.14 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -12,14 +12,8 @@
 #include "DQM/DTMonitorClient/src/DTNoiseTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -27,19 +21,12 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
-#include <CondFormats/DTObjects/interface/DTTtrig.h>
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
-#include <vector>
 
 using namespace edm;
 using namespace std;

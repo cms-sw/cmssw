@@ -1,8 +1,6 @@
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,8 +1,5 @@
 #include "CommonTools/TrackerMap/interface/VisTrackerMap.h"
-#include "CommonTools/TrackerMap/interface/VisTrackerMapBox.h"
-#include <qtimer.h>
 #include <qpainter.h>
-#include <qbitmap.h>
 #include <iostream>
 using namespace std;
 

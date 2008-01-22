@@ -3,9 +3,7 @@
 #include "DQMServices/Core/interface/SocketUtils.h"
 #include "DQMServices/Core/interface/DQMMessage.h"
 
-#include "TObjString.h"
 #include "TObjectTable.h"
-#include "TDirectory.h"
 #include "TROOT.h"
 
 #include <iostream>
@@ -712,7 +710,6 @@ int ClientRoot::getROOTcount(const TString & name) const
   return n;
 }
 
-#include "DQMServices/Core/interface/Tokenizer.h"
 
 // printout of monitoring objects in memory
 void ClientRoot::checkMemory()

@@ -162,4 +162,3 @@ void testCSCTriggerMapping::testRead(){
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCTriggerMapping);
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

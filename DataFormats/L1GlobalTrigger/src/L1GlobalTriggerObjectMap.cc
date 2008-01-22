@@ -21,13 +21,10 @@
 #include <iostream>
 #include <iterator>
 
-#include <vector>
-#include <string>
 
 #include <algorithm>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // forward declarations

@@ -1,16 +1,13 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.5 2006/10/07 01:17:08 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.6 2006/11/21 03:39:09 fedor Exp $
 //
 #include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
@@ -24,7 +21,6 @@
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMWriter.hpp>
-#include <xercesc/util/XMLString.hpp>
 
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
 

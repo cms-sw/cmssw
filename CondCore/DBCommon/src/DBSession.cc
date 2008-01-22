@@ -13,7 +13,6 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
 #include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/IMonitoringService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 //pool includes
 #include "POOLCore/POOLContext.h"

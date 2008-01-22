@@ -1,7 +1,6 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h" 
-#include "DataFormats/EgammaReco/interface/ClusterShape.h" 
 
 using namespace reco;
 

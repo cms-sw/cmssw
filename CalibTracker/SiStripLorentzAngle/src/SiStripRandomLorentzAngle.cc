@@ -2,12 +2,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripRandomLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandGauss.h"
 using namespace std;
 

@@ -14,19 +14,11 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "TFile.h"
-#include "TH1.h"
 #include <iostream>
 #include <iterator>
 using namespace edm;

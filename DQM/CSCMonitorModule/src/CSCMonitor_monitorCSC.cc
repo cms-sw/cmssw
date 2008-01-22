@@ -1,6 +1,5 @@
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
 #include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
-#include <TF1.h>
 
 //	Filling of chamber's histogram
 void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 0) {

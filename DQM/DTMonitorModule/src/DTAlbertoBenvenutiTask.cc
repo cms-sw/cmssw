@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/24 11:21:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/09/03 16:30:53 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -12,11 +12,7 @@
 #include <DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
@@ -39,12 +35,9 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
-#include "TH1F.h"
 #include "TFile.h"
 #include "TPostScript.h"
 #include "TCanvas.h"

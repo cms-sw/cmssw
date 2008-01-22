@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Common/interface/traits.h"

@@ -23,7 +23,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -33,7 +32,6 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "EventFilter/Utilities/interface/Crc.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
@@ -46,15 +44,11 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/RefProd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

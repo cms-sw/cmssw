@@ -3,7 +3,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/IConnectionProxy.h"
 //pool includes
-#include "POOLCore/Exception.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbType.h"
 #include "PersistencySvc/Placement.h"

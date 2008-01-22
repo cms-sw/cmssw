@@ -1,21 +1,13 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaGammaJetProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;

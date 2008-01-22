@@ -13,25 +13,18 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteHcalElectronicsMap.cc,v 1.1 2007/08/02 15:19:10 malgeri Exp $
+// $Id: WriteHcalElectronicsMap.cc,v 1.1 2007/08/02 17:30:38 rofierzy Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DataFormats/Common/interface/Handle.h"
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -43,7 +36,6 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 //For Checks
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this one
 #include "CalibCalorimetry/CaloMiscalibTools/interface/WriteHcalElectronicsMap.h"

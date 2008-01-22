@@ -10,13 +10,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 
-#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 

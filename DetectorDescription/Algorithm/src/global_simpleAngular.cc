@@ -7,7 +7,6 @@
 // So, in keeping with everything else I saw:
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
-#include <cfloat>
 
 
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -163,7 +162,6 @@ void global_simpleAngular_0::stream(std::ostream & os) const
 }
 
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
 
 
 // always the same ctor
@@ -310,7 +308,6 @@ void global_simpleAngular_1::stream(std::ostream & os) const
 }
 
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
 
 
 // always the same ctor

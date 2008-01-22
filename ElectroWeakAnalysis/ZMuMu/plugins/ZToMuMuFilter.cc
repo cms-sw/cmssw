@@ -15,7 +15,6 @@ private:
   double ptMin_, etaMin_, etaMax_, massMin_, massMax_, isoMax_;
 };
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -1,5 +1,3 @@
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/GenericRef.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "IOVEditorImpl.h"

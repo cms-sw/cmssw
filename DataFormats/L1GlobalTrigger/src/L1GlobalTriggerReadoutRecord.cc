@@ -18,26 +18,15 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // system include files
-#include <iostream>
 #include <iomanip>
 #include <bitset>
-#include <boost/cstdint.hpp>
 
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructors

@@ -1,7 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 
 
-#include <iostream>
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
 using namespace xercesc;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.3 2007/02/19 16:01:02 mansj Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.4 2007/07/11 22:11:24 mansj Exp $
 //
 //
 
@@ -25,14 +25,11 @@
 // user include files
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

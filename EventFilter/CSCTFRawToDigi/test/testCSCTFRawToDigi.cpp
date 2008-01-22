@@ -1,7 +1,7 @@
 /* \file testCSCTFRawToDigi.cc
  *
- *  $Date: 2007/03/12 00:43:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/26 02:22:04 $
+ *  $Revision: 1.4 $
  *  \author L. Gray , ripped from testDaqSource
  */
 
@@ -93,4 +93,3 @@ void testCSCTFRawToDigi::testCreateDigis(){
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCTFRawToDigi);
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

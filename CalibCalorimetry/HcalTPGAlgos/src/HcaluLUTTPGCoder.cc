@@ -1,15 +1,11 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <fstream>
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <cmath>
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 

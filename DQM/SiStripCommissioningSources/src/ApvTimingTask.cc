@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"

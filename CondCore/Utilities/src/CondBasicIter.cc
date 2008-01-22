@@ -1,8 +1,5 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 CondBasicIter::CondBasicIter(){
     ioviterator = 0;
     pooldb = 0;

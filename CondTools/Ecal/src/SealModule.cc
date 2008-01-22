@@ -1,6 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondTools/Ecal/interface/EcalDBCopy.h"
 #include "CondTools/Ecal/interface/EcalTestDevDB.h"
 #include "CondTools/Ecal/interface/EcalPedestalTransfer.h"

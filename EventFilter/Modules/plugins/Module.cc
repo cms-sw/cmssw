@@ -1,5 +1,4 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "IOPool/Streamer/interface/StreamerOutputModule.h"
 #include "EventFilter/Modules/src/FUShmOutputModule.h"

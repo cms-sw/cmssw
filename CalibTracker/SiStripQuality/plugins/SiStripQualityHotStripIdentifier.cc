@@ -1,7 +1,6 @@
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityHotStripIdentifier.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"

@@ -1,9 +1,6 @@
 
 #include "../interface/OptAlignDBAnalyzer.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h"

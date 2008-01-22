@@ -17,7 +17,6 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLCone.h"
-#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -27,7 +26,6 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 //#include <strstream>
-#include <string>
 
 // Default constructor.
 DDLCone::DDLCone()

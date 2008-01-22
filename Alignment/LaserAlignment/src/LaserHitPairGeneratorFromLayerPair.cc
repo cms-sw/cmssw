@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/06/01 07:04:35 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/04 23:51:44 $
+ *  $Revision: 1.16 $
  *  \author Maarten Thomas
  */
 
@@ -12,7 +12,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
 
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 
 typedef ctfseeding::SeedingHit TkHitPairsCachedHit;

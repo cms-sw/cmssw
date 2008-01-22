@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.cc,v 1.7 2007/12/01 17:58:15 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.1 2007/12/05 12:01:04 scooper Exp $
 //
 //
 
@@ -25,27 +25,21 @@
 #include <set>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
 #include "TFile.h"
-#include "TH1F.h"
 #include "TGraph.h"
-#include "TNtuple.h"
 
 
 //

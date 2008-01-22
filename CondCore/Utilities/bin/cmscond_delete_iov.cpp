@@ -4,14 +4,12 @@
 //#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 int main( int argc, char** argv ){

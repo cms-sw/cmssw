@@ -3,13 +3,11 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/HcalRecHitRecalib.h"
 
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
 
 HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)

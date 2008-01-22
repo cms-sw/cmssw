@@ -5,9 +5,6 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigurationVerifier.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
-#include <iostream>
-#include <string>
-#include <vector>
 #include <set>
 #include <assert.h>
 

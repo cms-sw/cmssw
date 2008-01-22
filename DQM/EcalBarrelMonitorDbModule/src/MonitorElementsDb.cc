@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.8 2008/01/17 09:34:42 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.9 2008/01/17 19:23:53 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2008/01/17 09:34:42 $
+  \version $Revision: 1.9 $
+  \date $Date: 2008/01/17 19:23:53 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -14,39 +14,21 @@
 #include <fstream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
-#include "SealKernel/Exception.h"
-#include "SealKernel/IMessageService.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
 
-#include "RelationalAccess/ITableDataEditor.h"
-#include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
 
-#include "TROOT.h"
 #include "TCanvas.h"
 #include "TStyle.h"
-#include "TPaveStats.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 

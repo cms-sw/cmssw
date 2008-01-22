@@ -16,10 +16,9 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.5 2007/07/25 11:38:49 menasce Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.6 2007/09/28 13:45:17 elmer Exp $
 //
 //
-#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"

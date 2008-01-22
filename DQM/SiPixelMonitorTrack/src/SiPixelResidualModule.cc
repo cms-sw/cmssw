@@ -9,10 +9,9 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelResidualModule.cc,v 1.3 2007/07/16 23:00:16 schuang Exp $
+// $Id: SiPixelResidualModule.cc,v 1.4 2007/07/22 23:28:22 schuang Exp $
 
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <iostream>
 

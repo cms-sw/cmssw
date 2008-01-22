@@ -4,13 +4,11 @@
 
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 
-#include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 namespace l1t
 {

@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/10 13:21:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/05 15:03:07 $
+ *  $Revision: 1.4 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -9,7 +9,6 @@
 
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 
-#include <iostream>
 
 using namespace std;
 

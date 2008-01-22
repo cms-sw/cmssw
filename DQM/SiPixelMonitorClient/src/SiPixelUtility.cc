@@ -2,8 +2,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 
-#include "TGaxis.h"
-#include "TF1.h"
 using namespace std;
 //
 // Get a list of MEs in a folder

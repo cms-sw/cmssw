@@ -1,20 +1,17 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.32 2007/11/07 10:05:34 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.33 2007/12/10 09:03:31 rofierzy Exp $
 //
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {

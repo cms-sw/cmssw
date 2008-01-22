@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/18 18:05:42 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,23 +18,13 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>

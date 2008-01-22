@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.11 2007/09/04 17:31:25 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.12 2007/12/06 10:54:40 ebutz Exp $
 //
 
 #include <iostream>
@@ -16,7 +16,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"

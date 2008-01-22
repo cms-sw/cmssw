@@ -8,10 +8,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <ostream>
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
@@ -24,9 +20,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <bitset>
 

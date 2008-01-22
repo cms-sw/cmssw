@@ -1,8 +1,5 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDTestDAC.h"
-#include <iostream>
 #include <string.h>
-#include <fstream>
-#include <stdlib.h>
 #include <cassert>
 
 using namespace std;

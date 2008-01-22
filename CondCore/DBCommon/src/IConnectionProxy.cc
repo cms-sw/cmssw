@@ -1,5 +1,4 @@
 #include "CondCore/DBCommon/interface/IConnectionProxy.h"
-#include "RelationalAccess/IConnectionService.h"
 
 //#include <iostream>
 cond::IConnectionProxy::IConnectionProxy(

@@ -1,12 +1,9 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMap.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
 #include <iostream>
-#include "TText.h"
 using namespace std;
 //
 // -- Constructor

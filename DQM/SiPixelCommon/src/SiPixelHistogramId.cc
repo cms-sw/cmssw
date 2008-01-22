@@ -8,10 +8,9 @@
 //
 // Original Author:  chiochia
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiPixelHistogramId.cc,v 1.5 2007/03/21 16:39:28 chiochia Exp $
+// $Id: SiPixelHistogramId.cc,v 1.2 2007/04/04 13:56:26 chiochia Exp $
 //
 
-#include<boost/cstdint.hpp>
 #include<iostream>
 #include<sstream>
 

@@ -1,5 +1,4 @@
 #include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <iostream>
 

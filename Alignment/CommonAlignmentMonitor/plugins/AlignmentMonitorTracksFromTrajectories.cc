@@ -12,31 +12,15 @@
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
-#include "FWCore/Framework/interface/EventSetup.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
-#include <boost/cstdint.hpp> 
-#include <FWCore/Framework/interface/ESHandle.h> 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
-#include <DataFormats/GeometrySurface/interface/LocalError.h> 
-#include <Geometry/DTGeometry/interface/DTLayer.h> 
-#include "TROOT.h" 
 #include "TH1.h" 
 #include "TObject.h" 
-#include "TList.h" 
-#include "TIterator.h" 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
-#include "DataFormats/Math/interface/Vector.h" 
-#include "DataFormats/Math/interface/Error.h" 
-#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h" 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
 
 #include <fstream>

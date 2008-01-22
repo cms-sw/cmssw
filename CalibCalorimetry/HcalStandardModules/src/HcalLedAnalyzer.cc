@@ -1,16 +1,10 @@
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalLedAnalyzer.h>
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 //#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 
-#include <iostream>
-#include <fstream>
 
 
 namespace {

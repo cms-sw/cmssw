@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/28 14:31:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/03 01:09:42 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -17,7 +17,6 @@
 
 #include "TFile.h"
 #include "TCanvas.h"
-#include "TROOT.h"
 #include "TCollection.h"
 #include "TSystem.h"
 #include "TF1.h"

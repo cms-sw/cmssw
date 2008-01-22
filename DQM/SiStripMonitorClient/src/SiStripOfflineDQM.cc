@@ -13,18 +13,15 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.13 2007/10/20 08:51:37 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.14 2007/12/19 21:14:44 dutta Exp $
 //
 //
 
 // Root UI that is used by original Client's SiStripActionExecuter
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/01/05 09:46:11 $
- * $Revision: 1.24 $
+ * $Date: 2008/01/15 10:43:27 $
+ * $Revision: 1.25 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -12,14 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 

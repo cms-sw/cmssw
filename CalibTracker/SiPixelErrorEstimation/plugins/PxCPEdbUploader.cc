@@ -20,7 +20,6 @@
 #include "CalibTracker/SiPixelErrorEstimation/interface/PxCPEdbUploader.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
-#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

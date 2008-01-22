@@ -1,16 +1,14 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.23 2007/12/21 15:36:53 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.24 2008/01/15 18:26:37 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
 #include <iostream>
 #include <fstream>
-#include <string>
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"

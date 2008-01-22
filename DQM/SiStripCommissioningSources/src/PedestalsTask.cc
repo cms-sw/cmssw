@@ -1,12 +1,10 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TProfile.h"
 #include <algorithm>
 #include <math.h>
 

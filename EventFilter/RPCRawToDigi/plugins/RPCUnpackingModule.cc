@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/04/20 15:41:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/08 16:16:33 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

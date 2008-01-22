@@ -7,7 +7,6 @@
 #include <ostream>
 #include <fstream>
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Verbosity.h"
 
 using namespace std;
 

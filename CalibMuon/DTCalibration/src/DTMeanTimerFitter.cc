@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 11:10:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/12 07:25:48 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -11,11 +11,8 @@
 #include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
 
 #include <iostream>
-#include <vector>
 
 #include "TFile.h"
-#include "TH1F.h"
-#include "TMath.h"
 #include "TF1.h"
 
 using namespace std;

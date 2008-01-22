@@ -1,7 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

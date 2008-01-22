@@ -9,18 +9,13 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 
-#include <string>
-#include <memory>
 #include <map>
 #
 using namespace std;

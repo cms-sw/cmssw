@@ -1,6 +1,5 @@
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 void
 cond::ConnectionHandler::registerConnection(const std::string& name,
 					    const std::string& con,

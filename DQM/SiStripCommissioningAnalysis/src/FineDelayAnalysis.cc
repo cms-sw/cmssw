@@ -4,9 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripPulseShape.h"
 #include "TProfile.h"
-#include "TF1.h"
 #include <iostream>
-#include <sstream>
 #include <iomanip>
 #include <cmath>
 

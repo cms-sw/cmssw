@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.209 $
+ * $Date: 2008/01/18 18:04:59 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,15 +17,10 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"

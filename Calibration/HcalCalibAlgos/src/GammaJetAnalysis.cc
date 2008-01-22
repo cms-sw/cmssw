@@ -1,21 +1,16 @@
 // user include files
 #include "GammaJetAnalysis.h" 
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h" 
 /* #include "FWCore/Framework/interface/MakerMacros.h" */
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "FWCore/Framework/interface/EventSetup.h" 
 
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
@@ -24,10 +19,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Provenance/interface/Provenance.h"

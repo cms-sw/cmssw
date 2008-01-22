@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/01/16 21:47:29 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/16 22:21:05 $
+ * $Revision: 1.13 $
  * $Author: ameyer $
  *
  */
@@ -12,16 +12,9 @@
 #include <TSystem.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

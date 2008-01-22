@@ -1,7 +1,7 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2007/12/04 23:51:43 $
-	*  $Revision: 1.12 $
+	*  $Date: 2008/01/03 00:53:12 $
+	*  $Revision: 1.13 $
 	*  \author Maarten Thomas
 */
 
@@ -9,7 +9,6 @@
 
 // Framework headers
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry headers
@@ -24,7 +23,6 @@
 // Topology
 
 #include "TF1.h"
-#include "TH1D.h"
 #include "TMath.h"
 
 // function to return an angle in radian between 0 and 2 Pi

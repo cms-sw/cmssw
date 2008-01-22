@@ -1,6 +1,5 @@
 #include <CondFormats/CSCObjects/interface/CSCTriggerMapping.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <iostream>
 
 CSCTriggerMapping::CSCTriggerMapping() : myName_("CSCTriggerMapping"), debugV_( false ) {}

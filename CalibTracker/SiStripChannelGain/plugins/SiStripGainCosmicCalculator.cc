@@ -3,12 +3,11 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.2 2007/09/13 20:02:52 dkcira Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.3 2007/09/28 17:47:13 ratnik Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -17,14 +16,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackReco/interface/Track.h"

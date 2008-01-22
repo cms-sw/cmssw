@@ -15,16 +15,14 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.cc,v 1.1 2007/07/12 12:54:33 fabbro Exp $
+// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.cc,v 1.2 2007/08/10 14:52:31 ferriff Exp $
 //
 //          Update:  08/06/2007  
 
 // CMSSW include files
 
 #include <signal.h>
-#include <time.h>
 
-#include "Riostream.h"
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcalCorrelatedNoisePedestalRunAnalyzer.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBParameters.h"

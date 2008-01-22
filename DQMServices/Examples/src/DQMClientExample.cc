@@ -4,8 +4,8 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2007/11/18 10:52:14 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/21 20:43:55 $
+ * $Revision: 1.7 $
  * $Author: ameyer $
  *
  */
@@ -14,17 +14,12 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
-#include <TH1F.h>
 #include <TF1.h>
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

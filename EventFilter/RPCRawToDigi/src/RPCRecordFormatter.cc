@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/06/21 15:18:54 $
+ *  $Revision: 1.29 $
  *
  * \author Ilaria Segoni
  */
@@ -11,21 +11,15 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
-#include <vector>
 #include <bitset>
 #include <sstream>
 

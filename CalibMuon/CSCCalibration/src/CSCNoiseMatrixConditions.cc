@@ -1,9 +1,5 @@
-#include <memory>
-#include "boost/shared_ptr.hpp"
 #include <fstream>
 
-#include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 
 void CSCNoiseMatrixConditions::prefillNoiseMatrix(){

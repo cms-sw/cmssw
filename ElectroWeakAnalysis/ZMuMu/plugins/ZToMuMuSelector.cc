@@ -5,7 +5,6 @@
  */
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 
 class ZToMuMuSelector : public edm::EDFilter {
 public:
@@ -29,7 +28,6 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

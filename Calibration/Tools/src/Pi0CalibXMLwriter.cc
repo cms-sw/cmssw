@@ -1,7 +1,4 @@
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Calibration/Tools/interface/Pi0CalibXMLwriter.h"
-#include <iostream>
 #include <string>
 
 

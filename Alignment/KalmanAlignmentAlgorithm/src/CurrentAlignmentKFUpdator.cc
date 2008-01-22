@@ -6,7 +6,6 @@
 
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,

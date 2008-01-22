@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.12 2008/01/14 09:17:40 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.13 2008/01/15 16:27:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -8,8 +8,6 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------------------------------------------------------
 //

@@ -5,13 +5,12 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.32 2007/12/03 18:34:58 giordano Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.33 2008/01/02 18:44:31 elmer Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
 #include <math.h>
 #include "TNamed.h"
-#include "TH1F.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

@@ -18,14 +18,10 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
 // system include files
-#include <string>
-#include <vector>
 
 #include <algorithm>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 

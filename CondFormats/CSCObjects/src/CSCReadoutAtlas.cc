@@ -9,8 +9,6 @@
 #include <DataFormats/MuonDetId/interface/CSCIndexer.h>
 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 CSCReadoutAtlas::CSCReadoutAtlas() : myName_("CSCReadoutAtlas"), debugV_( false ) {}
 

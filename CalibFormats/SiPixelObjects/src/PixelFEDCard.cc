@@ -6,7 +6,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 
 #include <cassert>
-#include <string>
 #include <sstream>
 
 using namespace std;

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2008/01/05 09:35:49 $
- * $Revision: 1.28 $
+ * $Date: 2008/01/15 10:43:23 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -11,20 +11,15 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 

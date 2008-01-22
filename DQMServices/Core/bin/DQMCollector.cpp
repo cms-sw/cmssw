@@ -2,7 +2,6 @@
 #include <iostream>
 #include <signal.h>
 #include <unistd.h>
-#include "TApplication.h"
 #include "TROOT.h"
 
 #include "DQMServices/Core/interface/CollectorRoot.h"

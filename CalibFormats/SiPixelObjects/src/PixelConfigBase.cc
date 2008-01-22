@@ -6,7 +6,6 @@
 // should derive from this class
 //
 
-#include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 

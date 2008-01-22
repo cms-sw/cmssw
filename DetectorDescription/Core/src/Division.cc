@@ -3,7 +3,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include <algorithm>
-#include <iostream>
 
 using DDI::Division;
 

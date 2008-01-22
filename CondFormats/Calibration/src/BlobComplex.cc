@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <utility>
 
 #include "CondFormats/Calibration/interface/BlobComplex.h"
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/18 19:07:19 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,7 +16,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "CondTools/DT/interface/DTDBSession.h"
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --

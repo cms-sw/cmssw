@@ -13,13 +13,12 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.cc,v 1.3 2007/08/21 10:37:30 chiochia Exp $
+// $Id: SiPixelFakeGainESSource.cc,v 1.4 2007/09/18 15:56:52 chiochia Exp $
 //
 //
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

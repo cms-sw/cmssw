@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/03 07:21:01 $
+ *  $Date: 2007/07/11 12:20:59 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara, S. Bolognesi - INFN Torino
  */
@@ -12,9 +12,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
-#include <set>
 
 using namespace edm;
 using namespace std;

@@ -1,20 +1,17 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/27 10:57:33 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/11/06 15:08:20 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
 
 #include "CalibMuon/DTCalibration/plugins/DTNoiseComputation.h"
-#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 // Framework
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 

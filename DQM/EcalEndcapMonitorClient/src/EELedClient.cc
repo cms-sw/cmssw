@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/18 18:06:49 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,21 +19,15 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 

@@ -3,12 +3,11 @@
 // Class:      SiStripDetInfoFileReader
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileReader.cc,v 1.2 2007/10/18 08:45:23 giordano Exp $
+// $Id: SiStripDetInfoFileReader.cc,v 1.3 2007/10/24 08:36:38 giordano Exp $
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 using namespace cms;
 using namespace std;

@@ -1,6 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripRandomLorentzAngle.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripCalibLorentzAngle.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLAProfileBooker.h"

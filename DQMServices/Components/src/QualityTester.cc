@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/11/09 07:25:12 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/11 15:47:44 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -10,20 +10,13 @@
 #include "DQMServices/Components/interface/QualityTester.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DQMServices/Core/interface/MonitorUIRoot.h>
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
 
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.4 2007/05/18 19:09:43 saout Exp $
+// $Id: MVAComputer.cc,v 1.5 2007/12/07 15:04:41 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -26,9 +26,6 @@
 #include <iostream>
 #include <cstring>
 #include <cstddef>
-#include <string>
-#include <vector>
-#include <map>
 
 #include <boost/thread.hpp>
 

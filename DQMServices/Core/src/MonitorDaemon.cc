@@ -1,7 +1,6 @@
 #include "DQMServices/Core/interface/MonitorData.h"
 #include "DQMServices/Core/interface/MonitorDaemon.h"
 
-#include "SealKernel/Exception.h"
 #include "SealBase/SharedLibrary.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

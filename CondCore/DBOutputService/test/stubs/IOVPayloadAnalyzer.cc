@@ -1,11 +1,8 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "IOVPayloadAnalyzer.h"
 IOVPayloadAnalyzer::IOVPayloadAnalyzer(const edm::ParameterSet& iConfig ):

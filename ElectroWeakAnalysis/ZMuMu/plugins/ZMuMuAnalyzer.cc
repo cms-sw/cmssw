@@ -14,7 +14,7 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.2 2007/10/12 11:28:57 llista Exp $
+ * \id $Id: ZMuMuAnalyzer.cc,v 1.3 2007/12/04 13:57:57 degrutto Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -29,8 +29,6 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "TFile.h"
 #include "TH1.h"
 #include <iostream>
 #include <iterator>

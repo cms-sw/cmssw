@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/01/04 16:23:49 $
- * $Revision: 1.58 $
+ * $Date: 2008/01/05 09:34:56 $
+ * $Revision: 1.59 $
  * \author A. Ghezzi
  *
  */
@@ -11,13 +11,10 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

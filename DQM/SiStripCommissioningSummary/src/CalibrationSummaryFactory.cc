@@ -1,7 +1,6 @@
 #include "DQM/SiStripCommissioningSummary/interface/CalibrationSummaryFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>

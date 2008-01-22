@@ -7,7 +7,6 @@
 
 // Framework headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // Raw data collection headers
@@ -19,8 +18,6 @@
 
 // GCT input data format headers
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 // GCT output data format headers

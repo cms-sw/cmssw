@@ -1,17 +1,14 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/15 08:24:56 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/18 17:59:15 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include <DQM/DTMonitorModule/interface/DTGlobalRecoTask.h>
 
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 using namespace std;
 

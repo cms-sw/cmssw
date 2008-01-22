@@ -1,17 +1,10 @@
 // system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DataFormats/Common/interface/Handle.h"
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -23,8 +16,6 @@
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 //For Checks
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this one
 #include "CalibMuon/CSCCalibration/interface/WriteDBNoiseMatrix.h"

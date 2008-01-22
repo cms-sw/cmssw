@@ -1,6 +1,5 @@
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/DQMTagHelper.h"
-#include "DQMServices/Core/interface/MonitorData.h"
 #include "DQMServices/Core/interface/SenderBase.h"
 #include "DQMServices/Core/interface/DQMMessage.h"
 #include "DQMServices/Core/interface/SocketUtils.h"
@@ -11,9 +10,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <TObjString.h>
-#include <TBranch.h>
 
-#include <string>
 #include <iostream>
 
 using namespace dqm::me_util;

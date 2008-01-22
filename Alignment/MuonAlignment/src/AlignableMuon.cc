@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/02 18:39:17 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/06 01:39:29 $
+ *  $Revision: 1.16 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -12,7 +12,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h" 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h" 
-#include <Geometry/DTGeometry/interface/DTLayer.h> 
 #include "CondFormats/Alignment/interface/Alignments.h" 
 #include "CondFormats/Alignment/interface/AlignmentErrors.h" 
 #include "CondFormats/Alignment/interface/AlignmentSorter.h" 

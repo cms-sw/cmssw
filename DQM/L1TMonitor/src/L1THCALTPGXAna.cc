@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/12/21 17:41:21 $
- * $Revision: 1.5 $
+ * $Date: 2008/01/02 11:54:15 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.6  2008/01/02 11:54:15  elmer
+ * Add missing math.h and TMath.h includes
+ *
  * Revision 1.5  2007/12/21 17:41:21  berryhil
  *
  *
@@ -40,7 +43,6 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1THCALTPGXAna.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 //#include "DQM/L1TMonitor/interface/hcal_root_prefs.h"
 #include "TMath.h"
 

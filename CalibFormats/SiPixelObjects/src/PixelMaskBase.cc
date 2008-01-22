@@ -11,11 +11,6 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelMaskOverrideBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
-#include <vector>
-#include <iostream>
 
 using namespace pos;
 

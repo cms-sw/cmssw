@@ -18,10 +18,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 
 // system include files
-#include <ostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 //   base class

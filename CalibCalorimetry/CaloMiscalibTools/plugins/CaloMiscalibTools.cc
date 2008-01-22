@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed May 31 10:37:45 CEST 2006
-// $Id: CaloMiscalibTools.cc,v 1.1 2007/07/14 21:25:58 malgeri Exp $
+// $Id: CaloMiscalibTools.cc,v 1.2 2007/09/11 13:44:41 malgeri Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -23,22 +23,13 @@
 
 
 // system include files
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 //
 // constructors and destructor

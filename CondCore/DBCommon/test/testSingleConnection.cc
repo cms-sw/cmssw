@@ -1,5 +1,4 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -9,14 +8,6 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/IColumn.h"
-#include "RelationalAccess/IPrimaryKey.h"
-#include "RelationalAccess/IForeignKey.h"
-#include "RelationalAccess/IIndex.h"
-#include "RelationalAccess/ITablePrivilegeManager.h"
-#include "RelationalAccess/TableDescription.h"
-#include "CoralBase/AttributeSpecification.h"
 #include "testCondObj.h"
 #include <string>
 #include <iostream>

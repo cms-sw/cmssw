@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 
-#include "CondCore/DBCommon/interface/Exception.h"
 
 namespace l1t
 {

@@ -2,18 +2,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/14 16:16:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/15 14:44:39 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "DTTTrigAnalyzer.h"
-#include "DTCalibrationMap.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 

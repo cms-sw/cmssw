@@ -7,9 +7,6 @@
 #include <iomanip>
 #include <sstream>
 #include <cmath>
-#include "TProfile.h"
-#include "TH1F.h"
-#include "TH2F.h"
 
 using namespace sistrip;
 

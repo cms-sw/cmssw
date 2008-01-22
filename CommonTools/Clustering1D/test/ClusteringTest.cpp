@@ -1,4 +1,3 @@
-#include "CommonTools/Clustering1D/test/Input.cpp"
 #include "CommonTools/Clustering1D/interface/Cluster1DMerger.h"
 #include "CommonTools/Clustering1D/interface/TrivialWeightEstimator.h"
 

@@ -1,6 +1,4 @@
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
-#include "TH1F.h"
 
 
 HcalPedestalMonitor::HcalPedestalMonitor() { doPerChannel_ = false;   shape_=NULL; }

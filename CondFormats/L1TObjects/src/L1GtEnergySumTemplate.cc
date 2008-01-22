@@ -18,7 +18,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 
 // system include files
-#include <string>
 
 #include <iostream>
 #include <iomanip>
@@ -26,7 +25,6 @@
 // user include files
 
 //   base class
-#include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"

@@ -1,6 +1,4 @@
-#include "DQMServices/ClientConfig/interface/QTestNames.h"
 #include "DQMServices/ClientConfig/interface/DQMParserBase.h"
-#include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
 #include <stdexcept>         
@@ -8,8 +6,8 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2006/07/25 12:31:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/31 18:57:42 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 

@@ -18,11 +18,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // system include files
-#include <string>
-#include <vector>
 #include <stack>
-#include <map>
-#include <list>
 
 #include <iostream>
 #include <sstream>
@@ -30,11 +26,8 @@
 #include <boost/algorithm/string.hpp>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

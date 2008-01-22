@@ -11,7 +11,6 @@
 #include <errno.h> 
 
 #include <iostream>
-#include <string>
 
 using namespace dqm::me_util;
 using namespace dqm::monitor_data;

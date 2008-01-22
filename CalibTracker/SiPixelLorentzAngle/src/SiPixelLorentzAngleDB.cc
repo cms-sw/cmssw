@@ -9,7 +9,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CLHEP/Random/RandGauss.h"
 
 using namespace std;
 

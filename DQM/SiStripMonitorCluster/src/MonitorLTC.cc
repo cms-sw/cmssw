@@ -11,9 +11,6 @@
 
 
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"

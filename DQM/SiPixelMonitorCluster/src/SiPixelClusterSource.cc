@@ -13,18 +13,14 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.3 2007/04/16 21:35:44 andrewdc Exp $
+// $Id: SiPixelClusterSource.cc,v 1.4 2007/09/04 18:21:59 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -34,10 +30,7 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 //
-#include <boost/cstdint.hpp>
 #include <string>
 #include <stdlib.h>
 

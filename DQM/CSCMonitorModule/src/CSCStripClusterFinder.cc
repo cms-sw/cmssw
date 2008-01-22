@@ -1,12 +1,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
-#include "DQM/CSCMonitorModule/interface/CSCStripClusterFitData.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
 
 
 CSCStripClusterFinder::CSCStripClusterFinder(int l, int s, int cf, int st)

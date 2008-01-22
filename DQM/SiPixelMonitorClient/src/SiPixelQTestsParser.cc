@@ -1,7 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQTestsParser.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include "DQMServices/ClientConfig/interface/QTestNames.h"
-#include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

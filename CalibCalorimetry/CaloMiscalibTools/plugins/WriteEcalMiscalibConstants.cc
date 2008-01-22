@@ -13,25 +13,18 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteEcalMiscalibConstants.cc,v 1.1 2007/05/16 16:11:47 malgeri Exp $
+// $Id: WriteEcalMiscalibConstants.cc,v 1.1 2007/07/14 21:25:59 malgeri Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DataFormats/Common/interface/Handle.h"
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -43,9 +36,6 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 //For Checks
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this one
 #include "CalibCalorimetry/CaloMiscalibTools/interface/WriteEcalMiscalibConstants.h"

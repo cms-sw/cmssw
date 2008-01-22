@@ -1,7 +1,4 @@
 // system include files
-#include <memory>
-#include <string>
-#include <iostream>
 
 // user include files
 //#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
@@ -9,11 +6,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Calibration/HcalCalibAlgos/interface/Analyzer_minbias.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include <fstream>
-#include <sstream>
 
 using namespace std;
 using namespace reco;

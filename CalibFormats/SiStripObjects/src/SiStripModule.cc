@@ -1,11 +1,10 @@
-// Last commit: $Id: SiStripModule.cc,v 1.14 2007/05/24 15:19:11 bainbrid Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.15 2007/12/19 17:51:54 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 
 using namespace sistrip;
 

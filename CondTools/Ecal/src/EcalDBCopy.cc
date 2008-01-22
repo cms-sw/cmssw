@@ -1,15 +1,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 
 #include "CondTools/Ecal/interface/EcalDBCopy.h"
@@ -32,9 +28,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <map>
 #include <vector>
 
 

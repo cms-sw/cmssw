@@ -1,5 +1,4 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiStripLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value){

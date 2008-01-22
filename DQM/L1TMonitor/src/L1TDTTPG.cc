@@ -1,11 +1,16 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.14  2007/12/21 17:41:20  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.13  2007/11/19 15:08:22  lorenzo
  * changed top folder name
  *
@@ -45,7 +50,6 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
-#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
 
 using namespace std;
 using namespace edm;

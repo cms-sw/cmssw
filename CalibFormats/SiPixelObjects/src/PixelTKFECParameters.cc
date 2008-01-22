@@ -1,8 +1,5 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECParameters.h"
 #include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
 
 
 using namespace pos;

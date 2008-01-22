@@ -18,9 +18,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 // system include files
-#include <iostream>
 #include <iomanip>
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

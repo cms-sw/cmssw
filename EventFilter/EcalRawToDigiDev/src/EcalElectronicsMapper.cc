@@ -1,14 +1,8 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h>
 #include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <FWCore/Utilities/interface/Exception.h>
 #include <DataFormats/EcalDigi/interface/EBSrFlag.h>
 #include <DataFormats/EcalDigi/interface/EESrFlag.h>
-#include <DataFormats/EcalDigi/interface/EBDataFrame.h>
-#include <DataFormats/EcalDigi/interface/EEDataFrame.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 
 EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTriggerTSamples)

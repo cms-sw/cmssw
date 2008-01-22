@@ -19,37 +19,21 @@
 #include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 #include <fstream>
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TH2F.h"
-#include "TText.h"
-#include "TCanvas.h"
-#include "TString.h"
-#include "TPRegexp.h"
-#include "TObjArray.h"
-#include "TObjString.h"
 //
 // class decleration
 //

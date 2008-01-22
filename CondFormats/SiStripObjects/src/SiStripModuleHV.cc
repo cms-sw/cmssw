@@ -1,5 +1,4 @@
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

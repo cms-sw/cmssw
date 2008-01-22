@@ -1,28 +1,22 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
-#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 
-#include <vector>
 #include <string>
 #include <sstream>
 

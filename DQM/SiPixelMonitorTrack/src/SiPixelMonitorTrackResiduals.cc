@@ -9,10 +9,9 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.4 2007/06/11 18:25:34 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.5 2007/07/16 22:59:56 schuang Exp $
 
 
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <map>
 #include <string>

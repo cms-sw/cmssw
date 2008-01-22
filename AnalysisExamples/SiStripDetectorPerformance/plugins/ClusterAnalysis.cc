@@ -1,34 +1,20 @@
 /*
- * $Date: 2007/12/27 13:15:24 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/27 15:51:35 $
+ * $Revision: 1.11 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
  */
 
 #include "AnalysisExamples/SiStripDetectorPerformance/plugins/ClusterAnalysis.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 #include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
 
 #include "sstream"
 
-#include "TTree.h"
-#include "TBranch.h"
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TH3S.h"
 #include "TProfile.h"
 #include "TCanvas.h"

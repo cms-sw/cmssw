@@ -4,27 +4,15 @@
 // Original Author:  Gavril Giurgiu (JHU)
 // Created:          Fri May  4 17:48:24 CDT 2007
 
-#include <memory>
-#include <string>
 #include <iostream>
-#include <TMath.h>
 #include "CalibTracker/SiPixelErrorEstimation/interface/SiPixelErrorEstimation.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -32,22 +20,13 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-#include <TTree.h>
-#include <TFile.h>
 
 using namespace std;
 using namespace edm;

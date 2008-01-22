@@ -5,7 +5,6 @@
 //coral includes
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ISchema.h"
 //#include <iostream>
 cond::CoralTransaction::CoralTransaction(cond::CoralConnectionProxy* parentConnection):m_parentConnection(parentConnection),m_coralHandle(0),m_isReadOnly(false){
   this->attach(m_parentConnection);

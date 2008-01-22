@@ -8,10 +8,9 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.4 2006/10/30 21:17:53 bainbrid Exp $
+// $Id: SiStripHistoId.cc,v 1.5 2007/03/21 16:39:28 bainbrid Exp $
 //
 
-#include<boost/cstdint.hpp>
 #include<iostream>
 #include<sstream>
 

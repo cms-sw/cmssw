@@ -12,8 +12,6 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelMaskOverrideBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include <vector>
 #include <iostream>
 

@@ -1,9 +1,7 @@
 #include "WriteOneGeometryFromXML.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <CondCore/DBOutputService/interface/PoolDBOutputService.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include <DetectorDescription/Core/interface/DDMaterial.h>

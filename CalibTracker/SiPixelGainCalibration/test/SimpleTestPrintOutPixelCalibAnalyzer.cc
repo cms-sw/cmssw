@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.2 2007/11/19 12:17:48 fblekman Exp $
+// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.3 2007/12/13 11:07:05 fblekman Exp $
 //
 //
 
@@ -22,13 +22,11 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 

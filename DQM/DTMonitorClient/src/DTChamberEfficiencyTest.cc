@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 16:58:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/07 15:22:56 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -12,28 +12,16 @@
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTTopology.h"
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

@@ -1,7 +1,6 @@
 #include "CalibTracker/SiPixelConnectivity/interface/PixelBarrelLinkMaker.h"
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

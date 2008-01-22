@@ -11,16 +11,11 @@
 // implementation.
 //
 
-#include <string>
 #include <sstream>
-#include <vector>
 #include <iostream>
 #include <ios>
 #include <assert.h>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTrimBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 using namespace pos;
 

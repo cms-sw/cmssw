@@ -1,5 +1,3 @@
-#include <vector>
-#include <algorithm>
 #include "CommonTools/Statistics/interface/SequentialPartitionGenerator.h"
 
 SequentialPartitionGenerator::SequentialPartitionGenerator( int n, int k, int pmin ) :

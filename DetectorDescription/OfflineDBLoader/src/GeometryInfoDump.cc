@@ -1,12 +1,9 @@
 #include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include <DetectorDescription/Core/interface/DDValue.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include "DetectorDescription/Core/interface/DDName.h"
 
-#include "DataSvc/RefException.h"
-#include "CoralBase/Exception.h"
 
 #include <iostream>
 #include <fstream>

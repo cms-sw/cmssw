@@ -1,14 +1,9 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
 
 #include <iostream>
 using namespace std;

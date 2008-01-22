@@ -1,5 +1,4 @@
 #include "../interface/CocoaDaqReaderRoot.h"
-#include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"

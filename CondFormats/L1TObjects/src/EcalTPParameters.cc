@@ -1,11 +1,10 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.cc,v 1.5 2007/04/27 13:07:54 uberthon Exp $
+ * $Id: EcalTPParameters.cc,v 1.6 2007/06/14 17:14:33 uberthon Exp $
  **/
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 

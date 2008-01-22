@@ -6,10 +6,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfig.h"
 #include <fstream>
-#include <iostream>
 #include <map>
-#include <string>
-#include <vector>
 #include <assert.h>
 
 using namespace pos;

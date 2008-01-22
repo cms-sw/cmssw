@@ -1,8 +1,6 @@
 #include "Calibration/Tools/interface/CalibElectron.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 //#include <TMath.h>

@@ -1,9 +1,5 @@
-#include <memory>
 #include <fstream>
-#include "boost/shared_ptr.hpp"
 
-#include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
-#include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 
 void CSCCrosstalkConditions::prefillCrosstalk(){

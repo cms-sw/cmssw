@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.2 2007/02/02 04:01:39 wmtan Exp $
+ * $Id: DOMCount.cpp,v 1.3 2007/10/03 19:37:51 case Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -78,7 +78,6 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 
 namespace std { } using namespace std;
 

@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulseRange.cc
  *
- * $Date: 2007/04/11 16:45:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/09/07 09:03:07 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -17,12 +17,10 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 // DQM
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 
 // DB
 #include <CondFormats/DTObjects/interface/DTStatusFlag.h>
-#include <CondFormats/DataRecord/interface/DTStatusFlagRcd.h>
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 // Geometry
@@ -34,10 +32,6 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 // ROOT Staff
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TGaxis.h"
-#include "TAxis.h"
 
 using namespace edm;
 using namespace std;

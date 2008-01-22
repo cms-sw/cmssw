@@ -1,12 +1,11 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/12/14 16:50:24 $
+//  last update: $Date: 2007/12/17 12:12:29 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"

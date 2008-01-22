@@ -3,21 +3,18 @@
 // Class:      SiStripDetInfoFileWriter
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileWriter.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripDetInfoFileWriter.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 
 using namespace cms;

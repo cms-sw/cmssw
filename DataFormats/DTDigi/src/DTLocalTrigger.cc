@@ -1,6 +1,6 @@
 /** \file
  * 
- *  $Date: 2006/09/06 18:50:07 $
+ *  $Date: 2006/10/17 20:58:29 $
  *
  * \author FRC
  */
@@ -8,7 +8,6 @@
 
 #include <DataFormats/DTDigi/interface/DTLocalTrigger.h>
 
-#include <iostream>
 
 using namespace std;
 

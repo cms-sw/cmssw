@@ -1,13 +1,10 @@
 //#include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,7 +13,6 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 using namespace std;
 using namespace edm;

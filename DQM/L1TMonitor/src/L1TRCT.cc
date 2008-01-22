@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.8 $
  * \author P. Wittich
  *
  */
@@ -10,8 +10,6 @@
 #include "DQM/L1TMonitor/interface/L1TRCT.h"
 
 // GCT and RCT data formats
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 

@@ -3,32 +3,22 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/12/21 10:00:04 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/02 16:30:05 $
+ * $Revision: 1.5 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "CaloOnlineTools/EcalTools/interface/EcalDigiDisplay.h"
-#include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
 #include <iostream>
-#include <vector>
 #include <set>
 #include <map>
 

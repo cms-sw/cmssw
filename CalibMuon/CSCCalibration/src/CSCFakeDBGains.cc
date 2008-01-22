@@ -1,11 +1,5 @@
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
-#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
-#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBGains.h"
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 //#include <DataFormats/MuonDetId/interface/CSCIndexer.h>
 
 void CSCFakeDBGains::prefillDBGains()

@@ -1,12 +1,9 @@
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/src/ClientRoot.h"
 #include "DQMServices/Core/interface/MonitorUIRoot.h"
 
-#include "DQMServices/Core/interface/NodeBase.h"
-#include "DQMServices/Core/interface/MonitorData.h"
 
 using namespace dqm::me_util;
 

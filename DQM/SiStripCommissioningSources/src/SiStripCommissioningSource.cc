@@ -1,7 +1,5 @@
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -27,9 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
 //#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
-#include <boost/cstdint.hpp>
 #include <memory>
 #include <iomanip>
 #include <sstream>

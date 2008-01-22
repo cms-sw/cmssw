@@ -13,11 +13,10 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.3 2007/11/11 17:07:05 dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.4 2007/11/13 20:17:33 dutta Exp $
 //
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -26,27 +25,18 @@
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorRawData.h"
 
-#include "TH1F.h"
 // std
 #include <cstdlib>
-#include <string>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
@@ -150,6 +140,5 @@ void SiStripMonitorRawData::endJob(void){
   edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::EndJob: " 
 					  << " Finishing!! ";        
 }
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorRawData);
 

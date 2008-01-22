@@ -26,7 +26,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 using namespace std;
 

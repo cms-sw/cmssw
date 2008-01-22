@@ -1,11 +1,10 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/11/23 11:02:48 $
+ *  $Date: 2007/07/26 06:16:10 $
  *  \author Matteo Sani
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <iostream>
 
 namespace {

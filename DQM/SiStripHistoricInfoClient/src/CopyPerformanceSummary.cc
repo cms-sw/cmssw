@@ -1,23 +1,11 @@
 #include "DQM/SiStripHistoricInfoClient/interface/CopyPerformanceSummary.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 #include "CondFormats/DataRecord/interface/SiStripPerformanceSummaryRcd.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
 #include <string>
-#include <memory>
 
 //---- default constructor / destructor
 CopyPerformanceSummary::CopyPerformanceSummary(const edm::ParameterSet& iConfig) {}

@@ -1,11 +1,10 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.4 2006/03/09 20:42:46 fedor Exp $
+// $Id: HcalTextCalibrations.cc,v 1.5 2007/05/28 10:39:47 elmer Exp $
 //
 //
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -14,7 +13,6 @@
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"

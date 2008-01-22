@@ -1,5 +1,4 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiPixelLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value){

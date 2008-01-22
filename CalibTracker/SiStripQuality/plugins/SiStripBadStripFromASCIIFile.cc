@@ -7,7 +7,6 @@
 // user include files
 
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 

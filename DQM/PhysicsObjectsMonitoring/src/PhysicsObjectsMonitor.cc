@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/31 08:01:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/06 15:13:55 $
+ *  $Revision: 1.6 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -11,15 +11,12 @@
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
@@ -28,9 +25,6 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
 
 using namespace std;
 using namespace edm;

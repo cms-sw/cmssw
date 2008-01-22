@@ -13,7 +13,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
@@ -673,5 +672,4 @@ std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::Separa
   return (hitangleassociation);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorTrack);

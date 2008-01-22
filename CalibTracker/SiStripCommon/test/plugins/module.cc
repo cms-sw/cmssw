@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 
 DEFINE_SEAL_MODULE();
 

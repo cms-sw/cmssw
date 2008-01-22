@@ -1,9 +1,7 @@
 
 #include "DetectorDescription/Core/interface/DDStrVector.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 // Evaluator 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 DDStrVector::DDStrVector() : DDBase<DDName,std::vector<std::string>*>() { }
 

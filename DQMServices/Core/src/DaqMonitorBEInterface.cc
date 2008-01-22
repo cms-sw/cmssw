@@ -1,5 +1,4 @@
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "FWCore/ParameterSet/interface/types.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/DQMPatchVersion.h"
@@ -11,7 +10,6 @@
 #include "DQMServices/Core/interface/DQMTagHelper.h"
 #include "DQMServices/Core/interface/QCriterionRoot.h"
 
-#include <iostream>
 
 #include <TKey.h>
 #include <TROOT.h>

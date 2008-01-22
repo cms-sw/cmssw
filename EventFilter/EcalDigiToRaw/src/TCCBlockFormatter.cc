@@ -1,6 +1,4 @@
 #include <memory>
-#include <vector>
-#include <iostream>
 
 #include "EventFilter/EcalDigiToRaw/interface/TCCBlockFormatter.h"
 

@@ -1,7 +1,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id$
+// $Id: L1TAnalyzer.cc,v 1.1 2007/08/22 15:42:29 giedrius Exp $
 
 
 // system include files
@@ -9,11 +9,8 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
@@ -21,7 +18,6 @@
 #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
 #include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
 
-#include "CondCore/DBCommon/interface/Exception.h"
 
 #include "CondTools/L1Trigger/plugins/L1TAnalyzer.h"
 

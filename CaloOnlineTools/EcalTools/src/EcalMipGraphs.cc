@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.10 2007/12/05 13:37:09 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.11 2007/12/19 14:32:12 franzoni Exp $
 //
 //
 
@@ -25,7 +25,6 @@
 #include <set>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,7 +35,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -45,7 +43,6 @@
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
 #include "TFile.h"
-#include "TH1F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
 

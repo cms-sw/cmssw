@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/09 14:50:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/06 17:36:04 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,7 +12,6 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -20,7 +19,6 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 //Geometry
-#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -28,8 +26,6 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iterator>
 

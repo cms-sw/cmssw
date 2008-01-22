@@ -1,12 +1,9 @@
 #include "CondCore/DBCommon/interface/TokenBuilder.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbReflex.h"
 #include "SealBase/SharedLibrary.h"
-#include "SealBase/SharedLibraryError.h"
 //#include "SealKernel/Exception.h"
-#include "POOLCore/Exception.h"
 //#include <iostream>
 namespace cond{
   TokenBuilder::TokenBuilder(): m_token(new pool::Token){

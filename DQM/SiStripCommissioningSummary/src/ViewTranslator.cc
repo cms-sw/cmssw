@@ -1,12 +1,10 @@
 #include "DQM/SiStripCommissioningSummary/interface/ViewTranslator.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TFile.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>

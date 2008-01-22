@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2007/06/01 15:22:01 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/06 17:36:38 $
+ * $Revision: 1.11 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -10,12 +10,7 @@
 #include <DQM/DTMonitorModule/interface/DTTestPulsesTask.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>

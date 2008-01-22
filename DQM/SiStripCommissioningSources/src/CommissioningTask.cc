@@ -4,7 +4,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

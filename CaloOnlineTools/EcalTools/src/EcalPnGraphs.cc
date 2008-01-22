@@ -2,31 +2,19 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2007/12/21 13:08:22 $
- * $Revision: 1.1 $
+ * $Date: 2007/12/21 13:33:02 $
+ * $Revision: 1.2 $
  * \author K. Kaadze
  * \author G. Franzoni 
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include "CaloOnlineTools/EcalTools/interface/EcalPnGraphs.h"
-#include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
-#include <iostream>
-#include <vector>
 #include <map>
 
-#include "TFile.h"
-#include "TGraph.h"
 
 
 //=============================================================================

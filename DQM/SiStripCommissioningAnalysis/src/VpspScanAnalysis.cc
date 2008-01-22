@@ -1,11 +1,9 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
-#include <sstream>
 #include <iomanip>
 #include <cmath>
 

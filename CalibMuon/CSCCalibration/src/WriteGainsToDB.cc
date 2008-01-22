@@ -13,25 +13,18 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteEcalMiscalibConstants.cc,v 1.1 2007/05/16 16:11:47 malgeri Exp $
+// $Id: WriteGainsToDB.cc,v 1.1 2007/06/05 15:54:44 boeriu Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DataFormats/Common/interface/Handle.h"
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -43,8 +36,6 @@
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 //For Checks
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this one
 #include "CalibMuon/CSCCalibration/interface/WriteGainsToDB.h"

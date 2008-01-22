@@ -1,22 +1,15 @@
 //#include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 
 using namespace std;

@@ -1,18 +1,13 @@
 #include "CondCore/PopCon/interface/StateCreator.h"
-#include "RelationalAccess/ISession.h"
-#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITableDataEditor.h"
-#include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeSpecification.h"
 //#include "CoralBase/Blob.h"
-#include "SealBase/TimeInfo.h"
 #include "CondCore/PopCon/interface/Exception.h"
 #include <iostream>
 #include <vector>
@@ -26,7 +21,6 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 popcon::StateCreator::StateCreator(const std::string& connectionString, 
 				   const std::string& offlineString, 

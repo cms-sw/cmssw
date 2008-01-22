@@ -3,14 +3,10 @@
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
-#include "RelationalAccess/TableDescription.h"
-#include "RelationalAccess/ITablePrivilegeManager.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ITableDataEditor.h"
-#include "CoralBase/Exception.h"
 #include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/TimeStamp.h"
 
@@ -22,7 +18,6 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 popcon::Logger::Logger (const std::string& connectionString, 
 			const std::string& offlineString,

@@ -1,12 +1,10 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFPacker.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <strings.h>
 #include <errno.h>
 #include <iostream>
 
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
 CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){

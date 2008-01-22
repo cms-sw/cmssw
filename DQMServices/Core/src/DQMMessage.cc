@@ -1,7 +1,5 @@
 #include "DQMServices/Core/interface/DQMMessage.h"
 #include <SealBase/DebugAids.h>
-#include "DQMServices/Core/interface/DQMRootBuffer.h"
-#include <TMessage.h>
 #include <iostream>
 
 DQMMessage::DQMMessage (void)

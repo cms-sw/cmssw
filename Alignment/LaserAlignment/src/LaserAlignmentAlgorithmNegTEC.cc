@@ -1,15 +1,14 @@
 /** \file LaserAlignmentAlgorithmNegTEC.cc
  *  
  *
- *  $Date: 2007/10/11 09:19:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:51:44 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmNegTEC.h"
 #include "Alignment/LaserAlignment/interface/Millepede.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include <boost/cstdint.hpp> 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

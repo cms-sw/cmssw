@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 17:42:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/11/07 15:24:16 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -11,14 +11,8 @@
 #include <DQM/DTMonitorClient/src/DTDeadChannelTest.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -29,13 +23,9 @@
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

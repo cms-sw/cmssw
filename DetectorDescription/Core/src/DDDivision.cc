@@ -1,7 +1,4 @@
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "Division.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"

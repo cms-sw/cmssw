@@ -1,6 +1,5 @@
 #include "CalibTracker/SiStripQuality/plugins/SiStripBadModuleByHandBuilder.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include <iostream>
 #include <fstream>

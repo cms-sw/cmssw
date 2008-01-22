@@ -3,10 +3,9 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.12 2007/11/16 10:45:44 giordano Exp $
+// $Id: SiStripDetCabling.cc,v 1.13 2007/11/19 15:35:45 giordano Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 //---- default constructor / destructor

@@ -13,8 +13,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"

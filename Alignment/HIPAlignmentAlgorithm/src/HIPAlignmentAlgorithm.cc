@@ -7,11 +7,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"  
-#include <boost/cstdint.hpp> 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -20,11 +18,7 @@
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include <FWCore/Framework/interface/EventSetup.h> 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
-#include <Geometry/DTGeometry/interface/DTLayer.h> 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 

@@ -1,7 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 #include <string.h> // for bzero
 
 bool CSCAnodeData::debug = false;

@@ -1,12 +1,11 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.18 2007/03/25 15:44:52 mansj Exp $
+// $Id: HcalDbHardcode.cc,v 1.19 2007/08/24 21:12:08 mansj Exp $
 //
 #include <vector>
 #include <string>
 
 #include "CLHEP/Random/RandGauss.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
 

@@ -2,17 +2,15 @@
    \file
    Test suit for EcalContainer
 
-   \version $Id: testEcalContainer.cpp,v 1.11 2007/06/27 06:12:17 innocent Exp $
+   \version $Id: testEcalContainer.cpp,v 1.1 2007/09/27 10:04:42 ferriff Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.11 2007/06/27 06:12:17 innocent Exp $";
+static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.1 2007/09/27 10:04:42 ferriff Exp $";
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalContainer.h>
 #include "FWCore/Utilities/interface/Exception.h"
 

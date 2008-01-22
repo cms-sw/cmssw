@@ -7,13 +7,11 @@
 // So, in keeping with everything else I saw:
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
-#include <cfloat>
 
 
 
 
 		#include <cmath>
-		#include "CLHEP/Units/SystemOfUnits.h"
 		 
 	                
 
@@ -91,7 +89,6 @@ void global_linear_0::stream(std::ostream & os) const
 
 
 		#include <cmath>
-		#include "CLHEP/Units/SystemOfUnits.h"
 		 
 	                
 

@@ -18,13 +18,10 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 
 // system include files
-#include <vector>
 #include <iostream>
 #include <iomanip>
 
 // user include files
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 
 // forward declarations
 

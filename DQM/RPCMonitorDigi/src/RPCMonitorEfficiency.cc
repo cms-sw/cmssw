@@ -2,7 +2,7 @@
  *
  *  implementation of RPCMonitorEfficiency class
  *
- *  $Date: 2006/12/12 08:30:31 $
+ *  $Date: 2007/03/12 22:37:15 $
  *  Revision: 1.5 $
  *
  * \author  Camilo Carrillo
@@ -11,9 +11,6 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorEfficiency.h>
 
 ///Log messages
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -28,16 +25,11 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 
 
 #include <cmath>
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TCanvas.h"
 
 
 class DTStationIndex{

@@ -7,7 +7,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
-#include <boost/cstdint.hpp>
 
 CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf) 
 : theSize(0), boardNumber_(number), theNumberOfSamples(0) 

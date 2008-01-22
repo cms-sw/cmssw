@@ -8,7 +8,6 @@
 #include <fstream>
 
 #include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #include <iostream>
 #include <iomanip>
 #include "Alignment/CocoaModel/interface/Model.h"

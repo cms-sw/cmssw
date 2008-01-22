@@ -1,4 +1,3 @@
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "LogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"

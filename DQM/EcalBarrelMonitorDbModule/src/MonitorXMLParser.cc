@@ -1,30 +1,21 @@
-// $Id: MonitorXMLParser.cc,v 1.3 2006/06/19 16:00:56 benigno Exp $
+// $Id: MonitorXMLParser.cc,v 1.4 2006/06/28 10:46:18 benigno Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2006/06/19 16:00:56 $
+  \version $Revision: 1.4 $
+  \date $Date: 2006/06/28 10:46:18 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
 
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMDocumentType.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMNodeIterator.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
-#include <xercesc/dom/DOMText.hpp>
 
-#include <xercesc/util/XMLUni.hpp>
 
-#include <string>
 #include <sstream>
 #include <stdexcept>
-#include <vector>
-#include <map>
 
 #include "DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h"
 //#include "MonitorXMLParser.h"

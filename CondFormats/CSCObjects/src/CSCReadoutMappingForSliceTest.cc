@@ -1,5 +1,4 @@
 #include <CondFormats/CSCObjects/interface/CSCReadoutMappingForSliceTest.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>

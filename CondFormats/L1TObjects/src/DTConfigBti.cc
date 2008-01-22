@@ -29,7 +29,6 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //----------------
 // Constructors --

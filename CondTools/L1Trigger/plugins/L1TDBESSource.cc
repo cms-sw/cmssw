@@ -1,16 +1,12 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "CondCore/DBCommon/interface/Exception.h"
 
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 
 #include "CondTools/L1Trigger/plugins/L1TDBESSource.h"
 
-#include "FWCore/Framework/interface/HCTypeTag.icc"
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 
 #include <iostream>

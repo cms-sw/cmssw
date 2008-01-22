@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2007/06/27 09:38:06 $
-//   $Revision: 1.4 $
+//   $Date: 2007/09/20 17:08:16 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -19,12 +19,9 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 
 #include <iostream>
-#include <string>
 
 using namespace std;
 

@@ -3,7 +3,6 @@
 #include <sstream>
 #include <iostream>
 #include <string>
-#include <TClass.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>

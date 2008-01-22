@@ -2,15 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/02 16:13:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/10 10:41:29 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "DTT0Analyzer.h"
-#include "DTCalibrationMap.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

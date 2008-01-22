@@ -7,10 +7,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h"
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <assert.h>
 
 using namespace pos;

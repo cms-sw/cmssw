@@ -6,7 +6,6 @@
 #include <iostream>
 #include <sstream>
 #include <math.h>
-#include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
 

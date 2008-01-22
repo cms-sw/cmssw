@@ -2,7 +2,6 @@
 
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 
-#include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"

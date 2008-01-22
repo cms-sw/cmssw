@@ -1,7 +1,6 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <iostream>
 #include <fstream>
 

@@ -5,7 +5,6 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <sstream>

@@ -1,5 +1,4 @@
 #include "CondTools/SiPixel/interface/SiPixelDBErrorParametrization.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
 #include <iostream>
 #include <cmath>

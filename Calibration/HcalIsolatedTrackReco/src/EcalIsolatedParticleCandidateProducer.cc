@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.4 2007/12/20 16:36:51 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.5 2008/01/05 14:57:10 safronov Exp $
 //
 //
 
@@ -22,21 +22,13 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -45,7 +37,6 @@
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include "FWCore/Framework/interface/produce_helpers.h"
 
 
 EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf)

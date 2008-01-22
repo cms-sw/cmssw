@@ -16,11 +16,8 @@
 
 // this class header
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 
 // system include files
-#include <boost/cstdint.hpp>
-#include <iostream>
 #include <iomanip>
 
 // user include files

@@ -17,8 +17,6 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLBox.h"
-#include "DDLElementRegistry.h"
-#include "DDLLogicalPart.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -28,7 +26,6 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 //#include <strstream>
-#include <string>
 
 // Default constructor
 DDLBox::DDLBox()

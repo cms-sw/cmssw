@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/10/30 10:13:32 $
- * $Revision: 1.33 $
+ * $Date: 2007/11/06 17:33:17 $
+ * $Revision: 1.34 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -10,11 +10,7 @@
 #include <DQM/DTMonitorModule/interface/DTDigiTask.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
@@ -37,9 +33,7 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

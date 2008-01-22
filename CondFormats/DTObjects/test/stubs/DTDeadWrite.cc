@@ -10,20 +10,14 @@ Toy EDAnalyzer for testing purposes only.
 #include <iostream>
 #include <fstream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTDeadWrite.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
-#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 namespace edmtest {
 

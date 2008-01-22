@@ -18,12 +18,9 @@
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 
 // system include files
-#include <vector>
 
-#include <ostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 //   base class

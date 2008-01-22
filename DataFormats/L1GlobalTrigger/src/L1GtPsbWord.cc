@@ -18,13 +18,10 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 // system include files
-#include <iostream>
 #include <iomanip>
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // constructors

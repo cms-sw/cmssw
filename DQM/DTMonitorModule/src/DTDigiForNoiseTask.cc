@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/11/06 11:35:04 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/06 17:31:29 $
+ * $Revision: 1.5 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -10,11 +10,7 @@
 #include <DQM/DTMonitorModule/src/DTDigiForNoiseTask.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
@@ -28,9 +24,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

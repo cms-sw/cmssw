@@ -1,5 +1,4 @@
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <iostream>
 

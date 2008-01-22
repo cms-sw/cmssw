@@ -1,7 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #define NBINS (100)

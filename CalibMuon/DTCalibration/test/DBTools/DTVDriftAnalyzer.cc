@@ -2,18 +2,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/14 16:15:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/15 14:44:39 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "DTVDriftAnalyzer.h"
-#include "DTCalibrationMap.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 

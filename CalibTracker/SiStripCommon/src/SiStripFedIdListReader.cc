@@ -1,7 +1,5 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripFedIdListReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <sstream>
 
 // -----------------------------------------------------------------------------

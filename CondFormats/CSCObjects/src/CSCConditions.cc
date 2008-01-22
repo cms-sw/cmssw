@@ -1,6 +1,4 @@
 #include "CondFormats/CSCObjects/interface/CSCConditions.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
@@ -8,7 +6,6 @@
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
-#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 
 

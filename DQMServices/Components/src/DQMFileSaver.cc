@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/11/15 23:59:41 $
- * $Revision: 1.5 $
+ * $Date: 2007/12/04 23:16:16 $
+ * $Revision: 1.6 $
  * $Author: ameyer $
  * \author A. Meyer, DESY
  *
@@ -11,16 +11,9 @@
 #include "DQMFileSaver.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2007/05/21 20:05:08 $
- * $Revision: 1.19 $
+ * $Date: 2007/05/21 21:10:33 $
+ * $Revision: 1.20 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.19 2007/05/21 20:05:08 tumanov Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.20 2007/05/21 21:10:33 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -48,7 +48,6 @@ static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.19 2007/05/21 20:05:08 tu
 #include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h>
 
 #include <stdio.h>
-#include <boost/cstdint.hpp>
 
 using namespace std;
 
@@ -746,4 +745,3 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCTMBStatusDigi(tmbstatusdigiCollection);
        readCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
 }
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

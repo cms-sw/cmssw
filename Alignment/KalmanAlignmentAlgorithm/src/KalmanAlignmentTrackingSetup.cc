@@ -1,8 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackingSetup.h"
 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
 #include <algorithm>
 #include <iostream>

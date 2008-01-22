@@ -1,13 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/12 07:25:47 $
+ *  $Revision: 1.2 $
  *  \author Marina Giunta
  */
 
 #include "DTTMax.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"

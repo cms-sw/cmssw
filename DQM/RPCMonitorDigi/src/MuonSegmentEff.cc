@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.13 2007/11/07 14:44:41 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.14 2007/11/13 19:05:44 carrillo Exp $
 //
 //
 
@@ -23,30 +23,16 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-#include <DataFormats/RPCDigi/interface/RPCDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
 
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h>
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
@@ -61,15 +47,9 @@
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
-#include <DataFormats/GeometryVector/interface/LocalPoint.h>
 
 
 #include <cmath>
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TCanvas.h"
 
 
 
@@ -270,7 +250,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   if(incldt){
-#include "dtpart.inl"
   }
   
   if(incldtMB4){

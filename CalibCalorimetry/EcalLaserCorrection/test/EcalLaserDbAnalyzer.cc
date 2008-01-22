@@ -12,13 +12,10 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,10 +28,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 using namespace std;
 

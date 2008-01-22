@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/ContainerIterator.h"
 #include "CondCore/DBCommon/interface/GenericRef.h"
 #include "IOVServiceImpl.h"

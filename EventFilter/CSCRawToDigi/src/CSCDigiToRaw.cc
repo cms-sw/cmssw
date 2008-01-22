@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/11/01 17:56:03 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/11/02 17:34:36 $
+ *  $Revision: 1.17 $
  *  \author A. Tumanov - Rice
  */
 
@@ -9,20 +9,15 @@
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include "EventFilter/Utilities/interface/Crc.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 

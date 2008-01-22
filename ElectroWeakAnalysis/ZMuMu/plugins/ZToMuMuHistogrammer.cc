@@ -4,17 +4,15 @@
  *
  * \author Luca Lista, INFN Naples
  *
- * \id $Id: ZToMuMuHistogrammer.cc,v 1.1 2007/10/05 10:02:45 piccolo Exp $
+ * \id $Id: ZToMuMuHistogrammer.cc,v 1.1 2007/10/12 11:28:57 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

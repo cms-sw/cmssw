@@ -1,4 +1,3 @@
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/DQMTagHelper.h"
 #include "DQMServices/Core/interface/ReceiverBase.h"
 #include "DQMServices/Core/interface/SocketUtils.h"
@@ -14,7 +13,6 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#include <string>
 #include <set>
 
 using namespace dqm::me_util;

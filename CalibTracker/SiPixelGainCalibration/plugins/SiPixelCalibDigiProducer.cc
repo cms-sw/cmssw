@@ -13,45 +13,23 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.4 2007/12/12 12:29:19 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.5 2007/12/13 11:00:46 fblekman Exp $
 //
 //
 
 
 // system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
-#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
-#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -59,7 +37,6 @@
 
 #include "SiPixelCalibDigiProducer.h"
 #include <sstream>
-#include <iostream>
 
 //
 // constants, enums and typedefs

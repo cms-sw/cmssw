@@ -13,7 +13,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.1 2007/08/20 16:25:17 giedrius Exp $
+// $Id: L1TWriter.cc,v 1.2 2007/08/22 15:07:35 giedrius Exp $
 //
 //
 
@@ -25,15 +25,10 @@
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 #include "CondTools/L1Trigger/plugins/L1TWriter.h"
 

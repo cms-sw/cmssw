@@ -1,5 +1,4 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-#include <string>
 #include <string.h>
 #include <iomanip>
 using namespace std;

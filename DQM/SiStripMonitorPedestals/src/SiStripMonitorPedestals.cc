@@ -13,29 +13,23 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.28 2007/11/15 09:17:24 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.29 2007/11/16 12:39:14 dutta Exp $
 //
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
@@ -44,12 +38,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TProfile.h"
 // std
 #include <cstdlib>
-#include <string>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
@@ -539,5 +530,4 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const& eSetup) {
     }//close istrip loop
   }
 }
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorPedestals);

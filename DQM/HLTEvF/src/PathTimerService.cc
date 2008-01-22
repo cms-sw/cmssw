@@ -6,22 +6,14 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.9 2007/08/17 14:49:05 bdahmes Exp $
+// $Id: PathTimerService.cc,v 1.10 2007/09/14 17:33:33 bdahmes Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include <iostream>
 #include <string>
 #include <vector>

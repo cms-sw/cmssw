@@ -3,9 +3,7 @@
 
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 
-#include "TROOT.h"
 #include "TF1.h"
-#include "TPaveStats.h"
 #include "TMath.h"
 #include "TClass.h"
 

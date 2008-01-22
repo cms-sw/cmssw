@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.8 2007/12/06 17:33:21 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.9 2007/12/07 10:28:53 fblekman Exp $
 //
 //
 
@@ -22,10 +22,8 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

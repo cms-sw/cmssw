@@ -1,35 +1,24 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2007/06/18 09:22:37 $
-  *  $Revision: 1.7 $
+  *  $Date: 2007/12/04 23:51:53 $
+  *  $Revision: 1.8 $
   *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/RecoAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/ESHandle.h" 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/EventSetup.h" 
-#include "FWCore/Utilities/interface/EDMException.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
-#include <Math/Rotation3D.h> 
-#include "DetectorDescription/Base/interface/Ptr.h" 
-#include "Geometry/CommonTopologies/interface/PixelTopology.h" 
-#include "Geometry/CommonTopologies/interface/StripTopology.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h" 
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h" 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/Common/interface/DetSetVector.h" 
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
-#include "TString.h" 
 
   void RecoAnalyzer::trackerRecHits(edm::Event const& theEvent, edm::EventSetup const& theSetup)
 {

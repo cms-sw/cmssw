@@ -1,14 +1,10 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaDiJetsProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;

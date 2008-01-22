@@ -1,11 +1,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 
 #include "Calibration/Tools/interface/CalibrationCluster.h"
@@ -15,13 +11,10 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
@@ -30,9 +23,6 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -41,23 +31,16 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
-#include "TTree.h"
 #include "TBranch.h"
 
-#include "TFile.h"
 #include "TProfile.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TF1.h"
-#include "TGraph.h"
 #include "TRandom.h"
 
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include <vector>
 #include <utility>
-#include <map>
 #include <fstream>
 
 #define MZ 91.1876

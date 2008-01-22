@@ -1,5 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 
 //---- default constructor / destructor

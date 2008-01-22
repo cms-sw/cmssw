@@ -3,17 +3,13 @@
 
 // FW
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
-#include "DataFormats/Scalers/interface/ScalersRaw.h"
-#include "DataFormats/Common/interface/HLTenums.h"
 #include "DQM/TrigXMonitor/interface/L1Scalers.h"
 #include "DataFormats/Common/interface/Handle.h"
 

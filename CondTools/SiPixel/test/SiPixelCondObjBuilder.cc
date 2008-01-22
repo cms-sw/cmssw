@@ -1,5 +1,4 @@
 #include <memory>
-#include <string>
 #include <iostream>
 #include "CondTools/SiPixel/test/SiPixelCondObjBuilder.h"
 

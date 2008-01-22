@@ -9,20 +9,12 @@
 #include <numeric>
 #include <iostream>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

@@ -1,14 +1,9 @@
 
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLedAnalysis.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "TFile.h"
 #include <math.h>
 using namespace std;

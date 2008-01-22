@@ -1,18 +1,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <iterator>
-#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 

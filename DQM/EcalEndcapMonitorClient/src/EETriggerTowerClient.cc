@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/18 18:05:43 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,22 +18,13 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>

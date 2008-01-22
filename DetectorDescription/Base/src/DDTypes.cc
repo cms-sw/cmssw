@@ -1,6 +1,5 @@
 
 
-#include <iostream>
 #include "DetectorDescription/Base/interface/DDTypes.h"
 ////////// output operator for printing the arguments of an algorithm
 

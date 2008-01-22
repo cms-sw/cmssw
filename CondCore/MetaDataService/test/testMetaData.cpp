@@ -1,9 +1,7 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include <string>
 #include <vector>

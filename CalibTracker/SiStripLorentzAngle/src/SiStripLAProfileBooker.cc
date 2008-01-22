@@ -35,7 +35,6 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"

@@ -1,13 +1,11 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.10 2007/05/11 14:53:04 mansj Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.11 2007/08/31 19:27:58 mansj Exp $
 //
 //
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
-#include <map>
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"

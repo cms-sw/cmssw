@@ -1,5 +1,4 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {

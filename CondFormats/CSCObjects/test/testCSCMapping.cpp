@@ -157,4 +157,3 @@ void testCSCMapping::testRead(){
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCMapping);
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

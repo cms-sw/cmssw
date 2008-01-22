@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/11/13 17:15:28 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/16 11:27:22 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -12,34 +12,22 @@
 #include "DQM/DTMonitorClient/src/DTtTrigCalibrationTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // the Timebox fitter
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
 
-#include <iostream>
 #include <stdio.h>
-#include <string>
 #include <sstream>
 #include <math.h>
 

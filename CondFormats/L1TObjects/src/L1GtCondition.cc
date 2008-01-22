@@ -18,10 +18,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 
 // system include files
-#include <iostream>
 
 // user include files
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 

@@ -2,8 +2,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

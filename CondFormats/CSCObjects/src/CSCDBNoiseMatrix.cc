@@ -1,6 +1,5 @@
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 CSCDBNoiseMatrix::CSCDBNoiseMatrix(){}

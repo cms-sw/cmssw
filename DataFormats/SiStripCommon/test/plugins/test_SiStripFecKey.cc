@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.4 2008/01/14 09:18:17 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.5 2008/01/15 16:27:57 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -14,7 +14,6 @@
 #include <vector>
 #include <algorithm>
 //#include <functional>
-#include <boost/cstdint.hpp>
 
 using namespace sistrip;
 

@@ -20,10 +20,7 @@
 // system include files
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <vector>
 
-#include <boost/cstdint.hpp>
 
 
 // user include files

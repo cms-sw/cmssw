@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/10/10 08:54:08 $
- * $Revision: 1.12 $
+ * $Date: 2007/11/07 15:23:22 $
+ * $Revision: 1.13 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -11,7 +11,6 @@
 #include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
 
 //Framework
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -20,7 +19,6 @@
 #include <iostream>
 #include <string>
 
-#include "TNamed.h"
 
 using namespace std;
 using namespace edm;

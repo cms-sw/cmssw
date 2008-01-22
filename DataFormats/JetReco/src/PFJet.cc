@@ -1,11 +1,10 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.6 2008/01/03 22:41:24 fedor Exp $
+// $Id: PFJet.cc,v 1.7 2008/01/04 21:03:01 fedor Exp $
 #include <sstream>
 #include <typeinfo>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 //Own header file

@@ -1,4 +1,3 @@
-#include "PluginManager/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/plugins/ClusterAnalysis.h"

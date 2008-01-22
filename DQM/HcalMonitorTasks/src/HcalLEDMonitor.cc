@@ -1,5 +1,4 @@
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 
 HcalLEDMonitor::HcalLEDMonitor() {
   doPerChannel_ = false;

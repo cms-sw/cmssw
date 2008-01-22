@@ -8,8 +8,6 @@
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 

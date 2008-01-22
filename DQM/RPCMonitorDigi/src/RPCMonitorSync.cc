@@ -2,28 +2,21 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2006/10/20 13:42:20 $
- *  $Revision: 0.1 $
+ *  $Date: 2006/11/15 15:07:43 $
+ *  $Revision: 1.2 $
  *
  * \author Piotr Traczyk
  */
 
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorSync.h>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // RPC Digi
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 ///Log messages
-#include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <vector>

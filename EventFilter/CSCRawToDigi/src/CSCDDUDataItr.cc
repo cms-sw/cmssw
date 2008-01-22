@@ -1,6 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUDataItr.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

@@ -1,26 +1,20 @@
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h>
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 //#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
-#include <iostream>
-#include <fstream>
 
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2007/01/26 16:45:15 $
- * $Revision: 1.8 $
+ * $Date: 2007/04/10 23:02:35 $
+ * $Revision: 1.9 $
  * \author S Stoynev / W Fisher
  *
 */

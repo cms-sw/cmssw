@@ -1,13 +1,9 @@
-#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "TText.h"
 #include <iostream>
 using namespace std;
 //

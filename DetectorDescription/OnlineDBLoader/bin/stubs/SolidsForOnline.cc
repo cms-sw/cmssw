@@ -1,27 +1,16 @@
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
 #include <iostream>
 #include <istream>

@@ -1,6 +1,5 @@
 #include "DetectorDescription/Algorithm/src/presh_detectors.h"
 
-#include <vector>
 #include <cmath>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"

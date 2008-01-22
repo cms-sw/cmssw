@@ -20,35 +20,19 @@
 // system include files
 #include <vector>
 #include <iostream>
-#include <fstream>
 #include <iomanip>
 
 #include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/RefProd.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"

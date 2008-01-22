@@ -1,20 +1,11 @@
 #include "DQM/L1TMonitorClient/interface/L1THcalClient.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <iostream>
 #include <stdio.h>
 #include <string>
 #include <sstream>
 #include <math.h>
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TF1.h>
 using namespace edm;
 using namespace std;

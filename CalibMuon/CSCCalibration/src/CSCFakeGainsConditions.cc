@@ -1,9 +1,4 @@
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
-#include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeGainsConditions.h"
 
 void CSCFakeGainsConditions::prefillGains()

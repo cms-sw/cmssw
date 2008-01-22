@@ -8,7 +8,6 @@
  */
 
 #include "EgammaAnalysis/CSA07Skims/interface/EgammaProbeSelector.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

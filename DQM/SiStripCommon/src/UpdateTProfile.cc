@@ -2,7 +2,6 @@
 #include <iostream>
 #include <math.h>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 

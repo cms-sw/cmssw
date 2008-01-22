@@ -2,10 +2,8 @@
 //----------Copyright: Those valid for CEA sofware
 //----------Modified: 11/07/2007
 
-#include <Riostream.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBParameters.h"
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaViewEB.h"
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaDialogEB.h"
 

@@ -9,8 +9,6 @@
  ************************************************/
 
 
-#include <map>
-#include <string>
 #include <TRandom.h> 
 //#include <unistd.h>
 
@@ -32,7 +30,6 @@
 
 
 ///Log messages
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;

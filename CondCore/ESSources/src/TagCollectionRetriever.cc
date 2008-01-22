@@ -12,10 +12,7 @@
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
-#include "CoralBase/Exception.h"
-#include "CoralBase/AttributeSpecification.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 //#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }

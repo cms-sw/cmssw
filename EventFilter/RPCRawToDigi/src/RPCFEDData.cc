@@ -1,15 +1,13 @@
 /** \file
  * Implementation of class RPCFEDData
  *
- *  $Date: 2006/10/08 12:11:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/02 12:49:34 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
  
 #include "EventFilter/RPCRawToDigi/interface/RPCFEDData.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 void RPCFEDData::addCdfHeader(FEDHeader & header){

@@ -1,11 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.15 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.16  2007/12/21 17:41:20  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.15  2007/11/19 15:08:22  lorenzo
  * changed top folder name
  *
@@ -54,14 +59,8 @@
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 // L1Extra
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 

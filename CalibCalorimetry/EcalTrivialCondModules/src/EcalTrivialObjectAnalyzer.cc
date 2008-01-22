@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.13 2007/09/27 10:00:26 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.14 2007/09/27 12:48:01 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -12,7 +12,6 @@
 #include <map>
 #include <vector>
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -23,7 +22,6 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"

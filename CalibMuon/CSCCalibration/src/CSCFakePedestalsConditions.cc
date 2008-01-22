@@ -1,8 +1,4 @@
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
-#include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
 
 void CSCFakePedestalsConditions::prefillPedestals()

@@ -6,15 +6,11 @@
  *  
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <qstring.h>
 #include <qregexp.h>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include "TText.h"
 using namespace std;

@@ -45,13 +45,10 @@
 #include "DDLTrapezoid.h"
 #include "DDLTubs.h"
 #include "DDLVector.h"
-#include "DDXMLElementRegistry.h"
-#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include <string>
 #include <iostream>
 
 // -------------------------------------------------------------------------

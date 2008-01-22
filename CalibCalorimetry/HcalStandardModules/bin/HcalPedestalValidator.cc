@@ -6,15 +6,11 @@
 #include <fstream>
 #include <iostream>
 
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
-#include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 
 namespace {
   bool defaultsFile (const std::string fParam) {

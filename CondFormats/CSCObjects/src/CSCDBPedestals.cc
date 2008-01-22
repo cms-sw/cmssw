@@ -1,6 +1,5 @@
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 CSCDBPedestals::CSCDBPedestals(){}
 CSCDBPedestals::~CSCDBPedestals(){}

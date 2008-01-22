@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleMCJetCorrector.cc,v 1.5 2007/11/17 00:50:14 fedor Exp $
+// $Id: SimpleMCJetCorrector.cc,v 1.6 2007/12/08 01:55:41 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -12,7 +12,6 @@
 #include <sstream>
 
 #include "Math/PtEtaPhiE4D.h"
-#include "Math/PxPyPzE4D.h"
 #include "Math/LorentzVector.h"
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVectorD;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;

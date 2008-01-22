@@ -16,9 +16,7 @@ simple analyzer to dump information about ECAL cond objects
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
@@ -27,7 +25,6 @@ simple analyzer to dump information about ECAL cond objects
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"

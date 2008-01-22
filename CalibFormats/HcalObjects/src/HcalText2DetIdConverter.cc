@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.3 2006/09/25 21:58:36 mansj Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.4 2006/10/18 23:43:38 fedor Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -12,7 +12,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"

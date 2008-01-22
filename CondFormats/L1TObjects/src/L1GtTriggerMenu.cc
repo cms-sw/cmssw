@@ -15,21 +15,16 @@
  */
 
 // this class header
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 // system include files
-#include <ostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
 
 // forward declarations
 
