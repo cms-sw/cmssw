@@ -374,6 +374,8 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
 
+  if (debug_) cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
+  
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
   int deltaT = itime_-lastResetTime_;
@@ -391,15 +393,18 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
   if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
+  ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
   if ( runningStandalone_ || prescale()) return;
+
   else analyze();
 }
 
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(){
-  
-  ievt_++;
+  if (debug_) cout <<"Entered HcalMonitorClient::analyze()"<<endl;
+
+  //nevt_++; // counter not currently displayed anywhere 
   if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
   
   createTests();  

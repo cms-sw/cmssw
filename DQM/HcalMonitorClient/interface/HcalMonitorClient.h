@@ -123,7 +123,7 @@ public:
   bool debug_ ;
 
   /// counters and flags
-  int nevt_;
+    //int nevt_; // counts number of events actually analyzed by HcalMonitorClient
   int nlumisecs_;
   bool saved_;
 
@@ -143,7 +143,7 @@ public:
   bool actonLS_ ;
   std::string rootFolder_;
 
-  int ievt_;
+  int ievt_; // counts number of events read by client (and analyzed by tasks)
   int resetUpdate_;
   int resetEvents_;
   int resetTime_;
