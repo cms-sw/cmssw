@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/01/17 08:11:13 $
- * $Revision: 1.8 $
+ * $Date: 2008/01/17 15:35:50 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -60,6 +60,10 @@ edm::InputTag EcalTrigPrimDigiCollection_;
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
 MonitorElement* meOccupancyMem_[18];
+
+MonitorElement* meEEDigiOccupancy_, *meEEDigiOccupancyProjX_, *meEEDigiOccupancyProjY_;
+MonitorElement* meEERecHitOccupancy_, *meEERecHitOccupancyProjX_, *meEERecHitOccupancyProjY_;
+MonitorElement* meEETrigPrimDigiOccupancy_, *meEETrigPrimDigiOccupancyProjX_, *meEETrigPrimDigiOccupancyProjY_;
 
 bool init_;
 

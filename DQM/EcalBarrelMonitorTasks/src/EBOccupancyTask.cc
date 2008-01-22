@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/17 15:35:51 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/20 17:11:38 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -54,6 +54,18 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
     meOccupancyMem_[i] = 0;
   }
 
+  meEBDigiOccupancy_ = 0;
+  meEBDigiOccupancyProjEta_ = 0;
+  meEBDigiOccupancyProjPhi_ = 0;
+
+  meEBRecHitOccupancy_ = 0;
+  meEBRecHitOccupancyProjEta_ = 0;
+  meEBRecHitOccupancyProjPhi_ = 0;
+
+  meEBTrigPrimDigiOccupancy_ = 0;
+  meEBTrigPrimDigiOccupancyProjEta_ = 0;
+  meEBTrigPrimDigiOccupancyProjPhi_ = 0;
+
 }
 
 EBOccupancyTask::~EBOccupancyTask(){
@@ -93,6 +105,27 @@ void EBOccupancyTask::setup(void){
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
+    sprintf(histo, "EBOT EB digi occupancy");
+    meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    sprintf(histo, "EBOT EB digi occupancy projection eta");
+    meEBDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
+    sprintf(histo, "EBOT EB digi occupancy projection phi");
+    meEBDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
+
+    sprintf(histo, "EBOT EB rec hit occupancy");
+    meEBRecHitOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    sprintf(histo, "EBOT EB rec hit occupancy projection eta");
+    meEBRecHitOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
+    sprintf(histo, "EBOT EB rec hit occupancy projection phi");
+    meEBRecHitOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
+
+    sprintf(histo, "EBOT EB trigger primitives digi occupancy");
+    meEBTrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    sprintf(histo, "EBOT EB trigger primitives digi occupancy projection eta");
+    meEBTrigPrimDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
+    sprintf(histo, "EBOT EB trigger primitives digi occupancy projection phi");
+    meEBTrigPrimDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
+
   }
 
 }
@@ -110,6 +143,27 @@ void EBOccupancyTask::cleanup(void){
       if ( meOccupancyMem_[i] ) dbe_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
     }
+
+    if ( meEBDigiOccupancy_ ) dbe_->removeElement( meEBDigiOccupancy_->getName() );
+    meEBDigiOccupancy_ = 0;
+    if ( meEBDigiOccupancyProjEta_ ) dbe_->removeElement( meEBDigiOccupancyProjEta_->getName() );
+    meEBDigiOccupancyProjEta_ = 0;
+    if ( meEBDigiOccupancyProjPhi_ ) dbe_->removeElement( meEBDigiOccupancyProjPhi_->getName() );
+    meEBDigiOccupancyProjPhi_ = 0;
+
+    if ( meEBRecHitOccupancy_ ) dbe_->removeElement( meEBRecHitOccupancy_->getName() );
+    meEBRecHitOccupancy_ = 0;
+    if ( meEBRecHitOccupancyProjEta_ ) dbe_->removeElement( meEBRecHitOccupancyProjEta_->getName() );
+    meEBRecHitOccupancyProjEta_ = 0;
+    if ( meEBRecHitOccupancyProjPhi_ ) dbe_->removeElement( meEBRecHitOccupancyProjPhi_->getName() );
+    meEBRecHitOccupancyProjPhi_ = 0;
+
+    if ( meEBTrigPrimDigiOccupancy_ ) dbe_->removeElement( meEBTrigPrimDigiOccupancy_->getName() );
+    meEBTrigPrimDigiOccupancy_ = 0;
+    if ( meEBTrigPrimDigiOccupancyProjEta_ ) dbe_->removeElement( meEBTrigPrimDigiOccupancyProjEta_->getName() );
+    meEBTrigPrimDigiOccupancyProjEta_ = 0;
+    if ( meEBTrigPrimDigiOccupancyProjPhi_ ) dbe_->removeElement( meEBTrigPrimDigiOccupancyProjPhi_->getName() );
+    meEBTrigPrimDigiOccupancyProjPhi_ = 0;
 
   }
 
@@ -163,6 +217,13 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
 
+      int ebeta = id.ieta();
+      int ebphi = id.iphi();
+
+      if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( ebphi, ebeta );
+      if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( ebeta );
+      if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( ebphi );
+
     }
 
   } else {
@@ -206,6 +267,60 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EBOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
+
+  Handle<EcalRecHitCollection> rechits;
+
+  if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
+
+    int nebrh = rechits->size();
+    LogDebug("EBOccupancyTask") << "event " << ievt_ << " rec hits collection size " << nebrh;
+
+    for ( EcalRecHitCollection::const_iterator rechitItr = rechits->begin(); rechitItr != rechits->end(); ++rechitItr ) {
+
+      EBDetId id = rechitItr->id();
+      int ebeta = id.ieta();
+      int ebphi = id.iphi();
+
+      if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( ebphi, ebeta );
+      if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( ebeta );
+      if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( ebphi );
+
+    }
+
+  } else {
+
+    LogWarning("EBOccupancyTask") << EcalRecHitCollection_ << " not available";
+
+  }
+
+  Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
+
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) ) {
+
+    int nebtpg = trigPrimDigis->size();
+    LogDebug("EBOccupancyTask") << "event " << ievt_ << " trigger primitives digis collection size " << nebtpg;
+
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); 
+	  tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
+
+      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+      EcalTrigTowerDetId idt = data.id();
+
+      int ebeta = idt.ieta();
+      int ebphi = idt.iphi();
+
+      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( ebphi, ebeta );
+      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( ebeta );
+      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( ebphi );
+
+    }
+
+  } else {
+
+    LogWarning("EBOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
+
+  }
+
 
 }
 

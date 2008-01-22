@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/17 15:35:51 $
- * $Revision: 1.19 $
+ * $Date: 2008/01/20 17:11:39 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -54,6 +54,18 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
     meOccupancyMem_[i] = 0;
   }
 
+  meEEDigiOccupancy_ = 0;
+  meEEDigiOccupancyProjX_ = 0;
+  meEEDigiOccupancyProjY_ = 0;
+
+  meEERecHitOccupancy_ = 0;
+  meEERecHitOccupancyProjX_ = 0;
+  meEERecHitOccupancyProjY_ = 0;
+
+  meEETrigPrimDigiOccupancy_ = 0;
+  meEETrigPrimDigiOccupancyProjX_ = 0;
+  meEETrigPrimDigiOccupancyProjY_ = 0;
+
 }
 
 EEOccupancyTask::~EEOccupancyTask(){
@@ -93,6 +105,27 @@ void EEOccupancyTask::setup(void){
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
+    sprintf(histo, "EEOT EE digi occupancy");
+    meEEDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    sprintf(histo, "EEOT EE digi occupancy projection x");
+    meEEDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EEOT EE digi occupancy projection y");
+    meEEDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+
+    sprintf(histo, "EEOT EE rec hit occupancy");
+    meEERecHitOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    sprintf(histo, "EEOT EE rec hit occupancy projection x");
+    meEERecHitOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EEOT EE rec hit occupancy projection y");
+    meEERecHitOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+
+    sprintf(histo, "EEOT EE trigger primitives digi occupancy");
+    meEETrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    sprintf(histo, "EEOT EE trigger primitives digi occupancy projection x");
+    meEETrigPrimDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EEOT EE trigger primitives digi occupancy projection y");
+    meEETrigPrimDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+
   }
 
 }
@@ -110,6 +143,27 @@ void EEOccupancyTask::cleanup(void){
       if ( meOccupancyMem_[i] ) dbe_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
     }
+
+    if ( meEEDigiOccupancy_ ) dbe_->removeElement( meEEDigiOccupancy_->getName() );
+    meEEDigiOccupancy_ = 0;
+    if ( meEEDigiOccupancyProjX_ ) dbe_->removeElement( meEEDigiOccupancyProjX_->getName() );
+    meEEDigiOccupancyProjX_ = 0;
+    if ( meEEDigiOccupancyProjY_ ) dbe_->removeElement( meEEDigiOccupancyProjY_->getName() );
+    meEEDigiOccupancyProjY_ = 0;
+
+    if ( meEERecHitOccupancy_ ) dbe_->removeElement( meEERecHitOccupancy_->getName() );
+    meEERecHitOccupancy_ = 0;
+    if ( meEERecHitOccupancyProjX_ ) dbe_->removeElement( meEERecHitOccupancyProjX_->getName() );
+    meEERecHitOccupancyProjX_ = 0;
+    if ( meEERecHitOccupancyProjY_ ) dbe_->removeElement( meEERecHitOccupancyProjY_->getName() );
+    meEERecHitOccupancyProjY_ = 0;
+
+    if ( meEETrigPrimDigiOccupancy_ ) dbe_->removeElement( meEETrigPrimDigiOccupancy_->getName() );
+    meEETrigPrimDigiOccupancy_ = 0;
+    if ( meEETrigPrimDigiOccupancyProjX_ ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjX_->getName() );
+    meEETrigPrimDigiOccupancyProjX_ = 0;
+    if ( meEETrigPrimDigiOccupancyProjY_ ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjY_->getName() );
+    meEETrigPrimDigiOccupancyProjY_ = 0;
 
   }
 
@@ -162,7 +216,14 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         LogWarning("EEOccupancyTask") << " xix, xiy " << xix << " " << xiy;
       }
 
-      if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xix, xiy);
+      if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill( xix, xiy );
+
+      int eex = id.ix();
+      int eey = id.iy();
+
+      if ( meEEDigiOccupancy_ ) meEEDigiOccupancy_->Fill( eex, eey );
+      if ( meEEDigiOccupancyProjX_ ) meEEDigiOccupancyProjX_->Fill( eex );
+      if ( meEEDigiOccupancyProjY_ ) meEEDigiOccupancyProjY_->Fill( eey );
 
     }
 
@@ -205,6 +266,71 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     LogWarning("EEOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
+
+  }
+
+  Handle<EcalRecHitCollection> rechits;
+
+  if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
+
+    int nebrh = rechits->size();
+    LogDebug("EEOccupancyTask") << "event " << ievt_ << " rec hits collection size " << nebrh;
+
+    for ( EcalRecHitCollection::const_iterator rechitItr = rechits->begin(); rechitItr != rechits->end(); ++rechitItr ) {
+
+      EEDetId id = rechitItr->id();
+      int eex = id.ix();
+      int eey = id.iy();
+
+      if ( meEERecHitOccupancy_ ) meEERecHitOccupancy_->Fill( eex, eey );
+      if ( meEERecHitOccupancyProjX_ ) meEERecHitOccupancyProjX_->Fill( eex );
+      if ( meEERecHitOccupancyProjY_ ) meEERecHitOccupancyProjY_->Fill( eey );
+
+    }
+
+  } else {
+
+    LogWarning("EEOccupancyTask") << EcalRecHitCollection_ << " not available";
+
+  }
+
+  Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
+
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) ) {
+
+    int nebtpg = trigPrimDigis->size();
+    LogDebug("EEOccupancyTask") << "event " << ievt_ << " trigger primitives digis collection size " << nebtpg;
+
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); 
+	  tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
+
+      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+      EcalTrigTowerDetId idt = data.id();
+
+      if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
+      
+      int ismt = Numbers::iSM( idt );
+      
+      vector<DetId> crystals = Numbers::crystals( idt );
+      
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+	
+	EEDetId id = crystals[i];
+	
+	int ix = id.ix();
+	int iy = id.iy();
+	
+	if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+	if ( meEETrigPrimDigiOccupancy_ ) meEETrigPrimDigiOccupancy_->Fill( ix, iy );
+	if ( meEETrigPrimDigiOccupancyProjX_ ) meEETrigPrimDigiOccupancyProjX_->Fill( ix );
+	if ( meEETrigPrimDigiOccupancyProjY_ ) meEETrigPrimDigiOccupancyProjY_->Fill( iy );
+      }
+    }
+
+  } else {
+
+    LogWarning("EEOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 
