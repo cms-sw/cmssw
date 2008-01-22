@@ -12,8 +12,9 @@ The main change for this release was a major upgrade of the GT emulator.
       * CSCTF and DTTF modules now included in default sequences
       * CSC and DT TPG digis can be accessed via CSCTF/DTTF RawToDigi
       * GCT modules now include RCT region energies
-   * GCT default jet algorithm changed to match hardware algo
+   * GCT default jet algorithm changed to match hardware
    * GCT default jet corrections based on 17X
+   * HLT seeding sequence and test job added to L1Trigger/Configuration
 
 - Major bug fixes:
 
