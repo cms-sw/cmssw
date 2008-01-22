@@ -34,7 +34,8 @@ private:
   std::vector<int> m_gradient;
 
   void fill_color();
-  void fill_gradient();
+  unsigned int fill_gradient(const TColor & first, const TColor & last, unsigned int steps = 100, unsigned int index = 0);
+  unsigned int fill_gradient(unsigned int first, unsigned int last, unsigned int steps = 100, unsigned int index = 0);
 
 };
 

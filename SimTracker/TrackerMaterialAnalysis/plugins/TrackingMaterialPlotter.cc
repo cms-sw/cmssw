@@ -56,24 +56,35 @@ void TrackingMaterialPlotter::fill_color(void)
 }
 
 
-void TrackingMaterialPlotter::fill_gradient(void)
+unsigned int TrackingMaterialPlotter::fill_gradient(const TColor & first, const TColor & last, unsigned int steps /*= 100*/, unsigned int index /* = 0*/)
 {
-  const unsigned int index = 1000;
-  const unsigned int steps =  100;
-  m_gradient.resize(steps);
-  for (unsigned int i = 0; i < steps; ++i)
-    m_gradient[i] = index + i;
+  if (index == 0) {
+    // if no index was given, find the highest used one and start from that plus one
+    for (TColor * c = (TColor *) gROOT->GetListOfColors()->First(); c != 0; c = (TColor *) gROOT->GetListOfColors()->After( c ))
+      if (c->GetNumber() > (int) index)
+      index = c->GetNumber();
+  }
   
-  float r1 = 1.0, g1 = 1.0, b1 = 1.0;   // white
-  float r2 = 0.0, g2 = 0.0, b2 = 0.0;   // black
+  float r1, g1, b1, r2, g2, b2;
+  first.GetRGB(r1, g1, b1);
+  last.GetRGB(r2, g2, b2);
   float delta_r = (r2 - r1) / (steps - 1);
   float delta_g = (g2 - g1) / (steps - 1);
   float delta_b = (b2 - b1) / (steps - 1);
   
-  for (unsigned int i = 0; i < steps; ++i)
-    new TColor(m_gradient[i], r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+  m_gradient.resize(steps);
+  for (unsigned int i = 0; i < steps; ++i) {
+    new TColor(index + 1, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    m_gradient[i] = index + i;
+  }
+
+  return index;
 }
 
+unsigned int TrackingMaterialPlotter::fill_gradient(unsigned int first, unsigned int last, unsigned int steps /*= 100*/, unsigned int index /* = 0*/)
+{
+  return fill_gradient(* (TColor *) gROOT->GetListOfColors()->At(first), * (TColor *) gROOT->GetListOfColors()->At(last), steps, index);
+}
 
 TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float resolution )
 { 
@@ -90,7 +101,7 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
   fill_color();
-  fill_gradient();
+  fill_gradient( kWhite, kBlack, 100, 1000);    // 100-steps gradient from white to black, indexed starting from 1000
 }
  
 void TrackingMaterialPlotter::plotSegmentUnassigned( const MaterialAccountingStep & step )
