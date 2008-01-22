@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.3 2008/01/21 16:26:17 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.4 2008/01/21 17:27:49 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -96,7 +96,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     iEvent.getByLabel(tracksSrc_, tracks);
   }
   edm::Handle<reco::CandViewDoubleAssociations> tkIso;
-  edm::Handle<reco::CandViewIntAssociations> tkNumIso;
+  edm::Handle<reco::CandViewDoubleAssociations> tkNumIso;
   edm::Handle<reco::CandViewDoubleAssociations> ecalIso;
   edm::Handle<reco::CandViewDoubleAssociations> hcalIso;
   if (addEgammaIso_) {
@@ -276,7 +276,7 @@ double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType>
 void PATElectronProducer::setEgammaIso(Electron & anElectron,
                                     const edm::Handle<edm::View<ElectronType> > & electrons,
                                     const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
-                                    const edm::Handle<reco::CandViewIntAssociations>    tkNumIso,
+                                    const edm::Handle<reco::CandViewDoubleAssociations> tkNumIso,
                                     const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
                                     const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
                                     unsigned int idx) {
@@ -284,7 +284,7 @@ void PATElectronProducer::setEgammaIso(Electron & anElectron,
   edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
   reco::CandidateBaseRef candRef(elecsRef);
   anElectron.setEgammaTkIso((*tkIso)[candRef]);
-  anElectron.setEgammaTkNumIso((*tkNumIso)[candRef]);
+  anElectron.setEgammaTkNumIso((int) (*tkNumIso)[candRef]);
   anElectron.setEgammaEcalIso((*ecalIso)[candRef]);
   anElectron.setEgammaHcalIso((*hcalIso)[candRef]);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.2 2008/01/19 03:50:00 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.3 2008/01/21 16:26:13 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.2 2008/01/19 03:50:00 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.3 2008/01/21 16:26:13 lowette Exp $
 */
 
 
@@ -64,7 +64,7 @@ namespace pat {
       void setEgammaIso(Electron & anElectron,
                         const edm::Handle<edm::View<ElectronType> > & elecs,
                         const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
-                        const edm::Handle<reco::CandViewIntAssociations>    tkNumIso,
+                        const edm::Handle<reco::CandViewDoubleAssociations>    tkNumIso,
                         const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
                         const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
                         unsigned int idx);
