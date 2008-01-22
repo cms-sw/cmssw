@@ -264,3 +264,4 @@ testServiceRegistry::threadTest()
    CPPUNIT_ASSERT(!exceptionWasThrown);
    CPPUNIT_ASSERT(succeededToPassServices);
 }
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
