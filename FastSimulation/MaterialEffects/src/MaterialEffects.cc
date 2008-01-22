@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //TrackingTools Headers
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
 // Famos Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
@@ -17,7 +16,6 @@
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
 
 #include <list>
-#include <vector>
 #include <map>
 #include <string>
 

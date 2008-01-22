@@ -5,7 +5,6 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
 // The muon scales
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 //CMSSW headers 
 

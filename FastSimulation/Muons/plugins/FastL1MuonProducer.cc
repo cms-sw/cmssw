@@ -13,7 +13,7 @@
 // Original Author:  Andrea Perrotta
 // Modifications: Patrick Janot.
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: FastL1MuonProducer.cc,v 1.1 2007/12/28 21:00:27 pjanot Exp $
+// $Id: FastL1MuonProducer.cc,v 1.2 2007/12/28 22:45:14 pjanot Exp $
 //
 //
 
@@ -23,8 +23,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

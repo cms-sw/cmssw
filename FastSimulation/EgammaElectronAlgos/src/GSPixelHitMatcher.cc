@@ -20,7 +20,6 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 

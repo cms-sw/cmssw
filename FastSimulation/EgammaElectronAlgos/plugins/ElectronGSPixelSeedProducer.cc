@@ -18,18 +18,14 @@
 // user include files
 #include "FastSimulation/EgammaElectronAlgos/plugins/ElectronGSPixelSeedProducer.h"
 #include "FastSimulation/EgammaElectronAlgos/interface/ElectronGSPixelSeedGenerator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SubSeedGenerator.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 
 #include <iostream>
 

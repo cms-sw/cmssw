@@ -3,7 +3,7 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: stdnamespaceadder_t.cppunit.cpp,v 1.1 2006/12/16 13:31:42 wmtan Exp $
+$Id: stdnamespaceadder_t.cppunit.cpp,v 1.2 2007/11/07 05:31:31 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -49,4 +49,3 @@ void testSTDNamespaceAdder::tests()
    CPPUNIT_ASSERT(stdNamespaceAdder(kVectorVectorBlahNS) == kVectorVectorBlahNS);
    
 }
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

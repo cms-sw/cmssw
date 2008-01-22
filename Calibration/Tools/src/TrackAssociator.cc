@@ -14,46 +14,25 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.2 2007/03/09 21:16:28 michals Exp $
+// $Id: TrackAssociator.cc,v 1.3 2007/03/10 23:50:58 michals Exp $
 //
 //
 
 #include "Calibration/Tools/interface/TrackAssociator.h"
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // calorimeter info
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 
-#include "MagneticField/Engine/interface/MagneticField.h"
+
+
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -62,12 +41,8 @@
 #include <set>
 
 
-#include "Calibration/Tools/interface/CaloDetIdAssociator.h"
-#include "Calibration/Tools/interface/EcalDetIdAssociator.h"
-#include "Calibration/Tools/interface/HcalDetIdAssociator.h"
 #include "Calibration/Tools/interface/TimerStack.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 //
 // class declaration

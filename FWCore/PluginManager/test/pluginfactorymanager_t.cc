@@ -8,11 +8,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginfactorymanager_t.cc,v 1.1.2.1 2007/04/09 18:46:51 chrjones Exp $
+// $Id: pluginfactorymanager_t.cc,v 1.2 2007/04/12 12:51:13 wmtan Exp $
 //
 
 // system include files
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>

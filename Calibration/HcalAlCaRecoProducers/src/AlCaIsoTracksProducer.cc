@@ -1,25 +1,6 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaIsoTracksProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
-#include <boost/regex.hpp> 
 
 using namespace edm;
 using namespace std;

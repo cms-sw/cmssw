@@ -13,7 +13,6 @@
 #include <iostream>
 
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
 

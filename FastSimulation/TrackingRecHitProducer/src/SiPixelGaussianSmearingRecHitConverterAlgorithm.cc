@@ -22,7 +22,6 @@
 #include "FastSimulation/Utilities/interface/HistogramGenerator.h"
 
 // STL
-#include <string>
 
 // ROOT
 #include <TFile.h>

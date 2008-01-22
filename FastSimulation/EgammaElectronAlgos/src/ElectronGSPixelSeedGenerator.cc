@@ -31,7 +31,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -39,7 +38,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
