@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "\nvf 1.4 - verifyFrontier - 2007, by Pietro M. Picca <Pietro.Picca@cern.ch>\n"
+echo -e "\nverifyFrontier 1.4 - 2007, by Pietro M. Picca <Pietro.Picca@cern.ch>\n"
 if [ $# -lt 1 ]
 then
   echo "Please specify the configuration file name on the command line."
