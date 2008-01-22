@@ -1,9 +1,11 @@
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
 #define private public
 #include "DataFormats/Common/interface/MapOfVectors.h"
 #undef private
 
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include<vector>
 #include<algorithm>

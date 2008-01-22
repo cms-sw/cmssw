@@ -19,6 +19,7 @@
 **   modified by Vincenzo Innocente on 15/08/2007
 */
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
   /**
