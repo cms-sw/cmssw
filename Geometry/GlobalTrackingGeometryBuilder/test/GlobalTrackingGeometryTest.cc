@@ -1,29 +1,24 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2006/07/26 13:35:17 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/27 01:35:29 $
+ *  $Revision: 1.3 $
  *  \author M. Sani
  */
 
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h>
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 

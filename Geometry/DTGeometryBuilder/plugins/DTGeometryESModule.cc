@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/02 15:49:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/18 08:48:42 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,17 +10,13 @@
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
-#include <DetectorDescription/Core/interface/DDCompactView.h>
 
 // Alignments
-#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
 

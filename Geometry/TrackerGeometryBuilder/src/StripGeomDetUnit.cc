@@ -1,10 +1,8 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 
-#include "CLHEP/Units/PhysicalConstants.h"
 
 
 StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 

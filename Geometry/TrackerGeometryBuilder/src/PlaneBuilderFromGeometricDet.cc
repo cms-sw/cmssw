@@ -1,10 +1,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 #include <algorithm>
 
 //#define DEBUG

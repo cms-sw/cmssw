@@ -1,17 +1,12 @@
 /// clhep
-#include "CLHEP/Units/SystemOfUnits.h"
 
 //#include "DetectorDescription/Core/interface/DDExpandedView.h"
 //temporary
 //#include "DetectorDescription/Core/interface/DDSolid.h"
 //
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -21,13 +16,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 
 #include <cfloat>
-#include <vector>
 
 using std::vector;
 using std::string;

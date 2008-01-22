@@ -5,29 +5,16 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 
-#include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 //#include "DetectorDescription/Core/interface/DDInit.h"
-#include "DetectorDescription/Core/interface/DDScope.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
 #include <vector>

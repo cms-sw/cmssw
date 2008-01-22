@@ -2,7 +2,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

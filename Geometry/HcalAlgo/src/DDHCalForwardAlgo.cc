@@ -8,7 +8,6 @@
 
 namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -17,8 +16,6 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/interface/DDHCalForwardAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalForwardAlgo::DDHCalForwardAlgo(): number(0),size(0),type(0) {
   LogDebug("HCalGeom") << "DDHCalForwardAlgo info: Creating an instance";

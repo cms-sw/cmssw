@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/07/18 08:40:56 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/27 01:35:28 $
+ *  $Revision: 1.9 $
  *  \author Matteo Sani
  */
 
@@ -9,12 +9,9 @@
 #include <Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryBuilder.h>
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-#include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
-#include <FWCore/Framework/interface/ESProducer.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Framework/interface/NoProxyException.h>

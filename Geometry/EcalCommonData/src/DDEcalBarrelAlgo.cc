@@ -8,22 +8,15 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Plane3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Geometry/Transform3D.h>
 

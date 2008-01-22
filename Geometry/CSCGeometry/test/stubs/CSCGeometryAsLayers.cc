@@ -1,10 +1,7 @@
-#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>

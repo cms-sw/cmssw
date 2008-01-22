@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
 
 EcalEndcapGeometry::EcalEndcapGeometry() :
   _nnmods(0 ),_nncrys(0)

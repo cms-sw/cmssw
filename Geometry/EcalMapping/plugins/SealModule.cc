@@ -1,5 +1,4 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/EcalMapping/plugins/EcalElectronicsMappingBuilder.h"
 

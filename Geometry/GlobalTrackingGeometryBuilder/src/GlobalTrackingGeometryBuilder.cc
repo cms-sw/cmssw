@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryBuilder.cc
  * 
- *  $Date: 2006/05/09 14:08:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/10 18:05:03 $
+ *  $Revision: 1.3 $
  *  \author Matteo Sani
  */
  
@@ -13,7 +13,6 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
 #include <iomanip>

@@ -19,10 +19,8 @@
 #include <cmath>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +30,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 

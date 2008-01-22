@@ -12,13 +12,12 @@
 */
 //
 
-// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.1 2007/03/19 15:57:10 fabiocos Exp $
+// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.1 2007/04/15 23:16:29 wmtan Exp $
 //
 //
 
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryEP.h"
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <iostream>
 //

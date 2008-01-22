@@ -13,14 +13,13 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: EcalTBGeometryBuilder.cc,v 1.1 2007/03/19 15:57:10 fabiocos Exp $
+// $Id: EcalTBGeometryBuilder.cc,v 1.1 2007/04/15 23:16:29 wmtan Exp $
 //
 //
 
 
 // user include files
 #include "Geometry/EcalTestBeam/plugins/EcalTBGeometryBuilder.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

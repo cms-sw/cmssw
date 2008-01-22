@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/26 23:35:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 00:40:41 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -9,16 +9,13 @@
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 //#include <Geometry/DTGeometry/interface/DTLayer.h>
 
 #include <string>

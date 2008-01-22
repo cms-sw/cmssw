@@ -13,12 +13,11 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu Oct 20 11:35:27 CDT 2006
-// $Id: HcalDDDGeometryEP.cc,v 1.0 2006/10/20 18:24:43 sunanda Exp $
+// $Id: HcalDDDGeometryEP.cc,v 1.1 2006/10/22 17:02:17 sunanda Exp $
 //
 //
 
 #include "Geometry/HcalEventSetup/interface/HcalDDDGeometryEP.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //

@@ -1,4 +1,3 @@
-#include "TROOT.h"
 #include "TStyle.h"
 #include "TH2F.h"
 #include "TText.h"

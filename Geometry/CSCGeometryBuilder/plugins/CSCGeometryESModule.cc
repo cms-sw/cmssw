@@ -3,21 +3,15 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Alignments
-#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
 
 #include <memory>
 

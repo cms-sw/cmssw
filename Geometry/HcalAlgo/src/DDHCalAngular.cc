@@ -7,16 +7,11 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/interface/DDHCalAngular.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {

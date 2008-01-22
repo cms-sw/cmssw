@@ -4,7 +4,6 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 //#define LOCAL_DEBUG
 

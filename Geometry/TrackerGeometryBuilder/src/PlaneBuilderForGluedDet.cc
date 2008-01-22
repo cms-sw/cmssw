@@ -1,12 +1,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 #include <algorithm>
 
 

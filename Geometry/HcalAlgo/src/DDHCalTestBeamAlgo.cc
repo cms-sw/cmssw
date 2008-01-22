@@ -8,15 +8,10 @@
 
 namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/interface/DDHCalTestBeamAlgo.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalTestBeamAlgo::DDHCalTestBeamAlgo() {

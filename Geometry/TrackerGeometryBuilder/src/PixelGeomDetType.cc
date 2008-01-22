@@ -1,5 +1,4 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 
 const Topology&  PixelGeomDetType::topology()  const

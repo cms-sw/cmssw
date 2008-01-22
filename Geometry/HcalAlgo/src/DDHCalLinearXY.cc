@@ -11,8 +11,6 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/interface/DDHCalLinearXY.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDHCalLinearXY::DDHCalLinearXY() {

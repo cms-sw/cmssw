@@ -4,9 +4,7 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 CaloTopologyBuilder::CaloTopologyBuilder(const edm::ParameterSet& iConfig)

@@ -1,5 +1,4 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
-#include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 

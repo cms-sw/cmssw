@@ -18,20 +18,14 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
@@ -44,8 +38,6 @@
 #include <TStyle.h>
 #include <TROOT.h>
 #include <TH2F.h>
-#include <TText.h>
-#include <TArrow.h>
 #include <TBox.h>
 
 #include <iostream>
