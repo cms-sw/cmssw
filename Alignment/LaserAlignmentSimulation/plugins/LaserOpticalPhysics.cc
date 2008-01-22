@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2007/08/27 19:46:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/10/27 21:43:41 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
@@ -12,9 +12,9 @@
 #include "HadronPhysicsQGSP.hh"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h" 
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 
 #include "G4DecayPhysics.hh"
-#include "G4EmStandardPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
@@ -28,21 +28,21 @@ LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
     std::cout << "You are using the simulation engine: QGSP together with optical physics" << std::endl;
   
     // EM Physics
-    RegisterPhysics(new G4EmStandardPhysics("standard EM"));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",0));
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics("extra EM"));
     // Decays
-    RegisterPhysics(new G4DecayPhysics("decay"));
+    RegisterPhysics(new G4DecayPhysics("decay",0));
     // Hadron Elastic scattering
-    RegisterPhysics(new G4HadronElasticPhysics("elastic")); 
+    RegisterPhysics(new G4HadronElasticPhysics("elastic",0,false)); 
     // Hadron Physics
     RegisterPhysics(new HadronPhysicsQGSP("hadron"));
     // Stopping Physics
     RegisterPhysics(new G4QStoppingPhysics("stopping"));
     // Ion Physics
     RegisterPhysics(new G4IonPhysics("ion"));
-		// Optical physics
-		RegisterPhysics(new LaserOpticalPhysicsList("optical"));
+    // Optical physics
+    RegisterPhysics(new LaserOpticalPhysicsList("optical"));
 
 }
 

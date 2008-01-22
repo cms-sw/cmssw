@@ -11,6 +11,7 @@
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
  <use name=SimG4Core/Physics>
+ <use name=SimG4Core/PhysicsLists>
  <use name=SimG4Core/SensitiveDetector>
  <use name=FWCore/PluginManager>
  <use name=SimG4Core/Generators>
@@ -42,6 +43,7 @@
 <library file=LaserOpticalPhysics.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimG4Core/Physics>
+ <use name=SimG4Core/PhysicsLists>
  <use name=geant4>
 <flags EDM_PLUGIN=1>
 </library>
