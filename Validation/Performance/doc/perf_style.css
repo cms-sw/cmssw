@@ -1,0 +1,35 @@
+body{ 
+    font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+    margin-left:29%;
+    margin-top:5%;
+    margin-right:29%;
+    margin-bottom:5%;
+    padding:0px;
+    height:100%;
+    line-height:80%;
+    background-color:#E2EBED; 
+    font-size:12;
+}   
+
+h1 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+ font-size:26;
+ font-weight: bold;
+ text-align: center
+}
+h2 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+ font-size:18;
+}
+
+h3 {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+ font-size:15;
+}
+
+p {
+ font-family:arial, "Lucida Grande", verdana, sans-serif;
+ font-size:13;
+}
+
+img { border:none;} 

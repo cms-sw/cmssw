@@ -82,7 +82,15 @@ else
 	    "TTBAR"=>"TTBAR",
 	    "ZPJJ"=>"ZPJJ"
 	   );
-
+%FileNameEdmSize=(
+	   "HZZLLLL -e 190"=>"HZZLLLL_190",
+	    "MINBIAS"=>"MINBIAS_",
+	    "E -e 1000"=>"E_1000",
+	    "MU- -e 1000"=>"MU-_1000",
+	    "PI- -e 1000"=>"PI-_1000",
+	    "TTBAR"=>"TTBAR_",
+	    "ZPJJ"=>"ZPJJ"
+	   );
 #Creating and opening the ASCII input file for the relvalreport script:
 $SimCandlesFile= "SimulationCandles"."_".$CMSSW_VERSION.".txt";
 open(SIMCANDLES,">$SimCandlesFile")||die "Couldn't open $SinCandlesFile to save - $!\n";
@@ -156,7 +164,7 @@ foreach (@Candle)
 	{
 	    if ($_ eq "EdmSize")
 	    {
-		$Command="$FileName{$candle}"."_"."$_".".root ";
+		$Command="$FileNameEdmSize{$candle}"."_"."$step".".root ";
 	    }
 	    else
 	    {
