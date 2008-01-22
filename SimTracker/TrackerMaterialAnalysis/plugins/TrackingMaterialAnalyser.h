@@ -30,6 +30,9 @@ private:
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );
 
+  void saveParameters(const char* name);
+  void saveLayerPlots();
+  
   edm::InputTag                             m_material;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;

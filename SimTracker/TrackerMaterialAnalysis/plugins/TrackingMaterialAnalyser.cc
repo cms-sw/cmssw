@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/tuple/tuple.hpp>
+#include <boost/format.hpp>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,45 +40,67 @@ TrackingMaterialAnalyser::~TrackingMaterialAnalyser(void)
 }    
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::endJob(void)
+void TrackingMaterialAnalyser::saveParameters(const char* name)
 {
-  std::ofstream parameters("parameters");
-  std::cout << std::endl << std::fixed;
+  std::ofstream parameters(name);
+  std::cout << std::endl;
   for (unsigned int i = 0; i < m_layers.size(); ++i) {
     MaterialAccountingLayer & layer = *(m_layers[i]);
-    std::cout << std::setprecision(3);
-    std::cout << std::setw(20) << std::left << layer.name() << std::endl;
-    std::cout << std::setprecision(6);
+
+    #if 0
+    std::cout << std::setprecision(6) << std::fixed;
     std::cout << "\tnumber of hits:        "        << std::setw(9) << layer.tracks()                  << std::endl;
     std::cout << "\tnormalized segment length:    " << std::setw(9) << layer.averageLength()           << " ± " << std::setw(9) << layer.sigmaLength()           << " cm" << std::endl;
-    std::cout << "\tnormalized radiation lengths: " << std::setw(9) << layer.averageRadiationLengths() << " ± " << std::setw(9) << layer.sigmaRadiationLengths() << "    ";
-    if (layer.material())
-      std::cout << "\t(was " << layer.material()->radLen() << ")";
-    std::cout << std::endl;
-    std::cout << "\tnormalized energy loss:       " << std::setw(9) << layer.averageEnergyLoss()       << " ± " << std::setw(9) << layer.sigmaEnergyLoss()       << " MeV";
-    if (layer.material())
-      std::cout << "\t(was " << layer.material()->xi() * 1000. << " MeV)";     // GeV --> MeV
-    std::cout << std::endl;
+    std::cout << "\tnormalized radiation lengths: " << std::setw(9) << layer.averageRadiationLengths() << " ± " << std::setw(9) << layer.sigmaRadiationLengths() << std::endl;
+    std::cout << "\tnormalized energy loss:       " << std::setw(9) << layer.averageEnergyLoss()       << " ± " << std::setw(9) << layer.sigmaEnergyLoss()       << " MeV" << std::endl;
+    #endif
+    std::cout << layer.name() << std::endl;
+    std::cout << boost::format("\tnumber of hits:               %9d") % layer.tracks() << std::endl;
+    std::cout << boost::format("\tnormalized segment length:    %9.1f ± %9.1f cm") % layer.averageLength() % layer.sigmaLength() << std::endl;
+    std::cout << boost::format("\tnormalized radiation lengths: %9.3f ± %9.3f") % layer.averageRadiationLengths() % layer.sigmaRadiationLengths() << std::endl;
+    std::cout << boost::format("\tnormalized segment length:    %9.3f ± %9.3f cm") % layer.averageLength() % layer.sigmaLength() << std::endl;
 
+    parameters << boost::format("%-20s\t%7d\t%6.1f ± %6.1f cm\t%6.3f ± %6.3f \t%6.3fe-03 ± %6.3fe-03 GeV") 
+                                % layer.name() 
+                                % layer.tracks() 
+                                % layer.averageLength()             % layer.sigmaLength()
+                                % layer.averageRadiationLengths()   % layer.sigmaRadiationLengths()
+                                % layer.averageEnergyLoss()         % layer.sigmaEnergyLoss()
+               << std::endl;
+    #if 0 
     parameters << std::setw(20) << std::left << layer.name() << std::right << std::setprecision(6)
                << std::setw(6) << layer.tracks()
                << '\t' << std::setw(9) << layer.averageLength()             << " ± " << std::setw(9) << layer.sigmaLength()             << " cm"
                << '\t' << std::setw(9) << layer.averageRadiationLengths()   << " ± " << std::setw(9) << layer.sigmaRadiationLengths()
                << '\t' << std::setw(9) << layer.averageEnergyLoss() / 1000. << " ± " << std::setw(9) << layer.sigmaEnergyLoss() / 1000. << " Gev"
                << std::endl;
-
-    layer.savePlots();
+    #endif
   }
+  std::cout << std::endl;
 
   parameters.close();
+}
+
+//-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::saveLayerPlots()
+{
+  for (unsigned int i = 0; i < m_layers.size(); ++i) {
+    MaterialAccountingLayer & layer = *(m_layers[i]);
+    layer.savePlots();
+  }
+}
+
+//-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::endJob(void)
+{
+  saveParameters("parameters");
+  //saveLayerPlots();
   
   if (m_plotter) {
     m_plotter->normalize();
     m_plotter->draw();
   }
 }
-
-
 //-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::parseBarrelLayers( const std::vector<BarrelDetLayer*> & layers )
 {
