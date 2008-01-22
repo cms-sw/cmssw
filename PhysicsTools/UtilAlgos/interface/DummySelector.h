@@ -32,6 +32,11 @@ private:
   bool updated_;
 };
 
+namespace dummy {
+  template<typename T>
+  inline bool select(const T&) { return true; }
+}
+
 EVENTSETUP_STD_INIT(DummySelector)
 
 #endif
