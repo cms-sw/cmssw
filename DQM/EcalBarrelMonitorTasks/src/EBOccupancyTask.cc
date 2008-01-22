@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/22 18:07:25 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/22 19:47:11 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -105,25 +105,25 @@ void EBOccupancyTask::setup(void){
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
-    sprintf(histo, "EBOT EB digi occupancy");
+    sprintf(histo, "EBOT digi occupancy");
     meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
-    sprintf(histo, "EBOT EB digi occupancy projection eta");
+    sprintf(histo, "EBOT digi occupancy projection eta");
     meEBDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
-    sprintf(histo, "EBOT EB digi occupancy projection phi");
+    sprintf(histo, "EBOT digi occupancy projection phi");
     meEBDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
 
-    sprintf(histo, "EBOT EB rec hit occupancy");
+    sprintf(histo, "EBOT rec hit occupancy");
     meEBRecHitOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
-    sprintf(histo, "EBOT EB rec hit occupancy projection eta");
+    sprintf(histo, "EBOT rec hit occupancy projection eta");
     meEBRecHitOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
-    sprintf(histo, "EBOT EB rec hit occupancy projection phi");
+    sprintf(histo, "EBOT rec hit occupancy projection phi");
     meEBRecHitOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
 
-    sprintf(histo, "EBOT EB trigger primitives digi occupancy");
+    sprintf(histo, "EBOT trigger primitives digi occupancy");
     meEBTrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
-    sprintf(histo, "EBOT EB trigger primitives digi occupancy projection eta");
+    sprintf(histo, "EBOT trigger primitives digi occupancy projection eta");
     meEBTrigPrimDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
-    sprintf(histo, "EBOT EB trigger primitives digi occupancy projection phi");
+    sprintf(histo, "EBOT trigger primitives digi occupancy projection phi");
     meEBTrigPrimDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
 
   }
