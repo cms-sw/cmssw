@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.20 2007/07/16 21:10:04 wmtan Exp $
+// $Id: FileInPath.cc,v 1.21 2007/07/23 23:42:35 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ namespace edm
     relativePath_(r ?
 		  r :
 		  ((throw edm::Exception(edm::errors::FileInPathError)
-		    << "Relative path may not be null\n"), r)),
+		    << "Relative path must not be null\n"), r)),
     canonicalFilename_(),
     location_(Unknown)
   {
@@ -348,7 +348,7 @@ namespace edm
   {
     if (relativePath_.empty())
       throw edm::Exception(edm::errors::FileInPathError)
-	<< "Relative path may not be empty\n";
+	<< "Relative path must not be empty\n";
 
     // Find the file, based on the value of path variable.
     typedef std::vector<std::string> stringvec_t;
