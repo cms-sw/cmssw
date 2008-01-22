@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.3 2008/01/19 04:56:06 dmytro Exp $
+// $Id: FWViewManagerBase.cc,v 1.4 2008/01/21 01:17:20 chrjones Exp $
 //
 
 // system include files
@@ -97,10 +97,16 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
 }
 
 void 
-FWViewManagerBase::modelsHaveChangedSlot(const std::set<FWModelId>& iId)
+FWViewManagerBase::modelChangesComingSlot()
 {
    //forward call to the virtual function
-   this->modelsHaveChanged(iId);
+   this->modelChangesComing();
+}
+void 
+FWViewManagerBase::modelChangesDoneSlot()
+{
+   //forward call to the virtual function
+   this->modelChangesDone();
 }
 
 void 
@@ -108,7 +114,8 @@ FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 {
    assert(0!=iCM);
    m_changeManager = iCM;
-   m_changeManager->changes_.connect(boost::bind(&FWViewManagerBase::modelsHaveChangedSlot,this,_1));
+   m_changeManager->changeSignalsAreComing_.connect(boost::bind(&FWViewManagerBase::modelChangesComing,this));
+   m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWViewManagerBase::modelChangesDone,this));
 }
 
 //

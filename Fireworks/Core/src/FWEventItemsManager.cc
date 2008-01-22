@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.4 2008/01/21 01:17:21 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.5 2008/01/21 16:10:09 chrjones Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ const FWEventItem*
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
   m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,m_items.size(),iItem) );
-  newItem(m_items.back());
+  newItem_(m_items.back());
   return m_items.back();
 }
 
@@ -93,11 +93,6 @@ FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
   }
 }
 
-
-void 
-FWEventItemsManager::newItem(const FWEventItem*)
-{
-}
 
 //
 // const member functions

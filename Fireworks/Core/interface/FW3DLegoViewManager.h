@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FW3DLegoViewManager.h,v 1.2 2008/01/21 01:17:08 chrjones Exp $
 //
 
 // system include files
@@ -70,7 +70,8 @@ class FW3DLegoViewManager : public FWViewManagerBase
 		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
 
    protected:
-      virtual void modelsHaveChanged(const std::set<FWModelId>& );
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
 
    private:
       FW3DLegoViewManager(const FW3DLegoViewManager&); // stop default

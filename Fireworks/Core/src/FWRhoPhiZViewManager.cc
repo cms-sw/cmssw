@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.3 2008/01/19 05:14:40 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.4 2008/01/21 01:17:22 chrjones Exp $
 //
 
 // system include files
@@ -267,7 +267,11 @@ FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
 }
 
 void 
-FWRhoPhiZViewManager::modelsHaveChanged(const std::set<FWModelId>& )
+FWRhoPhiZViewManager::modelChangesComing()
+{
+}
+void 
+FWRhoPhiZViewManager::modelChangesDone()
 {
 }
 

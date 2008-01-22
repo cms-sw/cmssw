@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.4 2008/01/19 04:51:13 dmytro Exp $
+// $Id: FWViewManagerBase.h,v 1.5 2008/01/21 01:17:07 chrjones Exp $
 //
 
 // system include files
@@ -60,8 +60,9 @@ class FWViewManagerBase
       void setChangeManager(FWModelChangeManager* iCM);
       
 
-      void modelsHaveChangedSlot(const std::set<FWModelId>& );
-
+      void modelChangesComingSlot();
+      void modelChangesDoneSlot();
+   
    protected:
       FWViewManagerBase(const char* iBuilderNamePostfix);
       template<typename TIter>
@@ -76,7 +77,8 @@ class FWViewManagerBase
 			     const char* iNameOfClass);
 
       /** called when models have changed and so the display must be updated*/
-      virtual void modelsHaveChanged(const std::set<FWModelId>& ) = 0;
+      virtual void modelChangesComing() = 0;
+      virtual void modelChangesDone() = 0;
 
       FWModelChangeManager& changeManager() const;
       const DetIdToMatrix* detIdToGeo() const;

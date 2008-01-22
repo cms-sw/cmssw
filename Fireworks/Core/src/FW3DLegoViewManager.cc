@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.2 2008/01/21 01:17:27 chrjones Exp $
 //
 
 // system include files
@@ -238,7 +238,11 @@ void FW3DLegoViewManager::pixel2wc(const Int_t pixelX, const Int_t pixelY,
 }
 
 void 
-FW3DLegoViewManager::modelsHaveChanged(const std::set<FWModelId>& )
+FW3DLegoViewManager::modelChangesComing()
+{
+}
+void 
+FW3DLegoViewManager::modelChangesDone()
 {
 }
 

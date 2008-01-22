@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id$
+// $Id: FWSelectionManager.cc,v 1.1 2008/01/21 01:17:42 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM):
 m_changeManager(iCM)
 {
    assert(0!=m_changeManager);
-   m_changeManager->changes_.connect(boost::bind(&FWSelectionManager::finishedAllSelections,this));
+   m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWSelectionManager::finishedAllSelections,this));
 }
 
 // FWSelectionManager::FWSelectionManager(const FWSelectionManager& rhs)

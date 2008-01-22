@@ -16,12 +16,12 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.3 2008/01/19 04:51:13 dmytro Exp $
+// $Id: FWEventItemsManager.h,v 1.4 2008/01/21 01:17:05 chrjones Exp $
 //
 
 // system include files
 #include <vector>
-#include "RQ_OBJECT.h"
+#include "sigc++/signal.h"
 
 // user include files
 
@@ -37,7 +37,6 @@ class DetIdToMatrix;
 
 class FWEventItemsManager
 {
-   RQ_OBJECT("FWEventItemsManager")
    public:
       //does not take ownership of the object to which it points but does keep reference
       FWEventItemsManager(FWModelChangeManager*,FWSelectionManager*);
@@ -57,8 +56,8 @@ class FWEventItemsManager
       void newEvent(const fwlite::Event* iEvent);
       void setGeom(const DetIdToMatrix* geom);
 
+      sigc::signal<void, FWEventItem*> newItem_;
    private:
-      void newItem(const FWEventItem*); //*SIGNAL*
 
       FWEventItemsManager(const FWEventItemsManager&); // stop default
 

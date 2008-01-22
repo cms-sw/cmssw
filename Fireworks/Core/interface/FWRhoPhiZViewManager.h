@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.3 2008/01/19 05:14:41 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.4 2008/01/21 01:17:11 chrjones Exp $
 //
 
 // system include files
@@ -75,7 +75,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 				const std::string&);
 
    protected:
-      virtual void modelsHaveChanged(const std::set<FWModelId>& );
+   virtual void modelChangesComing() ;
+   virtual void modelChangesDone() ;
 
    private:
       FWRhoPhiZViewManager(const FWRhoPhiZViewManager&); // stop default

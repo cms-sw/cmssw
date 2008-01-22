@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.16 2008/01/19 05:16:54 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.17 2008/01/21 01:17:24 chrjones Exp $
 //
 
 // system include files
 #include <sstream>
+#include <boost/bind.hpp>
 #include "TEveManager.h"
 #include "TEveViewer.h"
 #include "TEveBrowser.h"
@@ -59,6 +60,11 @@ FWDisplayEvent::FWDisplayEvent() :
   m_waitForUserAction(true),
   m_code(0)
 {
+  //connect up the managers
+   m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
+                                             m_changeManager.get(), _1) );
+   
+  //figure out where to find macros
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
   if(0 == cmspath) {
     throw std::runtime_error("CMSSW_BASE environment variable not set");

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.4 2008/01/21 01:17:09 chrjones Exp $
+// $Id: FWEventItem.h,v 1.5 2008/01/21 16:10:09 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
+#include "Fireworks/Core/interface/FWModelChangeSignal.h"
 
 // forward declarations
 class TClass;
@@ -109,7 +110,8 @@ class FWEventItem
       void toggleSelect(int iIndex) const;
       void setDisplayProperties(int iIndex, const FWDisplayProperties&) const;
    
-   
+      /** connect to this signal if you want to know when models held by the item change */
+      FWModelChangeSignal changed_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 
