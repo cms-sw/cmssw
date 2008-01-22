@@ -72,8 +72,36 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   int iz;
   int imc;
 
+  // ZS-specific
 
-  // In ALL the cases : 2D ieta-iphi maps 
+  MonitorElement* ZS_HB1;
+  MonitorElement* ZS_HB2;
+  MonitorElement* ZS_HE1;
+  MonitorElement* ZS_HE2;
+  MonitorElement* ZS_HE3;
+  MonitorElement* ZS_HO;
+  MonitorElement* ZS_HF1;
+  MonitorElement* ZS_HF2;
+
+  MonitorElement* ZS_nHB1;
+  MonitorElement* ZS_nHB2;
+  MonitorElement* ZS_nHE1;
+  MonitorElement* ZS_nHE2;
+  MonitorElement* ZS_nHE3;
+  MonitorElement* ZS_nHO;
+  MonitorElement* ZS_nHF1;
+  MonitorElement* ZS_nHF2;
+
+  MonitorElement* ZS_seqHB1;
+  MonitorElement* ZS_seqHB2;
+  MonitorElement* ZS_seqHE1;
+  MonitorElement* ZS_seqHE2;
+  MonitorElement* ZS_seqHE3;
+  MonitorElement* ZS_seqHO;
+  MonitorElement* ZS_seqHF1;
+  MonitorElement* ZS_seqHF2;
+
+  // In ALL other cases : 2D ieta-iphi maps 
   // without and with cuts (a la "Scheme B") on energy
   MonitorElement* map_ecal;
 
@@ -212,6 +240,9 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::vector<double> cphi;
   std::vector<double> ctime;
   std::vector<double> cz;
+
+  // array or min. e-values  ieta x iphi x depth x subdet
+  double emap_min[82][72][4][4];
 
 };
 

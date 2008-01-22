@@ -30,6 +30,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   if (hcalselector_ == "HO"  ) subdet_ = 3;
   if (hcalselector_ == "HF"  ) subdet_ = 4;
   if (hcalselector_ == "all" ) subdet_ = 5;
+  if (hcalselector_ == "ZS"  ) subdet_ = 6;
 
   etype_ = 1;
   if (eventype_ == "multi") etype_ = 2;
@@ -46,8 +47,82 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     dbe_->setCurrentFolder("HcalRecHitTask");
 
 
-    //  ALL
+    // ZS
+    if(subdet_ == 6) {
 
+      for (unsigned int i1 = 0;  i1 < 82; i1++) {
+	for (unsigned int i2 = 0;  i2 < 72; i2++) {
+	  for (unsigned int i3 = 0;  i3 < 4;  i3++) {
+	    for (unsigned int i4 = 0;  i4 < 4;  i4++) {
+	      emap_min [i1][i2][i3][i4] = 99999.;     
+	    }
+	  }
+	}
+      }
+
+      sprintf  (histo, "ZSmin_map_depth1" );
+      map_depth1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "ZSmin_map_depth2" );
+      map_depth2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "ZSmin_map_depth3" );
+      map_depth3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "ZSmin_map_depth4" );
+      map_depth4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+
+      sprintf  (histo, "ZS_Nreco_HB1" );
+      ZS_nHB1 = dbe_->book1D(histo, histo, 2500, 0., 2500.);
+      sprintf  (histo, "ZS_Nreco_HB2" );
+      ZS_nHB2 = dbe_->book1D(histo, histo,  500, 0.,  500.);
+      sprintf  (histo, "ZS_Nreco_HE1" );
+      ZS_nHE1 = dbe_->book1D(histo, histo, 2000, 0., 2000.);
+      sprintf  (histo, "ZS_Nreco_HE2" );
+      ZS_nHE2 = dbe_->book1D(histo, histo, 2000, 0., 2000.);
+      sprintf  (histo, "ZS_Nreco_HE3" );
+      ZS_nHE3 = dbe_->book1D(histo, histo,  500, 0.,  500.);
+      sprintf  (histo, "ZS_Nreco_HO" );
+      ZS_nHO  = dbe_->book1D(histo, histo, 2500, 0., 2500.);
+      sprintf  (histo, "ZS_Nreco_HF1" );
+      ZS_nHF1 = dbe_->book1D(histo, histo, 1000, 0., 1000.);
+      sprintf  (histo, "ZS_Nreco_HF2" );
+      ZS_nHF2 = dbe_->book1D(histo, histo, 1000, 0., 1000.);
+      
+      sprintf  (histo, "ZSmin_simple1D_HB1" );
+      ZS_HB1 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HB2" );
+      ZS_HB2 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HE1" );
+      ZS_HE1 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HE2" );
+      ZS_HE2 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HE3" );
+      ZS_HE3 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HO" );
+      ZS_HO = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HF1" );
+      ZS_HF1 = dbe_->book1D(histo, histo,120, -2., 10.);
+      sprintf  (histo, "ZSmin_simple1D_HF2" );
+      ZS_HF2 = dbe_->book1D(histo, histo,120, -2., 10.);
+
+      sprintf  (histo, "ZSmin_sequential1D_HB1" );
+      ZS_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "ZSmin_sequential1D_HB2" );
+      ZS_seqHB2 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "ZSmin_sequential1D_HE1" );
+      ZS_seqHE1 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "ZSmin_sequential1D_HE2" );
+      ZS_seqHE2 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "ZSmin_sequential1D_HE3" );
+      ZS_seqHE3 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "ZSmin_sequential1D_HO" );
+      ZS_seqHO  = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "ZSmin_sequential1D_HF1" );
+      ZS_seqHF1 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+      sprintf  (histo, "ZSmin_sequential1D_HF2" );
+      ZS_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+    }
+    // ALL others, except ZS
+    else {
     if (ecalselector_ == "yes") {
       sprintf  (histo, "map_ecal" );
       map_ecal = dbe_->book2D(histo, histo, 70, -3.045, 3.045, 72, -3.1415926536, 3.1415926536);
@@ -355,9 +430,83 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
    
     }
   }
+
+  } // end-of subdet =/= 6. 
+
 }
 
 HcalRecHitsValidation::~HcalRecHitsValidation() {
+
+  for (unsigned int i1 = 0;  i1 < 82; i1++) {
+    for (unsigned int i2 = 0;  i2 < 72; i2++) {
+      
+      int index = (i1-41) * 72 + i2;
+
+      double e = emap_min[i1][i2][0][0];
+      if( e < 10000.) {
+	ZS_HB1->Fill(e);
+        ZS_seqHB1->Fill(double(index),e);
+      }
+      e = emap_min[i1][i2][1][0];
+      if( e < 10000.) {
+	ZS_HB2->Fill(e);
+	ZS_seqHB2->Fill(double(index),e);
+      }
+
+      e = emap_min[i1][i2][0][1];
+      if( e < 10000.) {
+	ZS_HE1->Fill(e);
+	ZS_seqHE1->Fill(double(index),e);
+      }
+      e = emap_min[i1][i2][1][1];
+      if( e < 10000.) {
+	ZS_HE2->Fill(e);
+	ZS_seqHE2->Fill(double(index),e);
+      }
+      e = emap_min[i1][i2][2][1];
+      if( e < 10000.) {
+	ZS_HE3->Fill(e);
+	ZS_seqHE3->Fill(double(index),e);
+      }
+
+
+      e = emap_min[i1][i2][3][2];
+      if( e < 10000.) {
+	ZS_HO->Fill(e);
+	ZS_seqHO->Fill(double(index),e);
+      }
+      
+      e = emap_min[i1][i2][0][3];
+      if( e < 10000.) {
+	ZS_HF1->Fill(e);
+	ZS_seqHF1->Fill(double(index),e);
+      }
+
+      e = emap_min[i1][i2][1][3];
+      if( e < 10000.) {
+	ZS_HF2->Fill(e);
+	ZS_seqHF2->Fill(double(index),e);
+      }
+  
+      for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
+	double emin = 100000.;
+	for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
+	  if ( emin > emap_min [i1][i2][i3][i4]) 
+	    emin = emap_min [i1][i2][i3][i4];
+        }
+        if( i3 == 0 && emin < 10000.)
+	  map_depth1->Fill(double(i1-41),double(i2),emin);
+        if( i3 == 1 && emin < 10000.)
+	  map_depth2->Fill(double(i1-41),double(i2),emin);
+        if( i3 == 2 && emin < 10000.) 
+	  map_depth3->Fill(double(i1-41),double(i2),emin);
+        if( i3 == 3 && emin < 10000.) 
+	  map_depth4->Fill(double(i1-41),double(i2),emin);
+      }
+    }
+  }
+  
+
    
   std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
   std::cout << " dbe_ = " << dbe_ << std::endl;
@@ -433,13 +582,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   if(imc != 0) { 
 
   edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
-  ev.getByLabel("source",evtMC);
-  if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;    
-  } else {
+  try{
+    //  ev.getByLabel("VtxSmeared",evtMC);
+    ev.getByLabel("source",evtMC);
     MC=true;
     //    std::cout << "*** source HepMCProduct found"<< std::endl;
+  }
+  catch( char * str ) {
+    std::cout << "no HepMCProduct found"<<str<< std::endl;    
   }  
 
   // MC particle with highest pt is taken as a direction reference  
@@ -471,7 +621,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 
   //===========================================================================
-  // IN ALL THE CASES : ieta-iphi maps 
+  // IN ALL other CASES : ieta-iphi maps 
   //===========================================================================
 
   // ECAL 
@@ -527,90 +677,144 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }     // end of ECAL selection 
 
 
-  //   std::cout << "*** 4" << std::endl; 
+  //    std::cout << "*** 4" << std::endl; 
 
 
-  // Filling HCAL maps  -------------------------------------------------------
-  double maxE = -99999.;
-  for (unsigned int i = 0; i < cen.size(); i++) {
+  // ZS-related plots only !!! ----------------------------------------------  
+  if( subdet_ == 6) {
 
-    int sub    = csub[i];
-    int depth  = cdepth[i];
-    int ieta   = cieta[i]; 
-    int iphi   = ciphi[i]; 
-    double en  = cen[i]; 
-    double eta = ceta[i]; 
-    double phi = cphi[i]; 
-    double z   = cz[i];
+    int nhb1 = 0;
+    int nhb2 = 0;
+    int nhe1 = 0;
+    int nhe2 = 0;
+    int nhe3 = 0;
+    int nho  = 0;
+    int nhf1 = 0;
+    int nhf2 = 0;
 
-    double emin = 1.;
-    if(fabs(eta) > 3.) emin = 5.; 
-
-    double r  = dR(eta_MC, phi_MC, eta, phi);
-    if( r < searchR ) { // search for hottest cell in a big cone
-      if(maxE < en && en > emin) {
-    	maxE    = en;
-	etaHot  = eta;
-	phiHot  = phi;
-	ietahot = ieta;
-	iphihot = iphi;
-      }
-    }
+    for (unsigned int i = 0; i < cen.size(); i++) {
       
-    if (depth == 1) {
-      map_depth1->Fill(double(ieta), double(iphi), en);
-      profile_z1->Fill(double(ieta), z); 
-    }
-    if (depth == 2) {
-      map_depth2->Fill(double(ieta), double(iphi), en);
-      profile_z2->Fill(double(ieta), z); 
-    }
-    if (depth == 3) {
-      map_depth3->Fill(double(ieta), double(iphi), en);
-      profile_z3->Fill(double(ieta), z); 
-    }
-    if (depth == 4) {
-      map_depth4->Fill(double(ieta), double(iphi), en);
-      profile_z4->Fill(double(ieta), z); 
-    }
-    
-    double cut = cutHB;  
-    if (sub == 2) cut = cutHE;
-    if (sub == 3) cut = cutHO;
-    if (sub == 4){
-      if(depth == 1) cut = cutHFL;
-      else  cut = cutHFS;
+      int sub    = csub[i];
+      int depth  = cdepth[i];
+      int ieta   = cieta[i]; 
+      int iphi   = ciphi[i]; 
+      double en  = cen[i]; 
+
+      /*   
+    std::cout << "*** point 4-1" << " ieta, iphi, depth, sub = "
+	      << ieta << ", " << iphi << ", " << depth << ", " << sub  
+	      << std::endl;
+      */
+
+      if( sub == 1 && depth == 1)  nhb1++;
+      if( sub == 1 && depth == 2)  nhb2++;
+      if( sub == 2 && depth == 1)  nhe1++;
+      if( sub == 2 && depth == 2)  nhe2++;
+      if( sub == 2 && depth == 3)  nhe3++;
+      if( sub == 3 && depth == 4)  nho++;
+      if( sub == 4 && depth == 1)  nhf1++;
+      if( sub == 4 && depth == 2)  nhf2++;
+
+      if( en < emap_min[ieta+41][iphi][depth-1][sub-1] )
+	emap_min[ieta+41][iphi][depth-1][sub-1] = en;
     }
 
-    if(en > cut ) {
-      if (depth == 1)
-	map_depth1_cuts->Fill(double(ieta), double(iphi), en);
-      if (depth == 2)
-	map_depth2_cuts->Fill(double(ieta), double(iphi), en);
-      if (depth == 3)
-	map_depth3_cuts->Fill(double(ieta), double(iphi), en);
-      if (depth == 4)
-	map_depth4_cuts->Fill(double(ieta), double(iphi), en);
-    }
+    ZS_nHB1->Fill(double(nhb1));  
+    ZS_nHB2->Fill(double(nhb2));  
+    ZS_nHE1->Fill(double(nhe1));  
+    ZS_nHE2->Fill(double(nhe2));  
+    ZS_nHE3->Fill(double(nhe3));  
+    ZS_nHO ->Fill(double(nho));  
+    ZS_nHF1->Fill(double(nhf1));  
+    ZS_nHF2->Fill(double(nhf2));  
 
-    if( r < partR ) {
-      if (depth == 1) ehcal_coneMC_1 += en; 
-      if (depth == 2) ehcal_coneMC_2 += en; 
-      if (depth == 3) ehcal_coneMC_3 += en; 
-      if (depth == 4) ehcal_coneMC_4 += en; 
-    }
   }
+  // All other general plots
+  else {  
 
-  //    std::cout << "*** 5" << std::endl; 
+    // Filling HCAL maps  ----------------------------------------------------
+    double maxE = -99999.;
+    for (unsigned int i = 0; i < cen.size(); i++) {
+      
+      int sub    = csub[i];
+      int depth  = cdepth[i];
+      int ieta   = cieta[i]; 
+      int iphi   = ciphi[i]; 
+      double en  = cen[i]; 
+      double eta = ceta[i]; 
+      double phi = cphi[i]; 
+      double z   = cz[i];
+      
+      double emin = 1.;
+      if(fabs(eta) > 3.) emin = 5.; 
+      
+      double r  = dR(eta_MC, phi_MC, eta, phi);
+      if( r < searchR ) { // search for hottest cell in a big cone
+	if(maxE < en && en > emin) {
+	  maxE    = en;
+	  etaHot  = eta;
+	  phiHot  = phi;
+	  ietahot = ieta;
+	  iphihot = iphi;
+	}
+      }
+      
+      if (depth == 1) {
+	map_depth1->Fill(double(ieta), double(iphi), en);
+	profile_z1->Fill(double(ieta), z); 
+      }
+      if (depth == 2) {
+	map_depth2->Fill(double(ieta), double(iphi), en);
+	profile_z2->Fill(double(ieta), z); 
+      }
+      if (depth == 3) {
+	map_depth3->Fill(double(ieta), double(iphi), en);
+	profile_z3->Fill(double(ieta), z); 
+      }
+      if (depth == 4) {
+	map_depth4->Fill(double(ieta), double(iphi), en);
+	profile_z4->Fill(double(ieta), z); 
+      }
+      
+      double cut = cutHB;  
+      if (sub == 2) cut = cutHE;
+      if (sub == 3) cut = cutHO;
+      if (sub == 4){
+	if(depth == 1) cut = cutHFL;
+	else  cut = cutHFS;
+      }
+      
+      if(en > cut ) {
+	if (depth == 1)
+	  map_depth1_cuts->Fill(double(ieta), double(iphi), en);
+	if (depth == 2)
+	  map_depth2_cuts->Fill(double(ieta), double(iphi), en);
+	if (depth == 3)
+	  map_depth3_cuts->Fill(double(ieta), double(iphi), en);
+	if (depth == 4)
+	  map_depth4_cuts->Fill(double(ieta), double(iphi), en);
+      }
+
+      if( r < partR ) {
+	if (depth == 1) ehcal_coneMC_1 += en; 
+	if (depth == 2) ehcal_coneMC_2 += en; 
+	if (depth == 3) ehcal_coneMC_3 += en; 
+	if (depth == 4) ehcal_coneMC_4 += en; 
+      }
+    } 
+  
+ 
+    //    std::cout << "*** 5" << std::endl; 
 
   
   // IN ALL THE CASES : sum of rechits around MC particle = f(eta,phi) 
   
-  map_econe_depth1->Fill(eta_MC, phi_MC, ehcal_coneMC_1);
-  map_econe_depth2->Fill(eta_MC, phi_MC, ehcal_coneMC_2);
-  map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
-  map_econe_depth4->Fill(eta_MC, phi_MC, ehcal_coneMC_4);
-
+    map_econe_depth1->Fill(eta_MC, phi_MC, ehcal_coneMC_1);
+    map_econe_depth2->Fill(eta_MC, phi_MC, ehcal_coneMC_2);
+    map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
+    map_econe_depth4->Fill(eta_MC, phi_MC, ehcal_coneMC_4);
+    
+  }
 
   //  NOISE ================================================================= 
   
@@ -637,9 +841,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // SUBSYSTEMS,  
   //===========================================================================
   
-  else {
+  else if (subdet_ != 6) {
 
-    //    std::cout << "*** 6" << std::endl; 
+    //       std::cout << "*** 6" << std::endl; 
     
     
     double clusEta = 999.;
@@ -776,7 +980,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
 
 
-    //   std::cout << "*** 7" << std::endl; 
+    //     std::cout << "*** 7" << std::endl; 
 
     
     // Single particle samples ONLY !  ======================================
@@ -827,7 +1031,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	}
       }
 
-      //     std::cout << "*** 8" << std::endl; 
+      //         std::cout << "*** 8" << std::endl; 
 
 
       // Also combine with ECAL if needed 
@@ -875,14 +1079,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     }
   }
 
-  //   std::cout << "*** 9" << std::endl; 
+  //  std::cout << "*** 9" << std::endl; 
 
 
   //===========================================================================
   // Getting SimHits
   //===========================================================================
 
-  if(subdet_ != 0 && imc !=0 ) {  // not noise 
+  if(subdet_ > 0 && subdet_ < 6 &&imc !=0 ) {  // not noise 
 
     double maxES = -9999.;
     double etaHotS = 1000.;
@@ -1019,7 +1223,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cdepth.clear();
 
 
-  if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 0) {
+  if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     
     //HBHE
     std::vector<edm::Handle<HBHERecHitCollection> > hbhecoll;
@@ -1058,7 +1262,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     }
   }
 
-  if( subdet_ == 4 || subdet_ == 5 || subdet_ == 0) {
+  if( subdet_ == 4 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
 
     //HF
     std::vector<edm::Handle<HFRecHitCollection> > hfcoll;
@@ -1099,7 +1303,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 
   //HO
 
-  if( subdet_ == 3 || subdet_ == 5 || subdet_ == 0) {
+  if( subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
   
     std::vector<edm::Handle<HORecHitCollection> > hocoll;
     ev.getManyByType(hocoll);
