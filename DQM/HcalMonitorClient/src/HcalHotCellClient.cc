@@ -23,32 +23,32 @@ void HcalHotCellClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,
   clearHists(hfhists);
   clearHists(hcalhists);
 
-  int dummy = 0;
-  thresholds_=ps.getUntrackedParameter<int>("HotCellThresholds",dummy);
-  hcalhists.thresholds=thresholds_;
-
+ 
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(unsigned int i=0; i<subdets.size(); i++){
     if(subdets[i]=="HB"){
       subDetsOn_[0]=true;
-      hbhists.thresholds=ps.getUntrackedParameter<int>("HBHotCellThresholds",thresholds_);
+      getSubDetThresholds(hbhists);
     }
     else if(subdets[i]=="HE") {
       subDetsOn_[1]=true;
-      hehists.thresholds=ps.getUntrackedParameter<int>("HEHotCellThresholds",thresholds_);
+      getSubDetThresholds(hehists);
     }
     else if(subdets[i]=="HO") {
       subDetsOn_[2]=true;
-      hohists.thresholds=ps.getUntrackedParameter<int>("HOHotCellThresholds",thresholds_);
+      getSubDetThresholds(hohists);
     }
     else if(subdets[i]=="HF"){
       subDetsOn_[3]=true;
-      hfhists.thresholds=ps.getUntrackedParameter<int>("HFHotCellThresholds",thresholds_);
+      getSubDetThresholds(hfhists);
     }
-  }
-}
+  } // for (unsigned int i=0; i<subdets.size();i++)
+  hcalhists.thresholds=max(hbhists.thresholds,max(hehists.thresholds,max(hohists.thresholds,hfhists.thresholds)));
+
+} // void HcalHotCellClient::init()
+
 
 HcalHotCellClient::~HcalHotCellClient(){
   this->cleanup();
@@ -204,7 +204,6 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   string client = "HotCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
-  //ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
@@ -214,6 +213,16 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
   htmlFile << " http-equiv=\"content-type\">  " << endl;
   htmlFile << "  <title>Monitor: Hcal HotCell Task output</title> " << endl;
+  // Add JavaScript for pop-up window
+  // (java code taken from http://www.yourhtmlsource.com/javascript/popupwindows.html#openingnewwindows)
+  htmlFile<<"<script language=JavaScript>"<<endl;
+  htmlFile<<" var newwindow;"<<endl;
+  htmlFile<<" function poptastic(url)"<<endl;
+  htmlFile<<" {"<<endl;
+  htmlFile<<" newwindow=window.open(url,'Energy Thresholds','height=400,width=800,scrollbars=yes,resizable=yes');"<<endl;
+  htmlFile<<" if (window.focus) {newwindow.focus()}"<<endl;
+  htmlFile<<" <a href=\"javascript:window.close()\">Close this window.</a>"<<endl;
+  htmlFile<<" } "<<endl<<" </script>"<<endl;
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
@@ -238,52 +247,64 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  htmlFile << "<h2><strong>Hcal Hot Cell Histograms</strong></h2>" << endl;
-  htmlFile << "<h3>" << endl;
-  htmlFile << "<a href=\"#HCAL_Plots\">Combined HCAL Plots </a></br>" << endl;  
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  if(subDetsOn_[2]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  if(subDetsOn_[3]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
-  htmlFile << "</h3>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile<<"<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h3><tr><td>Detailed (expert-level) Plots:  </td>";
+  htmlFile << "<td><a href=\"HcalHotCellClient_HCAL_Plots.html\">HCAL Plots </a>  </td>" << endl;  
+  if(subDetsOn_[0]) htmlFile << "<td><a href=\"HcalHotCellClient_HB_Plots.html\">HB Plots </a>  </td>" << endl;  
+  if(subDetsOn_[1]) htmlFile << "<td><a href=\"HcalHotCellClient_HE_Plots.html\">HE Plots </a>  </td>" << endl;  
+  if(subDetsOn_[2]) htmlFile << "<td><a href=\"HcalHotCellClient_HO_Plots.html\">HO Plots </a>  </td>" << endl;  
+  if(subDetsOn_[3]) htmlFile << "<td><a href=\"HcalHotCellClient_HF_Plots.html\">HF Plots </a>  </td>" << endl; 
+  htmlFile <<"</h3></tr></table>"<<endl;
 
+  htmlFile << "<h2><strong>Hcal Hot Cell Histograms</strong></h2>" << endl;
+  htmlFile <<"Occasional entries in the hot cell histograms are expected.<br>  Shifters should watch for persistent hot cells occurring at a high rate."<<endl;
+  htmlFile <<"<hr>"<<endl;
+
+  // Main histogram table
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   
-  if (hcalhists.threshOccMapDepth1.size()>0)
-    {
-      // Had been labeled "Global Histograms"
-      htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Hot Cell Occupancy by Layer</h3></td></tr>" << endl;
-
-      htmlFile << "<tr align=\"left\">" << endl;	
-      histoHTML2(runNo,hcalhists.threshOccMapDepth1[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-      histoHTML2(runNo,hcalhists.threshEnergyMapDepth1[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-      htmlFile << "</tr>" << endl;
-      
-      htmlFile << "<tr align=\"left\">" << endl;	
-      histoHTML2(runNo,hcalhists.threshOccMapDepth2[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-      histoHTML2(runNo,hcalhists.threshEnergyMapDepth2[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-      htmlFile << "</tr>" << endl;
-      
-      htmlFile << "<tr align=\"left\">" << endl;	
-      histoHTML2(runNo,hcalhists.threshOccMapDepth3[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-      histoHTML2(runNo,hcalhists.threshEnergyMapDepth3[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-      htmlFile << "</tr>" << endl;
-      
-      htmlFile << "<tr align=\"left\">" << endl;	
-      histoHTML2(runNo,hcalhists.threshOccMapDepth4[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-      histoHTML2(runNo,hcalhists.threshEnergyMapDepth4[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-      htmlFile << "</tr>" << endl;
-    }
+  // Label Row
+  htmlFile <<"<tr><td>Hot Cells Above Threshold Energy</td>"<<endl;
+  htmlFile <<"<td>Isolated Hot Cells</td>"<<endl;
+  htmlFile <<"<td>Negative-Energy Cells</td></tr>"<<endl;
+  htmlFile << "<tr align=\"left\">" << endl;
   
-  htmlSubDetOutput(hcalhists,runNo,htmlDir,htmlName);
-  htmlSubDetOutput(hbhists,runNo,htmlDir,htmlName);
-  htmlSubDetOutput(hehists,runNo,htmlDir,htmlName);
-  htmlSubDetOutput(hohists,runNo,htmlDir,htmlName);
-  htmlSubDetOutput(hfhists,runNo,htmlDir,htmlName);
+  // Histogram Row
+  histoHTML2(runNo,hcalhists.threshOccMap[hcalhists.threshOccMap.size()-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hcalhists.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hcalhists.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlFile<<"</tr>"<<endl;
 
-  htmlFile << "</table>" << endl;
+  // Description row
+
+  htmlFile<<"<tr><td>"<<endl;
+  htmlFile<<"<h4>Plot shows the fraction of events in which a cell's energy is greater than a threshold value.<BR>"<<endl;
+ htmlFile <<"(<a href=\"javascript:poptastic('HotCell_Thresholds.html');\">Click here for threshold energy values.)</a>"<<endl;
+  htmlFile<<"<BR>"<<endl;
+  htmlFile<<" Warning messages are sent when a cell exceeds the largest-energy threshold in more than 10% of events.<BR>"<<endl;
+  htmlFile<<"Error messages are sent when a cell exceeds the largest-energy threshold in more than 25% of events.<BR>(Warnings and Errors not yet implemented.)<BR></td>"<<endl;
+  htmlFile<< "<td>This histogram shows cells with energy significantly higher than the surrounding cells.<BR>Warning messages are sent when an isolated hot cell is found in more than 10% of events.<BR>Error messages are sent when an isolated hot cell is found in more than 25% of events.<BR>(Warnings and Errors not yet implemented.)</td>"<<endl;
+  htmlFile<< "<td>This histogram shows events in which cells reported -1 GeV of energy or less.<BR>Warning messages are sent when a cell reports such a low value more than 10% of the time.<BR>Error messages are sent when a cell reports such a value in more than 25% of events.<BR>(Warnings and Errors not yet implemented.)</td>"<<endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile <<"</table>"<<endl;
+
+  // Show all threshold histograms
+  htmlFile<<"<hr><hr>"<<endl;
+  htmlFile << "<h2><strong>Hcal Energy Threshold Histograms</strong></h2>" << endl;
+  htmlFile <<"These histograms show cell occupancies for various energy thresholds (threshold values can be found <a href=\"javascript:poptastic('HotCell_Thresholds.html');\">here</a>).  These histograms are provided for shifter interest; they do not generate alarms."<<endl;
+  
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  // Divide histograms by number of events to express hot cells as fraction
+  for (unsigned int i=hcalhists.threshOccMap.size();i>0;i--)
+    {
+      //hcalhists.threshOccMap[i-1]->Scale(1./ievt_);
+      histoHTML2(runNo,hcalhists.threshOccMap[i-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+    }
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl; // end of table
   htmlFile << "<br>" << endl;
 
   // html page footer
@@ -292,55 +313,47 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile.close();
 
-  return;
-}
+  htmlSubDetOutput(hcalhists,runNo,htmlDir,htmlName);
+  htmlSubDetOutput(hbhists,runNo,htmlDir,htmlName);
+  htmlSubDetOutput(hehists,runNo,htmlDir,htmlName);
+  htmlSubDetOutput(hohists,runNo,htmlDir,htmlName);
+  htmlSubDetOutput(hfhists,runNo,htmlDir,htmlName);
 
-void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo, 
-					 string htmlDir, 
-					 string htmlName)
-{
-  if((hist.type<5) &&!subDetsOn_[hist.type-1]) return;
-  
-  string type;
-  if(hist.type==1) type = "HB";
-  else if(hist.type==2) type = "HE"; 
-  else if(hist.type==3) type = "HO"; 
-  else if(hist.type==4) type = "HF";
-  else if(hist.type==10) type = "HCAL";
-  else
+  // Make page with histogram thresholds
+  htmlFile.open((htmlDir + "HotCell_Thresholds.html").c_str());
+
+  // html page header
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlFile << "<html>  " << endl;
+  htmlFile << "<head>  " << endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlFile << " http-equiv=\"content-type\">  " << endl;
+  htmlFile << "  <title>Monitor: Hcal HotCell Threshold Values</title> " << endl;
+  htmlFile << "</head>  " << endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
+  htmlFile << "<body>  " << endl;
+  htmlFile << "<br>  " << endl;
+  htmlFile << "<h2>Hot Cell Histogram Energy Thresholds:" << endl;
+  htmlFile <<"<br> "<<endl;
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" bgcolor=#FFCCFF" << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile <<"<tr><td></td>"<<endl;
+  for (unsigned int i=hcalhists.threshOccMap.size();i>0;i--)
     {
-      if (debug_)cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
-      return;
+      htmlFile<<"<td>Threshold "<<i-1<<"</td>"<<endl;
     }
-
-  htmlFile << "<tr align=\"left\">" << endl;
-  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
-  
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-
-  for (int i=0;i<hist.thresholds;i++){
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-  }
-  
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlFile,htmlDir);
-  histoHTML(runNo,hist.maxCellTime,"nS","Evts", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile<<"</tr>"<<endl;
+  drawSubDetThresholds(hbhists);
+  drawSubDetThresholds(hehists);
+  drawSubDetThresholds(hohists);
+  drawSubDetThresholds(hfhists);
+  htmlFile<<"</table>"<<endl;
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
 
   return;
 }
+
 
 void HcalHotCellClient::createTests()
 {
@@ -423,8 +436,12 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
     }
   
   // Check Cell with Maximum Energy deposited
-  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapMaxCell",process_.c_str(),type.c_str(), type.c_str());
-  sprintf(name,"%s Maximum Energy Cell",type.c_str()); 
+  // Jan. 2008 DQM Challenge -- instead of Maximum Energy histogram
+  // Check for Cells > final (highest?) threshold
+  //sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapMaxCell",process_.c_str(),type.c_str(), type.c_str());
+  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapThresh%i",process_.c_str(),type.c_str(), type.c_str(),hist.thresholds);
+  //sprintf(name,"%s Maximum Energy Cell",type.c_str()); 
+  sprintf(name,"%s Threshold #%i Cell",type.c_str(),hist.thresholds);
   if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
   if(dqmQtests_.find(name)==dqmQtests_.end())
     {
@@ -443,7 +460,8 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
     }
 
-  // Check threshold tests
+  // Check threshold tests  -- disable for now
+  /*
   for (int i=0;i<hist.thresholds;i++)
     {
       sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapThresh%i",process_.c_str(),type.c_str(), type.c_str(),i);
@@ -466,6 +484,7 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	    if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
 	}
     } // for (int i=0;i<thresholds; i++)
+  */
 
   return;
 }
@@ -512,6 +531,7 @@ void HcalHotCellClient::clearHists(HotCellHists& hist)
       hist.threshOccMapDepth4[i]=0;
       hist.threshEnergyMapDepth4[i]=0;
     }
+
   hist.threshOccMap.clear();
   hist.threshEnergyMap.clear();
   hist.threshOccMapDepth1.clear();
@@ -559,6 +579,7 @@ void HcalHotCellClient::deleteHists(HotCellHists& hist)
       if (hist.threshEnergyMapDepth4[i]) delete hist.threshEnergyMapDepth4[i];
 
     }
+
   hist.threshOccMap.clear();
   hist.threshEnergyMap.clear();
   hist.threshOccMapDepth1.clear();
@@ -790,6 +811,7 @@ void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist){
   
   char name[150];
   string type;
+
   if(hist.type==1) type= "HB";
   else if(hist.type==2) type = "HE"; 
   else if(hist.type==3) type = "HO"; 
@@ -890,3 +912,186 @@ sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellEnergyMapThresh%iDepth4",type.c_
 
   return;
 }
+
+
+void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
+{
+  string type;
+  if(hist.type==1)
+    type="HB";
+  else if(hist.type==2)
+    type="HE";
+  else if (hist.type==3)
+    type="HO";
+  else if (hist.type==4)
+    type="HF";
+  else if (hist.type==10)
+    type="HCAL";
+  else
+    {
+      if (debug_) cout <<"<HcalHotCellClient::getSubDetThresholds>  Unknown subdetector type: "<<hist.type<<endl;
+      return;
+    }
+
+  int dummy=0; // counter to keep track of number of thresholds
+  while (1)
+    {
+      char name[256];
+      sprintf(name, "%sHcal/HotCellMonitor/%s/%sThreshold%i",process_.c_str(),type.c_str(),type.c_str(),dummy);
+      MonitorElement* me = 0;
+      if(dbe_) 
+	{
+	  me = dbe_->get(name);
+	  if (me)
+	      dummy++;
+
+	  else break;
+	}
+      else break;
+    }
+  hist.thresholds=dummy;
+  return;
+} //void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
+
+
+void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo, 
+					 string htmlDir, 
+					 string htmlName)
+{
+
+  ofstream htmlSubFile;
+  if((hist.type<5) &&!subDetsOn_[hist.type-1]) return;
+  
+  string type;
+  if(hist.type==1) 
+    {
+      type = "HB";
+      htmlSubFile.open((htmlDir+"HcalHotCellClient_HB_Plots.html").c_str());
+    }
+  else if(hist.type==2) 
+    {
+      type = "HE";
+      htmlSubFile.open((htmlDir+"HcalHotCellClient_HE_Plots.html").c_str());
+    }
+  else if(hist.type==3) 
+    {
+      type = "HO";
+      htmlSubFile.open((htmlDir+"HcalHotCellClient_HO_Plots.html").c_str());
+    }
+  else if(hist.type==4) 
+    {
+      type = "HF";
+      htmlSubFile.open((htmlDir+"HcalHotCellClient_HF_Plots.html").c_str());
+    }
+  else if(hist.type==10) 
+    {
+      type = "HCAL";
+      htmlSubFile.open((htmlDir+"HcalHotCellClient_HCAL_Plots.html").c_str());
+    }
+  else
+    {
+      if (debug_)cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
+      return;
+    }
+  
+  // html page header
+  htmlSubFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlSubFile << "<html>  " << endl;
+  htmlSubFile << "<head>  " << endl;
+  htmlSubFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlSubFile << " http-equiv=\"content-type\">  " << endl;
+  htmlSubFile << "  <title>Monitor: Hcal "<<type<<" HotCell Task output</title> " << endl;
+  htmlSubFile << "</head>  " << endl;
+  htmlSubFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
+  htmlSubFile << "<body>  " << endl;
+  htmlSubFile << "<br>  " << endl;
+  htmlSubFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlSubFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
+  htmlSubFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">Hcal HotCells</span></h2> " << endl;
+  htmlSubFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+
+  htmlSubFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
+  htmlSubFile << "<hr>" << endl;
+
+  htmlSubFile << "<h2><strong>"<<type<<" Hot Cell Histograms</strong></h2>" << endl;
+  htmlSubFile << "<h3>" << endl;
+
+  // Make main table
+  htmlSubFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlSubFile << "cellpadding=\"10\"> " << endl;
+  
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
+
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
+
+
+  for (int i=0;i<hist.thresholds;i++){
+    htmlSubFile << "<tr align=\"left\">" << endl;	
+    histoHTML2(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlSubFile,htmlDir);
+    histoHTML2(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlSubFile,htmlDir);
+    htmlSubFile << "</tr>" << endl;
+  }
+  
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlSubFile,htmlDir);
+  histoHTML(runNo,hist.maxCellTime,"nS","Evts", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr></table>" << endl;
+  htmlSubFile << "<hr>" << endl;
+  htmlSubFile.close();
+
+  return;
+} //void HcalHotCellClient::htmlSubDetOutput
+
+
+void HcalHotCellClient::drawSubDetThresholds(HotCellHists& hist)
+{
+  if (!subDetsOn_[hist.type-1]) return;
+  string type;
+  if(hist.type==1)
+    type="HB";
+  else if(hist.type==2)
+    type="HE";
+  else if (hist.type==3)
+    type="HO";
+  else if (hist.type==4)
+    type="HF";
+  else if (hist.type==10)
+    type="HCAL";
+  else
+    {
+      if (debug_) cout <<"<HcalHotCellClient::drawSubDetThresholds>  Unknown subdetector type: "<<hist.type<<endl;
+      return;
+    }
+  
+  // new row
+  htmlFile <<"<tr><td><a href=\"HcalHotCellClient_"<<type<<"_Plots.html\" target=\"_blank\">"<<type<<"</a></td>"<<endl;
+  for (unsigned int i=hist.threshOccMap.size();i>0;i--)
+    {
+      char name[256];
+      sprintf(name, "%sHcal/HotCellMonitor/%s/%sThreshold%i",process_.c_str(),type.c_str(),type.c_str(),i-1);
+      MonitorElement* me = 0;
+      if(dbe_) 
+	{
+	  me = dbe_->get(name);
+	  if (me)
+	    {
+	     string s = me->valueString();
+	     htmlFile<<"<td>"<<s.substr(2)<<" GeV</td>"<<endl;
+	    }
+	  else 
+	    htmlFile<<"<td></td>"<<endl;
+	}
+    }
+  htmlFile<<"</tr>"<<endl;
+  return;
+
+}// void HcalHotCellClient::drawSubDetThresholds(HotCellHists& hist)

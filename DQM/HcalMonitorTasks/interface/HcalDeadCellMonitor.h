@@ -4,15 +4,23 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 
+
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.2 $
+  * $Date: 2007/11/21 15:48:15 $
+  * $Revision: 1.3 $
   * \author J. Temple - Univ. of Maryland
   */
 
 struct DeadCellHists{
-  int type; // store subdetector type (0=hb, 1=he, 2=ho, 3=hf)
+
+  bool check; // determine whether to run DeadCell checks on this subdetector
+  bool fVerbosity; // not yet implemented for subdetectors -- use later?
+
+  int type; // store subdetector type (1=hb, 2=he, 3=ho, 4=hf, 10=hcal)
+  std::string subdet; // store subdetector name (HB, HE,...)
+
+  double floor, mindiff;
   MonitorElement* deadADC_map;
   MonitorElement* noADC_ID_map;
   MonitorElement* deadADC_eta;
@@ -25,8 +33,10 @@ struct DeadCellHists{
   MonitorElement* above_pedestal;
   MonitorElement* coolcell_below_pedestal;
   TH2F* above_pedestal_temp;
+  //MonitorElement* above_pedestal_temp;
 
   std::vector<MonitorElement*> deadcapADC_map;
+
 };
 
 
@@ -53,7 +63,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void processEvent_hits(const HBHERecHitCollection& hbHits, 
 			 const HORecHitCollection& hoHits, 
 			 const HFRecHitCollection& hfHits);
-
+  void setupHists(DeadCellHists& hist,  DaqMonitorBEInterface* dbe);
   void reset_Nevents(DeadCellHists& h);
   void reset();
 
@@ -70,6 +80,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
    double coolcellfrac_;
    double Nsigma_;
    double minADCcount_;
+
+   double floor_, mindiff_;
 
    DeadCellHists hbHists, heHists, hoHists, hfHists, hcalHists;
    MonitorElement* meEVT_;

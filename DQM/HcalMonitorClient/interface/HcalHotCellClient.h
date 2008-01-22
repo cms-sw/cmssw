@@ -6,6 +6,7 @@
 struct HotCellHists{
   int type;
   int thresholds;
+
   TH2F* maxCellOccMap;
   TH2F* maxCellEnergyMap;
   TH1F* maxCellEnergy;
@@ -88,6 +89,10 @@ class HcalHotCellClient : public HcalBaseClient{
   void resetSubDetHistograms(HotCellHists& hist);
   void getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile);
 
+  // Count hot cell thresholds
+  void getSubDetThresholds(HotCellHists& hist);
+  void drawSubDetThresholds(HotCellHists& hist);
+  
 private:
 
   // Can we get threshold information from same .cfi file that HotCellMonitor uses?  

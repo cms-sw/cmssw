@@ -1,7 +1,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-
 HcalDeadCellClient::HcalDeadCellClient(){}
 
 
@@ -413,19 +412,21 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  htmlFile << "<h2><strong>Hcal Dead Cell Histograms</strong></h2>" << endl;
-  htmlFile << "<h3>" << endl;
-  htmlFile << "<a href=\"#HCAL_Plots\">Combined HCAL Plots </a></br>" << endl;
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  if(subDetsOn_[2]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  if(subDetsOn_[3]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
-  htmlFile << "</h3>" << endl;
+  htmlFile<<"<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h3><tr><td>Detailed (expert-level) Plots:  </td>";
+  htmlFile << "<td><a href=\"HcalDeadCellClient_HCAL_Plots.html\">HCAL Plots </a>  </td>" << endl;
+  if(subDetsOn_[0]) htmlFile << "<td><a href=\"HcalDeadCellClient_HB_Plots.html\">HB Plots </a></br>  </td>" << endl;  
+  if(subDetsOn_[1]) htmlFile << "<td><a href=\"HcalDeadCellClient_HE_Plots.html\">HE Plots </a></br>  </td>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<td><a href=\"HcalDeadCellClient_HO_Plots.html\">HO Plots </a></br>  </td>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<td><a href=\"HcalDeadCellClient_HF_Plots.html\">HF Plots </a></br></td>" << endl;
+  htmlFile << "</h3></tr></table>" << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   //htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
+  //htmlFile << "</table>" << endl;
 
   htmlSubDetOutput(hcalhists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hbhists,runNo,htmlDir,htmlName);
@@ -433,8 +434,22 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlSubDetOutput(hohists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hfhists,runNo,htmlDir,htmlName);
 
-  htmlFile << "</table>" << endl;
+
   htmlFile << "<br>" << endl;
+
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Cells with no ADC hits</h3></td>"<<endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3> Cells Consistently Below Pedestal Threshold</h3></td>"<<endl;
+  htmlFile << "</tr>"<<endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,hcalhists.deadADC_OccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hcalhists.CoolCellBelowPed,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlFile<<"</tr>"<<endl;
+
+  htmlFile<< "<tr><td>This histogram shows cells with no ADC hits in an event.  We expect cells to almost always have at least one hit per event.  <BR>Warning messages are sent if a cell's ADC count is 0 for more than 1% of events.<BR> Error messages are sent if a cell's ADC count is 0 for more than 5% of events.</td>"<<endl;
+  htmlFile<< "<td>This histogram shows cells with energy below (pedestal + N sigma) for a number of consecutive events.  (The value of N is given on the histogram.)  This histogram is expected to be empty, or nearly so.<BR>  No warnings or errors are sent yet for this histogram.</td>"<<endl;
+ 
+  htmlFile << "</tr>" << endl;
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -463,33 +478,67 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
     return;
   }
 
-  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.deadADC_OccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML(runNo,hist.deadADC_Eta,"iEta","Evts", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  ofstream htmlSubFile;
+  htmlSubFile.open((htmlDir + "HcalDeadCellClient_"+type+"_Plots.html").c_str());
+
+  // html page header
+  htmlSubFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlSubFile << "<html>  " << endl;
+  htmlSubFile << "<head>  " << endl;
+  htmlSubFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlSubFile << " http-equiv=\"content-type\">  " << endl;
+  htmlSubFile << "  <title>Monitor: Hcal "<<type<<" DeadCell Detailed Plots</title> " << endl;
+  htmlSubFile << "</head>  " << endl;
+  htmlSubFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
+  htmlSubFile << "<body>  " << endl;
+  htmlSubFile << "<br>  " << endl;
+  htmlSubFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlSubFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
+  htmlSubFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">Hcal DeadCells</span></h2> " << endl;
+  htmlSubFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" <<   endl;
+
+  htmlSubFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
+  htmlSubFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
+  htmlSubFile << "<hr>" << endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.digiCheck,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.cellCheck,"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlSubFile << "<h2><strong>"<<type<<" Dead Cell Histograms</strong></h2>" << endl;
+  htmlSubFile << "<h3>" << endl;
+
+  htmlSubFile << "<table  width=100% border=1><tr>" << endl;
+
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.deadADC_OccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML(runNo,hist.deadADC_Eta,"iEta","Evts", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.NADACoolCellMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.CoolCellBelowPed,"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.digiCheck,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.cellCheck,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.DeadCap[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.DeadCap[1],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.NADACoolCellMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.CoolCellBelowPed,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.DeadCap[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hist.DeadCap[3],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.DeadCap[0],"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.DeadCap[1],"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr>" << endl;
   
+  htmlSubFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.DeadCap[2],"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  histoHTML2(runNo,hist.DeadCap[3],"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlSubFile << "</tr></table>" << endl;
+  
+   // html page footer
+  htmlSubFile << "</body> " << endl;
+  htmlSubFile << "</html> " << endl;
+
+  htmlSubFile.close();
   return;
 }
 

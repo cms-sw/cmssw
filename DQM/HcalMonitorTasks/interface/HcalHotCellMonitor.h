@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/11/21 15:48:15 $
-  * $Revision: 1.10 $
+  * $Date: 2007/12/07 17:57:38 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -44,6 +44,9 @@ struct HotCellHists{
   std::vector<MonitorElement*> nadaEnergyMapDepth;
   std::vector<MonitorElement*> nadaNegOccMapDepth;
   std::vector<MonitorElement*> nadaNegEnergyMapDepth;
+
+  // diagnostic histograms (remove eventually?)
+  std::vector<MonitorElement*> diagnostic;
 
   // Parameters used in setting NADA cube sizes, thresholds
   double nadaEnergyCandCut0,nadaEnergyCandCut1, nadaEnergyCandCut2;
