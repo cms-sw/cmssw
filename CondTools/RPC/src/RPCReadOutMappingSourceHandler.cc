@@ -85,7 +85,13 @@ void popcon::RPCReadOutMappingSourceHandler::DisconnectOnlineDB()
 void popcon::RPCReadOutMappingSourceHandler::readCablingMap()
 {
 
-  string cabling_version = "test";
+//  string cabling_version = "test";
+  time_t rawtime;
+  time(&rawtime); //time since January 1, 1970
+  tm * ptm = gmtime(&rawtime);//GMT time
+  char buffer[20];
+  strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
+  string cabling_version=(string)buffer;
 
   Statement* stmt = conn->createStatement();
   string sqlQuery ="";

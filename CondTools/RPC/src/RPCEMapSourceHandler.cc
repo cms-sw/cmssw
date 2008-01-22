@@ -85,7 +85,13 @@ void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
 void popcon::RPCEMapSourceHandler::readEMap()
 {
 
-  string eMap_version = "test";
+//  string eMap_version = "test";
+  time_t rawtime;
+  time(&rawtime); //time since January 1, 1970
+  tm * ptm = gmtime(&rawtime);//GMT time
+  char buffer[20];
+  strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
+  string eMap_version=(string)buffer;
 
   Statement* stmt = conn->createStatement();
   string sqlQuery ="";
