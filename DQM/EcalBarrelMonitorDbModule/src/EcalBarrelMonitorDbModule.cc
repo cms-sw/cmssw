@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2007/12/18 20:33:42 $
- * $Revision: 1.11 $
+ * $Date: 2008/01/22 19:13:31 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -14,9 +14,7 @@
 #include <iostream>
 #include <cmath>
 
-
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"

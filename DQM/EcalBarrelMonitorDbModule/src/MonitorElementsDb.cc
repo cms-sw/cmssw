@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.9 2008/01/17 19:23:53 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.10 2008/01/22 19:13:31 muzaffar Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2008/01/17 19:23:53 $
+  \version $Revision: 1.10 $
+  \date $Date: 2008/01/22 19:13:31 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -14,10 +14,7 @@
 #include <fstream>
 #include <cmath>
 
-
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-
 
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2007/12/18 20:33:44 $
- * $Revision: 1.5 $
+ * $Date: 2008/01/22 18:55:22 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -14,9 +14,7 @@
 #include <iostream>
 #include <cmath>
 
-
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"

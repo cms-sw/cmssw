@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.cc,v 1.4 2006/06/28 10:46:18 benigno Exp $
+// $Id: MonitorXMLParser.cc,v 1.5 2008/01/22 19:13:31 muzaffar Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2006/06/28 10:46:18 $
+  \version $Revision: 1.5 $
+  \date $Date: 2008/01/22 19:13:31 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -13,12 +13,10 @@
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 
-
 #include <sstream>
 #include <stdexcept>
 
 #include "DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h"
-//#include "MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 
