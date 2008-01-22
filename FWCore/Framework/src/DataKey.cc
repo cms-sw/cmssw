@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:13 EST 2005
-// $Id: DataKey.cc,v 1.5 2006/09/01 18:16:42 wmtan Exp $
+// $Id: DataKey.cc,v 1.6 2007/06/14 17:52:18 wmtan Exp $
 //
 
 // system include files
@@ -132,5 +132,4 @@ DataKey::operator<(const DataKey& iRHS) const
    }
 }
 
-#include "FWCore/Framework/interface/HCTypeTag.icc"
 template class edm::eventsetup::heterocontainer::HCTypeTag<edm::eventsetup::DataKey>;

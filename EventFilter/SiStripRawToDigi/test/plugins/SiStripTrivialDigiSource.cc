@@ -1,10 +1,9 @@
-// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.3 2007/04/25 21:24:50 pwing Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.4 2007/04/30 13:54:19 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 // edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,7 +15,6 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 // fed
-#include "Fed9UUtils.hh"
 // clhep
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"

@@ -6,11 +6,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -27,7 +25,6 @@
 
 #include "TH1D.h"
 #include "TFile.h"
-#include "TROOT.h"
 
 using namespace std;
 

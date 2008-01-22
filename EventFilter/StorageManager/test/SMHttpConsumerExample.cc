@@ -7,7 +7,7 @@
 
   Description: Example DQM Event Consumer Client 
 
-  $Id$
+  $Id: SMHttpConsumerExample.cc,v 1.1 2007/09/14 13:18:32 hcheung Exp $
 
 */
 
@@ -17,17 +17,13 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 using std::cout; using std::endl;
 

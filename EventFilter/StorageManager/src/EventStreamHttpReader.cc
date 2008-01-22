@@ -17,12 +17,11 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.25 2007/11/26 19:46:36 biery Exp $
+  $Id: EventStreamHttpReader.cc,v 1.26 2007/11/28 18:03:32 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
-#include "IOPool/Streamer/interface/BufferArea.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -35,7 +34,6 @@
 #include <algorithm>
 #include <iterator>
 #include "curl/curl.h"
-#include <string>
 
 #include <wait.h>
 

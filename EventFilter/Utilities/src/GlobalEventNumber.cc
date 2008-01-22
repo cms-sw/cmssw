@@ -1,5 +1,4 @@
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
-#include "interface/shared/fed_header.h" // from xdaq
 
 namespace evf{
   namespace evtn{

@@ -1,12 +1,10 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
 
 //Data Formats
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include <sstream>
 #include <iostream>
 
 //stl
-#include <vector>
 
 using namespace sistrip;
 

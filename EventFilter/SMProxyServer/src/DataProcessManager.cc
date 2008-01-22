@@ -1,21 +1,15 @@
-// $Id$
+// $Id: DataProcessManager.cc,v 1.3 2007/05/16 22:57:45 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/BufferArea.h"
-#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/bind.hpp"
-#include "boost/thread/thread.hpp"
-#include "boost/shared_ptr.hpp"
 
 #include "curl/curl.h"
 #include <wait.h>

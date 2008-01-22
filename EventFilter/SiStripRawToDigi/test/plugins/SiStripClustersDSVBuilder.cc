@@ -1,5 +1,4 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClustersDSVBuilder.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 

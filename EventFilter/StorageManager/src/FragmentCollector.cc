@@ -1,17 +1,12 @@
-// $Id: FragmentCollector.cc,v 1.33 2007/05/16 22:55:03 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.34 2007/08/18 06:04:57 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 
 #include "boost/bind.hpp"
 

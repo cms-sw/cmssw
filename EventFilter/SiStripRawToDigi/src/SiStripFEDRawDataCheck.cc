@@ -10,9 +10,7 @@
 #include "interface/shared/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
-#include "boost/cstdint.hpp"
 #include <sstream>
-#include <string>
 #include <vector>
 #include <map>
 
