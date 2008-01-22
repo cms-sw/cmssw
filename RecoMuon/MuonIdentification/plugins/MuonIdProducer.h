@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.6 2007/10/06 00:43:34 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.7 2007/12/13 07:38:59 dmytro Exp $
 //
 //
 
@@ -82,7 +82,7 @@ class MuonIdProducer : public edm::EDProducer {
    // muon track
    int           overlap(const reco::Muon& muon, const reco::Track& track);
 
-   unsigned int  getChamberId(const DetId&);
+   unsigned int  chamberId(const DetId&);
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;

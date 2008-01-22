@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TestMuons.cc,v 1.2 2007/07/16 23:57:33 dmytro Exp $
+// $Id: TestMuons.cc,v 1.3 2007/07/17 00:12:42 dmytro Exp $
 //
 //
 
@@ -41,18 +41,18 @@ void TestMuons::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
    for(edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
       std::cout << "\n----------------------------------------------------" << std::endl;
       std::cout << "Muon (pt,eta,phi): " << muon->pt() << ", " << muon->eta() << ", " << muon->phi() << std::endl;
-      std::cout << "\t energy (ecal, hcal, ho): " << muon->getCalEnergy().em << ", " << 
-	muon->getCalEnergy().had << ", " << muon->getCalEnergy().ho << std::endl;
+      std::cout << "\t energy (ecal, hcal, ho): " << muon->calEnergy().em << ", " << 
+	muon->calEnergy().had << ", " << muon->calEnergy().ho << std::endl;
       std::cout << "\t isolation dR=0.3 (sumPt, emEt, hadEt, hoEt, nTracks, nJets): " << 
-	muon->getIsolationR03().sumPt << ", " << muon->getIsolationR03().emEt << ", " << 
-	muon->getIsolationR03().hadEt << ", " << muon->getIsolationR03().hoEt << ", " <<
-	muon->getIsolationR03().nTracks << ", " << muon->getIsolationR03().nJets << std::endl;
+	muon->isolationR03().sumPt << ", " << muon->isolationR03().emEt << ", " << 
+	muon->isolationR03().hadEt << ", " << muon->isolationR03().hoEt << ", " <<
+	muon->isolationR03().nTracks << ", " << muon->isolationR03().nJets << std::endl;
       std::cout << "\t isolation dR=0.5 (sumPt, emEt, hadEt, hoEt, nTracks, nJets): " << 
-	muon->getIsolationR05().sumPt << ", " << muon->getIsolationR05().emEt << ", " << 
-	muon->getIsolationR05().hadEt << ", " << muon->getIsolationR05().hoEt << ", " <<
-	muon->getIsolationR05().nTracks << ", " << muon->getIsolationR05().nJets << std::endl;
+	muon->isolationR05().sumPt << ", " << muon->isolationR05().emEt << ", " << 
+	muon->isolationR05().hadEt << ", " << muon->isolationR05().hoEt << ", " <<
+	muon->isolationR05().nTracks << ", " << muon->isolationR05().nJets << std::endl;
       std::cout << "\t # matches: " << muon->numberOfMatches() << std::endl;
-      std::cout << "\t # caloCompatibility: " << muon->getCaloCompatibility() << std::endl;
+      std::cout << "\t # caloCompatibility: " << muon->caloCompatibility() << std::endl;
       
    }
 }

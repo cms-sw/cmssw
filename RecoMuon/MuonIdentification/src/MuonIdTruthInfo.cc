@@ -44,7 +44,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
    
    bestMatch -= offset;
    
-   std::vector<reco::MuonChamberMatch>& matches = aMuon.getMatches();
+   std::vector<reco::MuonChamberMatch>& matches = aMuon.matches();
    int numberOfTruthMatchedChambers = 0;
 
    // loop over chambers

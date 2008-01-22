@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.17 2007/12/13 07:38:58 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.18 2007/12/14 02:19:41 dmytro Exp $
 //
 //
 
@@ -205,7 +205,7 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    return true;
 }
    
-unsigned int MuonIdProducer::getChamberId( const DetId& id )
+unsigned int MuonIdProducer::chamberId( const DetId& id )
 {
    switch ( id.det() ) {
     case DetId::Muon:
@@ -238,7 +238,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    if ( ! muon.isMatchesValid() || 
 	track.extra().isNull() ||
 	track.extra()->recHits().isNull() ) return numberOfCommonDetIds;
-   const std::vector<reco::MuonChamberMatch>& matches( muon.getMatches() );
+   const std::vector<reco::MuonChamberMatch>& matches( muon.matches() );
    for ( std::vector<reco::MuonChamberMatch>::const_iterator match = matches.begin();
 	 match != matches.end(); ++match ) 
      {
@@ -252,7 +252,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
 	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
 	     
-	     if ( getChamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
+	     if ( chamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
 		foundCommonDetId = true;
 		break;
 	     }
@@ -340,10 +340,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 muon !=  outputMuons->end(); ++muon )
 	     if ( muon->track().get() == trackerMuon.track().get() ) {
 		newMuon = false;
-		muon->setMatches( trackerMuon.getMatches() );
-		muon->setTime( trackerMuon.getTime() );
-		muon->setCalEnergy( trackerMuon.getCalEnergy() );
-		muon->setType( muon->getType() | reco::Muon::TrackerMuon );
+		muon->setMatches( trackerMuon.matches() );
+		muon->setTime( trackerMuon.time() );
+		muon->setCalEnergy( trackerMuon.calEnergy() );
+		muon->setType( muon->type() | reco::Muon::TrackerMuon );
 		LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
 		break;
 	     }
@@ -379,7 +379,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      LogTrace("MuonIdentification") << "Found associated tracker muon. Set a reference and move on";
 		      newMuon = false;
 		      muon->setStandAlone( reco::TrackRef( outerTrackCollectionHandle_, i ) );
-		      muon->setType( muon->getType() | reco::Muon::StandAloneMuon );
+		      muon->setType( muon->type() | reco::Muon::StandAloneMuon );
 		      break;
 		   }
 		}
@@ -432,7 +432,7 @@ void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    // loop over chambers to collect timing information assuming it was filled
    // earlier
-   const std::vector<reco::MuonChamberMatch>& chambers = muon.getMatches();
+   const std::vector<reco::MuonChamberMatch>& chambers = muon.matches();
 	
    for( std::vector<reco::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
 	chamber!=chambers.end(); ++chamber ) {
@@ -636,7 +636,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      }
    aMuon.setMatches(muonChamberMatches);
 
-   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.getMatches().size() << "\n" 
+   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.matches().size() << "\n" 
      << "number of chambers with segments according to the associator requirements: " << 
      nubmerOfMatchesAccordingToTrackAssociator;
    LogTrace("MuonIdentification") << "number of segment matches with the producer requirements: " << 
@@ -658,8 +658,8 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
    for( unsigned int muonIndex1 = 0; muonIndex1 < pOutputMuons->size(); ++muonIndex1 )
    {
       // chamberIter1
-      for( std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = pOutputMuons->at(muonIndex1).getMatches().begin();
-            chamberIter1 != pOutputMuons->at(muonIndex1).getMatches().end(); ++chamberIter1 )
+      for( std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = pOutputMuons->at(muonIndex1).matches().begin();
+            chamberIter1 != pOutputMuons->at(muonIndex1).matches().end(); ++chamberIter1 )
       {
          if(chamberIter1->segmentMatches.empty()) continue;
          chamberPairs.clear();
@@ -679,8 +679,8 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
                for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
                {
                   // chamberIter2
-                  for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).getMatches().begin();
-                        chamberIter2 != pOutputMuons->at(muonIndex2).getMatches().end(); ++chamberIter2 )
+                  for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).matches().begin();
+                        chamberIter2 != pOutputMuons->at(muonIndex2).matches().end(); ++chamberIter2 )
                   {
                      // segmentIter2
                      for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter2->segmentMatches.begin();
@@ -749,8 +749,8 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
             stationPairs.clear();
 
             // chamberIter
-            for( std::vector<reco::MuonChamberMatch>::iterator chamberIter = pOutputMuons->at(muonIndex1).getMatches().begin();
-                  chamberIter != pOutputMuons->at(muonIndex1).getMatches().end(); ++chamberIter )
+            for( std::vector<reco::MuonChamberMatch>::iterator chamberIter = pOutputMuons->at(muonIndex1).matches().begin();
+                  chamberIter != pOutputMuons->at(muonIndex1).matches().end(); ++chamberIter )
             {
                if(!(chamberIter->station()==stationIndex && chamberIter->detector()==detectorIndex)) continue;
                if(chamberIter->segmentMatches.empty()) continue;
