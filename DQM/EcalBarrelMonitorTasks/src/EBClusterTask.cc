@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/01/22 19:14:39 $
- * $Revision: 1.46 $
+ * $Date: 2008/01/22 19:47:11 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -344,7 +344,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
-    Int_t nscc = pSuperClusters->size();
+    int nscc = pSuperClusters->size();
     if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
