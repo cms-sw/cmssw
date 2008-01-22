@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/22 18:07:50 $
- * $Revision: 1.21 $
+ * $Date: 2008/01/22 19:47:15 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -279,6 +279,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalRecHitCollection::const_iterator rechitItr = rechits->begin(); rechitItr != rechits->end(); ++rechitItr ) {
 
       EEDetId id = rechitItr->id();
+
       int eex = id.ix();
       int eey = id.iy();
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/22 19:47:11 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/22 21:36:21 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -278,6 +278,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalRecHitCollection::const_iterator rechitItr = rechits->begin(); rechitItr != rechits->end(); ++rechitItr ) {
 
       EBDetId id = rechitItr->id();
+
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
