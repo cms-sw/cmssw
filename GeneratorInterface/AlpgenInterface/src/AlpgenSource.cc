@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/10/23 12:43:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/11/28 16:30:39 $
+ *  $Revision: 1.11 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -19,11 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
 
-#include <iostream>
-#include <fstream>
 #include "time.h"
 
 using namespace edm; 

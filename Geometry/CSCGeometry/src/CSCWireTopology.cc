@@ -1,5 +1,4 @@
 #include "Geometry/CSCGeometry/interface/CSCWireTopology.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/CSCGeometry/src/CSCGangedWireGrouping.h"
 #include "Geometry/CSCGeometry/src/CSCNonslantedWireGeometry.h"

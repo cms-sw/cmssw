@@ -3,8 +3,6 @@
 
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterLowE.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 

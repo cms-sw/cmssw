@@ -2,24 +2,19 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.5 2007/04/10 17:13:24 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.6 2007/05/10 21:18:49 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
 // user include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -28,23 +23,16 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TMath.h>
-#include <TH1F.h>
 #include <TH2F.h>
-#include <TObjArray.h>
 
 #include <utility> // for std::pair
 #include <string>
-#include <vector>
 
 
 //

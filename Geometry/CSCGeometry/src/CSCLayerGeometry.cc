@@ -2,18 +2,13 @@
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include <Geometry/CSCGeometry/interface/CSCWireGeometry.h>
 
 #include <Geometry/CSCGeometry/src/CSCUngangedStripTopology.h>
 #include <Geometry/CSCGeometry/src/CSCGangedStripTopology.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
 
-#include <DataFormats/GeometryVector/interface/LocalPoint.h>
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
 
 #include <CLHEP/Units/SystemOfUnits.h>
 

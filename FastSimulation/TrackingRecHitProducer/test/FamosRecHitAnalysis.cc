@@ -1,9 +1,6 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 //
@@ -11,7 +8,6 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
@@ -29,16 +25,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 //
 
 // ROOT
-#include <TROOT.h>
 #include <TStyle.h>
 #include <TGaxis.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TVector3.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TLegend.h>

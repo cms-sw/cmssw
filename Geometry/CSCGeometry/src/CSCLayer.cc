@@ -1,6 +1,5 @@
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 
 GlobalPoint CSCLayer::centerOfStrip(int strip) const {
   float stripX = geometry()->xOfStrip(strip);

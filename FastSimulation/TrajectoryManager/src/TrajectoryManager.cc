@@ -6,7 +6,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 // Tracker reco geometry headers 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
