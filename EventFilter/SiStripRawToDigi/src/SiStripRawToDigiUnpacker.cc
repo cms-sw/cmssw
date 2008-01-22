@@ -630,12 +630,14 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
 						   SiStripEventSummary& summary ) {
   
   // Retrieve contents of DAQ registers
-  uint16_t mode = sistrip::invalid_;
+  uint16_t trigger_type = sistrip::invalid_;
+  uint16_t readout_mode = sistrip::invalid_;
   uint32_t daq1 = sistrip::invalid32_;
   uint32_t daq2 = sistrip::invalid32_;
   
   if ( fed ) {
-    mode = static_cast<uint16_t>( fed->getEventType() ); 
+    //@@ trigger_type = static_cast<uint16_t>( fed->?????() ); 
+    readout_mode = static_cast<uint16_t>( fed->getEventType() ); 
     daq1 = static_cast<uint32_t>( fed->getDaqRegister() ); 
     daq2 = static_cast<uint32_t>( fed->getDaqRegisterTwo() ); 
   }
@@ -644,7 +646,7 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
   if ( daq1 != 0 && daq1 != sistrip::invalid32_ ) {
     
     summary.triggerFed( triggerFedId_ );
-    summary.fedReadoutMode( mode );
+    summary.fedReadoutMode( readout_mode );
     summary.commissioningInfo( daq1, daq2 );
     
     if ( summary.isSet() && once_ ) {
@@ -655,8 +657,17 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
       LogTrace(mlRawToDigi_) << ss.str();
       once_ = false;
     }
-    
   }
+  //@@ below needed to set run type in PHYSICS 
+//   } else if ( trigger_type == ??? ) { 
+//     summary.runType( sistrip::PHYSICS );
+//     std::stringstream ss;
+//     ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+//        << " EventSummary built from 'Event Type' field in DAQ header:"
+//        << std::endl << summary;
+//     LogTrace(mlRawToDigi_) << ss.str();
+//     once_ = false;
+//   }
   
 }
 
