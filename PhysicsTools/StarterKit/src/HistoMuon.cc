@@ -35,9 +35,9 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
   HistoGroup<Muon>::fill( muon, iMu);
 
   // fill relevant muon histograms
-  h_trackIso_->fill( muon->getTrackIso(), iMu );
-  h_caloIso_ ->fill( muon->getCaloIso() , iMu );
-  h_leptonID_->fill( muon->getLeptonID(), iMu );
+  h_trackIso_->fill( muon->trackIso(), iMu );
+  h_caloIso_ ->fill( muon->caloIso() , iMu );
+  h_leptonID_->fill( muon->leptonID(), iMu );
 }
 
 

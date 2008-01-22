@@ -34,9 +34,9 @@ void HistoElectron::fill( const Electron * electron, uint iE )
   HistoGroup<Electron>::fill( electron, iE );
 
   // fill relevant electron histograms
-  h_trackIso_       ->fill( electron->getTrackIso(), iE );
-  h_caloIso_        ->fill( electron->getCaloIso(), iE );
-  h_leptonID_       ->fill( electron->getLeptonID(), iE );
+  h_trackIso_       ->fill( electron->trackIso(), iE );
+  h_caloIso_        ->fill( electron->caloIso(), iE );
+  h_leptonID_       ->fill( electron->leptonID(), iE );
 
 }
 

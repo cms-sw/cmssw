@@ -33,10 +33,10 @@ void HistoJet::fill( const Jet * jet, uint iJet )
   HistoGroup<Jet>::fill( jet, iJet );
 
   // fill relevant jet histograms
-  h_jetFlavour_     ->fill( jet->getPartonFlavour(), iJet );
-  h_BDiscriminant_  ->fill( jet->getBDiscriminator("trackCountingHighPurJetTags"), iJet );
-  h_jetCharge_      ->fill( jet->getJetCharge(), iJet );
-  h_nTrk_           ->fill( jet->getAssociatedTracks().size(), iJet );
+  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet );
+  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet );
+  h_jetCharge_      ->fill( jet->jetCharge(), iJet );
+  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet );
 
 }
 
