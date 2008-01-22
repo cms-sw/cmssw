@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/22 19:47:15 $
- * $Revision: 1.22 $
+ * $Date: 2008/01/22 21:50:59 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -97,34 +97,56 @@ void EEOccupancyTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancy_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meOccupancy_[i]->setAxisTitle("jx", 1);
+      meOccupancy_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT MEM digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meOccupancyMem_[i]->setAxisTitle("pseudo-strip", 1);
+      meOccupancyMem_[i]->setAxisTitle("channel", 2);
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
     sprintf(histo, "EEOT EE digi occupancy");
     meEEDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEEDigiOccupancy_->setAxisTitle("jx", 1);
+    meEEDigiOccupancy_->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT EE digi occupancy projection x");
     meEEDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjX_->setAxisTitle("jx", 1);
+    meEEDigiOccupancyProjX_->setAxisTitle("number of digis", 2);
     sprintf(histo, "EEOT EE digi occupancy projection y");
     meEEDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjY_->setAxisTitle("jy", 1);
+    meEEDigiOccupancyProjY_->setAxisTitle("number of digis", 2);
 
     sprintf(histo, "EEOT EE rec hit occupancy");
     meEERecHitOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEERecHitOccupancy_->setAxisTitle("jx", 1);
+    meEERecHitOccupancy_->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT EE rec hit occupancy projection x");
     meEERecHitOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjX_->setAxisTitle("jx", 1);
+    meEERecHitOccupancyProjX_->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT EE rec hit occupancy projection y");
     meEERecHitOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjY_->setAxisTitle("jy", 1);
+    meEERecHitOccupancyProjY_->setAxisTitle("number of hits", 2);
 
     sprintf(histo, "EEOT EE trigger primitives digi occupancy");
     meEETrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEETrigPrimDigiOccupancy_->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancy_->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT EE trigger primitives digi occupancy projection x");
     meEETrigPrimDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjX_->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancyProjX_->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT EE trigger primitives digi occupancy projection y");
     meEETrigPrimDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjY_->setAxisTitle("jy", 1);
+    meEETrigPrimDigiOccupancyProjY_->setAxisTitle("number of TP digis", 2);
 
   }
 
