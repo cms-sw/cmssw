@@ -1,0 +1,15 @@
+<use name=CaloOnlineTools/EcalTools>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/DetId>
+<use name=DataFormats/EcalDigi>	
+<use name=DataFormats/EcalRawData>
+<use name=DataFormats/EcalRecHit>
+<use name=Geometry/EcalMapping>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloEventSetup>
+<use name=root>
+<use name=rootcore>
+<library file="plugins.cc EcalDCCHeaderDisplay.cc EcalDigiDisplay.cc EcalMipGraphs.cc EcalPedHists.cc EcalPnGraphs.cc EcalURecHitHists.cc" name=CaloOnlineToolsEcalToolsPlugins>
+  <flags EDM_PLUGIN=1>
+</library>

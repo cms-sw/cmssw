@@ -17,64 +17,7 @@
 //
 //
 
-
-// system include files
-#include <memory>
-#include <vector>
-#include <map>
-#include <set>
-
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
-#include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
-
-#include "TFile.h"
-#include "TGraph.h"
-
-
-//
-// class declaration
-//
-
-class EcalURecHitHists : public edm::EDAnalyzer {
-   public:
-      explicit EcalURecHitHists(const edm::ParameterSet&);
-      ~EcalURecHitHists();
-
-
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      std::string intToString(int num);
-      void initHists(int);
-
-    // ----------member data ---------------------------
-
-  edm::InputTag EcalUncalibratedRecHitCollection_;
-  int runNum_;
-  double histRangeMax_, histRangeMin_;
-  std::string fileName_;
-
-  std::vector<int> maskedChannels_;
-  std::vector<int> maskedFEDs_;
-  std::vector<std::string> maskedEBs_;
-  std::map<int,TH1F*> FEDsAndHists_;
-
-  TH1F* allFedsHist_;
-  TFile* file;
-  EcalFedMap* fedMap_;
-};
+#include "CaloOnlineTools/EcalTools/plugins/EcalURecHitHists.h"
 
 using namespace cms;
 using namespace edm;
@@ -274,5 +217,3 @@ std::string EcalURecHitHists::intToString(int num)
     return(myStream.str()); //returns the string form of the stringstream object
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(EcalURecHitHists);

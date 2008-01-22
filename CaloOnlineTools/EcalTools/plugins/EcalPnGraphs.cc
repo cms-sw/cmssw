@@ -9,12 +9,24 @@
  *
  */
 
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
-#include "CaloOnlineTools/EcalTools/interface/EcalPnGraphs.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalPnGraphs.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
+#include <iostream>
+#include <vector>
 #include <map>
 
+#include "TFile.h"
+#include "TGraph.h"
 
 
 //=============================================================================
@@ -209,4 +221,3 @@ void EcalPnGraphs::endJob() {
   edm::LogInfo("EcalPnGraphs") << "DONE!.... " ;
 }
 
-DEFINE_FWK_MODULE(EcalPnGraphs);

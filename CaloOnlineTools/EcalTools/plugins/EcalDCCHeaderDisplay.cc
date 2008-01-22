@@ -7,29 +7,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-#include <iostream>
-#include <vector>
-
-
-
-class EcalDCCHeaderDisplay: public edm::EDAnalyzer{
-  
-public:
-  EcalDCCHeaderDisplay(const edm::ParameterSet& ps);
-  
-protected:
-
-  void analyze( const edm::Event & e, const  edm::EventSetup& c);
-
-private:
-  edm::InputTag EcalDCCHeaderCollection_;
-
-};
+#include "CaloOnlineTools/EcalTools/plugins/EcalDCCHeaderDisplay.h"
 
 EcalDCCHeaderDisplay::EcalDCCHeaderDisplay(const edm::ParameterSet& iConfig){
   EcalDCCHeaderCollection_ = iConfig.getParameter<edm::InputTag>("EcalDCCHeaderCollection");
@@ -104,4 +82,3 @@ void EcalDCCHeaderDisplay::analyze( const edm::Event & e, const  edm::EventSetup
 
 
 
-DEFINE_FWK_MODULE(EcalDCCHeaderDisplay);
