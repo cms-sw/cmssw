@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.5 2008/01/21 16:10:09 chrjones Exp $
+// $Id: FWEventItem.h,v 1.6 2008/01/22 16:34:09 chrjones Exp $
 //
 
 // system include files
@@ -51,6 +51,13 @@ class FWEventItem
          ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected):
          m_displayProperties(iProps),
          m_isSelected(iIsSelected) {}
+         
+         const FWDisplayProperties& displayProperties() const {
+            return m_displayProperties;
+         }
+         bool isSelected() const {
+            return m_isSelected;
+         }
       };
    
       FWEventItem(FWModelChangeManager* iCM,
@@ -111,7 +118,7 @@ class FWEventItem
       void setDisplayProperties(int iIndex, const FWDisplayProperties&) const;
    
       /** connect to this signal if you want to know when models held by the item change */
-      FWModelChangeSignal changed_;
+      mutable FWModelChangeSignal changed_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 
