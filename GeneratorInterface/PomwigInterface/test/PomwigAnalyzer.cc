@@ -6,23 +6,13 @@
 #include "PomwigAnalyzer.h"
 
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
 
 //#include "CLHEP/Vector/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "TH1D.h"
-#include "TFile.h"
 
 PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig)
 {

@@ -1,13 +1,12 @@
 /** \file
  *
- *  $Date: 2006/04/12 18:19:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/22 15:57:11 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 #include <algorithm>
 #include <iostream>

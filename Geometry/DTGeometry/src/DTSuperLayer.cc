@@ -1,7 +1,7 @@
 /** \file 
  *  
  *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: 1.3 $
+ *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -12,9 +12,7 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 
 /* Collaborating Class Header */
-#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
 
 /* C++ Headers */
 #include <iostream>

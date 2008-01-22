@@ -1,6 +1,5 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <stdexcept>
 
 ESDetId EcalPreshowerTopology::incrementIy(const ESDetId& id) const {

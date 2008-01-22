@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/04 16:29:12 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/12/01 00:59:05 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -15,7 +15,6 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -23,11 +22,7 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 
 #include <string>

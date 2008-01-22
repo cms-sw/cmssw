@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/10/09 18:23:11 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/11/28 16:28:01 $
+ *  $Revision: 1.16 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "Utilities/General/interface/FileInPath.h"
 
 
 #include <iostream>

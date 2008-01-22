@@ -1,5 +1,4 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 

@@ -1,7 +1,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: Z2muAnalyzer.cc,v 1.1 2007/03/07 17:05:31 antoniov Exp $
+// $Id: Z2muAnalyzer.cc,v 1.2 2007/04/25 12:50:31 antoniov Exp $
 //
 // Modified for PomwigInterface test for Z/gamma* -> 2mu
 // 02/2007
@@ -16,23 +16,13 @@
 #include "Z2muAnalyzer.h"
 
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "TH1D.h"
-#include "TFile.h"
 
 Z2muAnalyzer::Z2muAnalyzer(const edm::ParameterSet& iConfig)
 {

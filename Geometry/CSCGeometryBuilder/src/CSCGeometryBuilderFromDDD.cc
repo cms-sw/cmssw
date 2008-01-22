@@ -1,7 +1,6 @@
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
-#include <DetectorDescription/Core/interface/CLHEPToROOTMath.h>
 
 #include <Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
@@ -10,11 +9,9 @@
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
-#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
 #include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
 #include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
 #include <DataFormats/GeometryVector/interface/Basic3DVector.h>
