@@ -3,8 +3,9 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.27 2008/01/15 06:52:07 wmtan Exp $
+$Id: Event_t.cpp,v 1.28 2008/01/22 19:27:44 muzaffar Exp $
 ----------------------------------------------------------------------*/
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <algorithm>

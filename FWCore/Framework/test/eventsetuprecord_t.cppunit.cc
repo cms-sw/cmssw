@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 
+#include "FWCore/Framework/interface/HCMethods.icc"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 
