@@ -23,15 +23,18 @@
 #include "CalibMuon/CSCCalibration/interface/CSCGainsHandler.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkHandler.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixHandler.h"
+#include "CalibMuon/CSCCalibration/interface/CSCPedestalsHandler.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsPopConAnalyzer.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixPopConAnalyzer.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkPopConAnalyzer.h"
+#include "CalibMuon/CSCCalibration/interface/CSCPedestalsPopConAnalyzer.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixDBConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCPedestalsDBConditions.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeGainsConditions);
@@ -51,6 +54,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixDBConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCPedestalsDBConditions);
 DEFINE_ANOTHER_FWK_MODULE(WriteGainsToDB);
 DEFINE_ANOTHER_FWK_MODULE(WriteDBGains);
 DEFINE_ANOTHER_FWK_MODULE(WritePedestalsToDB);
@@ -62,4 +66,6 @@ DEFINE_ANOTHER_FWK_MODULE(WriteDBCrosstalk);
 DEFINE_ANOTHER_FWK_MODULE(CSCGainsPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCrosstalkPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixPopConAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(CSCPedestalsPopConAnalyzer);
+
 
