@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.3 2007/12/12 12:29:20 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.4 2007/12/13 11:00:46 fblekman Exp $
 //
 //
 
@@ -66,25 +66,36 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       virtual void fill(edm::Event &iEvent, const edm::EventSetup& iSetup);
       virtual void fillPixel(uint32_t detid, short row, short col,short ipoint, short adc);
       virtual bool checkPixel(uint32_t detid, short row, short col);
+      virtual bool checkFED(uint32_t detid);
       virtual void clear();
       virtual void endJob() ;
-      
+      typedef std::pair<uint32_t,std::pair<short,short> >  pixelstruct;
+      //      class pixelstruct {
+      //      public:
+      //	pixelstruct():detid(0),row(0),col(0) {}
+      //	uint32_t detid;
+      //	short row;
+      //	short col;
+      //      };
       // ----------member data ---------------------------
       edm::InputTag src_;
       uint32_t iEventCounter_;
+      
       bool ignore_non_pattern_;
       bool control_pattern_size_;
       edm::ParameterSet conf_;
       std::string label_;
       std::string instance_;
+      uint32_t number_of_pixels_per_pattern_;
       
       edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
       edm::ESHandle<TrackerGeometry> theGeometry_; // the tracker geometry
       edm::ESHandle<SiPixelFedCablingMap> theCablingMap_;
 
       // worker variables
-      std::map<uint32_t,std::vector<SiPixelCalibDigi> > intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
-      std::map<uint32_t,std::vector<std::pair<short, short> > > detPixelMap_;// map to keep track of which pixels are filled where in intermediate_data_
+      std::map<pixelstruct,SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
+      //      std::vector<SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
+      std::vector<pixelstruct> detPixelMap_;// map to keep track of which pixels are filled where in intermediate_data_
       uint32_t pattern_repeat_; // keeps track of when the pattern should change
       std::map<uint32_t,uint32_t> detid_to_fedid_; // keeps track in which fed each detid is present.
 

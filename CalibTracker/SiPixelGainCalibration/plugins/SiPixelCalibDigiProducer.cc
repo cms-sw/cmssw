@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.5 2007/12/13 11:00:46 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.6 2008/01/22 19:12:43 muzaffar Exp $
 //
 //
 
@@ -55,6 +55,7 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   iEventCounter_(0),
   ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
   control_pattern_size_(iConfig.getParameter<bool>("checkPatternEachEvent")),
+  number_of_pixels_per_pattern_(0),
   conf_(iConfig)
 
 {
@@ -120,77 +121,55 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 ////////////////////////////////////////////////////
 // function description:
+// this is the function where we check the cabling map and see if we can assign a fed id to the det ID. 
+// returns false if no fed <-> detid association was found
+bool SiPixelCalibDigiProducer::checkFED(uint32_t detid){
+  //  std::cout << "in checkFED" << std::endl;
+
+  if(detid_to_fedid_[detid])
+    return true;
+  for(int fedid=0; fedid<=40; ++fedid){
+    //    std::cout << " looking at fedid " << fedid << std::endl;
+    SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
+    if(converter.hasDetUnit(detid)){
+      detid_to_fedid_[detid]=fedid;
+      edm::LogInfo("SiPixelCalibDigiProducer") << "matched detid " << detid << " to fed " << detid_to_fedid_[detid] << std::endl;
+      return true;
+    }
+  }
+  return false;
+}
+
+////////////////////////////////////////////////////
+// function description:
 // this is the function where we look in the maps to find the correct calibration digi container, after which the data is filled.
 void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, short ipoint, short adc){
   //  std::cout << " in fillpixel()" << std::endl;
-    
-  if(control_pattern_size_)
-    if(!checkPixel(detid,row,col))
-      return;
-  bool createnewdetid=false;
-  bool createnewpixel=false;
-  if(detPixelMap_.size()==0){ 			  
-    createnewdetid=true;
-    createnewpixel=true;
+ 
+  if(!checkFED(detid)){
+    edm::LogError("SiPixelCalibDigiProducer") << " was unable to match detid " << detid << " to a FED!" << std::endl;
+    return;
   }
-  else{
-    std::map<uint32_t,std::vector<std::pair<short,short> > >::const_iterator imap = detPixelMap_.find(detid);
-    if(imap->first!=detid){
-      createnewdetid=true;
-      createnewpixel=true;
-    }
-    else{
-      std::pair<short, short> pix(row,col);
-      bool foundpixel=0;
-      for(uint32_t ii=0; ii<detPixelMap_[detid].size();++ii){
-	if(detPixelMap_[detid][ii]==pix)
-	  foundpixel=true;
-      }
-      if(!foundpixel)
-	createnewpixel=true;
-    }
+  if(!checkPixel(detid,row,col)){
+    return;
   }
-  if(createnewdetid){
-
-    std::vector<std::pair<short,short> > vec(0);
-    detPixelMap_[detid]=vec; 
-    std::vector<SiPixelCalibDigi> digivec(0,SiPixelCalibDigi(calib_->nVCal()));
-    intermediate_data_[detid]=digivec; 	
-    int fedid=0;
-    for(; fedid<=40; ++fedid){
-      SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
-      if(converter.hasDetUnit(detid)){
-	break;
-      }
-    }
-    detid_to_fedid_[detid]=fedid;
-  }
-  if(createnewpixel){
-    std::pair<short, short> pix(row,col);
-    detPixelMap_[detid].push_back(pix);
-    if(intermediate_data_[detid].size()<detPixelMap_[detid].size()){
-      SiPixelCalibDigi digi(calib_->nVCal());
-      intermediate_data_[detid].push_back(digi);
-      intermediate_data_[detid][intermediate_data_[detid].size()-1].setrowcol((short) row, (short) col);
-    }
-    else{
-      intermediate_data_[detid][detPixelMap_[detid].size()-1].reset();
-      intermediate_data_[detid][detPixelMap_[detid].size()-1].setrowcol((short) row, (short) col);
-    }
-  }
+  // now the check if the pixel exists and fill
+  //
+  pixelstruct temppixelworker;
+  temppixelworker.first=detid;
+  temppixelworker.second.first=row;
+  temppixelworker.second.second=col;  
+  std::map<pixelstruct,SiPixelCalibDigi>::const_iterator ipix = intermediate_data_.find(temppixelworker);
   
-  // now actually fill the object,this unfortunately involves looping, 
-  // I don't know how to deal with the pixel indices except yet another map... :(
-  std::pair<short, short> inputpix(row,col);
-  //  std::cout << "size of detPixelMap_ is " << detPixelMap_[detid].size() << std::endl;
-  for(uint32_t ii=0; ii<detPixelMap_[detid].size(); ++ii){
-    if(detPixelMap_[detid][ii]==inputpix){
-      intermediate_data_[detid][ii].fill(ipoint,adc);
-      break;
-    }
+  if(ipix == intermediate_data_.end()){
+    SiPixelCalibDigi tempdigi(calib_->nVCal());
+    tempdigi.setrowcol(row,col);
+    intermediate_data_[temppixelworker]=tempdigi;
   }
 
-  
+  intermediate_data_[temppixelworker].fill(ipoint,adc);
+  return;
+
 }
 //////////////////////////////////////////////////////////////
 // function description:
@@ -205,27 +184,14 @@ SiPixelCalibDigiProducer::clear(){
   // detPixelMap_ becomes bigger than intermedate_data_
   
   // shrink the detPixelMap_
-  //  uint32_t oldsize = detPixelMap_.size();
-  for(std::map<uint32_t,std::vector<std::pair<short, short> > >::const_iterator idet = detPixelMap_.begin(); idet!=detPixelMap_.end(); ++idet){
-    while(detPixelMap_[idet->first].size()!=0){
-      detPixelMap_[idet->first].erase(detPixelMap_[idet->first].end());
-    }
-    detPixelMap_[idet->first].resize(0);
+  uint32_t tempsize = intermediate_data_.size();
+  if(tempsize>number_of_pixels_per_pattern_){
+    edm::LogError("SiPixelCalibDigiProducer") << "Number of pixels in pattern is now: " << tempsize<< ", size is was " << number_of_pixels_per_pattern_ << std::endl;
+    number_of_pixels_per_pattern_=tempsize;
   }
-  //  std::cout << "shrinking detPixelMap_, size is now " << detPixelMap_.size()<< ", size is was " << oldsize << std::endl;
-  
-  // and clear the SiPixelCalibDigi objects
-  uint32_t npixelscleared =0;
-  uint32_t ndetidcleared = 0;
-  for(std::map<uint32_t,std::vector<SiPixelCalibDigi> >::const_iterator idet = intermediate_data_.begin(); idet!=intermediate_data_.end(); ++idet){
-    ndetidcleared++;
-    for(uint32_t ii=0; ii<intermediate_data_[idet->first].size();++ii){
-      intermediate_data_[idet->first][ii].reset();
-      npixelscleared++;
-      //      std::cout << "resetting data " << intermediate_data_[idet->first][ii] << std::endl;
-    }
-  }
-  //  std::cout << "reset the information in " << npixelscleared << " pixels... in detids " << ndetidcleared << std::endl;
+
+  intermediate_data_.erase(intermediate_data_.begin(),intermediate_data_.end());
+  intermediate_data_.clear();
 }
 
 ////////////////////////////////////////////////////
@@ -234,10 +200,10 @@ SiPixelCalibDigiProducer::clear(){
 void 
 SiPixelCalibDigiProducer::setPattern(){
   //  std::cout << "in setPattern()" << std::endl;
-  uint32_t patternnumber = (iEventCounter_-1)/pattern_repeat_;
+  uint32_t patternnumber = abs(iEventCounter_-1)/pattern_repeat_;
   uint32_t rowpatternnumber = patternnumber/calib_->nColumnPatterns();
   uint32_t colpatternnumber = patternnumber%calib_->nColumnPatterns();
-  //  std::cout << "rowpatternnumbers = " << rowpatternnumber << " " << colpatternnumber << " " << patternnumber << std::endl;
+  edm::LogInfo("SiPixelCalibDigiProducer") << " rowpatternnumbers = " << rowpatternnumber << " " << colpatternnumber << " " << patternnumber << std::endl;
   // update currentpattern_
   std::vector<short> calibcols = calib_->getColumnPattern();
   std::vector<short> calibrows = calib_->getRowPattern();
@@ -304,25 +270,26 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //  std::cout <<"in produce() " << std::endl;
   using namespace edm;
   iEventCounter_++;
+  if(iEventCounter_%pattern_repeat_==1)
+    setPattern();
+  
   fill(iEvent,iSetup); // fill method where the actual looping over the digis is done.
+
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigi> > pOut(new edm::DetSetVector<SiPixelCalibDigi>);
-  // copy things over if necessary (this is only once per 
+ 
+  // copy things over into pOut if necessary (this is only once per pattern)
   if(store()){
     //    std::cout << "in loop" << std::endl;
-    setPattern();
-    for(std::map<uint32_t,std::vector<SiPixelCalibDigi> >::const_iterator idet=intermediate_data_.begin(); idet!=intermediate_data_.end(); ++idet){
-      uint32_t detid = idet->first;
+    for(std::map<pixelstruct,SiPixelCalibDigi>::const_iterator idet=intermediate_data_.begin(); idet!=intermediate_data_.end();++idet){
+      if(control_pattern_size_)
+	if(! checkPixel(idet->first.first,idet->first.second.first,idet->first.second.second))
+	  continue;
+      uint32_t detid=idet->first.first;
+      SiPixelCalibDigi tempdigi=idet->second;
       edm::DetSet<SiPixelCalibDigi> & detSet = pOut->find_or_insert(detid);
-      std::vector<SiPixelCalibDigi> tempdata(0);
-      for(std::vector<SiPixelCalibDigi>::const_iterator idigi=idet->second.begin(); idigi!= idet->second.end(); ++idigi){
-	if(checkPixel(detid,idigi->row(),idigi->col())){
-	  // now fill
-	  tempdata.push_back(*idigi);
-	}
-      }
-      detSet.data = tempdata;
+      detSet.data.push_back(tempdigi);
     }
-    //    edm::LogInfo("INFO") << "now filling event " << iEventCounter_ << " as pixel pattern changes every " <<  pattern_repeat_ << " events..." << std::endl;
+    edm::LogInfo("INFO") << "now filling event " << iEventCounter_ << " as pixel pattern changes every " <<  pattern_repeat_ << " events..." << std::endl;
     clear();
   }
   iEvent.put(pOut);
@@ -330,10 +297,12 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 //-----------------------------------------------
 //  method to check that the pixels are actually valid...
 bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
-  if( ignore_non_pattern_)
+  if( !ignore_non_pattern_ && !control_pattern_size_)
     return true;
-  //  std::cout << "now in checkpixel() " << std::endl;
   
+  //  std::cout << "now in checkpixel() " << std::endl;
+  if(currentpattern_.size()==0)
+    setPattern();
   //  uint32_t iroc;
   uint32_t fedid = detid_to_fedid_[detid];
 
@@ -361,11 +330,13 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
   std::ostringstream errorlog;
   errorlog <<  "DETID "<<detid<<", row, col (offline)="<<row<<","<<col<<" row, col (ROC) ="<<currentpair_.first<<","<< currentpair_.second<< " found no match in list of patterns: " ;
   for(uint32_t i=0; i<currentpattern_.size(); ++i){
-    if(i!=0)
-      errorlog<<"-";
+    if(i!=0 && i!=currentpattern_.size()-1)
+      errorlog<<" ";
+    errorlog<<"(";
     errorlog<<currentpattern_[i].first;
     errorlog<<",";
     errorlog<<currentpattern_[i].second;
+    errorlog<<")";
   }
   edm::LogError("ERROR") << errorlog.str() << std::endl;
   return false;
@@ -378,7 +349,7 @@ SiPixelCalibDigiProducer::beginJob(const edm::EventSetup& iSetup)
 {
   iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
   pattern_repeat_=calib_->getNTriggers()*calib_->nVCal();
-  std::cout << "got calibration configuration, pattern repeat is " << pattern_repeat_ << std::endl;
+  edm::LogInfo("SiPixelCalibDigiProducer") << "got calibration configuration, pattern repeat is " << pattern_repeat_ << ", number of VCal points is " << calib_->nVCal() << std::endl;
   iSetup.get<TrackerDigiGeometryRecord>().get( theGeometry_ );
   iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
 }
