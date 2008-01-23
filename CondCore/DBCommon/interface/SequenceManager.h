@@ -19,8 +19,6 @@ namespace coral{
 }
 namespace cond {  
   class CoralTransaction;
-  /**Utility class to manage sequences in a schema
-   */
   class SequenceManager {
   public:
     /// Constructor
@@ -40,14 +38,15 @@ namespace cond {
     /// Clears the internal state
     void clear();
     
-  private:
     /// Whether sequence table exists
     bool existSequencesTable();
 
     /// Creates the table holding the sequences
     void createSequencesTable();
+    
+  private:
 
-    /// Locks an entry in the table
+    /// Locks the id entry in the ref table and returns the lastId value  
     bool lockEntry( const std::string& reftableName,
 		    unsigned long long& lastId );
 

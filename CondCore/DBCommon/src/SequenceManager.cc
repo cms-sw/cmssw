@@ -12,10 +12,10 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include <memory>
-
+//#include <iostream>
 cond::SequenceManager::SequenceManager(cond::CoralTransaction& coraldb,
 				       const std::string& sequenceTableName):
-  m_schema( coraldb.nominalSchema() ),
+  m_schema(coraldb.nominalSchema()),
   m_sequenceTableName( sequenceTableName ),
   m_tableToId(),
   m_sequenceTableExists( false ),
@@ -23,17 +23,16 @@ cond::SequenceManager::SequenceManager(cond::CoralTransaction& coraldb,
   m_whereData( 0 ),
   m_setClause( std::string("IDVALUE")+" = "+std::string("IDVALUE")+" + 1")
 {
-  m_sequenceTableExists=existSequencesTable();
+  m_sequenceTableExists=m_schema.existsTable(m_sequenceTableName) ;
   m_whereData = new coral::AttributeList; 
   m_whereData->extend<std::string>(std::string("REFTABLE_NAME"));
 }
 cond::SequenceManager::~SequenceManager()
-{
+{  
   delete m_whereData;
 }
 unsigned long long
-cond::SequenceManager::incrementId( const std::string& tableName )
-{
+cond::SequenceManager::incrementId( const std::string& tableName ){
   std::map< std::string, unsigned long long >::iterator iSequence = m_tableToId.find( tableName );
   if ( iSequence == m_tableToId.end() ) {
     // Make sure that the sequence table exists.
@@ -130,6 +129,7 @@ cond::SequenceManager::createSequencesTable()
   description.setNotNullConstraint(std::string("IDVALUE"));
   description.setPrimaryKey( std::vector< std::string >( 1, std::string("REFTABLE_NAME")));
   m_schema.createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  m_sequenceTableExists=true;
 }
 
 bool
