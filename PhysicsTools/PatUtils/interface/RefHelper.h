@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-namespace reco { namespace helper {
+namespace pat { namespace helper {
 /*** \brief A class to help manage references and associative containers in some tricky cases (e.g.  selection by copy)
 */
 template<typename T>
@@ -33,13 +33,13 @@ class RefHelper {
 
         /// Recursively looks up map to find something associated to ref, or one of its parents. 
         /// Throws edm::Exception(edm::errors::InvalidReference) if there's no match
-        template<typename V>
-        const V & recursiveLookup(const Ref &ref, const edm::ValueMap<V> &map) const ;
+        template<typename V, typename SomeRef>
+        V recursiveLookup(const SomeRef &ref, const edm::ValueMap<V> &map) const ;
 
         /// Looks up map to find something associated to the root ancestor of "ref"
         /// Throws edm::Exception(edm::errors::InvalidReference) if there's no match
-        template<typename V>
-        const V & ancestorLookup(const Ref &ref, const edm::ValueMap<V> &map) const ;
+        template<typename V, typename SomeRef>
+        V ancestorLookup(const SomeRef &ref, const edm::ValueMap<V> &map) const ;
 
     private:
         const edm::ValueMap< edm::RefToBase <T> > & backRefMap_;
@@ -64,7 +64,7 @@ typename RefHelper<T>::Ref RefHelper<T>::parentOrNull(const RefHelper<T>::Ref &r
 
 template<typename T>
 typename RefHelper<T>::Ref RefHelper<T>::parentOrSelf(const RefHelper<T>::Ref &ref) const {
-    Ref ret = parentOrNul(ref);
+    Ref ret = parentOrNull(ref);
     return ret.isNonnull() ? ret : ref;
 }
 
@@ -72,9 +72,9 @@ template<typename T>
 typename RefHelper<T>::Ref RefHelper<T>::ancestorOrSelf(const RefHelper<T>::Ref &ref) const {
     Ref ret = ref;
     do {
-        Ref test = parentOrNul(ret);
-        if (test.isNull()) return ref;
-        ref = test;
+        Ref test = parentOrNull(ret);
+        if (test.isNull()) return ret;
+        ret = test;
     } while (true);
 }
 
@@ -100,9 +100,9 @@ bool RefHelper<T>::sharedAncestor(const RefHelper<T>::Ref &ref1, const RefHelper
 }
 
 template<typename T>
-template<typename V>
-const V & RefHelper<T>::recursiveLookup(const RefHelper<T>::Ref &ref, const edm::ValueMap<V> &map) const {
-    Ref test = ref;
+template<typename V, typename SomeRef>
+V RefHelper<T>::recursiveLookup(const SomeRef &ref, const edm::ValueMap<V> &map) const {
+    Ref test(ref);
     do {
         if (map.contains(test.id())) {
             try {
@@ -120,9 +120,10 @@ const V & RefHelper<T>::recursiveLookup(const RefHelper<T>::Ref &ref, const edm:
 }
 
 template<typename T>
-template<typename V>
-const V & RefHelper<T>::ancestorLookup(const RefHelper<T>::Ref &ref, const edm::ValueMap<V> &map) const {
-    return map[ancestorOrSelf(ref)];
+template<typename V, typename SomeRef>
+V RefHelper<T>::ancestorLookup(const SomeRef &ref, const edm::ValueMap<V> &map) const {
+    Ref tref(ref);
+    return map[ancestorOrSelf(tref)];
 }
 
 } } // namespace
