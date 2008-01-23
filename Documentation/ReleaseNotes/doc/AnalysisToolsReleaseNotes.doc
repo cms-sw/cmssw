@@ -1,22 +1,18 @@
 /*!
-\page AnalysisToolsReleaseNotes Analysis Tools Release Notes
+\page AnalysisToolsReleaseNotes Analysis Tools Release Notes - CMSSW_1_8_x
 
 - General:
-  - Data format in release 17X has been updated, and
-    support for data produced with release 16X is not guaranteed. 
 
 - Main changes and new features:
-  - More analysis modules now support edm::View<Candidate> as input
-    type
-  
+
 - Major bug fixes:
-  - Fixed cache problems with interactive access to reco::Candidate 
 
 - Known issues:
-  - Still a number of utilities don't support edm::View. This is
-    be addressed in release 18X and back-ported to 168.
+
+
+
 
 <hr>
-Last updated: @DATE@ Luca Lista
+Last updated: @DATE@ Your name
  
 */

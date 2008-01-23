@@ -1,50 +1,16 @@
 /*!
-\page FrameworkReleaseNotes Framework Release Notes
+\page FrameworkReleaseNotes Framework Release Notes - CMSSW_1_8_x 
 
 - General:
-	This release (1_7_X) contains many internal FW/Edm changes not visible to users.
-There is one important exception to this, listed below.
 
 - Main changes and new features:
-	The various get* calls (for example: getByLabel) will now return an 
-invalid handle if the requested data does not exist in the event.  The return 
-type has also changed to a bool.  It will be set to true if the data exists 
-and the handle is valid and will be set to false if the data is not available.
-This means that it is no longer necessary to protect these calls with try/catch
-block statements and it is strongly recommended that all users move to if/else
-constructs instead.
-	As an example, this code:
 
-  try {
-     evt.getByLabel( EBdigiCollection_, pEBDigis);
-     EBdigis = pEBDigis.product(); // get a ptr to the product
-     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
-   } catch (...) {
-     // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
-   }
-
-	should be changed to
-
-   evt.getByLabel( EBdigiCollection_, pEBDigis);
-   if(pEBDigis.isValid()) {
-     EBdigis = pEBDigis.product(); // get a ptr to the product
-     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
-   } else {
-     // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
-   }
-
-	Such try/catch blocks should be replaced with if/else constructs regardless of whether the catch block
-uses catch(...), catch(cms::Exception), or catch(std::exception).
-   
 - Major bug fixes:
-	edmFastMerge no longer opens many input files at the same time.  
-This fix also went into the later releases of 1_6_X
 
 - Known issues:
-	Nothing known at this time.
 
 
 <hr>
-Last updated: @DATE@ William Tanenbaum
+Last updated: @DATE@ Your name
  
 */
