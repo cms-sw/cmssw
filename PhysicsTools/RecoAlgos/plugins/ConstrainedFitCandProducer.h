@@ -10,6 +10,7 @@
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <vector>
 
 template<typename Fitter,
@@ -23,6 +24,7 @@ public:
 private:
   edm::InputTag src_;
   Fitter fitter_;
+  bool setLongLived_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
 
@@ -37,6 +39,7 @@ private:
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
   src_(cfg.template getParameter<edm::InputTag>("src")),
+  setLongLived_(cfg.template getParameter<bool>("setLongLived")),
   fitter_(reco::modules::make<Fitter>(cfg)) {
   produces<OutputCollection>();
   std::string alias( cfg.getParameter<std::string>("@module_label"));
@@ -75,6 +78,7 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
     std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
     fitter_.set(*clone);
     fitHelper::add(fitted, clone);
+    if(setLongLived_) clone->setLongLived();
   }
   evt.put(fitted);
 }
