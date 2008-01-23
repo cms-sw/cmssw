@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.4 2008/01/22 21:58:16 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.5 2008/01/23 11:32:30 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -258,18 +258,18 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         //get label and module names
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
 
-        for (size_t t = 0; t < jetTags->size(); t++) {
-          edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
-          if (jet_p.isNull()) {
-            /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
-            continue;
-          }
-          if (DeltaR<reco::Candidate>()(*itJet, *jet_p) < 0.00001) {
-            //********store discriminators*********
-            if (addDiscriminators_) {
-	      //look only at the tagger present in tagModuleLabelsToKeep_
-              for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
-                if (moduleLabel == tagModuleLabelsToKeep_[i]) {
+        //look only at the tagger present in tagModuleLabelsToKeep_
+        for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
+          if (moduleLabel == tagModuleLabelsToKeep_[i]) {
+            for (size_t t = 0; t < jetTags->size(); t++) {
+              edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
+              if (jet_p.isNull()) {
+                /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
+                continue;
+              }
+              if (DeltaR<reco::Candidate>()(*itJet, *jet_p) < 0.00001) {
+                //********store discriminators*********
+                if (addDiscriminators_) {
                   std::pair<std::string, float> pairDiscri;
                   pairDiscri.first = moduleLabel;
                   pairDiscri.second = (*jetTags)[t].discriminator();
@@ -277,13 +277,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                   continue;
                 }
               }
-            }
-            //********store jetTagRef*********
-            if (addJetTagRefs_) {
-              std::pair<std::string, reco::JetTagRef> pairjettagref;
-              pairjettagref.first = moduleLabel;
-              pairjettagref.second = reco::JetTagRef(jetTags, t);
-              ajet.addBJetTagRefPair(pairjettagref);
+              //********store jetTagRef*********
+              if (addJetTagRefs_) {
+                std::pair<std::string, reco::JetTagRef> pairjettagref;
+                pairjettagref.first = moduleLabel;
+                pairjettagref.second = reco::JetTagRef(jetTags, t);
+                ajet.addBJetTagRefPair(pairjettagref);
+              }
             }
           }
         }
