@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.3 2008/01/21 01:17:22 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.4 2008/01/21 16:10:09 chrjones Exp $
 //
 
 // system include files
@@ -315,7 +315,21 @@ FWEventItem::size() const
 {
    return m_itemInfos.size();
 }
-   
+
+const TClass* 
+FWEventItem::modelType() const
+{
+   return 0 != m_colProxy.get()? m_colProxy->GetValueClass() : m_type;
+}
+
+const void* 
+FWEventItem::modelData(int iIndex) const
+{
+   const void * data = this->data(*(m_type->GetTypeInfo()));
+   if ( 0 == data) { return data; }
+   return 0 != m_colProxy.get()? m_colProxy->At(iIndex) : data;
+}
+
 //
 // static member functions
 //

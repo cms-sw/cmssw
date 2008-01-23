@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.6 2008/01/22 16:34:09 chrjones Exp $
+// $Id: FWEventItem.h,v 1.7 2008/01/22 20:56:01 chrjones Exp $
 //
 
 // system include files
@@ -97,8 +97,18 @@ class FWEventItem
       const std::string& productInstanceLabel() const;
       const std::string& processName() const;
    
+      const TClass* modelType() const;
       const ModelInfo& modelInfo(int iIndex) const;
       size_t size() const;
+      const void* modelData(int iIndex) const;
+   
+      //convenience methods
+      FWModelChangeManager* changeManager() const {
+         return m_changeManager;
+      }
+      FWSelectionManager* selectionManager() const {
+         return m_selectionManager;
+      }
    
       // ---------- static member functions --------------------
 
