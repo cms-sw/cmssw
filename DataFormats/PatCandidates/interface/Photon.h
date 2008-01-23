@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+// $Id: Photon.h,v 1.1 2008/01/23 15:13:28 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -7,23 +7,27 @@
 
 /**
   \class    Photon Photon.h "DataFormats/PatCandidates/interface/Photon.h"
-  \brief    Analysis-level lepton class
+  \brief    Analysis-level Photon class
 
-   Photon implements the analysis-level charged lepton class within the 'pat'
+   Photon implements the analysis-level photon class within the 'pat'
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+  \version  $Id: Photon.h,v 1.1 2008/01/23 15:13:28 gpetrucc Exp $
 */
+
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
+
 namespace pat {
 
+
   typedef reco::Photon PhotonType;
+
 
   class Photon : public PATObject<PhotonType> {
 
@@ -36,15 +40,15 @@ namespace pat {
 
       const reco::Particle * genPhoton() const;
 
-      void setGenPhoton(const reco::Particle & gl);
+      void setGenPhoton(const reco::Particle & gp);
 
-      float trackIso() const { return trackIso_; }       
-      float caloIso()  const { return caloIso_; }       
-      float photonID() const { return photonID_; }       
+      float trackIso() const { return trackIso_; }
+      float caloIso()  const { return caloIso_; }
+      float photonID() const { return photonID_; }
 
-      void setTrackIso(float trackIso) { trackIso_ = trackIso; }       
-      void setCaloIso(float caloIso)   { caloIso_ = caloIso; }       
-      void setPhotonID(float photonID) { photonID_ = photonID; }       
+      void setTrackIso(float trackIso) { trackIso_ = trackIso; }
+      void setCaloIso(float caloIso)   { caloIso_ = caloIso; }
+      void setPhotonID(float photonID) { photonID_ = photonID; }
 
     protected:
 
@@ -54,7 +58,6 @@ namespace pat {
       float caloIso_;
       float photonID_;
   };
-
 
 
 }

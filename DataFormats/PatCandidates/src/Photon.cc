@@ -1,16 +1,18 @@
+//
+// $Id$
+//
+
 #include "DataFormats/PatCandidates/interface/Photon.h"
+
 
 using pat::Photon;
 
+
 /// default constructor
 Photon::Photon() :
-    PATObject<PhotonType>(PhotonType()),
+    PATObject<PhotonType>(PhotonType(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0, 0, 0), 0, 0, 0)),
     trackIso_(0), caloIso_(0), photonID_(-1.0) 
 {
-    // no common constructor, so initialize the candidate manually
-    setCharge(0);
-    setP4(reco::Particle::LorentzVector(0, 0, 0, 0));
-    setVertex(reco::Particle::Point(0, 0, 0));
 }
 
 
@@ -35,15 +37,14 @@ Photon::~Photon() {
 }
 
 
-/// return the match to the generated lepton
+/// return the match to the generated photon
 const reco::Particle * Photon::genPhoton() const {
-    return (genPhoton_.size() > 0 ? &genPhoton_.front() : 0);
-}
-
-/// method to set the generated lepton
-void Photon::setGenPhoton(const reco::Particle & gl) {
-    genPhoton_.clear();
-    genPhoton_.push_back(gl);
+  return (genPhoton_.size() > 0 ? &genPhoton_.front() : 0);
 }
 
 
+/// method to set the generated photon
+void Photon::setGenPhoton(const reco::Particle & gp) {
+  genPhoton_.clear();
+  genPhoton_.push_back(gp);
+}
