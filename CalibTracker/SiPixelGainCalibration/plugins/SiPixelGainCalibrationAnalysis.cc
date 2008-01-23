@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.4 2007/12/13 11:00:46 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.5 2007/12/20 18:02:31 fblekman Exp $
 //
 //
 
@@ -21,20 +21,26 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "SiPixelGainCalibrationAnalysis.h"
+#include "TLinearFitter.h"
+#include <sstream>
 //
 // constructors and destructor
 //
 SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):
   SiPixelOfflineCalibAnalysisBase(iConfig),
   conf_(iConfig),
+  bookkeeper_(),
+  bookkeeper_pixels_(),
   reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
+  chi2Threshold_(iConfig.getUntrackedParameter<double>("minChi2forHistSave",10)),
+  maxGainInHist_(iConfig.getUntrackedParameter<double>("maxGainInHist",10)),
+  maxChi2InHist_(iConfig.getUntrackedParameter<double>("maxChi2InHist",25)),
   filldb_(iConfig.getUntrackedParameter<bool>("writeDatabase",false)),
   recordName_(conf_.getParameter<std::string>("record")),
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
   theGainCalibrationDbInput_(0),
-  theGainCalibrationDbInputService_(iConfig),
-  bookkeeper_()
+  theGainCalibrationDbInputService_(iConfig)
 {
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
@@ -46,8 +52,7 @@ SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
 // member functions
 //
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup&)
+void SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup&)
 {
 }
 
@@ -58,8 +63,7 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
   // this is where we loop over all histograms and save the database objects
   for(std::map<uint32_t,std::map<std::string, MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
     // now filling stuff
-    std::cout << "now looking at detid " << idet->first << std::endl;
-    
+    //    std::cout << "now looking at detid " << idet->first << std::endl;
   }
   if(filldb_)
     fillDatabase();
@@ -114,70 +118,86 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
 // ------------ method called to do fits to all objects available  ------------
 bool
 SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)
-{std::cout << "looking at Det ID" << detid << ", pixel " << ipix->row() << "," << ipix->col() << std::endl;
-  // inspired by Tony Kelly's analytical fit code
-  double xpoints_mean_sum=0;
-  double xpoints_sqmean_sum=0;
-  double ypoints_mean_sum=0;
-  double ypoints_sqmean_sum=0;
-  double xpoints_mean=0;
-  double xpoints_sqmean=0;
-  double xpoints_meansq=0;
-  double ypoints_mean=0;
-  double ypoints_sqmean=0;
-  double ypoints_meansq=0;
-  //The following variables are for the regression line, defaulted to a horizontal line
-  double slope_numerator=0;
-  double slope_denominator=1;
-  double slope = 0;
-  double intercept=0;
-  double regression_ydenominator=1;
-  // regression is necesary for error calculation but not included yet.
-  //double regression=0;
-  //  double regression_square=0;
-  double npoints_used=0;
-  
-  
+{
+
+  // first, fill the input arrays to the TLinearFitter.
+  double xvals[100];
+  double yvals[100];
+  double yerrvals[100];
+  float xvalsall[200];
+  float yvalsall[200];
+  float yerrvalsall[200];
+  int npoints=0;
   for(uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint){
-    double minrange = 255.*ipix->getnentries(ipoint)*reject_badpoints_frac_;
-    double maxrange = (255*ipix->getnentries(ipoint)) - minrange;
+    float minrange = 255.*ipix->getnentries(ipoint)*reject_badpoints_frac_;
+    float maxrange = (255*ipix->getnentries(ipoint)) - minrange;
+    if(ipoint<200){
+
+      xvalsall[ipoint]=vCalValues_[ipoint];
+      yvalsall[ipoint]=ipix->getsum(ipoint);
+      yerrvalsall[ipoint]=ipix->getsumsquares(ipoint)-pow(ipix->getsum(ipoint),2);
+      if(ipix->getnentries(ipoint)>0){
+	yvalsall[ipoint]/=ipix->getnentries(ipoint);
+	yerrvalsall[ipoint]=sqrt(fabs(yerrvalsall[ipoint]))/pow(ipix->getnentries(ipoint),2);
+      }
+    }
+    else
+      continue;
     if(ipix->getsum(ipoint)<=minrange && reject_badpoints_)
       continue;
     if(ipix->getsum(ipoint)>=maxrange && reject_badpoints_)
        continue;
-    xpoints_mean_sum += vCalValues_[ipoint];
-    ypoints_mean_sum += ipix->getsum(ipoint);
-    xpoints_sqmean_sum += vCalValues_[ipoint]*vCalValues_[ipoint];
-    ypoints_sqmean_sum += ipix->getsum(ipoint)*ipix->getsum(ipoint);
-    npoints_used++;
+    if(npoints>=100)
+      continue;
+    xvals[npoints]=xvalsall[ipoint];
+    yvals[npoints]=yvalsall[ipoint];
+    yerrvals[npoints]=yerrvalsall[ipoint];
+
+    //std::cout << xvals[npoints] << " "<< yvals[npoints] << " " << yerrvals[npoints] << std::endl;
+    npoints++;
+
+    
   }
-  if(npoints_used==0){
+  if(npoints<2){
     return false;
   }
-  xpoints_mean = xpoints_mean_sum/npoints_used;
-  xpoints_sqmean=xpoints_sqmean_sum/npoints_used;
-  xpoints_meansq=xpoints_mean*xpoints_mean;
-  ypoints_mean = ypoints_mean_sum/npoints_used;
-  ypoints_sqmean=ypoints_sqmean_sum/npoints_used;
-  ypoints_meansq=ypoints_mean*ypoints_mean;
+  TLinearFitter fitter(2,"pol1");
+  fitter.AssignData(npoints,2,xvals,yvals,yerrvals);
 
-  for(uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint){ 
-    if(ipix->getsum(ipoint)==0 && reject_badpoints_)
-      continue;
-    if(ipix->getsum(ipoint)>=250*ipix->getnentries(ipoint) && reject_badpoints_)
-      continue;
-    slope_numerator += (vCalValues_[ipoint]-xpoints_mean)*(ipix->getsum(ipoint)-ypoints_mean);
-    slope_denominator += (vCalValues_[ipoint]-xpoints_mean)*(vCalValues_[ipoint]-xpoints_mean);
-    regression_ydenominator += (ipix->getsum(ipoint)-ypoints_mean)*(ipix->getsum(ipoint)-ypoints_mean);
+  // and do the fit:
+  int result = fitter.Eval();
+  if(result==1)
+    return false;
+  // it is also possible to do fitter.EvalRobust(), at which point outlyers are ignored
+  
+  float slope = fitter.GetParameter(1);
+  float intercept = fitter.GetParameter(0);
+  float chi2 = fitter.GetChisquare();
+  chi2/=(float)npoints;
+    
+  bookkeeper_[detid]["gain_1d"]->Fill(slope);
+  bookkeeper_[detid]["gain_2d"]->Fill(ipix->col(),ipix->row(),slope);
+  bookkeeper_[detid]["ped_1d"]->Fill(intercept);
+  bookkeeper_[detid]["ped_2d"]->Fill(ipix->col(),ipix->row(),intercept);
+  bookkeeper_[detid]["chi2_1d"]->Fill(chi2);
+  bookkeeper_[detid]["chi2_2d"]->Fill(ipix->col(),ipix->row(),chi2);
+  //  std::cout << "leaving doFits" << std::endl;
+  
+  if(chi2>chi2Threshold_ && chi2Threshold_>0.){
+    setDQMDirectory(detid);
+    std::ostringstream pixelinfo;
+    pixelinfo << "row_" << ipix->row() << "_col_" << ipix->col();
+    std::string tempname=translateDetIdToString(detid);
+    tempname+="_";
+    tempname+=pixelinfo.str();
+     // and book the histo
+    bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(pixelinfo.str(),tempname,ipix->getnpoints()-1,xvalsall);
+    for(uint32_t ii=0; ii<ipix->getnpoints(); ++ii){
+      bookkeeper_pixels_[detid][pixelinfo.str()]->setBinContent(ii+1,yvalsall[ii]);
+      bookkeeper_pixels_[detid][pixelinfo.str()]->setBinError(ii+1,yerrvalsall[ii]);
+    }
   }
-  slope = slope_numerator/slope_denominator;
-  intercept = ypoints_mean-(slope*xpoints_mean); 
-
-  bookkeeper_[detid]["gain1d"]->Fill(slope);
-  bookkeeper_[detid]["gain2d"]->Fill(ipix->col(),ipix->row(),slope);
-  bookkeeper_[detid]["ped1d"]->Fill(intercept);
-  bookkeeper_[detid]["ped2d"]->Fill(ipix->col(),ipix->row(),intercept);
-  std::cout << "leaving doFits" << std::endl;
+  //  edm::LogInfo("SiPixelGainCalibrationAnalysis") << "looking at Det ID " << detid << " "<< translateDetIdToString(detid) << ", pixel " << ipix->row() << " , " << ipix->col() << " gain= " << slope << ", pedestal= " << intercept << " chi2/NDOF= " << chi2 << " fit result value " << result << std::endl;
   return true;
 }
 // ------------ method called to do fill new detids  ------------
@@ -187,10 +207,12 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
   //std::cout << "creating new histograms..."<< tempname << std::endl;
-  bookkeeper_[detid]["gain1d"] = bookDQMHistogram1D("gain1d_"+tempname,"gain for "+tempname,100,0.,100.);
-  bookkeeper_[detid]["gain2d"] = bookDQMHistoPlaquetteSummary2D("gain2d_"+tempname,"gain for "+tempname,detid);
-  bookkeeper_[detid]["ped1d"] = bookDQMHistogram1D("pedestal1d_"+tempname,"pedestal for "+tempname,256,0.,256.);
-  bookkeeper_[detid]["ped2d"] = bookDQMHistoPlaquetteSummary2D("pedestal2d_"+tempname,"pedestal for "+tempname,detid);
+  bookkeeper_[detid]["gain_1d"] = bookDQMHistogram1D("gain_1d_"+tempname,"gain for "+tempname,100,0.,maxGainInHist_);
+  bookkeeper_[detid]["gain_2d"] = bookDQMHistoPlaquetteSummary2D("gain_2d_"+tempname,"gain for "+tempname,detid);
+  bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D("pedestal_1d_"+tempname,"pedestal for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["ped_2d"] = bookDQMHistoPlaquetteSummary2D("pedestal_2d_"+tempname,"pedestal for "+tempname,detid);
+  bookkeeper_[detid]["chi2_1d"] = bookDQMHistogram1D("chi2_1d_"+tempname,"#chi^{2}/NDOF for "+tempname,100,0.,maxChi2InHist_);
+  bookkeeper_[detid]["chi2_2d"] = bookDQMHistoPlaquetteSummary2D("chi2_2d_"+tempname,"#chi^{2}/NDOF for "+tempname,detid);
 
   //std::cout << "leaving new detid" << std::endl;
 }

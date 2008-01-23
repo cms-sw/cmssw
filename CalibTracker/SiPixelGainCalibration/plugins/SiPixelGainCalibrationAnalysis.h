@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.3 2007/12/06 17:30:23 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.4 2007/12/13 11:00:46 fblekman Exp $
 //
 //
 
@@ -57,10 +57,14 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_;
+  std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_pixels_;
 
   // flags
   bool reject_badpoints_;
   double reject_badpoints_frac_;
+  double chi2Threshold_;
+  double maxGainInHist_;
+  double maxChi2InHist_;
   bool filldb_;
   
   // parameters for database output  
