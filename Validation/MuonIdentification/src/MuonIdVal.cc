@@ -292,37 +292,37 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hNumMatches->Fill(muon->numberOfMatches());
 
       if (muon->isCaloCompatibilityValid())
-         hCaloCompat->Fill(muon->getCaloCompatibility());
+         hCaloCompat->Fill(muon->caloCompatibility());
 
       if (muon->isEnergyValid()) {
          //EM
          if (fabs(muon->track().get()->eta()) > 1.479)
-            hEnergyEMEndcap->Fill(muon->getCalEnergy().em);
+            hEnergyEMEndcap->Fill(muon->calEnergy().em);
          else
-            hEnergyEMBarrel->Fill(muon->getCalEnergy().em);
+            hEnergyEMBarrel->Fill(muon->calEnergy().em);
          //HAD
          if (fabs(muon->track().get()->eta()) > 1.4)
-            hEnergyHAEndcap->Fill(muon->getCalEnergy().had);
+            hEnergyHAEndcap->Fill(muon->calEnergy().had);
          else
-            hEnergyHABarrel->Fill(muon->getCalEnergy().had);
+            hEnergyHABarrel->Fill(muon->calEnergy().had);
          //HO
          if (fabs(muon->track().get()->eta()) < 1.26)
-            hEnergyHO->Fill(muon->getCalEnergy().ho);
+            hEnergyHO->Fill(muon->calEnergy().ho);
       }
 
       if (muon->isIsolationValid()) {
-         hIso03sumPt->Fill(muon->getIsolationR03().sumPt);
-         hIso03emEt->Fill(muon->getIsolationR03().emEt);
-         hIso03hadEt->Fill(muon->getIsolationR03().hadEt);
-         hIso03hoEt->Fill(muon->getIsolationR03().hoEt);
-         hIso03nTracks->Fill(muon->getIsolationR03().nTracks);
-         hIso03nJets->Fill(muon->getIsolationR03().nJets);
-         hIso05sumPt->Fill(muon->getIsolationR05().sumPt);
-         hIso05emEt->Fill(muon->getIsolationR05().emEt);
-         hIso05hadEt->Fill(muon->getIsolationR05().hadEt);
-         hIso05hoEt->Fill(muon->getIsolationR05().hoEt);
-         hIso05nTracks->Fill(muon->getIsolationR05().nTracks);
-         hIso05nJets->Fill(muon->getIsolationR05().nJets);
+         hIso03sumPt->Fill(muon->isolationR03().sumPt);
+         hIso03emEt->Fill(muon->isolationR03().emEt);
+         hIso03hadEt->Fill(muon->isolationR03().hadEt);
+         hIso03hoEt->Fill(muon->isolationR03().hoEt);
+         hIso03nTracks->Fill(muon->isolationR03().nTracks);
+         hIso03nJets->Fill(muon->isolationR03().nJets);
+         hIso05sumPt->Fill(muon->isolationR05().sumPt);
+         hIso05emEt->Fill(muon->isolationR05().emEt);
+         hIso05hadEt->Fill(muon->isolationR05().hadEt);
+         hIso05hoEt->Fill(muon->isolationR05().hoEt);
+         hIso05nTracks->Fill(muon->isolationR05().nTracks);
+         hIso05nJets->Fill(muon->isolationR05().nJets);
       }
 
       if (muon->isMatchesValid()) {
@@ -363,8 +363,8 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          std::vector<std::pair<const MuonChamberMatch*,const MuonChamberMatch*> > me11_pairs;
          std::map<double,const MuonChamberMatch*> me11_map;
 
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->getMatches().begin();
-               chamberMatch != muon->getMatches().end(); ++chamberMatch)
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
+               chamberMatch != muon->matches().end(); ++chamberMatch)
          {
             double distance = chamberMatch->dist();
             double error    = chamberMatch->distErr();
@@ -497,8 +497,8 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          if (! (muon->isTrackerMuon() && muon->isMatchesValid()))
             continue;
 
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->getMatches().begin();
-               chamberMatch != muon->getMatches().end(); ++chamberMatch) {
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
+               chamberMatch != muon->matches().end(); ++chamberMatch) {
             for(std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
                   segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch)
             {
@@ -548,8 +548,8 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          if (! (muon->isTrackerMuon() && muon->isMatchesValid()))
             continue;
 
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->getMatches().begin();
-               chamberMatch != muon->getMatches().end(); ++chamberMatch) {
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
+               chamberMatch != muon->matches().end(); ++chamberMatch) {
             for(std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
                   segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch)
             {
