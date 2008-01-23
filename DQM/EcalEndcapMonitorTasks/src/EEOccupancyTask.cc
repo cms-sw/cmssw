@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/22 21:50:59 $
- * $Revision: 1.23 $
+ * $Date: 2008/01/22 22:10:42 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -54,17 +54,26 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
     meOccupancyMem_[i] = 0;
   }
 
-  meEEDigiOccupancy_ = 0;
-  meEEDigiOccupancyProjX_ = 0;
-  meEEDigiOccupancyProjY_ = 0;
+  meEEDigiOccupancy_[0] = 0;
+  meEEDigiOccupancyProjX_[0] = 0;
+  meEEDigiOccupancyProjY_[0] = 0;
+  meEEDigiOccupancy_[1] = 0;
+  meEEDigiOccupancyProjX_[1] = 0;
+  meEEDigiOccupancyProjY_[1] = 0;
 
-  meEERecHitOccupancy_ = 0;
-  meEERecHitOccupancyProjX_ = 0;
-  meEERecHitOccupancyProjY_ = 0;
+  meEERecHitOccupancy_[0] = 0;
+  meEERecHitOccupancyProjX_[0] = 0;
+  meEERecHitOccupancyProjY_[0] = 0;
+  meEERecHitOccupancy_[1] = 0;
+  meEERecHitOccupancyProjX_[1] = 0;
+  meEERecHitOccupancyProjY_[1] = 0;
 
-  meEETrigPrimDigiOccupancy_ = 0;
-  meEETrigPrimDigiOccupancyProjX_ = 0;
-  meEETrigPrimDigiOccupancyProjY_ = 0;
+  meEETrigPrimDigiOccupancy_[0] = 0;
+  meEETrigPrimDigiOccupancyProjX_[0] = 0;
+  meEETrigPrimDigiOccupancyProjY_[0] = 0;
+  meEETrigPrimDigiOccupancy_[1] = 0;
+  meEETrigPrimDigiOccupancyProjX_[1] = 0;
+  meEETrigPrimDigiOccupancyProjY_[1] = 0;
 
 }
 
@@ -109,44 +118,83 @@ void EEOccupancyTask::setup(void){
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
-    sprintf(histo, "EEOT EE digi occupancy");
-    meEEDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEEDigiOccupancy_->setAxisTitle("jx", 1);
-    meEEDigiOccupancy_->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT EE digi occupancy projection x");
-    meEEDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEEDigiOccupancyProjX_->setAxisTitle("jx", 1);
-    meEEDigiOccupancyProjX_->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EEOT EE digi occupancy projection y");
-    meEEDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEEDigiOccupancyProjY_->setAxisTitle("jy", 1);
-    meEEDigiOccupancyProjY_->setAxisTitle("number of digis", 2);
+    sprintf(histo, "EEOT digi occupancy EE -");
+    meEEDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEEDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEEDigiOccupancy_[0]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT digi occupancy EE - projection x");
+    meEEDigiOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjX_[0]->setAxisTitle("jx", 1);
+    meEEDigiOccupancyProjX_[0]->setAxisTitle("number of digis", 2);
+    sprintf(histo, "EEOT digi occupancy EE - projection y");
+    meEEDigiOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjY_[0]->setAxisTitle("jy", 1);
+    meEEDigiOccupancyProjY_[0]->setAxisTitle("number of digis", 2);
 
-    sprintf(histo, "EEOT EE rec hit occupancy");
-    meEERecHitOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEERecHitOccupancy_->setAxisTitle("jx", 1);
-    meEERecHitOccupancy_->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT EE rec hit occupancy projection x");
-    meEERecHitOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEERecHitOccupancyProjX_->setAxisTitle("jx", 1);
-    meEERecHitOccupancyProjX_->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT EE rec hit occupancy projection y");
-    meEERecHitOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEERecHitOccupancyProjY_->setAxisTitle("jy", 1);
-    meEERecHitOccupancyProjY_->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT digi occupancy EE +");
+    meEEDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEEDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEEDigiOccupancy_[1]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT digi occupancy EE + projection x");
+    meEEDigiOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjX_[1]->setAxisTitle("jx", 1);
+    meEEDigiOccupancyProjX_[1]->setAxisTitle("number of digis", 2);
+    sprintf(histo, "EEOT digi occupancy EE + projection y");
+    meEEDigiOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEEDigiOccupancyProjY_[1]->setAxisTitle("jy", 1);
+    meEEDigiOccupancyProjY_[1]->setAxisTitle("number of digis", 2);
 
-    sprintf(histo, "EEOT EE trigger primitives digi occupancy");
-    meEETrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEETrigPrimDigiOccupancy_->setAxisTitle("jx", 1);
-    meEETrigPrimDigiOccupancy_->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT EE trigger primitives digi occupancy projection x");
-    meEETrigPrimDigiOccupancyProjX_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEETrigPrimDigiOccupancyProjX_->setAxisTitle("jx", 1);
-    meEETrigPrimDigiOccupancyProjX_->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT EE trigger primitives digi occupancy projection y");
-    meEETrigPrimDigiOccupancyProjY_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-    meEETrigPrimDigiOccupancyProjY_->setAxisTitle("jy", 1);
-    meEETrigPrimDigiOccupancyProjY_->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE -");
+    meEERecHitOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEERecHitOccupancy_[0]->setAxisTitle("jx", 1);
+    meEERecHitOccupancy_[0]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE - projection x");
+    meEERecHitOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjX_[0]->setAxisTitle("jx", 1);
+    meEERecHitOccupancyProjX_[0]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE - projection y");
+    meEERecHitOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjY_[0]->setAxisTitle("jy", 1);
+    meEERecHitOccupancyProjY_[0]->setAxisTitle("number of hits", 2);
+
+    sprintf(histo, "EEOT rec hit occupancy EE +");
+    meEERecHitOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEERecHitOccupancy_[1]->setAxisTitle("jx", 1);
+    meEERecHitOccupancy_[1]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE + projection x");
+    meEERecHitOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjX_[1]->setAxisTitle("jx", 1);
+    meEERecHitOccupancyProjX_[1]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE + projection y");
+    meEERecHitOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEERecHitOccupancyProjY_[1]->setAxisTitle("jy", 1);
+    meEERecHitOccupancyProjY_[1]->setAxisTitle("number of hits", 2);
+
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE -");
+    meEETrigPrimDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE - projection x");
+    meEETrigPrimDigiOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjX_[0]->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancyProjX_[0]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE - projection y");
+    meEETrigPrimDigiOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjY_[0]->setAxisTitle("jy", 1);
+    meEETrigPrimDigiOccupancyProjY_[0]->setAxisTitle("number of TP digis", 2);
+
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE +");
+    meEETrigPrimDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jy", 2);
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE + projection x");
+    meEETrigPrimDigiOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjX_[1]->setAxisTitle("jx", 1);
+    meEETrigPrimDigiOccupancyProjX_[1]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT trigger primitives digi occupancy EE + projection y");
+    meEETrigPrimDigiOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meEETrigPrimDigiOccupancyProjY_[1]->setAxisTitle("jy", 1);
+    meEETrigPrimDigiOccupancyProjY_[1]->setAxisTitle("number of TP digis", 2);
 
   }
 
@@ -166,26 +214,47 @@ void EEOccupancyTask::cleanup(void){
       meOccupancyMem_[i] = 0;
     }
 
-    if ( meEEDigiOccupancy_ ) dbe_->removeElement( meEEDigiOccupancy_->getName() );
-    meEEDigiOccupancy_ = 0;
-    if ( meEEDigiOccupancyProjX_ ) dbe_->removeElement( meEEDigiOccupancyProjX_->getName() );
-    meEEDigiOccupancyProjX_ = 0;
-    if ( meEEDigiOccupancyProjY_ ) dbe_->removeElement( meEEDigiOccupancyProjY_->getName() );
-    meEEDigiOccupancyProjY_ = 0;
+    if ( meEEDigiOccupancy_[0] ) dbe_->removeElement( meEEDigiOccupancy_[0]->getName() );
+    meEEDigiOccupancy_[0] = 0;
+    if ( meEEDigiOccupancyProjX_[0] ) dbe_->removeElement( meEEDigiOccupancyProjX_[0]->getName() );
+    meEEDigiOccupancyProjX_[0] = 0;
+    if ( meEEDigiOccupancyProjY_[0] ) dbe_->removeElement( meEEDigiOccupancyProjY_[0]->getName() );
+    meEEDigiOccupancyProjY_[0] = 0;
 
-    if ( meEERecHitOccupancy_ ) dbe_->removeElement( meEERecHitOccupancy_->getName() );
-    meEERecHitOccupancy_ = 0;
-    if ( meEERecHitOccupancyProjX_ ) dbe_->removeElement( meEERecHitOccupancyProjX_->getName() );
-    meEERecHitOccupancyProjX_ = 0;
-    if ( meEERecHitOccupancyProjY_ ) dbe_->removeElement( meEERecHitOccupancyProjY_->getName() );
-    meEERecHitOccupancyProjY_ = 0;
+    if ( meEEDigiOccupancy_[1] ) dbe_->removeElement( meEEDigiOccupancy_[1]->getName() );
+    meEEDigiOccupancy_[1] = 0;
+    if ( meEEDigiOccupancyProjX_[1] ) dbe_->removeElement( meEEDigiOccupancyProjX_[1]->getName() );
+    meEEDigiOccupancyProjX_[1] = 0;
+    if ( meEEDigiOccupancyProjY_[1] ) dbe_->removeElement( meEEDigiOccupancyProjY_[1]->getName() );
+    meEEDigiOccupancyProjY_[1] = 0;
 
-    if ( meEETrigPrimDigiOccupancy_ ) dbe_->removeElement( meEETrigPrimDigiOccupancy_->getName() );
-    meEETrigPrimDigiOccupancy_ = 0;
-    if ( meEETrigPrimDigiOccupancyProjX_ ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjX_->getName() );
-    meEETrigPrimDigiOccupancyProjX_ = 0;
-    if ( meEETrigPrimDigiOccupancyProjY_ ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjY_->getName() );
-    meEETrigPrimDigiOccupancyProjY_ = 0;
+    if ( meEERecHitOccupancy_[0] ) dbe_->removeElement( meEERecHitOccupancy_[0]->getName() );
+    meEERecHitOccupancy_[0] = 0;
+    if ( meEERecHitOccupancyProjX_[0] ) dbe_->removeElement( meEERecHitOccupancyProjX_[0]->getName() );
+    meEERecHitOccupancyProjX_[0] = 0;
+    if ( meEERecHitOccupancyProjY_[0] ) dbe_->removeElement( meEERecHitOccupancyProjY_[0]->getName() );
+    meEERecHitOccupancyProjY_[0] = 0;
+
+    if ( meEERecHitOccupancy_[1] ) dbe_->removeElement( meEERecHitOccupancy_[1]->getName() );
+    meEERecHitOccupancy_[1] = 0;
+    if ( meEERecHitOccupancyProjX_[1] ) dbe_->removeElement( meEERecHitOccupancyProjX_[1]->getName() );
+    meEERecHitOccupancyProjX_[1] = 0;
+    if ( meEERecHitOccupancyProjY_[1] ) dbe_->removeElement( meEERecHitOccupancyProjY_[1]->getName() );
+    meEERecHitOccupancyProjY_[1] = 0;
+
+    if ( meEETrigPrimDigiOccupancy_[0] ) dbe_->removeElement( meEETrigPrimDigiOccupancy_[0]->getName() );
+    meEETrigPrimDigiOccupancy_[0] = 0;
+    if ( meEETrigPrimDigiOccupancyProjX_[0] ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjX_[0]->getName() );
+    meEETrigPrimDigiOccupancyProjX_[0] = 0;
+    if ( meEETrigPrimDigiOccupancyProjY_[0] ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjY_[0]->getName() );
+    meEETrigPrimDigiOccupancyProjY_[0] = 0;
+
+    if ( meEETrigPrimDigiOccupancy_[1] ) dbe_->removeElement( meEETrigPrimDigiOccupancy_[1]->getName() );
+    meEETrigPrimDigiOccupancy_[1] = 0;
+    if ( meEETrigPrimDigiOccupancyProjX_[1] ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjX_[1]->getName() );
+    meEETrigPrimDigiOccupancyProjX_[1] = 0;
+    if ( meEETrigPrimDigiOccupancyProjY_[1] ) dbe_->removeElement( meEETrigPrimDigiOccupancyProjY_[1]->getName() );
+    meEETrigPrimDigiOccupancyProjY_[1] = 0;
 
   }
 
@@ -243,9 +312,17 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int eex = id.ix();
       int eey = id.iy();
 
-      if ( meEEDigiOccupancy_ ) meEEDigiOccupancy_->Fill( eex, eey );
-      if ( meEEDigiOccupancyProjX_ ) meEEDigiOccupancyProjX_->Fill( eex );
-      if ( meEEDigiOccupancyProjY_ ) meEEDigiOccupancyProjY_->Fill( eey );
+      if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
+
+      if ( ism >=1 && ism <= 9 ) {
+        if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( eex, eey );
+        if ( meEEDigiOccupancyProjX_[0] ) meEEDigiOccupancyProjX_[0]->Fill( eex );
+        if ( meEEDigiOccupancyProjY_[0] ) meEEDigiOccupancyProjY_[0]->Fill( eey );
+      } else {
+        if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( eex, eey );
+        if ( meEEDigiOccupancyProjX_[1] ) meEEDigiOccupancyProjX_[1]->Fill( eex );
+        if ( meEEDigiOccupancyProjY_[1] ) meEEDigiOccupancyProjY_[1]->Fill( eey );
+      }
 
     }
 
@@ -305,9 +382,19 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int eex = id.ix();
       int eey = id.iy();
 
-      if ( meEERecHitOccupancy_ ) meEERecHitOccupancy_->Fill( eex, eey );
-      if ( meEERecHitOccupancyProjX_ ) meEERecHitOccupancyProjX_->Fill( eex );
-      if ( meEERecHitOccupancyProjY_ ) meEERecHitOccupancyProjY_->Fill( eey );
+      int ism = Numbers::iSM( id );
+
+      if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
+
+      if ( ism >= 1 && ism <= 9 ) {
+        if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( eex, eey );
+        if ( meEERecHitOccupancyProjX_[0] ) meEERecHitOccupancyProjX_[0]->Fill( eex );
+        if ( meEERecHitOccupancyProjY_[0] ) meEERecHitOccupancyProjY_[0]->Fill( eey );
+      } else {
+        if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( eex, eey );
+        if ( meEERecHitOccupancyProjX_[1] ) meEERecHitOccupancyProjX_[1]->Fill( eex );
+        if ( meEERecHitOccupancyProjY_[1] ) meEERecHitOccupancyProjY_[1]->Fill( eey );
+      }
 
     }
 
@@ -324,8 +411,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
     int nebtpg = trigPrimDigis->size();
     LogDebug("EEOccupancyTask") << "event " << ievt_ << " trigger primitives digis collection size " << nebtpg;
 
-    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); 
-	  tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
       EcalTriggerPrimitiveDigi data = (*tpdigiItr);
       EcalTrigTowerDetId idt = data.id();
@@ -337,18 +423,26 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       vector<DetId> crystals = Numbers::crystals( idt );
       
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
-	
-	EEDetId id = crystals[i];
-	
-	int ix = id.ix();
-	int iy = id.iy();
-	
-	if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+        
+      EEDetId id = crystals[i];
+        
+      int eex = id.ix();
+      int eey = id.iy();
+        
+      if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
 
-	if ( meEETrigPrimDigiOccupancy_ ) meEETrigPrimDigiOccupancy_->Fill( ix, iy );
-	if ( meEETrigPrimDigiOccupancyProjX_ ) meEETrigPrimDigiOccupancyProjX_->Fill( ix );
-	if ( meEETrigPrimDigiOccupancyProjY_ ) meEETrigPrimDigiOccupancyProjY_->Fill( iy );
+      if ( ismt >= 1 && ismt <= 9 ) {
+        if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( eex, eey );
+        if ( meEETrigPrimDigiOccupancyProjX_[0] ) meEETrigPrimDigiOccupancyProjX_[0]->Fill( eex );
+        if ( meEETrigPrimDigiOccupancyProjY_[0] ) meEETrigPrimDigiOccupancyProjY_[0]->Fill( eey );
+      } else {
+        if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( eex, eey );
+        if ( meEETrigPrimDigiOccupancyProjX_[1] ) meEETrigPrimDigiOccupancyProjX_[1]->Fill( eex );
+        if ( meEETrigPrimDigiOccupancyProjY_[1] ) meEETrigPrimDigiOccupancyProjY_[1]->Fill( eey );
       }
+
+      }
+
     }
 
   } else {

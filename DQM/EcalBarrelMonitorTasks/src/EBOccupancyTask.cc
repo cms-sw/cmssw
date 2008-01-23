@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/22 21:50:56 $
- * $Revision: 1.38 $
+ * $Date: 2008/01/22 22:10:39 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -323,8 +323,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
     int nebtpg = trigPrimDigis->size();
     LogDebug("EBOccupancyTask") << "event " << ievt_ << " trigger primitives digis collection size " << nebtpg;
 
-    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); 
-	  tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
       EcalTriggerPrimitiveDigi data = (*tpdigiItr);
       EcalTrigTowerDetId idt = data.id();
