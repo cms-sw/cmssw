@@ -1,13 +1,5 @@
 #include "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
 
-#include <DataFormats/TauReco/interface/Tau.h>
-/* > 1.8.X functionality
-#include <DataFormats/TauReco/interface/PFTau.h>
-#include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
-#include <DataFormats/TauReco/interface/CaloTau.h>
-#include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
-*/
-
 
 template<typename TauIn, typename TauOut, typename TauTag>
 pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet & iConfig) :
@@ -45,12 +37,12 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
     TauInRef      srcRef = helper_.srcRefAt(idx).template castTo<TauInRef>();
 
     // perform the selection
-    if (!(*TauIsolator)[srcRef]) continue; // now there is no real selection for muons
+    if (!(*TauIsolator)[srcRef]) continue; // simple selection
 
     // clone the tau and convert it to the new type
     TauOut ourTau = static_cast<TauOut>(srcTau);
 
-    // write the muon
+    // write the tau
     helper_.addItem(idx, ourTau);
   }
 
