@@ -8,10 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.1 2008/01/21 01:17:41 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.2 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -74,23 +76,23 @@ void
 FWModelChangeManager::endChanges()
 {
    assert(m_depth !=0);
-   bool sawChange= false;
+   //makes sure that 'changeSignalsAreDone is called if changeSignalsAreComing_ is sent
+   boost::shared_ptr<void> guard;
    if(0 == --m_depth) {
       std::vector<FWModelChangeSignal>::iterator itSignal = m_changeSignals.begin();
       for(std::vector<FWModelIds>::iterator itChanges = m_changes.begin();
           itChanges != m_changes.end();
           ++itChanges,++itSignal) {
          if(not itChanges->empty()) {
-            if( not sawChange) {
+            if(0 == guard.get()) {
+               boost::shared_ptr<sigc::signal<void> > done(&changeSignalsAreDone_,
+                                                            boost::mem_fn(&sigc::signal<void>::operator()));
+               guard = done;
                changeSignalsAreComing_();
-               sawChange = true;
             }
             (*itSignal)(*itChanges);
             itChanges->clear();
          }
-      }
-      if(sawChange) {
-         changeSignalsAreDone_();
       }
    }
 }
