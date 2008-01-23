@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.2 2008/01/22 21:08:54 chrjones Exp $
 //
 
 // system include files
@@ -90,6 +90,10 @@ changeElementAndChildren(TEveElement* iElement,
                          const FWEventItem::ModelInfo& iInfo)
 {
    iElement->SetMainColor(iInfo.displayProperties().color());
+   //for now, if selected make the item white
+   if(iInfo.isSelected()) {
+      iElement->SetMainColor(static_cast<Color_t>(kWhite));
+   }
 
    for(TEveElement::List_i itElement = iElement->BeginChildren(),
        itEnd = iElement->EndChildren();
