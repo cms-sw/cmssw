@@ -52,7 +52,14 @@ global/highlevel reconstruction does not really reflect functional aspects):
 
 - <b> localreco =  {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">trackerlocalreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonSystemReco#DefSeq">muonlocalreco</a>, calolocalreco}</b>
  - Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. 
-   It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
+ - \b trackerlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalTracker/Configuration/data/RecoLocalTracker.cff">RecoLocalTracker/Configuration/data/RecoLocalTracker.cff</a> and includes
+   - <b> trackerlocalreco =  {pixeltrackerlocalreco, striptrackerlocalreco}</b>
+   - <b> pixeltrackerlocalreco = {siPixelClusters, siPixelRecHits}</b>
+   - <b> striptrackerlocalreco = {siStripZeroSuppression, siStripClusters, siStripMatchedRecHits}</b>
+ - \b muonlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalMuon/Configuration/data/RecoLocalMuon.cff">RecoLocalMuon/Configuration/data/RecoLocalMuon.cff</a> and includes 
+   - <b> muonlocalreco = {dtlocalreco & csclocalreco & rpcRecHits} </b>
+ - \calolocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalCalo/Configuration/data/RecoLocalCalo.cff">RecoLocalCalo/Configuration/data/RecoLocalCalo.cff</a> and includes
+   - <b> calolocalreco = {ecalLocalRecoSequence & hcalLocalRecoSequence} </b>
 - <b> globalreco = {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">ckftracks</a>,  <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonReco#DefSeq">muonreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalClusters</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">caloTowersRec</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoGenJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">metreco</a>}</b>
  - Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only 
    CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), 
