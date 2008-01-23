@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+// $Id: Tau.h,v 1.5 2008/01/23 11:18:21 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -12,21 +12,18 @@
    Tau implements the analysis-level tau class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Tau.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+  \version  $Id: Tau.h,v 1.5 2008/01/23 11:18:21 gpetrucc Exp $
 */
 
-/* old 16X #include "DataFormats/TauReco/interface/Tau.h" */
-/* > 1.8.X functionality: #include "DataFormats/TauReco/interface/BaseTau.h" */
-#include "DataFormats/TauReco/interface/PFTau.h" 
+
+#include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
 namespace pat {
 
 
-  /* old 16X typedef reco::Tau TauType;  */
-  /* > 1.8.X typedef reco::BaseTau TauType; */
-  typedef reco::PFTau TauType; 
+  typedef reco::BaseTau TauType;
 
 
   class Tau : public Lepton<TauType> {
