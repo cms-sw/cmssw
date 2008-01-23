@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.11 2008/01/10 17:35:22 wmtan Exp $
+$Id: Principal.h,v 1.12 2008/01/17 05:14:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -138,11 +138,8 @@ namespace edm {
     // *this takes ownership of the Group, which in turn owns its
     // data.
     void addGroup_(std::auto_ptr<Group> g);
-    Group const*  getExistingGroup(Group const& g) const;
+    Group*  getExistingGroup(Group const& g);
     void replaceGroup(std::auto_ptr<Group> g);
-
-  private:
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
 
     // We need a custom iterator to skip non-existent groups.
     class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
@@ -174,6 +171,9 @@ namespace edm {
     }
 
     const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
+
+  private:
+    virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
 
     SharedConstGroupPtr const getGroup(ProductID const& oid,
                                        bool resolveProd,

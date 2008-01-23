@@ -6,7 +6,7 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.11 2007/10/22 19:45:43 chrjones Exp $
+$Id: EDProduct.h,v 1.12 2007/11/06 20:15:50 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,7 +34,12 @@ namespace edm {
     void fillPtrVector(const std::type_info& iToType,
                           const std::vector<unsigned long>& iIndicies,
                           std::vector<void const*>& oPtr) const;
-    
+
+    virtual bool isMergeable() { return true; }
+    virtual bool mergeProduct(EDProduct* newProduct) { return true; }
+    virtual bool hasIsProductEqual() { return true; }
+    virtual bool isProductEqual(EDProduct* newProduct) { return true; }
+
   private:
     // This will never be called.
     // For technical ROOT related reasons, we cannot
