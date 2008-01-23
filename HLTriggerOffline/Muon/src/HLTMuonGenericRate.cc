@@ -171,16 +171,20 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 	if (useMuonFromGenerator){
 	  pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt );
 	  LogDebug("HLTMuonVal")<<"Filling L1 histos....";
-	  hL1etaMC->Fill(angularInfo.first);
-	  hL1phiMC->Fill(angularInfo.second);
-	  LogDebug("HLTMuonVal")<<"Filling done";
+	  if ( angularInfo.first < 999.){
+	    hL1etaMC->Fill(angularInfo.first);
+	    hL1phiMC->Fill(angularInfo.second);
+	    LogDebug("HLTMuonVal")<<"Filling done";
+	  }
 	}
 	if (useMuonFromReco){
 	  pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks );
 	  LogDebug("HLTMuonVal")<<"Filling L1 histos....";
-	  hL1etaRECO->Fill(angularInfo.first);
-	  hL1phiRECO->Fill(angularInfo.second);
-	  LogDebug("HLTMuonVal")<<"Filling done";
+	  if ( angularInfo.first < 999.){
+	    hL1etaRECO->Fill(angularInfo.first);
+	    hL1phiRECO->Fill(angularInfo.second);
+	    LogDebug("HLTMuonVal")<<"Filling done";
+	  }
 	}
     }
   }
@@ -235,17 +239,21 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 		    hHLTpt[i]->Fill(pt);
 		    if (useMuonFromGenerator){
 		      pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt );
-		      LogDebug("HLTMuonVal")<<"Filling HLT histos for MC ["<<i<<"]........";
-		      hHLTetaMC[i]->Fill(angularInfo.first);
-		      hHLTphiMC[i]->Fill(angularInfo.second);
-		      LogDebug("HLTMuonVal")<<"Filling done";
+		      if ( angularInfo.first < 999.){
+			LogDebug("HLTMuonVal")<<"Filling HLT histos for MC ["<<i<<"]........";
+			hHLTetaMC[i]->Fill(angularInfo.first);
+			hHLTphiMC[i]->Fill(angularInfo.second);
+			LogDebug("HLTMuonVal")<<"Filling done";
+		      }
 		    }
 		    if (useMuonFromReco){
 		      pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks );
-		      LogDebug("HLTMuonVal")<<"Filling HLT histos for RECO....["<<i<<"]........";
-		      hHLTetaRECO[i]->Fill(angularInfo.first);
-		      hHLTphiRECO[i]->Fill(angularInfo.second);
-		      LogDebug("HLTMuonVal")<<"Filling done";
+		      if ( angularInfo.first < 999.){
+			LogDebug("HLTMuonVal")<<"Filling HLT histos for RECO....["<<i<<"]........";
+			hHLTetaRECO[i]->Fill(angularInfo.first);
+			hHLTphiRECO[i]->Fill(angularInfo.second);
+			LogDebug("HLTMuonVal")<<"Filling done";
+		      }
 		    }
 		  }
                   double err0 = tk->error(0);
@@ -268,7 +276,7 @@ pair<double,double> HLTMuonGenericRate::getGenAngle(double eta, double phi, HepM
 {
 
   LogDebug("HLTMuonVal")<< "in getGenAngle";
-  double candDeltaR = 999.0;
+  double candDeltaR = 0.3;
   HepMC::GenEvent::particle_const_iterator part;
   HepMC::GenEvent::particle_const_iterator theAssociatedpart=evt.particles_end();
   pair<double,double> angle(999.,999.);
@@ -295,7 +303,7 @@ pair<double,double> HLTMuonGenericRate::getRecoAngle(double eta, double phi, rec
 {
 
   LogDebug("HLTMuonVal")<< "in getRecoAngle";
-  double candDeltaR = 999.0;
+  double candDeltaR = 0.3;
   reco::TrackCollection::const_iterator muon;
   reco::TrackCollection::const_iterator theAssociatedpart=muTracks.end();
   pair<double,double> angle(999.,999.);
@@ -341,21 +349,21 @@ void HLTMuonGenericRate::WriteHistograms(){
   hL1pt->GetXaxis()->SetTitle("Muon Pt (GeV)");
   hL1pt->Write();
   if (useMuonFromGenerator){
-    hL1etaMC->GetXaxis()->SetTitle("Muon eta");
+    hL1etaMC->GetXaxis()->SetTitle("Muon #eta");
     hL1etaMC->Write();
-    hL1phiMC->GetXaxis()->SetTitle("Muon phi");
+    hL1phiMC->GetXaxis()->SetTitle("Muon #phi");
     hL1phiMC->Write();
-    hMCetanor->GetXaxis()->SetTitle("Gen Muon Eta");
+    hMCetanor->GetXaxis()->SetTitle("Gen Muon #Eta");
     hMCetanor->Write();
     hMCphinor->GetXaxis()->SetTitle("Gen Muon Phi ");
     hMCphinor->Write();
   }
   if (useMuonFromReco){
-    hL1etaRECO->GetXaxis()->SetTitle("Muon eta");
+    hL1etaRECO->GetXaxis()->SetTitle("Muon #eta");
     hL1etaRECO->Write();
-    hL1phiRECO->GetXaxis()->SetTitle("Muon phi");
+    hL1phiRECO->GetXaxis()->SetTitle("Muon #phi");
     hL1phiRECO->Write();
-    hRECOetanor->GetXaxis()->SetTitle("Reco Muon Eta");
+    hRECOetanor->GetXaxis()->SetTitle("Reco Muon #Eta");
     hRECOetanor->Write();
     hRECOphinor->GetXaxis()->SetTitle("Reco Muon Phi ");
     hRECOphinor->Write();
@@ -380,18 +388,18 @@ void HLTMuonGenericRate::WriteHistograms(){
       hHLTMCeff[i]->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
       hHLTMCeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
       hHLTMCeff[i]->Write();
-      hHLTetaMC[i]->GetXaxis()->SetTitle("Gen Muon eta");
+      hHLTetaMC[i]->GetXaxis()->SetTitle("Gen Muon #eta");
       hHLTetaMC[i]->Write();
-      hHLTphiMC[i]->GetXaxis()->SetTitle("Gen Muon phi");
+      hHLTphiMC[i]->GetXaxis()->SetTitle("Gen Muon #phi");
       hHLTphiMC[i]->Write();
     }
     if (useMuonFromReco){
       hHLTRECOeff[i]->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
       hHLTRECOeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
       hHLTRECOeff[i]->Write();
-      hHLTetaRECO[i]->GetXaxis()->SetTitle("Reco Muon eta");
+      hHLTetaRECO[i]->GetXaxis()->SetTitle("Reco Muon #eta");
       hHLTetaRECO[i]->Write();
-      hHLTphiRECO[i]->GetXaxis()->SetTitle("Reco Muon phi");
+      hHLTphiRECO[i]->GetXaxis()->SetTitle("Reco Muon #phi");
       hHLTphiRECO[i]->Write();
     }
   }
@@ -449,7 +457,7 @@ void HLTMuonGenericRate::BookHistograms(){
     hMCetanor = new TH1F(chname, chtitle, 50, -2.5, 2.5);
     hMCetanor->Sumw2();
     snprintf(chname, 255, "MCphiNorm_%s",mylabel);
-    snprintf(chtitle, 255, "Norm  MC Phi");
+    snprintf(chtitle, 255, "Norm  MC #Phi");
     hMCphinor = new TH1F(chname, chtitle, 50, -3.15, 3.15);
     hMCphinor->Sumw2();
     snprintf(chname, 255, "MCeta_%s", mylabel);
@@ -475,7 +483,7 @@ void HLTMuonGenericRate::BookHistograms(){
     hRECOetanor = new TH1F(chname, chtitle, 50, -2.5, 2.5);
     hRECOetanor->Sumw2();
     snprintf(chname, 255, "RECOphiNorm_%s",mylabel);
-    snprintf(chtitle, 255, "Norm  RECO Phi");
+    snprintf(chtitle, 255, "Norm  RECO #Phi");
     hRECOphinor = new TH1F(chname, chtitle, 50, -3.15, 3.15);
     hRECOphinor->Sumw2();
     snprintf(chname, 255, "RECOeta_%s", mylabel);
@@ -575,37 +583,61 @@ void HLTMuonGenericRate::FillHistograms(){
       }
       hHLTeff[i]->Scale(100.);
       if (useMuonFromGenerator){
-	hHLTMCeff[i]->Divide(hL1MCeff);
+        TH1F *num=(TH1F*) hHLTMCeff[i]->Clone();
+	hHLTMCeff[i]->Clear();
+	hHLTMCeff[i]->Divide(num,hL1MCeff,1.,1.,"B");
 	hHLTMCeff[i]->Scale(100.);
-	hHLTetaMC[i]->Divide(hL1etaMC);
+        num=(TH1F*) hHLTetaMC[i]->Clone();
+        hHLTetaMC[i]->Clear();
+	hHLTetaMC[i]->Divide(num,hL1etaMC,1.,1.,"B");
 	hHLTetaMC[i]->Scale(100.);
-	hHLTphiMC[i]->Divide(hL1phiMC);
+        num=(TH1F*) hHLTphiMC[i]->Clone();
+        hHLTphiMC[i]->Clear();
+	hHLTphiMC[i]->Divide(num,hL1phiMC,1.,1.,"B");
 	hHLTphiMC[i]->Scale(100.);
       }
       if (useMuonFromReco){
-	hHLTRECOeff[i]->Divide(hL1RECOeff);
+	TH1F *num=(TH1F*) hHLTRECOeff[i]->Clone();
+	hHLTRECOeff[i]->Clear();
+	hHLTRECOeff[i]->Divide(num,hL1RECOeff,1.,1.,"B");
 	hHLTRECOeff[i]->Scale(100.);
-	hHLTetaRECO[i]->Divide(hL1etaRECO);
+	num=(TH1F*) hHLTetaRECO[i]->Clone();
+	hHLTetaRECO[i]->Clear();
+	hHLTetaRECO[i]->Divide(num,hL1etaRECO,1.,1.,"B");
 	hHLTetaRECO[i]->Scale(100.);
-	hHLTphiRECO[i]->Divide(hL1phiRECO);
+	num=(TH1F*) hHLTphiRECO[i]->Clone();
+ 	hHLTphiRECO[i]->Clear();
+	hHLTphiRECO[i]->Divide(num,hL1phiRECO,1.,1.,"B");
 	hHLTphiRECO[i]->Scale(100.);
       }
 
   }
   if (useMuonFromGenerator){
-    hL1MCeff->Divide(hMCptnor);
+    TH1F *num=(TH1F*) hL1MCeff->Clone();
+    hL1MCeff->Clear();
+    hL1MCeff->Divide(num,hMCptnor,1.,1.,"B");
     hL1MCeff->Scale(100.);
-    hL1etaMC->Divide(hMCetanor);
+    num=(TH1F*) hL1etaMC->Clone();
+    hL1etaMC->Clear();
+    hL1etaMC->Divide(num,hMCetanor,1.,1.,"B");
     hL1etaMC->Scale(100.);
-    hL1phiMC->Divide(hMCphinor);
+    num=(TH1F*) hL1phiMC->Clone();
+    hL1phiMC->Clear();
+    hL1phiMC->Divide(num,hMCphinor,1.,1.,"B");
     hL1phiMC->Scale(100.);
     }
   if (useMuonFromReco){
-    hL1RECOeff->Divide(hRECOptnor);
+    TH1F *num=(TH1F*) hL1RECOeff->Clone();
+    hL1RECOeff->Clear();
+    hL1RECOeff->Divide(num,hRECOptnor,1.,1.,"B");
     hL1RECOeff->Scale(100.);
-    hL1etaRECO->Divide(hRECOetanor);
+    num=(TH1F*) hL1etaRECO->Clone();
+    hL1etaRECO->Clear();
+    hL1etaRECO->Divide(num,hRECOetanor,1.,1.,"B");
     hL1etaRECO->Scale(100.);
-    hL1phiRECO->Divide(hRECOphinor);
+    num=(TH1F*) hL1phiRECO->Clone();
+    hL1phiRECO->Clear();
+    hL1phiRECO->Divide(num,hRECOphinor,1.,1.,"B");
     hL1phiRECO->Scale(100.);
   }
 
