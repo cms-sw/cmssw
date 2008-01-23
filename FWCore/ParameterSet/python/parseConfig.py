@@ -735,6 +735,8 @@ class _LeafNode(object):
         if self.__isNot:
             v= ~v
         return v
+    def getLeaves(self, leaves):
+        leaves.add(self.__label)
     def dumpPython(self, options):
         result = ''
         if self.__isNot:
@@ -749,6 +751,9 @@ class _AidsOp(object):
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+','+str(self.__right)+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
     def dumpPython(self, options):
         return self.__left.dumpPython(options)+'*'+self.__right.dumpPython(options)
     def make(self,process):
@@ -762,6 +767,9 @@ class _FollowsOp(object):
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+'&'+str(self.__right)+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
     def dumpPython(self, options):
         return self.__left.dumpPython(options)+'+'+self.__right.dumpPython(options)
     def make(self,process):
@@ -821,6 +829,8 @@ class _ModuleSeries(object):
         # probably don't want "process." everywhere
         options.isCfg = False
         return self.dumpPython(options)
+    def getLeaves(self, leaves):
+        self.topNode.getLeaves(leaves)
     def dumpPython(self, options):
         return "cms."+self.factory().__name__+"("+self.topNode.dumpPython(options)+")"
 
@@ -1497,8 +1507,24 @@ def dumpCff(fileName):
     for key,value in compressedValues:
         if isinstance(value, cms._Labelable):
             value.setLabel(key)
+
+    _validateSequences(compressedValues)
+
     return dumpDict(compressedValues)
 
+def _validateSequences(values):
+    """ Takes the usual list of pairs, and for each
+    sequence, checks see if the keys are defined yet.
+    Adds a placeholders for missing keys"""
+    keys = set()
+    sequenceElements = set()
+    for key, value in values:
+        keys.add(key)
+        if isinstance(value, _ModuleSeries):
+           value.getLeaves(sequenceElements)
+    missingKeys = sequenceElements - keys
+    for key in missingKeys:
+        values.insert(1, (key, cms.SequencePlaceholder(key)) )
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
