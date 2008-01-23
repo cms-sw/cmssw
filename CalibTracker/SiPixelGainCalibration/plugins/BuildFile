@@ -14,6 +14,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/Records>
 <use name=root>
+<use name=rootminuit>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
