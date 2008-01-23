@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.6 2008/01/22 19:12:43 muzaffar Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.7 2008/01/23 10:44:11 fblekman Exp $
 //
 //
 
@@ -55,8 +55,8 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   iEventCounter_(0),
   ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
   control_pattern_size_(iConfig.getParameter<bool>("checkPatternEachEvent")),
-  number_of_pixels_per_pattern_(0),
-  conf_(iConfig)
+  conf_(iConfig),
+  number_of_pixels_per_pattern_(0)
 
 {
    //register your products
@@ -281,7 +281,7 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(store()){
     //    std::cout << "in loop" << std::endl;
     for(std::map<pixelstruct,SiPixelCalibDigi>::const_iterator idet=intermediate_data_.begin(); idet!=intermediate_data_.end();++idet){
-      if(control_pattern_size_)
+      if(!control_pattern_size_)
 	if(! checkPixel(idet->first.first,idet->first.second.first,idet->first.second.second))
 	  continue;
       uint32_t detid=idet->first.first;
@@ -297,10 +297,15 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 //-----------------------------------------------
 //  method to check that the pixels are actually valid...
 bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
-  if( !ignore_non_pattern_ && !control_pattern_size_)
+
+  if(!control_pattern_size_ && !store())
     return true;
   
-  //  std::cout << "now in checkpixel() " << std::endl;
+  if( !ignore_non_pattern_ )
+    return true;
+  
+  
+  //  std::cout << "Event" << iEventCounter_ << ",now in checkpixel() " << std::endl;
   if(currentpattern_.size()==0)
     setPattern();
   //  uint32_t iroc;
