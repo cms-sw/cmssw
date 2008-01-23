@@ -13,9 +13,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Geant4
-#include "SimG4Core/Geant4e/interface/G4eTrajStateFree.hh"
-#include "SimG4Core/Geant4e/interface/G4eTargetPlaneSurface.hh"
-#include "SimG4Core/Geant4e/interface/G4eTargetCylindricalSurface.hh"
+#include "G4ErrorFreeTrajState.hh"
+#include "G4ErrorPlaneSurfaceTarget.hh"
+#include "G4ErrorCylSurfaceTarget.hh"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -29,7 +29,7 @@ Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
   Propagator(dir),
   theField(field),
   theParticleName(particleName),
-  theG4eManager(G4eManager::GetG4eManager()),
+  theG4eManager(G4ErrorPropagatorManager::GetErrorPropagatorManager()),
   theSteppingAction(0) {
 }
 
@@ -91,8 +91,9 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   //DEBUG
 
   //* Set the target surface
-  G4eTarget* g4eTarget = new G4eTargetPlaneSurface(surfNorm, surfPos);
-  theG4eManager->SetTarget(g4eTarget);
+  G4ErrorSurfaceTarget* g4eTarget = new G4ErrorPlaneSurfaceTarget(surfNorm,
+								  surfPos);
+  // theG4eManager->SetTarget(g4eTarget); // Not needed ??
   g4eTarget->Dump("G4e - ");
   //
   ///////////////////////////////
@@ -149,17 +150,17 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   ///////////////////////////////
   //Set the error and trajectories, and finally propagate
   //
-  G4eTrajError g4error( 5, 1 ); //The error matrix
+  G4ErrorTrajErr g4error( 5, 1 ); //The error matrix
   LogDebug("Geant4e") << "G4e -  Error matrix: " << g4error;
 
-  G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, g4error);
+  G4ErrorFreeTrajState* g4eTrajState = 
+    new G4ErrorFreeTrajState(particleName, g4InitPos, g4InitMom, g4error);
   LogDebug("Geant4e") << "G4e -  Traj. State: " << (*g4eTrajState);
 
   //Set the mode of propagation according to the propagation direction
-  G4eMode mode = G4eMode_PropForwards;
+  G4ErrorMode mode = G4ErrorMode_PropForwards;
   if (propagationDirection() == oppositeToMomentum) {
-    mode = G4eMode_PropBackwards;
+    mode = G4ErrorMode_PropBackwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
   }
   else
@@ -209,8 +210,9 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   // Get the error covariance matrix from Geant4e. It comes in curvilinear
   // coordinates so use the appropiate CMS class  
-  G4eTrajError g4errorEnd = g4eTrajState->GetError();
-  CurvilinearTrajectoryError curvError(g4errorEnd);
+  G4ErrorTrajErr g4errorEnd = g4eTrajState->GetError();
+  CurvilinearTrajectoryError 
+    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd));
 
 
   ////////////////////////////////////////////////////////////////////////
@@ -251,9 +253,9 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
 
   //Set the target surface
-  G4eTarget* g4eTarget = new G4eTargetCylindricalSurface(radCyl, 
-							 posCyl, rotCyl);
-  theG4eManager->SetTarget(g4eTarget);
+  G4ErrorSurfaceTarget* g4eTarget = new G4ErrorCylSurfaceTarget(radCyl,	posCyl,
+								rotCyl);
+  //  theG4eManager->SetTarget(g4eTarget); // Not needed?
 
   //Get the starting point and direction and convert them to Hep3Vector for G4
   //CMS uses cm and GeV while Geant4 uses mm and MeV
@@ -271,14 +273,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     particleName += "-";
 
   //Set the error and trajectories, and finally propagate
-  G4eTrajError g4error( 5, 0 ); //The error matrix
-  G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, g4error);
+  G4ErrorTrajErr g4error( 5, 0 ); //The error matrix
+  G4ErrorFreeTrajState* g4eTrajState = 
+    new G4ErrorFreeTrajState(particleName, g4InitPos, g4InitMom, g4error);
 
   //Set the mode of propagation according to the propagation direction
-  G4eMode mode = G4eMode_PropForwards;
+  G4ErrorMode mode = G4ErrorMode_PropForwards;
   if (propagationDirection() == oppositeToMomentum)
-    mode = G4eMode_PropBackwards;
+    mode = G4ErrorMode_PropBackwards;
     
 
   //int ierr =
@@ -299,8 +301,9 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   // Get the error covariance matrix from Geant4e. It comes in curvilinear
   // coordinates so use the appropiate CMS class  
-  G4eTrajError g4errorEnd = g4eTrajState->GetError();
-  CurvilinearTrajectoryError curvError(g4errorEnd);
+  G4ErrorTrajErr g4errorEnd = g4eTrajState->GetError();
+  CurvilinearTrajectoryError 
+    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd));
 
 
   ////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 // - Geant4e
-#include "SimG4Core/Geant4e/interface/G4eManager.hh"
+#include "G4ErrorPropagatorManager.hh"
 
 
 
@@ -124,7 +124,7 @@ class Geant4ePropagator: public Propagator {
   std::string theParticleName; 
 
   //The Geant4e manager. Does the real propagation
-  G4eManager* theG4eManager;
+  G4ErrorPropagatorManager* theG4eManager;
 
   //A G4 stepping action to find out the track length
   mutable Geant4eSteppingAction* theSteppingAction;

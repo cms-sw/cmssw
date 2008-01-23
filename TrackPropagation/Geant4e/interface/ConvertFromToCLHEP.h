@@ -12,6 +12,10 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
+
+//Geant4
+#include "G4ErrorFreeTrajState.hh"
 
 /** Utilities to convert among CLHEP and CMS points and vectors
  */
@@ -102,6 +106,19 @@ namespace TrackPropagation {
     return TkRotation<float>(r.xx(), r.xy(), r.xz(),
 			     r.yx(), r.yy(), r.yz(),
 			     r.zx(), r.zy(), r.zz());
+  }
+
+  /** Convert a G4 Trajectory Error Matrix to the CMS Algebraic Sym Matrix
+   */
+  AlgebraicSymMatrix55
+   g4ErrorTrajErrToAlgebraicSymMatrix55(const G4ErrorTrajErr& e) {
+    //From DataFormats/CLHEP/interface/Migration.h
+    //typedef ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> > AlgebraicSymMatrix55;
+    AlgebraicSymMatrix55 m55;
+    for (unsigned int i = 0; i < 5; i++)
+      for (unsigned int j = 0; j < 5; j++)
+	m55(i,j) = e(i+1, j+1);
+    return m55;
   }
 }
 
