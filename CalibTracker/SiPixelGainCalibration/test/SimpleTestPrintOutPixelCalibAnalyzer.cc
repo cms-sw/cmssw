@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.3 2007/12/13 11:07:05 fblekman Exp $
+// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.4 2008/01/22 19:12:43 muzaffar Exp $
 //
 //
 
@@ -86,7 +86,7 @@ SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const 
   using namespace edm;
   
   Handle<DetSetVector<SiPixelCalibDigi> > pIn;
-  iEvent.getByLabel("SiPixelCalibDigis",pIn);
+  iEvent.getByLabel("siPixelCalibDigis",pIn);
 
   DetSetVector<SiPixelCalibDigi>::const_iterator digiIter;
   for(digiIter=pIn->begin(); digiIter!=pIn->end(); ++digiIter){
@@ -95,7 +95,7 @@ SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const 
     for(ipix= digiIter->data.begin(); ipix!=digiIter->end(); ++ipix){
       std::cout  << std::endl;
       for(uint32_t ipoint=0; ipoint<ipix->getnpoints(); ++ipoint)
-	std::cout << "\t" << detid << " " << ipix->row() << " " << ipix->col() << " point " << ipoint << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint) << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
+	std::cout << "\t Det ID " << detid << " row:" << ipix->row() << " col:" << ipix->col() << " point " << ipoint << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint) << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
     }
   }
 
