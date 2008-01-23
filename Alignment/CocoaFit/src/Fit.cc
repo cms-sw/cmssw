@@ -6,6 +6,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
+#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
 
