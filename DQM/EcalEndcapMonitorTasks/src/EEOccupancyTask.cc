@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/22 22:10:42 $
- * $Revision: 1.24 $
+ * $Date: 2008/01/23 06:52:56 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -314,14 +314,17 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
 
+      float xeex = eex - 0.5;
+      float xeey = eey - 0.5;
+
       if ( ism >=1 && ism <= 9 ) {
-        if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( eex, eey );
-        if ( meEEDigiOccupancyProjX_[0] ) meEEDigiOccupancyProjX_[0]->Fill( eex );
-        if ( meEEDigiOccupancyProjY_[0] ) meEEDigiOccupancyProjY_[0]->Fill( eey );
+        if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( xeex, xeey );
+        if ( meEEDigiOccupancyProjX_[0] ) meEEDigiOccupancyProjX_[0]->Fill( xeex );
+        if ( meEEDigiOccupancyProjY_[0] ) meEEDigiOccupancyProjY_[0]->Fill( xeey );
       } else {
-        if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( eex, eey );
-        if ( meEEDigiOccupancyProjX_[1] ) meEEDigiOccupancyProjX_[1]->Fill( eex );
-        if ( meEEDigiOccupancyProjY_[1] ) meEEDigiOccupancyProjY_[1]->Fill( eey );
+        if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( xeex, xeey );
+        if ( meEEDigiOccupancyProjX_[1] ) meEEDigiOccupancyProjX_[1]->Fill( xeex );
+        if ( meEEDigiOccupancyProjY_[1] ) meEEDigiOccupancyProjY_[1]->Fill( xeey );
       }
 
     }
@@ -386,14 +389,17 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
 
+      float xeex = eex - 0.5;
+      float xeey = eey - 0.5;
+
       if ( ism >= 1 && ism <= 9 ) {
-        if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( eex, eey );
-        if ( meEERecHitOccupancyProjX_[0] ) meEERecHitOccupancyProjX_[0]->Fill( eex );
-        if ( meEERecHitOccupancyProjY_[0] ) meEERecHitOccupancyProjY_[0]->Fill( eey );
+        if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( xeex, xeey );
+        if ( meEERecHitOccupancyProjX_[0] ) meEERecHitOccupancyProjX_[0]->Fill( xeex );
+        if ( meEERecHitOccupancyProjY_[0] ) meEERecHitOccupancyProjY_[0]->Fill( xeey );
       } else {
-        if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( eex, eey );
-        if ( meEERecHitOccupancyProjX_[1] ) meEERecHitOccupancyProjX_[1]->Fill( eex );
-        if ( meEERecHitOccupancyProjY_[1] ) meEERecHitOccupancyProjY_[1]->Fill( eey );
+        if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( xeex, xeey );
+        if ( meEERecHitOccupancyProjX_[1] ) meEERecHitOccupancyProjX_[1]->Fill( xeex );
+        if ( meEERecHitOccupancyProjY_[1] ) meEERecHitOccupancyProjY_[1]->Fill( xeey );
       }
 
     }
@@ -431,14 +437,17 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         
       if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
 
+      float xeex = eex - 0.5;
+      float xeey = eey - 0.5;
+
       if ( ismt >= 1 && ismt <= 9 ) {
-        if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( eex, eey );
-        if ( meEETrigPrimDigiOccupancyProjX_[0] ) meEETrigPrimDigiOccupancyProjX_[0]->Fill( eex );
-        if ( meEETrigPrimDigiOccupancyProjY_[0] ) meEETrigPrimDigiOccupancyProjY_[0]->Fill( eey );
+        if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
+        if ( meEETrigPrimDigiOccupancyProjX_[0] ) meEETrigPrimDigiOccupancyProjX_[0]->Fill( xeex );
+        if ( meEETrigPrimDigiOccupancyProjY_[0] ) meEETrigPrimDigiOccupancyProjY_[0]->Fill( xeey );
       } else {
-        if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( eex, eey );
-        if ( meEETrigPrimDigiOccupancyProjX_[1] ) meEETrigPrimDigiOccupancyProjX_[1]->Fill( eex );
-        if ( meEETrigPrimDigiOccupancyProjY_[1] ) meEETrigPrimDigiOccupancyProjY_[1]->Fill( eey );
+        if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
+        if ( meEETrigPrimDigiOccupancyProjX_[1] ) meEETrigPrimDigiOccupancyProjX_[1]->Fill( xeex );
+        if ( meEETrigPrimDigiOccupancyProjY_[1] ) meEETrigPrimDigiOccupancyProjY_[1]->Fill( xeey );
       }
 
       }

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/22 22:10:39 $
- * $Revision: 1.39 $
+ * $Date: 2008/01/23 06:52:54 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -242,9 +242,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
-      if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( ebphi, ebeta );
-      if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( ebeta );
-      if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( ebphi );
+      float xebeta = ebeta - 0.5;
+      float xebphi = ebphi - 0.5;
+
+      if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
+      if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
+      if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
 
     }
 
@@ -304,9 +307,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
-      if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( ebphi, ebeta );
-      if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( ebeta );
-      if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( ebphi );
+      float xebeta = ebeta - 0.5;
+      float xebphi = ebphi - 0.5;
+
+      if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( xebphi, xebeta );
+      if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
+      if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
 
     }
 
@@ -331,9 +337,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = idt.ieta();
       int ebphi = idt.iphi();
 
-      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( ebphi, ebeta );
-      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( ebeta );
-      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( ebphi );
+      float xebeta = ebeta - 0.5;
+      float xebphi = ebphi - 0.5;
+
+      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
+      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
+      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
 
     }
 
