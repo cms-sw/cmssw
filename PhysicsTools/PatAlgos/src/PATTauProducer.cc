@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.5 2008/01/22 21:58:16 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.6 2008/01/23 11:48:25 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -11,12 +11,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
-/* > 1.8.X functionality
 #include <DataFormats/TauReco/interface/PFTau.h>
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
-*/
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -57,11 +55,7 @@ PATTauProducer::~PATTauProducer() {
 
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
  
-  // Get the collection of taus from the event
-  edm::Handle<edm::View<TauType> > taus;
-  iEvent.getByLabel(tauSrc_, taus);
-
-/* > 1.8.X functionality; FIXME: should be switched to use edm::Views.
+  // FIXME: should switch to using edm::View's
   // Get the collection of taus from the event
   edm::Handle<PFTauCollection> PFtaus;
   edm::Handle<PFTauDiscriminatorByIsolation> PFtauIsolator;
@@ -90,7 +84,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if(hasCalotaus && hasPFtaus) {
     edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
   }
-*/
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<edm::View<reco::Candidate> > particles;
@@ -106,15 +99,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // collection of produced objects
   std::vector<Tau> * patTaus = new std::vector<Tau>(); 
 
-  // 1.6.X functionality
-  for (edm::View<TauType>::const_iterator itTau = taus->begin(); itTau != taus->end(); ++itTau) {
-    // construct the Tau from the ref -> save ref to original object
-    unsigned int idx = itTau - taus->begin();
-    edm::Ref<std::vector<TauType> > tausRef = taus->refAt(idx).castTo<edm::Ref<std::vector<TauType> > >();
-    Tau aTau(tausRef);
-    patTaus->push_back(aTau);
-  }
-/* > 1.8.X functionality
+  // FIXME: switch to using ref, after we switch to Views.
+  //  // construct the Tau from the ref -> save ref to original object
+  //  unsigned int idx = itTau - taus->begin();
+  //  edm::Ref<std::vector<TauType> > tausRef = taus->refAt(idx).castTo<edm::Ref<std::vector<TauType> > >();
   // loop over taus and prepare pat::Tau's
   if(hasPFtaus) {
     for (PFTauCollection::size_type iPFTau=0;iPFTau<PFtaus->size();iPFTau++) {
@@ -151,7 +139,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       patTaus->push_back(aTau);
     }
   }
-*/
 
   // loop on the resulting collection of taus, and set other informations
   for(std::vector<Tau>::iterator aTau = patTaus->begin();aTau<patTaus->end(); ++aTau) {
