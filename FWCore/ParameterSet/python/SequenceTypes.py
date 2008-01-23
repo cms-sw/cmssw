@@ -215,6 +215,22 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
     def _visitSubNodes(self,visitor):
         self.visit(visitor)
 
+class SequencePlaceholder(_ModuleSequenceType,_Sequenceable):
+    def __init__(self, name):
+        self._name = name
+    def _placeImpl(self,name,proc):
+        pass
+    def insertInto(self, parameterSet, myname):
+        raise RuntimeError("The SequencePlaceholder "+self._name
+                           +" was never overridden")
+    def copy(self):
+        returnValue =SequencePlaceholder.__new__(type(self))
+        returnValue.__init__(self._name)
+        return returnValue
+    def dumpPython(self, options):
+        return 'cms.SequencePlaceholder(\"'+self._name+'\")\n'
+
+    
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
