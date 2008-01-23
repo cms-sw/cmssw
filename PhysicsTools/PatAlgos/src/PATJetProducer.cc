@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.3 2008/01/21 16:26:17 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.4 2008/01/22 21:58:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -69,7 +69,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   }
 
   // construct Jet Track Associator
-  simpleJetTrackAssociator_ = helper::SimpleJetTrackAssociator(trackAssociationPSet_);
+  simpleJetTrackAssociator_ = ::helper::SimpleJetTrackAssociator(trackAssociationPSet_);
   // construct Jet Charge Computer
   if (addJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
  
