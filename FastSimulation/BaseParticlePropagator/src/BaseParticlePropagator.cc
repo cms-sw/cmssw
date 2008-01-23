@@ -41,6 +41,7 @@ BaseParticlePropagator::init() {
 
 bool 
 BaseParticlePropagator::propagate() { 
+
   //
   // Check that the particle is not already on the cylinder surface
   //
@@ -58,7 +59,7 @@ BaseParticlePropagator::propagate() {
   //
   // Treat neutral particles (or no magnetic field) first 
   //
-  if ( charge() == 0.0 || bField == 0.0 ) {
+  if ( fabs(charge()) < 1E-12 || bField < 1E-12 ) {
 
     //
     // First check that the particle crosses the cylinder
