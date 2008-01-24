@@ -125,7 +125,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     else if(!cosmics){
       time_differ = total_time - (timeref + ( stripL/(2*sspeed*3e+10) ) + timOff);
     }
-      
+     
     double inf_time = 0;
     double sup_time = 0;
 

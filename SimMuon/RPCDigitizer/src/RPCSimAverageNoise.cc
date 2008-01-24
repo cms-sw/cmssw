@@ -150,7 +150,7 @@ RPCSimAverageNoise::simulate(const RPCRoll* roll,
 
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
-
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     // Effinciecy
@@ -198,7 +198,7 @@ RPCSimAverageNoise::simulate(const RPCRoll* roll,
 
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
+	std::pair<int, int> digi(*i,time_hit );
 	strips.insert(digi);
       }
     }

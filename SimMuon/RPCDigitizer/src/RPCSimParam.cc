@@ -16,8 +16,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-
-
 RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
@@ -68,18 +66,19 @@ RPCSimParam::simulate(const RPCRoll* roll,
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
 
- 
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
-    //    const LocalPoint& exit=_hit->exitPoint();
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
 
     // Effinciecy
-    if (flatDistribution->fire(1) < aveEff) {
+    float eff = flatDistribution->fire(1);
+    if (eff < aveEff) {
+
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = flatDistribution->fire();
+      double w = flatDistribution->fire(1);
       if (w < 1.e-10) w=1.e-10;
       int clsize = static_cast<int>( -1.*aveCls*log(w)+1.);
       std::vector<int> cls;
@@ -115,7 +114,8 @@ RPCSimParam::simulate(const RPCRoll* roll,
 
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
+	std::pair<int, int> digi(*i,time_hit);
+	
 	strips.insert(digi);
       }
     }

@@ -59,10 +59,11 @@ RPCSimSimple::simulate(const RPCRoll* roll,
  
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
     //    const LocalPoint& exit=_hit->exitPoint();
 	
     std::pair<int, int> digi(topology.channel(entr)+1,
-			     _rpcSync->getSimHitBx(&(*_hit)));
+			     time_hit);
     strips.insert(digi);
   }
 }

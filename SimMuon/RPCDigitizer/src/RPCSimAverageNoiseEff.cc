@@ -154,6 +154,7 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
@@ -161,8 +162,6 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
     // Effinciecy
     int centralStrip = topology.channel(entr)+1;;
     float fire = flatDistribution->fire(1);
-
-    //    if(veff[centralStrip-1] == 0) std::cout<<"WARNING!"<<"  "<<"Dead strip: "<<centralStrip<<std::endl;
 
     if (fire < veff[centralStrip-1]) {
 
@@ -209,12 +208,12 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
 	// Check the timing of the adjacent strip
 	if(*i != centralStrip){
 	  if(flatDistribution->fire(1) < veff[*i-1]){
-	    std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
+	    std::pair<int, int> digi(*i,time_hit);
 	    strips.insert(digi);
 	  }
 	} 
 	else {
-	  std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
+	  std::pair<int, int> digi(*i,time_hit);
 	  strips.insert(digi);
 	}
       }
@@ -255,8 +254,6 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
     if(j >= nstrips) break; 
     if(veff[j] == 0) continue;
 
-    //   if(vnoise[j] > 1) std::cout<<"WARNING!"<<"  "<<"Noisy strip: "<<j+1<<std::endl;
-
     double ave = vnoise[j]*nbxing*gate*area*1.0e-9;
     poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
     N_hits = poissonDistribution_->fire();
@@ -265,6 +262,7 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
       flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
       int time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
       std::pair<int, int> digi(j+1,time_hit);
+
       strips.insert(digi);
     }
   }
