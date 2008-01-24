@@ -28,9 +28,21 @@ class _Parameterizable(object):
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
                 self.__setParameters(block.parameters())
         self.__setParameters(kargs)
+        self._isModified = False
     def parameterNames_(self):
         """Returns the name of the parameters"""
         return self.__parameterNames[:]
+    def isModified(self):
+        if self._isModified:
+            return True
+        for name in self.parameterNames_():
+            param = self.__dict__[name]
+            if isinstance(param, _Parameterizable):
+                print "PARA "+name+str( param.isModified() )
+            if isinstance(param, _Parameterizable) and param.isModified():
+                self._isModified = True
+                return True
+        return False
     def parameters(self):
         """Returns a dictionary of copies of the user-set parameters"""
         import copy
@@ -49,6 +61,8 @@ class _Parameterizable(object):
         # I will assume that if we have such then we are setting an internal variable
         if name[0]=='_':
             super(_Parameterizable,self).__setattr__(name,value)
+            # RICK test
+            return
         if not name in self.__dict__:
             if not isinstance(value,_ParameterTypeBase):
                 raise TypeError
@@ -62,6 +76,7 @@ class _Parameterizable(object):
                 self.__dict__[name] =value
             else:
                 param.setValue(value)
+        self._isModified = True
     def __delattr__(self,name):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
@@ -115,6 +130,7 @@ class _TypedParameterizable(_Parameterizable):
             args.append(None)
         returnValue.__init__(self.__type,*args,
                              **params)
+        returnValue._isModified = self._isModified
         return returnValue
     @staticmethod
     def __findDefaultsFor(label,type):
