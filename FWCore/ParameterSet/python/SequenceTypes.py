@@ -39,6 +39,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             raise TypeError(msg)
         self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
+        self._isModified = False
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
@@ -266,12 +267,12 @@ if __name__=="__main__":
             a = DummyModule("a")
             b = DummyModule('b')
             p = Path((a*b))
-            self.assertEqual(p.dumpPython(None),"cms.Path((process.a*process.b))\n")
+            self.assertEqual(p.dumpPython(None),"cms.Path(process.a*process.b)\n")
             p2 = Path((b+a))
-            self.assertEqual(p2.dumpPython(None),"cms.Path((process.b+process.a))\n")
+            self.assertEqual(p2.dumpPython(None),"cms.Path(process.b+process.a)\n")
             c = DummyModule('c')
             p3 = Path(c*(a+b))
-            self.assertEqual(p3.dumpPython(None),"cms.Path((process.c*(process.a+process.b)))\n")
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):
