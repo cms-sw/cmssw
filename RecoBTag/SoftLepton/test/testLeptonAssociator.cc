@@ -19,6 +19,18 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
+namespace std {
+  template<>
+  class less<edm::RefToBase<reco::Track> > {
+  public:
+    bool operator()(const edm::RefToBase<reco::Track> & x, const edm::RefToBase<reco::Track> & y) const
+    {
+      return (x.id().id() < y.id().id()) || (x.key() < y.key()) || false;
+    }
+  };
+}
+
+
 class testLeptonAssociator : public edm::EDAnalyzer {
 public:
   explicit testLeptonAssociator(const edm::ParameterSet& iConfig);
@@ -40,9 +52,9 @@ private:
 };
 
 
-std::ostream& operator<< (std::ostream& out, reco::TrackRef ref) {
+std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
   out << " {"     << std::setw(2) << ref->found() << "}    "
-      << " ["     << std::setw(4) << ref.index() << "]"
+      << " ["     << std::setw(4) << ref.key() << "]"
       << "            "
       << " pT: "  << std::setw(6) << std::setprecision(3) << ref->pt()
       << " eta: " << std::setw(6) << std::setprecision(3) << ref->eta()
@@ -52,7 +64,7 @@ std::ostream& operator<< (std::ostream& out, reco::TrackRef ref) {
 
 std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
   out << " {"     << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found() << "} "
-      << " ["     << std::setw(4) << ref.index() << "]"
+      << " ["     << std::setw(4) << ref.key() << "]"
       << "            "
       << " pT: "  << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->pt()
       << " eta: " << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->eta()
@@ -61,7 +73,7 @@ std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
 }
 
 std::ostream& operator<< (std::ostream& out, TrackingParticleRef ref) {
-  out << " ["     << std::setw(4) << ref.index() << "]"
+  out << " ["     << std::setw(4) << ref.key() << "]"
       << " type:" << std::setw(6) << ref->pdgId() 
       << " pT: "  << std::setw(6) << std::setprecision(3) << ref->pt() 
       << " eta: " << std::setw(6) << std::setprecision(3) << ref->eta()
@@ -77,19 +89,19 @@ void printAssociations(const char* label, TrackingParticleRef tp, const reco::Si
 
   typedef boost::tuple<double, double> Quality;
   Quality quality;
-  std::map<reco::TrackRef, Quality> found;
-  for (std::vector<std::pair<reco::TrackRef, double> >::const_iterator it = found_byhits.begin(); it != found_byhits.end(); ++it) {
-    const reco::TrackRef ref = it->first;
+  std::map<edm::RefToBase<reco::Track>, Quality> found;
+  for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_byhits.begin(); it != found_byhits.end(); ++it) {
+    const edm::RefToBase<reco::Track> ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
     found[ref].get<0>() = it->second;
   }
-  for (std::vector<std::pair<reco::TrackRef, double> >::const_iterator it = found_bychi2.begin(); it != found_bychi2.end(); ++it) {
-    const reco::TrackRef ref = it->first;
+  for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_bychi2.begin(); it != found_bychi2.end(); ++it) {
+    const edm::RefToBase<reco::Track> ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
     found[ref].get<1>() = - it->second;  // why is chi2 negative ?
   }
   
-  for (std::map<reco::TrackRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
+  for (std::map<edm::RefToBase<reco::Track>, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
     if (it->second.get<0>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]"; else std::cout << "         ";
     if (it->second.get<1>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>() << "]"; else std::cout << "         ";
@@ -97,7 +109,7 @@ void printAssociations(const char* label, TrackingParticleRef tp, const reco::Si
   }
 }
 
-void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
+void printAssociations(const char* label, edm::RefToBase<reco::Track> tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
   reco::RecoToSimCollection::result_type found_byhits;
   if (byhits.find(tp) != byhits.end()) found_byhits = byhits[tp];
   reco::RecoToSimCollection::result_type found_bychi2;
@@ -125,6 +137,10 @@ void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToS
   }
 }
 
+void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
+  printAssociations(label, edm::RefToBase<reco::Track>(tp), byhits, bychi2);
+}
+  
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::pair<edm::Ref<T>, double> & assoc) {
@@ -157,17 +173,17 @@ void testLeptonAssociator::beginJob(const edm::EventSetup & iSetup) {
 
 void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
-  edm::Handle<reco::TrackCollection> recoTrackHandle;
+  edm::Handle<edm::View<reco::Track> > recoTrackHandle;
   iEvent.getByLabel(m_recoTracks, recoTrackHandle);
-  const reco::TrackCollection& recoTrackCollection = *(recoTrackHandle.product()); 
+  const edm::View<reco::Track> & recoTrackCollection = *(recoTrackHandle.product()); 
   
-  edm::Handle<reco::TrackCollection> standAloneMuonHandle;
+  edm::Handle<edm::View<reco::Track> > standAloneMuonHandle;
   iEvent.getByLabel(m_standAloneMuons, standAloneMuonHandle);
-  const reco::TrackCollection& standAloneMuonCollection = *(standAloneMuonHandle.product()); 
+  const edm::View<reco::Track>& standAloneMuonCollection = *(standAloneMuonHandle.product()); 
   
-  edm::Handle<reco::TrackCollection> globalMuonTrackHandle;
+  edm::Handle<edm::View<reco::Track> > globalMuonTrackHandle;
   iEvent.getByLabel(m_globalMuons, globalMuonTrackHandle);
-  const reco::TrackCollection& globalMuonTrackCollection = *(globalMuonTrackHandle.product()); 
+  const edm::View<reco::Track>& globalMuonTrackCollection = *(globalMuonTrackHandle.product()); 
   
   edm::Handle<reco::MuonCollection> globalMuonHandle;
   iEvent.getByLabel(m_muons, globalMuonHandle);
@@ -227,8 +243,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   // look for tracking particles associated to the reconstructed standAlone muons
   reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
   reco::RecoToSimCollection bychi2_standalonefake = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
-  for (reco::TrackCollection::size_type i = 0; i < standAloneMuonCollection.size(); ++i) {
-    reco::TrackRef lepton(standAloneMuonHandle, i);
+  for (edm::View<reco::Track>::size_type i = 0; i < standAloneMuonCollection.size(); ++i) {
+    edm::RefToBase<reco::Track> lepton(standAloneMuonHandle, i);
     std::cout << "<-- Local  " << lepton << std::endl;
     printAssociations("TrackingParticle", lepton, byhits_standalonefake, bychi2_standalonefake);
   }
