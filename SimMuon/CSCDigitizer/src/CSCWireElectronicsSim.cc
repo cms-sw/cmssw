@@ -107,9 +107,10 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       float fdTime = theRandGaussQ->fire(theSignalStartTime + theSamplingTime*bin_firing_FD,
                                          theTimingCalibrationError);
 
-      int beamCrossingTag = 
-         static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
-                            / theBunchSpacing );
+      int digiTimeBin = 
+         static_cast<int>( (fdTime - tofOffset 
+           - theBunchTimingOffsets[chamberType])
+                            / theBunchSpacing +  theOffsetOfBxZero);
 
       // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
@@ -122,10 +123,8 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       //      ...           ...       ....
       //     16th             15  <-> bx +9
 
-      // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
-      int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
+      if ( (digiTimeBin>= 0) && (digiTimeBin<16) ) 
+ 	 timeWord |= (1 << digiTimeBin ); // set appropriate bit
 
       // skip over all the time bins used for this digi
       ibin = lastbin;
