@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.2 2008/01/16 16:04:35 gpetrucc Exp $
+// $Id: PATElectronCleaner.h,v 1.3 2008/01/17 02:50:11 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -10,10 +10,25 @@
   \brief    Produces pat::Electron's
 
    The PATElectronCleaner produces analysis-level pat::Electron's starting from
-   a collection of objects of ElectronType.
+   a collection of objects of ElectronType. 
+
+   Electron selection is performed based on the electron ID or on user-defined cuts. 
+   The selection is steered by the configuration parameter:
+   PSet selection = {
+     string type = "none | cut | likelihood | neuralnet | custom"
+     [ InputTag eIDsource = ... 
+      [ float value = xxx  // likelihood cut value ]
+      [ double value = xxx // neural net cut value ]
+      [ // List of custom cuts (see electron selector for details)
+       double ... = xxx
+       double ... = xxx
+       double ... = xxx 
+      ]
+     ]
+   }
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.2 2008/01/16 16:04:35 gpetrucc Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.3 2008/01/17 02:50:11 gpetrucc Exp $
 */
 
 
@@ -28,6 +43,7 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
+#include "PhysicsTools/PatUtils/interface/ElectronSelector.h"
 #include "PhysicsTools/PatUtils/interface/DuplicatedElectronRemover.h"
 
 #include <string>
@@ -53,6 +69,12 @@ namespace pat {
                                   GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
 
       pat::DuplicatedElectronRemover duplicateRemover_;  
+    
+      edm::ParameterSet selectionCfg_;  ///< Defines all about the selection
+      std::string       selectionType_; ///< Selection type (none, custom, cut,...)
+      bool           doSelection_;      ///< Only false if type = "none"
+      std::auto_ptr<ElectronSelector> selector_;   ///< Actually performs the selection
+      
   };
 
 

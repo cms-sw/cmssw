@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.2 2008/01/16 16:04:42 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.3 2008/01/17 02:50:12 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
@@ -15,13 +15,22 @@ using pat::PATElectronCleaner;
 PATElectronCleaner::PATElectronCleaner(const edm::ParameterSet & iConfig) :
     electronSrc_(iConfig.getParameter<edm::InputTag>("electronSource")),
     removeDuplicates_(iConfig.getParameter<bool>("removeDuplicates")),
-    helper_(electronSrc_) 
+    helper_(electronSrc_),
+    selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection")),
+    selectionType_(selectionCfg_.getParameter<std::string>("type"))
 {
   // produces vector of electrons
   produces<std::vector<reco::PixelMatchGsfElectron> >();
 
-  // producers also backmatch to the electrons
+  // produces also backmatch to the original electrons
   produces<reco::CandRefValueMap>();
+
+  // Create electron selector if requested
+  doSelection_ = ( selectionType_ != "none" );
+  if ( doSelection_ ) {
+    selector_ = std::auto_ptr<ElectronSelector>( new ElectronSelector(selectionCfg_) );
+  }
+
 }
 
 
@@ -32,7 +41,14 @@ PATElectronCleaner::~PATElectronCleaner() {
 void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // start a new event
   helper_.newEvent(iEvent);
-  
+
+  // Get electron IDs if needed
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDs;
+  if ( doSelection_ && selectionType_ != "custom" ) {
+    iEvent.getByLabel( selectionCfg_.getParameter<edm::InputTag>("eIDsource"), 
+                       electronIDs );
+  }
+
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
     // read the source electron
     const reco::PixelMatchGsfElectron &srcElectron = helper_.srcAt(idx);    
@@ -41,7 +57,8 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     reco::PixelMatchGsfElectron ourElectron = srcElectron; 
 
     // perform the selection
-    if (false) continue; // now there is no real selection for electrons (except for duplicate removal below)
+    if ( doSelection_ &&
+         !selector_->filter( ourElectron, electronIDs ) ) continue;
 
     // write the muon
     helper_.addItem(idx, ourElectron); 
@@ -63,7 +80,8 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
  * NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly   
  */
 void PATElectronCleaner::removeDuplicates() {
-    std::auto_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(helper_.selected());
+    std::auto_ptr< std::vector<size_t> > duplicates = 
+      duplicateRemover_.duplicatesToRemove(helper_.selected());
     for (std::vector<size_t>::const_iterator it = duplicates->begin(),
                                              ed = duplicates->end();
                                 it != ed;
