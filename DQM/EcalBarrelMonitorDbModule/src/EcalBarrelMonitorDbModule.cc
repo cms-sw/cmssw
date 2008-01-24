@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2008/01/22 19:13:31 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/22 19:54:03 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   if ( enableMonitorDaemon_ ) {
     std::cout << " enableMonitorDaemon switch is ON" << std::endl;

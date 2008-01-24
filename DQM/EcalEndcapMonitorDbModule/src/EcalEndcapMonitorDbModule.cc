@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2008/01/22 18:55:22 $
- * $Revision: 1.6 $
+ * $Date: 2008/01/22 19:54:04 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   if ( enableMonitorDaemon_ ) {
     std::cout << " enableMonitorDaemon switch is ON" << std::endl;
