@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.2 2008/01/22 21:08:54 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.3 2008/01/23 18:29:18 chrjones Exp $
 //
 
 // system include files
+#include <iostream>
 #include <boost/bind.hpp>
 #include "TEveElement.h"
 
@@ -33,7 +34,9 @@
 // constructors and destructor
 //
 FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
-  m_item(0)
+  m_item(0),
+  m_rhoPhiProj(0),
+  m_rhoZProj(0)
 {
 }
 
@@ -83,6 +86,12 @@ void
 FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
    modelChanges(iIds,m_elements);
+   if(0!=m_rhoPhiProj) {
+      modelChanges(iIds,m_rhoPhiProj);
+   }
+   if(0!=m_rhoZProj) {
+      modelChanges(iIds,m_rhoZProj);
+   }
 }
 
 static void
@@ -105,8 +114,9 @@ changeElementAndChildren(TEveElement* iElement,
 
 void 
 FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds,
-                                    TEveElementList* iElements )
+                                    TEveElement* iElements )
 {
+   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
    assert(m_item && m_item->size() == iElements->GetNChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
@@ -123,7 +133,23 @@ FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds,
       changeElementAndChildren(*itElement, info);
       (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
       (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
+      (*itElement)->ElementChanged();
    }
+}
+
+void 
+FWRPZDataProxyBuilder::setRhoPhiProj(TEveElement* iElement)
+{
+
+   //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
+   m_rhoPhiProj=iElement;
+   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
+}
+void 
+FWRPZDataProxyBuilder::setRhoZProj(TEveElement* iElement)
+{
+   m_rhoZProj=iElement;
+   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
 
 //

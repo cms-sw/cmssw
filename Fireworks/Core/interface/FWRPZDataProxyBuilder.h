@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.2 2008/01/19 04:56:06 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.3 2008/01/22 21:08:57 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 // forward declarations
 class FWEventItem;
 class TEveElementList;
+class TEveElement;
 
 class FWRPZDataProxyBuilder
 {
@@ -44,13 +45,17 @@ class FWRPZDataProxyBuilder
       void build(TEveElementList** product);
 
       void modelChanges(const FWModelIds&);
+   
+      void setRhoPhiProj(TEveElement*);
+      void setRhoZProj(TEveElement*);
+
    protected:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
 
 
       //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElementList*);
+      virtual void modelChanges(const FWModelIds&, TEveElement*);
    
       FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&); // stop default
 
@@ -59,6 +64,8 @@ class FWRPZDataProxyBuilder
       // ---------- member data --------------------------------
       const FWEventItem* m_item;
       TEveElementList* m_elements;
+      TEveElement* m_rhoPhiProj;
+      TEveElement* m_rhoZProj;
 };
 
 

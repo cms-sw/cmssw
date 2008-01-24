@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.5 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.6 2008/01/22 21:08:08 chrjones Exp $
 //
 
 // system include files
@@ -210,10 +210,33 @@ FWRhoPhiZViewManager::newEventAvailable()
 
 void FWRhoPhiZViewManager::addElements()
 {
+   //keep track of the last element added
+   TEveElement::List_i itLastRPElement = m_rhoPhiProjMgr->BeginChildren();
+   TEveElement::List_i itLastRZElement = m_rhoZProjMgr->BeginChildren();
+   bool rpHasMoreChildren = m_rhoPhiProjMgr->GetNChildren();
+   bool rzHasMoreChildren = m_rhoZProjMgr->GetNChildren();
+   int index = 0;
+   while(++index < m_rhoPhiProjMgr->GetNChildren()) {++itLastRPElement;}
+   index =0;
+   while(++index < m_rhoZProjMgr->GetNChildren()) {++itLastRZElement;}
+   
    for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
 	 proxy != m_3dmodelProxies.end(); ++proxy )  {
       m_rhoPhiProjMgr->ImportElements(proxy->product);
       m_rhoZProjMgr->ImportElements(proxy->product);
+      if(proxy == m_3dmodelProxies.begin()) {
+         if(rpHasMoreChildren) {
+            ++itLastRPElement;
+         }
+         if(rzHasMoreChildren) {
+            ++itLastRZElement;
+         }
+      } else {
+         ++itLastRPElement;
+         ++itLastRZElement;
+      }
+      proxy->builder->setRhoPhiProj(*itLastRPElement);
+      proxy->builder->setRhoZProj(*itLastRZElement);
    }  
    
    for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
@@ -275,6 +298,7 @@ void
 FWRhoPhiZViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
+   //gEve->Redraw3D();
 }
 
 //
