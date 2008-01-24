@@ -162,6 +162,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
     // store the indices of the muon objects
     // from the combination evaluated in the condition
     SingleCombInCond objectsInComb;
+    objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
     (*m_combinationsInCond).clear();

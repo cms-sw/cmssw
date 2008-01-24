@@ -20,6 +20,7 @@
 
 // system include files
 #include <vector>
+#include <ext/hash_map>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -175,22 +176,24 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
     evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
 
-    std::vector<ConditionMap> conditionMap = l1GtMenu->gtConditionMap();
-    AlgorithmMap algorithmMap = l1GtMenu->gtAlgorithmMap();
+    const std::vector<ConditionMap>& conditionMap = l1GtMenu->gtConditionMap();
+    const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // save the results in temporary maps
 
-    std::vector<std::map<std::string, L1GtConditionEvaluation*> >
-        conditionResultMaps(conditionMap.size());
-
-    int iMap = 0;
-
-    for (std::vector<ConditionMap>::iterator itCondOnChip = conditionMap.begin(); itCondOnChip
+    
+    std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
+    conditionResultMaps.reserve(conditionMap.size());
+    
+    for (std::vector<ConditionMap>::const_iterator itCondOnChip = conditionMap.begin(); itCondOnChip
         != conditionMap.end(); itCondOnChip++) {
 
-        for (ItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+        //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
+        L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
+        
+        for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
             // evaluate condition
             switch ((itCond->second)->condCategory()) {
@@ -199,7 +202,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     L1GtMuonCondition* muCondition = new L1GtMuonCondition(itCond->second, this, evSetup);
                     muCondition->evaluateConditionStoreResult();
 
-                    (conditionResultMaps.at(iMap))[itCond->first] = muCondition;
+                    cMapResults[itCond->first] = muCondition;
 
                     if (edm::isDebugEnabled() ) {
                         std::ostringstream myCout;
@@ -217,7 +220,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     L1GtCaloCondition* caloCondition = new L1GtCaloCondition(itCond->second, ptrGtPSB, evSetup);
                     caloCondition->evaluateConditionStoreResult();
 
-                    (conditionResultMaps.at(iMap))[itCond->first] = caloCondition;
+                    cMapResults[itCond->first] = caloCondition;
 
                     if (edm::isDebugEnabled() ) {
                         std::ostringstream myCout;
@@ -233,7 +236,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     L1GtEnergySumCondition* eSumCondition = new L1GtEnergySumCondition(itCond->second, ptrGtPSB, evSetup);
                     eSumCondition->evaluateConditionStoreResult();
 
-                    (conditionResultMaps.at(iMap))[itCond->first] = eSumCondition;
+                    cMapResults[itCond->first] = eSumCondition;
 
                     if (edm::isDebugEnabled() ) {
                         std::ostringstream myCout;
@@ -249,7 +252,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(itCond->second, ptrGtPSB, evSetup);
                     jcCondition->evaluateConditionStoreResult();
 
-                    (conditionResultMaps.at(iMap))[itCond->first] = jcCondition;
+                    cMapResults[itCond->first] = jcCondition;
 
                     if (edm::isDebugEnabled() ) {
                         std::ostringstream myCout;
@@ -283,7 +286,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
         }
 
-        iMap++;
+        conditionResultMaps.push_back(cMapResults);
 
     }
 
@@ -315,7 +318,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
             objMap.setAlgoLogicalExpression(gtAlg.logicalExpression());
-            objMap.setAlgoNumericalExpression(gtAlg.gtAlgoNumericalExpression());
+            objMap.setOperandTokenVector(gtAlg.operandTokenVector());
             objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
 
             if (edm::isDebugEnabled() ) {
@@ -347,10 +350,11 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // delete the conditions created with new, clear all
-    for (std::vector<std::map<std::string, L1GtConditionEvaluation*> >::iterator itCondOnChip =
-        conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end(); itCondOnChip++) {
+    for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator 
+        itCondOnChip = conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end(); 
+        itCondOnChip++) {
 
-        for (std::map<std::string, L1GtConditionEvaluation*>::iterator itCond =
+        for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
             itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
             if (itCond->second != 0) {

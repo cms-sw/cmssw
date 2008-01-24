@@ -25,8 +25,10 @@
 #include <vector>
 
 #include <iostream>
+#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
+#include <ext/hash_map>
 
 // user include files
 
@@ -53,8 +55,11 @@ L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation() :
 
 /// constructor from an algorithm from event setup
 L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(const L1GtAlgorithm* alg) :
-    L1GtLogicParser(alg->algoLogicalExpression()) {
+    L1GtLogicParser() {
 
+    m_logicalExpression = alg->algoLogicalExpression();
+    m_rpnVector = alg->algoRpnVector();
+    
     m_algoResult = false;
 
     // the rest is properly initialized by default
@@ -66,12 +71,10 @@ L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation& cp) {
 
     // parser part
     m_logicalExpression = cp.logicalExpression();
-    m_numericalExpression = cp.numericalExpression();
     RpnVector m_rpnVector = cp.rpnVector();
 
     // L1GtAlgorithmEvaluation part
     m_algoResult = cp.gtAlgoResult();
-    m_algoNumericalExpression = cp.gtAlgoNumericalExpression();
     m_algoCombinationVector = *(cp.gtAlgoCombinationVector());
 
 }
@@ -87,7 +90,7 @@ L1GtAlgorithmEvaluation::~L1GtAlgorithmEvaluation() {
 
 /// evaluate an algorithm
 void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
-    const std::vector<std::map<std::string, L1GtConditionEvaluation*> >& conditionResultMaps) {
+    const std::vector<ConditionEvaluationMap>& conditionResultMaps) {
 
     // set result to false if there is no expression 
     if (m_rpnVector.empty() ) {
@@ -100,15 +103,18 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
         << std::endl;
 
     }
+    
+    // reserve memory
+    int rpnVectorSize = m_rpnVector.size();
+    
+    m_algoCombinationVector.reserve(rpnVectorSize);
+    m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
     std::stack<bool> resultStack;
     bool b1, b2;
 
-    // stack of condition results - to be used for numerical expression
-    std::queue<int> condResultStack;
-
-    typedef std::map<std::string, L1GtConditionEvaluation*>::const_iterator CondIter;
+    int opNumber = 0;
 
     for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
@@ -121,15 +127,24 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
             case OP_OPERAND: {
 
-                CondIter itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
+                CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
 
                     //
                     bool condResult = (itCond->second)->condLastResult();
 
                     resultStack.push(condResult);
-                    condResultStack.push(condResult);
 
+                    // only conditions are added to /counted in m_operandTokenVector 
+                    // opNumber is the index of the condition in the logical expression
+                    OperandToken opToken;
+                    opToken.tokenName = it->operand;
+                    opToken.tokenNumber = opNumber;
+                    opToken.tokenResult = condResult;
+                    
+                    m_operandTokenVector.push_back(opToken);
+                    opNumber++;
+                    
                     //
                     CombinationsInCond* combInCondition = (itCond->second)->getCombinationsInCond();
                     m_algoCombinationVector.push_back(*combInCondition);
@@ -185,68 +200,6 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     m_algoResult = resultStack.top();
 
-    // convert the logical expression to the numerical expression using the saved stack 
-
-    m_algoNumericalExpression.clear();
-
-    OperationType actualOperation = OP_NULL;
-    OperationType lastOperation = OP_NULL;
-
-    std::string tokenString;
-    TokenRPN rpnToken; // token to be used by getOperation
-
-    // stringstream to separate all tokens
-    std::istringstream exprStringStream(m_logicalExpression);
-
-    while (!exprStringStream.eof()) {
-
-        exprStringStream >> tokenString;
-
-        actualOperation = getOperation(tokenString, lastOperation, rpnToken);
-        if (actualOperation == OP_INVALID) {
-
-            m_algoNumericalExpression.clear();
-
-            // it should never be invalid
-            throw cms::Exception("FailModule")
-            << "\nLogical expression = '"
-            << m_logicalExpression << "'"
-            << "\n  Invalid operation/operand in logical expression."
-            << std::endl;
-
-        }
-
-        if (actualOperation != OP_OPERAND) {
-
-            m_algoNumericalExpression.append(getRuleFromType(actualOperation)->opString);
-
-        }
-        else {
-
-            // replace the operand with its result
-            if (condResultStack.front()) {
-                m_algoNumericalExpression.append("1"); // true
-            }
-            else {
-                m_algoNumericalExpression.append("0"); // false
-            }
-
-            condResultStack.pop();
-        }
-
-        m_algoNumericalExpression.append(" "); // one whitespace after each token
-        lastOperation = actualOperation;
-    }
-
-    // remove leading and trailing spaces
-    boost::trim(m_algoNumericalExpression);
-
-    //LogTrace("L1GtAlgorithmEvaluation")
-    //<< "\nLogical expression   = '" << m_logicalExpression << "'"
-    //<< "\nNumerical expression = '" << m_algoNumericalExpression << "'"
-    //<< "\nResult = " << m_algoResult
-    //<< std::endl;
-
 
 }
 
@@ -255,10 +208,30 @@ void L1GtAlgorithmEvaluation::print(std::ostream& myCout) const {
 
     myCout << std::endl;
 
-    myCout << "    Algorithm result:       " << m_algoResult << std::endl;
-    myCout << "    Numerical expression:   '" << m_algoNumericalExpression << "'" << std::endl;
+    myCout << "    Algorithm result:          " << m_algoResult << std::endl;
 
-    myCout << "    CombinationVector size: " << m_algoCombinationVector.size() << std::endl;
+    myCout << "    CombinationVector size:    " << m_algoCombinationVector.size() << std::endl;
+
+    int operandTokenVectorSize = m_operandTokenVector.size();
+
+    myCout << "    Operand token vector size: " << operandTokenVectorSize;
+
+    if (operandTokenVectorSize == 0) {
+        myCout << "   - not properly initialized! " << std::endl;
+    }
+    else {
+        myCout << std::endl;
+
+        for (int i = 0; i < operandTokenVectorSize; ++i) {
+
+            myCout << "      " << std::setw(5) << (m_operandTokenVector[i]).tokenNumber << "\t"
+            << std::setw(25) << (m_operandTokenVector[i]).tokenName << "\t" 
+            << (m_operandTokenVector[i]).tokenResult 
+            << std::endl;
+
+        }
+
+    }
 
     myCout << std::endl;
 }

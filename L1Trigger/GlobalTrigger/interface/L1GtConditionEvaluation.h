@@ -124,18 +124,18 @@ protected:
 template<class Type1, class Type2> const bool L1GtConditionEvaluation::checkThreshold(
     const Type1& threshold, const Type2& value, const bool condGEqValue) const {
 
-    if (value > 0) {
-        LogTrace("L1GtConditionEvaluation") << "  threshold check for condGEqValue = "
-            << condGEqValue << "\n    hex: " << std::hex << "threshold = " << threshold
-            << " value = " << value << "\n    dec: " << std::dec << "threshold = " << threshold
-            << " value = " << value << std::endl;
-    }
+    //if (value > 0) {
+    //    LogTrace("L1GtConditionEvaluation") << "  threshold check for condGEqValue = "
+    //        << condGEqValue << "\n    hex: " << std::hex << "threshold = " << threshold
+    //        << " value = " << value << "\n    dec: " << std::dec << "threshold = " << threshold
+    //        << " value = " << value << std::endl;
+    //}
 
     if (condGEqValue) {
         if (value >= threshold) {
 
-            LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value >= threshold"
-                << std::endl;
+            //LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value >= threshold"
+            //    << std::endl;
 
             return true;
         }
@@ -147,8 +147,8 @@ template<class Type1, class Type2> const bool L1GtConditionEvaluation::checkThre
 
         if (value == threshold) {
 
-            LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value = threshold"
-                << std::endl;
+            //LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value = threshold"
+            //    << std::endl;
 
             return true;
         }
@@ -173,11 +173,11 @@ template<class Type1> const bool L1GtConditionEvaluation::checkBit(const Type1& 
 
     oneBit <<= bitNumber;
 
-    LogTrace("L1GtConditionEvaluation") << "    checkBit " << "\n     mask address = " << &mask
-        << std::dec << "\n     dec: " << "mask = " << mask << " oneBit = " << oneBit
-        << " bitNumber = " << bitNumber << std::hex << "\n     hex: " << "mask = " << mask
-        << " oneBit = " << oneBit << " bitNumber = " << bitNumber << std::dec
-        << "\n     mask & oneBit result = " << bool ( mask & oneBit ) << std::endl;
+    //LogTrace("L1GtConditionEvaluation") << "    checkBit " << "\n     mask address = " << &mask
+    //    << std::dec << "\n     dec: " << "mask = " << mask << " oneBit = " << oneBit
+    //    << " bitNumber = " << bitNumber << std::hex << "\n     hex: " << "mask = " << mask
+    //    << " oneBit = " << oneBit << " bitNumber = " << bitNumber << std::dec
+    //    << "\n     mask & oneBit result = " << bool ( mask & oneBit ) << std::endl;
 
     return (mask & oneBit);
 }

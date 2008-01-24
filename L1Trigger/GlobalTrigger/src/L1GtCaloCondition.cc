@@ -186,6 +186,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
     // store the indices of the calorimeter objects
     // from the combination evaluated in the condition
     SingleCombInCond objectsInComb;
+    objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
     (*m_combinationsInCond).clear();

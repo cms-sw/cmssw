@@ -132,8 +132,8 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
     evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
 
-    AlgorithmMap algorithmMap = l1GtMenu->gtAlgorithmMap();
-    std::string menuName = l1GtMenu->gtTriggerMenuName();
+    const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+    const std::string& menuName = l1GtMenu->gtTriggerMenuName();
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;

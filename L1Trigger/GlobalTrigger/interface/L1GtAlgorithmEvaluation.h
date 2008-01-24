@@ -19,13 +19,35 @@
 
 // system include files
 #include <iostream>
-#include <iomanip>
 
 #include <string>
 #include <vector>
 #include <map>
 
 #include <boost/cstdint.hpp>
+
+// if hash map is used
+
+#include <ext/hash_map>
+
+//   how to hash std::string, using a "template specialization"
+namespace __gnu_cxx
+{
+
+/**
+ Explicit template specialization of hash of a string class,
+ which just uses the internal char* representation as a wrapper.
+ */
+template <> struct hash<std::string>
+{
+    size_t operator()(const std::string& x) const {
+        return hash<const char*>()(x.c_str());
+    }
+};
+
+}
+// end hash map
+
 
 // user include files
 
@@ -58,6 +80,11 @@ public:
 
     /// destructor
     virtual ~L1GtAlgorithmEvaluation();
+    
+    //typedef std::map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
+    typedef __gnu_cxx::hash_map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
+    typedef ConditionEvaluationMap::const_iterator CItEvalMap ;
+    typedef ConditionEvaluationMap::iterator ItEvalMap  ;
 
 public:
 
@@ -71,14 +98,7 @@ public:
     }
 
     /// evaluate an algorithm
-    void evaluateAlgorithm(const int chipNumber, 
-        const std::vector<std::map<std::string, L1GtConditionEvaluation*> >&);
-
-    /// get the numeric expression
-    inline const std::string& gtAlgoNumericalExpression() const {
-        return m_algoNumericalExpression;
-
-    }
+    void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap>&);
 
     /// get all the object combinations evaluated to true in the conditions 
     /// from the algorithm 
@@ -93,9 +113,6 @@ private:
 
     /// algorithm result
     bool m_algoResult;
-
-    /// algorithm numerical expresssion
-    std::string m_algoNumericalExpression;
 
     std::vector<CombinationsInCond> m_algoCombinationVector;
 

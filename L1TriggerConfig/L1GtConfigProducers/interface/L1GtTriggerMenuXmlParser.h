@@ -96,14 +96,14 @@ public:
 public:
 
     /// get / set the trigger menu name
-    inline const std::string gtTriggerMenuName() const {
+    inline const std::string& gtTriggerMenuName() const {
         return m_triggerMenuName;
     }
 
     void setGtTriggerMenuName(const std::string&);
 
     /// get / set the condition maps
-    inline const std::vector<ConditionMap> gtConditionMap() const
+    inline const std::vector<ConditionMap>& gtConditionMap() const
     {
         return m_conditionMap;
     }
@@ -111,7 +111,7 @@ public:
     void setGtConditionMap(const std::vector<ConditionMap>&);
 
     /// get / set the algorithm map
-    inline const AlgorithmMap gtAlgorithmMap() const
+    inline const AlgorithmMap& gtAlgorithmMap() const
     {
         return m_algorithmMap;
     }

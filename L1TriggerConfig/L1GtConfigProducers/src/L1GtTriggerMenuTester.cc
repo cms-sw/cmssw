@@ -66,4 +66,6 @@ void L1GtTriggerMenuTester::analyze(
     printVerbosity = 2;
     l1GtMenu->print(std::cout, printVerbosity);
 
+    printVerbosity = 3;
+    l1GtMenu->print(std::cout, printVerbosity);
 }

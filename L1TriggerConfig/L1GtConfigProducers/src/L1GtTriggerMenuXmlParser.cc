@@ -2342,9 +2342,6 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     //<< "      Logical expression: " << logExpression
     //<< std::endl;
 
-    // parse the logical expression - check for correctness
-    // TODO FIXME
-
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "      Chip number:        " << chipNr
     //<< std::endl;
@@ -2381,7 +2378,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     }
 
     if (pinNode == 0) {
-        LogTrace("L1GlobalTriggerConfig") << "    Warning: No pin number found for algorithm: "
+        LogTrace("L1GtTriggerMenuXmlParser") << "    Warning: No pin number found for algorithm: "
             << algName << std::endl;
 
         return false;
@@ -2424,7 +2421,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
  * NOTE: the algorithms used here are equivalent to "prealgo" from XML file 
  *       for the VERSION_FINAL
  *       The "VERSION_PROTOTYPE algo" will be phased out later in the XML file
- *       See L1GlobalTriggerConfig.h 
+ *       See L1GlobalTriggerConfig.h (in the attic)
  * 
  * @param parser A reference to the XercesDOMParser to use.
  * 
@@ -2542,11 +2539,6 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
 
     // clear possible old maps
     clearMaps();
-
-    // FIXME uncomment the checks
-    //    if ( ! checkVersion(parser) ) {
-    //        return false;
-    //    }
 
     if ( !parseConditions(parser) ) {
         clearMaps();
