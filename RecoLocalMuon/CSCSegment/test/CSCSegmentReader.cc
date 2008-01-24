@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2007/11/01 18:10:03 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/11/01 19:05:45 $
+ *  $Revision: 1.18 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -240,7 +240,13 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
       bool satisfied1 = false;
       bool satisfied2 = false;
 
+
+      int bestMatchIdx= bestMatch( simId, simHits, cscSegments, geom);
+
+      int idx = -1;
+
       for (CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt!=cscSegments->end(); ++segIt) {
+        idx++;
 
         CSCDetId id = (*segIt).cscDetId();
         if ((simId.endcap()  == id.endcap())  &&
@@ -253,19 +259,20 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
           hrechit->Fill((*segIt).nRecHits());        
 
           if ( (*segIt).nRecHits() >= minRechitSegment ) {
-
-
-//	    hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
-	    hchi2->Fill((*segIt).chi2());
-
             satisfied2 = true;
-            break;
+
+            if (bestMatchIdx == idx ) {         
+  	      hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
+//	      hchi2->Fill((*segIt).chi2());
+            }
           }
         }    
       }
+
       if (satisfied1) segMap1[s]++;
       if (satisfied1 && satisfied0) segMap2[s]++;
       if (satisfied2 && satisfied0) segMap3[s]++;
+
     }   
   }
 }
@@ -286,18 +293,25 @@ void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
 void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits, 
                                   const Handle<CSCSegmentCollection> cscSegments, 
                                   const CSCGeometry* geom) {
-
+ 
+  int idx = -1;
 
   for (CSCSegmentCollection::const_iterator its = cscSegments->begin(); its != cscSegments->end(); its++) {
+
+    idx++;
+
+    CSCDetId recId = (*its).cscDetId();
+
+    int bestMatchIdx= bestMatch( recId, simHits, cscSegments, geom);
+
+    if (bestMatchIdx != idx) continue;
         
     double segX=-99999., segY=-99999.;
     double simX = 100.,  sim1X = 100., sim2X = 0.;
     double simY = 100.,  sim1Y = 100., sim2Y = 0.;
     double resoPhi = 1., resoTheta = 1.;
-    double minPhi = 1, minTheta = 1;
     unsigned int simTrack = 0;
         
-    const CSCChamber* chamber = 0;
     const CSCChamber* ch = geom->chamber((*its).cscDetId());
 
     LocalVector segDir = (*its).localDirection();
@@ -324,6 +338,8 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
     double minDphi = maxPhi;
  
     for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+
+      if ( abs((*ith).particleType()) != 13 ) continue;
         
       CSCDetId simId = (CSCDetId)(*ith).detUnitId();
 
@@ -361,6 +377,8 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
          
     for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
         
+      if ( abs((*ith).particleType()) != 13 ) continue;
+
       CSCDetId simId = (CSCDetId)(*ith).detUnitId();
             
       if ((simId.layer() == lastLayer) && (simTrack = (*ith).trackId())) {
@@ -417,6 +435,144 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
   }  
 }
 
+
+
+int CSCSegmentReader::bestMatch( CSCDetId id0,
+                                 const Handle<PSimHitContainer> simHits,
+                                 const Handle<CSCSegmentCollection> cscSegments,
+                                 const CSCGeometry* geom) {
+
+  int bestIndex  = -1;
+
+  const CSCChamber* ch = geom->chamber(id0);
+
+  bool check1 = false;
+  bool check6 = false;
+
+  GlobalPoint gpn = ch->layer(6)->surface().toGlobal(LocalPoint(0,0,0));
+  GlobalPoint gpf = ch->layer(1)->surface().toGlobal(LocalPoint(0,0,0));
+
+  int firstLayer = 6;
+  int lastLayer  = 1;
+
+  if (fabs(gpn.z()) > fabs(gpf.z())) {
+    firstLayer = 1;
+    lastLayer = 6;
+  }
+
+  LocalVector simDir1;
+
+  float sim1X = 0.;
+  float sim1Y = 0.;
+  float sim1Z = 0.;
+  int counter = 0;
+
+  for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+
+    if ( abs((*ith).particleType()) != 13 ) continue;
+
+    CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+
+    if ( simId.layer() == firstLayer && ch == geom->chamber(simId) ) {
+
+      check1 = true;
+
+      sim1X +=(*ith).localPosition().x();
+      sim1Y +=(*ith).localPosition().y();
+      sim1Z  =(*ith).localPosition().z();
+
+      counter++;
+    }
+  }
+
+  if ( !check1 ) return bestIndex;
+  sim1X = sim1X / counter;
+  sim1Y = sim1Y / counter;
+
+
+  float sim2X = 0.;
+  float sim2Y = 0.;
+  float sim2Z = 0.;
+  counter = 0;
+
+  for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+
+    if ( abs((*ith).particleType()) != 13 ) continue;
+
+    CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+    if ( simId.layer() == lastLayer && ch == geom->chamber(simId) ) {
+
+      check6 = true;
+
+      sim2X +=(*ith).localPosition().x();
+      sim2Y +=(*ith).localPosition().y();
+      sim2Z  =(*ith).localPosition().z();
+      counter++;
+    }
+  }
+
+
+  if ( !check6 ) return bestIndex;
+
+  sim2X = sim2X / counter;
+  sim2Y = sim2Y / counter;
+
+
+  float x = (sim2X + sim1X) /2.;
+  float y = (sim2Y + sim1Y) /2.;
+
+  float dx = (sim2X - sim1X);
+  float dy = (sim2Y - sim1Y);
+  float dz = (sim2Z - sim1Z);
+  float magSim = sqrt(dx*dx + dy*dy + dz*dz);
+
+  int idxCounter = -1;
+  float bestCosTheta = 0.;
+
+
+  for (CSCSegmentCollection::const_iterator its = cscSegments->begin(); its !=cscSegments->end(); its++) {
+    CSCDetId id = (*its).cscDetId();
+
+    if ((id0.endcap()   == id.endcap())  &&
+        (id0.ring()     == id.ring())    &&
+        (id0.station()  == id.station()) &&
+        (id0.chamber() == id.chamber())) {
+      idxCounter++;
+    } else {
+      idxCounter++;
+      continue;
+    }
+
+    float xreco  = (*its).localPosition().x();
+    float yreco  = (*its).localPosition().y();
+
+    float dR = (xreco - x) *  (xreco - x) + (yreco - y) *  (yreco - y);
+    dR = sqrt(dR);
+
+    if (dR > 4. ) continue;   // 4 centimeter radius
+
+    LocalVector segDir = (*its).localDirection();
+
+    float xdir = segDir.x();
+    float ydir = segDir.y();
+    float zdir = segDir.z();
+    float magReco = sqrt(xdir*xdir + ydir*ydir + zdir*zdir);
+
+    // Find angular difference between two segments.
+    // Use dot product:  cos(theta_12) = v1 . v2 / [ |v1|*|v2| ]
+
+    double costheta = (xdir * dx + ydir * dy + zdir * dz) / (magSim * magReco);
+    if (costheta < 0.) costheta = -costheta;
+
+    if (costheta > bestCosTheta) {
+      bestCosTheta = costheta;
+      bestIndex = idxCounter;
+    }
+
+  }
+
+  return bestIndex;
+}
 
 
 DEFINE_FWK_MODULE(CSCSegmentReader);

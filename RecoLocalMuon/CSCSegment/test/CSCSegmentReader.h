@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2007/07/26 00:52:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/07/26 04:45:01 $
+ *  $Revision: 1.8 $
  *  \author M. Sani
  */
 
@@ -52,9 +52,16 @@ public:
   void simInfo(const edm::Handle<edm::SimTrackContainer> simTracks);
   
   /// Segment building info
-  void recInfo(const edm::Handle<edm::PSimHitContainer> sH, 
-            const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
-            const CSCGeometry* geom);
+  void recInfo( const edm::Handle<edm::PSimHitContainer> sH, 
+                const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
+                const CSCGeometry* geom);
+
+  /// Find best rec segment for set of muon sim hits
+  int bestMatch( CSCDetId id0,
+                 const edm::Handle<edm::PSimHitContainer> simHits,
+                 const edm::Handle<CSCSegmentCollection> cscSegments,
+                 const CSCGeometry* geom );
+
   
 protected:
 
