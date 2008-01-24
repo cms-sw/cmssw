@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2008/01/17 15:35:49 $
- * $Revision: 1.11 $
+ * $Date: 2008/01/22 18:07:23 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,12 @@ MonitorElement* meOccupancyMem_[36];
 
 MonitorElement* meEBDigiOccupancy_, *meEBDigiOccupancyProjEta_, *meEBDigiOccupancyProjPhi_;
 MonitorElement* meEBRecHitOccupancy_, *meEBRecHitOccupancyProjEta_, *meEBRecHitOccupancyProjPhi_;
+MonitorElement* meEBRecHitOccupancyThr_, *meEBRecHitOccupancyProjEtaThr_, *meEBRecHitOccupancyProjPhiThr_;
 MonitorElement* meEBTrigPrimDigiOccupancy_, *meEBTrigPrimDigiOccupancyProjEta_, *meEBTrigPrimDigiOccupancyProjPhi_;
+MonitorElement* meEBTrigPrimDigiOccupancyThr_, *meEBTrigPrimDigiOccupancyProjEtaThr_, *meEBTrigPrimDigiOccupancyProjPhiThr_;
+
+float recHitEnergyMin_;
+float trigPrimEtMin_;
 
 bool init_;
 

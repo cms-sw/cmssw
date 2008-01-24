@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/01/22 18:07:49 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/23 07:15:44 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,12 @@ MonitorElement* meOccupancyMem_[18];
 
 MonitorElement* meEEDigiOccupancy_[2], *meEEDigiOccupancyProjX_[2], *meEEDigiOccupancyProjY_[2];
 MonitorElement* meEERecHitOccupancy_[2], *meEERecHitOccupancyProjX_[2], *meEERecHitOccupancyProjY_[2];
+MonitorElement* meEERecHitOccupancyThr_[2], *meEERecHitOccupancyProjXThr_[2], *meEERecHitOccupancyProjYThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancy_[2], *meEETrigPrimDigiOccupancyProjX_[2], *meEETrigPrimDigiOccupancyProjY_[2];
+MonitorElement* meEETrigPrimDigiOccupancyThr_[2], *meEETrigPrimDigiOccupancyProjXThr_[2], *meEETrigPrimDigiOccupancyProjYThr_[2];
+
+float recHitEnergyMin_;
+float trigPrimEtMin_;
 
 bool init_;
 
