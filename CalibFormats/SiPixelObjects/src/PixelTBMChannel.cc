@@ -1,4 +1,5 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMChannel.h"
+#include <cassert>
 
 using namespace pos;
 
