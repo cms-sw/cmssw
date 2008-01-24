@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.24 2007/12/21 22:42:30 wmtan Exp $
+$Id: Wrapper.h,v 1.25 2008/01/23 23:35:18 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,10 +37,6 @@ namespace edm {
     virtual ~Wrapper() {}
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
-    bool isMergeable();
-    bool mergeProduct(EDProduct* newProduct);
-    bool hasIsProductEqual();
-    bool isProductEqual(EDProduct* newProduct);
 
     //these are used by FWLite
     static const std::type_info& productTypeInfo() { return typeid(T);}
@@ -48,6 +44,12 @@ namespace edm {
     
   private:
     virtual bool isPresent_() const {return present;}
+#ifndef __REFLEX__
+    virtual bool isMergeable_();
+    virtual bool mergeProduct_(EDProduct* newProduct);
+    virtual bool hasIsProductEqual_();
+    virtual bool isProductEqual_(EDProduct* newProduct);
+#endif
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
 			     helper_vector_ptr & helpers) const;
@@ -188,6 +190,7 @@ namespace edm {
     void operator()(T& a, T& b) { a = b; }
   };
 
+#ifndef __REFLEX__
   template <typename T>
   struct IsMergeable
   {
@@ -235,6 +238,7 @@ namespace edm {
   {
     bool operator()(T& a, T& b) { return true; }
   };
+#endif
 
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
@@ -268,6 +272,7 @@ namespace edm {
 	sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
 
+#ifndef __REFLEX__
     template <typename T, void (T::*)(T&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
@@ -289,6 +294,7 @@ namespace edm {
       static bool const value = 
 	sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
     };
+#endif
 #else
     //------------------------------------------------------------
     // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
@@ -328,8 +334,9 @@ namespace edm {
     }
   }
 
+#ifndef __REFLEX__
   template <class T>
-  bool Wrapper<T>::isMergeable()
+  bool Wrapper<T>::isMergeable_()
   { 
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
       IsMergeable<T>, 
@@ -338,7 +345,7 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::mergeProduct(EDProduct* newProduct)
+  bool Wrapper<T>::mergeProduct_(EDProduct* newProduct)
   { 
     Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
     if (wrappedNewProduct == 0) return false;
@@ -349,7 +356,7 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::hasIsProductEqual()
+  bool Wrapper<T>::hasIsProductEqual_()
   { 
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
       DoHasIsProductEqual<T>, 
@@ -358,7 +365,7 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::isProductEqual(EDProduct* newProduct)
+  bool Wrapper<T>::isProductEqual_(EDProduct* newProduct)
   { 
     Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
     if (wrappedNewProduct == 0) return false;
@@ -367,6 +374,7 @@ namespace edm {
       DoNotIsProductEqual<T> >::type is_equal;
     return is_equal(obj, wrappedNewProduct->obj);
   }
+#endif
 }
 
 #include "DataFormats/Common/interface/RefVector.h"
