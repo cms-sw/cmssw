@@ -72,7 +72,7 @@ void DQMBaseClient::configureAction(toolbox::Event::Reference e)
       mui_ = new MonitorUIRoot(server_, port_, name_, reconnect_delay_secs_, actAsServer_);
     }
   for(unsigned int i = 0; i < subs_.size(); i++)
-    mui_->subscribe(*((std::string*)subs_.elementAt(i)));
+    // mui_->subscribe(*((std::string*)subs_.elementAt(i)));
 
   configure();
 }

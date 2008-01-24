@@ -242,7 +242,7 @@ class ClientRoot : public ReceiverBase
   bool doNotBlockUpdate; 
 
   /// add call back; to be used for thread-unsafe operations
-  void addCallback(seal::Callback & action);
+//  void addCallback(seal::Callback & action);
   /// run queue of callback methods
   void run_callbacks();
 
@@ -255,6 +255,7 @@ class ClientRoot : public ReceiverBase
 
 
   friend class MonitorUIRoot;
+  friend class MonitorUserInterface;
 
 };
 

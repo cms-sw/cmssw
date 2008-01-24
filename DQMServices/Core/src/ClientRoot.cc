@@ -786,11 +786,11 @@ void ClientRoot::run_callbacks()
 }
 
 // add call back method; to be used for thread-unsafe operations
-void ClientRoot::addCallback(seal::Callback & action)
+/* void ClientRoot::addCallback(seal::Callback & action)
 {
   LockMutex a(cb_queue.mutex);
   cb_queue.cmds.push(action);
-}
+}*/
 
 //return server socket; used to handle ctrl-c termination of collector process
 int ClientRoot::getServerSocket ()

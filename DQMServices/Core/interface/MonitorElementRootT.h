@@ -144,6 +144,7 @@ class MonitorElementRootFolder : public MonitorElementRootObject
   friend class DQMTagHelper;
   /// for fast access to objects_
   friend class MonitorUIRoot;
+  friend class MonitorUserInterface;
   friend class edm::DQMHttpSource;
 
   /// get (pointer to) last directory in inpath (create necessary subdirs)
