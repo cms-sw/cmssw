@@ -208,9 +208,12 @@ copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
 
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/js_files], qq[$ENV{PWD}/js_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/css_files], qq[$ENV{PWD}/css_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/images], qq[$ENV{PWD}/images];
+#system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/js_files], qq[$ENV{PWD}/js_files];
+#system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/css_files], qq[$ENV{PWD}/css_files];
+#system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/images], qq[$ENV{PWD}/images];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/js_files], qq[$ENV{PWD}/js_files];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/css_files], qq[$ENV{PWD}/css_files];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/images], qq[$ENV{PWD}/images];
 
 copy("$ENV{PWD}/../test/js_files/.svgmap.js", "$ENV{PWD}/js_files/svgmap.js");
 system qq[perl], qq[-pi -e], qq[s#serverHost#$COLLECTORNAME#g], qq[$ENV{PWD}/js_files/svgmap.js];
