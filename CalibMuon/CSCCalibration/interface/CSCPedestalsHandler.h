@@ -24,14 +24,17 @@ namespace popcon
 		public:
 			void getNewObjects();
 			~CSCDBPedestalsImpl(); 
-			CSCDBPedestalsImpl(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est, std::string);
+			CSCDBPedestalsImpl(const std::string&,
+					   const std::string&, 
+					   const edm::Event& evt, 
+					   const edm::EventSetup& est, 
+					   const std::string&);
 		
 
 		private:
 			std::string m_pop_connect; //connect string to popcon metaschema
 			std::string m_name;
 			std::string m_cs;
-			//const CSCPedestals * mypedestals;
 			const CSCDBPedestals * mypedestals;
 			LogReader* lgrdr;
 	};

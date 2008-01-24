@@ -10,6 +10,6 @@ CSCGainsPopConAnalyzer::CSCGainsPopConAnalyzer(const edm::ParameterSet& ps) : Po
 
 void CSCGainsPopConAnalyzer::CSCGainsPopConAnalyzer::initSource(const edm::Event& evt, const edm::EventSetup& est)
 {
-	this->m_handler_object =new CSCDBGainsImpl("CSCDBGains",m_offline_connection, m_catalog,evt,est, m_pop_connection);
+	this->m_handler_object =new CSCDBGainsImpl("CSCDBGains",m_offline_connection,evt,est, m_pop_connection);
 }
 

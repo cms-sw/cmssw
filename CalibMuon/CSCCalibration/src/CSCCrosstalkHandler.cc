@@ -1,11 +1,14 @@
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkHandler.h"
 
-popcon::CSCDBCrosstalkImpl::CSCDBCrosstalkImpl(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect) : popcon::PopConSourceHandler<CSCDBCrosstalk>(name,cstring,cat,evt,est), m_pop_connect(pconnect)
-{
-	m_name = name;
-	m_cs = cstring;
-	lgrdr = new LogReader(m_pop_connect);
-	
+popcon::CSCDBCrosstalkImpl::CSCDBCrosstalkImpl(const std::string& name, 
+					   const std::string& cstring, 
+					   const edm::Event& evt, 
+					   const edm::EventSetup& est, 
+					   const std::string& pconnect) : popcon::PopConSourceHandler<CSCDBCrosstalk>(name,cstring,evt,est), m_pop_connect(pconnect){
+  m_name = name;
+  m_cs = cstring;
+  lgrdr = new LogReader(m_pop_connect);
+  
 }
 
 popcon::CSCDBCrosstalkImpl::~CSCDBCrosstalkImpl()

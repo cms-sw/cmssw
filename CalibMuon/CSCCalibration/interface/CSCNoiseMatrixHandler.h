@@ -24,7 +24,11 @@ namespace popcon
 		public:
 			void getNewObjects();
 			~CSCDBNoiseMatrixImpl(); 
-			CSCDBNoiseMatrixImpl(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est, std::string);
+			CSCDBNoiseMatrixImpl(const std::string&,
+					     const std::string&,
+					     const edm::Event& evt, 
+					     const edm::EventSetup& est, 
+					     const std::string&);
 		
 
 		private:

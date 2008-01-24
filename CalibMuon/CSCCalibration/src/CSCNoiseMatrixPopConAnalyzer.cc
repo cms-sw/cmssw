@@ -10,6 +10,6 @@ CSCNoiseMatrixPopConAnalyzer::CSCNoiseMatrixPopConAnalyzer(const edm::ParameterS
 
 void CSCNoiseMatrixPopConAnalyzer::CSCNoiseMatrixPopConAnalyzer::initSource(const edm::Event& evt, const edm::EventSetup& est)
 {
-	this->m_handler_object =new CSCDBNoiseMatrixImpl("CSCDBNoiseMatrix",m_offline_connection, m_catalog,evt,est, m_pop_connection);
+	this->m_handler_object =new CSCDBNoiseMatrixImpl("CSCDBNoiseMatrix",m_offline_connection,evt,est, m_pop_connection);
 }
 

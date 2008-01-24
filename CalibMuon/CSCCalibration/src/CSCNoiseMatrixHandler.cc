@@ -1,6 +1,10 @@
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixHandler.h"
 
-popcon::CSCDBNoiseMatrixImpl::CSCDBNoiseMatrixImpl(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect) : popcon::PopConSourceHandler<CSCDBNoiseMatrix>(name,cstring,cat,evt,est), m_pop_connect(pconnect)
+popcon::CSCDBNoiseMatrixImpl::CSCDBNoiseMatrixImpl(const std::string& name, 
+						   const std::string& cstring,
+						   const edm::Event& evt, 
+						   const edm::EventSetup& est, 
+						   const std::string& pconnect) : popcon::PopConSourceHandler<CSCDBNoiseMatrix>(name,cstring,evt,est), m_pop_connect(pconnect)
 {
 	m_name = name;
 	m_cs = cstring;

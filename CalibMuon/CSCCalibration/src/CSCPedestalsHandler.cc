@@ -2,7 +2,11 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-popcon::CSCDBPedestalsImpl::CSCDBPedestalsImpl(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect) : popcon::PopConSourceHandler<CSCDBPedestals>(name,cstring,cat,evt,est), m_pop_connect(pconnect)
+popcon::CSCDBPedestalsImpl::CSCDBPedestalsImpl(const std::string& name, 
+					       const std::string& cstring,
+					       const edm::Event& evt, 
+					       const edm::EventSetup& est, 
+					       const std::string& pconnect) : popcon::PopConSourceHandler<CSCDBPedestals>(name,cstring,evt,est), m_pop_connect(pconnect)
 {
 	m_name = name;
 	m_cs = cstring;
