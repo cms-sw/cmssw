@@ -141,18 +141,18 @@ bool AnalyticalTrackSelector::select(const reco::Track &tk, const std::vector<Po
    double nomd0E = sqrt(0.003*0.003+(0.01/max(pt,1e-9))*(0.01/max(pt,1e-9)));
    // nominal z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
-   //cut on chiquare/ndof
-   if (chi2n <= chi2n_par_*nhits) {
-	 //no vertex, wide cuts
+   //cut on chiquare/ndof && on d0 compatibility with beam line
+   if (chi2n <= chi2n_par_*nhits &&
+	   abs(d0) < pow(d0_par1_[0]*nhits,d0_par1_[1])*nomd0E &&
+	   abs(d0) < pow(d0_par2_[0]*nhits,d0_par2_[1])*d0E ) {
+	 //no vertex, wide z cuts
 	 if (points.empty()) { 
-	   if ( abs(dz) < 15.9 && abs(d0) < 0.2 ) return true;
+	   if ( abs(dz) < 15.9 ) return true;
 	 }
-	 // compatibility with a vertex
+	 // z compatibility with a vertex
 	 for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
 	   if (
-		   abs(d0) < pow(d0_par1_[0]*nhits,d0_par1_[1])*nomd0E && 
 		   abs(dz-(point->z())) < pow(dz_par1_[0]*nhits,dz_par1_[1])*nomdzE &&
-		   abs(d0) < pow(d0_par2_[0]*nhits,d0_par2_[1])*d0E && 
 		   abs(dz-(point->z())) < pow(dz_par2_[0]*nhits,dz_par2_[1])*dzE ) return true;
 	 }
    }
