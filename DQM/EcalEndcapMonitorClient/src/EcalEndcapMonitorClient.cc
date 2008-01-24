@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/20 16:50:32 $
- * $Revision: 1.123 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -244,22 +244,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
          << " Collector on host '" << hostName_ << "'"
          << " on port '" << hostPort_ << "'" << endl;
 
-  }
-
-  // enableServer switch
-
-  enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
-
-  if ( enableServer_ ) {
-    cout << " enableServer switch is ON" << endl;
-    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
-      cout << " Forcing the same port for Collector and Server" << endl;
-      serverPort_ = hostPort_;
-    }
-    cout << " Running server on port '" << serverPort_ << "'" << endl;
-  } else {
-    cout << " enableServer switch is OFF" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 18).
@@ -658,8 +642,7 @@ EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
 
   delete summaryClient_;
 
-  mui_->disconnect();
-  // delete mui_;
+  delete mui_;
 
 }
 
@@ -698,16 +681,9 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
   if ( enableMonitorDaemon_ ) {
-    if ( enableServer_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-    } else {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-    }
+    mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
   } else {
     mui_ = new MonitorUIRoot();
-    if ( enableServer_ ) {
-      mui_->actAsServer(serverPort_, clientName_);
-    }
   }
 
   if ( verbose_ ) {
@@ -724,15 +700,11 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     }
   }
 
-  mui_->setMaxAttempts2Reconnect(99999);
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob(mui_);
   }
 
   summaryClient_->beginJob(mui_);
-
-  this->subscribe();
 
   Numbers::initGeometry(c);
 
@@ -811,8 +783,6 @@ void EcalEndcapMonitorClient::endJob(void) {
   }
 
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -1306,28 +1276,6 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
 }
 
-void EcalEndcapMonitorClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: subscribe" << endl;
-
-  mui_->subscribe("*/EcalEndcap/*");
-
-}
-
-void EcalEndcapMonitorClient::subscribeNew(void){
-
-  mui_->subscribeNew("*/EcalEndcap/*");
-
-}
-
-void EcalEndcapMonitorClient::unsubscribe(void) {
-
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: unsubscribe" << endl;
-
-  mui_->unsubscribe("*/EcalEndcap/*");
-
-}
-
 void EcalEndcapMonitorClient::analyze(void){
 
   current_time_ = time(NULL);
@@ -1584,8 +1532,6 @@ void EcalEndcapMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
-
-  this->subscribeNew();
 
 }
 

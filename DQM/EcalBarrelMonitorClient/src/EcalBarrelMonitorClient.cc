@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/01/20 16:50:34 $
- * $Revision: 1.364 $
+ * $Date: 2008/01/22 19:47:10 $
+ * $Revision: 1.365 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -241,22 +241,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
          << " Collector on host '" << hostName_ << "'"
          << " on port '" << hostPort_ << "'" << endl;
 
-  }
-
-  // enableServer switch
-
-  enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
-
-  if ( enableServer_ ) {
-    cout << " enableServer switch is ON" << endl;
-    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
-      cout << " Forcing the same port for Collector and Server" << endl;
-      serverPort_ = hostPort_;
-    }
-    cout << " Running server on port '" << serverPort_ << "'" << endl;
-  } else {
-    cout << " enableServer switch is OFF" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -627,8 +611,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   delete summaryClient_;
 
-  mui_->disconnect();
-  // delete mui_;
+  delete mui_;
 
 }
 
@@ -667,16 +650,9 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
   if ( enableMonitorDaemon_ ) {
-    if ( enableServer_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-    } else {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-    }
+    mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
   } else {
     mui_ = new MonitorUIRoot();
-    if ( enableServer_ ) {
-      mui_->actAsServer(serverPort_, clientName_);
-    }
   }
 
   if ( verbose_ ) {
@@ -693,15 +669,11 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     }
   }
 
-  mui_->setMaxAttempts2Reconnect(99999);
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob(mui_);
   }
 
   summaryClient_->beginJob(mui_);
-
-  this->subscribe();
 
   Numbers::initGeometry(c);
 
@@ -780,8 +752,6 @@ void EcalBarrelMonitorClient::endJob(void) {
   }
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -1274,28 +1244,6 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
-
-  mui_->subscribe("*/EcalBarrel/*");
-
-}
-
-void EcalBarrelMonitorClient::subscribeNew(void){
-
-  mui_->subscribeNew("*/EcalBarrel/*");
-
-}
-
-void EcalBarrelMonitorClient::unsubscribe(void) {
-
-  if ( verbose_ ) cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
-
-  mui_->unsubscribe("*/EcalBarrel/*");
-
-}
-
 void EcalBarrelMonitorClient::analyze(void){
 
   current_time_ = time(NULL);
@@ -1552,8 +1500,6 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
-
-  this->subscribeNew();
 
 }
 
