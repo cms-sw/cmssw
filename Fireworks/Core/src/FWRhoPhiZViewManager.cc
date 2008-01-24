@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.6 2008/01/22 21:08:08 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.7 2008/01/24 00:28:26 chrjones Exp $
 //
 
 // system include files
@@ -165,7 +165,8 @@ FWRhoPhiZViewManager::newEventAvailable()
 	TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
 	f.Close();
 	m_geom = gsre;
-     
+        set_color(m_geom,kGray+3,1.,10);
+        
 	hide_tracker_endcap(m_geom);
 	m_rhoPhiProjMgr->ImportElements(m_geom);
 
