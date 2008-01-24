@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/23 07:14:25 $
- * $Revision: 1.41 $
+ * $Date: 2008/01/24 16:01:15 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -358,9 +358,9 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( rechitItr->energy() > recHitEnergyMin_ ) { 
 
-	if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
-	if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
-	if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
+        if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
+        if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
+        if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
 
       }
 
@@ -396,10 +396,10 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( data.compressedEt() > trigPrimEtMin_ ) {
 
-	if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
-	if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
-	if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
-	
+        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
+        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
+        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
+
       }
 
     }

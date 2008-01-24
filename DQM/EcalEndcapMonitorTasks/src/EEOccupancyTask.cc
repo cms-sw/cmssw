@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/23 07:14:27 $
- * $Revision: 1.26 $
+ * $Date: 2008/01/24 16:03:02 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -501,15 +501,15 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       if ( rechitItr->energy() > recHitEnergyMin_ ) { 
 
-	if ( ism >= 1 && ism <= 9 ) {
-	  if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
-	  if ( meEERecHitOccupancyProjXThr_[0] ) meEERecHitOccupancyProjXThr_[0]->Fill( xeex );
-	  if ( meEERecHitOccupancyProjYThr_[0] ) meEERecHitOccupancyProjYThr_[0]->Fill( xeey );
-	} else {
-	  if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
-	  if ( meEERecHitOccupancyProjXThr_[1] ) meEERecHitOccupancyProjXThr_[1]->Fill( xeex );
-	  if ( meEERecHitOccupancyProjYThr_[1] ) meEERecHitOccupancyProjYThr_[1]->Fill( xeey );
-	}
+        if ( ism >= 1 && ism <= 9 ) {
+          if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
+          if ( meEERecHitOccupancyProjXThr_[0] ) meEERecHitOccupancyProjXThr_[0]->Fill( xeex );
+          if ( meEERecHitOccupancyProjYThr_[0] ) meEERecHitOccupancyProjYThr_[0]->Fill( xeey );
+        } else {
+          if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
+          if ( meEERecHitOccupancyProjXThr_[1] ) meEERecHitOccupancyProjXThr_[1]->Fill( xeex );
+          if ( meEERecHitOccupancyProjYThr_[1] ) meEERecHitOccupancyProjYThr_[1]->Fill( xeey );
+        }
 
       }
 
@@ -541,39 +541,39 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
         
-	EEDetId id = crystals[i];
+        EEDetId id = crystals[i];
         
-	int eex = id.ix();
-	int eey = id.iy();
+        int eex = id.ix();
+        int eey = id.iy();
         
-	if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
+        if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
 
-	float xeex = eex - 0.5;
-	float xeey = eey - 0.5;
+        float xeex = eex - 0.5;
+        float xeey = eey - 0.5;
 
-	if ( ismt >= 1 && ismt <= 9 ) {
-	  if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
-	  if ( meEETrigPrimDigiOccupancyProjX_[0] ) meEETrigPrimDigiOccupancyProjX_[0]->Fill( xeex );
-	  if ( meEETrigPrimDigiOccupancyProjY_[0] ) meEETrigPrimDigiOccupancyProjY_[0]->Fill( xeey );
-	} else {
-	  if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
-	  if ( meEETrigPrimDigiOccupancyProjX_[1] ) meEETrigPrimDigiOccupancyProjX_[1]->Fill( xeex );
-	  if ( meEETrigPrimDigiOccupancyProjY_[1] ) meEETrigPrimDigiOccupancyProjY_[1]->Fill( xeey );
-	}
+        if ( ismt >= 1 && ismt <= 9 ) {
+          if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
+          if ( meEETrigPrimDigiOccupancyProjX_[0] ) meEETrigPrimDigiOccupancyProjX_[0]->Fill( xeex );
+          if ( meEETrigPrimDigiOccupancyProjY_[0] ) meEETrigPrimDigiOccupancyProjY_[0]->Fill( xeey );
+        } else {
+          if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
+          if ( meEETrigPrimDigiOccupancyProjX_[1] ) meEETrigPrimDigiOccupancyProjX_[1]->Fill( xeex );
+          if ( meEETrigPrimDigiOccupancyProjY_[1] ) meEETrigPrimDigiOccupancyProjY_[1]->Fill( xeey );
+        }
 
-	if ( data.compressedEt() > trigPrimEtMin_ ) {
-	
-	  if ( ismt >= 1 && ismt <= 9 ) {
-	    if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
-	    if ( meEETrigPrimDigiOccupancyProjXThr_[0] ) meEETrigPrimDigiOccupancyProjXThr_[0]->Fill( xeex );
-	    if ( meEETrigPrimDigiOccupancyProjYThr_[0] ) meEETrigPrimDigiOccupancyProjYThr_[0]->Fill( xeey );
-	  } else {
-	    if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Fill( xeex, xeey );
-	    if ( meEETrigPrimDigiOccupancyProjXThr_[1] ) meEETrigPrimDigiOccupancyProjXThr_[1]->Fill( xeex );
-	    if ( meEETrigPrimDigiOccupancyProjYThr_[1] ) meEETrigPrimDigiOccupancyProjYThr_[1]->Fill( xeey );
-	  }
+        if ( data.compressedEt() > trigPrimEtMin_ ) {
+        
+          if ( ismt >= 1 && ismt <= 9 ) {
+            if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
+            if ( meEETrigPrimDigiOccupancyProjXThr_[0] ) meEETrigPrimDigiOccupancyProjXThr_[0]->Fill( xeex );
+            if ( meEETrigPrimDigiOccupancyProjYThr_[0] ) meEETrigPrimDigiOccupancyProjYThr_[0]->Fill( xeey );
+          } else {
+            if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Fill( xeex, xeey );
+            if ( meEETrigPrimDigiOccupancyProjXThr_[1] ) meEETrigPrimDigiOccupancyProjXThr_[1]->Fill( xeex );
+            if ( meEETrigPrimDigiOccupancyProjYThr_[1] ) meEETrigPrimDigiOccupancyProjYThr_[1]->Fill( xeey );
+          }
 
-	}
+        }
 
       }
 
