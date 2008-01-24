@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:45 EST 2008
-// $Id$
+// $Id: FWSelectionManager.h,v 1.1 2008/01/21 01:17:14 chrjones Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ class FWSelectionManager
 
       sigc::signal<void, const FWSelectionManager&> selectionChanged_;
    
+      void eventDone();
    private:
       void finishedAllSelections();
       void select(const FWModelId& iId);

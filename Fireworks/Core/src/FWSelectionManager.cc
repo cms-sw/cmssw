@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.1 2008/01/21 01:17:42 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.2 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -95,6 +95,14 @@ FWSelectionManager::unselect(const FWModelId& iId)
 {
    bool changed = (0 != m_newSelection.erase(iId));
    m_wasChanged |=changed;
+}
+
+void 
+FWSelectionManager::eventDone()
+{
+   m_newSelection.clear();
+   m_selection.clear();
+   m_wasChanged=false;
 }
 
 //
