@@ -49,8 +49,9 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
 
 
   bool debug;
-  float muonMinPt;
-  float elecMinEt;
+  float stiffMinPt;
+  float softMinPt;
+  int nStiffLeptonMin;
   int nLeptonMin;
 
   // Reco samples

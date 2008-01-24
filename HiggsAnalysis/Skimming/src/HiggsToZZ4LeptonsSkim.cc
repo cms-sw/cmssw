@@ -42,8 +42,9 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
   theGsfELabel       = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
   // Minimum Pt for leptons for skimming
-  muonMinPt          = pset.getParameter<double>("muonMinimumPt");
-  elecMinEt          = pset.getParameter<double>("electronMinimumEt");
+  stiffMinPt         = pset.getParameter<double>("stiffMinimumPt");
+  softMinPt          = pset.getParameter<double>("softMinimumPt");
+  nStiffLeptonMin    = pset.getParameter<int>("nStiffLeptonMinimum");
   nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
 
   nEvents         = 0;
@@ -71,6 +72,7 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
   using reco::TrackCollection;
 
   bool keepEvent   = false;
+  int  nStiffLeptons    = 0;
   int  nLeptons    = 0;
   
 
@@ -87,7 +89,8 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     // Loop over muon collections and count how many muons there are, 
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
-      if ( muons->pt() > muonMinPt) nLeptons++; 
+      if ( muons->pt() > stiffMinPt) nStiffLeptons++; 
+      if ( muons->pt() > softMinPt) nLeptons++; 
     }  
   } 
   
@@ -107,13 +110,14 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     // Loop over electron collections and count how many muons there are, 
     // and how many are above threshold
     for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
-      float et_e = electrons->pt(); 
-      if ( et_e > elecMinEt) nLeptons++; 
+      float pt_e = electrons->pt(); 
+      if ( pt_e > stiffMinPt) nStiffLeptons++; 
+      if ( pt_e > softMinPt) nLeptons++; 
     }
   }
 
   // Make decision:
-  if ( nLeptons >= nLeptonMin) keepEvent = true;
+  if ( nStiffLeptons >= nStiffLeptonMin && nLeptons >= nLeptonMin) keepEvent = true;
 
   if (keepEvent) nSelectedEvents++;
 
