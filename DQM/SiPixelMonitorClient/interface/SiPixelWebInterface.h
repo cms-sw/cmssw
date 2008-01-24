@@ -15,37 +15,28 @@ class SiPixelWebInterface : public WebInterface
 public:
 
   enum SiPixelActionType{NoAction     	          =  0,
-                         SubscribeAll 	          =  1,
-			 Summary    	          =  2,
-                         setupQTest  	          =  3,
-			 QTestResult 	          =  4,
-			 CreateTkMap 	          =  5,
-                         PlotSingleModuleHistos   =  6,
-                         PlotSingleHistogram      =  7,
-			 PlotTkMapHistogram       =  8,
-			 periodicTrackerMapUpdate =  9,
-			 PlotHistogramFromPath    = 10,
-			 PlotHistogramFromLayout     = 11,
-			 PlotErrorOverviewHistogram  = 12,
-			 ComputeGlobalQualityFlag    = 13};
+			 Summary    	          =  1,
+                         setupQTest  	          =  2,
+			 QTestResult 	          =  3,
+			 CreateTkMap 	          =  4,
+                         PlotSingleModuleHistos   =  5,
+                         PlotSingleHistogram      =  6,
+			 PlotTkMapHistogram       =  7,
+			 periodicTrackerMapUpdate =  8,
+			 PlotHistogramFromPath    =  9,
+			 ComputeGlobalQualityFlag = 10};
 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 
 		      MonitorUserInterface ** _mui_p);
   ~SiPixelWebInterface();
 
-  void handleCustomRequest(xgi::Input * in, 
-                           xgi::Output * out ) 
-			   throw (xgi::exception::Exception);
   void handleEDARequest(xgi::Input* in,
                         xgi::Output* out, 
 			int niter);  
   
   void createAll();
 
-  void configureCustomRequest(xgi::Input * in, 
-                              xgi::Output * out) 
-			      throw (xgi::exception::Exception);
   void performAction();
   void readConfiguration(int& freq_tkmap, 
                          int& freq_barrel_sum, 
@@ -58,8 +49,6 @@ public:
                          int& summary_freq);
   
   void setupQTests();
-
-  void setOutputFileName(std::string fname){fileName_ = fname;};
 
   SiPixelActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiPixelActionType flag) {theActionFlag = flag;}

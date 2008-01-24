@@ -168,36 +168,8 @@ void SiPixelTrackerMapCreator::paintTkMap(MonitorElement * mE)
 {
   double sts;
   int    rval, gval, bval, detId;
-
-//  sts   = infoExtractor_->computeStatus(mE) ; 
-//  detId = infoExtractor_->getDetId(     mE);
-//  SiPixelUtility::getStatusColor(sts,   rval, gval, bval);
-//  trackerMap->fillc(             detId, rval, gval, bval);
 }
 
-//==============================================================================
-// -- get Tracker Map ME 
-//
-MonitorElement* SiPixelTrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
-                                                     string& me_name, 
-					             int ndet) 
-{
-/*
-  string new_name = "TrackerMap_for_" + me_name;
-  string path = "Collector/" + new_name;
-  MonitorElement*  tkmap_me =0;
-  tkmap_me = mui->get(path);
-  if (!tkmap_me) 
-  {
-    string save_dir = mui->pwd();   
-    DaqMonitorBEInterface * bei = mui->getBEInterface();
-    bei->setCurrentFolder("Collector");
-    tkmap_me = bei->book1D(new_name, new_name, ndet, 0.5, ndet+0.5);
-    bei->setCurrentFolder(save_dir);
-  }
-  return tkmap_me;
-*/
-}
 //==============================================================================
 // -- Browse through monitorable and get values needed by TrackerMap
 //

@@ -859,13 +859,11 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
 void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 //cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
 
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   int messageCounter=0;
   string currDir = bei->pwd();
   vector<string> contentVec;
   //cout<<"currDir="<<currDir<<endl;
   
-  //mui->getContents(contentVec);
   bei->getContents(contentVec);
   
   configParser_->getMessageLimitForQTests(message_limit_);
@@ -879,7 +877,6 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
 
-  //    MonitorElement * me = mui->get((*im));
       MonitorElement * me = bei->get((*im));
       //cout<<"ME: "<<(*im)<<endl;
       if (me) {
@@ -932,63 +929,6 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
   contentVec=vector<string>(); currDir=string(); messageCounter=int();
   //cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
-////////////////////////////////////////////////////////////////////////////
-//
-//
-/*void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
- // cout<<"Entering SiPixelActionExecutor::createCollation in directory:"<<mui->pwd()<<endl;
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
-  string currDir = bei->pwd();
-  map<string, vector<string> > collation_map;
-  vector<string> contentVec;
-
-  // non-backward compatible MUI<->BEI change:
-  //mui->getContents(contentVec);
-  bei->getContents(contentVec);
-  
-  for (vector<string>::iterator it = contentVec.begin();
-      it != contentVec.end(); it++) {
-    if ((*it).find("Module_") == string::npos &&
-        (*it).find("FED_") == string::npos) continue;
-    string dir_path;
-    vector<string> contents;
-    SiPixelUtility::getMEList((*it), dir_path, contents);
-    string tag = dir_path.substr(dir_path.find("Module_")+7, dir_path.size()-1);
-    for (vector<string>::iterator ic = contents.begin(); ic != contents.end(); ic++) {
-      string me_path = dir_path + (*ic);
-      string path = dir_path.substr(dir_path.find("Pixel"),dir_path.size());
-
-      MonitorElement* me = bei->get( me_path );
-      
-      TProfile* prof = ExtractTObject<TProfile>().extract( me );
-      TH1F* hist1 = ExtractTObject<TH1F>().extract( me );
-      TH2F* hist2 = ExtractTObject<TH2F>().extract( me );
-      CollateMonitorElement* coll_me = 0;
-      string coll_dir = "Collector/Collated/"+path;
-      map<string, vector<string> >::iterator ipos = collation_map.find(tag);
-      if(ipos == collation_map.end()) {
-        if (collation_map[tag].capacity() != contents.size()) { 
-          collation_map[tag].reserve(contents.size()); 
-        }
-        if      (hist1) coll_me = mui->collate1D((*ic),(*ic),coll_dir);
-        else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-        else if (prof) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-        collation_map[tag].push_back(coll_dir+(*ic));
-      } else {
-        if (find(ipos->second.begin(), ipos->second.end(), (*ic)) == ipos->second.end()){
-  	  if (hist1)      coll_me = mui->collate1D((*ic),(*ic),coll_dir);
-  	  else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-  	  else if (prof)  coll_me = mui->collateProf((*ic),(*ic),coll_dir);
-	  collation_map[tag].push_back(coll_dir+(*ic));	  
-        }
-      }
-      if (coll_me) mui->add(coll_me, me_path);
-    }
-  }
-  collationDone = true;
- // cout<<"...leaving SiPixelActionExecutor::createCollation in directory:"<<mui->pwd()<<endl;
-}*/
-
 
 void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
   if (configWriter_ == 0) {
@@ -1011,15 +951,13 @@ void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
     }
   }  
 }
-//void SiPixelActionExecutor::fillLayout(MonitorUserInterface * mui){
+
 void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
   
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   static int icount = 0;
   string currDir = bei->pwd();
   if (currDir.find("Ladder_") != string::npos) {
 
-  //  vector<string> contents = mui->getMEs(); 
     vector<string> contents = bei->getMEs(); 
     
     for (vector<string>::const_iterator im = contents.begin();
@@ -1046,25 +984,7 @@ void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
     }
   }
 }
-//
-// -- Save Monitor Elements in a file
-//      
-//void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui,
-/*void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei, 
-                                    string fname){
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
-  if (collationDone) {
-    //mui->save(fname,"Collector/Collated/SiPixel");
-  // non-backward compatible MUI<->BEI change:
-  //   mui->save(fname,mui->pwd(),90);
-     //bei->save(fname,bei->pwd(),90);
-    bei->save(fname,"Collector/Collated");
-  } else {
-  // non-backward compatible MUI<->BEI change:
-  //   mui->save(fname,mui->pwd(),90);
-     bei->save(fname,bei->pwd(),90);
-  }
-}*/
+
 //
 // -- Get TkMap ME names
 //

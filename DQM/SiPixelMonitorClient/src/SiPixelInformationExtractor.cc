@@ -204,7 +204,6 @@ void SiPixelInformationExtractor::fillEndcapList(DaqMonitorBEInterface* bei,
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> mod_mes;
 
-  //  vector<string> contents = mui->getMEs(); 
     vector<string> contents = bei->getMEs(); 
     
     for (vector<string>::const_iterator iv = me_names.begin();
@@ -735,7 +734,6 @@ void SiPixelInformationExtractor::plotSingleHistogram(DaqMonitorBEInterface * be
   string path_name = getItemValue(req_map,"Path");
   if (path_name.size() == 0) return;
   
-  //MonitorElement* me = mui->get(path_name);
   MonitorElement* me = bei->get(path_name);
   
   vector<MonitorElement*> me_list;
@@ -915,7 +913,6 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface *
     if (histos.size() == 0) {
       //cout<<"currDir="<<currDir<<endl;
 
-  //    vector<string> contents = mui->getMEs();    
       vector<string> contents = bei->getMEs();
           
       for (vector<string>::const_iterator it = contents.begin();
@@ -924,7 +921,6 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface *
 	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
         string fullpathname   = bei->pwd() + "/" + (*it); 
 
-  //      MonitorElement * me   = mui->get(fullpathname);
         MonitorElement * me   = bei->get(fullpathname);
 	
         string htype          = "undefined" ;
@@ -1012,7 +1008,6 @@ void SiPixelInformationExtractor::printModuleHistoList(DaqMonitorBEInterface * b
 	  << "  </a>\n"
 	  << endl << endl;
 
-  //vector<string> meVec     = mui->getMEs(); 
   vector<string> meVec     = bei->getMEs(); 
   
   vector<string> subDirVec = bei->getSubdirs();
