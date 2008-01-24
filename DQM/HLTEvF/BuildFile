@@ -1,7 +1,12 @@
+<use name=DQMServices/Components>
+<use name=DQMServices/Core>
+<use name=DQMServices/XdaqCollector>
+<use name=DQMServices/WebComponents>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HLTReco>
+<use name=DataFormats/MuonReco>
 <use name=root>
 <export>
    <lib name=DQMHLTEvF>
@@ -9,5 +14,10 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/HLTReco>
+   <use name=DataFormats/MuonReco>
+   <use name=DQMServices/Components>
+   <use name=DQMServices/Core>
+   <use name=DQMServices/XdaqCollector>
+   <use name=DQMServices/WebComponents>
    <use name=root>
 </export>
