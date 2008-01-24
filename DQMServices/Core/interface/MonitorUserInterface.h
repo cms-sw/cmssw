@@ -156,7 +156,7 @@ private:
 		      std::vector<std::string> & requests) const;
 
   friend class VisDQMMonitorService ;
-  // friend class VisDQMBase;
+  friend class DQMBaseClient ;
 
 };
 
