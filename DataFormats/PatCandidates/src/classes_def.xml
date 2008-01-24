@@ -54,5 +54,16 @@
   <class name="pat::METRef" />
   <class name="pat::ParticleRef" />
 
+  <class name="std::pair<std::string,int32_t>" />
+  <class name="std::vector<std::pair<std::string,int32_t> >" />
+  <class name="StringMap" />
+  <class name="edm::Wrapper<StringMap>" />
+
+  <class name="std::pair<edm::RefToBase<reco::Candidate>,int32_t>" />
+  <class name="std::vector<std::pair<edm::RefToBase<reco::Candidate>,int32_t> >" />
+  <class name="pat::EventHypothesis" />
+  <class name="std::vector<pat::EventHypothesis>" />
+  <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
+
 </lcgdict>
 
