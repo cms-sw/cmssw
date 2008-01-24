@@ -9,9 +9,6 @@
  * and four leptons (no flavour requirement).
  * No charge requirements are applied on event.
  *
- * At this stage, the L3 trigger isn't setup, so mimic L3 trigger
- * selection using full reconstruction
- *
  * \author Dominique Fortin - UC Riverside
  *
  */
