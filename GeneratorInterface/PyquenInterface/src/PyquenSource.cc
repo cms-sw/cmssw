@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.8 2007/10/05 15:17:58 loizides Exp $
+ * $Id: PyquenSource.cc,v 1.9 2007/12/04 03:51:31 mironov Exp $
 */
 
 #include <iostream>
@@ -154,11 +154,9 @@ bool PyquenSource::produce(Event & e)
   } else {
     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
   }
-  call_pylist(1);
 
   // call PYTHIA to finish the hadronization
   PYEXEC();
-  call_pylist(1);
 
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
