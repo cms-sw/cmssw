@@ -38,7 +38,10 @@ using namespace std;
 TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  
   conf_(conf),
   AbsoluteNumberOfHits(conf_.getParameter<bool>("AbsoluteNumberOfHits")),
-  theMinHitCut(conf_.getParameter<double>("MinHitCut"))
+  theMinHitCut(conf_.getParameter<double>("MinHitCut")),
+  UsePixels(conf_.getParameter<bool>("UsePixels")),
+  UseGrouped(conf_.getParameter<bool>("UseGrouped")),
+  UseSplitting(conf_.getParameter<bool>("UseSplitting"))
 {
 }
 
@@ -367,22 +370,53 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<reco::Track> >& 
 	//should change for grouped trajectory builder
 	LogTrace("TrackAssociator") << "recounting of tp hits";
 	for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
-	  DetId dId = DetId(TPhit->detUnitId());
-	  LogTrace("TrackAssociator") << "consider hit SUBDET = " << dId.subdetId() 
-				      << " layer = " << LayerFromDetid(dId) << " id=" << dId.rawId();
-	  bool newhit = true;		  
-	  for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++){
-	    DetId dIdOK = DetId(TPhitOK->detUnitId());
-	    LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId() 
-					<< " layer = " << LayerFromDetid(dIdOK);
-	    if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) && 
-		dId.subdetId()==dIdOK.subdetId()) newhit = false;
+          DetId dId = DetId(TPhit->detUnitId());
+	  
+	  unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
+	  if (!UsePixels && (subdetId==PixelSubdetector::PixelBarrel || subdetId==PixelSubdetector::PixelEndcap) )
+	    continue;
+
+          //unsigned int dRawId = dId.rawId();
+          SiStripDetId* stripDetId = 0;
+          if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
+              subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
+            stripDetId= new SiStripDetId(dId);
+          LogTrace("TrackAssociator") << "consider hit SUBDET = " << subdetId
+                                      << " layer = " << LayerFromDetid(dId) 
+				      << " id = " << dId.rawId();
+          bool newhit = true;
+          for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++){
+            DetId dIdOK = DetId(TPhitOK->detUnitId());
+            //unsigned int dRawIdOK = dIdOK.rawId();
+            LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
+                                        << " layer = " << LayerFromDetid(dIdOK)
+					<< " id = " << dIdOK.rawId();
+	    //no grouped, no splitting
+            if (!UseGrouped && !UseSplitting)
+              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+                  dId.subdetId()==dIdOK.subdetId()) newhit = false;
+            //no grouped, splitting
+            if (!UseGrouped && UseSplitting)
+              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+                  dId.subdetId()==dIdOK.subdetId() &&
+                  (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
+                newhit = false;
+            //grouped, no splitting
+            if (UseGrouped && !UseSplitting)
+              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+                  dId.subdetId()==dIdOK.subdetId() &&
+                  stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
+                newhit = false;
+            //grouped, splitting
+            if (UseGrouped && UseSplitting)
+              newhit = true;
 	  }
 	  if (newhit) {
-	    LogTrace("TrackAssociator") << "ok";
+	    LogTrace("TrackAssociator") << "\t\tok";
 	    tphits.push_back(*TPhit);
 	  }
-	  else LogTrace("TrackAssociator") << "no";
+	  else LogTrace("TrackAssociator") << "\t\tno";
+	  delete stripDetId;
 	}
 
 	////count the TP simhit, counting only once the hits on glued detectors

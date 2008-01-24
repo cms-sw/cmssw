@@ -44,6 +44,9 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   const edm::ParameterSet& conf_;
   const bool AbsoluteNumberOfHits;    
   const double theMinHitCut;    
+  const bool UsePixels;
+  const bool UseGrouped;
+  const bool UseSplitting;
   int LayerFromDetid(const DetId&) const;
 };
 
