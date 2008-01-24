@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.18 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.19 2008/01/24 00:32:31 chrjones Exp $
 //
 
 // system include files
@@ -111,19 +111,46 @@ FWDisplayEvent::FWDisplayEvent() :
 	}
 	TString icondir(Form("%s/icons/",gSystem->Getenv("ROOTSYS")));
 	
-	m_homeButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoHome.gif"));
+	//m_homeButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoHome.gif"));
+	m_homeButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"first_t.xpm"));
+        const unsigned int kButtonSize = 30;
+        m_homeButton->SetToolTipText("Go back to first event");
+        m_homeButton->SetMinHeight(kButtonSize);
+        m_homeButton->SetMinWidth(kButtonSize);
+        m_homeButton->SetHeight(kButtonSize);
+        m_homeButton->SetWidth(kButtonSize);
 	hf->AddFrame(m_homeButton);
 	m_homeButton->Connect("Clicked()", "FWDisplayEvent", this, "goHome()");
 	 
-	m_advanceButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoForward.gif"));
-	hf->AddFrame(m_advanceButton);
-	m_advanceButton->Connect("Clicked()", "FWDisplayEvent", this, "goForward()");
 	
-	m_backwardButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoBack.gif"));
+	//m_backwardButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoBack.gif"));
+	m_backwardButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"previous_t.xpm"));
+        m_backwardButton->SetToolTipText("Go back one event");
+        m_backwardButton->SetMinHeight(kButtonSize);
+        m_backwardButton->SetMinWidth(kButtonSize);
+        m_backwardButton->SetHeight(kButtonSize);
+        m_backwardButton->SetWidth(kButtonSize);
 	hf->AddFrame(m_backwardButton);
 	m_backwardButton->Connect("Clicked()", "FWDisplayEvent", this, "goBack()");
 	 
-	m_stopButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"StopLoading.gif"));
+	//m_advanceButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoForward.gif"));
+	m_advanceButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"next_t.xpm"));
+        m_advanceButton->SetToolTipText("Go to next event");
+        const unsigned int kExpand = 10;
+        m_advanceButton->SetMinHeight(kButtonSize+kExpand);
+        m_advanceButton->SetMinWidth(kButtonSize+kExpand);
+        m_advanceButton->SetHeight(kButtonSize+kExpand);
+        m_advanceButton->SetWidth(kButtonSize+kExpand);
+	hf->AddFrame(m_advanceButton);
+	m_advanceButton->Connect("Clicked()", "FWDisplayEvent", this, "goForward()");
+
+	//m_stopButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"StopLoading.gif"));
+	m_stopButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"stop_t.xpm"));
+        m_stopButton->SetToolTipText("Stop looping over event");
+        m_stopButton->SetMinHeight(kButtonSize);
+        m_stopButton->SetMinWidth(kButtonSize);
+        m_stopButton->SetHeight(kButtonSize);
+        m_stopButton->SetWidth(kButtonSize);
 	hf->AddFrame(m_stopButton);
 	m_stopButton->Connect("Clicked()", "FWDisplayEvent", this, "stop()");
 	
@@ -135,9 +162,9 @@ FWDisplayEvent::FWDisplayEvent() :
         TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
         m_selectionItemsComboBox = new TGComboBox(vf2,200);
         m_selectionItemsComboBox->Resize(200,20);
-        vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,5,5,5,5));
+        vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,0,5,5,5));
         m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
-        vf2->AddFrame(m_selectionExpressionEntry);
+        vf2->AddFrame(m_selectionExpressionEntry, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
         m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
         vf2->AddFrame(m_selectionRunExpressionButton);
         m_selectionRunExpressionButton->Connect("Clicked()","FWDisplayEvent",this,"selectByExpression()");
