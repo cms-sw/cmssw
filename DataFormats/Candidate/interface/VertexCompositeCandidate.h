@@ -7,14 +7,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: VertexCompositeCandidate.h,v 1.3 2007/11/30 13:16:16 llista Exp $
+ * \version $Id: VertexCompositeCandidate.h,v 1.4 2007/12/10 12:16:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 namespace reco {
-
   class VertexCompositeCandidate : public CompositeCandidate {
   public:
     VertexCompositeCandidate() : CompositeCandidate() { }
@@ -64,6 +63,16 @@ namespace reco {
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
 
+    /// long lived flag
+    static const unsigned int longLivedTag;
+
+    void setLongLived() {
+      status_ &= longLivedTag;
+    }
+
+    bool longLived() const {
+      return status_ & longLivedTag;
+    }
   private:
     /// chi-sqared
     Double32_t chi2_;

@@ -1,7 +1,11 @@
-// $Id: VertexCompositeCandidate.cc,v 1.1 2007/11/21 10:59:42 llista Exp $
+// $Id: VertexCompositeCandidate.cc,v 1.2 2007/11/21 12:58:42 llista Exp $
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 using namespace reco;
+
+const unsigned int VertexCompositeCandidate::longLivedTag = 65536;
+
+
 VertexCompositeCandidate::VertexCompositeCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
 						   const CovarianceMatrix & err, double chi2, double ndof,
 						   int pdgId, int status, bool integerCharge) :
