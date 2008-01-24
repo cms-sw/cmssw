@@ -142,6 +142,12 @@ PixelDACSettings::PixelDACSettings(PixelROCDACSettings &rocname):
   dacsettings_.push_back(rocname) ;
 }
 
+// modified by MR on 24-01-2008 14:27:35a
+void PixelDACSettings::addROC(PixelROCDACSettings &rocname)
+{
+  dacsettings_.push_back(rocname) ;
+}
+
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
  
