@@ -54,7 +54,7 @@ namespace edmtest
     
     for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
       counter++;
-      DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
+      DBPedestalFile<<counter<<"  "<<it->ped<<"  "<<it->rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
