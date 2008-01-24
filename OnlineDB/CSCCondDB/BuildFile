@@ -11,6 +11,7 @@
 <use name=EventFilter/CSCRawToDigi>
 <use name=CondFormats/CSCObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondCore/PopCon>
 <use name=clhep>
 <use name=root>
 
@@ -31,6 +32,7 @@
    <use name=CondFormats/DataRecord>
    <use name=CondCore/DBCommon>
    <use name=CondCore/DBOutputService>
+   <use name=CondCore/PopCon>
    <use name=clhep>
    <use name=root>
    <lib name=occi>
