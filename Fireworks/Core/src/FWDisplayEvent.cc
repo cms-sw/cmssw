@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.17 2008/01/21 01:17:24 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.18 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,8 @@
 #include "TROOT.h"
 
 #include "TGButton.h"
+#include "TGComboBox.h"
+#include "TGTextEntry.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -37,7 +39,9 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "DataFormats/FWLite/interface/Event.h"
+
 
 //
 // constants, enums and typedefs
@@ -94,7 +98,7 @@ FWDisplayEvent::FWDisplayEvent() :
       frmMain->SetCleanup(kDeepCleanup);
 
       TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
-      //We need an error handling system which can properly report
+       //We need an error handling system which can properly report
       // errors and decide what to do
       // given that we are an interactive system we need to leave
       // the code in a good state so that users can decided to 
@@ -126,12 +130,30 @@ FWDisplayEvent::FWDisplayEvent() :
       }
       frmMain->AddFrame(hf);
 
+      TGGroupFrame* vf = new TGGroupFrame(frmMain,"Selection",kVerticalFrame);
+      {
+        TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
+        m_selectionItemsComboBox = new TGComboBox(vf2,200);
+        m_selectionItemsComboBox->Resize(200,20);
+        vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,5,5,5,5));
+        m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
+        vf2->AddFrame(m_selectionExpressionEntry);
+        m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
+        vf2->AddFrame(m_selectionRunExpressionButton);
+        m_selectionRunExpressionButton->Connect("Clicked()","FWDisplayEvent",this,"selectByExpression()");
+        vf->AddFrame(vf2);
+        
+        m_unselectAllButton = new TGTextButton(vf,"Unselect All");
+        m_unselectAllButton->Connect("Clicked()", "FWDisplayEvent",this,"unselectAll()");
+        vf->AddFrame(m_unselectAllButton);
+      }
+      frmMain->AddFrame(vf);
       frmMain->MapSubwindows();
       frmMain->Resize();
       frmMain->MapWindow();
     }
     browser->StopEmbedding();
-    browser->SetTabTitle("Event Control",0);
+    browser->SetTabTitle("Fireworks",0);
   }
 
    
@@ -177,6 +199,10 @@ void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
   const FWEventItem* newItem = m_eiManager->add(iItem);
   m_viewManager->registerEventItem(newItem);
+  m_selectionItemsComboBox->AddEntry(newItem->name().c_str(),newItem->id());
+  if(newItem->id()==0) {
+    m_selectionItemsComboBox->Select(0);
+  }
 }
 
 void FWDisplayEvent::registerProxyBuilder(const std::string& type, 
@@ -223,6 +249,20 @@ void
 FWDisplayEvent::doNotWaitForUserAction()
 {
   m_waitForUserAction = false;
+}
+
+void 
+FWDisplayEvent::selectByExpression()
+{
+  FWModelExpressionSelector selector;
+  selector.select(*(m_eiManager->begin()+m_selectionItemsComboBox->GetSelected()),
+                  m_selectionExpressionEntry->GetText());
+}
+
+void 
+FWDisplayEvent::unselectAll()
+{
+  m_selectionManager->clearSelection();
 }
 
 //
@@ -272,7 +312,9 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   EnableButton advancedB(m_advanceButton);
   EnableButton backwardB(m_backwardButton);
   EnableButton stopB(m_stopButton);
-
+  EnableButton stopUnselect(m_unselectAllButton);
+  EnableButton stopSelect(m_selectionRunExpressionButton);
+  
   using namespace std;
   if(0==gEve) {
     cout <<"Eve not initialized"<<endl;
@@ -290,6 +332,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
      // gSystem->ProcessEvents();
      gSystem->DispatchOneEvent(kFALSE);
   }
+  m_selectionManager->eventDone();
   return m_code;
 }
 

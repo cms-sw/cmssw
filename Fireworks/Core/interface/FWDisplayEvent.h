@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.11 2008/01/19 05:16:55 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.12 2008/01/21 01:17:12 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,9 @@
 
 // forward declarations
 class TGPictureButton;
+class TGComboBox;
+class TGTextButton;
+class TGTextEntry;
 class FWEventItemsManager;
 class FWViewManagerManager;
 class FWModelChangeManager;
@@ -54,6 +57,7 @@ class FWDisplayEvent
       int draw(const fwlite::Event& ) const;
 
       bool waitingForUserAction() const;
+      const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -68,8 +72,9 @@ class FWDisplayEvent
 				const std::string&);
       
       void registerPhysicsObject(const FWPhysicsObjectDesc&);
+      void unselectAll();
+      void selectByExpression();
    
-      const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 
@@ -95,6 +100,11 @@ class FWDisplayEvent
       TGPictureButton* m_backwardButton;
       TGPictureButton* m_stopButton;
           
+      TGComboBox* m_selectionItemsComboBox;
+      TGTextEntry* m_selectionExpressionEntry;
+      TGTextButton* m_selectionRunExpressionButton;
+      TGTextButton* m_unselectAllButton;
+   
       DetIdToMatrix    m_detIdToGeo;
 };
 
