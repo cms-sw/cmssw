@@ -253,11 +253,19 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
       
       // This was a hadron that interacted inelastically
+      int idaugh = 0;
       for ( DaughterIter = NuclearInteraction->beginDaughters();
 	    DaughterIter != NuclearInteraction->endDaughters(); 
 	    ++DaughterIter) {
 
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	// The daughter in the event
+	int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	
+	// Store the closest daughter in the mother info (for later tracking purposes)
+	if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
+	  if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
+	    mySimEvent.track(itrack).setClosestDaughterId(daughId);
+	}
 
       }
       // The hadron is destroyed. Return.

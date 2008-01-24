@@ -419,6 +419,8 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  //      std::cout << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
 	  
 	  _theUpdatedState.resize(lastTrack-firstTrack+1);
+
+	  double distMin = 1E99;
 	  for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
 	    
 	    unsigned idaugh = iTrack - firstTrack;
@@ -446,6 +448,22 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	    
 	    // Boost it in the lab frame
 	    _theUpdatedState[idaugh].boost(axisBoost);
+
+	    // Store the closest daughter index (for later tracking purposes, so charged particles only) 
+	    if ( fabs(Particle.charge()) > 1E-12 ) { 
+	      // Closest means 1) same charge
+	      double chargeDiff = fabs(_theUpdatedState[idaugh].charge()-Particle.charge());
+	      if ( fabs(chargeDiff) < 1E-12 ) {
+		// Closest mean 2) smallest cos(theta_12) * p1/p2 
+		double distance = _theUpdatedState[idaugh].Vect().Dot(Particle.Vect())
+		                / _theUpdatedState[idaugh].Vect().Mag2();
+		if ( distance < distMin ) {
+		  // std::cout << "Distance/daughter " << distance << " " << idaugh << std::endl;
+		  distMin = distance;
+		  theClosestChargedDaughterId = idaugh;
+		}
+	      }
+	    }
 	    
 	  }
 	  

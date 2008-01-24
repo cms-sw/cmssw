@@ -23,6 +23,7 @@ void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
 {
 
   _theUpdatedState.clear();
+  theClosestChargedDaughterId = -1;
 
   radLengths = radlen;
   if ( radLengths > 0. ) compute(Particle);
