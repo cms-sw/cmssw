@@ -15,7 +15,7 @@ PERFREPORT3_PATH=PR3_BASE+'/share/perfreport' #path to xmls
 PR3_PRODUCER_PLUGIN='/afs/cern.ch/user/d/dpiparo/w0/pr3/perfreport/plugins/cmssw_by_producer/libcmssw_by_producer.so'
 
 PR2_BASE='/afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/'
-PR2=PR2_BASE+'/bin/perfreport'# executable
+PR2='source %s ; %s' %( PR2_BASE+'/share/perfreport/init_matplotlib.sh' ,PR2_BASE+'/bin/perfreport')# executable
 PERFREPORT2_PATH=PR2_BASE+'/share/perfreport' #path to xmls
 
 # Valgrind Memcheck Parser coordinates:
@@ -39,6 +39,7 @@ MAKESKIMDRIVERDIR='%s/src/Configuration/EventContent/test' %os.environ['CMSSW_BA
 MAKESKIMDRIVER='%s/makeSkimDriver.py'%MAKESKIMDRIVERDIR
 
 ########################################################################################
+
 
 # Library to include to run valgrind fce
 VFCE_LIB='/afs/cern.ch/user/m/moserro/public/vgfcelib' 
