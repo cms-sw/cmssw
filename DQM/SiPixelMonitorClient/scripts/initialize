@@ -196,16 +196,16 @@ close (CTL);
 #
 # copy scripts
 #
-copy("$ENV{PWD}/../test/.WebLib.js",  	         "$ENV{PWD}/WebLib.js");
-copy("$ENV{PWD}/../test/Online.html", 	         "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapHeader.html",  "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapTrailer.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/.WebLib.js",  		 "$ENV{PWD}/WebLib.js");
+copy("$ENV{PWD}/../test/Online.html", 		 "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapFrame.html",   "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapME.html",      "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/embedded_svg.html",      "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/rightEmbedded.html",     "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/svgmap.xml",  	         "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/loader.html", 	         "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapHeader.txt",   "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapTrailer.txt",  "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapME.html",  	 "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/embedded_svg.html",  	 "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/rightEmbedded.html", 	 "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/svgmap.xml", 		 "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/loader.html",		 "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 

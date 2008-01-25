@@ -71,6 +71,210 @@ SiPixelWebInterface::~SiPixelWebInterface() {
 // 
 // -- Handles requests from WebElements submitting non-default requests 
 //
+/*
+void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
+                                              xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+//  cout<<"entering handleCustomRequest"<<endl;
+  // put the request information in a multimap...
+  //std::multimap<std::string, std::string> request_multimap;
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  CgiReader reader(in);
+  reader.read_form(requestMap_);
+
+  // get the string that identifies the request:
+  std::string requestID = get_from_multimap(requestMap_, "RequestID");
+
+  cout << ACGreen << ACBold << ACReverse 
+       << "[SiPixelWebInterface::handleCustomRequest]"
+       << ACCyan 
+       << " requestID " 
+       << ACPlain
+       << requestID << endl;
+
+  if (requestID == "IsReady") {	                  // <-----------------
+    theActionFlag = NoAction;    
+    //if ((*mui_p)->getNumUpdates() > 2) infoExtractor_->readLayoutNames(out);
+    //else returnReplyXml(out, "ReadyState", "wait");
+    returnReplyXml(out, "ReadyState", "wait");
+
+  } else  if (requestID == "SubscribeAll") {		  // <-----------------
+   theActionFlag = SubscribeAll;
+
+  } else if (requestID == "SetupQTest") {	  // <-----------------
+   theActionFlag = setupQTest;
+
+  } else if (requestID == "CheckQTResults") {	  // <-----------------
+   theActionFlag = QTestResult;
+
+  } else if (requestID == "CreateSummary") {	  // <-----------------
+    theActionFlag = Summary;
+
+  //} else if (requestID == "SaveToFile") {	  // <-----------------
+  //  theActionFlag = SaveData;
+
+  //} else if (requestID == "CollateME") {	  // <-----------------
+  //  theActionFlag = Collate;
+
+  } else if (requestID == "CreateTkMap") {	  // <-----------------
+    theActionFlag = CreateTkMap;
+    theOut = out ;
+
+  } else if (requestID == "updateIMGCPlots") {	  // <-----------------
+    theActionFlag = NoAction;	 
+    std::string MEFolder = get_from_multimap(requestMap_, "MEFolder");
+    //cout << ACYellow << ACBold
+    //     << "[SiPixelWebInterface::handleCustomRequest] "
+    //	 << ACPlain
+    //	 << "Collecting ME from folder " 
+    //	 << MEFolder
+    //	 << endl ;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    bei->cd() ;
+    bei->cd(MEFolder) ;
+
+  //  vector<std::string> meList = (*mui_p)->getMEs() ;
+    vector<std::string> meList = bei->getMEs() ;
+    
+    *out << MEFolder << " " ;
+    bei->cd() ;
+    for(vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
+    {
+     *out << *it << " " ;
+    }
+
+  } else if (requestID == "getIMGCPlot") {	  // <-----------------
+    std::string plot    = get_from_multimap(requestMap_, "Plot");
+    std::string folder  = get_from_multimap(requestMap_, "Folder");
+    std::string canvasW = get_from_multimap(requestMap_, "canvasW");
+    std::string canvasH = get_from_multimap(requestMap_, "canvasH");
+    std::stringstream fullPath ;
+    fullPath << folder << "/" << plot ;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getIMGCImage(bei, fullPath.str(), canvasW, canvasH ).str();
+    theActionFlag = NoAction;    
+
+  } else if (requestID == "OpenTkMap") {
+    std::string name = "TkMap";
+    std::string comment;
+    if (tkMapCreated) comment = "Successful";
+    else  comment = "Failed";
+    returnReplyXml(out, name, comment);
+    theActionFlag = NoAction;   
+
+  } else if (requestID == "SingleModuleHistoList") {
+    theActionFlag = NoAction;
+    infoExtractor_->readModuleAndHistoList(bei, out);    
+
+  } else if (requestID == "ModuleHistoList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+    infoExtractor_->readModuleHistoTree(bei, sname, out);    
+
+  } else if (requestID == "SummaryHistoList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+    infoExtractor_->readSummaryHistoTree(bei, sname, out);    
+
+  } else if (requestID == "AlarmList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+    infoExtractor_->readAlarmTree(bei, sname, out);    
+
+  } else if (requestID == "ReadQTestStatus") {
+    theActionFlag = NoAction;
+    string path = get_from_multimap(requestMap_, "Path");
+    infoExtractor_->readStatusMessage(bei, path, out);
+
+  } else if (requestID == "PlotAsModule") {
+    theActionFlag = PlotSingleModuleHistos;    
+
+  } else if (requestID == "PlotSingleHistogram") {
+    theActionFlag = PlotSingleHistogram;
+
+  } else if (requestID == "PlotTkMapHistogram") {
+//    cout << ACYellow << ACBold 
+//    	 << "[SiPixelWebInterface::handleCustomRequest()]" 
+//   	 << ACPlain
+//   	 << " Requested PlotTkMapHistogram (theOut: "
+//	 << theOut
+//	 << ")" 
+//   	 << endl ;
+    string theMEName = get_from_multimap(requestMap_, "MEName");
+    string theModId  = get_from_multimap(requestMap_, "ModId");
+    infoExtractor_->plotTkMapHisto(bei, theModId, theMEName);
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getNamedImage(theMEName).str();
+    theActionFlag = NoAction;    
+
+//    theActionFlag = PlotTkMapHistogram;
+//    theOut = out ;
+
+
+  } else if (requestID == "UpdatePlot") {
+    string theMEName = get_from_multimap(requestMap_, "MEName");
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getImage().str();
+     theActionFlag = NoAction;    
+
+  } else if (requestID == "UpdateTkMapPlot") {
+    string theMEName = get_from_multimap(requestMap_, "MEName");
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getNamedImage(theMEName).str();
+     theActionFlag = NoAction;    
+
+  } else if (requestID == "GetMEList") {
+    theActionFlag = NoAction;
+    infoExtractor_->readModuleAndHistoList(bei, out);    
+
+  } else if (requestID == "periodicTrackerMapUpdate") {
+   theActionFlag = NoAction;
+   periodicTkMapUpdate(out) ;
+
+  } else if (requestID == "PlotHistogramFromPath") {
+   theActionFlag = PlotHistogramFromPath;
+  
+  } else if (requestID == "PlotHistogramFromLayout") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest] "
+	 << ACPlain << "Plot Histogram from Layout" << endl ;
+    theActionFlag = PlotHistogramFromLayout;
+
+  } else if (requestID == "PlotErrorOverviewHistogram") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest] "
+	 << ACPlain << "Plot error overview Histogram" << endl ;
+
+    theActionFlag = PlotErrorOverviewHistogram;
+  } else if  (requestID == "globalQFlag") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest]  " 
+         << ACPlain << "Compute global Pixel quality flag" << endl;
+    theActionFlag = ComputeGlobalQualityFlag;
+  }
+      
+  
+  configureCustomRequest(in, out);
+  
+}
+*/
+//____________________________________________________________________________________________________
+// 
+// -- Handles requests from WebElements submitting non-default requests 
+//
 void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int niter) {
   DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
   CgiReader reader(in);
@@ -387,7 +591,7 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out,
 
 //____________________________________________________________________________________________________
 bool SiPixelWebInterface::createTkMap() {
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();  
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
     string sname     = get_from_multimap(requestMap_, "MEName");
     string theTKType = get_from_multimap(requestMap_, "TKMapType");
