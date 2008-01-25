@@ -10,6 +10,7 @@
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include <iostream>
 #include <cstdlib>
 

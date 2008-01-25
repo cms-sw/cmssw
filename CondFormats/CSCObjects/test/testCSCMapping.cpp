@@ -12,6 +12,7 @@
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include <iostream>
 #include <cstdlib>
 
