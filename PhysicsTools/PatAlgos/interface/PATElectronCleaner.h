@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.3 2008/01/17 02:50:11 gpetrucc Exp $
+// $Id: PATElectronCleaner.h,v 1.4 2008/01/24 09:20:56 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -13,22 +13,10 @@
    a collection of objects of ElectronType. 
 
    Electron selection is performed based on the electron ID or on user-defined cuts. 
-   The selection is steered by the configuration parameter:
-   PSet selection = {
-     string type = "none | cut | likelihood | neuralnet | custom"
-     [ InputTag eIDsource = ... 
-      [ float value = xxx  // likelihood cut value ]
-      [ double value = xxx // neural net cut value ]
-      [ // List of custom cuts (see electron selector for details)
-       double ... = xxx
-       double ... = xxx
-       double ... = xxx 
-      ]
-     ]
-   }
+   The selection is steered by the configuration parameter (see electron selector for details).
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.3 2008/01/17 02:50:11 gpetrucc Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.4 2008/01/24 09:20:56 fronga Exp $
 */
 
 

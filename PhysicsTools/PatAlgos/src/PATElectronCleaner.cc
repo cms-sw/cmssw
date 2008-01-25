@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.3 2008/01/17 02:50:12 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.4 2008/01/24 09:20:58 fronga Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
@@ -53,12 +53,12 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     // read the source electron
     const reco::PixelMatchGsfElectron &srcElectron = helper_.srcAt(idx);    
 
-    // clone the electron so we can modify it (if we want)
-    reco::PixelMatchGsfElectron ourElectron = srcElectron; 
-
     // perform the selection
     if ( doSelection_ &&
-         !selector_->filter( ourElectron, electronIDs ) ) continue;
+         !selector_->filter(idx,helper_.source(),(*electronIDs)) ) continue;
+
+    // clone the electron so we can modify it (if we want)
+    reco::PixelMatchGsfElectron ourElectron = srcElectron; 
 
     // write the muon
     helper_.addItem(idx, ourElectron); 
