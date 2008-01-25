@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.12 2008/01/21 01:17:12 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.13 2008/01/24 00:32:32 chrjones Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ class FWDisplayEvent
 
       const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
 
+      void selectionChanged(const FWSelectionManager&);
       // ---------- member data --------------------------------
       std::auto_ptr<FWModelChangeManager> m_changeManager;
       std::auto_ptr<FWSelectionManager> m_selectionManager;

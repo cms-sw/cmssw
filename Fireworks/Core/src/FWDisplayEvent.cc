@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.20 2008/01/24 17:00:07 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.21 2008/01/25 01:54:08 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ FWDisplayEvent::FWDisplayEvent() :
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                              m_changeManager.get(), _1) );
    
+  m_selectionManager->selectionChanged_.connect(boost::bind(&FWDisplayEvent::selectionChanged,this,_1));
   //figure out where to find macros
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
   if(0 == cmspath) {
@@ -173,6 +174,7 @@ FWDisplayEvent::FWDisplayEvent() :
         m_unselectAllButton = new TGTextButton(vf,"Unselect All");
         m_unselectAllButton->Connect("Clicked()", "FWDisplayEvent",this,"unselectAll()");
         vf->AddFrame(m_unselectAllButton);
+        m_unselectAllButton->SetEnabled(kFALSE);
       }
       frmMain->AddFrame(vf);
       frmMain->MapSubwindows();
@@ -292,6 +294,12 @@ FWDisplayEvent::unselectAll()
   m_selectionManager->clearSelection();
 }
 
+void 
+FWDisplayEvent::selectionChanged(const FWSelectionManager& iSM)
+{
+  m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
+}
+
 //
 // const member functions
 //
@@ -339,7 +347,9 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   EnableButton advancedB(m_advanceButton);
   EnableButton backwardB(m_backwardButton);
   EnableButton stopB(m_stopButton);
-  EnableButton stopUnselect(m_unselectAllButton);
+  //Unselect all doesn't need this since the selection manager will 
+  // properly update this button
+  //EnableButton stopUnselect(m_unselectAllButton);
   EnableButton stopSelect(m_selectionRunExpressionButton);
   
   using namespace std;
