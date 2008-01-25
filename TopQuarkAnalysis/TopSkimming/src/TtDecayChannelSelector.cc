@@ -33,20 +33,20 @@ TtDecayChannelSelector::~TtDecayChannelSelector()
 { } 
 
 bool
-TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
+TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts) const
 {
   int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
-  reco::CandidateCollection::const_iterator top=parts.begin();
+  reco::GenParticleCollection::const_iterator top=parts.begin();
   int iLep=0;
   for(; top!=parts.end(); ++top){
     if( top->status()==3 && abs((*top).pdgId())==6 ){
       ++iTop;
-      reco::Candidate::const_iterator td=(*top).begin();
+      reco::GenParticle::const_iterator td=(*top).begin();
       for(; td!=(*top).end(); ++td){
 	if( td->status()==3 && abs((*td).pdgId())==5 )
 	  {++iBeauty;}
 	if( td->status()==3 && abs((*td).pdgId())==24 ){
-	  reco::Candidate::const_iterator wd=(*td).begin();
+	  reco::GenParticle::const_iterator wd=(*td).begin();
 	  for(; wd!=(*td).end(); ++wd){
 	    if( abs((*wd).pdgId())==11 ){++iElec;}
 	    if( abs((*wd).pdgId())==13 ){++iMuon;}
@@ -101,13 +101,13 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
 }
 
 unsigned int 
-TtDecayChannelSelector::countChargedParticles(const reco::Candidate& part) const
+TtDecayChannelSelector::countChargedParticles(const reco::GenParticle& part) const
 {
   // if stable, return 1 or 0
   if(part.status()==1) return (part.charge()!=0);
   // if unstable, call recursively on daughters
   int nch =0;
-  for(reco::Candidate::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
+  for(reco::GenParticle::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
     nch += countChargedParticles(*daughter);
   }
   return nch;
@@ -115,14 +115,14 @@ TtDecayChannelSelector::countChargedParticles(const reco::Candidate& part) const
 
 
 bool
-TtDecayChannelSelector::checkTauDecay(const reco::Candidate& tau) const
+TtDecayChannelSelector::checkTauDecay(const reco::GenParticle& tau) const
 {
   bool leptonic = false;
   unsigned int nch = 0;
   // if no daughter, accept the tau (it means we are running on stripped MC content as in GenEvt)
   if(!tau.numberOfDaughters()) return true;
   // loop on tau decays, check for an electron or muon and count charged particles
-  for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
+  for(reco::GenParticle::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
     // if the tau daughter is a tau, it means the particle has still to be propagated.
     // In that case, return the result of the same method on that daughter.
     if(daughter->pdgId()==tau.pdgId()) return checkTauDecay(*daughter);

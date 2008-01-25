@@ -1,6 +1,6 @@
 #include <vector>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class TtDecayChannelSelector {
  public:
@@ -22,14 +22,14 @@ class TtDecayChannelSelector {
 
   TtDecayChannelSelector(const edm::ParameterSet&);
   ~TtDecayChannelSelector();
-  bool operator()(const reco::CandidateCollection&) const;
+  bool operator()(const reco::GenParticleCollection&) const;
 
  private:
 
   void parseDecayInput(Decay&, Decay&) const;
   void parseTauDecayInput(Decay&) const;
-  unsigned int countChargedParticles(const reco::Candidate& part) const;
-  bool checkTauDecay(const reco::Candidate&) const;
+  unsigned int countChargedParticles(const reco::GenParticle& part) const;
+  bool checkTauDecay(const reco::GenParticle&) const;
 
  private:
   bool  invert_;  //inversion flag
