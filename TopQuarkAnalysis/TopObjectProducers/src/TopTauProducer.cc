@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.13 2007/11/02 21:35:38 lowette Exp $
+// $Id: TopTauProducer.cc,v 1.14 2008/01/18 16:38:54 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
@@ -20,9 +20,6 @@
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
-#include <DataFormats/ParticleFlowReco/interface/PFBlock.h>
-#include <DataFormats/ParticleFlowReco/interface/PFBlockElement.h>
-#include <DataFormats/ParticleFlowReco/interface/PFCluster.h>
 
 #include <vector>
 #include <memory>
@@ -94,7 +91,7 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<reco::GenParticleCollection> particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
@@ -119,24 +116,8 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // set the additional variables
       const reco::PFJet *pfJet = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
-        float ECALenergy=0.;
-	float HCALenergy=0.;
-	PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
-	for(int i=0;i<(int)myPFCands.size();i++){
-	  if(myPFCands[i]->blockRef()->elements().size()!=0){
-	    for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
-	      if((*iPFBlockElement).type()==PFBlockElement::HCAL) 
-	         HCALenergy += (*iPFBlockElement).clusterRef()->energy();
-	      else if((*iPFBlockElement).type()==PFBlockElement::ECAL)
-	         ECALenergy += (*iPFBlockElement).clusterRef()->energy();
-	    }
-	  }
-	}
-        aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
-        aTau.setEoverP((HCALenergy+ECALenergy)/thePFTau->leadTrack()->p());
-	aTau.setHhotOverP(thePFTau->maximumHCALPFClusterEt()/thePFTau->leadTrack()->p());
-	aTau.setHtotOverP(HCALenergy/thePFTau->leadTrack()->p());
-	aTau.setEcalIsolation(thePFTau->isolationPFGammaCandsEtSum());
+        aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
+        aTau.setEoverP(thePFTau->energy()/thePFTau->leadTrack()->p());
       }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
@@ -154,9 +135,6 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if(tauJet) {
         aTau.setEmEnergyFraction(tauJet->emEnergyFraction());
         aTau.setEoverP(tauJet->energy()/theCaloTau->leadTrack()->p());
-	aTau.setHhotOverP(theCaloTau->maximumHCALhitEt()/theCaloTau->leadTrack()->p());
-	aTau.setHtotOverP(tauJet->energy()*tauJet->energyFractionHadronic()/theCaloTau->leadTrack()->p());
-	aTau.setEcalIsolation(theCaloTau->isolationECALhitsEtSum());
       }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
@@ -168,13 +146,13 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // match to generated final state taus
     if (addGenMatch_) {
       // initialize best match as null
-      reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
+      reco::GenParticle bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 5.; // this is the upper limit on the candidate matching. 
       // find the closest generated tau. No charge cut is applied
-      for (reco::CandidateCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
-        reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
+      for (reco::GenParticleCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
+        reco::GenParticle aGenTau = *(dynamic_cast<reco::GenParticle *>(const_cast<reco::GenParticle *>(&*itGenTau)));
         if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
-	  float currDR = DeltaR<reco::Candidate>()(aGenTau, *aTau);
+	  float currDR = DeltaR<reco::GenParticle, reco::Candidate>()(aGenTau, *aTau);
           if (currDR < bestDR) {
             bestGenTau = aGenTau;
             bestDR = currDR;
