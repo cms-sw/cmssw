@@ -92,7 +92,7 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p,
   setPtValue(pTValue);
   m_smearedPt = myMomentum.Pt();
   setBx(0);
-  if ( fabs(myMomentum.eta()) > 1.20 ) 
+  if ( fabs(etaValue) > 1.20 ) 
     setFwdBit(1);
   else
     setFwdBit(0);
