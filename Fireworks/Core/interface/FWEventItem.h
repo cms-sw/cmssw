@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.8 2008/01/23 18:30:01 chrjones Exp $
+// $Id: FWEventItem.h,v 1.9 2008/01/25 01:54:07 chrjones Exp $
 //
 
 // system include files
@@ -134,6 +134,10 @@ class FWEventItem
       /** connect to this signal if you want to know when the data underlying the item changes */
       mutable FWItemChangeSignal itemChanged_;
    
+      /** connect to this signal if you want to know immediately when the data underlying the item changes 
+       only intended to be used by the FWSelectionManager
+       */
+      mutable FWItemChangeSignal preItemChanged_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 

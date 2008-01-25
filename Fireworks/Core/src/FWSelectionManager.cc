@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.3 2008/01/24 00:30:07 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.4 2008/01/25 01:54:08 chrjones Exp $
 //
 
 // system include files
@@ -95,8 +95,11 @@ FWSelectionManager::select(const FWModelId& iId)
          m_itemConnectionCount.resize(iId.item()->id()+1);
       }
       if(1 ==++(m_itemConnectionCount[iId.item()->id()].first) ) {
+         //want to know early about item change so we can send the 'selectionChanged' message
+         // as part of the itemChange message from the ChangeManager
+         // This way if more than one Item has changed, we still only send one 'selectionChanged' message
          m_itemConnectionCount[iId.item()->id()].second =
-         iId.item()->itemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged,this,_1));
+         iId.item()->preItemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged,this,_1));
       }
    }
 }
@@ -145,7 +148,6 @@ FWSelectionManager::itemChanged(const FWEventItem* iItem)
    assert(someoneChanged);
    m_itemConnectionCount[iItem->id()].second.disconnect();
    m_itemConnectionCount[iItem->id()].first = 0;
-   finishedAllSelections();
 }
 
 //
