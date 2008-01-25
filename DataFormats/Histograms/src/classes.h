@@ -18,6 +18,7 @@
 #include "TProfile2D.h"
 #include "TProfile3D.h"
 #include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
+#include "TString.h"
 
 namespace {
   struct dictionary {
@@ -52,7 +53,7 @@ namespace {
     MEtoROOT<TProfile2D> dummy7;
     MEtoROOT<float> dummy8;
     MEtoROOT<int> dummy9;
-    MEtoROOT<std::string> dummy10;
+    MEtoROOT<TString> dummy10;
     std::vector<MEtoROOT<TH1F>::MEROOTObject> dummy11;
     std::vector<MEtoROOT<TH2F>::MEROOTObject> dummy12;
     std::vector<MEtoROOT<TH3F>::MEROOTObject> dummy13;
@@ -60,7 +61,7 @@ namespace {
     std::vector<MEtoROOT<TProfile2D>::MEROOTObject> dummy15;
     std::vector<MEtoROOT<float>::MEROOTObject> dummy16;
     std::vector<MEtoROOT<int>::MEROOTObject> dummy17;
-    std::vector<MEtoROOT<std::string>::MEROOTObject> dummy18;
+    std::vector<MEtoROOT<TString>::MEROOTObject> dummy18;
     edm::Wrapper<MEtoROOT<TH1F> > theValidData1;
     edm::Wrapper<MEtoROOT<TH2F> > theValidData2;
     edm::Wrapper<MEtoROOT<TH3F> > theValidData3;
@@ -68,6 +69,6 @@ namespace {
     edm::Wrapper<MEtoROOT<TProfile2D> > theValidData5;
     edm::Wrapper<MEtoROOT<float> > theValidData6;
     edm::Wrapper<MEtoROOT<int> > theValidData7;
-    edm::Wrapper<MEtoROOT<std::string> > theValidData8;
+    edm::Wrapper<MEtoROOT<TString> > theValidData8;
   }
 }

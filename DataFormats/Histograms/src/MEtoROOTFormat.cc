@@ -3,8 +3,8 @@
  *  See header file for description of class
  *  
  *
- *  $Date: 2007/12/05 05:37:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/12 20:47:48 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -125,9 +125,9 @@ void MEtoROOT<int>::putMERootObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoROOT<std::string>::putMERootObject(std::vector<std::string> name,
-					    std::vector<TagList> tags,
-					    std::vector<std::string> object)
+void MEtoROOT<TString>::putMERootObject(std::vector<std::string> name,
+					std::vector<TagList> tags,
+					std::vector<TString> object)
 {
 
   MERootObject.resize(name.size());

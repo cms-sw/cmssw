@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2007/12/05 05:37:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/12 20:47:46 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -18,6 +18,7 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <TObjString.h>
+#include <TString.h>
 
 #include <string>
 #include <vector>
