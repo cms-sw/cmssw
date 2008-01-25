@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.2 2008/01/21 01:17:27 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.3 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TView.h"
 #include "TList.h"
 #include "TEveManager.h"
+#include "TClass.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
