@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 namespace TopDecayID{
   static const int status = 3;
@@ -26,12 +26,12 @@ class TopDecaySubset : public edm::EDProducer {
   ~TopDecaySubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);
-  void fillRefs(const reco::CandidateRefProd&, reco::CandidateCollection&);
+  void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
+  void fillRefs(const reco::GenParticleRefProd&, reco::GenParticleCollection&);
 
-  reco::Particle::LorentzVector fourVector(const reco::Candidate&);
+  reco::Particle::LorentzVector fourVector(const reco::GenParticle&);
  protected:
-  void fillTree(int& index, const reco::Candidate&, reco::CandidateCollection&);
+  void fillTree(int& index, const reco::GenParticle&, reco::GenParticleCollection&);
  private:
   edm::InputTag src_;  
   std::map<int,std::vector<int> > refs_; //management of daughter

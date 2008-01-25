@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class StDecaySubset : public edm::EDProducer {
  public:
@@ -18,10 +18,10 @@ class StDecaySubset : public edm::EDProducer {
   ~StDecaySubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);
-  void fillRefs(const reco::CandidateRefProd&, reco::CandidateCollection&);
+  void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
+  void fillRefs(const reco::GenParticleRefProd&, reco::GenParticleCollection&);
 
-  reco::Particle::LorentzVector fourVector(const reco::Candidate&);
+  reco::Particle::LorentzVector fourVector(const reco::GenParticle&);
  private:
   edm::InputTag src_;
   int switchOption;

@@ -22,17 +22,17 @@ TtGenEventReco::~TtGenEventReco()
 void
 TtGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
 {     
-  edm::Handle<reco::CandidateCollection> parts;
+  edm::Handle<reco::GenParticleCollection> parts;
   evt.getByLabel(src_,  parts);
 
-  edm::Handle<reco::CandidateCollection> inits;
+  edm::Handle<reco::GenParticleCollection> inits;
   evt.getByLabel(init_, inits);
 
   //add TopDecayTree
-  reco::CandidateRefProd cands( parts );
+  reco::GenParticleRefProd cands( parts );
 
   //add InitialStatePartons
-  reco::CandidateRefProd initParts( inits );
+  reco::GenParticleRefProd initParts( inits );
 
   //add genEvt to the output stream
   TtGenEvent* genEvt = new TtGenEvent( cands, initParts );

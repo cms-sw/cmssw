@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.h,v 1.16 2007/10/04 23:35:21 lowette Exp $
+// $Id: TopMuonProducer.h,v 1.17 2007/10/15 23:36:02 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopMuonProducer_h
@@ -14,7 +14,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopMuonProducer.h,v 1.16 2007/10/04 23:35:21 lowette Exp $
+  \version  $Id: TopMuonProducer.h,v 1.17 2007/10/15 23:36:02 lowette Exp $
 */
 
 
@@ -45,8 +45,8 @@ class TopMuonProducer : public edm::EDProducer {
   
   private:
 
-    reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const TopMuonType & muon);  
-    void matchTruth(const reco::CandidateCollection & parts, std::vector<TopMuonType> & muons);
+    reco::GenParticle findTruth(const reco::GenParticleCollection & parts, const TopMuonType & muon);  
+    void matchTruth(const reco::GenParticleCollection & parts, std::vector<TopMuonType> & muons);
   
   private:
   
@@ -75,7 +75,7 @@ class TopMuonProducer : public edm::EDProducer {
     TopLeptonLRCalc         * theLeptonLRCalc_;
     GreaterByPt<TopMuon>      pTComparator_;
     // other
-    std::vector<std::pair<const reco::Candidate *, TopMuonType *> > pairGenRecoMuonsVector_;
+    std::vector<std::pair<const reco::GenParticle *, TopMuonType *> > pairGenRecoMuonsVector_;
 
 };
 

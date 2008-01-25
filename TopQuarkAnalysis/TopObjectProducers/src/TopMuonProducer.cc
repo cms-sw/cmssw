@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.21 2007/10/20 11:37:16 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.22 2007/10/22 17:17:38 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -74,7 +74,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   std::vector<TopMuonType> muons = *muonsHandle;
 
   // prepare the MC matching
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<reco::GenParticleCollection> particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
     matchTruth(*particles, muons);
@@ -179,32 +179,32 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 }
 
 
-reco::GenParticleCandidate TopMuonProducer::findTruth(const reco::CandidateCollection & parts, const TopMuonType & muon) {
-  reco::GenParticleCandidate gen;
+reco::GenParticle TopMuonProducer::findTruth(const reco::GenParticleCollection & parts, const TopMuonType & muon) {
+  reco::GenParticle gen;
   for(unsigned int idx=0; idx!=pairGenRecoMuonsVector_.size(); ++idx){
-    std::pair<const reco::Candidate*, TopMuonType*> pairGenRecoMuons;
+    std::pair<const reco::GenParticle*, TopMuonType*> pairGenRecoMuons;
     pairGenRecoMuons = pairGenRecoMuonsVector_[idx];
-    double dR = DeltaR<reco::Candidate>()( muon, *(pairGenRecoMuons.second));
+    double dR = DeltaR<reco::GenParticle, reco::Candidate>()( muon, *(pairGenRecoMuons.second));
     if( !(dR > 0) ){
-      gen = *(dynamic_cast<const reco::GenParticleCandidate*>( pairGenRecoMuons.first ) );
+      gen = *(dynamic_cast<const reco::GenParticle*>( pairGenRecoMuons.first ) );
     }
   }
   return gen;
 }
 
 
-void TopMuonProducer::matchTruth(const reco::CandidateCollection & parts, std::vector<TopMuonType> & muons) {
+void TopMuonProducer::matchTruth(const reco::GenParticleCollection & parts, std::vector<TopMuonType> & muons) {
   pairGenRecoMuonsVector_.clear();
-  reco::CandidateCollection::const_iterator part = parts.begin();
+  reco::GenParticleCollection::const_iterator part = parts.begin();
   for( ; part != parts.end(); ++part ){
-    reco::GenParticleCandidate gen = *(dynamic_cast<const reco::GenParticleCandidate*>( &(*part)) );
+    reco::GenParticle gen = *(dynamic_cast<const reco::GenParticle*>( &(*part)) );
     if( abs(gen.pdgId())==13 && gen.status()==1 ){
       bool   found = false;
       double minDR = 99999;
       TopMuonType* rec = 0;
       TopMuonTypeCollection::iterator muon = muons.begin();
       for ( ; muon !=muons.end(); ++muon){
-	double dR = DeltaR<reco::Candidate>()( gen, *muon);
+	double dR = DeltaR<reco::GenParticle, reco::Candidate>()( gen, *muon);
 	double ptRecOverGen = muon->pt()/gen.pt();
 	if ( ( ptRecOverGen > minRecoOnGenEt_ ) && 
 	     ( ptRecOverGen < maxRecoOnGenEt_ ) && 
@@ -217,7 +217,7 @@ void TopMuonProducer::matchTruth(const reco::CandidateCollection & parts, std::v
 	}
       }
       if( found == true ){
-	pairGenRecoMuonsVector_.push_back( std::pair<const reco::Candidate*,TopMuonType*>(&(*part), rec ) );
+	pairGenRecoMuonsVector_.push_back( std::pair<const reco::GenParticle*,TopMuonType*>(&(*part), rec ) );
       }
     }
   }

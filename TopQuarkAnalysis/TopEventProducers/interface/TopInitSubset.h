@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 namespace TopInitID{
   static const int status = 3;
@@ -23,7 +23,7 @@ class TopInitSubset : public edm::EDProducer {
   ~TopInitSubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);
+  void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
 
  private:
   edm::InputTag src_;  

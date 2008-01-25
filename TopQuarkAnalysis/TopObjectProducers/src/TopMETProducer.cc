@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMETProducer.cc,v 1.7 2007/09/28 13:04:28 lowette Exp $
+// $Id: TopMETProducer.cc,v 1.8 2007/10/02 15:35:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
@@ -56,7 +56,7 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(metSrc_, mets);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<reco::GenParticleCollection> particles;
   if (addGenMET_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
@@ -75,9 +75,9 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // calculate the generated MET (just sum of neutrinos)
     if (addGenMET_) {
       reco::Particle theGenMET(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0));
-      for(reco::CandidateCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
-        reco::Candidate * aTmpGenPart = const_cast<reco::Candidate *>(&*itGenPart);
-        reco::GenParticleCandidate aGenPart = *(dynamic_cast<reco::GenParticleCandidate *>(aTmpGenPart));
+      for(reco::GenParticleCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
+        reco::GenParticle * aTmpGenPart = const_cast<reco::GenParticle *>(&*itGenPart);
+        reco::GenParticle aGenPart = *(dynamic_cast<reco::GenParticle *>(aTmpGenPart));
         if ((aGenPart.status()==1) &&
             (abs(aGenPart.pdgId())==12 || abs(aGenPart.pdgId())==14 || abs(aGenPart.pdgId())==16)) {
           theGenMET.setP4(theGenMET.p4() + aGenPart.p4());

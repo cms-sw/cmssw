@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.28 2007/10/29 17:51:54 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.29 2007/12/14 13:52:02 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
@@ -81,7 +81,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 
   // prepare the MC matching
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<reco::GenParticleCollection> particles;
   if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
     matchTruth(*particles, electrons) ;
@@ -211,13 +211,13 @@ void TopElectronProducer::removeGhosts(std::vector<TopElectronType> & elecs) {
 }
 
 
-reco::GenParticleCandidate TopElectronProducer::findTruth(const reco::CandidateCollection & parts, const TopElectronType & elec) {
-  reco::GenParticleCandidate theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
+reco::GenParticle TopElectronProducer::findTruth(const reco::GenParticleCollection & parts, const TopElectronType & elec) {
+  reco::GenParticle theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
   for(unsigned int i=0; i!= pairGenRecoElectronsVector_.size(); i++){
-    std::pair<const reco::Candidate*, TopElectronType*> pairGenRecoElectrons;
+    std::pair<const reco::GenParticle*, TopElectronType*> pairGenRecoElectrons;
     pairGenRecoElectrons = pairGenRecoElectronsVector_[i];
     if(   fabs(elec.pt() - (pairGenRecoElectrons.second)->pt()) < 0.00001   ) {
-      reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(pairGenRecoElectrons.first)));
+      reco::GenParticle aGenElectron = *(dynamic_cast<reco::GenParticle *>(const_cast<reco::GenParticle *>(pairGenRecoElectrons.first)));
       theGenElectron = aGenElectron;
     }
   }
@@ -225,10 +225,10 @@ reco::GenParticleCandidate TopElectronProducer::findTruth(const reco::CandidateC
 }
 
 
-void TopElectronProducer::matchTruth(const reco::CandidateCollection & particles, std::vector<TopElectronType> & electrons) {
+void TopElectronProducer::matchTruth(const reco::GenParticleCollection & particles, std::vector<TopElectronType> & electrons) {
   pairGenRecoElectronsVector_.clear();
-  for(reco::CandidateCollection::const_iterator itGenElectron = particles.begin(); itGenElectron != particles.end(); ++itGenElectron) {
-    reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenElectron)));
+  for(reco::GenParticleCollection::const_iterator itGenElectron = particles.begin(); itGenElectron != particles.end(); ++itGenElectron) {
+    reco::GenParticle aGenElectron = *(dynamic_cast<reco::GenParticle *>(const_cast<reco::GenParticle *>(&*itGenElectron)));
     if (abs(aGenElectron.pdgId())==11 && aGenElectron.status()==1){
       TopElectronType* bestRecoElectron = 0;
       bool recoElectronFound = false;
@@ -238,7 +238,7 @@ void TopElectronProducer::matchTruth(const reco::CandidateCollection & particles
 	double recoEtOnGenEt = electrons[e].et()/aGenElectron.et();
 	// if the charge is the same and the energy comparable
 	//FIXME set recoEtOnGenEt cut configurable 
-	  float currDR = DeltaR<reco::Candidate>()(aGenElectron, electrons[e]);
+	  float currDR = DeltaR<reco::GenParticle, reco::Candidate>()(aGenElectron, electrons[e]);
 	  //if ( aGenElectron.charge()==electrons[e].charge() && recoEtOnGenEt > minRecoOnGenEt_ 
 	  //     &&  recoEtOnGenEt < maxRecoOnGenEt_ && currDR < maxDeltaR_ ) {
 	  if (  recoEtOnGenEt > minRecoOnGenEt_ 
@@ -253,7 +253,7 @@ void TopElectronProducer::matchTruth(const reco::CandidateCollection & particles
       }
       if(recoElectronFound == true){
 	pairGenRecoElectronsVector_.push_back(
-					       std::pair<const reco::Candidate*,TopElectronType*>(&*itGenElectron, bestRecoElectron)
+					       std::pair<const reco::GenParticle*,TopElectronType*>(&*itGenElectron, bestRecoElectron)
 					       );
       }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.19 2007/10/25 17:37:44 jlamb Exp $
+// $Id: TopElectronProducer.h,v 1.20 2007/12/14 13:52:01 jlamb Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.19 2007/10/25 17:37:44 jlamb Exp $
+  \version  $Id: TopElectronProducer.h,v 1.20 2007/12/14 13:52:01 jlamb Exp $
 */
 
 
@@ -26,7 +26,7 @@
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
@@ -55,8 +55,8 @@ class TopElectronProducer : public edm::EDProducer {
   private:
 
     void removeGhosts(std::vector<TopElectronType> & elecs);
-    reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const TopElectronType & elec);
-    void matchTruth(const reco::CandidateCollection & particles, std::vector<TopElectronType> & electrons);
+    reco::GenParticle findTruth(const reco::GenParticleCollection & parts, const TopElectronType & elec);
+    void matchTruth(const reco::GenParticleCollection & particles, std::vector<TopElectronType> & electrons);
     double electronID(const edm::Handle<std::vector<TopElectronType> > & elecs, 
                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
     void setEgammaIso(TopElectron &anElectron,
@@ -105,7 +105,7 @@ class TopElectronProducer : public edm::EDProducer {
     TopLeptonLRCalc              * theLeptonLRCalc_;
     GreaterByPt<TopElectron>       pTComparator_;
     // other
-    std::vector<std::pair<const reco::Candidate *, TopElectronType *> > pairGenRecoElectronsVector_;
+    std::vector<std::pair<const reco::GenParticle *, TopElectronType *> > pairGenRecoElectronsVector_;
 
 };
 

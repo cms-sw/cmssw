@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.36.2.2 2007/11/25 19:03:40 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.39 2008/01/10 13:40:32 jandrea Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -119,7 +119,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<reco::CandidateCollection> particles;
+  edm::Handle<reco::GenParticleCollection> particles;
   if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_, particles);
   // Get the vector of GenJets from the event if needed
   edm::Handle<reco::GenJetCollection> genJets;
@@ -198,16 +198,16 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // do the parton matching
     if (addGenPartonMatch_) {
       // initialize best match as null
-      reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
+      reco::GenParticle bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 0;
       // find the closest parton
-      for (reco::CandidateCollection::const_iterator itParton = particles->begin(); itParton != particles->end(); ++itParton) {
-        reco::GenParticleCandidate aParton = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itParton)));
+      for (reco::GenParticleCollection::const_iterator itParton = particles->begin(); itParton != particles->end(); ++itParton) {
+        reco::GenParticle aParton = *(dynamic_cast<reco::GenParticle *>(const_cast<reco::GenParticle *>(&*itParton)));
         if (aParton.status()==3 &&
             (abs(aParton.pdgId())==1 || abs(aParton.pdgId())==2 ||
              abs(aParton.pdgId())==3 || abs(aParton.pdgId())==4 ||
              abs(aParton.pdgId())==5 || abs(aParton.pdgId())==21)) {
-          float currDR = DeltaR<reco::Candidate>()(aParton, ajet);
+          float currDR = DeltaR<reco::GenParticle, reco::Candidate>()(aParton, ajet);
           // matching with hard-cut at 0.4
           // can be improved a la muon-electron, such that each parton
           // maximally matches 1 jet, but this requires two loops
@@ -228,7 +228,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // find the closest parton
       for (reco::GenJetCollection::const_iterator itGenJet = genJets->begin(); itGenJet != genJets->end(); ++itGenJet) {
 // do we need some criteria?      if (itGenJet->status()==3) {
-          float currDR = DeltaR<reco::Candidate>()(*itGenJet, ajet);
+          float currDR = DeltaR<reco::GenParticle, reco::Candidate>()(*itGenJet, ajet);
           // matching with hard-cut at 0.4
           // can be improved a la muon-electron, such that each genjet
           // maximally matches 1 jet, but this requires two loops

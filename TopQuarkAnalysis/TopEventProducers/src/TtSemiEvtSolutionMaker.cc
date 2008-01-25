@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.29 2007/11/26 18:55:57 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.30 2008/01/17 10:30:48 ghammad Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -172,11 +172,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       iEvent.getByLabel ("genEvt",genEvt); 
       if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
           genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
-        vector<const reco::Candidate*> quarks;
-        const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
-        const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
-        const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
-        const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
+        vector<const reco::GenParticle*> quarks;
+        const reco::GenParticle & genp  = *(genEvt->hadronicDecayQuark());
+        const reco::GenParticle & genq  = *(genEvt->hadronicDecayQuarkBar());
+        const reco::GenParticle & genbh = *(genEvt->hadronicDecayB());
+        const reco::GenParticle & genbl = *(genEvt->leptonicDecayB());
         quarks.push_back( &genp );
         quarks.push_back( &genq );
         quarks.push_back( &genbh );

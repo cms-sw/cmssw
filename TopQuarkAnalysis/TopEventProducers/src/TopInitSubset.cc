@@ -10,7 +10,7 @@ using namespace reco;
 TopInitSubset::TopInitSubset(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
-  produces<reco::CandidateCollection>();
+  produces<reco::GenParticleCollection>();
 }
 
 TopInitSubset::~TopInitSubset()
@@ -20,11 +20,11 @@ TopInitSubset::~TopInitSubset()
 void
 TopInitSubset::produce(edm::Event& evt, const edm::EventSetup& setup)
 {     
-  edm::Handle<reco::CandidateCollection> src;
+  edm::Handle<reco::GenParticleCollection> src;
   evt.getByLabel(src_, src);
  
-  const reco::CandidateRefProd ref = evt.getRefBeforePut<reco::CandidateCollection>(); 
-  std::auto_ptr<reco::CandidateCollection> sel( new reco::CandidateCollection );
+  const reco::GenParticleRefProd ref = evt.getRefBeforePut<reco::GenParticleCollection>(); 
+  std::auto_ptr<reco::GenParticleCollection> sel( new reco::GenParticleCollection );
 
   //fill output collection
   fillOutput( *src, *sel );
@@ -32,17 +32,17 @@ TopInitSubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
-void TopInitSubset::fillOutput(const reco::CandidateCollection& src, reco::CandidateCollection& sel)
+void TopInitSubset::fillOutput(const reco::GenParticleCollection& src, reco::GenParticleCollection& sel)
 {
-  CandidateCollection::const_iterator t=src.begin();
+  GenParticleCollection::const_iterator t=src.begin();
   for( ; t!=src.end(); ++t){
     if( t->status() == TopInitID::status && abs( t->pdgId() )==TopInitID::tID ){ //is top
       for(int idx=0; idx<(int)t->numberOfMothers(); ++idx){      
-	GenParticleCandidate* cand = new GenParticleCandidate( t->mother(idx)->threeCharge(), t->mother(idx)->p4(), 
+	GenParticle* cand = new GenParticle( t->mother(idx)->threeCharge(), t->mother(idx)->p4(), 
 							       t->mother(idx)->vertex(), t->mother(idx)->pdgId(), 
 							       t->mother(idx)->status(), false );
-	auto_ptr<reco::Candidate> ptr( cand );
-	sel.push_back( ptr );
+	auto_ptr<reco::GenParticle> ptr( cand );
+	sel.push_back( *ptr );
       }
       break;
     }

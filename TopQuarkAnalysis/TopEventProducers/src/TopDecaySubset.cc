@@ -10,7 +10,7 @@ using namespace reco;
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
-  produces<reco::CandidateCollection>();
+  produces<reco::GenParticleCollection>();
 }
 
 TopDecaySubset::~TopDecaySubset()
@@ -20,11 +20,11 @@ TopDecaySubset::~TopDecaySubset()
 void
 TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
 {     
-  edm::Handle<reco::CandidateCollection> src;
+  edm::Handle<reco::GenParticleCollection> src;
   evt.getByLabel(src_, src);
  
-  const reco::CandidateRefProd ref = evt.getRefBeforePut<reco::CandidateCollection>(); 
-  std::auto_ptr<reco::CandidateCollection> sel( new reco::CandidateCollection );
+  const reco::GenParticleRefProd ref = evt.getRefBeforePut<reco::GenParticleCollection>(); 
+  std::auto_ptr<reco::GenParticleCollection> sel( new reco::GenParticleCollection );
 
   //clear existing refs
   refs_.clear();  
@@ -36,10 +36,10 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
-Particle::LorentzVector TopDecaySubset::fourVector(const reco::Candidate& p)
+Particle::LorentzVector TopDecaySubset::fourVector(const reco::GenParticle& p)
 {
   Particle::LorentzVector vec;
-  Candidate::const_iterator pd=p.begin();
+  GenParticle::const_iterator pd=p.begin();
   for( ; pd!=p.end(); ++pd){
     if( pd->status() == TopDecayID::status ){
       vec+=fourVector( *pd );
@@ -54,47 +54,47 @@ Particle::LorentzVector TopDecaySubset::fourVector(const reco::Candidate& p)
   return vec;
 }
 
-void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::CandidateCollection& sel)
+void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::GenParticleCollection& sel)
 {
-  CandidateCollection::const_iterator t=src.begin();
+  GenParticleCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
     if( t->status() == TopDecayID::status && abs( t->pdgId() )==TopDecayID::tID ){ //is top      
-      GenParticleCandidate* cand = new GenParticleCandidate( t->threeCharge(), fourVector( *t ), 
+      GenParticle* cand = new GenParticle( t->threeCharge(), fourVector( *t ), 
 							     t->vertex(), t->pdgId(), t->status(), false );
-      auto_ptr<reco::Candidate> ptr( cand );
-      sel.push_back( ptr );
+      auto_ptr<reco::GenParticle> ptr( cand );
+      sel.push_back( *ptr );
       ++idx;
       //keep top index for the map for 
       //management of the daughter refs 
       int iTop=idx, iW=0;
       vector<int> topDaughs, wDaughs;
       //iterate over top daughters
-      Candidate::const_iterator td=t->begin();
+      GenParticle::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
 	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::bID ){ //is beauty	  
-	  GenParticleCandidate* cand = new GenParticleCandidate( td->threeCharge(), fourVector( *td ), 
+	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), td->status(), false );
-	  auto_ptr<Candidate> ptr( cand );
-	  sel.push_back( ptr );	  
+	  auto_ptr<GenParticle> ptr( cand );
+	  sel.push_back( *ptr );	  
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	}
 	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
-	  GenParticleCandidate* cand = new GenParticleCandidate( td->threeCharge(), fourVector( *td ), 
+	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), td->status(), true );
-	  auto_ptr<Candidate> ptr( cand );
-	  sel.push_back( ptr );
+	  auto_ptr<GenParticle> ptr( cand );
+	  sel.push_back( *ptr );
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	  //keep W idx 
 	  //for the map
 	  iW=idx;
 	  //iterate over W daughters
-	  Candidate::const_iterator wd=td->begin();
+	  GenParticle::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
 	    if (wd->pdgId() != td->pdgId()) {
-	      GenParticleCandidate* cand = new GenParticleCandidate( wd->threeCharge(), fourVector( *wd ), 
+	      GenParticle* cand = new GenParticle( wd->threeCharge(), fourVector( *wd ), 
 								     wd->vertex(), wd->pdgId(), wd->status(), false);
-	      auto_ptr<Candidate> ptr( cand );
-	      sel.push_back( ptr );
+	      auto_ptr<GenParticle> ptr( cand );
+	      sel.push_back( *ptr );
 	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
               if( wd->status()==TopDecayID::status && abs( wd->pdgId() )==TopDecayID::tauID ){ //is tau
 	        fillTree(idx,*wd,sel);
@@ -109,36 +109,36 @@ void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Cand
   }
 }
 
-void TopDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::CandidateCollection& sel)
+void TopDecaySubset::fillRefs(const reco::GenParticleRefProd& ref, reco::GenParticleCollection& sel)
 { 
-  CandidateCollection::iterator p=sel.begin();
+  GenParticleCollection::iterator p=sel.begin();
   for(int idx=0; p!=sel.end(); ++p, ++idx){
     //find daughter reference vectors in refs_ and add daughters
     map<int, vector<int> >::const_iterator daughters=refs_.find( idx );
     if( daughters!=refs_.end() ){
       vector<int>::const_iterator daughter = daughters->second.begin();
       for( ; daughter!=daughters->second.end(); ++daughter){
-	GenParticleCandidate* part = dynamic_cast<GenParticleCandidate* > (&(*p));
+	GenParticle* part = dynamic_cast<GenParticle* > (&(*p));
 	if(part == 0){
-	  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
+	  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
 	}
-	part->addDaughter( CandidateRef(ref, *daughter) );
-	sel[*daughter].addMother(part);
+	part->addDaughter( GenParticleRef(ref, *daughter) );
+        sel[*daughter].addMother( GenParticleRef(ref, idx) );
       }
     }
   }
 }
 
-void TopDecaySubset::fillTree(int& idx, const reco::Candidate& particle, reco::CandidateCollection& sel)
+void TopDecaySubset::fillTree(int& idx, const reco::GenParticle& particle, reco::GenParticleCollection& sel)
 {
   vector<int> daughters;
   int idx0 = idx;
-  Candidate::const_iterator daughter=particle.begin();
+  GenParticle::const_iterator daughter=particle.begin();
   for( ; daughter!=particle.end(); ++daughter){
-    GenParticleCandidate* cand = new GenParticleCandidate( daughter->threeCharge(), fourVector( *daughter ),
+    GenParticle* cand = new GenParticle( daughter->threeCharge(), fourVector( *daughter ),
                                                            daughter->vertex(), daughter->pdgId(), daughter->status(), false);
-    auto_ptr<Candidate> ptr( cand );
-    sel.push_back( ptr );
+    auto_ptr<GenParticle> ptr( cand );
+    sel.push_back( *ptr );
     daughters.push_back( ++idx ); //push index of daughter
     fillTree(idx,*daughter,sel);  //continue recursively
   }  
