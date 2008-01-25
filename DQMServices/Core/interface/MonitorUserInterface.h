@@ -145,7 +145,6 @@ private:
   /// # of monitoring packages received;
   int numUpdates_;
   
-// private:
   /// like subscribe_base in base class, for one folder only
   void subscribe_base(const std::string & subsc_request, bool add,
 		      std::vector<std::string> & requests, 
@@ -155,8 +154,15 @@ private:
   void addFolderSubsc(MonitorElementRootFolder * folder, unsigned int myTag, 
 		      std::vector<std::string> & requests) const;
 
+  // needed by VisDQMMonitorService
+  void setReconnectDelay(int delay){if(myc)myc->setReconnectDelay(delay);} 
+
+
   friend class VisDQMMonitorService ;
   friend class DQMBaseClient ;
+  friend class SiPixelHistoricInfoClient; //needs subscribe and getNumUpdates
+  friend class SiStripHistoricInfoClient; //needs subscribe and getNumUpdates
+  
 
 };
 
