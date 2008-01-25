@@ -574,12 +574,12 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,DCC_Err_Warn_,"DCC Errors and Warnings","", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Err_Warn_,"HCAL FED ID","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,CDF_Violation_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,DCC_Evt_Fmt_,"DCC Errors and Warnings","", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,CDF_Violation_,"HCAL FED ID"," ", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Evt_Fmt_,"HCAL FED ID","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -593,7 +593,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
  
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,DCC_Spigot_Err_,"Spigot","", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Spigot_Err_,"HCAL FED ID","", 92, htmlFile,htmlDir);
   histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
