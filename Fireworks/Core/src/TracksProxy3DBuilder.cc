@@ -14,13 +14,14 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.1 2008/01/19 19:03:49 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.2 2008/01/21 01:15:44 chrjones Exp $
 //
 
 // system include files
 #include "TEveManager.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
+#include "RVersion.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -75,17 +76,30 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     int index=0;
     //cout <<"----"<<endl;
     TEveRecTrack t;
-    t.beta = 1.;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+   t.fBeta = 1.;
+#else
+   t.beta = 1.;
+#endif
     for(reco::TrackCollection::const_iterator it = tracks->begin();
 	it != tracks->end();++it,++index) {
-      t.P = TEveVector(it->px(),
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+       t.fP = TEveVector(it->px(),
+                        it->py(),
+                        it->pz());
+       t.fV = TEveVector(it->vx(),
+                        it->vy(),
+                        it->vz());
+       t.fSign = it->charge();
+#else
+       t.P = TEveVector(it->px(),
 		       it->py(),
 		       it->pz());
       t.V = TEveVector(it->vx(),
 		       it->vy(),
 		       it->vz());
       t.sign = it->charge();
-      
+#endif      
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
       trk->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(trk,tlist);
