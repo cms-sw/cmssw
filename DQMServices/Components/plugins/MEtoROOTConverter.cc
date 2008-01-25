@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/05 06:29:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/12 20:57:28 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -38,16 +38,12 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if (dbe) {
-    if (verbosity > 0 ) {
+    if (verbosity) {
       dbe->setVerbose(1);
     } else {
       dbe->setVerbose(0);
     }
   }
-
-  //if (dbe) {
-  //  if (verbosity >= 0 ) dbe->showDirStructure();
-  //}
 
   // clear out the vector holders and information flags
   items.clear();
@@ -99,76 +95,54 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
 	fullpath += item[0];
 	if (!item[0].empty()) fullpath += "/";
 	fullpath += *n;
-	//std::cout << "Full path is: " << fullpath << std::endl;
-    
-	//dbe->cd(item[0]);
+	if (verbosity) std::cout << "Full path is: " << fullpath << std::endl;
     
 	// verify valid monitor elements by type
 	bool validME = false;
-	//std::cout << "MEobject:" << std::endl;
+	if (verbosity) std::cout << "MEobject:" << std::endl;
 	if (MonitorElement *me = dbe->get(fullpath)) {
 
 	  // extract classname
 	  if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
 	    if (TObject *tobj = ob->operator->()){
 	      validME = true;
-	      //std::cout << "   normal: " << tobj->GetName();
+	      if (verbosity) std::cout << "   normal: " << tobj->GetName();
 	      classname = tobj->ClassName();
-	      if (classname == "TObjString") {
-		if (TObjString* histogram = 
-		    dynamic_cast<TObjString*>(ob->operator->())) {
-		  
-		  // get contents of TObjString
-		  TString contents = histogram->GetString();
-		  std::string scont = contents.Data();
-
-		  // verify I have the expected string format		
-		  assert(StringOps::contains(scont,'=') == 1);
-		  
-		  // get list of things seperated by =
-		  StringList sitem = StringOps::split(scont, "=");
-		  
-		  // get front item separated by >
-		  StringList sitem1 = StringOps::split(sitem[0], ">");
-		  
-		  if (sitem1[1] == "f") classname == "Float";
-		  if (sitem1[1] == "i") classname == "Int";
-		  if (sitem1[1] == "s") classname == "String";
-		}
-	      }
 	      metype.push_back(classname);
-	      //std::cout << " is of type " << classname << std::endl;
+	      if (verbosity) std::cout << " is of type " << classname 
+				       << std::endl;
 	    } 
 	  } else if (FoldableMonitor *ob = 
 		     dynamic_cast<FoldableMonitor *>(me)) {
 	    if (TObject *tobj = ob->getTagObject()) {
 	      validME = true;
-	      //std::cout << "   foldable: " << tobj->GetName();
+	      if (verbosity) std::cout << "   foldable: " << tobj->GetName();
 	      classname = tobj->ClassName();
 	      if (classname == "TObjString") {
 		if (TObjString* histogram = 
 		    dynamic_cast<TObjString*>(ob->getTagObject())) {
 
 		  // get contents of TObjString
-		  TString contents = histogram->GetString();
+		  TString contents = histogram->GetName();
 		  std::string scont = contents.Data();
-		  
+
 		  // verify I have the expected string format		
 		  assert(StringOps::contains(scont,'=') == 1);
 		  
 		  // get list of things seperated by =
 		  StringList sitem = StringOps::split(scont, "=");
-		  
+
 		  // get front item separated by >
 		  StringList sitem1 = StringOps::split(sitem[0], ">");
 		  
-		  if (sitem1[1] == "f") classname == "Float";
-		  if (sitem1[1] == "i") classname == "Int";
-		  if (sitem1[1] == "s") classname == "String";
+		  if (sitem1[1] == "f") classname = "Float";
+		  if (sitem1[1] == "i") classname = "Int";
+		  if (sitem1[1] == "s") classname = "String";
 		}
 	      }
 	      metype.push_back(classname);
-	      //std::cout << " is of type " << classname << std::endl;
+	      if (verbosity) std::cout << " is of type " << classname 
+				       << std::endl;
 	    }
 	  }
 	  if (!validME) {
@@ -221,7 +195,7 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
     } // end loop through me items
   } // end check that items exist
 
-  if (verbosity > 0) {
+  if (verbosity) {
     // list unique packages
     std::cout << "Packages accessing DQM:" << std::endl;
     for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter) {
@@ -293,7 +267,7 @@ void MEtoROOTConverter::beginRun(edm::Run& iRun,
   
   int nrun = iRun.run();
   
-  if (verbosity > 0) {
+  if (verbosity) {
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << count << " runs total)";
   } else if (verbosity == 0) {
@@ -347,9 +321,8 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
  
   std::string MsgLoggerCat = "MEtoROOTConverter_endRun";
   
-  if (verbosity > 0)
-    edm::LogInfo (MsgLoggerCat)
-      << "\nStoring MEtoROOT dataformat histograms.";
+  if (verbosity)
+    edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoROOT dataformat histograms.";
 
   // extract ME information into vectors
   for (unsigned int a = 0; a < pkgvec.size(); ++a) {
@@ -357,7 +330,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     taglist.clear();
 
     // already extracted full path name in constructor
-    //std::cout << "name: " << fullpathvec[a] << std::endl;
+    if (verbosity) std::cout << "name: " << fullpathvec[a] << std::endl;
 
     // get tags
     bool foundtags  = false;
@@ -371,51 +344,58 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       }
     }
     if (!foundtags) taglist.clear();
-    //std::cout << "taglist:" << std::endl;
-    //for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
-    //  std::cout << "   " << taglist[ii] << std::endl;
-    //}
+    if (verbosity) {
+      std::cout << "taglist:" << std::endl;
+      for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
+	std::cout << "   " << taglist[ii] << std::endl;
+      }
+    }
 
     // get monitor elements
-    //dbe->cd();
-    //dbe->cd(pathvec[a]);
     bool validME = false;
    
-    //std::cout << "MEobject:" << std::endl;
+    if (verbosity) std::cout << "MEobject:" << std::endl;
     if (MonitorElement *me = dbe->get(fullpathvec[a])) {
       
       // Save the ROOT object.  This is either a genuine ROOT object,
       // or a scalar one that stores its value as TObjString.
       if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
-	//if (TObject *tobj = ob->operator->()){
 	if (TH1F* histogram = dynamic_cast<TH1F*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) {
+	    std::cout << "   normal: " << histogram->GetName() << std::endl;
+	    std::cout << "      classname: " << metype[a] << std::endl;
+	  }
 	  TH1FME.object.push_back(*histogram);
 	  TH1FME.name.push_back(fullpathvec[a]);
 	  TH1FME.tags.push_back(taglist);
 	}
 	if (TH2F* histogram = dynamic_cast<TH2F*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) {
+	    std::cout << "   normal: " << histogram->GetName() << std::endl;
+	    std::cout << "      classname: " << metype[a] << std::endl;
+	  }
 	  TH2FME.object.push_back(*histogram);
 	  TH2FME.name.push_back(fullpathvec[a]);
 	  TH2FME.tags.push_back(taglist);
 	}	
 	if (TH3F* histogram = dynamic_cast<TH3F*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) {
+	    std::cout << "   normal: " << histogram->GetName() << std::endl;
+	    std::cout << "      classname: " << metype[a] << std::endl;
+	  }
 	  TH3FME.object.push_back(*histogram);
 	  TH3FME.name.push_back(fullpathvec[a]);
 	  TH3FME.tags.push_back(taglist);
 	}  
 	if (TProfile* histogram = dynamic_cast<TProfile*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) {
+	    std::cout << "   normal: " << histogram->GetName() << std::endl;
+	    std::cout << "      classname: " << metype[a] << std::endl;
+	  }
 	  TProfileME.object.push_back(*histogram);
 	  TProfileME.name.push_back(fullpathvec[a]);
 	  TProfileME.tags.push_back(taglist);
@@ -423,67 +403,25 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	if (TProfile2D* histogram = 
 	    dynamic_cast<TProfile2D*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) {
+	    std::cout << "   normal: " << histogram->GetName() << std::endl;
+	    std::cout << "      classname: " << metype[a] << std::endl;
+	  }
 	  TProfile2DME.object.push_back(*histogram);
 	  TProfile2DME.name.push_back(fullpathvec[a]);
 	  TProfile2DME.tags.push_back(taglist);
-	}  	
-	if (TObjString* histogram = 
-	    dynamic_cast<TObjString*>(ob->operator->())) {
-	  validME = true;
-	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
-     
-	  // get contents of TObjString
-	  TString contents = histogram->GetString();
-	  std::string scont = contents.Data();
-	  
-	  // verify I have the expected string format		
-	  assert(StringOps::contains(scont,'=') == 1);
-	  
-	  // get list of things seperated by =
-	  StringList sitem = StringOps::split(scont, "=");
-	  
-	  // get front item separated by >
-	  StringList sitem1 = StringOps::split(sitem[0], ">");
-	  
-	  std::string classname;
-	  if (sitem1[1] == "f") classname == "Float";
-	  if (sitem1[1] == "i") classname == "Int";
-	  if (sitem1[1] == "s") classname == "String";
-	  
-	  // get back item separated by <
-	  StringList sitem2 = StringOps::split(sitem[1], "<");
-
-	  if (classname == "Float") {
-	    FloatME.object.push_back(atof(sitem2[0].c_str()));
-	    FloatME.name.push_back(fullpathvec[a]);
-	    FloatME.tags.push_back(taglist);
-	  }
-	  if (classname == "Int") {
-	    IntME.object.push_back(atoi(sitem2[0].c_str()));
-	    IntME.name.push_back(fullpathvec[a]);
-	    IntME.tags.push_back(taglist);
-	  }
-	  if (classname == "String") {
-	    StringME.object.push_back(sitem2[0]);
-	    StringME.name.push_back(fullpathvec[a]);
-	    StringME.tags.push_back(taglist);
-	  }
-	}  
+	}
       } else if (FoldableMonitor *ob = dynamic_cast<FoldableMonitor *>(me)) {
-	//if (TObject *tobj = ob->getTagObject()) {
 	if (TObjString* histogram = 
 	    dynamic_cast<TObjString*>(ob->getTagObject())) {
 	  validME = true;
-	  //std::cout << "   foldable: " << histogram->GetName() << std::endl;
-	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  if (verbosity) std::cout << "   foldable: " << histogram->GetName() 
+				   << std::endl;
 	
 	  // get contents of TObjString
-	  TString contents = histogram->GetString();
-	  std::string scont = contents.Data();
-	  
+	  TString contents = histogram->GetName();
+	  std::string scont = contents.Data();	  
+
 	  // verify I have the expected string format		
 	  assert(StringOps::contains(scont,'=') == 1);
 	  
@@ -494,25 +432,36 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	  StringList sitem1 = StringOps::split(sitem[0], ">");
 	  
 	  std::string classname;
-	  if (sitem1[1] == "f") classname == "Float";
-	  if (sitem1[1] == "i") classname == "Int";
-	  if (sitem1[1] == "s") classname == "String";
+	  if (sitem1[1] == "f") classname = "Float";
+	  if (sitem1[1] == "i") classname = "Int";
+	  if (sitem1[1] == "s") classname = "String";
+	  if (verbosity) std::cout << "      classname: " << classname 
+				   << std::endl;
 	  
 	  // get back item separated by <
 	  StringList sitem2 = StringOps::split(sitem[1], "<");
 	  
 	  if (classname == "Float") {
 	    FloatME.object.push_back(atof(sitem2[0].c_str()));
+	    if (verbosity)
+	      std::cout << "      value: " << atof(sitem2[0].c_str()) 
+			<< std::endl;
 	    FloatME.name.push_back(fullpathvec[a]);
 	    FloatME.tags.push_back(taglist);
 	  }
 	  if (classname == "Int") {
 	    IntME.object.push_back(atoi(sitem2[0].c_str()));
+	    if (verbosity)
+	      std::cout << "      value: " << atoi(sitem2[0].c_str()) 
+			<< std::endl;
 	    IntME.name.push_back(fullpathvec[a]);
 	    IntME.tags.push_back(taglist);
 	  }
 	  if (classname == "String") {
 	    StringME.object.push_back(sitem2[0]);
+	    if (verbosity) 
+	      std::cout << "      value: " << sitem2[0]
+			<< std::endl;
 	    StringME.name.push_back(fullpathvec[a]);
 	    StringME.tags.push_back(taglist);
 	  }
@@ -566,7 +515,8 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     iRun.put(pOut7,fName);
   }
   if (hasString) {
-    std::auto_ptr<MEtoROOT<std::string> > pOut8(new MEtoROOT<std::string>);
+    std::auto_ptr<MEtoROOT<std::string> > 
+      pOut8(new MEtoROOT<std::string>);
     pOut8->putMERootObject(StringME.name,StringME.tags,StringME.object);
     iRun.put(pOut8,fName);
   }

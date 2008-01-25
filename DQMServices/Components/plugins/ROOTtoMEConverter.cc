@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/13 00:48:05 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/14 20:47:51 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -28,16 +28,12 @@ ROOTtoMEConverter::ROOTtoMEConverter(const edm::ParameterSet & iPSet) :
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if (dbe) {
-    if (verbosity > 0 ) {
+    if (verbosity) {
       dbe->setVerbose(1);
     } else {
       dbe->setVerbose(0);
     }
   }
-
-  //if (dbe) {
-  //  if (verbosity > 0 ) dbe->showDirStructure();
-  //}
   
   // print out Parameter Set information being used
   if (verbosity >= 0) {
@@ -92,7 +88,7 @@ void ROOTtoMEConverter::beginRun(const edm::Run& iRun,
   
   int nrun = iRun.run();
   
-  if (verbosity > 0) {
+  if (verbosity) {
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << count << " runs total)";
   } else if (verbosity == 0) {
@@ -139,7 +135,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	
@@ -149,7 +145,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -157,30 +153,12 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 
 	  me1[i] = dbe->clone1D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
-
-	  /*
-	  // fill new monitor element
-	  Int_t nbins = merootobject[i].object.GetXaxis()->GetNbins();
-	  for (Int_t x = 1; x <= nbins; ++x) {
-	    Double_t xbincenter = merootobject[i].object.GetBinCenter(x);
-	    Double_t value = merootobject[i].object.GetBinContent(x);
-	    //Double_t error = merootobject[i].object.GetBinError(x);
-
-	    //me1[i]->setBinContent(x,value);
-	    //me1[i]->setBinError(x,error);
-	    
-	    for (Int_t val = 0; val < value; ++val) {
-	      me1[i]->Fill(xbincenter);
-	    }
-	  } // end fill
-	  */
-
 	} // end define new monitor elements
 
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me1[i],tags[j]);
+	  dbe->tag(me1[i]->getFullname(),tags[j]);
 	}
 
       } // end loop thorugh merootobject
@@ -208,7 +186,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	
@@ -218,7 +196,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -226,37 +204,13 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 
 	  me2[i] = dbe->clone2D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
-	  
-	  /*
-	  // fill new monitor element
-	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
-	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
-	  for (Int_t x = 1; x <= nxbins; ++x) {
-	    Double_t xbincenter = merootobject[i].object.
-	      GetXaxis()->GetBinCenter(x);
-	    for (Int_t y = 1; y <= nybins; ++y) {
-	      Double_t ybincenter = merootobject[i].object.
-		GetYaxis()->GetBinCenter(y);
-	      Double_t value = 
-		merootobject[i].object.GetBinContent(x,y);
-	      //Double_t error = merootobject[i].object.GetBinError(x,y);
-
-	      //me2[i]->setBinContent(x,y,value);
-	      //me2[i]->setBinError(x,y,error);
-	      
-	      for (Int_t val = 0; val < value; ++val) {
-		me2[i]->Fill(xbincenter,ybincenter);
-	      }
-	    } // end loop through y
-	  } // end loop through x
-	  */
 
 	} // end define new monitor elements
 
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me2[i],tags[j]);
+	  dbe->tag(me2[i]->getFullname(),tags[j]);
 	}
 
       } // end loop thorugh merootobject
@@ -284,7 +238,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	
@@ -294,7 +248,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -302,40 +256,12 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  
 	  me3[i] = dbe->clone3D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
-
-	  /*
-	  // fill new monitor element
-	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
-	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
-	  Int_t nzbins = merootobject[i].object.GetZaxis()->GetNbins();
-	  for (Int_t x = 1; x <= nxbins; ++x) {
-	    Double_t xbincenter = merootobject[i].object.
-	      GetXaxis()->GetBinCenter(x);
-	    for (Int_t y = 1; y <= nybins; ++y) {
-	      Double_t ybincenter = merootobject[i].object.
-		GetYaxis()->GetBinCenter(y);
-	      for (Int_t z = 1; z <= nzbins; ++z) {
-		Double_t zbincenter = merootobject[i].object.
-		  GetZaxis()->GetBinCenter(z);
-		Double_t value = merootobject[i].object.GetBinContent(x,y,z);
-		//Double_t error = merootobject[i].object.GetBinError(x,y,z);
-	      
-		//me3[i]->setBinContent(x,y,z,value);
-		//me3[i]->setBinError(x,y,z,error);		  
-		for (Int_t val = 0; val < value; ++val) {
-		  me3[i]->Fill(xbincenter,ybincenter,zbincenter);
-		}
-	      } // end loop through z
-	    } // end loop through y
-	  } // end loop through x
-	  */
-
 	} // end define new monitor elements
 
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me3[i],tags[j]);
+	  dbe->tag(me3[i]->getFullname(),tags[j]);
 	}
 
       } // end loop thorugh merootobject
@@ -362,7 +288,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	
@@ -372,7 +298,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -380,31 +306,12 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  
 	  me4[i] = dbe->cloneProfile(merootobject[i].object.GetName(),
 				     &merootobject[i].object);
-
-	  /*
-	  // doesn't work properly as y information is lost
-	  // fill new monitor element
-	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
-	  for (Int_t x = 1; x <= nxbins; ++x) {
-	    Double_t xbincenter = merootobject[i].object.
-	      GetXaxis()->GetBinCenter(x);
-	    Double_t value = merootobject[i].object.GetBinContent(x);
-	    //Double_t error = merootobject[i].object.GetBinError(x);
-	      
-	    //me4[i]->setBinContent(x,value);
-	    //me4[i]->setBinError(x,error);
-	    for (Int_t val = 0; val < value; ++val) {
-	      me4[i]->Fill(xbincenter,1);
-	    }
-	  } // end loop through x
-	  */
-
 	} // end define new monitor elements
 
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me4[i],tags[j]);
+	  dbe->tag(me4[i]->getFullname(),tags[j]);
 	}
 
       } // end loop thorugh merootobject
@@ -431,7 +338,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	
@@ -441,7 +348,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -449,37 +356,12 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  
 	  me5[i] = dbe->cloneProfile2D(merootobject[i].object.GetName(),
 				       &merootobject[i].object);
-
-	  /*
-	  // doesn't work as y and z information are lost
-	  // fill new monitor element
-	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
-	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
-	  for (Int_t x = 1; x <= nxbins; ++x) {
-	    Double_t xbincenter = merootobject[i].object.
-	      GetXaxis()->GetBinCenter(x);
-	    for (Int_t y = 1; y <= nybins; ++y) {
-	      Double_t ybincenter = merootobject[i].object.
-		GetYaxis()->GetBinCenter(y);
-	      Double_t value = 
-		merootobject[i].object.GetBinContent(x,y);
-	      //Double_t error = merootobject[i].object.GetBinError(x,y);
-	      
-	      //me5[i]->setBinContent(x,y,value);
-	      //me5[i]->setBinError(x,y,error);
-	      for (Int_t val = 0; val < value; ++val) {
-		me5[i]->Fill(xbincenter,ybincenter,1);
-	      }	      
-	    } // end loop through y
-	  } // end loop through x
-	  */
-
 	} // end define new monitor elements
 	
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me5[i],tags[j]);
+	  dbe->tag(me5[i]->getFullname(),tags[j]);
 	}
 
       } // end loop thorugh merootobject
@@ -506,7 +388,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	std::string name;
@@ -518,7 +400,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -532,7 +414,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me6[i],tags[j]);
+	  dbe->tag(me6[i]->getFullname(),tags[j]);
 	}
 	
       } // end loop thorugh merootobject      
@@ -560,7 +442,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	std::string name;
@@ -572,7 +454,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -586,7 +468,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me7[i],tags[j]);
+	  dbe->tag(me7[i]->getFullname(),tags[j]);
 	}
       } // end loop thorugh merootobject      
     } // end Int creation
@@ -612,7 +494,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	
 	// get full path of monitor element
 	std::string pathname = merootobject[i].name;
-	//std::cout << pathname << std::endl;
+	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
 	std::string name;
@@ -624,7 +506,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	//std::cout << dir << std::endl;    
+	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -637,7 +519,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// attach taglist
 	TagList tags = merootobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
-	  dbe->tag(me8[i],tags[j]);
+	  dbe->tag(me8[i]->getFullname(),tags[j]);
 	}
       } // end loop thorugh merootobject 
     } // end String creation
