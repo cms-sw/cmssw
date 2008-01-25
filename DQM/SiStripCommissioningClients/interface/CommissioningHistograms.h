@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
-//#define USING_NEW_COLLATE_METHODS
+#define USING_NEW_COLLATE_METHODS
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
