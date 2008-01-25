@@ -28,6 +28,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
   std::string inputFile,
+  unsigned int distAlgo,
   const RandomEngine* engine) 
   :
   MaterialEffectsSimulator(engine),
@@ -39,7 +40,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   thePionEnergy(pionEnergy),
   theLengthRatio(lengthRatio),
   theRatios(ratios),
-  theIDMap(idMap)
+  theIDMap(idMap),
+  theDistAlgo(distAlgo)
 
 {
 
@@ -439,24 +441,50 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 				     + aParticle.py*aParticle.py
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
-	    _theUpdatedState[idaugh].SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
+
+	    RawParticle& aDaughter = _theUpdatedState[idaugh]; 
+	    aDaughter.SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
 					     aParticle.pz*ecm,energy*ecm);	    
-	    _theUpdatedState[idaugh].setID(aParticle.id);
+	    aDaughter.setID(aParticle.id);
 
 	    // Rotate around the boost axis
-	    _theUpdatedState[idaugh].rotate(axisRotation);
+	    aDaughter.rotate(axisRotation);
 	    
 	    // Boost it in the lab frame
-	    _theUpdatedState[idaugh].boost(axisBoost);
+	    aDaughter.boost(axisBoost);
 
 	    // Store the closest daughter index (for later tracking purposes, so charged particles only) 
 	    if ( fabs(Particle.charge()) > 1E-12 ) { 
 	      // Closest means 1) same charge
-	      double chargeDiff = fabs(_theUpdatedState[idaugh].charge()-Particle.charge());
+	      double chargeDiff = fabs(aDaughter.charge()-Particle.charge());
 	      if ( fabs(chargeDiff) < 1E-12 ) {
-		// Closest mean 2) smallest cos(theta_12) * p1/p2 
-		double distance = _theUpdatedState[idaugh].Vect().Dot(Particle.Vect())
-		                / _theUpdatedState[idaugh].Vect().Mag2();
+		// Closest mean 2) smallest angular and momentum distance 
+		double distance = 2.*distMin;
+		switch ( theDistAlgo ) { 
+      
+		case 1: 
+		  // sin(theta12) * p1/p2
+		  distance = (aDaughter.Vect().Cross(Particle.Vect())).R()
+		             /aDaughter.Vect().Mag2();
+		  break;
+
+		case 2:
+		  // sin(theta12)
+		  distance = (aDaughter.Vect().Unit().Cross(Particle.Vect().Unit())).R();
+		  break;
+		
+		case 3: 
+		  // m12
+		  distance = aDaughter.Dot(Particle);
+		  break;
+
+		default:
+		  // Should not happen
+		  distance = 2.*distMin;
+		  break;
+      
+		}
+      
 		if ( distance < distMin ) {
 		  // std::cout << "Distance/daughter " << distance << " " << idaugh << std::endl;
 		  distMin = distance;

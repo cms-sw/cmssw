@@ -121,6 +121,11 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
 
+    // The algorithm to compute the distance between primary and secondaries
+    // when a nuclear interaction occurs
+    unsigned distAlgo 
+      = matEff.getParameter<unsigned>("distAlgo");
+
     // The file to read the starting interaction in each files
     // (random reproducibility in case of a crash)
     std::string inputFile 
@@ -179,7 +184,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
 				      lengthRatio, ratios, idMap, 
-				      inputFile, random);
+				      inputFile, distAlgo, random);
   }
 
 }

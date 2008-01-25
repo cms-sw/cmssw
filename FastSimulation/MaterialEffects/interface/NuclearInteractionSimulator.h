@@ -45,6 +45,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      std::vector< std::vector<double> >& ratios,
 			      std::map<int,int >& idMap,
 			      std::string inputFile,
+			      unsigned int distAlgo,
 			      const RandomEngine* engine);
 
   /// Default Destructor
@@ -86,6 +87,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   
   std::map< int, int > theIDMap;
   unsigned ien4;
+  unsigned theDistAlgo;
 
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
