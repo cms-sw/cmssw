@@ -1,3 +1,9 @@
+2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-01
+	* fix to allow for the same (raw) event to be written (reco)
+	several times.
+
 2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-00
