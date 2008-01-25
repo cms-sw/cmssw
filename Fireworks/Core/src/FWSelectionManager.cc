@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.2 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.3 2008/01/24 00:30:07 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
+#include <iostream>
 
 // user include files
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -88,6 +89,16 @@ FWSelectionManager::select(const FWModelId& iId)
 {
    bool changed = m_newSelection.insert(iId).second;
    m_wasChanged |=changed;
+   if(changed) {
+      //if this is new, we need to connect to the 'item' just incase it changes
+      if(m_itemConnectionCount.size()<= iId.item()->id()) {
+         m_itemConnectionCount.resize(iId.item()->id()+1);
+      }
+      if(1 ==++(m_itemConnectionCount[iId.item()->id()].first) ) {
+         m_itemConnectionCount[iId.item()->id()].second =
+         iId.item()->itemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged,this,_1));
+      }
+   }
 }
 
 void 
@@ -95,14 +106,46 @@ FWSelectionManager::unselect(const FWModelId& iId)
 {
    bool changed = (0 != m_newSelection.erase(iId));
    m_wasChanged |=changed;
+   if(changed) {
+      assert(m_itemConnectionCount.size() > iId.item()->id());
+      //was this the last model selected for this item?
+      if(0 ==--(m_itemConnectionCount[iId.item()->id()].first)) {
+         m_itemConnectionCount[iId.item()->id()].second.disconnect();
+      }
+   }
 }
 
 void 
-FWSelectionManager::eventDone()
+FWSelectionManager::itemChanged(const FWEventItem* iItem)
 {
-   m_newSelection.clear();
-   m_selection.clear();
-   m_wasChanged=false;
+   assert(0!=iItem);
+   assert(m_itemConnectionCount.size() > iItem->id());
+   //if this appears in any of our models we need to remove them
+   FWModelId low(iItem,0);
+   FWModelId high(iItem,0x7FFFFFFF);//largest signed 32 bit number
+   bool someoneChanged = false;
+   {
+      std::set<FWModelId>::iterator itL=m_newSelection.lower_bound(low),
+      itH=m_newSelection.upper_bound(high);
+      if(itL!=itH) {
+         m_wasChanged =true;
+         someoneChanged=true;
+         m_newSelection.erase(itL,itH);
+      }
+   }
+   {
+      std::set<FWModelId>::iterator itL=m_selection.lower_bound(low),
+      itH=m_selection.upper_bound(high);
+      if(itL!=itH) {
+         m_wasChanged =true;
+         someoneChanged = true;
+         //Don't need to erase here since will happen in 'finishedAllSelection'
+      }
+   }
+   assert(someoneChanged);
+   m_itemConnectionCount[iItem->id()].second.disconnect();
+   m_itemConnectionCount[iItem->id()].first = 0;
+   finishedAllSelections();
 }
 
 //

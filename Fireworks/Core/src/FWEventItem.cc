@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.4 2008/01/21 16:10:09 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.5 2008/01/23 18:30:01 chrjones Exp $
 //
 
 // system include files
@@ -132,6 +132,7 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
       m_colProxy->PopProxy();
    }
    m_itemInfos.clear();
+   m_changeManager->changed(this);
 }
 
 void 
@@ -147,6 +148,7 @@ FWEventItem::setLabels(const std::string& iModule,
       m_colProxy->PopProxy();
    }
    m_itemInfos.clear();
+   m_changeManager->changed(this);
 }
 
 void 

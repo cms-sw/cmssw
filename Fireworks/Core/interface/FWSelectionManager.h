@@ -16,12 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:45 EST 2008
-// $Id: FWSelectionManager.h,v 1.1 2008/01/21 01:17:14 chrjones Exp $
+// $Id: FWSelectionManager.h,v 1.2 2008/01/24 00:30:07 chrjones Exp $
 //
 
 // system include files
 #include "sigc++/signal.h"
+#include "sigc++/connection.h"
 #include <set>
+#include <vector>
 
 // user include files
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -48,11 +50,11 @@ class FWSelectionManager
 
       sigc::signal<void, const FWSelectionManager&> selectionChanged_;
    
-      void eventDone();
    private:
       void finishedAllSelections();
       void select(const FWModelId& iId);
       void unselect(const FWModelId& iId);
+      void itemChanged(const FWEventItem*);
    
       FWSelectionManager(const FWSelectionManager&); // stop default
 
@@ -63,6 +65,7 @@ class FWSelectionManager
       std::set<FWModelId> m_selection;
       std::set<FWModelId> m_newSelection;
       bool m_wasChanged;
+      std::vector<std::pair<int,sigc::connection> > m_itemConnectionCount;
 };
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 17:37:49 EST 2008
-// $Id: FWModelChangeManager.h,v 1.1 2008/01/21 01:17:16 chrjones Exp $
+// $Id: FWModelChangeManager.h,v 1.2 2008/01/22 16:34:09 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWItemChangeSignal.h"
 
 // forward declarations
 class FWEventItem;
@@ -45,6 +46,7 @@ class FWModelChangeManager
    
       void beginChanges();
       void changed(const FWModelId&);
+      void changed(const FWEventItem*);
       void endChanges();
 
       sigc::signal<void> changeSignalsAreComing_;
@@ -59,7 +61,9 @@ class FWModelChangeManager
       // ---------- member data --------------------------------
       unsigned int m_depth;
       std::vector<FWModelIds> m_changes;
+      std::set<const FWEventItem*> m_itemChanges;
       std::vector<FWModelChangeSignal> m_changeSignals;
+      std::vector<FWItemChangeSignal> m_itemChangeSignals;
 };
 
 class FWChangeSentry {

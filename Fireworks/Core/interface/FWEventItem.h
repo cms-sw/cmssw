@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.7 2008/01/22 20:56:01 chrjones Exp $
+// $Id: FWEventItem.h,v 1.8 2008/01/23 18:30:01 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWItemChangeSignal.h"
 
 // forward declarations
 class TClass;
@@ -129,6 +130,10 @@ class FWEventItem
    
       /** connect to this signal if you want to know when models held by the item change */
       mutable FWModelChangeSignal changed_;
+   
+      /** connect to this signal if you want to know when the data underlying the item changes */
+      mutable FWItemChangeSignal itemChanged_;
+   
    private:
       //FWEventItem(const FWEventItem&); // stop default
 

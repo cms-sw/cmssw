@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.19 2008/01/24 00:32:31 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.20 2008/01/24 17:00:07 chrjones Exp $
 //
 
 // system include files
@@ -359,7 +359,6 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
      // gSystem->ProcessEvents();
      gSystem->DispatchOneEvent(kFALSE);
   }
-  m_selectionManager->eventDone();
   return m_code;
 }
 
