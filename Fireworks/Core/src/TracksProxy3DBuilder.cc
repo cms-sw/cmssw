@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.2 2008/01/21 01:15:44 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.3 2008/01/25 19:53:18 chrjones Exp $
 //
 
 // system include files
@@ -49,8 +49,13 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       *product = tlist;
       tlist->SetMainColor(iItem->defaultDisplayProperties().color());
       TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
-      //units are kG
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+       //units are Tesla
+       rnrStyle->SetMagField( -4.0);
+#else
+       //units are kG
       rnrStyle->SetMagField( -4.0*10.);
+#endif
       //get this from geometry, units are CM
       rnrStyle->SetMaxR(120.0);
       rnrStyle->SetMaxZ(300.0);

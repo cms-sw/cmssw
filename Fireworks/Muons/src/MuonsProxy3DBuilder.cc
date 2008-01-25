@@ -44,7 +44,11 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 #endif
    innerPropagator->SetMaxR( 350 );
    innerPropagator->SetMaxZ( 650 );
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+   outerPropagator->SetMagField( 2.5);
+#else
    outerPropagator->SetMagField( 2.5*10.);
+#endif
    outerPropagator->SetMaxR( 750 );
    outerPropagator->SetMaxZ( 1100 );
 
