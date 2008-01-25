@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/05 11:30:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/24 14:43:19 $
+ *  $Revision: 1.1 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -58,14 +58,19 @@ private:
   int counterEvt_;      ///counter
   int prescaleEvt_;     ///every n events
                         /// FIXME, make prescale module?
-
+  double coneSize_;
+  edm::InputTag l2collectionTag_,l3collectionTag_,l3linksTag_,l2isolationTag_,l3isolationTag_;
   // ----------member data ---------------------------
 
   MonitorElement * hL2NMu;
+  MonitorElement * hL2charge;
   MonitorElement * hL2pt;
-  MonitorElement * hL2highpt;
+  MonitorElement * hL2ptlx;
   MonitorElement * hL2eta;
   MonitorElement * hL2phi;
+  MonitorElement * hL2ptres;
+  MonitorElement * hL2etares;
+  MonitorElement * hL2phires;
   MonitorElement * hL2etaphi;
   MonitorElement * hL2dr;
   MonitorElement * hL2dz;
@@ -74,8 +79,9 @@ private:
   MonitorElement * hL2iso;
   MonitorElement * hL2dimumass;
   MonitorElement * hL3NMu;
+  MonitorElement * hL3charge;
   MonitorElement * hL3pt;
-  MonitorElement * hL3highpt;
+  MonitorElement * hL3ptlx;
   MonitorElement * hL3eta;
   MonitorElement * hL3phi;
   MonitorElement * hL3etaphi;
