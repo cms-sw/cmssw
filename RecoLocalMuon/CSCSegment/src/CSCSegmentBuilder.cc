@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2007/08/16 07:08:27 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/18 14:10:50 $
+ * $Revision: 1.13 $
  * \author M. Sani
  *
  *
@@ -38,7 +38,7 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
     std::vector<edm::ParameterSet> segAlgoPSet = algoPSets[chosenAlgo].getParameter<std::vector<edm::ParameterSet> >("algo_psets");
 
     // Chamber types to handle
-    std::vector<std::string> chType = algoPSets[chosenAlgo].getParameter<std::vector<std::string> >("chamber_type");
+    std::vector<std::string> chType = algoPSets[chosenAlgo].getParameter<std::vector<std::string> >("chamber_types");
 
     // Algo to chamber type 
     std::vector<int> algoToType = algoPSets[chosenAlgo].getParameter<std::vector<int> >("parameters_per_chamber_type");
