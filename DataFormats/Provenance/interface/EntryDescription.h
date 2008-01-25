@@ -6,7 +6,7 @@
 EntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: EntryDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: EntryDescription.h,v 1.1 2008/01/25 16:02:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
@@ -14,6 +14,7 @@ $Id: EntryDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 
 /*
   EntryDescription
@@ -29,11 +30,11 @@ $Id: EntryDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 namespace edm {
   struct EntryDescription {
     EntryDescription();
-    EntryDescription(ProductID const& pid);
 
     ~EntryDescription() {}
 
-    ProductID productID_;
+    // Only the 'salient attributes' are encoded into the ID.
+    EntryDescriptionID id() const;
 
     // The EDProduct IDs of the parents
     std::vector<ProductID> parents_;
@@ -68,6 +69,8 @@ namespace edm {
     return os;
   }
 
+  // Only the 'salient attributes' are testing in equality comparison.
   bool operator==(EntryDescription const& a, EntryDescription const& b);
+  inline bool operator!=(EntryDescription const& a, EntryDescription const& b) { return !(a==b); }
 }
 #endif

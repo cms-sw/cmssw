@@ -4,20 +4,12 @@
 
 /*----------------------------------------------------------------------
 
-$Id: EntryDescription.cc,v 1.2 2007/05/29 19:15:12 wmtan Exp $
+$Id: EntryDescription.cc,v 1.1 2008/01/25 16:02:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   EntryDescription::EntryDescription() :
-    productID_(),
-    parents_(),
-    moduleDescriptionID_(),
-    moduleDescriptionPtr_()
-  { }
-
-  EntryDescription::EntryDescription(ProductID const& pid) :
-    productID_(pid),
     parents_(),
     moduleDescriptionID_(),
     moduleDescriptionPtr_()
@@ -39,27 +31,43 @@ namespace edm {
     }
   }
 
+  EntryDescriptionID
+  EntryDescription::id() const
+  {
+    // This implementation is ripe for optimization.
+    std::ostringstream oss;
+    oss << moduleDescriptionID_ << ' ';
+    for (std::vector<ProductID>::const_iterator 
+	   i = parents_.begin(),
+	   e = parents_.end();
+	 i != e;
+	 ++i)
+      {
+	oss << *i << ' ';
+      }
+    
+    std::string stringrep = oss.str();
+    cms::Digest md5alg(stringrep);
+    return EntryDescriptionID(md5alg.digest().toString());
+  }
+
+
   void
   EntryDescription::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
-    os << "Product ID = " << productID_ << '\n';
     os << "Module Description ID = " << moduleDescriptionID() << '\n';
   }
     
   bool
   operator==(EntryDescription const& a, EntryDescription const& b) {
     return
-      a.productID_ == b.productID_
-      && a.parents() == b.parents()
+      a.parents() == b.parents()
       && a.moduleDescriptionID() == b.moduleDescriptionID();
   }
 
   void
   EntryDescription::mergeEntryDescription(EntryDescription const* entry) {
-
-    assert(productID_ == entry->productID_);
-
     edm::sort_all(parents_);
     std::vector<ProductID> other = entry->parents_;
     edm::sort_all(other);
