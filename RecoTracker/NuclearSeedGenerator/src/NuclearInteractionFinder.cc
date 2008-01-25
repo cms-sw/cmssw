@@ -259,12 +259,12 @@ TrajectoryStateOnSurface NuclearInteractionFinder::rescaleError(float rescale, c
      AlgebraicSymMatrix55 mr;
      LocalTrajectoryParameters ltp = state.localParameters();
 
-     // we assume that the error on q/p is equal to 0.2% of q/p * rescale 
-     mr(0,0) = (ltp.signedInverseMomentum()*0.002*rescale)*(ltp.signedInverseMomentum()*0.002*rescale);
+     // we assume that the error on q/p is equal to 20% of q/p * rescale 
+     mr(0,0) = (ltp.signedInverseMomentum()*0.2*rescale)*(ltp.signedInverseMomentum()*0.2*rescale);
 
-     // the error on dx/z and dy/dz is fixed to 0.001 * rescale
-     mr(1,1) = 1E-6*rescale*rescale;
-     mr(2,2) = 1E-6*rescale*rescale;
+     // the error on dx/z and dy/dz is fixed to 10% (* rescale)
+     mr(1,1) = 1E-2*rescale*rescale;
+     mr(2,2) = 1E-2*rescale*rescale;
 
      // the error on the local x and y positions are not modified.
      mr(3,3) = m(3,3);
