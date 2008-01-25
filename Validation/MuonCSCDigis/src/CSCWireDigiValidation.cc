@@ -31,6 +31,14 @@ CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const e
 
 CSCWireDigiValidation::~CSCWireDigiValidation()
 {
+  for(int i = 0; i < 10; ++i)
+  {
+    std::cout << "Mean of " << theTimeBinPlots[i]->getName() 
+      << " is " << theTimeBinPlots[i]->getMean() 
+      << " +/- " << theTimeBinPlots[i]->getRMS() << std::endl;
+    std::cout << "RMS of " << theResolutionPlots[i]->getName() 
+      << " is " << theResolutionPlots[i]->getRMS() << std::endl;
+  }
 }
 
 
