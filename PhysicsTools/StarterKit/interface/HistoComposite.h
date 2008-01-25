@@ -58,8 +58,8 @@ namespace pat {
     virtual ~HistoComposite();
 
     // void fill( reco::CompositeCandidate * cand );
-    void fill( reco::CompositeCandidate * cand );
-    void fill( reco::CompositeCandidate & cand ) { return fill(&cand); }
+    void fill( const reco::CompositeCandidate * cand );
+    void fill( const reco::CompositeCandidate & cand ) { return fill(&cand); }
 
    protected:
     std::string       candName_;

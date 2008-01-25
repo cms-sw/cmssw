@@ -31,7 +31,7 @@ HistoComposite::~HistoComposite()
   if ( histoParticle_) delete histoParticle_ ;
 }
 
-void HistoComposite::fill( reco::CompositeCandidate * cand )
+void HistoComposite::fill( const reco::CompositeCandidate * cand )
 {
 
   // Fill 4-vector information for candidate
@@ -44,26 +44,26 @@ void HistoComposite::fill( reco::CompositeCandidate * cand )
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); i++ ) {
-    reco::Candidate * c = cand->daughter(i);
+    const reco::Candidate * c = cand->daughter(i);
 
-    if      ( dynamic_cast<Muon*>    ( c ) != 0 ) {
-      histoMuon_    ->fill( dynamic_cast<Muon*>    ( c ), imu );
+    if      ( dynamic_cast<const Muon*>    ( c ) != 0 ) {
+      histoMuon_    ->fill( dynamic_cast<const Muon*>    ( c ), imu );
       imu++;
     }
-    else if ( dynamic_cast<Electron*>( c ) != 0 ) {
-      histoElectron_->fill( dynamic_cast<Electron*>( c ), iele );
+    else if ( dynamic_cast<const Electron*>( c ) != 0 ) {
+      histoElectron_->fill( dynamic_cast<const Electron*>( c ), iele );
       iele++;
     }
-    else if ( dynamic_cast<Jet*>     ( c ) != 0 ) {
-      histoJet_     ->fill( dynamic_cast<Jet*>     ( c ), ijet );
+    else if ( dynamic_cast<const Jet*>     ( c ) != 0 ) {
+      histoJet_     ->fill( dynamic_cast<const Jet*>     ( c ), ijet );
       ijet++;
     }
-    else if ( dynamic_cast<MET*>     ( c ) != 0 ) {
-      histoMET_     ->fill( dynamic_cast<MET*>     ( c ), imet );
+    else if ( dynamic_cast<const MET*>     ( c ) != 0 ) {
+      histoMET_     ->fill( dynamic_cast<const MET*>     ( c ), imet );
       imet++;
     }
-    else if ( dynamic_cast<reco::CompositeCandidate*> ( c ) != 0 ) {
-      this          ->fill( dynamic_cast<reco::CompositeCandidate*> (c) );
+    else if ( dynamic_cast<const reco::CompositeCandidate*> ( c ) != 0 ) {
+      this          ->fill( dynamic_cast<const reco::CompositeCandidate*> (c) );
     }
   }
 }
