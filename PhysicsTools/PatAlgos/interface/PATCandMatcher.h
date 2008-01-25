@@ -139,20 +139,19 @@ namespace pat {
 	  const T2 & match = (* matched)[m];
 	  // check lock and preselection
 	  if ( !mLock[m] && select(cand, match)) {
-// 	    double dist = testDR_(cand,match);
-//  	    cout << "dist between c = " << c << " and m = "
-//  		 << m << " is " << dist << " at pts of "
-// 		 << cand.pt() << " " << match.pt() << endl;
+//  	    double dist = testDR_(cand,match);
+//   	    cout << "dist between c = " << c << " and m = "
+//   		 << m << " is " << dist << " at pts of "
+//  		 << cand.pt() << " " << match.pt() << endl;
 	    // matching requirement fulfilled -> store pair of indices
 	    if ( distance_(cand,match) )  matchPairs.push_back(make_pair(c,m));
 	  }
 	}
 	// if match(es) found and no global ambiguity resolution requested
 	if ( matchPairs.size()>0 && !resolveByMatchQuality_ ) {
-	  // look for best match
+	  // look for and store best match
 	  size_t idx = master.index(c);
 	  assert(idx < indices.size());
-	  // store best match
 	  size_t index = min_element(matchPairs.begin(), matchPairs.end(), comparator)->second;
 	  indices[idx] = index;
 	  // if ambiguity resolution by order of (reco) candidates:
@@ -180,7 +179,9 @@ namespace pat {
 	  // accept only pairs without any lock
 	  if ( mLock[m] || cLock[c] )  continue;
 	  // store index to target collection and lock the two items
-	  indices[c] = m;
+	  size_t idx = master.index(c);
+	  assert(idx < indices.size());
+	  indices[idx] = m;
 	  mLock[m] = true;
 	  cLock[c] = true;
 	}
