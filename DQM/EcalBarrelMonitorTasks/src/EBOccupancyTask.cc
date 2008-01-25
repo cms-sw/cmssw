@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/24 16:01:15 $
- * $Revision: 1.42 $
+ * $Date: 2008/01/24 16:14:43 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -387,18 +387,18 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = idt.ieta();
       int ebphi = idt.iphi();
 
-      float xebeta = ebeta - 0.5;
-      float xebphi = ebphi - 0.5;
+      float xebeta = ebeta + 0.5;
+      float xebphi = ebphi + 0.5;
 
-      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
+      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi-1, xebeta-1 );
+      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta-1 );
+      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi-1 );
 
       if ( data.compressedEt() > trigPrimEtMin_ ) {
 
-        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
+        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi-1, xebeta-1 );
+        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta-1 );
+        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi-1 );
 
       }
 
