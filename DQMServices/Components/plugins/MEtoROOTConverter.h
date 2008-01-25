@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/01/11 15:47:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/12 20:57:28 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -129,7 +129,7 @@ class MEtoROOTConverter : public edm::EDProducer
   mestorage<TProfile2D> TProfile2DME;
   mestorage<float> FloatME;
   mestorage<int> IntME;
-  mestorage<std::string> StringME;
+  mestorage<TString> StringME;
 
   // private statistics information
   unsigned int count;

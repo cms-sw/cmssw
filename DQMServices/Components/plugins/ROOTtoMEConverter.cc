@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/14 20:47:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/25 22:06:48 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -144,8 +144,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
-	}
-	if (verbosity) std::cout << dir << std::endl;    
+	}  
 	
 	// define new monitor element
 	if (dbe) {
@@ -196,7 +195,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -248,7 +246,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -298,7 +295,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -348,7 +344,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -400,7 +395,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -454,7 +448,6 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
@@ -474,16 +467,16 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
     } // end Int creation
 
     if (classtypes[ii] == "String") {
-      edm::Handle<MEtoROOT<std::string> > metoroot;
+      edm::Handle<MEtoROOT<TString> > metoroot;
       iRun.getByType(metoroot);
       
       if (!metoroot.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<std::string> doesn't exist in run";
+	//  << "MEtoROOT<TString> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<std::string>::MEROOTObject> merootobject = 
+      std::vector<MEtoROOT<TString>::MEROOTObject> merootobject = 
 	metoroot->getMERootObject(); 
       
       me8.resize(merootobject.size());
@@ -506,13 +499,13 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dir += fulldir[j];
 	  if (j != fulldir.size() - 2) dir += "/";
 	}
-	if (verbosity) std::cout << dir << std::endl;    
 	
 	// define new monitor element
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me8[i] = dbe->bookString(name,merootobject[i].object);
+	  std::string scont = merootobject[i].object.Data();
+	  me8[i] = dbe->bookString(name,scont);
 	  
 	} // end define new monitor elements
 	
@@ -521,8 +514,18 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me8[i]->getFullname(),tags[j]);
 	}
+
       } // end loop thorugh merootobject 
     } // end String creation
+  }
+
+  // verify tags stored properly
+  if (verbosity) {
+    std::vector<std::string> stags;
+    dbe->getAllTags(stags);
+    for (unsigned int i = 0; i < stags.size(); ++i) {
+      std::cout << "Tags: " << stags[i] << std::endl;
+    }
   }
 
   return;

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/25 22:06:48 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/25 22:20:13 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -237,7 +237,7 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
   if (hasInt)
     produces<MEtoROOT<int>, edm::InRun>(fName);
   if (hasString)
-    produces<MEtoROOT<std::string>, edm::InRun>(fName);
+    produces<MEtoROOT<TString>, edm::InRun>(fName);
 
 } // end constructor
 
@@ -517,8 +517,8 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     iRun.put(pOut7,fName);
   }
   if (hasString) {
-    std::auto_ptr<MEtoROOT<std::string> > 
-      pOut8(new MEtoROOT<std::string>);
+    std::auto_ptr<MEtoROOT<TString> > 
+      pOut8(new MEtoROOT<TString>);
     pOut8->putMERootObject(StringME.name,StringME.tags,StringME.object);
     iRun.put(pOut8,fName);
   }
