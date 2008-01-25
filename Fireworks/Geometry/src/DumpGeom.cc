@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id$
+// $Id: DumpGeom.cc,v 1.1 2007/12/10 10:39:59 dmytro Exp $
 //
 //
 
@@ -70,6 +70,9 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
+#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "TTree.h"
 
@@ -94,6 +97,8 @@ class DumpGeom : public edm::EDAnalyzer {
 			       const DDSolid& iSolid,
 			       TGeoMedium* iMed);
       void mapDTGeometry(const DDCompactView& cview,
+			 const MuonDDDConstants& muonConstants);
+      void mapCSCGeometry(const DDCompactView& cview,
 			 const MuonDDDConstants& muonConstants);
       // ----------member data ---------------------------
       int level_;
@@ -460,6 +465,121 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
    }
 }
 
+/** 
+ ** By Michael Case
+ ** method mapCSCGeometry(...)
+ ** date: 01-25-2008
+ ** Description:
+ **   This is a hack to do the following.  Assign layer det id's to 
+ ** a DD "path" or "geo History".  Because the current loop in the analyze
+ ** does not iterate below the Polycarb panel of the geometry, the detId
+ ** for the layer is mapped to the chamber's path in the DD.  This means
+ ** there is no way for the user of the produced root file to determine
+ ** which hit is in which layer.  Any hit position will not be "translatable"
+ ** to a position within the chamber, i.e. no local track segments can be 
+ ** displayed if the user wants that level of detail.
+ ** 
+ **/
+void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
+			     const MuonDDDConstants& muonConstants) {
+  std::string myName="DumpCSCGeom";
+  std::string attribute = "MuStructure"; 
+  std::string value     = "MuonEndcapCSC";
+  DDValue val(attribute, value, 0.0);
+  
+  // Asking only for the Muon CSCs
+  DDSpecificsFilter filter;
+  filter.setCriteria(val,  // name & value of a variable 
+		     DDSpecificsFilter::equals,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true  // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(cview);
+  fview.addFilter(filter);
+  std::cout << "****************about to skip firstChild() ONCE" << std::endl;   
+  bool doSubDets = fview.firstChild();
+
+  std::cout << "****************** doSubDets is";
+  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
+  std::cout << "*******************" << std::endl;
+  // Loop on chambers
+  while (doSubDets){
+
+    /// Naming block
+    // this will still work w/ CSC's but only goes down to the Chamber level
+    std::stringstream s;
+    s << "/cms:World_1";
+    DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+    ++ancestor; // skip the first ancestor
+    for ( ; ancestor != fview.geoHistory().end(); ++ ancestor )
+      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+    std::string name = s.str();
+      
+    MuonDDDNumbering mdn(muonConstants);
+    MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fview.geoHistory());
+    CSCNumberingScheme mens(muonConstants);
+    int id = mens.baseNumberToUnitNumber( mbn );
+    CSCDetId chamberId(id);
+    // The above gives you the CHAMBER DetID but not the LAYER.
+    // For CSCs the layers are built from specpars of the chamber.
+    // I will try to do the same here without actually building
+    // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
+
+
+    int jend   = chamberId.endcap();
+    int jstat  = chamberId.station();
+    int jring  = chamberId.ring();
+    int jch    = chamberId.chamber();
+
+    // Create the component layers of this chamber   
+    // We're taking the z as the z of the wire plane within the layer (middle of gas gap)
+
+    // Specify global z of layer by offsetting from centre of chamber: since layer 1 
+    // is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
+    // we need to adjust sign of offset appropriately...
+    int localZwrtGlobalZ = +1;
+    if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+    int globalZ = +1;
+    if ( jend == 2 ) globalZ = -1;
+    for ( short j = 1; j <= 6; ++j ) {
+      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
+
+      // centre of chamber is at global z = gtran[2]
+      // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
+      // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
+
+      unsigned int rawid = layerId.rawId();
+
+      // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
+      // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
+      // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
+      // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
+      // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
+      //   names are ?  ME1A_ActiveGasVol?
+      //   names are ?  ME11_ActiveGasVol?
+      //  OR ME11_Layer?  I choose the layer name.
+      // 	 std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
+      // 	 std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
+      // 	 name = baseName + "/" + prefName + "_ActiveGasVol_";
+      // 	 std::ostringstream ostr;
+      // 	 ostr << j;
+      // 	 name += ostr.str();
+      idToName_[rawid] = name;
+      std::cout << "chamber id: " << rawid << " \tname: " << name << std::endl;
+
+      // same rotation as chamber
+      // same x and y as chamber
+      //	 layerPosition( gtran[0], gtran[1], zlayer );
+
+
+    } // layer construction within chamber
+      
+    doSubDets = fview.nextSibling(); // go to next chamber
+  }
+}
+
 
 // ------------ method called to for each event  ------------
 void
@@ -596,6 +716,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
    geom->CloseGeometry();
    mapDTGeometry(*viewH, *mdc);
+   mapCSCGeometry(*viewH, *mdc);
 
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
