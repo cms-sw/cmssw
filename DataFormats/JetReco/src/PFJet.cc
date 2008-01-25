@@ -5,6 +5,7 @@
 #include <typeinfo>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 //Own header file
