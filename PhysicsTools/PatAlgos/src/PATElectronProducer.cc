@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.5 2008/01/22 13:23:09 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.6 2008/01/22 21:58:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -26,8 +26,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) {
 
   // general configurables
   electronSrc_      = iConfig.getParameter<edm::InputTag>( "electronSource" );
-  // ghost removal configurable
-  doGhostRemoval_   = iConfig.getParameter<bool>         ( "removeDuplicates" );
   // MC matching configurables
   addGenMatch_      = iConfig.getParameter<bool>         ( "addGenMatch" );
   genPartSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
@@ -168,13 +166,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   
-  // remove ghosts
-  if (doGhostRemoval_) {
-    removeEleDupes(patElectrons);
-    //removeGhosts(electrons);has bug, replaced with clunkier but working code.
-  }
-
-
   // sort electrons in pt
   std::sort(patElectrons->begin(), patElectrons->end(), pTComparator_);
 
@@ -187,30 +178,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   if (addCalIso_) delete calIsolation_;
   if (addLRValues_) delete theLeptonLRCalc_;
 
-}
-
-
-void PATElectronProducer::removeGhosts(std::vector<ElectronType> & elecs) {
-  std::vector<ElectronType>::iterator cmp = elecs.begin();  
-  std::vector<ElectronType>::iterator ref = elecs.begin();  
-
-
-  for( ; ref<elecs.end(); ++ref ){
-    for( ; (cmp!=ref) && cmp<elecs.end(); ++cmp ){
-      
-      if ((cmp->gsfTrack()==ref->gsfTrack()) || (cmp->superCluster()==ref->superCluster()) ){
-	//same track or super cluster is used
-	//keep the one with E/p closer to one	
-	if(fabs(ref->eSuperClusterOverP()-1.) < fabs(cmp->eSuperClusterOverP()-1.)){
-	  elecs.erase( cmp );
-	} 
-	else{
-	  elecs.erase( ref );
-	}
-      }
-    }
-  }
-  return;
 }
 
 
@@ -290,58 +257,4 @@ void PATElectronProducer::setEgammaIso(Electron & anElectron,
   anElectron.setEgammaHcalIso((*hcalIso)[candRef]);
 }
 
-
-//it is possible that there are multiple electron objects in the collection that correspond to the same
-//real physics object - a supercluster with two tracks reconstructed to it, or a track that points to two different SC
-// (i would guess the latter doesn't actually happen).
-//NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly
-
-//this function removes the duplicates/triplicates/multiplicates from the input vector
-void PATElectronProducer::removeEleDupes(std::vector<Electron> * electrons) {
-  
-  //contains indices of duplicate electrons marked for removal
-  //I do it this way because removal during the loop is more confusing
-  std::vector<size_t> indicesToRemove;
-  
-  for (size_t ie=0;ie<electrons->size();ie++) {
-    if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) continue;//ignore if already marked for removal
-    
-    reco::GsfTrackRef thistrack=electrons->at(ie).gsfTrack();
-    reco::SuperClusterRef thissc=electrons->at(ie).superCluster();
-
-    for (size_t je=ie+1;je<electrons->size();je++) {
-      if (find(indicesToRemove.begin(),indicesToRemove.end(),je)!=indicesToRemove.end()) continue;//ignore if already marked for removal
-      
-      if ((thistrack==electrons->at(je).gsfTrack()) ||
-	  (thissc==electrons->at(je).superCluster()) ) {//we have a match, arbitrate and mark one for removal
-	//keep the one with E/P closer to unity
-	float diff1=fabs(electrons->at(ie).eSuperClusterOverP()-1);
-	float diff2=fabs(electrons->at(je).eSuperClusterOverP()-1);
-	
-	if (diff1<diff2) {
-	  indicesToRemove.push_back(je);
-	} else {
-	  indicesToRemove.push_back(ie);
-	}
-      }
-    }
-  }
-  //now remove the ones marked
-  //or in fact, copy the old vector into a tmp vector, skipping the ones that are duplicates,
-  //then clear the original and copy back the contents of the tmp
-  //this is ugly but it will work
-  std::vector<Electron> tmp;
-  for (size_t ie=0;ie<electrons->size();ie++) {
-    if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) {
-      continue;
-    } else {
-      tmp.push_back(electrons->at(ie));
-    }
-  }
-  //copy back
-  electrons->clear();
-  electrons->assign(tmp.begin(),tmp.end());
-  
-  return;
-}
 

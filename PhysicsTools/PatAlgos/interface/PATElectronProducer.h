@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.3 2008/01/21 16:26:13 lowette Exp $
+// $Id: PATElectronProducer.h,v 1.4 2008/01/22 13:23:08 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.3 2008/01/21 16:26:13 lowette Exp $
+  \version  $Id: PATElectronProducer.h,v 1.4 2008/01/22 13:23:08 lowette Exp $
 */
 
 
@@ -55,7 +55,6 @@ namespace pat {
 
     private:
 
-      void removeGhosts(std::vector<ElectronType> & elecs);
       reco::GenParticleCandidate findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec);
       void matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons);
       double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
@@ -68,13 +67,11 @@ namespace pat {
                         const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
                         const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
                         unsigned int idx);
-      void removeEleDupes(std::vector<Electron> * electrons);
 
     private:
 
       // configurables
       edm::InputTag electronSrc_;
-      bool          doGhostRemoval_;
       bool          addGenMatch_;
       edm::InputTag genPartSrc_;
       double        maxDeltaR_;

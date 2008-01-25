@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.2 2008/01/16 20:33:04 lowette Exp $
+// $Id: PATTauProducer.h,v 1.3 2008/01/21 18:04:41 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.2 2008/01/16 20:33:04 lowette Exp $
+  \version  $Id: PATTauProducer.h,v 1.3 2008/01/21 18:04:41 lowette Exp $
 */
 
 
@@ -49,7 +49,6 @@ namespace pat {
 
       // configurables
       edm::InputTag tauSrc_;
-      edm::InputTag tauDiscSrc_;
       bool          addGenMatch_;
       edm::InputTag genPartSrc_;
       bool          addResolutions_;

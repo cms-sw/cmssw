@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.6 2008/01/23 11:48:25 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.7 2008/01/23 17:05:29 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -29,7 +29,6 @@ using namespace pat;
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
   tauSrc_         = iConfig.getParameter<edm::InputTag>( "tauSource" );
-  tauDiscSrc_     = iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource");
   addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
@@ -65,12 +64,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   bool hasCalotaus = false;
   try {
     iEvent.getByLabel(tauSrc_, PFtaus);
-    iEvent.getByLabel(tauDiscSrc_, PFtauIsolator);
     hasPFtaus = true;
   } catch( const edm::Exception &roEX) { }
   try {
     iEvent.getByLabel(tauSrc_, Calotaus);
-    iEvent.getByLabel(tauDiscSrc_, CalotauIsolator);
     hasCalotaus = true;
   } catch( const edm::Exception &roEX) { }
   if(!hasCalotaus && !hasPFtaus) {
@@ -108,8 +105,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     for (PFTauCollection::size_type iPFTau=0;iPFTau<PFtaus->size();iPFTau++) {
       // check the discriminant
       PFTauRef thePFTau(PFtaus,iPFTau);
-      bool disc = (*PFtauIsolator)[thePFTau];
-      if(!disc) continue;
       // construct the pat::Tau
       Tau aTau(*thePFTau);
       // set the additional variables
@@ -125,8 +120,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     for (CaloTauCollection::size_type iCaloTau=0;iCaloTau<Calotaus->size();iCaloTau++) {
       // check the discriminant
       CaloTauRef theCaloTau(Calotaus,iCaloTau);
-      bool disc = (*CalotauIsolator)[theCaloTau];
-      if(!disc) continue;
       // construct the pat::Tau
       Tau aTau(*theCaloTau);
       // set the additional variables

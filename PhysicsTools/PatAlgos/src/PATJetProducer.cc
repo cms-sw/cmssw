@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.5 2008/01/23 11:32:30 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.6 2008/01/23 16:45:36 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -30,11 +30,6 @@ using namespace pat;
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
   jetsSrc_                 = iConfig.getParameter<edm::InputTag>            ( "jetSource" );
-  // TEMP Jet cleaning from electrons
-  doJetCleaning_           = iConfig.getParameter<bool>                     ( "doJetCleaning" );
-  electronsLabel_          = iConfig.getParameter<edm::InputTag>            ( "electronsInput" );
-  muonsLabel_              = iConfig.getParameter<edm::InputTag>            ( "muonsInput" );
-  // TEMP End
   getJetMCFlavour_         = iConfig.getParameter<bool>                     ( "getJetMCFlavour" );
   jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>            ( "JetPartonMapSource" );
   addGenPartonMatch_       = iConfig.getParameter<bool>                     ( "addGenPartonMatch" );
@@ -56,12 +51,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   addJetCharge_            = iConfig.getParameter<bool>                     ( "addJetCharge" ); 
   jetChargePSet_           = iConfig.getParameter<edm::ParameterSet>        ( "jetCharge" );
 
-  // TEMP Jet cleaning from electrons
-  LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
-  ELEISOCUT_=2.0;//cut on electron isolation for jet cleaning, because Jim says so
-  MUISOCUT_=2.0;//cut on muon isolation for jet cleaning
-  // TEMP End
-    
+   
   // construct resolution calculator
   if (addResolutions_) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
@@ -92,23 +82,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // Get the vector of jets
   edm::Handle<edm::View<JetType> > jets;
   iEvent.getByLabel(jetsSrc_, jets);
-  // TEMP Jet cleaning from electrons
-  edm::Handle<edm::View<Electron> > electrons;
-  if (doJetCleaning_) iEvent.getByLabel(electronsLabel_, electrons);
-  std::vector<Electron> isoElectrons;
-  edm::Handle<edm::View<Muon> > muons;
-  if (doJetCleaning_) iEvent.getByLabel(muonsLabel_, muons);
-  std::vector<Muon> isoMuons;
-  // TEMP End
-
-  if (doJetCleaning_) {
-    // TEMP Jet cleaning from electrons
-    //select isolated leptons to remove from jets collection
-    isoElectrons = selectIsolated(*electrons, ELEISOCUT_);
-    // disabled for muons because not used yet
-    // isoMuons = selectIsolated(*muons, MUISOCUT_);
-    // TEMP End
-  }
 
   // for jet flavour
   edm::Handle<reco::CandMatchMap> JetPartonMap;
@@ -142,25 +115,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // loop over jets
   std::vector<Jet> * patJets = new std::vector<Jet>(); 
   for (edm::View<JetType>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
-
-    if (doJetCleaning_) {
-    // TEMP Jet cleaning from electrons
-      //check that the jet doesn't match in deltaR with an isolated lepton
-      //if it does, then it needs to be cleaned (ie don't put it in the Jet collection)
-      //FIXME: don't do muons until have a sensible cut value on their isolation
-      float mindr=9999.;
-      for (std::vector<Electron>::const_iterator itElectron = isoElectrons.begin(); itElectron != isoElectrons.end(); ++itElectron) {
-        float dr=DeltaR<reco::Candidate>()(*itJet, *itElectron);
-        if (dr<mindr) {
-          mindr=dr;
-        }
-      }
-      //if the jet is closely matched in dR to electron, skip it
-      if (mindr<LEPJETDR_) {
-        continue;
-      }
-    // TEMP End
-    }
 
     // define the jet correctors
     const JetCorrector * defaultJetCorr = JetCorrector::getJetCorrector("MCJetCorrectorIcone5", iSetup);
@@ -312,35 +266,4 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.put(myJets);
 
 }
-
-
-// TEMP Jet cleaning from electrons
-//takes a vector of electrons and returns a vector that only contains the ones that are isolated
-//The second argument is the isolation cut to use
-std::vector<Electron> PATJetProducer::selectIsolated(const edm::View<Electron> & electrons, float isoCut) {
-  std::vector<Electron> output;
-  for (edm::View<Electron>::const_iterator itElectron = electrons.begin(); itElectron != electrons.end(); ++itElectron) {
-    if (itElectron->trackIso() < isoCut) {
-      output.push_back(*itElectron);
-    }
-  }
-  return output;
-}
-// TEMP End
-
-
-// TEMP Jet cleaning from electrons
-//takes a vector of muons and returns a vector that only contains the ones that are isolated
-//The second argument is the isolation cut to use
-//FIXME I could combine this with the one for electrons using templates?
-std::vector<pat::Muon> PATJetProducer::selectIsolated(const edm::View<Muon> & muons, float isoCut) {
-  std::vector<Muon> output;
-  for (edm::View<Muon>::const_iterator itMuon = muons.begin(); itMuon != muons.end(); ++itMuon) {
-    if (itMuon->trackIso() < isoCut) {
-      output.push_back(*itMuon);
-    }
-  }
-  return output;
-}
-// TEMP End
 

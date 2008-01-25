@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.2 2008/01/16 01:17:01 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.3 2008/01/21 16:26:14 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.2 2008/01/16 01:17:01 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.3 2008/01/21 16:26:14 lowette Exp $
 */
 
 
@@ -52,23 +52,8 @@ namespace pat {
 
     private:
 
-      // TEMP Jet cleaning from electrons
-      std::vector<Electron> selectIsolated(const edm::View<Electron> & electrons, float isoCut);
-      std::vector<Muon>     selectIsolated(const edm::View<Muon> & muons,         float isoCut);
-      // TEMP End
-
-    private:
-
       // configurables
       edm::InputTag            jetsSrc_;
-      // TEMP Jet cleaning from electrons
-      bool                     doJetCleaning_;
-      edm::InputTag            electronsLabel_;
-      edm::InputTag            muonsLabel_;
-      float                    LEPJETDR_;
-      float                    ELEISOCUT_;
-      float                    MUISOCUT_;
-      // TEMP End
       bool                     getJetMCFlavour_;
       edm::InputTag            jetPartonMapSource_;
       bool                     addGenPartonMatch_;
