@@ -132,6 +132,18 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
   return fit(tracks, seed, false);
 }
 
+CachingVertex<5>
+AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const
+{
+  if ( tracks.size() < 2 )
+  {
+    throw VertexException( "Supplied fewer than two tracks" );
+  };
+  VertexState beamSpotState(spot);
+  return fit(tracks, beamSpotState, true );
+}
+
+
 
 /** Fit vertex out of a set of reco::TransientTracks.
  *  Uses the specified linearization point.

@@ -70,6 +70,11 @@ public:
   */
   virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & ) const;
 
+  /**
+   *  Same as above, only now also with BeamSpot constraint.
+   */
+  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> &,
+     const reco::BeamSpot & spot ) const;
 
   /** Fit vertex out of a vector of reco::TransientTracks. Uses the specified
    * linearization point.
