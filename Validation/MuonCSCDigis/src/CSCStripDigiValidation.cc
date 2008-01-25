@@ -34,7 +34,10 @@ CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe,
 }
 
 
-CSCStripDigiValidation::~CSCStripDigiValidation() {}
+CSCStripDigiValidation::~CSCStripDigiValidation() {
+  std::cout << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean() << std::endl;
+  std::cout << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean() << std::endl;
+}
 
 
 void CSCStripDigiValidation::analyze(const edm::Event& e, 
