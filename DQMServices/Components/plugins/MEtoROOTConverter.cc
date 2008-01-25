@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/12 20:57:28 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/25 22:06:48 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -95,28 +95,30 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
 	fullpath += item[0];
 	if (!item[0].empty()) fullpath += "/";
 	fullpath += *n;
-	if (verbosity) std::cout << "Full path is: " << fullpath << std::endl;
+	if (verbosity >1 ) std::cout << "Full path is: " << fullpath 
+				     << std::endl;
     
 	// verify valid monitor elements by type
 	bool validME = false;
-	if (verbosity) std::cout << "MEobject:" << std::endl;
+	if (verbosity > 1) std::cout << "MEobject:" << std::endl;
 	if (MonitorElement *me = dbe->get(fullpath)) {
 
 	  // extract classname
 	  if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
 	    if (TObject *tobj = ob->operator->()){
 	      validME = true;
-	      if (verbosity) std::cout << "   normal: " << tobj->GetName();
+	      if (verbosity > 1) std::cout << "   normal: " << tobj->GetName();
 	      classname = tobj->ClassName();
 	      metype.push_back(classname);
-	      if (verbosity) std::cout << " is of type " << classname 
-				       << std::endl;
+	      if (verbosity > 1) std::cout << " is of type " << classname 
+					   << std::endl;
 	    } 
 	  } else if (FoldableMonitor *ob = 
 		     dynamic_cast<FoldableMonitor *>(me)) {
 	    if (TObject *tobj = ob->getTagObject()) {
 	      validME = true;
-	      if (verbosity) std::cout << "   foldable: " << tobj->GetName();
+	      if (verbosity > 1) std::cout << "   foldable: " 
+					   << tobj->GetName();
 	      classname = tobj->ClassName();
 	      if (classname == "TObjString") {
 		if (TObjString* histogram = 
@@ -141,7 +143,7 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
 		}
 	      }
 	      metype.push_back(classname);
-	      if (verbosity) std::cout << " is of type " << classname 
+	      if (verbosity > 1) std::cout << " is of type " << classname 
 				       << std::endl;
 	    }
 	  }
@@ -330,7 +332,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     taglist.clear();
 
     // already extracted full path name in constructor
-    if (verbosity) std::cout << "name: " << fullpathvec[a] << std::endl;
+    if (verbosity > 1) std::cout << "name: " << fullpathvec[a] << std::endl;
 
     // get tags
     bool foundtags  = false;
@@ -344,7 +346,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       }
     }
     if (!foundtags) taglist.clear();
-    if (verbosity) {
+    if (verbosity > 1) {
       std::cout << "taglist:" << std::endl;
       for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
 	std::cout << "   " << taglist[ii] << std::endl;
@@ -354,7 +356,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     // get monitor elements
     bool validME = false;
    
-    if (verbosity) std::cout << "MEobject:" << std::endl;
+    if (verbosity > 1) std::cout << "MEobject:" << std::endl;
     if (MonitorElement *me = dbe->get(fullpathvec[a])) {
       
       // Save the ROOT object.  This is either a genuine ROOT object,
@@ -362,7 +364,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
 	if (TH1F* histogram = dynamic_cast<TH1F*>(ob->operator->())) {
 	  validME = true;
-	  if (verbosity) {
+	  if (verbosity > 1) {
 	    std::cout << "   normal: " << histogram->GetName() << std::endl;
 	    std::cout << "      classname: " << metype[a] << std::endl;
 	  }
@@ -372,7 +374,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	}
 	if (TH2F* histogram = dynamic_cast<TH2F*>(ob->operator->())) {
 	  validME = true;
-	  if (verbosity) {
+	  if (verbosity > 1) {
 	    std::cout << "   normal: " << histogram->GetName() << std::endl;
 	    std::cout << "      classname: " << metype[a] << std::endl;
 	  }
@@ -382,7 +384,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	}	
 	if (TH3F* histogram = dynamic_cast<TH3F*>(ob->operator->())) {
 	  validME = true;
-	  if (verbosity) {
+	  if (verbosity > 1) {
 	    std::cout << "   normal: " << histogram->GetName() << std::endl;
 	    std::cout << "      classname: " << metype[a] << std::endl;
 	  }
@@ -392,7 +394,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	}  
 	if (TProfile* histogram = dynamic_cast<TProfile*>(ob->operator->())) {
 	  validME = true;
-	  if (verbosity) {
+	  if (verbosity > 1) {
 	    std::cout << "   normal: " << histogram->GetName() << std::endl;
 	    std::cout << "      classname: " << metype[a] << std::endl;
 	  }
@@ -403,7 +405,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	if (TProfile2D* histogram = 
 	    dynamic_cast<TProfile2D*>(ob->operator->())) {
 	  validME = true;
-	  if (verbosity) {
+	  if (verbosity > 1) {
 	    std::cout << "   normal: " << histogram->GetName() << std::endl;
 	    std::cout << "      classname: " << metype[a] << std::endl;
 	  }
@@ -415,8 +417,8 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	if (TObjString* histogram = 
 	    dynamic_cast<TObjString*>(ob->getTagObject())) {
 	  validME = true;
-	  if (verbosity) std::cout << "   foldable: " << histogram->GetName() 
-				   << std::endl;
+	  if (verbosity > 1) std::cout << "   foldable: " 
+				       << histogram->GetName() << std::endl;
 	
 	  // get contents of TObjString
 	  TString contents = histogram->GetName();
@@ -435,15 +437,15 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	  if (sitem1[1] == "f") classname = "Float";
 	  if (sitem1[1] == "i") classname = "Int";
 	  if (sitem1[1] == "s") classname = "String";
-	  if (verbosity) std::cout << "      classname: " << classname 
-				   << std::endl;
+	  if (verbosity > 1) std::cout << "      classname: " << classname 
+				       << std::endl;
 	  
 	  // get back item separated by <
 	  StringList sitem2 = StringOps::split(sitem[1], "<");
 	  
 	  if (classname == "Float") {
 	    FloatME.object.push_back(atof(sitem2[0].c_str()));
-	    if (verbosity)
+	    if (verbosity > 1)
 	      std::cout << "      value: " << atof(sitem2[0].c_str()) 
 			<< std::endl;
 	    FloatME.name.push_back(fullpathvec[a]);
@@ -451,7 +453,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	  }
 	  if (classname == "Int") {
 	    IntME.object.push_back(atoi(sitem2[0].c_str()));
-	    if (verbosity)
+	    if (verbosity > 1)
 	      std::cout << "      value: " << atoi(sitem2[0].c_str()) 
 			<< std::endl;
 	    IntME.name.push_back(fullpathvec[a]);
@@ -459,7 +461,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	  }
 	  if (classname == "String") {
 	    StringME.object.push_back(sitem2[0]);
-	    if (verbosity) 
+	    if (verbosity > 1) 
 	      std::cout << "      value: " << sitem2[0]
 			<< std::endl;
 	    StringME.name.push_back(fullpathvec[a]);
