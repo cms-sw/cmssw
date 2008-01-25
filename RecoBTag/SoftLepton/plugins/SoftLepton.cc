@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.14 2008/01/24 19:19:32 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.15 2008/01/24 19:23:05 fwyzard Exp $
 
 
 #include <memory>
@@ -30,7 +30,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "findProductIDByLabel.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/Vector3D.h"
