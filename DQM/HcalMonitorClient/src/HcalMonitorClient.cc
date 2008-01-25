@@ -97,6 +97,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetFillColor(0);
   gStyle->SetTitleFillColor(10);
   //  gStyle->SetOptStat(0);
+  gStyle->SetOptStat("ouemr");
   gStyle->SetPalette(1);
 
   // clients' constructors
