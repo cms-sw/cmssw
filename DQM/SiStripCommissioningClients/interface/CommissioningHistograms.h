@@ -1,12 +1,16 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
+//#define USING_NEW_COLLATE_METHODS
+
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#ifndef USING_NEW_COLLATE_METHODS
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+#endif
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <boost/cstdint.hpp>
@@ -43,15 +47,26 @@ class CommissioningHistograms {
   /** Simple container class for histograms. */
   class Histo {
   public:
+#ifdef USING_NEW_COLLATE_METHODS
+    Histo( const std::string& title, 
+	   MonitorElement* const me,
+	   MonitorElement* const cme ) 
+      : title_(title), me_(me), cme_(cme) {;}
+#else
     Histo( const std::string& title, 
 	   MonitorElement* const me,
 	   CollateMonitorElement* const cme ) 
       : title_(title), me_(me), cme_(cme) {;}
+#endif
     Histo() : title_(""), me_(0), cme_(0) {;}
     void print( std::stringstream& ) const;
     std::string title_;
     MonitorElement* me_;
+#ifdef USING_NEW_COLLATE_METHODS
+    MonitorElement* cme_;
+#else
     CollateMonitorElement* cme_;
+#endif
   };
   
   typedef std::vector<Histo*> Histos;

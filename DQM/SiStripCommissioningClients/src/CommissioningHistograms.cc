@@ -92,6 +92,8 @@ void CommissioningHistograms::Histo::print( std::stringstream& ss ) const {
 // Temporary fix: builds a list of histogram directories
 void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
 					   std::vector<std::string>& contents ) {
+
+#ifndef USING_NEW_COLLATE_METHODS
   
   LogTrace(mlDqmClient_) 
     << "[CommissioningHistograms::" << __func__ << "]"
@@ -131,6 +133,8 @@ void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
       << "[CommissioningHistograms::" << __func__ << "]"
       << " No directories found when building list!";
   }
+
+#endif
   
 }
 
@@ -158,7 +162,10 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
     SiStripFecKey path( source_dir );
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
-    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
+    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); } 
+#ifdef USING_NEW_COLLATE_METHODS
+    client_dir = "Collate/" + client_dir;
+#endif
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -229,6 +236,9 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
+#ifdef USING_NEW_COLLATE_METHODS
+    client_dir = "Collate/" + client_dir;
+#endif
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -306,14 +316,13 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore directories on source side
+#ifdef USING_NEW_COLLATE_METHODS
+    if ( idir->find("Collate") == std::string::npos ) { continue; }
+#else 
     if ( idir->find("Collector") != std::string::npos ||
- 	 idir->find("EvF") != std::string::npos ||
-	 idir->find("FU") != std::string::npos ) { 
-//       edm::LogWarning(mlDqmClient_)
-// 	<< "[CommissioningHistograms::" << __func__ << "]"
-// 	<< " Ignoring source histograms!";
-      continue; 
-    }
+	 idir->find("EvF") != std::string::npos ||
+	 idir->find("FU") != std::string::npos ) { continue; }
+#endif
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
@@ -351,6 +360,9 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     else { client_dir = SiStripKey( path.key() ).path(); }
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
+#ifdef USING_NEW_COLLATE_METHODS
+    client_dir = "Collate/" + client_dir;
+#endif
 
     // Retrieve MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei_->getContents( source_dir );
@@ -440,6 +452,9 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const std::vector<std::string>& contents ) {
+
+#ifndef USING_NEW_COLLATE_METHODS
+
   edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Creating collated histograms...";
@@ -570,6 +585,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	  if ( histo->cme_ ) { 
 	    mui_->add( histo->cme_, bei_->pwd()+"/"+(*ime) );
 	    histo->me_ = histo->cme_->getMonitorElement(); 
+// 	    LogTrace(mlDqmClient_)
+// 	      << "[CommissioningHistograms::" << __func__ << "]"
+// 	      << " Created histogram with title " << histo->title_
+// 	      << " at location " << bei_->pwd();
 	  }
 	}
 	
@@ -583,6 +602,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	  if ( (*ime) == (*ihis)->title_ ) { 
 	    if ( (*ihis)->cme_ ) {
 	      mui_->add( (*ihis)->cme_, bei_->pwd()+"/"+(*ime) );
+// 	      LogTrace(mlDqmClient_)
+// 		<< "[CommissioningHistograms::" << __func__ << "]"
+// 		<< " Added to histogram with title " << (*ihis)->title_
+// 		<< " at location " << bei_->pwd();
 	    }
 	    break; 
 	  }
@@ -599,6 +622,8 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Created collated histograms!";
   
+#endif
+
 }
 
 // -----------------------------------------------------------------------------
@@ -704,7 +729,11 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   
   // Remember pwd 
   std::string pwd = bei_->pwd();
+#ifdef USING_NEW_COLLATE_METHODS
+  bei_->setCurrentFolder( "Collate/"+directory );
+#else
   bei_->setCurrentFolder( directory );
+#endif
   
   // Construct histogram name 
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
@@ -780,8 +809,6 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   return summary;
   
 }
-
-
 
 // -----------------------------------------------------------------------------
 /** */
@@ -887,7 +914,11 @@ void CommissioningHistograms::save( std::string& path,
     << " Saving histograms to root file \""
     << ss.str() << "\"... (This may take some time!)";
   path = ss.str();
+#ifdef USING_NEW_COLLATE_METHODS
+  bei_->save( path, "Collate" ); 
+#else 
   bei_->save( path, sistrip::root_ ); 
+#endif 
   edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Saved histograms to root file!";
