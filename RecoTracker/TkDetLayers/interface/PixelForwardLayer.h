@@ -36,10 +36,11 @@ class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithG
   int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
   struct SubTurbineCrossings {
-    SubTurbineCrossings(){};
+    SubTurbineCrossings(): isValid(false){};
     SubTurbineCrossings( int ci, int ni, float nd) : 
-      closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
+      isValid(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
     
+    bool  isValid;
     int   closestIndex;
     int   nextIndex;
     float nextDistance;

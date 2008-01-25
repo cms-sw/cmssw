@@ -5,7 +5,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
@@ -76,14 +75,13 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					   std::vector<DetGroup> & result) const {
   vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
-    //	 << err.what() ;
+
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if (!crossings.isValid){
+    //edm::LogInfo("TkDetLayers") << "computeCrossings returns invalid in PixelForwardLayer::groupedCompatibleDets:";
     return;
   }
+
   typedef CompatibleDetToGroupAdder Adder;
   Adder::add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
@@ -192,8 +190,8 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> thePath = turbineCrossing.pathLength( specificSurface() );
   
   if (!thePath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in PixelForwardLayer: disk not crossed by track" ;
-    throw DetLayerException("PixelForwardLayer: disk not crossed by track");
+    //edm::LogInfo("TkDetLayers") << "ERROR in PixelForwardLayer: disk not crossed by track" ;
+    return SubTurbineCrossings();
   }
 
   HelixPlaneCrossing::PositionType  turbinePoint( turbineCrossing.position(thePath.second));
