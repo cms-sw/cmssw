@@ -40,11 +40,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     char* type = "Spigot Format Errors";
     meSpigotFormatErrors_=  m_dbe->book1D(type,type,500,-1,999);
     type = "Bad Quality Digis";
-    meBadQualityDigis_=  m_dbe->book1D(type,type,500,-1,999);
+    meBadQualityDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     type = "Unmapped Digis";
-    meUnmappedDigis_=  m_dbe->book1D(type,type,500,-1,999);
+    meUnmappedDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     type = "Unmapped Trigger Primitive Digis";
-    meUnmappedTPDigis_=  m_dbe->book1D(type,type,500,-1,999);
+    meUnmappedTPDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     type = "FED Error Map";
     meFEDerrorMap_ = m_dbe->book1D(type,type,33,699.5,732.5);
     type = "Evt Number Out-of-Synch";
@@ -377,19 +377,21 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   ////////// Histogram Spigot Errors from the DCCs HTR Summaries;////////////
   /* [1:8] */ //Histogram HTR Error Bits in the DCC Headers
-  FoundOne=false;
+  //FoundOne=false;
   unsigned char WholeErrorList=0; 
   for (int i=0; i<8; i++) {
-    for(int j=1; j<=HcalDCCHeader::SPIGOT_COUNT; j++) {
+    FoundOne=false;
+    for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
       WholeErrorList=dccHeader->getSpigotErrorBits((unsigned int) j);
       if ((WholeErrorList>>i)&0x01) FoundOne=true;}
     if (FoundOne) meDCCSummariesOfHTRs_->Fill(dccid, i+1);
   }
   /* [9:16] */ //Histogram LRB Error Bits in the DCC Headers
-  FoundOne=false;
+  //FoundOne=false;
   WholeErrorList=0; 
   for (int i=0; i<8; i++) {
-    for(int j=1; j<=HcalDCCHeader::SPIGOT_COUNT; j++) {
+    FoundOne=false;
+    for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
       WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) j);
       if ((WholeErrorList>>i)&0x01) FoundOne=true;}
     if (FoundOne) meDCCSummariesOfHTRs_->Fill(dccid, i+9);
@@ -427,8 +429,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
-
-    if (prtlvl_!=0) HTRPrint(htr,prtlvl_);
+    if (prtlvl_ > 0) HTRPrint(htr,prtlvl_);
 
     unsigned int htrBCN = htr.getBunchNumber(); 
     meBCN_->Fill(htrBCN);
@@ -479,8 +480,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meEvtNCheck_->Fill(EvtNdiff);
 }
     else {
-      if(htrEvtN!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< refEvtNum << "  "<<htrEvtN <<endl;}
+      if(htrEvtN!=lastEvtN_) {meEvtNumberSynch_->Fill(slotnum,cratenum);
+      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;}
 }
 
     ///check that all HTRs have the same BCN
@@ -500,7 +501,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     else {
       if(htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;}
+      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;}
     }
  
     MonitorElement* tmpErr = 0;
@@ -543,6 +544,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	 if (i==15) errbit = errbit - 0x8000;
 	 if (errbit !=0){
 	   tmpErr->Fill(i);
+	   if (i==5 && prtlvl_ != -1) continue; // Skip latency warning for now
 	   meErrWdCrate_->Fill(cratenum,i);
 	   if (cratenum ==0)meCrate0HTRErr_ -> Fill(slotnum,i);
 	   else if (cratenum ==1)meCrate1HTRErr_ -> Fill(slotnum,i);
@@ -576,13 +578,14 @@ void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
   if (prtlvl == 1){ 
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
-    printf("Crate,Slot,ErrWord,Evt#,BCN:  %3i %4.1f %6X %7i %4X", cratenum,slotnum,htr.getErrorsWord(),htr.getL1ANumber(),htr.getBunchNumber());
+    printf("Crate,Slot,ErrWord,Evt#,BCN:  %3i %4.1f %6X %7i %4X \n", cratenum,slotnum,htr.getErrorsWord(),htr.getL1ANumber(),htr.getBunchNumber());
     //    printf(" DLLunlk,TTCrdy:%2i %2i \n",htr.getDLLunlock(),htr.getTTCready());
   }
+  // This one needs new version of HcalHTRData.h to activate
   else if (prtlvl == 2){
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
-    printf("Crate, Slot:%3i %4.1f", cratenum,slotnum);
+    printf("Crate, Slot:%3i %4.1f \n", cratenum,slotnum);
     //    printf("  Ext Hdr: %4X %4X %4X %4X %4X %4X %4X %4X \n",htr.getExtHdr1(),htr.getExtHdr2(),htr.getExtHdr3(),htr.getExtHdr4(),htr.getExtHdr5(),htr.getExtHdr6(),htr.getExtHdr7(),htr.getExtHdr8());
 }
 
