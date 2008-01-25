@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.7 2008/01/24 00:28:26 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.8 2008/01/24 18:46:47 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "TFile.h"
 #include "TEveGeoShapeExtract.h"
 #include "TEvePolygonSetProjected.h"
+#include "RVersion.h"
 
 #include <iostream>
 #include <exception>
@@ -77,7 +78,11 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager():
    nv->AddScene(ns);
    
    m_rhoZProjMgr = new TEveProjectionManager;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+   m_rhoZProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
+#else
    m_rhoZProjMgr->SetProjection(TEveProjection::PT_RhoZ);
+#endif
    gEve->AddToListTree(m_rhoZProjMgr,kTRUE);
    gEve->AddElement(m_rhoZProjMgr,ns);
    
