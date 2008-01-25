@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: JetPartonMatching.cc,v 1.1 2007/07/04 16:51:38 heyninck Exp $
+// $Id: JetPartonMatching.cc,v 1.2 2007/09/03 21:26:22 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
@@ -10,7 +10,7 @@
 // constructors
 JetPartonMatching::JetPartonMatching() {}
 
-JetPartonMatching::JetPartonMatching(vector<const reco::Candidate*> &q, vector<reco::GenJet> &j, int spAorDR){
+JetPartonMatching::JetPartonMatching(vector<const reco::GenParticle*> &q, vector<reco::GenJet> &j, int spAorDR){
   vector<const reco::Candidate*> js;
   for(size_t i=0; i<j.size(); i++) js.push_back(&(j[i]));
   partons = q;
@@ -19,7 +19,7 @@ JetPartonMatching::JetPartonMatching(vector<const reco::Candidate*> &q, vector<r
   this->calculate();
 }
 
-JetPartonMatching::JetPartonMatching(vector<const reco::Candidate*> &q, vector<reco::CaloJet> &j, int spAorDR){
+JetPartonMatching::JetPartonMatching(vector<const reco::GenParticle*> &q, vector<reco::CaloJet> &j, int spAorDR){
   vector<const reco::Candidate*> js;
   for(size_t i=0; i<j.size(); i++) js.push_back(&(j[i]));
   partons = q;
@@ -28,7 +28,7 @@ JetPartonMatching::JetPartonMatching(vector<const reco::Candidate*> &q, vector<r
   this->calculate();
 }
 
-JetPartonMatching::JetPartonMatching(vector<const reco::Candidate*> &q, vector<const reco::Candidate*> &j, int spAorDR){
+JetPartonMatching::JetPartonMatching(vector<const reco::GenParticle*> &q, vector<const reco::Candidate*> &j, int spAorDR){
   partons = q;
   jets = j;
   spaceAngleOrDeltaR = spAorDR;

@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: JetPartonMatching.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
+// $Id: JetPartonMatching.h,v 1.1 2007/07/04 16:51:37 heyninck Exp $
 //
 
 #ifndef JetPartonMatching_h
@@ -14,11 +14,13 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: JetPartonMatching.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
+  \version  $Id: JetPartonMatching.h,v 1.1 2007/07/04 16:51:37 heyninck Exp $
 */
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include <vector>
 #include <iostream>
 #include <Math/VectorUtil.h>
@@ -29,9 +31,9 @@ class JetPartonMatching {
 
   public:
     JetPartonMatching();
-    JetPartonMatching(vector<const reco::Candidate*> &, vector<reco::GenJet> &, int);
-    JetPartonMatching(vector<const reco::Candidate*> &, vector<reco::CaloJet> &, int);
-    JetPartonMatching(vector<const reco::Candidate*> &, vector<const reco::Candidate*> &, int);
+    JetPartonMatching(vector<const reco::GenParticle*> &, vector<reco::GenJet> &, int);
+    JetPartonMatching(vector<const reco::GenParticle*> &, vector<reco::CaloJet> &, int);
+    JetPartonMatching(vector<const reco::GenParticle*> &, vector<const reco::Candidate*> &, int);
     ~JetPartonMatching();	
 
     vector<pair<unsigned int,unsigned int> > getMatching() { return matching; }
@@ -41,7 +43,8 @@ class JetPartonMatching {
      
    
   private:
-    vector<const reco::Candidate*> partons, jets; 
+    vector<const reco::GenParticle*> partons; 
+    vector<const reco::Candidate*> jets; 
     int spaceAngleOrDeltaR;
     void calculate();
     vector<pair <unsigned int,unsigned int> > matching;
