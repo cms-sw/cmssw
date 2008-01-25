@@ -97,6 +97,14 @@ SequentialVertexFitter<N>::vertex(const vector<reco::TransientTrack> & tracks) c
   return fit(vtContainer, state, false);
 }
 
+template <unsigned int N>
+CachingVertex<N> SequentialVertexFitter<N>::vertex(
+    const vector<RefCountedVertexTrack> & tracks,
+    const reco::BeamSpot & spot ) const
+{
+  VertexState state(spot);
+  return fit(tracks, state, true );
+}
 
 template <unsigned int N>
 CachingVertex<N> 
@@ -244,8 +252,7 @@ SequentialVertexFitter<N>::reLinearizeTracks(
 template <unsigned int N>
 CachingVertex<N> 
 SequentialVertexFitter<N>::fit(const vector<RefCountedVertexTrack> & tracks,
-  			    const VertexState priorVertex,
-			    bool withPrior) const
+  			    const VertexState priorVertex, bool withPrior ) const
 {
   vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorVertex.position();

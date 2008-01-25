@@ -104,6 +104,11 @@ public:
   */
   virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
 
+  /**
+   * Same as above, only now also with BeamSpot!
+   */
+  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const;
+
 
   /** Fit vertex out of a set of RecTracks. Uses the specified linearization point.
    */
