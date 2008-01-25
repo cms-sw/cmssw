@@ -134,13 +134,20 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "CreateSummary") {	  // <-----------------
     theActionFlag = Summary;
 
-  } else if (requestID == "OpenTkMap") {
+  //} else if (requestID == "SaveToFile") {	  // <-----------------
+  //  theActionFlag = SaveData;
+
+  //} else if (requestID == "CollateME") {	  // <-----------------
+  //  theActionFlag = Collate;
+
+//  } else if (requestID == "OpenTkMap") {
+  } else if (requestID == "CreateTkMap") {
     std::string name = "TkMap";
     std::string comment;
     if (tkMapCreated) comment = "Successful";
     else  comment = "Failed";
     returnReplyXml(out, name, comment);
-    theActionFlag = NoAction;    
+    theActionFlag = CreateTkMap;    
   } else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     infoExtractor_->readModuleAndHistoList(bei, out);    
@@ -380,7 +387,7 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out,
 
 //____________________________________________________________________________________________________
 bool SiPixelWebInterface::createTkMap() {
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();  
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
     string sname     = get_from_multimap(requestMap_, "MEName");
     string theTKType = get_from_multimap(requestMap_, "TKMapType");
