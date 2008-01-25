@@ -1,5 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -25,12 +27,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 //#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
+#include <boost/cstdint.hpp>
 #include <memory>
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -41,6 +44,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <stdio.h>
+
+//@@ Temporary! Only used for #define USING_NEW_COLLATE_METHODS
+#include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
 using namespace sistrip;
 
@@ -113,13 +119,19 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   
   // ---------- Base directory ----------
 
-  std::stringstream dir;
-  dir << "FU_";
-  directory(dir);
-  dir << "/";
+  std::stringstream dir("");
+
+#ifndef USING_NEW_COLLATE_METHODS
+  if (0) { dir << "FU/"; }
+  else {
+    dir << "FU_";
+    directory(dir);
+    dir << "/";
+  }
+#endif
   
   base_ = dir.str();
-
+  
   // ---------- FED and FEC cabling ----------
   
   edm::ESHandle<SiStripFedCabling> fed_cabling;
