@@ -6,6 +6,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TEveStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "RVersion.h"
 
 MuonsProxy3DBuilder::MuonsProxy3DBuilder()
 {
@@ -34,8 +35,13 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
    //       So here they are recreated for each event.
    TEveTrackPropagator* innerPropagator = new TEveTrackPropagator();
    TEveTrackPropagator* outerPropagator = new TEveTrackPropagator();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+   //units are Telsa
+   innerPropagator->SetMagField( -4.0);
+#else
    //units are kG
    innerPropagator->SetMagField( -4.0*10.);
+#endif
    innerPropagator->SetMaxR( 350 );
    innerPropagator->SetMaxZ( 650 );
    outerPropagator->SetMagField( 2.5*10.);
@@ -54,8 +60,13 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
    
    TEveRecTrack innerRecTrack;
    TEveRecTrack outerRecTrack;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+   innerRecTrack.fBeta = 1.;
+   outerRecTrack.fBeta = 1.;
+#else
    innerRecTrack.beta = 1.;
    outerRecTrack.beta = 1.;
+#endif
    unsigned int index(0);
    for ( reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon, ++index )
      {
@@ -67,13 +78,21 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
         
         //CDJ NOTE: I don't believe a proxy should ever filter the data it is representing
 	if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) >= 2 ) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+           innerRecTrack.fP = TEveVector( muon->p4().px(), muon->p4().py(), muon->p4().pz() );
+           innerRecTrack.fV = TEveVector( muon->vertex().x(), muon->vertex().y(), muon->vertex().z() );
+           innerRecTrack.fSign = muon->charge();
+           std::cout << "px " << innerRecTrack.fP.fX << " py " << innerRecTrack.fP.fY << " pz " << innerRecTrack.fP.fZ
+           << " vx " << innerRecTrack.fV.fX << " vy " << innerRecTrack.fV.fY << " vz " << innerRecTrack.fV.fZ
+           << " sign " << innerRecTrack.fSign << std::endl;
+#else
            innerRecTrack.P = TEveVector( muon->p4().px(), muon->p4().py(), muon->p4().pz() );
            innerRecTrack.V = TEveVector( muon->vertex().x(), muon->vertex().y(), muon->vertex().z() );
            innerRecTrack.sign = muon->charge();
-           
            std::cout << "px " << innerRecTrack.P.x << " py " << innerRecTrack.P.y << " pz " << innerRecTrack.P.z
            << " vx " << innerRecTrack.V.x << " vy " << innerRecTrack.V.y << " vz " << innerRecTrack.V.z
            << " sign " << innerRecTrack.sign << std::endl;
+#endif           
 	   
 	   
            TEveTrack* innerTrack = new TEveTrack( &innerRecTrack, innerPropagator );
@@ -91,11 +110,24 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	   
            // second track only for barrel for now
            if ( fabs(vz2) < 650 ) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+              outerRecTrack.fV = TEveVector(vx2,vy2,vz2);
+#else
               outerRecTrack.V = TEveVector(vx2,vy2,vz2);
+#endif
               // use muon momentum at IP as an estimate of its momentum at the solenoid
               // and last two points of the inner track to get direction.
               // NOTE: RECO can provide better estimate
               float scale = muon->p4().P()/sqrt( (vx2-vx1)*(vx2-vx1) + (vy2-vy1)*(vy2-vy1) + (vz2-vz1)*(vz2-vz1) );
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+              outerRecTrack.fP = TEveVector(scale*(vx2-vx1), scale*(vy2-vy1),scale*(vz2-vz1));
+              outerRecTrack.fSign = innerRecTrack.fSign;
+              outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
+              outerTrack->SetMainColor( tList->GetMainColor() );
+              std::cout << "\tpx " << outerRecTrack.fP.fX << " py " << outerRecTrack.fP.fY << " pz " << outerRecTrack.fP.fZ
+              << " vx " << outerRecTrack.fV.fX << " vy " << outerRecTrack.fV.fY << " vz " << outerRecTrack.fV.fZ
+              << " sign " << outerRecTrack.fSign << std::endl;
+#else
               outerRecTrack.P = TEveVector(scale*(vx2-vx1), scale*(vy2-vy1),scale*(vz2-vz1));
               outerRecTrack.sign = innerRecTrack.sign;
               outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
@@ -103,6 +135,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
               std::cout << "\tpx " << outerRecTrack.P.x << " py " << outerRecTrack.P.y << " pz " << outerRecTrack.P.z
               << " vx " << outerRecTrack.V.x << " vy " << outerRecTrack.V.y << " vz " << outerRecTrack.V.z
               << " sign " << outerRecTrack.sign << std::endl;
+#endif
               muonList->AddElement( outerTrack );
            }
            
@@ -131,8 +164,13 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
                  // add path marks to force outer propagator to follow the expected
                  // track position
                  if ( outerTrack ) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+                    TEvePathMark* mark = new TEvePathMark( TEvePathMark::kDaughter );
+                    mark->fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
+#else
                     TEvePathMark* mark = new TEvePathMark( TEvePathMark::Daughter );
                     mark->V = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
+#endif
                     outerTrack->AddPathMark( mark );
                  }
                  
