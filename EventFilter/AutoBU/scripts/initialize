@@ -24,7 +24,7 @@ my $doSM  = 1;
 my $doDQM = 0;
 
 my $PBfile;
-
+my $EPcfg = "";
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -75,10 +75,12 @@ my $pwd = `pwd`; chomp $pwd;
 foreach $param (@ARGV) {
     if    ($hostname eq "fillme")    { $hostname=$param; }
     elsif ($param    eq "-host")     { $hostname="fillme"; }
+    elsif ($EPcfg    eq "fillme")    { $EPcfg   =$param; }
+    elsif ($param    eq "-cfgEP")    { $EPcfg   ="fillme"; }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
+    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($doEP     == -1)          { $doEP    =$param; }
     elsif ($param    eq "-nEP")      { $doEP    =    -1; }
-    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
@@ -86,7 +88,6 @@ foreach $param (@ARGV) {
 }
 
 print "hostname = $hostname\n";
-print "\$doEP=$doEP\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
@@ -111,9 +112,12 @@ print "make directories ...\n";
 #
 print "make cfg files ...\n";
 
-open(CFG,">./cfg/fu.cfg") or die ("Can't open file: $!\n");
-print CFG makeCfgFu($doSM,$doDQM);
-close(CFG);
+if ($EPcfg eq "") {
+    $EPcfg = "$pwd/cfg/fu.cfg";
+    open(CFG,">$EPcfg") or die ("Can't open file: $!\n");
+    print CFG makeCfgFu($doSM,$doDQM);
+    close(CFG);
+}
 
 if ($doSM) {
     open(CFG,">./cfg/sm.cfg") or die ("Can't open file: $!\n");
@@ -183,7 +187,7 @@ my @RBproperties = ("buClassName", "string",     $BUappname,
 
 if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
-my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
+my @EPproperties = ("parameterSet", "string","file:$EPcfg",
 		    "collReconnSec","integer","-1");
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }

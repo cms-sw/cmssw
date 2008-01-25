@@ -1,3 +1,10 @@
+2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-07
+	* add parameter '-cfgEP' for initialize script, where the EP
+	configuration file can be specified instead of autogenerating
+	it. Note that sm.cfg will expect paths p1,p2,p3!
+	
 2008-01-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-06
