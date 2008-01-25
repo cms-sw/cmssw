@@ -9,8 +9,9 @@ using namespace std;
 // Constructor:
 
 
-HistoMuon::HistoMuon(std::string dir)
-  : HistoGroup<Muon>( dir, "Muon", "mu")
+HistoMuon::HistoMuon(std::string dir,
+		   double pt1, double pt2, double m1, double m2)
+  : HistoGroup<Muon>( dir, "Muon", "mu", pt1, pt2, m1, m2)
 {
   addHisto( h_trackIso_ =
 	    new PhysVarHisto( "muTrackIso", "Muon Track Isolation", 20, 0, 10, currDir_, "", "vD" )

@@ -50,7 +50,8 @@ namespace pat {
   class HistoElectron : public HistoGroup<Electron> {
 
   public:
-    HistoElectron( std::string dir = "electron" );
+    HistoElectron( std::string dir = "electron",
+		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoElectron();
 
     void fill( const Electron * electron, uint iPart = 0 );

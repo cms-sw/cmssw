@@ -4,7 +4,9 @@ using pat::HistoJet;
 
 // Constructor:
 
-HistoJet::HistoJet(  std::string dir ) : HistoGroup<Jet>( dir, "Jet", "jet")
+HistoJet::HistoJet(  std::string dir,
+		     double pt1, double pt2, double m1, double m2 ) 
+  : HistoGroup<Jet>( dir, "Jet", "jet", pt1, pt2, m1, m2)
 {
   // book relevant jet histograms
   addHisto( h_jetFlavour_   =

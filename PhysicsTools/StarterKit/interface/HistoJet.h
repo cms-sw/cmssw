@@ -50,7 +50,8 @@ namespace pat {
   class HistoJet : public HistoGroup<Jet> {
 
   public:
-    HistoJet( std::string dir = "jet" );
+    HistoJet( std::string dir = "jet",
+	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoJet();
 
     void fill( const Jet * jet, uint iPart = 0 );

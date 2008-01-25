@@ -6,7 +6,9 @@ using pat::HistoMET;
 // Constructor:
 
 
-HistoMET::HistoMET( std::string dir ) : HistoGroup<MET>( dir, "MET", "met")
+HistoMET::HistoMET( std::string dir, 
+		    double pt1, double pt2, double m1, double m2 ) 
+  : HistoGroup<MET>( dir, "MET", "met", pt1, pt2, m1, m2)
 {
 
   // book relevant MET histograms

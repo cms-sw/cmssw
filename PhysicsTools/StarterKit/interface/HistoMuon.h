@@ -52,7 +52,8 @@ namespace pat {
   class HistoMuon : public HistoGroup<Muon> {
 
   public:
-    HistoMuon(std::string dir = "muon" );
+    HistoMuon(std::string dir = "muon",
+		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMuon() { } ;
 
     void fill( const Muon *muon, uint iPart = 0 );

@@ -63,7 +63,8 @@ namespace pat {
   class HistoGroup {
 
   public:
-    HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand" );
+    HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand",
+		double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoGroup();
 
     //!  Fill all histograms for one Physics Object
@@ -168,14 +169,15 @@ namespace pat {
   template <class PHYS_OBJECT>
   inline
   HistoGroup<PHYS_OBJECT>::
-  HistoGroup( std::string dir, std::string groupName, std::string groupLabel )
+    HistoGroup( std::string dir, std::string groupName, std::string groupLabel,
+		double pt1, double pt2, double m1, double m2)
     :
     prepend_(groupLabel),   //!<   What's used in histo names
     dir_ (dir),
     groupName_(groupName),  //!<   What's used in histo titles
     verboseLevel_(0),       //! verbosity: turned off by hand
     currDir_(0),
-    nBins_(20), pt1_(0), pt2_(200), m1_(0), m2_(200),
+    nBins_(20), pt1_(pt1), pt2_(pt2), m1_(m1), m2_(m2),
     h_size_(0),
     h_pt_(0), h_eta_(0), h_phi_(0), h_mass_(0)
   {

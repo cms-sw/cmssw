@@ -50,7 +50,8 @@ namespace pat {
   class HistoMET : public HistoGroup<MET> {
 
   public:
-    HistoMET( std::string dir = "met" );
+    HistoMET( std::string dir = "met",
+	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMET();
 
     void fill( const MET * met, uint iPart = 0  );

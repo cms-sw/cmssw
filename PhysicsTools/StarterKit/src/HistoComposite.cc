@@ -9,9 +9,10 @@ using reco::CompositeCandidate;
 using pat::HistoComposite;
 
 HistoComposite::
-HistoComposite( std::string dir, std::string candTitle, std::string candName)
+HistoComposite( std::string dir, std::string candTitle, std::string candName,
+		double pt1, double pt2, double m1, double m2)
   :
-  HistoGroup<CompositeCandidate>( dir, candTitle, candName ),
+  HistoGroup<CompositeCandidate>( dir, candTitle, candName, pt1, pt2, m1, m2 ),
   candName_(candName)
 {
 

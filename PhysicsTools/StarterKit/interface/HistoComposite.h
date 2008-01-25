@@ -54,7 +54,8 @@ namespace pat {
   class HistoComposite : public HistoGroup<reco::CompositeCandidate> {
 
    public:
-    HistoComposite(std::string dir, std::string candTitle, std::string candName );
+    HistoComposite(std::string dir, std::string candTitle, std::string candName,
+		   double pt1=0, double pt2=200, double m1=0, double m2=200);
     virtual ~HistoComposite();
 
     // void fill( reco::CompositeCandidate * cand );

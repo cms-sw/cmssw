@@ -6,8 +6,9 @@ using namespace std;
 
 using pat::HistoElectron;
 
-HistoElectron::HistoElectron( std::string dir ) :
-  HistoGroup<Electron>( dir, "Electron", "e")
+HistoElectron::HistoElectron( std::string dir,
+			      double pt1, double pt2, double m1, double m2 ) :
+  HistoGroup<Electron>( dir, "Electron", "e", pt1, pt2, m1, m2)
 {
   // book relevant electron histograms
 
