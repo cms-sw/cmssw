@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.cc,v 1.7 2007/10/22 19:10:11 lowette Exp $
+// $Id: StEvtSolution.cc,v 1.8 2007/11/24 11:03:16 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
@@ -64,13 +64,13 @@ reco::Particle StEvtSolution::getLept()     const {
 // methods to get the MC matched particles
 // FIXME: provide defaults if the genevent is invalid
 const edm::RefProd<StGenEvent> & StEvtSolution::getGenEvent() const { return theGenEvt_; }
-const reco::Candidate * StEvtSolution::getGenBottom()   const { if (!theGenEvt_) return 0; else return theGenEvt_->decayB(); }
+const reco::GenParticle * StEvtSolution::getGenBottom()   const { if (!theGenEvt_) return 0; else return theGenEvt_->decayB(); }
 // not implemented yet
-//const reco::Candidate * StEvtSolution::getGenLight()    const { if (!theGenEvt_) return 0; else return theGenEvt_->recoilQuark(); }
-const reco::Candidate * StEvtSolution::getGenLepton()   const { if (!theGenEvt_) return 0; else return theGenEvt_->singleLepton(); }
-const reco::Candidate * StEvtSolution::getGenNeutrino() const { if (!theGenEvt_) return 0; else return theGenEvt_->singleNeutrino(); }
-const reco::Candidate * StEvtSolution::getGenLepW()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleW(); }
-const reco::Candidate * StEvtSolution::getGenLept()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleTop(); }
+//const reco::GenParticle * StEvtSolution::getGenLight()    const { if (!theGenEvt_) return 0; else return theGenEvt_->recoilQuark(); }
+const reco::GenParticle * StEvtSolution::getGenLepton()   const { if (!theGenEvt_) return 0; else return theGenEvt_->singleLepton(); }
+const reco::GenParticle * StEvtSolution::getGenNeutrino() const { if (!theGenEvt_) return 0; else return theGenEvt_->singleNeutrino(); }
+const reco::GenParticle * StEvtSolution::getGenLepW()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleW(); }
+const reco::GenParticle * StEvtSolution::getGenLept()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleTop(); }
 
 
 // return functions for reconstructed fourvectors

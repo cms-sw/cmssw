@@ -1,5 +1,5 @@
 //
-// $Id: TopJet.h,v 1.11 2007/07/05 23:33:34 lowette Exp $
+// $Id: TopJet.h,v 1.12 2007/11/24 11:03:15 lowette Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -12,7 +12,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.11 2007/07/05 23:33:34 lowette Exp $
+  \version  $Id: TopJet.h,v 1.12 2007/11/24 11:03:15 lowette Exp $
 */
 
 
@@ -21,6 +21,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
@@ -38,7 +39,7 @@ class TopJet : public TopObject<TopJetType> {
     TopJet(TopJetType);
     virtual ~TopJet();
 
-    reco::Particle  getGenParton() const;
+    reco::GenParticle  getGenParton() const;
     // FIXME: add parton jet
     reco::GenJet    getGenJet() const;
     int             getPartonFlavour() const;
@@ -68,7 +69,7 @@ class TopJet : public TopObject<TopJetType> {
    
   protected:
 
-    void            setGenParton(const reco::Particle & gp);
+    void            setGenParton(const reco::GenParticle & gp);
     // FIXME: add parton jet
     void            setGenJet(const reco::GenJet & gj);
     void            setPartonFlavour(int jetFl);
@@ -83,7 +84,7 @@ class TopJet : public TopObject<TopJetType> {
   protected:
 
     // MC info
-    std::vector<reco::Particle> genParton_;
+    std::vector<reco::GenParticle> genParton_;
     // FIXME: add parton jet
     std::vector<reco::GenJet>   genJet_;
     int jetFlavour_;

@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.h,v 1.8 2007/10/22 19:10:11 lowette Exp $
+// $Id: StEvtSolution.h,v 1.9 2007/11/24 11:03:15 lowette Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h
@@ -38,12 +38,12 @@ class StEvtSolution {
     reco::Particle getLept()     const;
     // methods to get the MC matched particles
     const edm::RefProd<StGenEvent> & getGenEvent() const;
-    const reco::Candidate * getGenBottom()   const;
-//    const reco::Candidate * getGenLight()    const; // not implemented yet
-    const reco::Candidate * getGenLepton()   const;
-    const reco::Candidate * getGenNeutrino() const;
-    const reco::Candidate * getGenLepW()     const;
-    const reco::Candidate * getGenLept()     const;
+    const reco::GenParticle * getGenBottom()   const;
+//    const reco::GenParticle * getGenLight()    const; // not implemented yet
+    const reco::GenParticle * getGenLepton()   const;
+    const reco::GenParticle * getGenNeutrino() const;
+    const reco::GenParticle * getGenLepW()     const;
+    const reco::GenParticle * getGenLept()     const;
     // methods to get reconstructed objects
     TopJetType     getRecBottom()   const;
     TopJetType     getRecLight()    const;

@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.21 2007/10/22 08:24:25 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.22 2007/11/24 11:03:15 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
@@ -47,16 +48,16 @@ class TtSemiEvtSolution {
     TopMET                    getNeutrino() const;
     // methods to get the MC matched particles
     const edm::RefProd<TtGenEvent> & getGenEvent() const;
-    const reco::Candidate *   getGenHadt() const;
-    const reco::Candidate *   getGenHadW() const;
-    const reco::Candidate *   getGenHadb() const;
-    const reco::Candidate *   getGenHadp() const;
-    const reco::Candidate *   getGenHadq() const;
-    const reco::Candidate *   getGenLept() const;
-    const reco::Candidate *   getGenLepW() const;
-    const reco::Candidate *   getGenLepb() const;
-    const reco::Candidate *   getGenLepl() const;
-    const reco::Candidate *   getGenLepn() const;
+    const reco::GenParticle *   getGenHadt() const;
+    const reco::GenParticle *   getGenHadW() const;
+    const reco::GenParticle *   getGenHadb() const;
+    const reco::GenParticle *   getGenHadp() const;
+    const reco::GenParticle *   getGenHadq() const;
+    const reco::GenParticle *   getGenLept() const;
+    const reco::GenParticle *   getGenLepW() const;
+    const reco::GenParticle *   getGenLepb() const;
+    const reco::GenParticle *   getGenLepl() const;
+    const reco::GenParticle *   getGenLepn() const;
     // methods to get reconstructed objects 
     reco::Particle            getRecHadt() const;
     reco::Particle            getRecHadW() const;       

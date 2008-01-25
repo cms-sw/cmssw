@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.12.2.2 2007/11/25 19:03:36 lowette Exp $
+// $Id: TtDilepEvtSolution.h,v 1.16 2008/01/17 10:07:35 speer Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
@@ -45,16 +46,16 @@ class TtDilepEvtSolution {
     TopMET      getMET() const;
     // methods to get the MC matched particles
     const edm::RefProd<TtGenEvent> & getGenEvent() const;
-    const reco::Candidate * getGenT() const;
-    const reco::Candidate * getGenWp() const;
-    const reco::Candidate * getGenB() const;
-    const reco::Candidate * getGenLepp() const;
-    const reco::Candidate * getGenN() const;
-    const reco::Candidate * getGenTbar() const;
-    const reco::Candidate * getGenWm() const;
-    const reco::Candidate * getGenBbar() const;
-    const reco::Candidate * getGenLepm() const;
-    const reco::Candidate * getGenNbar() const;
+    const reco::GenParticle * getGenT() const;
+    const reco::GenParticle * getGenWp() const;
+    const reco::GenParticle * getGenB() const;
+    const reco::GenParticle * getGenLepp() const;
+    const reco::GenParticle * getGenN() const;
+    const reco::GenParticle * getGenTbar() const;
+    const reco::GenParticle * getGenWm() const;
+    const reco::GenParticle * getGenBbar() const;
+    const reco::GenParticle * getGenLepm() const;
+    const reco::GenParticle * getGenNbar() const;
     // methods to explicitly get reconstructed and calibrated objects 
     TopJetType  getRecJetB() const;
     TopJet      getCalJetB() const;

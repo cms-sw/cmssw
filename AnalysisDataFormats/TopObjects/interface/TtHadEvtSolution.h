@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.4 2007/10/22 19:10:11 lowette Exp $
+// $Id: TtHadEvtSolution.h,v 1.5 2007/11/24 11:03:15 lowette Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 
@@ -42,12 +43,12 @@ class TtHadEvtSolution {
 
     // methods to get the MC matched particles
     const edm::RefProd<TtGenEvent> & getGenEvent() const;
-    const reco::Candidate *   getGenHadb() const;
-    const reco::Candidate *   getGenHadp() const;
-    const reco::Candidate *   getGenHadq() const;
-    const reco::Candidate *   getGenHadbbar() const;
-    const reco::Candidate *   getGenHadj() const;
-    const reco::Candidate *   getGenHadk() const;
+    const reco::GenParticle *   getGenHadb() const;
+    const reco::GenParticle *   getGenHadp() const;
+    const reco::GenParticle *   getGenHadq() const;
+    const reco::GenParticle *   getGenHadbbar() const;
+    const reco::GenParticle *   getGenHadj() const;
+    const reco::GenParticle *   getGenHadk() const;
 
     // methods to get reconstructed objects 
     reco::Particle            getRecHadt() const;

@@ -1,18 +1,18 @@
 //
-// $Id: StGenEvent.cc,v 1.4 2007/10/19 12:31:53 rwolf Exp $
+// $Id: StGenEvent.cc,v 1.5 2007/10/31 11:35:59 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 StGenEvent::StGenEvent()
 {
 }
 
-StGenEvent::StGenEvent(reco::CandidateRefProd & parts, reco::CandidateRefProd & inits)
+StGenEvent::StGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefProd & inits)
 {
   parts_ = parts;
   initPartons_= inits;
@@ -22,13 +22,13 @@ StGenEvent::~StGenEvent()
 {
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 StGenEvent::decayB() const 
 {
-  const reco::Candidate* cand=0;
+  const reco::GenParticle* cand=0;
   if (singleLepton()) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    const reco::Candidate & singleLep = *singleLepton();
+    const reco::GenParticleCollection & partsColl = *parts_;
+    const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 && 
 	  reco::flavour(singleLep)== - reco::flavour(partsColl[i])) { // ... but it should be the opposite!
@@ -39,13 +39,13 @@ StGenEvent::decayB() const
   return cand;
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 StGenEvent::associatedB() const 
 {
-  const reco::Candidate* cand=0;
+  const reco::GenParticle* cand=0;
   if (singleLepton()) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    const reco::Candidate & singleLep = *singleLepton();
+    const reco::GenParticleCollection & partsColl = *parts_;
+    const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 && 
 	  reco::flavour(singleLep)== reco::flavour(partsColl[i])) { // ... but it should be the opposite!
@@ -56,13 +56,13 @@ StGenEvent::associatedB() const
   return cand;
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 StGenEvent::singleW() const 
 {
-  const reco::Candidate* cand=0;
+  const reco::GenParticle* cand=0;
   if (singleLepton()) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    const reco::Candidate & singleLep = *singleLepton();
+    const reco::GenParticleCollection & partsColl = *parts_;
+    const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 &&
           reco::flavour(singleLep) == - reco::flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
@@ -73,13 +73,13 @@ StGenEvent::singleW() const
   return cand;
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 StGenEvent::singleTop() const 
 {
-  const reco::Candidate* cand=0;
+  const reco::GenParticle* cand=0;
   if (singleLepton()) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    const reco::Candidate & singleLep = *singleLepton();
+    const reco::GenParticleCollection & partsColl = *parts_;
+    const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
           reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {

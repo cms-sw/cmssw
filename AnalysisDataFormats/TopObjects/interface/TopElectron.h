@@ -1,5 +1,5 @@
 //
-// $Id: TopElectron.h,v 1.3 2007/10/16 15:13:55 jlamb Exp $
+// $Id: TopElectron.h,v 1.4 2007/12/14 13:54:25 jlamb Exp $
 //
 
 #ifndef TopObjects_TopElectron_h
@@ -13,11 +13,11 @@
    store and retrieve the high-level additional information.
 
   \author   Steven Lowette
-  \version  $Id: TopElectron.h,v 1.3 2007/10/16 15:13:55 jlamb Exp $
+  \version  $Id: TopElectron.h,v 1.4 2007/12/14 13:54:25 jlamb Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: TopJet.cc,v 1.15 2008/01/08 16:07:36 jandrea Exp $
+// $Id: TopJet.cc,v 1.16 2008/01/08 16:24:25 jandrea Exp $
 //
 
 
@@ -27,10 +27,10 @@ TopJet::~TopJet() {
 
 
 /// return the matched generated parton
-reco::Particle TopJet::getGenParton() const {
+reco::GenParticle TopJet::getGenParton() const {
   return (genParton_.size() > 0 ?
     genParton_.front() :
-    reco::Particle(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0))
+    reco::GenParticle(0, reco::GenParticle::LorentzVector(0, 0, 0, 0), reco::GenParticle::Point(0,0,0), 0, 0, true)
   );
 }
 
@@ -241,7 +241,7 @@ double TopJet::getLRPhysicsJetProb() const {
 
 
 /// method to set the matched parton
-void TopJet::setGenParton(const reco::Particle & gp) {
+void TopJet::setGenParton(const reco::GenParticle & gp) {
   genParton_.clear();
   genParton_.push_back(gp);
 }

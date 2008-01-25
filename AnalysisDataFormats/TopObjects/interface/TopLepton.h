@@ -1,5 +1,5 @@
 //
-// $Id: TopLepton.h,v 1.12 2007/08/06 12:37:58 tsirig Exp $
+// $Id: TopLepton.h,v 1.13 2007/09/20 18:12:21 lowette Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -13,12 +13,12 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.12 2007/08/06 12:37:58 tsirig Exp $
+  \version  $Id: TopLepton.h,v 1.13 2007/09/20 18:12:21 lowette Exp $
 */
 
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 template <class LeptonType>
@@ -33,21 +33,21 @@ class TopLepton : public TopObject<LeptonType> {
     TopLepton(const LeptonType & aLepton);
     virtual ~TopLepton();
 
-    reco::GenParticleCandidate getGenLepton() const;
+    reco::GenParticle getGenLepton() const;
     double getLRVar(const unsigned int i) const;
     double getLRVal(const unsigned int i) const;
     double getLRComb() const;
 
   protected:
 
-    void setGenLepton(const reco::GenParticleCandidate & gl);
+    void setGenLepton(const reco::GenParticle & gl);
     void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
     void setLRComb(const double lr);
     unsigned int getLRSize() const;
 
   protected:
 
-    std::vector<reco::GenParticleCandidate> genLepton_;
+    std::vector<reco::GenParticle> genLepton_;
     std::vector<std::pair<double, double> > lrVarVal_;
     double lrComb_;
 
@@ -82,10 +82,10 @@ TopLepton<LeptonType>::~TopLepton() {
 
 /// return the match to the generated lepton
 template <class LeptonType>
-reco::GenParticleCandidate TopLepton<LeptonType>::getGenLepton() const {
+reco::GenParticle TopLepton<LeptonType>::getGenLepton() const {
   return (genLepton_.size() > 0 ?
     genLepton_.front() :
-	  reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true)
+	  reco::GenParticle(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true)
   );
 }
 
@@ -120,7 +120,7 @@ unsigned int TopLepton<LeptonType>::getLRSize() const {
 
 /// method to set the generated lepton
 template <class LeptonType>
-void TopLepton<LeptonType>::setGenLepton(const reco::GenParticleCandidate & gl) {
+void TopLepton<LeptonType>::setGenLepton(const reco::GenParticle & gl) {
   genLepton_.clear();
   genLepton_.push_back(gl);
 }

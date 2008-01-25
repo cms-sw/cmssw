@@ -1,19 +1,19 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-TopGenEvent::TopGenEvent(reco::CandidateRefProd& parts, reco::CandidateRefProd& inits)
+TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
 {
   parts_ = parts; 
   initPartons_= inits;
 }
 
-const reco::Candidate*
+const reco::GenParticle*
 TopGenEvent::candidate(int id) const
 {
-  const reco::Candidate* cand=0;
-  const reco::CandidateCollection & partsColl = *parts_;
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (partsColl[i].pdgId()==id) {
       cand = &partsColl[i];
@@ -26,7 +26,7 @@ int
 TopGenEvent::numberOfLeptons() const
 {
   int lep=0;
-  const reco::CandidateCollection & partsColl = *parts_;
+  const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3)) {
       ++lep;
@@ -39,7 +39,7 @@ int
 TopGenEvent::numberOfBQuarks() const
 {
   int bq=0;
-  const reco::CandidateCollection & partsColl = *parts_;
+  const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (abs(partsColl[i].pdgId())==5) {// &&
       //abs(partsColl[i].mother()->pdgId())==6) {
@@ -49,12 +49,12 @@ TopGenEvent::numberOfBQuarks() const
   return bq;
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 TopGenEvent::singleLepton() const 
 {
-  const reco::Candidate* cand = 0;
+  const reco::GenParticle* cand = 0;
   if (numberOfLeptons() == 1) {
-    const reco::CandidateCollection & partsColl = *parts_;
+    const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3)) {
         cand = &partsColl[i];
@@ -64,12 +64,12 @@ TopGenEvent::singleLepton() const
   return cand;
 }
 
-const reco::Candidate* 
+const reco::GenParticle* 
 TopGenEvent::singleNeutrino() const 
 {
-  const reco::Candidate* cand=0;
+  const reco::GenParticle* cand=0;
   if (numberOfLeptons()==1) {
-    const reco::CandidateCollection & partsColl = *parts_;
+    const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (reco::isNeutrino(partsColl[i])&&(partsColl[i].status()==3)) {
         cand = &partsColl[i];
@@ -79,15 +79,15 @@ TopGenEvent::singleNeutrino() const
   return cand;
 }
 
-std::vector<const reco::Candidate*> 
+std::vector<const reco::GenParticle*> 
 TopGenEvent::lightQuarks(bool plusB) const 
 {
-  std::vector<const reco::Candidate*> lightQuarks;
-  reco::CandidateCollection::const_iterator part = parts_->begin();
+  std::vector<const reco::GenParticle*> lightQuarks;
+  reco::GenParticleCollection::const_iterator part = parts_->begin();
   for ( ; part < parts_->end(); ++part) {
     if( (plusB && abs(part->pdgId())==5) || (abs(part->pdgId())<5) ) {
-      if( dynamic_cast<const reco::GenParticleCandidate*>( &(*part) ) == 0){
-	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
+      if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
+	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
       }
       lightQuarks.push_back( part->clone() );
     }

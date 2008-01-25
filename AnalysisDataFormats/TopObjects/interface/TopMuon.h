@@ -1,5 +1,5 @@
 //
-// $Id: TopMuon.h,v 1.1 2007/09/20 18:12:22 lowette Exp $
+// $Id: TopMuon.h,v 1.2 2007/10/15 23:05:41 lowette Exp $
 //
 
 #ifndef TopObjects_TopMuon_h
@@ -13,11 +13,11 @@
    store and retrieve the high-level additional information.
 
   \author   Steven Lowette
-  \version  $Id: TopMuon.h,v 1.1 2007/09/20 18:12:22 lowette Exp $
+  \version  $Id: TopMuon.h,v 1.2 2007/10/15 23:05:41 lowette Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
 

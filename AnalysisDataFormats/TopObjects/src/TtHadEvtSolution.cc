@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.4 2007/10/22 19:10:12 lowette Exp $
+// $Id: TtHadEvtSolution.cc,v 1.5 2007/11/24 11:03:16 lowette Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -70,12 +70,12 @@ TopJet TtHadEvtSolution::getHadk() const {
 
 // methods to get the MC matched particles
 const edm::RefProd<TtGenEvent> & TtHadEvtSolution::getGenEvent() const { return theGenEvt_; }
-const reco::Candidate * TtHadEvtSolution::getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTop(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTopBar(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTop(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTopBar(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTop(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTopBar(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTop(); }
+const reco::GenParticle * TtHadEvtSolution::getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTopBar(); }
 
 // return functions for non-calibrated fourvectors
 // By definition pq and b are the top quark, jk and bbar the anti-top - check it makes sense ....

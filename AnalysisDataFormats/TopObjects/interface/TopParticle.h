@@ -1,5 +1,5 @@
 //
-// $Id: TopParticle.h,v 1.2 2007/06/23 07:09:29 lowette Exp $
+// $Id: TopParticle.h,v 1.3 2007/07/05 23:14:49 lowette Exp $
 //
 
 #ifndef TopObjects_TopParticle_h
@@ -12,11 +12,12 @@
    TopParticle contains a particle as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopParticle.h,v 1.2 2007/06/23 07:09:29 lowette Exp $
+  \version  $Id: TopParticle.h,v 1.3 2007/07/05 23:14:49 lowette Exp $
 */
 
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 

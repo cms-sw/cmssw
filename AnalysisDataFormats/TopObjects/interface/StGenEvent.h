@@ -11,13 +11,13 @@ class StGenEvent: public TopGenEvent {
  public:
   
   StGenEvent();
-  StGenEvent(reco::CandidateRefProd&, reco::CandidateRefProd&);
+  StGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   virtual ~StGenEvent();
 
-  const reco::Candidate* singleW() const;
-  const reco::Candidate* singleTop() const;
-  const reco::Candidate* decayB() const;
-  const reco::Candidate* associatedB() const;
+  const reco::GenParticle* singleW() const;
+  const reco::GenParticle* singleTop() const;
+  const reco::GenParticle* decayB() const;
+  const reco::GenParticle* associatedB() const;
   //  const reco::Candidate* recoilQuark() const;
   
  private:
