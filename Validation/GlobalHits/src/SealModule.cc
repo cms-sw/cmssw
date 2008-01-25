@@ -18,3 +18,6 @@ DEFINE_ANOTHER_FWK_MODULE(GlobalHitsProdHist);
 
 #include <Validation/GlobalHits/interface/GlobalHitsProdHistStripper.h>
 DEFINE_ANOTHER_FWK_MODULE(GlobalHitsProdHistStripper);
+
+#include <Validation/GlobalHits/interface/GlobalHitsTester.h>
+DEFINE_ANOTHER_FWK_MODULE(GlobalHitsTester);
