@@ -480,6 +480,36 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 }
 
+PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber, unsigned int fedchannel) const
+{
+	std::map<PixelChannel,PixelHdwAddress>::const_iterator toReturn;
+	bool foundOne = false;
+	for(std::map<PixelChannel,PixelHdwAddress>::const_iterator it=channelTranslationTable_.begin(); it!=channelTranslationTable_.end();it++)
+	{
+		if (it->second.fednumber()==fednumber && it->second.fedchannel()==fedchannel)
+		{
+			if ( foundOne )
+			{
+				std::cout << "ERROR: multiple channels on FED#" << fednumber <<", chan=" << fedchannel << std::endl;
+				assert(0);
+			}
+			else
+			{
+				toReturn = it;
+				foundOne = true;
+			}
+		}
+	}
+	
+	if ( !foundOne )
+	{
+		std::cout << "ERROR: no channel found for FED#" << fednumber <<", chan=" << fedchannel << std::endl;
+		assert(0);
+	}
+	
+	return toReturn->first;
+}
+
 const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const
 {
 	for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
