@@ -1,3 +1,12 @@
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-00
+	* FUResourceTable::handleErrorEvent() added, used
+	FUShmBuffer::writeErrorEventData() to transport raw events
+	directamente to the storage manager
+	* SMProxy et al include new parameter 'outModId' for the sending of
+	regular event data
+
 2008-01-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-08-01

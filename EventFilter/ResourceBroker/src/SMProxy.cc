@@ -101,11 +101,12 @@ UInt_t SMProxy::sendInitMessage(UInt_t  fuResourceId,
 
 
 //______________________________________________________________________________
-UInt_t SMProxy::sendDataEvent(UInt_t  fuResourceId,
-			      UInt_t  runNumber,
-			      UInt_t  evtNumber,
-			      UChar_t*data,
-			      UInt_t  dataSize)
+UInt_t SMProxy::sendDataEvent(UInt_t   fuResourceId,
+			      UInt_t   runNumber,
+			      UInt_t   evtNumber,
+			      UInt_t   outModId,
+			      UChar_t *data,
+			      UInt_t   dataSize)
   throw (evf::Exception)
 {
   UInt_t    totalSize=0;
@@ -119,9 +120,10 @@ UInt_t SMProxy::sendDataEvent(UInt_t  fuResourceId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_DATA_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID   =fuResourceId;
-    msg->runID  =runNumber;
-    msg->eventID=evtNumber;
+    msg->fuID    =fuResourceId;
+    msg->runID   =runNumber;
+    msg->eventID =evtNumber;
+    msg->outModID=outModId;
   }
   while ((next=next->getNextReference()));
   
@@ -130,6 +132,45 @@ UInt_t SMProxy::sendDataEvent(UInt_t  fuResourceId,
   }
   catch (xdaq::exception::Exception &e) {
     string errmsg="Failed to post DATA Message.";
+    LOG4CPLUS_FATAL(log_,errmsg);
+    XCEPT_RETHROW(evf::Exception,errmsg,e);
+  }
+  
+  return totalSize;
+}
+
+
+//______________________________________________________________________________
+UInt_t SMProxy::sendErrorEvent(UInt_t   fuResourceId,
+			       UInt_t   runNumber,
+			       UInt_t   evtNumber,
+			       UChar_t *data,
+			       UInt_t   dataSize)
+  throw (evf::Exception)
+{
+  UInt_t    totalSize=0;
+  MemRef_t* bufRef   =createFragmentChain(I2O_SM_ERROR,
+					  dataHeaderSize_,
+					  data,
+					  dataSize,
+					  totalSize);
+  
+  I2O_SM_DATA_MESSAGE_FRAME *msg;
+  MemRef_t* next=bufRef;
+  do {
+    msg=(I2O_SM_DATA_MESSAGE_FRAME*)next->getDataLocation();
+    msg->fuID    =fuResourceId;
+    msg->runID   =runNumber;
+    msg->eventID =evtNumber;
+    msg->outModID=0xffffffff;
+  }
+  while ((next=next->getNextReference()));
+  
+  try {
+    fuAppContext_->postFrame(bufRef,fuAppDesc_,smAppDesc_);
+  }
+  catch (xdaq::exception::Exception &e) {
+    string errmsg="Failed to post ERROR Message.";
     LOG4CPLUS_FATAL(log_,errmsg);
     XCEPT_RETHROW(evf::Exception,errmsg,e);
   }
