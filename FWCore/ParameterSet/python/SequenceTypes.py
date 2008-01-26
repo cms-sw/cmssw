@@ -229,8 +229,10 @@ class SequencePlaceholder(_ModuleSequenceType,_Sequenceable):
         returnValue.__init__(self._name)
         return returnValue
     def dumpPython(self, options):
-        return 'cms.SequencePlaceholder(\"'+self._name+'\")\n'
-
+        result = 'cms.SequencePlaceholder(\"'
+        if options.isCfg:
+           result += 'process.'
+        result += +self._name+'\")\n'
     
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
