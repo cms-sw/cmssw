@@ -88,6 +88,9 @@ namespace pos{
 
     bool noHits() const; // returns true if no hits will be produced ("Rows:" and "Cols:" empty)
 
+    //If in singleROC mode this returns the current ROC
+    unsigned int scanROC(unsigned int state) const;
+
     unsigned int scanValue(unsigned int iscan, unsigned int state) const;
     unsigned int scanValue(std::string dac, unsigned int state) const{
       return scanValue(iScan(dac),state);
@@ -119,6 +122,8 @@ namespace pos{
     const std::set <PixelChannel>& channelList(const PixelNameTranslation* aNameTranslation);
 
     virtual std::string mode() {return mode_;}
+
+    bool singleROC() {return singleROC_;}
 
     unsigned int nParameters() const {return parameters_.size();}
     // get the value of parameter parameterName, or "" if parameterName is not in the list
