@@ -1,10 +1,11 @@
 #!/bin/sh
 
-Tpath=/data/local1/giordano/ClusterTh_Data
-for dir in `ls $Tpath`
-  do
-  [ ! -d $Tpath/$dir ] && continue
-  
+Tpath=/tmp/maborgia/ClusterThr
+echo `ls $Tpath`
+#for dir in `ls $Tpath`
+#  do
+#  [ ! -d $Tpath/$dir ] && continue
+
   for file in `ls $Tpath/$dir/*root`
     do
 
@@ -13,4 +14,4 @@ for dir in `ls $Tpath`
     echo -e "\n $file $outfile\n"
     root -b -l -q "DoPlot.C(\"$file\",\"$outfile\")"
   done
-done
+#done
