@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/01/20 11:13:34 $
- * $Revision: 1.59 $
+ * $Date: 2008/01/22 19:47:11 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
  */
@@ -134,8 +134,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meIntegrityTTId[i]->setAxisTitle("ieta", 1);
-      meIntegrityTTId[i]->setAxisTitle("iphi", 2);
+      meIntegrityTTId[i]->setAxisTitle("ieta'", 1);
+      meIntegrityTTId[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -144,8 +144,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meIntegrityTTBlockSize[i]->setAxisTitle("ieta", 1);
-      meIntegrityTTBlockSize[i]->setAxisTitle("iphi", 2);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ieta'", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 

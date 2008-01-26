@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/20 17:14:28 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,15 +25,8 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -66,31 +59,23 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    h03_[ism-1] = 0;
-
-    meh03_[ism-1] = 0;
-
+  for ( int i=0; i<3; i++) {
+    h01_[0][i] = 0;
+    h01ProjEta_[0][i] = 0;
+    h01ProjPhi_[0][i] = 0;
+    h01_[1][i] = 0;
+    h01ProjEta_[1][i] = 0;
+    h01ProjPhi_[1][i] = 0;
   }
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    meg03_[ism-1] = 0;
-
-    mep03_[ism-1] = 0;
-
-    mer03_[ism-1] = 0;
-
+  for ( int i=0; i<2; i++) {
+    h02_[0][i] = 0;
+    h02ProjEta_[0][i] = 0;
+    h02ProjPhi_[0][i] = 0;
+    h02_[1][i] = 0;
+    h02ProjEta_[1][i] = 0;
+    h02ProjPhi_[1][i] = 0;
   }
-
-  expectedMean_ = 200.0;
-  discrepancyMean_ = 25.0;
-  RMSThreshold_ = 4.0;
 
 }
 
@@ -142,91 +127,50 @@ void EEOccupancyClient::setup(void) {
 
   dbe_->setCurrentFolder( "EcalEndcap/EEOccupancyClient" );
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EEOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg03_[ism-1]->setAxisTitle("jx", 1);
-    meg03_[ism-1]->setAxisTitle("jy", 2);
-
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
-    sprintf(histo, "EEOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
-    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep03_[ism-1]->setAxisTitle("mean", 1);
-
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
-    sprintf(histo, "EEOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
-    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
-    mer03_[ism-1]->setAxisTitle("rms", 1);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    meg03_[ism-1]->Reset();
-
-    for ( int ix = 1; ix <= 50; ix++ ) {
-      for ( int iy = 1; iy <= 50; iy++ ) {
-
-        meg03_[ism-1]->setBinContent( ix, iy, -1. );
-
-        int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism);
-
-        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-        if ( Numbers::validEE(ism, jx, jy) ) {
-          meg03_[ism-1]->setBinContent( ix, iy, 2. );
-        }
-
-      }
-    }
-
-    mep03_[ism-1]->Reset();
-    mer03_[ism-1]->Reset();
-
-  }
-
 }
 
 void EEOccupancyClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  if ( cloneME_ ) {
 
-    int ism = superModules_[i];
-
-    if ( cloneME_ ) {
-      if ( h03_[ism-1] ) delete h03_[ism-1];
+    for ( int i=0; i<3; ++i ) {
+      if ( h01_[0][i] ) delete h01_[0][i];
+      if ( h01ProjEta_[0][i] ) delete h01ProjEta_[0][i];
+      if ( h01ProjPhi_[0][i] ) delete h01ProjPhi_[0][i];
+      if ( h01_[1][i] ) delete h01_[1][i];
+      if ( h01ProjEta_[1][i] ) delete h01ProjEta_[1][i];
+      if ( h01ProjPhi_[1][i] ) delete h01ProjPhi_[1][i];
     }
 
-    h03_[ism-1] = 0;
-
-    meh03_[ism-1] = 0;
-
+    for ( int i=0; i<2; ++i ) {
+      if ( h02_[0][i] ) delete h02_[0][i];
+      if ( h02ProjEta_[0][i] ) delete h02ProjEta_[0][i];
+      if ( h02ProjPhi_[0][i] ) delete h02ProjPhi_[0][i];
+      if ( h01_[1][i] ) delete h01_[1][i];
+      if ( h01ProjEta_[1][i] ) delete h01ProjEta_[1][i];
+      if ( h01ProjPhi_[1][i] ) delete h01ProjPhi_[1][i];
+    }
+      
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEOccupancyClient" );
+  for ( int i=0; i<3; i++) {
+    h01_[0][i] = 0;
+    h01ProjEta_[0][i] = 0;
+    h01ProjPhi_[0][i] = 0;
+    h01_[1][i] = 0;
+    h01ProjEta_[1][i] = 0;
+    h01ProjPhi_[1][i] = 0;
+  }
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
-    meg03_[ism-1] = 0;
-
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
-    mep03_[ism-1] = 0;
-
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
-    mer03_[ism-1] = 0;
-
+  for ( int i=0; i<2; i++) {
+    h02_[0][i] = 0;
+    h02ProjEta_[0][i] = 0;
+    h02ProjPhi_[0][i] = 0;
+    h02_[1][i] = 0;
+    h02ProjEta_[1][i] = 0;
+    h02ProjPhi_[1][i] = 0;
   }
 
 }
@@ -247,106 +191,9 @@ void EEOccupancyClient::analyze(void){
     if ( verbose_ ) cout << "EEOccupancyClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
-
-  map<EcalLogicID, RunCrystalErrorsDat> mask;
-
-  EcalErrorMask::fetchDataSet(&mask);
-
   char histo[200];
 
   MonitorElement* me;
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/Gain12/EEOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
-    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
-    meh03_[ism-1] = me;
-
-    meg03_[ism-1]->Reset();
-    mep03_[ism-1]->Reset();
-    mer03_[ism-1]->Reset();
-
-    for ( int ix = 1; ix <= 50; ix++ ) {
-      for ( int iy = 1; iy <= 50; iy++ ) {
-
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, -1.);
-
-        int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism);
-
-        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-        if ( Numbers::validEE(ism, jx, jy) ) {
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
-        }
-
-        bool update03;
-
-        float num03;
-        float mean03;
-        float rms03;
-
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
-
-        if ( update03 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean03 - expectedMean_) > discrepancyMean_ )
-            val = 0.;
-          if ( rms03 > RMSThreshold_ )
-            val = 0.;
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, val);
-
-          if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
-          if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
-
-        }
-
-        // masking
-
-        if ( mask.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask.begin(); m != mask.end(); m++) {
-
-            int jx = ix + Numbers::ix0EE(ism);
-            int jy = iy + Numbers::iy0EE(ism);
-
-            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-
-            int ic = Numbers::indexEE(ism, ix, iy);
-
-            if ( ic == -1 ) continue;
-
-            EcalLogicID ecid = m->first;
-
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
-              if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
-                  meg03_[ism-1]->setBinContent( ix, iy, val+3 );
-                }
-              }
-            }
-
-          }
-        }
-
-      }
-    }
-
-  }
 
 }
 
@@ -395,190 +242,8 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-  const double histMax = 1.e15;
-
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
-
-  TH2S labelGrid("labelGrid","label grid", 100, -2., 98., 100, -2., 98.);
-  for ( short j=0; j<400; j++ ) {
-    int x = 5*(1 + j%20);
-    int y = 5*(1 + j/20);
-    labelGrid.SetBinContent(x, y, Numbers::inTowersEE[j]);
-  }
-  labelGrid.SetMarkerSize(1);
-  labelGrid.SetMinimum(0.1);
-
-  string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
-
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
-  TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
-  TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
-
-  TH2F* obj2f;
-  TH1F* obj1f;
-
-  // Loop on barrel supermodules
-
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-
-    int ism = superModules_[i];
-
-    // Quality plots
-
-    imgNameQual = "";
-
-    obj2f = 0;
-    obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
-
-    if ( obj2f ) {
-
-      meName = obj2f->GetName();
-
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-      imgNameQual = meName + ".png";
-      imgName = htmlDir + imgNameQual;
-
-      cQual->cd();
-      gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
-      cQual->SetGridx();
-      cQual->SetGridy();
-      obj2f->GetXaxis()->SetLabelSize(0.02);
-      obj2f->GetXaxis()->SetTitleSize(0.02);
-      obj2f->GetYaxis()->SetLabelSize(0.02);
-      obj2f->GetYaxis()->SetTitleSize(0.02);
-      obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
-      obj2f->Draw("col");
-      int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
-      int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
-      int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
-      int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
-      labelGrid.GetXaxis()->SetRange(x1, x2);
-      labelGrid.GetYaxis()->SetRange(y1, y2);
-      labelGrid.Draw("text,same");
-      cQual->SetBit(TGraph::kClipFrame);
-      TLine l;
-      l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
-        if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-          l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
-        }
-      }
-      cQual->Update();
-      cQual->SaveAs(imgName.c_str());
-
-    }
-
-    // Mean distributions
-
-    imgNameMean = "";
-
-    obj1f = 0;
-    obj1f = UtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-      imgNameMean = meName + ".png";
-      imgName = htmlDir + imgNameMean;
-
-      cMean->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cMean->Update();
-      cMean->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    // RMS distributions
-
-    obj1f = 0;
-    obj1f = UtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
-
-    imgNameRMS = "";
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-      imgNameRMS = meName + ".png";
-      imgName = htmlDir + imgNameRMS;
-
-      cRMS->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cRMS->Update();
-      cRMS->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
-    htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name="""
-             << Numbers::sEE(ism) << """></a><strong>"
-             << Numbers::sEE(ism) << "</strong></h3>" << endl;
-    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-    htmlFile << "<tr align=\"center\">" << endl;
-
-    if ( imgNameQual.size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
-    else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-
-    htmlFile << "</tr>" << endl;
-    htmlFile << "<tr>" << endl;
-
-    if ( imgNameMean.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    if ( imgNameRMS.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "</table>" << endl;
-    htmlFile << "<br>" << endl;
-
-  }
-
-  delete cQual;
-  delete cMean;
-  delete cRMS;
+  int pCol4[10];
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   // html page footer
   htmlFile << "</body> " << endl;

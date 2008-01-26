@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/21 08:10:45 $
- * $Revision: 1.107 $
+ * $Date: 2008/01/22 19:47:10 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  *
 */
@@ -293,14 +293,14 @@ void EBSummaryClient::setup(void) {
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower summary");
   meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meTriggerTowerEt_->setAxisTitle("jphi", 1);
-  meTriggerTowerEt_->setAxisTitle("jeta", 2);
+  meTriggerTowerEt_->setAxisTitle("jphi'", 1);
+  meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
   meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meTriggerTowerEmulError_->setAxisTitle("jphi", 1);
-  meTriggerTowerEmulError_->setAxisTitle("jeta", 2);
+  meTriggerTowerEmulError_->setAxisTitle("jphi'", 1);
+  meTriggerTowerEmulError_->setAxisTitle("jeta'", 2);
 
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");

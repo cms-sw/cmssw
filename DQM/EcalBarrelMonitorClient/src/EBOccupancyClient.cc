@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/22 19:47:09 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/26 18:46:42 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,15 +23,6 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -130,35 +121,33 @@ void EBOccupancyClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-    if ( cloneME_ ) {
-
-      for ( int i=0; i<3; ++i ) {
-	if ( h01_[i] ) delete h01_[i];
-	if ( h01ProjEta_[i] ) delete h01ProjEta_[i];
-	if ( h01ProjPhi_[i] ) delete h01ProjPhi_[i];
-      }
-
-      for ( int i=0; i<2; ++i ) {
-	if ( h02_[i] ) delete h02_[i];
-	if ( h02ProjEta_[i] ) delete h02ProjEta_[i];
-	if ( h02ProjPhi_[i] ) delete h02ProjPhi_[i];
-      }
-      
-    }
+  if ( cloneME_ ) {
 
     for ( int i=0; i<3; ++i ) {
-      h01_[i] = 0;
-      h01ProjEta_[i] = 0;
-      h01ProjPhi_[i] = 0;
+      if ( h01_[i] ) delete h01_[i];
+      if ( h01ProjEta_[i] ) delete h01ProjEta_[i];
+      if ( h01ProjPhi_[i] ) delete h01ProjPhi_[i];
     }
 
     for ( int i=0; i<2; ++i ) {
-      h02_[i] = 0;
-      h02ProjEta_[i] = 0;
-      h02ProjPhi_[i] = 0;
+      if ( h02_[i] ) delete h02_[i];
+      if ( h02ProjEta_[i] ) delete h02ProjEta_[i];
+      if ( h02ProjPhi_[i] ) delete h02ProjPhi_[i];
     }
+      
+  }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
+  for ( int i=0; i<3; ++i ) {
+    h01_[i] = 0;
+    h01ProjEta_[i] = 0;
+    h01ProjPhi_[i] = 0;
+  }
+
+  for ( int i=0; i<2; ++i ) {
+    h02_[i] = 0;
+    h02ProjEta_[i] = 0;
+    h02ProjPhi_[i] = 0;
+  }
 
 }
 

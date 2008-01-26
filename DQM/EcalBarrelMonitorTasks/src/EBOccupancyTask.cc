@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/25 18:44:30 $
- * $Revision: 1.44 $
+ * $Date: 2008/01/26 18:38:10 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -115,11 +115,11 @@ void EBOccupancyTask::setup(void){
     meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
     meEBDigiOccupancy_->setAxisTitle("jphi", 1);
     meEBDigiOccupancy_->setAxisTitle("jeta", 2);
-    sprintf(histo, "EBOT digi occupancy projection eta");
+    sprintf(histo, "EBOT digi occupancy eta");
     meEBDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
     meEBDigiOccupancyProjEta_->setAxisTitle("jeta", 1);
     meEBDigiOccupancyProjEta_->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EBOT digi occupancy projection phi");
+    sprintf(histo, "EBOT digi occupancy phi");
     meEBDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
     meEBDigiOccupancyProjPhi_->setAxisTitle("jphi", 1);
     meEBDigiOccupancyProjPhi_->setAxisTitle("number of digis", 2);
@@ -128,11 +128,11 @@ void EBOccupancyTask::setup(void){
     meEBRecHitOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
     meEBRecHitOccupancy_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancy_->setAxisTitle("jeta", 2);
-    sprintf(histo, "EBOT rec hit occupancy projection eta");
+    sprintf(histo, "EBOT rec hit occupancy eta");
     meEBRecHitOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -85., 85.);
     meEBRecHitOccupancyProjEta_->setAxisTitle("jeta", 1);
     meEBRecHitOccupancyProjEta_->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EBOT rec hit occupancy projection phi");
+    sprintf(histo, "EBOT rec hit occupancy phi");
     meEBRecHitOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 360.);
     meEBRecHitOccupancyProjPhi_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyProjPhi_->setAxisTitle("number of hits", 2);
@@ -141,11 +141,11 @@ void EBOccupancyTask::setup(void){
     meEBRecHitOccupancyThr_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
     meEBRecHitOccupancyThr_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyThr_->setAxisTitle("jeta", 2);
-    sprintf(histo, "EBOT rec hit thr occupancy projection eta");
+    sprintf(histo, "EBOT rec hit thr occupancy eta");
     meEBRecHitOccupancyProjEtaThr_ = dbe_->book1D(histo, histo, 34, -85., 85.);
     meEBRecHitOccupancyProjEtaThr_->setAxisTitle("jeta", 1);
     meEBRecHitOccupancyProjEtaThr_->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EBOT rec hit thr occupancy projection phi");
+    sprintf(histo, "EBOT rec hit thr occupancy phi");
     meEBRecHitOccupancyProjPhiThr_ = dbe_->book1D(histo, histo, 72, 0., 360.);
     meEBRecHitOccupancyProjPhiThr_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyProjPhiThr_->setAxisTitle("number of hits", 2);
@@ -154,11 +154,11 @@ void EBOccupancyTask::setup(void){
     meEBTrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
     meEBTrigPrimDigiOccupancy_->setAxisTitle("jphi", 1);
     meEBTrigPrimDigiOccupancy_->setAxisTitle("jeta", 2);
-    sprintf(histo, "EBOT TP digi occupancy projection eta");
+    sprintf(histo, "EBOT TP digi occupancy eta");
     meEBTrigPrimDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -17., 17.);
     meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("jeta", 1);
     meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EBOT TP digi occupancy projection phi");
+    sprintf(histo, "EBOT TP digi occupancy phi");
     meEBTrigPrimDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 72.);
     meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("jphi", 1);
     meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("number of TP digis", 2);
@@ -167,11 +167,11 @@ void EBOccupancyTask::setup(void){
     meEBTrigPrimDigiOccupancyThr_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
     meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jphi", 1);
     meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jeta", 2);
-    sprintf(histo, "EBOT TP thr digi occupancy projection eta");
+    sprintf(histo, "EBOT TP thr digi occupancy eta");
     meEBTrigPrimDigiOccupancyProjEtaThr_ = dbe_->book1D(histo, histo, 34, -17., 17.);
     meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("jeta", 1);
     meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EBOT TP thr digi occupancy projection phi");
+    sprintf(histo, "EBOT TP thr digi occupancy phi");
     meEBTrigPrimDigiOccupancyProjPhiThr_ = dbe_->book1D(histo, histo, 72, 0., 72.);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("jphi", 1);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("number of TP digis", 2);
@@ -387,18 +387,20 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = idt.ieta();
       int ebphi = idt.iphi();
 
-      float xebeta = ebeta-1;
-      float xebphi = ebphi-1;
+      float xebeta = ebeta+0.5;
+      float xebphi = ebphi+0.5;
 
-      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
-      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
+      if ( idt.zside() < 0 ) xebeta = xebeta+1;
+
+      if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi-1, xebeta-1 );
+      if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta-1 );
+      if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi-1 );
 
       if ( data.compressedEt() > trigPrimEtMin_ ) {
 
-        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
-        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
+        if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi-1, xebeta-1 );
+        if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta-1 );
+        if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi-1 );
 
       }
 
