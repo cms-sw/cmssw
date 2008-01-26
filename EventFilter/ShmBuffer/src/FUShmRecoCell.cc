@@ -92,6 +92,7 @@ void FUShmRecoCell::writeInitMsg(unsigned char *data,
 void FUShmRecoCell::writeEventData(unsigned int   rawCellIndex,
 				   unsigned int   runNumber,
 				   unsigned int   evtNumber,
+				   unsigned int   outModId,
 				   unsigned char *data,
 				   unsigned int   dataSize)
 {
@@ -106,7 +107,34 @@ void FUShmRecoCell::writeEventData(unsigned int   rawCellIndex,
   rawCellIndex_=rawCellIndex;
   runNumber_   =runNumber;
   evtNumber_   =evtNumber;
+  outModId_    =outModId;
   type_        =1;
+  unsigned char* targetAddr=payloadAddr();
+  memcpy(targetAddr,data,dataSize);
+  eventSize_=dataSize;
+}
+				  
+
+//______________________________________________________________________________
+void FUShmRecoCell::writeErrorEvent(unsigned int   rawCellIndex,
+				    unsigned int   runNumber,
+				    unsigned int   evtNumber,
+				    unsigned char *data,
+				    unsigned int   dataSize)
+{
+  if (eventSize_!=0)
+    cout<<"FUShmRecoCell::writeEventData() WARNING: overwriting data!"<<endl;
+  
+  if (dataSize>payloadSize_) {
+    cout<<"FUShmRecoCell::writeEventData() ERROR: data does not fit!"<<endl;
+    return;
+  }
+  
+  rawCellIndex_=rawCellIndex;
+  runNumber_   =runNumber;
+  evtNumber_   =evtNumber;
+  outModId_    =0xffffffff;
+  type_        =2;
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;

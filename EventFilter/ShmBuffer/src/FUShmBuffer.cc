@@ -525,8 +525,29 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
 
 
 //______________________________________________________________________________
+bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
+				   unsigned int   dataSize)
+{
+  if (dataSize>recoCellPayloadSize_) {
+    cout<<"FUShmBuffer::writeRecoInitMsg() ERROR: buffer overflow."<<endl;
+    return false;
+  }
+  
+  waitRecoWrite();
+  unsigned int   iCell=nextRecoWriteIndex();
+  FUShmRecoCell* cell =recoCell(iCell);
+  cell->writeInitMsg(data,dataSize);
+  postRecoIndexToRead(iCell);
+  if (segmentationMode_) shmdt(cell);
+  postRecoRead();
+  return true;
+}
+
+
+//______________________________________________________________________________
 bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
 				     unsigned int   evtNumber,
+				     unsigned int   outModId,
 				     unsigned char *data,
 				     unsigned int   dataSize)
 {
@@ -543,7 +564,7 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
   //assert(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT);
   setEvtState(rawCellIndex,evt::RECOWRITING);
   incEvtDiscard(rawCellIndex);
-  cell->writeEventData(rawCellIndex,runNumber,evtNumber,data,dataSize);
+  cell->writeEventData(rawCellIndex,runNumber,evtNumber,outModId,data,dataSize);
   setEvtState(rawCellIndex,evt::RECOWRITTEN);
   postRecoIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);
@@ -553,20 +574,25 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
 
 
 //______________________________________________________________________________
-bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
-				   unsigned int   dataSize)
+bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
+				      unsigned int iRawCell)
 {
-  if (dataSize>recoCellPayloadSize_) {
-    cout<<"FUShmBuffer::writeRecoInitMsg() ERROR: buffer overflow."<<endl;
-    return false;
-  }
+  FUShmRawCell* raw = rawCell(iRawCell);
+  unsigned int   dataSize=sizeof(unsigned int)*1024+raw->payloadSize();
+  unsigned char *data    =new unsigned char[dataSize];
+  unsigned int  *pFedSize=(unsigned int*)data;
+  for (unsigned int i=0;i<raw->nFed();i++) *pFedSize++ = raw->fedSize(i);
+  memcpy(data+sizeof(unsigned int)*1024,raw->payloadAddr(),raw->payloadSize());
   
   waitRecoWrite();
-  unsigned int   iCell=nextRecoWriteIndex();
-  FUShmRecoCell* cell =recoCell(iCell);
-  cell->writeInitMsg(data,dataSize);
-  postRecoIndexToRead(iCell);
-  if (segmentationMode_) shmdt(cell);
+  unsigned int   iRecoCell=nextRecoWriteIndex();
+  FUShmRecoCell* reco     =recoCell(iRecoCell);
+  setEvtState(iRawCell,evt::RECOWRITING);
+  setEvtDiscard(iRawCell,2);
+  reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),data,dataSize);
+  setEvtState(iRawCell,evt::RECOWRITTEN);
+  postRecoIndexToRead(iRecoCell);
+  if (segmentationMode_) { shmdt(raw); shmdt(reco); }
   postRecoRead();
   return true;
 }

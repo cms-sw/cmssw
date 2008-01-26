@@ -1,3 +1,10 @@
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-00
+	* add 'outModId' to FUShmRecoCell
+	* add outModId to interface of FUShmBuffer::writeRecoEventData()
+	* add new function 'FUShmBuffer::writeErrorEventData'
+
 2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-01
