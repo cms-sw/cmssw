@@ -98,11 +98,14 @@ namespace pos{
 
 
     static void addVersionAlias(std::string path, unsigned int version, std::string alias){
+
+      PixelConfigList& configs=getConfig();
+
       PixelVersionAlias anAlias(path, version, alias);
       getAlias().insertVersionAlias(anAlias);
-      getAlias().updateConfigAlias(path,version,alias,getConfig());
+      getAlias().updateConfigAlias(path,version,alias,configs);
       getAlias().writefile();
-      getConfig().writefile();
+      configs.writefile();
     }
 
     static unsigned int makeKey(std::vector<std::pair<std::string, unsigned int> > versions){
