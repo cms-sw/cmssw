@@ -468,6 +468,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 					   PixelNameTranslation* trans,
 					   std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
 					   std::map<pos::PixelModuleName,pos::PixelTrimBase*>* trims,
+					   std::map<pos::PixelModuleName,pos::PixelDACSettings*>* dacs,
+
 					   unsigned int state) const {
 
   std::string modeName=parameterValue("ScanMode");
@@ -631,13 +633,17 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
       }
 
-      //FIXME!!!!
-      //TODO retrieve ROC control register from configuration
+      //FIXME This is very inefficient
+      PixelModuleName module(rocs_[i].rocname());
+
+      unsigned int roccontrolword=(*dacs)[module]->getDACSettings(rocs_[i])->getControlRegister();
+   
       //range is controlled here by one bit, but rest must match config
       //bit 0 on/off= 20/40 MHz speed; bit 1 on/off=disabled/enable; bit 3=Vcal range
-      int range=0;  //MUST replace this line with desired control register setting
-      if (highVCalRange_) range|=0x4;  //turn range bit on
-      else range&=0x3;                 //turn range bit off
+	
+
+      if (highVCalRange_) roccontrolword|=0x4;  //turn range bit on
+      else roccontrolword&=0xfb;                //turn range bit off
       
 
       pixelFEC->progdac(theROC.mfec(),
@@ -646,7 +652,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 			theROC.portaddress(),
 			theROC.rocid(),
 			0xfd,
-			range,_bufferData);
+			roccontrolword,_bufferData);
       
       pixelFEC->clrcal(theROC.mfec(),
 		       theROC.mfecchannel(),
