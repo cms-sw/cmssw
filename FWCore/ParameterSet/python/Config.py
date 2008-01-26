@@ -5,10 +5,11 @@ from  Options import Options
 options = Options()
 
 
-### imports
-from Mixins import PrintOptions,_SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable
+## imports
+from Mixins import PrintOptions,_SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, UsingBlock
 from Mixins import  _Labelable,  _Unlabelable 
-#from Mixins import _ValidatingListBase
+#from Mixins import *
+from Mixins import _ValidatingListBase
 from Types import * 
 from Modules import *
 from SequenceTypes import *
@@ -162,6 +163,7 @@ class Process(object):
                 raise TypeError("an instance of "+str(type(value))+" can not be assigned the label '"+name+"'.\n"+
                                 "Please either use the label '"+value.type_()+" or use the 'add_' method instead.")
         if not self._okToPlace(name, value, self.__dict__):
+            print "WARNING: trying to override definition of process."+name
             return
         #clone the item
         newValue =value.copy()
