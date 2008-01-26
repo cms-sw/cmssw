@@ -113,9 +113,11 @@ namespace pos{
 	config.add(versions[i].first,versions[i].second);
       }
 
-      unsigned int newkey=getConfig().add(config);
+      PixelConfigList& configs=getConfig();
 
-      getConfig().writefile();
+      unsigned int newkey=configs.add(config);
+
+      configs.writefile();
     
       return newkey;
 
