@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.6 2008/01/22 21:58:16 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.7 2008/01/25 16:17:01 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -9,6 +9,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -27,11 +28,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) {
   // general configurables
   electronSrc_      = iConfig.getParameter<edm::InputTag>( "electronSource" );
   // MC matching configurables
-  addGenMatch_      = iConfig.getParameter<bool>         ( "addGenMatch" );
-  genPartSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
-  maxDeltaR_        = iConfig.getParameter<double>       ( "maxDeltaR" );
-  minRecoOnGenEt_   = iConfig.getParameter<double>       ( "minRecoOnGenEt" );
-  maxRecoOnGenEt_   = iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
+  addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
+  genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
@@ -81,10 +80,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 
   // prepare the MC matching
-  edm::Handle<edm::View<reco::Candidate> > particles;
+  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
   if (addGenMatch_) {
-    iEvent.getByLabel(genPartSrc_, particles);
-    matchTruth(*particles, *electrons) ;
+    iEvent.getByLabel(genMatchSrc_, genMatch);
   }
 
   // prepare isolation calculation
@@ -132,7 +130,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     Electron anElectron(elecsRef);
     // match to generated final state electrons
     if (addGenMatch_) {
-      anElectron.setGenLepton(findTruth(*particles, *itElectron));
+      reco::CandidateRef genElectron = (*genMatch)[elecsRef];
+      if (genElectron.isNonnull() && genElectron.isAvailable() ) {
+        // "MC ELE MATCH: Ok, done the match with id = " << genElectron.key() << std::endl;
+        anElectron.setGenLepton(*(*genMatch)[elecsRef]);
+      } else {
+        // "MC ELE MATCH: Something wrong: null=" << !genElectron.isNonnull() <<", avail=" << genElectron.isAvailable() << std::endl;
+        anElectron.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
+      }
     }
     // add resolution info
     if(addResolutions_){
@@ -180,7 +185,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 }
 
-
+#if 0
 reco::GenParticleCandidate PATElectronProducer::findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec) {
   reco::GenParticleCandidate theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
   for(std::vector<std::pair<const reco::Candidate *, const ElectronType *> >::const_iterator pairGenRecoElectrons = pairGenRecoElectronsVector_.begin(); pairGenRecoElectrons != pairGenRecoElectronsVector_.end(); ++pairGenRecoElectrons){
@@ -224,7 +229,10 @@ void PATElectronProducer::matchTruth(const edm::View<reco::Candidate> & particle
     }
   }
 }
-
+#else
+reco::GenParticleCandidate PATElectronProducer::findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec) {throw cms::Exception("NO");}
+void PATElectronProducer::matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons)  {throw cms::Exception("NO");}
+#endif
 
 double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType> > & electrons,
                                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,

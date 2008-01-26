@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.7 2008/01/25 16:17:02 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.8 2008/01/26 11:13:05 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/BTauReco/interface/JetTagFwd.h"
@@ -23,6 +24,7 @@
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
+
 #include <vector>
 #include <memory>
 
@@ -36,9 +38,9 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   getJetMCFlavour_         = iConfig.getParameter<bool>                     ( "getJetMCFlavour" );
   jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>            ( "JetPartonMapSource" );
   addGenPartonMatch_       = iConfig.getParameter<bool>                     ( "addGenPartonMatch" );
-  genPartonSrc_            = iConfig.getParameter<edm::InputTag>            ( "genPartonSource" );
+  genPartonSrc_            = iConfig.getParameter<edm::InputTag>            ( "genPartonMatch" );
   addGenJetMatch_          = iConfig.getParameter<bool>                     ( "addGenJetMatch" );
-  genJetSrc_               = iConfig.getParameter<edm::InputTag>            ( "genJetSource" );
+  genJetSrc_               = iConfig.getParameter<edm::InputTag>            ( "genJetMatch" );
   addPartonJetMatch_       = iConfig.getParameter<bool>                     ( "addPartonJetMatch" );
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>            ( "partonJetSource" );
   addResolutions_          = iConfig.getParameter<bool>                     ( "addResolutions" );
@@ -92,11 +94,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<edm::View<reco::Candidate> > particles;
-  if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_, particles);
+  edm::Handle<edm::Association<reco::CandidateCollection> > partonMatch;
+  if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_,  partonMatch);
   // Get the vector of GenJets from the event if needed
-  edm::Handle<edm::View<reco::GenJet> > genJets;
-  if (addGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJets);
+  edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;
+  if (addGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJetMatch);
 /* TO BE IMPLEMENTED FOR >= 1_5_X
   // Get the vector of PartonJets from the event if needed
   edm::Handle<edm::View<reco::SomePartonJetType> > partonJets;
@@ -154,49 +156,24 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
     // do the parton matching
     if (addGenPartonMatch_) {
-      // initialize best match as null
-      reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
-      float bestDR = 0;
-      // find the closest parton
-      for (edm::View<reco::Candidate>::const_iterator itParton = particles->begin(); itParton != particles->end(); ++itParton) {
-        reco::GenParticleCandidate aParton = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itParton)));
-        if (aParton.status()==3 &&
-            (abs(aParton.pdgId())==1 || abs(aParton.pdgId())==2 ||
-             abs(aParton.pdgId())==3 || abs(aParton.pdgId())==4 ||
-             abs(aParton.pdgId())==5 || abs(aParton.pdgId())==21)) {
-          float currDR = DeltaR<reco::Candidate>()(aParton, ajet);
-          // matching with hard-cut at 0.4
-          // can be improved a la muon-electron, such that each parton
-          // maximally matches 1 jet, but this requires two loops
-          if (bestDR == 0 || (currDR < bestDR || currDR < 0.4)) {
-            bestParton = aParton;
-            bestDR = currDR;
-          }
-        }
+      reco::CandidateRef parton = (*partonMatch)[jetsRef];
+      if (parton.isNonnull() && parton.isAvailable()) {
+          ajet.setGenParton(*parton);
+      } else {
+          reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
+          ajet.setGenParton(bestParton);
       }
-      ajet.setGenParton(bestParton);
     }
     // do the GenJet matching
     if (addGenJetMatch_) {
-      // initialize best match as null
-//NEED TO INITIALIZE TO ZERO
-      reco::GenJet bestGenJet;//0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
-      float bestDR = 0;
-      // find the closest parton
-      for (edm::View<reco::GenJet>::const_iterator itGenJet = genJets->begin(); itGenJet != genJets->end(); ++itGenJet) {
-// do we need some criteria?      if (itGenJet->status()==3) {
-          float currDR = DeltaR<reco::Candidate>()(*itGenJet, ajet);
-          // matching with hard-cut at 0.4
-          // can be improved a la muon-electron, such that each genjet
-          // maximally matches 1 jet, but this requires two loops
-          if (bestDR == 0 || (currDR < bestDR || currDR < 0.4)) {
-            bestGenJet = *itGenJet;
-            bestDR = currDR;
-          }
-//          }
+      reco::GenJetRef genjet = (*genJetMatch)[jetsRef];
+      if (genjet.isNonnull() && genjet.isAvailable()) {
+          ajet.setGenJet(*genjet);
+      } else {
+          ajet.setGenJet(reco::GenJet());
       }
-      ajet.setGenJet(bestGenJet);
     }
+
     // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching
     if (addPartonJetMatch_) {
     }
