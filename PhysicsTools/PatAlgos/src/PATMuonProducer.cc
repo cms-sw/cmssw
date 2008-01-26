@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.2 2008/01/21 16:26:17 lowette Exp $
+// $Id: PATMuonProducer.cc,v 1.3 2008/01/22 21:58:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -12,6 +12,8 @@
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "DataFormats/Common/interface/Association.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -31,10 +33,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) {
   muonSrc_       = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
-  genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
-  maxDeltaR_     = iConfig.getParameter<double>       ( "maxDeltaR" );
-  minRecoOnGenEt_= iConfig.getParameter<double>       ( "minRecoOnGenEt" );
-  maxRecoOnGenEt_= iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
+  genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   // resolution configurables
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
@@ -76,11 +75,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   iEvent.getByLabel(muonSrc_, muons);
 
   // prepare the MC matching
-  edm::Handle<edm::View<reco::Candidate> > particles;
-  if (addGenMatch_) {
-    iEvent.getByLabel(genPartSrc_, particles);
-    matchTruth(*particles, *muons);
-  }
+  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
+  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch);
 
   // prepare isolation calculation
   edm::Handle<reco::MuIsoDepositAssociationMap> trackerIso;
@@ -116,7 +112,12 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     Muon aMuon(muonsRef);
     // match to generated final state muons
     if (addGenMatch_) {
-      aMuon.setGenLepton(findTruth(*particles, *itMuon));
+      reco::CandidateRef genMuon = (*genMatch)[muonsRef];
+      if (genMuon.isNonnull() && genMuon.isAvailable() ) {
+        aMuon.setGenLepton(*genMuon);
+      } else {
+        aMuon.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
+      }
     }
     // add resolution info
     if (addResolutions_) {
@@ -182,7 +183,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 }
 
-
+reco::GenParticleCandidate PATMuonProducer::findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon) { throw cms::Exception("NO"); }
+void PATMuonProducer::matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons) {  throw cms::Exception("NO"); }
+#if 0
 reco::GenParticleCandidate PATMuonProducer::findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon) {
   reco::GenParticleCandidate gen(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
   for (std::vector<std::pair<const reco::Candidate*, const MuonType*> >::const_iterator pairGenRecoMuons = pairGenRecoMuonsVector_.begin(); pairGenRecoMuons != pairGenRecoMuonsVector_.end(); ++pairGenRecoMuons) {
@@ -222,3 +225,4 @@ void PATMuonProducer::matchTruth(const edm::View<reco::Candidate> & parts, const
     }
   }
 }
+#endif

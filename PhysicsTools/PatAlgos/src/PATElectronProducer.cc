@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.7 2008/01/25 16:17:01 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.8 2008/01/26 12:49:36 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -132,8 +132,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (addGenMatch_) {
       reco::CandidateRef genElectron = (*genMatch)[elecsRef];
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
-        // "MC ELE MATCH: Ok, done the match with id = " << genElectron.key() << std::endl;
-        anElectron.setGenLepton(*(*genMatch)[elecsRef]);
+        anElectron.setGenLepton(*genElectron);
       } else {
         // "MC ELE MATCH: Something wrong: null=" << !genElectron.isNonnull() <<", avail=" << genElectron.isAvailable() << std::endl;
         anElectron.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
