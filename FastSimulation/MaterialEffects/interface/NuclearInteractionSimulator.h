@@ -46,6 +46,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      std::map<int,int >& idMap,
 			      std::string inputFile,
 			      unsigned int distAlgo,
+			      double distCut,
 			      const RandomEngine* engine);
 
   /// Default Destructor
@@ -61,6 +62,10 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 
   /// Generate a nuclear interaction according to the probability that it happens
   void compute(ParticlePropagator& Particle);
+
+  /// Compute distance between secondary and primary
+  double distanceToPrimary(const RawParticle& Particle,
+			   const RawParticle& aDaughter) const;
 
   /// Return a hashed index for a given pid
   unsigned index(int thePid);
@@ -88,12 +93,10 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   std::map< int, int > theIDMap;
   unsigned ien4;
   unsigned theDistAlgo;
+  double theDistCut;
 
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
-  
-
-
 
   //  DaqMonitorBEInterface * dbe;
   //  MonitorElement* htot;

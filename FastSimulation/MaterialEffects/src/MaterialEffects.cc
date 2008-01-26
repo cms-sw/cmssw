@@ -125,6 +125,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     // when a nuclear interaction occurs
     unsigned distAlgo 
       = matEff.getParameter<unsigned>("distAlgo");
+    double distCut 
+      = matEff.getParameter<double>("distCut");
 
     // The file to read the starting interaction in each files
     // (random reproducibility in case of a crash)
@@ -184,7 +186,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
 				      lengthRatio, ratios, idMap, 
-				      inputFile, distAlgo, random);
+				      inputFile, distAlgo, distCut, random);
   }
 
 }

@@ -29,6 +29,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::map<int,int >& idMap,
   std::string inputFile,
   unsigned int distAlgo,
+  double distCut,
   const RandomEngine* engine) 
   :
   MaterialEffectsSimulator(engine),
@@ -41,7 +42,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   theLengthRatio(lengthRatio),
   theRatios(ratios),
   theIDMap(idMap),
-  theDistAlgo(distAlgo)
+  theDistAlgo(distAlgo),
+  theDistCut(distCut)
 
 {
 
@@ -272,6 +274,17 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	Particle.rotate(rotation1);
 	Particle.rotate(rotation2);
 	
+	// Distance 
+	double distance = std::sin(theta);
+
+	// Create a daughter if the kink is large engough 
+	if ( distance > theDistCut ) { 
+	  _theUpdatedState.resize(1);
+	  _theUpdatedState[0].SetXYZT(Particle.Px(), Particle.Py(),
+				      Particle.Pz(), Particle.E());
+	  _theUpdatedState[0].setID(Particle.pid());
+	}
+
 	//	hscatter->Fill(myTheta);
 	//	hscatter2->Fill(pHadron,myTheta);
 	
@@ -444,7 +457,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 
 	    RawParticle& aDaughter = _theUpdatedState[idaugh]; 
 	    aDaughter.SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
-					     aParticle.pz*ecm,energy*ecm);	    
+			      aParticle.pz*ecm,energy*ecm);	    
 	    aDaughter.setID(aParticle.id);
 
 	    // Rotate around the boost axis
@@ -454,47 +467,15 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	    aDaughter.boost(axisBoost);
 
 	    // Store the closest daughter index (for later tracking purposes, so charged particles only) 
-	    if ( fabs(Particle.charge()) > 1E-12 ) { 
-	      // Closest means 1) same charge
-	      double chargeDiff = fabs(aDaughter.charge()-Particle.charge());
-	      if ( fabs(chargeDiff) < 1E-12 ) {
-		// Closest mean 2) smallest angular and momentum distance 
-		double distance = 2.*distMin;
-		switch ( theDistAlgo ) { 
-      
-		case 1: 
-		  // sin(theta12) * p1/p2
-		  distance = (aDaughter.Vect().Cross(Particle.Vect())).R()
-		             /aDaughter.Vect().Mag2();
-		  break;
-
-		case 2:
-		  // sin(theta12)
-		  distance = (aDaughter.Vect().Unit().Cross(Particle.Vect().Unit())).R();
-		  break;
-		
-		case 3: 
-		  // m12
-		  distance = aDaughter.Dot(Particle);
-		  break;
-
-		default:
-		  // Should not happen
-		  distance = 2.*distMin;
-		  break;
-      
-		}
-      
-		if ( distance < distMin ) {
-		  // std::cout << "Distance/daughter " << distance << " " << idaugh << std::endl;
-		  distMin = distance;
-		  theClosestChargedDaughterId = idaugh;
-		}
-	      }
+	    double distance = distanceToPrimary(Particle,aDaughter);
+	    // Find the closest daughter, if closer than a given upper limit.
+	    if ( distance < distMin && distance < theDistCut ) {
+	      distMin = distance;
+	      theClosestChargedDaughterId = idaugh;
 	    }
-	    
+
 	  }
-	  
+ 
 	  // Increment for next time
 	  ++aCurrentInteraction[ene];
 	  
@@ -513,6 +494,48 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     }
 
   }
+
+}
+
+double 
+NuclearInteractionSimulator::distanceToPrimary(const RawParticle& Particle,
+					       const RawParticle& aDaughter) const {
+
+  double distance = 2E99;
+
+  // Compute the distance only for charged primaries
+  if ( fabs(Particle.charge()) > 1E-12 ) { 
+
+    // The secondary must have the same charge
+    double chargeDiff = fabs(aDaughter.charge()-Particle.charge());
+    if ( fabs(chargeDiff) < 1E-12 ) {
+
+      // Here are two distance definitions * to be tuned *
+      switch ( theDistAlgo ) { 
+	
+      case 1:
+	// sin(theta12)
+	distance = (aDaughter.Vect().Unit().Cross(Particle.Vect().Unit())).R();
+	break;
+	
+      case 2: 
+	// sin(theta12) * p1/p2
+	distance = (aDaughter.Vect().Cross(Particle.Vect())).R()
+	  /aDaughter.Vect().Mag2();
+	break;
+	
+      default:
+	// Should not happen
+	distance = 2E99;
+	break;
+	
+      }
+
+    }
+
+  }
+      
+  return distance;
 
 }
 
