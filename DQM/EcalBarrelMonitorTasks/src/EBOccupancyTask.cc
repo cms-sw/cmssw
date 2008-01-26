@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/26 18:38:10 $
- * $Revision: 1.45 $
+ * $Date: 2008/01/26 20:13:54 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -152,28 +152,28 @@ void EBOccupancyTask::setup(void){
 
     sprintf(histo, "EBOT TP digi occupancy");
     meEBTrigPrimDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-    meEBTrigPrimDigiOccupancy_->setAxisTitle("jphi", 1);
-    meEBTrigPrimDigiOccupancy_->setAxisTitle("jeta", 2);
+    meEBTrigPrimDigiOccupancy_->setAxisTitle("jphi'", 1);
+    meEBTrigPrimDigiOccupancy_->setAxisTitle("jeta'", 2);
     sprintf(histo, "EBOT TP digi occupancy eta");
     meEBTrigPrimDigiOccupancyProjEta_ = dbe_->book1D(histo, histo, 34, -17., 17.);
-    meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("jeta", 1);
+    meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("jeta'", 1);
     meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EBOT TP digi occupancy phi");
     meEBTrigPrimDigiOccupancyProjPhi_ = dbe_->book1D(histo, histo, 72, 0., 72.);
-    meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("jphi", 1);
+    meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("number of TP digis", 2);
 
     sprintf(histo, "EBOT TP thr digi occupancy");
     meEBTrigPrimDigiOccupancyThr_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-    meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jphi", 1);
-    meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jeta", 2);
+    meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jphi'", 1);
+    meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jeta'", 2);
     sprintf(histo, "EBOT TP thr digi occupancy eta");
     meEBTrigPrimDigiOccupancyProjEtaThr_ = dbe_->book1D(histo, histo, 34, -17., 17.);
-    meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("jeta", 1);
+    meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("jeta'", 1);
     meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EBOT TP thr digi occupancy phi");
     meEBTrigPrimDigiOccupancyProjPhiThr_ = dbe_->book1D(histo, histo, 72, 0., 72.);
-    meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("jphi", 1);
+    meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("number of TP digis", 2);
 
   }
