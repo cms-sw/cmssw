@@ -3,6 +3,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 void Trajectory::pop() {
   if (!empty()) {
     if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;
@@ -68,18 +71,57 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
   }
 }
 
-Trajectory::RecHitContainer Trajectory::recHits() const {
+Trajectory::RecHitContainer Trajectory::recHits(bool splitting) const {
   RecHitContainer hits;
-  recHitsV(hits);
+  recHitsV(hits,splitting);
   return hits;
 }
 
-  
-void Trajectory::recHitsV(ConstRecHitContainer & hits) const {
+
+void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
   hits.reserve(theData.size());
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++)
-    hits.push_back((*itm).recHit());
+  if(!splitting){  
+    for (Trajectory::DataContainer::const_iterator itm
+	   = theData.begin(); itm != theData.end(); itm++){    
+      hits.push_back((*itm).recHit());
+    }
+  }else{    
+    for (Trajectory::DataContainer::const_iterator itm
+	   = theData.begin(); itm != theData.end(); itm++){    
+
+      const SiStripMatchedRecHit2D* matched = 0;
+
+      SiStripDetId stripId = SiStripDetId(itm->recHit()->geographicalId());
+      //avoid to try a dynamic_cast when there is no chance to find a matched hit.
+      if(stripId.subDetector() !=0 && stripId.partnerDetId()!=0){
+	matched = dynamic_cast<const SiStripMatchedRecHit2D*>(itm->recHit()->hit());
+      }
+
+      if( matched ){
+	LocalPoint firstLocalPos = 
+	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[0]->globalPosition());
+	
+	LocalPoint secondLocalPos = 
+	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[1]->globalPosition());
+	
+	LocalVector Delta = secondLocalPos - firstLocalPos;
+	float scalar  = Delta.z() * (itm->updatedState().localDirection().z());
+	
+	if( (scalar>0 && direction()==alongMomentum) ||
+	    (scalar<0 && direction()==oppositeToMomentum)){
+	  hits.push_back(itm->recHit()->transientHits()[0]);
+	  hits.push_back(itm->recHit()->transientHits()[1]);
+	}else if( (scalar>0 && direction()== oppositeToMomentum) ||
+		  (scalar<0 && direction()== alongMomentum)){
+	  hits.push_back(itm->recHit()->transientHits()[1]);
+	  hits.push_back(itm->recHit()->transientHits()[0]);
+	}else
+	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");
+      }else{
+	hits.push_back((*itm).recHit());
+      }
+    }//end loop on measurements
+  }
 }
 
 void Trajectory::validRecHits(ConstRecHitContainer & hits) const {

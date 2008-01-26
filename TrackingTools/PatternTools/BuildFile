@@ -4,6 +4,7 @@
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrajectorySeed>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>

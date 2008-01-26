@@ -7,6 +7,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+
 #include <vector>
 #include <algorithm>
 
@@ -124,9 +125,9 @@ public:
 
   /** Return all RecHits in a container.
    */
-  ConstRecHitContainer recHits() const;
+  ConstRecHitContainer recHits(bool splitting=false) const;
 
-  void recHitsV(ConstRecHitContainer & cont) const;
+  void recHitsV(ConstRecHitContainer & cont,bool splitting = false) const;
 
   /** Just valid hits..
    *
