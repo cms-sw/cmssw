@@ -421,6 +421,22 @@ unsigned int PixelCalibConfiguration::iScan(std::string dac) const{
 
 }
 
+
+
+unsigned int PixelCalibConfiguration::scanROC(unsigned int state) const{
+
+  assert(state<nConfigurations());
+  assert(singleROC_);
+
+  unsigned int i_ROC=state/(cols_.size()*rows_.size()*
+			    nScanPoints());
+  
+  
+  return i_ROC;
+
+}
+
+
 unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
                                                unsigned int state) const{
 
