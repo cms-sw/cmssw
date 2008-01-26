@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/25 18:44:31 $
- * $Revision: 1.29 $
+ * $Date: 2008/01/26 20:13:56 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -139,11 +139,11 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE - x");
+    sprintf(histo, "EEOT digi occupancy EE - projection x");
     meEEDigiOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEEDigiOccupancyProjX_[0]->setAxisTitle("jx", 1);
     meEEDigiOccupancyProjX_[0]->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EEOT digi occupancy EE - y");
+    sprintf(histo, "EEOT digi occupancy EE - projection y");
     meEEDigiOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEEDigiOccupancyProjY_[0]->setAxisTitle("jy", 1);
     meEEDigiOccupancyProjY_[0]->setAxisTitle("number of digis", 2);
@@ -152,11 +152,11 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE + x");
+    sprintf(histo, "EEOT digi occupancy EE + projection x");
     meEEDigiOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEEDigiOccupancyProjX_[1]->setAxisTitle("jx", 1);
     meEEDigiOccupancyProjX_[1]->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EEOT digi occupancy EE + y");
+    sprintf(histo, "EEOT digi occupancy EE + projection y");
     meEEDigiOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEEDigiOccupancyProjY_[1]->setAxisTitle("jy", 1);
     meEEDigiOccupancyProjY_[1]->setAxisTitle("number of digis", 2);
@@ -165,11 +165,11 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE - x");
+    sprintf(histo, "EEOT rec hit occupancy EE - projection x");
     meEERecHitOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjX_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyProjX_[0]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE - y");
+    sprintf(histo, "EEOT rec hit occupancy EE - projection y");
     meEERecHitOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjY_[0]->setAxisTitle("jy", 1);
     meEERecHitOccupancyProjY_[0]->setAxisTitle("number of hits", 2);
@@ -178,11 +178,11 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE + x");
+    sprintf(histo, "EEOT rec hit occupancy EE + projection x");
     meEERecHitOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjX_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyProjX_[1]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE + y");
+    sprintf(histo, "EEOT rec hit occupancy EE + projection y");
     meEERecHitOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjY_[1]->setAxisTitle("jy", 1);
     meEERecHitOccupancyProjY_[1]->setAxisTitle("number of hits", 2);
@@ -191,11 +191,11 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE - x");
+    sprintf(histo, "EEOT rec hit thr occupancy EE - projection x");
     meEERecHitOccupancyProjXThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjXThr_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyProjXThr_[0]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE - y");
+    sprintf(histo, "EEOT rec hit thr occupancy EE - projection y");
     meEERecHitOccupancyProjYThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjYThr_[0]->setAxisTitle("jy", 1);
     meEERecHitOccupancyProjYThr_[0]->setAxisTitle("number of hits", 2);
@@ -204,11 +204,11 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE + x");
+    sprintf(histo, "EEOT rec hit thr occupancy EE + projection x");
     meEERecHitOccupancyProjXThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjXThr_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyProjXThr_[1]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE + y");
+    sprintf(histo, "EEOT rec hit thr occupancy EE + projection y");
     meEERecHitOccupancyProjYThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEERecHitOccupancyProjYThr_[1]->setAxisTitle("jy", 1);
     meEERecHitOccupancyProjYThr_[1]->setAxisTitle("number of hits", 2);
@@ -217,11 +217,11 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE - x");
+    sprintf(histo, "EEOT TP digi occupancy EE - projection x");
     meEETrigPrimDigiOccupancyProjX_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjX_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyProjX_[0]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE - y");
+    sprintf(histo, "EEOT TP digi occupancy EE - projection y");
     meEETrigPrimDigiOccupancyProjY_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjY_[0]->setAxisTitle("jy", 1);
     meEETrigPrimDigiOccupancyProjY_[0]->setAxisTitle("number of TP digis", 2);
@@ -230,11 +230,11 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE + x");
+    sprintf(histo, "EEOT TP digi occupancy EE + projection x");
     meEETrigPrimDigiOccupancyProjX_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjX_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyProjX_[1]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE + y");
+    sprintf(histo, "EEOT TP digi occupancy EE + projection y");
     meEETrigPrimDigiOccupancyProjY_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjY_[1]->setAxisTitle("jy", 1);
     meEETrigPrimDigiOccupancyProjY_[1]->setAxisTitle("number of TP digis", 2);
@@ -243,11 +243,11 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE - x");
+    sprintf(histo, "EEOT TP thr digi occupancy EE - projection x");
     meEETrigPrimDigiOccupancyProjXThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjXThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyProjXThr_[0]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE - y");
+    sprintf(histo, "EEOT TP thr digi occupancy EE - projection y");
     meEETrigPrimDigiOccupancyProjYThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjYThr_[0]->setAxisTitle("jy", 1);
     meEETrigPrimDigiOccupancyProjYThr_[0]->setAxisTitle("number of TP digis", 2);
@@ -256,11 +256,11 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE + x");
+    sprintf(histo, "EEOT TP thr digi occupancy EE + projection x");
     meEETrigPrimDigiOccupancyProjXThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjXThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyProjXThr_[1]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE + y");
+    sprintf(histo, "EEOT TP thr digi occupancy EE + projection y");
     meEETrigPrimDigiOccupancyProjYThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProjYThr_[1]->setAxisTitle("jy", 1);
     meEETrigPrimDigiOccupancyProjYThr_[1]->setAxisTitle("number of TP digis", 2);

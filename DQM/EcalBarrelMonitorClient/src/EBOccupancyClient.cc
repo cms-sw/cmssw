@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/26 20:13:50 $
- * $Revision: 1.6 $
+ * $Date: 2008/01/26 20:25:35 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -175,11 +175,11 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h01ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h01ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0] );
 
@@ -187,11 +187,11 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h01ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h01ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1] );
 
@@ -199,11 +199,11 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h01ProjEta_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h01ProjPhi_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[2] );
 
@@ -211,11 +211,11 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h02_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0] );
 
@@ -223,11 +223,11 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h02_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1] );
 
