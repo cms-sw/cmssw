@@ -18,11 +18,11 @@ namespace pos{
       assert(out.good());
 
       for (unsigned int i=0;i<configs.size();i++){
-/* 	std::cout << "key "<<i<<std::endl; */
+ 	//std::cout << "key "<<i<<std::endl; 
 	out << "key "<<i<<std::endl;
 	configs[i].write(out);
 	out <<std::endl;
-/* 	std::cout <<std::endl; */
+ 	//std::cout <<std::endl; 
       }
 
 
@@ -120,6 +120,8 @@ namespace pos{
       configs.clear() ;
       readfile(filename) ;
     }
+
+    unsigned int numberOfConfigs() { return configs.size(); }
 
   private:
 
