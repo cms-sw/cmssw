@@ -504,7 +504,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
   }
   
   if (mode==-1) {
-    cout << "In Pxielcalibconfiguration: ScanMode="<<modeName
+    cout << "In PixelCalibConfiguration: ScanMode="<<modeName
 	 << " not understood."<<endl;
     ::abort();
   }
@@ -594,6 +594,24 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	  PixelHdwAddress theROC=*hdwadd;
           
 	  if (singleROC_&&theROC.fedrocnumber()!=i_ROC) continue;
+	  
+	  // In singleROC mode, set the DACs back to their default values when we're done with a ROC.
+	  std::map<std::string, unsigned int> defaultDACValues;
+	  (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+	  for ( std::vector<PixelDACScanRange>::const_iterator dacs_itr = dacs_.begin(); dacs_itr != dacs_.end(); dacs_itr++ )
+	  {
+	    std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_itr->name());
+	    assert( foundThisDAC != defaultDACValues.end() );
+	    
+	    pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			dacs_itr->dacchannel(),
+			foundThisDAC->second,_bufferData);
+	    
+	  }
           
 	  disablePixels(pixelFEC, i_row, i_col, theROC);
 
