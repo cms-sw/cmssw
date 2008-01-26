@@ -14,7 +14,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
-  GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
+		       iConfig.getParameter<bool>("useHitsSplitting")),
   theAlgo(iConfig)
 {
   setConf(iConfig);

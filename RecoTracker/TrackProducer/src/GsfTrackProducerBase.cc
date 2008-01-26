@@ -42,7 +42,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
       selTrajectories->push_back(*theTraj);
 //       iTjRef++;
     }
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);
 
     reco::GsfTrack * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;  
@@ -149,7 +149,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 				       << it->found() << " , " 
 				       << it->lost()  <<" , " 
 				       << it->normalizedChi2() << " , "
-				       << it->pt();
+				       << it->pt() << " , "
+				       << it->eta() ;
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
   

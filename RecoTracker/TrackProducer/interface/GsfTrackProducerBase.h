@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2007/10/06 08:04:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/09 17:41:02 $
+ *  $Revision: 1.5 $
  *  \author cerati
  */
 
@@ -22,8 +22,9 @@ class GsfTrackProducerBase : public TrackProducerBase<reco::GsfTrack> {
 public:
 
   /// Constructor
-  explicit GsfTrackProducerBase(bool trajectoryInEvent = false) :
-    TrackProducerBase<reco::GsfTrack>(trajectoryInEvent) {}
+  explicit GsfTrackProducerBase(bool trajectoryInEvent, bool split) :
+    TrackProducerBase<reco::GsfTrack>(trajectoryInEvent),
+    useSplitting(split){}
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
@@ -37,6 +38,11 @@ public:
 
 protected:
   void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
+
+private:
+bool useSplitting;
+
 };
 
+     
 #endif

@@ -11,7 +11,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
-  KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
+		      iConfig.getParameter<bool>("useHitsSplitting")),
   theAlgo(iConfig)
 {
   setConf(iConfig);

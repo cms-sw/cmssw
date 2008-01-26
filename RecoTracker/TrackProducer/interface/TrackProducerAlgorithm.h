@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2007/10/08 03:56:23 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/12/06 09:31:45 $
+ *  $Revision: 1.17 $
  *  \author cerati
  */
 
@@ -39,8 +39,7 @@ public:
 
   /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
-    conf_(conf),
-    useHitsSplitting_(conf_.getParameter<bool>("useHitsSplitting"))
+    conf_(conf)
     { }
 
   /// Destructor
@@ -93,15 +92,7 @@ public:
 		  SeedRef seedRef = SeedRef());
 
  private:
-  edm::ParameterSet conf_;
-  bool useHitsSplitting_;
-  
-  void getHitVector(const T *, PropagationDirection&,
-		    const TransientTrackingRecHitBuilder*,
-		    const TrackingGeometry * theG,
-		    float& ndof,
-		    TransientTrackingRecHit::RecHitContainer& hits,
-		    bool doSplitting);
+  edm::ParameterSet conf_;  
 
   TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,

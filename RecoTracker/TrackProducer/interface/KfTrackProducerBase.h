@@ -4,8 +4,8 @@
 /** \class KfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2007/03/27 07:12:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/06 08:04:11 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
@@ -17,8 +17,8 @@ class KfTrackProducerBase : public TrackProducerBase<reco::Track> {
 public:
 
   /// Constructor
-  explicit KfTrackProducerBase(bool trajectoryInEvent = false) :
-    TrackProducerBase<reco::Track>(trajectoryInEvent) {}
+  explicit KfTrackProducerBase(bool trajectoryInEvent, bool split) :
+    TrackProducerBase<reco::Track>(trajectoryInEvent),useSplitting(split) {}
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
@@ -27,6 +27,9 @@ public:
 			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);
+  
+ private:
+  bool useSplitting;
 
 };
 

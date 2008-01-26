@@ -35,7 +35,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+
+    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting); 
 
     reco::Track * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;
@@ -128,7 +129,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				       << it->found() << " , " 
 				       << it->lost()  <<" , " 
 				       << it->normalizedChi2() << " , "
-				       << it->pt();
+				       << it->pt() << " , "
+				       << it->eta() ;
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
   
