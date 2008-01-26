@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.2 2008/01/21 16:26:17 lowette Exp $
+// $Id: PATMETProducer.cc,v 1.3 2008/01/22 21:58:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
@@ -65,7 +65,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   for (edm::View<METType>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
     // construct the MET from the ref -> save ref to original object
     unsigned int idx = itMET - mets->begin();
-    edm::Ref<std::vector<METType> > metsRef = mets->refAt(idx).castTo<edm::Ref<std::vector<METType> > >();
+    edm::RefToBase<METType> metsRef = mets->refAt(idx);
     MET amet(metsRef);
     // calculate the generated MET (just sum of neutrinos)
     if (addGenMET_) {

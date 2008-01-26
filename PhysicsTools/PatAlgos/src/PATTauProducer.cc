@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.7 2008/01/23 17:05:29 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.8 2008/01/25 16:17:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -33,9 +34,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
   addLRValues_    = iConfig.getParameter<bool>         ( "addLRValues" );
-  genPartSrc_     = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
+  genPartSrc_     = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
-  tauLRFile_      = iConfig.getParameter<std::string>  ( "tauLRFile" );
+  tauLRFile_      = iConfig.getParameter<std::string>  ( "tauLRFile" ); 
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -53,122 +54,74 @@ PATTauProducer::~PATTauProducer() {
 
 
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
- 
-  // FIXME: should switch to using edm::View's
-  // Get the collection of taus from the event
-  edm::Handle<PFTauCollection> PFtaus;
-  edm::Handle<PFTauDiscriminatorByIsolation> PFtauIsolator;
-  edm::Handle<CaloTauCollection> Calotaus; 
-  edm::Handle<CaloTauDiscriminatorByIsolation> CalotauIsolator;
-  bool hasPFtaus = false;
-  bool hasCalotaus = false;
-  try {
-    iEvent.getByLabel(tauSrc_, PFtaus);
-    hasPFtaus = true;
-  } catch( const edm::Exception &roEX) { }
-  try {
-    iEvent.getByLabel(tauSrc_, Calotaus);
-    hasCalotaus = true;
-  } catch( const edm::Exception &roEX) { }
-  if(!hasCalotaus && !hasPFtaus) {
-    //Important note:
-    // We are not issuing a LogError to be able to run on AOD samples
-    // produced < 1_7_0, like CSA07 samples.
-    // Note that missing input will not block je job.
-    // In that case, an empty collection will be produced.
-    edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. Instead, an empty tau collection is being be produced.";
-  }
-  if(hasCalotaus && hasPFtaus) {
-    edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
-  }
+  std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
-  // Get the vector of generated particles from the event if needed
-  edm::Handle<edm::View<reco::Candidate> > particles;
-  if (addGenMatch_) {
-    iEvent.getByLabel(genPartSrc_, particles);
+  edm::Handle<View<TauType> > anyTaus;
+  try {
+    iEvent.getByLabel(tauSrc_, anyTaus);
+  } catch (const edm::Exception &e) {
+    edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. Instead, an empty tau collection is being be produced.";
+    iEvent.put(patTaus);
+    return;
   }
+   
+  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
+  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch); 
 
   // prepare LR calculation if required
   if (addLRValues_) {
     theLeptonLRCalc_ = new LeptonLRCalc(iSetup, "", "", edm::FileInPath(tauLRFile_).fullPath());
   }
 
-  // collection of produced objects
-  std::vector<Tau> * patTaus = new std::vector<Tau>(); 
+  for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
+    edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
+    const TauType * originalTau = tausRef.get();
 
-  // FIXME: switch to using ref, after we switch to Views.
-  //  // construct the Tau from the ref -> save ref to original object
-  //  unsigned int idx = itTau - taus->begin();
-  //  edm::Ref<std::vector<TauType> > tausRef = taus->refAt(idx).castTo<edm::Ref<std::vector<TauType> > >();
-  // loop over taus and prepare pat::Tau's
-  if(hasPFtaus) {
-    for (PFTauCollection::size_type iPFTau=0;iPFTau<PFtaus->size();iPFTau++) {
-      // check the discriminant
-      PFTauRef thePFTau(PFtaus,iPFTau);
-      // construct the pat::Tau
-      Tau aTau(*thePFTau);
-      // set the additional variables
-      const reco::PFJet *pfJet = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
+    Tau aTau(tausRef);
+
+    if (typeid(originalTau) == typeid(const reco::PFTau *)) {
+      const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);
+      const reco::PFJet *pfJet    = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
         aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
         aTau.setEOverP(thePFTau->energy()/thePFTau->leadTrack()->p());
       }
-      // add the tau to the vector of pat::Tau's
-      patTaus->push_back(aTau);
-    }
-  } else if(hasCalotaus) {
-    for (CaloTauCollection::size_type iCaloTau=0;iCaloTau<Calotaus->size();iCaloTau++) {
-      // check the discriminant
-      CaloTauRef theCaloTau(Calotaus,iCaloTau);
-      // construct the pat::Tau
-      Tau aTau(*theCaloTau);
-      // set the additional variables
-      const reco::CaloJet *tauJet = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
-      if(tauJet) {
-        aTau.setEmEnergyFraction(tauJet->emEnergyFraction());
-        aTau.setEOverP(tauJet->energy()/theCaloTau->leadTrack()->p());
+    } else if (typeid(originalTau) == typeid(const reco::CaloTau *)) {
+      const reco::CaloTau *theCaloTau = dynamic_cast<const reco::CaloTau*>(originalTau);
+      const reco::CaloJet *caloJet    = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
+      if(caloJet) {
+        aTau.setEmEnergyFraction(caloJet->emEnergyFraction());
+        aTau.setEOverP(caloJet->energy()/theCaloTau->leadTrack()->p());
       }
-      // add the tau to the vector of pat::Tau's
-      patTaus->push_back(aTau);
     }
-  }
 
-  // loop on the resulting collection of taus, and set other informations
-  for(std::vector<Tau>::iterator aTau = patTaus->begin();aTau<patTaus->end(); ++aTau) {
-    // match to generated final state taus
+    // add MC match if demanded
     if (addGenMatch_) {
-      // initialize best match as null
-      reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
-      float bestDR = 5.; // this is the upper limit on the candidate matching. 
-      // find the closest generated tau. No charge cut is applied
-      for (edm::View<reco::Candidate>::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
-        reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
-        if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
-	  float currDR = DeltaR<reco::Candidate>()(aGenTau, *aTau);
-          if (currDR < bestDR) {
-            bestGenTau = aGenTau;
-            bestDR = currDR;
-          }
-        }
+      reco::CandidateRef genTau = (*genMatch)[tausRef];
+      if (genTau.isNonnull() && genTau.isAvailable() ) {
+        aTau.setGenLepton(*genTau);
+      } else {
+        aTau.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
       }
-      aTau->setGenLepton(bestGenTau);
     }
+
     // add resolution info if demanded
     if (addResolutions_) {
-      (*theResoCalc_)(*aTau);
+      (*theResoCalc_)(aTau);
     }
     // add lepton LR info if requested
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(*aTau, iEvent);
+      theLeptonLRCalc_->calcLikelihood(aTau, iEvent);
     }
+
+    patTaus->push_back(aTau);
   }
 
   // sort taus in pT
   std::sort(patTaus->begin(), patTaus->end(), pTTauComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<Tau> > pOutTau(patTaus);
-  iEvent.put(pOutTau);
+  iEvent.put(patTaus);
 
   // destroy the lepton LR calculator
   if (addLRValues_) delete theLeptonLRCalc_;

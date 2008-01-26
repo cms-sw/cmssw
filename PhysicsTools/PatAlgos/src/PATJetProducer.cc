@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.8 2008/01/26 11:13:05 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.9 2008/01/26 12:49:36 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -138,7 +138,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // construct the Jet from the ref -> save ref to original object
     unsigned int idx = itJet - jets->begin();
-    edm::Ref<std::vector<JetType> > jetsRef = jets->refAt(idx).castTo<edm::Ref<std::vector<JetType> > >();
+    edm::RefToBase<JetType> jetsRef = jets->refAt(idx); 
     Jet ajet(jetsRef);
     ajet.setP4(scaleDefault * itJet->p4());
     ajet.setScaleCalibFactors(1./scaleDefault, scaleUds, scaleGlu, scaleC, scaleB);
