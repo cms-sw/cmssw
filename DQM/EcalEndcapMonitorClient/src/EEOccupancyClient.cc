@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/22 19:47:13 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/26 20:13:56 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -223,17 +223,6 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">OCCUPANCY</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  htmlFile << "<br>" << endl;
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEE(superModules_[i]) << ">"
-             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  }
-  htmlFile << std::endl << "</table>" << std::endl;
 
   htmlFile << "WORK IN PROGRESS" << std::endl;
   return;
