@@ -18,6 +18,7 @@ namespace pat { namespace helper {
       typedef typename edm::ValueMap<value_type> Map;
       typedef typename Map::Filler MapFiller;
       explicit AnythingToValueMap(const edm::ParameterSet & iConfig) :
+            failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
             src_(iConfig.getParameter<edm::InputTag>("src")),
             adaptor_(iConfig) { 
                 produces< Map >(adaptor_.label());
@@ -27,6 +28,7 @@ namespace pat { namespace helper {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
 
     private:
+      bool failSilently_;
       edm::InputTag src_;
       Adaptor adaptor_;
   };
@@ -34,9 +36,15 @@ namespace pat { namespace helper {
 template<class Adaptor, class Collection, typename value_type>
 void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::Handle<Collection> handle;
+    // needed in 16X, where getByLabel throws immediately making failedToGet is useless
+    try {
     iEvent.getByLabel(src_, handle);
+    if (handle.failedToGet() && failSilently_) return;
 
-    adaptor_.init(iEvent); 
+    bool adaptorOk = adaptor_.init(iEvent); 
+    if ((!adaptorOk) && failSilently_) return;
+
+    } catch (cms::Exception &ex) { if (failSilently_) return; throw; }
 
     std::vector<value_type> ret;
     ret.reserve(handle->size());

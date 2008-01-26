@@ -25,6 +25,7 @@ namespace pat { namespace helper {
       typedef typename edm::ValueMap<RefType>    BackRefMap;
 
       explicit ValueMapSkimmer(const edm::ParameterSet & iConfig) :
+            failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
             collection_(iConfig.getParameter<edm::InputTag>("collection")),
             association_(iConfig.getParameter<edm::InputTag>("association")),
             backrefs_(iConfig.getParameter<edm::InputTag>("backrefs"))
@@ -36,6 +37,7 @@ namespace pat { namespace helper {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
 
     private:
+      bool failSilently_;
       edm::InputTag collection_, association_, backrefs_;
   };
 
@@ -48,7 +50,11 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
     iEvent.getByLabel(collection_, collection);
 
     edm::Handle< AssoContainer > association;
+    // needed in 16X as getByLabel throws immediatly
+    try {
     iEvent.getByLabel(association_, association);
+    if (association.failedToGet() && failSilently_) return; 
+    } catch (cms::Exception &e) { if (failSilently_) return; throw; }
 
     size_t size = collection->size();
 

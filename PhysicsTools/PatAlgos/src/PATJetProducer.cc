@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.6 2008/01/23 16:45:36 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.7 2008/01/25 16:17:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -7,7 +7,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
@@ -43,6 +46,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   caliJetResoFile_         = iConfig.getParameter<std::string>              ( "caliJetResoFile" );
   caliBJetResoFile_        = iConfig.getParameter<std::string>              ( "caliBJetResoFile" );
   addBTagInfo_             = iConfig.getParameter<bool>                     ( "addBTagInfo" );
+  tagModuleLabelPostfix_   = iConfig.getParameter<std::string>              ( "tagModuleLabelPostfix" ); 
   addDiscriminators_       = iConfig.getParameter<bool>                     ( "addDiscriminators" );
   addJetTagRefs_           = iConfig.getParameter<bool>                     ( "addJetTagRefs" );
   tagModuleLabelsToKeep_   = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToKeep" );
@@ -100,7 +104,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 */
 
   // Get the vector of jet tags with b-tagging info
-  std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  std::vector<edm::Handle<edm::ValueMap<reco::JetTagRef> > > jetTags_testManyByType ;
   iEvent.getManyByType(jetTags_testManyByType);
   // Define the handles for the specific algorithms
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
@@ -207,38 +212,29 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // add b-tag info if available & required
     if (addBTagInfo_) {
       for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
-        edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
+        edm::Handle<edm::ValueMap<reco::JetTagRef> > jetTags = jetTags_testManyByType[k];
 
         //get label and module names
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
 
         //look only at the tagger present in tagModuleLabelsToKeep_
         for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
-          if (moduleLabel == tagModuleLabelsToKeep_[i]) {
-            for (size_t t = 0; t < jetTags->size(); t++) {
-              edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
-              if (jet_p.isNull()) {
-                /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
-                continue;
-              }
-              if (DeltaR<reco::Candidate>()(*itJet, *jet_p) < 0.00001) {
-                //********store discriminators*********
-                if (addDiscriminators_) {
+          if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
+              //********store discriminators*********
+              if (addDiscriminators_) {
                   std::pair<std::string, float> pairDiscri;
-                  pairDiscri.first = moduleLabel;
-                  pairDiscri.second = (*jetTags)[t].discriminator();
+                  pairDiscri.first = tagModuleLabelsToKeep_[i];
+                  pairDiscri.second = ((*jetTags)[jetsRef])->discriminator();
                   ajet.addBDiscriminatorPair(pairDiscri);
                   continue;
-                }
               }
               //********store jetTagRef*********
               if (addJetTagRefs_) {
-                std::pair<std::string, reco::JetTagRef> pairjettagref;
-                pairjettagref.first = moduleLabel;
-                pairjettagref.second = reco::JetTagRef(jetTags, t);
-                ajet.addBJetTagRefPair(pairjettagref);
+                  std::pair<std::string, reco::JetTagRef> pairjettagref;
+                  pairjettagref.first = tagModuleLabelsToKeep_[i];
+                  pairjettagref.second = ((*jetTags)[jetsRef]);
+                  ajet.addBJetTagRefPair(pairjettagref);
               }
-            }
           }
         }
       }

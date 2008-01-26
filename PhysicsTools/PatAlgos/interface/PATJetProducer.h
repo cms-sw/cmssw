@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.3 2008/01/21 16:26:14 lowette Exp $
+// $Id: PATJetProducer.h,v 1.4 2008/01/25 16:17:00 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.3 2008/01/21 16:26:14 lowette Exp $
+  \version  $Id: PATJetProducer.h,v 1.4 2008/01/25 16:17:00 gpetrucc Exp $
 */
 
 
@@ -66,7 +66,9 @@ namespace pat {
       bool                     useNNReso_;
       std::string              caliJetResoFile_;
       std::string              caliBJetResoFile_;
+
       bool                     addBTagInfo_;
+      std::string              tagModuleLabelPostfix_; 
       bool                     addDiscriminators_; 
       bool                     addJetTagRefs_;
       std::vector<std::string> tagModuleLabelsToKeep_;
