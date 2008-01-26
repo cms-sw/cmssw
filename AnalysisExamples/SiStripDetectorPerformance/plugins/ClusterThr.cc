@@ -106,24 +106,24 @@ namespace cms{
   //------------------------------------------------------------------------------------------
   
   void ClusterThr::endJob() {  
-    TNtupleD *tntuple = fFile->make<TNtupleD>("results","results","Tc:Ts:Tn:NTs:Ns:MeanWs:RmsWs:SckewWs:MPVs:FWHMs:NTb:Nb:MeanWb:RmsWb:SckewWb:NSclus:NBclus");
+    TNtupleD *tntuple = fFile->make<TNtupleD>("results","results","Tc:Ts:Tn:NTs:Ns:MeanWs:RmsWs:SckewWs:MPVs:FWHMs:NTb:Nb:MeanWb:RmsWb:SckewWb");
 
     std::vector<double> values(tntuple->GetNvar(),0);
 
     for (float Tc=startThC_;Tc<stopThC_;Tc+=stepThC_)
       for (float Ts=startThS_;Ts<stopThS_ && Ts<=Tc; Ts+=stepThS_)	
-	for (float Tn=startThN_;Tn<stopThN_ && Tn<=Ts; Tn+=stepThN_)
+	for (float Tn=startThN_;Tn<stopThN_ && Tn<=Ts; Tn+=stepThN_){
+
+	  char cappS[128],cappB[128];
+	  sprintf(cappS,"_S_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
+	  sprintf(cappB,"_B_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
+	  TString appS(cappS);
+	  TString appB(cappB);
+	  
+	  values[0]=Tc;
+	  values[1]=Ts;
+	  values[2]=Tn;
 	  for (int k=0;k<2;k++){
-	    char cappS[128],cappB[128];
-	    sprintf(cappS,"_S_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
-	    sprintf(cappB,"_B_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
-	    TString appS(cappS);
-	    TString appB(cappB);
-
-	    values[0]=Tc;
-	    values[1]=Ts;
-	    values[2]=Tn;
-
 	    if(k==0){
 	      values[iNs]=((TH1F*) Hlist->FindObject("cNum"+appS))->GetMean();
 	      values[iNTs]=((TH1F*) Hlist->FindObject("cWidth" +appS))->GetEntries();
@@ -145,15 +145,12 @@ namespace cms{
 	      values[iRmsWb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetRMS();
 	      values[iSckewWb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetSkewness();
 	    }
-	    tntuple->Fill((double*) &values[0]);
 	  }
-
-
-//     for(size_t i=0;i<values.size();i++)
-//       LogTrace("ClusterThr") << values[i]<< std::endl;
+	  tntuple->Fill((double*) &values[0]);
+	}  
     
     tntuple->Write();
-
+    
     LogTrace("ClusterThr") << "[ClusterThr::endJob()] ........ Closed"<< std::endl;
     
   }
@@ -359,8 +356,8 @@ namespace cms{
 
       LogTrace("ClusterThr") << "Cluster Threshold ok at " << Thc << " " << Ths << " " << Thn << std::endl;
 	
-//       if (StoN>StoNBmax_ && StoN<StoNSmin_)
-// 	return true; //doesn't fill histos if StoN in overlap region btw Signal and Background
+      if (StoN>StoNBmax_ && StoN<StoNSmin_)
+ 	return true; //doesn't fill histos if StoN in overlap region btw Signal and Background
       
       if (StoN>StoNBmax_) {
 	LogTrace("ClusterThr") << "Signal cluster" << std::endl;
