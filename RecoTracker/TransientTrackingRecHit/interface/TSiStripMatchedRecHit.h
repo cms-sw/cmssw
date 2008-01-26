@@ -31,6 +31,7 @@ public:
 
   virtual RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
   virtual bool canImproveWithTrack() const {return (theMatcher != 0);}
+  virtual ConstRecHitContainer 	transientHits () const;
 private:
   const SiStripRecHitMatcher* theMatcher; 
   const StripClusterParameterEstimator* theCPE;
