@@ -4,7 +4,7 @@
 
   <class name="reco::GsfTrackExtra"/>
   <class name="std::vector<reco::GsfTrackExtra>"/>
-  <class name="edm::Wrapper<std::vector<reco::GsfTrackExtra> >"/>
+  <class name="edm::Wrapper<std::vector<reco::GsfTrackExtra> >" splitLevel="0"/>
   <class name="edm::RefProd<std::vector<reco::GsfTrackExtra> >"/>
   <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
