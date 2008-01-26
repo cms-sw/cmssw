@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/26 20:25:35 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/26 20:44:36 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -530,8 +530,6 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
 
   htmlFile.close();
 

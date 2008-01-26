@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/01/22 18:48:07 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/22 19:47:09 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -319,10 +319,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">CLUSTER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  //  htmlFile << "<hr>" << endl;
 
   htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;

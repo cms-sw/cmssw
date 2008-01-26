@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -373,10 +373,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">CLUSTER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  //  htmlFile << "<hr>" << endl;
+
   htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#sc_plots\"> Super Clusters plots </a>" << endl;
