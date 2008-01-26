@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Photon.cc,v 1.2 2008/01/23 15:53:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -25,7 +25,7 @@ Photon::Photon(const PhotonType & aPhoton) :
 
 
 /// constructor from ref to PhotonType
-Photon::Photon(const edm::Ref<std::vector<PhotonType> > & aPhotonRef) :
+Photon::Photon(const edm::RefToBase<PhotonType> & aPhotonRef) :
     PATObject<PhotonType>(aPhotonRef),
     trackIso_(0), caloIso_(0), photonID_(-1.0) 
 {

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.3 2008/01/21 22:01:23 lowette Exp $
+// $Id: Jet.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.3 2008/01/21 22:01:23 lowette Exp $
+  \version  $Id: Jet.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -35,7 +35,7 @@ namespace pat {
 
       Jet();
       Jet(const JetType & aJet);
-      Jet(const edm::Ref<std::vector<JetType> > & aJetRef);
+      Jet(const edm::RefToBase<JetType> & aJetRef);
       virtual ~Jet();
 
       const reco::Particle * genParton() const;

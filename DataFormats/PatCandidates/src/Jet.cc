@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.3 2008/01/21 22:01:56 lowette Exp $
+// $Id: Jet.cc,v 1.4 2008/01/22 21:58:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -24,7 +24,7 @@ Jet::Jet(const JetType & aJet) :
 
 
 /// constructor from ref to JetType
-Jet::Jet(const edm::Ref<std::vector<JetType> > & aJetRef) : PATObject<JetType>(aJetRef) {
+Jet::Jet(const edm::RefToBase<JetType> & aJetRef) : PATObject<JetType>(aJetRef) {
 }
 
 

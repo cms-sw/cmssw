@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.3 2008/01/21 22:01:57 lowette Exp $
+// $Id: MET.cc,v 1.4 2008/01/22 21:58:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -19,7 +19,7 @@ MET::MET(const METType & aMET) : PATObject<METType>(aMET) {
 
 
 /// constructor from ref to METType
-MET::MET(const edm::Ref<std::vector<METType> > & aMETRef) : PATObject<METType>(aMETRef) {
+MET::MET(const edm::RefToBase<METType> & aMETRef) : PATObject<METType>(aMETRef) {
 }
 
 

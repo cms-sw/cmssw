@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.5 2008/01/23 11:18:21 gpetrucc Exp $
+// $Id: Tau.h,v 1.6 2008/01/23 16:12:19 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -12,7 +12,7 @@
    Tau implements the analysis-level tau class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Tau.h,v 1.5 2008/01/23 11:18:21 gpetrucc Exp $
+  \version  $Id: Tau.h,v 1.6 2008/01/23 16:12:19 lowette Exp $
 */
 
 
@@ -32,7 +32,7 @@ namespace pat {
 
       Tau();
       Tau(const TauType & aTau);
-      Tau(const edm::Ref<std::vector<TauType> > & aTauRef);
+      Tau(const edm::RefToBase<TauType> & aTauRef);
       virtual ~Tau();
 
       float emEnergyFraction() const { return emEnergyFraction_; }

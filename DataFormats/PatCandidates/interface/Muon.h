@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.2 2008/01/16 20:33:21 lowette Exp $
+// $Id: Muon.h,v 1.3 2008/01/22 21:58:14 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -12,7 +12,7 @@
    Muon implements the analysis-level muon class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Muon.h,v 1.2 2008/01/16 20:33:21 lowette Exp $
+  \version  $Id: Muon.h,v 1.3 2008/01/22 21:58:14 lowette Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -33,7 +33,7 @@ namespace pat {
 
       Muon();
       Muon(const MuonType & aMuon);
-      Muon(const edm::Ref<std::vector<MuonType> > & aMuonRef);
+      Muon(const edm::RefToBase<MuonType> & aMuonRef);
       virtual ~Muon();
 
       float trackIso() const;

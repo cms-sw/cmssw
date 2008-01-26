@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.1 2008/01/23 15:13:28 gpetrucc Exp $
+// $Id: Photon.h,v 1.2 2008/01/23 15:53:14 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.1 2008/01/23 15:13:28 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.2 2008/01/23 15:53:14 lowette Exp $
 */
 
 
@@ -35,7 +35,7 @@ namespace pat {
 
       Photon();
       Photon(const PhotonType & aPhoton);
-      Photon(const edm::Ref<std::vector<PhotonType> > & aPhotonRef);
+      Photon(const edm::RefToBase<PhotonType> & aPhotonRef);
       virtual ~Photon();
 
       const reco::Particle * genPhoton() const;

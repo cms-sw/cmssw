@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
+// $Id: Electron.h,v 1.3 2008/01/22 21:58:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.2 2008/01/16 20:33:20 lowette Exp $
+  \version  $Id: Electron.h,v 1.3 2008/01/22 21:58:13 lowette Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -34,7 +34,7 @@ namespace pat {
 
       Electron();
       Electron(const ElectronType & anElectron);
-      Electron(const edm::Ref<std::vector<ElectronType> > & anElectronRef);
+      Electron(const edm::RefToBase<ElectronType> & anElectronRef);
       virtual ~Electron();
 
       float trackIso() const;

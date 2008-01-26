@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.2 2008/01/16 20:33:23 lowette Exp $
+// $Id: PATObject.h,v 1.3 2008/01/22 21:58:14 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -12,10 +12,10 @@
    PATObject is the templated base PAT object that wraps around reco objects.
 
   \author   Steven Lowette
-  \version  $Id: PATObject.h,v 1.2 2008/01/16 20:33:23 lowette Exp $
+  \version  $Id: PATObject.h,v 1.3 2008/01/22 21:58:14 lowette Exp $
 */
 
-#include <DataFormats/Common/interface/Ref.h>
+#include <DataFormats/Common/interface/RefToBase.h>
 
 #include <vector>
 
@@ -30,10 +30,11 @@ namespace pat {
 
       PATObject();
       PATObject(const ObjectType & obj);
-      PATObject(const edm::Ref<std::vector<ObjectType> > & ref);
+      PATObject(const edm::RefToBase<ObjectType> & ref);
       virtual ~PATObject() {}
 
       const ObjectType * originalObject() const;
+      const edm::RefToBase<ObjectType> & originalObjectRef() const;
       float resolutionA() const;
       float resolutionB() const;
       float resolutionC() const;
@@ -57,7 +58,7 @@ namespace pat {
     protected:
 
       // reference back to the original object
-      edm::Ref<std::vector<ObjectType> > refToOrig_;
+      edm::RefToBase<ObjectType> refToOrig_;
       // resolution members
       float resET_;
       float resEta_;
@@ -80,12 +81,12 @@ namespace pat {
   /// constructor from a base object (leaves invalid reference to original object!)
   template <class ObjectType> PATObject<ObjectType>::PATObject(const ObjectType & obj) :
     ObjectType(obj),
-    refToOrig_(edm::ProductID(0)),
+    refToOrig_(),
     resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
   }
 
   /// constructor from a ref to an object
-  template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::Ref<std::vector<ObjectType> > & ref) :
+  template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::RefToBase<ObjectType> & ref) :
     ObjectType(*ref),
     refToOrig_(ref),
     resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
@@ -97,14 +98,19 @@ namespace pat {
       // this object was not produced from a reference, so no link to the
       // original object exists -> return a 0-pointer
       return 0;
-    } else if (!refToOrig_.isAvailable()) {
-      throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
-      return 0;
+    // GIO: temporary disable the following: I have to find out why there is no "isAvailable()" in RefToBase...
+    //     vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    //} else if (!refToOrig_.isAvailable()) {
+    //  throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
+    //  return 0;
+    //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     } else {
       return refToOrig_.get();
     }
   }
 
+  /// access to a reference to the original object; it's up to the caller to check that the ref isAvaliable()
+  template <class ObjectType> const edm::RefToBase<ObjectType> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
   template <class ObjectType> float PATObject<ObjectType>::resolutionET() const { return resET_; }
   template <class ObjectType> float PATObject<ObjectType>::resolutionEta() const { return resEta_; }
   template <class ObjectType> float PATObject<ObjectType>::resolutionPhi() const { return resPhi_; }

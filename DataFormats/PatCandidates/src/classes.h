@@ -1,4 +1,5 @@
-
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -12,6 +13,20 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 
+// vvvv Needed to fix dictionaries missing in 169pre2
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
+#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+// ^^^^^ End
 
 // we need these typedefs, it won't work directly - NO IDEA WHY!!!
 namespace pat {
@@ -22,6 +37,14 @@ namespace pat {
   typedef edm::Ref<std::vector<pat::Jet> >      JetRef;
   typedef edm::Ref<std::vector<pat::MET> >      METRef;
   typedef edm::Ref<std::vector<pat::Particle> > ParticleRef;
+
+  typedef edm::Ref<std::vector<pat::ElectronType> > ElectronTypeRef;
+  typedef edm::Ref<std::vector<pat::MuonType> >     MuonTypeRef;
+  typedef edm::Ref<std::vector<pat::TauType> >      TauTypeRef;
+  typedef edm::Ref<std::vector<pat::PhotonType> >   PhotonTypeRef;
+  typedef edm::Ref<std::vector<pat::JetType> >      JetTypeRef;
+  typedef edm::Ref<std::vector<pat::METType> >      METTypeRef;
+  typedef edm::Ref<std::vector<pat::ParticleType> > ParticleTypeRef;
 }
 
 
@@ -95,5 +118,47 @@ namespace {
     edm::Ref<std::vector<pat::MET> >            r_met;
     edm::Ref<std::vector<pat::Particle> >       r_part;
 
+
+    //=========================================================
+    //=== Dictionaries missing in 169pre2, we add them here ===
+    //=========================================================
+    edm::reftobase::RefHolder<reco::METRef> rb1a;
+    edm::reftobase::RefHolder<reco::CaloMETRef> rb2a;
+    edm::reftobase::RefHolder<reco::GenMETRef> rb3a;
+
+    edm::Wrapper<edm::ValueMap<reco::JetTagRef> > rjtvm1; 
+
+    edm::Wrapper<edm::Association<reco::GenJetCollection> > rgjc;
+    
+    edm::RefToBase<pat::ElectronType>  rbElectron;
+    edm::reftobase::IndirectHolder<pat::ElectronType> rbihElectron;
+    edm::reftobase::Holder<pat::ElectronType, pat::ElectronTypeRef> rbh1Electron;
+    edm::reftobase::Holder<pat::ElectronType, pat::ElectronRef>     rbh2Electron;
+    edm::reftobase::RefHolder<pat::ElectronRef> rhElectron;
+    edm::RefToBase<pat::MuonType>  rbMuon;
+    edm::reftobase::IndirectHolder<pat::MuonType> rbihMuon;
+    edm::reftobase::Holder<pat::MuonType, pat::MuonTypeRef> rbh1Muon;
+    edm::reftobase::Holder<pat::MuonType, pat::MuonRef>     rbh2Muon;
+    edm::reftobase::RefHolder<pat::MuonRef> rhMuon;
+    edm::RefToBase<pat::TauType>  rbTau;
+    edm::reftobase::IndirectHolder<pat::TauType> rbihTau;
+    edm::reftobase::Holder<pat::TauType, pat::TauTypeRef> rbh1Tau;
+    edm::reftobase::Holder<pat::TauType, pat::TauRef>     rbh2Tau;
+    edm::reftobase::RefHolder<pat::TauRef> rhTau;
+    edm::RefToBase<pat::PhotonType>  rbPhoton;
+    edm::reftobase::IndirectHolder<pat::PhotonType> rbihPhoton;
+    edm::reftobase::Holder<pat::PhotonType, pat::PhotonTypeRef> rbh1Photon;
+    edm::reftobase::Holder<pat::PhotonType, pat::PhotonRef>     rbh2Photon;
+    edm::reftobase::RefHolder<pat::PhotonRef> rhPhoton;
+    edm::RefToBase<pat::JetType>  rbJet;
+    edm::reftobase::IndirectHolder<pat::JetType> rbihJet;
+    edm::reftobase::Holder<pat::JetType, pat::JetTypeRef> rbh1Jet;
+    edm::reftobase::Holder<pat::JetType, pat::JetRef>     rbh2Jet;
+    edm::reftobase::RefHolder<pat::JetRef> rhJet;
+    edm::RefToBase<pat::METType>  rbMET;
+    edm::reftobase::IndirectHolder<pat::METType> rbihMET;
+    edm::reftobase::Holder<pat::METType, pat::METTypeRef> rbh1MET;
+    edm::reftobase::Holder<pat::METType, pat::METRef>     rbh2MET;
+    edm::reftobase::RefHolder<pat::METRef> rhMET;
   }
 }

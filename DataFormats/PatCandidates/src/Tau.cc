@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.1 2008/01/15 12:59:35 lowette Exp $
+// $Id: Tau.cc,v 1.2 2008/01/22 21:58:16 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -19,7 +19,7 @@ Tau::Tau(const TauType & aTau) : Lepton<TauType>(aTau), emEnergyFraction_(0.), e
 
 
 /// constructor from ref to TauType
-Tau::Tau(const edm::Ref<std::vector<TauType> > & aTauRef) : Lepton<TauType>(aTauRef) {
+Tau::Tau(const edm::RefToBase<TauType> & aTauRef) : Lepton<TauType>(aTauRef) {
 }
 
 
