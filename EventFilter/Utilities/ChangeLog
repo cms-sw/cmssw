@@ -1,3 +1,10 @@
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-00
+	* additions to SM protocoll in interface/i2oEvFMsgs.h
+	* define I2O_SM_ERROR
+	* add outModId to SM data message format
+
 2008-01-18  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-15
