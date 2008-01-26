@@ -15,6 +15,71 @@ class PrintOptions(object):
     def unindent(self):
         self.indent_ -= self.deltaIndent_
 
+class _ParameterTypeBase(object):
+    """base class for classes which are used as the 'parameters' for a ParameterSet"""
+    def __init__(self):
+        self.__isTracked = True
+    def configTypeName(self):
+        if self.isTracked():
+            return type(self).__name__
+        return 'untracked '+type(self).__name__
+    def pythonTypeName(self):
+        if self.isTracked():
+            return 'cms.'+type(self).__name__
+        return 'cms.untracked.'+type(self).__name__
+    def dumpPython(self, options=PrintOptions()):
+        return self.pythonTypeName()+"("+self.pythonValue(options)+")"
+    def __repr__(self):
+        return self.dumpPython()
+    def isTracked(self):
+        return self.__isTracked
+    def setIsTracked(self,trackness):
+        self.__isTracked = trackness
+
+
+class _SimpleParameterTypeBase(_ParameterTypeBase):
+    """base class for parameter classes which only hold a single value"""
+    def __init__(self,value):
+        super(_SimpleParameterTypeBase,self).__init__()
+        self._value = value
+        if not self._isValid(value):
+            raise ValueError(str(value)+" is not a valid "+str(type(self)))
+    def value(self):
+        return self._value
+    def setValue(self,value):
+        if not self._isValid(value):
+            raise ValueError(str(value)+" is not a valid "+str(type(self)))
+        self._value = value
+    def configValue(self, options=PrintOptions()):
+        return str(self._value)
+    def pythonValue(self, options=PrintOptions()):
+        return self.configValue(options)
+
+class UsingBlock(_SimpleParameterTypeBase):
+    """For injection purposes, pretend this is a new parameter type
+       then have a post process step which strips these out
+    """
+    def __init__(self,value):
+        super(UsingBlock,self).__init__(value)
+        self.isResolved = False
+    @staticmethod
+    def _isValid(value):
+        return isinstance(value,str)
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        return string(value)
+    def insertInto(self, parameterSet, myname):
+        value = self.value()
+        #  doesn't seem to handle \0 correctly
+        #if value == '\0':
+        #    value = ''
+        parameterSet.addString(self.isTracked(), myname, value)
+    def dumpPython(self, options):
+        if options.isCfg:
+            return "process."+self.value()
+        else:
+            return self.value()
+
 
 class _Parameterizable(object):
     """Base class for classes which allow addition of _ParameterTypeBase data"""
@@ -37,8 +102,6 @@ class _Parameterizable(object):
             return True
         for name in self.parameterNames_():
             param = self.__dict__[name]
-            if isinstance(param, _Parameterizable):
-                print "PARA "+name+str( param.isModified() )
             if isinstance(param, _Parameterizable) and param.isModified():
                 self._isModified = True
                 return True
@@ -242,47 +305,6 @@ class _Unlabelable(object):
     """A 'mixin' used to denote that the class can be used without a label (e.g. a Service)"""
     pass
 
-
-class _ParameterTypeBase(object):
-    """base class for classes which are used as the 'parameters' for a ParameterSet"""
-    def __init__(self):
-        self.__isTracked = True
-    def configTypeName(self):
-        if self.isTracked():            
-            return type(self).__name__
-        return 'untracked '+type(self).__name__
-    def pythonTypeName(self):
-        if self.isTracked():
-            return 'cms.'+type(self).__name__
-        return 'cms.untracked.'+type(self).__name__
-    def dumpPython(self, options=PrintOptions()):
-        return self.pythonTypeName()+"("+self.pythonValue(options)+")"
-    def __repr__(self):
-        return self.dumpPython()
-    def isTracked(self):
-        return self.__isTracked
-    def setIsTracked(self,trackness):
-        self.__isTracked = trackness
-
-
-class _SimpleParameterTypeBase(_ParameterTypeBase):
-    """base class for parameter classes which only hold a single value"""
-    def __init__(self,value):
-        super(_SimpleParameterTypeBase,self).__init__()
-        self._value = value
-        if not self._isValid(value):
-            raise ValueError(str(value)+" is not a valid "+str(type(self)))        
-    def value(self):
-        return self._value
-    def setValue(self,value):
-        if not self._isValid(value):
-            raise ValueError(str(value)+" is not a valid "+str(type(self)))        
-        self._value = value
-    def configValue(self, options=PrintOptions()):
-        return str(self._value)
-    def pythonValue(self, options=PrintOptions()):
-        return self.configValue(options)
-
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
     def __init__(self,*arg,**args):        
@@ -392,4 +414,7 @@ if __name__ == "__main__":
                     self.TestList = TestList
             pythonized = eval( pdump, globals(),{'cms':cms()} )
             self.assertEqual(t,pythonized)
+        def testUsingBlock(self):
+            a = UsingBlock("a")
+            self.assert_(isinstance(a, _ParameterTypeBase))
     unittest.main()
