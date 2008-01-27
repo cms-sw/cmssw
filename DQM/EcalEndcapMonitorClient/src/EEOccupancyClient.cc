@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/27 09:10:27 $
- * $Revision: 1.8 $
+ * $Date: 2008/01/27 10:56:48 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -343,7 +343,9 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
-  const int csize = 250;
+
+  const int csize1D = 250;
+  const int csize2D = 500;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
@@ -396,12 +398,14 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameMapThr[2][2], imgNameProjRThr[2][2], imgNameProjPhiThr[2][2];
   string imgName, meName;
 
-  TCanvas* cMap = new TCanvas("cMap", "cMap", 2*csize, 2*csize);
-  TCanvas* cProj = new TCanvas("cProj", "cProj", csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "cMap", csize2D, csize2D);
+  TCanvas* cProj = new TCanvas("cProj", "cProj", csize1D, csize1D);
 
   TH2F* obj2f;
   TH1F* obj1fR;
   TH1F* obj1fPhi;
+
+  gStyle->SetPaintTextFormat("+g");
 
   // Occupancy without threshold
   for ( int iMap=0; iMap<3; iMap++ ) {
