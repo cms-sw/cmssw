@@ -106,8 +106,8 @@ bool BsJpsiPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( (numChildren==2) && ((jpsi = findParticle(outVertex, 443))!=0) && 
 	((phi = findParticle(outVertex, 333))!=0)) {
       
-      cout << jpsi->momentum()<<" "<<jpsi->momentum().eta()
-	   <<" "<<phi->momentum()<<" "<<phi->momentum().eta()<<endl;
+      cout << jpsi->momentum().mag()<<" "<<jpsi->momentum().eta()
+	   <<" "<<phi->momentum().mag() <<" "<<phi->momentum().eta()<<endl;
       cout <<"bs dec trouve"<<endl;
       if (cuts(phi, hadronCuts) && cuts(jpsi, leptonCuts)) {
         cout <<"OK trouve"<<endl;
@@ -160,8 +160,8 @@ bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
     if (psiChild.size()==2 && (abs(psiChild[0]->pdg_id()) == cut.type) &&
 	(abs(psiChild[1]->pdg_id()) == cut.type))
       {
-	cout << psiChild[0]->momentum()<<" "<<psiChild[0]->momentum().eta()
-	     <<" "<<psiChild[1]->momentum()<<" "<<psiChild[1]->momentum().eta()<<endl;
+	cout << psiChild[0]->momentum().mag()<<" "<<psiChild[0]->momentum().eta()
+	     <<" "<<psiChild[1]->momentum().mag()<<" "<<psiChild[1]->momentum().eta()<<endl;
 	return ( (etaInRange(psiChild[0]->momentum().eta(), cut.etaMin, cut.etaMax)) &&
 		 (etaInRange(psiChild[1]->momentum().eta(), cut.etaMin, cut.etaMax)) &&
 		 (psiChild[0]->momentum().perp()> cut.ptMin) &&
