@@ -1,15 +1,9 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
-#include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
-#include "DQMServices/WebComponents/interface/ConfigBox.h"
-#include "DQMServices/WebComponents/interface/Navigator.h"
-#include "DQMServices/WebComponents/interface/ContentViewer.h"
-#include "DQMServices/WebComponents/interface/GifDisplay.h"
-#include "DQMServices/WebComponents/interface/Select.h"
-#include "DQMServices/WebComponents/interface/HTMLLink.h"
+
 
 #include <SealBase/Callback.h>
 #include <map>

@@ -1,7 +1,7 @@
 #ifndef _SiStripTrackerMapCreator_h_
 #define _SiStripTrackerMapCreator_h_
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/Framework/interface/ESHandle.h"

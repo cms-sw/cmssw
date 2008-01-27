@@ -2,8 +2,6 @@
 #define _SiStripWebInterface_h_
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
-#include "DQMServices/WebComponents/interface/WebElement.h"
-#include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 class SiStripActionExecutorQTest;
