@@ -4,7 +4,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+//#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 
 void Trajectory::pop() {
   if (!empty()) {
@@ -89,14 +91,16 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
     for (Trajectory::DataContainer::const_iterator itm
 	   = theData.begin(); itm != theData.end(); itm++){    
 
+      // ====== WARNING: this is a temporary solution =========
+      //        all this part of code should be implemented internally 
+      //        in the TrackingRecHit classes. The concrete types of rechit 
+      //        should be transparent to the Trajectory class
+
       const SiStripMatchedRecHit2D* matched = 0;
-
-      SiStripDetId stripId = SiStripDetId(itm->recHit()->geographicalId());
-      //avoid to try a dynamic_cast when there is no chance to find a matched hit.
-      if(stripId.subDetector() !=0 && stripId.partnerDetId()!=0){
+      if( (itm->recHit()->geographicalId().det() == DetId::Tracker) &&
+	  (itm->recHit()->isValid()) &&
+	  (itm->recHit()->recHits().size() ==2 ) )
 	matched = dynamic_cast<const SiStripMatchedRecHit2D*>(itm->recHit()->hit());
-      }
-
       if( matched ){
 	LocalPoint firstLocalPos = 
 	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[0]->globalPosition());
@@ -117,6 +121,7 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
 	  hits.push_back(itm->recHit()->transientHits()[0]);
 	}else
 	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");
+	// ===================================================================================
       }else{
 	hits.push_back((*itm).recHit());
       }
