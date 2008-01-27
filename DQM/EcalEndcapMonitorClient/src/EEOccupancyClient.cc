@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/27 10:56:48 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/27 11:34:22 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -472,8 +472,9 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameProjR[iEE][iMap];
 
         cProj->cd();
+        gStyle->SetOptStat("emr");
         obj1fR->SetStats(kTRUE);
-        obj1fR->Draw();
+        obj1fR->Draw("pe");
         cProj->Update();
         cProj->SaveAs(imgName.c_str());
 
@@ -495,8 +496,10 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameProjPhi[iEE][iMap];
 
         cProj->cd();
+        gStyle->SetOptStat("emr");
+        obj1fPhi->GetXaxis()->SetNdivisions(50206, kFALSE);
         obj1fPhi->SetStats(kTRUE);
-        obj1fPhi->Draw();
+        obj1fPhi->Draw("pe");
         cProj->Update();
         cProj->SaveAs(imgName.c_str());
 
@@ -570,8 +573,9 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameProjRThr[iEE][iMap];
 
         cProj->cd();
+        gStyle->SetOptStat("emr");
         obj1fR->SetStats(kTRUE);
-        obj1fR->Draw();
+        obj1fR->Draw("pe");
         cProj->Update();
         cProj->SaveAs(imgName.c_str());
 
@@ -593,8 +597,10 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameProjPhiThr[iEE][iMap];
 
         cProj->cd();
+        gStyle->SetOptStat("emr");
+        obj1fPhi->GetXaxis()->SetNdivisions(50206, kFALSE);
         obj1fPhi->SetStats(kTRUE);
-        obj1fPhi->Draw();
+        obj1fPhi->Draw("pe");
         cProj->Update();
         cProj->SaveAs(imgName.c_str());
 

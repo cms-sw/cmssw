@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/27 10:56:47 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/27 11:34:21 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -350,8 +350,9 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName = htmlDir + imgNameProjEta[iMap];
 
       cProj->cd();
+      gStyle->SetOptStat("emr");
       obj1fEta->SetStats(kTRUE);
-      obj1fEta->Draw();
+      obj1fEta->Draw("pe");
       cProj->Update();
       cProj->SaveAs(imgName.c_str());
 
@@ -373,8 +374,9 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName = htmlDir + imgNameProjPhi[iMap];
 
       cProj->cd();
+      gStyle->SetOptStat("emr");
       obj1fPhi->SetStats(kTRUE);
-      obj1fPhi->Draw();
+      obj1fPhi->Draw("pe");
       cProj->Update();
       cProj->SaveAs(imgName.c_str());
 
@@ -433,8 +435,9 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName = htmlDir + imgNameProjEtaThr[iMap];
 
       cProj->cd();
+      gStyle->SetOptStat("emr");
       obj1fEta->SetStats(kTRUE);
-      obj1fEta->Draw();
+      obj1fEta->Draw("pe");
       cProj->Update();
       cProj->SaveAs(imgName.c_str());
 
@@ -456,8 +459,9 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName = htmlDir + imgNameProjPhiThr[iMap];
 
       cProj->cd();
+      gStyle->SetOptStat("emr");
       obj1fPhi->SetStats(kTRUE);
-      obj1fPhi->Draw();
+      obj1fPhi->Draw("pe");
       cProj->Update();
       cProj->SaveAs(imgName.c_str());
 
