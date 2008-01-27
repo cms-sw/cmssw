@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.3 2008/01/25 19:53:18 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.4 2008/01/25 20:24:16 chrjones Exp $
 //
 
 // system include files
@@ -49,13 +49,8 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       *product = tlist;
       tlist->SetMainColor(iItem->defaultDisplayProperties().color());
       TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
-       //units are Tesla
-       rnrStyle->SetMagField( -4.0);
-#else
-       //units are kG
-      rnrStyle->SetMagField( -4.0*10.);
-#endif
+      //units are Tesla
+      rnrStyle->SetMagField( -4.0);
       //get this from geometry, units are CM
       rnrStyle->SetMaxR(120.0);
       rnrStyle->SetMaxZ(300.0);
@@ -81,30 +76,17 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     int index=0;
     //cout <<"----"<<endl;
     TEveRecTrack t;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
-   t.fBeta = 1.;
-#else
-   t.beta = 1.;
-#endif
+
+    t.fBeta = 1.;
     for(reco::TrackCollection::const_iterator it = tracks->begin();
 	it != tracks->end();++it,++index) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
-       t.fP = TEveVector(it->px(),
+      t.fP = TEveVector(it->px(),
                         it->py(),
                         it->pz());
-       t.fV = TEveVector(it->vx(),
+      t.fV = TEveVector(it->vx(),
                         it->vy(),
                         it->vz());
-       t.fSign = it->charge();
-#else
-       t.P = TEveVector(it->px(),
-		       it->py(),
-		       it->pz());
-      t.V = TEveVector(it->vx(),
-		       it->vy(),
-		       it->vz());
-      t.sign = it->charge();
-#endif      
+      t.fSign = it->charge();
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
       trk->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(trk,tlist);
