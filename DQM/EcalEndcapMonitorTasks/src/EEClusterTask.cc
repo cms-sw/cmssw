@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/22 19:14:57 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 19:47:14 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -131,27 +131,27 @@ void EEClusterTask::setup(void){
     meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT BC energy map EE +");
-    meBCEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCEneFwdMap_->setAxisTitle("x", 1);
     meBCEneFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC number map EE +");
-    meBCNumFwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
+    meBCNumFwdMap_ = dbe_->book2D(histo, histo, 20, -150., 150., 20, -150., 150.);
     meBCNumFwdMap_->setAxisTitle("x", 1);
     meBCNumFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC ET map EE +");
-    meBCETFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCETFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCETFwdMap_->setAxisTitle("x", 1);
     meBCETFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC size map EE +");
-    meBCSizFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 100., "s");
+    meBCSizFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
     meBCSizFwdMap_->setAxisTitle("x", 1);
     meBCSizFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC energy projection R EE +");
-    meBCEneFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCEneFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
     meBCEneFwdMapProjR_->setAxisTitle("r", 1);
     meBCEneFwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
@@ -161,7 +161,7 @@ void EEClusterTask::setup(void){
     meBCEneFwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE +");
-    meBCNumFwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
+    meBCNumFwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.);
     meBCNumFwdMapProjR_->setAxisTitle("r", 1);
     meBCNumFwdMapProjR_->setAxisTitle("number of clusters", 2);
 
@@ -171,7 +171,7 @@ void EEClusterTask::setup(void){
     meBCNumFwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC ET projection R EE +");
-    meBCETFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCETFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
     meBCETFwdMapProjR_->setAxisTitle("r", 1);
     meBCETFwdMapProjR_->setAxisTitle("transverse energy (GeV)", 2);
 
@@ -181,7 +181,7 @@ void EEClusterTask::setup(void){
     meBCETFwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC size projection R EE +");
-    meBCSizFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 100., "s");
+    meBCSizFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
     meBCSizFwdMapProjR_->setAxisTitle("r", 1);
     meBCSizFwdMapProjR_->setAxisTitle("cluster size", 2);
 
@@ -191,27 +191,27 @@ void EEClusterTask::setup(void){
     meBCSizFwdMapProjPhi_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC energy map EE -");
-    meBCEneBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCEneBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCEneBwdMap_->setAxisTitle("x", 1);
     meBCEneBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC number map EE -");
-    meBCNumBwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
+    meBCNumBwdMap_ = dbe_->book2D(histo, histo, 20, -150., 150., 20, -150., 150.);
     meBCNumBwdMap_->setAxisTitle("x", 1);
     meBCNumBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC ET map EE -");
-    meBCETBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCETBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCETBwdMap_->setAxisTitle("x", 1);
     meBCETBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC size map EE -");
-    meBCSizBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 100., "s");
+    meBCSizBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
     meBCSizBwdMap_->setAxisTitle("x", 1);
     meBCSizBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC energy projection R EE -");
-    meBCEneBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCEneBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
     meBCEneBwdMapProjR_->setAxisTitle("r", 1);
     meBCEneBwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
@@ -221,7 +221,7 @@ void EEClusterTask::setup(void){
     meBCEneBwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE -");
-    meBCNumBwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
+    meBCNumBwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.);
     meBCNumBwdMapProjR_->setAxisTitle("r", 1);
     meBCNumBwdMapProjR_->setAxisTitle("number of clusters", 2);
 
@@ -231,7 +231,7 @@ void EEClusterTask::setup(void){
     meBCNumBwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC ET projection R EE -");
-    meBCETBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCETBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
     meBCETBwdMapProjR_->setAxisTitle("r", 1);
     meBCETBwdMapProjR_->setAxisTitle("transverse energy (GeV)", 2);
 
@@ -241,7 +241,7 @@ void EEClusterTask::setup(void){
     meBCETBwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC size projection R EE -");
-    meBCSizBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 100., "s");
+    meBCSizBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
     meBCSizBwdMapProjR_->setAxisTitle("r", 1);
     meBCSizBwdMapProjR_->setAxisTitle("cluster size", 2);
 
