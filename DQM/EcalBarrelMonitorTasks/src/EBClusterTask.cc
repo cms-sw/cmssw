@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/01/22 19:47:11 $
- * $Revision: 1.47 $
+ * $Date: 2008/01/22 20:10:51 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
 
-#include <TLorentzVector.h>
+#include "TLorentzVector.h"
 
 using namespace cms;
 using namespace edm;

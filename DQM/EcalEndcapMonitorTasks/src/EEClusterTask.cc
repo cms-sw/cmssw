@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/22 19:47:14 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/27 18:50:42 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +29,7 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
 
-#include <TLorentzVector.h>
+#include "TLorentzVector.h"
 
 using namespace cms;
 using namespace edm;
