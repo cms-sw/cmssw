@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/27 10:56:48 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/27 19:07:32 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -140,7 +140,7 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[0]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT digi occupancy EE - projection R");
-    meEEDigiOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEEDigiOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEEDigiOccupancyProR_[0]->setAxisTitle("r", 1);
     meEEDigiOccupancyProR_[0]->setAxisTitle("number of digis", 2);
     sprintf(histo, "EEOT digi occupancy EE - projection phi");
@@ -153,7 +153,7 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[1]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT digi occupancy EE + projection R");
-    meEEDigiOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEEDigiOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEEDigiOccupancyProR_[1]->setAxisTitle("r", 1);
     meEEDigiOccupancyProR_[1]->setAxisTitle("number of digis", 2);
     sprintf(histo, "EEOT digi occupancy EE + projection phi");
@@ -166,7 +166,7 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[0]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT rec hit occupancy EE - projection R");
-    meEERecHitOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEERecHitOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEERecHitOccupancyProR_[0]->setAxisTitle("r", 1);
     meEERecHitOccupancyProR_[0]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit occupancy EE - projection phi");
@@ -179,7 +179,7 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[1]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT rec hit occupancy EE + projection R");
-    meEERecHitOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEERecHitOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEERecHitOccupancyProR_[1]->setAxisTitle("r", 1);
     meEERecHitOccupancyProR_[1]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit occupancy EE + projection phi");
@@ -192,7 +192,7 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE - projection R");
-    meEERecHitOccupancyProRThr_[0] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEERecHitOccupancyProRThr_[0] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEERecHitOccupancyProRThr_[0]->setAxisTitle("r", 1);
     meEERecHitOccupancyProRThr_[0]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE - projection phi");
@@ -205,7 +205,7 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE + projection R");
-    meEERecHitOccupancyProRThr_[1] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEERecHitOccupancyProRThr_[1] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEERecHitOccupancyProRThr_[1]->setAxisTitle("r", 1);
     meEERecHitOccupancyProRThr_[1]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE + projection phi");
@@ -218,7 +218,7 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT TP digi occupancy EE - projection R");
-    meEETrigPrimDigiOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEETrigPrimDigiOccupancyProR_[0] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEETrigPrimDigiOccupancyProR_[0]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProR_[0]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi occupancy EE - projection phi");
@@ -231,7 +231,7 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT TP digi occupancy EE + projection R");
-    meEETrigPrimDigiOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEETrigPrimDigiOccupancyProR_[1] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEETrigPrimDigiOccupancyProR_[1]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProR_[1]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi occupancy EE + projection phi");
@@ -244,7 +244,7 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE - projection R");
-    meEETrigPrimDigiOccupancyProRThr_[0] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEETrigPrimDigiOccupancyProRThr_[0] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE - projection phi");
@@ -257,7 +257,7 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jy", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE + projection R");
-    meEETrigPrimDigiOccupancyProRThr_[1] = dbe_->book1D(histo, histo, 20, 0., 150.);
+    meEETrigPrimDigiOccupancyProRThr_[1] = dbe_->book1D(histo, histo, 20, 0., 50.);
     meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE + projection phi");
