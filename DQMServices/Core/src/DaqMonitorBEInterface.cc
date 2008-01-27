@@ -2414,7 +2414,7 @@ bool DaqMonitorBEInterface::unpack(TObjString * tn, string & nm, string & value)
 void DaqMonitorBEInterface::open(string filename, bool overwrite, 
 				 string directory, string prepend)
 {
-  cout << " DaqMonitorBEInterface::open : opening ME input file " 
+  cout << " DaqMonitorBEInterface::open : reading ME from input file " 
        << filename << " ... " << endl; 
   TFile f(filename.c_str());
   if(f.IsZombie())
@@ -2432,7 +2432,7 @@ void DaqMonitorBEInterface::open(string filename, bool overwrite,
     if (prepend != "") cout << " and prepended \"" << prepend << "/\" to the path "
 	 << endl; 
     } 
-  cout << " DaqMonitorBEInterface::open : file " << filename << " closed " << endl;
+  cout << " DaqMonitorBEInterface::open : file " << filename << " reading done " << endl;
 }
 
 // read ROOT objects from file <file> in directory <orig_pathname>;
