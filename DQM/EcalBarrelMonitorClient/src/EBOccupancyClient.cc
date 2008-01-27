@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/27 09:28:27 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/27 09:29:12 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -219,15 +219,15 @@ void EBOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy").c_str());
   me = dbe_->get(histo);
   h02_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy projection eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection eta").c_str());
   me = dbe_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP thr digi occupancy projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1] );
 

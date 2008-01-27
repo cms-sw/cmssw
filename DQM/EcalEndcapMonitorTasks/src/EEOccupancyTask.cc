@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/26 20:44:37 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/27 09:10:28 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -239,28 +239,28 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyProPhi_[1]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhi_[1]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT TP thr digi occupancy EE -");
+    sprintf(histo, "EEOT TP digi thr occupancy EE -");
     meEETrigPrimDigiOccupancyThr_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE - projection R");
+    sprintf(histo, "EEOT TP digi thr occupancy EE - projection R");
     meEETrigPrimDigiOccupancyProRThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE - projection phi");
+    sprintf(histo, "EEOT TP digi thr occupancy EE - projection phi");
     meEETrigPrimDigiOccupancyProPhiThr_[0] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProPhiThr_[0]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[0]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT TP thr digi occupancy EE +");
+    sprintf(histo, "EEOT TP digi thr occupancy EE +");
     meEETrigPrimDigiOccupancyThr_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE + projection R");
+    sprintf(histo, "EEOT TP digi thr occupancy EE + projection R");
     meEETrigPrimDigiOccupancyProRThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("r", 1);
     meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP thr digi occupancy EE + projection phi");
+    sprintf(histo, "EEOT TP digi thr occupancy EE + projection phi");
     meEETrigPrimDigiOccupancyProPhiThr_[1] = dbe_->book1D(histo, histo, 100, 0., 100.);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("number of TP digis", 2);

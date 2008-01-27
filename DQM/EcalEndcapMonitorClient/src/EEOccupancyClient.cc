@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/26 22:47:24 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/27 09:10:27 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -150,7 +150,7 @@ void EEOccupancyClient::cleanup(void) {
       if ( h01ProjR_[1][i] ) delete h01ProjR_[1][i];
       if ( h01ProjPhi_[1][i] ) delete h01ProjPhi_[1][i];
     }
-      
+
   }
 
   for ( int i=0; i<3; i++) {
@@ -289,27 +289,27 @@ void EEOccupancyClient::analyze(void){
   me = dbe_->get(histo);
   h02ProjPhi_[1][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1][0] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE -").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE -").c_str());
   me = dbe_->get(histo);
   h02_[0][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0][1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE - projection R").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection R").c_str());
   me = dbe_->get(histo);
   h02ProjR_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[0][1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE - projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0][1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE +").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE +").c_str());
   me = dbe_->get(histo);
   h02_[1][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1][1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE + projection R").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection R").c_str());
   me = dbe_->get(histo);
   h02ProjR_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[1][1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP thr digi occupancy EE + projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1][1] );
 
@@ -342,64 +342,340 @@ void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " style=\"color: rgb(0, 0, 153);\">OCCUPANCY</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
-  htmlFile << "WORK IN PROGRESS" << std::endl;
-  return;
-
   // Produce the plots to be shown as .png files from existing histograms
-
-  const int csize1D = 250;
-  const int csize2D = 500;
+  const int csize = 250;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
-  TH2C labelGrid1("labelGrid1","label grid for EE -", 10, -150.0, 150.0, 10, -150.0, 150.0);
+  TH2C dummy1("labelGrid1","label grid for EE -", 10, 0., 100., 10, 0., 100.);
 
   for ( int i=1; i<=10; i++) {
     for ( int j=1; j<=10; j++) {
-      labelGrid1.SetBinContent(i, j, -10);
+      dummy1.SetBinContent(i, j, -10);
     }
   }
 
-  labelGrid1.SetBinContent(2, 5, -3);
-  labelGrid1.SetBinContent(2, 7, -2);
-  labelGrid1.SetBinContent(4, 9, -1);
-  labelGrid1.SetBinContent(7, 9, -9);
-  labelGrid1.SetBinContent(9, 7, -8);
-  labelGrid1.SetBinContent(9, 5, -7);
-  labelGrid1.SetBinContent(8, 3, -6);
-  labelGrid1.SetBinContent(5, 2, -5);
-  labelGrid1.SetBinContent(3, 3, -4);
+  dummy1.SetBinContent(2, 5, -3);
+  dummy1.SetBinContent(2, 7, -2);
+  dummy1.SetBinContent(4, 9, -1);
+  dummy1.SetBinContent(7, 9, -9);
+  dummy1.SetBinContent(9, 7, -8);
+  dummy1.SetBinContent(9, 5, -7);
+  dummy1.SetBinContent(8, 3, -6);
+  dummy1.SetBinContent(5, 2, -5);
+  dummy1.SetBinContent(3, 3, -4);
 
-  labelGrid1.SetMarkerSize(2);
-  labelGrid1.SetMinimum(-9.01);
-  labelGrid1.SetMaximum(-0.01);
+  dummy1.SetMarkerSize(2);
+  dummy1.SetMinimum(-9.01);
+  dummy1.SetMaximum(-0.01);
 
-  TH2C labelGrid2("labelGrid2","label grid for EE +", 10, -150.0, 150.0, 10, -150.0, 150.0);
+  TH2C dummy2("labelGrid2","label grid for EE +", 10, 0., 100., 10, 0., 100.);
 
   for ( int i=1; i<=10; i++) {
     for ( int j=1; j<=10; j++) {
-      labelGrid2.SetBinContent(i, j, -10);
+      dummy2.SetBinContent(i, j, -10);
     }
   }
 
-  labelGrid2.SetBinContent(2, 5, +7);
-  labelGrid2.SetBinContent(2, 7, +8);
-  labelGrid2.SetBinContent(4, 9, +9);
-  labelGrid2.SetBinContent(7, 9, +1);
-  labelGrid2.SetBinContent(9, 7, +2);
-  labelGrid2.SetBinContent(9, 5, +3);
-  labelGrid2.SetBinContent(8, 3, +4);
-  labelGrid2.SetBinContent(6, 2, +5);
-  labelGrid2.SetBinContent(3, 3, +6);
+  dummy2.SetBinContent(2, 5, +7);
+  dummy2.SetBinContent(2, 7, +8);
+  dummy2.SetBinContent(4, 9, +9);
+  dummy2.SetBinContent(7, 9, +1);
+  dummy2.SetBinContent(9, 7, +2);
+  dummy2.SetBinContent(9, 5, +3);
+  dummy2.SetBinContent(8, 3, +4);
+  dummy2.SetBinContent(6, 2, +5);
+  dummy2.SetBinContent(3, 3, +6);
 
-  labelGrid2.SetMarkerSize(2);
-  labelGrid2.SetMinimum(+0.01);
-  labelGrid2.SetMaximum(+9.01);
+  dummy2.SetMarkerSize(2);
+  dummy2.SetMinimum(+0.01);
+  dummy2.SetMaximum(+9.01);
 
-  // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  string imgNameMap[2][3], imgNameProjR[2][3], imgNameProjPhi[2][3];
+  string imgNameMapThr[2][2], imgNameProjRThr[2][2], imgNameProjPhiThr[2][2];
+  string imgName, meName;
+
+  TCanvas* cMap = new TCanvas("cMap", "cMap", 2*csize, 2*csize);
+  TCanvas* cProj = new TCanvas("cProj", "cProj", csize, csize);
+
+  TH2F* obj2f;
+  TH1F* obj1fR;
+  TH1F* obj1fPhi;
+
+  // Occupancy without threshold
+  for ( int iMap=0; iMap<3; iMap++ ) {
+    for ( int iEE=0; iEE<2; iEE++ ) {
+
+      imgNameMap[iEE][iMap] = "";
+
+      obj2f = h01_[iEE][iMap];
+
+      if ( obj2f ) {
+
+        meName = obj2f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameMap[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameMap[iEE][iMap];
+
+        cMap->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(10, pCol4);
+        obj2f->GetXaxis()->SetNdivisions(10, kFALSE);
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
+        obj2f->GetYaxis()->SetNdivisions(10, kFALSE);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
+        obj2f->GetZaxis()->SetLabelSize(0.02);
+        cMap->SetGridx();
+        cMap->SetGridy();
+        obj2f->Draw("colz");
+        if ( iEE == 0 ) dummy1.Draw("text,same");
+        if ( iEE == 1 ) dummy2.Draw("text,same");
+        cMap->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
+        cMap->Update();
+        cMap->SaveAs(imgName.c_str());
+
+      }
+
+      obj1fR = h01ProjR_[iEE][iMap];
+
+      if ( obj1fR ) {
+
+        meName = obj1fR->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameProjR[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameProjR[iEE][iMap];
+
+        cProj->cd();
+        obj1fR->SetStats(kTRUE);
+        obj1fR->Draw();
+        cProj->Update();
+        cProj->SaveAs(imgName.c_str());
+
+      }
+
+      obj1fPhi = h01ProjPhi_[iEE][iMap];
+
+      if ( obj1fPhi ) {
+
+        meName = obj1fPhi->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameProjPhi[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameProjPhi[iEE][iMap];
+
+        cProj->cd();
+        obj1fPhi->SetStats(kTRUE);
+        obj1fPhi->Draw();
+        cProj->Update();
+        cProj->SaveAs(imgName.c_str());
+
+      }
+
+    }
+  }
+
+  // Occupancy with threshold
+  for ( int iMap=0; iMap<2; iMap++ ) {
+    for( int iEE=0; iEE<2; iEE++ ) {
+
+      imgNameMapThr[iEE][iMap] = "";
+
+      obj2f = h02_[iEE][iMap];
+
+      if ( obj2f ) {
+
+        meName = obj2f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameMapThr[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameMapThr[iEE][iMap];
+
+        cMap->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(10, pCol4);
+        obj2f->GetXaxis()->SetNdivisions(10, kFALSE);
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
+        obj2f->GetYaxis()->SetNdivisions(10, kFALSE);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
+        obj2f->GetZaxis()->SetLabelSize(0.02);
+        cMap->SetGridx();
+        cMap->SetGridy();
+        obj2f->Draw("colz");
+        if ( iEE == 0 ) dummy1.Draw("text,same");
+        if ( iEE == 1 ) dummy2.Draw("text,same");
+        cMap->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
+        cMap->Update();
+        cMap->SaveAs(imgName.c_str());
+
+      }
+
+      obj1fR = h02ProjR_[iEE][iMap];
+
+      if ( obj1fR ) {
+
+        meName = obj1fR->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameProjRThr[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameProjRThr[iEE][iMap];
+
+        cProj->cd();
+        obj1fR->SetStats(kTRUE);
+        obj1fR->Draw();
+        cProj->Update();
+        cProj->SaveAs(imgName.c_str());
+
+      }
+
+      obj1fPhi = h02ProjPhi_[iEE][iMap];
+
+      if ( obj1fPhi ) {
+
+        meName = obj1fPhi->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " ) {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+
+        imgNameProjPhiThr[iEE][iMap] = meName + ".png";
+        imgName = htmlDir + imgNameProjPhiThr[iEE][iMap];
+
+        cProj->cd();
+        obj1fPhi->SetStats(kTRUE);
+        obj1fPhi->Draw();
+        cProj->Update();
+        cProj->SaveAs(imgName.c_str());
+
+      }
+
+    }
+  }
+
+  gStyle->SetPaintTextFormat();
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int iMap=0; iMap<3; iMap++) {
+    for (int iEE=0; iEE<2; iEE++) {
+      if ( imgNameMap[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMap[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    }
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int iMap=0; iMap<3; iMap++) {
+    for (int iEE=0; iEE<2; iEE++) {
+      if ( imgNameProjR[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameProjR[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      if ( imgNameProjPhi[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameProjPhi[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    }
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int iMap=0; iMap<2; iMap++) {
+    for (int iEE=0; iEE<2; iEE++) {
+      if ( imgNameMapThr[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMapThr[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    }
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int iMap=0; iMap<2; iMap++) {
+    for (int iEE=0; iEE<2; iEE++) {
+      if ( imgNameProjRThr[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameProjRThr[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      if ( imgNameProjPhiThr[iEE][iMap].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameProjPhiThr[iEE][iMap] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    }
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
 
   htmlFile.close();
 
