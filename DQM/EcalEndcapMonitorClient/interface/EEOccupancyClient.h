@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2008/01/18 16:32:51 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/26 20:13:55 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -93,11 +93,11 @@ MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TH2F* h01_[2][3];
-TH1F* h01ProjEta_[2][3];
+TH1F* h01ProjR_[2][3];
 TH1F* h01ProjPhi_[2][3];
 
 TH2F* h02_[2][2];
-TH1F* h02ProjEta_[2][2];
+TH1F* h02ProjR_[2][2];
 TH1F* h02ProjPhi_[2][2];
 
 };

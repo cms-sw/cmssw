@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/01/24 16:03:01 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/24 16:14:44 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -62,20 +62,20 @@ MonitorElement* meOccupancy_[18];
 MonitorElement* meOccupancyMem_[18];
 
 MonitorElement* meEEDigiOccupancy_[2];
-MonitorElement* meEEDigiOccupancyProjX_[2];
-MonitorElement* meEEDigiOccupancyProjY_[2];
+MonitorElement* meEEDigiOccupancyProR_[2];
+MonitorElement* meEEDigiOccupancyProPhi_[2];
 MonitorElement* meEERecHitOccupancy_[2];
-MonitorElement* meEERecHitOccupancyProjX_[2];
-MonitorElement* meEERecHitOccupancyProjY_[2];
+MonitorElement* meEERecHitOccupancyProR_[2];
+MonitorElement* meEERecHitOccupancyProPhi_[2];
 MonitorElement* meEERecHitOccupancyThr_[2];
-MonitorElement* meEERecHitOccupancyProjXThr_[2];
-MonitorElement* meEERecHitOccupancyProjYThr_[2];
+MonitorElement* meEERecHitOccupancyProRThr_[2];
+MonitorElement* meEERecHitOccupancyProPhiThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancy_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProjX_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProjY_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProR_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProPhi_[2];
 MonitorElement* meEETrigPrimDigiOccupancyThr_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProjXThr_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProjYThr_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProRThr_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProPhiThr_[2];
 
 float recHitEnergyMin_;
 float trigPrimEtMin_;
