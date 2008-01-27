@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/26 22:47:24 $
- * $Revision: 1.38 $
+ * $Date: 2008/01/27 09:37:57 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -606,7 +606,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   // Cluster occupancy profiles
-  for ( int iEE=0; iEE<2; iEE++ ) {
+  for (int iEE=0; iEE<2; iEE++) {
 
     imgNameNumMap[iEE] = "";
 
