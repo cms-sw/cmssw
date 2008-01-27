@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.37 $
+ * $Date: 2008/01/26 22:47:24 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -55,7 +55,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   h01_[1] = 0;
   h01_[2] = 0;
 
-  for(int iEE=0;iEE<2;++iEE) {
+  for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
       h02ProjR_[i][iEE] = 0;
@@ -138,7 +138,7 @@ void EEClusterClient::cleanup(void) {
     if ( h01_[1] ) delete h01_[1];
     if ( h01_[2] ) delete h01_[2];
 
-    for(int iEE=0;iEE<2;++iEE) {
+    for(int iEE=0;iEE<2;iEE++) {
       for(int i=0;i<3;++i) {
         if(h04_[i][iEE]) delete h04_[i][iEE];
         if(h02ProjR_[i][iEE]) delete h02ProjR_[i][iEE];
@@ -168,7 +168,7 @@ void EEClusterClient::cleanup(void) {
   h01_[1] = 0;
   h01_[2] = 0;
 
-  for(int iEE=0;iEE<2;++iEE) {
+  for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
       h02ProjR_[i][iEE] = 0;
@@ -523,7 +523,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Energy profiles
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
 
       imgNameEneMap[iVar][iEE] = "";
 
@@ -606,7 +606,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   // Cluster occupancy profiles
-  for ( int iEE=0; iEE<2; ++iEE ) {
+  for ( int iEE=0; iEE<2; iEE++ ) {
 
     imgNameNumMap[iEE] = "";
 
@@ -692,7 +692,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
       if ( imgNameEneMap[iVar][iEE].size() != 0)
         htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
       else
@@ -701,7 +701,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
   }
 
-  for ( int iEE = 0; iEE<2; ++iEE ) {
+  for ( int iEE = 0; iEE<2; iEE++ ) {
     if ( imgNameNumMap[iEE].size() != 0)
       htmlFile << "<td><img src=\"" << imgNameNumMap[iEE] << "\"></td>" << endl;
     else
@@ -718,7 +718,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
       if ( imgNameEneXproj[iVar][iEE].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
       else
@@ -731,7 +731,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
   }
 
-  for(int iEE=0; iEE<2; ++iEE) {
+  for(int iEE=0; iEE<2; iEE++) {
     if ( imgNameNumXproj[iEE].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameNumXproj[iEE] << "\"></td>" << endl;
     else
