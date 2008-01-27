@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/01/22 19:14:39 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -107,8 +107,8 @@ void EBStatusFlagsTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT front-end status %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][0] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meFEchErrors_[i][0]->setAxisTitle("ieta", 1);
-      meFEchErrors_[i][0]->setAxisTitle("iphi", 2);
+      meFEchErrors_[i][0]->setAxisTitle("ieta'", 1);
+      meFEchErrors_[i][0]->setAxisTitle("iphi'", 2);
       dbe_->tag(meFEchErrors_[i][0], i+1);
 
       for ( int ie = 1; ie <= 17; ie++ ) {

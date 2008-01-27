@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/01/22 19:51:49 $
- * $Revision: 1.61 $
+ * $Date: 2008/01/26 22:24:00 $
+ * $Revision: 1.62 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -148,8 +148,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 256, 0, 256.);
-    (*meEtMap)[i]->setAxisTitle("ieta", 1);
-    (*meEtMap)[i]->setAxisTitle("iphi", 2);
+    (*meEtMap)[i]->setAxisTitle("ieta'", 1);
+    (*meEtMap)[i]->setAxisTitle("iphi'", 2);
     dbe_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
@@ -160,8 +160,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                nTTEta, 0, nTTEta,
                                nTTPhi, 0, nTTPhi,
                                2, 0., 2.);
-    (*meVeto)[i]->setAxisTitle("ieta", 1);
-    (*meVeto)[i]->setAxisTitle("iphi", 2);
+    (*meVeto)[i]->setAxisTitle("ieta'", 1);
+    (*meVeto)[i]->setAxisTitle("iphi'", 2);
     dbe_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
@@ -171,8 +171,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 8, 0., 8.);
-    (*meFlags)[i]->setAxisTitle("ieta", 1);
-    (*meFlags)[i]->setAxisTitle("iphi", 2);
+    (*meFlags)[i]->setAxisTitle("ieta'", 1);
+    (*meFlags)[i]->setAxisTitle("iphi'", 2);
     dbe_->tag((*meFlags)[i], i+1);
 
 
@@ -185,8 +185,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                     emulErrorNameSM.c_str(),
                                     nTTEta, 0., nTTEta,
                                     nTTPhi, 0., nTTPhi );
-      meEmulError_[i]->setAxisTitle("ieta", 1);
-      meEmulError_[i]->setAxisTitle("iphi", 2);
+      meEmulError_[i]->setAxisTitle("ieta'", 1);
+      meEmulError_[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
@@ -197,8 +197,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
-      meVetoEmulError_[i]->setAxisTitle("ieta", 1);
-      meVetoEmulError_[i]->setAxisTitle("iphi", 2);
+      meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
+      meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
@@ -209,8 +209,8 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
-      meFlagEmulError_[i]->setAxisTitle("ieta", 1);
-      meFlagEmulError_[i]->setAxisTitle("iphi", 2);
+      meFlagEmulError_[i]->setAxisTitle("ieta'", 1);
+      meFlagEmulError_[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meFlagEmulError_[i], i+1);
 
     }

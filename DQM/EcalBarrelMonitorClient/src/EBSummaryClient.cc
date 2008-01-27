@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/22 19:47:10 $
- * $Revision: 1.108 $
+ * $Date: 2008/01/26 20:13:51 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -177,8 +177,8 @@ void EBSummaryClient::setup(void) {
   if ( meStatusFlags_ ) dbe_->removeElement( meStatusFlags_->getName() );
   sprintf(histo, "EBSFT front-end status summary");
   meStatusFlags_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meStatusFlags_->setAxisTitle("jphi", 1);
-  meStatusFlags_->setAxisTitle("jeta", 2);
+  meStatusFlags_->setAxisTitle("jphi'", 1);
+  meStatusFlags_->setAxisTitle("jeta'", 2);
 
   if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EBSFT front-end status errors summary");
