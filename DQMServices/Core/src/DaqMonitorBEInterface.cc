@@ -423,24 +423,19 @@ void DaqMonitorBEInterface::extractTH1F
   if (!wantME(me, dir, nm, fromRemoteNode)) return;
   h1->SetName("extracted");
 
-  if(!me)
-    {
+  if(!me) {
       me = book1D ( nm, h1, dir);
       // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[nm] = false;
-
+      if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
-    } 
-  else if (isCollateME(me)) 
-    {
-        //((TH1F*)((MonitorElementRootH1*)me)->getMonitorable())->Add(h1);
-        MonitorElementRootH1* local = dynamic_cast<MonitorElementRootH1 *> (me);
-        ((TH1F*) local->operator->())->Add(h1);
-        cout << " collated TH1F: " << dir->getPathname() << "/" << nm <<endl;
-        return;
-    }  
+  } 
+  else if (isCollateME(me)) {
+      //((TH1F*)((MonitorElementRootH1*)me)->getMonitorable())->Add(h1);
+      MonitorElementRootH1* local = dynamic_cast<MonitorElementRootH1 *> (me);
+      ((TH1F*) local->operator->())->Add(h1);
+      cout << " collated TH1F: " << dir->getPathname() << "/" << nm <<endl;
+      return;
+  }  
   
   MonitorElementRootH1 * put_here = dynamic_cast<MonitorElementRootH1 *> (me);
   if(put_here) put_here->copyFrom(h1);
@@ -2428,6 +2423,7 @@ void DaqMonitorBEInterface::open(string filename, bool overwrite,
       return;
     }
 
+  overwriteFromFile = overwrite;
   readOnlyDirectory = directory;
   unsigned int N = readDirectory(&f, ROOT_PATHNAME, prepend);
   f.Close();
