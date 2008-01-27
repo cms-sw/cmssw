@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.1 2007/12/10 10:39:59 dmytro Exp $
+// $Id: DumpGeom.cc,v 1.2 2008/01/25 20:44:44 case Exp $
 //
 //
 
@@ -527,7 +527,10 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // I will try to do the same here without actually building
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
+     idToName_[chamberId.rawId()] = name;
+     std::cout << "chamber: " << chamberId << " \tname: " << name << std::endl;
 
+/* We don't need layers for now, till we get geometry for them fixed
     int jend   = chamberId.endcap();
     int jstat  = chamberId.station();
     int jring  = chamberId.ring();
@@ -575,7 +578,8 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 
 
     } // layer construction within chamber
-      
+    */ 
+     
     doSubDets = fview.nextSibling(); // go to next chamber
   }
 }
