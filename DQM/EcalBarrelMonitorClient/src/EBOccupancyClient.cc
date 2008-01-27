@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/26 20:44:36 $
- * $Revision: 1.8 $
+ * $Date: 2008/01/26 22:47:22 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -112,7 +112,7 @@ void EBOccupancyClient::endRun(void) {
 }
 
 void EBOccupancyClient::setup(void) {
-  
+
   dbe_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
 
 }
@@ -134,7 +134,7 @@ void EBOccupancyClient::cleanup(void) {
       if ( h02ProjEta_[i] ) delete h02ProjEta_[i];
       if ( h02ProjPhi_[i] ) delete h02ProjPhi_[i];
     }
-      
+
   }
 
   for ( int i=0; i<3; ++i ) {
@@ -259,7 +259,7 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">OCCUPANCY</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  
+
   // Produce the plots to be shown as .png files from existing histograms
   const int csize = 250;
 
@@ -297,16 +297,14 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Occupancy without threshold
   for ( int iMap=0; iMap<3; iMap++ ) {
- 
+
     imgNameMap[iMap] = "";
-    
+
     obj2f = h01_[iMap];
-    obj1fEta = h01ProjEta_[iMap];
-    obj1fPhi = h01ProjPhi_[iMap];
-  
+
     if ( obj2f ) {
 
-      meName = h01_[iMap]->GetName();
+      meName = obj2f->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -332,9 +330,11 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    obj1fEta = h01ProjEta_[iMap];
+
     if ( obj1fEta ) {
 
-      meName = h01ProjEta_[iMap]->GetName();
+      meName = obj1fEta->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -353,9 +353,11 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    obj1fPhi = h01ProjPhi_[iMap];
+
     if ( obj1fPhi ) {
 
-      meName = h01ProjPhi_[iMap]->GetName();
+      meName = obj1fPhi->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -378,16 +380,14 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Occupancy with threshold
   for ( int iMap=0; iMap<2; iMap++ ) {
- 
+
     imgNameMapThr[iMap] = "";
-    
+
     obj2f = h02_[iMap];
-    obj1fEta = h02ProjEta_[iMap];
-    obj1fPhi = h02ProjPhi_[iMap];
-  
+
     if ( obj2f ) {
 
-      meName = h02_[iMap]->GetName();
+      meName = obj2f->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -413,9 +413,11 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    obj1fEta = h02ProjEta_[iMap];
+
     if ( obj1fEta ) {
 
-      meName = h02ProjEta_[iMap]->GetName();
+      meName = obj1fEta->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -434,9 +436,11 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    obj1fPhi = h02ProjPhi_[iMap];
+
     if ( obj1fPhi ) {
 
-      meName = h02ProjPhi_[iMap]->GetName();
+      meName = obj1fPhi->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " ) {
@@ -457,7 +461,6 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
-
   gStyle->SetPaintTextFormat();
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -468,13 +471,12 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( imgNameMap[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameMap[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -484,13 +486,13 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( imgNameProjEta[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameProjEta[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     if ( imgNameProjPhi[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameProjPhi[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -504,13 +506,12 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( imgNameMapThr[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameMapThr[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -520,13 +521,13 @@ void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( imgNameProjEtaThr[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameProjEtaThr[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     if ( imgNameProjPhiThr[iMap].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameProjPhiThr[iMap] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;    
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;

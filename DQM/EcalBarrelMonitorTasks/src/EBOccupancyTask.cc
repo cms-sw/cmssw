@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/26 20:44:37 $
- * $Revision: 1.48 $
+ * $Date: 2008/01/26 22:24:00 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -356,7 +356,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
       if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
 
-      if ( rechitItr->energy() > recHitEnergyMin_ ) { 
+      if ( rechitItr->energy() > recHitEnergyMin_ ) {
 
         if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
         if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
