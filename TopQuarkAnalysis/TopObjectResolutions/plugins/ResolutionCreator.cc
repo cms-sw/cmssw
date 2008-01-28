@@ -245,7 +245,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      iEvent.getByLabel(labelName_,taus);
      for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
        // find the tau (if any) that matches a MC tau from W
-       reco::GenParticleCandidate genLepton = tau->getGenLepton();
+       reco::GenParticle genLepton = tau->getGenLepton();
        if( abs(genLepton.pdgId())==15 && genLepton.status()==2 &&
            genLepton.numberOfMothers()>0 &&
            abs(genLepton.mother(0)->pdgId())==15 &&
