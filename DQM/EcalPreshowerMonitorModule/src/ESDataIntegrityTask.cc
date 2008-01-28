@@ -18,8 +18,10 @@ ESDataIntegrityTask::ESDataIntegrityTask(const ParameterSet& ps) {
 
   meCRCError_ = 0;
   meDCCError_ = 0;  
-  meBC_ = 0;
-  meEC_ = 0;
+  meGlbBC_ = 0;
+  meGlbEC_ = 0;
+  meKchipBC_ = 0;
+  meKchipEC_ = 0;
 
   fedIds_=0;
   DCCfedId1_=0;
@@ -61,11 +63,17 @@ void ESDataIntegrityTask::setup(void){
     sprintf(hist, "ES DCC Errors");      
     meDCCError_ = dbe_->book1D(hist, hist, 256, 0, 256);  
 
-    sprintf(hist, "ES BC Errors");
-    meBC_ = dbe_->book1D(hist, hist, 2, 0, 2);
+    sprintf(hist, "ES Global BC Errors");
+    meGlbBC_ = dbe_->book1D(hist, hist, 45, -1.5, 43.5);
 
-    sprintf(hist, "ES EC Errors");
-    meEC_ = dbe_->book1D(hist, hist, 2, 0, 2);
+    sprintf(hist, "ES Global EC Errors");
+    meGlbEC_ = dbe_->book1D(hist, hist, 45, -1.5, 43.5);
+
+    sprintf(hist, "ES Kchip BC Errors");
+    meKchipBC_ = dbe_->book1D(hist, hist, 45, -1.5, 43.5);
+
+    sprintf(hist, "ES Kchip EC Errors");
+    meKchipEC_ = dbe_->book1D(hist, hist, 45, -1.5, 43.5);
 
     sprintf(hist, "ES KCHIP Flag1");
     meFlag1_ = dbe_->book1D(hist, hist, 16, 0, 16);
@@ -106,11 +114,17 @@ void ESDataIntegrityTask::cleanup(void){
     if ( meDCCError_ )dbe_->removeElement( meDCCError_->getName() );
     meDCCError_ = 0;
 
-    if ( meBC_ ) dbe_->removeElement( meBC_->getName() );
-    meBC_ = 0;
+    if ( meGlbBC_ ) dbe_->removeElement( meGlbBC_->getName() );
+    meGlbBC_ = 0;
 
-    if ( meEC_ ) dbe_->removeElement( meEC_->getName() );
-    meEC_ = 0;
+    if ( meGlbEC_ ) dbe_->removeElement( meGlbEC_->getName() );
+    meGlbEC_ = 0;
+
+    if ( meKchipBC_ ) dbe_->removeElement( meKchipBC_->getName() );
+    meKchipBC_ = 0;
+
+    if ( meKchipEC_ ) dbe_->removeElement( meKchipEC_->getName() );
+    meKchipEC_ = 0;
 
     if ( meFlag1_ ) dbe_->removeElement( meFlag1_->getName() );
     meFlag1_ = 0;
@@ -169,7 +183,10 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("") << "ESDataIntegrity : Error! can't get ES local raw data collection !" << std::endl;
   }  
 
-  int bc, ev;
+  int glbBC = -1;
+  int glbEC = -1;
+  int kchipBC = -1;
+  int kchipEC = -1;
 
   // DCC
   for ( ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr ) {
@@ -208,8 +225,8 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
     if ((dcc.fedId()>=10)&&(dcc.fedId()<=13)) {   
 
       if (detType_ == 1) {
-	bc = dcc.getBC();
-	ev = dcc.getEV();
+	glbBC = dcc.getBC();
+	glbEC = dcc.getEV();
       }
 
       if(dcc.getPacketLength()!=-1)     DCCfedId10_->Fill(1);
@@ -227,14 +244,18 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if (detType_ == 2) {
 	meEvtLen_->Fill(dcc.getEventLength());
-	bc = dcc.getBX();
-	ev = dcc.getLV1();
+	//bc = dcc.getBX();
+	//ev = dcc.getLV1();
       }
     }
 
   }
 
+  if (glbBC == -1) meGlbBC_->Fill(glbBC);
+  if (glbEC == -1) meGlbEC_->Fill(glbEC);
+
   //Kchip
+  int count = 0;
   for ( ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr ) {
 
     ESKCHIPBlock kchip = (*kItr);
@@ -246,34 +267,41 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
       continue;    
     }
     
-    if ((kchip.getBC() != bc) && detType_==1) {
-      meBC_->Fill(0);
-      //cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
-      //} else if ((kchip.getBC() != (bc-8)) && detType_==2) {
-    } else if ((kchip.getBC() != bc) && detType_==2) {
-      meBC_->Fill(0);
-      //cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
+    if (glbBC>=0) {
+      if ((kchip.getBC() != glbBC) && detType_==1) 
+	meGlbBC_->Fill(kchip.id());
+      else 
+	meGlbBC_->Fill(0);
     }
-    else 
-      meBC_->Fill(1);
-    
-    if (kchip.getEC() != ev)
-      meEC_->Fill(0);
-    else
-      meEC_->Fill(1);
+
+    if (glbEC>=0) {
+      if (kchip.getEC() != glbEC && detType_==1)
+	meGlbEC_->Fill(kchip.id());
+      else
+	meGlbEC_->Fill(0);
+    }
+
+    if (count==0) {
+      kchipBC = kchip.getBC();
+      kchipEC = kchip.getEC();
+    } else {
+      if (kchip.getBC() != kchipBC) meKchipBC_->Fill(kchip.id());
+      if (kchip.getEC() != kchipEC) meKchipEC_->Fill(kchip.id());
+    }
 
     meFlag1_->Fill(kchip.getFlag1());
     meFlag2_->Fill(kchip.getFlag2());
 
-    if(kchip.id()!=-1)        Kchip_->Fill(1);
-    if(kchip.dccdId()!=-1)    Kchip_->Fill(2);
-    if(kchip.fedId()!=-1)     Kchip_->Fill(3);
-    if(kchip.getBC()!=-1)     Kchip_->Fill(4);
-    if(kchip.getEC()!=-1)     Kchip_->Fill(5);
-    if(kchip.getFlag1()!=-1)  Kchip_->Fill(6);
-    if(kchip.getFlag2()!=-1)  Kchip_->Fill(7);
-    if(kchip.getFlag2()!=-1)  Kchip_->Fill(8);
+    if (kchip.id()!=-1)        Kchip_->Fill(1);
+    if (kchip.dccdId()!=-1)    Kchip_->Fill(2);
+    if (kchip.fedId()!=-1)     Kchip_->Fill(3);
+    if (kchip.getBC()!=-1)     Kchip_->Fill(4);
+    if (kchip.getEC()!=-1)     Kchip_->Fill(5);
+    if (kchip.getFlag1()!=-1)  Kchip_->Fill(6);
+    if (kchip.getFlag2()!=-1)  Kchip_->Fill(7);
+    if (kchip.getFlag2()!=-1)  Kchip_->Fill(8);
 
+    count++;
   }
 
 }

@@ -51,8 +51,10 @@ class ESDataIntegrityTask: public EDAnalyzer{
 
   MonitorElement* meCRCError_;
   MonitorElement* meDCCError_;
-  MonitorElement* meBC_;
-  MonitorElement* meEC_;
+  MonitorElement* meGlbBC_;
+  MonitorElement* meGlbEC_;
+  MonitorElement* meKchipBC_;
+  MonitorElement* meKchipEC_;
   MonitorElement* meFlag1_;
   MonitorElement* meFlag2_;
   MonitorElement* meEvtLen_;
