@@ -1,11 +1,11 @@
-// $Id: LogicID.cc,v 1.5 2007/12/18 13:32:19 dellaric Exp $
+// $Id: LogicID.cc,v 1.6 2008/01/16 13:32:52 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/12/18 13:32:19 $
+  \version $Revision: 1.6 $
+  \date $Date: 2008/01/16 13:32:52 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -23,7 +23,7 @@ void LogicID::init( EcalCondDBInterface* eConn ) {
   IDmap_[ "EB_trigger_tower" ]  = eConn->getEcalLogicIDSet( "EB_trigger_tower",  1, 36,  1,   68 );
   IDmap_[ "EB_LM_PN" ]          = eConn->getEcalLogicIDSet( "EB_LM_PN",          1, 36,  0,    9 );
   IDmap_[ "EB_mem_TT" ]         = eConn->getEcalLogicIDSet( "EB_mem_TT",         1, 36, 69,   70 );
-  IDmap_[  "ECAL" ].push_back( eConn->getEcalLogicID( "ECAL" ) );
+  IDmap_[ "EB" ].push_back( eConn->getEcalLogicID( "EB" ) );
 
   init_ = true;
 
@@ -49,7 +49,7 @@ EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2, int id3
     else if( name == "EB_mem_TT" ) {
       return( IDmap_[ name ][ 2*(id1-1)+id2-69 ] );
     }
-    else if( name == "ECAL" ) {
+    else if( name == "EB" ) {
       return( IDmap_[ name ][ 0 ] );
     }
     else {

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/24 12:32:23 $
- * $Revision: 1.125 $
+ * $Date: 2008/01/28 12:45:02 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1165,7 +1165,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      ecid = LogicID::getEcalLogicID("ECAL");
+      ecid = LogicID::getEcalLogicID("EE");
       dataset[ecid] = md;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1243,7 +1243,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = LogicID::getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("EE");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
