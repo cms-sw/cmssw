@@ -15,7 +15,7 @@ $date=`date`;
 $path=`pwd`;
 $tags=`showtags -r`;
 #Information for the logfile
-print $date;
+print "$date";
 print "$HOST\n";
 print "Local path: $path";
 print "\$CMSSW_BASE is $CMSSW_BASE\n";
@@ -119,7 +119,7 @@ system(
     );
 #Adding an independent benchmark of the machine after running
 $date=`date`;
-print SCIMARKLARGE "Final Benchmark\n";
+print SCIMARK "Final Benchmark\n";
 print SCIMARK "$date$HOST\n";
 for ($i=0;$i<10;$i++)
 {

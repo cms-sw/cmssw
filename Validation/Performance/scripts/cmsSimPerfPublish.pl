@@ -4,7 +4,7 @@
 #relevant html and log files into our public area
 #/afs/cern.ch/cms/sdt/web/performance/simulation/
 #Set here the standard number of events (could become an option... or could be read from the log...)
-$TimeSizeNumOfEvents=50;
+$TimeSizeNumOfEvents=100;
 $IgProfNumOfEvents=5;
 $ValgrindNumOfEvents=1;
 
@@ -65,21 +65,30 @@ $ValgrindNumOfEvents=1;
 	     $Profile[4]=>"overall.html",
 	     $Profile[5]=>"overall.html",
 	     $Profile[6]=>"overall.html",
-	     $Profile[7]=>"mem.html",
+	     $Profile[7]=>"doBeginJob_output.html",
 	     $Profile[8]=>"overall.html",
-	     $Profile[9]=>"*.html"
+	     $Profile[9]=>"beginjob.html"
 	     );
-
+@IgProfMemAnalyseOut=(
+		      "doBeginJob_output.html",
+		      "doProduce_output.html",
+		      "mem.html"
+		      );
+@memcheck_valgrindOut=(
+		       "beginjob.html",
+		       "edproduce.html",
+		       "esproduce.html"
+		       );
 #Get the CMSSW_VERSION from the environment
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
-$CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
+$CMSSW_RELEASE_BASE=$ENV{'CMSSW_BASE'};
 $HOST=$ENV{'HOST'};
 $LocalPath=`pwd`;
 $ShowTagsResult=`showtags -r`;
 
 #Define the web publishing area
-$WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
-
+#$WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
+$WebArea="/tmp/gbenelli/"."$CMSSW_VERSION";
 #Dump some info in a file
 if (-e! $WebArea)
 {
@@ -101,9 +110,28 @@ else
     }
     $date=`date`;
     @LogFiles=`ls cms*.log`;
+    print "Found the following log files:\n";
     print @LogFiles;
+    $ExecutionDateSec=0;
+    foreach (@LogFiles)
+    {
+	chomp($_);
+	if ($_=~/^cmsCreateSimPerfTest/)
+	{
+	    $ExecutionDateLastSec=`stat --format=\%Z $_`;
+	    $ExecutionDateLast=`stat --format=\%y $_`;
+	    print "Execution date for $_ was: $ExecutionDateLast";
+	    if ($ExecutionDateLastSec>$ExecutionDateSec)
+	    {
+		$ExecutionDateSec=$ExecutionDateLastSec;
+		$ExecutionDate=$ExecutionDateLast;
+	    }	
+	}
+    }
+    print "Copying the logfiles to $WebArea/.\n";
     system("cp -pR cms*.log $WebArea/.");
 #Copy the perf_style.css file from Validation/Performance/doc
+    print "Copying perf_style.css style file to $WebArea/.\n";
     system("cp -pR $CMSSW_RELEASE_BASE/src/Validation/Performance/doc/perf_style.css $WebArea/.");
     @Dir=`ls`;
     chomp(@Dir);
@@ -140,7 +168,24 @@ else
 	    print INDEX $LocalPath;
 	    next;
 	}
-	if ($_=~/date/)
+	if ($_=~/ProductionDate/)
+	{
+	    print INDEX $ExecutionDate;
+	    next;
+	}
+	if ($_=~/LogfileLinks/)
+	{
+	    print INDEX "<br><br>";
+	    foreach (@LogFiles)
+	    {
+		chomp($_);
+		$LogFileLink="$WebArea/"."$_";
+		print INDEX "<a href="."$LogFileLink"."> $_ <\/a>";;
+		print INDEX "<br><br>";
+	    }
+	    next;
+	}
+	if ($_=~/PublicationDate/)
 	{
 	    print INDEX $date;
 	    next;
@@ -159,6 +204,19 @@ else
 		{
 		    chomp($_);
 		    $CurDir=$_;
+		    $LocalPath="$CurrentCandle"."_$CurDir";
+		    @CandleLogFiles=`find $LocalPath \-name \"\*.log\"`;
+		    if (@CandleLogFiles)
+		    {
+			print INDEX "<br><b>Logfiles for $CurDir<\/b><br>";
+			foreach (@CandleLogFiles)
+			{
+			    chomp($_);
+			    print "Found $_ in $LocalPath\n";
+			    system("cp -pR $_ $WebArea/.");
+			    print INDEX "<a href="."$_".">$_ <\/a>";
+			}
+		    }
 		    foreach (@Profile)
 		    {
 			$CurrentProfile=$_;
@@ -176,10 +234,44 @@ else
 				if ($PrintedOnce==0)
 				{
 				    print INDEX "<br>";
-				    print INDEX "$CurDir";
+				    print INDEX "<b>$CurDir</b>";
 				    $PrintedOnce=1;
 				}
 				print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
+				if ($CurrentProfile eq $Profile[7])
+				{
+				   for ($i=1;$i<3;$i++)
+				   {
+				       $ProfileTemplate="$CurrentCandle"."_"."$CurDir"."/"."*_"."$_"."_"."$CurrentProfile"."*/"."$IgProfMemAnalyseOut[$i]";
+				       $ProfileTemplateLowCaps="$CurrentCandle"."_"."$CurDir"."/"."*_"."$StepLowCaps{$_}"."_"."$CurrentProfile"."*/"."$IgProfMemAnalyseOut[$i]";
+				       $ProfileReportLink=`ls $ProfileTemplate 2>/dev/null`;
+				       if ( $ProfileReportLink !~ /^$CurrentCandle/)#no match with caps try low caps
+				       {
+					   $ProfileReportLink=`ls $ProfileTemplateLowCaps 2>/dev/null`;
+				       }
+				       if ($ProfileReportLink=~/$CurrentProfile/)#It could also not be there
+				       {
+					   print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $IgProfMemAnalyseOut[$i] $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
+				       }
+				   }
+				}
+				if ($CurrentProfile eq $Profile[9])
+				{
+				   for ($i=1;$i<3;$i++)
+				   {
+				       $ProfileTemplate="$CurrentCandle"."_"."$CurDir"."/"."*_"."$_"."_"."$CurrentProfile"."*/"."$memcheck_valgrindOut[$i]";
+			    $ProfileTemplateLowCaps="$CurrentCandle"."_"."$CurDir"."/"."*_"."$StepLowCaps{$_}"."_"."$CurrentProfile"."*/"."$memcheck_valgrindOut[$i]";
+				       $ProfileReportLink=`ls $ProfileTemplate 2>/dev/null`;
+				       if ( $ProfileReportLink !~ /^$CurrentCandle/)#no match with caps try low caps
+				       {
+					   $ProfileReportLink=`ls $ProfileTemplateLowCaps 2>/dev/null`;
+				       }
+				       if ($ProfileReportLink=~/$CurrentProfile/)#It could also not be there
+				       {
+					   print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $memcheck_valgrindOut[$i] $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
+				       }
+				   }
+				}
 			    }
 			}
 		    }
