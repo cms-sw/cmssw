@@ -102,6 +102,7 @@ std::ostream& operator<< (std::ostream& s, const TrackingParticle & tp) {
   // Loop over decay vertices
   s << " TP Vertex " << tp.vertex() << std::endl;
   s << " Source vertex: " << tp.parentVertex()->position() << std::endl;
+  s << " " << tp.decayVertices().size() << " Decay vertices" << std::endl;
   for (tv_iterator iTV = tp.decayVertices_begin(); iTV != tp.decayVertices_end(); ++iTV) {
     s << " Decay vertices:      " << (**iTV).position() << std::endl;
   }
