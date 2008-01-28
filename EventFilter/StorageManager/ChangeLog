@@ -1,6 +1,6 @@
 2008-01-28  Harry Cheung <cheung@fnal.gov>
 
-	* tag V??-??-?? (not tagged yet)
+	* tag V03-08-03 (Don't know what changed in V03-08-02! Probably framework changes)
 	* Fix bug in DQMConsumerPipe, and using priority=PushMode for pushmode
 	* Set pushmode to false in example XML config files
 
