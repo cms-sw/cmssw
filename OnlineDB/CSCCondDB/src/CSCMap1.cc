@@ -166,6 +166,7 @@
     item->crateid  = stmt->getInt(9);
     item->sector = stmt->getInt(7);
     item->trig_sector = stmt->getInt(8);
+    item->dmb = dmb;
     item->cscid = stmt->getInt(5);
 
     stmt->setSQL("begin cms_emu_cern.ddumap.chamberid_ddu(:1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17, :18, :19); end;");
