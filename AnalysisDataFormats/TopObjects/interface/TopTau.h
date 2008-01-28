@@ -9,7 +9,7 @@
    store and retrieve the high-level additional information.
 
   \author   Christophe Delaere
-  \version  $Id: TopTau.h,v 1.2 2007/10/04 15:41:54 delaer Exp $
+  \version  $Id: TopTau.h,v 1.3 2007/10/30 09:59:05 delaer Exp $
 */
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
@@ -31,16 +31,25 @@ class TopTau : public TopLepton<TopTauType> {
 
     double getEmEnergyFraction() const { return emEnergyFraction_; }
     double getEoverP() const { return eOverP_; }
+    double getHhotOverP() const { return HhotOverP_; }
+    double getEcalIsolation() const { return ecalIsolation_; }
+    double getHtotOverP() const { return HtotOverP_; }
   
   protected: 
     
     void setEmEnergyFraction(double fraction) { emEnergyFraction_ = fraction; }
     void setEoverP(double EoP) { eOverP_ = EoP; } 
+    void setHhotOverP(double HHoP) {HhotOverP_ = HHoP; }
+    void setEcalIsolation(double Eisol) { ecalIsolation_ = Eisol; }
+    void setHtotOverP(double HToP) { HtotOverP_ = HToP; }
   
   private:
 
     double emEnergyFraction_;
     double eOverP_;
+    double HhotOverP_;
+    double ecalIsolation_;
+    double HtotOverP_;
   
 };
 
