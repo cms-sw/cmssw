@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.1 2008/01/15 19:48:34 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.2 2008/01/21 01:17:07 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,6 @@ class FWViewManagerManager
       void registerEventItem(const FWEventItem*iItem);
       void registerProxyBuilder(const std::string& type, 
                                 const std::string& proxyBuilderName);
-      void newEventAvailable();
    private:
       FWViewManagerManager(const FWViewManagerManager&); // stop default
 

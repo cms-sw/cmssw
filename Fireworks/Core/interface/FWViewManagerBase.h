@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.5 2008/01/21 01:17:07 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.6 2008/01/22 16:34:09 chrjones Exp $
 //
 
 // system include files
@@ -48,8 +48,6 @@ class FWViewManagerBase
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void newEventAvailable() = 0;
-
       virtual void newItem(const FWEventItem*) = 0;
 
       virtual void registerProxyBuilder(const std::string&, 

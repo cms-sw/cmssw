@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.21 2008/01/25 01:54:08 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.22 2008/01/25 04:22:20 chrjones Exp $
 //
 
 // system include files
@@ -357,9 +357,9 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     cout <<"Eve not initialized"<<endl;
   }
    
-  m_eiManager->newEvent(&iEvent);
   m_eiManager->setGeom(&m_detIdToGeo);
-  m_viewManager->newEventAvailable();
+  m_eiManager->newEvent(&iEvent);
+  //m_viewManager->newEventAvailable();
 
   //check for input at least once
   gSystem->ProcessEvents();

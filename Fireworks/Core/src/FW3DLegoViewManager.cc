@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.3 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.4 2008/01/25 19:29:28 chrjones Exp $
 //
 
 // system include files
@@ -245,6 +245,7 @@ FW3DLegoViewManager::modelChangesComing()
 void 
 FW3DLegoViewManager::modelChangesDone()
 {
+   newEventAvailable();
 }
 
 //
