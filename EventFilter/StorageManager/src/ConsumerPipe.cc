@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.14 2007/11/29 17:04:00 wmtan Exp $
+ * $Id: ConsumerPipe.cc,v 1.15 2007/11/29 19:17:40 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -50,7 +50,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   lastEventRequestTime_ = time(NULL);
   initializationDone = false;
   pushMode_ = false;
-  if(consumerPriority_.compare("SMProxyServer") == 0) pushMode_ = true;
+  if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -60,7 +60,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   if(han_==0)
   {
     edm::LogError("ConsumerPipe") << "Could not create curl handle";
-    std::cout << "Could not create curl handle" << std::endl;
+    //std::cout << "Could not create curl handle" << std::endl;
     // throw exception here when we can make the SM go to a fail state from
     // another thread
   } else {

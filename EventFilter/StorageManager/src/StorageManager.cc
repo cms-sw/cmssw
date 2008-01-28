@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.31 2007/11/29 19:19:50 biery Exp $
+// $Id: StorageManager.cc,v 1.32 2007/12/06 22:50:26 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1780,7 +1780,7 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
                                consumerQueueSize_));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
-    if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
+    if((consumerPriority.compare("PushMode") == 0) && !pushMode_)
         consPtr->setPushMode(false);
 
     // build the registration response into the message buffer
@@ -1946,7 +1946,7 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
                                     DQMconsumerQueueSize_));
       eventServer->addConsumer(consPtr);
       // over-ride pushmode if not set in StorageManager
-      if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
+      if((consumerPriority.compare("PushMode") == 0) && !pushMode_)
           consPtr->setPushMode(false);
 
       // initialize it straight away (should later pass in the folder name to
