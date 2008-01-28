@@ -31,14 +31,9 @@ namespace TauTagTools{
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	TrackRef PFChargedHadrCand_rectk;
-	if ((**iPFCand).block()->elements().size()!=0){
-	  for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	    if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
-	      PFChargedHadrCand_rectk=(*iPFBlock).trackRef();
-	    }
-	  }
-	}else continue;
+	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
+	
+
 	if (!PFChargedHadrCand_rectk)continue;
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
@@ -55,14 +50,7 @@ namespace TauTagTools{
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	TrackRef PFChargedHadrCand_rectk;
-	if ((**iPFCand).block()->elements().size()!=0){
-	  for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	    if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
-	      PFChargedHadrCand_rectk=(*iPFBlock).trackRef();
-	    }
-	  }
-	}else continue;
+	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
 	if (!PFChargedHadrCand_rectk)continue;
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
