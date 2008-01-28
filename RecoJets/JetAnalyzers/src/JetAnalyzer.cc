@@ -116,6 +116,16 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   cout << "  EtaMax: " << _EtaMax << endl;    
   cout << "  Output histograms written to: " << _HistName << std::endl;
   cout << "-------------------------------------------------------" << endl;  
+
+  if (_PlotMCParticles){
+    cout << "Sorry, PlotMCParticles option has been disabled for now" << endl;
+    _PlotMCParticles = false;
+  }
+  if (_PlotLocalClusters){
+    cout << "Sorry, PlotLocalClusters option has been disabled for now" << endl;
+    _PlotLocalClusters = false;
+  }
+
   // open the histogram file
 
   m_file=new TFile(_HistName.c_str(),"RECREATE");
@@ -479,7 +489,7 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
 
   // local clustering using caloTowers
 
-  if(_PlotLocalClusters) {
+  if(_PlotLocalClusters) {    
     if(&genEvent && &genJets){
       std::vector<Candidate*> ParentParton;
       GetParentPartons(ParentParton);
