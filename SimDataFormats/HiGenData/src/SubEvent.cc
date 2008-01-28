@@ -41,13 +41,13 @@ HepMC::GenVertex*          SubEvent::getVertex(const HepMC::GenEvent& evt) const
       HepMC::GenVertex* dummy = *v;
       if(dummy->id() == sub_id){
 	 vertex = *v; 
-         return vertex;
+	 break;
       }
    }
    if(!vertex){
       std::cout<<"Error - Vertex with id : "<<sub_id<<" could not be found!"<<std::endl;
-      return 0;
    }
+   return vertex;
 }
    
 HepMC::GenParticle*                SubEvent::getBoson(const HepMC::GenEvent& evt){
