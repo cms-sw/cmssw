@@ -1,3 +1,8 @@
+2008-01-28  Harry Cheung <cheung@fnal.gov>
+
+        * tag V01-05-00
+        * Implement SMProxyServer as a pull mode consumer
+
 2007-12-12  Harry Cheung <cheung@fnal.gov>
 
         * tag V01-04-00
