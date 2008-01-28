@@ -26,6 +26,7 @@
 #include "OnlineDB/CSCCondDB/interface/WriteCrateMapValuesToDB.h"
 #include "OnlineDB/CSCCondDB/interface/WriteChamberIndexValuesToDB.h"
 #include "OnlineDB/CSCCondDB/interface/WriteDDUMapValuesToDB.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1Read.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(CSCAFEBAnalyzer);
@@ -45,6 +46,7 @@ DEFINE_ANOTHER_FWK_MODULE(CSCChamberIndexPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCChamberMapPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCrateMapPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCDDUMapPopConAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(CSCMap1Read);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCChamberMapValues);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCChamberIndexValues);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrateMapValues);
