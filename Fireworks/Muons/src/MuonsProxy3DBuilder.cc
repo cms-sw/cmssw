@@ -70,6 +70,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
         //in order to keep muonList having the same number of elements as 'muons' we will always
         // create a list even if it will get no children
 	TEveElementList* muonList = new TEveElementList(s.str().c_str());
+        gEve->AddElement( muonList, tList );
         
         //CDJ NOTE: I don't believe a proxy should ever filter the data it is representing
 	if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) >= 2 ) {
@@ -184,6 +185,5 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	   iter.next();
 	}
 
-        gEve->AddElement( muonList, tList );
      }
 }
