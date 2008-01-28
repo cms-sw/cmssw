@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.7 2007/10/14 14:40:04 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.8 2007/11/29 19:21:27 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -128,7 +128,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   idleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
-  consumerQueueSize_ = 5;
+  consumerQueueSize_ = 10;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
@@ -136,7 +136,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
   DQMidleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
-  DQMconsumerQueueSize_ = 5;
+  DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
 
   // for performance measurements
@@ -1467,12 +1467,17 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     if (DQMmaxESEventRate_ < 0.0)
       DQMmaxESEventRate_ = 0.0;
     
-    // consumer queues are not yet implemented, only one slot is available
-    xdata::Integer cutoff(1);
-    if (consumerQueueSize_ < cutoff)
+    // TODO fixme: determine these two parameters properly
+    xdata::Integer cutoff(20);
+    xdata::Integer mincutoff(10);
+    if (consumerQueueSize_ > cutoff)
       consumerQueueSize_ = cutoff;
-    if (DQMconsumerQueueSize_ < cutoff)
+    if (DQMconsumerQueueSize_ > cutoff)
       DQMconsumerQueueSize_ = cutoff;
+    if (consumerQueueSize_ < mincutoff)
+      consumerQueueSize_ = mincutoff;
+    if (DQMconsumerQueueSize_ < mincutoff)
+      DQMconsumerQueueSize_ = mincutoff;
 
     // set the urn as the consumer name to register with to SM
     std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
@@ -1480,6 +1485,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     consumerName_ = url + "/" + urn + "/pushEventData";
     DQMconsumerName_ = url + "/" + urn + "/pushDQMEventData";
     // start a work loop that can process commands (do we need it in push mode?)
+    // TODO fixme: use a pushmode variable to decide to change consumer names
+    //             and not get events on push mode in work loop
     try {
       dpm_.reset(new stor::DataProcessManager());
       
@@ -1607,6 +1614,9 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
     if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
     // do not stop dpm_ as we don't want to register again and get the header again
     // need to redo if we switch to polling for events
+    // switched to polling for events
+    dpm_->stop();
+    dpm_->join();
 
     // should tell StorageManager applications we are stopping in which
     // case we need to register again
