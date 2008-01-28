@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -26,6 +29,13 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
   showRegionSums(iConfig.getUntrackedParameter<bool>("showRegionSums"))
 {
    //now do what ever initialization is needed
+
+  edm::Service<TFileService> fs;
+  h_emRank = fs->make<TH1F>( "emRank", "emRank", 64, 0., 64. );
+  h_regionSum = fs->make<TH1F>( "regionSum", "regionSum", 100, 0., 100. );
+  h_emIeta = fs->make<TH1F>( "emIeta", "emIeta", 22, 0., 22. );
+  h_regionMip = fs->make<TH1F>( "regionMip", "regionMipBit", 2, 0., 2. );
+  h_towerMip = fs->make<TH1F>( "towerMip", "towerMipBit", 2, 0., 2. );
 
   // get names of modules, producing object collections
 }
@@ -62,20 +72,46 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    // as in L1GctTestAnalyzer.cc
    Handle<L1CaloEmCollection> rctEmCands;
    Handle<L1CaloRegionCollection> rctRegions;
+   Handle<EcalTrigPrimDigiCollection> ecalColl;
+   Handle<HcalTrigPrimDigiCollection> hcalColl;
 
    L1CaloEmCollection::const_iterator em;
    L1CaloRegionCollection::const_iterator rgn;
+   EcalTrigPrimDigiCollection::const_iterator ecal;
+   HcalTrigPrimDigiCollection::const_iterator hcal;
 
    iEvent.getByType(rctEmCands);
    iEvent.getByType(rctRegions);
+   iEvent.getByType(ecalColl);
+   iEvent.getByType(hcalColl);
+
+   //for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
+   //  {
+   //    ;
+   //  }
+
+   for (hcal=hcalColl->begin(); hcal!=hcalColl->end(); hcal++)
+     {
+       h_towerMip->Fill( (*hcal).SOI_fineGrain() );
+     }
 
    if(showEmCands)
      {
        cout << endl << "L1 RCT EmCand objects" << endl;
-       for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
-	 //  cout << "(Analyzer)\n" << (*em) << endl;
-	 unsigned short n_emcands = 0;
-	 //cout << endl << "rank: " << (*em).rank() ;
+     }
+   for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
+     //  cout << "(Analyzer)\n" << (*em) << endl;
+     unsigned short n_emcands = 0;
+     //cout << endl << "rank: " << (*em).rank() ;
+
+     if ((*em).rank() > 0)
+       {
+	 h_emRank->Fill( (*em).rank() );
+	 h_emIeta->Fill( (*em).regionId().ieta() );
+       }
+
+     if (showEmCands)
+       {
 	 if ((*em).rank() > 0){
 	   cout << endl << "rank: " << (*em).rank();
 	   unsigned short rgnPhi = 999;
@@ -104,15 +140,29 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
 	 }
        }
+   }
+   if(showEmCands)
+     {
        cout << endl;
      }
 
    if(showRegionSums)
      {
        cout << "Regions" << endl;
-       for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++){
+     }
+   for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++){
+     if(showRegionSums)
+       {
 	 cout << /* "(Analyzer)\n" << */ (*rgn) << endl;
        }
+     if ( (*rgn).et() > 0 )
+       {
+	 h_regionSum->Fill( (*rgn).et() );
+       }
+     h_regionMip->Fill( (*rgn).mip() );
+   }
+   if(showRegionSums)
+     {
        cout << endl;
      }
 
