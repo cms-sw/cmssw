@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:18 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 19:05:46 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -301,7 +301,7 @@ void DTCCBConfigHandler::chkConfigList() {
     if ( brickData == 0 ) {
       std::cout << "brick missing, copy request" << std::endl;
       missingList.push_back( brickConfigId );
-      break; // REMOVE
+//      break; // REMOVE
     }
   }
   std::vector<int>::const_iterator brickIter = missingList.begin();
