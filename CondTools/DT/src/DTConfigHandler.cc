@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/18 19:07:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 19:05:46 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -62,11 +62,17 @@ DTConfigHandler* DTConfigHandler::create( DTDBSession* session,
                                           const std::string& token ) {
 
   DTConfigHandler* handlerPtr = 0;
-  c_map_iter iter = handlerMap.find( 
-                    reinterpret_cast<unsigned int>( session ) );
+//  c_map_iter iter = handlerMap.find( 
+//                    reinterpret_cast<unsigned int>( session ) );
+//  if ( iter == handlerMap.end() ) 
+//       handlerMap.insert( std::pair<unsigned int,DTConfigHandler*>(
+//                          reinterpret_cast<unsigned int>( session ),
+//                          handlerPtr = new DTConfigHandler( session, 
+//                                                            token ) ) );
+  c_map_iter iter = handlerMap.find( session );
   if ( iter == handlerMap.end() ) 
-       handlerMap.insert( std::pair<unsigned int,DTConfigHandler*>(
-                          reinterpret_cast<unsigned int>( session ),
+       handlerMap.insert( std::pair<const DTDBSession*,DTConfigHandler*>(
+                          session,
                           handlerPtr = new DTConfigHandler( session, 
                                                             token ) ) );
   else                    handlerPtr = iter->second;
@@ -76,8 +82,9 @@ DTConfigHandler* DTConfigHandler::create( DTDBSession* session,
 
 
 void DTConfigHandler::remove( const DTDBSession* session ) {
-  map_iter iter = handlerMap.find(
-                  reinterpret_cast<unsigned int>( session ) );
+//  map_iter iter = handlerMap.find(
+//                  reinterpret_cast<unsigned int>( session ) );
+  map_iter iter = handlerMap.find( session );
   if ( iter != handlerMap.end() ) {
     delete iter->second;
     handlerMap.erase( iter );
@@ -318,7 +325,8 @@ std::string DTConfigHandler::compToken( const std::string& refToken, int id ) {
   unsigned int iofe = 0;
   while ( true ) {
     iofb = refToken.find( "[", iofb );
-    if ( iofb == std::string::npos ) break;
+//    if ( iofb == std::string::npos ) break;
+    if ( iofb >= refToken.length() ) break;
     iofe = refToken.find( "]", iofb );
     std::string sub( refToken.substr( iofb, 1 + iofe - iofb ) );
     iofb = sub.find( "=", 0 );
@@ -347,7 +355,8 @@ int DTConfigHandler::compToken( const std::string& refToken ) {
   unsigned tokenId;
   while ( true ) {
     iofb = refToken.find( "[", iofb );
-    if ( iofb == std::string::npos ) break;
+//    if ( iofb == std::string::npos ) break;
+    if ( iofb >= refToken.length() ) break;
     iofe = refToken.find( "]", iofb );
     std::string sub( refToken.substr( iofb, 1 + iofe - iofb ) );
     iofb = sub.find( "=", 0 );

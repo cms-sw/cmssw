@@ -21,6 +21,8 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
+#include <vector>
 
 //-------------------
 // Initializations --
@@ -251,11 +253,16 @@ DTCCBConfig::const_iterator DTCCBConfig::end() const {
 
 
 std::string DTCCBConfig::mapName() const {
+/*
   std::string name = dataVersion + "_map_CCBConfig";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << dataVersion << "_map_CCBConfig" << this;
+  return name.str();
 }
 
 

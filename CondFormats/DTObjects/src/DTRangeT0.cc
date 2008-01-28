@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:12 $
- *  $Revision: 1.7.6.3 $
+ *  $Date: 2007/12/07 15:00:51 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -210,11 +211,16 @@ DTRangeT0::const_iterator DTRangeT0::end() const {
 
 
 std::string DTRangeT0::mapName() const {
+/*
   std::string name = dataVersion + "_map_RangeT0";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << dataVersion << "_map_RangeT0" << this;
+  return name.str();
 }
 
 
