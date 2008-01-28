@@ -130,8 +130,10 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
               DetId id = chamber->id;
               const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
 	      TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
-	      muonList->AddElement( TEveGeoShape::ImportShapeExtract(extract,0) );
-
+              if(0!=extract) {
+                 muonList->AddElement( TEveGeoShape::ImportShapeExtract(extract,0) );
+              }
+              
               if ( matrix ) {
                  // make muon segment 20 cm long along local z-axis
                  matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
