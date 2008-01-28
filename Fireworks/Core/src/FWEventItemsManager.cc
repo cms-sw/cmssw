@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.5 2008/01/21 16:10:09 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.6 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 //
 // constants, enums and typedefs
@@ -75,7 +75,8 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 
 void 
 FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
-{
+{    
+  FWChangeSentry sentry(*m_changeManager);
   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
       it != m_items.end();
       ++it) {
