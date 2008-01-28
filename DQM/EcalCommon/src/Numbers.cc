@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.44 2008/01/05 09:11:09 dellaric Exp $
+// $Id: Numbers.cc,v 1.45 2008/01/05 09:18:35 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.44 $
-  \date $Date: 2008/01/05 09:11:09 $
+  \version $Revision: 1.45 $
+  \date $Date: 2008/01/05 09:18:35 $
 */
 
 #include <sstream>
@@ -206,7 +206,7 @@ std::string Numbers::sEE( const int ism  ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) {
+int Numbers::iSM( const int ism, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
@@ -318,7 +318,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = Numbers::subDet( id );
+    EcalSubdetector subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 
@@ -385,7 +385,7 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::runtime_error ) {
+int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   int idcc = id.id();
 
@@ -406,7 +406,7 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::r
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
@@ -466,7 +466,7 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = Numbers::subDet( id );
+    EcalSubdetector subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 

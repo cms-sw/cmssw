@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.20 2008/01/05 09:11:08 dellaric Exp $
+// $Id: Numbers.h,v 1.21 2008/01/05 09:18:35 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.20 $
-  \date $Date: 2008/01/05 09:11:08 $
+  \version $Revision: 1.21 $
+  \date $Date: 2008/01/05 09:18:35 $
 */
 
 #ifndef Numbers_H
@@ -57,7 +57,7 @@ class Numbers {
 
   static EcalSubdetector subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error );
 
-  static int iSM( const int ism, const int subdet ) throw( std::runtime_error );
+  static int iSM( const int ism, const EcalSubdetector subdet ) throw( std::runtime_error );
 
   static int iSM( const EBDetId& id ) throw( std::runtime_error );
 
@@ -69,9 +69,9 @@ class Numbers {
 
   static int iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error );
 
-  static int iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::runtime_error );
+  static int iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error );
 
-  static int iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error );
+  static int iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
 
   static int iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
