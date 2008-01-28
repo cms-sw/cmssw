@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.10 2008/01/27 01:10:42 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.11 2008/01/28 10:45:14 dmytro Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <exception>
+#include <boost/bind.hpp>
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
@@ -66,7 +67,8 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager():
                     kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
   m_geom(0),
   m_rhoPhiProjMgr(0),
-  m_rhoZProjMgr(0)
+  m_rhoZProjMgr(0),
+  m_itemChanged(false)
 {
    //setup projection
    TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
@@ -131,19 +133,6 @@ FWRhoPhiZViewManager::newEventAvailable()
      // Eve do any redrawing
      TEveManager::TRedrawDisabler disableRedraw(gEve);
 
-     // build models
-     for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
-          proxy != m_3dmodelProxies.end(); ++proxy ) {
-        proxy->builder->build(&(proxy->product) );
-     }
-
-     for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
-          proxy != m_2dmodelProxies.end(); ++proxy ) {
-        proxy->builder->buildRhoPhi(&(proxy->rhoPhiProduct) );
-        proxy->builder->buildRhoZ(&(proxy->rhoZProduct) );
-        
-     }
-    
      // R-Phi projections
      
      // setup the projection
@@ -162,27 +151,86 @@ FWRhoPhiZViewManager::newEventAvailable()
      
      // FIXME - standard way of loading geomtry failed
      // ----------- from here 
-     if ( ! m_geom ) {
-	TFile f("tracker.root");
-	if(not f.IsOpen()) {
-	   std::cerr <<"failed to open 'tracker.root'"<<std::endl;
-	   throw std::runtime_error("Failed to open 'tracker.root' geometry file");
-	}
-	TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
-	TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
-	f.Close();
-	m_geom = gsre;
-        set_color(m_geom,kGray+3,1.,10);
-        
-	hide_tracker_endcap(m_geom);
-	m_rhoPhiProjMgr->ImportElements(m_geom);
-	
-	makeMuonGeometryRhoPhi();
-	// makeMuonGeometryRhoZ();
-	makeMuonGeometryRhoZAdvance();
-     }
+     setupGeometry();
      addElements();
   }
+}
+
+void 
+FWRhoPhiZViewManager::setupGeometry()
+{
+   if ( ! m_geom ) {
+      TFile f("tracker.root");
+      if(not f.IsOpen()) {
+         std::cerr <<"failed to open 'tracker.root'"<<std::endl;
+         throw std::runtime_error("Failed to open 'tracker.root' geometry file");
+      }
+      TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
+      TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
+      f.Close();
+      m_geom = gsre;
+      set_color(m_geom,kGray+3,1.,10);
+      
+      hide_tracker_endcap(m_geom);
+      m_rhoPhiProjMgr->ImportElements(m_geom);
+      
+      makeMuonGeometryRhoPhi();
+      // makeMuonGeometryRhoZ();
+      makeMuonGeometryRhoZAdvance();
+   }
+
+/*   
+   if ( ! m_geom ) {
+      TFile f("tracker.root");
+      if(not f.IsOpen()) {
+         std::cerr <<"failed to open 'tracker.root'"<<std::endl;
+         throw std::runtime_error("Failed to open 'tracker.root' geometry file");
+      }
+      TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
+      TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
+      f.Close();
+      m_geom = gsre;
+      set_color(m_geom,kGray+3,1.,10);
+      
+      hide_tracker_endcap(m_geom);
+      m_rhoPhiProjMgr->ImportElements(m_geom);
+      
+      // muon system
+      if ( detIdToGeo() ) {
+         TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
+         // rho-phi view
+         for ( Int_t i=0; i<1000; ++i) {
+            TEveGeoShapeExtract* extract = detIdToGeo()->getExtract(574980096+(i << 18));
+            if ( extract ) container->AddElement( extract );
+         }
+         m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+      }
+      
+      show_tracker_endcap(m_geom);
+      m_rhoZProjMgr->ImportElements(m_geom);
+      
+      for ( std::list<TEveElement*>::iterator element = m_rhoPhiProjMgr->BeginChildren();
+           element != m_rhoPhiProjMgr->EndChildren(); ++element )
+      {
+         (*element)->IncDenyDestroy();
+         // set colors
+         if ( TEvePolygonSetProjected* set = dynamic_cast<TEvePolygonSetProjected*>(*element) )
+            if ( strcmp(set->GetName(),"NLT MuonRhoPhi") == 0)
+               for ( std::list<TEveElement*>::iterator chamber = set->BeginChildren();
+                    chamber != set->EndChildren(); ++chamber )
+                  (*chamber)->SetMainTransparency(90);
+         
+         m_rhoPhiGeom.push_back( *element );
+      }
+      
+      for ( std::list<TEveElement*>::iterator element = m_rhoZProjMgr->BeginChildren();
+           element != m_rhoZProjMgr->EndChildren(); ++element )
+      {
+         (*element)->IncDenyDestroy();
+         m_rhoZGeom.push_back( *element );
+      }
+   }
+  */ 
 }
 
 void FWRhoPhiZViewManager::addElements()
@@ -197,11 +245,11 @@ void FWRhoPhiZViewManager::addElements()
    index =0;
    while(++index < m_rhoZProjMgr->GetNChildren()) {++itLastRZElement;}
    
-   for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
-	 proxy != m_3dmodelProxies.end(); ++proxy )  {
-      m_rhoPhiProjMgr->ImportElements(proxy->product);
-      m_rhoZProjMgr->ImportElements(proxy->product);
-      if(proxy == m_3dmodelProxies.begin()) {
+   for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxy = m_modelProxies.begin();
+	 proxy != m_modelProxies.end(); ++proxy )  {
+      m_rhoPhiProjMgr->ImportElements((*proxy)->getRhoPhiProduct());
+      m_rhoZProjMgr->ImportElements((*proxy)->getRhoZProduct());
+      if(proxy == m_modelProxies.begin()) {
          if(rpHasMoreChildren) {
             ++itLastRPElement;
          }
@@ -212,15 +260,10 @@ void FWRhoPhiZViewManager::addElements()
          ++itLastRPElement;
          ++itLastRZElement;
       }
-      proxy->builder->setRhoPhiProj(*itLastRPElement);
-      proxy->builder->setRhoZProj(*itLastRZElement);
+      (*proxy)->setRhoPhiProj(*itLastRPElement);
+      (*proxy)->setRhoZProj(*itLastRZElement);
    }  
    
-   for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
-	 proxy != m_2dmodelProxies.end(); ++proxy )  {
-      m_rhoPhiProjMgr->ImportElements(proxy->rhoPhiProduct);
-      m_rhoZProjMgr->ImportElements(proxy->rhoZProduct);
-   }  
 }
 
 
@@ -238,7 +281,8 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
         if(0!=builder) {
            boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
            builder->setItem(iItem);
-           m_3dmodelProxies.push_back(FWRPZ3DModelProxy(pB) );
+           m_modelProxies.push_back(boost::shared_ptr<FWRPZ3DModelProxy>(new FWRPZ3DModelProxy(pB)) );
+           iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
         }
      } else {
         FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
@@ -249,10 +293,12 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
         if(0!=builder) {
            boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
            builder->setItem(iItem);
-           m_2dmodelProxies.push_back(FWRPZ2DModelProxy(pB) );
+           m_modelProxies.push_back(boost::shared_ptr<FWRPZ2DModelProxy>(new FWRPZ2DModelProxy(pB) ));
+           iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
         }
      }
   }
+   iItem->itemChanged_.connect(boost::bind(&FWRhoPhiZViewManager::itemChanged,this,_1));
 }
 
 void 
@@ -274,10 +320,22 @@ FWRhoPhiZViewManager::modelChangesComing()
 void 
 FWRhoPhiZViewManager::modelChangesDone()
 {
+   if(m_itemChanged) {
+      newEventAvailable();
+   }
+   m_itemChanged=false;
    gEve->EnableRedraw();
    //gEve->Redraw3D();
 }
 
+void 
+FWRhoPhiZViewManager::itemChanged(const FWEventItem*) {
+   m_itemChanged=true;
+}
+
+//
+// const member functions
+//
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
    if ( ! detIdToGeo() ) return;
@@ -595,7 +653,92 @@ void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix,
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
+//
+// static member functions
+//
 
+void
+FWRPZModelProxyBase::itemChanged(const FWEventItem* iItem)
+{
+   this->itemChangedImp(iItem);
+}
+
+void
+FWRPZ3DModelProxy::itemChangedImp(const FWEventItem*)
+{
+   m_mustRebuild=true;
+}
+
+TEveElementList* 
+FWRPZ3DModelProxy::getProduct() const
+{
+   if(m_mustRebuild) {
+      m_builder->build(&m_product);
+      m_mustRebuild=false;
+   }
+   return m_product;
+}
+
+TEveElementList* 
+FWRPZ3DModelProxy::getRhoPhiProduct() const
+{
+   return getProduct();
+}
+
+TEveElementList* 
+FWRPZ3DModelProxy::getRhoZProduct() const
+{
+   return getProduct();
+}
+
+void
+FWRPZ3DModelProxy::setRhoPhiProj(TEveElement* iElement)
+{
+   m_builder->setRhoPhiProj(iElement);
+}
+
+void
+FWRPZ3DModelProxy::setRhoZProj(TEveElement* iElement)
+{
+   m_builder->setRhoZProj(iElement);
+}
+void
+FWRPZ2DModelProxy::itemChangedImp(const FWEventItem*)
+{
+   m_mustRebuildRhoPhi=true;
+   m_mustRebuildRhoZ=true;
+}
+TEveElementList* 
+FWRPZ2DModelProxy::getRhoPhiProduct() const
+{
+   if(m_mustRebuildRhoPhi) {
+      m_builder->buildRhoPhi(&m_rhoPhiProduct);
+      m_mustRebuildRhoPhi=false;
+   }
+   return m_rhoPhiProduct;
+}
+
+TEveElementList* 
+FWRPZ2DModelProxy::getRhoZProduct() const
+{
+   if(m_mustRebuildRhoZ) {
+      m_builder->buildRhoZ(&m_rhoZProduct);
+      m_mustRebuildRhoZ=false;
+   }
+   return m_rhoZProduct;
+}
+
+void
+FWRPZ2DModelProxy::setRhoPhiProj(TEveElement* iElement)
+{
+   m_builder->setRhoPhiProj(iElement);
+}
+
+void
+FWRPZ2DModelProxy::setRhoZProj(TEveElement* iElement)
+{
+   m_builder->setRhoZProj(iElement);
+}
 void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
 						   double& min_rho, double& max_rho, double& min_z, double& max_z )
 {

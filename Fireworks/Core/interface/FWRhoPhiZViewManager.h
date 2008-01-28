@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.5 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.6 2008/01/28 10:45:04 dmytro Exp $
 //
 
 // system include files
@@ -35,23 +35,60 @@ class TEveProjectionManager;
 class FWRPZDataProxyBuilder;
 class FWRPZ2DDataProxyBuilder;
 
-struct FWRPZ3DModelProxy
+class FWRPZModelProxyBase
 {
-   boost::shared_ptr<FWRPZDataProxyBuilder>   builder;
-   TEveElementList*                           product; //owned by builder
-   FWRPZ3DModelProxy():product(0){}
-   FWRPZ3DModelProxy(boost::shared_ptr<FWRPZDataProxyBuilder> iBuilder):
-    builder(iBuilder),product(0) {}
+public:
+   FWRPZModelProxyBase() {}
+   virtual ~FWRPZModelProxyBase() {}
+   void itemChanged(const FWEventItem*);
+   virtual TEveElementList* getRhoPhiProduct() const =0;
+   virtual TEveElementList* getRhoZProduct() const = 0;
+   virtual void setRhoPhiProj(TEveElement*) = 0;
+   virtual void setRhoZProj(TEveElement*) = 0;
+private:
+   virtual void itemChangedImp(const FWEventItem*) = 0;
+   
 };
 
-struct FWRPZ2DModelProxy
+class FWRPZ3DModelProxy : public FWRPZModelProxyBase
 {
-  boost::shared_ptr<FWRPZ2DDataProxyBuilder>   builder;
-  TEveElementList*                             rhoPhiProduct; //owned by builder
-  TEveElementList*                             rhoZProduct; //owned by builder
-  FWRPZ2DModelProxy():rhoPhiProduct(0), rhoZProduct(0){}
-  FWRPZ2DModelProxy(boost::shared_ptr<FWRPZ2DDataProxyBuilder> iBuilder):
-  builder(iBuilder),rhoPhiProduct(0), rhoZProduct(0) {}
+public:
+   FWRPZ3DModelProxy():m_product(0),m_mustRebuild(true){}
+   FWRPZ3DModelProxy(boost::shared_ptr<FWRPZDataProxyBuilder> iBuilder):
+   m_builder(iBuilder),m_product(0),m_mustRebuild(true) {}
+   TEveElementList* getRhoPhiProduct() const;
+   TEveElementList* getRhoZProduct() const;
+   void setRhoPhiProj(TEveElement*);
+   void setRhoZProj(TEveElement*);
+private:
+   void itemChangedImp(const FWEventItem*) ;
+   TEveElementList* getProduct() const;
+   boost::shared_ptr<FWRPZDataProxyBuilder>   m_builder;
+   mutable TEveElementList*                   m_product; //owned by builder
+   mutable bool m_mustRebuild;
+   
+};
+
+struct FWRPZ2DModelProxy : public FWRPZModelProxyBase
+{
+public:
+   FWRPZ2DModelProxy():m_rhoPhiProduct(0), m_rhoZProduct(0),
+   m_mustRebuildRhoPhi(true),m_mustRebuildRhoZ(true){}
+   FWRPZ2DModelProxy(boost::shared_ptr<FWRPZ2DDataProxyBuilder> iBuilder):
+   m_builder(iBuilder),m_rhoPhiProduct(0), m_rhoZProduct(0),
+   m_mustRebuildRhoPhi(true),m_mustRebuildRhoZ(true){}
+
+   TEveElementList* getRhoPhiProduct() const;
+   TEveElementList* getRhoZProduct() const;
+   void setRhoPhiProj(TEveElement*);
+   void setRhoZProj(TEveElement*);
+private:
+   void itemChangedImp(const FWEventItem*) ;
+   boost::shared_ptr<FWRPZ2DDataProxyBuilder>   m_builder;
+   mutable TEveElementList*                     m_rhoPhiProduct; //owned by builder
+   mutable TEveElementList*                     m_rhoZProduct; //owned by builder
+   mutable bool m_mustRebuildRhoPhi;
+   mutable bool m_mustRebuildRhoZ;
 };
 
 class TGeoHMatrix;
@@ -78,15 +115,18 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 				const std::string&);
 
    protected:
-   virtual void modelChangesComing() ;
-   virtual void modelChangesDone() ;
+      virtual void modelChangesComing() ;
+      virtual void modelChangesDone() ;
 
    private:
       FWRhoPhiZViewManager(const FWRhoPhiZViewManager&); // stop default
 
       const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
 
+      void itemChanged(const FWEventItem*);
       void addElements();
+   
+      void setupGeometry();
       void makeMuonGeometryRhoPhi();
       void makeMuonGeometryRhoZ();
       void makeMuonGeometryRhoZAdvance();
@@ -98,14 +138,15 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
-      std::vector<FWRPZ3DModelProxy> m_3dmodelProxies;
-      std::vector<FWRPZ2DModelProxy> m_2dmodelProxies;
+      std::vector<boost::shared_ptr<FWRPZModelProxyBase> > m_modelProxies;
 
       TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
       TEveProjectionManager* m_rhoZProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;
       std::vector<TEveElement*> m_rhoZGeom;
+   
+      bool m_itemChanged;
 };
 
 
