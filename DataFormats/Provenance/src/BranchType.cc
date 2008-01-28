@@ -38,6 +38,7 @@ namespace edm {
     std::string const lumiAux = lumi + aux;
     std::string const eventAux = event + aux;
 
+    std::string const entryDescriptionTree = "EntryDescription";
     std::string const metaDataTree = "MetaData";
     std::string const productRegistry = "ProductRegistry";
     std::string const parameterSetMap = "ParameterSetMap";
@@ -79,6 +80,12 @@ namespace edm {
   }
 
   namespace poolNames {
+
+    // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
+    std::string const& entryDescriptionTreeName() {
+      return entryDescriptionTree;
+    }
+
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName() {
       return metaDataTree;
