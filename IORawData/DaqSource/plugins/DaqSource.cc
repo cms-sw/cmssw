@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/12/18 21:29:03 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/12/31 22:44:00 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -109,15 +109,19 @@ namespace edm {
       noMoreEvents_ = true;
       return IsStop;
     }
+    if (eventId.event() == 0) {
+      throw cms::Exception("LogicError")
+        << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
+        << "Event numbers must begin at 1, not 0.";
+    }
     setTimestamp(tstamp);
-    if(fakeLSid_ && luminosityBlockNumber_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1)) {
-	luminosityBlockNumber_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
+    if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
+	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
         newLumi_ = true;
 	resetLuminosityBlockPrincipal();
     }
 
-    // Framework event numbers start at 1, not at zero.
-    eventId = EventID(runNumber_, eventId.event() + 1);
+    eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.
     if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
