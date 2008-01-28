@@ -20,14 +20,17 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include <math.h>
 #include <fstream>
 #include <map>
 #include <string>
+#include <map>
 #include <vector>
 
 using namespace std;
 using namespace edm;
+int FirstRos=0,nevents=0;
+#include "ROSDebugUtility.h"
 
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) {
 
@@ -39,7 +42,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
-  
+
   //Root output file with histograms
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -51,7 +54,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
     edm::Service<MonitorDaemon> daemon;
     daemon.operator->();
   }
-
+  doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", true);
 }
 
 
@@ -60,7 +63,6 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
   if(debug)
     cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
 }
-
 
 
 void DTDataIntegrityTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -115,8 +117,13 @@ void DTDataIntegrityTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 */
 
 void DTDataIntegrityTask::postEndJob(){
-  if(debug)
+//  if(debug)
     cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
+
+  if(doTimeHisto) TimeHistos("Event_word_vs_time");	
+	
+  if (parameters.getUntrackedParameter<bool>("writeHisto", true))
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
 
   dbe->rmdir("DT/DataIntegrity");
 
@@ -394,7 +401,19 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCnt";
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16384,0,65536);
 
-  }  
+    histoType = "Event_word_vs_time";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_Event_word_vs_time";
+    string fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
+    names.insert (pair<std::string,std::string> (histoType,string(fullName)));
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,28800,0,28800,100,0,3000);    
+    
+    histoType = "ROB_mean";
+    histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
+    fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
+    names.insert (pair<std::string,std::string> (histoType,string(fullName)));   
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,25,0,25,100,0,100);
+    
+      }
 
   // ROB/TDC Histograms
   if ( folder == "ROB_O") {
@@ -405,8 +424,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_Occupancy";
     string histoTitle = histoName + " (TDC vs TDCchannel)";
     (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,32,0,32,4,0,4);
-
-  }
+   }
 
   if ( folder == "ROB_T") {
 
@@ -516,6 +534,33 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
 }
 
+void DTDataIntegrityTask::TimeHistos(string histoType){  
+  
+ if(histoType == "Event_word_vs_time"){   
+
+  for (it = names.begin(); it != names.end(); it++) {    
+
+    if ((*it).first==histoType){
+     
+     MonitorElement * h1 =dbe->get((*it).second);
+
+ int first_bin = -1, last_bin=-1;
+   for( int bin=1; bin < h1->getNbinsX()+1; bin++ ){
+    for( int j=1; j < h1->getNbinsY(); j++ ){
+     if( h1->getBinContent(bin,j) > 0 ) {    
+      if( first_bin == -1 ) { first_bin = bin; }
+      last_bin = bin;
+   }
+  }
+ }
+ 
+  if( first_bin > 1 ) { first_bin -= 1; }
+  if( last_bin < h1-> getNbinsX() ){ last_bin += 1; }
+    h1->setAxisRange(0,last_bin,1);
+   }
+  }
+ }  
+}
 
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
@@ -569,6 +614,12 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(data.getROSTrailer().EventWordCount());
   }
 
+
+// ROS errors
+
+
+  if (neventsROS25 == 1) FirstRos = code.getROSID();
+  if (code.getROSID() == FirstRos) nevents++ ;
 
   histoType = "ROSError";
   for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
@@ -640,28 +691,60 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(ROSDebug_BcntResCnt);
   }
 
+ 
+//	 Event words vs time
 
+ 	
+  ROSWords_t(ResetCount_unfolded,code.getROS(),ROSDebug_BcntResCnt,nevents);
+
+// fill hists it here
+  histoType = "Event_word_vs_time";  	  
+  if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()){
+  (rosHistos.find(histoType)->second).find(code.getROSID())->second->
+  		Fill((ResetCount_unfolded),data.getROSTrailer().EventWordCount());
+  (rosHistos.find(histoType)->second).find(code.getROSID())->second->setAxisTitle("Time(s)",1);
+   }
+  else {
+     (rosHistos.find(histoType)->second).find(code.getROSID())->second->
+    		Fill((ResetCount_unfolded),data.getROSTrailer().EventWordCount());
+        }  
+	
   /// ROB Group Header     
 
   for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin();
        rob_it != data.getROBHeaders().end(); rob_it++) {
 
     code.setROB((*rob_it).first);
-    DTROBHeaderWord robheader = (*rob_it).second;
-
+    DTROBHeaderWord robheader = (*rob_it).second;  
+   
     if (robheader.bunchID() != ROSDebug_BunchNumber) {
       //     fill ROS Summary plot
       rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
       //     fill ROB Summary plot for that particular ROS
       histoType = "ROSError";
-      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+      if (rosHistos[histoType].find(code.getROS()) != rosHistos[histoType].end())
 	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
       else {
 	bookHistos( string("ROS"), code);
-	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
+	(rosHistos.find(histoType)->second).find(code.getROS())->second->Fill(8,robheader.robID());
       }
     }
   }
+
+/// ROB Trailer
+
+  for (vector<DTROBTrailerWord>::const_iterator robt_it = data.getROBTrailers().begin();
+       robt_it != data.getROBTrailers().end(); robt_it++) {       
+   
+   histoType = "ROB_mean";
+
+   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
+       (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(code.getROB(),
+      								(*robt_it).wordCount());
+       (rosHistos.find(histoType)->second).find(code.getROSID())->second->setAxisTitle("ROB #",1);							
+       (rosHistos.find(histoType)->second).find(code.getROSID())->second->setAxisTitle("ROB wordcounts",2);
+    }
+   }
 
   
   /// TDC Data  
@@ -718,7 +801,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(tdcDatum.tdcChannel(),
 									      tdcDatum.tdcID());
     }
-
+   
     histoType = "TimeBox";
     if (robHistos[histoType].find(index) != robHistos[histoType].end()) {
       (robHistos.find(histoType)->second).find(index)->second->Fill(tdcDatum.tdcTime());
@@ -845,8 +928,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
     }
 
-  }
-  
+  }   
+
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25Data> & rosData, int ddu) {
