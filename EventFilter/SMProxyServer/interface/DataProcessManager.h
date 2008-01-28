@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id$
+// $Id: DataProcessManager.h,v 1.2 2007/05/16 22:57:45 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -25,6 +25,7 @@ namespace stor
   public:
     typedef std::vector<char> Buf;
     typedef std::map<std::string, unsigned int> RegConsumer_map;
+    typedef std::map<std::string, struct timeval> LastReqTime_map;
 
     DataProcessManager();
 
@@ -87,6 +88,14 @@ namespace stor
     void init();
     void processCommands();
     static void run(DataProcessManager*);
+    void getEventFromAllSM();
+    double getTime2Wait(std::string smURL);
+    void setTime2Now(std::string smURL);
+    bool getOneEventFromSM(std::string smURL, double& time2wait);
+    void getDQMEventFromAllSM();
+    double getDQMTime2Wait(std::string smURL);
+    void setDQMTime2Now(std::string smURL);
+    bool getOneDQMEventFromSM(std::string smURL, double& time2wait);
 
     bool registerWithAllSM();
     bool registerWithAllDQMSM();
@@ -99,6 +108,7 @@ namespace stor
     edm::EventBuffer* cmd_q_;
 
     bool alreadyRegistered_;
+    bool alreadyRegisteredDQM_;
     unsigned int  ser_prods_size_;
     std::vector<unsigned char> serialized_prods_;
     std::vector<unsigned char> buf_;
@@ -107,7 +117,9 @@ namespace stor
     RegConsumer_map smRegMap_;
     std::vector<std::string> DQMsmList_;
     RegConsumer_map DQMsmRegMap_;
+    std::string eventpage_;
     std::string regpage_;
+    std::string DQMeventpage_;
     std::string DQMregpage_;
     std::string headerpage_;
     char subscriptionurl_[2048];
@@ -116,6 +128,12 @@ namespace stor
     std::string consumerPriority_;
     std::string consumerPSetString_;
     int headerRetryInterval_; // seconds
+    double minEventRequestInterval_;
+    unsigned int consumerId_;
+    LastReqTime_map lastReqMap_;
+    double minDQMEventRequestInterval_;
+    unsigned int DQMconsumerId_;
+    LastReqTime_map lastDQMReqMap_;
     std::string DQMconsumerName_;
     std::string DQMconsumerPriority_;
     std::string consumerTopFolderName_;
