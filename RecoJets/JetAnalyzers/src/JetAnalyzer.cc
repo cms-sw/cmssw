@@ -190,82 +190,38 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
   //  cout << i << "  " << PFC[i].energy() <<endl;
   // }
 
-  try {
-    evt.getByLabel (calotowers_,caloTowers);
-  } catch (const cms::Exception& e){
-    errMsg=errMsg + "  -- No CaloTowers\n"+e.what();
-  }
-
-
-
+  evt.getByLabel (calotowers_,caloTowers);
+  if (! caloTowers.isValid() ) { errMsg=errMsg + "  -- No CaloTowers" ; caloTowers=caloTowersDummy;}
 
   if(_PlotRecHits){
-    try {
-      evt.getByLabel( "ecalRecHit","EcalRecHitsEB", EBRecHits );
-    } catch (...) {
-      errMsg=errMsg + "  -- No EB Rechits";
-    }
+    evt.getByLabel( "ecalRecHit","EcalRecHitsEB", EBRecHits );
+    evt.getByLabel( "ecalRecHit","EcalRecHitsEE", EERecHits );
+    evt.getByLabel( "hbhereco", HBHERecHits );
+    evt.getByLabel( "hfreco", HFRecHits );
+    evt.getByLabel( "horeco", HORecHits );
 
-    try {
-      evt.getByLabel( "ecalRecHit","EcalRecHitsEE", EERecHits );
-    } catch (...) {
-      errMsg=errMsg + "  -- No EE Rec hits";
-    }
-
-    try{
-      //      evt.getByType(HBHERecHits);
-      evt.getByLabel( "hbhereco", HBHERecHits );
-    } catch (...) {
-      errMsg=errMsg + "  -- No HBHE hits";
-    }
-
-    try {
-      //      evt.getByType(HFRecHits);
-      evt.getByLabel( "hfreco", HFRecHits );
-    } catch (...) {
-      errMsg=errMsg + "  -- No HF hits";
-    }
-
-    try {
-      //      evt.getByType(HORecHits);
-      evt.getByLabel( "horeco", HORecHits );
-    } catch (...) {
-      errMsg=errMsg + "  -- No HO hits";
-    }
+    if (! EBRecHits.isValid() ) { errMsg=errMsg + "  -- No EB Rechits" ; EBRecHits=EBRecHitsDummy;}
+    if (! EERecHits.isValid() ) { errMsg=errMsg + "  -- No EE Rechits" ; EERecHits=EERecHitsDummy;}
+    if (! HBHERecHits.isValid() ) { errMsg=errMsg + "  -- No HBHE Rechits" ; HBHERecHits=HBHERecHitsDummy;}
+    if (! HFRecHits.isValid() ) { errMsg=errMsg + "  -- No HF Rechits" ; HFRecHits=HFRecHitsDummy;}
+    if (! HORecHits.isValid() ) { errMsg=errMsg + "  -- No HO Rechits" ; HORecHits=HORecHitsDummy;}
   }
 
   if(_PlotDigis) {
-    try {
-      //      evt.getByType(HBHEDigis);
-      evt.getByLabel( "hcalDigis", HBHEDigis );
-    } catch (...) {
-    errMsg=errMsg + "  -- No HBHE digis";
-    }
+    evt.getByLabel( "hcalDigis", HBHEDigis );
+    evt.getByLabel( "hcalDigis", HODigis );
+    evt.getByLabel( "hcalDigis", HFDigis );
 
-
-    try {
-      evt.getByLabel( "hcalDigis", HODigis );
-      //      evt.getByType(HODigis);
-    } catch (...) {
-      errMsg=errMsg + "  -- No HO digis";
-    }
-
-    try {
-      evt.getByLabel( "hcalDigis", HFDigis );
-      //      evt.getByType(HFDigis);
-    } catch (...) {
-      errMsg=errMsg + "  -- No HF digis";
-    }
+    if (! HBHEDigis.isValid() ) { errMsg=errMsg + "  -- No HBHE digis" ; HBHEDigis=HBHEDigisDummy;}
+    if (! HODigis.isValid() ) { errMsg=errMsg + "  -- No HO digis" ; HODigis=HODigisDummy;}
+    if (! HFDigis.isValid() ) { errMsg=errMsg + "  -- No HF digis" ; HFDigis=HFDigisDummy;}
   }
 
   // Trigger Information
   
   if(_PlotTrigger){
-    try {
-      evt.getByType(trigger);
-    } catch (...) {
-      errMsg=errMsg + "  -- No TB Trigger info";
-    }
+    evt.getByType(trigger);
+    if (! trigger.isValid() ) { errMsg=errMsg + "  -- No TB Trigger info" ; trigger=triggerDummy;}
   }
 
 
