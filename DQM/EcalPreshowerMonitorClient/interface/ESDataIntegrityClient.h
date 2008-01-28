@@ -67,8 +67,10 @@ class ESDataIntegrityClient: public EDAnalyzer{
 
   TH1F *hDCCError_;
   TH2F *hCRCError_;
-  TH1F *hBC_;
-  TH1F *hEC_;
+  TH1F *hGlbBC_;
+  TH1F *hGlbEC_;
+  TH1F *hKchipBC_;
+  TH1F *hKchipEC_;
   TH1F *hFlag1_;
   TH1F *hFlag2_;
   TH1F *hEvtLen_;

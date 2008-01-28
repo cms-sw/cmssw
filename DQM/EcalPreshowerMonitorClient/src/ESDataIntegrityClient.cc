@@ -137,17 +137,29 @@ void ESDataIntegrityClient::doQT() {
     meT = dynamic_cast<MonitorElementT<TNamed>*>(meDCCError);           
     hDCCError_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
-
-  MonitorElement * meBC = dbe_->get(getMEName("ES BC Errors"));
-  if (meBC) {
-    meT = dynamic_cast<MonitorElementT<TNamed>*>(meBC);           
-    hBC_ = dynamic_cast<TH1F*> (meT->operator->());      
+ 
+  MonitorElement * meGlbBC = dbe_->get(getMEName("ES Global BC Errors"));
+  if (meGlbBC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meGlbBC);           
+    hGlbBC_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
 
-  MonitorElement * meEC = dbe_->get(getMEName("ES EC Errors"));
-  if (meEC) {
-    meT = dynamic_cast<MonitorElementT<TNamed>*>(meEC);           
-    hEC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  MonitorElement * meGlbEC = dbe_->get(getMEName("ES Global EC Errors"));
+  if (meGlbEC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meGlbEC);           
+    hGlbEC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meKchipBC = dbe_->get(getMEName("ES Kchip BC Errors"));
+  if (meKchipBC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meKchipBC);           
+    hKchipBC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meKchipEC = dbe_->get(getMEName("ES Kchip EC Errors"));
+  if (meKchipEC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meKchipEC);           
+    hKchipEC_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
 
   MonitorElement * meFlag1 = dbe_->get(getMEName("ES KCHIP Flag1"));
@@ -216,9 +228,6 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
   for (int i=2; i<=255; ++i) 
     dccErrors += hDCCError_->GetBinContent(i);  
 
-  double bcErrors = hBC_->GetBinContent(1);
-  double ecErrors = hEC_->GetBinContent(1);
-
   double flag1Errors = 0;
   for (int i=2; i<=16; ++i) 
     flag1Errors += hFlag1_->GetBinContent(i);
@@ -233,16 +242,12 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile << "<td colspan=\"6\">CRC errors</td>" << endl;
   htmlFile << "<td colspan=\"6\">DCC errors</td>" << endl;
-  htmlFile << "<td colspan=\"6\">BC errors</td>" << endl;
-  htmlFile << "<td colspan=\"6\">EC errors</td>" << endl;
   htmlFile << "<td colspan=\"6\">Flag1 errors</td>" << endl;
   htmlFile << "<td colspan=\"6\">Flag2 errors</td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << crcErrors <<"</sapn></td>" << endl;
   htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << dccErrors <<"</span></td>" << endl;
-  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << bcErrors <<"</span></td>" << endl;
-  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << ecErrors <<"</span></td>" << endl;
   htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << flag1Errors <<"</span></td>" << endl;
   htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << flag2Errors <<"</span></td>" << endl;
   htmlFile << "</tr>" << endl;
@@ -263,6 +268,88 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
       htmlFile << "<tr align=\"center\">" << endl;
       htmlFile << "<td>" << i-1 << "</td>" << endl;
       htmlFile << "<td>" << hEvtLen_->GetBinContent(i, 1) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
+  // Global BC and EC check
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">Global BC check</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>KCHIP id : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=45; ++i) {
+    if ( hGlbBC_->GetBinContent(i) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << hGlbBC_->GetBinCenter(i) << "</td>" << endl;
+      htmlFile << "<td>" << hGlbBC_->GetBinContent(i) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">Global EC check</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>KCHIP id : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=45; ++i) {
+    if ( hGlbEC_->GetBinContent(i) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << hGlbEC_->GetBinCenter(i) << "</td>" << endl;
+      htmlFile << "<td>" << hGlbEC_->GetBinContent(i) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
+  // Local(Kchip) BC and EC check
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">KCHIP BC check</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>KCHIP id : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=45; ++i) {
+    if ( hKchipBC_->GetBinContent(i) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << hKchipBC_->GetBinCenter(i) << "</td>" << endl;
+      htmlFile << "<td>" << hKchipBC_->GetBinContent(i) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">KCHIP EC check</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>KCHIP id : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=45; ++i) {
+    if ( hKchipEC_->GetBinContent(i) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << hKchipEC_->GetBinCenter(i) << "</td>" << endl;
+      htmlFile << "<td>" << hKchipEC_->GetBinContent(i) << "</td>" << endl;
       htmlFile << "</tr>" << endl; 
     }
   }
@@ -362,186 +449,13 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
+  stringstream run_str; run_str << run;
+  if (detType_ == 1)
+    system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 1").c_str());
+  else if (detType_ == 2)
+    system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 2").c_str());
+  
   htmlFile.close();
-
-
-  //---------------------------------------------------------------------------------
-  //---------------------------------------------------------------------------------
-  // Create the main html file index.html in the appropriate directory.
-  // This piece of code was ported from the standalone version
-  // of DQM_html_generator.c by Yannis.Papadopoulos@cern.ch
-
-  int trig=detType_, i;
-  char trigger[8]="", fname[1024], cmd[1024];
-  FILE* htmlfp;
-
-  if (trig==1)
-    sprintf(trigger,"%s","CT");
-  else if (trig==2)
-    sprintf(trigger,"%s","TB");
-  else
-    return; // this should never happen...
-
-  sprintf(fname,"%s/index.html",htmlDir.c_str());
-
-  sprintf(cmd,"rm -f %s",fname); // overcome file ownership problems
-  system(cmd);
-
-  htmlfp=fopen(fname,"w");
-
-  fprintf(htmlfp,"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n");
-  fprintf(htmlfp,"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-  fprintf(htmlfp,"<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-  fprintf(htmlfp,"<head>");
-  fprintf(htmlfp,"  <title>ES DQM %s: run %08d</title>",trigger,run);
-  fprintf(htmlfp,"  <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />");
-  fprintf(htmlfp,"  <meta name=\"author\" content=\"Ioannis PAPADOPOULOS\"/>");
-  fprintf(htmlfp,"  <style type=\"text/css\">");
-  fprintf(htmlfp,"     body  {background-color: #caf; font-family: sans-serif; font-size: 12px; position: relative;}");
-  fprintf(htmlfp,"     #mother {position: relative;}");
-  fprintf(htmlfp,"     td:first-child    {text-align: right;}");
-  fprintf(htmlfp,"     #plot {position: absolute; left: 200px; top: 0;}");
-  fprintf(htmlfp,"     #dfrm {position: absolute; left: 200px; top: 0; visibility: hidden; background-color: white;}");
-  fprintf(htmlfp,"     .ciel {background-color: #acf;}");
-  fprintf(htmlfp,"     .vert {background-color: #cfa;}");
-  fprintf(htmlfp,"  </style>");
-  fprintf(htmlfp,"  <script type=\"text/javascript\">");
-  fprintf(htmlfp,"  function hideplot()");
-  fprintf(htmlfp,"  {");
-  fprintf(htmlfp,"    document.getElementById('plot_img').style.visibility = 'hidden' ;");
-  fprintf(htmlfp,"    document.getElementById('dfrm').style.visibility     = 'visible' ;");
-  fprintf(htmlfp,"  }");
-  fprintf(htmlfp,"  function submitform()");
-  fprintf(htmlfp,"  {");
-  fprintf(htmlfp,"    document.getElementById('plot_img').style.visibility = 'visible' ;");
-  fprintf(htmlfp,"    document.getElementById('dfrm').style.visibility     = 'hidden' ;");
-  fprintf(htmlfp,"    for (i=0;i<document.getElementById('myform').rad.length;i++) {");
-  fprintf(htmlfp,"      if (document.getElementById('myform').rad[i].checked) {");
-  fprintf(htmlfp,"        t = document.getElementById('myform').rad[i].value;");
-  fprintf(htmlfp,"      }");
-  fprintf(htmlfp,"    }");
-  fprintf(htmlfp,"    x=document.getElementById('myform').elements['var_ix'].value;");
-  fprintf(htmlfp,"    y=document.getElementById('myform').elements['var_iy'].value;");
-  if (trig==1)
-    fprintf(htmlfp,"    z=document.getElementById('myform').elements['var_z'].value;");
-  else
-    fprintf(htmlfp,"    z=1;"); // for TB z is not used and is set to 1
-  fprintf(htmlfp,"    s=document.getElementById('myform').elements['var_strip'].value;");
-  fprintf(htmlfp,"    p=document.getElementById('myform').elements['var_plane'].value;");
-  fprintf(htmlfp,"    document.getElementById('plot_img').src=\"/cgi-bin/DQM/DQMimage%s.sh?",trigger);
-  fprintf(htmlfp,"t=\"+t+\"&s=\"+s+\"&x=\"+x+\"&y=\"+y+\"&z=\"+z+\"&p=\"+p+\"&r=\"+%d;",run);
-  fprintf(htmlfp,"  }");
-  fprintf(htmlfp,"  </script>");
-  fprintf(htmlfp,"</head>");
-
-  fprintf(htmlfp,"<body>");
-  fprintf(htmlfp,"<div id=\"mother\">");
-
-  fprintf(htmlfp,"  <form name=\"myform\" id=\"myform\" action=\"javascript: submitform()\" >");
-  fprintf(htmlfp,"    <table>");
-  fprintf(htmlfp,"    <tr><td colspan=\"2\" style=\"text-align:center;\">ES DQM");
-  fprintf(htmlfp,"      <span style=\"color:blue; font-size:1.5em;\">%s</span><br/>",trigger);
-  fprintf(htmlfp,"      run <span style=\"color:red; font-size:1.5em;\">%08d</span><hr/></td></tr>",run);
-
-  fprintf(htmlfp,"    <tr><td>Strip # :</td>");
-  fprintf(htmlfp,"    <td><select name=\"var_strip\">");
-  for (i=1; i<=32; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  fprintf(htmlfp,"    </select></td></tr>");
-
-  fprintf(htmlfp,"    <tr><td>Plane # :</td>");
-  fprintf(htmlfp,"    <td><select name=\"var_plane\">");
-  if (trig==1)
-    for (i=1; i<=6; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  else
-    for (i=1; i<=2; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  fprintf(htmlfp,"    </select></td></tr>");
-
-  fprintf(htmlfp,"    <tr><td>ix :</td>");
-  fprintf(htmlfp,"    <td><select name=\"var_ix\">");
-  if (trig==1) // CT
-    for (i=1; i<=2; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  else         // TB
-    for (i=1; i<=4; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  fprintf(htmlfp,"    </select></td></tr>");
-
-  fprintf(htmlfp,"    <tr><td>iy :</td>");
-  fprintf(htmlfp,"    <td><select name=\"var_iy\">");
-  if (trig==1) // CT
-    for (i=1; i<=5; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  else         // TB
-    for (i=1; i<=4; i++) fprintf(htmlfp,"<option value=\"%d\">%02d</option>",i,i);
-  fprintf(htmlfp,"    </select></td></tr>");
-
-  if (trig==1) { // z is used in CT but not in TB. (In TB it is set to 1 in the javascript code)
-    fprintf(htmlfp,"    <tr><td>z :</td>");
-    fprintf(htmlfp,"    <td><select name=\"var_z\">");
-    for (i=1; i>=-1; i--) if (i) fprintf(htmlfp,"<option value=\"%d\">%2d</option>",i,i);
-    fprintf(htmlfp,"    </select></td></tr>");
-  }
-
-  fprintf(htmlfp,"    <tr style=\"font-size:4px;\"><td>&nbsp;</td><td>&nbsp;</td></tr>");
-
-  fprintf(htmlfp,"    <tr class=\"ciel\"><td>sensor pedestals:  </td>");
-  fprintf(htmlfp,"        <td> <input type=\"radio\" name=\"rad\" value=\"1\" checked=\"checked\"/></td></tr>");
-  fprintf(htmlfp,"    <tr class=\"ciel\"><td>sensor noise:      </td>");
-  fprintf(htmlfp,"        <td> <input type=\"radio\" name=\"rad\" value=\"2\"/></td></tr>");
-  fprintf(htmlfp,"    <tr class=\"ciel\"><td>strip (raw):       </td>");
-  fprintf(htmlfp,"        <td> <input type=\"radio\" name=\"rad\" value=\"3\"/><br/></td></tr>");
-  fprintf(htmlfp,"    <tr class=\"vert\"><td>sensor CM:         </td>");
-  fprintf(htmlfp,"        <td> <input type=\"radio\" name=\"rad\" value=\"4\"/><br/></td></tr>");
-  fprintf(htmlfp,"    <tr class=\"vert\"><td>strip (raw-ped-CM):</td>");
-  fprintf(htmlfp,"        <td> <input type=\"radio\" name=\"rad\" value=\"5\"/><br/></td></tr>");
-
-  fprintf(htmlfp,"    <tr style=\"font-size:4px;\"><td>&nbsp;</td><td>&nbsp;</td></tr>");
-
-  fprintf(htmlfp,"    <tr><td colspan=\"2\"><input type=\"submit\" value=\"Show the plot!\"></input></td></tr>");
-  fprintf(htmlfp,"    <tr><td colspan=\"2\" style=\"text-align: center;\"><hr/>");
-  fprintf(htmlfp,"      <a href=\"/DQM/%s/%08d/ESPedestal%s.html\"",trigger,run,trigger);
-  fprintf(htmlfp,"         target=frm onclick=\"hideplot();\">");
-  fprintf(htmlfp,"        <img src=\"/ESPedestal%s_small.png\"",trigger);
-  fprintf(htmlfp,"             title=\"Click here to see the Pedestal summary plots\" border=0>");
-  fprintf(htmlfp,"      </a>");
-  fprintf(htmlfp,"    </td><tr>");
-  fprintf(htmlfp,"    <tr><td colspan=\"2\" style=\"text-align: center;\">");
-  fprintf(htmlfp,"      <a href=\"/DQM/%s/%08d/ESPedestalCM%s.html\"",trigger,run,trigger);
-  fprintf(htmlfp,"         target=frm onclick=\"hideplot();\">");
-  fprintf(htmlfp,"        <img src=\"/ESPedestalCM%s_small.png\"",trigger);
-  fprintf(htmlfp,"             title=\"Click here to see the Common Mode noise summary plots\" border=0>");
-  fprintf(htmlfp,"      </a>");
-  fprintf(htmlfp,"    </td><tr>");
-  fprintf(htmlfp,"    <tr><td colspan=\"2\" style=\"text-align: center;\">");
-  fprintf(htmlfp,"      <a href=\"/DQM/%s/%08d/ESDataIntegrity.html\"",trigger,run);
-  fprintf(htmlfp,"         target=frm onclick=\"hideplot();\">");
-  fprintf(htmlfp,"        <img src=\"/ESDataIntegrity_small.png\"");
-  fprintf(htmlfp,"             title=\"Click here to see the Data Integrity summary plots\" border=0>");
-  fprintf(htmlfp,"      </a>");
-  fprintf(htmlfp,"    </td><tr>");
-  fprintf(htmlfp,"    <tr><td colspan=\"2\" style=\"text-align: center;\">");
-  fprintf(htmlfp,"      <a href=\"/DQM/%s/%08d/ESTDC%s.html\"",trigger,run,trigger);
-  fprintf(htmlfp,"         target=frm onclick=\"hideplot();\">");
-  fprintf(htmlfp,"        <img src=\"/ESTDC_small.png\"");
-  fprintf(htmlfp,"             title=\"Click here to see the TDC summary plots\" border=0>");
-  fprintf(htmlfp,"      </a>");
-  fprintf(htmlfp,"    </td><tr>");
-  fprintf(htmlfp,"    </table>");
-  fprintf(htmlfp,"  </form>");
-
-  fprintf(htmlfp,"  <div id=\"plot\">");
-  fprintf(htmlfp,"  <img id=\"plot_img\" src=\"/The-CMS-Experiment.jpg\"");
-  fprintf(htmlfp,"       alt=\"\" width=\"692\">");
-  fprintf(htmlfp,"  </div>");
-
-  fprintf(htmlfp,"  <div id=\"dfrm\">");
-  fprintf(htmlfp,"  <iframe name=\"frm\" width=\"1400\" height=1200></iframe>");
-  fprintf(htmlfp,"  </div>");
-
-  fprintf(htmlfp,"</div>");
-  fprintf(htmlfp,"</body>");
-  fprintf(htmlfp,"</html>");
-
-  fclose(htmlfp);
-  //---------------------------------------------------------------------------------
-  //---------------------------------------------------------------------------------
 
 }
 
