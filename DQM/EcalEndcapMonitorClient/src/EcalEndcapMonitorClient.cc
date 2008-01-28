@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/22 19:47:13 $
- * $Revision: 1.124 $
+ * $Date: 2008/01/24 12:32:23 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1011,7 +1011,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
+      std::cout << "Fetching EcalLogicID vectors ..." << std::flush;
       LogicID::init( econn );
       std::cout << "done." << std::endl;
     } catch(runtime_error &e) {
