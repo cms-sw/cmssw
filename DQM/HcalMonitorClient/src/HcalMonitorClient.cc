@@ -524,9 +524,9 @@ void HcalMonitorClient::htmlOutput(void){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
  htmlFile << "<center><h1>Hcal Data Quality Monitor</h1></center>" << endl;
-  htmlFile << "<h2>Run Number:&nbsp&nbsp&nbsp" << endl;
+  htmlFile << "<h2>Run Number:&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << irun_ <<"</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp&nbsp&nbsp" << endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ievt_ <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<ul>" << endl;
@@ -536,7 +536,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalDataFormatClient.html";
     dataformat_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Data Format Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Data Format Monitor</a></td>" << endl;
     if(dataformat_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(dataformat_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(dataformat_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -547,7 +547,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalDigiClient.html";
     digi_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Digi Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Digi Monitor</a></td>" << endl;
     if(digi_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(digi_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(digi_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -558,7 +558,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalTrigPrimClient.html";
     tp_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">TrigPrim Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">TrigPrim Monitor</a></td>" << endl;
     if(tp_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(tp_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(tp_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -569,7 +569,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalRecHitClient.html";
     rechit_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">RecHit Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">RecHit Monitor</a></td>" << endl;
     if(rechit_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(rechit_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(rechit_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -580,7 +580,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalHotCellClient.html";
     hot_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Hot Cell Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Hot Cell Monitor</a></td>" << endl;
     if(hot_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(hot_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(hot_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -591,7 +591,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalDeadCellClient.html";
     dead_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Dead Cell Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Dead Cell Monitor</a></td>" << endl;
     if(dead_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(dead_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(dead_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
@@ -602,7 +602,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalPedestalClient.html";
     pedestal_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Pedestal Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Pedestal Monitor</a></td>" << endl;
     
     if(pedestal_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(pedestal_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
@@ -616,7 +616,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlName = "HcalLEDClient.html";
     led_client_->htmlOutput(irun_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">LED Monitor</a></td" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">LED Monitor</a></td>" << endl;
     
     if(led_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(led_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
