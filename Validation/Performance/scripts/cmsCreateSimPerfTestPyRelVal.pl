@@ -1,14 +1,49 @@
 #!/usr/bin/perl
 
-#Get the CMSSW_VERSION variable to use
+#Get some environment variables to use
+$CMSSW_BASE=$ENV{'CMSSW_BASE'};
+$CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
-
+$HOST=$ENV{'HOST'};
 
 #Default number of events for each set of tests:
-$TimeSizeNumOfEvts=50;
+$TimeSizeNumOfEvts=100;
 $IgProfNumOfEvts=5;
 $ValgrindNumOfEvts=1;
 
+$date=`date`;
+$path=`pwd`;
+$tags=`showtags -r`;
+#Information for the logfile
+print $date;
+print "$HOST\n";
+print "Local path: $path";
+print "\$CMSSW_BASE is $CMSSW_BASE\n";
+print "\$CMSSW_VERSION is $CMSSW_VERSION\n";
+print $tags;
+#Adding an independent benchmark of the machine before running
+open(SCIMARK,">cmsScimark2.log")||die "Could not open file cmsScimark2.log:$!\n";
+open(SCIMARKLARGE,">cmsScimark2_Large.log")||die "Could not open file cmsScimark2_Large.log:$!\n";
+$date=`date`;
+print SCIMARK "Initial Benchmark\n";
+print SCIMARK "$date$HOST\n";
+for ($i=0;$i<10;$i++)
+{
+    $scimark=`cmsScimark2`;
+    print SCIMARK "$scimark\n";
+}
+$date=`date`;
+print SCIMARK $date;
+$date=`date`;
+print SCIMARKLARGE "Initial Benchmark\n";
+print SCIMARKLARGE "$date$HOST\n";
+for ($i=0;$i<10;$i++)
+{
+    $scimarklarge=`cmsScimark2 -large`;
+    print SCIMARKLARGE "$scimarklarge\n";
+}
+$date=`date`;
+print SCIMARKLARGE $date;
 @Candle=(
     HiggsZZ4LM190, 
     MinBias,
@@ -82,5 +117,28 @@ system(
     cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt1000.log;
     cd .."
     );
+#Adding an independent benchmark of the machine after running
+$date=`date`;
+print SCIMARKLARGE "Final Benchmark\n";
+print SCIMARK "$date$HOST\n";
+for ($i=0;$i<10;$i++)
+{
+    $scimark=`cmsScimark2`;
+    print SCIMARK "$scimark\n";
+}
+$date=`date`;
+print SCIMARK $date;
+$date=`date`;
+print SCIMARKLARGE "Final Benchmark\n";
+print SCIMARKLARGE "$date$HOST\n";
+for ($i=0;$i<10;$i++)
+{
+    $scimarklarge=`cmsScimark2 -large`;
+    print SCIMARKLARGE "$scimarklarge\n";
+}
+$date=`date`;
+print SCIMARKLARGE $date;
+close SCIMARK;
+close SCIMARKLARGE;
 exit;
 
