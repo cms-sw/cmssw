@@ -1,10 +1,10 @@
 *----------------------------------------------------------------------
 *
-*  Filename             : HYDJET1_2.F
+*  Filename             : HYDJET1_5.F
 *
 *  Author               : Igor Lokhtin  
-*  Version              : HYDJET1_2.f
-*  Last revision        : 18-JUN-2007 
+*  Version              : HYDJET1_5.f
+*  Last revision        : 19-DEC--2007 
 *
 *======================================================================
 *
@@ -58,7 +58,7 @@
 * printout of HYDJET versioning 
       write(6,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      >%%%%%%%%%%%%%%%%%%%%%%%%'
-      write(6,*) '%%                        This is HYDJET version 1.4  
+      write(6,*) '%%                        This is HYDJET version 1.5  
      >                      %%' 
       write(6,*) '%%         Corresponding author: Igor Lokhtin (Igor.Lo
      >khtin@cern.ch)        %%' 
