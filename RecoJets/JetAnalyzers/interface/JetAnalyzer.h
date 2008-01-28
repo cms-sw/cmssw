@@ -32,12 +32,18 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+//#include "DataFormats/JetReco/interface/CaloJet.h"
+//#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+//#include "DataFormats/JetReco/interface/GenJet.h"
+//#include "DataFormats/JetReco/interface/GenJetfwd.h"
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -73,8 +79,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2007/03/19 17:27:05 $
-  * $Revision: 1.5 $
+  * $Date: 2007/07/23 21:58:55 $
+  * $Revision: 1.6 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
@@ -261,24 +267,24 @@ private:
 
   std::map <std::string, edm::PCaloHitContainer> caloSimHits_;
 
-  edm::Handle<CaloJetCollection> calojets;
-  edm::Handle<GenJetCollection>  genJets;
-  edm::Handle<CaloMETCollection> recmet;
-  edm::Handle<GenMETCollection>  genmet;
-  edm::Handle<CaloTowerCollection> caloTowers;
+  edm::Handle<CaloJetCollection> calojets, calojetsDummy;
+  edm::Handle<GenJetCollection>  genJets, genJetsDummy;
+  edm::Handle<CaloMETCollection> recmet, recmetDummy;
+  edm::Handle<GenMETCollection>  genmet, genmetDummy;
+  edm::Handle<CaloTowerCollection> caloTowers,caloTowersDummy;
 
-  edm::Handle<EBRecHitCollection> EBRecHits;
-  edm::Handle<EERecHitCollection> EERecHits;
+  edm::Handle<EBRecHitCollection> EBRecHits, EBRecHitsDummy;
+  edm::Handle<EERecHitCollection> EERecHits, EERecHitsDummy;
 
-  edm::Handle<HBHERecHitCollection> HBHERecHits;
-  edm::Handle<HORecHitCollection> HORecHits;
-  edm::Handle<HFRecHitCollection> HFRecHits;
+  edm::Handle<HBHERecHitCollection> HBHERecHits, HBHERecHitsDummy;
+  edm::Handle<HORecHitCollection> HORecHits, HORecHitsDummy;
+  edm::Handle<HFRecHitCollection> HFRecHits, HFRecHitsDummy;
 
-  edm::Handle<HBHEDigiCollection> HBHEDigis;
-  edm::Handle<HODigiCollection> HODigis;
-  edm::Handle<HFDigiCollection> HFDigis;
+  edm::Handle<HBHEDigiCollection> HBHEDigis,HBHEDigisDummy;
+  edm::Handle<HODigiCollection> HODigis,HODigisDummy;
+  edm::Handle<HFDigiCollection> HFDigis,HFDigisDummy;
 
-  edm::Handle<HcalTBTriggerData> trigger;
+  edm::Handle<HcalTBTriggerData> trigger,triggerDummy;
 
 
 
