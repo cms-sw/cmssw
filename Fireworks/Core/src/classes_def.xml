@@ -9,4 +9,5 @@
   <class name="FWDisplayProperties"/>
   <class name="DetIdToMatrix"/>
   <class name="TracksProxy3DBuilder"/>
+  <class name="TEveElementIter"/>
 </lcgdict>

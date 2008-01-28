@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.9 2008/01/25 19:41:35 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.10 2008/01/27 01:10:42 dmytro Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@
 #include "TEveGeoShapeExtract.h"
 #include "TEvePolygonSetProjected.h"
 #include "RVersion.h"
+#include "TGeoBBox.h"
+#include "TGeoArb8.h"
 
 #include <iostream>
 #include <exception>
@@ -36,8 +38,12 @@
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "vis_macros.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+
+#include <sstream>
 
 //
 //
@@ -170,41 +176,10 @@ FWRhoPhiZViewManager::newEventAvailable()
         
 	hide_tracker_endcap(m_geom);
 	m_rhoPhiProjMgr->ImportElements(m_geom);
-
-	// muon system
-	if ( detIdToGeo() ) {
-	   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
-	   // rho-phi view
-	   for ( Int_t i=0; i<1000; ++i) {
-	      TEveGeoShapeExtract* extract = detIdToGeo()->getExtract(574980096+(i << 18));
-	      if ( extract ) container->AddElement( extract );
-	   }
-	   m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
-	}
-     
-	show_tracker_endcap(m_geom);
-	m_rhoZProjMgr->ImportElements(m_geom);
 	
-	for ( std::list<TEveElement*>::iterator element = m_rhoPhiProjMgr->BeginChildren();
-	      element != m_rhoPhiProjMgr->EndChildren(); ++element )
-	  {
-	     (*element)->IncDenyDestroy();
-	     // set colors
-	     if ( TEvePolygonSetProjected* set = dynamic_cast<TEvePolygonSetProjected*>(*element) )
-	       if ( strcmp(set->GetName(),"NLT MuonRhoPhi") == 0)
-		 for ( std::list<TEveElement*>::iterator chamber = set->BeginChildren();
-		       chamber != set->EndChildren(); ++chamber )
-		   (*chamber)->SetMainTransparency(90);
-	     
-	     m_rhoPhiGeom.push_back( *element );
-	  }
-	
-	for ( std::list<TEveElement*>::iterator element = m_rhoZProjMgr->BeginChildren();
-	      element != m_rhoZProjMgr->EndChildren(); ++element )
-	  {
-	     (*element)->IncDenyDestroy();
-	     m_rhoZGeom.push_back( *element );
-	  }
+	makeMuonGeometryRhoPhi();
+	// makeMuonGeometryRhoZ();
+	makeMuonGeometryRhoZAdvance();
      }
      addElements();
   }
@@ -303,10 +278,350 @@ FWRhoPhiZViewManager::modelChangesDone()
    //gEve->Redraw3D();
 }
 
-//
-// const member functions
-//
+void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
+{
+   if ( ! detIdToGeo() ) return;
+   
+   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
+   // rho-phi view
+   Int_t iWheel = 0;
+   for ( Int_t iStation=1; iStation<=4; ++iStation) {
+      std::ostringstream s;
+      s << "Station" << iStation;
+      TEveGeoShapeExtract* cStation  = new TEveGeoShapeExtract( s.str().c_str() );
+      container->AddElement( cStation );
+      for ( Int_t iSector=1; iSector<=14; ++iSector) {
+	 if (iStation<4 && iSector>12) continue;
+	 DTChamberId id(iWheel, iStation, iSector);
+	 TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
+	 if ( extract ) cStation->AddElement( extract );
+      }
+   }
+   m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+	   
+   // set background geometry visibility parameters
+	
+   TEveElementIter rhoPhiDT(m_rhoPhiProjMgr,"MuonRhoPhi");
+   if ( rhoPhiDT.current() ) {
+      m_rhoPhiGeom.push_back( rhoPhiDT.current() );
+      rhoPhiDT.current()->IncDenyDestroy();
+      TEveElementIter iter(rhoPhiDT.current());
+      while ( TEveElement* element = iter.current() ) {
+	 element->IncDenyDestroy();
+	 element->SetMainTransparency(50);
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+	 iter.next();
+      }
+   }
+}
 
-//
-// static member functions
-//
+void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
+{
+   if ( ! detIdToGeo() ) return;
+   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoZ" );
+   TEveGeoShapeExtract* dtContainer = new TEveGeoShapeExtract( "DT" );
+   container->AddElement( dtContainer );
+	   
+   for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel ) {
+      std::ostringstream s; s << "Wheel" << iWheel;
+      TEveGeoShapeExtract* cWheel  = new TEveGeoShapeExtract( s.str().c_str() );
+      dtContainer->AddElement( cWheel );
+      for ( Int_t iStation=1; iStation<=4; ++iStation) {
+	 std::ostringstream s; s << "Station" << iStation;
+	 TEveGeoShapeExtract* cStation  = new TEveGeoShapeExtract( s.str().c_str() );
+	 cWheel->AddElement( cStation );
+	 for ( Int_t iSector=1; iSector<=14; ++iSector) {
+	    if (iStation<4 && iSector>12) continue;
+	    DTChamberId id(iWheel, iStation, iSector);
+	    TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
+		    if ( extract ) cStation->AddElement( extract );
+	 }
+      }
+   }
+	   
+   
+   TEveGeoShapeExtract* cscContainer = new TEveGeoShapeExtract( "CSC" );
+   container->AddElement( cscContainer );
+   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
+      TEveGeoShapeExtract* cEndcap = 0;
+      if (iEndcap == 1) 
+	cEndcap = new TEveGeoShapeExtract( "Forward" );
+      else
+	cEndcap = new TEveGeoShapeExtract( "Backward" );
+      cscContainer->AddElement( cEndcap );
+      for ( Int_t iStation=1; iStation<=4; ++iStation) {		   
+	 std::ostringstream s; s << "Station" << iStation;
+	 TEveGeoShapeExtract* cStation  = new TEveGeoShapeExtract( s.str().c_str() );
+	 cEndcap->AddElement( cStation );
+	 for ( Int_t iRing=1; iRing<=4; ++iRing) {
+	    if (iStation > 1 && iRing > 2) continue;
+	    std::ostringstream s; s << "Ring" << iRing;
+	    TEveGeoShapeExtract* cRing  = new TEveGeoShapeExtract( s.str().c_str() );
+	    cStation->AddElement( cRing );
+	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber) {
+	       if (iStation>1 && iChamber>36) continue;
+	       Int_t iLayer = 0; // chamber 
+	       // exception is thrown if parameters are not correct and I keep
+	       // forgetting how many chambers we have in each ring.
+	       try {
+		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+		  TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
+		  if ( extract )  cRing->AddElement( extract );
+	       }
+	       catch ( ... ) {} 
+	    }
+	 }
+      }
+   }
+   m_rhoZProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   
+   TEveElementIter rhoZDT(m_rhoZProjMgr,"DT");
+   if ( rhoZDT.current() ) {
+      m_rhoZGeom.push_back( rhoZDT.current() );
+      rhoZDT.current()->IncDenyDestroy();
+      TEveElementIter iter(rhoZDT.current());
+      while ( TEveElement* element = iter.current() ) {
+	 element->IncDenyDestroy();
+	 element->SetMainTransparency(50);
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#3f0000")));
+	 iter.next();
+      }
+   }
+	
+   TEveElementIter rhoZCSC(m_rhoZProjMgr,"CSC");
+   if ( rhoZCSC.current() ) {
+      m_rhoZGeom.push_back( rhoZCSC.current() );
+      rhoZCSC.current()->IncDenyDestroy();
+      TEveElementIter iter(rhoZCSC.current());
+      while ( iter.current() ) {
+	 iter.current()->SetMainTransparency(50);
+	 iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#00003f")));
+	 iter.next();
+      }
+   }
+   
+}
+
+void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
+{
+   // lets project everything by hand
+   if ( ! detIdToGeo() ) return;
+   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoZ" );
+   TEveGeoShapeExtract* dtContainer = new TEveGeoShapeExtract( "DT" );
+   container->AddElement( dtContainer );
+	   
+   for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel ) {
+      std::ostringstream s; s << "Wheel" << iWheel;
+      TEveGeoShapeExtract* cWheel  = new TEveGeoShapeExtract( s.str().c_str() );
+      dtContainer->AddElement( cWheel );
+      for ( Int_t iStation=1; iStation<=4; ++iStation) {
+	 std::ostringstream s; s << "Station" << iStation;
+	 double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+	 
+	 for ( Int_t iSector=1; iSector<=14; ++iSector) {
+	    if (iStation<4 && iSector>12) continue;
+	    DTChamberId id(iWheel, iStation, iSector);
+	    TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
+	    if (! extract ) continue;
+	    estimateProjectionSizeDT( detIdToGeo()->getMatrix( id.rawId() ), 
+				      extract->GetShape(), min_rho, max_rho, min_z, max_z );
+	 }
+	 if ( min_rho > max_rho || min_z > max_z ) continue;
+	 cWheel->AddElement( makeShapeExtract( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
+	 cWheel->AddElement( makeShapeExtract( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+      }
+   }
+
+   TEveGeoShapeExtract* cscContainer = new TEveGeoShapeExtract( "CSC" );
+   container->AddElement( cscContainer );
+   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
+      TEveGeoShapeExtract* cEndcap = 0;
+      if (iEndcap == 1) 
+	cEndcap = new TEveGeoShapeExtract( "Forward" );
+      else
+	cEndcap = new TEveGeoShapeExtract( "Backward" );
+      cscContainer->AddElement( cEndcap );
+      for ( Int_t iStation=1; iStation<=4; ++iStation) {		   
+	 std::ostringstream s; s << "Station" << iStation;
+	 TEveGeoShapeExtract* cStation  = new TEveGeoShapeExtract( s.str().c_str() );
+	 cEndcap->AddElement( cStation );
+	 for ( Int_t iRing=1; iRing<=4; ++iRing) {
+	    if (iStation > 1 && iRing > 2) continue;
+	    std::ostringstream s; s << "Ring" << iRing;
+	    double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber) {
+	       if (iStation>1 && iChamber>36) continue;
+	       Int_t iLayer = 0; // chamber 
+	       // exception is thrown if parameters are not correct and I keep
+	       // forgetting how many chambers we have in each ring.
+	       try {
+		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+		  TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
+		  if ( !extract ) continue;
+		  gGeoManager->cd( detIdToGeo()->getPath( id.rawId() ) );
+		  TGeoHMatrix* matrix = gGeoManager->GetCurrentMatrix();
+		  estimateProjectionSizeCSC( matrix, extract->GetShape(), min_rho, max_rho, min_z, max_z );
+	       }
+	       catch ( ... ) {} 
+	    }
+	    if ( min_rho > max_rho || min_z > max_z ) continue;
+	    cStation->AddElement( makeShapeExtract( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
+	    cStation->AddElement( makeShapeExtract( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+	 }
+      }
+   }
+   m_rhoZProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   
+   TEveElementIter rhoZDT(m_rhoZProjMgr,"DT");
+   if ( rhoZDT.current() ) {
+      m_rhoZGeom.push_back( rhoZDT.current() );
+      rhoZDT.current()->IncDenyDestroy();
+      TEveElementIter iter(rhoZDT.current());
+      while ( TEveElement* element = iter.current() ) {
+	 element->IncDenyDestroy();
+	 element->SetMainTransparency(50);
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+	 iter.next();
+      }
+   }
+   
+   TEveElementIter rhoZCSC(m_rhoZProjMgr,"CSC");
+   if ( rhoZCSC.current() ) {
+      m_rhoZGeom.push_back( rhoZCSC.current() );
+      rhoZCSC.current()->IncDenyDestroy();
+      TEveElementIter iter(rhoZCSC.current());
+      while ( iter.current() ) {
+	 iter.current()->SetMainTransparency(50);
+	 iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#00007f")));
+	 iter.next();
+      }
+   }
+
+}
+
+
+void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, const TGeoShape* shape,
+						   double& min_rho, double& max_rho, double& min_z, double& max_z )
+{
+   const TGeoBBox* box = dynamic_cast<const TGeoBBox*>( shape );
+   if ( ! box ) return;
+
+   // we will test 5 points on both sides ( +/- z)
+   Double_t local[3], global[3];
+   
+   local[0]=0; local[1]=0; local[2]=box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=box->GetDX(); local[1]=box->GetDY(); local[2]=box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=-box->GetDX(); local[1]=box->GetDY(); local[2]=box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+   
+   local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+   
+   local[0]=0; local[1]=0; local[2]=-box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=box->GetDX(); local[1]=box->GetDY(); local[2]=-box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=-box->GetDX(); local[1]=box->GetDY(); local[2]=-box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+   
+   local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+}
+
+void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, const TGeoShape* shape,
+						      double& min_rho, double& max_rho, double& min_z, double& max_z )
+{
+   const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
+   if ( ! trap ) return;
+
+   // we will test 3 points on both sides ( +/- z)
+   // local z is along Rho
+   Double_t local[3], global[3];
+   
+   local[0]=0; local[1]=trap->GetH1(); local[2]=-trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=0; local[1]=-trap->GetH1(); local[2]=-trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=trap->GetTl2(); local[1]=trap->GetH2(); local[2]=trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=-trap->GetTl2(); local[1]=trap->GetH2(); local[2]=trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=trap->GetTl2(); local[1]=-trap->GetH2(); local[2]=trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+
+   local[0]=-trap->GetTl2(); local[1]=-trap->GetH2(); local[2]=trap->GetDZ();
+   matrix->LocalToMaster(local,global);
+   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
+}
+
+
+void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
+						   double& min_rho, double& max_rho, double& min_z, double& max_z )
+{
+   double rho = sqrt(global[0]*global[0]+global[1]*global[1]);
+   if ( min_rho > rho ) min_rho = rho;
+   if ( max_rho < rho ) max_rho = rho;
+   if ( min_z > global[2] ) min_z = global[2];
+   if ( max_z < global[2] ) max_z = global[2];
+}
+		 
+		 
+TEveGeoShapeExtract* FWRhoPhiZViewManager::makeShapeExtract( const char* name, 
+							     double min_rho, double max_rho, double min_z, double max_z )
+{
+   TEveTrans t;
+   t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
+   t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
+   t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
+   t(1,4) = 0; t(2,4) = (min_rho+max_rho)/2; t(3,4) = (min_z+max_z)/2;
+   
+   TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(name);
+   extract->SetTrans(t.Array());
+   
+   extract->SetRnrSelf(kTRUE);
+   extract->SetRnrElements(kTRUE);
+   TGeoBBox* box = new TGeoBBox( 0, (max_rho-min_rho)/2, (max_z-min_z)/2 ); 
+   extract->SetShape( box );
+   return extract;
+}

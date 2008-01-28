@@ -4,9 +4,14 @@
 #include "TEveManager.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "TEveStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "RVersion.h"
+#include "TEveGeoNode.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "TColor.h"
+#include "TEvePolygonSetProjected.h"
 
 MuonsProxy3DBuilder::MuonsProxy3DBuilder()
 {
@@ -123,6 +128,9 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
               
               DetId id = chamber->id;
               const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
+	      TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
+	      muonList->AddElement( TEveGeoShape::ImportShapeExtract(extract,0) );
+
               if ( matrix ) {
                  // make muon segment 20 cm long along local z-axis
                  matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
@@ -146,11 +154,13 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
                     Double_t localSegmentOuterPoint[3];
                     Double_t globalSegmentInnerPoint[3];
                     Double_t globalSegmentOuterPoint[3];
-                    localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
-                    localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
+		    localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
+		    localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
+		    
                     localSegmentOuterPoint[2] = 10;
-                    localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
-                    localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
+		    localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
+		    localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
+		    
                     localSegmentInnerPoint[2] = -10;
                     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
                     matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
@@ -163,6 +173,17 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
            if ( ! matches.empty() ) muonList->AddElement( segmentSet.release() );
            if (outerTrack) outerTrack->MakeTrack();
         }
+	
+	// adjust muon chamber visibility
+	TEveElementIter iter(muonList,"\\d{8}");
+	while ( TEveElement* element = iter.current() ) {
+	   element->SetMainTransparency(50);
+	   element->SetMainColor(Color_t(TColor::GetColor("#7f0000")));
+	   if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	     poly->SetLineColor(Color_t(TColor::GetColor("#ff0000")));
+	   iter.next();
+	}
+
         gEve->AddElement( muonList, tList );
      }
 }

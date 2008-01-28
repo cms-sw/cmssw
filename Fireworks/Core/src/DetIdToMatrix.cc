@@ -1,4 +1,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -31,6 +33,11 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
 
 void DetIdToMatrix::loadMap(const char* fileName) 
 {
+   // CSC chamber frame has local coordinates rotated with respect
+   // to the reference framed used in the offline reconstruction
+   // -z is endcap is also reflected
+   TGeoRotation inverseCscRotation("iCscRot",0,90,0); 
+   
    if (!manager_) {
       std::cout << "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." << std::endl;
       return;
@@ -51,7 +58,14 @@ void DetIdToMatrix::loadMap(const char* fileName)
       tree->GetEntry(i);
       if ( manager_->cd(path) ) {
 	 idToPath_[id] = path;
-	 idToMatrix_[id] = *(manager_->GetCurrentMatrix());
+	 DetId detId(id);
+	 if ( detId.subdetId() == MuonSubdetId::CSC ) {
+	    TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+	    if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
+	    idToMatrix_[id] = m;
+	 }
+	 else
+	   idToMatrix_[id] = *(manager_->GetCurrentMatrix());
       }
       else
 	std::cout << "WARNING: incorrect path " << path << "\nSkipped DetId: " << id << std::endl;

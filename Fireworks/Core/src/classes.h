@@ -10,6 +10,7 @@
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TracksProxy3DBuilder.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
 
 namespace {
    struct Fireworks_Core {

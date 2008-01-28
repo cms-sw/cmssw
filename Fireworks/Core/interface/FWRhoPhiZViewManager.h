@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.4 2008/01/21 01:17:11 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.5 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,9 @@ struct FWRPZ2DModelProxy
   builder(iBuilder),rhoPhiProduct(0), rhoZProduct(0) {}
 };
 
+class TGeoHMatrix;
+class TGeoShape;
+class TEveGeoShapeExtract;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
@@ -84,6 +87,14 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
 
       void addElements();
+      void makeMuonGeometryRhoPhi();
+      void makeMuonGeometryRhoZ();
+      void makeMuonGeometryRhoZAdvance();
+      void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+      void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+      void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
+      TEveGeoShapeExtract* makeShapeExtract( const char*, double, double, double, double );
+
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
