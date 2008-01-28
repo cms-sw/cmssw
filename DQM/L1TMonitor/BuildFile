@@ -7,6 +7,8 @@
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/L1CSCTrackFinder>
 <use name=DataFormats/L1DTTrackFinder>
+<use name=DataFormats/RPCDigi>
+<use name=DataFormats/RPCRecHit>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/FEDRawData>
@@ -17,6 +19,8 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/HcalTowerAlgo>
+<use name=Geometry/RPCGeometry>
+<use name=RecoMuon/DetLayers>
 <use name=Geometry/Records>
 <use name=DataFormats/EcalDigi>
 <use name=DQMServices/Core>
@@ -40,10 +44,14 @@
    <use name=DataFormats/CSCDigi>
    <use name=DataFormats/L1CSCTrackFinder>
    <use name=DataFormats/L1DTTrackFinder>
+   <use name=DataFormats/RPCDigi>
+   <use name=DataFormats/RPCRecHit>
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/EcalDigi>
    <use name=Geometry/EcalMapping>
+   <use name=Geometry/RPCGeometry>
+   <use name=RecoMuon/DetLayers>
    <use name=DataFormats/FEDRawData>
  <use name=root>
  <use name=boost>

@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -80,10 +80,15 @@ void L1TRPCTPG::beginJob(const EventSetup& c)
   if ( dbe ) 
   {
     dbe->setCurrentFolder("L1T/L1TRPCTPG");
-    
-    rpctpgtest = dbe->book1D("RPCTPG test", 
-       "RPCTPG test", 128, -0.5, 127.5 ) ;
-  }  
+    rpctpgbx = dbe->book1D("RPCTPG_bx", 
+       "RPCTPG bx 0", 3, -1.5, 1.5 ) ;
+    rpctpgndigi[1] = dbe->book1D("RPCTPG_ndigi", 
+       "RPCTPG nDigi bx 0", 100, -0.5, 99.5 ) ;
+    rpctpgndigi[2] = dbe->book1D("RPCTPG_ndigi_+1", 
+       "RPCTPG nDigi bx +1", 100, -0.5, 99.5 ) ;
+    rpctpgndigi[0] = dbe->book1D("RPCTPG_ndigi_-1", 
+       "RPCTPG nDigi bx -1", 100, -0.5, 99.5 ) ;
+   }  
 }
 
 
@@ -102,12 +107,85 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   nev_++; 
   if(verbose_) cout << "L1TRPCTPG: analyze...." << endl;
 
-  int ntest = 5;
-      rpctpgtest->Fill(ntest);
-      if (verbose_)
-	{     
-     std::cout << "\tRPCTPG test " << ntest
-   	    << std::endl;
-	}
+  
+  /// RPC Geometry
+  edm::ESHandle<RPCGeometry> rpcGeo;
+  c.get<MuonGeometryRecord>().get(rpcGeo);
+  if (!rpcGeo.isValid()) {
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCGeometry" << endl;
+    return;
+  }
+
+  /// DIGI     
+  edm::Handle<RPCDigiCollection> rpcdigis;
+  e.getByLabel(rpctpgSource_,rpcdigis);
+    
+  if (!rpcdigis.isValid()) {
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
+    return;
+  }
+
+  /// RecHits, perhaps to add later
+  if (0){
+  edm::Handle<RPCRecHitCollection> rpcHits;
+  e.getByType(rpcHits);
+     
+  if (!rpcHits.isValid()) {
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCRecHitCollection of any type" << endl;
+    return;
+  }  
+  }
+
+    int numberofDigi[3] = {0,0,0};
+    
+
+  RPCDigiCollection::DigiRangeIterator collectionItr;
+  for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
+
+        RPCDetId detId=(*collectionItr ).first; 
+	//        cout << "detId "<< detId << endl;
+
+      std::vector<int> strips;
+     std::vector<int> bxs;
+     strips.clear(); 
+     bxs.clear();
+     RPCDigiCollection::const_iterator digiItr; 
+     for (digiItr = ((*collectionItr ).second).first;
+	  digiItr!=((*collectionItr).second).second; ++digiItr){
+       
+       int strip= (*digiItr).strip();
+       strips.push_back(strip);
+       int bx=(*digiItr).bx();
+       rpctpgbx->Fill(bx);
+       if (bx == -1) 
+       {
+        numberofDigi[0]++;
+       }
+       if (bx == 0) 
+       { 
+        numberofDigi[1]++;
+       }
+       if (bx == 2) 
+       {
+        numberofDigi[2]++;
+       }
+       bool bxExists = false;
+       //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
+       for(std::vector<int>::iterator existingBX= bxs.begin();
+	   existingBX != bxs.end(); ++existingBX){
+	 if (bx==*existingBX) {
+	   bxExists=true;
+	   break;
+	 }
+       }
+      if(!bxExists)bxs.push_back(bx);
+      
+     }
+  }
+
+      rpctpgndigi[0]->Fill(numberofDigi[0]);
+      rpctpgndigi[1]->Fill(numberofDigi[1]);
+      rpctpgndigi[2]->Fill(numberofDigi[2]);
+
 }
 
