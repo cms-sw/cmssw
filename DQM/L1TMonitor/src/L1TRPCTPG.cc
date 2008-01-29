@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/28 22:11:21 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  */
@@ -153,6 +153,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
      for (digiItr = ((*collectionItr ).second).first;
 	  digiItr!=((*collectionItr).second).second; ++digiItr){
        
+       // strips is a list of hit strips (regardless of bx) for this roll
        int strip= (*digiItr).strip();
        strips.push_back(strip);
        int bx=(*digiItr).bx();
@@ -168,18 +169,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
        if (bx == 2) 
        {
         numberofDigi[2]++;
-       }
-       bool bxExists = false;
-       //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
-       for(std::vector<int>::iterator existingBX= bxs.begin();
-	   existingBX != bxs.end(); ++existingBX){
-	 if (bx==*existingBX) {
-	   bxExists=true;
-	   break;
-	 }
-       }
-      if(!bxExists)bxs.push_back(bx);
-      
+       }      
      }
   }
 
