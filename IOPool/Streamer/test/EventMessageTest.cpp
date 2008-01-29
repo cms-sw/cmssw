@@ -98,10 +98,10 @@ int main()
   l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;  l1bit[14]=false;
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  l1bit[15]=true;
 
-  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,
+  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,
                       l1bit,hltbits,hltsize);
 
-  emb.setReserved(78);
+  emb.setOrigDataSize(78);
   emb.setEventLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             emb.eventAddr());
@@ -119,11 +119,12 @@ int main()
                        eview.run(),
                        eview.event(),
                        eview.lumi(),
+                       eview.outModId(),
                        l1_out,
                        hlt_out,
                        hltsize);
 
-  emb2.setReserved(eview.reserved());
+  emb2.setOrigDataSize(eview.origDataSize());
   emb2.setEventLength(eview.eventLength());
   std::copy(eview.eventData(),eview.eventData()+eview.eventLength(),
             emb2.eventAddr());
