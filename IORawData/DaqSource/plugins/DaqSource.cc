@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/12/31 22:44:00 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/01/28 21:31:01 $
+ *  $Revision: 1.16 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
 #include <string>
+#include <iostream>
 #include <sys/time.h>
 
 
@@ -96,7 +97,10 @@ namespace edm {
     }
     EventID eventId;
     TimeValue_t time = 0LL;
-    gettimeofday((timeval *)(&time),0);
+    timeval stv;
+    gettimeofday(&stv,0);
+    time = stv.tv_sec;
+    time = (time << 32) + stv.tv_usec;
     Timestamp tstamp(time);
     
     // pass a 0 pointer to fillRawData()!
