@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.37 2008/01/05 05:28:53 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.38 2008/01/10 17:32:57 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -54,6 +54,7 @@ namespace edm {
       runEntryNumber_(0LL),
       eventProcessHistoryIDs_(),
       metaDataTree_(0),
+      entryDescriptionTree_(0),
       eventAux_(),
       lumiAux_(),
       runAux_(),
@@ -82,8 +83,10 @@ namespace edm {
 	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
       }
     }
-    // Don't split metadata tree.
+    // Don't split metadata tree or eventDescriptionTree
     metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
+    
 
     fid_ = FileID(createGlobalIdentifier());
 
@@ -259,6 +262,13 @@ namespace edm {
   void RootOutputFile::finishEndFile() { 
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
+
+    entryDescriptionTree_->SetEntries(-1);
+    RootOutputTree::writeTTree(entryDescriptionTree_);
+
+    // Create branch aliases for all the branches in the
+    // events/lumis/runs trees. The loop is over all types of data
+    // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       buildIndex(treePointers_[branchType]->tree(), branchType);

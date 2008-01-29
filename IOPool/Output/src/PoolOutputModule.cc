@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.98 2008/01/10 17:32:57 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.99 2008/01/21 03:11:46 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -33,7 +33,7 @@ namespace edm {
     fileBlock_(0),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
-    rootFile_() {
+    rootOutputFile_() {
     ClassFiller();
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
     // even though a custom streamer is not otherwise necessary.
@@ -62,12 +62,12 @@ namespace edm {
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries()) &&
                             (remainingLuminosityBlocks() < 0 ||
                              fb.lumiTree() != 0 && remainingLuminosityBlocks() >= fb.lumiTree()->GetEntries());
-      rootFile_->beginInputFile(fb, fastCloneThisOne);
+      rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
     }
   }
 
   void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
-    rootFile_->respondToCloseInputFile(fb);
+    rootOutputFile_->respondToCloseInputFile(fb);
   }
 
   PoolOutputModule::~PoolOutputModule() {
@@ -75,42 +75,42 @@ namespace edm {
 
   void PoolOutputModule::write(EventPrincipal const& e) {
       if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
-      rootFile_->writeOne(e);
+      rootOutputFile_->writeOne(e);
   }
 
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
       if (hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
-      rootFile_->writeLuminosityBlock(lb);
+      rootOutputFile_->writeLuminosityBlock(lb);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
   void PoolOutputModule::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
-      if (rootFile_->writeRun(r)) {
+      if (rootOutputFile_->writeRun(r)) {
 	// maybeEndFile should be called from the framework, not internally
-	// rootFile_->endFile();
-	// rootFile_.reset();
+	// rootOutputFile_->endFile();
+	// rootOutputFile_.reset();
       }
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
   void PoolOutputModule::startEndFile() { }
 
-  void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
-  void PoolOutputModule::writeFileIdentifier() { rootFile_->writeFileIdentifier(); }
-  void PoolOutputModule::writeFileIndex() { rootFile_->writeFileIndex(); }
-  void PoolOutputModule::writeEventHistory() { rootFile_->writeEventHistory(); }
-  void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
-  void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
-  void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }
-  void PoolOutputModule::writeParameterSetRegistry() { rootFile_->writeParameterSetRegistry(); }
-  void PoolOutputModule::writeProductDescriptionRegistry() { rootFile_->writeProductDescriptionRegistry(); }
-  void PoolOutputModule::finishEndFile() { rootFile_->finishEndFile(); rootFile_.reset(); }
-  bool PoolOutputModule::isFileOpen() const { return rootFile_.get() != 0; }
+  void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
+  void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
+  void PoolOutputModule::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
+  void PoolOutputModule::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
+  void PoolOutputModule::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
+  void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
+  void PoolOutputModule::writeModuleDescriptionRegistry() { rootOutputFile_->writeModuleDescriptionRegistry(); }
+  void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
 
 
-  bool PoolOutputModule::isFileFull() const { return rootFile_->isFileFull(); }
+  bool PoolOutputModule::isFileFull() const { return rootOutputFile_->isFileFull(); }
 
   void PoolOutputModule::doOpenFile() {
       if (fileBlock_ == 0) {
@@ -134,7 +134,7 @@ namespace edm {
 	}
       }
       ofilename << suffix;
-      rootFile_ = boost::shared_ptr<RootOutputFile>(new RootOutputFile(this, ofilename.str(), lfilename.str()));
+      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++fileCount_;
   }
 }

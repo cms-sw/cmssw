@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.41 2008/01/08 21:47:08 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.42 2008/01/10 17:32:57 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -15,7 +15,8 @@
 #include <memory>
 #include <string>
 #include <iosfwd>
-#include "boost/shared_ptr.hpp"
+#include "boost/scoped_ptr.hpp"
+#include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -24,7 +25,7 @@
 namespace edm {
   class ParameterSet;
 
-  class PoolOutputModule : public OutputModule {
+  class PoolOutputModule : public OutputModule, boost::noncopyable {
   public:
     friend class RootOutputFile;
     explicit PoolOutputModule(ParameterSet const& ps);
@@ -72,7 +73,7 @@ namespace edm {
     FileBlock *fileBlock_;
     std::string const moduleLabel_;
     int fileCount_;
-    boost::shared_ptr<RootOutputFile> rootFile_;
+    boost::scoped_ptr<RootOutputFile> rootOutputFile_;
   };
 }
 

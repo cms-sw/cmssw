@@ -6,6 +6,7 @@
 
 #include "boost/bind.hpp"
 #include <algorithm>
+#include <limits>
 
 namespace edm {
 
@@ -14,7 +15,7 @@ namespace edm {
     tree->SetDirectory(filePtr);
     // Turn off autosaving because it is such a memory hog and we are not using
     // this check-pointing feature anyway.
-    tree->SetAutoSave(400000000000LL);
+    tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
     return tree;
   }
 

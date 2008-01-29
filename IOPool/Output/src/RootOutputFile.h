@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.19 2008/01/05 05:28:53 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.20 2008/01/10 17:32:57 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -107,6 +107,7 @@ namespace edm {
     FileIndex::EntryNumber_t runEntryNumber_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
     TTree * metaDataTree_;
+    TTree * entryDescriptionTree_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
     RunAuxiliary runAux_;
