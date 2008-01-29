@@ -12,8 +12,10 @@ public:
   InitMsgBuilder(void* msg_mem, uint32 size,
                  uint32 run, const Version& v,
                  const char* release_tag,
-		 const char* process_name,
+                 const char* process_name,
+                 const char* output_module_label,
                  const Strings& hlt_names,
+                 const Strings& hlt_selections,
                  const Strings& l1_names);
 
   uint8* startAddress() const { return buf_; }

@@ -6,8 +6,10 @@
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,
                                const char* release_tag,
-			       const char* process_name,		       
+                               const char* process_name,		       
+                               const char* output_module_label,
                                const Strings& hlt_names,
+                               const Strings& hlt_selections,
                                const Strings& l1_names):
   buf_((uint8*)buf),size_(size)
 {
@@ -33,7 +35,15 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   memcpy(pos,process_name,process_name_len);
   pos += process_name_len;
 
+  // output module label next
+  uint32 outmod_label_len = strlen(output_module_label);
+  assert(outmod_label_len < 0x01ff);
+  *pos++ = outmod_label_len;
+  memcpy(pos,output_module_label,outmod_label_len);
+  pos += outmod_label_len;
+
   pos = fillNames(hlt_names,pos);
+  pos = fillNames(hlt_selections,pos);
   pos = fillNames(l1_names,pos);
 
   desc_addr_ = pos + sizeof(char_uint32);
