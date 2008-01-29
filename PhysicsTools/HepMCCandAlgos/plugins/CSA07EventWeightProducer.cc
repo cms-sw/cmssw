@@ -620,4 +620,4 @@ vector<double> CSA07EventWeightProducer::GetTTbarNevents() {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( CSA07EventWeightProducer );
+//DEFINE_FWK_MODULE( CSA07EventWeightProducer );
