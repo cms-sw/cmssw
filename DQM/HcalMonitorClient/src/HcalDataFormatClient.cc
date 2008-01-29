@@ -242,7 +242,7 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN Not Constant");
+  sprintf(name,"DataFormatMonitor/BCN Not Consistent");
   BCNMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Firmware Version");
@@ -442,7 +442,7 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/Evt Number Out-of-Synch",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Constant",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Consistent",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
@@ -574,7 +574,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,DCC_Err_Warn_,"HCAL FED ID","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -583,6 +583,11 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,DCC_Spigot_Err_,"HCAL FED ID","", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Err_Warn_,"HCAL FED ID","", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,BCNMap_,"Slot #","Crate #", 92, htmlFile,htmlDir);
   histoHTML2(runNo,EvtMap_,"Slot #","Crate #", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
@@ -593,8 +598,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
  
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,DCC_Spigot_Err_,"HCAL FED ID","", 92, htmlFile,htmlDir);
-  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 100, htmlFile,htmlDir);
+  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -867,7 +871,7 @@ sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN of Fiber Orbit Message");
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Constant");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Consistent");
   BCNMap_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Firmware Version");
