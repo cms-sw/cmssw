@@ -16,15 +16,18 @@
 #3-Profiles to run (with code below)
 #E.g.: ./cmsSimPyRelVal.pl 50 AllCandles 012
 
+#Setting the path for the cmsDriver.py command:
+$cmsDriver="\$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver.py";
+
 if ($#ARGV != 2) {
 	print "Usage: cmsSimPyRelVal.pl NumberOfEventsPerCfgFile Candles Profile
 Candles codes:
  AllCandles
- \"HZZLLLL -e 190\"
+ \"HZZLLLL\"
  \"MINBIAS\"
  \"E -e 1000\"
- \"MU- -e 1000\"
- \"PI- -e 1000\"
+ \"MU- -e pt1000\"
+ \"PI- -e pt1000\"
  \"TTBAR\"
  \"ZPJJ\"
 Profile codes (multiple codes can be used):
@@ -52,11 +55,11 @@ $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 
 if ($WhichCandles eq "AllCandles")
 {
-    @Candle=("HZZLLLL -e 190",
+    @Candle=("HZZLLLL",
 	     "MINBIAS",
 	     "E -e 1000",
-	     "MU- -e 1000",
-	     "PI- -e 1000",
+	     "MU- -e pt1000",
+	     "PI- -e pt1000",
 	     "TTBAR",
 	     "ZPJJ"
 	     );
@@ -74,22 +77,13 @@ else
 }
 #Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
 %FileName=(
-	   "HZZLLLL -e 190"=>"HZZLLLL_190",
-	    "MINBIAS"=>"MINBIAS",
-	    "E -e 1000"=>"E_1000",
-	    "MU- -e 1000"=>"MU_1000",
-	    "PI- -e 1000"=>"PI-_1000",
-	    "TTBAR"=>"TTBAR",
-	    "ZPJJ"=>"ZPJJ"
-	   );
-%FileNameEdmSize=(
-	   "HZZLLLL -e 190"=>"HZZLLLL_190",
+	   "HZZLLLL"=>"HZZLLLL_190",
 	    "MINBIAS"=>"MINBIAS_",
 	    "E -e 1000"=>"E_1000",
-	    "MU- -e 1000"=>"MU-_1000",
-	    "PI- -e 1000"=>"PI-_1000",
+	    "MU- -e pt1000"=>"MU-_pt1000",
+	    "PI- -e pt1000"=>"PI-_pt1000",
 	    "TTBAR"=>"TTBAR_",
-	    "ZPJJ"=>"ZPJJ"
+	    "ZPJJ"=>"ZPJJ_"
 	   );
 #Creating and opening the ASCII input file for the relvalreport script:
 $SimCandlesFile= "SimulationCandles"."_".$CMSSW_VERSION.".txt";
@@ -164,11 +158,11 @@ foreach (@Candle)
 	{
 	    if ($_ eq "EdmSize")
 	    {
-		$Command="$FileNameEdmSize{$candle}"."_"."$step".".root ";
+		$Command="$FileName{$candle}"."_"."$step".".root ";
 	    }
 	    else
 	    {
-		$Command="cmsDriver.py $candle -n $NumberOfEvents --step=$step --customise=$SimPython{$step} ";
+		$Command="$cmsDriver $candle -n $NumberOfEvents --step=$step --customise=$SimPython{$step} ";
 	    }
 	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_"."$step"."_"."$_"."\n";
 	}

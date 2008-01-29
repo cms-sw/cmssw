@@ -11,6 +11,12 @@ $TimeSizeNumOfEvts=100;
 $IgProfNumOfEvts=5;
 $ValgrindNumOfEvts=1;
 
+#To fix pie-chart issues until PerfReport3
+system("source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh");
+
+#Setting the path for the cmsDriver.py command:
+$cmsDriver="\$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver.py";
+
 $date=`date`;
 $path=`pwd`;
 $tags=`showtags -r`;
@@ -55,20 +61,20 @@ print SCIMARKLARGE $date;
     );
 
 %CmsDriverCandle=(
-    $Candle[0]=>"\"HZZLLLL -e 190\"",
+    $Candle[0]=>"\"HZZLLLL\"",
     $Candle[1]=>"\"MINBIAS\"",
     $Candle[2]=>"\"E -e 1000\"",
-    $Candle[3]=>"\"MU- -e 1000\"",
-    $Candle[4]=>"\"PI- -e 1000\"",
+    $Candle[3]=>"\"MU- -e pt1000\"",
+    $Candle[4]=>"\"PI- -e pt1000\"",
     $Candle[5]=>"\"TTBAR\"",
     $Candle[6]=>"\"ZPJJ\""
     );
 %CmsDriverCandleNoBrackets=(
-    $Candle[0]=>"HZZLLLL -e 190",
+    $Candle[0]=>"HZZLLLL",
     $Candle[1]=>"MINBIAS",
     $Candle[2]=>"E -e 1000",
-    $Candle[3]=>"MU- -e 1000",
-    $Candle[4]=>"PI- -e 1000",
+    $Candle[3]=>"MU- -e pt1000",
+    $Candle[4]=>"PI- -e pt1000",
     $Candle[5]=>"TTBAR",
     $Candle[6]=>"ZPJJ"
     );
@@ -79,7 +85,7 @@ foreach (@Candle)
    system(
 	"mkdir "."$_"."_TimeSize;
 	cd "."$_"."_TimeSize;
-	cmsDriver.py $CmsDriverCandleNoBrackets{$_} -n $TimeSizeNumOfEvts --step=GEN --customise=Simulation.py >& "."$_"."_GEN.log;
+	$cmsDriver $CmsDriverCandleNoBrackets{$_} -n $TimeSizeNumOfEvts --step=GEN --customise=Simulation.py >& "."$_"."_GEN.log;
 	cmsSimPyRelVal.pl $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
 	cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
 	cd .."
@@ -90,7 +96,7 @@ foreach (@Candle)
 system(
     "mkdir ZPrimeJJM700_IgProf;
     cd ZPrimeJJM700_IgProf;
-    cmsDriver.py $CmsDriverCandleNoBrackets{$_} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
+    $cmsDriver $CmsDriverCandleNoBrackets{$_} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
     cmsSimPyRelVal.pl $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
     cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
     cd .."
@@ -100,7 +106,7 @@ system(
 system(
     "mkdir ZPrimeJJM700_Valgrind;
     cd ZPrimeJJM700_Valgrind;
-    cmsDriver.py $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
+    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
     cmsSimPyRelVal.pl $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
     mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
     cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
@@ -111,7 +117,7 @@ system(
 system(
     "mkdir SingleMuMinusPt1000_Valgrind;
     cd SingleMuMinusPt1000_Valgrind;
-    cmsDriver.py $CmsDriverCandleNoBrackets{$Candle[3]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& SingleMuMinusPt1000_GEN.log
+    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[3]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& SingleMuMinusPt1000_GEN.log
     cmsSimPyRelVal.pl $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
     mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
     cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt1000.log;
