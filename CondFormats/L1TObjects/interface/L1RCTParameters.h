@@ -38,7 +38,9 @@ class L1RCTParameters {
 		  double eActivityCut,
 		  double hActivityCut,
 		  double eicIsolationThreshold,
-		  bool ignoreHcalIfNoEcalMip,
+		  bool ignoreTowerHB,
+		  bool ignoreTowerHEplus,
+		  bool ignoreTowerHEminus,
 		  std::vector<double> eGammaECalScaleFactors,
 		  std::vector<double> eGammaHCalScaleFactors,
 		  std::vector<double> jetMETECalScaleFactors,
@@ -60,7 +62,9 @@ class L1RCTParameters {
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
   double eicIsolationThreshold() const {return eicIsolationThreshold_;}
-  bool ignoreHcalIfNoEcalMip() const {return ignoreHcalIfNoEcalMip_;}
+  bool ignoreTowerHB() const {return ignoreTowerHB_;}
+  bool ignoreTowerHEplus() const {return ignoreTowerHEplus_;}
+  bool ignoreTowerHEminus() const {return ignoreTowerHEminus_;}
   std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
   std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
   std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
@@ -131,10 +135,21 @@ class L1RCTParameters {
 
   double eicIsolationThreshold_;
 
-  // Ignores HCAL energy if no ECAL energy in corresponding
-  // tower -- to reduce HCAL noise
+  // Ignores HCAL barrel energy if no ECAL energy in corresponding
+  // tower -- to reduce HCAL noise.  Endcaps enabled separately
+  // to allow for lack of one/both ECAL endcaps.
 
-  bool ignoreHcalIfNoEcalMip_;
+  bool ignoreTowerHB_;
+
+  // Ignores HCAL energy in plus endcap if no ECAL energy in
+  // corresponding tower.  
+
+  bool ignoreTowerHEplus_;
+
+  // Ignores HCAL energy in minus endcap if no ECAL energy in
+  // corresponding tower.
+
+  bool ignoreTowerHEminus_;
 
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]

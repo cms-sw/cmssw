@@ -47,7 +47,10 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       etIn7Bits = 0x7F;
       etIn9Bits = 0x1FF;
     }
-  else if(rctParameters_->ignoreHcalIfNoEcalMip() && ecalInput == 0 && hcalInput > 0)
+  else if((ecalInput == 0 && hcalInput > 0) &&
+	  ((rctParameters_->ignoreTowerHB() && iAbsEta > 0 && iAbsEta < 18)
+	   || (rctParameters_->ignoreTowerHEplus() && iAbsEta>17 && crtNo>8)
+	   || (rctParameters_->ignoreTowerHEminus() && iAbsEta>17 && crtNo<9)))
     {
       etIn7Bits = 0;
       etIn9Bits = 0;
