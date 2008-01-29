@@ -1,4 +1,13 @@
 <lcgdict>
+  <class name="edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection,reco::L2TauIsolationInfo, unsigned int> >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection, reco::L2TauIsolationInfo, unsigned int > > >" />
+  <class name="edm::helpers::Key<edm::RefProd<reco::CaloJetCollection > >"/>
+  <class name="std::map<unsigned int,reco::L2TauIsolationInfo>"/>
+  <class name="reco::L2TauIsolationInfo"/>
+
+
   <class name="reco::BaseTauTagInfo"/>
   <class name="std::vector<reco::BaseTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::BaseTauTagInfo> >"/>

@@ -9,12 +9,19 @@
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 
 #include <vector>
 #include <map>
 
 namespace {
   namespace {
+    reco::L2TauIsolationInfo                                    l2iI;
+    L2TauInfoAssociation                                        l2ts;
+    edm::Wrapper<L2TauInfoAssociation>                          wl2ts;
+
+
     std::vector<reco::BaseTauTagInfo>                           btti_v;
     edm::Wrapper<std::vector<reco::BaseTauTagInfo> >            btti_w;
     edm::Ref<std::vector<reco::BaseTauTagInfo> >                btti_r;
