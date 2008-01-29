@@ -6,13 +6,15 @@ EventMsgView::EventMsgView(void* buf):
   buf_((uint8*)buf),head_(buf),
   v2Detected_(false)
 { 
-  // 29-Jan-2008, KAB - adding version number.  We'll start with 2
-  // (assuming that we've been using version 1 up to now).
-  // Until newer versions come along, we limit the versions that we can
-  // handle to just #2.
-  if (protocolVersion() < 2 || protocolVersion() > 2) {
+  // 29-Jan-2008, KAB - adding an explicit version number.
+  // We'll start with 5 to match the new version of the INIT message.
+  // We support earlier versions of the full protocol, of course, but since
+  // we didn't have an explicit version number in the Event Message before
+  // now, we have to limit what we can handle to versions that have the
+  // version number included (>= 5).
+  if (protocolVersion() < 5 || protocolVersion() > 5) {
     throw cms::Exception("EventMsgView", "Invalid Message Version:")
-      << "Only message version 2 is currently supported "
+      << "Only message version 5 is currently supported "
       << "(invalid value = " << protocolVersion() << ").\n";
   }
 

@@ -9,7 +9,7 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
   buf_((uint8*)buf),size_(size)
 {
   EventHeader* h = (EventHeader*)buf_;
-  h->protocolVersion_ = 2;
+  h->protocolVersion_ = 5;
   convert(run,h->run_);
   convert(event,h->event_);
   convert(lumi,h->lumi_);
