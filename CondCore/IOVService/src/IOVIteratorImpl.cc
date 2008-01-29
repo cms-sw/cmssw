@@ -43,7 +43,7 @@ bool cond::IOVIteratorImpl::next(){
   }
   if (atEnd() ) return false;
 
-  m_since = m_globalSince + m_pos->first;
+  m_since = m_pos->first;
   ++m_pos;
   if (atEnd() ) return false;
   ++m_count;
