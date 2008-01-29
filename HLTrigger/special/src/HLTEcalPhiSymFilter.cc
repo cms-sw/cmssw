@@ -67,7 +67,7 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  if ((!phiSymEBRecHitCollection->size() ) || (!phiSymEBRecHitCollection->size())) 
+  if ((!phiSymEBRecHitCollection->size() ) && (!phiSymEBRecHitCollection->size())) 
     return false;
 
   //Put selected information in the event
