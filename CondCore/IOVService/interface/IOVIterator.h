@@ -10,7 +10,7 @@ namespace cond{
     virtual bool empty() const=0;
     virtual size_t size() const=0;
     virtual size_t remaining() const=0;
-    virtual bool atEnd() const;
+    virtual bool atEnd() const=0;
     virtual std::string payloadToken() const=0;   
     virtual cond::ValidityInterval validity() const=0;
   protected:

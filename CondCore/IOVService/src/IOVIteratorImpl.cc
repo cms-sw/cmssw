@@ -25,7 +25,7 @@ bool cond::IOVIteratorImpl::empty() const {
   return m_iov->iov.empty();
 }
 size_t cond::IOVIteratorImpl::size() const {
-  m_iov->iov.size();
+  return m_iov->iov.size();
 }
 size_t cond::IOVIteratorImpl::remaining() const {
   return size()-m_count;
