@@ -1,10 +1,21 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 EventMsgView::EventMsgView(void* buf):
   buf_((uint8*)buf),head_(buf),
   v2Detected_(false)
 { 
+  // 29-Jan-2008, KAB - adding version number.  We'll start with 2
+  // (assuming that we've been using version 1 up to now).
+  // Until newer versions come along, we limit the versions that we can
+  // handle to just #2.
+  if (protocolVersion() < 2 || protocolVersion() > 2) {
+    throw cms::Exception("EventMsgView", "Invalid Message Version:")
+      << "Only message version 2 is currently supported "
+      << "(invalid value = " << protocolVersion() << ").\n";
+  }
+
   uint8* l1_bit_size_ptr = buf_ + sizeof(EventHeader); //Just after Header 
   l1_bits_count_ = convert32(l1_bit_size_ptr); 
   uint32 l1_sz = l1_bits_count_;
@@ -31,6 +42,12 @@ EventMsgView::EventMsgView(void* buf):
   event_start_ += sizeof(char_uint32); 
 }
 
+uint32 EventMsgView::protocolVersion() const
+{
+  EventHeader* h = (EventHeader*)buf_;
+  return h->protocolVersion_;
+}
+
 uint32 EventMsgView::run() const
 {
   EventHeader* h = (EventHeader*)buf_;
@@ -49,10 +66,16 @@ uint32 EventMsgView::lumi() const
   return convert32(h->lumi_);
 }
 
-uint32 EventMsgView::reserved() const
+uint32 EventMsgView::origDataSize() const
 {
   EventHeader* h = (EventHeader*)buf_;
-  return convert32(h->reserved_);
+  return convert32(h->origDataSize_);
+}
+
+uint32 EventMsgView::outModId() const
+{
+  EventHeader* h = (EventHeader*)buf_;
+  return convert32(h->outModId_);
 }
 
 void EventMsgView::l1TriggerBits(std::vector<bool>& put_here) const
