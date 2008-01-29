@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.34 2007/08/18 06:04:57 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.35 2008/01/22 19:28:36 muzaffar Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -256,7 +256,7 @@ namespace stor
 
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
 
-    writer_->manageInitMsg(catalog_, disks_, sourceId_, msg);
+    writer_->manageInitMsg(catalog_, disks_, sourceId_, msg, *initMsgCollection_);
   }
 
   void FragmentCollector::processDQMEvent(FragEntry* entry)
