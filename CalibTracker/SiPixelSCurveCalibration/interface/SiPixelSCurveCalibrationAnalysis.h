@@ -14,7 +14,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.12 2007/11/27 10:03:32 friis Exp $
+// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.13 2008/01/17 12:33:30 friis Exp $
 //
 //
 
@@ -90,6 +90,7 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       detIDHistogramMap histograms_;
 
       virtual void calibrationSetup(const edm::EventSetup& iSetup);
+      virtual bool checkCorrectCalibrationType();
       virtual void newDetID(uint32_t detid);
       //virtual void endJob();  //do nothing
 

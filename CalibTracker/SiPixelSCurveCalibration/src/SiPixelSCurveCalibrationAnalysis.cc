@@ -52,6 +52,21 @@ void SiPixelSCurveCalibrationAnalysis::calibrationSetup(const edm::EventSetup& i
    fitFunction_ = new TF1("sCurve", "0.5*[2]*(1+TMath::Erf( (x-[0]) / ([1]*sqrt(2)) ) )", vCalValues_[0], vCalValues_[vCalValues_.size()-1]);
 }
 
+bool
+SiPixelSCurveCalibrationAnalysis::checkCorrectCalibrationType()
+{
+  if(calibrationMode_=="SCurve")
+    return true;
+  else if(calibrationMode_=="unknown"){
+    edm::LogInfo("SiPixelSCurveCalibrationAnalysis") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
+    return true;
+  }
+  else
+    edm::LogError("SiPixelSCurveCalibrationAnalysis") << "unknown calibration mode for SCurves, should be \"SCurve\" and is \"" << calibrationMode_ << "\"";
+  
+  return false;
+}
+
 sCurveErrorFlag SiPixelSCurveCalibrationAnalysis::estimateSCurveParameters(const std::vector<float>& eff, float& threshold, float& sigma)
 {
    sCurveErrorFlag output = errAllZeros;
