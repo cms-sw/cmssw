@@ -8,15 +8,14 @@
 #include <vector>
 #include <set>
 
-
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
                   int step, 
-                    bool dynamicPhiRoad,
                   double ethresh, 
                   double eseed,
                   double ewing,
                   const PositionCalc& posCalculator,
+                  bool dynamicPhiRoad,
                   DebugLevel debugLevel) :
    eb_st(eb_str),
    phiSteps_(step), dynamicPhiRoad_(dynamicPhiRoad), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)

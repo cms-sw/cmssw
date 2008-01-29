@@ -86,11 +86,11 @@ class HybridClusterAlgo
   //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    int step,
-		    bool dynamicPhiRoad,
 		    double ethresh, 
 		    double eseed,
 		    double ewing,
-                const PositionCalc& posCalculator,
+                    const PositionCalc& posCalculator,
+                    bool dynamicPhiRoad = false,
 		    DebugLevel debugLevel = pINFO);
 
   // destructor

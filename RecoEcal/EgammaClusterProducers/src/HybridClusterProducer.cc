@@ -63,11 +63,11 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
-				   ps.getParameter<bool>("dynamicPhiRoad"),
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
                                    posCalculator_,
+                                   ps.getParameter<bool>("dynamicPhiRoad"),
                                    debugL);
 
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
