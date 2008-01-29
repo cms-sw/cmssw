@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.3 2007/11/29 17:42:41 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.4 2007/11/29 17:44:17 fblekman Exp $
 //
 //
 
@@ -54,6 +54,10 @@ void
 SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+
+   // check first if you're analyzing the right type of calibration
+   if(!checkCorrectCalibrationType())
+     return;
 
    Handle<DetSetVector<SiPixelCalibDigi> > thePlaquettes;
    iEvent.getByLabel(siPixelCalibDigiProducer_, thePlaquettes);
@@ -190,6 +194,11 @@ SiPixelOfflineCalibAnalysisBase::setDQMDirectory(uint32_t detID)
 
 
 // ------------ virtual functions ------------------------------------------------
+bool 
+SiPixelOfflineCalibAnalysisBase::checkCorrectCalibrationType()
+{
+  return true;
+}
 
 bool
 SiPixelOfflineCalibAnalysisBase::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)

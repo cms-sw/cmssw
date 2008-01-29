@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.3 2007/11/27 09:42:39 friis Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.4 2007/11/29 17:42:41 fblekman Exp $
 //
 //
 
@@ -75,6 +75,7 @@ public:
   //pure virtual function, called after each DetID loaded
   virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
   
+  
   //translate DetID to human readable string
   std::string translateDetIdToString(uint32_t detid);
   
@@ -98,6 +99,7 @@ protected:
   std::string calibrationMode_;
   short nTriggers_;
   static std::vector<short> vCalValues_;
+  
 
 private:
   
@@ -118,6 +120,9 @@ private:
   
   //calibrationSetup will be used by derived classes
   virtual void calibrationSetup(const edm::EventSetup& iSetup);
+  
+  // pure virtual function, checks if the calibration analyzer is of the right type wrt the calibration information in the database (as defined in the calibrationMode_ variable). Should be implemented in each analyzer, if false will not do anything in analyze loop. default returns true.
+  virtual bool checkCorrectCalibrationType();
   
   //called when new DetID discovered
   virtual void newDetID(uint32_t detid);
