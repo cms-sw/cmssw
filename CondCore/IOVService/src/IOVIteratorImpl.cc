@@ -16,18 +16,18 @@ void cond::IOVIteratorImpl::init(){
   m_since=m_globalSince;
 }
 
-bool rewind() {
+bool cond::IOVIteratorImpl::rewind() {
   init();
   return !empty();
 }
 
-bool empty() const {
+bool cond::IOVIteratorImpl::empty() const {
   return m_iov->iov.empty();
 }
-size_t size() const {
+size_t cond::IOVIteratorImpl::size() const {
   m_iov->iov.size();
 }
-size_t remaining() const {
+size_t cond::IOVIteratorImpl::remaining() const {
   size()-m_count();
 }
 
