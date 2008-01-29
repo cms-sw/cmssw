@@ -39,33 +39,51 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     
     char* type = "Spigot Format Errors";
     meSpigotFormatErrors_=  m_dbe->book1D(type,type,500,-1,999);
+    meSpigotFormatErrors_->setAxisTitle("# of Errors",1);
+    meSpigotFormatErrors_->setAxisTitle("# of Events",2);
     type = "Bad Quality Digis";
     meBadQualityDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
+    meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
+    meBadQualityDigis_->setAxisTitle("# of Events",2);
     type = "Unmapped Digis";
     meUnmappedDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
+    meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
+    meUnmappedDigis_->setAxisTitle("# of Events",2);
     type = "Unmapped Trigger Primitive Digis";
     meUnmappedTPDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
+    meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
+    meUnmappedTPDigis_->setAxisTitle("# of Events",2);
     type = "FED Error Map";
     meFEDerrorMap_ = m_dbe->book1D(type,type,33,699.5,732.5);
+      meFEDerrorMap_->setAxisTitle("Dcc Id",1);
+      meFEDerrorMap_->setAxisTitle("# of Errors",2);
     type = "Evt Number Out-of-Synch";
-     meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    type = "BCN Not Constant";
+    meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+      meEvtNumberSynch_->setAxisTitle("Slot #",1);
+      meEvtNumberSynch_->setAxisTitle("Crate #",2);
+    type = "BCN Not Consistent";
     meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       meBCNSynch_->setAxisTitle("Slot #",1);
+       meBCNSynch_->setAxisTitle("Crate #",2);
     type = "BCN";
     meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-
+       meBCN_->setAxisTitle("BCN",1);
+       meBCN_->setAxisTitle("# of Entries",2);
+   
     type = "BCN Check";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
+    meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
     type = "EvtN Check";
     meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
-
+    meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
     type = "BCN of Fiber Orbit Message";
     meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-
+    meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
     // Firmware version
     type = "HTR Firmware Version";
     meFWVersion_ = m_dbe->book2D(type,type ,256,-0.5,255.5,18,-0.5,17.5);
-
+    meFWVersion_->setAxisTitle("HTR Firmware Version",1);
+    meFWVersion_->setAxisTitle("Crate #",2);
     // Examine conditions of the DCC Event Fragment
     type = "FED ID numbers. (Should be [700...731])";
     meFEDId_=m_dbe->book1D(type, type, 4095, -0.5, 4094.5);
@@ -154,40 +172,76 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     type = "HTR Error Word - Crate 0";
     meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate0HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate0HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 1";
     meCrate1HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate1HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate1HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 2";
     meCrate2HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate2HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate2HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 3";
     meCrate3HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate3HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate3HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 4";
     meCrate4HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate4HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate4HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 5";
     meCrate5HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate5HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate5HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 6";
     meCrate6HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate6HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate6HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 7";
     meCrate7HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate7HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate7HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 8";
     meCrate8HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate8HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate8HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 9";
     meCrate9HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate9HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate9HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 10";
     meCrate10HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate10HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate10HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 11";
     meCrate11HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate11HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate11HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 12";
     meCrate12HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate12HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate12HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 13";
     meCrate13HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate13HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate13HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 14";
     meCrate14HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate14HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate14HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 15";
     meCrate15HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate15HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate15HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 16";
     meCrate16HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate16HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate16HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
+    meCrate17HTRErr_ ->setAxisTitle("Crate #",2);
     
  /* Disable these histos for now
      type = "Fiber 1 Orbit Message BCN";
@@ -234,6 +288,15 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   ievt_++;
   meEVT_->Fill(ievt_);
   
+
+  meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
+  meBadQualityDigis_->Fill(report.badQualityDigis());
+
+  if (report.badQualityDigis()> 3000) return;
+
+  meUnmappedDigis_->Fill(report.unmappedDigis());
+  meUnmappedTPDigis_->Fill(report.unmappedTPDigis());
+
   lastEvtN_ = -1;
   lastBCN_ = -1;
 
@@ -242,12 +305,12 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
     if (fed.size()<16) continue;
     unpack(fed,emap);
   }
-  
+  /*
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
   meUnmappedDigis_->Fill(report.unmappedDigis());
   meUnmappedTPDigis_->Fill(report.unmappedTPDigis());
-  
+  */
   for(unsigned int i=0; i<report.getFedsError().size(); i++){
     const int m = report.getFedsError()[i];
     const FEDRawData& fed = rawraw.FEDData(m);
@@ -377,7 +440,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   ////////// Histogram Spigot Errors from the DCCs HTR Summaries;////////////
   /* [1:8] */ //Histogram HTR Error Bits in the DCC Headers
-  //FoundOne=false;
   unsigned char WholeErrorList=0; 
   for (int i=0; i<8; i++) {
     FoundOne=false;
@@ -387,7 +449,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (FoundOne) meDCCSummariesOfHTRs_->Fill(dccid, i+1);
   }
   /* [9:16] */ //Histogram LRB Error Bits in the DCC Headers
-  //FoundOne=false;
   WholeErrorList=0; 
   for (int i=0; i<8; i++) {
     FoundOne=false;
