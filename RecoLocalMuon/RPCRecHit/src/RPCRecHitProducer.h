@@ -4,12 +4,13 @@
 /** \class RPCRecHitProducer
  *  Module for RPCRecHit production. 
  *  
- *  $Date: 2006/05/08 00:01:00 $
+ *  $Date: 2006/05/08 11:21:22 $
  *  $Revision: 1.1 $
  *  \author M. Maggim -- INFN Bari
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
@@ -33,7 +34,7 @@ public:
 private:
 
   // The label to be used to retrieve RPC digis from the event
-  std::string theRPCDigiLabel;
+  edm::InputTag theRPCDigiLabel;
   // The reconstruction algorithm
   RPCRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;
