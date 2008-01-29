@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.4 2007/12/13 11:00:46 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.5 2008/01/23 20:21:05 fblekman Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "TLinearFitter.h"
 
 //
 // class decleration
@@ -44,6 +45,7 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
   void doSetup(const edm::ParameterSet&);
       virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
 
+  virtual bool checkCorrectCalibrationType();
 
    private:
       
@@ -51,20 +53,30 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
       
       virtual void calibrationEnd();
       virtual void newDetID(uint32_t detid);
-  void fillDatabase();
-
+      void fillDatabase();
+  std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);
       // ----------member data --------------------------- 
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_;
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_pixels_;
 
+  // fitter
+  TLinearFitter *fitter_;
+  int nfitparameters_;
+  std::string fitfunction_;
+
   // flags
   bool reject_badpoints_;
+  bool reject_plateaupoints_;
+  bool reject_single_entries_;
   double reject_badpoints_frac_;
   double chi2Threshold_;
   double maxGainInHist_;
   double maxChi2InHist_;
+  bool saveALLHistograms_;
+  bool sum_ped_cols_;
+  bool sum_gain_cols_;
   bool filldb_;
   
   // parameters for database output  
