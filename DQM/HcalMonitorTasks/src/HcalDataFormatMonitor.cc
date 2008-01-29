@@ -291,9 +291,6 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
-
-  if (report.badQualityDigis()> 3000) return;
-
   meUnmappedDigis_->Fill(report.unmappedDigis());
   meUnmappedTPDigis_->Fill(report.unmappedTPDigis());
 
@@ -305,12 +302,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
     if (fed.size()<16) continue;
     unpack(fed,emap);
   }
-  /*
-  meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
-  meBadQualityDigis_->Fill(report.badQualityDigis());
-  meUnmappedDigis_->Fill(report.unmappedDigis());
-  meUnmappedTPDigis_->Fill(report.unmappedTPDigis());
-  */
+
   for(unsigned int i=0; i<report.getFedsError().size(); i++){
     const int m = report.getFedsError()[i];
     const FEDRawData& fed = rawraw.FEDData(m);
