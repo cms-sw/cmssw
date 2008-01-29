@@ -73,7 +73,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
         gEve->AddElement( muonList, tList );
         
         //CDJ NOTE: I don't believe a proxy should ever filter the data it is representing
-	if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) >= 2 ) {
+	//if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) >= 2 ) {
            innerRecTrack.fP = TEveVector( muon->p4().px(), muon->p4().py(), muon->p4().pz() );
            innerRecTrack.fV = TEveVector( muon->vertex().x(), muon->vertex().y(), muon->vertex().z() );
            innerRecTrack.fSign = muon->charge();
@@ -175,7 +175,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
            }
            if ( ! matches.empty() ) muonList->AddElement( segmentSet.release() );
            if (outerTrack) outerTrack->MakeTrack();
-        }
+        //}
 	
 	// adjust muon chamber visibility
 	TEveElementIter iter(muonList,"\\d{8}");
