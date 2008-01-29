@@ -2,6 +2,7 @@
 #define CondCore_IOVService_IOVIteratorImpl_h
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include "IOV.h"
 #include <string>
 
@@ -31,7 +32,7 @@ namespace cond{
     cond::Time_t m_globalTill;
     cond::TypedRef<cond::IOV> m_iov;
     const_iterator m_pos;
-    cond::Time_t = m_since;
+    cond::Time_t  m_since;
     size_t m_count;
 
     bool m_isOpen;
