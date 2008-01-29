@@ -85,10 +85,12 @@ void dumpEventHeader(const EventMsgView* eview)
 {
   std::cout << "code=" << eview->code() << "\n"
        << "size=" << eview->size() << "\n"
+       << "protocolVersion=" << eview->protocolVersion() << "\n"
        << "run=" << eview->run() << "\n"
        << "event=" << eview->event() << "\n"
        << "lumi=" << eview->lumi() << "\n"
-       << "reserved=" << eview->reserved() << "\n"
+       << "origDataSize=" << eview->origDataSize() << "\n"
+       << "outModId=0x" << std::hex << eview->outModId() << std::dec << "\n"
        << "event length=" << eview->eventLength() << "\n";
 
   std::vector<bool> l1_out;
