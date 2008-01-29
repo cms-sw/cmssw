@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.15 2007/11/29 19:17:40 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.16 2008/01/28 19:51:39 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -51,6 +51,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   initializationDone = false;
   pushMode_ = false;
   if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
+  errorWasReported_ = false;
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -339,4 +340,19 @@ void ConsumerPipe::clearQueue()
 {
   boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
   eventQueue_.clear();
+}
+
+std::vector<std::string> ConsumerPipe::getTriggerRequest() const
+{
+  return EventSelector::getEventSelectionVString(*requestParamSet_);
+}
+
+void ConsumerPipe::setErrorMessage(std::string message)
+{
+  // assign the error message before setting the error flag to true
+  // to avoid race conditions in which the hasError() method would
+  // return true but the message hasn't been set (simpler than adding
+  // a mutex for the error message string)
+  errorMessage_ = message;
+  errorWasReported_ = true;
 }

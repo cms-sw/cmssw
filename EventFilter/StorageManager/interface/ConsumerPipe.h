@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.8 2007/11/09 23:08:33 badgett Exp $
+ * $Id: ConsumerPipe.h,v 1.9 2007/11/29 19:14:10 biery Exp $
  */
 
 #include <string>
@@ -55,6 +55,7 @@ namespace stor
     bool isIdle() const;
     bool isDisconnected() const;
     bool isReadyForEvent() const;
+    bool hasError() const { return errorWasReported_; }
     bool wantsEvent(EventMsgView const& eventView) const;
     void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getEvent();
@@ -65,6 +66,9 @@ namespace stor
     unsigned int getEvents() { return(events_);}
     time_t getLastEventRequestTime() { return(lastEventRequestTime_);}
     std::string getHostName() { return(hostName_);}
+    std::vector<std::string> getTriggerRequest() const;
+    void setErrorMessage(std::string message);
+    std::string getErrorMessage() { return errorMessage_; }
 
   private:
 
@@ -93,6 +97,10 @@ namespace stor
     bool pushMode_;
     bool pushEvent();
     unsigned int pushEventFailures_;
+
+    // track whether an error has occurred
+    bool errorWasReported_;
+    std::string errorMessage_;
 
     // 28-Nov-2007, KAB: upgrade to a queue of events
     std::deque< boost::shared_ptr< std::vector<char> > > eventQueue_;
