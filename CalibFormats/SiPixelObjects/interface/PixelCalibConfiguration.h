@@ -86,7 +86,8 @@ namespace pos{
     unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
-    bool noHits() const; // returns true if no hits will be produced ("Rows:" and "Cols:" empty)
+    bool noHits() const {return (maxNumHitsPerROC()==0);} // returns true if no hits will be produced
+    unsigned int PixelCalibConfiguration::maxNumHitsPerROC() const; // returns the maximum number of hits that will be produced in any pixel pattern
 
     //If in singleROC mode this returns the current ROC
     unsigned int scanROC(unsigned int state) const;
@@ -104,6 +105,8 @@ namespace pos{
     unsigned int numberOfScanVariables() const {return dacs_.size();}
 
     std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
+
+    bool containsScan(std::string name) const;
 
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}

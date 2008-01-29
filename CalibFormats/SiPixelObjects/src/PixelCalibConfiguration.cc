@@ -1060,15 +1060,27 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
 }
 
-bool PixelCalibConfiguration::noHits() const
+unsigned int PixelCalibConfiguration::maxNumHitsPerROC() const
 {
+	unsigned int returnValue = 0;
 	for ( std::vector<std::vector<unsigned int> >::const_iterator rows_itr = rows_.begin(); rows_itr != rows_.end(); rows_itr++ )
 	{
-		if (rows_itr->size() > 0) return false;
+		for ( std::vector<std::vector<unsigned int> >::const_iterator cols_itr = cols_.begin(); cols_itr != cols_.end(); cols_itr++ )
+		{
+			returnValue = max( returnValue, rows_itr->size()*cols_itr->size() );
+		}
 	}
-	for ( std::vector<std::vector<unsigned int> >::const_iterator cols_itr = cols_.begin(); cols_itr != cols_.end(); cols_itr++ )
+	return returnValue;
+}
+
+bool PixelCalibConfiguration::containsScan(std::string name) const
+{
+	for ( unsigned int i = 0; i < numberOfScanVariables(); i++ )
 	{
-		if (cols_itr->size() > 0) return false;
+		if ( scanName(i) == name )
+		{
+			return true;
+		}
 	}
-	return true;
+	return false;
 }
