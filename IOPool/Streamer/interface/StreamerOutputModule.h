@@ -1,13 +1,14 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.33 2008/01/05 05:28:54 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.34 2008/01/29 15:09:03 biery Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -18,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
@@ -139,6 +141,8 @@ namespace edm
     std::vector<unsigned char> hltbits_;
     uint32 origSize_;
 
+    Strings hltTriggerNames_;
+    Strings hltTriggerSelections_;
   }; //end-of-class-def
 
  
@@ -184,6 +188,10 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
     //edm::loadExtraClasses();
     // do the line below instead of loadExtraClasses() to avoid Root errors
     edm::RootAutoLibraryLoader::enable();
+
+    // 25-Jan-2008, KAB - pull out the trigger selection request
+    // which we need for the INIT message
+    hltTriggerSelections_ = EventSelector::getEventSelectionVString(ps);
   }
 
 template <class Consumer>
@@ -240,11 +248,11 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //  std::string hexy = r1.toString();
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
-    //Setting protocol version IV
-    Version v(4,(uint8*)toplevel.compactForm().c_str());
+    //Setting protocol version V
+    Version v(5,(uint8*)toplevel.compactForm().c_str());
 
-    Strings hlt_names = edm::getAllTriggerNames();
-    hltsize_ = hlt_names.size();
+    hltTriggerNames_ = edm::getAllTriggerNames();
+    hltsize_ = hltTriggerNames_.size();
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
@@ -256,9 +264,10 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     std::string processName = OutputModule::processName();
 
     std::auto_ptr<InitMsgBuilder> init_message(
-                                new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
-                                      run, v, edm::getReleaseVersion().c_str() , processName.c_str(),
-				      hlt_names, l1_names));
+        new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
+                           run, v, edm::getReleaseVersion().c_str() , processName.c_str(),
+                           description().moduleLabel().c_str(),
+                           hltTriggerNames_, hltTriggerSelections_, l1_names));
 
     // the translator already has the product registry (selections_),
     // so it just needs to serialize it to the init message.
@@ -280,8 +289,12 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     
     if (prod.isValid())
     {
+      boost::shared_ptr<TriggerResults> maskedResults =
+        EventSelector::maskTriggerResults(hltTriggerSelections_,
+                                          *prod,
+                                          hltTriggerNames_);
       for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
-        vHltState.push_back(((prod->at(i)).state()));
+        vHltState.push_back(((maskedResults->at(i)).state()));
       }
     }
     else 
@@ -348,8 +361,7 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     unsigned int new_size = src_size + 50000;
     if(bufs_.size() < new_size) bufs_.resize(new_size);
 
-    ModuleDescription myDesc = description();
-    std::string moduleLabel = myDesc.moduleLabel();
+    std::string moduleLabel = description().moduleLabel();
     uLong crc = crc32(0L, Z_NULL, 0);
     Bytef* buf = (Bytef*) moduleLabel.data();
     crc = crc32(crc, buf, moduleLabel.length());
