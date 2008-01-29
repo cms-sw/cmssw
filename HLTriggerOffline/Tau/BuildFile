@@ -1,4 +1,5 @@
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/TauReco>
 <use name=FWCore/ServiceRegistry>
 <use name=DQMServices/Core>
 <use name=DataFormats/Candidate>
