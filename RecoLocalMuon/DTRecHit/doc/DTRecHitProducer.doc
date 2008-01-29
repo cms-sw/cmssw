@@ -47,7 +47,7 @@ An example of configuration parameters for this module is:
 \verbatim
  module  dt1DRecHits = DTRecHitProducer {
                 untracked bool debug = false
-                string dtDigiLabel = 'muondtdigi'      
+                InputTag dtDigiLabel = muondtdigi      
                 # The reconstruction algo and its parameter set
                 string recAlgo = 'DTLinearDriftAlgo'
                 PSet recAlgoConfig = {

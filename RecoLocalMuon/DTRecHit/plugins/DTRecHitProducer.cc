@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/16 07:08:19 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara
  */
 
@@ -41,7 +41,7 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
   
   produces<DTRecHitCollection>();
 
-  theDTDigiLabel = config.getParameter<string>("dtDigiLabel");
+  theDTDigiLabel = config.getParameter<InputTag>("dtDigiLabel");
   
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = config.getParameter<string>("recAlgo");
