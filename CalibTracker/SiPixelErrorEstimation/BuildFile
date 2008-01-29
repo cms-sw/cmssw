@@ -1,46 +1,41 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags EDM_PLUGIN=1>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=clhep>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
 
-<use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/DetId>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
-#<use name=boost>
-#<use name=DQMServices/CoreROOT>
-<use name=SimDataFormats/TrackerDigiSimLink>
-<use name=DataFormats/SiStripDetId> 
-#<use name=FWCore/ParameterSet>
-<use name=RecoTracker/TkSeedGenerator>
-<use name=TrackingTools/TrackFitters>
-<use name=TrackingTools/TransientTrack>
-#<use name=CalibTracker/SiStripLorentzAngle>
-<use name=Geometry/TrackerGeometryBuilder>
+<use name=DataFormats/TrajectorySeed>
+<use name=FWCore/MessageLogger>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/TrackerTopology>
 <use name=MagneticField/Records>
-<use name=MagneticField/Engine>
-<use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/TrackingAnalysis>
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimTracker/TrackerHitAssociation>
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/Records>
+
 <use name=rootcintex>
 <use name=root>
-<use name=SimTracker/TrackAssociation>
-<use name=SimTracker/TrackerHitAssociation>
-<use name=Validation/RecoTrack>
-<use name=CondFormats/SiPixelObjects>
-<use name=CondFormats/DataRecord>
-<use name=CondTools/SiPixel>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
 <use name=rootmath>
+<use name=clhep>
+
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=CalibTrackerSiPixelErrorEstimation>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=clhep>
 </export>
