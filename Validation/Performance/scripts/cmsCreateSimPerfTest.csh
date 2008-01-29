@@ -4,10 +4,13 @@ set verbose
 #Defining the number of events for each test
 set TimeSizeNumberOfEvents=100
 set IgProfNumberOfEvents=5
-set ValgrindNumberOfEvents=1
+set ValgrindNumberOfEvents=0
 
 #Adding the environment setting to fix environment problem with cmsRelvalreport
 eval `scramv1 runtime -csh`
+
+#To fix the pie-chart issues until PerfReport3
+source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
 
 #Adding some info for the logfile
 date
@@ -21,12 +24,12 @@ showtags -r
 echo "Initial benchmark">cmsScimark2.log
 date >> cmsScimark2.log
 echo $HOST >> cmsScimark2.log
-repeat 1 cmsScimark2 >> cmsScimark2.log
+repeat 10 cmsScimark2 >> cmsScimark2.log
 date >> cmsScimark2.log
 echo "Initial benchmark">cmsScimark2_Large.log
 date >> cmsScimark2_Large.log
 echo $HOST >> cmsScimark2_Large.log
-repeat 1 cmsScimark2 -large >> cmsScimark2_Large.log
+repeat 10 cmsScimark2 -large >> cmsScimark2_Large.log
 date > cmsScimark2_Large.log
 
 #Running TimingReport, TimeReport, SimpleMemoryCheck, EdmSize on all 7 candles
@@ -68,12 +71,12 @@ cd ..
 echo "Final benchmark">>cmsScimark2.log
 date >> cmsScimark2.log
 echo $HOST >> cmsScimark2.log
-repeat 1 cmsScimark2 >> cmsScimark2.log
+repeat 10 cmsScimark2 >> cmsScimark2.log
 date >> cmsScimark2.log
 echo "Final benchmark">>cmsScimark2_Large.log
 date >> cmsScimark2_Large.log
 echo $HOST >> cmsScimark2_Large.log
-repeat 1 cmsScimark2 -large >> cmsScimark2_Large.log
+repeat 10 cmsScimark2 -large >> cmsScimark2_Large.log
 date >> cmsScimark2_Large.log
 
 end
