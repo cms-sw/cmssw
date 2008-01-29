@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/27 09:28:11 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/27 10:56:48 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -284,7 +284,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
-      float xebeta = ebeta - 0.5;
+      float xebeta = ebeta - 0.5*id.zside();
       float xebphi = ebphi - 0.5;
 
       if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
@@ -349,7 +349,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
-      float xebeta = ebeta - 0.5;
+      float xebeta = ebeta - 0.5*id.zside();
       float xebphi = ebphi - 0.5;
 
       if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( xebphi, xebeta );
