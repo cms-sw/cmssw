@@ -48,11 +48,12 @@ int main()
 
   char reltag[]="CMSSW_0_6_0_pre45";
   std::string processName = "HLT";
+  std::string outputModuleLabel = "HLTOutput";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version(4,(const uint8*)psetid),(const char*)reltag,
-		      processName.c_str(),
-                      hlt_names,l1_names);
+		      processName.c_str(),outputModuleLabel.c_str(),
+                      hlt_names,hlt_names,l1_names);
 
 
   init.setDescLength(sizeof(test_value));
@@ -72,8 +73,8 @@ int main()
                        Version(view.protocolVersion(),
                                (const uint8*)psetid2),
                        view.releaseTag().c_str(),
-			processName.c_str(),
-                       hlt2,l12);
+                       processName.c_str(),outputModuleLabel.c_str(),
+                       hlt2,hlt2,l12);
 
   init2.setDescLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),

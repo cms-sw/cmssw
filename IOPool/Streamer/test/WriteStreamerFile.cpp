@@ -55,11 +55,12 @@ int main()
 
   char reltag[]="CMSSW_0_8_0_pre7";
   std::string processName = "HLT";
+  std::string outputModuleLabel = "HLTOutput";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version(4,(const uint8*)psetid),
-                      (const char*)reltag, processName.c_str(),
-                      hlt_names,l1_names);
+                      (const char*)reltag, processName.c_str(), outputModuleLabel.c_str(),
+                      hlt_names,hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
