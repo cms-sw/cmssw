@@ -87,7 +87,7 @@ namespace pos{
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
     bool noHits() const {return (maxNumHitsPerROC()==0);} // returns true if no hits will be produced
-    unsigned int PixelCalibConfiguration::maxNumHitsPerROC() const; // returns the maximum number of hits that will be produced in any pixel pattern
+    unsigned int maxNumHitsPerROC() const; // returns the maximum number of hits that will be produced in any pixel pattern
 
     //If in singleROC mode this returns the current ROC
     unsigned int scanROC(unsigned int state) const;
