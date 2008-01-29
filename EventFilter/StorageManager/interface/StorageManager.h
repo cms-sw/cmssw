@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.19 2007/08/19 07:31:43 hcheung Exp $
+   $Id: StorageManager.h,v 1.20 2007/11/09 23:08:34 badgett Exp $
 */
 
 #include <string>
@@ -164,8 +164,6 @@ namespace stor {
     toolbox::mem::Pool *pool_;
 
     // added for Event Server
-    std::vector<unsigned char> serialized_prods_;
-    int  ser_prods_size_;
     std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
     xdata::Double maxESEventRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
@@ -175,6 +173,7 @@ namespace stor {
     xdata::Integer DQMactiveConsumerTimeout_;  // seconds
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
+    boost::mutex consumerInitMsgLock_;
 
     SMFUSenderList smfusenders_;
     xdata::UnsignedInteger32 connectedFUs_;
