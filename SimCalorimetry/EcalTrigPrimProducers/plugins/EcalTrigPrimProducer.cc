@@ -74,19 +74,32 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
 
   bool famos = ps_.getParameter<bool>("Famos");
 
-  //get  binOfMax
-  binOfMaximum_=0;
-  edm::Service<edm::ConstProductRegistry> reg;
-  // Loop over provenance of products in registry.
-  for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-       it != reg->productList().end(); ++it) {
-    edm::BranchDescription desc = it->second;
-    if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
-	desc.moduleLabel()=="ecalUnsuppressedDigis") {
-      edm::ParameterSet result = getParameterSet(desc.psetID());
-      binOfMaximum_=result.getParameter<int>("binOfMaximum");
-      edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in ProductRegistry :  "<<binOfMaximum_;//FIXME
-      break;
+  //  get  binOfMax
+  //  try first in cfg, then in ProductRegistry
+  //  =6 is default (1-10 possible values)
+  binOfMaximum_=0;  //starts at 1!
+
+  std::vector<std::string> names = ps_.getParameterNames();
+  if (find(names.begin(), names.end(), std::string("binOfMaximum"))
+      != names.end()) {
+    binOfMaximum_=ps_.getParameter<int>("binOfMaximum");
+    edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in cfg file :  "<<binOfMaximum_;
+  }
+      
+  
+  if (binOfMaximum_==0) {
+    edm::Service<edm::ConstProductRegistry> reg;
+    // Loop over provenance of products in registry.
+    for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+	 it != reg->productList().end(); ++it) {
+      edm::BranchDescription desc = it->second;
+      if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
+	  desc.moduleLabel()=="ecalUnsuppressedDigis") {
+	edm::ParameterSet result = getParameterSet(desc.psetID());
+	binOfMaximum_=result.getParameter<int>("binOfMaximum");
+	edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in ProductRegistry :  "<<binOfMaximum_;
+	break;
+      }
     }
   }
 
