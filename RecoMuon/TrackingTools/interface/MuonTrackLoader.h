@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/05/28 13:22:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/07/13 20:38:03 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -56,7 +56,7 @@ class MuonTrackLoader {
     std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory) const;
 
     /// Takes a track at the PCA and applies the vertex constriant
-    reco::Track buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA) const;
+    std::pair<bool,reco::Track> buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA) const;
 
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 

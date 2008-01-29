@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/12/19 16:23:35 $
- *  $Revision: 1.56 $
+ *  $Date: 2007/12/19 19:40:41 $
+ *  $Revision: 1.57 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -188,8 +188,16 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     if(theUpdatingAtVtx){
       // build the "bare" track UPDATED at vtx
-      updatedTrack = buildTrackUpdatedAtPCA(track);
-      
+      pair<bool,reco::Track> updateResult = buildTrackUpdatedAtPCA(track);
+
+      if(!updateResult.first){ 
+	++trackIndex;
+	++trackUpdatedIndex;
+	continue;
+      }
+
+      reco::Track updatedTrack = updateResult.second;
+
       // set the persistent track-extra reference to the Track
       updatedTrack.setExtra(trackExtraRef);
       
@@ -412,7 +420,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
 }
 
 
-reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) const {
+pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) const {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
   MuonPatternRecoDumper debug;
@@ -426,7 +434,7 @@ reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) co
   pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack);
 
   if(!updateResult.first){
-    return reco::Track();
+    return pair<bool,reco::Track>(false,reco::Track());
   }
 
   LogTrace(metname) << "FTS after the vertex constraint";
@@ -446,7 +454,7 @@ reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) co
 			   ftsAtVtx.charge(),
 			   ftsAtVtx.curvilinearError());
   
-  return updatedTrack;
+  return pair<bool,reco::Track>(true,updatedTrack);
 }
 
 
