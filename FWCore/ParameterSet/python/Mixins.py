@@ -297,7 +297,7 @@ class _Labelable(object):
             myDeps=set(presentDeps)
             knownDeps[self.label()]=myDeps
         presentDeps.add(self.label())
-    def fillNamesList(self, l):
+    def fillNamesList(self, l, otherSequences):
         l.append(self.__label)
 
 
