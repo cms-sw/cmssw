@@ -46,7 +46,7 @@ public:
 		     const SiStripNoises *stripNoises,
 		     bool  isRegional=false);
 
-  virtual ~MeasurementTracker() { if (dummyStripNoises) delete dummyStripNoises; }
+  virtual ~MeasurementTracker();
  
   void update( const edm::Event&) const;
   void updatePixels( const edm::Event&) const;

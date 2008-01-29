@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.58 2007/07/18 13:22:41 marafino Exp $
+$Id: Event.h,v 1.59 2007/07/18 20:12:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -83,6 +83,8 @@ namespace edm {
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class ConfigurableInputSource;
+    friend class DaqSource;
+    friend class InputSource;
     friend class RawInputSource;
     friend class FilterWorker;
     friend class ProducerWorker;

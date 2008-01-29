@@ -293,11 +293,17 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // were saved (probably due to cuts on E, pT and eta)
       //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
 	myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
-	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+	if ( track.trackerSurfacePosition().perp() > 150. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
+	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
+	else
+	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
 	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     } else {
       myTracks[trackId] = myTracks[motherId];
-      (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+      if ( track.trackerSurfacePosition().perp() > 150. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
+      else
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
       (*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     }
     
@@ -649,7 +655,8 @@ int
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) { 
   
   // Check that the particle is in the Famos "acceptance"
-  if ( !myFilter->accept(p) ) return -1;
+  // Keep all primaries of pile-up events, though
+  if ( !myFilter->accept(p) && ig >= -1 ) return -1;
 
   // The new track index
   int trackId = nSimTracks++;

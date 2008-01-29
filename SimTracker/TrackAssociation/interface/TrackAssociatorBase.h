@@ -4,12 +4,13 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2007/03/26 16:15:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/09 16:54:26 $
+ *  $Revision: 1.8 $
  *  \author magni, cerati
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/AssociationMap.h"

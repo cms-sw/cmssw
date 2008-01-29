@@ -3,6 +3,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
+#include "Rtypes.h"
 
 #include <fstream>
 #include <vector>

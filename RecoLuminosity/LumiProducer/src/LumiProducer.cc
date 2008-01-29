@@ -16,7 +16,7 @@ data from the DB and the second loads the Luminosity Obj into the Lumi Block.
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id$
+// $Id: LumiProducer.cc,v 1.2 2007/07/24 17:58:25 valerieh Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -116,10 +116,10 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   std::auto_ptr<LumiDetails> pOut2(new LumiDetails(
                           lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumietsum", defvecd),
 			  lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumietsumerr", defvecd),
-			  lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumietsumqual", defvecd),
+			  lumiBlockPSet.getUntrackedParameter<std::vector<int> >("lumietsumqual", defveci),
 			  lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumiocc", defvecd),
 			  lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumioccerr", defvecd),
-			  lumiBlockPSet.getUntrackedParameter<std::vector<double> >("lumioccqual", defvecd) ) );
+			  lumiBlockPSet.getUntrackedParameter<std::vector<int> >("lumioccqual", defveci) ) );
   iLBlock.put(pOut2);
 
   //  ESHandle<SetupData> pLumiSetup; 

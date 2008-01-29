@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.22 2007/03/04 05:53:06 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.23 2007/06/29 16:36:04 wmtan Exp $
 //
 //
 
@@ -34,6 +34,9 @@
 #include "FWCore/Modules/src/EventContentAnalyzer.h"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // class declarations
 //
@@ -56,22 +59,22 @@ static const char* kNameValueSep = "=";
 ///convert the object information to the correct type and print it
 template<typename T>
 static void doPrint(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
+  edm::LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address());//<<"\n";
 }
 
 template<>
 static void doPrint<char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
+  edm::LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()));//<<"\n";
 }
 
 template<>
 static void doPrint<unsigned char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
+  edm::LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()));//<<"\n";
 }
 
 template<>
 static void doPrint<bool>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
+  edm::LogAbsolute("EventContent") << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false");//<<"\n";
 }
 
 typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
@@ -126,7 +129,7 @@ static void printObject(const std::string& iName,
    Object objectToPrint = iObject;
    std::string indent(iIndent);
    if(iObject.TypeOf().IsPointer()) {
-     std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec<<"\n";
+     edm::LogAbsolute("EventContent")<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec;//<<"\n";
       Type pointedType = iObject.TypeOf().ToType();
       if(ROOT::Reflex::Type::ByName("void") == pointedType ||
          pointedType.IsPointer() ||
@@ -158,24 +161,24 @@ static void printObject(const std::string& iName,
       return;
    }
    
-   std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
+   edm::LogAbsolute("EventContent")<<indent<<printName<<" "<<formatClassName(typeName);//<<"\n";
    indent+=iIndentDelta;
    //print all the data members
    for(ROOT::Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
        itMember != objectToPrint.TypeOf().DataMember_End();
        ++itMember) {
-      //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
+      //edm::LogAbsolute("EventContent") <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
       try {
          printObject(itMember->Name(),
                       itMember->Get(objectToPrint),
                       indent,
                       iIndentDelta);
       }catch(std::exception& iEx) {
-	std::cout <<indent<<itMember->Name()<<" <exception caught("
+	edm::LogAbsolute("EventContent") <<indent<<itMember->Name()<<" <exception caught("
 		  <<iEx.what()<<")>\n";
       }
       catch(...) {
-	std::cout <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
+	edm::LogAbsolute("EventContent") <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
       }
    }
 }
@@ -197,18 +200,18 @@ static bool printAsContainer(const std::string& iName,
          //std::cerr <<"could not get 'at' member because "<< x.what()<<std::endl;
          return false;
       }
-      std::cout <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]\n";
+      edm::LogAbsolute("EventContent") <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]";//"\n";
       Object contained;
       std::string indexIndent=iIndent+iIndentDelta;
       for(size_t index = 0; index != size; ++index) {
          std::ostringstream sizeS;
          sizeS << "["<<index<<"]";
          contained = atMember.Invoke(iObject, Tools::MakeVector(static_cast<void*>(&index)));
-         //std::cout <<"invoked 'at'"<<std::endl;
+         //edm::LogAbsolute("EventContent") <<"invoked 'at'"<<std::endl;
          try {
             printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
          }catch(...) {
-            std::cout <<iIndent<<"<exception caught>"<<"\n";
+            edm::LogAbsolute("EventContent") <<iIndent<<"<exception caught>"<<"\n";
          }
       }
       return true;
@@ -223,17 +226,18 @@ static void printObject(const edm::Event& iEvent,
                         const std::string& iClassName,
                         const std::string& iModuleLabel,
                         const std::string& iInstanceLabel,
+                        const std::string& iProcessName,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
    using namespace edm;
    try {
       GenericHandle handle(iClassName);
    }catch(const edm::Exception&) {
-      std::cout <<iIndent<<" \""<<iClassName<<"\""<<" is an unknown type"<<std::endl;
+      edm::LogAbsolute("EventContent") <<iIndent<<" \""<<iClassName<<"\""<<" is an unknown type"<<std::endl;
       return;
    }
    GenericHandle handle(iClassName);
-   iEvent.getByLabel(iModuleLabel,iInstanceLabel,handle);
+   iEvent.getByLabel(edm::InputTag(iModuleLabel,iInstanceLabel,iProcessName),handle);
    std::string className = formatClassName(iClassName);
    printObject(className,*handle,iIndent,iIndentDelta);   
 }
@@ -246,6 +250,8 @@ EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
   moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
   verbose_(iConfig.getUntrackedParameter("verbose",false) || moduleLabels_.size()>0),
+  getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels",std::vector<std::string>())),
+  getData_(iConfig.getUntrackedParameter("getData",false) || getModuleLabels_.size()>0),
   evno_(0)
 {
    //now do what ever initialization is needed
@@ -275,15 +281,17 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::string friendlyName;
    std::string modLabel;
    std::string instanceName;
+   std::string processName;
    std::string key;
 
    iEvent.getAllProvenance(provenances);
    
-   std::cout << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
+   edm::LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
              << provenances.size() << " product" << (provenances.size()==1 ?"":"s")
-             << " with friendlyClassName, moduleLabel and productInstanceName:"
+             << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
              << std::endl;
 
+   std::string startIndent = indentation_+verboseIndentation_;
    for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
                              itProv != itProvEnd;
                            ++itProv) {
@@ -297,30 +305,54 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        instanceName = (*itProv)->productInstanceName();
        //if(instanceName.empty())  instanceName = std::string("||");
        
-       std::cout << indentation_ << friendlyName
+       processName = (*itProv)->processName();
+       
+       edm::LogAbsolute("EventContent") << indentation_ << friendlyName
 		 << " \"" << modLabel
-		 << "\" \"" << instanceName <<"\"" << std::endl;
+		 << "\" \"" << instanceName <<"\" \""
+                 << processName<<"\""
+         << std::endl;
+
+       key = friendlyName
+	 + std::string(" + \"") + modLabel
+	 + std::string("\" + \"") + instanceName+"\" \""+processName+"\"";
+       ++cumulates_[key];
+       
        if(verbose_) {
          if(moduleLabels_.size() == 0 ||
              std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
 	   //indent one level before starting to print
-	   std::string startIndent = indentation_+verboseIndentation_;
 	   printObject(iEvent,
 		       (*itProv)->className(),
 		       (*itProv)->moduleLabel(),
 		       (*itProv)->productInstanceName(),
+                       (*itProv)->processName(),
 		       startIndent,
 		       verboseIndentation_);
+           continue;
          }
        }
-      
-       key = friendlyName
-	 + std::string(" + \"") + modLabel
-	 + std::string("\" + \"") + instanceName+"\"";
-       ++cumulates_[key];
+       if(getData_) {
+         if(getModuleLabels_.size() == 0 ||
+            std::binary_search(getModuleLabels_.begin(),getModuleLabels_.end(),modLabel)) {
+           const std::string& className = (*itProv)->className();
+           using namespace edm;
+           try {
+             GenericHandle handle(className);
+           }catch(const edm::Exception&) {
+             edm::LogAbsolute("EventContent") <<startIndent<<" \""<<className<<"\""<<" is an unknown type"<<std::endl;
+             return;
+           }
+           GenericHandle handle(className);
+           iEvent.getByLabel(edm::InputTag((*itProv)->moduleLabel(),
+                                           (*itProv)->productInstanceName(),
+                                           (*itProv)->processName()),
+                             handle);
+         }
+       }      
      }
    }
-   std::cout <<"Mine"<<std::endl;
+   //std::cout <<"Mine"<<std::endl;
    ++evno_;
 }
 
@@ -330,11 +362,11 @@ EventContentAnalyzer::endJob()
 {
    typedef std::map<std::string,int> nameMap;
 
-   std::cout <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel and productInstanceName" << std::endl;
+   edm::LogAbsolute("EventContent") <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel, productInstanceName and processName" << std::endl;
    for(nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end();
                                it != itEnd;
                              ++it) {
-      std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
+      edm::LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }
 
 // Test boost::lexical_cast  We don't need this right now so comment it out.

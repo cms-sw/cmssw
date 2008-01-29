@@ -1,7 +1,21 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=PhysicsTools/UtilAlgos>
-
-<library file=TrackMerger.cc>
-  <use name=DataFormats/TrackReco>
+<export></export>
+<Flags CXXFLAGS="-DDEBUG=1 -O0 -ggdb">
+<library name=PhysicsToolsRecoAlgos_plugins file=*.cc>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/RecoCandidate>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/METReco>
+  <use name=DataFormats/HcalRecHit>
+  <use name=SimDataFormats/TrackingAnalysis>
+  <use name=PhysicsTools/RecoCandUtils>
+  <use name=PhysicsTools/CandAlgos>
+  <use name=PhysicsTools/RecoAlgos>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=MagneticField/Records>
+  <use name=RecoVertex/KalmanVertexFit>
+  <use name=RecoVertex/GaussianSumVertexFit>
 </library>

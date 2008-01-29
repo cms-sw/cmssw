@@ -1,4 +1,4 @@
-/* \class reco::modules::CandHistograms
+/* \class CandHistoAnalyzer
  * 
  * Configurable Candidate Histogram creator
  *

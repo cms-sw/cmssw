@@ -43,6 +43,8 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 //For Pileup events
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
@@ -63,6 +65,7 @@
 // ROOT
 #include <TFile.h>
 #include <TH1F.h>
+#include <TRandom3.h>
 
 // #define FAMOS_DEBUG
 
@@ -83,7 +86,14 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
          "or remove the module that requires it";
   }
 
-  random = new RandomEngine(&(*rng));
+  bool useTRandom = conf.getParameter<bool>("UseTRandomEngine");
+  if ( !useTRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
 
   produces<SiTrackerGSRecHit2DCollection>();
 
@@ -428,6 +438,9 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
   delete thePixelEndcapParametrization;
   delete theSiStripErrorParametrization;
 
+  if ( random->theRootEngine() ) delete random->theRootEngine();
+  delete random;
+
 }  
 
 void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& es) {
@@ -436,6 +449,10 @@ void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& e
   edm::ESHandle<TrackerGeometry> theGeometry;
   es.get<TrackerDigiGeometryRecord> ().get (theGeometry);
   geometry = &(*theGeometry);
+
+  edm::ESHandle<TrackerGeometry> theMisAlignedGeometry;
+  es.get<TrackerDigiGeometryRecord>().get("MisAligned",theMisAlignedGeometry);
+  misAlignedGeometry = &(*theMisAlignedGeometry);
 
 }
 
@@ -482,6 +499,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   correspondingSimHit.resize(input.size());
   Local3DPoint position;
   LocalError error;
+  LocalError inflatedError;
   
   int simHitCounter = -1;
   int recHitCounter = 0;
@@ -493,12 +511,17 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
     unsigned trackID = (*isim).trackId();
     uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
 
-    /* 
+    /*
     const GeomDet* theDet = geometry->idToDet(det);
-    std::cout << "Track/z/r after : "
+    std::cout << "SimHit Track/z/r as simulated : "
 	      << trackID << " " 
 	      << theDet->surface().toGlobal((*isim).localPosition()).z() << " " 
 	      << theDet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
+    const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
+    std::cout << "SimHit Track/z/r as reconstructed : "
+	      << trackID << " " 
+	      << theMADet->surface().toGlobal((*isim).localPosition()).z() << " " 
+	      << theMADet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
     */
 
     ++numberOfPSimHits;	
@@ -555,6 +578,17 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 	}
       }
       else{  if(subdet>2) position = Local3DPoint(position.x(),0.,0.);    }  // no matching, set y=0 on strips
+
+      // Inflate errors in case of geometry misalignment
+      const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
+      if ( theMADet->alignmentPositionError() != 0 ) { 
+	LocalError lape = 
+	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
+					      theMADet->surface() );
+	error = LocalError ( error.xx()+lape.xx(),
+			     error.xy()+lape.xy(),
+			     error.yy()+lape.yy() );
+      }
 
       // create rechit
       temporaryRecHits[trackID].push_back(

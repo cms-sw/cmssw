@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=RecoCaloTools/Selectors>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/RecoCandidate>
+<export>
+   <lib name=RecoEgammaEgammaIsolationAlgos>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=Geometry/CaloEventSetup>
+   <use name=Geometry/CaloGeometry>
+   <use name=RecoCaloTools/Selectors>
+   <use name=DataFormats/Candidate>
+   <use name=DataFormats/RecoCandidate>
+</export>

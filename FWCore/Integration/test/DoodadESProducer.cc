@@ -13,21 +13,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: DoodadESProducer.cc,v 1.2 2006/02/13 23:01:31 wmtan Exp $
+// $Id: DoodadESProducer.cc,v 1.3 2006/10/21 16:44:13 wmtan Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/Integration/test/Doodad.h"
 #include "FWCore/Integration/test/Doodad.h"
 #include "FWCore/Integration/test/GadgetRcd.h"
 

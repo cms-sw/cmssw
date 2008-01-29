@@ -19,12 +19,10 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
 
 #define NO_OF_EVENTS 10
 

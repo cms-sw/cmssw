@@ -1,6 +1,6 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <cmath>
 
@@ -35,8 +35,19 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
   // is actually a XYZVector in the MatchCore terminology). Therefore, the Transform3D is correctly applied
   point = locToGlobal_((Point)point);
 
-  // Temporary nasty hack to avoid misbehaviour of not-intended-for-that
-  //  getClosestCell in case of large (eta beyond HF ...) 
+  // Temporary nasty hacks to avoid misbehaviour of not-intended-for-that
+  //  getClosestCell in case of large (eta beyond HF ...)  and in EM showers 
+  if(fabs(point.Z())>2000 || fabs(point.X())>2000 || fabs(point.Y())>2000) 
+    { 
+      edm::LogWarning("HcalHitMaker") << " received a hit very far from the detector " << point << " coming from a";
+      if(EMSHOWER) 
+	edm::LogWarning("HcalHitMaker") << "n electromagnetic shower. - Ignoring it" << std::endl;
+      else
+	edm::LogWarning("HcalHitMaker") << "a hadron shower. - Ignoring it" << std::endl;
+      return false; 
+    } 
+
+
   double pointeta = fabs(point.eta());
   if(pointeta > 5.19) return false; 
 

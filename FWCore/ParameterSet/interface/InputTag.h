@@ -10,7 +10,7 @@ namespace edm {
   {
   public:
     InputTag();
-    InputTag(const std::string & label, const std::string & instance);
+    InputTag(const std::string & label, const std::string & instance, const std::string & processName = "");
     /// the input string is of the form:
     /// label
     /// label:instance

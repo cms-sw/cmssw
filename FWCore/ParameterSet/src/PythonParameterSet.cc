@@ -1,4 +1,5 @@
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 PythonParameterSet::PythonParameterSet()
 :  theParameterSet()
@@ -44,4 +45,11 @@ boost::python::list PythonParameterSet::getVPSet(bool tracked, std::string const
 
   return l;
 }
+
+
+void  PythonParameterSet::addNewFileInPath(bool tracked, std::string const & name, std::string const & value)
+{
+  addParameter(tracked, name, edm::FileInPath(value));
+}
+
 

@@ -75,37 +75,29 @@ CSCEventData::CSCEventData(unsigned short * buf)
     }
    
   pos += theDMBHeader.sizeInWords();
-
-  bool dataFormat2007 = true;
     
   if (nalct() ==1) 
-    if (dataFormat2007)
-      {
-	theALCTHeader
+    {
+      theALCTHeader = new CSCALCTHeader( pos );
+      pos += theALCTHeader->sizeInWords(); //size of the header
 
+      if(!theALCTHeader->check())
+	{  
+	  edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
+	} 
+      else 
+	{
+	  //fill ALCT Digis
+	  theALCTHeader->ALCTDigis();
 
-      }
-    else
-      {
-	theALCTHeader = new CSCALCTHeader( pos );
-	pos += theALCTHeader->sizeInWords(); //size of the header
-	
-	if(!theALCTHeader->check())
-	  {  
-	    edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
-	  } 
-	else 
-	  {
-	    //fill ALCT Digis
-	    theALCTHeader->ALCTDigis();    
-	    theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
-	    pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
-	    theALCTTrailer = new CSCALCTTrailer( pos );
-	    pos += theALCTTrailer->sizeInWords();
-	  }
-      }
+	  theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
+	  pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
+	  theALCTTrailer = new CSCALCTTrailer( pos );
+	  pos += theALCTTrailer->sizeInWords();
+	}
+    }
 
-  if (nclct() ==1) 
+    if (nclct() ==1) 
       {
 	theTMBData = new CSCTMBData(pos);  //fill all TMB data
 	pos += theTMBData->size();

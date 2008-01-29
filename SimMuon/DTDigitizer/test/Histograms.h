@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Classes for histograms handling.
  *
- *  $Date: 2006/08/07 15:47:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/07 19:17:39 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 #include "TString.h"
@@ -147,6 +147,8 @@ class hHits{
     h3DPathVsProcessVsType  = new TH3F(N+"_h3DPathVsProcessVsType","Path vs Process Type and hit type",14,0,14,17,0,17,840,0,4.2);
     h3DXexitVsProcessVsType = new TH3F(N+"_h3DXexitVsProcessVsType","X exit vs Process Type and hit type",14,0,14,17,0,17,500,-0.6,0.6);
 
+    hHitTOF= new TH1F(N+"_HitTOF","Hit TOF distribution for "+N,1000,1e4,1e8);
+
   }
   
   virtual ~hHits(){
@@ -252,8 +254,11 @@ class hHits{
     h3DPathXVsProcessVsType->Write();
     h3DPathVsProcessVsType->Write();
     h3DXexitVsProcessVsType->Write();
+    hHitTOF->Write();
   }
   
+  void FillTOF(double tof){hHitTOF->Fill(tof);}
+
   void Fill(double xEntry,double xExit,
 	    double entryPy, double exitPy,
 	    double entryPz, double exitPz,
@@ -340,7 +345,7 @@ class hHits{
   TH3F *h3DPathXVsProcessVsType;
   TH3F *h3DPathVsProcessVsType;
   TH3F *h3DXexitVsProcessVsType;
-
+  TH1F *hHitTOF;
 
  private:
   TString name;

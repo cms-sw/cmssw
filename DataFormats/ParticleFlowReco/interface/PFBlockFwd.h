@@ -22,7 +22,7 @@ namespace reco {
 
 
   /// iterator over a vector of references to PFBlock objects
-/*   typedef PFBlockRefVector::iterator PFBlock_iterator; */
+  /*   typedef PFBlockRefVector::iterator PFBlock_iterator; */
 }
 
 #endif

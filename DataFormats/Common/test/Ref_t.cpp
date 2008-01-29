@@ -6,7 +6,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -56,6 +55,7 @@ void TestRef::default_ctor_without_active_getter()
   CPPUNIT_ASSERT(!default_ref);
   CPPUNIT_ASSERT(default_ref.productGetter()==0);
   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
+  CPPUNIT_ASSERT(default_ref.isAvailable()==false);
 }
 
 // void TestRef::default_ctor_without_active_getter_string_key()
@@ -66,6 +66,7 @@ void TestRef::default_ctor_without_active_getter()
 //   CPPUNIT_ASSERT(!default_ref);
 //   CPPUNIT_ASSERT(default_ref.productGetter()==0);
 //   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
+//   CPPUNIT_ASSERT(default_ref.id().isAvailable()==false);
 // }
 
 void TestRef::default_ctor_with_active_getter()
@@ -78,6 +79,7 @@ void TestRef::default_ctor_with_active_getter()
   CPPUNIT_ASSERT(!default_ref);
   CPPUNIT_ASSERT(default_ref.productGetter()==&getter);
   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
+  CPPUNIT_ASSERT(default_ref.isAvailable()==false);
   CPPUNIT_ASSERT_THROW(default_ref.operator->(), edm::Exception);
   CPPUNIT_ASSERT_THROW(*default_ref, edm::Exception);
 }
@@ -102,10 +104,12 @@ void TestRef::nondefault_ctor()
   CPPUNIT_ASSERT(!!ref0);
   CPPUNIT_ASSERT(ref0.productGetter()==&getter);
   CPPUNIT_ASSERT(ref0.id().isValid());
+  CPPUNIT_ASSERT(ref0.isAvailable()==true);
   CPPUNIT_ASSERT(*ref0 == 1);
 
   ref1_t  ref1(id, 1, &getter);
   CPPUNIT_ASSERT(ref1.isNonnull());
+  CPPUNIT_ASSERT(ref1.isAvailable()==true);
   CPPUNIT_ASSERT(*ref1 == 2);
 
   // Note that nothing stops one from making an edm::Ref into a

@@ -21,11 +21,17 @@ DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
 #include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
-#include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
-#include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (JetPartonCorrector, JetPartonCorrectionService);
+#include "JetMETCorrections/MCJet/interface/MCJetCorrector3D.h"
+DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector3D, MCJetCorrectionService3D);
+#include "JetMETCorrections/MCJet/interface/ZSPJetCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
+#include "JetMETCorrections/MCJet/interface/L2RelativeCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L2RelativeCorrector, L2RelativeCorrectionService);
+#include "JetMETCorrections/MCJet/interface/L3AbsoluteCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L3AbsoluteCorrector, L3AbsoluteCorrectionService);
+#include "JetMETCorrections/MCJet/interface/L4EMFCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L4EMFCorrector, L4EMFCorrectionService);
+#include "JetMETCorrections/MCJet/interface/L5FlavorCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L5FlavorCorrector, L5FlavorCorrectionService);
 #include "JetMETCorrections/JetPlusTrack/interface/JetPlusTrackCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
-#include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (TauJetCorrector, TauJetCorrectionService);

@@ -38,14 +38,12 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string updatorName            = pset_.getParameter<std::string>("updator");   
   std::string propagatorAlongName    = pset_.getParameter<std::string>("propagatorAlong");
   std::string propagatorOppositeName = pset_.getParameter<std::string>("propagatorOpposite");   
-  std::string propagatorProximityName = pset_.getParameter<std::string>("propagatorProximity");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
 
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<Propagator>             propagatorAlongHandle;
   edm::ESHandle<Propagator>             propagatorOppositeHandle;
-  edm::ESHandle<Propagator>             propagatorProximityHandle;
   edm::ESHandle<Chi2MeasurementEstimatorBase>   estimatorHandle;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
   edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
@@ -53,7 +51,6 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(updatorName,updatorHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorAlongName,propagatorAlongHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
-  iRecord.getRecord<TrackingComponentsRecord>().get(propagatorProximityName,propagatorProximityHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerHandle);  
@@ -63,7 +60,6 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 									 updatorHandle.product(),
 									 propagatorAlongHandle.product(),
 									 propagatorOppositeHandle.product(),
-									 propagatorProximityHandle.product(),
 									 estimatorHandle.product(),
 									 recHitBuilderHandle.product(),
 									 measurementTrackerHandle.product()) );  

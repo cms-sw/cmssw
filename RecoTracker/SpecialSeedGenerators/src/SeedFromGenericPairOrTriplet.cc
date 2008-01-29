@@ -277,7 +277,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
                 return 0;
 	}	
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
-	seedTSOS.rescaleError(50);
+	if (!theSetMomentum) seedTSOS.rescaleError(50); //with the magnetic field estimated parameters can be bad due to the use of SS hits.
 	PTrajectoryStateOnDet *PTraj=
 		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
@@ -338,7 +338,7 @@ bool SeedFromGenericPairOrTriplet::qualityFilter(const FreeTrajectoryState* star
                                           gPoints[1],
                                           gPoints[2]);
                         if (circle.rho() < 500 && circle.rho() != 0) {
-                                edm::LogVerbatim("SeedFromGenericPairOrTriplet::qualityFilter") <<
+                                LogDebug("SeedFromGenericPairOrTriplet") <<
                                         "Seed qualityFilter rejected because rho = " << circle.rho();
                                 return false;
                         }
@@ -346,7 +346,7 @@ bool SeedFromGenericPairOrTriplet::qualityFilter(const FreeTrajectoryState* star
                 }
         } else {
                 if (startingState->momentum().perp() < theP){
-                        edm::LogVerbatim("SeedFromGenericPairOrTriplet::qualityFilter") <<
+                        LogDebug("SeedFromGenericPairOrTriplet") <<
                                         "Seed qualityFilter rejected because too low pt";
                         return false;
                 }

@@ -18,6 +18,8 @@
 //                      initializers to correspond to order of member
 //                      declarations
 //   1/17/06    mf	summary() for use in MessageLogger
+//   8/16/07    mf	Changes to implement grouping of modules in specified 
+//			categories
 //
 //  ---------------------------------------------------------------------
 
@@ -32,7 +34,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ios>
-
+#include <cassert>
 
 // Possible Traces:
 // #define ELstatisticsCONSTRUCTOR_TRACE
@@ -251,8 +253,10 @@ void  ELstatistics::zero()  {
 }  // zero()
 
 
-static ELstring  formSummary( ELmap_stats & stats )  {
-
+ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
+			// Major changes 8/16/07 mf, including making this
+			// a static member function instead of a free function
+			
   using std::ios;       /* _base ? */
   using std::setw;
   using std::right;
@@ -272,8 +276,17 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     part3() : n(0L), t(0L)  { ; }
   }  p3[ELseverityLevel::nLevels];
 
+  std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
+  std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
   for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
 
+     // If this is a grouped category, wait till later to output its stats
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								// 8/16/07 mf
+       continue; // We will process these categories later
+    }
+    							
     // -----  Emit new process and part I header, if needed:
     //
     if ( n == 0  || ! eq(lastProcess, (*i).first.process) ) {
@@ -303,9 +316,47 @@ static ELstring  formSummary( ELmap_stats & stats )  {
 
     // -----  Obtain information for Part III, below:
     //
-    p3[(*i).first.severity.getLevel()].n += (*i).second.n;
-    p3[(*i).first.severity.getLevel()].t += (*i).second.aggregateN;
-  }  // for
+    ELextendedID xid = (*i).first;
+    p3[xid.severity.getLevel()].n += (*i).second.n;
+    p3[xid.severity.getLevel()].t += (*i).second.aggregateN;
+  }  // for i
+
+  // ----- Part Ia:  The grouped categories
+  std::set<std::string>::iterator g;
+  for ( g = groupedCategories.begin(); g != gcEnd; ++g ) {
+    int groupTotal = 0;
+    int groupAggregateN = 0;
+    ELseverityLevel severityLevel;
+    bool groupIgnored = true;
+    for ( i = stats.begin();  i != stats.end();  ++i )  {
+      if ( (*i).first.id == *g ) {
+        if (groupTotal==0) severityLevel = (*i).first.severity;
+	groupIgnored &= (*i).second.ignoredFlag;
+	groupAggregateN += (*i).second.aggregateN;
+        ++groupTotal;
+      } 
+    } // for i
+    if (groupTotal > 0) {
+      // -----  Emit detailed message information:
+      //
+      s << right << setw( 5) << ++n                                     << ' '
+	<< left  << setw(20) << (*g).substr(0,20)                       << ' '
+	<< left  << setw( 2) << severityLevel.getSymbol()               << ' '
+	<< left  << setw(16) << "  <Any Module>  "                      << ' '
+	<< left  << setw(16) << "<Any Function>"
+	<< right << setw( 7) << groupTotal
+	<< left  << setw( 1) << ( groupIgnored ? '*' : ' ' )
+	<< right << setw( 8) << groupAggregateN                  << '\n'
+	;
+      ftnote = ftnote || (*i).second.ignoredFlag;
+
+      // -----  Obtain information for Part III, below:
+      //
+      int lev = severityLevel.getLevel();
+      p3[lev].n += groupTotal;
+      p3[lev].t += groupAggregateN;
+    } // end if groupTotal>0
+  }  // for g
 
   // -----  Provide footnote to part I, if needed:
   //
@@ -317,6 +368,11 @@ static ELstring  formSummary( ELmap_stats & stats )  {
   // -----  Summary part II:
   //
   for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								// 8/16/07 mf
+       continue; // We will process these categories later
+    }
     if ( n ==  0 ) {
       s << '\n'
 	<< " type    category    Examples: "
@@ -391,7 +447,11 @@ std::map<ELextendedID , StatsCount> ELstatistics::statisticsMap() const {
   return std::map<ELextendedID , StatsCount> ( stats );
 }
 
+std::set<std::string> ELstatistics::groupedCategories; // 8/16/07 mf 
 
-
+void ELstatistics::noteGroupedCategory(std::string const & cat) {
+  groupedCategories.insert(cat);
+}
+  
 } // end of namespace service  
 } // end of namespace edm  

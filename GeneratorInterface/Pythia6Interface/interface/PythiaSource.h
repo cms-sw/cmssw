@@ -72,9 +72,6 @@ namespace edm
     double phimin, phimax;
     double comenergy;
     
-    bool stopHadronsEnabled;
-    bool gluinoHadronsEnabled;
-    
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
 

@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2007/03/27 07:12:05 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/07/16 10:07:41 $
+ *  $Revision: 1.12 $
  *  \author cerati
  */
 
@@ -87,7 +87,7 @@ class TrackProducerAlgorithm {
 
  private:
   edm::ParameterSet conf_;
-  TransientTrackingRecHit::RecHitContainer getHitVector(const reco::Track *, float&,
+  TransientTrackingRecHit::RecHitContainer getHitVector(const reco::Track *, PropagationDirection&, float&,
 							const TransientTrackingRecHitBuilder*);
   TrajectoryStateOnSurface getInitialState(const reco::Track * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,

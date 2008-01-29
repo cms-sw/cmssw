@@ -6,11 +6,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoEcalCandidate.h,v 1.3 2006/10/25 16:29:14 rahatlou Exp $
+ * \version $Id: RecoEcalCandidate.h,v 1.6 2007/10/15 13:03:34 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 namespace reco {
 
@@ -19,8 +18,13 @@ namespace reco {
     /// default constructor
     RecoEcalCandidate() : RecoCandidate() { }
     /// constructor from values
-    RecoEcalCandidate( Charge q , const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
-      RecoCandidate( q, p4, vtx ) { }
+    RecoEcalCandidate( Charge q , const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		       int pdgId = 0, int status = 0 ) :
+      RecoCandidate( q, p4, vtx, pdgId, status ) { }
+    /// constructor from values
+    RecoEcalCandidate( Charge q , const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		       int pdgId = 0, int status = 0 ) :
+      RecoCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
     virtual ~RecoEcalCandidate();
     /// returns a clone of the candidate

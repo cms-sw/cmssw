@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/24 12:08:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/07 16:16:39 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -27,7 +27,6 @@ DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : pset(ps) {
   ros25Unpacker = new DTROS25Unpacker(ps);
 
   if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
-    cout<<"[DTDDUUnpacker]: Enabling Data Integrity Checks"<<endl;
     dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
   }
 
@@ -36,7 +35,6 @@ DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : pset(ps) {
 }
 
 DTDDUUnpacker::~DTDDUUnpacker() {
-  cout<<"[DTDDUUnpacker]: Destructor"<<endl;
   delete ros25Unpacker;
   
 }

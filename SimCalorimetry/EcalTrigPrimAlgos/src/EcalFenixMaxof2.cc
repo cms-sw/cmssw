@@ -5,7 +5,7 @@
 // global type definitions for class implementation in source file defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_source> <tag_value>;
 EcalFenixMaxof2::EcalFenixMaxof2(int maxNrSamples){
-  sumby2_.resize(EcalTPParameters::nbMaxStrips_-1);
+  //  sumby2_.resize(EcalTPParameters::nbMaxStrips_-1);
   std::vector<int> vec(maxNrSamples,0);
   for (int i2strip =0;i2strip<EcalTPParameters::nbMaxStrips_-1;++i2strip)
     sumby2_.push_back(vec);

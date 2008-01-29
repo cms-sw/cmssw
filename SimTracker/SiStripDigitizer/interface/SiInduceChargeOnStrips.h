@@ -18,6 +18,7 @@ class SiInduceChargeOnStrips{
   
   
   virtual ~SiInduceChargeOnStrips() { }
-  virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, SiPileUpSignals::signal_map_type &) = 0 ;
+  virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, 
+		      SiPileUpSignals::signal_map_type &, SiPileUpSignals::signal_map_type &) = 0 ;
 };
 #endif

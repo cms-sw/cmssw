@@ -65,7 +65,6 @@ CSCFakePedestalsConditions::CSCFakePedestalsConditions(const edm::ParameterSet& 
   //the following line is needed to tell the framework what
   // data is being produced
   prefillPedestals();
-  // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFakePedestalsConditions::producePedestals);
   findingRecord<CSCPedestalsRcd>();
   //now do what ever other initialization is needed
@@ -89,11 +88,7 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
 CSCFakePedestalsConditions::ReturnType
 CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
 {
-  // Added by Zhen, need a new object so to not be deleted at exit
-  CSCPedestals* mydata=new CSCPedestals( *cnpedestals );
-  
-  return mydata;
-  
+  return cnpedestals;
 }
 
  void CSCFakePedestalsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

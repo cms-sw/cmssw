@@ -23,12 +23,12 @@ class EcalTriggerPrimitiveDigi {
   const EcalTrigTowerDetId& id() const { return id_; }
   int size() const { return size_; }
     
-  const EcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
-  const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
+  const EcalTriggerPrimitiveSample& operator[](const int& i) const { return data_[i]; }
+  const EcalTriggerPrimitiveSample& sample(const int& i) const { return data_[i]; }
     
-  void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
-  void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
+  void setSize(const int& size);
+  void setSample(const int& i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
+  void setSampleValue(const int& i, const uint16_t& value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
 

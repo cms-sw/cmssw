@@ -19,7 +19,7 @@ namespace reco {
     /// type must be equal to PS1, PS2, ECAL, HCAL. 
     /// \todo add a protection against the other types...
     PFBlockElementCluster(const PFClusterRef& ref, 
-		     PFBlockElement::Type type) 
+                          PFBlockElement::Type type) 
       : 
       PFBlockElement(type),
       clusterRef_( ref ) {}
@@ -30,7 +30,7 @@ namespace reco {
     PFClusterRef  clusterRef() const {return clusterRef_;}
 
     void Dump(std::ostream& out = std::cout, 
-	      const char* tab = " " ) const;
+              const char* tab = " " ) const;
   
   private:
     /// reference to the corresponding cluster

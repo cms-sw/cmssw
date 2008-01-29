@@ -2,13 +2,14 @@
 #define FWCore_Sources_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
+$Id: EDInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Catalog/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include <vector>
 #include <string>
 

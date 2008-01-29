@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.14 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.15 2007/06/26 08:24:28 llista Exp $
  *
  */
 
@@ -25,6 +25,11 @@ namespace reco {
     CompositeRefCandidate() : Candidate() { }
     /// constructor from values
     CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+
+    /// constructor from values
+    CompositeRefCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
@@ -55,6 +60,8 @@ namespace reco {
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
+    /// add a daughter via a reference
+    void addMother( const CandidateRef & ) { /* do nothing. Back-porting from 1.7.x */ } 
 
   private:
     /// const iterator implementation

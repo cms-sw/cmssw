@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilter
  *
- * $Id: HLTElectronTrackIsolFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $ 
+ * $Id: HLTElectronTrackIsolFilter.cc,v 1.5 2007/08/28 01:11:46 ratnik Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -16,10 +16,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 

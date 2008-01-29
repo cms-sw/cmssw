@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.11 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.8 2007/05/29 10:52:48 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.11 2007/11/12 11:37:36 llista Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -21,9 +21,9 @@ namespace reco {
   }
 }
 template<typename InputCollection, typename Selector, 
-	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type, 
-	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
-	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
+	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type, 
+	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
+	 typename RefAdder = typename ::helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 struct SingleElementCollectionSelector {
   typedef InputCollection collection;
   typedef StoreContainer container;
@@ -45,7 +45,6 @@ private:
   selector select_;
   RefAdder addRef_;
   friend class reco::modules::SingleElementCollectionSelectorEventSetupInit<SingleElementCollectionSelector>;
-  
 };
 
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
@@ -54,9 +53,9 @@ namespace reco {
   namespace modules {
     template<typename S>
     struct SingleElementCollectionSelectorEventSetupInit {
-      static void init( S & s, const edm::EventSetup& es ) { 
+      static void init( S & s, const edm::Event & ev, const edm::EventSetup& es ) { 
 	typedef typename EventSetupInit<typename S::selector>::type ESI;
-	ESI::init( s.select_, es );
+	ESI::init( s.select_, ev, es );
       }
     };
 

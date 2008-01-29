@@ -152,7 +152,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
       /// Take a reference to this FED's data
       const FEDRawData& fedData = rawdata->FEDData(id);
-      unsigned short int length =  fedData.size();
+      unsigned long length =  fedData.size();
 
       if (length)
 	{ ///if fed has data then unpack it
@@ -261,6 +261,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                                 "ALCT check failed! not storing ALCT digis ";
                             }
                         }
+		      else
+			{
+			 if (debug) edm::LogInfo ("CSCDCCUnpacker") << "nALCT==0 !!!";
+			}
 
 		      /// fill alct digi
 		      if (goodALCT) 
@@ -291,8 +295,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    }
 			  alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 			}
-		      else  edm::LogError ("CSCDCCUnpacker") << 
-			      "ALCT check failed! not storing ALCT digi ";
 		    
 		  
 		      ///check TMB data integrity
@@ -310,6 +312,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				"one of TMB checks failed! not storing TMB digis ";
 			    }
 			}
+		      else
+                        {
+			  if (debug) edm::LogInfo ("CSCDCCUnpacker") << "nCLCT==0 !!!";
+                        }
+		      
 		      ///fill correlatedlct and clct digi
 		      if (goodTMB) 
 			{ 
@@ -356,7 +363,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				}
 			    } 
 			  else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
-			} 
+			}
 		    
 		  
 		      /// fill CFEBStatusDigi
@@ -433,7 +440,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	    }///end of good event
 	  else 
 	    {
-	      edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!";
+	      edm::LogError("CSCDCCUnpacker") <<"ERROR! Examiner decided to reject the event!";
               if (examiner) {
                 edm::LogError("CSCDCCUnpacker")
                   << " Examiner errors:0x" << std::hex << examiner->errors() << " mask:0x" << examinerMask;

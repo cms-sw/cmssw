@@ -16,11 +16,8 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-
 class TrackingRegion;
 class MuonServiceProxy;
-class TrajectoryStateUpdator;
 
 class TSGForRoadSearch : public TrackerSeedGenerator {
 
@@ -35,7 +32,7 @@ public:
   void init(const MuonServiceProxy *service);
   void setEvent(const edm::Event &event);
 
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection&);
+  BTSeedCollection trackerSeeds(const TrackCand&, const TrackingRegion&);
 
 private:
   //  virtual void run(TrajectorySeedCollection &seeds, 
@@ -45,26 +42,24 @@ private:
   void makeSeeds_1(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_2(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_3(const reco::Track &,std::vector<TrajectorySeed> &);
-  void makeSeeds_4(const reco::Track &,std::vector<TrajectorySeed> &);
+
 
 private:
-  void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;
   edm::ParameterSet theConfig;
 
-  edm::ESHandle<MeasurementTracker> theMeasurementTracker;
-  //  edm::ESHandle<TrajectoryStateUpdator> theUpdator;
-  TrajectoryStateUpdator * theUpdator;
+  edm::ESHandle<MeasurementTracker> _measurementTracker;
+  //  edm::ESHandle<GlobalTrackingGeometry> _glbtrackergeo;
+  //edm::ESHandle<MagneticField> _field;
   const MuonServiceProxy * theProxyService;
 
-  uint theOption;
-  bool theCopyMuonRecHit;
-  bool theManySeeds;
-  std::string thePropagatorName;
-  edm::ESHandle<Propagator> theProp;
-  std::string thePropagatorCompatibleName;
-  edm::ESHandle<Propagator> thePropCompatible;
-  Chi2MeasurementEstimator * theChi2Estimator;
-  std::string theCategory;
+  uint _option;
+  bool _copyMuonRecHit;
+  std::string _propagatorName;
+  edm::ESHandle<Propagator> _prop;
+  std::string _propagatorCompatibleName;
+  edm::ESHandle<Propagator> _propCompatible;
+  Chi2MeasurementEstimator * _chi2Estimator;
+  std::string _category;
 
 };
 

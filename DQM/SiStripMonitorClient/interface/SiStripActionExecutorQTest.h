@@ -11,7 +11,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripXMLTags.h"
 
-class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class SiStripActionExecutorQTest: public SiStripActionExecutor {
   public:
@@ -19,26 +19,26 @@ class SiStripActionExecutorQTest: public SiStripActionExecutor {
     virtual ~SiStripActionExecutorQTest() {}
 
     // @arguments
-    //   poMui  MonitorUserInterface for which QTests are assigned
+    //   poMui  DaqMonitorBEInterface for which QTests are assigned
     // @return
     //   summary string
     virtual std::string 
-      getQTestSummary( const MonitorUserInterface *poMUI);
+      getQTestSummary( const DaqMonitorBEInterface *poBEI);
 
     virtual std::string
-      getQTestSummaryLite( const MonitorUserInterface *poMUI);
+      getQTestSummaryLite( const DaqMonitorBEInterface *poBEI);
 
     virtual std::string
-      getQTestSummaryXML( const MonitorUserInterface *poMUI);
+      getQTestSummaryXML( const DaqMonitorBEInterface *poBEI);
 
     virtual std::string
-      getQTestSummaryXMLLite( const MonitorUserInterface *poMUI);
+      getQTestSummaryXMLLite( const DaqMonitorBEInterface *poBEI);
 
   private:
     std::ostream &getQTestSummary_( std::ostream                &roOut,
-                                    const MonitorUserInterface  *poMUI,
+                                    const DaqMonitorBEInterface  *poBEI,
                                     const dqm::XMLTag::TAG_MODE &reMODE);
-    void createQTestSummary_( const MonitorUserInterface *poMUI);
+    void createQTestSummary_( const DaqMonitorBEInterface *poBEI);
 
     bool                               bSummaryTagsNotRead_;
     std::auto_ptr<dqm::XMLTagWarnings> poXMLTagWarnings_;

@@ -173,7 +173,9 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	    for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
 		  rphiDetHit != rphiDetHits.second; ++rphiDetHit ) {
 	      bool use_rphi=true;
-	      SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(*detid);
+	      DetId useDetId(StripDetId.glued());
+	      SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(useDetId);
+	      //SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(*detid);
 	      for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 		    matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
 		if (rphiDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
@@ -197,7 +199,9 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	    for ( SiStripRecHit2DCollection::const_iterator stereoDetHit = stereoDetHits.first;
 		  stereoDetHit != stereoDetHits.second; ++stereoDetHit ) {
 	      bool use_stereo=true;
-	      SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(*detid);
+	      DetId useDetId(StripDetId.glued());
+	      SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(useDetId);
+	      //SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(*detid);
 	      for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 		    matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
 		if (stereoDetHit->localPosition().x()==matchedDetHit->stereoHit()->localPosition().x() 

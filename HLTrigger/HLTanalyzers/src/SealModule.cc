@@ -7,6 +7,8 @@
 #include "HLTrigger/HLTanalyzers/interface/L1TrigReport.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"

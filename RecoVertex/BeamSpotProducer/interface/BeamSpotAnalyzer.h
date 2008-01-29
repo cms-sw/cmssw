@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.2 2007/03/29 16:34:52 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.3 2007/03/30 18:46:57 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -80,6 +80,8 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   bool write2DB_;
   bool runallfitters_;
   int ftotal_tracks;
+  double inputBeamWidth_;
+  
 };
 
 #endif

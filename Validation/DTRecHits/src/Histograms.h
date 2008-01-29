@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2007/04/08 04:13:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/04 10:36:46 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -35,17 +35,8 @@ class HRes1DHit{
     hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi",
 			   100, -3.2, 3.2, 150, -1.5,1.5);
     hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",
-			   100, 0, 2.5, 150, -1.5,1.5);    
-    hResVsAngle   = new TH2F("1D_"+N+"_hResVsAngle", "1D RHit residual vs impact angle",
-			   100, 0.,1.2, 150, -1.5,1.5);    
-    hResVsDistFE = new TH2F("1D_"+N+"_hResVsDistFE", "1D RHit residual vs FE distance",
-			   100, 0.,400., 150, -1.5,1.5);    
+			   100, 0,2.5, 150, -1.5,1.5);    
     hPull       = new TH1F ("1D_"+N+"_hPull", "1D RHit pull", 100, -5,5);
-    hPullVsPos  = new TH2F ("1D_"+N+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
-    hPullVsAngle  = new TH2F ("1D_"+N+"_hPullVsAngle", "1D RHit pull vs impact angle",
-                              100, 0.,+1.2, 100, -5,5);
-    hPullVsDistFE  = new TH2F ("1D_"+N+"_hPullVsDistFE", "1D RHit pull vs FE distance",
-                               100, 0., 400., 100, -5,5);
   }
   
   HRes1DHit(TString name_, TFile* file){
@@ -55,12 +46,7 @@ class HRes1DHit{
     hResVsEta      = (TH2F *) file->Get("1D_"+name+"_hResVsEta");
     hResVsPhi      = (TH2F *) file->Get("1D_"+name+"_hResVsPhi");
     hResVsPos      = (TH2F *) file->Get("1D_"+name+"_hResVsPos");
-    hResVsAngle    = (TH2F *) file->Get("1D_"+name+"_hResVsAngle");
-    hResVsDistFE   = (TH2F *) file->Get("1D_"+name+"_hResVsDistFE");
     hPull          = (TH1F *) file->Get("1D_"+name+"_hPull");
-    hPullVsPos     = (TH2F *) file->Get("1D_"+name+"_hPullVsPos");
-    hPullVsAngle   = (TH2F *) file->Get("1D_"+name+"_hPullVsAngle");
-    hPullVsDistFE  = (TH2F *) file->Get("1D_"+name+"_hPullVsDistFE");
   }
 
 
@@ -74,12 +60,10 @@ class HRes1DHit{
   }
 
   void Fill(float distSimHit,
-            float thetaSimHit,
-            float distFESimHit,
-            float distRecHit,
-            float etaSimHit,
-            float phiSimHit,
-            float errRecHit) {
+	    float distRecHit,
+	    float etaSimHit,
+	    float phiSimHit,
+	    float errRecHit) {
     // Reso, pull
     hDist->Fill(distRecHit);
     float res = distRecHit-distSimHit;
@@ -87,14 +71,8 @@ class HRes1DHit{
     hResVsEta->Fill(etaSimHit,res);
     hResVsPhi->Fill(phiSimHit,res);
     hResVsPos->Fill(distSimHit,res);
-    hResVsAngle->Fill(thetaSimHit,res);
-    hResVsDistFE->Fill(distFESimHit,res);
     if(errRecHit!=0) {
-      float pull=res/errRecHit;
-      hPull->Fill(pull);
-      hPullVsPos->Fill(distSimHit,pull);
-      hPullVsAngle->Fill(thetaSimHit,pull);
-      hPullVsDistFE->Fill(distFESimHit,pull);
+      hPull->Fill(res/errRecHit);
     }
     else std::cout<<"Error: RecHit error = 0" << std::endl;
   }
@@ -105,12 +83,7 @@ class HRes1DHit{
     hResVsEta->Write();   
     hResVsPhi->Write(); 
     hResVsPos->Write(); 
-    hResVsAngle->Write(); 
-    hResVsDistFE->Write(); 
     hPull->Write();
-    hPullVsPos->Write();
-    hPullVsAngle->Write();
-    hPullVsDistFE->Write();
   }
 
   
@@ -120,13 +93,7 @@ class HRes1DHit{
   TH2F* hResVsEta;
   TH2F* hResVsPhi;
   TH2F* hResVsPos;
-  TH2F* hResVsAngle;
-  TH2F* hResVsDistFE;
-
   TH1F* hPull;
-  TH2F* hPullVsPos;
-  TH2F* hPullVsAngle;
-  TH2F* hPullVsDistFE;
  
   TString name;
 
@@ -309,34 +276,30 @@ public:
     TString N = name_.c_str();
     name=N;
 
-    hRecAngle = new TH1F ("2D_"+N+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",
+    hRecAngle = new TH1F ("2D_"+N+"_hRecAngle", "Distribution of Rec segment angles (rad)",
 			  100, -3.5, 3.5);
-    hSimAngle = new TH1F ("2D_"+N+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",
+    hSimAngle = new TH1F ("2D_"+N+"_hSimAngle", "Distribution of segment angles from SimHits (rad)",
 			  100, -3.5, 3.5);
-    hRecVsSimAngle = new TH2F ("2D_"+N+"_hRecVsSimAngle", "Rec angle vs sim angle;angle (rad)",
+    hRecVsSimAngle = new TH2F ("2D_"+N+"_hRecVsSimAngle", "Rec angle vs sim angle (rad)",
 			       100, -3.5, 3.5, 100, -3.5, 3.5);
 
 
-    hResAngle   = new TH1F ("2D_"+N+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 150, -0.15, 0.15);
-    hResAngleVsEta   = new TH2F ("2D_"+N+"_hResAngleVsEta", "Residual on 2D segment angle vs Eta; #eta; res (rad)",
-				 100, -2.5, 2.5, 200, -0.2, 0.2);
-    hResAngleVsPhi   = new TH2F ("2D_"+N+"_hResAngleVsPhi", "Residual on 2D segment angle vs Phi; #phi (rad);res (rad)",
-				 100, -3.2, 3.2, 150, -0.2, 0.2);
+    hResAngle   = new TH1F ("2D_"+N+"_hResAngle", "Residual on 2D segment angle (rad)", 150, -0.3, 0.3);
+    hResAngleVsEta   = new TH2F ("2D_"+N+"_hResAngleVsEta", "Residual on 2D segment angle (rad) vs Eta",
+				 100, -2.5, 2.5, 200, -0.3, 0.3);
+    hResAngleVsPhi   = new TH2F ("2D_"+N+"_hResAngleVsPhi", "Residual on 2D segment angle (rad) vs Phi (rad)",
+				 100, -3.2, 3.2, 150, -0.3, 0.3);
 
-    hResPos   = new TH1F ("2D_"+N+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
-			  150, -0.2, 0.2);
-    hResPosVsEta   = new TH2F ("2D_"+N+"_hResPosVsEta", "Residual on 2D segment position vs Eta;#eta;res (cm)",
-				 100, -2.5, 2.5, 150, -0.2, 0.2);
-    hResPosVsPhi   = new TH2F ("2D_"+N+"_hResPosVsPhi", "Residual on 2D segment position vs Phi;#phi (rad);res (cm)",
-				 100, -3.2, 3.2, 150, -0.2, 0.2);
+    hResPos   = new TH1F ("2D_"+N+"_hResPos", "Residual on 2D segment position (x at SL center) (cm)",
+			  150, -0.4, 0.4);
+    hResPosVsEta   = new TH2F ("2D_"+N+"_hResPosVsEta", "Residual on 2D segment position (cm)vs Eta",
+				 100, -2.5, 2.5, 150, -0.4, 0.4);
+    hResPosVsPhi   = new TH2F ("2D_"+N+"_hResPosVsPhi", "Residual on 2D segment position (cm) vs Phi (rad)",
+				 100, -3.2, 3.2, 150, -0.4, 0.4);
 
     hResPosVsResAngle = new TH2F("2D_"+N+"_hResPosVsResAngle",
-				 "Residual on 2D segment position vs Residual on 2D segment angle;angle (rad);res (cm)",
-				 100, -0.3, 0.3, 150, -0.2, 0.2);
-
-    hPullAngle   = new TH1F ("2D_"+N+"_hPullAngle", "Pull on 2D segment angle;(angle_{rec}-angle_{sim})/#sigma (rad)", 150, -5, 5);
-    hPullPos   = new TH1F ("2D_"+N+"_hPullPos", "Pull on 2D segment position (x at SL center);(x_{rec}-x_{sim} (cm))/#sigma",
-			  150, -5, 5);
+				 "Residual on 2D segment position vs Residual on 2D segment angle (rad)",
+				 100, -0.3, 0.3, 150, -0.4, 0.4);
   }
   
   HRes2DHit (TString name_, TFile* file){
@@ -352,13 +315,21 @@ public:
     hResPosVsEta = (TH2F *) file->Get("2D_"+name+"_hResPosVsEta");
     hResPosVsPhi = (TH2F *) file->Get("2D_"+name+"_hResPosVsPhi");
     hResPosVsResAngle = (TH2F *) file->Get("2D_"+name+"_hResPosVsResAngle");
-    hPullAngle = (TH1F *) file->Get("2D_"+name+"_hPullAngle");
-    hPullPos = (TH1F *) file->Get("2D_"+name+"_hPullPos");
    
  }
 
 
   ~HRes2DHit(){
+    //delete hRecAngle;
+    //delete hSimAngle;
+    //delete hRecVsSimAngle;
+    //delete hResAngle;
+    //delete hResAngleVsEta;
+    //delete hResAngleVsPhi;
+    //delete hResPos;
+    //delete hResPosVsEta;
+    //delete hResPosVsPhi;
+    //delete hResPosVsResAngle;
     }
 
   void Fill(float angleSimSegment,
@@ -366,9 +337,7 @@ public:
 	    float posSimSegment,
 	    float posRecSegment,
 	    float etaSimSegment,
-	    float phiSimSegment,
-        float sigmaPos,
-        float sigmaAngle) {
+	    float phiSimSegment) {
 
     hRecAngle->Fill(angleRecSegment);
     hSimAngle->Fill(angleSimSegment);
@@ -382,8 +351,6 @@ public:
     hResPosVsEta->Fill(etaSimSegment, resPos);
     hResPosVsPhi->Fill(phiSimSegment, resPos);
     hResPosVsResAngle->Fill(resAngle, resPos);
-    hPullAngle->Fill(resAngle/sigmaAngle);
-    hPullPos->Fill(resPos/sigmaPos);
    }
   
   void Write() {
@@ -398,8 +365,6 @@ public:
     hResPosVsEta->Write();
     hResPosVsPhi->Write();
     hResPosVsResAngle->Write();
-    hPullAngle->Write();
-    hPullPos->Write();
     }
     
   
@@ -414,8 +379,6 @@ public:
   TH2F *hResPosVsEta;
   TH2F *hResPosVsPhi;
   TH2F *hResPosVsResAngle;
-  TH1F *hPullAngle;
-  TH1F *hPullPos;
   TString name;
 
 };
@@ -633,151 +596,54 @@ public:
     TString N = name_.c_str();
     name=N;
 
-    hRecAlpha       = new TH1F ("4D_"+N+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
-    hRecBeta        = new TH1F ("4D_"+N+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
+    hRecAlpha       = new TH1F ("4D_"+N+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution", 100, -3.5, 3.5);
+    hRecBeta        = new TH1F ("4D_"+N+"_hRecBeta", "4D RecHit beta distribution", 100, -3.5, 3.5);
+    
+    hSimAlpha       = new TH1F("4D_"+N+"_hSimAlpha", "4D segment from SimHit alpha (RPhi) distribution",
+			       100, -3.5, 3.5);
+    hSimBeta        = new TH1F("4D_"+N+"_hSimBeta", "4D segment from SimHit beta distribution",
+			       100, -3.5, 3.5);
+    hRecVsSimAlpha  = new TH2F("4D_"+N+"_hRecVsSimAlpha", "4D segment rec alpha vs sim alpha (RPhi)",
+			       100, -3.5, 3.5, 100, -3.5, 3.5);
+    hRecVsSimBeta   = new TH2F("4D_"+N+"_hRecVsSimBeta", "4D segment rec beta vs sim beta (RZ)",
+			       100, -3.5, 3.5, 100, -3.5, 3.5);
 
-    hSimAlpha       = new TH1F("4D_"+N+"_hSimAlpha", "4D segment from SimHit alpha (RPhi) distribution;i#alpha^{x} (rad)",
-                               100, -3.5, 3.5);
-    hSimBeta        = new TH1F("4D_"+N+"_hSimBeta", "4D segment from SimHit beta distribution;#alpha^{y} (rad)",
-                               100, -3.5, 3.5);
-    hRecVsSimAlpha  = new TH2F("4D_"+N+"_hRecVsSimAlpha", "4D segment rec alpha {v}s sim alpha (RPhi);#alpha^{x} (rad)",
-                               100, -3.5, 3.5, 100, -3.5, 3.5);
-    hRecVsSimBeta   = new TH2F("4D_"+N+"_hRecVsSimBeta", "4D segment rec beta vs sim beta (RZ);#alpha^{y} (rad)",
-                               100, -3.5, 3.5, 100, -3.5, 3.5);
+    hResAlpha       = new TH1F ("4D_"+N+"_hResAlpha", "4D RecHit residual on alpha direction", 500, -0.15, 0.15);
+    hResAlphaVsEta  = new TH2F ("4D_"+N+"_hResAlphaVsEta", "4D RecHit residual on alpha direction vs eta",
+				100, -2.5, 2.5, 500, -0.15, 0.15);
+    hResAlphaVsPhi  = new TH2F ("4D_"+N+"_hResAlphaVsPhi", "4D RecHit residual on alpha direction vs phi",
+				100, -3.2, 3.2, 500, -0.15, 0.15);
 
-    hResAlpha       = new TH1F ("4D_"+N+"_hResAlpha", 
-                                "4D RecHit residual on #alpha_x direction;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
-                                200, -0.015, 0.015);
-    hResAlphaVsEta  = new TH2F ("4D_"+N+"_hResAlphaVsEta",
-                                "4D RecHit residual on #alpha_x direction vs eta;#eta;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
-                                100, -2.5, 2.5, 100, -0.025, 0.025);
-    hResAlphaVsPhi  = new TH2F ("4D_"+N+"_hResAlphaVsPhi",
-                                "4D RecHit residual on #alpha_x direction vs phi (rad);#phi (rad);#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
-                                100, -3.2, 3.2, 100, -0.025, 0.025);
+    hResBeta        = new TH1F ("4D_"+N+"_hResBeta", "4D RecHit residual on beta direction", 200, -0.3, 0.3);
+    hResBetaVsEta   = new TH2F ("4D_"+N+"_hResBetaVsEta", "4D RecHit residual on beta direction vs eta",
+				100, -2.5, 2.5, 200, -0.3, 0.3);
+    hResBetaVsPhi   = new TH2F ("4D_"+N+"_hResBetaVsPhi", "4D RecHit residual on beta direction vs phi",
+				100, -3.2, 3.2, 200, -0.3, 0.3);
 
-    hResBeta        = new TH1F ("4D_"+N+"_hResBeta",
-                                "4D RecHit residual on beta direction;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                200, -0.1, 0.1);
-    hResBetaVsEta   = new TH2F ("4D_"+N+"_hResBetaVsEta",
-                                "4D RecHit residual on beta direction vs eta;#eta;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                100, -2.5, 2.5, 200, -0.2, 0.2);
-    hResBetaVsPhi   = new TH2F ("4D_"+N+"_hResBetaVsPhi",
-                                "4D RecHit residual on beta direction vs phi;#phi (rad);#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                100, -3.2, 3.2, 200, -0.2, 0.2);
+    hResX           = new TH1F ("4D_"+N+"_hResX", "4D RecHit residual on position (x) in chamber", 150, -0.3, 0.3);
+    hResXVsEta      = new TH2F ("4D_"+N+"_hResXVsEta", "4D RecHit residual on position (x) in chamber vs eta",
+				100, -2.5, 2.5, 150, -0.3, 0.3);
+    hResXVsPhi      = new TH2F ("4D_"+N+"_hResXVsPhi", "4D RecHit residual on position (x) in chamber vs phi",
+				100, -3.2, 3.2, 150, -0.3, 0.3);
 
-    hResX           = new TH1F ("4D_"+N+"_hResX", "4D RecHit residual on position (x) in chamber;x_{rec}-x_{sim} (cm)",
-                                150, -0.15, 0.15);
-    hResXVsEta      = new TH2F ("4D_"+N+"_hResXVsEta", "4D RecHit residual on position (x) in chamber vs eta;#eta;x_{rec}-x_{sim} (cm)",
-                                100, -2.5, 2.5, 150, -0.3, 0.3);
-    hResXVsPhi      = new TH2F ("4D_"+N+"_hResXVsPhi", "4D RecHit residual on position (x) in chamber vs phi;#phi (rad);x_{rec}-x_{sim} (cm)",
-                                100, -3.2, 3.2, 150, -0.3, 0.3);
-
-    hResY           = new TH1F ("4D_"+N+"_hResY", "4D RecHit residual on position (y) in chamber;y_{rec}-y_{sim} (cm)", 150, -0.6, 0.6);
-    hResYVsEta      = new TH2F ("4D_"+N+"_hResYVsEta", "4D RecHit residual on position (y) in chamber vs eta;#eta;y_{rec}-y_{sim} (cm)",
-                                100, -2.5, 2.5, 150, -0.6, 0.6);
-    hResYVsPhi      = new TH2F ("4D_"+N+"_hResYVsPhi", "4D RecHit residual on position (y) in chamber vs phi;#phi (rad);y_{rec}-y_{sim} (cm)",
-                                100, -3.2, 3.2, 150, -0.6, 0.6);
-
+    hResY           = new TH1F ("4D_"+N+"_hResY", "4D RecHit residual on position (y) in chamber", 150, -0.6, 0.6);
+    hResYVsEta      = new TH2F ("4D_"+N+"_hResYVsEta", "4D RecHit residual on position (y) in chamber vs eta",
+				100, -2.5, 2.5, 150, -0.6, 0.6);
+    hResYVsPhi      = new TH2F ("4D_"+N+"_hResYVsPhi", "4D RecHit residual on position (y) in chamber vs phi",
+				100, -3.2, 3.2, 150, -0.6, 0.6);
+  
     hResAlphaVsResBeta = new TH2F("4D_"+N+"_hResAlphaVsResBeta", "4D RecHit residual on alpha vs residual on beta",
-                                  200, -0.3, 0.3, 500, -0.15, 0.15);
+				  200, -0.3, 0.3, 500, -0.15, 0.15);
     hResXVsResY = new TH2F("4D_"+N+"_hResXVsResY", "4D RecHit residual on X vs residual on Y",
-                           150, -0.6, 0.6, 50, -0.3, 0.3);
+			   150, -0.6, 0.6, 50, -0.3, 0.3);
     hResAlphaVsResX = new TH2F("4D_"+N+"_hResAlphaVsResX", "4D RecHit residual on alpha vs residual on x",
-                               150, -0.3, 0.3, 500, -0.15, 0.15);
+			       150, -0.3, 0.3, 500, -0.15, 0.15);
 
     hResAlphaVsResY = new TH2F("4D_"+N+"_hResAlphaVsResY", "4D RecHit residual on alpha vs residual on y",
-                               150, -0.6, 0.6, 500, -0.15, 0.15);
+			       150, -0.6, 0.6, 500, -0.15, 0.15);
 
-    // Pulls
 
-    hPullAlpha       = new TH1F ("4D_"+N+"_hPullAlpha", 
-                                "4D RecHit pull on #alpha_x direction;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
-                                200, -5, 5);
-    hPullAlphaVsEta  = new TH2F ("4D_"+N+"_hPullAlphaVsEta",
-                                "4D RecHit pull on #alpha_x direction vs eta;#eta;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
-                                100, -2.5, 2.5, 100, -5, 5);
-    hPullAlphaVsPhi  = new TH2F ("4D_"+N+"_hPullAlphaVsPhi",
-                                "4D RecHit pull on #alpha_x direction vs phi (rad);#phi (rad);(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
-                                100, -3.2, 3.2, 100, -5, 5);
 
-    hPullBeta        = new TH1F ("4D_"+N+"_hPullBeta",
-                                "4D RecHit pull on beta direction;(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                200, -5, 5);
-    hPullBetaVsEta   = new TH2F ("4D_"+N+"_hPullBetaVsEta",
-                                "4D RecHit pull on beta direction vs eta;#eta;(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                100, -2.5, 2.5, 200, -5, 5);
-    hPullBetaVsPhi   = new TH2F ("4D_"+N+"_hPullBetaVsPhi",
-                                "4D RecHit pull on beta direction vs phi;#phi (rad);(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                100, -3.2, 3.2, 200, -5, 5);
-
-    hPullX           = new TH1F ("4D_"+N+"_hPullX",
-                                 "4D RecHit pull on position (x) in chamber;(x_{rec}-x_{sim})#sigma",
-                                150, -5, 5);
-    hPullXVsEta      = new TH2F ("4D_"+N+"_hPullXVsEta",
-                                 "4D RecHit pull on position (x) in chamber vs eta;#eta;(x_{rec}-x_{sim})#sigma",
-                                100, -2.5, 2.5, 150, -5, 5);
-    hPullXVsPhi      = new TH2F ("4D_"+N+"_hPullXVsPhi", 
-                                 "4D RecHit pull on position (x) in chamber vs phi;#phi (rad);(x_{rec}-x_{sim})/#sigma",
-                                100, -3.2, 3.2, 150, -5, 5);
-
-    hPullY           = new TH1F ("4D_"+N+"_hPullY", 
-                                 "4D RecHit pull on position (y) in chamber;(y_{rec}-y_{sim})/#sigma", 150, -5, 5);
-    hPullYVsEta      = new TH2F ("4D_"+N+"_hPullYVsEta", 
-                                 "4D RecHit pull on position (y) in chamber vs eta;#eta;(y_{rec}-y_{sim})/#sigma",
-                                100, -2.5, 2.5, 150, -5, 5);
-    hPullYVsPhi      = new TH2F ("4D_"+N+"_hPullYVsPhi", 
-                                 "4D RecHit pull on position (y) in chamber vs phi;#phi (rad);(y_{rec}-y_{sim})/#sigma",
-                                 100, -3.2, 3.2, 150, -5, 5);
-
-    // histo in rz SL reference frame.
-
-    hRecBetaRZ        = new TH1F ("4D_"+N+"_hRecBetaRZ", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
-
-    hSimBetaRZ      = new TH1F("4D_"+N+"_hSimBetaRZ", "4D segment from SimHit beta distribution in RZ SL;#alpha^{y} (rad)",
-                               100, -3.5, 3.5);
-    hRecVsSimBetaRZ = new TH2F("4D_"+N+"_hRecVsSimBetaRZ", "4D segment rec beta vs sim beta (RZ) in RZ SL;#alpha^{y} (rad)",
-                               100, -3.5, 3.5, 100, -3.5, 3.5);
-
-    hResBetaRZ      = new TH1F ("4D_"+N+"_hResBetaRZ",
-                                "4D RecHit residual on beta direction in RZ SL;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                200, -0.1, 0.1);
-    hResBetaVsEtaRZ = new TH2F ("4D_"+N+"_hResBetaVsEtaRZ",
-                                "4D RecHit residual on beta direction vs eta;#eta in RZ SL;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                100, -2.5, 2.5, 200, -0.2, 0.2);
-    hResBetaVsPhiRZ = new TH2F ("4D_"+N+"_hResBetaVsPhiRZ",
-                                "4D RecHit residual on beta direction vs phi in RZ SL;#phi (rad);#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
-                                100, -3.2, 3.2, 200, -0.2, 0.2);
-
-    hResYRZ         = new TH1F ("4D_"+N+"_hResYRZ",
-                                "4D RecHit residual on position (y) in chamber in RZ SL;y_{rec}-y_{sim} (cm)",
-                                150, -0.15, 0.15);
-    hResYVsEtaRZ    = new TH2F ("4D_"+N+"_hResYVsEtaRZ",
-                                "4D RecHit residual on position (y) in chamber vs eta in RZ SL;#eta;y_{rec}-y_{sim} (cm)",
-                                100, -2.5, 2.5, 150, -0.6, 0.6);
-    hResYVsPhiRZ    = new TH2F ("4D_"+N+"_hResYVsPhiRZ",
-                                "4D RecHit residual on position (y) in chamber vs phi in RZ SL;#phi (rad);y_{rec}-y_{sim} (cm)",
-                                100, -3.2, 3.2, 150, -0.6, 0.6);
-
-    // Pulls
-    hPullBetaRZ      = new TH1F ("4D_"+N+"_hPullBetaRZ",
-                                "4D RecHit pull on beta direction in RZ SL;(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                200, -5, 5);
-    hPullBetaVsEtaRZ = new TH2F ("4D_"+N+"_hPullBetaVsEtaRZ",
-                                "4D RecHit pull on beta direction vs eta;#eta in RZ SL;(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                100, -2.5, 2.5, 200, -5, 5);
-    hPullBetaVsPhiRZ = new TH2F ("4D_"+N+"_hPullBetaVsPhiRZ",
-                                "4D RecHit pull on beta direction vs phi in RZ SL;#phi (rad);(#alpha^{y}_{rec}-#alpha^{y}_{sim})/#sigma",
-                                100, -3.2, 3.2, 200, -5, 5);
-
-    hPullYRZ         = new TH1F ("4D_"+N+"_hPullYRZ",
-                                "4D RecHit pull on position (y) in chamber in RZ SL;(y_{rec}-y_{sim})/#sigma",
-                                150, -5, 5);
-    hPullYVsEtaRZ    = new TH2F ("4D_"+N+"_hPullYVsEtaRZ",
-                                "4D RecHit pull on position (y) in chamber vs eta in RZ SL;#eta;(y_{rec}-y_{sim})/#sigma",
-                                100, -2.5, 2.5, 150, -5, 5);
-    hPullYVsPhiRZ    = new TH2F ("4D_"+N+"_hPullYVsPhiRZ",
-                                "4D RecHit pull on position (y) in chamber vs phi in RZ SL;#phi (rad);(y_{rec}-y_{sim})/#sigma",
-                                100, -3.2, 3.2, 150, -5, 5);
   }
   
   HRes4DHit (TString name_, TFile* file){
@@ -812,48 +678,39 @@ public:
     hResXVsResY = (TH2F *) file->Get("4D_"+name+"_hResXVsResY");
     hResAlphaVsResX = (TH2F *) file->Get("4D_"+name+"_hResAlphaVsResX");
     hResAlphaVsResY = (TH2F *) file->Get("4D_"+name+"_hResAlphaVsResY"); 
-
-    hPullAlpha = (TH1F *) file->Get("4D_"+name+"_hPullAlpha");
-    hPullAlphaVsEta = (TH2F *) file->Get("4D_"+name+"_hPullAlphaVsEta");
-    hPullAlphaVsPhi = (TH2F *) file->Get("4D_"+name+"_hPullAlphaVsPhi");
-  
-    hPullBeta = (TH1F *) file->Get("4D_"+name+"_hPullBeta");
-    hPullBetaVsEta = (TH2F *) file->Get("4D_"+name+"_hPullBetaVsEta");
-    hPullBetaVsPhi = (TH2F *) file->Get("4D_"+name+"_hPullBetaVsPhi");
-  
-    hPullX = (TH1F *) file->Get("4D_"+name+"_hPullX");
-    hPullXVsEta = (TH2F *) file->Get("4D_"+name+"_hPullXVsEta");
-    hPullXVsPhi = (TH2F *) file->Get("4D_"+name+"_hPullXVsPhi");
-  
-    hPullY = (TH1F *) file->Get("4D_"+name+"_hPullY");
-    hPullYVsEta = (TH2F *) file->Get("4D_"+name+"_hPullYVsEta");
-    hPullYVsPhi = (TH2F *) file->Get("4D_"+name+"_hPullYVsPhi");
-
-    // RX SL frame
-    hRecBetaRZ = (TH1F *) file->Get("4D_"+name+"_hRecBetaRZ");
-
-    hSimBetaRZ = (TH1F *) file->Get("4D_"+name+"_hSimBetaRZ");
-
-    hRecVsSimBetaRZ = (TH2F *) file->Get("4D_"+name+"_hRecVsSimBetaRZ");
-
-    hResBetaRZ = (TH1F *) file->Get("4D_"+name+"_hResBetaRZ");
-    hResBetaVsEtaRZ = (TH2F *) file->Get("4D_"+name+"_hResBetaVsEtaRZ");
-    hResBetaVsPhiRZ = (TH2F *) file->Get("4D_"+name+"_hResBetaVsPhiRZ");
-  
-    hResYRZ = (TH1F *) file->Get("4D_"+name+"_hResYRZ");
-    hResYVsEtaRZ = (TH2F *) file->Get("4D_"+name+"_hResYVsEtaRZ");
-    hResYVsPhiRZ = (TH2F *) file->Get("4D_"+name+"_hResYVsPhiRZ");
-
-    hPullBetaRZ = (TH1F *) file->Get("4D_"+name+"_hPullBetaRZ");
-    hPullBetaVsEtaRZ = (TH2F *) file->Get("4D_"+name+"_hPullBetaVsEtaRZ");
-    hPullBetaVsPhiRZ = (TH2F *) file->Get("4D_"+name+"_hPullBetaVsPhiRZ");
-  
-    hPullYRZ = (TH1F *) file->Get("4D_"+name+"_hPullYRZ");
-    hPullYVsEtaRZ = (TH2F *) file->Get("4D_"+name+"_hPullYVsEtaRZ");
-    hPullYVsPhiRZ = (TH2F *) file->Get("4D_"+name+"_hPullYVsPhiRZ");
   }
 
   ~HRes4DHit(){
+
+    /*delete hRecAlpha;
+    delete hRecBeta;
+    
+    delete hSimAlpha;
+    delete hSimBeta;
+
+    delete hRecVsSimAlpha;
+    delete hRecVsSimBeta;
+
+    delete hResAlpha;
+    delete hResAlphaVsEta;
+    delete hResAlphaVsPhi;
+   
+    delete hResBeta;
+    delete hResBetaVsEta;
+    delete hResBetaVsPhi;
+  
+    delete hResX;
+    delete hResXVsEta;
+    delete hResXVsPhi;
+  
+    delete hResY;
+    delete hResYVsEta;
+    delete hResYVsPhi;
+                         
+    delete hResAlphaVsResBeta;
+    delete hResXVsResY;
+    delete hResAlphaVsResX;
+    delete hResAlphaVsResY;*/
   }
 
   void Fill(float simDirectionAlpha,
@@ -865,18 +722,7 @@ public:
 	    float simY,
 	    float recY,
 	    float simEta,
-	    float simPhi,
-        float recYRZ,
-        float simYRZ,
-        float recBetaRZ,
-        float simBetaRZ,
-        float sigmaAlpha,
-        float sigmaBeta,
-        float sigmaX,
-        float sigmaY,
-        float sigmaBetaRZ,
-        float sigmaYRZ
-        ) {
+	    float simPhi) {
 
     hRecAlpha->Fill(recDirectionAlpha);
     hRecBeta->Fill(recDirectionBeta);
@@ -890,56 +736,23 @@ public:
     hResAlpha->Fill(resAlpha);
     hResAlphaVsEta->Fill(simEta, resAlpha);
     hResAlphaVsPhi->Fill(simPhi, resAlpha);
-    hPullAlpha->Fill(resAlpha/sigmaAlpha);
-    hPullAlphaVsEta->Fill(simEta, resAlpha/sigmaAlpha);
-    hPullAlphaVsPhi->Fill(simPhi, resAlpha/sigmaAlpha);
     float resBeta = recDirectionBeta - simDirectionBeta;
     hResBeta->Fill(resBeta);
     hResBetaVsEta->Fill(simEta, resBeta);
     hResBetaVsPhi->Fill(simPhi, resBeta);
-    hPullBeta->Fill(resBeta/sigmaBeta);
-    hPullBetaVsEta->Fill(simEta, resBeta/sigmaBeta);
-    hPullBetaVsPhi->Fill(simPhi, resBeta/sigmaBeta);
     float resX = recX - simX;
     hResX->Fill(resX);
     hResXVsEta->Fill(simEta, resX);
     hResXVsPhi->Fill(simPhi, resX);
-    hPullX->Fill(resX/sigmaX);
-    hPullXVsEta->Fill(simEta, resX/sigmaX);
-    hPullXVsPhi->Fill(simPhi, resX/sigmaX);
     float resY = recY - simY;
     hResY->Fill(resY);
     hResYVsEta->Fill(simEta, resY);
     hResYVsPhi->Fill(simPhi, resY);
-    hPullY->Fill(resY/sigmaY);
-    hPullYVsEta->Fill(simEta, resY/sigmaY);
-    hPullYVsPhi->Fill(simPhi, resY/sigmaY);
    
     hResAlphaVsResBeta->Fill(resBeta, resAlpha);   
     hResXVsResY->Fill(resY, resX);          
     hResAlphaVsResX->Fill(resX, resAlpha);      
     hResAlphaVsResY->Fill(resY, resAlpha);      
-
-    // RZ SuperLayer
-    hRecBetaRZ->Fill(recBetaRZ);
-    hSimBetaRZ->Fill(simBetaRZ);
-
-    hRecVsSimBetaRZ->Fill(simBetaRZ, recBetaRZ);
-
-    float resBetaRZ = recBetaRZ - simBetaRZ;
-    hResBetaRZ->Fill(resBetaRZ);
-    hResBetaVsEtaRZ->Fill(simEta, resBetaRZ);
-    hResBetaVsPhiRZ->Fill(simPhi, resBetaRZ);
-    hPullBetaRZ->Fill(resBetaRZ/sigmaBetaRZ);
-    hPullBetaVsEtaRZ->Fill(simEta, resBetaRZ/sigmaBetaRZ);
-    hPullBetaVsPhiRZ->Fill(simPhi, resBetaRZ/sigmaBetaRZ);
-    float resYRZ = recYRZ - simYRZ;
-    hResYRZ->Fill(resYRZ);
-    hResYVsEtaRZ->Fill(simEta, resYRZ);
-    hResYVsPhiRZ->Fill(simPhi, resYRZ);
-    hPullYRZ->Fill(resYRZ/sigmaYRZ);
-    hPullYVsEtaRZ->Fill(simEta, resYRZ/sigmaYRZ);
-    hPullYVsPhiRZ->Fill(simPhi, resYRZ/sigmaYRZ);
   }
   
   void Write() {
@@ -965,35 +778,6 @@ public:
     hResXVsResY->Write();
     hResAlphaVsResX->Write();
     hResAlphaVsResY->Write();
-    hPullAlpha->Write();
-    hPullAlphaVsEta->Write();
-    hPullAlphaVsPhi->Write();
-    hPullBeta->Write();
-    hPullBetaVsEta->Write();
-    hPullBetaVsPhi->Write();
-    hPullX->Write();
-    hPullXVsEta->Write();
-    hPullXVsPhi->Write();
-    hPullY->Write();
-    hPullYVsEta->Write();
-    hPullYVsPhi->Write();
-
-
-    hRecBetaRZ->Write();
-    hSimBetaRZ->Write();
-    hRecVsSimBetaRZ->Write();
-    hResBetaRZ->Write();
-    hResBetaVsEtaRZ->Write();
-    hResBetaVsPhiRZ->Write();
-    hResYRZ->Write();
-    hResYVsEtaRZ->Write();
-    hResYVsPhiRZ->Write();
-    hPullBetaRZ->Write();
-    hPullBetaVsEtaRZ->Write();
-    hPullBetaVsPhiRZ->Write();
-    hPullYRZ->Write();
-    hPullYVsEtaRZ->Write();
-    hPullYVsPhiRZ->Write();
 }
   
 public:
@@ -1027,45 +811,6 @@ public:
   TH2F *hResXVsResY;          
   TH2F *hResAlphaVsResX;      
   TH2F *hResAlphaVsResY;      
-
-  TH1F *hPullAlpha;
-  TH2F *hPullAlphaVsEta;
-  TH2F *hPullAlphaVsPhi;
- 
-  TH1F *hPullBeta;
-  TH2F *hPullBetaVsEta;
-  TH2F *hPullBetaVsPhi;
- 
-  TH1F *hPullX;
-  TH2F *hPullXVsEta;
-  TH2F *hPullXVsPhi;
- 
-  TH1F *hPullY;
-  TH2F *hPullYVsEta;
-  TH2F *hPullYVsPhi;
-
-  // RZ SL 
-  TH1F *hRecBetaRZ;
-
-  TH1F *hSimBetaRZ;
-
-  TH2F *hRecVsSimBetaRZ;
-
-  TH1F *hResBetaRZ;
-  TH2F *hResBetaVsEtaRZ;
-  TH2F *hResBetaVsPhiRZ;
- 
-  TH1F *hResYRZ;
-  TH2F *hResYVsEtaRZ;
-  TH2F *hResYVsPhiRZ;
-
-  TH1F *hPullBetaRZ;
-  TH2F *hPullBetaVsEtaRZ;
-  TH2F *hPullBetaVsPhiRZ;
- 
-  TH1F *hPullYRZ;
-  TH2F *hPullYVsEtaRZ;
-  TH2F *hPullYVsPhiRZ;
 
   TString name;
 };

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/07 08:31:19 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/04/19 13:28:46 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,8 +12,6 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include <DataFormats/Provenance/interface/EventID.h>
-#include <DataFormats/Provenance/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 

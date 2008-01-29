@@ -85,6 +85,7 @@ private:
   char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
   float t_MaterialLambda0[MAXSTEPS];  
+  float t_MaterialDensity[MAXSTEPS]; // g/cm3  
   int   t_ParticleStepID[MAXSTEPS];  
   float t_ParticleStepInitialPt[MAXSTEPS];  
   float t_ParticleStepInitialEta[MAXSTEPS];  

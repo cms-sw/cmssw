@@ -1,5 +1,29 @@
+<library file="module.cc DCacheStorageMaker.cc GsiFTPStorageMaker.cc HttpStorageMaker.cc LocalStorageMaker.cc RedirectStorageMaker.cc ZipMemberStorage.cc" name=UtilitiesStorageFactoryPlugins>
 <use name=Utilities/StorageFactory>
-<library file=module.cc name=UtilitiesStorageFactoryPlugins>
+<use name=Foundation/SealZip>
+<use name=Utilities/DCacheAdaptor>
+<use name=dcap>
 <flags EDM_PLUGIN=1>
 </library>
 
+<library file=RFIOStorageMaker.cc name=RFIOStorageMaker>
+  <use name=Utilities/StorageFactory>
+  <use name=Utilities/RFIOAdaptor>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Catalog>
+  <use name=FWCore/Utilities>
+  <flags NO_LIB_CHECKING=yes>
+  flags EDM_PLUGIN=1>
+</library>
+
+<library file=RFIOCastorPlugin.cc name=RFIOCastorPlugin>
+  <use name=Utilities/RFIOAdaptor>
+  <use name=castor>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library file=RFIODPMPlugin.cc name=RFIODPMPlugin>
+  <use name=Utilities/RFIOAdaptor>
+  <use name=dpm>
+  <flags EDM_PLUGIN=1>
+</library>

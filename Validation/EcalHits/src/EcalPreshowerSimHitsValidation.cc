@@ -213,9 +213,6 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   if (menESHits2zp_) menESHits2zp_->Fill(nESHits2zp);
   if (menESHits2zm_) menESHits2zm_->Fill(nESHits2zm);
   
-  if ( (me2eszpOver1eszp_) && (ESet1zp_ != 0.) ) me2eszpOver1eszp_->Fill(ESet2zp_/ESet1zp_);
-  if ( (me2eszmOver1eszm_) && (ESet1zm_ != 0.) ) me2eszmOver1eszm_->Fill(ESet2zm_/ESet1zm_);
-  
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
 	p != MCEvt->GetEvent()->particles_end(); ++p ) {
     
@@ -226,10 +223,12 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
 
       if (meE1alphaE2zp_) meE1alphaE2zp_->Fill(ESet1zp_+0.7*ESet2zp_);
       if (meEEoverESzp_)  meEEoverESzp_ ->Fill((ESet1zp_+0.7*ESet2zp_)/0.00009, EEetzp_);
+      if ((me2eszpOver1eszp_) && (ESet1zp_ != 0.)) me2eszpOver1eszp_->Fill(ESet2zp_/ESet1zp_);
     }
     if ( heta < -1.653 && heta > -2.6 ) {
       if (meE1alphaE2zm_) meE1alphaE2zm_->Fill(ESet1zm_+0.7*ESet2zm_);
       if (meEEoverESzm_)  meEEoverESzm_ ->Fill((ESet1zm_+0.7*ESet2zm_)/0.00009, EEetzm_);
+      if ((me2eszmOver1eszm_) && (ESet1zm_ != 0.)) me2eszmOver1eszm_->Fill(ESet2zm_/ESet1zm_);
     }
   }
 }

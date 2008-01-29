@@ -31,15 +31,17 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const HepMC::GenEvent mctruth,
+  void analyze(const CandidateCollection& mctruth,
+	       const HepMC::GenEvent hepmc,
 	       TTree* tree);
 
 private:
 
   // Tree variables
-  float *mcpid, *mcvx, *mcvy, *mcvz, *mcpt;
-  int nmcpart;
-
+  float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
+  int *mcpid;
+  int nmcpart,nmu3,nel1,nab,nbb;
+  float pthat;
   // input variables
   bool _Monte,_Debug;
 

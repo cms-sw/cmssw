@@ -40,7 +40,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   
   t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
   t2_ = 2.* t1_ ; 
-  sat_ = 12.*t1_;
+
+  sat_ = 12.*t1_*calibfactor_;
 }
   
 
@@ -69,6 +70,8 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 
   unsigned nhit=theFiredCells_.size();
   unsigned gain, adc;
+  ecalDigis.reserve(nhit);
+  ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
     {      
       unsigned icell = theFiredCells_[ihit];
@@ -89,8 +92,20 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
       // is afterwards put in this cell which would not be correct. 
-      if (  theCalorimeterHits_[icell]<threshold_ ) theCalorimeterHits_[icell]=0.;
-      ecalHits.push_back(EcalRecHit(myDetId,theCalorimeterHits_[icell],0.));
+      float energy=theCalorimeterHits_[icell];
+      if ( energy<threshold_ ) 
+	{
+	  theCalorimeterHits_[icell]=0.;
+	  energy=0.;
+	}
+      else 
+	if( energy > sat_)
+	  {
+	    energy=sat_;
+	    theCalorimeterHits_[icell]=sat_;
+	  }
+
+      ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
     }
   noisified_ = true;
 

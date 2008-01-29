@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 #include <TH2.h>
 
@@ -22,7 +23,7 @@ class PFResolutionMap : public TH2D {
   PFResolutionMap() : TH2D() {}
   
   /// create a map from text file mapfile
-  PFResolutionMap(const char* name, const char* mapfile) throw(std::string) ;
+  PFResolutionMap(const char* name, const char* mapfile);
   
   /// create an empty map and initialize it 
   PFResolutionMap(const char* name, 

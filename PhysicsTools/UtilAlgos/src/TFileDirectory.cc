@@ -35,6 +35,7 @@ std::string TFileDirectory::fullPath() const {
 }
 
 TFileDirectory TFileDirectory::mkdir( const std::string & dir, const std::string & descr ) {
+  TH1AddDirectorySentry sentry;
   cd();
   return TFileDirectory( dir, descr, file_, fullPath() );
 }

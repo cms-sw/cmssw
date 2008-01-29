@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.21 2007/06/06 23:33:49 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.22 2007/06/21 16:52:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -19,6 +19,8 @@ $Id: generichandle_t.cppunit.cc,v 1.21 2007/06/06 23:33:49 wmtan Exp $
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include <cppunit/extensions/HelperMacros.h>
@@ -59,7 +61,9 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::Timestamp time;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
-  edm::EventPrincipal ep(id, time, preg, 1, pc, true);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(id.run(), time, time, preg, pc));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
+  edm::EventPrincipal ep(id, time, preg, lbp, pc, true);
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
      edm::ModuleDescription modDesc;
@@ -121,7 +125,9 @@ void testGenericHandle::getbyLabelTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc, true);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
+  edm::EventPrincipal ep(col, fakeTime, pregc, lbp, pc, true);
 
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
   ep.put(pprod, pprov);

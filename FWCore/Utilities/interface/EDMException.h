@@ -52,6 +52,7 @@ namespace edm {
        FatalRootError,
 
        ProductDoesNotSupportViews,
+       ProductDoesNotSupportPtr,
 
        NotFound
     };

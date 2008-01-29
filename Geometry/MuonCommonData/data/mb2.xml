@@ -1524,7 +1524,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2P23P"/>
    <rChild name="mb2:MB23RPC_OP"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -1583,7 +1583,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2P23P"/>
    <rChild name="mb2:MB22RPC_IP"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">

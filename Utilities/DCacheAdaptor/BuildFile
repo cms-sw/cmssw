@@ -6,6 +6,8 @@
  <Flags CPPDEFINES="_FILE_OFFSET_BITS=32">
 </export>
 
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
 <use name=Foundation/SealBase>
 <use name=dcap>
 <Flags CPPDEFINES="_FILE_OFFSET_BITS=32">

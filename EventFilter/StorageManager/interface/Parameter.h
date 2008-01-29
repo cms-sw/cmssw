@@ -2,7 +2,7 @@
 #define STOR_PARAMETER_H
 
 // Created by Markus Klute on 2007 Jan 29.
-// $Id: Parameter.h,v 1.1 2007/02/05 11:19:56 klute Exp $
+// $Id: Parameter.h,v 1.2 2007/02/05 16:39:40 klute Exp $
 
 // holds configuration parameter for StorageManager
 
@@ -22,7 +22,13 @@ namespace stor
 	insertFileScript_("$CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/scripts/perl/insertFile.pl"),
 	fileCatalog_("summaryCatalog.txt"),
 	smInstance_("0"),
-	initialSafetyLevel_(0)
+	initialSafetyLevel_(0),
+        fileName_("storageManager"),
+        filePath_("/scratch2/cheung"),
+        mailboxPath_("/scratch2/cheung/mbox"),
+        setupLabel_("mtcc"),
+        highWaterMark_(0.9),
+        lumiSectionTimeOut_(10.0)
 	{
 	  hostName_ = toolbox::net::getHostName();
 	}
@@ -33,6 +39,12 @@ namespace stor
       std::string fileCatalog()        {return fileCatalog_;}
       std::string smInstance()         {return smInstance_;}
       std::string host()               {return hostName_;}
+      std::string fileName()           {return fileName_;}
+      std::string filePath()           {return filePath_;}
+      std::string mailboxPath()        {return mailboxPath_;}
+      std::string setupLabel()         {return setupLabel_;}
+      double highWaterMark()           {return highWaterMark_;}
+      double lumiSectionTimeOut()      {return lumiSectionTimeOut_;}
 
       int initialSafetyLevel()         {return initialSafetyLevel_;}
 
@@ -41,6 +53,12 @@ namespace stor
       void setInsertFileScript  (std::string x) {insertFileScript_=x;}
       void setFileCatalog       (std::string x) {fileCatalog_=x;}
       void setSmInstance        (std::string x) {smInstance_=x;}
+      void setfileName          (std::string x) {fileName_=x;}
+      void setfilePath          (std::string x) {filePath_=x;}
+      void setmailboxPath       (std::string x) {mailboxPath_=x;}
+      void setsetupLabel        (std::string x) {setupLabel_=x;}
+      void sethighWaterMark          (double x) {highWaterMark_=x;}
+      void setlumiSectionTimeOut     (double x) {lumiSectionTimeOut_=x;}
 
       void initialSafetyLevel   (int i)         {initialSafetyLevel_=i;}
 
@@ -52,6 +70,12 @@ namespace stor
       std::string smInstance_;
       std::string hostName_;
       int         initialSafetyLevel_;
+      std::string fileName_;
+      std::string filePath_;
+      std::string mailboxPath_;
+      std::string setupLabel_;
+      double highWaterMark_;
+      double lumiSectionTimeOut_;
     }; 
 }
 

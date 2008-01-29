@@ -3,32 +3,37 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $
+   \version $Id: ProcessDesc.cc,v 1.24 2007/08/09 04:43:47 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.24 2007/08/09 04:43:47 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Entry.h"
-
+#include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/ParameterSet/interface/OperatorNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
-#include "FWCore/ParameterSet/interface/PSetNode.h"
-
-#include <map>
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 
 namespace edm
 {
+
+  ProcessDesc::ProcessDesc(const ParameterSet & pset)
+  : validator_(0),
+    pathFragments_(),
+    pset_(new ParameterSet(pset)),
+    services_(new std::vector<ParameterSet>()),
+    bookkeeping_()
+  {
+    setRegistry();
+    // std::cout << pset << std::endl;
+  }
 
   ProcessDesc::~ProcessDesc()
   {
@@ -53,49 +58,69 @@ namespace edm
     writeBookkeeping("@all_essources");
     writeBookkeeping("@all_esprefers");
 
+    fillPaths();
+ 
+    validator_= 
+      new ScheduleValidator(pathFragments_,*pset_); 
+    validator_->validate();
+
+    setRegistry();
+    // std::cout << *pset_ << std::endl;
+
+  }
+
+  void ProcessDesc::setRegistry() const
+  {
+    // Load every ParameterSet into the Registry
+    pset::Registry* reg = pset::Registry::instance();
+    pset::loadAllNestedParameterSets(reg, *pset_);
+  }
+
+  void ProcessDesc::fillPaths()
+  {
     SeqMap sequences;
 
     // loop on path fragments
     Strs endpaths, triggerpaths;
-   
+
     for(ProcessDesc::PathContainer::iterator pathIt = pathFragments_.begin(),
-					     pathItEnd = pathFragments_.end();
-	pathIt != pathItEnd;
-	++pathIt) {
-     
+                                             pathItEnd = pathFragments_.end();
+        pathIt != pathItEnd;
+        ++pathIt) {
+
       if ((*pathIt)->type() == "sequence") {
-	sequences[(*pathIt)->name()]= (*pathIt);
+        sequences[(*pathIt)->name()]= (*pathIt);
       }
-     
+
       if ((*pathIt)->type() == "path") {
         //FIXME order-dependent
-	sequenceSubstitution((*pathIt)->wrapped(), sequences);
-	fillPath((*pathIt),triggerpaths);
+        sequenceSubstitution((*pathIt)->wrapped(), sequences);
+        fillPath((*pathIt),triggerpaths);
       }
 
 
       if ((*pathIt)->type() == "endpath") {
-	sequenceSubstitution((*pathIt)->wrapped(), sequences);
-	fillPath((*pathIt),endpaths);
+        sequenceSubstitution((*pathIt)->wrapped(), sequences);
+        fillPath((*pathIt),endpaths);
       }
-     
-     
+
+
     } // loop on path fragments
 
     Strs schedule(findSchedule(triggerpaths, endpaths));
 
     if(1 <= edm::debugit())
       {
-	std::cerr << "\nschedule=\n  ";
-	std::copy(schedule.begin(),schedule.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\ntriggernames=\n  ";
-	std::copy(triggerpaths.begin(),triggerpaths.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\nendpaths=\n  ";
-	std::copy(endpaths.begin(),endpaths.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\n";
+        std::cerr << "\nschedule=\n  ";
+        std::copy(schedule.begin(),schedule.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\ntriggernames=\n  ";
+        std::copy(triggerpaths.begin(),triggerpaths.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\nendpaths=\n  ";
+        std::copy(endpaths.begin(),endpaths.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\n";
       }
 
     // It is very important that the @trigger_paths parameter set only
@@ -108,13 +133,10 @@ namespace edm
     pset_->addUntrackedParameter("@trigger_paths",paths_trig);
     pset_->addParameter("@end_paths", endpaths);
     pset_->addParameter("@paths",schedule);
-   
-    validator_= 
-      new ScheduleValidator(pathFragments_,*pset_); 
-    validator_->validate();
+
   }
 
-
+  
   void ProcessDesc::record(const std::string & index, const std::string & name) 
   {
     bookkeeping_[index].push_back(name);
@@ -213,6 +235,69 @@ namespace edm
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
+
+  
+  void ProcessDesc::addService(const ParameterSet & pset) 
+  {
+    services_->push_back(pset);
+   // Load into the Registry
+    pset::Registry* reg = pset::Registry::instance();
+    reg->insertMapped(pset);
+  }
+
+
+  void ProcessDesc::addService(const std::string & service)
+  {
+    ParameterSet newpset;
+    newpset.addParameter<std::string>("@service_type",service);
+    addService(newpset);
+  }
+
+  void ProcessDesc::addDefaultService(const std::string & service)
+  {
+    typedef std::vector<edm::ParameterSet>::iterator Iter;
+    for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
+        std::string name = it->getParameter<std::string>("@service_type");
+
+        if (name == service) {
+          // If the service is already there move it to the end so
+          // it will be created before all the others already there
+          // This means we use the order from the default services list
+          // and the parameters from the configuration file
+          while (true) {
+            Iter iterNext = it + 1;
+            if (iterNext == itEnd) return;
+            iter_swap(it, iterNext);
+            ++it;
+          }
+        }
+    }
+    addService(service);
+  }
+
+
+  void ProcessDesc::addServices(std::vector<std::string> const& defaultServices,
+                                std::vector<std::string> const& forcedServices)
+  {
+    // Add the forced and default services to services_.
+    // In services_, we want the default services first, then the forced
+    // services, then the services from the configuration.  It is efficient
+    // and convenient to add them in reverse order.  Then after we are done
+    // adding, we reverse the std::vector again to get the desired order.
+    std::reverse(services_->begin(), services_->end());
+    for(std::vector<std::string>::const_reverse_iterator j = forcedServices.rbegin(),
+                                            jEnd = forcedServices.rend();
+         j != jEnd; ++j) {
+      addService(*j);
+    }
+    for(std::vector<std::string>::const_reverse_iterator i = defaultServices.rbegin(),
+                                            iEnd = defaultServices.rend();
+         i != iEnd; ++i) {
+      addDefaultService(*i);
+    }
+    std::reverse(services_->begin(), services_->end());
+  }
+
 
   ProcessDesc::Strs ProcessDesc::findSchedule(ProcessDesc::Strs & triggerPaths,
                                               ProcessDesc::Strs & endPaths) const

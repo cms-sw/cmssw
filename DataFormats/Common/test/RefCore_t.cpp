@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "SimpleEDProductGetter.h"
 

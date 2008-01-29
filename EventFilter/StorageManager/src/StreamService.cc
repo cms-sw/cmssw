@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
+// $Id: StreamService.cc,v 1.2 2007/02/05 16:39:41 klute Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -229,14 +229,22 @@ void StreamService::saveInitMessage(InitMsgView const& view)
 //
 void StreamService::setStreamParameter()
 {
-  fileName_           = parameterSet_.getParameter<string> ("fileName");
-  filePath_           = parameterSet_.getParameter<string> ("filePath");
-  mailboxPath_        = parameterSet_.getParameter<string> ("mailboxPath");
-  setupLabel_         = parameterSet_.getParameter<string> ("setupLabel");
+  // some parameters common to streams are given in the XML file
+  // these are defaults, actually set at configure time
+  //fileName_           = parameterSet_.getParameter<string> ("fileName");
+  //filePath_           = parameterSet_.getParameter<string> ("filePath");
+  //mailboxPath_        = parameterSet_.getParameter<string> ("mailboxPath");
+  //setupLabel_         = parameterSet_.getParameter<string> ("setupLabel");
   streamLabel_        = parameterSet_.getParameter<string> ("streamLabel");
   maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
-  highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
-  lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
+  //highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
+  //lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
+  fileName_           = ""; // set by setFileName
+  filePath_           = ""; // set by setFilePath
+  mailboxPath_        = ""; // set by setMathBoxPath
+  setupLabel_         = ""; // set by setSetupLabel
+  highWaterMark_      = 0.9;// set by setHighWaterMark
+  lumiSectionTimeOut_ = 10; // set by setLumiSectionTimeOut
   sourceId_           = ""; // set by setSourceId
   // report(cout, 4);
 }

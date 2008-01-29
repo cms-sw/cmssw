@@ -1,14 +1,13 @@
-#ifndef CSCObjects_CSCcrosstalk_h
-#define CSCObjects_CSCcrosstalk_h
+#ifndef CSCcrosstalk_h
+#define CSCcrosstalk_h
 
 #include <vector>
 #include <map>
 
-class CSCcrosstalk
-{
+class CSCcrosstalk{
  public:
-  CSCcrosstalk() {}
-  ~CSCcrosstalk() {}
+  CSCcrosstalk();
+  ~CSCcrosstalk();
   
   struct Item{
     float xtalk_slope_right;
@@ -18,11 +17,7 @@ class CSCcrosstalk
     float xtalk_intercept_left;
     float xtalk_chi2_left;
   };
-
-  const Item & item(int cscId, int strip) const;
-
-  typedef std::map< int,std::vector<Item> > CrosstalkMap;
-  CrosstalkMap crosstalk;
+  std::map< int,std::vector<Item> > crosstalk;
 };
 
 #endif

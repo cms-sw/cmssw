@@ -16,9 +16,7 @@ namespace edm
   {
 
   public:
-    /// This class was previously just a dumb structure,
-    /// so keep a default ctor in case we have to roll back
-    ProcessDesc() {}
+    explicit ProcessDesc(const ParameterSet & pset);
 
     /// construct from the configuration language string
     explicit ProcessDesc(const std::string& config);
@@ -34,9 +32,19 @@ namespace edm
     std::string  getDependencies(const std::string& modulename);
 
     /// get the descriptions of the services
-    /// OBSOLETE
     boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
 
+    void addService(const ParameterSet & pset);
+    /// add a service as an empty pset
+    void addService(const std::string & service);
+    /// add a service if it's not already there
+    void addDefaultService(const std::string & service);
+    /// add some defaults services, and some forced
+    void addServices(std::vector<std::string> const& defaultServices,
+                     std::vector<std::string> const& forcedServices);
+
+    void setRegistry() const;
+    void fillPaths();
 
     //Path and sequence information
     typedef std::vector< WrapperNodePtr > PathContainer;

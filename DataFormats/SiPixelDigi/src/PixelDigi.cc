@@ -2,7 +2,6 @@
 //
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
-#include <iostream>
 #include <algorithm>
 
 void PixelDigi::init( int row, int col, int adc) {

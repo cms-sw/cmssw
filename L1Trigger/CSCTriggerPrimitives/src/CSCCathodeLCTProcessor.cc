@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/06/12 13:15:47 $
-//   $Revision: 1.19 $
+//   $Date: 2007/04/18 16:08:55 $
+//   $Revision: 1.18 $
 //
 //   Modifications: 
 //
@@ -36,6 +36,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <algorithm>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 

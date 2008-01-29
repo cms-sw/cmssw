@@ -1,3 +1,9 @@
+2007-09-17  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* BuildFile: Removed dependency on castor and make this package to
+	provide only the interface for rfio and dpm rfio implementations.
+	* RFIOFile.h: Now its derived from RFIOStorage.
+
 2005-11-24  Giulio Eulisse  <giulio.eulisse@cern.ch>
 
 	* put.cpp, ostream.cpp: removed old COBRA include.

@@ -1,7 +1,6 @@
-// $Id: DetSetLazyVector_t.cppunit.cc,v 1.1 2006/03/30 20:46:54 chrjones Exp $
+// $Id: cloningptr_t.cppunit.cc,v 1.1 2006/04/04 01:54:48 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/CloningPtr.h"
-#include "DataFormats/Common/interface/Ref.h"
 
 #include <vector>
 

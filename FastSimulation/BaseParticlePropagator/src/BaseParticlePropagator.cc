@@ -34,7 +34,7 @@ BaseParticlePropagator::init() {
   properTime = 0.;
   // The propagation direction is along the momentum
   propDir = 1;
-
+  //
   debug = false;
 
 }
@@ -174,28 +174,59 @@ BaseParticlePropagator::propagate() {
     double sinPhiProp = 
       (rProp*rProp-radius*radius-dist*dist)/( 2.*dist*radius);
     //
-    phiProp =  fabs(sinPhiProp) < 0.99999999  ? 
-      std::asin(sinPhiProp) : M_PI/2. * sinPhiProp;
+    double deltaPhi = 1E99;
 
-    //
-    // Compute phi after propagation (two solutions, but the asin definition
-    // (between -pi/2 and +pi/2) takes care of the wrong one.
-    //
-    phiProp = helixCentrePhi(xC,yC) + 
-      ( inside(rPos2) || onSurface(rPos2) ? phiProp : M_PI-phiProp ); 
+    // Taylor development up to third order for large momenta 
+    if ( 1.-fabs(sinPhiProp) < 1E-12 ) { 
 
-    //
-    // Solve the obvious two-pi ambiguities: more than one turn!
-    //
-    if ( fabs(phiProp - phi0) > 2.*M_PI )
-      phiProp += ( phiProp > phi0 ? -2.*M_PI : +2.*M_PI );
+      double cphi0 = std::cos(phi0);
+      double sphi0 = std::sin(phi0);
+      double r0 = (X()*cphi0 + Y()*sphi0)/radius;
+      double q0 = (X()*sphi0 - Y()*cphi0)/radius;
+      double rcyl2 = (rCyl2 - X()*X() - Y()*Y())/(radius*radius);
+      double delta = r0*r0 + rcyl2*(1.-q0);
 
-    //
-    // Check that the phi difference has the right sign, according to Q*B
-    // (Another two pi ambuiguity, slightly more subtle)
-    //
-    if ( (phiProp-phi0)*radius < 0.0 )
-      radius > 0.0 ? phiProp += 2 * M_PI : phiProp -= 2 * M_PI;
+      // This is a solution of a second order equation, assuming phi = phi0 + epsilon
+      // and epsilon is small. 
+      deltaPhi = radius > 0 ? 
+	( -r0 + std::sqrt(delta ) ) / (1.-q0) :   
+	( -r0 - std::sqrt(delta ) ) / (1.-q0); 
+      
+    }
+
+    // Use complete calculation otherwise, or if the delta phi is large anyway.
+    if ( fabs(deltaPhi) > 1E-3 ) { 
+
+    //    phiProp =  fabs(sinPhiProp) < 0.99999999  ? 
+    //      std::asin(sinPhiProp) : M_PI/2. * sinPhiProp;
+      phiProp =  std::asin(sinPhiProp);
+
+      //
+      // Compute phi after propagation (two solutions, but the asin definition
+      // (between -pi/2 and +pi/2) takes care of the wrong one.
+      //
+      phiProp = helixCentrePhi(xC,yC) + 
+	( inside(rPos2) || onSurface(rPos2) ? phiProp : M_PI-phiProp ); 
+      
+      //
+      // Solve the obvious two-pi ambiguities: more than one turn!
+      //
+      if ( fabs(phiProp - phi0) > 2.*M_PI )
+	phiProp += ( phiProp > phi0 ? -2.*M_PI : +2.*M_PI );
+      
+      //
+      // Check that the phi difference has the right sign, according to Q*B
+      // (Another two pi ambuiguity, slightly more subtle)
+      //
+      if ( (phiProp-phi0)*radius < 0.0 )
+	radius > 0.0 ? phiProp += 2 * M_PI : phiProp -= 2 * M_PI;
+      
+    } else { 
+
+      // Use Taylor
+      phiProp = phi0 + deltaPhi;
+
+    }
 
     //
     // Check that the particle does not exit from the endcaps first.
@@ -329,8 +360,7 @@ BaseParticlePropagator::propagateToClosestApproach(bool first) {
   if ( charge() != 0.0 && bField != 0.0 ) {
     r = fabs ( fabs( helixRadius() )
 	       - helixCentreDistToAxis() ) + 0.0000001;
-  }
-  else {
+  } else {
     r = fabs( Px() * Y() - Py() * X() ) / Pt(); 
   }
 

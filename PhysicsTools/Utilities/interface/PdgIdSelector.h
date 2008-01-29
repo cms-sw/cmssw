@@ -1,10 +1,10 @@
-#ifndef RecoAlgos_PdgIdSelector_h
-#define RecoAlgos_PdgIdSelector_h
+#ifndef PhysicsTools_Utilities_PdgIdSelector_h
+#define PhysicsTools_Utilities_PdgIdSelector_h
 /* \class PdgIdSelector
  *
  * \author Luca Lista, INFN
  *
- * $Id: PdgIdSelector.h,v 1.2 2007/05/04 14:43:35 llista Exp $
+ * $Id: PdgIdSelector.h,v 1.3 2007/06/18 18:33:54 llista Exp $
  */
 #include <vector>
 #include <algorithm>
@@ -21,7 +21,7 @@ struct PdgIdSelector {
   PdgIdSelector & operator==( const PdgIdSelector & o ) {
     * this = o; return * this;
   }
-template<typename T>
+  template<typename T>
   bool operator()( const T & t ) const { 
     return std::find( begin_, end_, abs( t.pdgId() ) ) != end_;
   }

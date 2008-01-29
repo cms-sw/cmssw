@@ -1,3 +1,52 @@
+2007-09-17  Shahzad Muzaffar <Shahzad.Muzaffar@cern.ch>
+
+	* *: Cleanup. Moved all storage makers types in to plugins directory
+	and now StorageFactory only provides interface for different storage
+	makers types. New plugin for DPM implementation of RFIO added.
+
+2007-07-25  William Tanenbaum <wmtan@fnal.gov>
+
+	* DCacheStorageMaker.h, GsiFTPStorageMaker.h,
+	HttpStorageMaker.h, LocalStorageMaker.h, RFIOStorageMaker.h,
+	RedirectStorageMaker.h, StorageAccount.h, StorageAccountProxy.h,
+	StorageFactory.h, StorageMaker.h, ZipMemberStorageMaker.h,
+	DCacheStorageMaker.cc, GsiFTPStorageMaker.cc, HttpStorageMaker.cc,
+	LocalStorageMaker.cc, RFIOStorageMaker.cc,
+	RedirectStorageMaker.cc
+	Implemented changes according to Lassi's comments:
+	1) Rename virtual functions open_ and check_ to doOpen() and doCheck().
+	2) Make doOpen() and doCheck() protected instead of private.
+	3) Use seal::Error.explain() rather than seal::Error.explainSelf()
+
+2007-06-28  William Tanenbaum <wmtan@fnal.gov>
+
+	* BuildFile, DCacheStorageMaker.h, GsiFTPStorageMaker.h,
+	HttpStorageMaker.h, LocalStorageMaker.h, RFIOStorageMaker.h,
+	RedirectStorageMaker.h, StorageAccount.h, StorageAccountProxy.h,
+	StorageFactory.h, StorageMaker.h, ZipMemberStorageMaker.h,
+	DCacheStorageMaker.cc, GsiFTPStorageMaker.cc, HttpStorageMaker.cc,
+	LocalStorageMaker.cc, RFIOStorageMaker.cc,
+	RedirectStorageMaker.cc
+	Catch seal exception on opening file and rethrow it as a cms exception.
+	Reimplement StorageMaker::open() and StorageMaker::check() as non-virtual
+	public functions that call private virtual functions.
+
+2007-06-28  William Tanenbaum <wmtan@fnal.gov>
+
+	Remove unnecessary #includes
+
+2007-05-01  William Tanenbaum <wmtan@fnal.gov>
+
+	More adaptions to EDM plug-in manager
+
+2007-04-14  William Tanenbaum <wmtan@fnal.gov>
+
+	More adaptions to EDM plug-in manager
+
+2007-04-10  William Tanenbaum <wmtan@fnal.gov>
+
+	Adapt to using EDM plug-in manager instead of SEAL plug-in manager
+
 2006-07-06  Vincenzo Innocente <vincenzo.innocente@cern.ch>
 
 	* M StorageAccount.h,.cpp:

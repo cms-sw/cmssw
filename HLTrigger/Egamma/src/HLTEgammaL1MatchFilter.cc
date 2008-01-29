@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilter
  *
- * $Id: HLTEgammaL1MatchFilter.cc,v 1.4 2007/03/07 10:44:05 monicava Exp $
+ * $Id: HLTEgammaL1MatchFilter.cc,v 1.5 2007/03/23 16:52:09 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -16,6 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"

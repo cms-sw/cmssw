@@ -11,8 +11,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
-
 
 using namespace std;
 
@@ -88,16 +86,39 @@ TECLayer::~TECLayer(){
 } 
   
 
-void
-TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
-					   const MeasurementEstimator& est,
-					   std::vector<DetGroup> & result) const {  
+vector<DetWithState> 
+TECLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
+		      const Propagator& prop, 
+		      const MeasurementEstimator& est) const{
+
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+				 const Propagator& prop,
+				 const MeasurementEstimator& est) const
+{
+  vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;
+  if(! crossings.isValid()) return closestResult;
 
-  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   LogDebug("TkDetLayers") << "in TECLayer, closestResult.size(): " << closestResult.size();
 
@@ -106,28 +127,30 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult);   
     LogDebug("TkDetLayers") << "in TECLayer, nextResult.size(): " << nextResult.size();
-    if(nextResult.empty())       return;
+    if(nextResult.empty())       return nextResult;
     
 
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
-    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					    crossings.closestIndex(), crossingSide);   
+    DetGroupMerger merger;
+    return  merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					   crossings.closestIndex(), crossingSide);   
   }  
-  else {
-    DetGroupElement closestGel( closestResult.front().front());  
-    float phiWindow = tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
-    searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
-		     closestResult, false); 
-    vector<DetGroup> nextResult;  
-    searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
-		     nextResult, true); 
-    
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
-					    crossings.closestIndex(), crossingSide);
-  }
+  
+  DetGroupElement closestGel( closestResult.front().front());  
+  float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
+  searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
+		   closestResult, false); 
+  vector<DetGroup> nextResult;  
+  searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
+		   nextResult, true); 
+  
+  int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+  DetGroupMerger merger;
+  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					crossings.closestIndex(), crossingSide);
 }
+
 
 SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& startingState,
 					     PropagationDirection propDir) const
@@ -150,7 +173,8 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
     << gFrontPoint.phi() << ")" << endl;
   
 
-  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.barePhi()); 
+  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi());
+  float frontDist = theFrontComps[frontIndex]->position().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
 
@@ -167,16 +191,16 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
     << gBackPoint.phi() << ")" << endl;
 
 
-  int backIndex = theBackBinFinder.binIndex(gBackPoint.barePhi());
+  int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
+  float backDist = theBackComps[backIndex]->position().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
-					     double(theFrontComps[frontIndex]->surface().phi())));
-  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
-					    double(theBackComps[backIndex]->surface().phi())));
-  
+  frontDist *= PhiLess()( theFrontComps[frontIndex]->position().phi(),gFrontPoint.phi()) ? -1. : 1.; 
+  backDist  *= PhiLess()( theBackComps[backIndex]->position().phi(),gBackPoint.phi()) ? -1. : 1.;
+  if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
+  if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
   if (frontDist < backDist) {
     return SubLayerCrossings( frontSLC, backSLC, 0);
@@ -231,33 +255,49 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   const BinFinderPhi& binFinder = (crossing.subLayerIndex()==0 ? theFrontBinFinder : theBackBinFinder);
 
-  typedef CompatibleDetToGroupAdder Adder;
+  CompatibleDetToGroupAdder adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
-    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
-    if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
+    const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, *neighborPetal, window)) break;
+    if (!adder.add( *neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
-    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
-    if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
+    const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, *neighborPetal, window)) break;
+    if (!adder.add( *neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
+float TECLayer::computeWindowSize( const GeomDet* det, 
+				   const TrajectoryStateOnSurface& tsos, 
+				   const MeasurementEstimator& est) const
+{
+  const BoundPlane& startPlane = det->surface();  
+  MeasurementEstimator::Local2DVector maxDistance = 
+    est.maximalLocalDisplacement( tsos, startPlane);
+  return calculatePhiWindow( maxDistance, tsos, startPlane);
+}
+
+
 bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
-  float phi = gpos.barePhi();
   const TECPetal& petal = dynamic_cast<const TECPetal&>(gsdet);
-  pair<float,float> phiRange(phi-phiWin,phi+phiWin);
-  pair<float,float> petalPhiRange(petal.surface().phi() - 0.5*petal.specificSurface().phiExtension(),
-				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
+  pair<float,float> phiRange(gpos.phi()-phiWin,gpos.phi()+phiWin);
+  pair<float,float> petalPhiRange(petal.position().phi() - petal.specificSurface().phiExtension()/2.,
+				  petal.position().phi() + petal.specificSurface().phiExtension()/2.);
 
 
-  return rangesIntersect(phiRange, petalPhiRange, PhiLess());
-}
+  if ( rangesIntersect(phiRange, petalPhiRange, PhiLess())) {
+//     edm::LogInfo(TkDetLayers) << " overlapInPhi:  Ranges intersect " ;
+    return true;
+  } else {
+//     edm::LogInfo(TkDetLayers) << "  overlapInPhi: Ranges DO NOT intersect " ;
+    return false;
+  }
+} 
 
 
 
@@ -289,3 +329,34 @@ TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
 						  theZmin-zPos, theZmax-zPos));
 }
 
+
+
+
+float 
+TECLayer::calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
+			      const TrajectoryStateOnSurface& ts, 
+			      const BoundPlane& plane) const
+{
+  vector<GlobalPoint> corners(4);
+  vector<LocalPoint> lcorners(4);
+  LocalPoint start = ts.localPosition();
+  lcorners[0] = LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y());  
+  lcorners[1] = LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y());
+  lcorners[2] = LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y());
+  lcorners[3] = LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y());
+  
+  for( int i = 0; i<4; i++) {
+    corners[i] = plane.toGlobal( lcorners[i]);
+  }
+  float phimin = corners[0].phi();
+  float phimax = phimin;
+  for ( int i = 1; i<4; i++) {
+    float cPhi = corners[i].phi();
+    if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
+    if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
+  }
+  float phiWindow = phimax - phimin;
+  if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
+
+  return phiWindow;
+}

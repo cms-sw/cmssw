@@ -8,7 +8,7 @@
 <use name=root>
 <use name=boost_filesystem>
 <use name=CalibCalorimetry/HcalAlgos>
-<flags SEAL_PLUGIN_NAME="IORawDataCaloPatterns">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=xerces-c>
   <use name=FWCore/Framework>

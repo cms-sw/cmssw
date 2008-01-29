@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/05/13 08:24:32 $
- * $Revision: 1.23 $
+ * $Date: 2007/05/24 13:20:26 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -30,6 +30,8 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/Math/interface/Point3D.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
 
@@ -228,6 +230,8 @@ void EBClusterTask::endJob(void){
 }
 
 void EBClusterTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

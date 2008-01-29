@@ -2,13 +2,13 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/Common>
-<use name=DataFormats/TrajectroySeed>
+<use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackCandidate>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/EgammaReco>
-<use name=TrackingTool/TransientTrackingRecHit>
+<use name=TrackingTools/TransientTrackingRecHit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/Records/>
+<use name=Geometry/Records>
 <use name=FastSimulation/EgammaElectronAlgos>
 <library file="*.cc" name=FastSimulationEgammaElectronAlgosPlugins>
 <flags EDM_PLUGIN=1>

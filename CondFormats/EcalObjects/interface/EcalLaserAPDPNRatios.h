@@ -3,11 +3,11 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.cc, 1.2 2007/07/10 14:12:00 Vladlen Exp $
+ * $Id: EcalLaserAPDPNRatios.h,v 1.2 2007/07/16 22:01:29 meridian Exp $
  **/
 #include <map>
 #include <boost/cstdint.hpp>
-
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 class EcalLaserAPDPNRatios {
  public:
@@ -16,8 +16,8 @@ class EcalLaserAPDPNRatios {
     float p2;
   };
   struct EcalLaserTimeStamp{
-    uint32_t t1;
-    uint32_t t2;
+    edm::Timestamp t1;
+    edm::Timestamp t2;
   };
   
   typedef std::map<uint32_t, EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;

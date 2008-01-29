@@ -46,8 +46,8 @@ class L1RCTLookupTables {
 
   float convertEcal(unsigned short ecal, int iAbsEta);
   float convertHcal(unsigned short hcal, int iAbsEta);
-  unsigned short calcActivityBit(float ecal, float hcal);
-  unsigned short calcHEBit(float ecal,float hcal, bool fgbit);
+  bool calcActivityBit(float ecal, float hcal);
+  bool calcHEBit(float ecal,float hcal, bool fgbit);
   unsigned long convertToInteger(float et, float lsb, int precision);
 
   bool useTranscoder_;

@@ -39,12 +39,12 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muone = new float[kMaxMuon];
 
   // Muon-specific branches of the tree 
-  HltTree->Branch("NobjMuon",&nmuon,"NobjMuon/I");
-  HltTree->Branch("MuonPt",muonpt,"MuonPt[NobjMuon]/F");
-  HltTree->Branch("MuonPhi",muonphi,"MuonPhi[NobjMuon]/F");
-  HltTree->Branch("MuonEta",muoneta,"MuonEta[NobjMuon]/F");
-  HltTree->Branch("MuonEt",muonet,"MuonEt[NobjMuon]/F");
-  HltTree->Branch("MuonE",muone,"MuonE[NobjMuon]/F");
+  HltTree->Branch("NrecoMuon",&nmuon,"NrecoMuon/I");
+  HltTree->Branch("recoMuonPt",muonpt,"recoMuonPt[NrecoMuon]/F");
+  HltTree->Branch("recoMuonPhi",muonphi,"recoMuonPhi[NrecoMuon]/F");
+  HltTree->Branch("recoMuonEta",muoneta,"recoMuonEta[NrecoMuon]/F");
+  HltTree->Branch("recoMuonEt",muonet,"recoMuonEt[NrecoMuon]/F");
+  HltTree->Branch("recoMuonE",muone,"recoMuonE[NrecoMuon]/F");
 
 }
 

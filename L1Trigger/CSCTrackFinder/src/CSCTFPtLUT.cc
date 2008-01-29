@@ -8,26 +8,6 @@ bool CSCTFPtLUT::lut_read_in = false;
 L1MuTriggerScales CSCTFPtLUT::trigger_scale;
 CSCTFPtMethods CSCTFPtLUT::ptMethods;
 
-///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
-CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
-	pt_method = 1;
-	lowQualityFlag = 4;
-	pt_lut = new ptdat[1<<21];
-
-	edm::ESHandle<L1MuCSCPtLut> ptLUT;
-	es.get<L1MuCSCPtLutRcd>().get(ptLUT);
-	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
-
-	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
-
-	lut_read_in = true;
-}
-///
-
 CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset)
 {
   read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
@@ -83,8 +63,8 @@ ptdat CSCTFPtLUT::Pt(const unsigned& delta_phi_12, const unsigned& delta_phi_23,
   return Pt(address);
 }
 
-ptdat CSCTFPtLUT::Pt(const unsigned& delta_phi_12, const unsigned& track_eta,
-		     const unsigned& track_mode, const unsigned& track_fr,
+ptdat CSCTFPtLUT::Pt(const unsigned& delta_phi_12, const unsigned& track_eta, 
+		     const unsigned& track_mode, const unsigned& track_fr, 
 		     const unsigned& delta_phi_sign) const
 {
   ptadd address;
@@ -134,25 +114,25 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       absPhi12 = address.delta_phi_12;
       absPhi23 = address.delta_phi_23;
 
-      if(charge) charge23 = 1;
+      if(charge) charge23 = 1;	
       else charge23 = -1;
 
       // now convert to real numbers for input into PT assignment algos.
-
+         
       if(pt_method == 1) // param method
 	{
 	  dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 	  dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 	  if(charge12 * charge23 < 0) dphi23R = -dphi23R;
-
+	  
 	  ptR_front = ptMethods.Pt3Stn(type, etaR, dphi12R, dphi23R, 1);
 	  ptR_rear  = ptMethods.Pt3Stn(type, etaR, dphi12R, dphi23R, 0);
-
+	  
 	}
       else if(pt_method == 2) // cathy's method
-	{
+	{	  
 	  if(type <= 2)
-	    {
+	    {	      
 	      ptR_front = ptMethods.Pt3StnChiSq(type+3, etaR, absPhi12<<1, ((charge == 0) ? -(absPhi23<<4) : (absPhi23<<4)), 1);
 	      ptR_rear  = ptMethods.Pt3StnChiSq(type+3, etaR, absPhi12<<1, ((charge == 0) ? -(absPhi23<<4) : (absPhi23<<4)), 0);
 	    }
@@ -161,13 +141,13 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	      ptR_front = ptMethods.Pt2StnChiSq(type-2, etaR, absPhi12<<1, 1);
 	      ptR_rear  = ptMethods.Pt2StnChiSq(type-2, etaR, absPhi12<<1, 0);
 	    }
-
+	  
 	}
       else // hybrid
 	{
-
+	  
 	  if(type <= 2)
-	    {
+	    {	      
 	      ptR_front = ptMethods.Pt3StnHybrid(type+3, etaR, absPhi12<<1, ((charge == 0) ? -(absPhi23<<4) : (absPhi23<<4)), 1);
 	      ptR_rear  = ptMethods.Pt3StnHybrid(type+3, etaR, absPhi12<<1, ((charge == 0) ? -(absPhi23<<4) : (absPhi23<<4)), 0);
 	    }
@@ -176,7 +156,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	      ptR_front = ptMethods.Pt2StnHybrid(type-2, etaR, absPhi12<<1, 1);
 	      ptR_rear  = ptMethods.Pt2StnHybrid(type-2, etaR, absPhi12<<1, 0);
 	    }
-
+	  
 	}
       break;
     case 6:
@@ -185,7 +165,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
     case 9:
     case 10:
       type = mode - 5;
-
+      
       if(charge) absPhi12 = address.delta_phi();
       else
 	{
@@ -198,13 +178,13 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  if(pt_method == 1 || type == 5)
 	    {
 	      dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-
+	      
 	      ptR_front = ptMethods.Pt2Stn(type, etaR, dphi12R, 1);
 	      ptR_rear  = ptMethods.Pt2Stn(type, etaR, dphi12R, 0);
-
+	      
 	    }
 	  else if(pt_method == 2)
-	    {
+	    {	      
 	      ptR_front = ptMethods.Pt2StnChiSq(type-1, etaR, absPhi12, 1);
 	      ptR_rear  = ptMethods.Pt2StnChiSq(type-1, etaR, absPhi12, 0);
 	    }
@@ -286,11 +266,11 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       if (front_pt < 5) front_pt = 5;
       if (rear_pt  < 5) rear_pt  = 5;
     }
-
+    
   result.front_rank = front_pt | front_quality << 5;
   result.rear_rank  = rear_pt  | rear_quality << 5;
   result.charge_valid_front = 1; //ptMethods.chargeValid(front_pt, quality, eta, pt_method);
-  result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);
+  result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);  
 
   return result;
 }
@@ -298,7 +278,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) const
 {
  // eta and mode should be only 4-bits, since that is the input to the large LUT
-    if (eta>15 || mode>15)
+    if (eta>15 || mode>15) 
       {
         std::cout << "Error: Eta or Mode out of range in AU quality assignment" << std::endl;
         return 0;
@@ -359,25 +339,25 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
       quality = 0;
       break;
     }
-
+    
     // allow quality = 1 only in overlap region or eta = 1.6 region
     //    if ((quality == 1) && (eta >= 4) && (eta != 6) && (eta != 7)) quality = 0;
     //    if ( (quality == 1) && (eta >= 4) ) quality = 0;
-
-    if ( (quality == 1) && (eta >= 4) && (eta < 11)
+    
+    if ( (quality == 1) && (eta >= 4) && (eta < 11) 
 	 && ((lowQualityFlag&4)==0) ) quality = 0;
-    if ( (quality == 1) && (eta < 4) && ((lowQualityFlag&1)==0)
+    if ( (quality == 1) && (eta < 4) && ((lowQualityFlag&1)==0) 
 	 && ((lowQualityFlag&4)==0) ) quality = 0;
-    if ( (quality == 1) && (eta >=11) && ((lowQualityFlag&2)==0)
-	 && ((lowQualityFlag&4)==0) ) quality = 0;
-
+    if ( (quality == 1) && (eta >=11) && ((lowQualityFlag&2)==0) 
+	 && ((lowQualityFlag&4)==0) ) quality = 0;    
+    
     return quality;
 }
 
 void CSCTFPtLUT::readLUT()
 {
   std::ifstream PtLUT;
-
+  
   if(isBinary)
     {
       PtLUT.open(pt_lut_file.fullPath().c_str(), std::ios::binary);
@@ -386,7 +366,7 @@ void CSCTFPtLUT::readLUT()
       if( length == (1<<CSCBitWidths::kPtAddressWidth) )
 	{
 	  PtLUT.seekg(0, std::ios::beg);
-	  PtLUT.read(reinterpret_cast<char*>(pt_lut),length);
+	  PtLUT.read(reinterpret_cast<char*>(pt_lut),length);	  
 	}
       else
 	{

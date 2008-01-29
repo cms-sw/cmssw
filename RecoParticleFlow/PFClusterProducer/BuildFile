@@ -7,7 +7,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoParticleFlow/PFClusterAlgo>
-<flags SEAL_PLUGIN_NAME="RecoParticleFlowPFClusterProducer">
+< flags EDM_PLUGIN=1 >
 <export>
    <lib name=RecoParticleFlowPFClusterProducer>
    <use name=FWCore/Framework>

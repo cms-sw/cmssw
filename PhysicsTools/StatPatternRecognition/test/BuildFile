@@ -1,6 +1,0 @@
-<environment>
-  <use name=PhysicsTools/StatPatternRecognition>
-  <bin file=exampleBootstrapVarianceEst.cc></bin>
-  <bin file=exampleCorrTest.cc></bin>
-</environment>
-

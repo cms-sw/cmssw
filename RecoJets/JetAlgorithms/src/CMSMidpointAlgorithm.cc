@@ -32,6 +32,7 @@
 //
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
@@ -43,27 +44,20 @@ using namespace JetReco;
 
 // helping stuff
 namespace {
+
   bool sameTower (InputItem c1, InputItem c2) {
     return c1 == c2;
   }
 
-  // phidif calculates the difference between phi1 and phi2 taking into account the 2pi issue.
-  double phidif(double phi1, double phi2) {
-    double dphi = phi1 - phi2;
-    while (dphi > M_PI) dphi -= 2*M_PI;
-    while (dphi <= -M_PI) dphi += 2*M_PI;
-    return fabs(dphi);
-  }
-
-  
   std::vector<InputItem> towersWithinCone(const InputCollection& fInput, double coneEta, double conePhi, double coneRadius){
     std::vector<InputItem> result;
+    double r2 = coneRadius*coneRadius;
     InputCollection::const_iterator towerIter = fInput.begin();
     InputCollection::const_iterator towerIterEnd = fInput.end();
     for (;towerIter != towerIterEnd; ++towerIter) {
       InputItem caloTowerPointer = *towerIter;
-      double dR = deltaR (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
-      if(dR < coneRadius){
+      double dR2 = deltaR2 (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
+      if(dR2 < r2){
 	result.push_back(caloTowerPointer);
       }
     }
@@ -249,8 +243,8 @@ void CMSMidpointAlgorithm::findStableConesFromMidPoints(const InputCollection& f
     const ProtoJet* cluster1 = (*stableCones)[nCluster1];
     for(unsigned int nCluster2 = 0; nCluster2 < nCluster1; ++nCluster2){         // Loop over the other proto-jets
       const ProtoJet* cluster2 = (*stableCones)[nCluster2];
-      double dR = deltaR (cluster1->y(), cluster1->phi(), cluster2->y(), cluster2->phi());
-      distanceOK[nCluster1 - 1][nCluster2] = dR < 2*theConeRadius;
+      double dR2 = deltaR2 (cluster1->y(), cluster1->phi(), cluster2->y(), cluster2->phi());
+      distanceOK[nCluster1 - 1][nCluster2] = dR2 < 4*theConeRadius*theConeRadius;
     }
   }
 
@@ -274,7 +268,7 @@ void CMSMidpointAlgorithm::findStableConesFromMidPoints(const InputCollection& f
 			  ", size=" << Pair.size() << endl;
     iterateCone(fInput, midPoint.Rapidity(),midPoint.Phi(),midPoint.e(),reduceConeSize,stableCones);
   }
-  GreaterByPt<ProtoJet> compJets;
+  GreaterByPtPtr<ProtoJet> compJets;
   sort (stableCones->begin(), stableCones->end(), compJets);
 }
 
@@ -344,7 +338,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
   while(mergingNotFinished){
     
     // Sort the stable cones (highest pt first).
-    GreaterByPt<ProtoJet> compJets;
+    GreaterByPtPtr<ProtoJet> compJets;
     sort(stableCones->begin(),stableCones->end(),compJets);
     // clean removed clusters
     stableCones->erase (find (stableCones->begin(), stableCones->end(), (ProtoJet*)0), stableCones->end()); 
@@ -476,13 +470,13 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    for(vector<InputItem>::iterator towerIter = overlapTowers.begin();
 		towerIter != overlapTowers.end();
 		++towerIter){
-	      double dRJet1 = deltaR ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(), 
+	      double dR2Jet1 = deltaR2 ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(), 
 				      stableCone1->y(), stableCone1->phi()); 
 	      // Calculate distance from proto-jet 2.
-	      double dRJet2 = deltaR ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(),
+	      double dR2Jet2 = deltaR2 ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(),
 				      stableCone2->y(), stableCone2->phi()); 
 	      
-	      if(dRJet1 < dRJet2){
+	      if(dR2Jet1 < dR2Jet2){
 		// Tower is closer to proto-jet 1. To be removed from proto-jet 2.
 		removeFromCone2.push_back(*towerIter);
 	      }

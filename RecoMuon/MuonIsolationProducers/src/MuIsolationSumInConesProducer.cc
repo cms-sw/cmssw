@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

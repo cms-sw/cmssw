@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.9 2006/10/21 16:44:13 wmtan Exp $
 //
 //
 
@@ -23,13 +23,10 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Integration/test/WhatsIt.h"
 #include "FWCore/Integration/test/GadgetRcd.h"

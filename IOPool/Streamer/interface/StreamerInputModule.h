@@ -61,7 +61,7 @@ namespace edm
     InitMsgView const* header = pr_->getHeader();
     std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header); 
     SendDescs & descs = p->descs_;
-    mergeWithRegistry(descs, productRegistryUpdate());
+    mergeWithRegistry(descs);
     // jbk - the next line should not be needed
     declareStreamers(descs);
     buildClassCache(descs);
@@ -90,7 +90,7 @@ namespace edm
     if (eview == 0) {
         return  std::auto_ptr<EventPrincipal>();
     }
-    std::auto_ptr<EventPrincipal> pEvent(deserializeEvent(*eview, productRegistry()));
+    std::auto_ptr<EventPrincipal> pEvent(deserializeEvent(*eview));
     return pEvent;
   }
 

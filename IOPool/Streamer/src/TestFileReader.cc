@@ -3,7 +3,7 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
@@ -48,7 +48,7 @@ namespace edmtestp
   {
 
    const InitMsgView* init =  stream_reader_->startMessage();
-   std::auto_ptr<edm::SendJobHeader> p = StreamDeserializer::deserializeRegistry(*init);
+   std::auto_ptr<edm::SendJobHeader> p = StreamerInputSource::deserializeRegistry(*init);
     /**
     if(!ist_)
       {

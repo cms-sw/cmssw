@@ -16,13 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.4 2007/05/16 14:36:13 chrjones Exp $
+// $Id: Handle.h,v 1.5 2007/06/18 16:21:57 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 //CINT can't handle parsing these files
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/FWLite/interface/Event.h"

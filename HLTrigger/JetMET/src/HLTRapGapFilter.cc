@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.1 2007/07/17 19:28:07 apana Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.4 2007/08/05 22:57:19 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,7 +65,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int countjets =0;
 
     for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
+	 recocalojet!=(recocalojets->end()); recocalojet++) {
       
       etjet = recocalojet->energy();
       etajet = recocalojet->eta();
@@ -83,7 +83,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(sumets<=caloThresh_){
       //std::cout << "Passed filter!" << std::endl;
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
+	   recocalojet!=(recocalojets->end()); recocalojet++) {
 	ref=edm::RefToBase<reco::Candidate>(reco::CaloJetRef(recocalojets,
 							     distance(recocalojets->begin(),recocalojet)));
 	filterproduct->putParticle(ref);
@@ -96,7 +96,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   // filter decision
-  bool accept(n>=0);
+  bool accept(n>0);
   
   // put filter object into the Event
   iEvent.put(filterproduct);

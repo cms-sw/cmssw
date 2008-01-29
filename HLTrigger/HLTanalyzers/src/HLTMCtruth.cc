@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 HLTMCtruth::HLTMCtruth() {
 
@@ -31,45 +32,76 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   }
 
   const int kMaxMcTruth = 10000;
-  mcpid = new float[kMaxMcTruth];
+  mcpid = new int[kMaxMcTruth];
   mcvx = new float[kMaxMcTruth];
   mcvy = new float[kMaxMcTruth];
   mcvz = new float[kMaxMcTruth];
   mcpt = new float[kMaxMcTruth];
+  mceta = new float[kMaxMcTruth];
+  mcphi = new float[kMaxMcTruth];
 
   // MCtruth-specific branches of the tree 
-  HltTree->Branch("NobjMCPart",&nmcpart,"NobjMCPart/I");
-  HltTree->Branch("MCPid",mcpid,"MCPid[NobjMCPart]/I");
-  HltTree->Branch("MCVtxX",mcvx,"MCVtxX[NobjMCPart]/F");
-  HltTree->Branch("MCVtxY",mcvy,"MCVtxY[NobjMCPart]/F");
-  HltTree->Branch("MCVtxZ",mcvz,"MCVtxZ[NobjMCPart]/F");
-  HltTree->Branch("MCPt",mcpt,"MCPt[NobjMCPart]/F");
+  HltTree->Branch("NMCpart",&nmcpart,"NMCpart/I");
+  HltTree->Branch("MCpid",mcpid,"MCpid[NMCpart]/I");
+  HltTree->Branch("MCvtxX",mcvx,"MCvtxX[NMCpart]/F");
+  HltTree->Branch("MCvtxY",mcvy,"MCvtxY[NMCpart]/F");
+  HltTree->Branch("MCvtxZ",mcvz,"MCvtxZ[NMCpart]/F");
+  HltTree->Branch("MCpt",mcpt,"MCpt[NMCpart]/F");
+  HltTree->Branch("MCeta",mceta,"MCeta[NMCpart]/F");
+  HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
+  HltTree->Branch("MCPtHat",&pthat,"MCPtHat/F");
+  HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
+  HltTree->Branch("MCel1",&nel1,"MCel1/I");
+  HltTree->Branch("MCbb",&nbb,"MCbb/I");
+  HltTree->Branch("MCab",&nab,"MCab/I");
 
 }
 
 /* **Analyze the event** */
-void HLTMCtruth::analyze(const HepMC::GenEvent mctruth,
+void HLTMCtruth::analyze(const CandidateCollection& mctruth,
+			 const HepMC::GenEvent hepmc,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
 
   if (_Monte) {
     int nmc = 0;
-    if (&mctruth){
-      for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
-	   partIter != mctruth.particles_end();++partIter) {
-	HepMC::ThreeVector creation = (*partIter)->production_vertex()->point3d();
-	HepMC::FourVector  momentum = (*partIter)->momentum();
-	mcpid[nmc] = (*partIter)->pdg_id(); // electrons and positrons are 11 and -11                                     
-	mcvx[nmc] = creation.x();  
-	mcvy[nmc] = creation.y();
-	mcvz[nmc] = creation.z();
-	mcpt[nmc] = momentum.perp();
+    int mu3 = 0;
+    int el1 = 0;
+    int mab = 0;
+    int mbb = 0;
+
+    if (&hepmc){
+      pthat = hepmc.event_scale(); // Pt-hat of the event
+    }
+
+     if (&mctruth){
+
+      for (size_t i = 0; i < mctruth.size(); ++ i) {
+	const Candidate & p = (mctruth)[i];
+	mcpid[nmc] = p.pdgId();
+	mcpt[nmc] = p.pt();
+	mceta[nmc] = p.eta();
+	mcphi[nmc] = p.phi();
+// 	= p.mass();
+	mcvx[nmc] = p.vx();
+	mcvy[nmc] = p.vy();
+	mcvz[nmc] = p.vz();
+	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
+	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>1.)) {el1 += 1;} // Flag for electrons with pT > 1 GeV/c
+	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
+	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b
 	nmc++;
       }
+
     }
     else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
+
     nmcpart = nmc;
+    nmu3 = mu3;
+    nel1 = el1;
+    nbb = mbb;
+    nab = mab;
 
   }
 

@@ -17,7 +17,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

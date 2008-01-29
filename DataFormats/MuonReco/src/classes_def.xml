@@ -40,5 +40,21 @@
   <class name="muonisolation::Direction::Distance"/>
   <class name="reco::MuIsoDeposit::Veto"/>
   <class name="std::multimap<muonisolation::Direction::Distance,float>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::MuonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::MuonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::MuonRefVector>" />
+ 
+  <class name="reco::CandIsoDepositAssociationVector">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<reco::CandIsoDepositAssociationVector>" />
+  <class name="reco::CandIsoDepositAssociationPair" /> 
+  <class name="std::vector<reco::CandIsoDepositAssociationPair>" /> 
+
+  <class name="reco::IsoDepositMap"/>
+  <class name="edm::Wrapper<reco::IsoDepositMap>"/>
+
 </lcgdict>
 

@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.33 2007/03/20 14:19:53 namapane Exp $
+ * \version $Id: Track.h,v 1.34 2007/07/16 10:31:11 gpetrucc Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"

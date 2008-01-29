@@ -17,6 +17,7 @@
 
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include <TRandom3.h>
 
 #include <iostream>
 
@@ -33,10 +34,18 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
   }
-  random = new RandomEngine(&(*rng));
+
+  bool useTRandom = p.getParameter<bool>("UseTRandomEngine");
+  if ( !useTRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
 
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
-  edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ecal_notCont_sim"); 
+  edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ContFact"); 
 
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
   EErechitCollection_ = RecHitsParameters.getParameter<std::string>("EErechitCollection");
@@ -74,10 +83,17 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
   std::cout << " Destructor CaloRecHitsProducer " << std::endl;
+
   if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
   if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
   if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
   if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
+
+  if ( random ) { 
+    if ( random->theRootEngine() ) delete random->theRootEngine();
+    delete random;
+  }
+
   std::cout << " Done " << std::endl;
 }
 

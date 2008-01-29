@@ -12,7 +12,7 @@ public:
    *  \class DeterministicAnnealing.
    *  A very simple class that returns the association probabilty of a (any)
    *  chi2 value, given a cutoff. Default schedule is 256 64 16 4 2 1
-   *  Note that cutoff is given as a sqrt ( chi2 )!!
+   *  Note that cutoff is given "sigma-like", i.e. as a sqrt ( chi2 )!!
    */
 
   DeterministicAnnealing( float cutoff = 3.0 );
@@ -55,7 +55,7 @@ public:
 
 private:
   unsigned int theIndex;
-  double theCutoff;
+  double theChi2cut;
   bool theIsAnnealed;
 };
 
