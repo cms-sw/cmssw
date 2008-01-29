@@ -39,6 +39,7 @@ bool  cond::IOVIteratorImpl::atEnd() const {
 bool cond::IOVIteratorImpl::next(){
   if(!m_isOpen){
     init();
+    return !empty();
   }
   if (atEnd() ) return false;
 
