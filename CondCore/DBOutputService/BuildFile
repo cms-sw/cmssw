@@ -3,6 +3,7 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/MetaDataService>
 <use name=CondCore/IOVService>
+<use name=boost>
 <export>	
  <lib name=CondCoreDBOutputService>
  <use name=FWCore/Framework>
