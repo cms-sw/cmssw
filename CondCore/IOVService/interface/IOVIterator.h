@@ -7,8 +7,12 @@ namespace cond{
   public:
     virtual ~IOVIterator(){}
     virtual bool next()=0;
+    virtual bool empty() const=0;
+    virtual size_t size() const=0;
+    virtual size_t remaining() const=0;
+    virtual bool atEnd() const;
     virtual std::string payloadToken() const=0;   
-    virtual std::pair<cond::Time_t, cond::Time_t> validity() const=0;
+    virtual cond::ValidityInterval validity() const=0;
   protected:
     IOVIterator(){}
   };
