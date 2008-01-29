@@ -67,7 +67,7 @@ cond::IOVIteratorImpl::validity() const{
   cond::Time_t till=m_globalTill;
   if (!atEnd()) {
     since = m_since;
-    till =  m_globalSince + m_pos->first;
+    till =  m_pos->first;
   }
   return cond::ValidityInterval(since,till);
 }
