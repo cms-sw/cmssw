@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.11 2008/01/28 10:45:14 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.12 2008/01/28 14:04:13 chrjones Exp $
 //
 
 // system include files
@@ -120,7 +120,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager():
 // member functions
 //
 void 
-FWRhoPhiZViewManager::newEventAvailable()
+FWRhoPhiZViewManager::rerunBuilders()
 {
   using namespace std;
   if(0==gEve) {
@@ -179,58 +179,6 @@ FWRhoPhiZViewManager::setupGeometry()
       makeMuonGeometryRhoZAdvance();
    }
 
-/*   
-   if ( ! m_geom ) {
-      TFile f("tracker.root");
-      if(not f.IsOpen()) {
-         std::cerr <<"failed to open 'tracker.root'"<<std::endl;
-         throw std::runtime_error("Failed to open 'tracker.root' geometry file");
-      }
-      TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
-      TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
-      f.Close();
-      m_geom = gsre;
-      set_color(m_geom,kGray+3,1.,10);
-      
-      hide_tracker_endcap(m_geom);
-      m_rhoPhiProjMgr->ImportElements(m_geom);
-      
-      // muon system
-      if ( detIdToGeo() ) {
-         TEveGeoShapeExtract* container = new TEveGeoShapeExtract( "MuonRhoPhi" );
-         // rho-phi view
-         for ( Int_t i=0; i<1000; ++i) {
-            TEveGeoShapeExtract* extract = detIdToGeo()->getExtract(574980096+(i << 18));
-            if ( extract ) container->AddElement( extract );
-         }
-         m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
-      }
-      
-      show_tracker_endcap(m_geom);
-      m_rhoZProjMgr->ImportElements(m_geom);
-      
-      for ( std::list<TEveElement*>::iterator element = m_rhoPhiProjMgr->BeginChildren();
-           element != m_rhoPhiProjMgr->EndChildren(); ++element )
-      {
-         (*element)->IncDenyDestroy();
-         // set colors
-         if ( TEvePolygonSetProjected* set = dynamic_cast<TEvePolygonSetProjected*>(*element) )
-            if ( strcmp(set->GetName(),"NLT MuonRhoPhi") == 0)
-               for ( std::list<TEveElement*>::iterator chamber = set->BeginChildren();
-                    chamber != set->EndChildren(); ++chamber )
-                  (*chamber)->SetMainTransparency(90);
-         
-         m_rhoPhiGeom.push_back( *element );
-      }
-      
-      for ( std::list<TEveElement*>::iterator element = m_rhoZProjMgr->BeginChildren();
-           element != m_rhoZProjMgr->EndChildren(); ++element )
-      {
-         (*element)->IncDenyDestroy();
-         m_rhoZGeom.push_back( *element );
-      }
-   }
-  */ 
 }
 
 void FWRhoPhiZViewManager::addElements()
@@ -321,7 +269,7 @@ void
 FWRhoPhiZViewManager::modelChangesDone()
 {
    if(m_itemChanged) {
-      newEventAvailable();
+      rerunBuilders();
    }
    m_itemChanged=false;
    gEve->EnableRedraw();

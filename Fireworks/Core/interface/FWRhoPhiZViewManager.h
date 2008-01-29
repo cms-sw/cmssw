@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.6 2008/01/28 10:45:04 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.7 2008/01/28 14:04:12 chrjones Exp $
 //
 
 // system include files
@@ -107,7 +107,6 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void newEventAvailable();
 
       virtual void newItem(const FWEventItem*);
 
@@ -125,6 +124,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       void itemChanged(const FWEventItem*);
       void addElements();
+      void rerunBuilders();
    
       void setupGeometry();
       void makeMuonGeometryRhoPhi();
