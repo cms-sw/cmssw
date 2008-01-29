@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTPG.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/28 22:11:20 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
 */
@@ -62,6 +62,9 @@ L1TRPCTPG(const edm::ParameterSet& ps);
 // Destructor
 virtual ~L1TRPCTPG();
 
+// Booking of MonitoringElemnt for one RPCDetId (= roll)
+std::map<std::string, MonitorElement*> L1TRPCBookME(RPCDetId & detId);
+
 protected:
 // Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -78,6 +81,7 @@ private:
 
   MonitorElement* rpctpgndigi[3];
   MonitorElement* rpctpgbx;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

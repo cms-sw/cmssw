@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2008/01/28 22:11:21 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/29 19:17:34 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -115,6 +115,9 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
     edm::LogInfo("L1TRPCTPG") << "can't find RPCGeometry" << endl;
     return;
   }
+  char layerLabel[328];
+  char meId [328];
+ 
 
   /// DIGI     
   edm::Handle<RPCDigiCollection> rpcdigis;
@@ -142,10 +145,22 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   RPCDigiCollection::DigiRangeIterator collectionItr;
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
-        RPCDetId detId=(*collectionItr ).first; 
-	//        cout << "detId "<< detId << endl;
+    RPCDetId detId=(*collectionItr ).first; 
 
-      std::vector<int> strips;
+    uint32_t id=detId();
+    char detUnitLabel[328];
+    RPCGeomServ RPCname(detId);
+    std::string nameRoll = RPCname.name();
+    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+    sprintf(layerLabel ,"%s",nameRoll.c_str());
+    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = rpctpgmeCollection.find(id);
+    if (meItr == rpctpgmeCollection.end() || (rpctpgmeCollection.size()==0)) {
+      rpctpgmeCollection[id]=L1TRPCBookME(detId);
+    }
+    std::map<std::string, MonitorElement*> meMap=rpctpgmeCollection[id];
+    
+
+     std::vector<int> strips;
      std::vector<int> bxs;
      strips.clear(); 
      bxs.clear();
@@ -164,12 +179,20 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
        }
        if (bx == 0) 
        { 
+        sprintf(meId,"Occupancy_%s",detUnitLabel);
+	meMap[meId]->Fill(strip);
         numberofDigi[1]++;
        }
        if (bx == 2) 
        {
         numberofDigi[2]++;
-       }      
+       }
+       
+       sprintf(meId,"BXN_%s",detUnitLabel);
+       meMap[meId]->Fill(bx);
+       sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
+       meMap[meId]->Fill(strip,bx);
+      
      }
   }
 
