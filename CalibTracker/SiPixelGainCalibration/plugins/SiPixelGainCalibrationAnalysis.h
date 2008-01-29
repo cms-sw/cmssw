@@ -5,15 +5,15 @@
 // 
 /**\class SiPixelGainCalibrationAnalysis SiPixelGainCalibrationAnalysis.h CalibTracker/SiPixelGainCalibrationAnalysis/interface/SiPixelGainCalibrationAnalysis.h
 
- Description: <one line class summary>
+Description: <one line class summary>
 
- Implementation:
-     <Notes on implementation>
+Implementation:
+<Notes on implementation>
 */
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.5 2008/01/23 20:21:05 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.6 2008/01/29 18:10:15 fblekman Exp $
 //
 //
 
@@ -38,31 +38,31 @@
 //
 
 class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
-   public:
+public:
   explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig);
   ~SiPixelGainCalibrationAnalysis();
 
   void doSetup(const edm::ParameterSet&);
-      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
+  virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
 
   virtual bool checkCorrectCalibrationType();
 
-   private:
+private:
       
-      virtual void calibrationSetup(const edm::EventSetup& iSetup);
+  virtual void calibrationSetup(const edm::EventSetup& iSetup);
       
-      virtual void calibrationEnd();
-      virtual void newDetID(uint32_t detid);
-      void fillDatabase();
+  virtual void calibrationEnd();
+  virtual void newDetID(uint32_t detid);
+  void fillDatabase();
+  void printSummary();
   std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);
-      // ----------member data --------------------------- 
+  // ----------member data --------------------------- 
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_;
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_pixels_;
 
   // fitter
-  TLinearFitter *fitter_;
   int nfitparameters_;
   std::string fitfunction_;
 
@@ -72,6 +72,7 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
   bool reject_single_entries_;
   double reject_badpoints_frac_;
   double chi2Threshold_;
+  double chi2ProbThreshold_;
   double maxGainInHist_;
   double maxChi2InHist_;
   bool saveALLHistograms_;

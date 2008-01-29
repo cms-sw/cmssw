@@ -5,15 +5,15 @@
 // 
 /**\class SiPixelGainCalibrationAnalysis SiPixelGainCalibrationAnalysis.cc CalibTracker/SiPixelGainCalibrationAnalysis/src/SiPixelGainCalibrationAnalysis.cc
 
- Description: <one line class summary>
+Description: <one line class summary>
 
- Implementation:
-     <Notes on implementation>
+Implementation:
+<Notes on implementation>
 */
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.6 2008/01/23 20:21:03 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.7 2008/01/29 18:10:05 fblekman Exp $
 //
 //
 
@@ -31,11 +31,12 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   bookkeeper_(),
   bookkeeper_pixels_(),
   nfitparameters_(iConfig.getUntrackedParameter<int>("numberOfFitParameters",2)),
-  fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","[1]*(x+[0])")),
+  fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","pol1")),//"[1]*(x+[0])")),
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
-  chi2Threshold_(iConfig.getUntrackedParameter<double>("minChi2forHistSave",10)),
+  chi2Threshold_(iConfig.getUntrackedParameter<double>("minChi2NDFforHistSave",10)),
+  chi2ProbThreshold_(iConfig.getUntrackedParameter<double>("minChi2ProbforHistSave",0.05)),
   maxGainInHist_(iConfig.getUntrackedParameter<double>("maxGainInHist",10)),
   maxChi2InHist_(iConfig.getUntrackedParameter<double>("maxChi2InHist",25)),
   saveALLHistograms_(iConfig.getUntrackedParameter<bool>("saveAllHistograms",false)),
@@ -47,13 +48,11 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
 {
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
-  fitter_=new TLinearFitter(nfitparameters_,fitfunction_.c_str());
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now using fit function " << fitfunction_ << ", which has " << nfitparameters_ << " free parameters. " << std::endl;
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
 {
-  delete fitter_;
 }
 // member functions
 //
@@ -93,12 +92,10 @@ SiPixelGainCalibrationAnalysis::checkCorrectCalibrationType()
 void SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup&)
 {
 }
+//------- summary printing method. Very verbose.
+void
+SiPixelGainCalibrationAnalysis::printSummary(){
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiPixelGainCalibrationAnalysis::calibrationEnd() {
-
-  // this is where we loop over all histograms and save the database objects
   uint32_t detid=0;
   for(std::map<uint32_t,std::map<std::string,MonitorElement *> >::const_iterator idet = bookkeeper_.begin(); idet != bookkeeper_.end(); ++idet){
     if(detid==idet->first)
@@ -119,7 +116,19 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
     for(std::map<std::string, MonitorElement *>::const_iterator ipix = bookkeeper_pixels_[detid].begin(); ipix!=bookkeeper_pixels_[detid].end(); ++ipix)
       summarytext << "\t " << ipix->first << "\n";
     edm::LogInfo("SiPixelGainCalibrationAnalysis") << summarytext.str() << std::endl;
+
   }
+
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+
+void 
+SiPixelGainCalibrationAnalysis::calibrationEnd() {
+
+  //  printSummary();
+  
+  // this is where we loop over all histograms and save the database objects
   if(filldb_)
     fillDatabase();
 }
@@ -174,91 +183,95 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
 bool
 SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)
 {
-
+  bool makehistopersistent = saveALLHistograms_;
   // first, fill the input arrays to the TLinearFitter.
-  double xvals[100];
-  double yvals[100];
-  double yerrvals[100];
-  double xvalsall[200];
-  float  xvalsasfloatsforDQM[200];
+  double xvals[201];
+  double yvals[200];
+  double yerrvals[200];
+  double xvalsall[201];
+  float  xvalsasfloatsforDQM[201];
   double yvalsall[200];
   double yerrvalsall[200];
   int npoints=0;
-  float maxrange = 255.*(1-reject_badpoints_frac_);
-  float lastpointval = ipix->getsum(ipix->getnpoints()-1);
-  if(ipix->getnentries(ipix->getnpoints()-1)>0)
-    lastpointval/=(float)ipix->getnentries(ipix->getnpoints()-1);
-  if(lastpointval>100 && reject_plateaupoints_)
-    maxrange = (1-reject_badpoints_frac_)*lastpointval;
-
-
-  // now do the loop...
-  for(uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint){
-    //    float minrange = 255.*reject_badpoints_frac_;
-    if(ipoint>200)
-      continue;
-
-    xvalsasfloatsforDQM[ipoint]=xvalsall[ipoint]=vCalValues_[ipoint];
-    yerrvalsall[ipoint]=yvalsall[ipoint]=0;
-    if(ipix->getnentries(ipoint)>0){
-      yvalsall[ipoint]=ipix->getsum(ipoint)/(float)ipix->getnentries(ipoint);
-      yerrvalsall[ipoint]=(ipix->getsumsquares(ipoint)/(float)ipix->getnentries(ipoint))-pow(yvalsall[ipoint],2);
-      yerrvalsall[ipoint]=sqrt(yerrvalsall[ipoint]);
+  int nallpoints=0;
+  bool use_point=true;
+  for(uint32_t ii=0; ii< ipix->getnpoints() && ii<200; ii++){
+    nallpoints++;
+    use_point=true;
+    xvalsasfloatsforDQM[ii]=xvalsall[ii]=vCalValues_[ii];
+    yerrvalsall[ii]=yvalsall[ii]=0;
+    if(ipix->getnentries(ii)>0){
+      yvalsall[ii]=ipix->getsum(ii)/(float)ipix->getnentries(ii);
+      yerrvalsall[ii]=ipix->getsumsquares(ii)/(float)ipix->getnentries(ii);
+      yerrvalsall[ii]-=pow(yvalsall[ii],2);
+      yerrvalsall[ii]=sqrt(yerrvalsall[ii]);
     }
-    
-    if(yvalsall[ipoint]<maxrange && reject_badpoints_ && npoints<100){
-      if(ipix->getnentries(ipoint)>1 || !reject_single_entries_){
-	xvals[npoints]=xvalsall[ipoint];
-	yvals[npoints]=yvalsall[ipoint];
-	yerrvals[npoints]=yerrvalsall[ipoint];
-	//std::cout << xvals[npoints] << " "<< yvals[npoints] << " " << yerrvals[npoints] << std::endl;
-	npoints++;
-      }
+  }
+  
+  // calculate plateau value from last 3 full entries
+  double plateauval=0;
+  for(int ii=nallpoints-1; ii>=0 && npoints<3; --ii){
+    if(yvalsall[ii]>0 && yerrvalsall[ii]>0){
+      plateauval+=yvalsall[ii];
+      npoints++;
     }
+  }
+  plateauval/=npoints;
+  double maxgoodvalinfit=plateauval*(1.-reject_badpoints_frac_);
+  if(maxgoodvalinfit<1)
+    maxgoodvalinfit=255*(1.-reject_badpoints_frac_);
+  npoints=0;
+  for(int ii=0; ii<nallpoints; ++ii){
+    // now selecting the appropriate points for the fit.
+    use_point=true;
+    if(ipix->getnentries(ii)<=1 && reject_single_entries_)
+      use_point=false;
+    if(ipix->getnentries(ii)==0 && reject_badpoints_)
+      use_point=false;
+    if(yvalsall[ii]>maxgoodvalinfit)
+      use_point=false;
     
+    if(use_point){
+      xvals[npoints]=xvalsall[ii];
+      yvals[npoints]=yvalsall[ii];
+      yerrvals[npoints]=yerrvalsall[ii];
+      npoints++;
+    }
   }
-  bool makehistopersistent=saveALLHistograms_;
-  if(npoints>2)
-    fitter_->AssignData(npoints,2,xvals,yvals,yerrvals);
-  else{
-    int nallpoints = ipix->getnpoints();
-    if(nallpoints>200)
-      nallpoints=200;
-    fitter_->AssignData(nallpoints,2,xvalsall,yvalsall,yerrvalsall);
-    makehistopersistent=true;
-  }
-
-
-  // and do the fit:
-  int result = fitter_->Eval();
+  int result=1;
   float chi2,slope,intercept,prob;
   prob=chi2=-1;
   slope=intercept=0;
-  if(result==1)
-    makehistopersistent=true;
-  if(result==0){
-    slope = fitter_->GetParameter(1);
-    intercept = fitter_->GetParameter(0);
-    chi2 = fitter_->GetChisquare()/fitter_->GetNumberFreeParameters();
-    prob = TMath::Prob(fitter_->GetChisquare(),fitter_->GetNumberFreeParameters());
-      
+  if(npoints>=2){
+    TLinearFitter fitter(nfitparameters_,fitfunction_.c_str());
+    fitter.AssignData(npoints,1,xvals,yvals,yerrvals);
+    
+    // and do the fit:
+    result = fitter.Eval();
+    
+    slope = fitter.GetParameter(1);
+    intercept = fitter.GetParameter(0);
+    chi2 = fitter.GetChisquare()/fitter.GetNumberFreeParameters();
+    prob = TMath::Prob(fitter.GetChisquare(),fitter.GetNumberFreeParameters());
     if(slope<0)
       makehistopersistent=true;
-    if(chi2>chi2Threshold_ && chi2Threshold_>=0.)
+    if(chi2>chi2Threshold_ && chi2Threshold_>=0)
       makehistopersistent=true;
-    if(chi2Threshold_==0.)
+    if(prob<chi2ProbThreshold_)
+      makehistopersistent=true;
+    if(result==1)
       makehistopersistent=true;
 
-    //    std::cout << "fit successful! gain " << slope << " intercept " << intercept << " prob " << prob << std::endl;
-    bookkeeper_[detid]["gain_1d"]->Fill(slope);
-    bookkeeper_[detid]["gain_2d"]->Fill(ipix->col(),ipix->row(),slope);
-    bookkeeper_[detid]["ped_1d"]->Fill(intercept);
-    bookkeeper_[detid]["ped_2d"]->Fill(ipix->col(),ipix->row(),intercept);
-    bookkeeper_[detid]["chi2_1d"]->Fill(chi2);
-    bookkeeper_[detid]["chi2_2d"]->Fill(ipix->col(),ipix->row(),chi2);
-    bookkeeper_[detid]["prob_1d"]->Fill(prob);
-    bookkeeper_[detid]["prob_2d"]->Fill(ipix->col(),ipix->row(),prob);
-    //  std::cout << "leaving doFits" << std::endl;
+    if(result==0){
+      bookkeeper_[detid]["gain_1d"]->Fill(slope);
+      bookkeeper_[detid]["gain_2d"]->Fill(ipix->col(),ipix->row(),slope);
+      bookkeeper_[detid]["ped_1d"]->Fill(intercept);
+      bookkeeper_[detid]["ped_2d"]->Fill(ipix->col(),ipix->row(),intercept);
+      bookkeeper_[detid]["chi2_1d"]->Fill(chi2);
+      bookkeeper_[detid]["chi2_2d"]->Fill(ipix->col(),ipix->row(),chi2);
+      bookkeeper_[detid]["prob_1d"]->Fill(prob);
+      bookkeeper_[detid]["prob_2d"]->Fill(ipix->col(),ipix->row(),prob);
+    }
   }
   if(makehistopersistent){
     setDQMDirectory(detid);
@@ -267,18 +280,18 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     std::string tempname=translateDetIdToString(detid);
     tempname+="_";
     tempname+=pixelinfo.str();
-     // and book the histo
-    int nallpoints = ipix->getnpoints();
-    if(nallpoints>200)
-      nallpoints=200;
-    bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(pixelinfo.str(),tempname,nallpoints-1,xvalsasfloatsforDQM);
+    // and book the histo
+    // fill the last value of the vcal array...
+    xvalsasfloatsforDQM[nallpoints]=256;
+    if(nallpoints>2)
+      xvalsasfloatsforDQM[nallpoints]=2*xvalsasfloatsforDQM[nallpoints-1]-xvalsasfloatsforDQM[nallpoints-2];
+    bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(pixelinfo.str(),tempname,nallpoints,xvalsasfloatsforDQM);
+    edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now saving histogram for pixel " << tempname << ", gain = " << slope << ", pedestal = " << intercept << ", chi2/NDF=" << chi2 << "(prob:" << prob << "), fit status " << result;
     for(int ii=0; ii<nallpoints; ++ii){
-      std::cout << "value for point " << ii << " " << xvalsall[ii] << " " << yvalsall[ii] << " " << yerrvalsall[ii] << std::endl;
       bookkeeper_pixels_[detid][pixelinfo.str()]->setBinContent(ii+1,yvalsall[ii]);
       bookkeeper_pixels_[detid][pixelinfo.str()]->setBinError(ii+1,yerrvalsall[ii]);
     }
-  }
-  //  edm::LogInfo("SiPixelGainCalibrationAnalysis") << "looking at Det ID " << detid << " "<< translateDetIdToString(detid) << ", pixel " << ipix->row() << " , " << ipix->col() << " gain= " << slope << ", pedestal= " << intercept << " chi2/NDOF= " << chi2 << " fit result value " << result << std::endl;
+  } 
   return true;
 }
 // ------------ method called to do fill new detids  ------------
@@ -287,7 +300,6 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
 {
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  //std::cout << "creating new histograms..."<< tempname << std::endl;
   bookkeeper_[detid]["gain_1d"] = bookDQMHistogram1D("gain_1d","gain for "+tempname,100,0.,maxGainInHist_);
   bookkeeper_[detid]["gain_2d"] = bookDQMHistoPlaquetteSummary2D("gain_2d","gain for "+tempname,detid);
   bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D("pedestal_1d","pedestal for "+tempname,256,0.,256.);
@@ -297,7 +309,6 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
   bookkeeper_[detid]["prob_1d"] = bookDQMHistogram1D("prob_1d","P(#chi^{2},NDOF) for "+tempname,100,0.,1.0);
   bookkeeper_[detid]["prob_2d"] = bookDQMHistoPlaquetteSummary2D("prob_2d","P(#chi^{2},NDOF) for "+tempname,detid);
 
-  //std::cout << "leaving new detid" << std::endl;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelGainCalibrationAnalysis);
