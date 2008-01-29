@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.2 2006/10/25 17:43:23 wdd Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.3 2007/02/15 22:38:06 wdd Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -63,8 +63,8 @@ namespace edm {
       void postBeginJob();
       void postEndJob();
 
-      void preEventProcessing(const edm::EventID& id, const edm::Timestamp& time);
-      void postEventProcessing(const Event& event, const EventSetup& eventSetup);
+      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
+      void postEventProcessing(const Event&, const EventSetup&);
 
       void preModule(const ModuleDescription& iDesc);
       void postModule(const ModuleDescription& iDesc);
@@ -87,9 +87,9 @@ namespace edm {
 
     private:
 
-      RandomNumberGeneratorService(const RandomNumberGeneratorService&); // stop default
+      RandomNumberGeneratorService(const RandomNumberGeneratorService&); // disallow default
       
-      const RandomNumberGeneratorService& operator=(const RandomNumberGeneratorService&); // stop default
+      const RandomNumberGeneratorService& operator=(const RandomNumberGeneratorService&); // disallow default
       
       // These two functions are called internally to keep track
       // of which module is currently active
@@ -100,6 +100,18 @@ namespace edm {
       void checkEngineType(const std::string& typeFromConfig,
                            const std::string& typeFromEvent,
                            const std::string& engineLabel);
+
+      void dumpVector(const std::vector<uint32_t> &v);
+
+      void stashVector(const std::vector<unsigned long> &v, std::ostream &os);
+
+      std::vector<unsigned long> restoreVector(std::istream &is, const int32_t n);
+
+      void saveEngineState();
+
+      void restoreEngineState();
+
+      bool processStanza(std::istream &is);
 
       // ---------- member data --------------------------------
 
@@ -134,6 +146,16 @@ namespace edm {
       // Keeps track of the seeds used to initialize the engines.
       // Also uses the module label as a key
       std::map<std::string, std::vector<uint32_t> > seedMap_;
+
+      // Keep the name of the file where we want to save the state
+      // of all declared engines at the end of each event. A
+      // blank name means don't bother.
+      std::string saveFileName_;
+
+      // Keep the name of the file from which we restore the state
+      // of all declared engines at the befinnig of a run. A
+      // blank name means there isn't one.
+      std::string restoreFileName_;
     };
   }
 }

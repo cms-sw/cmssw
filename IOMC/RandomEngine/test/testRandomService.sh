@@ -14,6 +14,10 @@ pushd ${LOCAL_TMP_DIR}
   mv ${test}.txt ${test}2.txt 
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/${test}2.txt ${LOCAL_TMP_DIR}/${test}2.txt || die "comparing ${test}2.txt" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}3.cfg || die "cmsRun ${test}3.cfg" $?
+  mv ${test}.txt ${test}3.txt 
+  diff ${LOCAL_TEST_DIR}/unit_test_outputs/${test}3.txt ${LOCAL_TMP_DIR}/${test}3.txt || die "comparing ${test}3.txt" $?
+
 popd
 
 exit 0

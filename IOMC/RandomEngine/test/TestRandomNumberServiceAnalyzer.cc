@@ -13,7 +13,7 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.1 2006/10/26 21:34:08 wdd Exp $
+// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.2 2007/02/15 22:38:07 wdd Exp $
 //
 //
 
@@ -35,6 +35,8 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandExponential.h"
 
+//#define DUMP_CONSTRUCTOR
+//#define DUMP_ANALYZER
 
 class TestRandomNumberServiceAnalyzer : public edm::EDAnalyzer {
   public:
@@ -77,7 +79,9 @@ TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(const edm::Para
 
   outFile << "*** TestRandomNumberServiceAnalyzer constructor\n";
 
-  // rng->print();
+#ifdef DUMP_CONSTRUCTOR
+  rng->print();
+#endif
 
   outFile << rng->mySeed() << "\n";
 
@@ -110,7 +114,10 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   // This is useful for debugging but normally leave it
   // commented out because it sends lots of output to std::cout
   // It prints out the internal state of the service
-  // rng->print();
+
+#ifdef DUMP_ANALYZER
+  rng->print();
+#endif
 
   // The first random seed
   outFile << rng->mySeed() << "\n";

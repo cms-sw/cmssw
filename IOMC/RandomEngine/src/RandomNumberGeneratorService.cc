@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.7 2007/12/20 20:29:01 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.8 2008/01/05 17:03:56 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
 
 #include <iostream>
+#include <fstream>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -22,6 +23,9 @@
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
 #include "CLHEP/Random/engineIDulong.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include "FWCore/Utilities/interface/TRandomAdaptor.h"
 
 using namespace edm::service;
 
@@ -33,10 +37,19 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // try to restore the random engines to the state stored in the input event.
   // Otherwise, the configuration file should set this to the module label used
   // in the previous process to store the random engine state
-  restoreStateLabel_(iPSet.getUntrackedParameter<std::string>("restoreStateLabel", std::string()))
+  restoreStateLabel_(iPSet.getUntrackedParameter<std::string>("restoreStateLabel", std::string())),
+  saveFileName_(std::string()),
+  restoreFileName_(std::string())
 {
+
   std::string labels;
   std::vector<uint32_t> seeds;
+
+  // Record the name of the file to use to store engine state at the end of each event.
+  // Again, a blank name means don't bother.
+  saveFileName_    = iPSet.getUntrackedParameter<std::string>("saveFileName",   std::string());
+  restoreFileName_ = iPSet.getUntrackedParameter<std::string>("restoreFileName",std::string());
+
 
   // Now get the seeds from the configuration file.  The seeds are used to initialize the
   // random number engines.  Each is associated with either the source or a module label.
@@ -176,7 +189,21 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
       CLHEP::HepRandomEngine* engine = new CLHEP::RanecuEngine();
       engine->setSeeds(seedL, 0);
       engineMap_[seedIter->first] = engine;
-    }
+
+    } else if (engineName == "TRandom3") {
+
+      if (seedIter->second.size() != 1) {
+        throw edm::Exception(edm::errors::Configuration)
+          << "TRandom3 engine requires 1 seed and "
+          << seedIter->second.size()
+          << " seeds were\n"
+          << "specified in the configuration file for "
+          << outputString << ".";
+      }
+      long seedL = static_cast<long>(seedIter->second[0]);
+      CLHEP::HepRandomEngine* engine = new TRandomAdaptor(seedL);
+      engineMap_[seedIter->first] = engine;
+    } 
     else {
       throw edm::Exception(edm::errors::Configuration)
         << "The configuration file requested the RandomNumberGeneratorService\n"
@@ -350,6 +377,9 @@ RandomNumberGeneratorService::postBeginJob()
 {
   //finished begin run so waiting for first event and the source will be the first one called
   push(sourceLabel);
+
+  // If there is an engine state file, us it to restore all engines to that state.
+  if(!restoreFileName_.empty()) restoreEngineState();
 }
 
 void 
@@ -365,6 +395,9 @@ RandomNumberGeneratorService::preEventProcessing(const edm::EventID&, const edm:
 {
   //finished with source and now waiting for a module
   pop();
+ 
+  // Here is the right place to record engine states if that has been requested
+  if(!saveFileName_.empty())  saveEngineState();
 }
 
 void 
@@ -433,7 +466,7 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
 
   if ( restoreStateLabel_ == std::string()) return;
 
-  Handle<std::vector<RandomEngineState> > states;
+    Handle<std::vector<RandomEngineState> > states;
 
     iEvent.getByLabel(restoreStateLabel_, states);
     if(!states.isValid()) {
@@ -532,6 +565,17 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
         checkEngineType(engine->second->name(), std::string("RanecuEngine"), engineLabel);
 
         // This line actually restores the engine state.
+        engine->second->get(engineStateL);
+
+      }
+
+//  The next few lines may need work.  This is where we restore the TRandom3 engine state
+      else if (engineStateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
+
+        checkEngineType(engine->second->name(), std::string("TRandom3"), engineLabel);
+
+        // This line actually restores the engine state.
+        engine->second->setSeed(engineSeedsL[0], 0);
         engine->second->get(engineStateL);
 
       }
@@ -735,4 +779,223 @@ RandomNumberGeneratorService::checkEngineType(const std::string& typeFromConfig,
         << "stop trying to restore the random engine state.\n";
     }
   }
+}
+
+void
+RandomNumberGeneratorService::dumpVector(const std::vector<uint32_t> &v)
+{
+  if(v.empty()) return;
+  size_t numItems = v.size()-1;
+  for( int i=0; i<(int)numItems; ++i)  {
+    if( i != 0 && i%10 == 0 )  std::cerr << std::endl;
+    std::cerr << std::setw(13) << v[i+1] ;
+  }
+    if(numItems%10 != 0)  std::cerr << std::endl;
+}
+
+void
+RandomNumberGeneratorService::stashVector(const std::vector<unsigned long> &v,
+                                                std::ostream &outFile)
+{
+  if(v.empty()) return;
+  size_t numItems = v.size();
+  for( int i=0; i<(int)numItems; ++i)  {
+    if( i != 0 && i%10 == 0 )  outFile << "\n" ;
+    outFile << std::setw(13) << v[i] ;
+  }
+    if(numItems%10 != 0)  outFile << "\n" ;
+}
+
+std::vector<unsigned long>
+RandomNumberGeneratorService::restoreVector(std::istream &is, const int32_t numItems)
+{
+  unsigned long value;
+  std::vector<unsigned long> v;
+  std::ostringstream sstr;
+  int i = 0;
+  is >> std::ws;
+  while(i<numItems)  {
+    if(!(is >> value)) {
+      sstr << "Configuration: Unable to read the random engine state vector from file, "
+           << restoreFileName_ << ".\n" 
+           << "The file has probably been corrupted.\n" ;
+      edm::Exception except(edm::errors::Configuration, sstr.str());
+      throw except;
+    } else {
+      v.push_back(value);
+      ++i;
+    }
+  }
+  return v;
+}
+
+
+void RandomNumberGeneratorService::restoreEngineState()
+{
+
+// Check that we do or do not want to restore state from a previously written state file
+
+  std::ifstream inFile;
+  std::ostringstream sstr;
+  inFile.open(restoreFileName_.c_str(), std::ifstream::in);
+  if(!inFile) {
+    sstr << "Configuration: Unable to open the file, "
+         << restoreFileName_ << ", to restore the engine status.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+//print();
+
+  std::string text;
+  inFile >> text;
+  if(text != std::string("<RandomEngineStates>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << " is ill-structured or otherwise corrupted.\n"
+         << "Cannot read the file header word.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+  while(processStanza(inFile)) { }
+}
+
+bool RandomNumberGeneratorService::processStanza(std::istream &is)
+{
+  std::string leading, trailing;
+  std::string moduleLabel;
+  std::string engineName;
+  long initialSeed;
+  int stateVectorLength;
+  std::vector<unsigned long> stateVector;
+  std::ostringstream sstr;
+
+  is >> leading;
+  if(leading == std::string("</RandomEngineStates>")) return false;
+  is >> moduleLabel >> trailing;
+  if(leading != std::string("<ModuleLabel>") || trailing != std::string("</ModuleLabel>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n" 
+         << "Cannot read a module label.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+
+  is >> leading >> engineName >> trailing;
+  if(leading != std::string("<EngineName>")  || trailing != std::string("</EngineName>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n" 
+         << "Cannot read an engine name.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+
+  is >> leading >> initialSeed >> trailing;
+  if(leading != std::string("<InitialSeed>") || trailing != std::string("</InitialSeed>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n" 
+         << "Cannot read initial seed(s).\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+
+  is >> leading >> stateVectorLength >> trailing;
+  if(leading != std::string("<FullStateLength>") || trailing != std::string("</FullStateLength>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n" 
+         << "Cannot read the state vector length.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }  
+
+  is >> leading;
+  if(leading != std::string("<FullState>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n"
+         << "Cannot read state vector header.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }  
+  stateVector = restoreVector(is, stateVectorLength);
+  is >> trailing;
+  if(trailing != std::string("</FullState>")) {
+    sstr << "Configuration: File, " << restoreFileName_ 
+         << ", is ill-structured or otherwise corrupted.\n"
+         << "Cannot read state vector trailer.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }  
+ 
+// We've recovered everything.  Now make sure it's all consistent
+// and, if so, overwrite the state.
+
+  CLHEP::HepRandomEngine* engine;
+  EngineMap::iterator iter = engineMap_.find(moduleLabel);
+  if(iter == engineMap_.end()) {
+    if(moduleLabel == sourceLabel) {
+
+//    Damned special case!
+//    For now, we have suppressed writing this stanza of the state save file
+//    so we should never get here.  If we do get here, yell and throw.
+
+      sstr << "Configuration: sourceLabel @source is currently disallowed"
+           << "\nbut appears in save file, " << saveFileName_ << "\n" ;
+      edm::Exception except(edm::errors::Configuration, sstr.str());
+      throw except;
+    } else {
+      sstr << "Configuration: Module label does not match any existing label."
+           << "\nThere is a mismatch between the configuration file and the state"
+           << "\nsave file, " << saveFileName_ << "\n" ;
+      edm::Exception except(edm::errors::Configuration, sstr.str());
+      throw except;
+    } 
+  } else {
+    engine = iter->second;
+    if(engine->name() != engineName) {
+      sstr << "Configuration: Engine name in configuragion file does not match name"
+           << "\nin the state save file, " << saveFileName_ << "\n" ;
+      edm::Exception except(edm::errors::Configuration, sstr.str());
+      throw except;
+    }
+    engine->setSeed(initialSeed,0);
+    engine->get(stateVector);
+  }
+  return true;
+}
+
+void RandomNumberGeneratorService::saveEngineState()
+{
+  std::ofstream outFile;
+  outFile.open(saveFileName_.c_str(), std::ofstream::out | std::ofstream::trunc);
+  if(!outFile) {
+    std::ostringstream sstr;
+    sstr << "Configuration: Unable to open the file, "
+         << saveFileName_ << ", to save the engine status.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }
+  outFile << "<RandomEngineStates>\n" ;
+  for(EngineMap::const_iterator iter = engineMap_.begin(), iterEnd = engineMap_.end();
+    iter != iterEnd;
+    ++iter) {
+    std::string moduleLabel = iter->first;
+//
+//  The service does not support restoring the state of the source engine. Until that
+//  is dealt with, there is no point in even saving the source engine state so, for
+//  the present, we skip it.
+//
+    if(moduleLabel != sourceLabel) {
+      std::string engineName = iter->second->name();
+      long initialSeed = iter->second->getSeed();
+      std::vector<unsigned long> stateVector = iter->second->put();
+      int stateVectorLength = stateVector.size();
+
+      outFile << "<ModuleLabel>\n" << moduleLabel << "\n</ModuleLabel>\n" ;
+      outFile << "<EngineName>\n" << engineName << "\n</EngineName>\n" ;
+      outFile << "<InitialSeed>\n" << initialSeed << "\n</InitialSeed>\n" ;
+      outFile << "<FullStateLength>\n" << stateVectorLength << "\n</FullStateLength>\n" ;
+      outFile << "<FullState>\n" ;
+      stashVector(stateVector, outFile);
+      outFile   << "</FullState>\n" ;
+    }
+  }
+  outFile << "</RandomEngineStates>\n" ;
 }
