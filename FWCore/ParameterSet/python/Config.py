@@ -6,10 +6,8 @@ options = Options()
 
 
 ## imports
-from Mixins import PrintOptions,_SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, UsingBlock
-from Mixins import  _Labelable,  _Unlabelable 
-#from Mixins import *
-from Mixins import _ValidatingListBase
+from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
+from Mixins import *
 from Types import * 
 from Modules import *
 from SequenceTypes import *
@@ -504,9 +502,9 @@ class Process(object):
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
         for triggername in triggerPaths:
-            self.paths_()[triggername].insertInto(processPSet, triggername)
+            self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
         for endpathname in endpaths:
-            self.endpaths_()[endpathname].insertInto(processPSet, endpathname)
+            self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -887,5 +885,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
    endpath o = {out}
 }""")
             self.assertEqual(process.source.type_(),"PoolSource")
+        def testUB(self):
+            a = UsingBlock('a')
                                
     unittest.main()
