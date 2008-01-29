@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.32 2008/01/02 20:40:57 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.33 2008/01/05 05:28:54 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,6 +34,8 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include "FWCore/Utilities/interface/Digest.h"
+
+#include "zlib.h"
 
 #include <memory>
 #include <string>
@@ -135,7 +137,7 @@ namespace edm
     uint32 lumi_;
     std::vector<bool> l1bit_;
     std::vector<unsigned char> hltbits_;
-    uint32 reserved_;
+    uint32 origSize_;
 
   }; //end-of-class-def
 
@@ -156,7 +158,7 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   lumi_(0), 
   l1bit_(0),
   hltbits_(0),
-  reserved_(0) // no compression as default value - we need this!
+  origSize_(0) // no compression as default value - we need this!
   {
 
     // test luminosity sections
@@ -346,12 +348,18 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     unsigned int new_size = src_size + 50000;
     if(bufs_.size() < new_size) bufs_.resize(new_size);
 
+    ModuleDescription myDesc = description();
+    std::string moduleLabel = myDesc.moduleLabel();
+    uLong crc = crc32(0L, Z_NULL, 0);
+    Bytef* buf = (Bytef*) moduleLabel.data();
+    crc = crc32(crc, buf, moduleLabel.length());
+
     std::auto_ptr<EventMsgBuilder> 
       msg( new EventMsgBuilder(&bufs_[0], bufs_.size(),
 			       e.id().run(), e.id().event(), lumi_,
+                               (unsigned int) crc,
 			       l1bit_, (uint8*)&hltbits_[0], hltsize_) );
-    
-    msg->setReserved(reserved_); // we need this set to zero
+    msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message
     // an alternative is to have serializer only to the serialization
@@ -365,7 +373,7 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     unsigned char* src = serializer_.bufferPointer();
     std::copy(src,src + src_size, msg->eventAddr());
     msg->setEventLength(src_size);
-    if(useCompression_) msg->setReserved(serializer_.currentEventSize());
+    if(useCompression_) msg->setOrigDataSize(serializer_.currentEventSize());
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;
