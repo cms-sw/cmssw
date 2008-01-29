@@ -7,6 +7,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
 #include <fstream>
 #include <iostream>
 
@@ -54,69 +55,69 @@ void PixelROCDACSettings::getDACs(vector<unsigned int>& dacs) const
 void PixelROCDACSettings::getDACs(std::map<std::string, unsigned int>& dacs) const
 {
     dacs.clear();
-    dacs["Vdd"        ] = Vdd_        ;
-    dacs["Vana"       ] = Vana_       ;     
-    dacs["Vsf"        ] = Vsf_        ;      
-    dacs["Vcomp"      ] = Vcomp_      ;      
-    dacs["Vleak"      ] = Vleak_      ;      
-    dacs["VrgPr"      ] = VrgPr_      ;      
-    dacs["VwllPr"     ] = VwllPr_     ;     
-    dacs["VrgSh"      ] = VrgSh_      ;      
-    dacs["VwllSh"     ] = VwllSh_     ;     
-    dacs["VHldDel"    ] = VHldDel_    ;    
-    dacs["Vtrim"      ] = Vtrim_      ;      
-    dacs["VcThr"      ] = VcThr_      ;      
-    dacs["VIbiasbus"  ] = VIbias_bus_ ;
-    dacs["VIbiassf"   ] = VIbias_sf_  ; 
-    dacs["VOffsetOp"  ] = VOffsetOp_  ; 
-    dacs["VbiasOp"    ] = VbiasOp_    ;    
-    dacs["VOffsetRO"  ] = VOffsetRO_  ; 
-    dacs["VIon"       ] = VIon_       ;       
-    dacs["VIbiasPH"   ] = VIbias_PH_  ; 
-    dacs["VIbiasDAC"  ] = VIbias_DAC_ ;
-    dacs["VIbiasroc"  ] = VIbias_roc_ ;
-    dacs["VIColOr"    ] = VIColOr_    ;    
-    dacs["Vnpix"      ] = Vnpix_      ;      
-    dacs["VsumCol"    ] = VsumCol_    ;    
-    dacs["Vcal"       ] = Vcal_       ;       
-    dacs["CalDel"     ] = CalDel_     ;     
-    dacs["TempRange"  ] = TempRange_  ; 
-    dacs["WBC"        ] = WBC_        ;
-    dacs["ChipContReg"] = ChipContReg_;
+    dacs[k_DACName_Vdd        ] = Vdd_        ;
+    dacs[k_DACName_Vana       ] = Vana_       ;     
+    dacs[k_DACName_Vsf        ] = Vsf_        ;      
+    dacs[k_DACName_Vcomp      ] = Vcomp_      ;      
+    dacs[k_DACName_Vleak      ] = Vleak_      ;      
+    dacs[k_DACName_VrgPr      ] = VrgPr_      ;      
+    dacs[k_DACName_VwllPr     ] = VwllPr_     ;     
+    dacs[k_DACName_VrgSh      ] = VrgSh_      ;      
+    dacs[k_DACName_VwllSh     ] = VwllSh_     ;     
+    dacs[k_DACName_VHldDel    ] = VHldDel_    ;    
+    dacs[k_DACName_Vtrim      ] = Vtrim_      ;      
+    dacs[k_DACName_VcThr      ] = VcThr_      ;      
+    dacs[k_DACName_VIbias_bus ] = VIbias_bus_ ;
+    dacs[k_DACName_VIbias_sf  ] = VIbias_sf_  ; 
+    dacs[k_DACName_VOffsetOp  ] = VOffsetOp_  ; 
+    dacs[k_DACName_VbiasOp    ] = VbiasOp_    ;    
+    dacs[k_DACName_VOffsetRO  ] = VOffsetRO_  ; 
+    dacs[k_DACName_VIon       ] = VIon_       ;       
+    dacs[k_DACName_VIbias_PH  ] = VIbias_PH_  ; 
+    dacs[k_DACName_VIbias_DAC ] = VIbias_DAC_ ;
+    dacs[k_DACName_VIbias_roc ] = VIbias_roc_ ;
+    dacs[k_DACName_VIColOr    ] = VIColOr_    ;    
+    dacs[k_DACName_Vnpix      ] = Vnpix_      ;      
+    dacs[k_DACName_VsumCol    ] = VsumCol_    ;    
+    dacs[k_DACName_Vcal       ] = Vcal_       ;       
+    dacs[k_DACName_CalDel     ] = CalDel_     ;     
+    dacs[k_DACName_TempRange  ] = TempRange_  ; 
+    dacs[k_DACName_WBC        ] = WBC_        ;
+    dacs[k_DACName_ChipContReg] = ChipContReg_;
 }
 
 // Added by Dario
 void PixelROCDACSettings::setDACs(std::map<std::string, unsigned int>& dacs) 
 {
-    Vdd_	 = dacs["Vdd"	     ] ;
-    Vana_	 = dacs["Vana"       ] ;    
-    Vsf_	 = dacs["Vsf"	     ] ;     
-    Vcomp_	 = dacs["Vcomp"      ] ;     
-    Vleak_	 = dacs["Vleak"      ] ;     
-    VrgPr_	 = dacs["VrgPr"      ] ;     
-    VwllPr_	 = dacs["VwllPr"     ] ;    
-    VrgSh_	 = dacs["VrgSh"      ] ;     
-    VwllSh_	 = dacs["VwllSh"     ] ;    
-    VHldDel_	 = dacs["VHldDel"    ] ;   
-    Vtrim_	 = dacs["Vtrim"      ] ;     
-    VcThr_	 = dacs["VcThr"      ] ;     
-    VIbias_bus_  = dacs["VIbiasbus"  ] ;
-    VIbias_sf_   = dacs["VIbiassf"   ] ; 
-    VOffsetOp_   = dacs["VOffsetOp"  ] ; 
-    VbiasOp_	 = dacs["VbiasOp"    ] ;   
-    VOffsetRO_   = dacs["VOffsetRO"  ] ; 
-    VIon_	 = dacs["VIon"       ] ;      
-    VIbias_PH_   = dacs["VIbiasPH"   ] ; 
-    VIbias_DAC_  = dacs["VIbiasDAC"  ] ;
-    VIbias_roc_  = dacs["VIbiasroc"  ] ;
-    VIColOr_	 = dacs["VIColOr"    ] ;   
-    Vnpix_	 = dacs["Vnpix"      ] ;     
-    VsumCol_	 = dacs["VsumCol"    ] ;   
-    Vcal_	 = dacs["Vcal"       ] ;      
-    CalDel_	 = dacs["CalDel"     ] ;    
-    TempRange_   = dacs["TempRange"  ] ; 
-    WBC_	 = dacs["WBC"	     ] ;
-    ChipContReg_ = dacs["ChipContReg"] ;
+    Vdd_	 = dacs[k_DACName_Vdd	     ] ;
+    Vana_	 = dacs[k_DACName_Vana       ] ;    
+    Vsf_	 = dacs[k_DACName_Vsf	     ] ;     
+    Vcomp_	 = dacs[k_DACName_Vcomp      ] ;     
+    Vleak_	 = dacs[k_DACName_Vleak      ] ;     
+    VrgPr_	 = dacs[k_DACName_VrgPr      ] ;     
+    VwllPr_	 = dacs[k_DACName_VwllPr     ] ;    
+    VrgSh_	 = dacs[k_DACName_VrgSh      ] ;     
+    VwllSh_	 = dacs[k_DACName_VwllSh     ] ;    
+    VHldDel_	 = dacs[k_DACName_VHldDel    ] ;   
+    Vtrim_	 = dacs[k_DACName_Vtrim      ] ;     
+    VcThr_	 = dacs[k_DACName_VcThr      ] ;     
+    VIbias_bus_  = dacs[k_DACName_VIbias_bus  ] ;
+    VIbias_sf_   = dacs[k_DACName_VIbias_sf   ] ; 
+    VOffsetOp_   = dacs[k_DACName_VOffsetOp  ] ; 
+    VbiasOp_	 = dacs[k_DACName_VbiasOp    ] ;   
+    VOffsetRO_   = dacs[k_DACName_VOffsetRO  ] ; 
+    VIon_	 = dacs[k_DACName_VIon       ] ;      
+    VIbias_PH_   = dacs[k_DACName_VIbias_PH   ] ; 
+    VIbias_DAC_  = dacs[k_DACName_VIbias_DAC  ] ;
+    VIbias_roc_  = dacs[k_DACName_VIbias_roc  ] ;
+    VIColOr_	 = dacs[k_DACName_VIColOr    ] ;   
+    Vnpix_	 = dacs[k_DACName_Vnpix      ] ;     
+    VsumCol_	 = dacs[k_DACName_VsumCol    ] ;   
+    Vcal_	 = dacs[k_DACName_Vcal       ] ;      
+    CalDel_	 = dacs[k_DACName_CalDel     ] ;    
+    TempRange_   = dacs[k_DACName_TempRange  ] ; 
+    WBC_	 = dacs[k_DACName_WBC	     ] ;
+    ChipContReg_ = dacs[k_DACName_ChipContReg] ;
 }
 
 void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue) 
@@ -235,35 +236,35 @@ void PixelROCDACSettings::writeASCII(ostream& out) const{
 
     out << "ROC:           " << rocid_.rocname()   <<endl;
 
-    out << "Vdd:           " << (int)Vdd_	   <<endl;
-    out << "Vana:          " << (int)Vana_	   <<endl;
-    out << "Vsf:           " << (int)Vsf_	   <<endl;
-    out << "Vcomp:         " << (int)Vcomp_	   <<endl;
-    out << "Vleak:         " << (int)Vleak_	   <<endl;
-    out << "VrgPr:         " << (int)VrgPr_	   <<endl;
-    out << "VwllPr:        " << (int)VwllPr_	   <<endl;
-    out << "VrgSh:         " << (int)VrgSh_	   <<endl;
-    out << "VwllSh:        " << (int)VwllSh_	   <<endl;
-    out << "VHldDel:       " << (int)VHldDel_	   <<endl;
-    out << "Vtrim:         " << (int)Vtrim_	   <<endl;
-    out << "VcThr:         " << (int)VcThr_	   <<endl;
-    out << "VIbias_bus:    " << (int)VIbias_bus_   <<endl;
-    out << "VIbias_sf:     " << (int)VIbias_sf_    <<endl;
-    out << "VOffsetOp:     " << (int)VOffsetOp_    <<endl;
-    out << "VbiasOp:       " << (int)VbiasOp_	   <<endl;
-    out << "VOffsetRO:     " << (int)VOffsetRO_    <<endl;
-    out << "VIon:          " << (int)VIon_	   <<endl;
-    out << "VIbias_PH:     " << (int)VIbias_PH_    <<endl;
-    out << "VIbias_DAC:    " << (int)VIbias_DAC_   <<endl;
-    out << "VIbias_roc:    " << (int)VIbias_roc_   <<endl;
-    out << "VIColOr:       " << (int)VIColOr_	   <<endl;
-    out << "Vnpix:         " << (int)Vnpix_	   <<endl;
-    out << "VsumCol:       " << (int)VsumCol_      <<endl;
-    out << "Vcal:          " << (int)Vcal_	   <<endl;
-    out << "CalDel:        " << (int)CalDel_	   <<endl;
-    out << "TempRange:     " << (int)TempRange_    <<endl;
-    out << "WBC:           " << (int)WBC_	   <<endl;
-    out << "ChipContReg:   " << (int)ChipContReg_  <<endl;
+    out << k_DACName_Vdd << ":           " << (int)Vdd_	   <<endl;
+    out << k_DACName_Vana << ":          " << (int)Vana_	   <<endl;
+    out << k_DACName_Vsf << ":           " << (int)Vsf_	   <<endl;
+    out << k_DACName_Vcomp << ":         " << (int)Vcomp_	   <<endl;
+    out << k_DACName_Vleak << ":         " << (int)Vleak_	   <<endl;
+    out << k_DACName_VrgPr << ":         " << (int)VrgPr_	   <<endl;
+    out << k_DACName_VwllPr << ":        " << (int)VwllPr_	   <<endl;
+    out << k_DACName_VrgSh << ":         " << (int)VrgSh_	   <<endl;
+    out << k_DACName_VwllSh << ":        " << (int)VwllSh_	   <<endl;
+    out << k_DACName_VHldDel << ":       " << (int)VHldDel_	   <<endl;
+    out << k_DACName_Vtrim << ":         " << (int)Vtrim_	   <<endl;
+    out << k_DACName_VcThr << ":         " << (int)VcThr_	   <<endl;
+    out << k_DACName_VIbias_bus << ":    " << (int)VIbias_bus_   <<endl;
+    out << k_DACName_VIbias_sf << ":     " << (int)VIbias_sf_    <<endl;
+    out << k_DACName_VOffsetOp << ":     " << (int)VOffsetOp_    <<endl;
+    out << k_DACName_VbiasOp << ":       " << (int)VbiasOp_	   <<endl;
+    out << k_DACName_VOffsetRO << ":     " << (int)VOffsetRO_    <<endl;
+    out << k_DACName_VIon << ":          " << (int)VIon_	   <<endl;
+    out << k_DACName_VIbias_PH << ":     " << (int)VIbias_PH_    <<endl;
+    out << k_DACName_VIbias_DAC << ":    " << (int)VIbias_DAC_   <<endl;
+    out << k_DACName_VIbias_roc << ":    " << (int)VIbias_roc_   <<endl;
+    out << k_DACName_VIColOr << ":       " << (int)VIColOr_	   <<endl;
+    out << k_DACName_Vnpix << ":         " << (int)Vnpix_	   <<endl;
+    out << k_DACName_VsumCol << ":       " << (int)VsumCol_      <<endl;
+    out << k_DACName_Vcal << ":          " << (int)Vcal_	   <<endl;
+    out << k_DACName_CalDel << ":        " << (int)CalDel_	   <<endl;
+    out << k_DACName_TempRange << ":     " << (int)TempRange_    <<endl;
+    out << k_DACName_WBC << ":           " << (int)WBC_	   <<endl;
+    out << k_DACName_ChipContReg << ":   " << (int)ChipContReg_  <<endl;
 
 }
 
@@ -290,85 +291,85 @@ int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
     string tag;
 
     in >> tag; 
-    checkTag(tag,"Vdd",rocid);
+    checkTag(tag,k_DACName_Vdd,rocid);
     in >> tmp; Vdd_=tmp;
     in >> tag; 
-    checkTag(tag,"Vana",rocid);
+    checkTag(tag,k_DACName_Vana,rocid);
     in >> tmp; Vana_=tmp;
     in >> tag; 
-    checkTag(tag,"Vsf",rocid);
+    checkTag(tag,k_DACName_Vsf,rocid);
     in >> tmp; Vsf_=tmp;
     in >> tag; 
-    checkTag(tag,"Vcomp",rocid);
+    checkTag(tag,k_DACName_Vcomp,rocid);
     in >> tmp; Vcomp_=tmp;
     in >> tag; 
-    checkTag(tag,"Vleak",rocid);
+    checkTag(tag,k_DACName_Vleak,rocid);
     in >> tmp; Vleak_=tmp;
     in >> tag; 
-    checkTag(tag,"VrgPr",rocid);
+    checkTag(tag,k_DACName_VrgPr,rocid);
     in >> tmp; VrgPr_=tmp;
     in >> tag; 
-    checkTag(tag,"VwllPr",rocid);
+    checkTag(tag,k_DACName_VwllPr,rocid);
     in >> tmp; VwllPr_=tmp;
     in >> tag; 
-    checkTag(tag,"VrgSh",rocid);
+    checkTag(tag,k_DACName_VrgSh,rocid);
     in >> tmp; VrgSh_=tmp;
     in >> tag; 
-    checkTag(tag,"VwllSh",rocid);
+    checkTag(tag,k_DACName_VwllSh,rocid);
     in >> tmp; VwllSh_=tmp;
     in >> tag; 
-    checkTag(tag,"VHldDel",rocid);
+    checkTag(tag,k_DACName_VHldDel,rocid);
     in >> tmp; VHldDel_=tmp;
     in >> tag; 
-    checkTag(tag,"Vtrim",rocid);
+    checkTag(tag,k_DACName_Vtrim,rocid);
     in >> tmp; Vtrim_=tmp;
     in >> tag; 
-    checkTag(tag,"VcThr",rocid);
+    checkTag(tag,k_DACName_VcThr,rocid);
     in >> tmp; VcThr_=tmp;
     in >> tag; 
-    checkTag(tag,"VIbias_bus",rocid);
+    checkTag(tag,k_DACName_VIbias_bus,rocid);
     in >> tmp; VIbias_bus_=tmp;
     in >> tag; 
-    checkTag(tag,"VIbias_sf",rocid);
+    checkTag(tag,k_DACName_VIbias_sf,rocid);
     in >> tmp; VIbias_sf_=tmp;
     in >> tag; 
-    checkTag(tag,"VOffsetOp",rocid);
+    checkTag(tag,k_DACName_VOffsetOp,rocid);
     in >> tmp; VOffsetOp_=tmp;
     in >> tag; 
-    checkTag(tag,"VbiasOp",rocid);
+    checkTag(tag,k_DACName_VbiasOp,rocid);
     in >> tmp; VbiasOp_=tmp;
     in >> tag; 
-    checkTag(tag,"VOffsetRO",rocid);
+    checkTag(tag,k_DACName_VOffsetRO,rocid);
     in >> tmp; VOffsetRO_=tmp;
     in >> tag; 
-    checkTag(tag,"VIon",rocid);
+    checkTag(tag,k_DACName_VIon,rocid);
     in >> tmp; VIon_=tmp;
     in >> tag; 
-    checkTag(tag,"VIbias_PH",rocid);
+    checkTag(tag,k_DACName_VIbias_PH,rocid);
     in >> tmp; VIbias_PH_=tmp;
     in >> tag; 
-    checkTag(tag,"VIbias_DAC",rocid);
+    checkTag(tag,k_DACName_VIbias_DAC,rocid);
     in >> tmp; VIbias_DAC_=tmp;
     in >> tag; 
-    checkTag(tag,"VIbias_roc",rocid);
+    checkTag(tag,k_DACName_VIbias_roc,rocid);
     in >> tmp; VIbias_roc_=tmp;
     in >> tag; 
-    checkTag(tag,"VIColOr",rocid);
+    checkTag(tag,k_DACName_VIColOr,rocid);
     in >> tmp; VIColOr_=tmp;
     in >> tag; 
-    checkTag(tag,"Vnpix",rocid);
+    checkTag(tag,k_DACName_Vnpix,rocid);
     in >> tmp; Vnpix_=tmp;
     in >> tag; 
-    checkTag(tag,"VsumCol",rocid);
+    checkTag(tag,k_DACName_VsumCol,rocid);
     in >> tmp; VsumCol_=tmp;
     in >> tag; 
-    checkTag(tag,"Vcal",rocid);
+    checkTag(tag,k_DACName_Vcal,rocid);
     in >> tmp; Vcal_=tmp;
     in >> tag; 
-    checkTag(tag,"CalDel",rocid);
+    checkTag(tag,k_DACName_CalDel,rocid);
     in >> tmp; CalDel_=tmp;
     in >> tag; 
-    if (tag=="WBC:"){
+    if (tag==k_DACName_WBC+":"){
       static bool first=true;
       if (first){
 	cout << "**********************************************"<<endl;
@@ -381,14 +382,14 @@ int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
       }
       in >> tmp; WBC_=tmp;
     } else {	
-      checkTag(tag,"TempRange",rocid);
+      checkTag(tag,k_DACName_TempRange,rocid);
       in >> tmp; TempRange_=tmp;
       in >> tag; 
-      checkTag(tag,"WBC",rocid);
+      checkTag(tag,k_DACName_WBC,rocid);
       in >> tmp; WBC_=tmp;
     }
     in >> tag; 
-    checkTag(tag,"ChipContReg",rocid);
+    checkTag(tag,k_DACName_ChipContReg,rocid);
     in >> tmp; ChipContReg_=tmp;
 
     return 0;
@@ -405,35 +406,35 @@ string PixelROCDACSettings::getConfigCommand(){
 
 ostream& pos::operator<<(ostream& s, const PixelROCDACSettings& dacs){
   
-  s << "Vdd          :" << (unsigned int)dacs.Vdd_ << endl;
-  s << "Vana         :" << (unsigned int)dacs.Vana_ << endl;
-  s << "Vsf          :" << (unsigned int)dacs.Vsf_ << endl;
-  s << "Vcomp        :" << (unsigned int)dacs.Vcomp_ << endl;
-  s << "Vleak        :" << (unsigned int)dacs.Vleak_ << endl;
-  s << "VrgPr        :" << (unsigned int)dacs.VrgPr_ << endl;
-  s << "VwllPr       :" << (unsigned int)dacs.VwllPr_ << endl;
-  s << "VrgSh        :" << (unsigned int)dacs.VrgSh_ << endl;
-  s << "VwllSh       :" << (unsigned int)dacs.VwllSh_ << endl;
-  s << "VHldDel      :" << (unsigned int)dacs.VHldDel_ << endl;
-  s << "Vtrim        :" << (unsigned int)dacs.Vtrim_ << endl;
-  s << "VcThr        :" << (unsigned int)dacs.VcThr_ << endl;
-  s << "VIbias_bus   :" << (unsigned int)dacs.VIbias_bus_ << endl;
-  s << "VIbias_sf    :" << (unsigned int)dacs.VIbias_sf_ << endl;
-  s << "VOffsetOp    :" << (unsigned int)dacs.VOffsetOp_ << endl;
-  s << "VbiasOp      :" << (unsigned int)dacs.VbiasOp_ << endl;
-  s << "VOffsetRO    :" << (unsigned int)dacs.VOffsetRO_ << endl;
-  s << "VIon         :" << (unsigned int)dacs.VIon_ << endl;
-  s << "VIbias_PH    :" << (unsigned int)dacs.VIbias_PH_ << endl;
-  s << "VIbias_DAC   :" << (unsigned int)dacs.VIbias_DAC_ << endl;
-  s << "VIbias_roc   :" << (unsigned int)dacs.VIbias_roc_ << endl;
-  s << "VIColOr      :" << (unsigned int)dacs.VIColOr_ << endl;
-  s << "Vnpix        :" << (unsigned int)dacs.Vnpix_ << endl;
-  s << "VsumCol      :" << (unsigned int)dacs.VsumCol_ << endl;
-  s << "Vcal         :" << (unsigned int)dacs.Vcal_ << endl;
-  s << "CalDel       :" << (unsigned int)dacs.CalDel_ << endl;
-  s << "TempRange    :" << (unsigned int)dacs.TempRange_ << endl;
-  s << "WBC          :" << (unsigned int)dacs.WBC_ << endl;
-  s << "ChipContReg  :" << (unsigned int)dacs.ChipContReg_ << endl;
+  s << k_DACName_Vdd << "          :" << (unsigned int)dacs.Vdd_ << endl;
+  s << k_DACName_Vana << "         :" << (unsigned int)dacs.Vana_ << endl;
+  s << k_DACName_Vsf << "          :" << (unsigned int)dacs.Vsf_ << endl;
+  s << k_DACName_Vcomp << "        :" << (unsigned int)dacs.Vcomp_ << endl;
+  s << k_DACName_Vleak << "        :" << (unsigned int)dacs.Vleak_ << endl;
+  s << k_DACName_VrgPr << "        :" << (unsigned int)dacs.VrgPr_ << endl;
+  s << k_DACName_VwllPr << "       :" << (unsigned int)dacs.VwllPr_ << endl;
+  s << k_DACName_VrgSh << "        :" << (unsigned int)dacs.VrgSh_ << endl;
+  s << k_DACName_VwllSh << "       :" << (unsigned int)dacs.VwllSh_ << endl;
+  s << k_DACName_VHldDel << "      :" << (unsigned int)dacs.VHldDel_ << endl;
+  s << k_DACName_Vtrim << "        :" << (unsigned int)dacs.Vtrim_ << endl;
+  s << k_DACName_VcThr << "        :" << (unsigned int)dacs.VcThr_ << endl;
+  s << k_DACName_VIbias_bus << "   :" << (unsigned int)dacs.VIbias_bus_ << endl;
+  s << k_DACName_VIbias_sf << "    :" << (unsigned int)dacs.VIbias_sf_ << endl;
+  s << k_DACName_VOffsetOp << "    :" << (unsigned int)dacs.VOffsetOp_ << endl;
+  s << k_DACName_VbiasOp << "      :" << (unsigned int)dacs.VbiasOp_ << endl;
+  s << k_DACName_VOffsetRO << "    :" << (unsigned int)dacs.VOffsetRO_ << endl;
+  s << k_DACName_VIon << "         :" << (unsigned int)dacs.VIon_ << endl;
+  s << k_DACName_VIbias_PH << "    :" << (unsigned int)dacs.VIbias_PH_ << endl;
+  s << k_DACName_VIbias_DAC << "   :" << (unsigned int)dacs.VIbias_DAC_ << endl;
+  s << k_DACName_VIbias_roc << "   :" << (unsigned int)dacs.VIbias_roc_ << endl;
+  s << k_DACName_VIColOr << "      :" << (unsigned int)dacs.VIColOr_ << endl;
+  s << k_DACName_Vnpix << "        :" << (unsigned int)dacs.Vnpix_ << endl;
+  s << k_DACName_VsumCol << "      :" << (unsigned int)dacs.VsumCol_ << endl;
+  s << k_DACName_Vcal << "         :" << (unsigned int)dacs.Vcal_ << endl;
+  s << k_DACName_CalDel << "       :" << (unsigned int)dacs.CalDel_ << endl;
+  s << k_DACName_TempRange << "    :" << (unsigned int)dacs.TempRange_ << endl;
+  s << k_DACName_WBC << "          :" << (unsigned int)dacs.WBC_ << endl;
+  s << k_DACName_ChipContReg << "  :" << (unsigned int)dacs.ChipContReg_ << endl;
   
   return s;
 
@@ -441,117 +442,97 @@ ostream& pos::operator<<(ostream& s, const PixelROCDACSettings& dacs){
 
 //Added by Umesh
 void PixelROCDACSettings::setDac(string dacName, int dacValue){
-  if(dacName == "VDD"){
-//     cout << "VDD" << endl;
+  if(dacName == k_DACName_Vdd){
     Vdd_ = dacValue;
   }
-  else if(dacName == "VANA"){
-//     cout << "VANA" << endl;
+  else if(dacName == k_DACName_Vana){
     Vana_ = dacValue;
   }
-  else if(dacName == "VSF"){
-//     cout << "VSF" << endl;
+  else if(dacName == k_DACName_Vsf){
     Vsf_ = dacValue;
   }
-  else if(dacName == "VCOMP"){
-//     cout << "VCOMP" << endl;
+  else if(dacName == k_DACName_Vcomp){
     Vcomp_ = dacValue;
   }
-  else if(dacName == "VLEAK"){
-//     cout << "VLEAK" << endl;
+  else if(dacName == k_DACName_Vleak){
     Vleak_ = dacValue;
   }
-  else if(dacName == "VRGPR"){
-//     cout << "VRGPR" << endl;
+  else if(dacName == k_DACName_VrgPr){
     VrgPr_ = dacValue;
   }
-  else if(dacName == "VWLLSH"){
-//     cout << "VWLLSH" << endl;
+  else if(dacName == k_DACName_VwllPr){
     VwllPr_ = dacValue;
   }
-  else if(dacName == "VRGSH"){
-//     cout << "VRGSH" << endl;
+  else if(dacName == k_DACName_VrgSh){
     VrgSh_ = dacValue;
   }
-  else if(dacName == "VWLLSH"){
-//     cout << "VWLLSH" << endl;
+  else if(dacName == k_DACName_VwllSh){
     VwllSh_ = dacValue;
   }
-  else if(dacName == "VHLDDEL"){
-//     cout << "VHLDDEL" << endl;
+  else if(dacName == k_DACName_VHldDel){
     VHldDel_ = dacValue;
   }
-  else if(dacName == "VTRIM"){
-//     cout << "VTRIM" << endl;
+  else if(dacName == k_DACName_Vtrim){
     Vtrim_ = dacValue;
   }
-  else if(dacName == "VCTHR"){
-//     cout << "VCTHR" << endl;
+  else if(dacName == k_DACName_VcThr){
     VcThr_ = dacValue;
   }
-  else if(dacName == "VIBIAS_BUS"){
-//     cout << "VIBIAS_BUS" << endl;
+  else if(dacName == k_DACName_VIbias_bus){
     VIbias_bus_ = dacValue;
   }
-  else if(dacName == "VIBIAS_SF"){
-//     cout << "VIBIAS_SF" << endl;
+  else if(dacName == k_DACName_VIbias_sf){
     VIbias_sf_ = dacValue;
   }
-  else if(dacName == "VOFFSETOP"){
-//     cout << "VOFFSETOP" << endl;
+  else if(dacName == k_DACName_VOffsetOp){
     VOffsetOp_ = dacValue;
   }
-  else if(dacName == "VBIASOP"){
-//     cout << "VBIASOP" << endl;
+  else if(dacName == k_DACName_VbiasOp){
     VbiasOp_ = dacValue;
   }
-  else if(dacName == "VOFFSETRO"){
-//     cout << "VOFFSETRO" << endl;
+  else if(dacName == k_DACName_VOffsetRO){
     VOffsetRO_ = dacValue;
   }
-  else if(dacName == "VION"){
-//     cout << "VION" << endl;
+  else if(dacName == k_DACName_VIon){
     VIon_ = dacValue;
   }
-  else if(dacName == "VIBIAS_PH"){
-//     cout << "VIBIAS_PH" << endl;
+  else if(dacName == k_DACName_VIbias_PH){
     VIbias_PH_ = dacValue;
   }
-  else if(dacName == "VIBIAS_DAC"){
-//     cout << "VIBIAS_DAC" << endl;
+  else if(dacName == k_DACName_VIbias_DAC){
     VIbias_DAC_ = dacValue;
   }
-  else if(dacName == "VIBIAS_ROC"){
-//     cout << "VIBIAS_ROC" << endl;
+  else if(dacName == k_DACName_VIbias_roc){
     VIbias_roc_ = dacValue;
   }
-  else if(dacName == "VICOLOR"){
-//     cout << "VICOLOR" << endl;
+  else if(dacName == k_DACName_VIColOr){
     VIColOr_ = dacValue;
   }
-  else if(dacName == "VNPIX"){
-//     cout << "VNPIX" << endl;
+  else if(dacName == k_DACName_Vnpix){;
     Vnpix_ = dacValue;
   }
-  else if(dacName == "VSUMCOL"){
-//     cout << "VSUMCOL" << endl;
+  else if(dacName == k_DACName_VsumCol){
     VsumCol_ = dacValue;
   }
-  else if(dacName == "VCAL"){
-//     cout << "VCAL" << endl;
+  else if(dacName == k_DACName_Vcal){
     Vcal_ = dacValue;
   }
-  else if(dacName == "CALDEL"){
-//     cout << "CALDEL" << endl;
+  else if(dacName == k_DACName_CalDel){
     CalDel_ = dacValue;
   }
-  else if(dacName == "TEMPRANGE"){
-//     cout << "TEMPRANGE" << endl;
+  else if(dacName == k_DACName_TempRange){
     TempRange_ = dacValue;
   }
-  else if(dacName == "WBC"){
-//     cout << "WBC" << endl;
+  else if(dacName == k_DACName_WBC){
     WBC_ = dacValue;
+  }
+  else if(dacName == k_DACName_ChipContReg){
+    ChipContReg_ = dacValue;
+  }
+  else
+  {
+    cout << "ERROR in PixelROCDACSettings::setDac: DAC name " << dacName << " does not exist." << endl;
+    assert(0);
   }
 
 }
