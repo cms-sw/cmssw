@@ -129,14 +129,17 @@ namespace {
           i!=trks.end() ; ++i )
     {
       bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
-      pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
-      double d = ( pt.first - pt.second ).mag();
-      double w = 1. / ( 0.002 + d ); // hard coded weights
-      double s = ( pt.first - axis.position() ).mag();
-      Measurement1D ms ( s, 1.0 );
-      vector < const reco::TransientTrack * > trk;
-      trk.push_back ( &(*i) );
-      pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
+      if (status)
+      {
+        pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
+        double d = ( pt.first - pt.second ).mag();
+        double w = 1. / ( 0.002 + d ); // hard coded weights
+        double s = ( pt.first - axis.position() ).mag();
+        Measurement1D ms ( s, 1.0 );
+        vector < const reco::TransientTrack * > trk;
+        trk.push_back ( &(*i) );
+        pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
+      }
     }
     /*
     #ifdef MVBS_DEBUG
