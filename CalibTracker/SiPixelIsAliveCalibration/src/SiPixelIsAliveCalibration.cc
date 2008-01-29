@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.9 2007/12/07 10:28:53 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.10 2008/01/22 18:44:32 muzaffar Exp $
 //
 //
 
@@ -48,6 +48,7 @@ class SiPixelIsAliveCalibration : public SiPixelOfflineCalibAnalysisBase {
       virtual void calibrationSetup(const edm::EventSetup&) ;
       virtual void calibrationEnd() ;
   virtual void newDetID(uint32_t detid);
+  virtual bool checkCorrectCalibrationType();
       // ----------member data ---------------------------
 
   std::map<uint32_t, MonitorElement *> bookkeeper_;
@@ -92,6 +93,19 @@ SiPixelIsAliveCalibration::newDetID(uint32_t detid){
   std::string tempname=translateDetIdToString(detid);
   bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D("pixelAlive_"+tempname,"pixel alive for "+tempname, detid);
 }
+bool
+SiPixelIsAliveCalibration::checkCorrectCalibrationType(){
+  if(calibrationMode_=="PixelAlive")
+    return true;
+  else if(calibrationMode_=="unknown"){
+    edm::LogInfo("SiPixelIsAliveCalibration") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
+    return true;
+  }
+  else
+    edm::LogError("SiPixelIsAliveCalibration")<< "unknown calibration mode for Pixel ALive, should be \"PixelAlive\" and is \"" << calibrationMode_ << "\"";
+  return false;
+
+}
 void SiPixelIsAliveCalibration::doSetup(const edm::ParameterSet &iConf){
 
 }
@@ -109,16 +123,16 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
     nom+=ipix->getnentries(i);
     denom+=calib_->getNTriggers();
     if(i>0)
-      edm::LogError("SiPixelIsAliveCalibration::doFits") << " ERROR!!" << " number of vcal points is now " << i << " for detid " << detid << std::endl;
+      edm::LogWarning("SiPixelIsAliveCalibration::doFits") << " ERROR!!" << " number of vcal points is now " << i << " for detid " << detid << std::endl;
   }
   edm::LogInfo("SiPixelIsAliveCalibration") << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
   double eff = -1;
   if(denom>0)
-    eff = nom;
-  if(bookkeeper_[detid]->getBinContent(ipix->col(),ipix->row())==0)
+    eff = nom/denom;
+  if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0)
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
   else
-    bookkeeper_[detid]->setBinContent(ipix->col(),ipix->row(),-2);
+    bookkeeper_[detid]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
   return true;
 }
 
