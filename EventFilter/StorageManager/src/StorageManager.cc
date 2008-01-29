@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.32 2007/12/06 22:50:26 biery Exp $
+// $Id: StorageManager.cc,v 1.33 2008/01/28 19:51:36 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -93,8 +93,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   readyTimeDQM_(DEFAULT_READY_TIME),
   useCompressionDQM_(true),
   compressionLevelDQM_(1),
-  serialized_prods_(1000000),
-  ser_prods_size_(0),
   mybuffer_(7000000),
   connectedFUs_(0), 
   storedEvents_(0), 
@@ -193,8 +191,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
 
   // added for Event Server
-  ser_prods_size_ = 0;
-  serialized_prods_[0] = '\0';
   maxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
   activeConsumerTimeout_ = 300;  // seconds
@@ -307,52 +303,110 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                  msg->hltLocalId, msg->hltInstance, msg->hltTid);
     unsigned int regSz = smfusenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid);
-    // Assume first received registry is correct and save it
-    if(ser_prods_size_ == 0)
+
+    // 29-Jan-2008, KAB: attempt to add the INIT message to our collection
+    // of INIT messages.  (This assumes that we have a full INIT message
+    // at this point.)  (In principle, this could be done in the
+    // FragmentCollector::processHeader method, but then how would we
+    // propogate errors back to this code?  If/when we move the collecting
+    // of INIT message fragments into FragmentCollector::processHeader,
+    // we'll have to solve that problem.
+    boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
+
+    InitMsgView testmsg(regPtr);
+    try
     {
-      if(serialized_prods_.capacity() < regSz) serialized_prods_.resize(regSz);
-      copy(regPtr, regPtr+regSz, &serialized_prods_[0]);
-      ser_prods_size_ = regSz;
-      FDEBUG(9) << "Saved serialized registry for Event Server, size "
-                << ser_prods_size_ << std::endl;
-      // queue for output
-      EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-      // don't have the correct run number yet
-      new (b.buffer()) stor::FragEntry(&serialized_prods_[0], &serialized_prods_[0], ser_prods_size_,
-                                       1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
-      b.commit(sizeof(stor::FragEntry));
-      // this is checked ok by default
-      smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                   msg->hltLocalId, msg->hltInstance, msg->hltTid);
-    } else { // this is the second or subsequent INIT message test it against first
-      // cannot test byte for byte the serialized registry
-      InitMsgView testmsg(regPtr);
-      InitMsgView refmsg(&serialized_prods_[0]);
-      std::auto_ptr<edm::SendJobHeader> header = StreamerInputSource::deserializeRegistry(testmsg);
-      std::auto_ptr<edm::SendJobHeader> refheader = StreamerInputSource::deserializeRegistry(refmsg);
-      // should test this well to see if a try block is needed for next line
-      if(edm::registryIsSubset(*header, *refheader)) {  // using clunky method
-        FDEBUG(9) << "copyAndTestRegistry: Received registry is okay" << std::endl;
+      if (initMsgCollection->testAndAddIfUnique(testmsg))
+      {
+        // if the addition of the INIT message to the collection worked,
+        // then we know that it is unique, etc. and we need to send it
+        // off to the Fragment Collector which passes it to the
+        // appropriate SM output stream(s)
+        InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
+        FDEBUG(9) << "Saved serialized registry for Event Server, size "
+                  << regSz << std::endl;
+        // queue for output
+        EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
+        // don't have the correct run number yet
+        new (b.buffer()) stor::FragEntry(&(*serializedProds)[0], &(*serializedProds)[0], serializedProds->size(),
+                                         1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
+        b.commit(sizeof(stor::FragEntry));
+        // this is checked ok by default
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid);
-      } else {
-        // should do something with subsequent data from this FU!
-        FDEBUG(9) << "copyAndTestRegistry: Error! Received registry is not a subset!"
-                  << " for URL " << msg->hltURL << " and Tid " << msg->hltTid
-                  << std::endl;
-        LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                        "copyAndTestRegistry: Error! Received registry is not a subset!"
-                        << " for URL " << msg->hltURL << " and Tid " << msg->hltTid);
+
+        // check if any currently connected consumers have trigger
+        // selection requests that match more than one INIT message
+        {
+          // limit interactions between the list of consumers and
+          // the InitMsgCollection to a single thread
+          boost::mutex::scoped_lock sl(consumerInitMsgLock_);
+          boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+
+          std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+            eventServer->getConsumerTable();
+          std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+            consumerIter;
+          for (consumerIter = consumerTable.begin();
+               consumerIter != consumerTable.end();
+               consumerIter++)
+          {
+            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+            Strings consumerSelection = consPtr->getTriggerRequest();
+            try
+            {
+              serializedProds = initMsgCollection->getElementForSelection(consumerSelection);
+            }
+            catch (const edm::Exception& excpt)
+            {
+              consPtr->setErrorMessage(excpt.what());
+            }
+            catch (const cms::Exception& excpt)
+            {
+              std::string errorString;
+              errorString.append(excpt.what());
+              errorString.append("\n");
+              errorString.append(initMsgCollection->getSelectionHelpString());
+              errorString.append("\n\n");
+              errorString.append("*** Please select trigger paths from one and ");
+              errorString.append("only one HLT output module. ***\n");
+              consPtr->setErrorMessage(errorString);
+            }
+          }
+        }
       }
-      // end of streamer writing test - should an else with an error/warning message
-      // or decide once and for all we only write streamer files and get rid of test
-    } // end of test on if registry data was saved
+      else
+      {
+        // even though this INIT message wasn't added to the collection,
+        // it was still verified to be "OK" by virtue of the fact that
+        // there was no exception.
+        FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
+        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid);
+      }
+    }
+    catch(cms::Exception& excpt)
+    {
+      char tidString[32];
+      sprintf(tidString, "%d", msg->hltTid);
+      std::string logMsg = "receiveRegistryMessage: Error processing a ";
+      logMsg.append("registry message from URL ");
+      logMsg.append(msg->hltURL);
+      logMsg.append(" and Tid ");
+      logMsg.append(tidString);
+      logMsg.append(":\n");
+      logMsg.append(excpt.what());
+      FDEBUG(9) << logMsg << std::endl;
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), logMsg);
+
+      throw excpt;
+    }
 
     string hltClassName(msg->hltClassName);
     sendDiscardMessage(msg->fuID, 
-		       msg->hltInstance, 
-		       I2O_FU_DATA_DISCARD,
-		       hltClassName);
+                       msg->hltInstance, 
+                       I2O_FU_DATA_DISCARD,
+                       hltClassName);
   } // end of test on if registryFUSender returned that registry is complete
 }
 
@@ -1395,25 +1449,26 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
 
     *out << "<hr/>"                                                    << endl;
 
-  // should first test if jc_ is valid
-      if(ser_prods_size_ != 0) {
-        boost::mutex::scoped_lock sl(halt_lock_);
-        if(jc_.use_count() != 0) {
-          std::list<std::string>& files = jc_->get_filelist();
-          std::list<std::string>& currfiles = jc_->get_currfiles();
+    // should first test if jc_ is valid
+    if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL &&
+       jc_->getInitMsgCollection()->size() > 0) {
+      boost::mutex::scoped_lock sl(halt_lock_);
+      if(jc_.use_count() != 0) {
+        std::list<std::string>& files = jc_->get_filelist();
+        std::list<std::string>& currfiles = jc_->get_currfiles();
 
-          if(files.size() > 0 )
+        if(files.size() > 0 )
           {
             *out << "<P>#    name                             evt        size     " << endl;
             for(list<string>::const_iterator it = files.begin();
                 it != files.end(); it++)
-                *out << "<P> " <<*it << endl;
+              *out << "<P> " <<*it << endl;
           }
-          for(list<string>::const_iterator it = currfiles.begin();
-              it != currfiles.end(); it++)
-              *out << "<P>CurrentFile = " <<*it << endl;
-        }
+        for(list<string>::const_iterator it = currfiles.begin();
+            it != currfiles.end(); it++)
+          *out << "<P>CurrentFile = " <<*it << endl;
       }
+    }
 
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
@@ -1443,32 +1498,45 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 	  consumerId = convert32(bodyPtr);
 	}
     }
-  
+
   // first test if StorageManager is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
+  if(fsm_.stateName()->toString() == "Enabled" && jc_.get() != NULL &&
+     jc_->getInitMsgCollection().get() != NULL &&
+     jc_->getInitMsgCollection()->size() > 0)
   {
-    boost::shared_ptr<EventServer> eventServer;
-    if (jc_.get() != NULL)
-    {
-      eventServer = jc_->getEventServer();
-    }
+    boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
     if (eventServer.get() != NULL)
     {
-      boost::shared_ptr< std::vector<char> > bufPtr =
-          eventServer->getEvent(consumerId);
-      if (bufPtr.get() != NULL)
+      boost::shared_ptr<ConsumerPipe> consPtr = eventServer->getConsumer(consumerId);
+      if (consPtr.get() != NULL && consPtr->hasError())
       {
-        EventMsgView msgView(&(*bufPtr)[0]);
-
-        unsigned char* from = msgView.startAddress();
-        unsigned int dsize = msgView.size();
-        if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
+        std::string errorMessage = consPtr->getErrorMessage();
+        const char* from = errorMessage.c_str();
+        unsigned int msize = errorMessage.length();
+        if(mybuffer_.capacity() < msize) mybuffer_.resize(msize);
         unsigned char* pos = (unsigned char*) &mybuffer_[0];
 
-        copy(from,from+dsize,pos);
-        len = dsize;
-        FDEBUG(10) << "sending event " << msgView.event() << std::endl;
+        copy(from,from+msize,pos);
+        len = msize;
+      }
+      else
+      {
+        boost::shared_ptr< std::vector<char> > bufPtr =
+            eventServer->getEvent(consumerId);
+        if (bufPtr.get() != NULL)
+        {
+          EventMsgView msgView(&(*bufPtr)[0]);
+
+          unsigned char* from = msgView.startAddress();
+          unsigned int dsize = msgView.size();
+          if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
+          unsigned char* pos = (unsigned char*) &mybuffer_[0];
+
+          copy(from,from+dsize,pos);
+          len = dsize;
+          FDEBUG(10) << "sending event " << msgView.event() << std::endl;
+        }
       }
     }
     
@@ -1498,6 +1566,8 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  unsigned int len = 0;
+
   // determine the consumer ID from the header request
   // message, if it is available.
   auto_ptr< vector<char> > httpPostData;
@@ -1519,67 +1589,74 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
     httpPostData = bufPtr;
   }
 
-  // Need to use the saved serialzied registry
   // first test if StorageManager is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
+  if(fsm_.stateName()->toString() == "Enabled" && jc_.get() != NULL &&
+     jc_->getInitMsgCollection().get() != NULL &&
+     jc_->getInitMsgCollection()->size() > 0)
     {
-      if(ser_prods_size_ == 0)
-	{ // not available yet - return zero length stream, should return MsgCode NOTREADY
-	  int len = 0;
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	} 
-      else 
-	{
-	  // overlay an INIT message view on the serialized
-	  // products array so that we can initialize the consumer event selection
-	  std::string errorString;
-	  InitMsgView initView(&serialized_prods_[0]);
-	  if (jc_.get() != NULL)
-	    {
-	      boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
-	      if (eventServer.get() != NULL)
-		{
-		  boost::shared_ptr<ConsumerPipe> consPtr =
-		    eventServer->getConsumer(consumerId);
-		  if (consPtr.get() != NULL)
-		    {
-		      try {
-			consPtr->initializeSelection(initView);
-		      }
-		      catch (const edm::Exception& excpt) {
-			errorString = excpt.what();
-		      }
-		    }
-		}
-	    }
-	  unsigned int len = ser_prods_size_;
-	  if (errorString.length() > 0) {len = errorString.length();}
-          if(mybuffer_.capacity() < len) mybuffer_.resize(len);
-	  if (errorString.length() > 0) {
-	    const char *errorBytes = errorString.c_str();
-	    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
-	  }
-	  else {
-	    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=serialized_prods_[i];
-	  }
-
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	}
-    } 
-  else 
-    {
-      // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-      int len = 0;
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write((char*) &mybuffer_[0],len);
+      std::string errorString;
+      InitMsgSharedPtr serializedProds;
+      boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+      if (eventServer.get() != NULL)
+      {
+        boost::shared_ptr<ConsumerPipe> consPtr =
+          eventServer->getConsumer(consumerId);
+        if (consPtr.get() != NULL)
+        {
+          // limit interactions between the list of consumers and
+          // the InitMsgCollection to a single thread
+          boost::mutex::scoped_lock sl(consumerInitMsgLock_);
+          boost::shared_ptr<InitMsgCollection> initMsgCollection =
+            jc_->getInitMsgCollection();
+          try
+          {
+            Strings consumerSelection = consPtr->getTriggerRequest();
+            serializedProds =
+              initMsgCollection->getElementForSelection(consumerSelection);
+            if (serializedProds.get() != NULL)
+            {
+              InitMsgView initView(&(*serializedProds)[0]);
+              consPtr->initializeSelection(initView);
+            }
+          }
+          catch (const edm::Exception& excpt)
+          {
+            errorString = excpt.what();
+          }
+          catch (const cms::Exception& excpt)
+          {
+            errorString.append(excpt.what());
+            errorString.append("\n");
+            errorString.append(initMsgCollection->getSelectionHelpString());
+            errorString.append("\n\n");
+            errorString.append("*** Please select trigger paths from one and ");
+            errorString.append("only one HLT output module. ***\n");
+          }
+        }
+      }
+      if (errorString.length() > 0) {
+        len = errorString.length();
+      }
+      else if (serializedProds.get() != NULL) {
+        len = serializedProds->size();
+      }
+      else {
+        len = 0;
+      }
+      if (mybuffer_.capacity() < len) mybuffer_.resize(len);
+      if (errorString.length() > 0) {
+        const char *errorBytes = errorString.c_str();
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
+      }
+      else if (serializedProds.get() != NULL) {
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=(*serializedProds)[i];
+      }
     }
-  
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+  out->write((char*) &mybuffer_[0],len);
   
   // How to block if there is no header data
   // How to signal if not yet started, so there is no registry yet?
@@ -2239,6 +2316,9 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       boost::shared_ptr<DQMEventServer>
 	DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
       jc_->setDQMEventServer(DQMeventServer);
+      boost::shared_ptr<InitMsgCollection>
+        initMsgCollection(new InitMsgCollection());
+      jc_->setInitMsgCollection(initMsgCollection);
     }
     catch(cms::Exception& e)
     {
@@ -2406,7 +2486,6 @@ void StorageManager::haltAction()
 
   // make sure serialized product registry is cleared also as its used
   // to check state readiness for web transactions
-  ser_prods_size_ = 0;
   pushMode_ = false;
 
   {
