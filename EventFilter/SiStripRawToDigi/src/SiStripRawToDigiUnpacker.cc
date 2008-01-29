@@ -184,6 +184,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       mode = fedReadoutMode( static_cast<unsigned int>( fedEvent_->getSpecialTrackerEventType() ) );
     } catch(...) { handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
     
+    // Retrive run type
+    sistrip::RunType runType_ = summary.runType();
+    if(runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) useFedKey_ = false;
+     
     // Dump of FED buffer
     if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
       std::stringstream ss;
