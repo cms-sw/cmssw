@@ -171,7 +171,6 @@ class Process(object):
                 print "WARNING: trying to override definition of process."+name
                 return
             self.__dict__[name]=newValue
-        else:
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
