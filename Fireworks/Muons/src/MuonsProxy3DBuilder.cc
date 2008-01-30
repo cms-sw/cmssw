@@ -131,7 +131,10 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
               const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
 	      TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
               if(0!=extract) {
-                 muonList->AddElement( TEveGeoShape::ImportShapeExtract(extract,0) );
+                 TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+                 shape->SetMainTransparency(50);
+                 shape->SetMainColor(tList->GetMainColor());
+                 muonList->AddElement(shape);
               }
               
               if ( matrix ) {
@@ -176,7 +179,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
            if ( ! matches.empty() ) muonList->AddElement( segmentSet.release() );
            if (outerTrack) outerTrack->MakeTrack();
         //}
-	
+	/*
 	// adjust muon chamber visibility
 	TEveElementIter iter(muonList,"\\d{8}");
 	while ( TEveElement* element = iter.current() ) {
@@ -186,6 +189,6 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	     poly->SetLineColor(Color_t(TColor::GetColor("#ff0000")));
 	   iter.next();
 	}
-
+         */
      }
 }
