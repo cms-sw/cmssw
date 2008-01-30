@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.25 2007/11/07 07:12:22 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.26 2007/12/26 20:56:04 wmtan Exp $
 //
 //
 
@@ -295,7 +295,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
                              itProv != itProvEnd;
                            ++itProv) {
-     if((*itProv)->isPresent()) {
+     if((*itProv)->product().present()) {
        friendlyName = (*itProv)->friendlyClassName();
        //if(friendlyName.empty())  friendlyName = std::string("||");
        
