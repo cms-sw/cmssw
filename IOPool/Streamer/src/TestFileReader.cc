@@ -103,7 +103,7 @@ namespace edmtestp
           new (b.buffer()) stor::FragEntry((void*)eview->startAddress(),
                                            (void*)eview->eventData(),
                                            eview->size(),1,1,
-                                           eview->code(),0,1,0,0);
+                                           eview->code(),0,1,0);
         assert(msg);
         b.commit(sizeof(stor::FragEntry));
 

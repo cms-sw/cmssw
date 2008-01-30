@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.34 2008/01/29 21:47:00 biery Exp $
+// $Id: StorageManager.cc,v 1.35 2008/01/30 16:54:33 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -329,7 +329,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
         // don't have the correct run number yet
         new (b.buffer()) stor::FragEntry(&(*serializedProds)[0], &(*serializedProds)[0], serializedProds->size(),
-                                         1, 1, Header::INIT, 0, 0, 0, 0); // use fixed 0 as ID
+                                         1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
         b.commit(sizeof(stor::FragEntry));
         // this is checked ok by default
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
@@ -483,7 +483,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
          new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
                   thismsg->frameCount+1, thismsg->numFrames, Header::EVENT, 
-                  thismsg->runID, thismsg->eventID, 0, thismsg->outModID);
+                  thismsg->runID, thismsg->eventID, thismsg->outModID);
          b.commit(sizeof(stor::FragEntry));
 
          receivedFrames_++;
@@ -537,7 +537,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     // must give it the 1 of N for this fragment (starts from 0 in i2o header)
     /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
                                 msg->frameCount+1, msg->numFrames, Header::EVENT, 
-                                msg->runID, msg->eventID, 0, msg->outModID);
+                                msg->runID, msg->eventID, msg->outModID);
     b.commit(sizeof(stor::FragEntry));
     // Frame release is done in the deleter.
     receivedFrames_++;
@@ -716,7 +716,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
          // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
          new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
                   thismsg->frameCount+1, thismsg->numFrames, Header::DQM_EVENT, 
-                  thismsg->runID, thismsg->eventAtUpdateID, thismsg->folderID, 0);
+                  thismsg->runID, thismsg->eventAtUpdateID, thismsg->folderID);
          b.commit(sizeof(stor::FragEntry));
 
          ++receivedFrames_;
@@ -746,7 +746,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
     // must give it the 1 of N for this fragment (starts from 0 in i2o header)
     /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
                                 msg->frameCount+1, msg->numFrames, Header::DQM_EVENT, 
-                                msg->runID, msg->eventAtUpdateID, msg->folderID, 0);
+                                msg->runID, msg->eventAtUpdateID, msg->folderID);
     b.commit(sizeof(stor::FragEntry));
     // Frame release is done in the deleter.
     ++receivedFrames_;

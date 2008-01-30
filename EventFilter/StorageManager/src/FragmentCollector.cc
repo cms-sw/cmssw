@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.36 2008/01/29 21:13:16 biery Exp $
+// $Id: FragmentCollector.cc,v 1.37 2008/01/30 16:51:47 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -196,7 +196,7 @@ namespace stor
     } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, 0, entry->outmodid_), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added fragment" << endl;
@@ -267,7 +267,7 @@ namespace stor
       FR_DEBUG << "FragColl: Got a DQM_Event with one segment" << endl;
       FR_DEBUG << "FragColl: DQM_Event size " << entry->buffer_size_ << endl;
       FR_DEBUG << "FragColl: DQM_Event ID " << entry->id_ << endl;
-      FR_DEBUG << "FragColl: DQM_Event folderID " << entry->folderid_ << endl;
+      FR_DEBUG << "FragColl: DQM_Event folderID " << entry->secondaryId_ << endl;
 
       DQMEventMsgView dqmEventView(entry->buffer_address_);
       /*  do not deserialize even for debug output but keep this for now
@@ -324,14 +324,14 @@ namespace stor
       //std::cout << "FragColl: Got a DQM_Event with one segment" 
       //          << " DQM_Event size " << entry->buffer_size_
       //          << " DQM_Event ID " << entry->id_
-      //          << " DQM_Event folderID " << entry->folderid_ << std::endl;
+      //          << " DQM_Event folderID " << entry->secondaryId_ << std::endl;
       // properly release (delete) the buffer
       (*buffer_deleter_)(entry);
       return;
     } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->folderid_, 0), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added DQM fragment" << endl;
