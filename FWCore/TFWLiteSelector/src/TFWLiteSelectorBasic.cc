@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.32 2007/12/15 00:24:26 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.33 2007/12/31 22:43:59 wmtan Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -47,8 +48,8 @@ namespace edm {
      public:
       FWLiteDelayedReader(): entry_(-1),eventTree_(0),reg_() {}
       virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
-      virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const&) const {
-        return std::auto_ptr<BranchEntryDescription>();
+      virtual std::auto_ptr<EntryDescription> getProvenance(BranchKey const&) const {
+        return std::auto_ptr<EntryDescription>();
       }
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
@@ -146,8 +147,8 @@ namespace edm {
       boost::shared_ptr<FWLiteDelayedReader> reader_;
       typedef std::map<ProductID, BranchDescription> ProductMap;
       ProductMap productMap_;
-      std::vector<edm::BranchEntryDescription> prov_;
-      std::vector<edm::BranchEntryDescription*> pointerToBranchBuffer_;
+      std::vector<edm::EntryDescription> prov_;
+      std::vector<edm::EntryDescription*> pointerToBranchBuffer_;
     };
   }
 }
@@ -279,15 +280,12 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;
-	 std::vector<BranchEntryDescription>::iterator pit = m_->prov_.begin();
-	 std::vector<BranchEntryDescription>::iterator pitEnd = m_->prov_.end();
+	 std::map<ProductID, BranchDescription>::iterator pit = m_->productMap_.begin();
+	 std::map<ProductID, BranchDescription>::iterator pitEnd = m_->productMap_.end();
 	 for (; pit != pitEnd; ++pit) {
-            if (not pit->productID_.isValid()) continue;
-	    if (pit->status_ != BranchEntryDescription::Success) continue;
-	    BranchDescription &product = m_->productMap_[pit->productID_];
-	    //std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
-            //std::cout<< "adding group for ID "<<prov->event.productID_<<std::endl;
-	    ep.addGroup(edm::ConstBranchDescription(product));
+	    BranchDescription &product = pit->second;
+            if (not product.productID_.isValid()) continue;
+	    ep.addGroup(edm::ConstBranchDescription(product), productstatus::present());
 	 }
 
 	 edm::ModuleDescription md;
@@ -371,9 +369,9 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
   edm::ProductRegistry::ProductList const& prodList = pReg->productList();
-  std::vector<edm::BranchEntryDescription> temp( prodList.size(), edm::BranchEntryDescription() );
+  std::vector<edm::EntryDescription> temp( prodList.size(), edm::EntryDescription() );
   m_->prov_.swap( temp);
-  std::vector<edm::BranchEntryDescription>::iterator itB = m_->prov_.begin();
+  std::vector<edm::EntryDescription>::iterator itB = m_->prov_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList.size());
   for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
        it != itEnd; ++it, ++itB) {
@@ -386,7 +384,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       //std::cout <<"id "<<it->second.productID_<<" branch "<<it->second.branchName()<<std::endl;
       m_->pointerToBranchBuffer_.push_back( & (*itB));
       void* tmp = &(m_->pointerToBranchBuffer_.back());
-      //edm::BranchEntryDescription* tmp = & (*itB);
+      //edm::EntryDescription* tmp = & (*itB);
       m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
     }
   }  
