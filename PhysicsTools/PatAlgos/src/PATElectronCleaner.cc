@@ -1,6 +1,10 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.4 2008/01/24 09:20:58 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.5 2008/01/25 15:36:49 fronga Exp $
 //
+
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
 
@@ -25,11 +29,7 @@ PATElectronCleaner::PATElectronCleaner(const edm::ParameterSet & iConfig) :
   // produces also backmatch to the original electrons
   produces<reco::CandRefValueMap>();
 
-  // Create electron selector if requested
-  doSelection_ = ( selectionType_ != "none" );
-  if ( doSelection_ ) {
-    selector_ = std::auto_ptr<ElectronSelector>( new ElectronSelector(selectionCfg_) );
-  }
+  selector_ = std::auto_ptr<ElectronSelector>( new ElectronSelector(selectionCfg_) );
 
 }
 
@@ -42,20 +42,25 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   // start a new event
   helper_.newEvent(iEvent);
 
-  // Get electron IDs if needed
+  // Get additional info from the event, if needed
+  const reco::ClusterShape* clusterShape;
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDs;
-  if ( doSelection_ && selectionType_ != "custom" ) {
+  if ( selectionType_ != "none" && selectionType_ != "custom" ) {
     iEvent.getByLabel( selectionCfg_.getParameter<edm::InputTag>("eIDsource"), 
                        electronIDs );
-  }
+  } 
 
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+
     // read the source electron
     const reco::PixelMatchGsfElectron &srcElectron = helper_.srcAt(idx);    
 
     // perform the selection
-    if ( doSelection_ &&
-         !selector_->filter(idx,helper_.source(),(*electronIDs)) ) continue;
+    if ( selectionType_ == "custom" ) {
+      const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
+      clusterShape = &(*shapeRef);
+    }
+    if ( !selector_->filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
 
     // clone the electron so we can modify it (if we want)
     reco::PixelMatchGsfElectron ourElectron = srcElectron; 
@@ -73,6 +78,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   helper_.done(); // he does event.put by itself
 }
 
+
 /* --- Original comment from TQAF follows ----
  * it is possible that there are multiple electron objects in the collection that correspond to the same
  * real physics object - a supercluster with two tracks reconstructed to it, or a track that points to two different SC
@@ -89,6 +95,39 @@ void PATElectronCleaner::removeDuplicates() {
         helper_.setMark(*it, 1);
     }
 }
+
+
+// Only needed until clustershape is inside Electron (should come in 2_0_0)
+const reco::ClusterShapeRef& 
+PATElectronCleaner::getClusterShape_( const reco::GsfElectron* electron, 
+                                      const edm::Event&        event
+                                    ) const
+{
+
+  // Get association maps linking BasicClusters to ClusterShape.
+  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleBarrel;
+  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
+  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("barrelClusterShapeAssocProducer"),
+                    clusterShapeHandleBarrel );
+  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("endcapClusterShapeAssocProducer"),
+                    clusterShapeHandleEndcap );
+
+  // Find entry in map corresponding to seed BasicCluster of SuperCluster
+  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
+  if (electron->classification()<100) 
+    {
+      seedShpItr=clusterShapeHandleBarrel->find(electron->superCluster()->seed());
+      if (electron->classification()==40 && seedShpItr == clusterShapeHandleBarrel->end()) 
+        seedShpItr = clusterShapeHandleEndcap->find(electron->superCluster()->seed());
+    } 
+  else 
+    {
+      seedShpItr = clusterShapeHandleEndcap->find(electron->superCluster()->seed());
+    }
+
+  return seedShpItr->val;
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronCleaner);

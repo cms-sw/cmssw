@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.4 2008/01/24 09:20:56 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.5 2008/01/25 15:36:41 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -13,10 +13,27 @@
    a collection of objects of ElectronType. 
 
    Electron selection is performed based on the electron ID or on user-defined cuts. 
-   The selection is steered by the configuration parameter (see electron selector for details).
+   The selection is steered by the configuration parameter:
+
+   PSet selection = {
+     string type = "none | cut | likelihood | neuralnet | custom"
+     [ // If cut-based, give electron ID source
+       InputTag eIDsource = <source>
+     ]
+     [ // If likelihood/neuralnet, give ID source and cut value
+       InputTag eIDsource = <source>
+       double value = xxx
+     ]
+     [ // If custom, give cluster shape sources and cut values
+       InputTag barrelClusterShapeAssociation = <source 1>
+       InputTag endcapClusterShapeAssociation = <source 2>
+       double <cut> = <value>
+       ...
+     ]
+   }
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.4 2008/01/24 09:20:56 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.5 2008/01/25 15:36:41 fronga Exp $
 */
 
 
@@ -28,6 +45,7 @@
 #include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
@@ -63,6 +81,14 @@ namespace pat {
       bool           doSelection_;      ///< Only false if type = "none"
       std::auto_ptr<ElectronSelector> selector_;   ///< Actually performs the selection
       
+      /// Returns the appropriate cluster shape.
+      /// This is a copy of the Egamma code and it should disappear in the future
+      /// (once cluster shapes are put directly in electron, should be in 2_0_0).
+      /// See EgammaAnalysis/ElectronIDAlgos/interface/ElectronIDAlgo.h
+      const reco::ClusterShapeRef& getClusterShape_( const reco::GsfElectron* electron, 
+                                                     const edm::Event&        event
+                                                     ) const;
+
   };
 
 
