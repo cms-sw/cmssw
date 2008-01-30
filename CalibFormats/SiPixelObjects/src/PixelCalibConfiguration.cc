@@ -46,6 +46,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="FEDAddressLevelWithTestDACs"||
 	     mode_=="FEDBaselineWithPixels"||
 	     mode_=="AOHBias"||
+	     mode_=="ConnectivityTest"||
 	     mode_=="TBMUB"||
 	     mode_=="ROCUBEqualization"||
 	     mode_=="VsfAndVHldDel"||
