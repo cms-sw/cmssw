@@ -541,7 +541,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(dataformat_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(dataformat_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( digi_client_ ) {
     htmlName = "HcalDigiClient.html";
@@ -552,7 +552,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(digi_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(digi_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( tp_client_ ) {
     htmlName = "HcalTrigPrimClient.html";
@@ -563,7 +563,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(tp_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(tp_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( rechit_client_ ) {
     htmlName = "HcalRecHitClient.html";
@@ -574,7 +574,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(rechit_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(rechit_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( hot_client_ ) {
     htmlName = "HcalHotCellClient.html";
@@ -585,7 +585,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(hot_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(hot_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( dead_client_) {
     htmlName = "HcalDeadCellClient.html";
@@ -596,7 +596,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(dead_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(dead_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   if( pedestal_client_) {
     htmlName = "HcalPedestalClient.html";
@@ -609,7 +609,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(pedestal_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
 
   if( led_client_) {
@@ -623,7 +623,7 @@ void HcalMonitorClient::htmlOutput(void){
     else if(led_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     
-    htmlFile << "</table>" << endl;
+    htmlFile << "</tr></table>" << endl;
   }
   
   htmlFile << "</ul>" << endl;
