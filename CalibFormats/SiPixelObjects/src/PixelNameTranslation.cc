@@ -93,7 +93,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 	           assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
 	           assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
 	           assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
-	           assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+	           //assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
 	           assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
 	           assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
 	        }
@@ -232,7 +232,7 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	           assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
 	           assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
 	           assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
-	           assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+	           //assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
 	           assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
 	           assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
 	        }
