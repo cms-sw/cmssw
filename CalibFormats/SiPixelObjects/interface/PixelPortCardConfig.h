@@ -35,6 +35,8 @@ namespace pos{
     unsigned int getdeviceValues(unsigned int i) const;
     unsigned int getdeviceAddressForSetting(std::string settingName) const;
     unsigned int getdeviceValuesForSetting(std::string settingName) const;
+    unsigned int getdeviceValuesForAddress(unsigned int address) const;
+    unsigned int getAOHBias(unsigned int AOHNumber) const {return getdeviceValuesForAddress(AOHBiasAddressFromAOHNumber(AOHNumber));}
     void setdeviceValues(unsigned int address, unsigned int value);
     void setdeviceValues(std::string settingName, unsigned int value);
   

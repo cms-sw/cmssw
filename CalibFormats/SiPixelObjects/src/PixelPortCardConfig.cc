@@ -410,7 +410,11 @@ unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string setting
 
 unsigned int PixelPortCardConfig::getdeviceValuesForSetting(std::string settingName) const
 {
-	unsigned int address = getdeviceAddressForSetting(settingName);
+	return getdeviceValuesForAddress( getdeviceAddressForSetting(settingName) );
+}
+
+unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address) const
+{
 	for (unsigned int i=0; i<device_.size(); i++)
     {
       if( device_.at(i).first==address )
