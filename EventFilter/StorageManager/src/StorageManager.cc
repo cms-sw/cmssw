@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.35 2008/01/30 16:54:33 biery Exp $
+// $Id: StorageManager.cc,v 1.36 2008/01/30 17:31:38 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -396,6 +396,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
       logMsg.append(tidString);
       logMsg.append(":\n");
       logMsg.append(excpt.what());
+      logMsg.append("\n");
+      logMsg.append(initMsgCollection->getSelectionHelpString());
       FDEBUG(9) << logMsg << std::endl;
       LOG4CPLUS_ERROR(this->getApplicationLogger(), logMsg);
 

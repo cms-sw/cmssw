@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.h,v 1.1 2008/01/18 19:14:10 biery Exp $
+ * $Id: InitMsgCollection.cc,v 1.1 2008/01/29 20:26:36 biery Exp $
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -184,7 +184,10 @@ bool InitMsgCollection::testAndAddIfUnique(InitMsgView const& initMsgView)
           throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
             << "INIT messages from the \"" << inputOMLabel << "\" and \""
             << existingOMLabel << "\" output modules have "
-            << "overlapping HLT trigger selections!" << std::endl;
+            << "overlapping HLT trigger selections: "
+            << stringsToText(inputSelectionList, 10) << " and "
+            << stringsToText(existingSelectionList, 10) << "."
+            << std::endl;
         }
       }
     }
