@@ -174,10 +174,16 @@ void ESDataIntegrityClient::doQT() {
     hFlag2_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
 
-  MonitorElement * meEvtLen =  dbe_->get(getMEName("ES Event Length"));
+  MonitorElement * meEvtLen = dbe_->get(getMEName("ES Event Length"));
   if (meEvtLen) {
     meT = dynamic_cast<MonitorElementT<TNamed>*>(meEvtLen);
     hEvtLen_ = dynamic_cast<TH1F*> (meT->operator->());
+  }
+
+  MonitorElement * meFedIds = dbe_->get(getMEName("ES DCC FedId"));
+  if (meFedIds) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meFedIds);
+    hFedIds_ = dynamic_cast<TH1F*> (meT->operator->());
   }
 
 }
@@ -268,6 +274,27 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
       htmlFile << "<tr align=\"center\">" << endl;
       htmlFile << "<td>" << i-1 << "</td>" << endl;
       htmlFile << "<td>" << hEvtLen_->GetBinContent(i, 1) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
+  // Data from which Fed ID
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">Data from which FED id </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>FED id : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=50; ++i) {
+    if (hFedIds_->GetBinContent(i, 1) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << i-1 << "</td>" << endl;
+      htmlFile << "<td>" << hFedIds_->GetBinContent(i, 1) << "</td>" << endl;
       htmlFile << "</tr>" << endl; 
     }
   }
