@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.99 2008/01/21 03:11:46 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.100 2008/01/29 21:02:25 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -30,6 +30,7 @@ namespace edm {
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
+    fastMetaCloning_(fastCloning_),
     fileBlock_(0),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
@@ -47,7 +48,9 @@ namespace edm {
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
       if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 3) {
-	fastCloning_ = false;
+	fastCloning_ = fastMetaCloning_ = false;
+      } else if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 6) {
+	fastMetaCloning_ = false;
       }
       doOpenFile();
       respondToOpenInputFile(fb);
@@ -57,12 +60,11 @@ namespace edm {
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
     fileBlock_ = const_cast<FileBlock *>(&fb);
     if (isFileOpen()) {
-      bool fastCloneThisOne = fastCloning_ &&
-			    fb.tree() != 0 &&
+      bool fastCloneThisOne = fb.tree() != 0 &&
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries()) &&
                             (remainingLuminosityBlocks() < 0 ||
                              fb.lumiTree() != 0 && remainingLuminosityBlocks() >= fb.lumiTree()->GetEntries());
-      rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
+      rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_, fastCloneThisOne && fastMetaCloning_);
     }
   }
 

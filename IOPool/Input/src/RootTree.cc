@@ -22,17 +22,25 @@ namespace edm {
       }
       return branch;
     }
+    TBranch * getStatusBranch(TTree * tree, BranchType const& branchType) {
+      TBranch *branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str());
+      return branch;
+    }
   }
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
+    infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
+    statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
-    branches_(new BranchMap)
+    branches_(new BranchMap),
+    productStatuses_(),
+    pProductStatuses_(&productStatuses_)
   { }
 
   bool
@@ -75,14 +83,23 @@ namespace edm {
     if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
     // Loop over provenance
     BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end();
-    for (; pit != pitEnd; ++pit) {
-      item.addGroup(pit->second.branchDescription_);
+    if (productStatuses_.empty()) {
+      // For backward compatibility
+      for (; pit != pitEnd; ++pit) {
+        ConstBranchDescription const& bd = pit->second.branchDescription_;
+        item.addGroup(bd, productstatus::unknown());
+      }
+    } else {
+      for (; pit != pitEnd; ++pit) {
+        ConstBranchDescription const& bd = pit->second.branchDescription_;
+        item.addGroup(bd, productStatuses_[bd.productID().id() - 1]);
+      }
     }
   }
 
   boost::shared_ptr<DelayedReader>
-  RootTree::makeDelayedReader() const {
-    boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
+  RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
+    boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
     return store;
   }
 }

@@ -11,6 +11,7 @@ class TBranch;
 
 namespace edm {
   class BranchKey;
+  class FileFormatVersion;
   class RootFile;
   class RootDelayedReader;
   class RootTree;

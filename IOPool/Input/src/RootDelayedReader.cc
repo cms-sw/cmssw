@@ -1,11 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.17 2007/10/09 07:10:40 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.18 2007/12/31 10:18:17 elmer Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
 #include "IOPool/Common/interface/RefStreamer.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "TROOT.h"
 #include "TClass.h"
@@ -15,8 +16,9 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
  boost::shared_ptr<BranchMap const> bMap,
- boost::shared_ptr<TFile const> filePtr)
- : entryNumber_(entry), branches_(bMap), filePtr_(filePtr) {}
+ boost::shared_ptr<TFile const> filePtr,
+ FileFormatVersion const& fileFormatVersion)
+ : entryNumber_(entry), branches_(bMap), filePtr_(filePtr), fileFormatVersion_(fileFormatVersion) {}
 
   RootDelayedReader::~RootDelayedReader() {}
 
@@ -33,11 +35,18 @@ namespace edm {
     return p;
   }
 
-  std::auto_ptr<BranchEntryDescription>
+  std::auto_ptr<EntryDescription>
   RootDelayedReader::getProvenance(BranchKey const& k) const {
     TBranch *br = branches().find(k)->second.provenanceBranch_;
-    std::auto_ptr<BranchEntryDescription> p(new BranchEntryDescription); 
-    BranchEntryDescription *pp = p.get();
+    if (fileFormatVersion_.value_ <= 5) {
+      std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription); 
+      BranchEntryDescription *ppb = pb.get();
+      br->SetAddress(&ppb);
+      br->GetEntry(entryNumber_);
+      return pb->convertToEntryDescription(); 
+    }
+    std::auto_ptr<EntryDescription> p(new EntryDescription); 
+    EntryDescription *pp = p.get();
     br->SetAddress(&pp);
     br->GetEntry(entryNumber_);
     return p;

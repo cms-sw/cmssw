@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.108 2008/01/18 00:53:50 wmtan Exp $
+$Id: RootFile.cc,v 1.109 2008/01/21 03:11:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -368,6 +368,9 @@ namespace edm {
 
   void
   RootFile::fillEventAuxiliary() {
+    if (fileFormatVersion_.value_ >= 6) {
+      eventTree_.fillStatus();
+    }
     if (fileFormatVersion_.value_ >= 3) {
       EventAuxiliary *pEvAux = &eventAux_;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
@@ -399,6 +402,9 @@ namespace edm {
 
   void
   RootFile::fillLumiAuxiliary() {
+    if (fileFormatVersion_.value_ >= 6) {
+      lumiTree_.fillStatus();
+    }
     if (fileFormatVersion_.value_ >= 3) {
       LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
       lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
@@ -412,6 +418,9 @@ namespace edm {
 
   void
   RootFile::fillRunAuxiliary() {
+    if (fileFormatVersion_.value_ >= 6) {
+      runTree_.fillStatus();
+    }
     if (fileFormatVersion_.value_ >= 3) {
       RunAuxiliary *pRunAux = &runAux_;
       runTree_.fillAux<RunAuxiliary>(pRunAux);
@@ -511,7 +520,7 @@ namespace edm {
 		eventAux_.bunchCrossing(),
                 eventAux_.storeNumber(),
 		eventAux_.processHistoryID_,
-		eventTree_.makeDelayedReader()));
+		eventTree_.makeDelayedReader(fileFormatVersion_)));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(thisEvent->groupGetter());
@@ -571,7 +580,7 @@ namespace edm {
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
-			 runTree_.makeDelayedReader()));
+			 runTree_.makeDelayedReader(fileFormatVersion_)));
     // Create a group in the run for each product
     runTree_.fillGroups(thisRun->groupGetter());
     // Read in all the products now.
@@ -642,7 +651,7 @@ namespace edm {
 				     lumiAux_.endTime(),
 				     pReg, rp, processConfiguration_,
 				     lumiAux_.processHistoryID_,
-				     lumiTree_.makeDelayedReader()));
+				     lumiTree_.makeDelayedReader(fileFormatVersion_)));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(thisLumi->groupGetter());
     // Read in all the products now.

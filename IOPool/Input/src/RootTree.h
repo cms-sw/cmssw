@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.19 2007/11/22 16:58:44 wmtan Exp $
+$Id: RootTree.h,v 1.20 2007/11/27 21:01:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,12 +43,16 @@ namespace edm {
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     void fillGroups(Principal& item);
-    boost::shared_ptr<DelayedReader> makeDelayedReader() const;
+    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
       auxBranch_->SetAddress(&pAux);
       auxBranch_->GetEntry(entryNumber_);
+    }
+    void fillStatus() {
+      statusBranch_->SetAddress(&pProductStatuses_);
+      statusBranch_->GetEntry(entryNumber_);
     }
     TTree const* tree() const {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
@@ -59,12 +63,16 @@ namespace edm {
 // Therefore,using smart pointers here will do no good.
     TTree *const tree_;
     TTree *const metaTree_;
+    TTree *const infoTree_;
     BranchType branchType_;
     TBranch *const auxBranch_;
+    TBranch *const statusBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
+    ProductStatusVector productStatuses_;
+    ProductStatusVector* pProductStatuses_;
   };
 }
 #endif

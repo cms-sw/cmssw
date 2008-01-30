@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.38 2008/01/10 17:32:57 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.39 2008/01/29 21:02:25 paterno Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -46,6 +46,7 @@ namespace edm {
       fileSizeCheckEvent_(100),
       om_(om),
       currentlyFastCloning_(),
+      currentlyFastMetaCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       fileIndex_(),
@@ -55,19 +56,17 @@ namespace edm {
       eventProcessHistoryIDs_(),
       metaDataTree_(0),
       entryDescriptionTree_(0),
-      eventAux_(),
-      lumiAux_(),
-      runAux_(),
-      pEventAux_(&eventAux_),
-      pLumiAux_(&lumiAux_),
-      pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(), om_->fastCloning(),
+      pEventAux_(0),
+      pLumiAux_(0),
+      pRunAux_(0),
+      pProductStatuses_(0),
+      eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(),
+        om_->fastCloning(), om_->fastMetaCloning(),
         om_->fileBlock_->tree(), om_->fileBlock_->metaTree(),
 	om_->droppedPriorProducts()[InEvent], om_->fileBlock_->oldBranchNames()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
+      runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
-      provenances_(),
       newFileAtEndOfRun_(false) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -80,7 +79,7 @@ namespace edm {
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
+	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->entryDescription_, it->product_);
       }
     }
     // Don't split metadata tree or eventDescriptionTree
@@ -120,12 +119,11 @@ namespace edm {
   }
 
 
-  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneThisOne) {
-    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastCloneThisOne;
-    eventTree_.beginInputFile(currentlyFastCloning_);
-    if (currentlyFastCloning_) {
-      eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
-    }
+  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone, bool fastMetaClone) {
+    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+    currentlyFastMetaCloning_ = om_->fastCloning() && fb.fastClonable() && fastMetaClone;
+    eventTree_.beginInputFile(currentlyFastCloning_, currentlyFastMetaCloning_);
+    eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
@@ -139,6 +137,9 @@ namespace edm {
 
     // Auxiliary branch
     pEventAux_ = &e.aux();
+
+    // Product Statuses
+    pProductStatuses_ = &e.productStatuses();
 
     // Add event to index
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
@@ -172,6 +173,8 @@ namespace edm {
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     // Auxiliary branch
     pLumiAux_ = &lb.aux();
+    // Product Statuses
+    pProductStatuses_ = &lb.productStatuses();
     // Add lumi to index.
     fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
@@ -181,6 +184,8 @@ namespace edm {
   bool RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
     pRunAux_ = &r.aux();
+    // Product Statuses
+    pProductStatuses_ = &r.productStatuses();
     // Add run to index.
     fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
@@ -263,7 +268,7 @@ namespace edm {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
 
-    entryDescriptionTree_->SetEntries(-1);
+    //entryDescriptionTree_->SetEntries(-1);
     RootOutputTree::writeTTree(entryDescriptionTree_);
 
     // Create branch aliases for all the branches in the
@@ -271,7 +276,6 @@ namespace edm {
     // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      buildIndex(treePointers_[branchType]->tree(), branchType);
       setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
     }
@@ -288,17 +292,15 @@ namespace edm {
 
   void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
 
-    // Clear the provenance cache for the previous event/lumi/run
-    provenances_.clear();
-
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
+    bool const fastMetaCloning = (branchType == InEvent) && currentlyFastMetaCloning_;
 
     OutputItemList const& items = outputItemList_[branchType];
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
       // If fast cloning, process only produced or renamed branches.
-      if (fastCloning && !i->branchDescription_->produced() && !i->renamed_) continue;
+      if (fastCloning && fastMetaCloning && !i->branchDescription_->produced() && !i->renamed_) continue;
 
       ProductID const& id = i->branchDescription_->productID_;
 
@@ -313,15 +315,9 @@ namespace edm {
 	// No group with this ID is in the event.
 	// Create and write the provenance.
 	if (i->branchDescription_->produced_) {
-          BranchEntryDescription provenance;
+          EntryDescription provenance;
 	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-	  provenance.productID_ = id;
-	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
-	  provenance.isPresent_ = false;
-	  provenance.cid_ = 0;
-	  
-	  provenances_.push_front(provenance); 
-	  i->branchEntryDescription_ = &*provenances_.begin();
+	  i->entryDescription_ = &provenance;
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
@@ -329,18 +325,8 @@ namespace edm {
 	}
       } else {
 	product = bh.wrapper();
-        BranchEntryDescription const& provenance = bh.provenance()->event();
-	// There is a group with this ID is in the event.  Write the provenance.
-	bool present = i->selected_ && product && product->isPresent();
-	if (present == provenance.isPresent()) {
-	  // The provenance can be written out as is, saving a copy. 
-	  i->branchEntryDescription_ = &provenance;
-	} else {
-	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  provenances_.push_front(provenance);
-	  provenances_.begin()->isPresent_ = present;
-	  i->branchEntryDescription_ = &*provenances_.begin();
-	}
+        EntryDescription const& provenance = bh.provenance()->event();
+	i->entryDescription_ = &provenance;
       }
       if (i->selected_) {
 	if (product == 0) {
@@ -354,29 +340,6 @@ namespace edm {
     treePointers_[branchType]->fillTree();
   }
 
-
-
-  void
-  RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
-
-    if (tree->GetNbranches() == 0) return;
-    tree->SetEntries(-1);
-    if (tree->GetEntries() == 0) return;
-
-    // BuildIndex must read the auxiliary branch, so the
-    // buffers need to be set to point to allocated memory.
-    pEventAux_ = &eventAux_;
-    pLumiAux_ = &lumiAux_;
-    pRunAux_ = &runAux_;
-
-    if (BranchTypeToMinorIndexName(branchType).empty()) {
-      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
-    } else {
-      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
-	 	       BranchTypeToMinorIndexName(branchType).c_str());
-    }
-  }
-  
   void
   RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
     if (tree && tree->GetNbranches() != 0) {

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.42 2008/01/10 17:32:57 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.43 2008/01/29 21:02:25 paterno Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -36,6 +36,7 @@ namespace edm {
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
     bool const& fastCloning() const {return fastCloning_;}
+    bool const& fastMetaCloning() const {return fastMetaCloning_;}
 
   private:
     virtual void openFile(FileBlock const& fb);
@@ -70,6 +71,7 @@ namespace edm {
     int const basketSize_;
     int const splitLevel_;
     bool fastCloning_;
+    bool fastMetaCloning_;
     FileBlock *fileBlock_;
     std::string const moduleLabel_;
     int fileCount_;
