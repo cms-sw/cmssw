@@ -1,0 +1,14 @@
+%MSG-s CMSException:  pre-events
+cms::Exception caught in cmsRun
+---- Configuration BEGIN
+Error occured while creating MessageLogger
+---- Configuration BEGIN
+Duplicate name for a MessageLogger Destination: u24.log
+
+ The preceding exception was thrown in MessageLoggerScribe
+and forwarded to the main thread from the Messages thread.
+---- Configuration END
+---- Configuration END
+
+
+%MSG
