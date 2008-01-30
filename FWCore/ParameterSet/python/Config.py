@@ -160,9 +160,6 @@ class Process(object):
             else:
                 raise TypeError("an instance of "+str(type(value))+" can not be assigned the label '"+name+"'.\n"+
                                 "Please either use the label '"+value.type_()+" or use the 'add_' method instead.")
-        if not self._okToPlace(name, value, self.__dict__):
-            print "WARNING: trying to override definition of process."+name
-            return
         #clone the item
         newValue =value.copy()
 
@@ -170,7 +167,11 @@ class Process(object):
         # however, only one of them can take the attribute name and it by rights should go to
         # the module and not the ESPrefer
         if not isinstance(value,ESPrefer):
+            if not self._okToPlace(name, value, self.__dict__):
+                print "WARNING: trying to override definition of process."+name
+                return
             self.__dict__[name]=newValue
+        else:
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
@@ -239,7 +240,7 @@ class Process(object):
     def _placeESProducer(self,name,mod):
         self._place(name, mod, self.__esproducers)
     def _placeESPrefer(self,name,mod):
-        self._place(name, mod, self.__esproducers)
+        self._place(name, mod, self.__esprefers)
     def _placeESSource(self,name,mod):
         self._place(name, mod, self.__essources)
     def _placePSet(self,name,mod):
