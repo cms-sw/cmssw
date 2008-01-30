@@ -45,12 +45,14 @@ public:
   
   typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
   void dbRecordCallback(const HcalDbRecord&);
+
   ReturnType produce(const HcalTPGRecord&);
 private:
   // ----------member data ---------------------------
-  edm::FileInPath *ifilename_,*ofilename_;
+  edm::FileInPath *ifilename_;
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder;
+  bool read_Ascii;
 };
 
 //
@@ -66,32 +68,37 @@ private:
 //
 HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) 
 {
-  ifilename_=0;
+  /*
+  ifilename_=0;  
   try {
     ofilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("outputLUTs"));
   } catch (...) {
     ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
     ofilename_=0;
   }
+  */
+  read_Ascii=false;
+  read_Ascii=iConfig.getParameter<bool>("read_Ascii_LUTs");
+  if (read_Ascii==true) ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
+  else ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
 
-  if (ifilename_==0) {
-    ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
-  }
-  
+
    //the following line is needed to tell the framework what
    // data is being produced
-  setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
-  //  findingRecord<HcalTPGRecord>();
+   if (read_Ascii==false) setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
+   else setWhatProduced(this);
+
   
   //now do what ever other initialization is needed
    using namespace edm::es;
-   if (ofilename_!=0) {
-     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " and " << ofilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),ofilename_->fullPath().c_str());
+   if (read_Ascii==true){
+     edm::LogInfo("HCAL") << "Using ASCII LUTs" << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii);
      coder_=ReturnType(theCoder);
-   } else {
+   } 
+   else {
      edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str());
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii);
      coder_=ReturnType(theCoder);
    }  
 }
@@ -103,7 +110,7 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
-  if (ofilename_!=0) delete ofilename_;
+ 
   if (ifilename_!=0) delete ifilename_;
 }
 
