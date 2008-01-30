@@ -20,23 +20,27 @@ namespace popcon
   template <class T>
     class PopConSourceHandler{
     public: 
+
+    typedef PopConSourceHandler<T> self;
+
     PopConSourceHandler( const std::string& name, 
-			 const std::string& connect_string,
-			 const edm::Event& evt, const edm::EventSetup& est) : myname(name), event(evt), esetup(est)
-      {
-	m_db_iface = new popcon::OfflineDBInterface(connect_string);
-	m_to_transfer = new std::vector<std::pair<T*,popcon::IOVPair> >;
-      }
+			 const std::string& connect_string) : 
+      myname(name), 
+      m_db_iface(connect_string) {}
+
     virtual ~PopConSourceHandler(){
-      delete m_to_transfer;
-      delete m_db_iface;
     }
     
-    unsigned int getSinceForTag(const std::string& tag){
+    // this is the only mandatory interface
+    std::vector<std::pair<T*, popcon::IOVPair> > const & operator()() const {
+      const_cast<self*>(this)->returnData();
+    }
+
+    unsigned int getSinceForTag(const std::string& tag) const {
       return (m_db_iface->getSpecificTagInfo(tag)).last_since;
     }
 
-    std::vector<std::pair<T*, popcon::IOVPair> >* returnData(){
+    std::vector<std::pair<T*, popcon::IOVPair> > const &  returnData() {
       this->getNewObjects();
       return this->m_to_transfer;
     }
@@ -51,12 +55,10 @@ namespace popcon
     private:
     std::string myname;
     //Offline Database Interface object
-    popcon::OfflineDBInterface* m_db_iface;
+    popcon::OfflineDBInterface m_db_iface;
     
     protected:
-    const edm::Event& event;
-    const edm::EventSetup& esetup;
-    
+     
     //Is is sufficient for getNewObjects algorithm?
     std::map<std::string, PayloadIOV> getOfflineInfo(){
       return m_db_iface->getStatusMap();
@@ -64,7 +66,7 @@ namespace popcon
       
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
-    std::vector<std::pair<T*, popcon::IOVPair> >* m_to_transfer;
+    std::vector<std::pair<T*, popcon::IOVPair> >  m_to_transfer;
   };
 }
 #endif

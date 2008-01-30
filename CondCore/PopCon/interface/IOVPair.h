@@ -1,16 +1,11 @@
-#ifndef IOV_PAIR_H
-#define IOV_PAIR_H
+#ifndef POPCON_IOV_PAIR_H
+#define POPCON_IOV_PAIR_H
 
 namespace popcon
 {
-
-	struct IOVPair
-	{
-		unsigned int since;
-		unsigned int till;
-	};
-
+  using cond::ValidityInterval; 
+  typedef cond::ValidityInterval  IOVPair;
 }
 
 
-#endif
+#endif // POPCON_IOV_PAIR_H
