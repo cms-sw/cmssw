@@ -144,9 +144,14 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   }
 
   // Showering muon
-  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower && nLayers > 5 ) {
+  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower && nLayers > 2 ) {
     CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
+
+    // Make sure have at least 3 hits...
+    if ( segShower.nRecHits() < 3 ) return segmentInChamber;
+
     segmentInChamber.push_back(segShower);
+
     return segmentInChamber;
   }
 
@@ -204,7 +209,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 	
       // Check no. of hits on segment to see if segment is large enough
       bool segok = true;
-      unsigned iadd = ( nHitInChamber > 10 )? iadd = 1 : 0;
+      unsigned iadd = 0;
 
       if (protoSegment.size() < minHitsPerSegment+iadd) segok = false;
   
@@ -699,3 +704,33 @@ void CSCSegAlgoDF::pruneFromResidual(){
 
 }
 
+
+/*
+ * Order the hits such that 2nd one is closest in x,y to first seed hit in global coordinates
+ */
+void CSCSegAlgoDF::orderSecondSeed( GlobalPoint gp1,
+                                           const ChamberHitContainerCIt i1, 
+                                           const ChamberHitContainerCIt i2, 
+                                           const ChamberHitContainer& rechits, 
+                                           LayerIndex layerIndex ) {
+
+  secondSeedHits.clear();
+
+  ChamberHitContainerCIt ib = rechits.begin();
+  ChamberHitContainerCIt ie = rechits.end();
+
+  int layer1 = layerIndex[i1-ib];
+  int layer2 = layerIndex[i2-ib];
+
+
+  // Now fill vector of rechits closest to center of mass:
+  // secondSeedHitsIdx.clear() = 0;
+
+  // Loop over all hits and find hit closest to 1st seed.
+  for ( ChamberHitContainerCIt i2 = ie-1; i2 > i1; --i2 ) {	
+
+
+  }
+
+        
+}

@@ -34,8 +34,38 @@ class CSCSegAlgoShowering {
 
   CSCSegment showerSeg( const CSCChamber* aChamber, ChamberHitContainer rechits );
 
+
  private:
-  bool debug;
+
+  /// Utility functions 	
+  bool isHitNearSegment(const CSCRecHit2D* h) const;
+  bool addHit(const CSCRecHit2D* hit, int layer);
+  void updateParameters(void);
+  bool hasHitOnLayer(int layer) const;
+  void compareProtoSegment(const CSCRecHit2D* h, int layer);
+  AlgebraicSymMatrix calculateError(void) const;
+  void pruneFromResidual();
+
+  // Member variables
+  const std::string myName; 
+  const CSCChamber* theChamber;
+
+  ChamberHitContainer protoSegment;
+  float       protoSlope_u;
+  float       protoSlope_v;
+  LocalPoint  protoIntercept;		
+  double      protoChi2;
+  LocalVector protoDirection;
+
+  // input from .cfi file
+  bool   debug;
+  int    minHitsPerSegment;
+  double dRPhiFineMax;
+  double dPhiFineMax;
+  float  tanPhiMax;
+  float  tanThetaMax;
+  float  chi2Max;
+  float  maxRatioResidual;
 
 };
 #endif

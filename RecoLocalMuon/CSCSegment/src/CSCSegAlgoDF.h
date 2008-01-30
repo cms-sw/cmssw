@@ -104,14 +104,24 @@ private:
    */
   void pruneFromResidual();
 
+
+  /** 
+   * Order the hits on the 2nd layer for seed building
+   */
+  void orderSecondSeed( GlobalPoint gp1, 
+                                  const ChamberHitContainerCIt i1,
+                                  const ChamberHitContainerCIt i2,
+	                          const ChamberHitContainer& rechits,
+                                  LayerIndex layerIndex );
+
 	
-  /// Utility functions 	
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
   void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
   AlgebraicSymMatrix calculateError(void) const;
+
 
   // Member variables
   const std::string myName; 
@@ -121,6 +131,7 @@ private:
   ChamberHitContainer closeHits;
 
   ChamberHitContainer protoSegment;
+  ChamberHitContainer secondSeedHits;
   float       protoSlope_u;
   float       protoSlope_v;
   LocalPoint  protoIntercept;		

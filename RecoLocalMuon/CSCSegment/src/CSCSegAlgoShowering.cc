@@ -26,6 +26,11 @@
  */
 CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) {
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
+  dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
+  dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
+  tanThetaMax            = ps.getParameter<double>("tanThetaMax");
+  tanPhiMax              = ps.getParameter<double>("tanPhiMax");	
+  maxRatioResidual       = ps.getParameter<double>("maxRatioResidualPrune");
 }
 
 
@@ -37,11 +42,12 @@ CSCSegAlgoShowering::~CSCSegAlgoShowering(){
 }
 
 
-/* clusterHits
+/* showerSeg
  *
  */
-CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, ChamberHitContainer rechits ) {
+CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHitContainer rechits ) {
 
+  theChamber = aChamber;
   // Initialize parameters
   std::vector<float> x, y, gz;
   std::vector<int> n;
@@ -70,17 +76,93 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
 
 
   std::vector<LocalPoint> lpCOM;
-  LocalPoint test(9999.,9999.,0);
-  // Determine center of mass for each layer  
+  // Determine center of mass for each layer and average center of mass for chamber
+  float avgChamberX = 0.;
+  float avgChamberY = 0.;
+  int n_lay = 0;
+
+  for (unsigned i = 0; i < 6; ++i) {
+    if (n[i] < 1 ) continue;
+ 
+    x[i] = x[i]/n[i];
+    y[i] = y[i]/n[i];
+    avgChamberX += x[i];
+    avgChamberY += y[i];
+    n_lay++;
+
+  }
+
+  if ( n_lay > 0) {
+    avgChamberX = avgChamberX / n_lay;
+    avgChamberY = avgChamberY / n_lay;
+  }
+ 
+
+  // Find the 2 averages which are furthest away from average
+  unsigned worse_lay_1 = 10;
+  unsigned worse_lay_2 = 10;
+  float worse_deltaR_1 = 0.;
+  float worse_deltaR_2 = 0.;
+
+  for (unsigned i = 0; i < 6; ++i) {
+    if (n[i] < 1 ) continue;
+ 
+    float deltaR = (avgChamberX-x[i])*(avgChamberX-x[i]) + (avgChamberY-y[i])*(avgChamberY-y[i]);
+
+    if (deltaR > worse_deltaR_1 ) {
+      worse_lay_1 = i;
+      worse_deltaR_1 = deltaR;
+    }
+    else if (deltaR > worse_deltaR_2 ) {
+      worse_lay_2 = i;
+      worse_deltaR_2 = deltaR;
+    }
+
+  }
+
+
+  // Recompute Global average without those 2 worse averages
+  float avgChamberX2 = 0.;
+  float avgChamberY2 = 0.;
+  unsigned n_lay2 = 0;
+
+  for (unsigned i = 0; i < 6; ++i) {
+    if (n[i] < 1 ) continue;
+ 
+    if ( n_lay > 3 && i == worse_lay_1 ) continue;
+    if ( n_lay > 4 && i == worse_lay_2 ) continue;
+
+    avgChamberX2 += x[i];
+    avgChamberY2 += y[i];
+    n_lay2++;
+  }
+
+  if ( n_lay2 > 0 ) {
+    avgChamberX = avgChamberX2 / n_lay2;
+    avgChamberY = avgChamberY2 / n_lay2;
+  }
+
+
+
+  // Store average value for each layer into a local point
+  LocalPoint defaultLP(avgChamberX,avgChamberY,0.);
+
   for (unsigned i = 0; i < 6; ++i) {
     if (n[i] > 0) {
-      x[i]/n[i];
-      y[i]/n[i];
-      LocalPoint lpt(x[i],y[i],0.);
-      lpCOM.push_back(lpt);
+
+      if ( n_lay > 3 && i == worse_lay_1 ) {
+        lpCOM.push_back(defaultLP);
+      }
+      else if ( n_lay > 4 && i == worse_lay_2 ) {;
+        lpCOM.push_back(defaultLP);
+      }
+      else {
+        LocalPoint lpt(x[i],y[i],0.);
+        lpCOM.push_back(lpt);
+      }  
     }
     else {
-      lpCOM.push_back(test);
+      lpCOM.push_back(defaultLP);
     }
   }
 
@@ -97,38 +179,35 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
   // Loop over all hits and find hit closest to com for that layer.
   for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {    
     const CSCRecHit2D& hit = (**it);
-    int l_id = hit.cscDetId().layer();
+    int layId = hit.cscDetId().layer();
     const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp);
 
-    float d_x = lp.x() -lpCOM[l_id -1].x();
-    float d_y = lp.y() -lpCOM[l_id -1].y();
+    float d_x = lp.x() - lpCOM[layId-1].x();
+    float d_y = lp.y() - lpCOM[layId-1].y();
 
     LocalPoint diff(d_x, d_y, 0.);
     
-    if ( fabs(diff.mag() ) < r_closest[l_id -1] ) {
-       r_closest[l_id -1] =  fabs(diff.mag());
-       id[l_id -1] = idx;
+    if ( fabs(diff.mag() ) < r_closest[layId-1] ) {
+       r_closest[layId-1] =  fabs(diff.mag());
+       id[layId-1] = idx;
     }
     idx++;
-    
   }
 
   // Now fill vector of rechits closest to center of mass:
+  protoSegment.clear();
   idx = 0;
-  ChamberHitContainer protoSegment;
 
   // Loop over all hits and find hit closest to com for that layer.
   for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {    
     const CSCRecHit2D& hit = (**it);
-    int l_id = hit.cscDetId().layer();
+    int layId = hit.cscDetId().layer();
 
-    if ( idx == id[l_id -1] ) {
-       protoSegment.push_back(*it);
-    }
-    idx++;
-    
+    if ( idx == id[layId-1] )protoSegment.push_back(*it);
+
+    idx++;    
   }
 
   // Reorder hits in protosegment
@@ -144,14 +223,118 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
   }
 
 
+  // Compute the segment properties
+  updateParameters();
 
-  // Compute Segment slope and Intercept from Least Square Fit    
+  // Clean up protosegment if there is one very bad hit on segment
+  if (protoSegment.size() > 3) pruneFromResidual();
 
-  float protoSlope_u = 0.;
-  float protoSlope_v = 0.;
-  double protoChi2 = 1.;
-  LocalPoint  protoIntercept;
+  // Look for better hits near segment  
+  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {
 
+    const CSCRecHit2D* h = *it;
+    int layer = h->cscDetId().layer();
+
+    if ( isHitNearSegment( h ) ) compareProtoSegment(h, layer);
+  }
+
+
+  // Prune worse hit if necessary
+  if ( protoSegment.size() > 5 ) pruneFromResidual();
+
+  // Update the parameters
+  updateParameters();
+
+  // Local direction
+  double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
+  double dx   = dz*protoSlope_u;
+  double dy   = dz*protoSlope_v;
+  LocalVector localDir(dx,dy,dz);
+        
+  // localDir may need sign flip to ensure it points outward from IP  
+  double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
+  double globalZdir    = ( theChamber->toGlobal( localDir ) ).z();
+  double directionSign = globalZpos * globalZdir;
+  LocalVector protoDirection = (directionSign * localDir).unit();
+
+  // Error matrix
+  AlgebraicSymMatrix protoErrors = calculateError();     
+        
+  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
+
+  return temp;
+
+} 
+
+
+
+
+/* isHitNearSegment
+ *
+ * Compare rechit with expected position from proto_segment
+ */
+bool CSCSegAlgoShowering::isHitNearSegment( const CSCRecHit2D* hit) const {
+
+  const CSCLayer* layer = theChamber->layer(hit->cscDetId().layer());
+
+  // hit phi position in global coordinates
+  GlobalPoint Hgp = layer->toGlobal(hit->localPosition());
+  double Hphi = Hgp.phi();                                
+  if (Hphi < 0.) Hphi += 2.*M_PI;
+  LocalPoint Hlp = theChamber->toLocal(Hgp);
+  double z = Hlp.z();  
+
+  double LocalX = protoIntercept.x() + protoSlope_u * z;
+  double LocalY = protoIntercept.y() + protoSlope_v * z;
+  LocalPoint Slp(LocalX, LocalY, z);
+  GlobalPoint Sgp = theChamber->toGlobal(Slp); 
+  double Sphi = Sgp.phi();
+  if (Sphi < 0.) Sphi += 2.*M_PI;
+  double R = sqrt(Sgp.x()*Sgp.x() + Sgp.y()*Sgp.y());
+  
+  double deltaPhi = Sphi - Hphi;
+  if (deltaPhi >  2.*M_PI) deltaPhi -= 2.*M_PI;
+  if (deltaPhi < -2.*M_PI) deltaPhi += 2.*M_PI;
+  if (deltaPhi < 0.) deltaPhi = -deltaPhi; 
+
+  double RdeltaPhi = R * deltaPhi;
+
+  if (RdeltaPhi < dRPhiFineMax && deltaPhi < dPhiFineMax ) return true;
+
+  return false;
+}
+
+
+/* Method addHit
+ *
+ * Test if can add hit to proto segment. If so, try to add it.
+ *
+ */
+bool CSCSegAlgoShowering::addHit(const CSCRecHit2D* aHit, int layer) {
+  
+  // Return true if hit was added successfully and then parameters are updated.
+  // Return false if there is already a hit on the same layer, or insert failed.
+  
+  bool ok = true;
+  
+  // Test that we are not trying to add the same hit again
+  for ( ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); it++ ) 
+    if ( aHit == (*it)  ) return false;
+  
+  protoSegment.push_back(aHit);
+
+  return ok;
+}    
+
+
+/* Method updateParameters
+ *      
+ * Perform a simple Least Square Fit on proto segment to determine slope and intercept
+ *
+ */   
+void CSCSegAlgoShowering::updateParameters() {
+
+  // Compute slope from Least Square Fit    
   HepMatrix M(4,4,0);
   HepVector B(4,0);
 
@@ -216,7 +399,6 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
   protoSlope_u = p(3);
   protoSlope_v = p(4);
 
-
   // Determine Chi^2 for the proto wire segment
   
   double chsq = 0.;
@@ -249,9 +431,56 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
     }
     chsq += du*du*IC(1,1) + 2.*du*dv*IC(1,2) + dv*dv*IC(2,2);
   }
-
   protoChi2 = chsq;
+}
 
+
+
+/* Method compareProtoSegment
+ *      
+ * For hit coming from the same layer of an existing hit within the proto segment
+ * test if achieve better chi^2 by using this hit than the other
+ *
+ */ 
+void CSCSegAlgoShowering::compareProtoSegment(const CSCRecHit2D* h, int layer) {
+  
+  // Store old segment first
+  double old_protoChi2                  = protoChi2;
+  LocalPoint old_protoIntercept         = protoIntercept;
+  float old_protoSlope_u                = protoSlope_u;
+  float old_protoSlope_v                = protoSlope_v;
+  LocalVector old_protoDirection        = protoDirection;
+  ChamberHitContainer old_protoSegment  = protoSegment;
+ 
+
+  // Try adding the hit to existing segment, and remove old one existing in same layer
+  ChamberHitContainer::iterator it;
+  for ( it = protoSegment.begin(); it != protoSegment.end(); ) {
+    if ( (*it)->cscDetId().layer() == layer ) {
+      it = protoSegment.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  bool ok = addHit(h, layer);
+
+  if (ok) updateParameters();
+  
+  if ( (protoChi2 > old_protoChi2) || ( !ok ) ) {
+    protoChi2       = old_protoChi2;
+    protoIntercept  = old_protoIntercept;
+    protoSlope_u    = old_protoSlope_u;
+    protoSlope_v    = old_protoSlope_v;
+    protoDirection  = old_protoDirection;
+    protoSegment    = old_protoSegment;
+  }
+}
+
+
+/* calculateError
+ *
+ */
+AlgebraicSymMatrix CSCSegAlgoShowering::calculateError() const {
 
   // Blightly assume the following never fails
  
@@ -302,29 +531,80 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
   a(4,3) = hold(2,1); 
   a(4,4) = hold(2,2); 
     
-  // off-diagonal elements remain unchanged such that 
-  // Error matrix
-  AlgebraicSymMatrix protoErrors = a;     
-
-
-  // Form segment proper:
-
-  // Local direction
-  double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
-  double dx   = dz*protoSlope_u;
-  double dy   = dz*protoSlope_v;
-  LocalVector localDir(dx,dy,dz);
-        
-  // localDir may need sign flip to ensure it points outward from IP  
-  double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
-  double globalZdir    = ( theChamber->toGlobal( localDir ) ).z();
-  double directionSign = globalZpos * globalZdir;
-  LocalVector protoDirection = (directionSign * localDir).unit();
-        
-  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
-
-  return temp;
-
+  // off-diagonal elements remain unchanged 
+  return a;    
 } 
+
+
+
+// Try to clean up segments by quickly looking at residuals
+void CSCSegAlgoShowering::pruneFromResidual(){
+
+  // Only prune if have at least 5 hits 
+  if ( protoSegment.size() < 5 ) return ;
+
+
+  // Now Study residuals
+      
+  float maxResidual = 0.;
+  float sumResidual = 0.;
+  int nHits = 0;
+  int badIndex = -1;
+  int j = 0;
+
+
+  ChamberHitContainer::const_iterator ih;
+
+  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
+    const CSCRecHit2D& hit = (**ih);
+    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
+    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
+    LocalPoint lp          = theChamber->toLocal(gp);
+
+    double u = lp.x();
+    double v = lp.y();
+    double z = lp.z();
+
+    double du = protoIntercept.x() + protoSlope_u * z - u;
+    double dv = protoIntercept.y() + protoSlope_v * z - v;
+
+    float residual = sqrt(du*du + dv*dv);
+
+    sumResidual += residual;
+    nHits++;
+    if ( residual > maxResidual ) {
+      maxResidual = residual;
+      badIndex = j;
+    }
+    j++;
+  }
+
+  float corrAvgResidual = (sumResidual - maxResidual)/(nHits -1);
+
+  // Keep all hits 
+  if ( maxResidual/corrAvgResidual < maxRatioResidual ) return;
+
+
+  // Drop worse hit and recompute segment properties + fill
+
+  ChamberHitContainer newProtoSegment;
+
+  j = 0;
+  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
+    if ( j != badIndex ) newProtoSegment.push_back(*ih);
+    j++;
+  }
+  
+  protoSegment.clear();
+
+  for ( ih = newProtoSegment.begin(); ih != newProtoSegment.end(); ++ih ) {
+    protoSegment.push_back(*ih);
+  }
+
+  // Update segment parameters
+  updateParameters();
+
+}
+
 
 
