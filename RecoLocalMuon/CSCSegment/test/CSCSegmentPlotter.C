@@ -14,14 +14,14 @@ void CSCSegmentPlotter(int segtype){
 
 TString suffixps = ".gif";
 
-TString segment = "DF";
+TString segment = "shower";
 
- if (segtype == 1) TString segment = "SK";
+ if (segtype == 2) TString segment = "shower_zoom";
  if (segtype == 3) TString segment = "DF";
- if (segtype == 4) TString segment = "ST";
+ if (segtype == 4) TString segment = "DF_zoom";
 
  TString endfile = ".root";
- TString tfile = "cscsegments_plot"+endfile;
+ TString tfile = "cscsegments_"+segment+endfile;
 
  TFile *file = TFile::Open(tfile);
 

@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2007/07/26 04:45:01 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/24 02:28:25 $
+ *  $Revision: 1.9 $
  *  \author M. Sani
  */
 
@@ -46,7 +46,8 @@ public:
   
   /// Phi and theta resolution of the built segments
   void resolution(const edm::Handle<edm::PSimHitContainer> sH, 
-            const edm::Handle<CSCSegmentCollection> seg, const CSCGeometry* geom);
+            const edm::Handle<CSCRecHit2DCollection> rH, const edm::Handle<CSCSegmentCollection> seg, 
+            const CSCGeometry* geom);
   
   /// Simulation info
   void simInfo(const edm::Handle<edm::SimTrackContainer> simTracks);
@@ -86,6 +87,7 @@ private:
     double maxPhi, maxTheta;
     int simhit;
     int maxNhits;
+    int minNhits;
     int n6hitSegmentMC[9];
     int n6hitSegmentReco[9];
     int near_segment;
