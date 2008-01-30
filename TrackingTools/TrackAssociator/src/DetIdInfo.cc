@@ -9,6 +9,15 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -23,6 +32,41 @@ std::string DetIdInfo::info(const DetId& id) {
    
    switch ( id.det() ) {
     
+     case DetId::Tracker:
+       switch ( id.subdetId() ) {
+        case StripSubdetector::TIB:
+             {
+               oss <<"TIB "<<TIBDetId(id).layer();
+             }
+           break;
+        case StripSubdetector::TOB:
+             {
+               oss <<"TOB "<<TOBDetId(id).layer();
+             }
+           break;
+        case StripSubdetector::TEC:
+             {
+               oss <<"TEC "<<TECDetId(id).wheel();
+             }
+           break;
+        case StripSubdetector::TID:
+             {
+               oss <<"TID "<<TIDDetId(id).wheel();
+             }
+           break;
+        case (int) PixelSubdetector::PixelBarrel:
+             {
+               oss <<"PixBarrel "<< PXBDetId(id).layer();
+             }
+           break;
+        case (int) PixelSubdetector::PixelEndcap:
+             {
+               oss <<"PixEndcap "<< PXBDetId(id).layer();
+             }
+           break;
+         }
+        break;
+
     case DetId::Muon:
       switch ( id.subdetId() ) {
        case MuonSubdetId::DT:
