@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.8 2008/01/05 17:03:56 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.9 2008/01/29 20:56:15 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -25,7 +25,7 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 using namespace edm::service;
 
