@@ -5,7 +5,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.2 2007/05/29 19:15:12 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.3 2008/01/23 23:34:54 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -81,7 +81,6 @@ namespace edm {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
     os << "Product ID = " << productID_ << '\n';
-    os << "Conditions ID = " << conditionsID() << '\n';
     os << "CreatorStatus = " << creatorStatus() << '\n';
     os << "Module Description ID = " << moduleDescriptionID() << '\n';
     os << "Is Present = " << isPresent() << std::endl;
@@ -91,7 +90,6 @@ namespace edm {
   operator==(BranchEntryDescription const& a, BranchEntryDescription const& b) {
     return
       a.productID_ == b.productID_
-      && a.conditionsID() == b.conditionsID()
       && a.creatorStatus() == b.creatorStatus()
       && a.parents() == b.parents()
       && a.moduleDescriptionID() == b.moduleDescriptionID();

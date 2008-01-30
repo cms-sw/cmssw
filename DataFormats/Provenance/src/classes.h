@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAux.h"

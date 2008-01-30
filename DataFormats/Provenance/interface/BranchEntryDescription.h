@@ -6,14 +6,14 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: BranchEntryDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: BranchEntryDescription.h,v 1.2 2008/01/23 23:34:53 wdd Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/ConditionsID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 /*
@@ -47,7 +47,7 @@ namespace edm {
     std::vector<ProductID> parents_;
 
     // a single identifier that describes all the conditions used
-    ConditionsID cid_; // frame ID?
+    unsigned int cid_; // frame ID?
 
     // the last of these is not in the roadmap, but is on the board
 
@@ -82,10 +82,16 @@ namespace edm {
     bool const& isPresent() const {return isPresent_;}
     CreatorStatus const& creatorStatus() const {return status_;}
     std::vector<ProductID> const& parents() const {return parents_;}
-    ConditionsID const& conditionsID() const {return cid_;}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}
+    std::auto_ptr<EntryDescription> convertToEntryDescription() const {
+	std::auto_ptr<EntryDescription> entryDescription(new EntryDescription);
+	entryDescription->parents_ = parents_;
+	entryDescription->moduleDescriptionID_ = moduleDescriptionID_;
+	entryDescription->moduleDescriptionPtr_ = moduleDescriptionPtr_;
+	return entryDescription;
+    }
   };
   
   inline

@@ -3,7 +3,7 @@
 
 namespace edm {
   class BranchDescription;
-  class BranchEntryDescription;
+  class EntryDescription;
   class BranchKey;
   class ConstBranchDescription;
   class BranchKey;
@@ -22,8 +22,9 @@ namespace edm {
   class RunID;
   class Timestamp;
 }
-#include "DataFormats/Provenance/interface/ConditionsID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"

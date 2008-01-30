@@ -6,6 +6,7 @@ namespace edm {
     std::string const metaData = "MetaData";
     std::string const auxiliary = "Auxiliary";
     std::string const aux = "Aux";
+    std::string const productStatus = "ProductStatus";
 
     // Prefixes
     std::string const run = "Run";
@@ -21,9 +22,17 @@ namespace edm {
     std::string const lumiMeta = lumi + metaData;
     std::string const eventMeta = event + metaData;
 
+    std::string const runInfo = run + "StatusInformation";
+    std::string const lumiInfo = lumi + "StatusInformation";
+    std::string const eventInfo = event + "StatusInformation";
+
     std::string const runAuxiliary = run + auxiliary;
     std::string const lumiAuxiliary = lumi + auxiliary;
     std::string const eventAuxiliary = event + auxiliary;
+
+    std::string const runProductStatus = run + productStatus;
+    std::string const lumiProductStatus = lumi + productStatus;
+    std::string const eventProductStatus = event + productStatus;
 
     std::string const majorIndex = ".id_.run_";
     std::string const runMajorIndex = runAuxiliary + majorIndex;
@@ -63,12 +72,20 @@ namespace edm {
     return ((branchType == InEvent) ? eventMeta : ((branchType == InRun) ? runMeta : lumiMeta));
   }
 
+  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType) {
+    return ((branchType == InEvent) ? eventInfo : ((branchType == InRun) ? runInfo : lumiInfo));
+  }
+
   std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType) {
     return ((branchType == InEvent) ? eventAuxiliary : ((branchType == InRun) ? runAuxiliary : lumiAuxiliary));
   }
 
   std::string const& BranchTypeToAuxBranchName(BranchType const& branchType) {
     return ((branchType == InEvent) ? eventAux : ((branchType == InRun) ? runAux : lumiAux));
+  }
+
+  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType) {
+    return ((branchType == InEvent) ? eventProductStatus : ((branchType == InRun) ? runProductStatus : lumiProductStatus));
   }
 
   std::string const& BranchTypeToMajorIndexName(BranchType const& branchType) {
