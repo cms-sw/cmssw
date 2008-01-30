@@ -71,7 +71,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     type_ = "fpix";
   }
   fillNameToAddress();
-               assert(dummy=="TKFECID:");        in >> TKFECID_;
+  assert(dummy=="TKFECID:");        in >> TKFECID_;
   in >> dummy; assert(dummy=="ringAddress:");    in >> std::hex >> ringAddress_;
   in >> dummy; assert(dummy=="ccuAddress:");     in >> std::hex >> ccuAddress_;
   in >> dummy; assert(dummy=="channelAddress:"); in >> std::hex >> channelAddress_;
