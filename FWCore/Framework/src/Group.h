@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.23 2008/01/17 05:14:01 wmtan Exp $
+$Id: Group.h,v 1.24 2008/01/23 23:36:23 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,7 +29,7 @@ namespace edm {
     explicit Group(std::auto_ptr<Provenance> prov,
  	  bool onDemand = false);
 
-    explicit Group(ConstBranchDescription const& bd);
+    explicit Group(ConstBranchDescription const& bd, ProductStatus status);
 
     Group(std::auto_ptr<EDProduct> edp,
 	  std::auto_ptr<Provenance> prov);
@@ -54,7 +54,7 @@ namespace edm {
 
     Provenance const& provenance() const {return *provenance_;} 
 
-    BranchEntryDescription const* branchEntryDescription() const {return provenance_->branchEntryDescription().get();}
+    EntryDescription const* entryDescription() const {return provenance_->entryDescription().get();}
 
     BranchDescription const& productDescription() const {return provenance_->product();}
 
@@ -68,15 +68,17 @@ namespace edm {
 
     std::string const& processName() const {return provenance_->processName();}
 
+    ProductStatus status() const {return status_;}
+
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning
     // of the Group.
     void setProduct(std::auto_ptr<EDProduct> prod) const;
 
-    // The following is const because we can add a BranchEntryDescription
+    // The following is const because we can add a EntryDescription
     // to the cache after creation of the Group, without changing the meaning
     // of the Group.
-    void setProvenance(std::auto_ptr<BranchEntryDescription> prov) const;
+    void setProvenance(std::auto_ptr<EntryDescription> prov) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -108,11 +110,12 @@ namespace edm {
     void operator=(const Group&);
 
     mutable boost::shared_ptr<EDProduct> product_;
-    // mutable boost::shared_ptr<BranchEntryDescription> branchEntryDescription_;
+    // mutable boost::shared_ptr<EntryDescription> entryDescription_;
     // BranchDescription branchDescription_;
     mutable boost::shared_ptr<Provenance> provenance_;
-    mutable bool      unavailable_;
-    bool              onDemand_;
+    mutable ProductStatus  status_;
+    bool    dropped_;
+    bool    onDemand_;
   };
 
   // Free swap function

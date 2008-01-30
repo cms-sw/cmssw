@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.50 2007/12/29 00:28:57 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.51 2007/12/31 22:43:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -173,7 +173,7 @@ void test_ep::setUp()
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
     branch.productID_ = it->second.productID_;
 
-    std::auto_ptr<edm::Provenance> provenance(new edm::Provenance(branch, edm::BranchEntryDescription::Success));
+    std::auto_ptr<edm::Provenance> provenance(new edm::Provenance(branch));
 
     edm::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);

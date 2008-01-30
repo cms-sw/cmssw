@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.22 2007/10/11 15:31:45 chrjones Exp $
+$Id: DataViewImpl.cc,v 1.23 2007/11/07 08:04:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -7,7 +7,7 @@ $Id: DataViewImpl.cc,v 1.22 2007/10/11 15:31:45 chrjones Exp $
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -49,11 +49,9 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	boost::shared_ptr<BranchEntryDescription> event(new BranchEntryDescription(pit->second->productID(), BranchEntryDescription::Success));
+	boost::shared_ptr<EntryDescription> event(new EntryDescription);
 
 	// set parts of provenance
-	event->cid_ = 0; // TODO: what is this supposed to be?
-	event->isPresent_ = true;
 	event->parents_ = gotProductIDs_;
 	event->moduleDescriptionID_ = pit->second->moduleDescriptionID();
 	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, event));

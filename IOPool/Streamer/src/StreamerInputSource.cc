@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 
 
 #include "zlib.h"
@@ -350,34 +350,22 @@ namespace edm {
              << " " << spi->desc()->className()
              << " " << spi->desc()->productInstanceName()
              << " " << spi->desc()->productID()
-             << " " << spi->prov()->productID_
              << std::endl;
 
-        std::auto_ptr<BranchEntryDescription>
-          aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
+        std::auto_ptr<EntryDescription>
+          aedesc(const_cast<EntryDescription*>(spi->prov()));
         std::auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
         std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
-        if(aprov->isPresent()) {
-          if(spi->prod() == 0) {
-            FDEBUG(10) << "Product is null" << std::endl;
-            throw cms::Exception("StreamTranslation","EmptyProduct");
-          }
+        if(spi->prod() != 0) {
           std::auto_ptr<EDProduct>
             aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
-          FDEBUG(10) << "addgroup next " << aprov->event().productID_ << std::endl;
           ep->addGroup(aprod, aprov);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
-          if(spi->prod() != 0) {
-            FDEBUG(10) << "Product not null but is marked as not present" << std::endl;
-            throw cms::Exception("StreamTranslation","NonEmptyProductMarkedAsNotPresent");
-          }
           FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
-          FDEBUG(10) << "addgroup empty next " << aprov->event().productID_ 
-                                               << std::endl;
           ep->addGroup(aprov);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }

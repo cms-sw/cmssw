@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.20 2008/01/17 05:14:01 wmtan Exp $
+  $Id: Principal.cc,v 1.21 2008/01/23 23:36:23 wdd Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -27,7 +27,8 @@ namespace edm {
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
-    groups_(),
+    groups_(reg->maxID()),
+    productStatuses_(reg->maxID(), productstatus::invalid()),
     preg_(reg),
     store_(rtrv),
     size_(0)
@@ -38,7 +39,6 @@ namespace edm {
       bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);
       assert(found);
     }
-    groups_.resize(reg->maxID());
   }
 
   Principal::~Principal() {
@@ -66,23 +66,32 @@ namespace edm {
     unsigned int index = group->index();
     assert (index < groups_.size());
     SharedGroupPtr g(group);
-    if (g->branchEntryDescription() == 0) g->provenance().setStore(store_);
+    if (g->entryDescription() == 0) g->provenance().setStore(store_);
     if (!g->onDemand()) ++size_;
     groups_[index] = g;
+    productStatuses_[index] = g->status();
   }
 
   void 
   Principal::replaceGroup(std::auto_ptr<Group> group) {
+    BranchDescription const& bd = group->productDescription();
+    assert (!bd.className().empty());
+    assert (!bd.friendlyClassName().empty());
+    assert (!bd.moduleLabel().empty());
+    assert (!bd.processName().empty());
+    assert (bd.productID().isValid());
     unsigned int index = group->index();
+    assert (index < groups_.size());
     SharedGroupPtr g(group);
-    if (g->branchEntryDescription() == 0) g->provenance().setStore(store_);
+    if (g->entryDescription() == 0) g->provenance().setStore(store_);
     if (groups_[index]->onDemand()) ++size_;
     groups_[index]->replace(*g);
+    productStatuses_[index] = g->status();
   }
 
   void
-  Principal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd));
+  Principal::addGroup(ConstBranchDescription const& bd, ProductStatus status) {
+    std::auto_ptr<Group> g(new Group(bd, status));
     addOrReplaceGroup(g);
   }
 
@@ -538,11 +547,11 @@ namespace edm {
 
   void
   Principal::resolveProvenance(Group const& g) const {
-    if (g.branchEntryDescription()) return;
+    if (g.entryDescription()) return;
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    std::auto_ptr<BranchEntryDescription> prov(store_->getProvenance(bk));
+    std::auto_ptr<EntryDescription> prov(store_->getProvenance(bk));
 
     // Now fix up the Group
     g.setProvenance(prov);

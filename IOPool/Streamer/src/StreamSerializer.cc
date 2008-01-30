@@ -144,12 +144,8 @@ namespace edm
 	// No group with this ID is in the event.
 	// Create and write the provenance.
 	if (desc.produced_) {
-          BranchEntryDescription provenance;
+          EntryDescription provenance;
 	  provenance.moduleDescriptionID_ = desc.moduleDescriptionID_;
-	  provenance.productID_ = id;
-	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
-	  provenance.isPresent_ = false;
-	  provenance.cid_ = 0;
           dummyProvenances.push_front(Provenance(desc, provenance));
           se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
 	} else {

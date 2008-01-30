@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.12 2008/01/17 05:14:01 wmtan Exp $
+$Id: Principal.h,v 1.13 2008/01/23 23:36:22 wdd Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -29,6 +29,7 @@ $Id: Principal.h,v 1.12 2008/01/17 05:14:01 wmtan Exp $
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 
 
@@ -115,7 +116,11 @@ namespace edm {
       return processHistoryID_;   
     }
 
-    void addGroup(ConstBranchDescription const& bd);
+    ProductStatusVector const& productStatuses() const {
+      return productStatuses_;   
+    }
+
+    void addGroup(ConstBranchDescription const& bd, ProductStatus status);
 
     // void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
 
@@ -204,7 +209,7 @@ namespace edm {
     // *this is const.
     void resolveProduct(Group const& g, bool fillOnDemand) const;
 
-    // Make my DelayedReader get the BranchEntryDescription
+    // Make my DelayedReader get the EntryDescription
     // for a group.
     void resolveProvenance(Group const& g) const;
 
@@ -218,6 +223,9 @@ namespace edm {
 
     // A vector of groups.
     GroupVec groups_; // products and provenances are persistent
+
+    // A vector of statuses
+    ProductStatusVector productStatuses_;
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.

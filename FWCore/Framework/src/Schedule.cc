@@ -254,7 +254,7 @@ namespace edm {
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
       if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	boost::shared_ptr<Provenance> prov(new Provenance(itProdInfo->second, BranchEntryDescription::CreatorNotRun));
+	boost::shared_ptr<Provenance> prov(new Provenance(itProdInfo->second));
 	demandBranches_.push_back(prov);
       }
     }

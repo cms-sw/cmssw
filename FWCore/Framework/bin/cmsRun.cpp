@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.48 2008/01/15 06:51:39 wmtan Exp $
+$Id: cmsRun.cpp,v 1.49 2008/01/15 06:53:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -272,7 +272,8 @@ int main(int argc, char* argv[])
     }
     // This is the default that has been in use for a long time.
     else {
-      proc->run();
+      //proc->run();
+      proc->runToCompletion();
     }
     proc.off();
     proc->endJob();

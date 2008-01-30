@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.27 2007/12/31 22:43:57 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.28 2008/01/18 20:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -141,7 +141,7 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
   edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
 
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
+  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product));
   ep.put(pprod, pprov);
   
   edm::GenericHandle h("edmtest::DummyProduct");
