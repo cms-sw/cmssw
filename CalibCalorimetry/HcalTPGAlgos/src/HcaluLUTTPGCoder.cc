@@ -10,14 +10,18 @@
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs) {
   AllocateLUTs();
-  getRecHitCalib(filename);
+  // std::cout << " filename:" << filename << " read_Ascii_LUTs " << read_Ascii_LUTs << std::endl;
+  if (read_Ascii_LUTs == true) {
+    update(filename);
+  }
+  else {
+    getRecHitCalib(filename);
+  }
 }
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, const char* fname2) {
-  throw cms::Exception("PROBLEM: This constructor should never be invoked!");
-}
+
 
 void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const {
   throw cms::Exception("PROBLEM: This method should never be invoked!");
@@ -102,6 +106,92 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    }
    else  std::cout << "File " << filename << " with RecHit calibration factors not found" << std::endl;
 }
+
+
+void HcaluLUTTPGCoder::update(const char* filename) {
+  int id;
+  HcalTopology theTopo;
+  int tool;
+  
+  std::ifstream userfile;
+  userfile.open(filename);
+  //  std::cout << filename << std::endl;
+  if( userfile ) {
+    int nluts;
+    std::vector<int> loieta,hiieta;
+    userfile >> nluts;
+
+    inputluts_.resize(nluts);
+    for (int i=0; i<nluts; i++) {
+      inputluts_[i].resize(INPUT_LUT_SIZE); 
+    }
+    
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      loieta.push_back(tool);
+    }
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      hiieta.push_back(tool);
+    }
+    
+    for (int j=0; j<INPUT_LUT_SIZE; j++) { 
+      for(int i = 0; i <nluts; i++) {
+	userfile >> inputluts_[i][j];}
+    }
+    
+    userfile.close();
+          
+    //  std::cout << "nluts:" << nluts << std::endl;
+
+    for (int depth = 1; depth <= 3; depth++) {
+     for (int iphi = 1; iphi <= 72; iphi++) {
+      
+       for (int ieta=-16; ieta <= 16; ieta++) {
+	 HcalDetId cell(HcalBarrel,ieta,iphi,depth);
+	 if (theTopo.valid(cell)) {  
+	   id = GetLUTID(HcalBarrel,ieta,iphi,depth);
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	
+	    for (int j = 0; j <= 0x7F; j++) {
+	      inputLUT[id][j] = inputluts_[0][j];  //Using LUT 0 for HB
+	    }
+	 }
+       }
+
+       
+       for (int ieta=-29; ieta <= 29; ieta++) {
+	 HcalDetId cell(HcalEndcap,ieta,iphi,depth);
+	 if (theTopo.valid(cell)) { 
+	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	   for (int j = 0; j <= 0x7F; j++) {
+	     if (abs(ieta) < 21) inputLUT[id][j] = inputluts_[0][j];  // LUT0 for HE upto ieta=21
+	     if (abs(ieta) >= 21 && abs(ieta) < 27) inputLUT[id][j] = inputluts_[1][j];  // LUT1 for HE for ieta 21-26
+	     if (abs(ieta) >= 27 && abs(ieta) < 29) inputLUT[id][j] = inputluts_[2][j];  // LUT2 for HE for ieta 27-28
+	    }
+	 }
+       }
+      
+     
+       for (int ieta=-41; ieta <= 41; ieta++) {
+	 HcalDetId cell(HcalForward,ieta,iphi,depth);
+	 if (theTopo.valid(cell)) { 
+	   id = GetLUTID(HcalForward,ieta,iphi,depth);
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	   for (int j = 0; j <= 0x7F; j++) {
+	     if (depth==1)inputLUT[id][j] = inputluts_[abs(ieta)-26][j];    // LUT for long fibers; use LUT3 for abs(ieta)=29 for eg. 
+	     if (depth==2)inputLUT[id][j] = inputluts_[abs(ieta)-26+13][j]; // LUT for short fibers (LUT16 is for abs(ieta)=29 for eg.)
+	    }
+	 }
+       }
+       
+     }
+
+    }
+  }
+}
+
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
    const HcalQIEShape* shape = conditions.getHcalShape();
@@ -204,11 +294,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
    int id = GetLUTID(df.id().subdet(), df.id().ieta(), df.id().iphi(), df.id().depth());
    if (inputLUT[id]==0) {
      throw cms::Exception("Missing Data") << "No LUT for " << df.id();
-   } else {
+   } 
+   else {
      for (int i=0; i<df.size(); i++){
        if (df[i].adc() >= INPUT_LUT_SIZE || df[i].adc() < 0) throw cms::Exception("ADC overflow for HBHE tower: ") << i << " adc= " << df[i].adc();
-       ics[i]=inputLUT[id][df[i].adc()];
-     }
+       if (inputLUT[id] !=0) ics[i]=inputLUT[id][df[i].adc()];
+     }  
    }
  }
 
@@ -220,7 +311,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
      for (int i=0; i<df.size(); i++){
        if (df[i].adc() >= INPUT_LUT_SIZE || df[i].adc() < 0)
 	 throw cms::Exception("ADC overflow for HF tower: ") << i << " adc= " << df[i].adc();
-       ics[i]=inputLUT[id][df[i].adc()];
+       if (inputLUT[id] !=0) ics[i]=inputLUT[id][df[i].adc()];
      }
    }
  }

@@ -23,15 +23,15 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/07/04 16:45:10 $
-  * $Revision: 1.12 $
+  * $Date: 2007/07/11 22:09:41 $
+  * $Revision: 1.13 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
-  HcaluLUTTPGCoder(const char* filename);
-  HcaluLUTTPGCoder(const char* ifilename, const char* ofilename);
+ 
+  HcaluLUTTPGCoder(const char* ifilename, bool read_Ascii_LUTs);
   virtual ~HcaluLUTTPGCoder();
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
@@ -41,7 +41,11 @@ public:
   virtual float getLUTGain(HcalDetId id) const;              // returns the gain for channel id
 
   void update(const HcalDbService& conditions);
+  void update(const char* filename);
 private:
+  void loadILUTs(const char* filename);
+  typedef std::vector<int> LUTType;
+  std::vector<LUTType> inputluts_;
   static const int nluts = 46007, INPUT_LUT_SIZE = 128;
   int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
   void AllocateLUTs();
