@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.35 2008/01/22 19:28:36 muzaffar Exp $
+// $Id: FragmentCollector.cc,v 1.36 2008/01/29 21:13:16 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -196,7 +196,7 @@ namespace stor
     } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, 0), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, 0, entry->outmodid_), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added fragment" << endl;
@@ -331,7 +331,7 @@ namespace stor
     } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->folderid_), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->folderid_, 0), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added DQM fragment" << endl;
