@@ -504,14 +504,19 @@ class _IncludeFromNode(_IncludeNode):
         import copy
         # First, expand everything, so blocks 
         # don't worry about re-parsing
-        if self.filename in otherFiles:
+        wasHere = (self.filename in otherFiles)
+        if wasHere:
             otherFiles.remove(self.filename)
         expandedValues = _IncludeNode.extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor)
+        # one possible fix to the issue of whether the original gets included
+        if not wasHere:
+            otherFiles.remove(self.filename)
         found = False
         for l,v in expandedValues:
            if l == self._fromLabel:
                found = True
                # I don't know how to replace it, so I'll just have to copy
+               # second possbile fix is to comment this out
                expandedValues.remove((l,v))
                expandedValues.append((newLabel, copy.deepcopy(v)))
         if not found:
