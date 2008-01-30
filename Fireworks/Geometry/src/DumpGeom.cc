@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.2 2008/01/25 20:44:44 case Exp $
+// $Id: DumpGeom.cc,v 1.3 2008/01/27 06:23:20 dmytro Exp $
 //
 //
 
@@ -74,6 +74,9 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
+
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
 #include "TTree.h"
 
 //
@@ -100,6 +103,8 @@ class DumpGeom : public edm::EDAnalyzer {
 			 const MuonDDDConstants& muonConstants);
       void mapCSCGeometry(const DDCompactView& cview,
 			 const MuonDDDConstants& muonConstants);
+      void mapTrackerGeometry(const DDCompactView& cview,
+			      const GeometricDet& gd);
       // ----------member data ---------------------------
       int level_;
       bool verbose_;
@@ -457,7 +462,7 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
       // this works fine if you have access
       // unsigned int rawid = dtnum.getDetId( mdddnum.geoHistoryToBaseNumber( fview.geoHistory() ) );
       
-      std::cout << "chamber id: " << rawid << " \tname: " << name << std::endl;
+      std::cout << "DT chamber id: " << rawid << " \tname: " << name << std::endl;
       
       idToName_[rawid] = name;
       
@@ -497,12 +502,12 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 		     );
   DDFilteredView fview(cview);
   fview.addFilter(filter);
-  std::cout << "****************about to skip firstChild() ONCE" << std::endl;   
+  //  std::cout << "****************about to skip firstChild() ONCE" << std::endl;   
   bool doSubDets = fview.firstChild();
 
-  std::cout << "****************** doSubDets is";
-  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
-  std::cout << "*******************" << std::endl;
+  //  std::cout << "****************** doSubDets is";
+  //  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
+  //  std::cout << "*******************" << std::endl;
   // Loop on chambers
   while (doSubDets){
 
@@ -528,7 +533,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
      idToName_[chamberId.rawId()] = name;
-     std::cout << "chamber: " << chamberId << " \tname: " << name << std::endl;
+     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
 
 /* We don't need layers for now, till we get geometry for them fixed
     int jend   = chamberId.endcap();
@@ -584,6 +589,39 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
   }
 }
 
+/**
+ ** By Michael Case
+ ** method mapTrackerGeometry(...)
+ ** date: 01-30-2008
+ ** Description:
+ **   Map tracker DetId to DD path (nav_type and GeometricDet are easiest way to get it).
+ **   Note: later, may need pset bool "fromDD" because tracker now has capability to retrieve
+ **         persistent GeometricDet from Conditions DB.
+ **/
+void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
+				  const GeometricDet& rDD) {
+  const GeometricDet::ConstGeometricDetContainer& cgdc = rDD.deepComponents();
+  GeometricDet::ConstGeometricDetContainer::const_iterator git = cgdc.begin();
+  GeometricDet::ConstGeometricDetContainer::const_iterator egit = cgdc.end();
+  DDExpandedView expv(cview);
+  int id;
+  for ( ; git != egit; ++git ) {
+    expv.goTo( (*git)->navType() );
+
+    std::stringstream s;
+    s << "/cms:World_1";
+    DDGeoHistory::const_iterator ancestor = expv.geoHistory().begin();
+    ++ancestor; // skip the first ancestor
+    for ( ; ancestor != expv.geoHistory().end(); ++ ancestor )
+      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+    std::string name = s.str();
+    id = int((*git)->geographicalId());
+    std::cout << "Tracker id: " << id << " \tname: " << name << std::endl;
+    idToName_[id] = name;
+  }
+
+}
 
 // ------------ method called to for each event  ------------
 void
@@ -596,6 +634,9 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::ESHandle<MuonDDDConstants> mdc;
    iSetup.get<MuonNumberingRecord>().get(mdc);
+
+   edm::ESHandle<GeometricDet> rDD;
+   iSetup.get<IdealGeometryRecord>().get( rDD );
    
    std::auto_ptr<TGeoManager> geom(new TGeoManager("cmsGeo","CMS Detector"));
    //NOTE: the default constructor does not create the identity matrix
@@ -721,7 +762,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    geom->CloseGeometry();
    mapDTGeometry(*viewH, *mdc);
    mapCSCGeometry(*viewH, *mdc);
-
+   mapTrackerGeometry(*viewH, *rDD);
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
 

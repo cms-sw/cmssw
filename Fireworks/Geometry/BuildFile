@@ -5,6 +5,7 @@
 <use name=DetectorDescription/Core>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/MuonNumbering>
+<use name=Geometry/TrackerNumberingBuilder>
 <lib name=Gpad>
 <lib name=Geom>
 <flags EDM_PLUGIN=1>
