@@ -80,7 +80,7 @@ namespace popcon
      std::string m_offline_connection;
      
      
-     virtual void displayHelper() =0;
+     virtual void displayHelper() const=0;
      
    };
 }

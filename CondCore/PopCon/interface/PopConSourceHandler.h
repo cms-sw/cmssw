@@ -31,7 +31,7 @@ namespace popcon {
     
     // this is the only mandatory interface
     std::vector<std::pair<T*, popcon::IOVPair> > const & operator()() const {
-      const_cast<self*>(this)->returnData();
+      return const_cast<self*>(this)->returnData();
     }
 
     Time_t getSinceForTag(const std::string& tag) const {

@@ -20,7 +20,8 @@ namespace popcon{
     PopConAnalyzer(const edm::ParameterSet& pset, 
 			const std::string& object_name) : 
       PopConAnalyzerBase(pset, object_name),
-      m_handler(pset.getParameter<edm::ParameterSet>("Source")) {}
+      m_handler(pset.getParameter<edm::ParameterSet>("Source"),
+		pset.getParameter<std::string> ("connect")) {}
 
 
     ~PopConAnalyzer(){}
@@ -30,7 +31,7 @@ namespace popcon{
       
     //This class takes ownership of the vector (and payload objects)
     virtual void takeTheData(){
-      m_payload_cont = &(m_handler_object());	
+      m_payload_cont = &(m_handler());	
     }
      
     
@@ -40,7 +41,7 @@ namespace popcon{
     virtual void displayHelper() const{
          typename Container::const_iterator it;
       for (it = m_payload_cont->begin(); it != m_payload_cont->end(); it++){
-	std::cerr<<"Since " <<(*it).second.since << " till " << (*it).second.till << std::endl;
+	std::cerr<<"Since " <<(*it).second.first << " till " << (*it).second.second << std::endl;
       }
     }  
   };
