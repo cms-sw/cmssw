@@ -7,9 +7,6 @@
 #include <string>
 #include <map>
 
-namespace cond{
-  class DBSession;
-}
 namespace popcon
 {
   //mapped type for subdetector information on offline db contents 
@@ -28,12 +25,9 @@ namespace popcon
     virtual std::map<std::string, PayloadIOV> getStatusMap();
     PayloadIOV getSpecificTagInfo(const std::string& tag);
   private:
-    cond::DBSession  session;  
-    //tag - IOV/Payload information map
+     //tag - IOV/Payload information map
     std::map<std::string, PayloadIOV> m_status_map;
     std::string m_connect;
-    //std::string m_user;
-    //std::string m_pass;
     void getAllTagsInfo();
     void getSpecificPayloadMap(const std::string& );
   }; 
