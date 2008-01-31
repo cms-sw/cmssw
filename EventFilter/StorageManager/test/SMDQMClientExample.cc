@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.4 2007/09/14 13:18:32 hcheung Exp $
+  $Id: SMDQMClientExample.cc,v 1.5 2008/01/22 19:28:37 muzaffar Exp $
 
 */
 
@@ -25,6 +25,7 @@
 
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
