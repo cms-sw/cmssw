@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.1 2007/08/06 19:53:57 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.2 2007/09/05 21:11:24 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -19,15 +19,18 @@
 #include <boost/algorithm/string.hpp>
 
 namespace edm {
-  InputFileCatalog::InputFileCatalog(ParameterSet const& pset, bool noThrow) :
+  InputFileCatalog::InputFileCatalog(ParameterSet const& pset, std::string const& namesParameter, bool canBeEmpty, bool noThrow) :
     FileCatalog(),
-    logicalFileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+    logicalFileNames_(canBeEmpty ?
+	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
+	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter)),
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
 
     if (logicalFileNames_.empty()) {
-        throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-	  << "Empty 'fileNames' parameter specified for input source.\n";
+      if (canBeEmpty) return;
+      throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+	  << "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
     // Starting the catalog will write a catalog out if it does not exist.
     // So, do not start (or even read) the catalog unless it is needed.
@@ -39,7 +42,7 @@ namespace edm {
       boost::trim(*it);
       if (it->empty()) {
         throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-	  << "An empty string specified in 'fileNames' parameter for input source.\n";
+	  << "An empty string specified in '" << namesParameter << "' parameter for input source.\n";
       }
       if (isPhysical(*it)) {
         lt->clear();
