@@ -1,5 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrackNuclear.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 
@@ -31,6 +32,15 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
+        if( element.isSecondary()==true ) out<<" is secondary";
+        break;
+      }
+    case PFBlockElement::TRACKNUCL:
+      {
+        const reco::PFBlockElementTrackNuclear& et =
+          dynamic_cast<const reco::PFBlockElementTrackNuclear &>( element );
+        et.Dump(out);
+        out<<" nuclear";
         break;
       }
     case PFBlockElement::ECAL:
