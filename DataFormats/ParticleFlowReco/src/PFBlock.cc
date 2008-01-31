@@ -212,6 +212,10 @@ ostream& reco::operator<<(  ostream& out,
       iTK++;
       ss << "TK" << iTK;
       break;
+    case PFBlockElement::TRACKNUCL:
+      iTK++;
+      ss << "TK" << iTK;
+      break;
     case PFBlockElement::MUON:
       iMU++;
       ss << "MU" << iMU;
