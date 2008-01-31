@@ -1,5 +1,6 @@
-#ifndef CondCore_IOVService_IOVIteratorImpl_h
-#define CondCore_IOVService_IOVIteratorImpl_h
+#ifndef CondCore_IOVService_IOVRevIteratorImpl_h
+#define CondCore_IOVService_IOVRevIteratorImpl_h
+
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
@@ -8,14 +9,14 @@
 
 namespace cond{
   class PoolTransaction;
-  class IOVIteratorImpl : virtual public cond::IOVIterator{
+  class IOVRevIteratorImpl : virtual public cond::IOVIterator{
   public:
     typedef IOV::Container::const_iterator const_iterator;
-    IOVIteratorImpl( cond::PoolTransaction& pooldb,
+    IOVRevIteratorImpl( cond::PoolTransaction& pooldb,
 		     const std::string & token , 
 		     cond::Time_t globalSince, 
 		     cond::Time_t globalTill);
-    virtual ~IOVIteratorImpl();
+    virtual ~IOVRevIteratorImpl();
     virtual bool next();
     virtual bool goLast();
     virtual bool rewind();
@@ -33,7 +34,8 @@ namespace cond{
     cond::Time_t m_globalTill;
     cond::TypedRef<cond::IOV> m_iov;
     const_iterator m_pos;
-    cond::Time_t  m_since;
+    const_iterator m_next;
+    cond::Time_t  m_till;
     size_t m_count;
 
     bool m_isOpen;

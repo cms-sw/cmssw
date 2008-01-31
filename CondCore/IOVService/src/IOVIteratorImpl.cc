@@ -16,6 +16,7 @@ void cond::IOVIteratorImpl::init(){
   m_since=m_globalSince;
 }
 
+
 bool cond::IOVIteratorImpl::rewind() {
   init();
   return !empty();
@@ -49,6 +50,7 @@ bool cond::IOVIteratorImpl::next(){
   ++m_count;
   return true;
 }
+
 std::string 
 cond::IOVIteratorImpl::payloadToken() const{
   if(!m_isOpen){
