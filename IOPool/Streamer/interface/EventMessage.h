@@ -1,12 +1,12 @@
 /** Event Message Represented here
 
-Protocol Version 0:
+Protocol Versions 1-4:
 code 1 | size 4 | run 4 | event 4 | lumi 4 | reserved 4 |
 l1_count 4| l1bits l1_count/8  | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
-Protocol Version 1:
+Protocol Version 5:
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
 l1_count 4| l1bits l1_count/8  | 
