@@ -1,6 +1,7 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
+#include "IOVRevIteratorImpl.h"
 #include "IOVEditorImpl.h"
 cond::IOVService::IOVService( cond::PoolTransaction& pooldb,
 			      cond::TimeType timetype ):
@@ -33,8 +34,10 @@ cond::IOVService::deleteAll( bool withPayload ){
   m_impl->deleteAll( withPayload );
 }
 cond::IOVIterator* 
-cond::IOVService::newIOVIterator( const std::string& token ){
-  return new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+cond::IOVService::newIOVIterator( const std::string& token, bool reverse ){
+  return reverse ?
+    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+  (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){

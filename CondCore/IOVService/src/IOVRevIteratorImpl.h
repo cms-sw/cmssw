@@ -11,7 +11,7 @@ namespace cond{
   class PoolTransaction;
   class IOVRevIteratorImpl : virtual public cond::IOVIterator{
   public:
-    typedef IOV::Container::const_iterator const_iterator;
+    typedef IOV::Container::const_reverse_iterator const_i=mposterator;
     IOVRevIteratorImpl( cond::PoolTransaction& pooldb,
 		     const std::string & token , 
 		     cond::Time_t globalSince, 
@@ -35,7 +35,6 @@ namespace cond{
     cond::TypedRef<cond::IOV> m_iov;
     const_iterator m_pos;
     const_iterator m_next;
-    cond::Time_t  m_till;
     size_t m_count;
 
     bool m_isOpen;
