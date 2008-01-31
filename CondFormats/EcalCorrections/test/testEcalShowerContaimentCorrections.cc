@@ -3,7 +3,7 @@
    test file for EcalShowerContainmentCorrections 
 
    \author Stefano ARGIRO
-   \version $Id: testEcalShowerContaimentCorrections.cc,v 1.1 2007/05/15 20:37:21 argiro Exp $
+   \version $Id: testEcalShowerContaimentCorrections.cc,v 1.2 2008/01/22 19:11:02 muzaffar Exp $
    \date 28 Jun 2005
 */
 
@@ -97,3 +97,4 @@ void testEcalShowerContainmentCorrections::testFillandReadBack2(){
 }
 
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
