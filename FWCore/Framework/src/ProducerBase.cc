@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.3 2007/03/04 06:10:25 wmtan Exp $
+$Id: ProducerBase.cc,v 1.4 2007/06/29 03:43:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ namespace edm {
   }
 
 
-  void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> product,
+  void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
 				ProductRegistry* iReg,
 				ModuleDescription const& md,
 				bool throwIfNoProducts)
@@ -91,7 +91,7 @@ namespace edm {
     ProductRegistryHelper::addToRegistry(plist.begin(), plist.end(), md, *(iReg), isListener);
     if(!(registrationCallback().empty())) {
        Service<ConstProductRegistry> regService;
-       regService->watchProductAdditions(CallbackWrapper(product, registrationCallback(), iReg, md));
+       regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }
 }
