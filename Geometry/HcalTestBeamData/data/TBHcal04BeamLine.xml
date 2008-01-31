@@ -39,9 +39,9 @@
  <Constant name="chambAl2L"     value="([chambDxby2]-0.5*[chambAlT])"/>
  <Constant name="chambAl2X"     value="([chambDxby2]-[chambAl2L])"/>
  <Constant name="chambAl2Y"     value="([chambDxby2]-0.5*[chambAlT])"/>
- <Constant name="chamb1Z"       value="-514.0*cm"/>
- <Constant name="chamb2Z"       value="-404.0*cm"/>
- <Constant name="chamb3Z"       value="-200.0*cm"/>
+ <Constant name="chamb1Z"       value="-507.6*cm"/>
+ <Constant name="chamb2Z"       value="-400.3*cm"/>
+ <Constant name="chamb3Z"       value="-200.5*cm"/>
 </ConstantsSection>
 
 <SolidSection label="TBHcal04BeamLine.xml">
