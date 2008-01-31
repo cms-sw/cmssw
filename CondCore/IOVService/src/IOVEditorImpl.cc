@@ -29,14 +29,14 @@ cond::IOVEditorImpl::insert( cond::Time_t tillTime,
   //fix me: throw if beyond global range! 
   m_iov->iov.insert(std::make_pair<cond::Time_t, std::string>(tillTime, payloadToken));
   std::map<cond::Time_t,std::string>::iterator pos=m_iov->iov.find(tillTime);
+  size_t result=0;
   if(m_token.empty()){
     m_iov.markWrite(cond::IOVNames::container());
-    
   }else{
     m_iov.markUpdate();
+    result=std::distance(m_iov->iov.begin(),pos);
   }
   m_token=m_iov.token();
-  size_t result=std::distance(m_iov->iov.begin(),pos);
   return result;
 }
 void 
@@ -74,6 +74,15 @@ cond::IOVEditorImpl::append(  cond::Time_t sinceTime ,
   }
   if( m_iov->iov.size()==0 ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
   cond::Time_t lastIOV=m_iov->iov.rbegin()->first;
+  //std::cout<<"iov size "<< m_iov->iov.size()<<std::endl;
+  if(  m_iov->iov.size()!=1 ){
+    //range check in case 
+    cond::Time_t lastValidTill=(--m_iov->iov.rbegin())->first;
+    //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
+    if( (sinceTime-1)<= lastValidTill){
+      throw cond::Exception("IOVEditor::append Error: since time out of range");
+    }
+  }
   std::string lastPayload=m_iov->iov.rbegin()->second;
   m_iov->iov[lastIOV]=payloadToken;
   m_iov->iov.insert( std::make_pair((sinceTime-1),lastPayload) );
