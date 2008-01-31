@@ -13,8 +13,6 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 popcon::OfflineDBInterface::OfflineDBInterface (const std::string& connect ) : m_connect(connect) {
-  session.configuration().setAuthenticationMethod( cond::XML );
-  session.configuration().setMessageLevel( cond::Error );
 }
 
 popcon::OfflineDBInterface::~OfflineDBInterface ()
@@ -49,6 +47,10 @@ void popcon::OfflineDBInterface::getSpecificPayloadMap(const std::string&){
 //Fetches the list of tags in a schema and returns payload ingormation associated with a tag
 void  popcon::OfflineDBInterface::getAllTagsInfo()
 {		
+  cond::DBSession session;  
+  session.configuration().setAuthenticationMethod( cond::XML );
+  session.configuration().setMessageLevel( cond::Error );
+
   //m_status_map.clear();
   if ( !m_status_map.empty() )  return;
   popcon::PayloadIOV piov;
@@ -77,7 +79,7 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
   for(std::vector<std::string>::iterator tok_it = alltokens.begin(); tok_it != alltokens.end(); tok_it++, itpos++){
     std::auto_ptr<cond::IOVIterator> ioviterator(iovservice.newIOVIterator(*tok_it,cond::IOVService::backwardIter));
     ioviterator->next();
-    piov.number_of_objects = ioviterator.size();		
+    piov.number_of_objects = ioviterator->size();		
     piov.last_since = ioviterator->validity().first;
     piov.last_till = ioviterator->validity().second;
     piov.container_name  = iovservice.payloadContainerName(*tok_it);
