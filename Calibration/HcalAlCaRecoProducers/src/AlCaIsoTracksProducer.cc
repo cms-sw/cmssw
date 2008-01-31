@@ -1,6 +1,35 @@
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaIsoTracksProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "MagneticField/Engine/interface/MagneticField.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+
+#include <boost/regex.hpp> 
 
 using namespace edm;
 using namespace std;
@@ -57,11 +86,14 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
     IsoHists.eecal = new TH1F("Eecal","ECAL RecHit energy",50,0.,25.);
     IsoHists.ehcal = new TH1F("Ehcal","HCAL RecHit energy",50,0.,25.);
   }
+
 //register your products
   produces<reco::TrackCollection>("IsoTrackTracksCollection");
   produces<EcalRecHitCollection>("IsoTrackEcalRecHitCollection");
   produces<HBHERecHitCollection>("IsoTrackHBHERecHitCollection");
   produces<HORecHitCollection>("IsoTrackHORecHitCollection");
+//  produces<PFRecHitCollection>("IsoTrackPFRecHitCollection");
+  produces<EcalRecHitCollection>("IsoTrackPSEcalRecHitCollection");
   
   allowMissingInputs_ = true;
 }
@@ -82,6 +114,8 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    std::auto_ptr<EcalRecHitCollection> outputEColl(new EcalRecHitCollection);
    std::auto_ptr<HBHERecHitCollection> outputHColl(new HBHERecHitCollection);
    std::auto_ptr<HORecHitCollection> outputHOColl(new HORecHitCollection);
+//   std::auto_ptr<PFRecHitCollection> outputPFColl(new PFRecHitCollection);
+   std::auto_ptr<EcalRecHitCollection> outputPSEColl(new EcalRecHitCollection);
    
 // Temporarily collection   =================================================
    
@@ -123,6 +157,17 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // =================================================================================
 
+//  std::vector<Provenance const*> theProvenance;
+//  iEvent.getAllProvenance(theProvenance);
+//  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
+//                                                      ip != theProvenance.end(); ip++)
+//  {
+//     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+//     " "<<(**ip).productInstanceName()<<endl;
+//  }
+
+
+// =================================================================================
    
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);
@@ -345,10 +390,97 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	    outputHOColl->push_back(*hoItr);
 	  }
       }
+      
+// Take Preshower collection      
+      
+  // get the ps geometry
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+    
+//  const CaloSubdetectorGeometry *psGeometry = 
+//    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+    
+  // get the ps topology
+  EcalPreshowerTopology psTopology(geoHandle);
+
+  // process rechits
+  Handle< EcalRecHitCollection >   pRecHits;
+
+  try {
+    iEvent.getByLabel("ecalPreshowerRecHit",
+		      "EcalRecHitsES",
+		      pRecHits);
+
+    if (!(pRecHits.isValid())) {
+	cout <<"could not get a handle on preshower rechits!"<<endl;
     }
 
-//   std::cout<<" Size of IsoTrk collections "<<outputHColl->size()<<" "<<outputEColl->size()<<
-//   " "<<outputTColl->size()<<" "<<outputHOColl->size()<<std::endl;
+    const EcalRecHitCollection& psrechits = *( pRecHits.product() );
+    typedef EcalRecHitCollection::const_iterator IT;
+ 
+    for(IT i=psrechits.begin(); i!=psrechits.end(); i++) {
+      
+      outputPSEColl->push_back( *i );
+      
+      
+/*      
+      const EcalRecHit& hit = *i;
+      double energy = hit.energy();
+                
+      const ESDetId& detid = hit.detid();
+      const CaloCellGeometry *thisCell = psGeometry->getGeometry(detid);
+     
+      if(!thisCell) {
+	cout << "warning detid "<<detid.rawId() <<" not found in preshower geometry" <<endl;
+      }
+      
+      const GlobalPoint& position = thisCell->getPosition();
+      int layer = 0;
+            
+      switch( detid.plane() ) {
+      case 1:
+	layer = PFLayer::PS1;
+	break;
+      case 2:
+	layer = PFLayer::PS2;
+	break;
+      default:
+	  cout <<"incorrect preshower plane !! plane number "
+	  <<detid.plane()<<endl;
+	assert(0);
+      }
+ 
+      reco::PFRecHit *pfrh
+	= new reco::PFRecHit( detid.rawId(), layer, energy, 
+			      position.x(), position.y(), position.z(), 0,0,0 );
+
+//      cout << "detid.rawId() "<< detid.rawId() << " layer "<< layer  << " energy "<<energy << " XYZ"<< 
+//             position.x()  <<  " "<< position.y() << " "<< position.z() <<  endl;
+
+      if( !pfrh ) continue; // problem with this rechit. skip it
+
+      outputPFColl->push_back( *pfrh );
+
+      delete pfrh;
+      
+*/      
+      
+    }
+    
+    
+  }
+  catch ( cms::Exception& ex ) {
+//    edm::LogError("PFClusterProducer") 
+      cout <<"Error! can't get the preshower rechits. module: "
+      << "ecalRecHit"
+      <<", product instance: "<< "EcalRecHitsES"
+      <<endl;
+  }      
+      
+    }
+
+   std::cout<<" Size of IsoTrk collections H "<<outputHColl->size()<<" E "<<outputEColl->size()<<
+   " T "<<outputTColl->size()<<" HO "<<outputHOColl->size() << " P " << outputPSEColl->size()<<std::endl;
 
 //Put selected information in the event
 
@@ -360,6 +492,10 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 //  cout<<" Point 3 "<<endl;
   iEvent.put( outputHOColl, "IsoTrackHORecHitCollection");
 //  cout<<" Point 4 "<<endl;
+//  iEvent.put( outputPFColl, "IsoTrackPFRecHitCollection");
+//  cout<<" Point 5 "<<endl;
+  iEvent.put( outputPSEColl, "IsoTrackPSEcalRecHitCollection");
+//  cout<<" Point 5 "<<endl;
 
 }
 
