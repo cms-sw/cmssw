@@ -86,7 +86,7 @@ namespace reco {
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
 
     void setIsSecondary(bool val) { isSecondary_ = val; }
-    bool isSecondary() { return isSecondary_; }
+    bool isSecondary() const { return isSecondary_; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
