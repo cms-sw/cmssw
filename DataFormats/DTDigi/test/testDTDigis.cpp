@@ -137,3 +137,4 @@ void testDTDigis::testTime2TDCConversion(){
 
 }
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

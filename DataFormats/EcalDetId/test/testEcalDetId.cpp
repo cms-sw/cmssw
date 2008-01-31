@@ -9,6 +9,7 @@
 
 static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.12 2007/07/31 15:20:01 ratnik Exp $";
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
