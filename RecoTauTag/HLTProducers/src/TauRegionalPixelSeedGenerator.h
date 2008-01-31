@@ -33,17 +33,17 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   public:
     
     explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf_){
-      edm::LogInfo ("TauRegionalPixelSeedGenerator")<<"Enter the TauRegionalPixelSeedGenerator";
+      edm::LogInfo ("TauRegionalPixelSeedGenerator") << "Enter the TauRegionalPixelSeedGenerator";
 
       edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
 
-      ptmin=regionPSet.getParameter<double>("ptMin");
-      originradius=regionPSet.getParameter<double>("originRadius");
-      halflength=regionPSet.getParameter<double>("originHalfLength");
-      vertexSrc=regionPSet.getParameter<std::string>("vertexSrc");
-      deltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
-      deltaPhi = regionPSet.getParameter<double>("deltaPhiRegion");
-      jetSrc = regionPSet.getParameter<edm::InputTag>("JetSrc");
+      ptmin        = regionPSet.getParameter<double>("ptMin");
+      originradius = regionPSet.getParameter<double>("originRadius");
+      halflength   = regionPSet.getParameter<double>("originHalfLength");
+      deltaEta     = regionPSet.getParameter<double>("deltaEtaRegion");
+      deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
+      jetSrc       = regionPSet.getParameter<edm::InputTag>("JetSrc");
+      vertexSrc    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
     }
   
     virtual ~TauRegionalPixelSeedGenerator() {}
@@ -104,7 +104,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   float deltaEta;
   float deltaPhi;
   edm::InputTag jetSrc;
-  std::string vertexSrc;
+  edm::InputTag vertexSrc;
 };
 
 #endif
