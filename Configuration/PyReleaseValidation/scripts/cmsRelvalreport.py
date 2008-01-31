@@ -17,11 +17,20 @@ PR3_PRODUCER_PLUGIN='/afs/cern.ch/user/d/dpiparo/w0/pr3/perfreport/plugins/cmssw
 PR2_BASE='/afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/'
 PR2='%s' %(PR2_BASE+'/bin/perfreport')# executable
 PERFREPORT2_PATH=PR2_BASE+'/share/perfreport' #path to xmls
-RELEASE='CMSSW_RELEASE_BASE' #Variable used to point to PARENT RELEASE or LOCAL RELEASE 
 
-# Valgrind Memcheck Parser coordinates:
 import os
-VMPARSER='%s/src/Utilities/ReleaseScripts/scripts/valgrindMemcheckParser.pl' %os.environ[RELEASE]#This has to always point to 'CMSSW_RELEASE_BASE'
+cmssw_base=os.environ["CMSSW_BASE"]
+cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
+pyrelvallocal=cmssw_base+"/src/Configuration/PyReleaseValidation"
+#Set the path depending on the presence of a locally checked out version of PyReleaseValidation
+if os.path.exists(pyrelvallocal):
+    RELEASE='CMSSW_BASE'
+    print "Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version"
+elif not s.path.exists(pyrelvallocal):
+    RELEASE='CMSSW_RELEASE_BASE'
+    
+# Valgrind Memcheck Parser coordinates:
+VMPARSER='%s/src/Utilities/ReleaseScripts/scripts/valgrindMemcheckParser.pl' %os.environ['CMSSW_RELEASE_BASE']#This has to always point to 'CMSSW_RELEASE_BASE'
 
 # IgProf_Analysis coordinates:
 IGPROFANALYS='%s/src/Configuration/PyReleaseValidation/scripts/cmsIgProf_Analysis.py'%os.environ[RELEASE]
