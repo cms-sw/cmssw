@@ -13,13 +13,14 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.19 2008/01/21 14:26:08 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.20 2008/01/22 13:12:37 arizzi Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iomanip>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,7 +66,158 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
+class PtSorter {
+ public:
+  template <class T> bool operator() ( const T& a, const T& b ) {
+     return ( a->pt() > b->pt() );
+  }
+};
 
+
+
+
+class HSCPStandardPlots
+ {
+public:
+  HSCPStandardPlots(TFileDirectory  subDir);
+  void fill(const HSCParticle & hscp, double w);
+
+  private:
+      TH2F * h_massVsMass;
+      TH2F * h_betaVsBeta;
+      TH2F * h_massVsBeta;
+      TH2F * h_massVsPtError;
+      TH2F * h_massVsMassError;
+      TH2F * h_massVsPt;
+
+      TH2F * h_massVsBeta_tk;
+      TH2F * h_massVsPtError_tk;
+      TH2F * h_massVsMassError_tk;
+
+  public:
+      TH1F * h_massTk;
+      TH1F * h_massDt;
+      TH1F * h_massAvg;
+      TH1F * h_tofBeta;
+      TH1F * h_tofInvBetaErr;
+      TH1F * h_dedxHits;
+      TH1F * h_dedxBeta;
+      TH2F * h_dedxHitsBeta;
+      TH1F * h_deltaBeta;
+      TH1F * h_deltaBetaInv;
+ };
+
+
+class CutMonitor
+{
+public:
+ CutMonitor(std::string name,edm::Service<TFileService> fs):m_name(name), m_plots(fs->mkdir(name)), m_newevent(true),m_evCounter(0),m_candCounter(0),m_tot(0){ }
+ 
+ void newEvent(float w) {m_newevent=true; m_tot+=w; }
+ void passed(const HSCParticle & hscp, double w) 
+   {
+        m_plots.fill(hscp,w);  
+        if(m_newevent) m_evCounter+=w;
+        m_candCounter+=w;
+        m_newevent=false;
+   }
+  void print()
+  {
+   cout << fixed << setprecision(1) << setw(6) <<  m_candCounter << "(" << fixed << setprecision(1) << setw(6) << m_evCounter << ")";
+  }
+  void printEff()
+  {
+   cout << fixed << setprecision(3) << setw(5) <<  m_candCounter/m_tot << "(" << fixed << setprecision(3) << setw(5) << m_evCounter/m_tot << ")";
+  }
+ 
+  void printName()
+  {
+   cout << m_name;
+  }
+
+ private:
+ std::string m_name;
+ HSCPStandardPlots m_plots;
+ bool m_newevent;
+ double m_evCounter;
+ double m_candCounter;
+ double m_tot;
+  
+}; 
+
+HSCPStandardPlots::HSCPStandardPlots(TFileDirectory  subDir)
+{
+  h_massVsMass =          subDir.make<TH2F>("tof_mass_vs_dedx_mass","Mass tof vs Mass dedx", 100,0,1200,100,0,1200);
+  h_massVsBeta =          subDir.make<TH2F>("avgMass_vs_avgBeta","Mass(avg) vs Beta(avg)", 100,0,1200,50,0,1);
+  h_massVsPtError =       subDir.make<TH2F>("avgMass_vs_ptError","Mass(avg) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
+  h_massVsPt =    subDir.make<TH2F>("mass_vs_pt","Mass vs pt", 100,0,1200,100,0,1500);
+  h_massVsMassError =     subDir.make<TH2F>("avgMass_vs_MassError","Mass(avg) vs log(masstError)", 100,0,1200,100,0,2);
+  h_massVsBeta_tk =       subDir.make<TH2F>("tkMass_vs_tkBeta","Mass(tk) vs Beta(tk)", 100,0,1200,50,0,1);
+  h_massVsPtError_tk =    subDir.make<TH2F>("tkMass_vs_ptError","Mass(tk) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
+  h_massVsMassError_tk =  subDir.make<TH2F>("tkMass_vs_MassError","Mass(tk) vs mass error", 100,0,1200,100,0,2);
+  h_betaVsBeta =          subDir.make<TH2F>("tof_beta_vs_beta","INVBeta tof vs INVbeta dedx (Pt>30)", 100,0,3,100,0,3);
+
+  h_massTk =          subDir.make<TH1F>("mass_tk","Mass tk", 100,0,1200);
+  h_massDt =          subDir.make<TH1F>("mass_dt","Mass dt", 100,0,1200);
+  h_massAvg =          subDir.make<TH1F>("mass_avg","Mass avg", 100,0,1200);
+
+  h_dedxHits = subDir.make<TH1F>("dedx_hits","# hits dedx", 25,-0.5,24.5);
+  h_dedxBeta = subDir.make<TH1F>("dedx_beta","Beta tk", 100,0,1);
+  h_dedxHitsBeta = subDir.make<TH2F>("dedx_hits_vs_beta","dedx #hits vs beta tk", 25,-0.5,24.5,100,0,1);
+
+  h_deltaBeta = subDir.make<TH1F>("delta_beta","Delta Beta", 200,-1,1);
+  h_deltaBetaInv =  subDir.make<TH1F>("delta_betaInv","Delta BetaInv", 200,-3,3);
+
+
+
+  h_tofBeta = subDir.make<TH1F>( "tof_beta"  , " tof beta  ",100,0,1);
+  h_tofInvBetaErr = subDir.make<TH1F>( "tof_inv_beta_err"  , " tof beta err  ",100,0,1);
+
+}
+
+void HSCPStandardPlots::fill(const HSCParticle & hscp, double w)
+{
+  
+
+  double avgMass = (hscp.massDt()+hscp.massTk())/2.;
+  double avgMassError;
+  double ptMassError=(hscp.tk.track->ptError()/hscp.tk.track->pt());
+  ptMassError*=ptMassError;
+  double ptMassError2=(hscp.dt.first->track()->ptError()/hscp.dt.first->track()->pt());
+  ptMassError2*=ptMassError2;
+  double ib2 = hscp.dt.second.invBeta*hscp.dt.second.invBeta;
+  double dtMassError=hscp.dt.second.invBetaErr*(ib2/sqrt(ib2-1)) ;
+  dtMassError*= dtMassError;
+  double dedxError = 0.2*sqrt(10./hscp.tk.nDeDxHits)*0.4/hscp.tk.invBeta2;    //TODO: FIXED IT!!!
+  double tkMassError = dedxError/(2.*hscp.tk.invBeta2-1);
+  tkMassError*=tkMassError;
+  avgMassError=sqrt(ptMassError/4+ptMassError2/4.+dtMassError/4.+tkMassError/4.);
+
+  h_massTk->Fill(hscp.massTk(),w);
+  h_massDt->Fill(hscp.massDt(),w);
+  h_massAvg->Fill(avgMass,w);
+  h_dedxHits->Fill(hscp.tk.nDeDxHits,w);
+  h_dedxBeta->Fill(1./sqrt(hscp.tk.invBeta2),w); 
+  h_dedxHitsBeta->Fill(hscp.tk.nDeDxHits,1./sqrt(hscp.tk.invBeta2),w);
+
+  h_deltaBeta->Fill(1./hscp.dt.second.invBeta-1./sqrt(hscp.tk.invBeta2),w);
+  h_deltaBetaInv->Fill(hscp.dt.second.invBeta-sqrt(hscp.tk.invBeta2),w);
+
+
+  h_massVsMass->Fill(hscp.massDt(),hscp.massTk(),w);
+  h_massVsBeta->Fill(avgMass,2./(sqrt(hscp.tk.invBeta2Fit)+hscp.dt.second.invBeta),w);
+  h_massVsPtError->Fill(avgMass,log10(hscp.tk.track->ptError()),w);
+  h_massVsPt->Fill(avgMass,hscp.tk.track->pt(),w);
+  h_massVsMassError->Fill((hscp.massDt()+hscp.massTk())/2.,avgMassError,w);
+  h_massVsMassError_tk->Fill(hscp.massTk(),tkMassError,w);
+  h_massVsBeta_tk->Fill(hscp.massTk(),1./sqrt(hscp.tk.invBeta2Fit),w);
+  h_massVsPtError_tk->Fill(hscp.massTk(),log10(hscp.tk.track->ptError()),w);
+  h_betaVsBeta->Fill(hscp.dt.second.invBeta,sqrt(hscp.tk.invBeta2),w);
+  h_tofBeta->Fill(1./hscp.dt.second.invBeta,w);
+  h_tofInvBetaErr->Fill(hscp.dt.second.invBetaErr,w);
+
+
+}
 
 class HSCPAnalyzer : public edm::EDAnalyzer {
    public:
@@ -120,6 +272,10 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_massVsPtError;
       TH2F * h_massVsMassError;
 
+     TH1F * h_tkmu_pt;
+     TH1F * h_stamu_pt;
+     TH1F * h_combmu_pt;
+
 //ANALYSIS TK
       TH2F * h_massVsBeta_tk;
       TH2F * h_massVsPtError_tk;
@@ -130,6 +286,12 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       double selectedTOF;
       double selectedDedx;
       double tot;
+      double selectedAfterCut[20];
+
+
+      CutMonitor * cuts[40];
+
+
  // SIM
       TH1F * h_simmu_pt; 
       TH1F * h_simmu_eta; 
@@ -266,7 +428,10 @@ Handle< double > genFilterEff;
 */
    }
 
+  for(int i=0;i<40;i++) if(cuts[i]) cuts[i]->newEvent(w);
    tot+=w;
+   //Sel before cuts
+   selectedAfterCut[0]+=w;
 
    Handle<reco::MuonCollection> pIn;
    iEvent.getByLabel("muons",pIn);
@@ -276,6 +441,13 @@ Handle< double > genFilterEff;
    iEvent.getByLabel("betaFromTOF",betaRecoH);
    const MuonTOFCollection & betaReco = *betaRecoH.product();
  
+   //Passing the trigger (exception is thrown if above collection are not filled)
+   selectedAfterCut[1]+=w;
+
+   std::vector<TrackRef> tkMuons;
+   std::vector<TrackRef> staMuons;
+   std::vector<TrackRef> combMuons;
+
    int i=0;
    reco::MuonCollection::const_iterator muonIt = muons.begin();
    for(; muonIt != muons.end() ; ++muonIt)
@@ -283,6 +455,10 @@ Handle< double > genFilterEff;
       TrackRef tkMuon = muonIt->track();
       TrackRef staMuon = muonIt->standAloneMuon();
       TrackRef combMuon = muonIt->combinedMuon();
+      if(tkMuon.isNonnull())     tkMuons.push_back(tkMuon);
+      if(staMuon.isNonnull())    staMuons.push_back(staMuon);
+      if(combMuon.isNonnull())   combMuons.push_back(combMuon);
+
       double p=0;
       if(tkMuon.isNonnull())
         {
@@ -318,6 +494,13 @@ Handle< double > genFilterEff;
 
     }
 
+
+   std::sort(tkMuons.begin()  , tkMuons.end()  ,PtSorter());
+   std::sort(staMuons.begin() , staMuons.end() ,PtSorter());
+   std::sort(combMuons.begin(), combMuons.end(),PtSorter());
+   if(tkMuons.size  ()>0)  h_tkmu_pt->Fill(tkMuons[0]  ->pt(),w);
+   if(staMuons.size ()>0)  h_stamu_pt->Fill(staMuons[0] ->pt(),w);
+   if(combMuons.size()>0)  h_combmu_pt->Fill(combMuons[0]->pt(),w);
 
    cerr << "AFTER Mu" << endl;
    Handle<TrackDeDxEstimateCollection> dedxH;
@@ -441,24 +624,59 @@ if(find_if(dedxMass.begin(), dedxMass.end(), bind2nd(greater<float>(), 100.))!= 
 if(find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= tofMass.end() ) selectedTOF+=w;
 
 
+
+for(int i=0; i < candidates.size();i++)
+{
+//  if(nosel && dt080 && tk080 &&) cuts[7]->passed(candidates[i],w);
+//  if(nosel && dt080 && tk080 &&) cuts[8]->passed(candidates[i],w);
+
+
+
+}
+
+
+
+
+bool found=false;
+bool found2=false;
+bool found3=false;
+bool found4=false;
+bool found5=false;
+for(int i=0; i < candidates.size();i++) 
+{
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack()) selectedAfterCut[19]+=w;
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].dt.second.invBeta > 1.176) { found5=true; selectedAfterCut[10]+=w; }
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].dt.second.invBeta > 1.25) { found2=true; selectedAfterCut[11]+=w; }
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].tk.invBeta2 > 1.56) { found=true; selectedAfterCut[12]+=w; }
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1) { found3=true;  }
+  if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].dt.second.invBeta > 1.25 && candidates[i].tk.invBeta2 > 1.56 ) {  selectedAfterCut[13]+=w; }
+  
+
+}
+if(found5)   selectedAfterCut[2]+=w;
+if(found2)   selectedAfterCut[3]+=w;
+if(found)   selectedAfterCut[4]+=w;
+if(found3)   selectedAfterCut[5]+=w;
+
+if(found && found2)   selectedAfterCut[6]+=w;
+if(found && found2 && found3)   selectedAfterCut[7]+=w;
+
+
+
+
+
+
 for(int i=0; i < candidates.size();i++)
 {
   h_betaVsBeta->Fill(candidates[i].dt.second.invBeta,sqrt(candidates[i].tk.invBeta2),w);
 
 
  // cout << candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum() << endl;
- if((candidates[i].dt.second.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
- {
-  h_massVsMass->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
- 
- if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].massDt() + candidates[i].massTk() >  280 && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta ) < 0.1 && candidates[i].massDt() > 100 
-    &&  candidates[i].massTk() > 100  && candidates[i].tk.invBeta2Fit > 1.4 &&  candidates[i].dt.second.invBeta  > 1.11 )
-    {
-      h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
-    }
 
 
-if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1)
+
+
+if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack()) // && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1)
  { 
   double avgMass = (candidates[i].massDt()+candidates[i].massTk())/2.;
   h_massVsBeta->Fill(avgMass,2./(sqrt(candidates[i].tk.invBeta2Fit)+candidates[i].dt.second.invBeta),w);
@@ -481,10 +699,77 @@ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() &&
   tkMassError*=tkMassError;
 
   avgMassError=sqrt(ptMassError/4+ptMassError2/4.+dtMassError/4.+tkMassError/4.);
-  h_massVsMassError->Fill((candidates[i].massDt()+candidates[i].massTk())/2.,avgMassError,w);
+
+
+
+  bool nosel=candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack();
+  bool dte07 = candidates[i].dt.second.invBetaErr < 0.07 ;
+  bool dte10 = candidates[i].dt.second.invBetaErr < 0.10 ;
+  bool dt080  = candidates[i].dt.second.invBeta > 1.25 &&  candidates[i].dt.second.invBeta < 1000. && dte10;
+  bool dt085 = candidates[i].dt.second.invBeta > 1.176 &&  candidates[i].dt.second.invBeta < 1000. && dte10;
+  bool tk080  = candidates[i].tk.invBeta2 > 1.56 ;
+  bool tkpt100  = candidates[i].tk.track->pt() > 100 && candidates[i].dt.first->combinedMuon().isNonnull() && candidates[i].dt.first->combinedMuon()->pt() > 100;
+  bool tkm100  = candidates[i].massTk() > 100 ;
+  bool tkm200  = candidates[i].massTk() > 200 ;
+  bool tkm400  = candidates[i].massTk() > 400 ;
+  bool tkhits14 = candidates[i].tk.nDeDxHits >= 14; 
+
+  bool db01  =  fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1 ;
+  bool err015 = avgMassError < 0.15;
+  if(nosel) cuts[0]->passed(candidates[i],w);
+  if(nosel && dt085 ) cuts[1]->passed(candidates[i],w);
+  if(nosel && dt080 ) cuts[2]->passed(candidates[i],w);
+  if(nosel && tk080 ) cuts[3]->passed(candidates[i],w);
+  if(nosel && dt080 && tk080) cuts[4]->passed(candidates[i],w);
+  if(nosel && db01 )  cuts[5]->passed(candidates[i],w);
+  if(nosel && dt080 && tk080 && db01) cuts[6]->passed(candidates[i],w);
+  if(nosel && dt080 && tk080 && dte07) cuts[7]->passed(candidates[i],w);
+  if(nosel && dt085 && tk080 ) cuts[8]->passed(candidates[i],w);
+  if(nosel && tk080 && tkpt100 ) cuts[9]->passed(candidates[i],w);
+  if(nosel && tk080 && tkpt100 && tkhits14 ) cuts[10]->passed(candidates[i],w);
+  if(nosel && tk080 && tkpt100 && tkm100 ) cuts[11]->passed(candidates[i],w);
+  if(nosel && tk080 && tkpt100 && tkm200 ) cuts[12]->passed(candidates[i],w);
+  if(nosel && tk080 && tkpt100 && tkm400 ) cuts[13]->passed(candidates[i],w);
+  if(nosel && dte10 ) cuts[14]->passed(candidates[i],w);
+  if(nosel && dte07 ) cuts[15]->passed(candidates[i],w);
+
+/*  if(nosel && dt085 && dte10 ) cuts[10]->passed(candidates[i],w);
+  if(nosel && dt080 && dte10 ) cuts[11]->passed(candidates[i],w);
+  if(nosel && dt085 && dte10 && tk080 ) cuts[12]->passed(candidates[i],w);
+  if(nosel && dt080 && dte10 && tk080 ) cuts[13]->passed(candidates[i],w);
+  if(nosel && dt085 && dte10 && tk080 && err015) cuts[14]->passed(candidates[i],w);
+  if(nosel && dt080 && dte10 && tk080 && err015) cuts[15]->passed(candidates[i],w);
+*/
+
+
+  if(avgMassError < 0.05 + 0.1* (candidates[i].massDt()+candidates[i].massTk())/1000.) 
+  { 
+    found4=true;
+//    selectedAfterCut[14]+=w;
+  }
+  
+  if( candidates[i].dt.second.invBeta > 1.25 && candidates[i].tk.invBeta2 > 1.56 && avgMassError < 0.15 )
+  {
+ 
+    selectedAfterCut[14]+=w;
+    if((candidates[i].massDt()+candidates[i].massTk())/2. > 100)     selectedAfterCut[15]+=w;
+    if((candidates[i].massDt()+candidates[i].massTk())/2. > 200)     selectedAfterCut[16]+=w;
+    if((candidates[i].massDt()+candidates[i].massTk())/2. > 300)     selectedAfterCut[17]+=w;
+    if((candidates[i].massDt()+candidates[i].massTk())/2. > 600)     selectedAfterCut[18]+=w;
+  }
+  
+   h_massVsMassError->Fill((candidates[i].massDt()+candidates[i].massTk())/2.,avgMassError,w);
 
 // }
 
+ if((candidates[i].dt.second.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
+ {
+  h_massVsMass->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].massDt() + candidates[i].massTk() >  280 && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta ) < 0.1 && candidates[i].massDt() > 100 
+    &&  candidates[i].massTk() > 100  && candidates[i].tk.invBeta2Fit > 1.4 &&  candidates[i].dt.second.invBeta  > 1.11 )
+    {
+      h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+    }
 //  if(candidates[i].massDt() + candidates[i].massTk() > 150 || (candidates[i].massTk() > 150 && candidates[i].tk.invBeta2Fit > 1.57 ) || candidates[i].massDt() > 150 )
       cout << "CANDIDATE " <<  candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.first->combinedMuon()->momentum() << " " << candidates[i].dt.first->track()->pt() ;
       cout <<" dt beta: " << 1./candidates[i].dt.second.invBeta << " tk beta : "<< sqrt(1./candidates[i].tk.invBeta2) << " tk beta fit: "<< sqrt(1./candidates[i].tk.invBeta2Fit) <<
@@ -501,7 +786,7 @@ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].massTk() > 100 &&
 
   double ptMassError=(candidates[i].tk.track->ptError()/candidates[i].tk.track->pt());
   ptMassError*=ptMassError;
-  double dedxError = 0.2*sqrt(10./candidates[i].tk.nDeDxHits)*0.4/candidates[i].tk.invBeta2;    //TODO: FIXED IT!!!
+  double dedxError = 0.2*sqrt(10./candidates[i].tk.nDeDxHits)*0.4/candidates[i].tk.invBeta2;    //TODO: FIX IT!!!
   double tkBetaMassError = dedxError/(2.*candidates[i].tk.invBeta2-1);
   tkBetaMassError*=tkBetaMassError;
 
@@ -514,7 +799,10 @@ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].massTk() > 100 &&
 
  
  }
+
 }
+
+if(found && found2 &&  found4)   selectedAfterCut[8]+=w;
 
 
 if(m_haveSimTracks)
@@ -546,7 +834,38 @@ if(m_haveSimTracks)
 void 
 HSCPAnalyzer::beginJob(const edm::EventSetup&)
 {
+
+  for(int i=0;i<20;i++) selectedAfterCut[i] = 0;
+  for(int i=0;i<40;i++) cuts[i] = 0;
+
   edm::Service<TFileService> fs;
+
+  cuts[0]= new CutMonitor("NoSel",fs);
+  cuts[1]= new CutMonitor("DT-085",fs);
+  cuts[2]= new CutMonitor("DT-080",fs);
+  cuts[3]= new CutMonitor("TK-080",fs);
+  cuts[4]= new CutMonitor("TK-080_DT-080",fs);
+  cuts[5]= new CutMonitor("DB-01",fs);
+  cuts[6]= new CutMonitor("TK-080_DT-080_DB-01",fs);
+  cuts[7]= new CutMonitor("TK-080_DT-080_DTE-07",fs);
+  cuts[8]= new CutMonitor("TK-080_DT-085",fs);
+  cuts[9] = new CutMonitor("TK-080_TKPT-100",fs);
+  cuts[10] = new CutMonitor("TK-080_TKPT-100_DEDH14",fs);
+  cuts[11] = new CutMonitor("TK-080_TKPT-100_M-100",fs);
+  cuts[12] = new CutMonitor("TK-080_TKPT-100_M-200",fs);
+  cuts[13] = new CutMonitor("TK-080_TKPT-100_M-400",fs);
+  cuts[14] = new CutMonitor("DTE-10",fs);
+  cuts[15] = new CutMonitor("DTE-10",fs);
+
+/*cuts[10]= new CutMonitor("DT-085_DTE-10",fs);
+  cuts[11]= new CutMonitor("DT-080_DTE-10",fs);
+  cuts[12]= new CutMonitor("TK-080_DT-085_DTE-10",fs);
+  cuts[13]= new CutMonitor("TK-080_DT-080_DTE-10",fs);
+  cuts[14]= new CutMonitor("TK-080_DT-085_DTE-10_ERR-15",fs);
+  cuts[15]= new CutMonitor("TK-080_DT-080_DTE-10_ERR-15",fs);
+*/
+
+
 
   float minBeta = 0.8l;
   float maxBeta = 3.;
@@ -599,6 +918,12 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_massVsBeta =  subDirAn.make<TH2F>("avgMass_vs_avgBeta","Mass(avg) vs Beta(avg)", 100,0,1200,50,0,1);
   h_massVsPtError =  subDirAn.make<TH2F>("avgMass_vs_ptError","Mass(avg) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
   h_massVsMassError =  subDirAn.make<TH2F>("avgMass_vs_MassError","Mass(avg) vs log(masstError)", 100,0,1200,100,0,2);
+
+
+  h_stamu_pt =  subDirAn.make<TH1F>("STA  Muon Pt Distribution", "StandAlone Muon Pt Distribution", 1000, 0, 1000);
+  h_combmu_pt=  subDirAn.make<TH1F>("Comb Muon Pt Distribution", "Combined Muon Pt Distribution", 1000, 0, 1000);
+  h_tkmu_pt =  subDirAn.make<TH1F>("TK   Muon Pt Distribution", "Track Muon Pt Distribution", 1000, 0, 1000);
+
 
 //--------- Analysis tk ------
  TFileDirectory subDirAnTk =  fs->mkdir( "AnalysisTk" );
@@ -665,6 +990,20 @@ HSCPAnalyzer::endJob() {
   cout << "Selected events: " << selected <<  endl;
   cout << "Selected tof  events: " << selectedTOF <<  endl;
   cout << "Selected dedx events: " << selectedDedx <<  endl;
+cout << "Selection: ";
+for(int i=0; i< 20 ; i++)  cout << fixed << setw(7) << setprecision(1) <<  selectedAfterCut[i] << " & " ;
+cout << endl;
+
+cout << "CutTitle: ";
+  for(int i=0;i<40;i++) if(cuts[i]) { cout << " & " << fixed << setw(6) << setprecision(1) ; cuts[i]->printName(); }
+
+cout << endl << "Cuts: ";
+  for(int i=0;i<40;i++) if(cuts[i]) { cout << " & " << fixed << setw(6) << setprecision(1) ; cuts[i]->print(); }
+cout << endl;
+cout << endl << "CutEff: ";
+  for(int i=0;i<40;i++) if(cuts[i]) { cout << " & " << fixed << setw(6) << setprecision(1) ; cuts[i]->printEff(); }
+cout << endl;
+
 }
 
 double HSCPAnalyzer::cutMin(TH1F * h, double ci)

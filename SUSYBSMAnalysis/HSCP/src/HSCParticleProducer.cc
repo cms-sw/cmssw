@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.2 2007/11/21 13:18:06 arizzi Exp $
+// $Id: HSCParticleProducer.cc,v 1.3 2008/01/18 15:42:29 arizzi Exp $
 //
 //
 
@@ -163,6 +163,10 @@ using namespace susybsm;
         for(reco::DeDxHitCollection::const_iterator it_hits = dedxHits[i].second.begin(); it_hits!=dedxHits[i].second.end();it_hits++) 
          {  if(it_hits->subDet() != 1 && it_hits->subDet() != 2 ) usedhits++;       }
 
+      // cout << "Used hits " << usedhits << endl;
+     //  cout << "Valid hits " << dedx[i].first->numberOfValidHits() << endl;
+     //  cout << "Chi2 " << dedx[i].first->normalizedChi2()  << endl;
+
        if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>8 && usedhits >= 9)
        {
         float dedxVal= dedx[i].second;
@@ -218,10 +222,13 @@ std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tk
  std::copy (dtsInput.begin(),dtsInput.end(), std::back_inserter (dts));
 
  std::vector<HSCParticle> result;
+  std::cout << "Size is " << tks.size() << std::endl;
  for(size_t i=0;i<tks.size();i++)
  {
+     std::cout << "TKK " << tks[i].track->pt() << " " << tks[i].invBeta2 <<  std::endl;
    if( tks[i].track.isNonnull() && tks[i].track->pt() > minTkP && tks[i].invBeta2 >= minTkInvBeta2 )
     {
+      std::cout << "TKKKKKKKKKKKCANDIDATE" << std::endl;
        float min=1000;
        int found = -1;
        for(size_t j=0;j<dts.size();j++)
