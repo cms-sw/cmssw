@@ -30,8 +30,8 @@ public:
   ~gctTestEnergyAlgos();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  void loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent);
-  void loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile);
 
   /// Read the input jet data from the jetfinders (after GCT processing).
   void fillRawJetData(const L1GlobalCaloTrigger* gct);

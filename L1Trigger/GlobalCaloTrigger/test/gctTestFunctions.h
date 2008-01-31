@@ -18,6 +18,9 @@
 
 #include <vector>
 
+class L1CaloEmCand;
+class L1CaloRegion;
+
 class gctTestElectrons;
 class gctTestEnergyAlgos;
 class gctTestFirmware;
@@ -34,6 +37,9 @@ public:
   // Constructor and destructor
   gctTestFunctions();
   ~gctTestFunctions();
+
+  /// Clear vectors of input data
+  void reset();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent);
@@ -70,6 +76,10 @@ private:
   gctTestEnergyAlgos*    theEnergyAlgosTester;
   gctTestFirmware*       theFirmwareTester;
   gctTestHtAndJetCounts* theHtAndJetCountsTester;
+  gctTestHfEtSums*       theHfEtSumsTester;
+
+  std::vector<L1CaloEmCand> m_inputEmCands;
+  std::vector<L1CaloRegion> m_inputRegions;
 
 };
 

@@ -33,10 +33,28 @@ gctTestElectrons::~gctTestElectrons()
 //=================================================================================================================
 //
 /// Load another event into the gct. Overloaded for the various ways of doing this.
-void gctTestElectrons::loadEvent(L1GlobalCaloTrigger* &gct, const std::string fileName)
+std::vector<L1CaloEmCand> gctTestElectrons::loadEvent(L1GlobalCaloTrigger* &gct, const std::string fileName)
 {
   m_fileNameUsed = fileName;
   //  gct->openSourceCardFiles(fileName);
+  //Open the input files using the function LoadFile and send the EmCands to the gct
+  for(int i=0;i<18;i++){
+    std::stringstream ss;
+    string fileNo;
+    ss << i;
+    ss >> fileNo;
+    LoadFileData(m_fileNameUsed+fileNo);
+  }
+
+  // copy both local vectors of input candidates into a single vector
+  std::vector<L1CaloEmCand> temp(m_theIsoEmCandsFromFileInput);
+  temp.insert(temp.end(), m_nonIsoEmCandsFromFileInput.begin(), m_nonIsoEmCandsFromFileInput.end());
+
+  // send the input candidates to the gct
+  gct->fillEmCands(temp);
+
+  return temp;
+
 }
 
 //=================================================================================================================

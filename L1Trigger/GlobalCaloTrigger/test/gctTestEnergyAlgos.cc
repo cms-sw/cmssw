@@ -22,8 +22,10 @@ gctTestEnergyAlgos::~gctTestEnergyAlgos() {}
 //
 /// Load another event into the gct. Overloaded for the various ways of doing this.
 //  Here's a random event generator. Loads isolated input regions to check the energy sums.
-void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent)
+std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent)
 {
+  std::vector<L1CaloRegion> inputRegions;
+
   for (int i=0; i<36; i++) {
     etStripSums.at(i)=0;
   }
@@ -43,7 +45,8 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleE
 
     if (etaRegion<4 || etaRegion>=18) etVector.mag = etVector.mag >> 2; 
 
-    gct->setRegion(etVector.mag, etaRegion, phiRegion);
+    L1CaloRegion temp(etVector.mag, false, true, false, false, etaRegion, phiRegion);
+    inputRegions.push_back(temp);
         
     // Here we fill the expected values. Et values restricted to
     // eight bits in HF and ten bits in the rest of the system.
@@ -65,12 +68,17 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleE
       }
     }
   }
+
+  gct->fillRegions(inputRegions);
+  return inputRegions;
 }
 
 // This method reads the gct input data for jetfinding from a file
 // as an array of region energies, one for each eta-phi bin
-void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile)
+std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile)
 {
+  std::vector<L1CaloRegion> inputRegions;
+
   //Open the file
   if (!regionEnergyMapInputFile.is_open()) {
     regionEnergyMapInputFile.open(fileName.c_str(), ios::in);
@@ -97,7 +105,7 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::string 
     unsigned iphi = (L1CaloRegionDetId::N_PHI + 4 - jphi)%L1CaloRegionDetId::N_PHI;
     for (unsigned ieta=0; ieta<L1CaloRegionDetId::N_ETA; ++ieta) {
       L1CaloRegion temp = nextRegionFromFile(ieta, iphi);
-      gct->setRegion(temp);
+      inputRegions.push_back(temp);
       if (ieta<(L1CaloRegionDetId::N_ETA/2)) {
 	unsigned strip = iphi;
 	etStripSums.at(strip) += temp.et();
@@ -110,6 +118,9 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::string 
     }
   }
   endOfFile = regionEnergyMapInputFile.eof();
+
+  gct->fillRegions(inputRegions);
+  return inputRegions;
 }
 
 //=================================================================================================================

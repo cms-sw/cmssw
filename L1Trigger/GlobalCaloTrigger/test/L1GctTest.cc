@@ -91,6 +91,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Initialise the gct
    m_gct->reset();
+   m_tester->reset();
 
    // Load data into the gct according to the tests to be carried out
    if (theElectronTestIsEnabled) {

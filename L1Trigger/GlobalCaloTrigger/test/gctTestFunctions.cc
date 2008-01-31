@@ -16,12 +16,23 @@ gctTestFunctions::gctTestFunctions() {
   theEnergyAlgosTester    = new gctTestEnergyAlgos();
   theFirmwareTester       = new gctTestFirmware();
   theHtAndJetCountsTester = new gctTestHtAndJetCounts();
+  theHfEtSumsTester       = new gctTestHfEtSums();
 }
 gctTestFunctions::~gctTestFunctions() {
   delete theElectronsTester;
   delete theEnergyAlgosTester;
   delete theFirmwareTester;
   delete theHtAndJetCountsTester;
+  delete theHfEtSumsTester;
+}
+
+//=================================================================================================================
+//
+/// Clear vectors of input data
+void gctTestFunctions::reset()
+{
+  m_inputEmCands.clear();
+  m_inputRegions.clear();
 }
 
 //=================================================================================================================
@@ -29,17 +40,17 @@ gctTestFunctions::~gctTestFunctions() {
 /// Load another event into the gct. Overloaded for the various ways of doing this.
 void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent)
 {
-  theEnergyAlgosTester->loadEvent(gct, simpleEvent);
+  m_inputRegions = theEnergyAlgosTester->loadEvent(gct, simpleEvent);
 }
 
 void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile)
 {
-  theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile);
+  m_inputRegions = theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile);
 }
 
 void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName)
 {
-  theElectronsTester->loadEvent(gct, fileName);
+  m_inputEmCands = theElectronsTester->loadEvent(gct, fileName);
 }
 
 //=================================================================================================================
