@@ -52,6 +52,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
+  bool debug_ = 
+    iConfig.getUntrackedParameter<bool>("debug",false);
+
   useNuclear_ =
      iConfig.getUntrackedParameter<bool>("useNuclear",false);
 
@@ -121,6 +124,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      chi2_PSH_PSV,
 			      multiLink );
   
+  pfBlockAlgo_.setDebug(debug_);
 
 //   energyCalibration_ = new PFEnergyCalibration();
 //   double calibParamECAL_slope_ 
