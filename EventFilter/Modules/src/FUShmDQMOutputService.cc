@@ -18,11 +18,12 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.4 2007/05/01 22:37:31 hcheung Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.5 2008/01/22 18:45:30 muzaffar Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
