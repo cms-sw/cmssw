@@ -28,6 +28,8 @@ namespace cond{
     virtual cond::ValidityInterval validity() const;
   private:
     void init();
+    IOV::Container const & iov() const { return m_iov->iov;}
+
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
     cond::Time_t m_globalSince;

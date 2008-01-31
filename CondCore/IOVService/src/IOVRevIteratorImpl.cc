@@ -34,7 +34,7 @@ size_t cond::IOVRevIteratorImpl::remaining() const {
 
 
 bool  cond::IOVRevIteratorImpl::atEnd() const {
-  return m_pos==m_iov->iov.rend();
+  return m_pos==iov().rend();
 }
 
 bool cond::IOVRevIteratorImpl::next(){
@@ -69,7 +69,7 @@ cond::IOVRevIteratorImpl::validity() const{
   cond::Time_t till=m_globalTill;
   if (!atEnd()) {
     till = m_pos->first;
-    if (m_next!=m_iov->iov.rend()) since =  m_next->first;
+    if (m_next!=iov().rend()) since =  m_next->first;
   }
   return cond::ValidityInterval(since,till);
 }

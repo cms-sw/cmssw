@@ -24,7 +24,7 @@ namespace cond{
     create an iterator to on the iov selected by the token
     user aquires the ownership of the pointer. Need explicit delete after usage
     */
-    IOVIterator* newIOVIterator( const std::string& iovToken, , bool reverse=false);
+    IOVIterator* newIOVIterator( const std::string& iovToken,  bool reverse=false);
     /**
     create an editor to the iov selected by the token
     user aquires the ownership of the pointer. Need explicit delete after usage
