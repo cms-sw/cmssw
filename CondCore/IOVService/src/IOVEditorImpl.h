@@ -7,19 +7,22 @@ namespace cond{
   class IOV;
   class IOVEditorImpl : virtual public cond::IOVEditor{
   public:
-    explicit IOVEditorImpl( cond::PoolTransaction& pooldb,
-			    const std::string& token,
-			    cond::Time_t globalSince, 
-			    cond::Time_t globalTill);
+    IOVEditorImpl( cond::PoolTransaction& pooldb,
+		   const std::string& token,
+		   cond::Time_t globalSince, 
+		   cond::Time_t globalTill);
+    /// Destructor
     virtual ~IOVEditorImpl();
-    void insert( cond::Time_t tillTime,
-		 const std::string& payloadToken
-		 );
+    /// Assign a payload with till time. Returns the payload index in the iov sequence
+    virtual unsigned int insert( cond::Time_t tillTime,
+				 const std::string& payloadToken
+				 );
     void bulkInsert( std::vector< std::pair<cond::Time_t,std::string> >& values );
     virtual void updateClosure( cond::Time_t newtillTime );
-    virtual void append(  cond::Time_t sinceTime,
-			  const std::string& payloadToken
-			  );
+    /// Append a payload with known since time. The previous last payload's till time will be adjusted to the new payload since time. Returns the payload index in the iov sequence
+    virtual unsigned int append(  cond::Time_t sinceTime,
+				  const std::string& payloadToken
+				  );
     virtual void deleteEntries( bool withPayload=false );
     virtual void import( const std::string& sourceIOVtoken );
     std::string token() const {
