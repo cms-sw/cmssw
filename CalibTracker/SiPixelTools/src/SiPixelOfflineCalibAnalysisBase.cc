@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.4 2007/11/29 17:44:17 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.5 2008/01/29 18:13:38 fblekman Exp $
 //
 //
 
@@ -22,6 +22,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 
 TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
@@ -94,6 +99,7 @@ SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
    //load the calibration information from the database
    iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
    iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
+   iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
 
    calibrationMode_ 	= calib_->getCalibrationMode();
    nTriggers_ 		= calib_->getNTriggers();
@@ -239,5 +245,55 @@ SiPixelOfflineCalibAnalysisBase::newDetID(uint32_t detid)
    edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "SiPixelOfflineCalibAnalysisBase - Found new DetID: " << detid << "  Name: " << detIdNames_[detid];
 }
 
+bool
+SiPixelOfflineCalibAnalysisBase::checkPixel(uint32_t detid,short row, short col)
+{
+  // finds the fed ID:
+  int thefedid = -1;
+  for(int fedid=0; fedid<=40 && thefedid==-1; ++fedid)
+    {
+      SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
+      if(converter.hasDetUnit(detid))
+	{
+	  thefedid=fedid;
+	}
+    }
+  if(thefedid==-1)
+    return false; // fed ID not associated with det ID. No pattern check possible
+  
+  SiPixelFrameConverter formatter(theCablingMap_.product(),thefedid);
+  sipixelobjects::DetectorIndex detector ={detid, row, col};
+  sipixelobjects::ElectronicIndex cabling;
+  
+  formatter.toCabling(cabling,detector);
+  // cabling should now contain cabling.roc and cabling.dcol  and cabling.pxid
+
+  // however, the coordinates now need to be converted from dcl, pxid to the row,col coordinates used in the calibration info
+  sipixelobjects::LocalPixel::DcolPxid loc;
+  loc.dcol = cabling.dcol;
+  loc.pxid = cabling.pxid;
+  sipixelobjects::LocalPixel locpixel(loc);
+  short localrow = locpixel.rocRow();
+  short localcol = locpixel.rocCol();
+
+  // now get the patterns from the calib object:
+  std::vector<short> calibcols = calib_->getColumnPattern();
+  std::vector<short> calibrows = calib_->getRowPattern();
+  // first check rows:
+  for(size_t irow=0; irow<calibrows.size(); ++irow)
+    {
+      if(calibrows[irow]==localrow)
+	{
+	  // check the columns
+	  for(size_t icol=0; icol<calibcols.size(); ++icol)
+	    {
+	      if(calibcols[icol]==localcol)
+		return true;
+	    }
+	}
+    }
+
+  return false;
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelOfflineCalibAnalysisBase);

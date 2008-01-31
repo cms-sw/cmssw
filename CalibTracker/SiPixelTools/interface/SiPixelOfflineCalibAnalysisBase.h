@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.4 2007/11/29 17:42:41 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.5 2008/01/29 18:13:12 fblekman Exp $
 //
 //
 
@@ -42,6 +42,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
@@ -53,6 +54,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <map>
 #include <vector>
@@ -95,6 +97,7 @@ protected:
   //calibration parameters from calib.dat/DB
   edm::ESHandle<SiPixelCalibConfiguration> calib_;
   edm::ESHandle<TrackerGeometry> geom_;
+  edm::ESHandle<SiPixelFedCablingMap> theCablingMap_;
   
   std::string calibrationMode_;
   short nTriggers_;
@@ -134,5 +137,7 @@ private:
   // calibrationEnd() will be used by derived classes
   virtual void calibrationEnd() ;
  
+  // checkPixel returns whether a particular pixel is to be expected during the entire run..
+  bool checkPixel(uint32_t detid, short row, short column);
 };
 
