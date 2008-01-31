@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.20 2008/01/22 13:12:37 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.21 2008/01/31 13:11:45 arizzi Exp $
 //
 //
 
@@ -105,6 +105,9 @@ public:
       TH2F * h_dedxHitsBeta;
       TH1F * h_deltaBeta;
       TH1F * h_deltaBetaInv;
+      TH1F * h_tofInvBeta;
+      TH1F * h_tofBetaPull;
+
  };
 
 
@@ -171,7 +174,9 @@ HSCPStandardPlots::HSCPStandardPlots(TFileDirectory  subDir)
 
 
   h_tofBeta = subDir.make<TH1F>( "tof_beta"  , " tof beta  ",100,0,1);
+  h_tofInvBeta = subDir.make<TH1F>( "tof_Invbeta"  , " tof beta  ",100,0,5);
   h_tofInvBetaErr = subDir.make<TH1F>( "tof_inv_beta_err"  , " tof beta err  ",100,0,1);
+  h_tofBetaPull = subDir.make<TH1F>( "tof_beta_pull"  , " tof beta pull  ",100,-10,10);
 
 }
 
@@ -215,6 +220,9 @@ void HSCPStandardPlots::fill(const HSCParticle & hscp, double w)
   h_betaVsBeta->Fill(hscp.dt.second.invBeta,sqrt(hscp.tk.invBeta2),w);
   h_tofBeta->Fill(1./hscp.dt.second.invBeta,w);
   h_tofInvBetaErr->Fill(hscp.dt.second.invBetaErr,w);
+ if(hscp.dt.second.invBetaErr !=0)
+  h_tofBetaPull->Fill((hscp.dt.second.invBeta-1)/hscp.dt.second.invBetaErr,w);
+  h_tofInvBeta->Fill(hscp.dt.second.invBeta,w);
 
 
 }
