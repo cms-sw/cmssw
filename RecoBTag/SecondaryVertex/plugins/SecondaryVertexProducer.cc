@@ -53,6 +53,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	bool				useBeamConstraint;
 	edm::ParameterSet		vtxRecoPSet;
 	bool				withPVError;
+	double				minTrackWeight;
 	VertexFilter			vertexFilter;
 	VertexSorting			vertexSorting;
 };
@@ -65,6 +66,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	useBeamConstraint(params.getParameter<bool>("useBeamConstraint")),
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),
+	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
 	vertexSorting(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
@@ -223,15 +225,16 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 			for(Vertex::trackRef_iterator iter = sv.tracks_begin();
 			    iter != sv.tracks_end(); iter++) {
-				
+				if (sv.trackWeight(*iter) < minTrackWeight)
+					continue;
 
 				TrackRefVector::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
 					          iter->castTo<TrackRef>());
 				if (pos == trackRefs.end())
 					throw cms::Exception("TrackNotFound")
-						<< "Could not find track in secondary "
-						   "vertex in origina tracks."
+						<< "Could not find track from secondary "
+						   "vertex in original tracks."
 						<< std::endl;
 
 				unsigned int index = pos - trackRefs.begin();

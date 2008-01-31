@@ -29,6 +29,7 @@ class CombinedSVComputer {
 	reco::TrackSelector			trackPseudoSelector;
 	unsigned int				pseudoMultiplicityMin;
 	unsigned int				trackMultiplicityMin;
+	double					minTrackWeight;
 	bool					useTrackWeights;
 	bool					vertexMassCorrection;
 	reco::V0Filter				pseudoVertexV0Filter;
