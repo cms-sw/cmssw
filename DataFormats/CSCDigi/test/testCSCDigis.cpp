@@ -745,3 +745,4 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCTMBStatusDigi(tmbstatusdigiCollection);
        readCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
 }
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
