@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.10 2008/01/22 18:44:32 muzaffar Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.11 2008/01/29 18:18:05 fblekman Exp $
 //
 //
 
@@ -128,7 +128,7 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
   edm::LogInfo("SiPixelIsAliveCalibration") << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
   double eff = -1;
   if(denom>0)
-    eff = nom/denom;
+    eff = nom;
   if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0)
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
   else
@@ -145,8 +145,8 @@ SiPixelIsAliveCalibration::calibrationEnd(){
     float imultiplefill=0;
     float itot=0;
     uint32_t detid=idet->first;
-    for(int icol=0; icol < bookkeeper_[detid]->getNbinsX(); ++icol){
-      for(int irow=0; irow < bookkeeper_[detid]->getNbinsY(); ++irow){
+    for(int icol=1; icol <= bookkeeper_[detid]->getNbinsX(); ++icol){
+      for(int irow=1; irow <= bookkeeper_[detid]->getNbinsY(); ++irow){
 	itot++;
 	double val = bookkeeper_[detid]->getBinContent(icol,irow);
 	if(val==0)
