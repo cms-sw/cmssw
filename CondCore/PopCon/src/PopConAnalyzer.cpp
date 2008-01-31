@@ -81,7 +81,7 @@ namespace popcon {
   //Subdetector responsibility ends with returning the payload vector.
   //Therefore this code is stripped of DBOutput service, state management etc.     
   
-  virtual void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
+  void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
     if(m_debug) std::cerr << "Analyze Begins\n"; 
     try{
       if(greenLight){
@@ -99,7 +99,7 @@ namespace popcon {
     }
   }
   
-  virtual void endJob(){
+  virtual void PopConAnalyzerBase::endJob(){
     if(m_debug) std::cerr << "endjob begins\n";	
     
     /*

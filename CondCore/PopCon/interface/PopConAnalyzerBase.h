@@ -21,10 +21,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/PopCon/interface/StateCreator.h"
+
+// #include "CondCore/PopCon/interface/StateCreator.h"
 //#include "CondCore/PopCon/interface/Logger.h"
 
 #include "CondCore/PopCon/interface/IOVPair.h"
@@ -46,16 +47,14 @@ namespace popcon
    private:
 
      virtual void beginJob(const edm::EventSetup& es);
+     virtual void endJob();
      
      //this method handles the transformation algorithm, 
      //Subdetector responsibility ends with returning the payload vector.
      //Therefore this code is stripped of DBOutput service, state management etc.             
      virtual void analyze(const edm::Event& evt, const edm::EventSetup& est);
      
-     //initialize the source handler
-     virtual void initSource(const edm::Event& evt, const edm::EventSetup& est)=0;
-     
-     
+      
      //This class takes ownership of the vector (and payload objects)
      virtual void takeTheData() =0 ;
 
