@@ -22,11 +22,10 @@ namespace popcon {
 
     typedef PopConSourceHandler<T> self;
 
-    PopConSourceHandler( const std::string& name, 
-			 const std::string& connect_string) : 
-      myname(name), 
+    PopConSourceHandler(const std::string& connect_string) : 
       m_db_iface(connect_string) {}
 
+ 
     virtual ~PopConSourceHandler(){
     }
     
@@ -52,7 +51,6 @@ namespace popcon {
     //arguments, this method is called by analyzer's analyze
     
     private:
-    std::string myname;
     //Offline Database Interface object
     popcon::OfflineDBInterface m_db_iface;
     
