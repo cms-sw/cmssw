@@ -91,23 +91,23 @@ double TrackAssociatorByPosition::quality(const TrajectoryStateOnSurface & tr, c
 }
 
 
-RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
-								  edm::Handle<TrackingParticleCollection>& tPCH,
+RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tCH, 
+								  edm::RefVector<TrackingParticleCollection>& tPCH,
 								  const edm::Event * e ) const{
   RecoToSimCollection  outputCollection;
   //for each reco track find a matching tracking particle
   std::pair<uint,uint> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
-  for (uint Ti=0; Ti!=tCH->size();++Ti){
+  for (uint Ti=0; Ti!=tCH.size();++Ti){
     //initial state (initial OR inner OR outter)
-    FreeTrajectoryState iState = getState((*tCH)[Ti]);
+    FreeTrajectoryState iState = getState(*(tCH)[Ti]);
 
     bool atLeastOne=false;
     //    for each tracking particle, find a state position and the plane to propagate the track to.
-    for (uint TPi=0;TPi!=tPCH->size();++TPi) {
+    for (uint TPi=0;TPi!=tPCH.size();++TPi) {
       //get a state in the muon system 
-      TrajectoryStateOnSurface simReferenceState = getState((*tPCH)[TPi]);
+      TrajectoryStateOnSurface simReferenceState = getState(*(tPCH)[TPi]);
       if (!simReferenceState.isValid()) continue;
 
       //propagate the TRACK to the surface
@@ -118,7 +118,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<ed
       double dQ= quality(trackReferenceState,simReferenceState);
       if (dQ < theQCut){
 	atLeastOne=true;
-	outputCollection.insert(edm::RefToBase<Track>(tCH,Ti),
+	outputCollection.insert(tCH[Ti],
 				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"track number: "<<Ti
 						     <<" associated with dQ: "<<dQ
@@ -128,7 +128,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<ed
 	minPair = std::make_pair(Ti,TPi);}
     }//loop over tracking particles
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
-      outputCollection.insert(edm::RefToBase<Track>(tCH,minPair.first),
+      outputCollection.insert(tCH[minPair.first],
 			      std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,minPair.second),-dQmin));}
   }//loop over tracks
   outputCollection.post_insert();
@@ -137,8 +137,8 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<ed
 
 
 
-SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
-								  edm::Handle<TrackingParticleCollection>& tPCH,
+SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::RefToBaseVector<reco::Track>& tCH, 
+								  edm::RefVector<TrackingParticleCollection>& tPCH,
 								  const edm::Event * e ) const {
   SimToRecoCollection  outputCollection;
   //for each tracking particle, find matching tracks.
@@ -146,17 +146,17 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<ed
   std::pair<uint,uint> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
-  for (uint TPi=0;TPi!=tPCH->size();++TPi){
+  for (uint TPi=0;TPi!=tPCH.size();++TPi){
     //get a state in the muon system
-    TrajectoryStateOnSurface simReferenceState= getState((*tPCH)[TPi]);
+    TrajectoryStateOnSurface simReferenceState= getState(*(tPCH)[TPi]);
       
     if (!simReferenceState.isValid()) continue; 
     bool atLeastOne=false;
     //	propagate every track from any state (initial, inner, outter) to the surface 
     //	and make the position test
-    for (uint Ti=0; Ti!=tCH->size();++Ti){
+    for (uint Ti=0; Ti!=tCH.size();++Ti){
       //initial state
-      FreeTrajectoryState iState = getState((*tCH)[Ti]);
+      FreeTrajectoryState iState = getState(*(tCH)[Ti]);
 	
       //propagation to surface
       TrajectoryStateOnSurface trackReferenceState = thePropagator->propagate(iState,simReferenceState.surface());
@@ -167,7 +167,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<ed
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,TPi),
-				std::make_pair(edm::RefToBase<Track>(tCH,Ti),-dQ));//association map with quality, is order greater-first
+				std::make_pair(tCH[Ti],-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"TrackingParticle number: "<<TPi
 						     <<" associated with dQ: "<<dQ
 						     <<" to track number: "<<Ti;}
@@ -177,7 +177,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<ed
     }//loop over tracks
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
       outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,minPair.first),
-			      std::make_pair(edm::RefToBase<Track>(tCH,minPair.second),-dQmin));}
+			      std::make_pair(tCH[minPair.second],-dQmin));}
   }//loop over tracking particles
   
   outputCollection.post_insert();

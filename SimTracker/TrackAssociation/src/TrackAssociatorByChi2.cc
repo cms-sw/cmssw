@@ -77,155 +77,6 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 }
 
 
-RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ) const{
-
-  RecoToSimCollection  outputCollection;
-  double chi2;
-
-  const View<Track>  tC = *(tCH.product());
-  const TrackingParticleCollection tPC= *(tPCH.product());
-
-  int tindex=0;
-  for (View<Track> ::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
-
-    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "rec::Track #"<<tindex<<" with pt=" << rt->pt() <<  "\n"
-				<< "===========================================" << "\n";
- 
-    TrackBase::ParameterVector rParameters = rt->parameters();
-    TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
-    if (onlyDiagonal){
-      for (unsigned int i=0;i<5;i++){
-	for (unsigned int j=0;j<5;j++){
-	  if (i!=j) recoTrackCovMatrix(i,j)=0;
-	}
-      }
-    } 
-
-    recoTrackCovMatrix.Invert();
-
-    int tpindex =0;
-    for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-	
-      //skip tps with a very small pt
-      if (sqrt(tp->momentum().perp2())<0.5) continue;
-	
-      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-      Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
-
-      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
-      if (params.first){
-	TrackBase::ParameterVector sParameters=params.second;
-	
-	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-	
-	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
-	chi2 /= 5;
-	
-	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				    << "qoverp simG: " << sParameters[0] << "\n" 
-				    << "lambda simG: " << sParameters[1] << "\n" 
-				    << "phi    simG: " << sParameters[2] << "\n" 
-				    << "dxy    simG: " << sParameters[3] << "\n" 
-				    << "dsz    simG: " << sParameters[4] << "\n" 
-				    << ": " /*<< */ << "\n" 
-				    << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
-				    << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
-				    << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
-				    << ": " /*<< */ << "\n" 
-				    << "chi2: " << chi2 << "\n";
-	
-	if (chi2<chi2cut) {
-	  outputCollection.insert(edm::RefToBase<reco::Track>(tCH,tindex), 
-				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-						 -chi2));//-chi2 because the Association Map is ordered using std::greater
-	}
-      }
-    }
-  }
-  outputCollection.post_insert();
-  return outputCollection;
-}
-
-
-
-SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ) const {
-  SimToRecoCollection  outputCollection;
-  double chi2;
-
-  const View<Track>  tC = *(tCH.product());
-  const TrackingParticleCollection tPC= *(tPCH.product());
-
-  int tpindex =0;
-  for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-    
-    //skip tps with a very small pt
-    if (sqrt(tp->momentum().perp2())<0.5) continue;
-    
-    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
-				<< "===========================================" << "\n";
-    
-    Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-    Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-    
-    std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
-    if (params.first){
-      TrackBase::ParameterVector sParameters=params.second;
-      
-      int tindex=0;
-      for (View<Track> ::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
-	
-	TrackBase::ParameterVector rParameters = rt->parameters();
-	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
-	if (onlyDiagonal) {
-	  for (unsigned int i=0;i<5;i++){
-	    for (unsigned int j=0;j<5;j++){
-	      if (i!=j) recoTrackCovMatrix(i,j)=0;
-	    }
-	  }
-	}
-	
-	recoTrackCovMatrix.Invert();
-	
-	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-	
-	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
-	chi2 /= 5;
-	
-	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				    << "qoverp simG: " << sParameters[0] << "\n" 
-				    << "lambda simG: " << sParameters[1] << "\n" 
-				    << "phi    simG: " << sParameters[2] << "\n" 
-				    << "dxy    simG: " << sParameters[3] << "\n" 
-				    << "dsz    simG: " << sParameters[4] << "\n" 
-				    << ": " /*<< */ << "\n" 
-				    << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
-				    << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
-				    << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
-				    << ": " /*<< */ << "\n" 
-				    << "chi2: " << chi2 << "\n";
-	
-	if (chi2<chi2cut) {
-	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-				  std::make_pair(edm::RefToBase<reco::Track>(tCH,tindex),
-						 -chi2));//-chi2 because the Association Map is ordered using std::greater
-	}
-      }
-    }
-  }
-  outputCollection.post_insert();
-  return outputCollection;
-}
-
 double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterator rt, 
 						  TrackingParticleCollection::const_iterator tp ) const{
   
@@ -303,3 +154,149 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
   }
 }
 
+RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC, 
+							      edm::RefVector<TrackingParticleCollection>& tPCH,
+							      const edm::Event * e ) const{
+
+  RecoToSimCollection  outputCollection;
+  double chi2;
+
+  const TrackingParticleCollection tPC = *tPCH.product();
+
+  int tindex=0;
+  for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
+
+    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
+				<< "rec::Track #"<<tindex<<" with pt=" << (*rt)->pt() <<  "\n"
+				<< "===========================================" << "\n";
+ 
+    TrackBase::ParameterVector rParameters = (*rt)->parameters();
+    TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
+    if (onlyDiagonal){
+      for (unsigned int i=0;i<5;i++){
+	for (unsigned int j=0;j<5;j++){
+	  if (i!=j) recoTrackCovMatrix(i,j)=0;
+	}
+      }
+    } 
+
+    recoTrackCovMatrix.Invert();
+
+    int tpindex =0;
+    for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+	
+      //skip tps with a very small pt
+      if (sqrt(tp->momentum().perp2())<0.5) continue;
+	
+      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
+      Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
+
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+      if (params.first){
+	TrackBase::ParameterVector sParameters=params.second;
+	
+	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	
+	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
+	chi2 /= 5;
+	
+	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << (*rt)->pt() << "====\n" 
+				    << "qoverp simG: " << sParameters[0] << "\n" 
+				    << "lambda simG: " << sParameters[1] << "\n" 
+				    << "phi    simG: " << sParameters[2] << "\n" 
+				    << "dxy    simG: " << sParameters[3] << "\n" 
+				    << "dsz    simG: " << sParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
+				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
+				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
+				    << "dxy    rec: " << (*rt)->dxy()/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << (*rt)->dsz()/*rParameters[4]*/ << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "chi2: " << chi2 << "\n";
+	
+	if (chi2<chi2cut) {
+	  outputCollection.insert(tC[tindex], 
+				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
+	}
+      }
+    }
+  }
+  outputCollection.post_insert();
+  return outputCollection;
+}
+
+
+
+SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC, 
+							      edm::RefVector<TrackingParticleCollection>& tPCH,
+							      const edm::Event * e ) const {
+  SimToRecoCollection  outputCollection;
+  double chi2;
+
+  const TrackingParticleCollection tPC= *(tPCH.product());
+
+  int tpindex =0;
+  for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+    
+    //skip tps with a very small pt
+    if (sqrt(tp->momentum().perp2())<0.5) continue;
+    
+    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
+				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
+				<< "===========================================" << "\n";
+    
+    Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
+    Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
+    
+    std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+    if (params.first){
+      TrackBase::ParameterVector sParameters=params.second;
+      
+      int tindex=0;
+      for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
+	
+	TrackBase::ParameterVector rParameters = (*rt)->parameters();
+	TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
+	if (onlyDiagonal) {
+	  for (unsigned int i=0;i<5;i++){
+	    for (unsigned int j=0;j<5;j++){
+	      if (i!=j) recoTrackCovMatrix(i,j)=0;
+	    }
+	  }
+	}
+	
+	recoTrackCovMatrix.Invert();
+	
+	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	
+	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
+	chi2 /= 5;
+	
+	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << (*rt)->pt() << "====\n" 
+				    << "qoverp simG: " << sParameters[0] << "\n" 
+				    << "lambda simG: " << sParameters[1] << "\n" 
+				    << "phi    simG: " << sParameters[2] << "\n" 
+				    << "dxy    simG: " << sParameters[3] << "\n" 
+				    << "dsz    simG: " << sParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
+				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
+				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
+				    << "dxy    rec: " << (*rt)->dxy()/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << (*rt)->dsz()/*rParameters[4]*/ << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "chi2: " << chi2 << "\n";
+	
+	if (chi2<chi2cut) {
+	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+				  std::make_pair(tC[tindex],
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
+	}
+      }
+    }
+  }
+  outputCollection.post_insert();
+  return outputCollection;
+}
