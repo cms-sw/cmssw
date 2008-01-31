@@ -17,7 +17,6 @@ namespace cond{
 		     cond::Time_t globalTill);
     virtual ~IOVIteratorImpl();
     virtual bool next();
-    virtual bool goLast();
     virtual bool rewind();
     virtual bool empty() const;
     virtual size_t size() const;
