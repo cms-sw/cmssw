@@ -56,7 +56,7 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
   popcon::PayloadIOV piov;
   session.open();
   cond::Connection con(m_connect,-1);
-  con.connect(session);
+  con.connect(&session);
   cond::CoralTransaction& coraldb=con.coralTransaction();
   cond::MetaData metadata_svc(coraldb);
   std::vector<std::string> alltags;
@@ -76,6 +76,7 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
   cond::PoolTransaction& pooldb=con.poolTransaction();
   cond::IOVService iovservice(pooldb);
   pooldb.start(true);
+  size_t itpos=0;
   for(std::vector<std::string>::iterator tok_it = alltokens.begin(); tok_it != alltokens.end(); tok_it++, itpos++){
     std::auto_ptr<cond::IOVIterator> ioviterator(iovservice.newIOVIterator(*tok_it,cond::IOVService::backwardIter));
     ioviterator->next();
