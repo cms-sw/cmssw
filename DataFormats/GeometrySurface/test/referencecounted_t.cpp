@@ -82,3 +82,4 @@ namespace testreferencecounted {
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testreferencecounted::Test);
 
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"

@@ -60,3 +60,4 @@ void testFEDRawData::testdata(){
 }
 
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
