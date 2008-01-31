@@ -21,6 +21,7 @@ namespace cond{
   namespace service{
     class UserLogInfo;
   }
+  class LogDBEntry;
   class CoralTransaction;
   class Connection;
   class SequenceManager;
@@ -40,7 +41,8 @@ namespace cond{
 			 const std::string& destDB,
 			 const std::string& payloadToken,
 			 const std::string& iovtag,
-			 const std::string& iovtimetype
+			 const std::string& iovtimetype,
+			 unsigned int payloadIdx
 			 );
     //
     //the current local time will be registered as execution time
@@ -52,17 +54,38 @@ namespace cond{
 			       const std::string& payloadToken,
 			       const std::string& iovtag,
 			       const std::string& iovtimetype,
+			       unsigned int payloadIdx,
 			       const std::string& exceptionMessage
 			       );
+    //
+    // Here we query the log for the last entry for these payloads.
+    // Parameter  LogDBEntry& result is both input and output
+    // As input, it defines query condition. 
+    // Last: in the sense of max rowid satisfies the requirement
+    // Note: if empty logentry is given, the absolute max is returned which
+    // normally is useless. 
+    //
+    void LookupLastEntry( LogDBEntry& logentry ) const;
+    //
+    // Here we query the log for the last entry for these payloads.
+    // Parameter  LogDBEntry& result is both input and output
+    // As input, it defines query condition. 
+    // Last: in the sense of max rowid satisfies the requirement
+    // Note: if empty logentry is given, the absolute max is returned which
+    // normally is useless.
+    //
+    void LookupLastFailedEntry( LogDBEntry& logentry ) const;
+    
   private:
     void insertLogRecord(unsigned long long logId,
-			const std::string& localtime,
-			const std::string& destDB,
-			const std::string& payloadToken,
-			const cond::service::UserLogInfo& userLogInfo,
-			const std::string& iovtag,
-			const std::string& iovtimetype,
-			const std::string& exceptionMessage);
+			 const std::string& localtime,
+			 const std::string& destDB,
+			 const std::string& payloadToken,
+			 const cond::service::UserLogInfo& userLogInfo,
+			 const std::string& iovtag,
+			 const std::string& iovtimetype,
+			 unsigned int payloadIdx,
+			 const std::string& exceptionMessage);
     
     Connection* m_connectionHandle;
     CoralTransaction& m_coraldb;

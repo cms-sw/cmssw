@@ -1,4 +1,5 @@
 #include "CondCore/DBOutputService/interface/Logger.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
 #include "CondCore/DBOutputService/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
@@ -100,6 +101,10 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.setNotNullConstraint(std::string("PAYLOADTOKEN"));
 
+  description.insertColumn(std::string("PAYLOADINDEX"),
+	  coral::AttributeSpecification::typeNameForType<unsigned int>() );
+  description.setNotNullConstraint(std::string("PAYLOADINDEX"));
+
   description.insertColumn(std::string("DESTINATIONDB"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.setNotNullConstraint(std::string("DESTINATIONDB"));
@@ -120,7 +125,8 @@ cond::Logger::logOperationNow(
 			      const std::string& destDB,
 			      const std::string& payloadToken,
 			      const std::string& iovtag,
-			      const std::string& iovtimetype
+			      const std::string& iovtimetype,
+			      unsigned int payloadIdx
 			      ){
   //aquirelocaltime
   //using namespace boost::posix_time;
@@ -132,7 +138,7 @@ cond::Logger::logOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,"");
+  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,"OK");
 }
 void 
 cond::Logger::logFailedOperationNow(
@@ -141,6 +147,7 @@ cond::Logger::logFailedOperationNow(
 			       const std::string& payloadToken,
 			       const std::string& iovtag,
 			       const std::string& iovtimetype,
+			       unsigned int payloadIdx,
 			       const std::string& exceptionMessage
 				    ){
   //aquirelocaltime
@@ -152,7 +159,16 @@ cond::Logger::logFailedOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,exceptionMessage);
+  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,exceptionMessage);
+}
+
+void 
+cond::Logger::LookupLastEntry( cond::LogDBEntry& logentry ) const{
+  
+}
+void 
+cond::Logger::LookupLastFailedEntry( cond::LogDBEntry& logentry ) const{
+  
 }
 void
 cond::Logger::insertLogRecord(unsigned long long logId,
@@ -162,6 +178,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
 			      const cond::service::UserLogInfo& userLogInfo,
 			      const std::string& iovtag,
 			      const std::string& iovtimetype,
+			      unsigned int payloadIdx,
 			      const std::string& exceptionMessage){
   try{
     cond::TokenInterpreter tokenteller(payloadToken);
@@ -178,6 +195,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData.extend<std::string>("COMMENT");
     rowData.extend<std::string>("IOVTAG");
     rowData.extend<std::string>("IOVTIMETYPE");
+    rowData.extend<unsigned int>("PAYLOADINDEX");
     rowData.extend<std::string>("ERRORMESSAGE");
     rowData["LOGID"].data< unsigned long long >() = logId;
     rowData["EXECTIME"].data< std::string >() = localtime;
@@ -189,6 +207,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["COMMENT"].data< std::string >() = userLogInfo.comment;
     rowData["IOVTAG"].data< std::string >() = iovtag;
     rowData["IOVTIMETYPE"].data< std::string >() = iovtimetype;
+    rowData["PAYLOADINDEX"].data< unsigned int >() = payloadIdx;
     rowData["ERRORMESSAGE"].data< std::string >() = exceptionMessage;
     m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).dataEditor().insertRow(rowData);
   }catch(const std::exception& er){
