@@ -26,6 +26,9 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/PopCon/interface/StateCreator.h"
 //#include "CondCore/PopCon/interface/Logger.h"
+
+#include "CondCore/PopCon/interface/IOVPair.h"
+
 namespace popcon
 {
    class PopConAnalyzerBase : public edm::EDAnalyzer {
@@ -59,8 +62,7 @@ namespace popcon
 
    private:
      
-     std::string m_popcon_db;
-     std::string m_payload_name;
+    std::string m_payload_name;
      
     
      //If state corruption is detected, this parameter specifies the program behaviour

@@ -1,16 +1,15 @@
 #ifndef TEMPLATE_PAYLOAD_H
 #define TEMPLATE_PAYLOAD_H
 
-#include <vector>
-#include <string>
-//#include <iostream>
-//#include <typeinfo>
+
 #include "CondCore/PopCon/interface/IOVPair.h"
 #include "CondCore/PopCon/interface/OfflineDBInterface.h"
-#include "FWCore/Framework/interface/Event.h"
 
-namespace popcon
-{
+#include <vector>
+#include <string>
+
+namespace popcon {
+
   //Online DB source handler, aims at returning the vector of data to be 
   //transferred to the online database
   //Subdetector developers inherit over this class with template parameter of 
@@ -36,8 +35,8 @@ namespace popcon
       const_cast<self*>(this)->returnData();
     }
 
-    unsigned int getSinceForTag(const std::string& tag) const {
-      return (m_db_iface->getSpecificTagInfo(tag)).last_since;
+    Time_t getSinceForTag(const std::string& tag) const {
+      return (m_db_iface.getSpecificTagInfo(tag)).last_since;
     }
 
     std::vector<std::pair<T*, popcon::IOVPair> > const &  returnData() {

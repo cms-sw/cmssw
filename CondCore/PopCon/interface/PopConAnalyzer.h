@@ -29,7 +29,7 @@ namespace popcon{
   
       
     //This class takes ownership of the vector (and payload objects)
-    virtual void Container takeTheData(){
+    virtual void takeTheData(){
       m_payload_cont = &(m_handler_object());	
     }
      
