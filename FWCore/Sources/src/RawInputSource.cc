@@ -1,11 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.17 2007/12/11 00:28:07 wmtan Exp $
+$Id: RawInputSource.cc,v 1.18 2007/12/31 22:43:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "DataFormats/Provenance/interface/Timestamp.h" 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -47,10 +49,9 @@ namespace edm {
   boost::shared_ptr<RunPrincipal>
   RawInputSource::readRun_() {
     newRun_ = false;
+    RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runNumber_,
-			 timestamp(),
-			 Timestamp::invalidTimestamp(),
+	new RunPrincipal(runAux,
 			 productRegistry(),
 			 processConfiguration()));
   }
@@ -58,10 +59,10 @@ namespace edm {
   boost::shared_ptr<LuminosityBlockPrincipal>
   RawInputSource::readLuminosityBlock_() {
     newLumi_ = false;
+    LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(),
+	luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(luminosityBlockNumber_,
-				     timestamp(),
-				     Timestamp::invalidTimestamp(),
+	new LuminosityBlockPrincipal(lumiAux,
 				     productRegistry(),
 				     runPrincipal(),
 				     processConfiguration()));
@@ -76,9 +77,10 @@ namespace edm {
   std::auto_ptr<Event>
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
+    EventAuxiliary eventAux(eventId,
+      processGUID(), tstamp, luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventId, processGUID(), tstamp,
-	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
+	new EventPrincipal(eventAux, productRegistry(), luminosityBlockPrincipal(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }

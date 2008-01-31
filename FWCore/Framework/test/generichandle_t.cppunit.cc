@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.28 2008/01/18 20:10:24 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.29 2008/01/30 00:32:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -14,6 +14,9 @@ $Id: generichandle_t.cppunit.cc,v 1.28 2008/01/18 20:10:24 wmtan Exp $
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -63,9 +66,12 @@ void testGenericHandle::failgetbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(id.run(), time, time, preg, pc));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
-  edm::EventPrincipal ep(id, uuid, time, preg, lbp, pc, true);
+  edm::RunAuxiliary runAux(id.run(), time, time);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, rp, pc));
+  edm::EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  edm::EventPrincipal ep(eventAux, preg, lbp, pc);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -137,9 +143,12 @@ void testGenericHandle::getbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
+  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, rp, pc));
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
 
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product));
   ep.put(pprod, pprov);

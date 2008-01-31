@@ -8,20 +8,14 @@
 #include <algorithm>
 
 namespace edm {
-  EventPrincipal::EventPrincipal(EventID const& id,
-	std::string const& processGUID,
-	Timestamp const& time,
+  EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
-        bool isReal,
-        EventAuxiliary::ExperimentType eType,
-	int bunchXing,
-	int storeNumber,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, processGUID, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
+	  aux_(aux),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_() {
 	  }

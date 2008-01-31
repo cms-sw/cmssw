@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.109 2008/01/21 03:11:45 wmtan Exp $
+$Id: RootFile.cc,v 1.110 2008/01/30 00:28:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -496,12 +496,12 @@ namespace edm {
     fillEventAuxiliaryAndHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
+	RunAuxiliary runAux(eventAux_.run(), eventAux_.time(), eventAux_.time());
 	boost::shared_ptr<RunPrincipal> rp(
-	  new RunPrincipal(eventAux_.run(), eventAux_.time(), eventAux_.time(), pReg, processConfiguration_));
+	  new RunPrincipal(runAux, pReg, processConfiguration_));
+	LuminosityBlockAuxiliary lumiAux(rp->run(), eventAux_.luminosityBlock(), eventAux_.time(), eventAux_.time());
 	lbp = boost::shared_ptr<LuminosityBlockPrincipal>(
-	  new LuminosityBlockPrincipal(eventAux_.luminosityBlock(),
-				       eventAux_.time(),
-				       eventAux_.time(),
+	  new LuminosityBlockPrincipal(lumiAux,
 				       pReg,
 				       rp,
 				       processConfiguration_));
@@ -511,14 +511,10 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-                eventID(),
-		eventAux_.processGUID(),
-		eventAux_.time(), pReg,
-		lbp, processConfiguration_,
-		eventAux_.isRealData(),
-		eventAux_.experimentType(),
-		eventAux_.bunchCrossing(),
-                eventAux_.storeNumber(),
+		eventAux_,
+		pReg,
+		lbp,
+		processConfiguration_,
 		eventAux_.processHistoryID_,
 		eventTree_.makeDelayedReader(fileFormatVersion_)));
 
@@ -553,10 +549,10 @@ namespace edm {
       if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
         fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
       }
+      RunAuxiliary runAux(run.run(), eventAux_.time(), Timestamp::invalidTimestamp());
       return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(run.run(),
-	  eventAux_.time(),
-	  Timestamp::invalidTimestamp(), pReg,
+          new RunPrincipal(runAux,
+	  pReg,
 	  processConfiguration_));
     }
     runTree_.setEntryNumber(fileIndexIter_->entry_); 
@@ -574,9 +570,7 @@ namespace edm {
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<RunPrincipal> thisRun(
-	new RunPrincipal(runAux_.run(),
-			 runAux_.beginTime(),
-			 runAux_.endTime(),
+	new RunPrincipal(runAux_,
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
@@ -620,10 +614,9 @@ namespace edm {
         ++fileIndexIter_;
         --eventsToSkip_;
       }
+      LuminosityBlockAuxiliary lumiAux(rp->run(), lumi.luminosityBlock(), eventAux_.time_, Timestamp::invalidTimestamp());
       return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumi.luminosityBlock(),
-				     eventAux_.time_,
-				     Timestamp::invalidTimestamp(),
+	new LuminosityBlockPrincipal(lumiAux,
 				     pReg,
 				     rp,
 				     processConfiguration_));
@@ -646,9 +639,7 @@ namespace edm {
       lumiAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(),
-				     lumiAux_.beginTime(),
-				     lumiAux_.endTime(),
+	new LuminosityBlockPrincipal(lumiAux_,
 				     pReg, rp, processConfiguration_,
 				     lumiAux_.processHistoryID_,
 				     lumiTree_.makeDelayedReader(fileFormatVersion_)));

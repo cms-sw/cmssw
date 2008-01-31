@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.17 2007/12/29 00:28:57 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.18 2007/12/31 22:43:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -17,6 +17,9 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.17 2007/12/29 00:28:57 wmtan Exp $
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -58,9 +61,12 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
+  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, rp, pc));
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -112,9 +118,12 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
+  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, rp, pc));
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

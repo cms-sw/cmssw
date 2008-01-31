@@ -1,10 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.5 2008/01/18 00:52:36 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.6 2008/01/18 17:47:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -30,8 +33,9 @@ namespace edm {
     unsigned int run = runLumiEvent_[currentIndex_];
     Timestamp ts = Timestamp(1);  // 1 is just a meaningless number to make it compile for the test
 
+    RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(runAux, productRegistry(), processConfiguration()));
     currentIndex_ += 3;
     return runPrincipal;
   }
@@ -42,12 +46,13 @@ namespace edm {
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
 
+    RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> rp2(
-        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
+    LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
-        new LuminosityBlockPrincipal(lumi,
-	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumiAux, productRegistry(), rp2, processConfiguration()));
 
     currentIndex_ += 3;
     return luminosityBlockPrincipal;
@@ -60,17 +65,19 @@ namespace edm {
     unsigned int event = runLumiEvent_[currentIndex_ + 2];
     Timestamp ts = Timestamp(1);
 
+    RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> rp2(
-        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
+    LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
-        new LuminosityBlockPrincipal(lumi,
-	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumiAux, productRegistry(), rp2, processConfiguration()));
 
     EventID id(run, event);
     currentIndex_ += 3;
+    EventAuxiliary eventAux(id, processGUID(), ts, lbp2->luminosityBlock(), false);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(id, processGUID(), ts, productRegistry(), lbp2, processConfiguration(), false));
+	new EventPrincipal(eventAux, productRegistry(), lbp2, processConfiguration()));
     return result;
   }
 

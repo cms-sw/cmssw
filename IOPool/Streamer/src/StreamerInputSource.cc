@@ -9,7 +9,9 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
-
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 
 #include "zlib.h"
 
@@ -308,34 +310,30 @@ namespace edm {
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
     if(!runPrincipal() || runPrincipal()->run() != sd->id_.run()) {
 	newRun_ = newLumi_ = true;
+	RunAuxiliary runAux(sd->id_.run(), sd->time_, Timestamp::invalidTimestamp());
 	setRunPrincipal(boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(sd->id_.run(),
-			   sd->time_,
-			   Timestamp::invalidTimestamp(),
+          new RunPrincipal(runAux,
 			   productRegistry(),
 			   processConfiguration())));
         resetLuminosityBlockPrincipal();
     }
     if(!luminosityBlockPrincipal() || luminosityBlockPrincipal()->luminosityBlock() != eventView.lumi()) {
+      
+      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), eventView.lumi(), sd->time_, Timestamp::invalidTimestamp());
       setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(eventView.lumi(),
-				     sd->time_,
-				     Timestamp::invalidTimestamp(),
+        new LuminosityBlockPrincipal(lumiAux,
 				     productRegistry(),
 				     runPrincipal(),
 				     processConfiguration())));
       newLumi_ = true;
     }
-    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
-						   processGUID(),
-                                                   sd->time_,
+
+    EventAuxiliary eventAux(sd->id_,
+      processGUID(), sd->time_, luminosityBlockPrincipal()->luminosityBlock(), true);
+    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(eventAux,
                                                    productRegistry(),
                                                    luminosityBlockPrincipal(),
                                                    processConfiguration(),
-                                                   true,
-						   EventAuxiliary::Any,
-						   EventPrincipal::invalidBunchXing,
-						   EventPrincipal::invalidStoreNumber,
 						   processHistoryID_));
     // no process name list handling
 
