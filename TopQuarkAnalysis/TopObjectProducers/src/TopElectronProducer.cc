@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.29 2007/12/14 13:52:02 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.30 2008/01/25 13:54:50 vadler Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -93,8 +93,8 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     trkIsolation_= new TrackerIsolationPt();
     iEvent.getByLabel(tracksSrc_, trackHandle);
   }
-  edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle;
-  edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle;
+  edm::Handle<CandViewDoubleAssociations> tkIsoHandle;
+  edm::Handle<CandViewDoubleAssociations> tkNumIsoHandle;
   edm::Handle<CandViewDoubleAssociations> ecalIsoHandle;
   edm::Handle<CandViewDoubleAssociations> hcalIsoHandle;
   if (addEgammaIso_) {
@@ -277,8 +277,8 @@ double TopElectronProducer::electronID(const edm::Handle<std::vector<TopElectron
 //fill the TopElectron with the isolation quantities calculated by the egamma producers
 void TopElectronProducer::setEgammaIso(TopElectron &anElectron,
 				       const edm::Handle<std::vector<TopElectronType> > & elecs,
-				       const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-				       const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+				       const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
+				       const edm::Handle<reco::CandViewDoubleAssociations> tkNumIsoHandle,
 				       const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
 				       const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
 				       int idx) {
@@ -288,8 +288,8 @@ void TopElectronProducer::setEgammaIso(TopElectron &anElectron,
   edm::Ref<std::vector<TopElectronType> > elecsRef( elecs, idx );
   reco::CandidateBaseRef candRef(elecsRef);
   //reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
-  anElectron.setEgammaTkIso((*tkIsoHandle)[elecsRef]);
-  anElectron.setEgammaTkNumIso((*tkNumIsoHandle)[elecsRef]);
+  anElectron.setEgammaTkIso((*tkIsoHandle)[candRef]);
+  anElectron.setEgammaTkNumIso((int) (*tkNumIsoHandle)[candRef]);
   anElectron.setEgammaEcalIso((*ecalIsoHandle)[candRef]);
   anElectron.setEgammaHcalIso((*hcalIsoHandle)[candRef]);
   

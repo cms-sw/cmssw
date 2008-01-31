@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.20 2007/12/14 13:52:01 jlamb Exp $
+// $Id: TopElectronProducer.h,v 1.21 2008/01/25 13:50:52 vadler Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.20 2007/12/14 13:52:01 jlamb Exp $
+  \version  $Id: TopElectronProducer.h,v 1.21 2008/01/25 13:50:52 vadler Exp $
 */
 
 
@@ -27,8 +27,6 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "DataFormats/Common/interface/View.h"
 
@@ -61,8 +59,8 @@ class TopElectronProducer : public edm::EDProducer {
                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
     void setEgammaIso(TopElectron &anElectron,
 		      const edm::Handle<std::vector<TopElectronType> > & elecs,
-		      const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
-		      const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+		      const edm::Handle<reco::CandViewDoubleAssociations> tkIsoHandle,
+		      const edm::Handle<reco::CandViewDoubleAssociations> tkNumIsoHandle,
 		      const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
 		      const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
 		      int idx);
