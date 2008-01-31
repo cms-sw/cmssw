@@ -33,7 +33,7 @@ int main(){
     }
     delete it;
     // backward
-    it=iovmanager.newIOVIterator(iovtok,IOVService::backwardIter);
+    it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
     std::cout<<"test reverse iterator "<<std::endl;
     while( it->next() ){
       std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;

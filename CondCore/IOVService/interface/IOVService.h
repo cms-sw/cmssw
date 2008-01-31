@@ -9,8 +9,8 @@ namespace cond{
   class IOVEditor;
   class IOVService{
   public:
-    const bool forwardIter=true;
-    const bool backwardIter=!forwardIter;
+    static const bool forwardIter=true;
+    static const bool backwardIter=!forwardIter;
 
 
     IOVService( cond::PoolTransaction& pooldb,
