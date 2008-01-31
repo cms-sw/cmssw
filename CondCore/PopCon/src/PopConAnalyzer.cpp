@@ -99,7 +99,7 @@ namespace popcon {
     }
   }
   
-  virtual void PopConAnalyzerBase::endJob(){
+  void PopConAnalyzerBase::endJob(){
     if(m_debug) std::cerr << "endjob begins\n";	
     
     /*
