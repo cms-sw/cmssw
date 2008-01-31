@@ -34,10 +34,10 @@ cond::IOVService::deleteAll( bool withPayload ){
   m_impl->deleteAll( withPayload );
 }
 cond::IOVIterator* 
-cond::IOVService::newIOVIterator( const std::string& token, bool reverse ){
-  return reverse ?
-    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill()) :
-    (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+cond::IOVService::newIOVIterator( const std::string& token, bool forward ){
+  return forward ?
+    (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill()) :
+    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){

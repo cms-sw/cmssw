@@ -22,19 +22,30 @@ int main(){
     pooldb.commit();
     std::string iovtok=editor->token();
     ///test iterator
+    // forward
     cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
-    std::cout<<"test iterator "<<std::endl;
+    std::cout<<"test forward iterator "<<std::endl;
     pooldb.start(true);
     while( it->next() ){
       std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;
       std::cout<<"since "<<it->validity().first<<std::endl;
       std::cout<<"till "<<it->validity().second<<std::endl;
     }
+    delete it;
+    // backward
+    it=iovmanager.newIOVIterator(iovtok,IOVService::backwardIter);
+    std::cout<<"test reverse iterator "<<std::endl;
+    while( it->next() ){
+      std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;
+      std::cout<<"since "<<it->validity().first<<std::endl;
+      std::cout<<"till "<<it->validity().second<<std::endl;
+    }
+    delete it;
+
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
     pooldb.commit();
     myconnection.disconnect();
     delete editor;
-    delete it;
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
