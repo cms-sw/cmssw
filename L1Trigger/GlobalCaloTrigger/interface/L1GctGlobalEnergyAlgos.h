@@ -156,6 +156,8 @@ private:
 	};
         etmiss_vec calculate_etmiss_vec (const etComponentType ex, const etComponentType ey) const ;
 	
+       // Function to use the jet count bits for Hf Et sums
+       void packHfTowerSumsIntoJetCountBits(); 
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);

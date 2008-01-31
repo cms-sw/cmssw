@@ -117,6 +117,8 @@ void L1GctJetLeafCard::reset()
   m_eySum.reset();
   m_etSum.reset();
   m_htSum.reset();
+  m_hfSums.etSum.reset();
+  m_hfSums.nOverThreshold.reset();
 }
 
 void L1GctJetLeafCard::fetchInput() {
@@ -158,6 +160,16 @@ void L1GctJetLeafCard::process() {
     m_jetFinderA->getHt() +
     m_jetFinderB->getHt() +
     m_jetFinderC->getHt();
+
+  m_hfSums.etSum = 
+    m_jetFinderA->getHfSums().etSum +
+    m_jetFinderB->getHfSums().etSum +
+    m_jetFinderC->getHfSums().etSum;
+
+  m_hfSums.nOverThreshold = 
+    m_jetFinderA->getHfSums().nOverThreshold +
+    m_jetFinderB->getHfSums().nOverThreshold +
+    m_jetFinderC->getHfSums().nOverThreshold;
 }
 
 bool L1GctJetLeafCard::setupOk() const {

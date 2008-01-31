@@ -29,8 +29,8 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
-  m_outputEtStrip0(0), m_outputEtStrip1(0), m_outputHt(0)
-
+  m_outputEtStrip0(0), m_outputEtStrip1(0), m_outputHt(0),
+  m_outputHfSums()
 {
   // Call reset to initialise vectors for input and output
   this->reset();
@@ -128,6 +128,9 @@ void L1GctJetFinderBase::reset()
   m_outputEtStrip0 = 0;
   m_outputEtStrip1 = 0;
   m_outputHt = 0;
+
+  m_outputHfSums.etSum.reset();
+  m_outputHfSums.nOverThreshold.reset();
 }
 
 // This is how the regions from the RCT get into the GCT for processing 
@@ -204,6 +207,9 @@ void L1GctJetFinderBase::doEnergySums()
 
   //calculate the Ht
   m_outputHt = calcHt();
+
+  //calculate the Hf tower Et sums and tower-over-threshold counts
+  m_outputHfSums = calcHfSums();
     
   return;
 }
@@ -247,5 +253,29 @@ L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
   }
   etHadType temp(ht);
   temp.setOverFlow(temp.overFlow() || of);
+  return temp;
+}
+
+// Calculates Hf inner rings Et sum, and counts number of "fineGrain" bits set
+L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
+{
+  static const UShort NUMBER_OF_INNER_RINGS = 1;
+  static const UShort BIT_SHIFT = L1GctJetCounts::kEtHfSumBitShift;
+  unsigned et = 0;
+  unsigned nt = 0;
+  bool of = false;
+  UShort offset = COL_OFFSET*(centralCol0() + 1);
+  for (UShort i=0; i < NUMBER_OF_INNER_RINGS; ++i) {
+    offset--;
+    et += m_inputRegions.at(offset).et() >> BIT_SHIFT;
+    of |= m_inputRegions.at(offset).overFlow();
+    if (m_inputRegions.at(offset).fineGrain()) nt++;
+
+    et += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
+    of |= m_inputRegions.at(offset+COL_OFFSET).overFlow();
+    if (m_inputRegions.at(offset+COL_OFFSET).fineGrain()) nt++;
+  }
+  hfTowerSumsType temp(et, nt);
+  temp.etSum.setOverFlow(temp.etSum.overFlow() || of);
   return temp;
 }

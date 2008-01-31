@@ -180,6 +180,8 @@ void L1GctGlobalEnergyAlgos::process()
       L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
       L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
   }
+  // BUT ... overwrite some of the jet counts with Hf tower sums!
+  packHfTowerSumsIntoJetCountBits();
 }
 
 std::vector<unsigned> L1GctGlobalEnergyAlgos::getJetCountValues() const {
@@ -351,4 +353,21 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etCo
 
   return result;
 }
+
+void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
+{
+  m_outputJetCounts.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
+  m_outputJetCounts.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
+
+  unsigned etSumPlusWheel  = m_plusWheelJetFpga->getOutputHfSums().etSum.value();
+  unsigned etSumMinusWheel = m_minusWheelJetFpga->getOutputHfSums().etSum.value();
+
+  unsigned outBits = etSumPlusWheel | (etSumMinusWheel << 7);
+
+  m_outputJetCounts.at(9)  = L1GctJetCount<5>( outBits         & 0x1f);
+  m_outputJetCounts.at(10) = L1GctJetCount<5>((outBits >>  5 ) & 0x1f);
+  m_outputJetCounts.at(11) = L1GctJetCount<5>((outBits >> 10 ) & 0x1f);
+
+}
+
 

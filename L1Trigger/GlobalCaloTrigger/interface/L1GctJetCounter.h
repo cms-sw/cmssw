@@ -63,7 +63,7 @@ public:
   void setLut(const L1GctJetCounterSetup::cutsListForJetCounter& cutList);
 
   /// set the input jets (for test purposes)
-  void setJets(JetVector jets);
+  void setJets(JetVector& jets);
 
   /// get the JetCounterLut
   L1GctJetCounterLut* getJetCounterLut() const { return m_jetCounterLut; }

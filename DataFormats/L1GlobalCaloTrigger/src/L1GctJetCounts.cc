@@ -50,6 +50,27 @@ unsigned L1GctJetCounts::count(unsigned i) const
   else { return 0; }
 }
 
+/// Use some jet count bits for Hf information
+unsigned L1GctJetCounts::hfTowerCountPositiveEta() const
+{
+  return count(6);
+}
+
+unsigned L1GctJetCounts::hfTowerCountNegativeEta() const
+{
+  return count(7);
+}
+
+unsigned L1GctJetCounts::hfTowerEtSumPositiveEta() const
+{
+  return ((m_data1 >> 16) & kEtHfSumMaxValue);
+}
+
+unsigned L1GctJetCounts::hfTowerEtSumNegativeEta() const
+{
+  return ((m_data1 >> 24) & kEtHfSumMaxValue);
+}
+
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCounts& c) {
   s << "L1GctJetCounts : ";

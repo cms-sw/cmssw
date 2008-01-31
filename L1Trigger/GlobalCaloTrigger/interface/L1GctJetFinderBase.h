@@ -4,12 +4,14 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
@@ -55,6 +57,27 @@ public:
   typedef std::vector<L1GctJetCand> JetVector;
   typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
   typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
+
+  // For HF-based triggers we sum the Et, and count towers over threshold
+  // (based on the "fineGrain" bit from the RCT). Define a data type to transfer
+  // result of both calculations.
+  // The results are defined as L1GctJetCount types since they don't have
+  // a separate overFlow bit. An overflow condition gives value=max.
+
+  struct hfTowerSumsType {
+
+    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum;
+    L1GctJetCount< 5 > nOverThreshold;
+
+    // Define some constructors and an addition operator for our data type
+    hfTowerSumsType() : etSum(0), nOverThreshold(0) {}
+    hfTowerSumsType(unsigned e, unsigned n) : etSum(e), nOverThreshold(n) {}
+    hfTowerSumsType(L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e,
+                    L1GctJetCount< 5 > n) : etSum(e), nOverThreshold(n) {}
+    hfTowerSumsType operator+(const hfTowerSumsType& rhs) const 
+      { hfTowerSumsType temp( (this->etSum+rhs.etSum), (this->nOverThreshold+rhs.nOverThreshold) ); return temp; } 
+
+  };
 
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
@@ -119,6 +142,8 @@ public:
   etTotalType getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
   etHadType   getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
 
+  hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
+
   // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
   struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
   {
@@ -171,6 +196,8 @@ public:
   etTotalType m_outputEtStrip0;
   etTotalType m_outputEtStrip1;
   etHadType   m_outputHt;
+
+  hfTowerSumsType m_outputHfSums;
     
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
@@ -194,6 +221,9 @@ public:
   /// Calculates total calibrated energy in jets (Ht) sum
   etHadType   calcHt() const;
   
+  /// Calculates Et sum and number of towers over threshold in Hf
+  hfTowerSumsType calcHfSums() const;
+
   /// parameter to determine which Regions belong in our acceptance
   unsigned m_minColThisJf;
 

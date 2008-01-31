@@ -18,11 +18,11 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
-class L1GctJetLeafCard;
 class L1GctJetCounter;
 
 #include <vector>
@@ -32,6 +32,7 @@ class L1GctWheelJetFpga : public L1GctProcessor
 public:
   typedef std::vector<L1GctJetCand> JetVector;
   typedef L1GctUnsignedInt<L1GctEtHad::kEtHadNBits> EtHadType;
+  typedef L1GctJetLeafCard::hfTowerSumsType hfTowerSumsType;
 
   /// Max number of jets of each type we output.
   static const int MAX_JETS_OUT;
@@ -74,6 +75,9 @@ public:
   /// get the input Ht
   EtHadType inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
     
+  /// get the input Hf Sums
+  hfTowerSumsType inputHfSums(unsigned leafnum) const { return m_inputHfSums.at(leafnum); }
+
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
 
@@ -85,6 +89,9 @@ public:
     
   /// get the output Ht
   EtHadType getOutputHt() const { return m_outputHt; }
+
+  /// get the output Hf Sums
+  hfTowerSumsType getOutputHfSums() const { return m_outputHfSums; }
 
   /// get the output jet counts
   L1GctJetCount<3> getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
@@ -119,6 +126,9 @@ private:
   // input Ht sums from each leaf card
   std::vector< EtHadType > m_inputHt;
 
+  // input Hf Et sums from each leaf card
+  std::vector< hfTowerSumsType > m_inputHfSums;
+
   // output data
   JetVector m_centralJets;
   JetVector m_forwardJets;
@@ -126,6 +136,7 @@ private:
     
   // data sent to GlobalEnergyAlgos
   EtHadType m_outputHt;
+  hfTowerSumsType m_outputHfSums;
   std::vector< L1GctJetCount<3> > m_outputJc;
       
   //PRIVATE METHODS

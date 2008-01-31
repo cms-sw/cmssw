@@ -6,6 +6,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 
@@ -23,7 +24,6 @@
  */
 
 class L1GctJetCand;
-class L1GctJetFinderBase;
 
 class L1GctJetLeafCard : L1GctProcessor
 {
@@ -42,6 +42,8 @@ public:
 
   enum { etComponentSize=L1GctEtMiss::kEtMissNBits+1 };
   typedef L1GctTwosComplement<etComponentSize> etComponentType;
+
+  typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
@@ -85,6 +87,8 @@ public:
   /// get the Et output
   etTotalType getOutputEt() const { return m_etSum; }
   etHadType   getOutputHt() const { return m_htSum; }
+
+  hfTowerSumsType getOutputHfSums() const { return m_hfSums; }
    
 private:
 
@@ -107,6 +111,8 @@ private:
   etComponentType m_eySum;
   etTotalType m_etSum;
   etHadType   m_htSum;
+
+  hfTowerSumsType m_hfSums;
 
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine

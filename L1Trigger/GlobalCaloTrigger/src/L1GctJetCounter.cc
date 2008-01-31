@@ -141,7 +141,7 @@ void L1GctJetCounter::setLut(const L1GctJetCounterSetup::cutsListForJetCounter& 
 }
 
 /// set the m_jets vector for test purposes
-void L1GctJetCounter::setJets(JetVector jets)
+void L1GctJetCounter::setJets(JetVector& jets)
 {
   m_jets = jets;
 }
