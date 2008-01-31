@@ -37,7 +37,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
 
   // output module label next
   uint32 outmod_label_len = strlen(output_module_label);
-  assert(outmod_label_len < 0x01ff);
+  assert(outmod_label_len < 0x00ff);
   *pos++ = outmod_label_len;
   memcpy(pos,output_module_label,outmod_label_len);
   pos += outmod_label_len;
