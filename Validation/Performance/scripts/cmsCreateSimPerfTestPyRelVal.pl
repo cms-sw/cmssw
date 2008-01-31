@@ -10,12 +10,38 @@ $HOST=$ENV{'HOST'};
 $TimeSizeNumOfEvts=100;
 $IgProfNumOfEvts=5;
 $ValgrindNumOfEvts=1;
+#Number of times running the cmsScimark2 benchmarks
+$cmsScimark2NumOfTimes=10;
+$cmsScimark2LargeNumOfTimes=10;
 
 #To fix pie-chart issues until PerfReport3
 system("source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh");
 
+#Adding a check for a local version of the packages
+$PerformancePkg="$CMSSW_BASE/src/Validation/Performance";
+if (-e $PerformancePkg)
+{
+    $BASE_PERFORMANCE=$PerformancePkg;
+    print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
+}
+else
+{
+    $BASE_PERFORMANCE="$CMSSW_RELEASE_BASE/src/Validation/Performance";
+}
+$PyRelValPkg="$CMSSW_BASE/src/Configuration/PyReleaseValidation";
+if (-e $PyRelValPkg)
+{
+    $BASE_PYRELVAL=$PyRelValPkg;
+    print "**Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version**\n";
+}
+else
+{
+    $BASE_PYRELVAL="$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation";
+}
 #Setting the path for the cmsDriver.py command:
-$cmsDriver="\$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver.py";
+$cmsDriver="$BASE_PYRELVAL/data/cmsDriver.py";
+$cmsSimPyRelVal="$BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
+$cmsRelvalreport="$BASE_PYRELVAL/scripts/cmsRelvalreport.py";
 
 $date=`date`;
 $path=`pwd`;
@@ -33,7 +59,7 @@ open(SCIMARKLARGE,">cmsScimark2_Large.log")||die "Could not open file cmsScimark
 $date=`date`;
 print SCIMARK "Initial Benchmark\n";
 print SCIMARK "$date$HOST\n";
-for ($i=0;$i<10;$i++)
+for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
     $scimark=`cmsScimark2`;
     print SCIMARK "$scimark\n";
@@ -43,7 +69,7 @@ print SCIMARK $date;
 $date=`date`;
 print SCIMARKLARGE "Initial Benchmark\n";
 print SCIMARKLARGE "$date$HOST\n";
-for ($i=0;$i<10;$i++)
+for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
     $scimarklarge=`cmsScimark2 -large`;
     print SCIMARKLARGE "$scimarklarge\n";
@@ -86,8 +112,8 @@ foreach (@Candle)
 	"mkdir "."$_"."_TimeSize;
 	cd "."$_"."_TimeSize;
 	$cmsDriver $CmsDriverCandleNoBrackets{$_} -n $TimeSizeNumOfEvts --step=GEN --customise=Simulation.py >& "."$_"."_GEN.log;
-	cmsSimPyRelVal.pl $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
-	cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
+	$cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
+	$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
 	cd .."
 	);
 }
@@ -97,8 +123,8 @@ system(
     "mkdir ZPrimeJJM700_IgProf;
     cd ZPrimeJJM700_IgProf;
     $cmsDriver $CmsDriverCandleNoBrackets{$_} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
-    cmsSimPyRelVal.pl $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
-    cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
+    $cmsSimPyRelVal $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
+    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
     cd .."
     );
 
@@ -107,9 +133,9 @@ system(
     "mkdir ZPrimeJJM700_Valgrind;
     cd ZPrimeJJM700_Valgrind;
     $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
-    cmsSimPyRelVal.pl $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+    $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
     mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-    cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
+    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
     cd .."
     );
 
@@ -118,16 +144,16 @@ system(
     "mkdir SingleMuMinusPt1000_Valgrind;
     cd SingleMuMinusPt1000_Valgrind;
     $cmsDriver $CmsDriverCandleNoBrackets{$Candle[3]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& SingleMuMinusPt1000_GEN.log
-    cmsSimPyRelVal.pl $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+    $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
     mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-    cmsRelvalreport.py -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt1000.log;
+    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt1000.log;
     cd .."
     );
 #Adding an independent benchmark of the machine after running
 $date=`date`;
 print SCIMARK "Final Benchmark\n";
 print SCIMARK "$date$HOST\n";
-for ($i=0;$i<10;$i++)
+for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
     $scimark=`cmsScimark2`;
     print SCIMARK "$scimark\n";
@@ -137,7 +163,7 @@ print SCIMARK $date;
 $date=`date`;
 print SCIMARKLARGE "Final Benchmark\n";
 print SCIMARKLARGE "$date$HOST\n";
-for ($i=0;$i<10;$i++)
+for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
     $scimarklarge=`cmsScimark2 -large`;
     print SCIMARKLARGE "$scimarklarge\n";

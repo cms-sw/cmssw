@@ -16,8 +16,22 @@
 #3-Profiles to run (with code below)
 #E.g.: ./cmsSimPyRelVal.pl 50 AllCandles 012
 
+#Get some environment variables to use
+$CMSSW_BASE=$ENV{'CMSSW_BASE'};
+$CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
+#Adding a check for a local version of the packages
+$PyRelValPkg="$CMSSW_BASE/src/Configuration/PyReleaseValidation";
+if (-e $PyRelValPkg)
+{
+    $BASE_PYRELVAL=$PyRelValPkg;
+    print "**Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version**\n";
+}
+else
+{
+    $BASE_PYRELVAL="$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation";
+}
 #Setting the path for the cmsDriver.py command:
-$cmsDriver="\$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver.py";
+$cmsDriver="$BASE_PYRELVAL/data/cmsDriver.py";
 
 if ($#ARGV != 2) {
 	print "Usage: cmsSimPyRelVal.pl NumberOfEventsPerCfgFile Candles Profile
