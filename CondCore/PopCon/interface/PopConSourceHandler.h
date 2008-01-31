@@ -60,7 +60,7 @@ namespace popcon {
      
     //Is is sufficient for getNewObjects algorithm?
     std::map<std::string, PayloadIOV> getOfflineInfo(){
-      return m_db_iface->getStatusMap();
+      return m_db_iface.getStatusMap();
     }
       
     //vector of payload objects and iovinfo to be transferred

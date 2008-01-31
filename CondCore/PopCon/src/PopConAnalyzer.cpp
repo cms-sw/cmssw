@@ -5,8 +5,9 @@ namespace popcon {
 
   PopConAnalyzerBase::PopConAnalyzerBase(const edm::ParameterSet& pset, 
 					 const std::string& object_name):
-    tryToValidate(false), corrupted(false), greenLight (true), fixed(true), 
-    m_payload_name(object_name) {
+    m_payload_name(object_name) ,
+    tryToValidate(false), corrupted(false), greenLight (true), fixed(true) 
+    {
     
     //TODO set the policy (cfg or global configuration?)
     //Policy if corrupted data found
@@ -59,6 +60,7 @@ namespace popcon {
 	  return;
 	}
       }
+      */
     }catch(popcon::Exception & er){
       std::cerr << "Begin Job PopCon exception\n";
       logMsg = "Begin Job exception";
@@ -70,59 +72,57 @@ namespace popcon {
       greenLight = false;
       std::cerr << "Begin Job std-based exception\n";
       logMsg = "Begin Job exception";
-    }
-
-  */  
+    } 
     
   }
      
     
-    //this method handles the transformation algorithm, 
-    //Subdetector responsibility ends with returning the payload vector.
-    //Therefore this code is stripped of DBOutput service, state management etc.     
-      
-    virtual void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
-      if(m_debug) std::cerr << "Analyze Begins\n"; 
-      try{
-	if(greenLight){
-	  //get New objects 	  
-          takeTheData();
-	  if(m_debug)
-	    displayHelper();	  
-	}
-	/// write in DB
-
-	if(m_debug)  std::cerr << "Analyze Ends\n"; 
-      }catch(std::exception& e){
-	std::cerr << "Analyzer Exception\n";
-	std::cerr << e.what() << std::endl; 
-      }
-    }
-      
-    virtual void endJob(){
-      if(m_debug) std::cerr << "Destructor begins\n";	
-    
-      /*
+  //this method handles the transformation algorithm, 
+  //Subdetector responsibility ends with returning the payload vector.
+  //Therefore this code is stripped of DBOutput service, state management etc.     
   
+  virtual void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
+    if(m_debug) std::cerr << "Analyze Begins\n"; 
+    try{
+      if(greenLight){
+	//get New objects 	  
+	takeTheData();
+	if(m_debug)
+	  displayHelper();	  
+      }
+      /// write in DB
+      
+      if(m_debug)  std::cerr << "Analyze Ends\n"; 
+    }catch(std::exception& e){
+      std::cerr << "Analyzer Exception\n";
+      std::cerr << e.what() << std::endl; 
+    }
+  }
+  
+  virtual void endJob(){
+    if(m_debug) std::cerr << "endjob begins\n";	
+    
+    /*
+      
       try{
-	if (!fixed || corrupted){	
-	  if(m_debug)
-	    std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
-	  lgr->finalizeExecution(logMsg);
-	}else{ //ok 
-	  if(m_debug)
-	    std::cerr << "OK, finalizing the log\n";
-	  lgr->finalizeExecution(logMsg);
-	  stc->generateStatusData();
-	  stc->storeStatusData();
-	  if(m_debug)
-	    std::cerr << "Deleting stc\n";	
-	  delete stc;
-	}	  
-	lgr->unlock();
-	
+      if (!fixed || corrupted){	
+      if(m_debug)
+      std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
+      lgr->finalizeExecution(logMsg);
+      }else{ //ok 
+      if(m_debug)
+      std::cerr << "OK, finalizing the log\n";
+      lgr->finalizeExecution(logMsg);
+      stc->generateStatusData();
+      stc->storeStatusData();
+      if(m_debug)
+      std::cerr << "Deleting stc\n";	
+      delete stc;
+      }	  
+      lgr->unlock();
+      
       }catch(std::exception& e){
-	std::cerr << "Exception caught in destructor: "<< e.what();
+      std::cerr << "Exception caught in destructor: "<< e.what();
       }
       
       if(m_debug)
