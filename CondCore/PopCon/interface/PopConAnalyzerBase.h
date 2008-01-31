@@ -37,8 +37,7 @@ namespace popcon
      
      //One needs to inherit this class and implement the constructor to 
      // instantiate handler object
-     PopConAnalyzerBase(const edm::ParameterSet& pset, 
-			const std::string& object_name);
+     PopConAnalyzerBase(const edm::ParameterSet& pset);
      
      
      ~PopConAnalyzerBase();

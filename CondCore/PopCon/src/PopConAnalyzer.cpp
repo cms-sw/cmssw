@@ -3,9 +3,8 @@
 
 namespace popcon {
 
-  PopConAnalyzerBase::PopConAnalyzerBase(const edm::ParameterSet& pset, 
-					 const std::string& object_name):
-    m_payload_name(object_name) ,
+  PopConAnalyzerBase::PopConAnalyzerBase(const edm::ParameterSet& pset):
+    m_payload_name(pset.getUntrackedParameter<std::string> ("name","")) ,
     tryToValidate(false), corrupted(false), greenLight (true), fixed(true) 
     {
     

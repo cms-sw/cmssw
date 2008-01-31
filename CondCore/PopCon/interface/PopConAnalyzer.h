@@ -17,9 +17,8 @@ namespace popcon{
     typedef S SourceHandler;
     typedef std::vector<std::pair<Payload*, popcon::IOVPair> > Container;
 
-    PopConAnalyzer(const edm::ParameterSet& pset, 
-			const std::string& object_name) : 
-      PopConAnalyzerBase(pset, object_name),
+    PopConAnalyzer(const edm::ParameterSet& pset) : 
+      PopConAnalyzerBase(pset),
       m_handler(pset.getParameter<edm::ParameterSet>("Source"),
 		pset.getParameter<std::string> ("connect")) {}
 
