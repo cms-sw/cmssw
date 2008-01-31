@@ -209,7 +209,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
   edm::ESHandle<TrackAssociatorBase> theAssociator;
   for (unsigned int w=0;w<associators.size();w++) {
     setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-    associator.push_back( (const TrackAssociatorBase *) theAssociator.product() );
+    associator.push_back( theAssociator.product() );
   }
 }
 
