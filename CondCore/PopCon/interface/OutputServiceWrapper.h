@@ -41,7 +41,7 @@ namespace popcon
     std::string logMsg;
     
   public:
-    OutputServiceWrapper(std::string & record, bool since) :
+    OutputServiceWrapper(std::string const & record, bool since) :
       m_record(record), m_since(since){}
     
     std::string tag() const {

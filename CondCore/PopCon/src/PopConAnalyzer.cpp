@@ -89,12 +89,13 @@ namespace popcon {
     try{
       if(greenLight){
 	//get New objects 	  
-	takeTheData();
-	if(m_debug)
-	  displayHelper();	  
+	if (takeTheData()) {
+	  if(m_debug)
+	    displayHelper();	 
+	  /// write in DB
+	  write();
+	}
       }
-      /// write in DB
-      write();
       if(m_debug)  std::cerr << "Analyze Ends\n"; 
     }catch(std::exception& e){
       std::cerr << "Analyzer Exception\n";

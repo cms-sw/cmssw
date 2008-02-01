@@ -55,7 +55,7 @@ namespace popcon
      
       
      //This class takes ownership of the vector (and payload objects)
-     virtual void takeTheData() =0 ;
+     virtual bool takeTheData() =0 ;
      
      virtual void write() =0 ;
      
