@@ -1,13 +1,13 @@
-#ifndef MEtoROOTFormat_h
-#define MEtoROOTFormat_h
+#ifndef MEtoEDMFormat_h
+#define MEtoEDMFormat_h
 
-/** \class MEtoROOT
+/** \class MEtoEDM
  *  
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/01/12 20:47:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/25 23:14:04 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,34 +26,34 @@
 #include <map>
 
 template <class T>
-class MEtoROOT
+class MEtoEDM
 {
 
  public:
   
-  MEtoROOT() {}
-  virtual ~MEtoROOT() {}
+  MEtoEDM() {}
+  virtual ~MEtoEDM() {}
 
   typedef std::vector<uint32_t> TagList;
 
-  struct MEROOTObject
+  struct MEtoEDMObject
   {
     std::string	name;
     TagList 	tags;
     T	        object;
   };
 
-  typedef std::vector<MEROOTObject> MERootObjectVector;
+  typedef std::vector<MEtoEDMObject> MEtoEdmObjectVector;
 
-  void putMERootObject(std::vector<std::string> name,
-		       std::vector<TagList> tags,
-		       std::vector<T> object);
+  void putMEtoEdmObject(std::vector<std::string> name,
+			std::vector<TagList> tags,
+			std::vector<T> object);
 
-  MERootObjectVector getMERootObject() const {return MERootObject;}
+  MEtoEdmObjectVector getMEtoEdmObject() const {return MEtoEdmObject;}
 
  private:
 
-  MERootObjectVector MERootObject;
+  MEtoEdmObjectVector MEtoEdmObject;
 
 }; // end class declaration
 
