@@ -5,20 +5,26 @@ namespace popcon {
 
   PopConAnalyzerBase::PopConAnalyzerBase(const edm::ParameterSet& pset):
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")) ,
-    tryToValidate(false), corrupted(false), greenLight (true), fixed(true) 
+    m_offline_connection(pset.getParameter<std::string> ("connect")),
+    sinceAppend(pset.getParameter<bool> ("SinceAppendMode")),
+    m_debug(pset.getParameter< bool > ("debug")),
+    m_output(pset.getParameter<std::string> ("record"),sinceAppend),
+    tryToValidate(false), corrupted(false), greenLight (true), fixed(true),
+
     {
     
     //TODO set the policy (cfg or global configuration?)
     //Policy if corrupted data found
-    m_debug = pset.getParameter< bool > ("debug");
-    
-    //MANDATORY 
-    m_offline_connection = pset.getParameter<std::string> ("connect");
-    sinceAppend = pset.getParameter<bool> ("SinceAppendMode");
   }
   
   PopConAnalyzerBase::~PopConAnalyzerBase(){}
   
+
+  std::string  PopConAnalyzerBase::getTag() const {
+    return m_output.getTag();
+  }
+
+
   void PopConAnalyzerBase::beginJob(const edm::EventSetup& es)
   {	
     if(m_debug) std::cerr << "Begin Job\n"; 
@@ -90,7 +96,7 @@ namespace popcon {
 	  displayHelper();	  
       }
       /// write in DB
-      
+      write();
       if(m_debug)  std::cerr << "Analyze Ends\n"; 
     }catch(std::exception& e){
       std::cerr << "Analyzer Exception\n";

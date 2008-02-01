@@ -1,89 +1,106 @@
 #ifndef OUTPUT_HELPER_H
 #define OUTPUT_HELPER_H
 
-#include "CondCore/DBOutputService/interface/PopConDBOutputService.h"
+
 #include "CondCore/PopCon/interface/IOVPair.h"
-#include "CondCore/PopCon/interface/Logger.h"
 #include "CondCore/PopCon/interface/Exception.h"
+
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <algorithm>
-
-struct sSinceSort
-{
-  template <typename T1>
-  bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
-  {
-    return (x.second.since < y.second.since);
-  }
-};
-
-struct sTillSort
-{
-  template <typename T1>
-  bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
-  {
-    return (x.second.till < y.second.till);
-  }
-};
+#include <vector>
+#include <string>
 
 namespace popcon
 {
+
+  struct SinceLess
+  {
+    template <typename T1>
+    bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
+    {
+      return (x.second.first < y.second.first);
+    }
+  };
   
-  template <typename T>
-    class OutputServiceWrapper{
-    public:
-    //OutputServiceWrapper(edm::Service<cond::service::PoolDBOutputService> psvc) : poolDbService(psvc)
-    OutputServiceWrapper(edm::Service<popcon::service::PopConDBOutputService> psvc) : poolDbService(psvc){
+  struct TillLess
+  {
+    template <typename T1>
+    bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
+    {
+    return (x.second.second < y.second.second);
+    }
+  };
+
+  class OutputServiceWrapper {
+  private:
+    edm::Service<cond::service::PoolDBOutputService> m_dbService;
+    std::string  m_record;
+    bool m_since;
+    std::sting logMsg;
+    
+  public:
+    OutputServiceWrapper(std::string & record, bool since) :
+      m_record(record), m_since(since){}
+    
+    std::string tag() const {
+      return m_dbService->tag(m_record);
     }
     
-    void write (std::vector<std::pair<T*,popcon::IOVPair> >* m_payload_vect, popcon::Logger * lgr, std::string& logMsg, unsigned int lsc, bool since){	
+  public:
+    template <typename T>
+    void write (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
+      
       typename std::vector<std::pair<T*,popcon::IOVPair> >::iterator it;
-      if(since){
+      if(m_since){
 	//sort ascending so the since order is respected 
-	std::sort(m_payload_vect->begin(), m_payload_vect->end(),sSinceSort());
+	std::sort(payload_vect.begin(), payload_vect.end(),SinceLess());
       }else{ 
-	std::sort(m_payload_vect->begin(), m_payload_vect->end(),sTillSort());
+	std::sort(mpayload_vect.begin(), payload_vect.end(),TillLess());
       }
       //check if attempting to insert an object with lower since-time than the last existing IOV
-      it = m_payload_vect->begin();
+      it = payload_vect.begin();
       ///try{
-      if (((*it).second.since < lsc) && since){
+      if (((*it).second.first < lsc) && m_since){
 	throw popcon::Exception("IOV sequence Exception");
       }
-      if(poolDbService.isAvailable() ){
-	std::cerr << "DBOutputService configured with the following Tag " << poolDbService->getTag() << std::endl;
-	std::cerr << "... and Record " << poolDbService->getRecord() << std::endl;
-	for (it = m_payload_vect->begin(); it != m_payload_vect->end(); it++){
+      
+      
+      if(m_dbService.isAvailable() ){
+	std::cerr << "DBOutputService configured with the following Tag " << tag() << std::endl;
+	std::cerr << "... and Record " << m_record << std::endl;
+	
+	for (it = payload_vect->begin(); it != payload_vect->end(); it++){
 	  try{
-	    lgr->newPayload();
-	    if (poolDbService->isNewTagRequest(poolDbService->getRecord()) ){
+	    if (m_dbService->isNewTagRequest(m_record) ){
 	      std::cerr << "Creating new IOV\n"; 
-	      poolDbService->createNewIOV<T>((*it).first, (*it).second.till, poolDbService->getRecord());
+	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, record);
 	    }else{
-	      if (since){
+	      if (m_since){
 		std::cerr << "Appending since time\n"; 
-		poolDbService->appendSinceTime<T>((*it).first, (*it).second.since ,poolDbService->getRecord());} else {
-		  std::cerr << "Appending till time\n"; 
-		  poolDbService->appendTillTime<T>((*it).first, (*it).second.till ,poolDbService->getRecord());
-		}
+		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, record)} 
+	      else {
+		std::cerr << "Appending till time\n"; 
+		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, record);
+	      }
 	    }
 	  }catch(std::exception& er){
 	    std::cerr << "DB output exception: " << er.what();
-	    lgr->finalizePayload("Output Service Exception");
 	    std::string os("Problem with output service ");
 	    os+= m_payload_vect->size();
 	    os+=" objects should have been written";
 	    logMsg = os; 
 	    throw er;
 	  }
-	  lgr->finalizePayload();
 	}
       }else{
 	logMsg = "DBService unavailable";
       }
     }
-    private:
-    edm::Service<popcon::service::PopConDBOutputService>& poolDbService;
+    
   };
+
 }
 #endif
 

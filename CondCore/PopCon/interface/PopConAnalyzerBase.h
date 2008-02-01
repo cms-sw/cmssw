@@ -12,8 +12,6 @@
 //
 // class decleration
 //
-#include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/PopCon/interface/OutputServiceWrapper.h"
 
 
@@ -42,6 +40,8 @@ namespace popcon
      
      ~PopConAnalyzerBase();
      
+
+     std::string getTag() const;
      
    private:
 
@@ -56,13 +56,30 @@ namespace popcon
       
      //This class takes ownership of the vector (and payload objects)
      virtual void takeTheData() =0 ;
-
+     
+     virtual void write() =0 ;
+     
+   protected:
+     template <typename T>
+     void writeThem (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
+       m_output(pauload_vect,lsc);
+     }
 
    private:
+
+     std::string logMsg;
      
-    std::string m_payload_name;
+     std::string m_payload_name;
      
+     std::string m_offline_connection;
+     
+     bool sinceAppend;
+ 
+     bool m_debug;
     
+     OutputServiceWrapper m_output;
+    
+     
      //If state corruption is detected, this parameter specifies the program behaviour
      bool tryToValidate;
      //corrupted data detected, just write the log and exit
@@ -71,14 +88,8 @@ namespace popcon
      //Someone claims to have fixed the problem indicated in exception section
      //TODO log it as well
      bool fixed;
-     bool sinceAppend;
-     std::string logMsg;
-     
-     bool m_debug;
-     
-     std::string m_offline_connection;
-     
-     
+      
+      
      virtual void displayHelper() const=0;
      
    };

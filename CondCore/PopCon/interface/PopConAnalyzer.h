@@ -29,10 +29,15 @@ namespace popcon{
   
       
     //This class takes ownership of the vector (and payload objects)
-    virtual void takeTheData(){
-      m_payload_cont = &(m_handler());	
+    bool void takeTheData(){
+      m_payload_cont = &(m_handler());
+      return !m_payload_cont->empty();
     }
      
+    virtual void write() {
+      Time_t last_since = m_handler_object->getSinceForTag(getTag());
+      this->template writeThem<T>(payload_vect, last_since);
+    }
     
     SourceHandler m_handler;	
     Container const * m_payload_cont;
