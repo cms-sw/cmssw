@@ -1,13 +1,13 @@
-#ifndef MEtoROOTConverter_h
-#define MEtoROOTConverter_h
+#ifndef MEtoEDMConverter_h
+#define MEtoEDMConverter_h
 
-/** \class MEtoROOTConverter
+/** \class MEtoEDMConverter
  *  
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/01/12 20:57:28 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/25 23:16:10 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -32,7 +32,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
-#include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 // helper files
 #include <iostream>
@@ -65,13 +65,13 @@ class mestorage {
   std::vector<T> object;
 };
 
-class MEtoROOTConverter : public edm::EDProducer
+class MEtoEDMConverter : public edm::EDProducer
 {
 
  public:
 
-  explicit MEtoROOTConverter(const edm::ParameterSet&);
-  virtual ~MEtoROOTConverter();
+  explicit MEtoEDMConverter(const edm::ParameterSet&);
+  virtual ~MEtoEDMConverter();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -117,7 +117,6 @@ class MEtoROOTConverter : public edm::EDProducer
   int nFloat;
   int nInt;
   int nString;
-
 
   // persistent MERoot information
   TagList taglist; // to be stored in tags

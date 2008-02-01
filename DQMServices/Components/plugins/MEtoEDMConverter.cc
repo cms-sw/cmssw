@@ -1,18 +1,18 @@
-/** \file MEtoROOTConverter.cc
+/** \file MEtoEDMConverter.cc
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/25 22:20:13 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/25 23:16:10 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
-#include "DQMServices/Components/plugins/MEtoROOTConverter.h"
+#include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 
-MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
+MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   fName(""), verbosity(0), frequency(0), count(0)
 {
-  std::string MsgLoggerCat = "MEtoROOTConverter_MEtoROOTConverter";
+  std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
@@ -223,46 +223,46 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
       
   // create persistent objects
   if (hasTH1F)
-    produces<MEtoROOT<TH1F>, edm::InRun>(fName);
+    produces<MEtoEDM<TH1F>, edm::InRun>(fName);
   if (hasTH2F)
-    produces<MEtoROOT<TH2F>, edm::InRun>(fName);
+    produces<MEtoEDM<TH2F>, edm::InRun>(fName);
   if (hasTH3F)
-    produces<MEtoROOT<TH3F>, edm::InRun>(fName);
+    produces<MEtoEDM<TH3F>, edm::InRun>(fName);
   if (hasTProfile)
-    produces<MEtoROOT<TProfile>, edm::InRun>(fName);
+    produces<MEtoEDM<TProfile>, edm::InRun>(fName);
   if (hasTProfile2D)
-    produces<MEtoROOT<TProfile2D>, edm::InRun>(fName);
+    produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
   if (hasFloat)
-    produces<MEtoROOT<float>, edm::InRun>(fName);
+    produces<MEtoEDM<float>, edm::InRun>(fName);
   if (hasInt)
-    produces<MEtoROOT<int>, edm::InRun>(fName);
+    produces<MEtoEDM<int>, edm::InRun>(fName);
   if (hasString)
-    produces<MEtoROOT<TString>, edm::InRun>(fName);
+    produces<MEtoEDM<TString>, edm::InRun>(fName);
 
 } // end constructor
 
-MEtoROOTConverter::~MEtoROOTConverter() 
+MEtoEDMConverter::~MEtoEDMConverter() 
 {
 } // end destructor
 
-void MEtoROOTConverter::beginJob(const edm::EventSetup& iSetup)
+void MEtoEDMConverter::beginJob(const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void MEtoROOTConverter::endJob()
+void MEtoEDMConverter::endJob()
 {
-  std::string MsgLoggerCat = "MEtoROOTConverter_endJob";
+  std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " runs.";
   return;
 }
 
-void MEtoROOTConverter::beginRun(edm::Run& iRun, 
+void MEtoEDMConverter::beginRun(edm::Run& iRun, 
 				 const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "MEtoROOTConverter_beginRun";
+  std::string MsgLoggerCat = "MEtoEDMConverter_beginRun";
   
   // keep track of number of runs processed
   ++count;
@@ -317,14 +317,14 @@ void MEtoROOTConverter::beginRun(edm::Run& iRun,
   return;
 }
 
-void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+void MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
  
  
-  std::string MsgLoggerCat = "MEtoROOTConverter_endRun";
+  std::string MsgLoggerCat = "MEtoEDMConverter_endRun";
   
   if (verbosity)
-    edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoROOT dataformat histograms.";
+    edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoEDM dataformat histograms.";
 
   // extract ME information into vectors
   for (unsigned int a = 0; a < pkgvec.size(); ++a) {
@@ -481,52 +481,52 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   // produce objects to put in events
   if (hasTH1F) {
-    std::auto_ptr<MEtoROOT<TH1F> > pOut1(new MEtoROOT<TH1F>);
-    pOut1->putMERootObject(TH1FME.name,TH1FME.tags,TH1FME.object);
+    std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>);
+    pOut1->putMEtoEdmObject(TH1FME.name,TH1FME.tags,TH1FME.object);
     iRun.put(pOut1,fName);
   }
   if (hasTH2F) {
-    std::auto_ptr<MEtoROOT<TH2F> > pOut2(new MEtoROOT<TH2F>);
-    pOut2->putMERootObject(TH2FME.name,TH2FME.tags,TH2FME.object);
+    std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>);
+    pOut2->putMEtoEdmObject(TH2FME.name,TH2FME.tags,TH2FME.object);
     iRun.put(pOut2,fName);
   }
   if (hasTH3F) {
-    std::auto_ptr<MEtoROOT<TH3F> > pOut3(new MEtoROOT<TH3F>);
-    pOut3->putMERootObject(TH3FME.name,TH3FME.tags,TH3FME.object);
+    std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>);
+    pOut3->putMEtoEdmObject(TH3FME.name,TH3FME.tags,TH3FME.object);
     iRun.put(pOut3,fName);
   }
   if (hasTProfile) {
-    std::auto_ptr<MEtoROOT<TProfile> > pOut4(new MEtoROOT<TProfile>);
-    pOut4->putMERootObject(TProfileME.name,TProfileME.tags,TProfileME.object);
+    std::auto_ptr<MEtoEDM<TProfile> > pOut4(new MEtoEDM<TProfile>);
+    pOut4->putMEtoEdmObject(TProfileME.name,TProfileME.tags,TProfileME.object);
     iRun.put(pOut4,fName);
   }
   if (hasTProfile2D) {
-    std::auto_ptr<MEtoROOT<TProfile2D> > pOut5(new MEtoROOT<TProfile2D>);
-    pOut5->putMERootObject(TProfile2DME.name,TProfile2DME.tags,
+    std::auto_ptr<MEtoEDM<TProfile2D> > pOut5(new MEtoEDM<TProfile2D>);
+    pOut5->putMEtoEdmObject(TProfile2DME.name,TProfile2DME.tags,
 			   TProfile2DME.object);
     iRun.put(pOut5,fName);
   }
   if (hasFloat) {
-    std::auto_ptr<MEtoROOT<float> > pOut6(new MEtoROOT<float>);
-    pOut6->putMERootObject(FloatME.name,FloatME.tags,FloatME.object);
+    std::auto_ptr<MEtoEDM<float> > pOut6(new MEtoEDM<float>);
+    pOut6->putMEtoEdmObject(FloatME.name,FloatME.tags,FloatME.object);
     iRun.put(pOut6,fName);
   }
   if (hasInt) {
-    std::auto_ptr<MEtoROOT<int> > pOut7(new MEtoROOT<int>);
-    pOut7->putMERootObject(IntME.name,IntME.tags,IntME.object);
+    std::auto_ptr<MEtoEDM<int> > pOut7(new MEtoEDM<int>);
+    pOut7->putMEtoEdmObject(IntME.name,IntME.tags,IntME.object);
     iRun.put(pOut7,fName);
   }
   if (hasString) {
-    std::auto_ptr<MEtoROOT<TString> > 
-      pOut8(new MEtoROOT<TString>);
-    pOut8->putMERootObject(StringME.name,StringME.tags,StringME.object);
+    std::auto_ptr<MEtoEDM<TString> > 
+      pOut8(new MEtoEDM<TString>);
+    pOut8->putMEtoEdmObject(StringME.name,StringME.tags,StringME.object);
     iRun.put(pOut8,fName);
   }
 
   return;
 }
 
-void MEtoROOTConverter::produce(edm::Event& iEvent, 
+void MEtoEDMConverter::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
   return;

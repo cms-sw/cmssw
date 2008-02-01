@@ -1,29 +1,29 @@
-/** \file ROOTtoMEConverter.cc
+/** \file EDMtoMEConverter.cc
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/25 22:06:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/25 23:16:10 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
-#include "DQMServices/Components/plugins/ROOTtoMEConverter.h"
+#include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 
-ROOTtoMEConverter::ROOTtoMEConverter(const edm::ParameterSet & iPSet) :
+EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   fName(""), verbosity(0), frequency(0), count(0)
 {
-  std::string MsgLoggerCat = "ROOTtoMEConverter_ROOTtoMEConverter";
+  std::string MsgLoggerCat = "EDMtoMEConverter_EDMtoMEConverter";
   
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   outputfile = iPSet.getParameter<std::string>("Outputfile");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
- 
+  
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
-
+  
   // get dqm info
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -46,7 +46,7 @@ ROOTtoMEConverter::ROOTtoMEConverter(const edm::ParameterSet & iPSet) :
       << "    Frequency     = " << frequency << "\n"
       << "===============================\n";
   }
-
+  
   classtypes.clear();
   classtypes.push_back("TH1F");
   classtypes.push_back("TH2F");
@@ -56,32 +56,32 @@ ROOTtoMEConverter::ROOTtoMEConverter(const edm::ParameterSet & iPSet) :
   classtypes.push_back("Float");
   classtypes.push_back("Int");
   classtypes.push_back("String");
-
+  
 } // end constructor
 
-ROOTtoMEConverter::~ROOTtoMEConverter() 
+EDMtoMEConverter::~EDMtoMEConverter() 
 {
   if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 } // end destructor
 
-void ROOTtoMEConverter::beginJob(const edm::EventSetup& iSetup)
+void EDMtoMEConverter::beginJob(const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void ROOTtoMEConverter::endJob()
+void EDMtoMEConverter::endJob()
 {
-  std::string MsgLoggerCat = "ROOTtoMEConverter_endJob";
+  std::string MsgLoggerCat = "EDMtoMEConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " runs.";
   return;
 }
 
-void ROOTtoMEConverter::beginRun(const edm::Run& iRun, 
-				 const edm::EventSetup& iSetup)
+void EDMtoMEConverter::beginRun(const edm::Run& iRun, 
+				const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "ROOTtoMEConverter_beginRun";
+  std::string MsgLoggerCat = "EDMtoMEConverter_beginRun";
   
   // keep track of number of events processed
   ++count;
@@ -101,40 +101,40 @@ void ROOTtoMEConverter::beginRun(const edm::Run& iRun,
   return;
 }
 
-void ROOTtoMEConverter::endRun(const edm::Run& iRun, 
-			       const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endRun(const edm::Run& iRun, 
+			      const edm::EventSetup& iSetup)
 {
   
-  std::string MsgLoggerCat = "ROOTtoMEConverter_endRun";
+  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
   
   if (verbosity >= 0)
     edm::LogInfo (MsgLoggerCat)
       << "\nRestoring MonitorElements.";
-    
+  
   for (unsigned int ii = 0; ii < classtypes.size(); ++ii) {
-
+    
     if (classtypes[ii] == "TH1F") {
-
-      edm::Handle<MEtoROOT<TH1F> > metoroot;
-      iRun.getByType(metoroot);
       
-      if (!metoroot.isValid()) {
+      edm::Handle<MEtoEDM<TH1F> > metoedm;
+      iRun.getByType(metoedm);
+      
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TH1F> doesn't exist in run";
+	//  << "MEtoEDM<TH1F> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TH1F>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TH1F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me1.resize(merootobject.size());
+      me1.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me1[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -149,42 +149,42 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// define new monitor element
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
-
-	  me1[i] = dbe->clone1D(merootobject[i].object.GetName(),
-				&merootobject[i].object);
+	  
+	  me1[i] = dbe->clone1D(metoedmobject[i].object.GetName(),
+				&metoedmobject[i].object);
 	} // end define new monitor elements
-
+	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me1[i]->getFullname(),tags[j]);
 	}
-
-      } // end loop thorugh merootobject
+	
+      } // end loop thorugh metoedmobject
     } // end TH1F creation
-
+    
     if (classtypes[ii] == "TH2F") {
       
-      edm::Handle<MEtoROOT<TH2F> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<TH2F> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TH2F> doesn't exist in run";
+	//  << "MEtoEDM<TH2F> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TH2F>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TH2F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me2.resize(merootobject.size());
+      me2.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me2[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -199,43 +199,43 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// define new monitor element
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
-
-	  me2[i] = dbe->clone2D(merootobject[i].object.GetName(),
-				&merootobject[i].object);
-
+	  
+	  me2[i] = dbe->clone2D(metoedmobject[i].object.GetName(),
+				&metoedmobject[i].object);
+	  
 	} // end define new monitor elements
-
+	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me2[i]->getFullname(),tags[j]);
 	}
-
-      } // end loop thorugh merootobject
+	
+      } // end loop thorugh metoedmobject
     } // end TH2F creation
-
+    
     if (classtypes[ii] == "TH3F") {
-
-      edm::Handle<MEtoROOT<TH3F> > metoroot;
-      iRun.getByType(metoroot);
       
-      if (!metoroot.isValid()) {
+      edm::Handle<MEtoEDM<TH3F> > metoedm;
+      iRun.getByType(metoedm);
+      
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TH3F> doesn't exist in run";
+	//  << "MEtoEDM<TH3F> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TH3F>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TH3F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me3.resize(merootobject.size());
+      me3.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me3[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -251,40 +251,40 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me3[i] = dbe->clone3D(merootobject[i].object.GetName(),
-				&merootobject[i].object);
+	  me3[i] = dbe->clone3D(metoedmobject[i].object.GetName(),
+				&metoedmobject[i].object);
 	} // end define new monitor elements
-
+	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me3[i]->getFullname(),tags[j]);
 	}
-
-      } // end loop thorugh merootobject
+	
+      } // end loop thorugh metoedmobject
     } // end TH3F creation
     
     if (classtypes[ii] == "TProfile") {
-      edm::Handle<MEtoROOT<TProfile> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<TProfile> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TProfile> doesn't exist in run";
+	//  << "MEtoEDM<TProfile> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TProfile>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TProfile>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me4.resize(merootobject.size());
+      me4.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me4[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -300,40 +300,40 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me4[i] = dbe->cloneProfile(merootobject[i].object.GetName(),
-				     &merootobject[i].object);
+	  me4[i] = dbe->cloneProfile(metoedmobject[i].object.GetName(),
+				     &metoedmobject[i].object);
 	} // end define new monitor elements
-
+	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me4[i]->getFullname(),tags[j]);
 	}
-
-      } // end loop thorugh merootobject
+	
+      } // end loop thorugh metoedmobject
     } // end TProfile creation
-
+    
     if (classtypes[ii] == "TProfile2D") {
-      edm::Handle<MEtoROOT<TProfile2D> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<TProfile2D> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TProfile2D> doesn't exist in run";
+	//  << "MEtoEDM<TProfile2D> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TProfile2D>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me5.resize(merootobject.size());
+      me5.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me5[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -349,40 +349,40 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me5[i] = dbe->cloneProfile2D(merootobject[i].object.GetName(),
-				       &merootobject[i].object);
+	  me5[i] = dbe->cloneProfile2D(metoedmobject[i].object.GetName(),
+				       &metoedmobject[i].object);
 	} // end define new monitor elements
 	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me5[i]->getFullname(),tags[j]);
 	}
 
-      } // end loop thorugh merootobject
+      } // end loop thorugh metoedmobject
     } // end TProfile2D creation
 
     if (classtypes[ii] == "Float") {
-      edm::Handle<MEtoROOT<float> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<float> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<float> doesn't exist in run";
+	//  << "MEtoEDM<float> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<float>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<float>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me6.resize(merootobject.size());
+      me6.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me6[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -401,41 +401,41 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dbe->setCurrentFolder(dir);
 	  
 	  me6[i] = dbe->bookFloat(name);
-	  me6[i]->Fill(merootobject[i].object);
+	  me6[i]->Fill(metoedmobject[i].object);
 
 	} // end define new monitor elements
 	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me6[i]->getFullname(),tags[j]);
 	}
 	
-      } // end loop thorugh merootobject      
+      } // end loop thorugh metoedmobject      
       
     } // end Float creation
 
     if (classtypes[ii] == "Int") {
-      edm::Handle<MEtoROOT<int> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<int> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<int> doesn't exist in run";
+	//  << "MEtoEDM<int> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<int>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<int>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me7.resize(merootobject.size());
+      me7.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me7[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -454,39 +454,39 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  dbe->setCurrentFolder(dir);
 	  
 	  me7[i] = dbe->bookInt(name);
-	  me7[i]->Fill(merootobject[i].object);
+	  me7[i]->Fill(metoedmobject[i].object);
 	  
 	} // end define new monitor elements
 	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me7[i]->getFullname(),tags[j]);
 	}
-      } // end loop thorugh merootobject      
+      } // end loop thorugh metoedmobject      
     } // end Int creation
 
     if (classtypes[ii] == "String") {
-      edm::Handle<MEtoROOT<TString> > metoroot;
-      iRun.getByType(metoroot);
+      edm::Handle<MEtoEDM<TString> > metoedm;
+      iRun.getByType(metoedm);
       
-      if (!metoroot.isValid()) {
+      if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoROOT<TString> doesn't exist in run";
+	//  << "MEtoEDM<TString> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoROOT<TString>::MEROOTObject> merootobject = 
-	metoroot->getMERootObject(); 
+      std::vector<MEtoEDM<TString>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
-      me8.resize(merootobject.size());
+      me8.resize(metoedmobject.size());
       
-      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
 	
 	me8[i] = 0;
 	
 	// get full path of monitor element
-	std::string pathname = merootobject[i].name;
+	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
 	std::string dir;
@@ -504,18 +504,18 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  std::string scont = merootobject[i].object.Data();
+	  std::string scont = metoedmobject[i].object.Data();
 	  me8[i] = dbe->bookString(name,scont);
 	  
 	} // end define new monitor elements
 	
 	// attach taglist
-	TagList tags = merootobject[i].tags;
+	TagList tags = metoedmobject[i].tags;
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me8[i]->getFullname(),tags[j]);
 	}
 
-      } // end loop thorugh merootobject 
+      } // end loop thorugh metoedmobject 
     } // end String creation
   }
 
@@ -527,12 +527,12 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
       std::cout << "Tags: " << stags[i] << std::endl;
     }
   }
-
+  
   return;
 }
 
-void ROOTtoMEConverter::analyze(const edm::Event& iEvent, 
-				const edm::EventSetup& iSetup)
+void EDMtoMEConverter::analyze(const edm::Event& iEvent, 
+			       const edm::EventSetup& iSetup)
 {
   return;
 }

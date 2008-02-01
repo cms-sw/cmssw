@@ -1,13 +1,13 @@
-#ifndef ROOTtoMEConverter_h
-#define ROOTtoMEConverter_h
+#ifndef EDMtoMEConverter_h
+#define EDMtoMEConverter_h
 
-/** \class ROOTtoMEConverter
+/** \class EDMtoMEConverter
  *  
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/01/11 15:47:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/12 20:57:28 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -32,7 +32,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
-#include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 // helper files
 #include <iostream>
@@ -49,13 +49,13 @@
 
 using namespace lat;
 
-class ROOTtoMEConverter : public edm::EDAnalyzer
+class EDMtoMEConverter : public edm::EDAnalyzer
 {
 
  public:
 
-  explicit ROOTtoMEConverter(const edm::ParameterSet&);
-  virtual ~ROOTtoMEConverter();
+  explicit EDMtoMEConverter(const edm::ParameterSet&);
+  virtual ~EDMtoMEConverter();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
