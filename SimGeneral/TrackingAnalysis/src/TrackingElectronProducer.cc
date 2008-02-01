@@ -45,38 +45,20 @@ TrackingElectronProducer::TrackingElectronProducer(const edm::ParameterSet &conf
 
 void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 
-//  TimerStack timers;  // Don't need the timers now, left for example
-//  timers.push("TrackingTruth:Producer");
-//  timers.push("TrackingTruth:Setup");
   // Get information out of event record
 
-//  std::cout << " TrackingElectronProducer produce 1 " << std::endl;
-
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
-  //  event.getByLabel("trackingtruthprod","TrackingTruthProducer",
-  //               trackingParticleHandle);
   event.getByType(TruthTrackContainer );
-//  std::cout << " TrackingElectronProducer produce 1.5 " << std::endl;
 
-  const TrackingParticleCollection *etPC   = TruthTrackContainer.product();
-//  std::cout << " TrackingElectronProducer produce 2 " << std::endl;
-
-    // now dumping electrons only
-  listElectrons(*etPC);
-
-//  std::cout << " TrackingElectronProducer produce 3 " << std::endl;
-  // now calling electron assembler and dumping assembled electrons
-//  cout << "TrackingElectronProducer::now assembling electrons..." << endl;
   TkNavigableSimElectronAssembler assembler;
   std::vector<TrackingParticle*> particles;
-  for (TrackingParticleCollection::const_iterator t = etPC -> begin(); t != etPC -> end(); ++t) {
+
+  for (TrackingParticleCollection::const_iterator t = TruthTrackContainer->begin();
+       t != TruthTrackContainer->end(); ++t) {
     particles.push_back(const_cast<TrackingParticle*>(&(*t)));
   }
 
-  TkNavigableSimElectronAssembler::ElectronList
-    electrons = assembler.assemble(particles);
-
-//  std::cout << "Electron segments found, now linking them " << std::endl;
+  TkNavigableSimElectronAssembler::ElectronList electrons = assembler.assemble(particles);
 
   //
   // now add electron tracks and vertices to event
@@ -85,15 +67,12 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   //
   std::auto_ptr<TrackingParticleCollection> trackingParticles(new TrackingParticleCollection);
 
-//  std::cout << "now getting refprods " << std::endl;
-
   edm::RefProd<TrackingParticleCollection> refTPC =
     event.getRefBeforePut<TrackingParticleCollection>("ElectronTrackTruth");
 
   //
   // create TrackingParticles
   //
-//  cout << "now creating tracking particles" << endl;
   // loop over electrons
   for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie
           = electrons.begin(); ie != electrons.end(); ie++ ) {
@@ -107,8 +86,8 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 
     // add G4 tracks and hits of all segments
     int ngenp = 0;
-    for ( TkNavigableSimElectronAssembler::TrackList::const_iterator it
-            = (*ie).begin(); it != (*ie).end(); it++ ) {
+    for (TkNavigableSimElectronAssembler::TrackList::const_iterator it = (*ie).begin();
+         it != (*ie).end(); it++ ) {
 
       for (TrackingParticle::genp_iterator uz=(*it)->genParticle_begin();
            uz!=(*it)->genParticle_end();uz++) {
@@ -118,9 +97,6 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
       addG4Track(tkp, *it);
 
     }
-    if (ngenp > 1) cout << "ERROR::TrackingElectron has more than 1 GenParticle" << endl << "Nb of associated GenParticles = " << ngenp << endl;
-
-    //    std::vector<PSimHit> hits = tkp.trackPSimHit();
     /*
     // count matched hits
     int totsimhit = 0;
@@ -151,7 +127,6 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     //
     TrackingVertexRef parentV = (*(*ie).front()).parentVertex();
     if (parentV.isNonnull()) {
-//      cout << "parent vertex is non null" << endl;
       tkp.setParentVertex(parentV);
     }
 
@@ -168,9 +143,6 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     (*trackingParticles).push_back(tkp);
   }
 
-//  cout << "Dumping assembled electrons..." << endl;
-
-//  cout << "Storing electron tracks" << endl;
   event.put(trackingParticles,"ElectronTrackTruth");
 
 }

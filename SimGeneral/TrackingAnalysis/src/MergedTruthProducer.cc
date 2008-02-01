@@ -12,8 +12,6 @@
 using namespace edm;
 using namespace std;
 
-
-
 MergedTruthProducer::MergedTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexCollection>("MergedTrackTruth");
   produces<TrackingParticleCollection>("MergedTrackTruth");

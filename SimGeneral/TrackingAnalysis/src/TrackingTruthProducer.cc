@@ -114,22 +114,22 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   typedef multimap<EncodedTruthId,PSimHit>::const_iterator hitItr;
 //  timers.pop();
 
-  for (MixCollection<PSimHit>::MixItr hit = hitCollection -> begin();
-       hit != hitCollection -> end(); ++hit) {
+  for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin();
+       hit != hitCollection->end(); ++hit) {
     EncodedTruthId simTrackId = EncodedTruthId(hit->eventId(),hit->trackId());
     simTrack_hit.insert(make_pair(simTrackId,*hit));
   }
 
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin();
-       itP !=  trackCollection->end(); ++itP){
-    int                       q = (int)(itP -> charge()); // Check this
-    const LorentzVector theMomentum = itP -> momentum();
-    unsigned int     simtrackId = itP -> trackId();
-    int                 genPart = itP -> genpartIndex(); // The HepMC particle number
-    int                 genVert = itP -> vertIndex();    // The SimVertex #
-    int                   pdgId = itP -> type();
+       itP != trackCollection->end(); ++itP){
+    int                       q = (int)(itP->charge()); // Check this
+    const LorentzVector theMomentum = itP->momentum();
+    unsigned int     simtrackId = itP->trackId();
+    int                 genPart = itP->genpartIndex(); // The HepMC particle number
+    int                 genVert = itP->vertIndex();    // The SimVertex #
+    int                   pdgId = itP->type();
     int                  status = -99;
-    EncodedEventId trackEventId = itP -> eventId();
+    EncodedEventId trackEventId = itP->eventId();
     EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
 
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
@@ -138,10 +138,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     const HepMC::GenParticle *gp = 0;
 
     if (genPart >= 0 && signalEvent) {
-      gp = genEvent -> barcode_to_particle(genPart);  // Pointer to the generating particle.
+      gp = genEvent->barcode_to_particle(genPart);  // Pointer to the generating particle.
       if (gp != 0) {
-        status = gp -> status();
-        pdgId = gp -> pdg_id();
+        status = gp->status();
+        pdgId  = gp->pdg_id();
       }
     }
 
@@ -163,13 +163,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int newdet = 0;
 
 // Using simTrack_hit map makes this very fast
-//now check the process ID 
+//now check the process ID
 
     bool checkProc = true;
     unsigned short procType = 0;
     int partType = 0;
-    
-    int hitcount = 0; 
+
+    int hitcount = 0;
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
 	 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
@@ -177,25 +177,25 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       if(checkProc){
 	procType = hit.processType();
 	partType = hit.particleType();
-	checkProc = false; //check only the procType of the first hit 
+	checkProc = false; //check only the procType of the first hit
 	//std::cout << "First Hit (proc, part) = " << procType << ", " << partType << std::endl;
       }
       //Check for delta and interaction products discards
       //std::cout << hitcount << " Hit (proc, part) = " << hit.processType() << ", " << hit.particleType() << std::endl;
-      
+
       if(procType == hit.processType() && partType == hit.particleType()){
 	//std::cout << "PASSED" << std::endl;
         tp.addPSimHit(hit);
-	
+
         unsigned int detid = hit.detUnitId();
         DetId detId = DetId(detid);
         oldlay = newlay;
         olddet = newdet;
         newlay = LayerFromDetid(detid);
         newdet = detId.subdetId();
-	
+
 	// Count hits using layers for glued detectors
-	
+
 	if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
 	  totsimhit++;
         }
