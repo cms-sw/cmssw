@@ -64,8 +64,11 @@ namespace cond{
     // Last: in the sense of max rowid satisfies the requirement
     // Note: if empty logentry is given, the absolute max is returned which
     // normally is useless. 
+    // return empty struct is no result found
     //
-    void LookupLastEntry( LogDBEntry& logentry ) const;
+    void LookupLastEntryByProvenance( const std::string& provenance,
+				      LogDBEntry& logentry,
+				      bool filterFailedOp=true) const;
     //
     // Here we query the log for the last entry for these payloads.
     // Parameter  LogDBEntry& result is both input and output
@@ -74,7 +77,9 @@ namespace cond{
     // Note: if empty logentry is given, the absolute max is returned which
     // normally is useless.
     //
-    void LookupLastFailedEntry( LogDBEntry& logentry ) const;
+    void LookupLastEntryByTag( const std::string& iovtag,
+			       LogDBEntry& logentry,
+			       bool filterFailedOp=true) const;
     
   private:
     void insertLogRecord(unsigned long long logId,

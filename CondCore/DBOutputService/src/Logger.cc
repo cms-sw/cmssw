@@ -113,7 +113,7 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.insertColumn(std::string("COMMENT"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  description.insertColumn(std::string("ERRORMESSAGE"),
+  description.insertColumn(std::string("EXECMESSAGE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   m_coraldb.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   m_logTableExists=true;
@@ -163,12 +163,112 @@ cond::Logger::logFailedOperationNow(
 }
 
 void 
-cond::Logger::LookupLastEntry( cond::LogDBEntry& logentry ) const{
-  
+cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
+					  LogDBEntry& logentry,
+					  bool filterFailedOp) const{
+  //select max(logid),etc from  logtable where etc"
+  //construct where
+  std::string whereClause("PROVENANCE=:provenance");
+  if(filterFailedOp){
+    whereClause+=std::string(" AND EXECMESSAGE=:execmessage");
+  }
+  coral::AttributeList BindVariableList;
+  BindVariableList.extend("provenance",typeid(std::string) );
+  BindVariableList.extend("execmessage",typeid(std::string) );
+  BindVariableList["provenance"].data<std::string>()=provenance;
+  BindVariableList["execmessage"].data<std::string>()="OK";
+  m_coraldb.start(true);
+  coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
+  // construct select
+  query->addToOutputList( "max(LOGID)", "max_logid");
+  query->defineOutputType( "max_logid", "unsigned long long" );
+  query->addToOutputList( "DESTINATIONDB" );
+  query->addToOutputList( "PROVENANCE" );
+  query->addToOutputList( "COMMENT" );
+  query->addToOutputList( "IOVTAG" );
+  query->addToOutputList( "IOVTIMETYPE" );
+  query->addToOutputList( "PAYLOADINDEX","payloadindex" );
+  query->defineOutputType( "payloadindex", "unsigned int" );
+  query->addToOutputList( "PAYLOADNAME" );
+  query->addToOutputList( "PAYLOADTOKEN" );
+  query->addToOutputList( "PAYLOADCONTAINER" );
+  query->addToOutputList( "EXECTIME" );
+  query->addToOutputList( "EXECMESSAGE" );
+
+  query->setCondition( whereClause, BindVariableList );
+ 
+  coral::ICursor& cursor = query->execute();
+  if( cursor.next() ) {
+    const coral::AttributeList& row = cursor.currentRow();
+    logentry.logId=row["max_logid"].data<unsigned long long>();
+    logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
+    logentry.provenance=row["PROVENANCE"].data<std::string>();
+    logentry.comment=row["COMMENT"].data<std::string>();
+    logentry.iovtag=row["IOVTAG"].data<std::string>();
+    logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
+    logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
+    logentry.payloadName=row["PAYLOADNAME"].data<std::string>();
+    logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
+    logentry.payloadContainer=row["PAYLOADCONTAINER"].data<std::string>();
+    logentry.exectime=row["EXECTIME"].data<std::string>();
+    logentry.execmessage=row["EXECMESSAGE"].data<std::string>();
+    //row.toOutputStream( std::cout ) << std::endl;
+  }
+  delete query;
+  m_coraldb.commit();
 }
 void 
-cond::Logger::LookupLastFailedEntry( cond::LogDBEntry& logentry ) const{
-  
+cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
+				    LogDBEntry& logentry,
+				    bool filterFailedOp ) const{
+  std::string whereClause("IOVTAG=:iovtag");
+  if(filterFailedOp){
+    whereClause+=std::string(" AND EXECMESSAGE=:execmessage");
+  }
+  coral::AttributeList BindVariableList;
+  BindVariableList.extend("iovtag",typeid(std::string) );
+  BindVariableList.extend("execmessage",typeid(std::string) );
+  BindVariableList["iovtag"].data<std::string>()=iovtag;
+  BindVariableList["execmessage"].data<std::string>()="OK";
+  m_coraldb.start(true);
+  coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
+  // construct select
+  query->addToOutputList( "max(LOGID)", "max_logid");
+  query->defineOutputType( "max_logid", "unsigned long long" );
+  query->addToOutputList( "DESTINATIONDB" );
+  query->addToOutputList( "PROVENANCE" );
+  query->addToOutputList( "COMMENT" );
+  query->addToOutputList( "IOVTAG" );
+  query->addToOutputList( "IOVTIMETYPE" );
+  query->addToOutputList( "PAYLOADINDEX","payloadindex" );
+  query->defineOutputType( "payloadindex", "unsigned int" );
+  query->addToOutputList( "PAYLOADNAME" );
+  query->addToOutputList( "PAYLOADTOKEN" );
+  query->addToOutputList( "PAYLOADCONTAINER" );
+  query->addToOutputList( "EXECTIME" );
+  query->addToOutputList( "EXECMESSAGE" );
+
+  query->setCondition( whereClause, BindVariableList );
+ 
+  coral::ICursor& cursor = query->execute();
+  if( cursor.next() ) {
+    const coral::AttributeList& row = cursor.currentRow();
+    logentry.logId=row["max_logid"].data<unsigned long long>();
+    logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
+    logentry.provenance=row["PROVENANCE"].data<std::string>();
+    logentry.comment=row["COMMENT"].data<std::string>();
+    logentry.iovtag=row["IOVTAG"].data<std::string>();
+    logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
+    logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
+    logentry.payloadName=row["PAYLOADNAME"].data<std::string>();
+    logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
+    logentry.payloadContainer=row["PAYLOADCONTAINER"].data<std::string>();
+    logentry.exectime=row["EXECTIME"].data<std::string>();
+    logentry.execmessage=row["EXECMESSAGE"].data<std::string>();
+    //row.toOutputStream( std::cout ) << std::endl;
+  }
+  delete query;
+  m_coraldb.commit();
 }
 void
 cond::Logger::insertLogRecord(unsigned long long logId,
@@ -196,7 +296,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData.extend<std::string>("IOVTAG");
     rowData.extend<std::string>("IOVTIMETYPE");
     rowData.extend<unsigned int>("PAYLOADINDEX");
-    rowData.extend<std::string>("ERRORMESSAGE");
+    rowData.extend<std::string>("EXECMESSAGE");
     rowData["LOGID"].data< unsigned long long >() = logId;
     rowData["EXECTIME"].data< std::string >() = localtime;
     rowData["PAYLOADCONTAINER"].data< std::string >() = containerName;
@@ -208,7 +308,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["IOVTAG"].data< std::string >() = iovtag;
     rowData["IOVTIMETYPE"].data< std::string >() = iovtimetype;
     rowData["PAYLOADINDEX"].data< unsigned int >() = payloadIdx;
-    rowData["ERRORMESSAGE"].data< std::string >() = exceptionMessage;
+    rowData["EXECMESSAGE"].data< std::string >() = exceptionMessage;
     m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).dataEditor().insertRow(rowData);
   }catch(const std::exception& er){
     throw cond::Exception(std::string(er.what()));
