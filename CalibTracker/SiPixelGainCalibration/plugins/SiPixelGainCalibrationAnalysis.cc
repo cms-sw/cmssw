@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.7 2008/01/29 18:10:05 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.8 2008/01/29 23:56:48 fblekman Exp $
 //
 //
 
@@ -276,7 +276,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   if(makehistopersistent){
     setDQMDirectory(detid);
     std::ostringstream pixelinfo;
-    pixelinfo << "row_" << ipix->row() << "_col_" << ipix->col();
+    pixelinfo << "GainCurve_row_" << ipix->row() << "_col_" << ipix->col();
     std::string tempname=translateDetIdToString(detid);
     tempname+="_";
     tempname+=pixelinfo.str();
@@ -285,7 +285,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     xvalsasfloatsforDQM[nallpoints]=256;
     if(nallpoints>2)
       xvalsasfloatsforDQM[nallpoints]=2*xvalsasfloatsforDQM[nallpoints-1]-xvalsasfloatsforDQM[nallpoints-2];
-    bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(pixelinfo.str(),tempname,nallpoints,xvalsasfloatsforDQM);
+    bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(detid,pixelinfo.str(),tempname,nallpoints,xvalsasfloatsforDQM);
     edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now saving histogram for pixel " << tempname << ", gain = " << slope << ", pedestal = " << intercept << ", chi2/NDF=" << chi2 << "(prob:" << prob << "), fit status " << result;
     for(int ii=0; ii<nallpoints; ++ii){
       bookkeeper_pixels_[detid][pixelinfo.str()]->setBinContent(ii+1,yvalsall[ii]);
@@ -300,14 +300,14 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
 {
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  bookkeeper_[detid]["gain_1d"] = bookDQMHistogram1D("gain_1d","gain for "+tempname,100,0.,maxGainInHist_);
-  bookkeeper_[detid]["gain_2d"] = bookDQMHistoPlaquetteSummary2D("gain_2d","gain for "+tempname,detid);
-  bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D("pedestal_1d","pedestal for "+tempname,256,0.,256.);
-  bookkeeper_[detid]["ped_2d"] = bookDQMHistoPlaquetteSummary2D("pedestal_2d","pedestal for "+tempname,detid);
-  bookkeeper_[detid]["chi2_1d"] = bookDQMHistogram1D("chi2_1d","#chi^{2}/NDOF for "+tempname,100,0.,maxChi2InHist_);
-  bookkeeper_[detid]["chi2_2d"] = bookDQMHistoPlaquetteSummary2D("chi2_2d","#chi^{2}/NDOF for "+tempname,detid);
-  bookkeeper_[detid]["prob_1d"] = bookDQMHistogram1D("prob_1d","P(#chi^{2},NDOF) for "+tempname,100,0.,1.0);
-  bookkeeper_[detid]["prob_2d"] = bookDQMHistoPlaquetteSummary2D("prob_2d","P(#chi^{2},NDOF) for "+tempname,detid);
+  bookkeeper_[detid]["gain_1d"] = bookDQMHistogram1D(detid,"Gain1d","gain for "+tempname,100,0.,maxGainInHist_);
+  bookkeeper_[detid]["gain_2d"] = bookDQMHistoPlaquetteSummary2D(detid, "Gain2d","gain for "+tempname);
+  bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D(detid,"Pedestal1d","pedestal for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["ped_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"Pedestal2d","pedestal for "+tempname);
+  bookkeeper_[detid]["chi2_1d"] = bookDQMHistogram1D(detid,"GainChi2NDF1d","#chi^{2}/NDOF for "+tempname,100,0.,maxChi2InHist_);
+  bookkeeper_[detid]["chi2_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainChi2NDF2d","#chi^{2}/NDOF for "+tempname);
+  bookkeeper_[detid]["prob_1d"] = bookDQMHistogram1D(detid,"GainChi2Prob1d","P(#chi^{2},NDOF) for "+tempname,100,0.,1.0);
+  bookkeeper_[detid]["prob_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainChi2Prob2d","P(#chi^{2},NDOF) for "+tempname);
 
 }
 //define this as a plug-in

@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.11 2008/01/29 18:18:05 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.12 2008/01/31 13:05:10 fblekman Exp $
 //
 //
 
@@ -91,7 +91,7 @@ void
 SiPixelIsAliveCalibration::newDetID(uint32_t detid){
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D("pixelAlive_"+tempname,"pixel alive for "+tempname, detid);
+  bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D(detid,"pixelAlive","pixel alive for "+tempname);
 }
 bool
 SiPixelIsAliveCalibration::checkCorrectCalibrationType(){

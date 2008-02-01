@@ -134,21 +134,21 @@ void SiPixelSCurveCalibrationAnalysis::newDetID(uint32_t detid)
 
       std::string detIdName = translateDetIdToString(detid);
       if (write2dHistograms_){
-         MonitorElement * D2sigma       = bookDQMHistoPlaquetteSummary2D(detIdName + "_sigmas", detIdName + " Sigmas", detid);
-         MonitorElement * D2thresh      = bookDQMHistoPlaquetteSummary2D(detIdName + "_thresholds", detIdName + " Thresholds",detid);
-         MonitorElement * D2chi2        = bookDQMHistoPlaquetteSummary2D(detIdName + "_Chi2NDF",detIdName + " Chi2NDF", detid);
+	MonitorElement * D2sigma       = bookDQMHistoPlaquetteSummary2D(detid,"ScurveSigmas", detIdName + " Sigmas");
+	MonitorElement * D2thresh      = bookDQMHistoPlaquetteSummary2D(detid,"ScurveThresholds", detIdName + " Thresholds");
+	MonitorElement * D2chi2        = bookDQMHistoPlaquetteSummary2D(detid,"ScurveChi2NDF",detIdName + " Chi2NDF");
          insertResult.first->second.insert(std::make_pair(kSigmas, D2sigma));
          insertResult.first->second.insert(std::make_pair(kThresholds, D2thresh));
          insertResult.first->second.insert(std::make_pair(kChi2s, D2chi2));
       }
       if (write2dFitResult_){
-         MonitorElement * D2FitResult = bookDQMHistoPlaquetteSummary2D(detIdName + "_fitresult", detIdName + " Fit Result", detid);
+	MonitorElement * D2FitResult = bookDQMHistoPlaquetteSummary2D(detid,"ScurveFitResult", detIdName + " Fit Result");
          insertResult.first->second.insert(std::make_pair(kFitResults, D2FitResult));
       }
-      MonitorElement * D1sigma       = bookDQMHistogram1D(detIdName + "_sigmas_summary", detIdName + " Sigmas Summary", 100, 0, maximumSigma_);
-      MonitorElement * D1thresh      = bookDQMHistogram1D(detIdName + "_thresholds_summary", detIdName + " Thresholds Summary", 255, 0, maximumThreshold_);
-      MonitorElement * D1chi2        = bookDQMHistogram1D(detIdName + "_Chi2NDF_summary", detIdName + " Chi2NDF Summary", 100, 0, 50);
-      MonitorElement * D1FitResult   = bookDQMHistogram1D(detIdName + "_fitresult_summary", detIdName + " Fit Result Summary", 10, -0.5, 9.5);
+      MonitorElement * D1sigma       = bookDQMHistogram1D(detid,"ScurveSigmasSummary", detIdName + " Sigmas Summary", 100, 0, maximumSigma_);
+      MonitorElement * D1thresh      = bookDQMHistogram1D(detid,"ScurveThresholdSummary", detIdName + " Thresholds Summary", 255, 0, maximumThreshold_);
+      MonitorElement * D1chi2        = bookDQMHistogram1D(detid,"ScurveChi2NDFSummary", detIdName + " Chi2NDF Summary", 100, 0, 50);
+      MonitorElement * D1FitResult   = bookDQMHistogram1D(detid,"ScurveFitResultSummary", detIdName + " Fit Result Summary", 10, -0.5, 9.5);
       insertResult.first->second.insert(std::make_pair(kSigmaSummary, D1sigma));
       insertResult.first->second.insert(std::make_pair(kThresholdSummary, D1thresh));
       insertResult.first->second.insert(std::make_pair(kChi2Summary, D1chi2));
