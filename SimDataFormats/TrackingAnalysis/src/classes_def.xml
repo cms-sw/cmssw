@@ -1,19 +1,24 @@
 <lcgdict>
   <class name="TrackingVertex" />
   <class name="std::vector<TrackingVertex>" />
+  <class name="std::vector<TrackingVertex>::iterator" />
+  <class name="std::vector<TrackingVertex>::const_iterator" />
   <class name="edm::Wrapper<std::vector<TrackingVertex> >" />
-  <class pattern="edm::Ref<std::vector<TrackingVertex>,*>" />  
+  <class pattern="edm::Ref<std::vector<TrackingVertex>,*>" />
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
-  
+
   <class name="TrackingParticle" />
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
-  <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />  
+  <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />
   <class pattern="edm::RefVector<std::vector<TrackingParticle>,*>" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
 
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
+
+  <class name="std::vector<PSimHit>::const_iterator" />
+  <class name="std::vector<PSimHit>::iterator" />
 
 </lcgdict>

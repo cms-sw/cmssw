@@ -72,13 +72,13 @@ class TrackingParticle : public reco::Particle {
   void setVertex(const Point & vtx, double t);
 
 // Getters for Embd and Sim Tracks
-  GenParticleRefVector   genParticle() const { return genParticles_; }
-  std::vector<SimTrack>     g4Tracks() const { return g4Tracks_ ;    }
-  std::vector<PSimHit> trackPSimHit() const { return trackPSimHit_; }
-  TrackingVertexRef parentVertex() const { return parentVertex_; }
+  const GenParticleRefVector&   genParticle() const { return genParticles_; }
+  const std::vector<SimTrack>&     g4Tracks() const { return g4Tracks_ ;    }
+  const std::vector<PSimHit>&  trackPSimHit() const { return trackPSimHit_; }
+  const TrackingVertexRef&     parentVertex() const { return parentVertex_; }
 
 // Accessors for vector of decay vertices
-  TrackingVertexRefVector decayVertices() const { return decayVertices_; }
+  const TrackingVertexRefVector& decayVertices() const { return decayVertices_; }
   tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
   tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
 //  TrackingVertexRef decayVertex() const { return decayVertex_; } // Removed in 1.4

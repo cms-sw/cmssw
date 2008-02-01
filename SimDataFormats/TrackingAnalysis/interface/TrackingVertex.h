@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.20 2007/09/27 15:01:01 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.21 2007/12/28 17:16:51 ewv Exp $
  *
  */
 
@@ -66,15 +66,15 @@ class TrackingVertex {
   void clearParentTracks();
 
 // Getters for RefVectors
-  const std::vector<SimVertex>        g4Vertices() const;
-  const GenVertexRefVector           genVertices() const;
-  const TrackingParticleRefVector   sourceTracks() const;
-  const TrackingParticleRefVector daughterTracks() const;
+  const std::vector<SimVertex>&        g4Vertices() const;
+  const GenVertexRefVector&           genVertices() const;
+  const TrackingParticleRefVector&   sourceTracks() const;
+  const TrackingParticleRefVector& daughterTracks() const;
 
 // Getters for other info
   const LorentzVector& position() const { return position_; };
-  const EncodedEventId eventId() const { return eId_;      };
-  const bool           inVolume() const { return inVolume_; };
+  const EncodedEventId& eventId() const { return eId_;      };
+  const bool            inVolume() const { return inVolume_; };
 
  private:
 
