@@ -16,6 +16,7 @@
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
+#include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 
@@ -130,14 +131,17 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    FSimEvent* fevt = famosManager_->simEvent();
    
    // Set the vertex back to the HepMCProduct (except if it was smeared already)
+   // Now rotate in case of beam crossing angle (except if done already)
    if ( myGenEvent ) { 
-     HepMC::GenVertex* primaryVertex =  *(myGenEvent->vertices_begin());
-     if ( primaryVertex && fabs(primaryVertex->position().z()) > 1e-9 ) {  
-       HepMC::FourVector theVertex(fevt->filter().vertex().X()*10.,
-				   fevt->filter().vertex().Y()*10.,
-				   fevt->filter().vertex().Z()*10.,
-				   fevt->filter().vertex().T()*10.);
-       theHepMCProduct->applyVtxGen( &theVertex );
+     PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
+     if ( theVertexGenerator ) { 
+       HepMC::FourVector theVertex(theVertexGenerator->X()*10.,
+				   theVertexGenerator->Y()*10.,
+				   theVertexGenerator->Z()*10.,
+				   0.);
+       if ( theVertexGenerator->Z() > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
+       TMatrixD* boost = theVertexGenerator->boost();
+       if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
      }
    }
    
