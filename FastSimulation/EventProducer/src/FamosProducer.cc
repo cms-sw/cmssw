@@ -33,7 +33,6 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
 
     std::cout << " FamosProducer initializing " << std::endl;
 
-    produces<edm::HepMCProduct>();
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
     produces<edm::PSimHitContainer>("TrackerHits");
@@ -77,6 +76,8 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::vector< Handle<reco::CandidateCollection> > genEvts;
    const reco::CandidateCollection* myGenParticles = 0;
    const HepMC::GenEvent* myGenEvent = 0;
+   FSimEvent* fevt = famosManager_->simEvent();
+   PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
 
    // Look for the GenEvent
    std::vector< Handle<HepMCProduct> > evts; 
@@ -101,7 +102,15 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      myGenEvent = evtSource->GetEvent();
    }
    */
-   if ( vtxSmeared || source ) myGenEvent = theHepMCProduct->GetEvent();
+   if ( vtxSmeared || source ) { 
+     myGenEvent = theHepMCProduct->GetEvent();
+     // First rotate in case of beam crossing angle (except if done already)
+     if ( theVertexGenerator ) { 
+       TMatrixD* boost = theVertexGenerator->boost();
+       if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
+     }          
+     myGenEvent = theHepMCProduct->GetEvent();
+   }
 
    if ( !myGenEvent ) { 
      // Look for the particle CandidateCollection
@@ -123,31 +132,25 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
    const HepMC::GenEvent* thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
 
-   // .and pass the event to the Famos Manager
+   // .and pass the event to the Famos Manager for propagation and simulation
    if ( myGenEvent || myGenParticles ) 
      famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
    
-   // Put info on to the end::Event
-   FSimEvent* fevt = famosManager_->simEvent();
-   
    // Set the vertex back to the HepMCProduct (except if it was smeared already)
-   // Now rotate in case of beam crossing angle (except if done already)
    if ( myGenEvent ) { 
-     PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
      if ( theVertexGenerator ) { 
        HepMC::FourVector theVertex(theVertexGenerator->X()*10.,
 				   theVertexGenerator->Y()*10.,
 				   theVertexGenerator->Z()*10.,
 				   0.);
        if ( theVertexGenerator->Z() > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
-       TMatrixD* boost = theVertexGenerator->boost();
-       if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
      }
    }
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
 
+   // Save everything in the edm::Event
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
