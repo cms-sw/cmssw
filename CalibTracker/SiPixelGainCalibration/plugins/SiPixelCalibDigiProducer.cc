@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.7 2008/01/23 10:44:11 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.8 2008/01/23 12:04:04 fblekman Exp $
 //
 //
 
@@ -89,6 +89,8 @@ SiPixelCalibDigiProducer::store()
     //    std::cout << "now at event " << iEventCounter_ <<" where we save the calibration information into the CMSSW digi";
     return 1;
   }
+  else if(iEventCounter_==calib_->expectedTotalEvents())
+    return 1;
   else
     return 0;
   return 1;
