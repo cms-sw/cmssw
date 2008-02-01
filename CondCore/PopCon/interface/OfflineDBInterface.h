@@ -29,7 +29,7 @@ namespace popcon
      //tag - IOV/Payload information map
     mutable States m_status_map;
     std::string m_connect;
-    void getAllTagsInfo();
+    void getAllTagsInfo() const;
     void getSpecificPayloadMap(const std::string& ) const;
   }; 
 }

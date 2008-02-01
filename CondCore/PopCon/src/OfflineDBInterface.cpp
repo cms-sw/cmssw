@@ -12,6 +12,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+
 popcon::OfflineDBInterface::OfflineDBInterface (const std::string& connect ) : m_connect(connect) {
 }
 
@@ -22,9 +23,9 @@ popcon::OfflineDBInterface::~OfflineDBInterface ()
 
 //Gets the IOV and payload information from the conditions schema
 //returns the list as map<string tag, struct payloaddata>
-OfflineDBInterface::States const & popcon::OfflineDBInterface::getStatusMap() const
+popcon::OfflineDBInterface::States const & popcon::OfflineDBInterface::getStatusMap() const
 {
-
+  
   //TODO - currently all the tags per schema are being returned 
   //Possiblity to return the tags for a given object type??
   getAllTagsInfo();
