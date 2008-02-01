@@ -4,14 +4,70 @@
 
 - General:
 
-- Main changes and new features:
-
 - Major bug fixes:
 
 - Known issues:
 
+<hr>
+Main changes and new features by subsystem:
+
+- CSC 
+  - Labelling code (for DetId's and cond data) extended to permit (future)
+  simulation and reconstruction of extended CSC system (i.e. ME42 station
+  which was de-scoped from CMS start-up.)
+  - Bug-fixes in RecoLocalMuon/CSCRecHitB for use of conditions data
+  (Conditions data access was 'linearized' in 170 release which
+  required matching changes in rechit reconstruction.
+  These CSCRecHitB fixes were also back-inserted in later 17x releases.)
+  - A new algorithm (the 4th) added to RecoLocalMuon/CSCSegment (not default)
+
+- ECAL
+ - EcalRawToRecHit implemented (in EventFilter/EcalRawToDigi)
+
+- Electrons
+ - Preselection: pt cut replaced by Et cut
+ - Full reuse of standard Ctf track buikding code
+ - Track collections for Barrel and Endcap unified in one collection. Both for TrackCandidates and Tracks
+ - Better separation between cluster-track association and electron object construction
+ - Cleanup of configuration files
+ - NavigationSchool taken from record (PixelHitMatcher)
+ - Rename PixelMatchCgsElectron to GsfElectron
+
+- Photons and Conversions
+ - DataFormats:
+   - Rename ConvertedPhoton to Conversion.Conversion is no longer a  RecoCandidate. Simple class 
+   - Conversion interface cleaned up of all information which is  already contained in Photon
+   - Photon now contains a vector of ConversionRef 
+ - Only a collection of recoPhotons (module photonsWithConversions) and a  collection of recoConversion are stored in the event
+ - Photon Selection: Et cut and H/E cut are applied
+ - Bug fix in PhotonProducer and ConvertedPhotonProducer: occasionally  the SuperClusterRef was set to the wrong cluster
+ - Looser chi2 cut for conversion track trajectory building
+
+- Tau 
+ -Added a HighEfficiency collection to the EventContent
+
+- Particle Flow
+ - Data format and Event Content
+   - new PFCandidate data format.
+     - corrected energy deposits in ECAL and HCAL available
+     - charged PFCandidates: reference to the corresponding reco::Track available
+   - new PFBlock dataformats: linkData can now hold several types of links: chi2, rechit,tangent
+   - modified event content: removed clusters and blocks from the AOD
+ - Algorithm
+   - link by rechit implemented in ECAL and HCAL, barrel and endcap
+   - link by rechit used in HCAL
+   - cluster recovery done in HCAL
+   - detection of merged photons, using an MVA and the preshower information
+     - iterative tracking is used in input
+ - Software 
+   - the input of the various modules is now defined using InputTags
+   - Introduced a lightPFTrackProducer producing PFRecTracks without tracking
+     rechits, to be able to run on the AlCaReco stream
+
+
+
 
 <hr>
-Last updated: @DATE@ Shahram Rahatlou
+Last updated: @DATE@ Andrea Rizzi
  
 */
