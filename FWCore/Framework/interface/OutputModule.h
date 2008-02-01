@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.69 2008/01/13 01:12:22 wmtan Exp $
+$Id: OutputModule.h,v 1.70 2008/01/15 06:51:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -233,6 +233,7 @@ namespace edm {
     virtual void writeModuleDescriptionRegistry() {}
     virtual void writeParameterSetRegistry() {}
     virtual void writeProductDescriptionRegistry() {}
+    virtual void writeEntryDescriptions() {}
     virtual void finishEndFile() {}
   };
 }

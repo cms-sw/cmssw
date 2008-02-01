@@ -47,7 +47,10 @@ namespace edm {
     std::string const lumiAux = lumi + aux;
     std::string const eventAux = event + aux;
 
-    std::string const entryDescriptionTree = "EntryDescription";
+    std::string const entryDescriptionTree     = "EntryDescription";
+    std::string const entryDescriptionIDBranch = "Hash";
+    std::string const entryDescriptionBranch   = "Description";
+
     std::string const metaDataTree = "MetaData";
     std::string const productRegistry = "ProductRegistry";
     std::string const parameterSetMap = "ParameterSetMap";
@@ -101,6 +104,14 @@ namespace edm {
     // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
     std::string const& entryDescriptionTreeName() {
       return entryDescriptionTree;
+    }
+
+    std::string const& entryDescriptionIDBranchName() {
+      return entryDescriptionIDBranch;
+    }
+
+    std::string const& entryDescriptionBranchName() {
+      return entryDescriptionBranch;
     }
 
     // MetaData Tree (1 entry per file)

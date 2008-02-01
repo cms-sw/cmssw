@@ -6,7 +6,7 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.9 2008/01/28 22:36:23 paterno Exp $
+$Id: BranchType.h,v 1.10 2008/01/30 00:17:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -44,43 +44,33 @@ namespace edm {
   }
 
   namespace poolNames {
+    //------------------------------------------------------------------
     // EntryDescription Tree
     std::string const& entryDescriptionTreeName();
 
+    // Branches on EntryDescription Tree
+    std::string const& entryDescriptionIDBranchName();
+     std::string const& entryDescriptionBranchName();
+
+    //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName();
 
-    // Branch on MetaData Tree
+    // Branches on MetaData Tree
     std::string const& productDescriptionBranchName();
-
-    // Branch on MetaData Tree
     std::string const& parameterSetMapBranchName();
-
-    // Branch on MetaData Tree
     std::string const& moduleDescriptionMapBranchName();
-
-    // Branch on MetaData Tree
     std::string const& processHistoryMapBranchName();
-
-    // Branch on MetaData Tree
     std::string const& processConfigurationMapBranchName();
-
-    // Branch on MetaData Tree
     std::string const& fileFormatVersionBranchName();
-
-    // Branch on MetaData Tree
     std::string const& fileIdentifierBranchName();
-
-    // Branch on MetaData Tree
     std::string const& fileIndexBranchName();
-
-    // Branch on MetaData Tree
     std::string const& eventHistoryBranchName();
 
+    //------------------------------------------------------------------
+    // Other tree names
     std::string const& eventTreeName();
-
     std::string const& eventMetaDataTreeName();
-
   }
 }
 #endif

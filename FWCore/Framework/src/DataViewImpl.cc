@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.23 2007/11/07 08:04:54 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.24 2008/01/30 00:32:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -8,6 +8,7 @@ $Id: DataViewImpl.cc,v 1.23 2007/11/07 08:04:54 wmtan Exp $
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -49,14 +50,15 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	boost::shared_ptr<EntryDescription> event(new EntryDescription);
+	boost::shared_ptr<EntryDescription> entryDescriptionPtr(new EntryDescription);
 
 	// set parts of provenance
-	event->parents_ = gotProductIDs_;
-	event->moduleDescriptionID_ = pit->second->moduleDescriptionID();
-	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
+	entryDescriptionPtr->parents_ = gotProductIDs_;
+	entryDescriptionPtr->moduleDescriptionID_ = pit->second->moduleDescriptionID();
+	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, entryDescriptionPtr));
 	dbk_.put(pr,pv);
 	++pit;
+	EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr);
     }
 
     // the cleanup is all or none
