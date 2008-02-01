@@ -45,7 +45,7 @@ namespace popcon{
 
     virtual void displayHelper() const{
          typename Container::const_iterator it;
-      for (it = m_payload_cont->begin(); it != m_payload_cont->end(); it++){
+      for (it = m_payload_cont.begin(); it != m_payload_cont.end(); it++){
 	std::cerr<<"Since " <<(*it).second.first << " till " << (*it).second.second << std::endl;
       }
     }  
