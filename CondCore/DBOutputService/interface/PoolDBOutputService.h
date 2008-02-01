@@ -9,6 +9,7 @@
 #include "serviceCallbackRecord.h"
 #include "Logger.h"
 #include "UserLogInfo.h"
+#include "TagInfo.h"
 #include <string>
 #include <map>
 //#include <iostream>
@@ -253,6 +254,10 @@ namespace cond{
       //			    const std::string& EventSetupRecordName);
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
       UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
+      
+      void tagInfo(const std::string& EventSetupRecordName,
+		   cond::TagInfo& result );
+      
     private:
       std::string m_timetype; 
       cond::Time_t m_currentTime;

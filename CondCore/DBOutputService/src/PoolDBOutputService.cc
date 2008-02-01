@@ -1,10 +1,12 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondCore/DBOutputService/interface/TagInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 //#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -326,3 +328,18 @@ cond::service::PoolDBOutputService::queryLog()const{
   if(!m_logdb) throw cond::Exception("PoolDBOutputService::queryLog ERROR: logging is off");
   return *m_logdb;
 }
+void 
+cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordName,cond::TagInfo& result ){
+  cond::service::serviceCallbackRecord& record=this->lookUpRecord(EventSetupRecordName);
+  result.name=record.m_tag;
+  result.token=record.m_iovtoken;
+  //use ioviterator to find out.
+  cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+  pooldb.start(true);
+  cond::IOVService iovmanager( pooldb );
+  cond::IOVIterator* iit=iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter);
+  result.lastInterval=iit->validity();
+  result.size=iit->size();
+  pooldb.commit();
+  delete iit;
+ }
