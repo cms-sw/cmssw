@@ -19,17 +19,18 @@ namespace popcon
   };
   
   class OfflineDBInterface{
-  public:	
+  public:
+    typedef std::map<std::string, PayloadIOV> States; 
     OfflineDBInterface(const std::string& connect);
     virtual ~OfflineDBInterface();
-    virtual std::map<std::string, PayloadIOV> getStatusMap();
-    PayloadIOV getSpecificTagInfo(const std::string& tag);
+    virtual States const & getStatusMap() const ;
+    PayloadIOV getSpecificTagInfo(const std::string& tag) const;
   private:
      //tag - IOV/Payload information map
-    std::map<std::string, PayloadIOV> m_status_map;
+    mutable States m_status_map;
     std::string m_connect;
     void getAllTagsInfo();
-    void getSpecificPayloadMap(const std::string& );
+    void getSpecificPayloadMap(const std::string& ) const;
   }; 
 }
 #endif

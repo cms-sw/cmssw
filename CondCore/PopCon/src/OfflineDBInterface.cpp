@@ -22,7 +22,7 @@ popcon::OfflineDBInterface::~OfflineDBInterface ()
 
 //Gets the IOV and payload information from the conditions schema
 //returns the list as map<string tag, struct payloaddata>
-std::map<std::string, popcon::PayloadIOV> popcon::OfflineDBInterface::getStatusMap()
+OfflineDBInterface::States const & popcon::OfflineDBInterface::getStatusMap() const
 {
 
   //TODO - currently all the tags per schema are being returned 
@@ -31,21 +31,22 @@ std::map<std::string, popcon::PayloadIOV> popcon::OfflineDBInterface::getStatusM
   return m_status_map;
 }
 
-popcon::PayloadIOV popcon::OfflineDBInterface::getSpecificTagInfo(const std::string& tag)
+popcon::PayloadIOV popcon::OfflineDBInterface::getSpecificTagInfo(const std::string& tag) const 
 {
-  static PayloadIOV dummy = {0,0,0xffffffff,"noTag"};
+  static const PayloadIOV dummy = {0,0,0xffffffff,"noTag"};
   getAllTagsInfo();
-  if(m_status_map.find(tag) == m_status_map.end())	
-    return dummy;
-  return m_status_map[tag];
+  States::const_iterator p = m_status_map.find(tag);
+  return (p == m_status_map.end()) ?
+    dummy :
+    (*p).second;
 }
 
-void popcon::OfflineDBInterface::getSpecificPayloadMap(const std::string&){
+void popcon::OfflineDBInterface::getSpecificPayloadMap(const std::string&) const {
 	//FIXME Implement 
 }
 
 //Fetches the list of tags in a schema and returns payload ingormation associated with a tag
-void  popcon::OfflineDBInterface::getAllTagsInfo()
+void  popcon::OfflineDBInterface::getAllTagsInfo() const
 {		
   cond::DBSession session;  
   session.configuration().setAuthenticationMethod( cond::XML );
