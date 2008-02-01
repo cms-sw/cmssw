@@ -154,6 +154,9 @@ private:
   bool testPCAPropagation_;
 
   bool ntupleTkHits_;
+
+  bool startFromPrevHit_;
+
   std::string g4SimName_;
 };
 
@@ -193,6 +196,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 
   ntupleTkHits_ = iConfig.getParameter<bool>("ntupleTkHits");
+
+  startFromPrevHit_ = iConfig.getParameter<bool>("startFromPrevHit");
 
   g4SimName_ = iConfig.getParameter<std::string>("g4SimName");
 }
@@ -307,11 +312,10 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
     } else {
-      r3T = Hep3Vector((*simVertices)[vtxInd].position().x(), 
+      r3T = Hep3Vector((*simVertices)[vtxInd].position().x(),
 		       (*simVertices)[vtxInd].position().y(),
 		       (*simVertices)[vtxInd].position().z());
-      //      r3T *= 0.1;  don't need this anymore (changed some time before 15X)
-      //seems to be stored in mm --> convert to cm
+
     }
     AlgebraicSymMatrix66 covT = AlgebraicMatrixID(); 
     covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
@@ -382,6 +386,16 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			   <<" "<<igHit->surf->rotation()<<std::endl;
 	}
 	pStatus = 0;
+	if (startFromPrevHit_){
+	  if (simHitsCI != simHitsByDistance.begin()){
+	    std::map<double, const GlobalSimHit*>::const_iterator simHitPrevCI = simHitsCI;
+	    simHitPrevCI--;
+	    const GlobalSimHit* gpHit = simHitPrevCI->second;
+	    ftsStart = getFromCLHEP(gpHit->p3, gpHit->r3, charge, covT, &*bField);
+	    siStart = SteppingHelixStateInfo(ftsTrack);
+	  }
+	}
+	
 	if (radX0CorrectionMode_ ){
 	  const SteppingHelixPropagator* shPropCPtr = 
 	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
@@ -520,7 +534,9 @@ void SteppingHelixPropagatorAnalyzer
     gHit.surf = &layer->surface();
     gHit.id = wId;
 
-    GlobalPoint r3Hit = gHit.surf->toGlobal(gHit.hit->localPosition());
+    //place the hit onto the surface
+    float dzFrac = gHit.hit->entryPoint().z()/(gHit.hit->exitPoint().z()-gHit.hit->entryPoint().z());
+    GlobalPoint r3Hit = gHit.surf->toGlobal(gHit.hit->entryPoint()-dzFrac*(gHit.hit->exitPoint()-gHit.hit->entryPoint()));
     gHit.r3.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
     GlobalVector p3Hit = gHit.surf->toGlobal(gHit.hit->momentumAtEntry());
     gHit.p3.set(p3Hit.x(), p3Hit.y(), p3Hit.z());
