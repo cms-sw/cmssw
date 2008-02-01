@@ -1,5 +1,5 @@
 #ifndef SiPixelRecHitsInputDistributionsMaker_h
-#define SiPixelRecHitsInputDistributionsMakerk_h
+#define SiPixelRecHitsInputDistributionsMaker_h
 
 /** \class SiPixelRecHitsInputDistributionsMaker
  * File: SiPixelRecHitsInputDistributionsMaker.h
