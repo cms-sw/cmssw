@@ -169,6 +169,20 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     int maxbits = 16;//Look at all bits
     type = "HTR Error Word by Crate";
     meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
+    meErrWdCrate_ -> setAxisTitle("Crate #",1);
+    meErrWdCrate_ -> setBinLabel(1,"Overflow Warn",2);
+    meErrWdCrate_ -> setBinLabel(2,"Buffer Busy",2);
+    meErrWdCrate_ -> setBinLabel(3,"Empty Event",2);
+    meErrWdCrate_ -> setBinLabel(4,"Reject L1A",2);
+    meErrWdCrate_ -> setBinLabel(5,"Latency Err",2);
+    meErrWdCrate_ -> setBinLabel(6,"Latency Warn",2);
+    meErrWdCrate_ -> setBinLabel(7,"OptDat Err",2);
+    meErrWdCrate_ -> setBinLabel(8,"Clock Err",2);
+    meErrWdCrate_ -> setBinLabel(9,"Bunch Err",2);
+    meErrWdCrate_ -> setBinLabel(13,"Test Mode",2);
+    meErrWdCrate_ -> setBinLabel(14,"Histo Mode",2);
+    meErrWdCrate_ -> setBinLabel(15,"Calib Trig",2);
+    meErrWdCrate_ -> setBinLabel(16,"Bit15 Err",2);
 
     type = "HTR Error Word - Crate 0";
     meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
@@ -264,12 +278,51 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     type = "HBHE Data Format Error Word";
     DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    DCC_ErrWd_HBHE -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HBHE -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HBHE -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HBHE -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HBHE -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HBHE -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HBHE -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HBHE -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HBHE -> setBinLabel(16,"Bit15 Err",1);
 
     type = "HF Data Format Error Word";
     DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    DCC_ErrWd_HF -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HF -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HF -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HF -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HF -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HF -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HF -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HF -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HF -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HF -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HF -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HF -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HF -> setBinLabel(16,"Bit15 Err",1);
 
     type = "HO Data Format Error Word";
     DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
+    DCC_ErrWd_HO -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HO -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HO -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HO -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HO -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HO -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HO -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HO -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HO -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HO -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HO -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HO -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HO -> setBinLabel(16,"Bit15 Err",1);
 
    }
 
