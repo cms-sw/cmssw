@@ -4,6 +4,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
@@ -17,7 +19,8 @@ const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L
 const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
 const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
 const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
-const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = L1GctJetCounterSetup::MAX_JET_COUNTERS;
+const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = std::min(L1GctJetCounterSetup::MAX_JET_COUNTERS,
+                                                                L1GctJetCounts::MAX_COUNTS);
 
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,

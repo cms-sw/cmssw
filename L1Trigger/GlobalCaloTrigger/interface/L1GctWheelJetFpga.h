@@ -94,10 +94,12 @@ public:
   hfTowerSumsType getOutputHfSums() const { return m_outputHfSums; }
 
   /// get the output jet counts
-  L1GctJetCount<3> getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
+  L1GctJetCount<3> getOutputJc(unsigned jcnum) const
+    { return ( (jcnum<N_JET_COUNTERS) ? m_outputJc.at(jcnum) : 0); }
 
   /// Get the jet counters
-  L1GctJetCounter* getJetCounter(unsigned jcnum) const { return m_jetCounters.at(jcnum); }
+  L1GctJetCounter* getJetCounter(unsigned jcnum) const
+    { return ( (jcnum<N_JET_COUNTERS) ? m_jetCounters.at(jcnum) : 0); }
 
 private:
 

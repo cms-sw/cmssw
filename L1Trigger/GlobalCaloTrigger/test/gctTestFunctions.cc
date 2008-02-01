@@ -4,6 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHtAndJetCounts.h"
+#include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -112,3 +113,14 @@ bool gctTestFunctions::checkJetCounts(const L1GlobalCaloTrigger* gct) const
 {
   return theHtAndJetCountsTester->checkJetCounts(gct);
 }
+
+//=================================================================================================================
+//
+/// Check the Hf Et sums
+bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
+{
+  theHfEtSumsTester->reset();
+  theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
+  return theHfEtSumsTester->checkHfEtSums(gct);
+}
+

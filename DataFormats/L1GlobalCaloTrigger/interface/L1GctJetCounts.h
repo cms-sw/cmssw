@@ -18,6 +18,11 @@ class L1GctJetCounts {
 
  public:
 
+  /// static maximum number of jet counts
+  /// This can be up to 12 but we use some of the
+  /// available bandwidth for other information.
+  static const unsigned MAX_COUNTS;
+
   enum numberOfBits {
     kEtHfSumBits     = 7,
     kEtHfSumOFlowBit = 1 << kEtHfSumBits,
@@ -84,11 +89,6 @@ class L1GctJetCounts {
   int operator!=(const L1GctJetCounts& c) const { return !(*this == c); }
 
  private:
-
-  /// static maximum number of jet counts
-  /// This can be up to 12 but we use some of the
-  /// available bandwidth for other information.
-  static const unsigned MAX_COUNTS=8;
 
   uint32_t m_data0;
   uint32_t m_data1;

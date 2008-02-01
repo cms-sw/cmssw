@@ -25,6 +25,7 @@ class gctTestElectrons;
 class gctTestEnergyAlgos;
 class gctTestFirmware;
 class gctTestHtAndJetCounts;
+class gctTestHfEtSums;
 
 class L1GlobalCaloTrigger;
 
@@ -69,6 +70,9 @@ public:
 
   /// Check the jet counting algorithms
   bool checkJetCounts(const L1GlobalCaloTrigger* gct) const;
+
+  /// Check the Hf Et sums
+  bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
 private:
 

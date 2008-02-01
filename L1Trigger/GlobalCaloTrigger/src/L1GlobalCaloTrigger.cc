@@ -24,9 +24,6 @@ const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
 const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
 
-const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS = L1GctGlobalEnergyAlgos::N_JET_COUNTERS;
-
-
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType) :
   theJetLeafCards(N_JET_LEAF_CARDS),

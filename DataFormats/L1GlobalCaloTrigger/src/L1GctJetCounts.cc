@@ -5,6 +5,8 @@ using std::vector;
 using std::ostream;
 using std::endl;
 
+const unsigned L1GctJetCounts::MAX_COUNTS=6;
+
 // default constructor
 L1GctJetCounts::L1GctJetCounts() :
   m_data0(0),

@@ -56,9 +56,6 @@ public:
   /// Number of Wheel Cards
   static const int N_WHEEL_CARDS;
   
-  /// Number of jet counter per wheel
-  static const unsigned int N_JET_COUNTERS;
-
   /// typedefs for energy values in fixed numbers of bits
   typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
   typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;

@@ -13,18 +13,10 @@
  *
  */
  
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-
 #include <vector>
 
+class L1CaloRegion;
 class L1GlobalCaloTrigger;
-class L1GctJetLeafCard;
-class L1GctJetFinderBase;
 
 class gctTestHfEtSums
 {
@@ -37,17 +29,21 @@ public:
   gctTestHfEtSums();
   ~gctTestHfEtSums();
 
+  /// Reset stored sums
+  void reset();
+
   /// Read the input jet data from the jetfinders (after GCT processing).
-  void fillRawJetData(const L1GlobalCaloTrigger* gct);
+  void fillExpectedHfSums(const RegionsVector& inputRegions);
 
   /// Check the Ht summing algorithms
-  bool checkHtSums(const L1GlobalCaloTrigger* gct) const;
-
-  /// Check the jet counting algorithms
-  bool checkJetCounts(const L1GlobalCaloTrigger* gct) const;
+  bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
 private:
 
+  unsigned m_expectedEtSumPositiveEta;
+  unsigned m_expectedEtSumNegativeEta;
+  unsigned m_expectedTowerCountPositiveEta;
+  unsigned m_expectedTowerCountNegativeEta;
 
 };
 

@@ -74,6 +74,7 @@ public:
     hfTowerSumsType(unsigned e, unsigned n) : etSum(e), nOverThreshold(n) {}
     hfTowerSumsType(L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e,
                     L1GctJetCount< 5 > n) : etSum(e), nOverThreshold(n) {}
+    void reset() { etSum.reset(); nOverThreshold.reset(); }
     hfTowerSumsType operator+(const hfTowerSumsType& rhs) const 
       { hfTowerSumsType temp( (this->etSum+rhs.etSum), (this->nOverThreshold+rhs.nOverThreshold) ); return temp; } 
 

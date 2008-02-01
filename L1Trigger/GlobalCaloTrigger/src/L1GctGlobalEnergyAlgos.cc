@@ -12,7 +12,8 @@ using std::endl;
 using std::vector;
 using std::max;
 
-const unsigned int L1GctGlobalEnergyAlgos::N_JET_COUNTERS=L1GctWheelJetFpga::N_JET_COUNTERS;
+const unsigned int L1GctGlobalEnergyAlgos::N_JET_COUNTERS_USED=L1GctWheelJetFpga::N_JET_COUNTERS;
+const unsigned int L1GctGlobalEnergyAlgos::N_JET_COUNTERS_MAX =12;
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
 					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
@@ -20,9 +21,9 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
   m_minusWheelFpga(wheelFpga.at(0)),
   m_plusWheelJetFpga(wheelJetFpga.at(1)),
   m_minusWheelJetFpga(wheelJetFpga.at(0)),
-  m_jcValPlusWheel(N_JET_COUNTERS),
-  m_jcVlMinusWheel(N_JET_COUNTERS),
-  m_outputJetCounts(N_JET_COUNTERS)
+  m_jcValPlusWheel(N_JET_COUNTERS_USED),
+  m_jcVlMinusWheel(N_JET_COUNTERS_USED),
+  m_outputJetCounts(N_JET_COUNTERS_MAX)
 {
   if(wheelFpga.size() != 2)
   {
@@ -115,7 +116,7 @@ void L1GctGlobalEnergyAlgos::reset()
   m_etVlMinusWheel.reset();
   m_htValPlusWheel.reset();
   m_htVlMinusWheel.reset();
-  for (unsigned i=0; i<N_JET_COUNTERS; i++) {
+  for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
     m_jcValPlusWheel.at(i).reset();
     m_jcVlMinusWheel.at(i).reset();
   }
@@ -124,7 +125,7 @@ void L1GctGlobalEnergyAlgos::reset()
   m_outputEtMissPhi.reset();
   m_outputEtSum.reset();
   m_outputEtHad.reset();
-  for (unsigned i=0; i<N_JET_COUNTERS; i++) {
+  for (unsigned i=0; i<N_JET_COUNTERS_MAX; i++) {
     m_outputJetCounts.at(i).reset();
   }
 }
@@ -142,7 +143,7 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
 
   //
-  for (unsigned i=0; i<N_JET_COUNTERS; i++) {
+  for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
     m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
     m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
   }
@@ -175,7 +176,7 @@ void L1GctGlobalEnergyAlgos::process()
   //
   //-----------------------------------------------------------------------------
   // Add the jet counts.
-  for (unsigned i=0; i<N_JET_COUNTERS; i++) {
+  for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
     m_outputJetCounts.at(i) =
       L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
       L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
@@ -185,8 +186,8 @@ void L1GctGlobalEnergyAlgos::process()
 }
 
 std::vector<unsigned> L1GctGlobalEnergyAlgos::getJetCountValues() const {
-  std::vector<unsigned> jetCountValues(N_JET_COUNTERS);
-  for (unsigned jc=0; jc<N_JET_COUNTERS; jc++) {
+  std::vector<unsigned> jetCountValues(N_JET_COUNTERS_MAX);
+  for (unsigned jc=0; jc<N_JET_COUNTERS_MAX; jc++) {
     jetCountValues.at(jc) = m_outputJetCounts.at(jc).value();
   }
   return jetCountValues;
@@ -254,12 +255,13 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
 //
 void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count)
 {
-  if (wheel==0) {
-    m_jcValPlusWheel.at(jcnum).setValue(count);
-  } else if (wheel==1) {
-    m_jcVlMinusWheel.at(jcnum).setValue(count);
+  if (jcnum<N_JET_COUNTERS_USED) {
+    if (wheel==0) {
+      m_jcValPlusWheel.at(jcnum).setValue(count);
+    } else if (wheel==1) {
+      m_jcVlMinusWheel.at(jcnum).setValue(count);
+    }
   }
-
 }
 
 
@@ -356,13 +358,14 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etCo
 
 void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
 {
+  assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
   m_outputJetCounts.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
   m_outputJetCounts.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
 
   unsigned etSumPlusWheel  = m_plusWheelJetFpga->getOutputHfSums().etSum.value();
   unsigned etSumMinusWheel = m_minusWheelJetFpga->getOutputHfSums().etSum.value();
 
-  unsigned outBits = etSumPlusWheel | (etSumMinusWheel << 7);
+  unsigned outBits = etSumPlusWheel | (etSumMinusWheel << 8);
 
   m_outputJetCounts.at(9)  = L1GctJetCount<5>( outBits         & 0x1f);
   m_outputJetCounts.at(10) = L1GctJetCount<5>((outBits >>  5 ) & 0x1f);

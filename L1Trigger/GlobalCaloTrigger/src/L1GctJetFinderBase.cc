@@ -267,6 +267,7 @@ L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
   UShort offset = COL_OFFSET*(centralCol0() + 1);
   for (UShort i=0; i < NUMBER_OF_INNER_RINGS; ++i) {
     offset--;
+
     et += m_inputRegions.at(offset).et() >> BIT_SHIFT;
     of |= m_inputRegions.at(offset).overFlow();
     if (m_inputRegions.at(offset).fineGrain()) nt++;

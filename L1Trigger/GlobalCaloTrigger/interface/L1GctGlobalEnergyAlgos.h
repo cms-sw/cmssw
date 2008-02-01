@@ -44,7 +44,8 @@ public:
         typedef L1GctJetLeafCard::etComponentType etComponentType;
 
         /// Number of jet counter per wheel
-        static const unsigned int N_JET_COUNTERS;
+        static const unsigned int N_JET_COUNTERS_USED;
+        static const unsigned int N_JET_COUNTERS_MAX;
 
         /// Constructor needs the Wheel card Fpgas set up first
 	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
@@ -115,7 +116,10 @@ public:
 	/// return output calibrated jet Et
 	inline etHadType     getEtHad()     const { return m_outputEtHad; }
 	/// return output jet count (number 0-11)
-	inline L1GctJetCount<5> getJetCount(unsigned jcnum) const { return m_outputJetCounts.at(jcnum); }
+	inline L1GctJetCount<5> getJetCount(unsigned jcnum) const
+         { return ( jcnum<N_JET_COUNTERS_USED ? m_outputJetCounts.at(jcnum) : 0); }
+	inline L1GctJetCount<5> getJetCountBits(unsigned jcnum) const
+         { return ( jcnum<N_JET_COUNTERS_MAX  ? m_outputJetCounts.at(jcnum) : 0); }
 
        /// return vector of jet count values
        std::vector<unsigned> getJetCountValues() const;
