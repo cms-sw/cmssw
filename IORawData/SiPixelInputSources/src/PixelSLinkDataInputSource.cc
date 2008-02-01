@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.13 2007/11/17 23:23:03 wmtan Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.14 2007/12/05 16:01:04 fblekman Exp $
 //
 //
 
@@ -170,8 +170,8 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   while( eventnumber == m_currenteventnumber);
   
   event.put(buffers);
-  if(lastevent)
-    return false;
+  //  if(lastevent)
+  //    return true;
   return true;
 }
 
