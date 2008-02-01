@@ -111,6 +111,11 @@ CSCEventData::CSCEventData(unsigned short * buf){
   theDMBTrailer = *( (CSCDMBTrailer *) pos );
   pos += theDMBTrailer.sizeInWords();
   size_ = pos-buf;
+  
+  //check for correct cfebs being reported
+  if ( theDMBHeader.cfebAvailable() &  (theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout) ) {
+    edm::LogError ("CSCEventData") <<"!!!Mismatch between cfebAvailable and cfebTimeout!!!";
+  }
 }
 
 

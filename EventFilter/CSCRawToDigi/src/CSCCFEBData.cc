@@ -36,22 +36,19 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 	  // OK.  Maybe it's good.
 	  CSCCFEBTimeSlice * goodSlice 
 	    = reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
-	  if(goodSlice->check()) 
-	    {
-	      // show that a good slice starts here
-	      theSliceStarts.push_back(std::pair<int, bool>(pos, true));
-	      // it will just be an array of CSCCFEBTimeSlices, so we'll
-	      // grab the number of time slices from the first good one
-	      maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
-	      pos += goodSlice->sizeInWords();
-	    } 
-	  else 
-	    {
-	      edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
-					    << " " << *(buf+pos+3) << " " << *(buf+pos+2) << " "  << *(buf+pos+1) << " "
-			<< *(buf+pos);
-	      return;
-	    }
+	  // show that a good slice starts here
+	  theSliceStarts.push_back(std::pair<int, bool>(pos, true));
+	  // it will just be an array of CSCCFEBTimeSlices, so we'll
+	  // grab the number of time slices from the first good one
+	  maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
+	  pos += goodSlice->sizeInWords();
+	  
+	  if (!goodSlice->check()) {
+	    edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
+					  << " " << *(buf+pos+3) << " " << *(buf+pos+2) << " "  
+					  << *(buf+pos+1) << " "<< *(buf+pos);
+	    // return;
+	  }
 	}
       ++theNumberOfSamples;
     }
@@ -205,6 +202,9 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
   std::vector<uint16_t> errorfl(nTimeSamples());
 
   bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1); 
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+  
   unsigned layer = CSCDetId::layer(idlayer);
 
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel)
@@ -238,6 +238,8 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 	}
       int strip = ichannel + 16*boardNumber_;
       if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi(strip, sca, overflow, overlap, errorfl);
+      if ( me1a && zplus ) { strip = 17-strip; } // 1-16 -> 16-1 
+      if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
       result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
     } 
 }
