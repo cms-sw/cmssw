@@ -1,4 +1,4 @@
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGSmart.h"
+#include "RecoMuon/TrackerSeedGenerator/plugins/TSGSmart.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"

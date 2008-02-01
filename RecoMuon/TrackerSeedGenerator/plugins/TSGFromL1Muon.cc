@@ -1,4 +1,4 @@
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGFromL1Muon.h"
+#include "TSGFromL1Muon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"

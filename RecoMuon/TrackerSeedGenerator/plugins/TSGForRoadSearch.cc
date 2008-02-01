@@ -1,4 +1,4 @@
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGForRoadSearch.h"
+#include "RecoMuon/TrackerSeedGenerator/plugins/TSGForRoadSearch.h"
 
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 //#include <RecoTracker/Record/interface/TrackerRecoGeometryRecord.h>

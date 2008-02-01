@@ -1,9 +1,9 @@
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGFromPropagation.h"
+#include "RecoMuon/TrackerSeedGenerator/plugins/TSGFromPropagation.h"
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/12/05 03:27:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/06 19:38:38 $
+ *  $Revision: 1.16 $
  *  \author Chang Liu - Purdue University 
  */
 

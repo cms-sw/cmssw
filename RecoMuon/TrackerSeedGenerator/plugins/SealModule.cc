@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGFromOrderedHits.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGSmart.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGForRoadSearch.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGFromPropagation.h"
+#include "TSGFromOrderedHits.h"
+#include "TSGSmart.h"
+#include "TSGForRoadSearch.h"
+#include "TSGFromPropagation.h"
 
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGSmart, "TSGSmart");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromOrderedHits, "TSGFromOrderedHits");
@@ -12,7 +12,7 @@ DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSear
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromPropagation, "TSGFromPropagation");
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TSGFromL1Muon.h"
+#include "TSGFromL1Muon.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(TSGFromL1Muon);
