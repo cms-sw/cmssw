@@ -32,7 +32,7 @@ namespace popcon{
     //This class takes ownership of the vector (and payload objects)
     bool takeTheData(){
       m_payload_cont = m_handler();
-      return !m_payload_cont->empty();
+      return !m_payload_cont.empty();
     }
      
     void write() {
