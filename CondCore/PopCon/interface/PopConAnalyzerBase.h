@@ -41,7 +41,7 @@ namespace popcon
      ~PopConAnalyzerBase();
      
 
-     std::string getTag() const;
+     std::string tag() const;
      
    private:
 

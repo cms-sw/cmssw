@@ -19,13 +19,12 @@ namespace popcon {
   PopConAnalyzerBase::~PopConAnalyzerBase(){}
   
 
-  std::string  PopConAnalyzerBase::getTag() const {
-    return m_output.getTag();
+  std::string  PopConAnalyzerBase::tag() const {
+    return m_output.tag();
   }
 
 
-  void PopConAnalyzerBase::beginJob(const edm::EventSetup& es)
-  {	
+  void PopConAnalyzerBase::beginJob(const edm::EventSetup& es) {	
     if(m_debug) std::cerr << "Begin Job\n"; 
     try{
       std::cout<<"offline_connection "<<m_offline_connection<<std::endl;

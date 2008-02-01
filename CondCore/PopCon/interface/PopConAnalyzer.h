@@ -36,7 +36,7 @@ namespace popcon{
     }
      
     virtual void write() {
-      Time_t last_since = m_handler_object->getSinceForTag(getTag());
+      Time_t last_since = m_handler_object->getSinceForTag(tag());
       this->template writeThem<T>(*m_payload_vect, last_since);
     }
     
