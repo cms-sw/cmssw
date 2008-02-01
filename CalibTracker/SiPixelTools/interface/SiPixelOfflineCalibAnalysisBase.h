@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.5 2008/01/29 18:13:12 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.6 2008/01/31 16:48:57 fblekman Exp $
 //
 //
 
@@ -51,6 +51,7 @@
 #include "TF1.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -82,11 +83,12 @@ public:
   std::string translateDetIdToString(uint32_t detid);
   
   //booking DQM histograms (for dynamic histogram creation)
-  MonitorElement* 			bookDQMHistogram1D(std::string name, std::string title, int nchX, double lowX, double highX);  
-  MonitorElement*			bookDQMHistogram1D(std::string name, std::string title, int nchX, float *xbinsize);  //variable size bins
-  MonitorElement* 			bookDQMHistogram2D(std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
   
-  MonitorElement*                       bookDQMHistoPlaquetteSummary2D(std::string name,std::string title,uint32_t detid); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
+  MonitorElement* 			bookDQMHistogram1D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX);  
+  MonitorElement*			bookDQMHistogram1D(uint32_t detid, std::string name, std::string title, int nchX, float *xbinsize);  //variable size bins
+  MonitorElement* 			bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+  
+  MonitorElement*                       bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
   bool				        setDQMDirectory(std::string dirName);	
   bool				        setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
   static TF1*                           fitFunction_;
@@ -108,6 +110,7 @@ private:
   
   SiPixelFolderOrganizer* folderMaker_;
   DaqMonitorBEInterface* daqBE_;
+  SiPixelHistogramId * theHistogramIdWorker_;
   std::string outputFileName_;
   
   //store set of detIDs that have been encountered
