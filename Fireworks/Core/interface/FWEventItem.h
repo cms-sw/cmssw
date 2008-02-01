@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.9 2008/01/25 01:54:07 chrjones Exp $
+// $Id: FWEventItem.h,v 1.10 2008/01/25 04:05:35 chrjones Exp $
 //
 
 // system include files
@@ -152,6 +152,7 @@ class FWEventItem
       const TClass* m_type;
       boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr 
       mutable const void * m_data;
+      size_t m_collectionOffset;
       FWDisplayProperties m_displayProperties;
       mutable std::vector<ModelInfo> m_itemInfos;
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.6 2008/01/25 01:54:08 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.7 2008/01/25 04:05:36 chrjones Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
   m_colProxy(iClass->GetCollectionProxy()?iClass->GetCollectionProxy()->Generate():
                                           static_cast<TVirtualCollectionProxy*>(0)),
   m_data(0),
+  m_collectionOffset(0),
   m_displayProperties(iProperties),
   m_moduleLabel(iModuleLabel),
   m_productInstanceLabel(iProductInstanceLabel),
@@ -80,6 +81,7 @@ m_type(iDesc.type()),
 m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate():
                                         static_cast<TVirtualCollectionProxy*>(0)),
 m_data(0),
+m_collectionOffset(0),
 m_displayProperties(iDesc.displayProperties()),
 m_moduleLabel(iDesc.moduleLabel()),
 m_productInstanceLabel(iDesc.productInstanceLabel()),
@@ -91,12 +93,24 @@ m_event(0)
    assert(dataType != ROOT::Reflex::Type() );
    
    std::string wrapperName = std::string("edm::Wrapper<")+dataType.Name(ROOT::Reflex::SCOPED)+" >";
-   std::cout <<wrapperName<<std::endl;
+   //std::cout <<wrapperName<<std::endl;
    m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
    
    assert(m_wrapperType != ROOT::Reflex::Type());
    if(0==m_colProxy) {
-      m_itemInfos.reserve(1);
+      //is this an object which has only one member item and that item is a container?
+      if(dataType.DataMemberSize()==1) {
+         ROOT::Reflex::Type memType( dataType.DataMemberAt(0).TypeOf() );
+         assert(memType != ROOT::Reflex::Type());
+         const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
+         assert(rootMemType != 0);
+         if(rootMemType->GetCollectionProxy()) {
+            m_colProxy=boost::shared_ptr<TVirtualCollectionProxy>(rootMemType->GetCollectionProxy()->Generate());
+         }
+      }
+      if(0==m_colProxy) {
+         m_itemInfos.reserve(1);
+      }
    }
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
@@ -259,7 +273,7 @@ FWEventItem::setData(const void* iData) const
 {
    m_data = iData;
    if(m_colProxy) {
-      m_colProxy->PushProxy(const_cast<void*>(m_data));
+      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_collectionOffset);
       m_itemInfos.reserve(m_colProxy->Size());
       m_itemInfos.resize(m_colProxy->Size(),ModelInfo(m_displayProperties,false));
    } else {
