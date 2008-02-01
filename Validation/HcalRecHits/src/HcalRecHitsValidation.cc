@@ -100,9 +100,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "ZSmin_simple1D_HO" );
       ZS_HO = dbe_->book1D(histo, histo,120, -2., 10.);
       sprintf  (histo, "ZSmin_simple1D_HF1" );
-      ZS_HF1 = dbe_->book1D(histo, histo,120, -2., 10.);
+      ZS_HF1 = dbe_->book1D(histo, histo,200, -10., 10.);
       sprintf  (histo, "ZSmin_simple1D_HF2" );
-      ZS_HF2 = dbe_->book1D(histo, histo,120, -2., 10.);
+      ZS_HF2 = dbe_->book1D(histo, histo,200, -10., 10.);
 
       sprintf  (histo, "ZSmin_sequential1D_HB1" );
       ZS_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
