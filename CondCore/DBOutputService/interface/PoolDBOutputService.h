@@ -57,6 +57,7 @@ namespace cond{
       cond::DBSession& session() const;
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
+      const cond::Logger& queryLog() const;
       //
       // insert the payload and its valid till time into the database
       // Note: user looses the ownership of the pointer to the payloadObj

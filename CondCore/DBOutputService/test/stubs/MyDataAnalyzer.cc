@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "MyDataAnalyzer.h"
@@ -57,6 +58,23 @@ void MyDataAnalyzer::endJob(){
       mydbservice->appendSinceTime<Pedestals>(myped,thisPayload_valid_since,m_record,m_LoggingOn);
       std::cout<<"done"<<std::endl;
     }
+    //example for log reading
+    const cond::Logger& logreader=mydbservice->queryLog();
+    cond::LogDBEntry result;
+    logreader.LookupLastEntryByProvenance("mynullsource",result);
+    std::cout<<"Here's my last log entry \n";
+    std::cout<<"logId "<<result.logId<<"\n";
+    std::cout<<"destinationDB "<<result.destinationDB<<"\n";
+    std::cout<<"provenance "<<result.provenance<<"\n";
+    std::cout<<"comment "<<result.comment<<"\n";
+    std::cout<<"iovtag "<<result.iovtag<<"\n";
+    std::cout<<"iovtimetype "<<result.iovtimetype<<"\n";
+    std::cout<<"payloadIdx "<<result.payloadIdx<<"\n";
+    std::cout<<"payloadName "<<result.payloadName<<"\n";
+    std::cout<<"payloadToken "<<result.payloadToken<<"\n";
+    std::cout<<"payloadContainer "<<result.payloadContainer<<"\n";
+    std::cout<<"exectime "<<result.exectime<<"\n";
+    std::cout<<"execmessage "<<result.execmessage<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){

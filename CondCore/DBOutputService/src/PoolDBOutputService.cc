@@ -321,3 +321,8 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& Eve
   myloginfo.provenance=dataprovenance;
   myloginfo.comment=comment;
 }
+const cond::Logger& 
+cond::service::PoolDBOutputService::queryLog()const{
+  if(!m_logdb) throw cond::Exception("PoolDBOutputService::queryLog ERROR: logging is off");
+  return *m_logdb;
+}
