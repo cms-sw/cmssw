@@ -21,7 +21,7 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
      }
 }
           
-FreeTrajectoryState NuclearVertexBuilder::getTrajectory(const reco::TrackRef& track)
+FreeTrajectoryState NuclearVertexBuilder::getTrajectory(const reco::TrackRef& track) const
 { 
   GlobalPoint position(track->vertex().x(),
                        track->vertex().y(),
@@ -47,6 +47,7 @@ void NuclearVertexBuilder::FillVertexWithLastPrimHit(const reco::TrackRef& primT
                                          reco::Vertex::Error(), 0.,0.,0);
        the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
        for( unsigned short i=0; i < secTracks.size(); i++) {
+             if( distanceOfClosestApproach( primTrack, secTracks[i] ) < minDistFromPrim_ )
                  the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
        }
 }
@@ -56,8 +57,10 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
          transientTracks.push_back( theTransientTrackBuilder->build(primTrack));
          // get the secondary track with the max number of hits
          for( reco::TrackRefVector::const_iterator tk = secTracks.begin(); tk != secTracks.end(); tk++) {
+                 if( distanceOfClosestApproach( primTrack, *tk ) < minDistFromPrim_ )
                     transientTracks.push_back( theTransientTrackBuilder->build(*tk));
          }
+         if( transientTracks.size() == 1 ) return  false;
          AdaptiveVertexFitter AVF;
          try {
             TransientVertex tv = AVF.vertex(transientTracks);
@@ -104,8 +107,18 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
 
             the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
             for( unsigned short i=0; i < secTracks.size(); i++) {
-                 if( i==indice ) the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 1.0);
-                 else the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
+                if( distanceOfClosestApproach( primTrack, secTracks[i] ) < minDistFromPrim_ ){
+                  if( i==indice ) the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 1.0);
+                  else the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
+               }
             }
 }
 
+float NuclearVertexBuilder::distanceOfClosestApproach( const reco::TrackRef& primTrack, const reco::TrackRef& secTrack ) const {
+            FreeTrajectoryState primTraj = getTrajectory(primTrack);
+            FreeTrajectoryState secTraj = getTrajectory(secTrack);
+            ClosestApproachInRPhi *theApproach = new ClosestApproachInRPhi();
+            bool status = theApproach->calculate(primTraj,secTraj);
+            if( status ) return theApproach->distance();
+            else return 1000;
+}

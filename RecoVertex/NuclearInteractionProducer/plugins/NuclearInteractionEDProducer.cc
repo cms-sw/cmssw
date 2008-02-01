@@ -18,7 +18,8 @@ NuclearInteractionEDProducer::NuclearInteractionEDProducer(const edm::ParameterS
 conf_(iConfig), 
 primaryProducer_(iConfig.getParameter<std::string>("primaryProducer")),
 seedsProducer_(iConfig.getParameter<std::string>("seedsProducer")),
-secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")) {
+secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")),
+minDistFromPrim_(iConfig.getParameter<double>("minDistFromPrimary")) {
 
   produces<reco::NuclearInteractionCollection>();
 }
@@ -90,7 +91,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
          theNuclearInteractions->push_back( reco::NuclearInteraction( seeds, vertexBuilder->getVertex(), likelihoodCalculator->result() ) );
 
-         LogDebug("NuclearInteractionMaker") << 
+         edm::LogInfo("NuclearInteractionMaker") << 
                   "New nuclear interaction found : primary track with id=" << primary_track.key() << "\n"
                   "   position : x=" << vertexBuilder->getVertex().x() << "  y=" << vertexBuilder->getVertex().y() << "  z=" << vertexBuilder->getVertex().z() << "\n"
                   "   Number of seeds = " << seeds.size() << "\n"
@@ -114,7 +115,7 @@ NuclearInteractionEDProducer::beginJob(const edm::EventSetup& es)
    edm::ESHandle<TransientTrackBuilder> builder;
    es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
 
-   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product()) );
+   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), minDistFromPrim_) );
    likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
 
 }
