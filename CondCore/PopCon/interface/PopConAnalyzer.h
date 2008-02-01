@@ -20,7 +20,7 @@ namespace popcon{
     PopConAnalyzer(const edm::ParameterSet& pset) : 
       PopConAnalyzerBase(pset),
       m_handler(pset.getParameter<edm::ParameterSet>("Source"),
-		pset.getParameter<std::string> ("connect")).
+		pset.getParameter<std::string> ("connect")),
       m_payload_cont(0) {}
 
 
@@ -30,14 +30,14 @@ namespace popcon{
   
       
     //This class takes ownership of the vector (and payload objects)
-    bool void takeTheData(){
+    bool takeTheData(){
       m_payload_cont = &(m_handler());
       return !m_payload_cont->empty();
     }
      
-    virtual void write() {
-      Time_t last_since = m_handler_object->getSinceForTag(tag());
-      this->template writeThem<T>(*m_payload_vect, last_since);
+    void write() {
+      Time_t last_since = m_handler.getSinceForTag(tag());
+      this->template writeThem<T>(*m_payload_cont, last_since);
     }
     
     SourceHandler m_handler;	
