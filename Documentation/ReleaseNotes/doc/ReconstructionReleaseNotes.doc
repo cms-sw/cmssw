@@ -44,7 +44,7 @@ Main changes and new features by subsystem:
  - Looser chi2 cut for conversion track trajectory building
 
 - Tau 
- -Added a HighEfficiency collection to the EventContent
+ - Added a HighEfficiency collection to the EventContent
 
 - Particle Flow
  - Data format and Event Content
