@@ -968,8 +968,8 @@ class DaqMonitorBEInterface: public StringUtil
   friend class RootMonitorThread;
   friend class QTestStatusChecker;
 
-  friend class ROOTtoMEConverter;      // need clone methods
-  friend class MEtoROOTConverter;
+  friend class EDMtoMEConverter;      // need clone methods
+  friend class MEtoEDMConverter;
 
   // ------ example executables        // can all be removed !!?
   friend class DQMLocalGUI;
