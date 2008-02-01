@@ -38,12 +38,12 @@ namespace popcon
     edm::Service<cond::service::PoolDBOutputService> m_dbService;
     std::string  m_record;
     bool m_since;
-    bool m_loggingOn;
+    bool m_LoggingOn;
     std::string logMsg;
     
   public:
     OutputServiceWrapper(std::string const & record, bool since, bool log) :
-      m_record(record), m_since(since), m_loggingOn(log){}
+      m_record(record), m_since(since), m_LoggingOn(log){}
     
     std::string tag() const {
       return m_dbService->tag(m_record);

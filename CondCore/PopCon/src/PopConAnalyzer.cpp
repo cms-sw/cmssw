@@ -8,7 +8,7 @@ namespace popcon {
     m_offline_connection(pset.getParameter<std::string> ("connect")),
     sinceAppend(pset.getParameter<bool> ("SinceAppendMode")),
     m_debug(pset.getParameter< bool > ("debug")),
-    m_loggingOn(pset.getParameter< bool > ("logginOn")),
+    m_loggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
     m_output(pset.getParameter<std::string> ("record"),sinceAppend,m_loggingOn),
     tryToValidate(false), corrupted(false), greenLight (true), fixed(true)
     {
