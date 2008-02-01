@@ -122,7 +122,7 @@ foreach (@Candle)
 system(
     "mkdir ZPrimeJJM700_IgProf;
     cd ZPrimeJJM700_IgProf;
-    $cmsDriver $CmsDriverCandleNoBrackets{$_} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
+    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
     $cmsSimPyRelVal $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
     $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
     cd .."
