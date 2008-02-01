@@ -62,7 +62,7 @@ namespace popcon
    protected:
      template <typename T>
      void writeThem (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
-       m_output(pauload_vect,lsc);
+       m_output(payload_vect,lsc);
      }
 
    private:

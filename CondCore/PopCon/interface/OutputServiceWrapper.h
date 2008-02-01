@@ -38,7 +38,7 @@ namespace popcon
     edm::Service<cond::service::PoolDBOutputService> m_dbService;
     std::string  m_record;
     bool m_since;
-    std::sting logMsg;
+    std::string logMsg;
     
   public:
     OutputServiceWrapper(std::string & record, bool since) :
@@ -57,7 +57,7 @@ namespace popcon
 	//sort ascending so the since order is respected 
 	std::sort(payload_vect.begin(), payload_vect.end(),SinceLess());
       }else{ 
-	std::sort(mpayload_vect.begin(), payload_vect.end(),TillLess());
+	std::sort(payload_vect.begin(), payload_vect.end(),TillLess());
       }
       //check if attempting to insert an object with lower since-time than the last existing IOV
       it = payload_vect.begin();
@@ -71,24 +71,24 @@ namespace popcon
 	std::cerr << "DBOutputService configured with the following Tag " << tag() << std::endl;
 	std::cerr << "... and Record " << m_record << std::endl;
 	
-	for (it = payload_vect->begin(); it != payload_vect->end(); it++){
+	for (it = payload_vect.begin(); it != payload_vect.end(); it++){
 	  try{
 	    if (m_dbService->isNewTagRequest(m_record) ){
 	      std::cerr << "Creating new IOV\n"; 
-	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, record);
+	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, m_record);
 	    }else{
 	      if (m_since){
 		std::cerr << "Appending since time\n"; 
-		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, record)} 
+		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record)} 
 	      else {
 		std::cerr << "Appending till time\n"; 
-		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, record);
+		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record);
 	      }
 	    }
 	  }catch(std::exception& er){
 	    std::cerr << "DB output exception: " << er.what();
 	    std::string os("Problem with output service ");
-	    os+= m_payload_vect->size();
+	    os+= payload_vect.size();
 	    os+=" objects should have been written";
 	    logMsg = os; 
 	    throw er;

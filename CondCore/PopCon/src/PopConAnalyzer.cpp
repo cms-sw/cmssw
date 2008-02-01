@@ -9,8 +9,7 @@ namespace popcon {
     sinceAppend(pset.getParameter<bool> ("SinceAppendMode")),
     m_debug(pset.getParameter< bool > ("debug")),
     m_output(pset.getParameter<std::string> ("record"),sinceAppend),
-    tryToValidate(false), corrupted(false), greenLight (true), fixed(true),
-
+    tryToValidate(false), corrupted(false), greenLight (true), fixed(true)
     {
     
     //TODO set the policy (cfg or global configuration?)

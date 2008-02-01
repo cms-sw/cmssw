@@ -20,7 +20,8 @@ namespace popcon{
     PopConAnalyzer(const edm::ParameterSet& pset) : 
       PopConAnalyzerBase(pset),
       m_handler(pset.getParameter<edm::ParameterSet>("Source"),
-		pset.getParameter<std::string> ("connect")) {}
+		pset.getParameter<std::string> ("connect")).
+      m_payload_cont(0) {}
 
 
     ~PopConAnalyzer(){}
@@ -36,11 +37,11 @@ namespace popcon{
      
     virtual void write() {
       Time_t last_since = m_handler_object->getSinceForTag(getTag());
-      this->template writeThem<T>(payload_vect, last_since);
+      this->template writeThem<T>(*m_payload_vect, last_since);
     }
     
     SourceHandler m_handler;	
-    Container const * m_payload_cont;
+    Container * m_payload_cont;
 
     virtual void displayHelper() const{
          typename Container::const_iterator it;
