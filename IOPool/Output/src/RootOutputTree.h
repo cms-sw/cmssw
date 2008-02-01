@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.13 2008/01/10 17:32:57 wmtan Exp $
+$Id: RootOutputTree.h,v 1.14 2008/01/30 00:29:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ $Id: RootOutputTree.h,v 1.13 2008/01/10 17:32:57 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
@@ -98,7 +98,7 @@ namespace edm {
 
     bool isValid() const;
 
-    void addBranch(BranchDescription const& prod, bool selected, EntryDescription const*& pProv, void const*& pProd);
+    void addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd);
 
     std::vector<std::string> const& branchNames() const {return branchNames_;}
 

@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.39 2008/01/29 21:02:25 paterno Exp $
+// $Id: RootOutputFile.cc,v 1.40 2008/01/30 00:29:19 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -67,6 +68,7 @@ namespace edm {
       lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
+      entryDescriptionIDPtr_(new EntryDescriptionID),
       newFileAtEndOfRun_(false) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -79,11 +81,11 @@ namespace edm {
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->entryDescription_, it->product_);
+	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, entryDescriptionIDPtr_, it->product_);
       }
     }
-    // Don't split metadata tree or eventDescriptionTree
-    metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    // Don't split metadata tree or event description tree
+    metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
     entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
     
 
@@ -191,6 +193,33 @@ namespace edm {
     ++runEntryNumber_;
     fillBranches(InRun, r.groupGetter());
     return newFileAtEndOfRun_;
+  }
+
+  void RootOutputFile::writeEntryDescriptions() {
+    EntryDescriptionID const* hash(0);
+    EntryDescription const*   desc(0);
+    
+    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionIDBranchName().c_str(), 
+					&hash, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for EntryDescriptionIDs in the output file";
+
+    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionBranchName().c_str(), 
+					&desc, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for EntryDescriptions in the output file";
+
+    EntryDescriptionRegistry& edreg = *EntryDescriptionRegistry::instance();
+    for (EntryDescriptionRegistry::const_iterator
+	   i = edreg.begin(),
+	   e = edreg.end();
+	 i != e;
+	 ++i)
+      {
+	hash = const_cast<EntryDescriptionID*>(&(i->first)); // cast needed because keys are const
+	desc = &(i->second);
+	entryDescriptionTree_->Fill();
+      }
   }
 
   void RootOutputFile::writeFileFormatVersion() {
@@ -313,11 +342,9 @@ namespace edm {
       BasicHandle const bh = principal.getForOutput(id, i->selected_);
       if (bh.provenance() == 0) {
 	// No group with this ID is in the event.
-	// Create and write the provenance.
+	// Use a default constructed EntryDescription
 	if (i->branchDescription_->produced_) {
-          EntryDescription provenance;
-	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-	  i->entryDescription_ = &provenance;
+	  *entryDescriptionIDPtr_ = EntryDescription().id();
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
@@ -325,8 +352,7 @@ namespace edm {
 	}
       } else {
 	product = bh.wrapper();
-        EntryDescription const& provenance = bh.provenance()->event();
-	i->entryDescription_ = &provenance;
+	*entryDescriptionIDPtr_ = bh.provenance()->event().id();
       }
       if (i->selected_) {
 	if (product == 0) {

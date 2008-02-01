@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.21 2008/01/29 21:02:25 paterno Exp $
+// $Id: RootOutputFile.h,v 1.22 2008/01/30 00:29:19 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -12,6 +12,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <map>
 #include <memory>
 #include <string>
 #include <iosfwd>
@@ -23,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
@@ -49,6 +51,7 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     bool writeRun(RunPrincipal const& r);
+    void writeEntryDescriptions();
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeFileIndex();
@@ -70,14 +73,13 @@ namespace edm {
 
   private:
     struct OutputItem {
-      OutputItem() : branchDescription_(0), selected_(false) {}
+      OutputItem() : branchDescription_(0), selected_(false), renamed_(false), product_(0) {}
       OutputItem(BranchDescription const* bd, bool sel, bool ren) :
-	branchDescription_(bd), selected_(sel), renamed_(ren), entryDescription_(0), product_(0) {}
+	branchDescription_(bd), selected_(sel), renamed_(ren), product_(0) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
       bool selected_;
       bool renamed_;
-      mutable EntryDescription const* entryDescription_;
       mutable void const* product_;
       bool operator <(OutputItem const& rh) const {
         return *branchDescription_ < *rh.branchDescription_;
@@ -90,6 +92,8 @@ namespace edm {
 		      OutputItemList & outputItemList);
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
+
+    void addEntryDescription(EntryDescription const& desc);
 
     OutputItemListArray outputItemList_;
     std::string file_;
@@ -117,7 +121,7 @@ namespace edm {
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
-    boost::shared_ptr<ProductRegistry const> productRegistry_;
+    EntryDescriptionID * entryDescriptionIDPtr_;
     mutable bool newFileAtEndOfRun_;
   };
 }

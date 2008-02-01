@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.48 2007/12/12 22:05:22 wmtan Exp $
+$Id: PoolSource.h,v 1.49 2008/01/08 06:57:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,10 +37,6 @@ namespace edm {
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
 
-    /// Called by framework at end of job
-    virtual void endJob();
-
-
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
@@ -52,6 +48,7 @@ namespace edm {
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_();
+    virtual void endJob();
     virtual InputSource::ItemType getNextItemType();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);

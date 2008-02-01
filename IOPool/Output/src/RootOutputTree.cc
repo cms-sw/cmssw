@@ -122,14 +122,14 @@ namespace edm {
   }
 
   void
-  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, EntryDescription const*& pProv, void const*& pProd) {
+  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd) {
       prod.init();
       TBranch * meta = metaTree_->GetBranch(prod.branchName().c_str());
       if (meta != 0) {
-	meta->SetAddress(&pProv);
+	meta->SetAddress(&pEntryDescID);
         clonedMetaBranches_.push_back(meta);
       } else {
-        meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
+        meta = metaTree_->Branch(prod.branchName().c_str(), &pEntryDescID, basketSize_, 0);
         metaBranches_.push_back(meta);
       }
       if (selected) {

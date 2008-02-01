@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.100 2008/01/29 21:02:25 paterno Exp $
+// $Id: PoolOutputModule.cc,v 1.101 2008/01/30 00:29:19 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -99,6 +99,7 @@ namespace edm {
   // At some later date, we may move functionality from finishEndFile() to here.
   void PoolOutputModule::startEndFile() { }
 
+
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
   void PoolOutputModule::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
@@ -108,9 +109,9 @@ namespace edm {
   void PoolOutputModule::writeModuleDescriptionRegistry() { rootOutputFile_->writeModuleDescriptionRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::writeEntryDescriptions() { rootOutputFile_->writeEntryDescriptions(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
-
 
   bool PoolOutputModule::isFileFull() const { return rootOutputFile_->isFileFull(); }
 

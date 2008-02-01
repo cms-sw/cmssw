@@ -1,12 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.18 2007/12/31 10:18:17 elmer Exp $
+$Id: RootDelayedReader.cc,v 1.19 2008/01/30 00:28:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "TROOT.h"
 #include "TClass.h"
@@ -25,7 +26,7 @@ namespace edm {
   std::auto_ptr<EDProduct>
   RootDelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep) const {
     SetRefStreamer(ep);
-    input::EventBranchInfo const& branchInfo = branches().find(k)->second;
+    input::EventBranchInfo const& branchInfo = getBranchInfo(k);
     TBranch *br = branchInfo.productBranch_;
     TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
@@ -37,18 +38,36 @@ namespace edm {
 
   std::auto_ptr<EntryDescription>
   RootDelayedReader::getProvenance(BranchKey const& k) const {
-    TBranch *br = branches().find(k)->second.provenanceBranch_;
+    TBranch *br = getProvenanceBranch(k);
+
     if (fileFormatVersion_.value_ <= 5) {
       std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription); 
-      BranchEntryDescription *ppb = pb.get();
+      BranchEntryDescription* ppb = pb.get();
       br->SetAddress(&ppb);
       br->GetEntry(entryNumber_);
-      return pb->convertToEntryDescription(); 
+      if (pb->status_ == BranchEntryDescription::CreatorNotRun) {
+	return std::auto_ptr<EntryDescription>(0);
+      }
+      std::auto_ptr<EntryDescription> result = pb->convertToEntryDescription();
+      EntryDescriptionRegistry::instance()->insertMapped(*result);
+      br->SetAddress(0);
+      return result;
     }
-    std::auto_ptr<EntryDescription> p(new EntryDescription); 
-    EntryDescription *pp = p.get();
-    br->SetAddress(&pp);
+
+    EntryDescriptionID hash;
+    EntryDescriptionID *phash = &hash;
+    br->SetAddress(&phash);
     br->GetEntry(entryNumber_);
-    return p;
+    if (hash == EntryDescription().id()) {
+      return std::auto_ptr<EntryDescription>(0);
+    }
+    std::auto_ptr<EntryDescription> result(new EntryDescription);
+    if (!EntryDescriptionRegistry::instance()->getMapped(hash, *result))
+      throw edm::Exception(errors::EventCorruption)
+	<< "Could not find EntryDescriptionID "
+	<< hash
+	<< " in the EntryDescriptionRegistry read from the input file";
+    br->SetAddress(0);
+    return result;
   }
 }

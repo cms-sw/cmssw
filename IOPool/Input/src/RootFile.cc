@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.110 2008/01/30 00:28:29 wmtan Exp $
+$Id: RootFile.cc,v 1.111 2008/01/31 04:56:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -14,6 +15,7 @@ $Id: RootFile.cc,v 1.110 2008/01/30 00:28:29 wmtan Exp $
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -99,9 +101,13 @@ namespace edm {
     FileIndex *findexPtr = &fileIndex_;
     std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
 
+    readEventDescriptionTree();
+
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
-    assert(metaDataTree != 0);
+    if (!metaDataTree) 
+      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::metaDataTreeName()
+							 << " in the input file.";
 
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
@@ -195,7 +201,33 @@ namespace edm {
     reportOpened();
   }
 
-  RootFile::~RootFile() {
+  void
+  RootFile::readEventDescriptionTree()
+  { 
+    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
+    if (!entryDescriptionTree) 
+      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::entryDescriptionTreeName()
+							 << " in the input file.";
+
+
+    EntryDescriptionID idBuffer;
+    EntryDescriptionID* pidBuffer = &idBuffer;
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
+
+    EntryDescription entryDescriptionBuffer;
+    EntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+
+    EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
+
+    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
+      entryDescriptionTree->GetEntry(i);  // magically fills idBuffer and entryDescriptionBuffer
+      if (idBuffer != entryDescriptionBuffer.id())
+	throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
+      registry.insertMapped(entryDescriptionBuffer);
+    }
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
   }
 
   bool

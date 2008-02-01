@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.46 2008/01/03 19:22:55 wmtan Exp $
+$Id: RootFile.h,v 1.47 2008/01/30 00:28:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,21 +35,20 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
-  class RootFile {
+  class RootFile : boost::noncopyable {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
-    explicit RootFile(std::string const& fileName,
-		      std::string const& catalogName,
-		      ProcessConfiguration const& processConfiguration,
-		      std::string const& logicalFileName,
-		      boost::shared_ptr<TFile> filePtr,
-		      RunNumber_t const& startAtRun,
-		      LuminosityBlockNumber_t const& startAtLumi,
-		      EventNumber_t const& startAtEvent,
-		      unsigned int eventsToSkip,
-		      int remainingEvents,
-		      int forcedRunOffset);
-    ~RootFile();
+    RootFile(std::string const& fileName,
+	     std::string const& catalogName,
+	     ProcessConfiguration const& processConfiguration,
+	     std::string const& logicalFileName,
+	     boost::shared_ptr<TFile> filePtr,
+	     RunNumber_t const& startAtRun,
+	     LuminosityBlockNumber_t const& startAtLumi,
+	     EventNumber_t const& startAtEvent,
+	     unsigned int eventsToSkip,
+	     int remainingEvents,
+	     int forcedRunOffset);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -105,8 +104,8 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    RootFile(RootFile const&); // disable copy construction
-    RootFile & operator=(RootFile const&); // disable assignment
+    void readEventDescriptionTree();
+
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
