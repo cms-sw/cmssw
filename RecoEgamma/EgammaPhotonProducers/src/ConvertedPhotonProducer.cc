@@ -191,13 +191,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the photons
   Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByLabel(photonProducer_,photonCollection_,photonHandle);
+  if (!photonHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<photonCollection_.c_str();
+  }
   reco::PhotonCollection photonCollection = *(photonHandle.product());
   
   
   // Get the Super Cluster collection in the Barrel
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << "\n";
+  if (!scBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+  }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
 
@@ -206,41 +211,44 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the Super Cluster collection in the Endcap
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << "\n";
+  if (!scEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+  }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
   
-  
-  // Get ClusterShape association maps
-  Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
-  theEvent.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
-  const reco::BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
-  //
-  Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
-  theEvent.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
-  const reco::BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
-  
-  
-  
-  
+    
   //// Get the Out In CKF tracks from conversions in the Barrel
   Handle<reco::TrackCollection> outInTrkBarrelHandle;
   theEvent.getByLabel(conversionOITrackProducerBarrel_,  outInTrkBarrelHandle);
+  if (!outInTrkBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrackBarrel " << "\n";
+  }
   LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer Barrel outInTrack collection size " << (*outInTrkBarrelHandle).size() << "\n";
   //// Get the Out In CKF tracks from conversions in the Endcap
   Handle<reco::TrackCollection> outInTrkEndcapHandle;
   theEvent.getByLabel(conversionOITrackProducerEndcap_,  outInTrkEndcapHandle);
+  if (!outInTrkEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrackEndcap " << "\n";
+  }
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap outInTrack collection size " << (*outInTrkEndcapHandle).size() << "\n";
   
    
   //// Get the association map between CKF Out In tracks and the SC Barrel where they originated
   Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCBarrelAssocHandle;
   theEvent.getByLabel( conversionOITrackProducerBarrel_, outInTrackSCBarrelAssociationCollection_, outInTrkSCBarrelAssocHandle);
+  if (!outInTrkSCBarrelAssocHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCBarrelAssociationCollection_.c_str() <<"\n";
+  }
   reco::TrackSuperClusterAssociationCollection outInTrackSCBarrelAss = *outInTrkSCBarrelAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackBarrelSCAssoc collection size " << (*outInTrkSCBarrelAssocHandle).size() <<"\n";
+
   //// Get the association map between CKF Out In tracks and the SC Endcap  where they originated
   Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCEndcapAssocHandle;
   theEvent.getByLabel( conversionOITrackProducerEndcap_, outInTrackSCEndcapAssociationCollection_, outInTrkSCEndcapAssocHandle);
+  if (!outInTrkSCEndcapAssocHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCEndcapAssociationCollection_.c_str() <<"\n";
+  }
   reco::TrackSuperClusterAssociationCollection outInTrackSCEndcapAss = *outInTrkSCEndcapAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackEndcapSCAssoc collection size " << (*outInTrkSCEndcapAssocHandle).size() <<"\n";
   
@@ -248,21 +256,34 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   //// Get the In Out  CKF tracks from conversions in the Barrel
   Handle<reco::TrackCollection> inOutTrkBarrelHandle;
   theEvent.getByLabel(conversionIOTrackProducerBarrel_, inOutTrkBarrelHandle);
+  if (!inOutTrkBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrackBarrel " << "\n";
+  }
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Barre; inOutTrack collection size " << (*inOutTrkBarrelHandle).size() << "\n";
+
   //// Get the In Out  CKF tracks from conversions in the Endcap
   Handle<reco::TrackCollection> inOutTrkEndcapHandle;
   theEvent.getByLabel(conversionIOTrackProducerEndcap_, inOutTrkEndcapHandle);
+  if (!inOutTrkEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrackEndcap " << "\n";
+  }
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Endcap inOutTrack collection size " << (*inOutTrkEndcapHandle).size() << "\n";
   
   
   //// Get the association map between CKF in out tracks and the SC Barrel where they originated
   Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCBarrelAssocHandle;
   theEvent.getByLabel( conversionIOTrackProducerBarrel_, inOutTrackSCBarrelAssociationCollection_, inOutTrkSCBarrelAssocHandle);
+  if (!inOutTrkSCBarrelAssocHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCBarrelAssociationCollection_.c_str() <<"\n";
+  }
   reco::TrackSuperClusterAssociationCollection inOutTrackSCBarrelAss = *inOutTrkSCBarrelAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCBarrelAssocHandle).size() <<"\n";
   //// Get the association map between CKF in out tracks and the SC Endcap where they originated
   Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCEndcapAssocHandle;
   theEvent.getByLabel( conversionIOTrackProducerEndcap_, inOutTrackSCEndcapAssociationCollection_, inOutTrkSCEndcapAssocHandle);
+  if (!inOutTrkSCEndcapAssocHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCEndcapAssociationCollection_.c_str() <<"\n";
+  }
   reco::TrackSuperClusterAssociationCollection inOutTrackSCEndcapAss = *inOutTrkSCEndcapAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCEndcapAssocHandle).size() <<"\n";
   
@@ -271,11 +292,17 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the basic cluster collection in the Barrel 
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
- 
+  if (!bcBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+  }
+
     
   // Get the basic cluster collection in the Endcap 
   edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
+  if (!bcEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
+  }
  
   
 
@@ -316,11 +343,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
-    seedShpItr = barrelClShpMap.find(aClus->seed());
-    assert(seedShpItr != barrelClShpMap.end());
-    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
     
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
+    lSC++;
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
     LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << " Pointer " << &(*scRef)  << "\n";
@@ -419,7 +444,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       
     }
       //} else {
-     
+
+
     if (  allPairs.size() ==0 || nFound ==0) {
       LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
       LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
@@ -443,9 +469,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
       
     }
+
     
   
-    lSC++;
+
     
   }
   
@@ -460,12 +487,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   lSC=0; // reset local index for endcap
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
-    seedShpItr = endcapClShpMap.find(aClus->seed());
-    assert(seedShpItr != endcapClShpMap.end());
-    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
 
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
-    
+    lSC++;    
+
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
 
     LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() <<  " Pointer " << &(*aClus) << "\n";    
@@ -577,6 +602,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     }      
     //    } else {
     
+    
     if (  allPairs.size() ==0 || nFound ==0) {
       
       LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
@@ -601,7 +627,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     }
     
     
-    lSC++;
+    
     
   }
   

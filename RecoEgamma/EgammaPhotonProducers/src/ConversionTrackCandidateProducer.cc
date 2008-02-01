@@ -176,7 +176,9 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the basic cluster collection in the Barrel 
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Trying to access basic cluster collection in the Barrel from my Producer " << "\n";
+  if (!bcBarrelHandle.isValid()) {
+    edm::LogError("ConverionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+  }
   reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionBarrel.size() << "\n";
   
@@ -185,7 +187,9 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the basic cluster collection in the Endcap 
   edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Trying to access basic cluster collection in the Endcap from my Producer " << "\n";
+  if (!bcEndcapHandle.isValid()) {
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
+  }
   reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionEndcap.size() << "\n";
   
@@ -193,14 +197,18 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the Super Cluster collection in the Barrel
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << "\n";
+  if (!scBarrelHandle.isValid()) {
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+  }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
   
   // Get the Super Cluster collection in the Endcap
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << "\n";
+  if (!scEndcapHandle.isValid()) {
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+  }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
   

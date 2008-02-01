@@ -80,8 +80,10 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::Handle<TrackCandidateCollection> theTCCollection;
   //// Get the association map between candidate out in tracks and the SC where they originated
   edm::Handle<reco::TrackCandidateSuperClusterAssociationCollection> trkCandidateSCAssocHandle;
-
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
+  if (!theTCCollection.isValid()) {
+    edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product "<< trackCSuperClusterAssociationCollection_.c_str();
+  }
   reco::TrackCandidateSuperClusterAssociationCollection scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
   LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
 

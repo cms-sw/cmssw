@@ -81,33 +81,51 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-
+  if (!scBarrelHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+  }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
 
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-
+  if (!scEndcapHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+  }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
   
   // Get ClusterShape association maps
   Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
   theEvent.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
+  if (!barrelClShpHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
+  }
   const reco::BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
+
 
   Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
   theEvent.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
+  if (!endcapClShpHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
+  }
   const reco::BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
 
   // Get EcalRecHits
   Handle<EcalRecHitCollection> barrelHitHandle;
   theEvent.getByLabel(barrelHitProducer_, barrelHitCollection_, barrelHitHandle);
+  if (!barrelHitHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelHitCollection_.c_str();
+  }
   const EcalRecHitCollection *barrelRecHits = barrelHitHandle.product();
+
 
   Handle<EcalRecHitCollection> endcapHitHandle;
   theEvent.getByLabel(endcapHitProducer_, endcapHitCollection_, endcapHitHandle);
+  if (!endcapHitHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapHitCollection_.c_str();
+  }
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
 
   // get the geometry from the event setup:
@@ -121,12 +139,18 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
     theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+    if (!hbhe.isValid()) {
+      edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
+    }
     mhbhe=  new HBHERecHitMetaCollection(*hbhe);
   }
 
   // Get ElectronPixelSeeds
   Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
+  if (!pixelSeedHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product ElectronPixelSeedHandle "<< "\n";
+  }
   const reco::ElectronPixelSeedCollection& pixelSeeds = *pixelSeedHandle;
 
   // Get the primary event vertex
@@ -134,6 +158,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::VertexCollection vertexCollection;
   if (vertexProducer_ != "") {
     theEvent.getByLabel(vertexProducer_, vertexHandle);
+    if (!vertexHandle.isValid()) {
+      edm::LogError("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+    }
     vertexCollection = *(vertexHandle.product());
   }
   math::XYZPoint vtx(0.,0.,0.);
