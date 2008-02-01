@@ -53,6 +53,8 @@ namespace popcon
      //Therefore this code is stripped of DBOutput service, state management etc.             
      virtual void analyze(const edm::Event& evt, const edm::EventSetup& est);
      
+
+     virtual std::string sourceId() const =0;
       
      //This class takes ownership of the vector (and payload objects)
      virtual bool takeTheData() =0 ;
@@ -74,6 +76,8 @@ namespace popcon
      std::string m_offline_connection;
      
      bool sinceAppend;
+
+     bool m_loggingOn;
  
      bool m_debug;
     

@@ -47,9 +47,9 @@ namespace popcon {
     //use getOfflineInfo to get the contents of offline DB
     virtual void getNewObjects()=0;
 
-    //in case if there's a need to access the information passed as analyze 
-    //arguments, this method is called by analyzer's analyze
-    
+    // return a string identifing the source
+    virtual std::string id() const=0;
+   
     private:
     //Offline Database Interface object
     popcon::OfflineDBInterface m_db_iface;

@@ -28,6 +28,9 @@ namespace popcon{
  
    private:
   
+    std::string sourceId() const {
+      return  m_handler.id();
+    }
       
     //This class takes ownership of the vector (and payload objects)
     bool takeTheData(){

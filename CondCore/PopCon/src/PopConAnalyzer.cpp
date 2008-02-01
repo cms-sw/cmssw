@@ -8,7 +8,8 @@ namespace popcon {
     m_offline_connection(pset.getParameter<std::string> ("connect")),
     sinceAppend(pset.getParameter<bool> ("SinceAppendMode")),
     m_debug(pset.getParameter< bool > ("debug")),
-    m_output(pset.getParameter<std::string> ("record"),sinceAppend),
+    m_loggingOn(pset.getParameter< bool > ("logginOn")),
+    m_output(pset.getParameter<std::string> ("record"),sinceAppend,m_loggingOn),
     tryToValidate(false), corrupted(false), greenLight (true), fixed(true)
     {
     
@@ -87,6 +88,7 @@ namespace popcon {
   void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
     if(m_debug) std::cerr << "Analyze Begins\n"; 
     try{
+      m_output.setLogHeader(sourceId(),"something clever");
       if(greenLight){
 	//get New objects 	  
 	if (takeTheData()) {

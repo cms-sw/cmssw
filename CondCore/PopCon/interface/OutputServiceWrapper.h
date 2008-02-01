@@ -38,16 +38,21 @@ namespace popcon
     edm::Service<cond::service::PoolDBOutputService> m_dbService;
     std::string  m_record;
     bool m_since;
+    bool m_loggingOn;
     std::string logMsg;
     
   public:
-    OutputServiceWrapper(std::string const & record, bool since) :
-      m_record(record), m_since(since){}
+    OutputServiceWrapper(std::string const & record, bool since, bool log) :
+      m_record(record), m_since(since), m_loggingOn(log){}
     
     std::string tag() const {
       return m_dbService->tag(m_record);
     }
     
+    void setLogHeader(std::string const & sourceId, std::string const & comment) {
+      m_dbService->setLogHeaderForRecord(m_record,sourceId,comment);
+    }
+
   public:
     template <typename T>
     void write (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
@@ -75,16 +80,16 @@ namespace popcon
 	  try{
 	    if (m_dbService->isNewTagRequest(m_record) ){
 	      std::cerr << "Creating new IOV\n"; 
-	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, m_record);
+	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
 	    }
 	    else{
 	      if (m_since){
 		std::cerr << "Appending since time\n"; 
-		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record);
+		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record, m_LoggingOn);
 	      } 
 	      else {
 		std::cerr << "Appending till time\n"; 
-		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record);
+		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
 	      }
 	    }
 	  }catch(std::exception& er){
