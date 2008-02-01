@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -41,16 +42,16 @@ class ParticleListDrawer : public edm::EDAnalyzer {
 
   private:
 
-    edm::InputTag source_;
-    edm::Handle<reco::CandidateCollection> particles;
+    edm::InputTag src_;
     edm::ESHandle<ParticleDataTable> pdt_;
     unsigned int maxEventsToPrint_; 
     unsigned int nEventAnalyzed_;	
 };
 
 ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
-maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
-nEventAnalyzed_(0) {
+  src_(pset.getParameter<InputTag>("src")),
+  maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+  nEventAnalyzed_(0) {
 
   //Max number of events printed on verbosity level 
   //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
@@ -59,7 +60,8 @@ nEventAnalyzed_(0) {
 
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
-  iEvent.getByLabel ("genParticleCandidates", particles );
+  Handle<reco::CandidateView> particles;
+  iEvent.getByLabel (src_, particles );
   if (!particles.isValid()) {
     cerr << "[ParticleListDrawer] caught std::exception " << endl;
     return;
@@ -85,14 +87,14 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::vector<const reco::Candidate *> cands_;
     cands_.clear();
     vector<const Candidate *>::const_iterator found = cands_.begin();
-    for( CandidateCollection::const_iterator p = particles->begin();
+    for( CandidateView::const_iterator p = particles->begin();
          p != particles->end(); ++ p ) {
       cands_.push_back( & * p );
     }
 
-    for( CandidateCollection::const_iterator p  = particles->begin();
-                                             p != particles->end(); 
-                                             p ++) {
+    for( CandidateView::const_iterator p  = particles->begin();
+	 p != particles->end(); 
+	 p ++) {
       // Particle Name
       int id = p->pdgId();
       const ParticleData * pd = pdt_->particle( id );
