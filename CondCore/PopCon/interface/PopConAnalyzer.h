@@ -31,17 +31,17 @@ namespace popcon{
       
     //This class takes ownership of the vector (and payload objects)
     bool takeTheData(){
-      m_payload_cont = &(m_handler());
+      m_payload_cont = m_handler();
       return !m_payload_cont->empty();
     }
      
     void write() {
       Time_t last_since = m_handler.getSinceForTag(tag());
-      this->template writeThem<T>(*m_payload_cont, last_since);
+      this->template writeThem<T>(m_payload_cont, last_since);
     }
     
     SourceHandler m_handler;	
-    Container * m_payload_cont;
+    Container m_payload_cont;
 
     virtual void displayHelper() const{
          typename Container::const_iterator it;
