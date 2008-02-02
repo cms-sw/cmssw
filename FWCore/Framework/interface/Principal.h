@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.13 2008/01/23 23:36:22 wdd Exp $
+$Id: Principal.h,v 1.14 2008/01/30 00:32:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -59,9 +59,6 @@ namespace edm {
 
     Principal & groupGetter() {return *this;}
 
-    // Return the number of EDProducts contained.
-    size_type numEDProducts() const;
-    
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 

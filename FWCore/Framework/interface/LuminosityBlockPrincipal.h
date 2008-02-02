@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.27 2008/01/23 23:36:22 wdd Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.28 2008/01/31 04:56:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,32 +76,6 @@ namespace edm {
     RunNumber_t run() const {
       return aux().run();
     }
-
-/*
-    using Base::addGroup;
-    using Base::addToProcessHistory;
-    using Base::getAllProvenance;
-    using Base::getByLabel;
-    using Base::get;
-    using Base::getBySelector;
-    using Base::getByType;
-    using Base::getIt;
-    using Base::getForOutput;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::getProvenance;
-    using Base::groupGetter;
-    using Base::numEDProducts;
-    using Base::processConfiguration;
-    using Base::processHistory;
-    using Base::processHistoryID;
-    using Base::prodGetter;
-    using Base::productRegistry;
-    using Base::put;
-    using Base::readImmediate;
-    using Base::size;
-    using Base::store;
-*/
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 

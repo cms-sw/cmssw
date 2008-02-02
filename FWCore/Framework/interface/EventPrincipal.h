@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.70 2008/01/31 04:56:44 wmtan Exp $
+$Id: EventPrincipal.h,v 1.71 2008/02/02 00:42:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -96,31 +96,6 @@ namespace edm {
     void addGroup(std::auto_ptr<Provenance>);
 
     using Base::addGroup;
-/*
-    using Base::addGroup;
-    using Base::addToProcessHistory;
-    using Base::getAllProvenance;
-    using Base::getByLabel;
-    using Base::get;
-    using Base::getBySelector;
-    using Base::getByType;
-    using Base::getForOutput;
-    using Base::getIt;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::getProvenance;
-    using Base::groupGetter;
-    using Base::numEDProducts;
-    using Base::processConfiguration;
-    using Base::processHistory;
-    using Base::processHistoryID;
-    using Base::prodGetter;
-    using Base::productRegistry;
-    using Base::put;
-    using Base::readImmediate;
-    using Base::size;
-    using Base::store;
-*/
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
 
