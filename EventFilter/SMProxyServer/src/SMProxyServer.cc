@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.8 2007/11/29 19:21:27 biery Exp $
+// $Id: SMProxyServer.cc,v 1.9 2008/01/28 20:47:59 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -122,8 +122,10 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   //ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
 
   // added for Event Server
-  maxESEventRate_ = 1.0;  // hertz
+  maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
+  maxEventRequestRate_ = 10.0;  // hertz
+  ispace->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
   activeConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   idleConsumerTimeout_ = 600;  // seconds
@@ -132,6 +134,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
+  maxDQMEventRequestRate_ = 1.0;  // hertz
+  ispace->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
   DQMactiveConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
   DQMidleConsumerTimeout_ = 600;  // seconds
@@ -140,7 +144,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
 
   // for performance measurements
-  samples_          = 100; // measurements every 25MB (about)
+  samples_          = 20; // measurements every 20 samples
   instantBandwidth_ = 0.;
   instantRate_      = 0.;
   instantLatency_   = 0.;
@@ -162,8 +166,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   outmaxBandwidth_     = 0.;
   outminBandwidth_     = 999999.;
 
-  pmeter_ = new stor::SMPerformanceMeter();
-  pmeter_->init(samples_);
   outpmeter_ = new stor::SMPerformanceMeter();
   outpmeter_->init(samples_);
 
@@ -182,7 +184,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
 SMProxyServer::~SMProxyServer()
 {
   delete ah_;
-  delete pmeter_;
   delete outpmeter_;
 }
 
@@ -200,24 +201,10 @@ SMProxyServer::ParameterGet(xoap::MessageReference message)
 //////////// ***  Performance //////////////////////////////////////////////////////////
 void SMProxyServer::addMeasurement(unsigned long size)
 {
-  // for bandwidth performance measurements
-  if ( pmeter_->addSample(size) )
+  // for input bandwidth performance measurements
+  if (dpm_.get() != NULL)
   {
-    // Copy measurements for our record
-    instantBandwidth_ = pmeter_->bandwidth();
-    instantRate_      = pmeter_->rate();
-    instantLatency_   = pmeter_->latency();
-    totalSamples_     = pmeter_->totalsamples();
-    duration_         = pmeter_->duration();
-    meanBandwidth_    = pmeter_->meanbandwidth();
-    meanRate_         = pmeter_->meanrate();
-    meanLatency_      = pmeter_->meanlatency();
-
-    // Determine minimum and maximum instantaneous bandwidth
-    if (instantBandwidth_ > maxBandwidth_)
-      maxBandwidth_ = instantBandwidth_;
-    if (instantBandwidth_ < minBandwidth_)
-      minBandwidth_ = instantBandwidth_;
+    dpm_->addMeasurement(size);
   }
 }
 
@@ -227,20 +214,17 @@ void SMProxyServer::addOutMeasurement(unsigned long size)
   if ( outpmeter_->addSample(size) )
   {
     // Copy measurements for our record
-    outinstantBandwidth_ = outpmeter_->bandwidth();
-    outinstantRate_      = outpmeter_->rate();
-    outinstantLatency_   = outpmeter_->latency();
-    outtotalSamples_     = outpmeter_->totalsamples();
-    outduration_         = outpmeter_->duration();
-    outmeanBandwidth_    = outpmeter_->meanbandwidth();
-    outmeanRate_         = outpmeter_->meanrate();
-    outmeanLatency_      = outpmeter_->meanlatency();
-
-    // Determine minimum and maximum instantaneous bandwidth
-    if (outinstantBandwidth_ > outmaxBandwidth_)
-      outmaxBandwidth_ = outinstantBandwidth_;
-    if (outinstantBandwidth_ < outminBandwidth_)
-      outminBandwidth_ = outinstantBandwidth_;
+    stor::SMPerfStats stats = outpmeter_->getStats();
+    outinstantBandwidth_ = stats.throughput_;
+    outinstantRate_      = stats.rate_;
+    outinstantLatency_   = stats.latency_;
+    outtotalSamples_     = stats.sampleCounter_;
+    outduration_         = stats.allTime_;
+    outmeanBandwidth_    = stats.meanThroughput_;
+    outmeanRate_         = stats.meanRate_;
+    outmeanLatency_      = stats.meanLatency_;
+    outmaxBandwidth_     = stats.maxBandwidth_;
+    outminBandwidth_     = stats.minBandwidth_;
   }
 }
 
@@ -318,20 +302,28 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
-        *out << "<tr>" << endl;
-        *out << "<th >" << endl;
-        *out << "State" << endl;
-        *out << "</th>" << endl;
-        *out << "<th>" << endl;
-        *out << fsm_.stateName()->toString() << endl;
-        *out << "</th>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
     *out << "      " << "Input and Output Statistics"                  << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
+
+    if (dpm_.get() != NULL)
+    {
+      receivedEvents_ = dpm_->receivedevents();
+      receivedDQMEvents_ = dpm_->receivedDQMevents();
+      stor::SMPerfStats stats = dpm_->getStats();
+      instantBandwidth_ = stats.throughput_;
+      instantRate_      = stats.rate_;
+      instantLatency_   = stats.latency_;
+      totalSamples_     = stats.sampleCounter_;
+      duration_         = stats.allTime_;
+      meanBandwidth_    = stats.meanThroughput_;
+      meanRate_         = stats.meanRate_;
+      meanLatency_      = stats.meanLatency_;
+      maxBandwidth_     = stats.maxBandwidth_;
+      minBandwidth_     = stats.minBandwidth_;
+    }
 
         *out << "<tr>" << endl;
         *out << "<th >" << endl;
@@ -397,7 +389,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << instantRate_ << endl;
@@ -405,7 +397,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << instantLatency_ << endl;
@@ -444,7 +436,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << meanRate_ << endl;
@@ -452,7 +444,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << meanLatency_ << endl;
@@ -474,7 +466,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outinstantRate_ << endl;
@@ -482,7 +474,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outinstantLatency_ << endl;
@@ -521,7 +513,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outmeanRate_ << endl;
@@ -529,7 +521,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outmeanLatency_ << endl;
@@ -550,7 +542,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "FU Sender Information"                            << endl;
+    *out << "      " << "SM Sender Information"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1373,6 +1365,9 @@ void SMProxyServer::setupFlashList()
   //is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   //is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
+  is->fireItemAvailable("DQMmaxESEventRate",    &DQMmaxESEventRate_);
+  is->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
+  is->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
@@ -1412,6 +1407,9 @@ void SMProxyServer::setupFlashList()
   //is->addItemRetrieveListener("nLogicalDisk",         this);
   //is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("maxESEventRate",       this);
+  is->addItemRetrieveListener("DQMmaxESEventRate",       this);
+  is->addItemRetrieveListener("maxEventRequestRate",       this);
+  is->addItemRetrieveListener("maxDQMEventRequestRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
@@ -1432,7 +1430,10 @@ void SMProxyServer::actionPerformed(xdata::Event& e)
     if      (item == "connectedSMs")
       connectedSMs_   = smsenders_.size();
     else if (item == "storedVolume")
-      storedVolume_   = pmeter_->totalvolumemb();
+      if (dpm_.get() != NULL)
+        storedVolume_   = dpm_->totalvolumemb();
+      else
+        storedVolume_   = 0;
     else if (item == "progressMarker")
       progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
@@ -1496,6 +1497,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       boost::shared_ptr<DQMEventServer>
         DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
       dpm_->setDQMEventServer(DQMeventServer);
+      dpm_->setMaxEventRequestRate(maxEventRequestRate_);
+      dpm_->setMaxDQMEventRequestRate(maxDQMEventRequestRate_);
 
       dpm_->setCollateDQM(collateDQM_);
       dpm_->setArchiveDQM(archiveDQM_);
@@ -1504,6 +1507,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       dpm_->setFilePrefixDQM(filePrefixDQM_);
       dpm_->setUseCompressionDQM(useCompressionDQM_);
       dpm_->setCompressionLevelDQM(compressionLevelDQM_);
+      dpm_->setSamples(samples_);
 
       // If we are in pull mode, we need to know which Storage Managers to
       // poll for events and DQM events

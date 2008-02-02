@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.5 2007/06/30 16:08:58 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.6 2007/10/14 14:40:03 hcheung Exp $
 */
 
 #include <string>
@@ -143,10 +143,12 @@ namespace stor {
     xdata::String DQMconsumerName_;
 
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxEventRequestRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
     xdata::Double DQMmaxESEventRate_;  // hertz
+    xdata::Double maxDQMEventRequestRate_;  // hertz
     xdata::Integer DQMactiveConsumerTimeout_;  // seconds
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
@@ -165,7 +167,6 @@ namespace stor {
     // *** for performance measurements
     void addMeasurement(unsigned long size);
     void addOutMeasurement(unsigned long size);
-    stor::SMPerformanceMeter *pmeter_;
     stor::SMPerformanceMeter *outpmeter_;
 
     // *** measurements for last set of samples

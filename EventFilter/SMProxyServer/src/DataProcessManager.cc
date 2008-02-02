@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.4 2008/01/22 19:26:53 muzaffar Exp $
+// $Id: DataProcessManager.cc,v 1.5 2008/01/28 20:47:59 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -28,10 +28,6 @@ namespace
 namespace stor
 {
 
-  DataProcessManager::~DataProcessManager()
-  {
-  }
-
   DataProcessManager::DataProcessManager():
     cmd_q_(edm::getEventBuffer(voidptr_size,50)),
     alreadyRegistered_(false),
@@ -40,11 +36,21 @@ namespace stor
     serialized_prods_(1000000),
     buf_(2000),
     headerRetryInterval_(5),
-    dqmServiceManager_(new stor::DQMServiceManager())
+    dqmServiceManager_(new stor::DQMServiceManager()),
+    receivedEvents_(0),
+    receivedDQMEvents_(0),
+    samples_(100)
   {
-// TODO fixeme: handle multiple HLT outputs for INIT messages!
+// TODO fixme: handle multiple HLT outputs for INIT messages!
+    // for performance measurements
+    pmeter_ = new stor::SMPerformanceMeter();
     init();
   } 
+
+  DataProcessManager::~DataProcessManager()
+  {
+    delete pmeter_;
+  }
 
   void DataProcessManager::init()
   {
@@ -61,8 +67,7 @@ namespace stor
     DQMconsumerPriority_ =  "Normal";
 
     const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
-    //double maxEventRequestRate = ps.getUntrackedParameter<double>("maxEventRequestRate",1.0);
-    double maxEventRequestRate = 1.0; // TODO fixme: set this in the XML
+    double maxEventRequestRate = 10.0; // just a default until set in config action
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
       minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
     }
@@ -72,7 +77,7 @@ namespace stor
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
 
     //double maxEventRequestRate = pset.getUntrackedParameter<double>("maxDQMEventRequestRate",1.0);
-    maxEventRequestRate = 0.1; // TODO fixme: set this in the XML
+    maxEventRequestRate = 0.2; // TODO fixme: set this in the XML
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
       minDQMEventRequestInterval_ = MAX_REQUEST_INTERVAL;
     }
@@ -90,6 +95,34 @@ namespace stor
     // TODO fixme: only request folders that connected consumers want?
     consumerTopFolderName_ = "*";
     //consumerTopFolderName_ = "C1";
+    receivedEvents_ = 0;
+    receivedDQMEvents_ = 0;
+    pmeter_->init(samples_);
+    stats_.fullReset();
+  }
+
+  void DataProcessManager::setMaxEventRequestRate(double rate)
+  {
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    if(rate <= 0.0) return; // TODO make sure config is checked!
+    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minEventRequestInterval_ = 1.0 / rate;  // seconds
+    }
+  }
+
+  void DataProcessManager::setMaxDQMEventRequestRate(double rate)
+  {
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    if(rate <= 0.0) return; // TODO make sure config is checked!
+    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minDQMEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minDQMEventRequestInterval_ = 1.0 / rate;  // seconds
+    }
   }
 
   void DataProcessManager::run(DataProcessManager* t)
@@ -732,6 +765,8 @@ namespace stor
       return false;
     } else {
       EventMsgView eventView(&buf_[0]);
+      ++receivedEvents_;
+      addMeasurement((unsigned long)data.d_.length());
       if(eventServer_.get() != NULL) {
           eventServer_->processEvent(eventView);
           return true;
@@ -761,8 +796,11 @@ namespace stor
       }
       // check if we need to sleep (to enforce the allowed request rate)
       // we don't want to ping the StorageManager app too often
+      // TODO fixme: Cannot sleep for DQM as this is a long time usually
+      //             and we block the event request poll if we sleep!
+      //             have to find out how to ensure the correct poll rate
       if(!gotOneEvent) {
-        if(sleepTime > 0.0) usleep(static_cast<int>(1000000 * sleepTime));
+        //if(sleepTime > 0.0) usleep(static_cast<int>(1000000 * sleepTime));
       }
     }
   }
@@ -881,6 +919,8 @@ namespace stor
       return false;
     } else {
       DQMEventMsgView dqmEventView(&buf_[0]);
+      ++receivedDQMEvents_;
+      addMeasurement((unsigned long)data.d_.length());
       if(dqmServiceManager_.get() != NULL) {
           dqmServiceManager_->manageDQMEventMsg(dqmEventView);
           return true;
@@ -888,4 +928,15 @@ namespace stor
     }
     return false;
   }
+
+//////////// ***  Performance //////////////////////////////////////////////////////////
+  void DataProcessManager::addMeasurement(unsigned long size)
+  {
+    // for bandwidth performance measurements
+    if(pmeter_->addSample(size))
+    {
+       stats_ = pmeter_->getStats();
+    }
+}
+
 }

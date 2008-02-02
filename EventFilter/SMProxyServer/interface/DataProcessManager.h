@@ -1,10 +1,11 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.2 2007/05/16 22:57:45 hcheung Exp $
+// $Id: DataProcessManager.h,v 1.3 2008/01/28 20:11:18 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
+#include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -40,6 +41,9 @@ namespace stor
       eventServer_ = es;
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
+
+    void setMaxEventRequestRate(double rate);
+    void setMaxDQMEventRequestRate(double rate);
 
     void setCollateDQM(bool collateDQM)
     { dqmServiceManager_->setCollateDQM(collateDQM); }
@@ -83,6 +87,25 @@ namespace stor
     bool haveHeader();
     unsigned int headerSize();
     std::vector<unsigned char> getHeader();
+
+    // *** for performance measurements
+    unsigned long receivedevents() { return receivedEvents_; }
+    unsigned long receivedDQMevents() { return receivedDQMEvents_; }
+    double bandwidth() { return pmeter_->bandwidth(); }
+    double rate() { return pmeter_->rate(); }
+    double latency() { return pmeter_->latency(); }
+    double meanbandwidth() { return pmeter_->meanbandwidth(); }
+    double maxbandwidth() { return pmeter_->maxbandwidth(); }
+    double minbandwidth() { return pmeter_->minbandwidth(); }
+    double meanrate() { return pmeter_->meanrate(); }
+    double meanlatency() { return pmeter_->meanlatency(); }
+    unsigned long totalsamples() { return pmeter_->totalsamples(); }
+    double totalvolumemb() { return pmeter_->totalvolumemb(); }
+    double duration() { return pmeter_->duration(); }
+    stor::SMPerfStats getStats() { return stats_; }
+    void addMeasurement(unsigned long size);
+    void setSamples(unsigned long num_samples) { pmeter_->setSamples(num_samples); }
+    unsigned long samples() { return pmeter_->samples(); }
 
   private:
     void init();
@@ -145,6 +168,15 @@ namespace stor
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
 
     boost::shared_ptr<boost::thread> me_;
+
+    // *** for performance measurements
+    unsigned long receivedEvents_;
+    unsigned long receivedDQMEvents_;
+    stor::SMPerformanceMeter *pmeter_;
+    // *** measurements for last set of samples
+    xdata::UnsignedInteger32 samples_; // number of samples per measurement
+    stor::SMPerfStats stats_;
+
   };
 }
 
