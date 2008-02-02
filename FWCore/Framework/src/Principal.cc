@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.22 2008/01/30 00:32:01 wmtan Exp $
+  $Id: Principal.cc,v 1.23 2008/02/02 00:42:12 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -44,11 +44,6 @@ namespace edm {
   Principal::~Principal() {
   }
 
-  Principal::size_type
-  Principal::numEDProducts() const {
-    return size();
-  }
-   
   Group*
   Principal::getExistingGroup(Group const& group) {
     unsigned int index = group.index();
@@ -69,7 +64,6 @@ namespace edm {
     if (g->entryDescription() == 0) g->provenance().setStore(store_);
     if (!g->onDemand()) ++size_;
     groups_[index] = g;
-    productStatuses_[index] = g->status();
   }
 
   void 
@@ -86,7 +80,6 @@ namespace edm {
     if (g->entryDescription() == 0) g->provenance().setStore(store_);
     if (groups_[index]->onDemand()) ++size_;
     groups_[index]->replace(*g);
-    productStatuses_[index] = g->status();
   }
 
   void
@@ -194,12 +187,22 @@ namespace edm {
 
   BasicHandle
   Principal::getForOutput(ProductID const& oid, bool selected) const {
+    ProductStatus & status = const_cast<ProductStatus &>(productStatuses_[Group::index(oid)]);
+
     SharedConstGroupPtr const& g = getGroup(oid, selected, true, false);
     if (g.get() == 0) {
       if (!oid.isValid()) {
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "getForOutput: invalid ProductID supplied\n";
       }
+      status = productstatus::neverCreated();
+      return BasicHandle();
+    }
+    status = g->status();
+    if (productstatus::onDemand(status)) {
+      status = productstatus::neverCreated();
+    }
+    if (!productstatus::present(status)) {
       return BasicHandle();
     }
     return BasicHandle(g->product(), &g->provenance());

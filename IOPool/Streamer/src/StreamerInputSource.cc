@@ -370,7 +370,7 @@ namespace edm {
         spi->clear();
     }
 
-    FDEBUG(10) << "Size = " << ep->numEDProducts() << std::endl;
+    FDEBUG(10) << "Size = " << ep->size() << std::endl;
 
     return ep;     
   }

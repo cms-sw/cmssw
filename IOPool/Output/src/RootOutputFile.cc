@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.41 2008/02/01 20:23:42 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.42 2008/02/02 00:43:12 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -340,16 +340,10 @@ namespace edm {
 
       EDProduct const* product = 0;
       BasicHandle const bh = principal.getForOutput(id, i->selected_);
-      if (bh.provenance() == 0 || bh.provenance()->entryDescription().get() == 0) {
+      if (bh.provenance() == 0) {
 	// No product with this ID was put into the event.
 	// Use a default constructed EntryDescription
-	if (i->branchDescription_->produced_) {
-	  *entryDescriptionIDPtr_ = EntryDescription().id();
-	} else {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
-	}
+	*entryDescriptionIDPtr_ = EntryDescription().id();
       } else {
 	product = bh.wrapper();
 	*entryDescriptionIDPtr_ = bh.provenance()->event().id();

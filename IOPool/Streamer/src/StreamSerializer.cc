@@ -141,18 +141,10 @@ namespace edm
       }
       BasicHandle const bh = eventPrincipal.getForOutput(id, true);
       if (bh.provenance() == 0) {
-	// No group with this ID is in the event.
+	// No product with this ID was put in the event.
 	// Create and write the provenance.
-	if (desc.produced_) {
-          EntryDescription provenance;
-	  provenance.moduleDescriptionID_ = desc.moduleDescriptionID_;
-          dummyProvenances.push_front(Provenance(desc, provenance));
-          se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
-	} else {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	      << "No group for branch" << desc.branchName_ << '\n';
-	}
+        dummyProvenances.push_front(Provenance(desc, EntryDescription()));
+        se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
       } else {
         se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
       }
