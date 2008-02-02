@@ -254,8 +254,8 @@ namespace edm {
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
       if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	boost::shared_ptr<Provenance> prov(new Provenance(itProdInfo->second));
-	demandBranches_.push_back(prov);
+	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+	demandBranches_.push_back(bd);
       }
     }
 
@@ -970,12 +970,11 @@ namespace edm {
     // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
-    typedef std::vector<boost::shared_ptr<Provenance> > branches;
+    typedef std::vector<boost::shared_ptr<ConstBranchDescription const> > branches;
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
         itBranch != itBranchEnd;
         ++itBranch) {
-      std::auto_ptr<Provenance> prov(new Provenance(**itBranch));
-      ep.addGroup(prov, true);
+      ep.addGroup(**itBranch, productstatus::onDemand());
     }
   }
 

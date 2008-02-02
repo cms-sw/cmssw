@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.30 2008/01/23 23:36:23 wdd Exp $
+$Id: Group.cc,v 1.31 2008/01/30 00:32:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -17,25 +17,21 @@ namespace edm {
     product_(),
     provenance_(),
     status_(productstatus::neverCreated()),
-    dropped_(false),
-    onDemand_(false) { }
+    dropped_(false) {}
 
 
-  Group::Group(std::auto_ptr<Provenance> prov,
-	       bool onDemand) :
+  Group::Group(std::auto_ptr<Provenance> prov) :
     product_(),
     provenance_(prov.release()),
     status_(productstatus::neverCreated()),
-    dropped_(!provenance_->product().present()),
-    onDemand_(onDemand) {
+    dropped_(!provenance_->product().present()) {
   }
 
   Group::Group(ConstBranchDescription const& bd, ProductStatus status) :
     product_(),
     provenance_(new Provenance(bd)),
     status_(status),
-    dropped_(!bd.present()),
-    onDemand_(false) {
+    dropped_(!bd.present()) {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp,
@@ -43,28 +39,39 @@ namespace edm {
     product_(edp.release()),
     provenance_(prov.release()),
     status_(productstatus::present()),
-    dropped_(false),
-    onDemand_(false) {
+    dropped_(false) {
   }
 
   Group::~Group() {
   }
 
+  bool
+  Group::onDemand() const {
+    return productstatus::onDemand(status_);
+  }
+
   bool 
   Group::productUnavailable() const { 
-    if (onDemand_) return false;
+    if (onDemand()) return false;
     if (dropped_) return true;
     if (product_ && productstatus::unknown(status_)) {
       // For backward compatibility.
       status_ = (product_->isPresent() ? productstatus::present() : productstatus::neverCreated());
     }
+    if (productstatus::unknown(status_)) return false;
     return not productstatus::present(status_);
 
   }
 
   bool 
   Group::provenanceAvailable() const { 
-      return not onDemand_;
+    if (onDemand()) return false;
+    if (product_ && productstatus::unknown(status_)) {
+      // For backward compatibility.
+      status_ = (product_->isPresent() ? productstatus::present() : productstatus::neverCreated());
+    }
+    if (productstatus::unknown(status_)) return true;
+    return productstatus::present(status_);
   }
 
   void 
@@ -85,7 +92,6 @@ namespace edm {
     std::swap(provenance_, other.provenance_);
     std::swap(status_, other.status_);
     std::swap(dropped_, other.dropped_);
-    std::swap(onDemand_, other.onDemand_);
   }
 
   void
@@ -141,7 +147,6 @@ namespace edm {
       provenance_->entryDescription()->mergeEntryDescription(newGroup->entryDescription());
       status_ = productstatus::present();
       dropped_ = false;
-      onDemand_ = false;
       std::swap(product_, newGroup->product_);        
     }
     else if (!productUnavailable() && !newGroup->productUnavailable()) {

@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.24 2008/01/23 23:36:23 wdd Exp $
+$Id: Group.h,v 1.25 2008/01/30 00:32:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,8 +26,7 @@ namespace edm {
 
     Group();
 
-    explicit Group(std::auto_ptr<Provenance> prov,
- 	  bool onDemand = false);
+    explicit Group(std::auto_ptr<Provenance> prov);
 
     explicit Group(ConstBranchDescription const& bd, ProductStatus status);
 
@@ -44,9 +43,8 @@ namespace edm {
     // provenance is currently available
     bool provenanceAvailable() const;
 
-    // True if and only if this group's product has not been produced yet
-    // and an unscheduled module in this process declared it produces it
-    bool onDemand() const { return onDemand_; }
+    // Scheduled for on demand production
+    bool onDemand() const;
 
     EDProduct const* product() const { return product_.get(); }
 
@@ -113,9 +111,8 @@ namespace edm {
     // mutable boost::shared_ptr<EntryDescription> entryDescription_;
     // BranchDescription branchDescription_;
     mutable boost::shared_ptr<Provenance> provenance_;
-    mutable ProductStatus  status_;
+    mutable ProductStatus status_;
     bool    dropped_;
-    bool    onDemand_;
   };
 
   // Free swap function

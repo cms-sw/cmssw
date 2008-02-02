@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.21 2008/01/23 23:36:23 wdd Exp $
+  $Id: Principal.cc,v 1.22 2008/01/30 00:32:01 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -157,11 +157,11 @@ namespace edm {
       return SharedConstGroupPtr();
     }
     SharedConstGroupPtr const& g = groups_[index];
-    if (resolveProv) {
-      this->resolveProvenance(*g);
-    }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
+    }
+    if (resolveProv && g->provenanceAvailable()) {
+      this->resolveProvenance(*g);
     }
     return g;
   }
@@ -417,11 +417,11 @@ namespace edm {
   void
   Principal::readImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      if (!(*i)->productUnavailable()) {
+        resolveProduct(**i, false);
+      }
       if ((*i)->provenanceAvailable()) {
 	resolveProvenance(**i);
-        if (!(*i)->productUnavailable()) {
-	   resolveProduct(**i, false);
-	}
       }
     }
   }

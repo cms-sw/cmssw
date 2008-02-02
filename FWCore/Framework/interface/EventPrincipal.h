@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.69 2008/01/17 05:14:01 wmtan Exp $
+$Id: EventPrincipal.h,v 1.70 2008/01/31 04:56:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -93,7 +93,7 @@ namespace edm {
 
     RunPrincipal & runPrincipal();
 
-    void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
+    void addGroup(std::auto_ptr<Provenance>);
 
     using Base::addGroup;
 /*

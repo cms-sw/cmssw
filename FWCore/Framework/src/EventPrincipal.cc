@@ -31,8 +31,8 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addGroup(std::auto_ptr<Provenance> prov, bool onDemand) {
-    std::auto_ptr<Group> g(new Group(prov, onDemand));
+  EventPrincipal::addGroup(std::auto_ptr<Provenance> prov) {
+    std::auto_ptr<Group> g(new Group(prov));
     addOrReplaceGroup(g);
   }
 

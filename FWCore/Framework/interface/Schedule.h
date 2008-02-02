@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.42 2008/01/11 20:29:59 wmtan Exp $
+  $Id: Schedule.h,v 1.43 2008/01/17 05:14:01 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -293,7 +293,7 @@ namespace edm {
     RunStopwatch::StopwatchPointer   stopwatch_;
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<boost::shared_ptr<Provenance> >     demandBranches_;
+    std::vector<boost::shared_ptr<ConstBranchDescription const> >  demandBranches_;
 
     volatile bool       endpathsAreActive_;
   };
