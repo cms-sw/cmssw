@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.40 2008/01/30 00:29:19 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.41 2008/02/01 20:23:42 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -340,8 +340,8 @@ namespace edm {
 
       EDProduct const* product = 0;
       BasicHandle const bh = principal.getForOutput(id, i->selected_);
-      if (bh.provenance() == 0) {
-	// No group with this ID is in the event.
+      if (bh.provenance() == 0 || bh.provenance()->entryDescription().get() == 0) {
+	// No product with this ID was put into the event.
 	// Use a default constructed EntryDescription
 	if (i->branchDescription_->produced_) {
 	  *entryDescriptionIDPtr_ = EntryDescription().id();
