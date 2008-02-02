@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.36 2008/01/30 17:31:38 biery Exp $
+// $Id: StorageManager.cc,v 1.37 2008/01/30 19:45:08 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -775,29 +775,19 @@ void StorageManager::addMeasurement(unsigned long size)
   // for bandwidth performance measurements
   if ( pmeter_->addSample(size) )
   {
-    // don't print out info by default (already in web page)
-    //LOG4CPLUS_INFO(getApplicationLogger(),
-    //  toolbox::toString("measured latency: %f for size %d",pmeter_->latency(), size));
-    //LOG4CPLUS_INFO(getApplicationLogger(),
-    //  toolbox::toString("latency:  %f, rate: %f,bandwidth %f, size: %d\n",
-    //  pmeter_->latency(),pmeter_->rate(),pmeter_->bandwidth(),size));
-    // new measurement; so update
-
     // Copy measurements for our record
-    instantBandwidth_ = pmeter_->bandwidth();
-    instantRate_      = pmeter_->rate();
-    instantLatency_   = pmeter_->latency();
-    totalSamples_     = pmeter_->totalsamples();
-    duration_         = pmeter_->duration();
-    meanBandwidth_    = pmeter_->meanbandwidth();
-    meanRate_         = pmeter_->meanrate();
-    meanLatency_      = pmeter_->meanlatency();
-
-    // Determine minimum and maximum instantaneous bandwidth
-    if (instantBandwidth_ > maxBandwidth_)
-      maxBandwidth_ = instantBandwidth_;
-    if (instantBandwidth_ < minBandwidth_)
-      minBandwidth_ = instantBandwidth_;
+    stor::SMPerfStats stats = pmeter_->getStats();
+    // following are set for flashlist monitoring
+    instantBandwidth_ = stats.throughput_;
+    instantRate_      = stats.rate_;
+    instantLatency_   = stats.latency_;
+    totalSamples_     = stats.sampleCounter_;
+    duration_         = stats.allTime_;
+    meanBandwidth_    = stats.meanThroughput_;
+    meanRate_         = stats.meanRate_;
+    meanLatency_      = stats.meanLatency_;
+    maxBandwidth_     = stats.maxBandwidth_;
+    minBandwidth_     = stats.minBandwidth_;
   }
 
   // TODO fixme: Find a better place to put this testing of the Fragment Collector thread status!
