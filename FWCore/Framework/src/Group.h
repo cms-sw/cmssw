@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.25 2008/01/30 00:32:01 wmtan Exp $
+$Id: Group.h,v 1.26 2008/02/02 00:42:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -66,7 +66,7 @@ namespace edm {
 
     std::string const& processName() const {return provenance_->processName();}
 
-    ProductStatus status() const {return status_;}
+    ProductStatus status() const;
 
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning

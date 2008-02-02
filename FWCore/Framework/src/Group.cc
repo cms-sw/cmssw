@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.31 2008/01/30 00:32:01 wmtan Exp $
+$Id: Group.cc,v 1.32 2008/02/02 00:42:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -45,6 +45,15 @@ namespace edm {
   Group::~Group() {
   }
 
+  ProductStatus
+  Group::status() const {
+    // for backward compatibility
+    if (productstatus::unknown(status_) && product_) {
+      status_ = (product_->isPresent() || dropped_ ? productstatus::present() : productstatus::neverCreated());
+    }
+    return status_;
+  }
+
   bool
   Group::onDemand() const {
     return productstatus::onDemand(status_);
@@ -54,11 +63,7 @@ namespace edm {
   Group::productUnavailable() const { 
     if (onDemand()) return false;
     if (dropped_) return true;
-    if (product_ && productstatus::unknown(status_)) {
-      // For backward compatibility.
-      status_ = (product_->isPresent() ? productstatus::present() : productstatus::neverCreated());
-    }
-    if (productstatus::unknown(status_)) return false;
+    if (productstatus::unknown(status())) return false;
     return not productstatus::present(status_);
 
   }
@@ -66,11 +71,7 @@ namespace edm {
   bool 
   Group::provenanceAvailable() const { 
     if (onDemand()) return false;
-    if (product_ && productstatus::unknown(status_)) {
-      // For backward compatibility.
-      status_ = (product_->isPresent() ? productstatus::present() : productstatus::neverCreated());
-    }
-    if (productstatus::unknown(status_)) return true;
+    if (productstatus::unknown(status())) return true;
     return productstatus::present(status_);
   }
 
