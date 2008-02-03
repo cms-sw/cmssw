@@ -1,6 +1,7 @@
 #include <functional>
 #include <algorithm>
 #include <iterator>
+#include <cmath>
 #include <set>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -85,7 +86,7 @@ bool VertexFilter::operator () (const Vertex &pv,
 
 	if (Geom::deltaR(sv.position() - pv.position(),
 	                 (maxDeltaRToJetAxis > 0) ? direction : -direction)
-							> maxDeltaRToJetAxis)
+						> std::abs(maxDeltaRToJetAxis))
 		return false;
 
 	// compute fourvector sum of tracks as vertex and cut on inv. mass
