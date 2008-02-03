@@ -11,7 +11,7 @@ using std::string;
 // tag ME as <myTag>
 void DQMTagHelper::tag(MonitorElement * me, unsigned int myTag)
 {
-  if(!bei->checkElement(me))return;
+  if(!me)return;
   if(!myTag)
     {
       cerr << " *** Tag must be positive number! \n";
@@ -27,7 +27,7 @@ void DQMTagHelper::tag(MonitorElement * me, unsigned int myTag)
 // opposite action of tag method
 void DQMTagHelper::untag(MonitorElement * me, unsigned int myTag)
 {
-  if(!bei->checkElement(me))return;
+  if(!me)return;
   string pathname = me->getPathname(); string ME_name = me->getName();
 
   tdir_it tg;

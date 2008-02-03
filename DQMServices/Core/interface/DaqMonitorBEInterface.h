@@ -655,6 +655,8 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book 2D histogram based on TH2F
   MonitorElement * book2D(std::string name, TH2F* source,
                               MonitorElementRootFolder * dir);
+  void collate2D(MonitorElement* me, TH2F* h2);
+
   /// book 2D histogram
   MonitorElement * book2D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -664,6 +666,8 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book 3D histogram based on TH3F
   MonitorElement * book3D(std::string name, TH3F* source,
                               MonitorElementRootFolder * dir);
+  void collate3D(MonitorElement* me, TH3F* h3);
+
   /// book 3D histogram
   MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -674,6 +678,8 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book profile histogram based on TProfile
   MonitorElement * bookProfile(std::string name, TProfile* source,
                               MonitorElementRootFolder * dir);
+  void collateProfile(MonitorElement* me, TProfile* hp);
+
   /// book profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -686,6 +692,8 @@ class DaqMonitorBEInterface: public StringUtil
   /// book 2-D profile based on TProfile2D
   MonitorElement * bookProfile2D(std::string name, TProfile2D* source,
 				 MonitorElementRootFolder * dir);
+  void collateProfile2D(MonitorElement* me, TProfile2D* hp);
+
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
   /// (in a 2-D profile plot the number of channels in Z is disregarded)
   MonitorElement * bookProfile2D(std::string name, 
@@ -711,9 +719,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// true if pathname exists
   bool pathExists(std::string inpath,
 		  const dqm::me_util::rootDir & Dir) const;
-  /// check against null objects (true if object exists)
-  bool checkElement(const MonitorElement * const me) const;
-  
 
   /// true if Monitoring Element <me> is needed by any subscriber
   bool isNeeded(std::string pathname, std::string me) const;
@@ -752,12 +757,10 @@ class DaqMonitorBEInterface: public StringUtil
   void updateMaps(MonitorElementRootFolder* dir, dqm::me_util::rootDir & rDir);
 
   /// add <name> to back-end interface's updatedContents
-  void add2UpdatedContents(std::string name, 
-			   std::string pathname);
+  void add2UpdatedContents(std::string name, std::string pathname);
 
   /// add (QReport) MonitorElement to back-end intereface's updatedQReports
-  void add2UpdatedQReports(QReport * qr)
-  {updatedQReports.insert(qr);}
+  void add2UpdatedQReports(QReport * qr) {updatedQReports.insert(qr);}
 
   /// reset modifications to monitorable since last cycle 
   /// and sets of added/removed contents
@@ -949,7 +952,7 @@ class DaqMonitorBEInterface: public StringUtil
   friend class RootMonitorThread;
   friend class QTestStatusChecker;
 
-  friend class EDMtoMEConverter;      // need clone methods
+  friend class EDMtoMEConverter;       // need clone methods
   friend class MEtoEDMConverter;
 
   // ------ example executables        // can all be removed !!?

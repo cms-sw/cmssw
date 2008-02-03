@@ -58,7 +58,7 @@ DaqMonitorBEInterface::DaqMonitorBEInterface(edm::ParameterSet const &pset){
             cout << " DaqMonitorBEInterface: reference file name set to " <<
             referencefilename << endl;		
   
-  collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms",false);
+  collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms",true);
   if (collateHistograms_) 
             cout << " DaqMonitorBEInterface: collate Histograms true " << endl;
 	    
@@ -116,12 +116,9 @@ DaqMonitorBEInterface::book1D(std::string name, TH1F* source,
 
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    // add histogram to already existing one
     if (collateHistograms_) collate1D(existingme,h1p);
-    // or print warning
     else cout << " book1D: MonitorElement " << existingme->getFullname() << 
                 " already existing, returning pointer " << endl;
-    // return pointer    
     return existingme;
   }
   
@@ -187,21 +184,29 @@ DaqMonitorBEInterface::book2D(std::string name, TH2F* source,
                               MonitorElementRootFolder * dir)
 {
   if(!dir)return (MonitorElement *) 0;
+  TH2F *h2p = reinterpret_cast<TH2F*>(source->Clone());
+  h2p->SetName(name.c_str());
+
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
+    if (collateHistograms_) collate2D(existingme,h2p);
+    else cout << " book2D: MonitorElement " << existingme->getFullname() << 
+                " already existing, returning pointer " << endl;
     return existingme;
   }
 
-  TH2F *h2p = reinterpret_cast<TH2F*>(source->Clone());
-  h2p->SetName(name.c_str());
-  //h2p->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   h2p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH2(h2p,name);
   addElement(me, dir->getPathname(), "TH2F");
   return me;
+}
+
+void DaqMonitorBEInterface::collate2D(MonitorElement* me,TH2F* h2)
+{
+      MonitorElementRootH2* local = dynamic_cast<MonitorElementRootH2 *> (me);
+      ((TH2F*) local->operator->())->Add(h2);
+      cout << " collated TH2F: " << me->getFullname() <<endl;
 }
 
 MonitorElement * 
@@ -212,7 +217,7 @@ DaqMonitorBEInterface::book2D(string name, string title, int nchX,
   if(!dir)return (MonitorElement *) 0;
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
+    cout << " book2D: MonitorElement " << existingme->getFullname() << 
             " already existing, returning pointer " << endl;
     return existingme;
   }
@@ -232,21 +237,29 @@ DaqMonitorBEInterface::book3D(std::string name, TH3F* source,
                               MonitorElementRootFolder * dir)
 {
   if(!dir)return (MonitorElement *) 0;
+  TH3F *h3p = reinterpret_cast<TH3F*>(source->Clone());
+  h3p->SetName(name.c_str());
+
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
+    if (collateHistograms_) collate3D(existingme,h3p);
+    else cout << " book3D: MonitorElement " << existingme->getFullname() << 
+                " already existing, returning pointer " << endl;
     return existingme;
   }
 
-  TH3F *h3p = reinterpret_cast<TH3F*>(source->Clone());
-  h3p->SetName(name.c_str());
-  //h3p->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   h3p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH3(h3p,name);
   addElement(me, dir->getPathname(), "TH3F");
   return me;
+}
+
+void DaqMonitorBEInterface::collate3D(MonitorElement* me,TH3F* h3)
+{
+      MonitorElementRootH3* local = dynamic_cast<MonitorElementRootH3 *> (me);
+      ((TH3F*) local->operator->())->Add(h3);
+      cout << " collated TH3F: " << me->getFullname() <<endl;
 }
 
 MonitorElement * 
@@ -259,7 +272,7 @@ DaqMonitorBEInterface::book3D(string name, string title, int nchX,
   if(!dir)return (MonitorElement *) 0;
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
+    cout << " book3D: MonitorElement " << existingme->getFullname() << 
             " already existing, returning pointer " << endl;
     return existingme;
   }
@@ -280,21 +293,29 @@ DaqMonitorBEInterface::bookProfile(std::string name, TProfile* source,
                               MonitorElementRootFolder * dir)
 {
   if(!dir)return (MonitorElement *) 0;
-  MonitorElement *existingme = findObject(name,dir->getPathname());
-  if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
-    return existingme;
-  }
-
   TProfile *hp = reinterpret_cast<TProfile*>(source->Clone());
   hp->SetName(name.c_str());
-  //hp->Reset();
+
+  MonitorElement *existingme = findObject(name,dir->getPathname());
+  if (existingme) { 
+    if (collateHistograms_) collateProfile(existingme,hp);
+    else cout << " bookProfile: MonitorElement " << existingme->getFullname() << 
+                " already existing, returning pointer " << endl;
+    return existingme;
+  }
   // remove histogram from gDirectory so we can release memory with remove method
   hp->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootProf(hp,name);
   addElement(me, dir->getPathname(), "TProfile");
   return me;
+}
+
+void DaqMonitorBEInterface::collateProfile(MonitorElement* me,TProfile* hp)
+{
+  MonitorElementRootProf* local = dynamic_cast<MonitorElementRootProf *> (me);
+  TProfile* hp2=(TProfile*) local->operator->();
+  local->addProfiles((TProfile*)hp,(TProfile*)hp2,(TProfile*)hp2,(float)1.,(float)1.);
+  cout << " collated TProfile: " << me->getFullname() <<endl;
 }
 
 MonitorElement *
@@ -307,7 +328,7 @@ DaqMonitorBEInterface::bookProfile(string name, string title,
   if(!dir)return (MonitorElement *) 0;
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
+    cout << " bookProfile: MonitorElement " << existingme->getFullname() << 
             " already existing, returning pointer " << endl;
     return existingme;
   }
@@ -327,21 +348,31 @@ DaqMonitorBEInterface::bookProfile2D(std::string name, TProfile2D* source,
                               MonitorElementRootFolder * dir)
 {
   if(!dir)return (MonitorElement *) 0;
-  MonitorElement *existingme = findObject(name,dir->getPathname());
-  if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
-    return existingme;
-  }
 
   TProfile2D *hp2d = reinterpret_cast<TProfile2D*>(source->Clone());
   hp2d->SetName(name.c_str());
-  //hp2d->Reset();
+
+  MonitorElement *existingme = findObject(name,dir->getPathname());
+  if (existingme) { 
+    if (collateHistograms_) collateProfile2D(existingme,hp2d);
+    else cout << " bookProfile: MonitorElement " << existingme->getFullname() << 
+                " already existing, returning pointer " << endl;
+    return existingme;
+  }
+
   // remove histogram from gDirectory so we can release memory with remove method
   hp2d->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootProf2D(hp2d,name);
   addElement(me, dir->getPathname(), "TProfile2D");
   return me;
+}
+
+void DaqMonitorBEInterface::collateProfile2D(MonitorElement* me,TProfile2D* hp)
+{
+  MonitorElementRootProf2D* local = dynamic_cast<MonitorElementRootProf2D *> (me);
+  TProfile2D* hp2=(TProfile2D*) local->operator->();
+  local->addProfiles((TProfile2D*)hp,(TProfile2D*)hp2,(TProfile2D*)hp2,(float)1.,(float)1.);
+  cout << " collated TProfile2D: " << me->getFullname() <<endl;
 }
 
 MonitorElement *
@@ -355,7 +386,7 @@ DaqMonitorBEInterface::bookProfile2D(string name, string title,
   if(!dir)return (MonitorElement *) 0;
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
+    cout << " bookProfile2D: MonitorElement " << existingme->getFullname() << 
             " already existing, returning pointer " << endl;
     return existingme;
   }
@@ -378,8 +409,8 @@ MonitorElement * DaqMonitorBEInterface::bookFloat(string name,
 
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
+    cout << " bookFloat: MonitorElement " << existingme->getFullname() << 
+            " of type float already existing, value unchanged, returning pointer " << endl;
     return existingme;
   }
   
@@ -396,8 +427,8 @@ MonitorElement * DaqMonitorBEInterface::bookInt(string name,
 
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
+    cout << " bookInt: MonitorElement " << existingme->getFullname() << 
+            " of type int already existing, value unchanged, returning pointer " << endl;
     return existingme;
   }
   
@@ -414,11 +445,10 @@ DaqMonitorBEInterface::bookString(string name, string value,
   if(!dir)return (MonitorElement *) 0;
   MonitorElement *existingme = findObject(name,dir->getPathname());
   if (existingme) { 
-    cout << " MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
+    cout << " bookString: MonitorElement " << existingme->getFullname() << 
+            " of type string already existing, returning pointer " << endl;
     return existingme;
   } 
-  
   string *val = new string(value);
   MonitorElement *me =  new MonitorElementRootString(val, name);
   addElement(me, dir->getPathname(), "string");
@@ -460,46 +490,16 @@ void DaqMonitorBEInterface::extractTH2F
   if(!wantME(me, dir, nm, fromRemoteNode))return;
   h2->SetName("extracted");
   
-  if(!me)
-    {
+  if(!me) {
       me = book2D ( nm, h2, dir);
-      /*  me = book2D(nm, h2->GetTitle(), h2->GetNbinsX(), 
-		  h2->GetXaxis()->GetXmin(), 
-		  h2->GetXaxis()->GetXmax(), h2->GetNbinsY(), 
-		  h2->GetYaxis()->GetXmin(), 
-		  h2->GetYaxis()->GetXmax(), dir);
-      // set alphanumeric labels, if needed
-      if(h2->GetXaxis()->GetLabels())
-	{
-	  for(int i = 1; i <= h2->GetNbinsX(); ++i)
-	    me->setBinLabel(i,h2->GetXaxis()->GetBinLabel(i),1);
-	  MonitorElementRootH2 * local = 
-	    dynamic_cast<MonitorElementRootH2 *> (me);
-	  ((TH2F*) local->operator->())->GetXaxis()->LabelsOption("v");
-	}
-      if(h2->GetYaxis()->GetLabels())
-	{
-	  for(int i = 1; i <= h2->GetNbinsY(); ++i)
-	    me->setBinLabel(i,h2->GetYaxis()->GetBinLabel(i),2);
-	}
-      // set axis titles
-      me->setAxisTitle(h2->GetXaxis()->GetTitle(), 1);
-      me->setAxisTitle(h2->GetYaxis()->GetTitle(), 2);
-      */
       // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[nm] = false;
-      
+      if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
-    }
-  else if (isCollateME(me)) 
-    {
-        MonitorElementRootH2* local = dynamic_cast<MonitorElementRootH2 *> (me);
-        ((TH2F*) local->operator->())->Add(h2);
-        cout << " collated TH2F: " << dir->getPathname() << "/" << nm <<endl;
-        return;
-    }  
+  }
+  else if (isCollateME(me) || collateHistograms_ ) {
+      collate2D(me,h2);
+      return;
+  }  
   
   MonitorElementRootH2 * put_here = dynamic_cast<MonitorElementRootH2 *> (me);
   if(put_here) put_here->copyFrom(h2);
@@ -516,54 +516,18 @@ void DaqMonitorBEInterface::extractTProf
   if(!wantME(me, dir, nm, fromRemoteNode))return;
   hp->SetName("extracted");
 
-  if(!me)
-    {
+  if(!me) {
       me = bookProfile ( nm, hp, dir);
-      /* fixme cleanup
-      me = bookProfile(nm, hp->GetTitle(), hp->GetNbinsX(), 
-		       hp->GetXaxis()->GetXmin(), 
-		       hp->GetXaxis()->GetXmax(), 
-		       hp->GetNbinsY(), 
-		       hp->GetYaxis()->GetXmin(),
-		       hp->GetYaxis()->GetXmax(), dir,
-		       (char *)hp->GetErrorOption());
-      // set alphanumeric labels, if needed
-      if(hp->GetXaxis()->GetLabels())
-	{
-	  for(int i = 1; i <= hp->GetNbinsX(); ++i)
-	    me->setBinLabel(i,hp->GetXaxis()->GetBinLabel(i),1);
-	  MonitorElementRootProf * local = 
-	    dynamic_cast<MonitorElementRootProf *> (me);
-	  ((TProfile*) local->operator->())->GetXaxis()->LabelsOption("v");
-	}
-      if(hp->GetYaxis()->GetLabels())
-	{
-	  for(int i = 1; i <= hp->GetNbinsY(); ++i)
-	    me->setBinLabel(i,hp->GetYaxis()->GetBinLabel(i),2);
-	}
-      // set axis titles
-      me->setAxisTitle(hp->GetXaxis()->GetTitle(), 1);
-      me->setAxisTitle(hp->GetYaxis()->GetTitle(), 2);
-      */
-      // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[nm] = false;
-      
+      if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
     }
-  else if (isCollateME(me)) 
-    {
-        MonitorElementRootProf* local = dynamic_cast<MonitorElementRootProf *> (me);
-        TProfile* hp2=(TProfile*) local->operator->();
-	local->addProfiles((TProfile*)hp,(TProfile*)hp2,(TProfile*)hp2,(float)1.,(float)1.);
-        cout << " collated TProfile: " << dir->getPathname() << "/" << nm <<endl;
+  else if (isCollateME(me) || collateHistograms_ ) {
+        collateProfile(me,hp);
         return;
     }  
   
   MonitorElementRootProf* put_here=dynamic_cast<MonitorElementRootProf *>(me);
-  if(put_here)
-  put_here->copyFrom(hp);
+  if(put_here) put_here->copyFrom(hp);
 }
 
 // extract TProfile2D object from <to> into <me> in <dir>; 
@@ -576,24 +540,15 @@ void DaqMonitorBEInterface::extractTProf2D
   if(!wantME(me, dir, nm, fromRemoteNode))return;
   hp->SetName("extracted");
 
-  if(!me)
-    {
+  if(!me) {
       me = bookProfile2D ( nm, hp, dir);
-      // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[nm] = false;
-      
+      if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
-    }
-  else if (isCollateME(me))
-    {
-      MonitorElementRootProf2D* local = dynamic_cast<MonitorElementRootProf2D *> (me);
-      TProfile2D* hp2=(TProfile2D*) local->operator->();
-      local->addProfiles((TProfile2D*)hp,(TProfile2D*)hp2,(TProfile2D*)hp2,(float)1.,(float)1.);
-      cout << " collated TProfile2D: " << dir->getPathname() << "/" << nm <<endl;
+  }
+  else if (isCollateME(me) || collateHistograms_ ) {
+      collateProfile2D(me,hp);
       return;
-    }
+  }
 
   MonitorElementRootProf2D * put_here = dynamic_cast<MonitorElementRootProf2D *>(me);
   if (put_here) put_here->copyFrom(hp);
@@ -609,23 +564,15 @@ void DaqMonitorBEInterface::extractTH3F
   if(!wantME(me, dir, nm, fromRemoteNode))return;
   h3->SetName("extracted");
 
-  if(!me)
-    {
+  if(!me) {
       me = book3D ( nm, h3, dir);
-      // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[nm] = false;
-      
+      if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
-    }
-    else if (isCollateME(me)) 
-    {
-        MonitorElementRootH3* local = dynamic_cast<MonitorElementRootH3 *> (me);
-        ((TH3F*) local->operator->())->Add(h3);
-        cout << " collated TH3F: " << dir->getPathname() << "/" << nm <<endl;
-        return;
-    }  
+  }
+  else if (isCollateME(me) || collateHistograms_ )  {
+      collate3D(me,h3);
+      return;
+  }  
 
   MonitorElementRootH3 * put_here = dynamic_cast<MonitorElementRootH3 *> (me);
   if (put_here) put_here->copyFrom(h3);
@@ -677,7 +624,7 @@ bool DaqMonitorBEInterface::extractObject
 // extract integer from <to> into <me> in <dir>; 
 // if me != 0, will overwrite object
 void DaqMonitorBEInterface::extractInt
-(TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
+            (TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
 {
   string name; string value;
   bool success = extractObject(to, fromRemoteNode, name, value);
@@ -686,90 +633,56 @@ void DaqMonitorBEInterface::extractInt
       if(!wantME(me, dir, name, fromRemoteNode))return;
       if(!me) {
 	  me = bookInt(name, dir);
-	  // set canDelete flag if ME arrived from remote node
-	  if(fromRemoteNode)
-	    // cannot delete objects arrived from different node
-	    dir->canDeleteFromMenu[name] = false;
-
-	  makeTagCopies(me);
-      }
-      
-      MonitorElementRootInt * put_here = 
-	dynamic_cast<MonitorElementRootInt *> (me);
-      if(put_here) put_here->Fill(atoi(value.c_str()));
-      else cerr << " *** Failed to update integer " << name << endl;
+          MonitorElementRootInt * put_here = dynamic_cast<MonitorElementRootInt *> (me);
+          if(put_here) put_here->Fill(atoi(value.c_str()));
+	  if(fromRemoteNode) dir->canDeleteFromMenu[name] = false;
+          makeTagCopies(me);
+      } 
+      else cout << " me " << name << " of type int already exists, value unchanged" << endl;
   }
 }
 
 // extract float from <to> into <me> in <dir>; 
 // if me != 0, will overwrite object
 void DaqMonitorBEInterface::extractFloat
-(TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
+            (TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
 {
   string name; string value;
   bool success = extractObject(to, fromRemoteNode, name, value);
-  if(success)
-    {
+  if(success) {
       MonitorElement * me = dir->findObject(name);
       if(!wantME(me, dir, name, fromRemoteNode))return;
-      if(!me)
-	{
+      if(!me) {
 	  me = bookFloat(name, dir);
+          MonitorElementRootFloat * put_here = dynamic_cast<MonitorElementRootFloat *> (me);
+          if(put_here) put_here->Fill(atof(value.c_str()));
 	  // set canDelete flag if ME arrived from remote node
-	  if(fromRemoteNode)
-	    // cannot delete objects arrived from different node
-	    dir->canDeleteFromMenu[name] = false;
-
+	  if(fromRemoteNode)  dir->canDeleteFromMenu[name] = false;
 	  makeTagCopies(me);
-	}
-      
-      MonitorElementRootFloat * put_here = 
-	dynamic_cast<MonitorElementRootFloat *> (me);
-      if(put_here)
-	put_here->Fill(atof(value.c_str()));
-      else
-	cerr << " *** Failed to update float " << name << endl;
-    } 
+      }
+      else cout << " me " << name << " of type float already exists, value unchanged " << endl;
+  } 
 }
 
 // extract string from <to> into <me> in <dir>; 
 // Do not know how to handle this if me != 0
 void DaqMonitorBEInterface::extractString
-(TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
+            (TObject * to, MonitorElementRootFolder * dir, bool fromRemoteNode)
 {
   string name; string value;
   bool success = extractObject(to, fromRemoteNode, name, value);
-  if(success)
-    {
+  if(success) {
       MonitorElement * me = dir->findObject(name);
       if(!wantME(me, dir, name, fromRemoteNode))return;
 
-      if(me)
-	{ // string already exists; do we need it?
-	  if(fromRemoteNode)
-	    {
-	      // do we want to support a "Fill(string s)" method for strings?
-	      cerr << " *** Do not know how to update string objects! "
-		   << endl;
-	      cerr << " String " << name 
-		   << " in directory " << dir->getPathname()
-		   << " already defined... " << endl;
-	      return;
-	    }
-	  else
-	    // remove string, so we can replace it w/ new value
-	    removeElement(dir, name);
-	}
-	  
-      // book string here
-      me = bookString(name, value, dir);
-      // set canDelete flag if ME arrived from remote node
-      if(fromRemoteNode)
-	// cannot delete objects arrived from different node
-	dir->canDeleteFromMenu[name] = false;
-      makeTagCopies(me);
-
-    } // unpack
+      if(!me) { // string already exists; do we need it?
+         me = bookString(name, value, dir);
+         // set canDelete flag if ME arrived from remote node
+         if(fromRemoteNode) dir->canDeleteFromMenu[name] = false;
+         makeTagCopies(me);
+      } 
+      else cout << " me " << name << " of type string already exists, value unchanged " << endl;
+  }
 }
 // extract QReport
 void DaqMonitorBEInterface::extractQReport
@@ -777,16 +690,13 @@ void DaqMonitorBEInterface::extractQReport
 {
   string name; string value;
   bool success = extractObject(to, fromRemoteNode, name, value);
-  if(!success)
-    return;
+  if(!success) return;
 
   string ME_name; string qtest_name; int status; string message;
-  bool all_ok =  
-    StringUtil::unpackQReport(name, value, ME_name, qtest_name, 
+  bool all_ok = StringUtil::unpackQReport(name, value, ME_name, qtest_name, 
 			      status, message);
 
-  if(!all_ok)
-    return;
+  if(!all_ok) return;
 
   try{
 
@@ -885,17 +795,6 @@ bool DaqMonitorBEInterface::isNeeded(string pathname, string me) const
   // I need to think 1. if it's possible to have a request to unsubscribe and a
   // request to subscribe (from two different clients) simultaneously, and
   // 2. how I'd implement this...
-}
-
-// check against null objects
-bool DaqMonitorBEInterface::checkElement(const MonitorElement * const me) const
-{
-  if(!me)
-    {
-      cerr << " *** Error! Null monitoring element " << endl;
-      return false;
-    }
-  return true;
 }
 
 // remove monitoring element from directory; 
@@ -1549,29 +1448,20 @@ int DaqMonitorBEInterface::getStatus(unsigned int tag) const
 // reset ME contents 
 void DaqMonitorBEInterface::softReset(MonitorElement * me)
 {
-  if(!checkElement(me))
-    return;
-
-  me->softReset();
+  if (me) me->softReset();
 }
 
 // reverts action of softReset
 void DaqMonitorBEInterface::disableSoftReset(MonitorElement * me)
 {
-  if(!checkElement(me))
-    return;
-
-  me->disableSoftReset();
+  if (me) me->disableSoftReset();
 }
 
 // if true, will accumulate ME contents (over many periods)
 // until method is called with flag = false again
 void DaqMonitorBEInterface::setAccumulate(MonitorElement * me, bool flag)
 {
-  if(!checkElement(me))
-    return;
-
-  me->setAccumulate(flag);
+  if (me) me->setAccumulate(flag);
 }
 
 // update directory structure maps for folder

@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/01/17 22:56:14 $
- * $Revision: 1.11 $
+ * $Date: 2008/02/03 00:39:24 $
+ * $Revision: 1.12 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
@@ -36,11 +36,11 @@ counterEvt_(0)
  
 //// use this to read in reference histograms from file
 //   dbe_->readReferenceME("DQM_referenceME_R000000001.root");
-//    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
+//   dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
 
 //// use this to collate histograms from files
-//  dbe_->open("../test/DQM_YourSubsystemName_R000000002.root",true,"","Collate");
-//  dbe_->open("../test/DQM_YourSubsystemName_R000000003.root",true,"","Collate");
+//  dbe_->open("../test/DQM_YourSubsystemName_R000000002.root");
+//  dbe_->open("../test/DQM_YourSubsystemName_R000000003.root");
 
 //// use this to merge histograms from different runs into the same file
 ///  dbe_->open("DQM_EcalBarrel_R000020994.root",true,"","");
