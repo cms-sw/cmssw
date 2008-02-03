@@ -2,4 +2,6 @@
   <class name="ECalCaloTowerProxy3DLegoBuilder"/>
   <class name="HCalCaloTowerProxy3DLegoBuilder"/>
   <class name="CaloJetProxy3DLegoBuilder"/>
+  <class name="ECalCaloTowerProxyRhoPhiZ2DBuilder"/>
+  <class name="HCalCaloTowerProxyRhoPhiZ2DBuilder"/>
 </lcgdict>
