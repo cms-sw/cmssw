@@ -640,10 +640,8 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book 1D histogram based on TH1F
   MonitorElement * book1D(std::string name, TH1F* source,
                            MonitorElementRootFolder * dir);
-  /// same method with different name
-  //MonitorElement * clone1D(std::string name, TH1F* source,
-  //                            MonitorElementRootFolder * dir)
-  //     {return book1D(name, source, dir);}
+
+  void collate1D(MonitorElement* me, TH1F* h1);
        
   /// book 1D histogram based on bin defs.
   MonitorElement * book1D(std::string name, std::string title, 
@@ -654,14 +652,9 @@ class DaqMonitorBEInterface: public StringUtil
 			  int nchX, float *xbinsize,
 			  MonitorElementRootFolder * folder);
 
-
   ///  book 2D histogram based on TH2F
   MonitorElement * book2D(std::string name, TH2F* source,
                               MonitorElementRootFolder * dir);
-  /// same method with different name
-  //MonitorElement * clone2D(std::string name, TH2F* source,
-  //                            MonitorElementRootFolder * dir)
-  //     {return book2D(name, source, dir);}
   /// book 2D histogram
   MonitorElement * book2D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -671,10 +664,6 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book 3D histogram based on TH3F
   MonitorElement * book3D(std::string name, TH3F* source,
                               MonitorElementRootFolder * dir);
-  /// same method with different name
-  //MonitorElement * clone3D(std::string name, TH3F* source,
-  //                            MonitorElementRootFolder * dir)
-  //     {return book3D(name, source, dir);}
   /// book 3D histogram
   MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -685,10 +674,6 @@ class DaqMonitorBEInterface: public StringUtil
   ///  book profile histogram based on TProfile
   MonitorElement * bookProfile(std::string name, TProfile* source,
                               MonitorElementRootFolder * dir);
-  /// same method with different name
-  //MonitorElement * cloneProfile(std::string name, TProfile* source,
-  //                            MonitorElementRootFolder * dir)
-  //     {return bookProfile(name, source, dir);}
   /// book profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -701,10 +686,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// book 2-D profile based on TProfile2D
   MonitorElement * bookProfile2D(std::string name, TProfile2D* source,
 				 MonitorElementRootFolder * dir);
-  /// same method with different name
-  //MonitorElement * cloneProfile2D(std::string name, TProfile2D* source,
-  //                            MonitorElementRootFolder * dir)
-  //     {return bookProfile2D(name, source, dir);}
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
   /// (in a 2-D profile plot the number of channels in Z is disregarded)
   MonitorElement * bookProfile2D(std::string name, 
@@ -928,7 +909,7 @@ class DaqMonitorBEInterface: public StringUtil
   /// (to be reset in MonitorUserInterface::runQualityTests)
   bool rMonitoringDiffWasCalled;
   bool rMonitorableDiffWasCalled;
-  bool overwriteFromFile;
+  bool collateHistograms_;
   bool first_time_onRoot;
 
   /// true if fCurrentFolder is the root folder (gROOT->GetRootFolder() )

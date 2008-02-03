@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/01/05 20:23:15 $
- * $Revision: 1.10 $
- * $Author: elmer $
+ * $Date: 2008/01/17 22:56:14 $
+ * $Revision: 1.11 $
+ * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
  * monitoring elements
@@ -39,8 +39,8 @@ counterEvt_(0)
 //    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
 
 //// use this to collate histograms from files
-//  dbe_->open("Ecal_000017220.root",true,"","Collate");
-//  dbe_->open("Ecal_000017224.root",true,"","Collate");
+//  dbe_->open("../test/DQM_YourSubsystemName_R000000002.root",true,"","Collate");
+//  dbe_->open("../test/DQM_YourSubsystemName_R000000003.root",true,"","Collate");
 
 //// use this to merge histograms from different runs into the same file
 ///  dbe_->open("DQM_EcalBarrel_R000020994.root",true,"","");

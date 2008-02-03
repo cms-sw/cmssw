@@ -49,21 +49,21 @@ DaqMonitorBEInterface::DaqMonitorBEInterface(edm::ParameterSet const &pset){
   DQM_VERBOSE = 1; resetMonitoringDiff(); resetMonitorableDiff();
 
   // set steerable parameters
-  DQM_VERBOSE = pset.getUntrackedParameter<int>("verbose",1);
-  cout << " DaqMonitorBEInterface: verbose parameter set to " << 
-            DQM_VERBOSE << endl;
+  DQM_VERBOSE = pset.getUntrackedParameter<int>("verbose",0);
+  if (DQM_VERBOSE>0) cout << " DaqMonitorBEInterface: verbose" << 
+                             " parameter set to " << DQM_VERBOSE << endl;
   
-  string subsystemname = 
-                pset.getUntrackedParameter<string>("subSystemName","");
- 
-  string referencefilename = 
-                pset.getUntrackedParameter<string>("referenceFileName","");
-  cout << " DaqMonitorBEInterface: reference file name set to " <<
+  string referencefilename = pset.getUntrackedParameter<string>("referenceFileName","");
+  if (referencefilename != "")
+            cout << " DaqMonitorBEInterface: reference file name set to " <<
             referencefilename << endl;		
-
+  
+  collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms",false);
+  if (collateHistograms_) 
+            cout << " DaqMonitorBEInterface: collate Histograms true " << endl;
+	    
   // 	    
   first_time_onRoot = true;
-  overwriteFromFile = false;
   readOnlyDirectory = "";
 
   // initialize fCurrentFolder to "root directory": 
@@ -109,22 +109,34 @@ MonitorElement *
 DaqMonitorBEInterface::book1D(std::string name, TH1F* source,
                               MonitorElementRootFolder * dir)
 {
-  if(!dir)return (MonitorElement *) 0;
-  MonitorElement *existingme = findObject(name,dir->getPathname());
-  if (existingme) { 
-    cout << " book1D: MonitorElement " << existingme->getFullname() << 
-            " already existing, returning pointer " << endl;
-    return existingme;	    
-  }
-  
+  if (!dir) return (MonitorElement *) 0;
+
   TH1F *h1p = reinterpret_cast<TH1F*>(source->Clone());
   h1p->SetName(name.c_str());
-  // h1p->Reset();
+
+  MonitorElement *existingme = findObject(name,dir->getPathname());
+  if (existingme) { 
+    // add histogram to already existing one
+    if (collateHistograms_) collate1D(existingme,h1p);
+    // or print warning
+    else cout << " book1D: MonitorElement " << existingme->getFullname() << 
+                " already existing, returning pointer " << endl;
+    // return pointer    
+    return existingme;
+  }
+  
   // remove histogram from gDirectory so we can release memory with remove method
   h1p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH1(h1p, name);
   addElement(me, dir->getPathname(), "TH1F");
   return me;
+}
+
+void DaqMonitorBEInterface::collate1D(MonitorElement* me,TH1F* h1)
+{
+      MonitorElementRootH1* local = dynamic_cast<MonitorElementRootH1 *> (me);
+      ((TH1F*) local->operator->())->Add(h1);
+      cout << " collated TH1F: " << me->getFullname() <<endl;
 }
 
 MonitorElement * 
@@ -422,18 +434,15 @@ void DaqMonitorBEInterface::extractTH1F
   MonitorElement * me = dir->findObject(nm);
   if (!wantME(me, dir, nm, fromRemoteNode)) return;
   h1->SetName("extracted");
-
+  
   if(!me) {
       me = book1D ( nm, h1, dir);
       // set canDelete flag if ME arrived from remote node
       if(fromRemoteNode) dir->canDeleteFromMenu[nm] = false;
       makeTagCopies(me);
   } 
-  else if (isCollateME(me)) {
-      //((TH1F*)((MonitorElementRootH1*)me)->getMonitorable())->Add(h1);
-      MonitorElementRootH1* local = dynamic_cast<MonitorElementRootH1 *> (me);
-      ((TH1F*) local->operator->())->Add(h1);
-      cout << " collated TH1F: " << dir->getPathname() << "/" << nm <<endl;
+  else if (isCollateME(me) || collateHistograms_ ) {
+      collate1D(me,h1);
       return;
   }  
   
@@ -830,7 +839,7 @@ bool DaqMonitorBEInterface::wantME
   else
     // if object is read from ROOT file, copy if 
     // me = 0 (does not exist), or overwrite = true;
-    return (!me) || overwriteFromFile;
+    return (!me || isCollateME(me) || collateHistograms_ ) ;
 }
 
 // true if Monitoring Element <me> in directory <folder> has isDesired = true;
@@ -2423,7 +2432,6 @@ void DaqMonitorBEInterface::open(string filename, bool overwrite,
       return;
     }
 
-  overwriteFromFile = overwrite;
   readOnlyDirectory = directory;
   unsigned int N = readDirectory(&f, ROOT_PATHNAME, prepend);
   f.Close();
