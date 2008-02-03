@@ -9,4 +9,4 @@ GENERIC MAP ($(ser_no), $(if_etm_then_1_else_0))
 PORT MAP (clk_cond,
 reg_$(particle), reg_etm_phi,
 en_$(particle)_cond,
-addr(13 DOWNTO 1), vdata,
+addr(13 DOWNTO 1), vdata,(7 DOWNTO 0),

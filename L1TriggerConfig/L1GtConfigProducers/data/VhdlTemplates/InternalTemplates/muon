@@ -20,4 +20,4 @@ reg_muon_iso_3, reg_muon_iso_4,
 reg_muon_mip_1, reg_muon_mip_2,
 reg_muon_mip_3, reg_muon_mip_4,
 $(charge)
-en_muon_$(type), addr(13 DOWNTO 1), vdata,
+en_muon_$(type), addr(13 DOWNTO 1), vdata,(7 DOWNTO 0),
