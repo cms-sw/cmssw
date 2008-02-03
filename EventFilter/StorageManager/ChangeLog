@@ -1,3 +1,11 @@
+2008-02-20  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-02 
+        * New version of SMPerformanceMeterfor thread safety so SMProxyServer can
+          use this for both incoming and outgoing statistics when in pull mode
+        * Modified StorageManager to use this new version and test XML config to
+          set SMProxyServer parameters
+
 2008-01-30  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-00 Changes to handle multiple output modules in the HLT processes
