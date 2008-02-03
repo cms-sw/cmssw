@@ -59,8 +59,8 @@ DaqMonitorBEInterface::DaqMonitorBEInterface(edm::ParameterSet const &pset){
             referencefilename << endl;		
   
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms",true);
-  if (collateHistograms_) 
-            cout << " DaqMonitorBEInterface: collate Histograms true " << endl;
+  if (!collateHistograms_) 
+            cout << " DaqMonitorBEInterface: disable collation of Histograms " << endl;
 	    
   // 	    
   first_time_onRoot = true;
@@ -472,7 +472,7 @@ void DaqMonitorBEInterface::extractTH1F
       makeTagCopies(me);
   } 
   else if (isCollateME(me) || collateHistograms_ ) {
-      collate1D(me,h1);
+      if (!fromRemoteNode)  collate1D(me,h1);
       return;
   }  
   
@@ -497,7 +497,7 @@ void DaqMonitorBEInterface::extractTH2F
       makeTagCopies(me);
   }
   else if (isCollateME(me) || collateHistograms_ ) {
-      collate2D(me,h2);
+      if(!fromRemoteNode) collate2D(me,h2);
       return;
   }  
   
@@ -522,7 +522,7 @@ void DaqMonitorBEInterface::extractTProf
       makeTagCopies(me);
     }
   else if (isCollateME(me) || collateHistograms_ ) {
-        collateProfile(me,hp);
+      if (!fromRemoteNode) collateProfile(me,hp);
         return;
     }  
   
@@ -546,7 +546,7 @@ void DaqMonitorBEInterface::extractTProf2D
       makeTagCopies(me);
   }
   else if (isCollateME(me) || collateHistograms_ ) {
-      collateProfile2D(me,hp);
+      if (!fromRemoteNode) collateProfile2D(me,hp);
       return;
   }
 
@@ -570,7 +570,7 @@ void DaqMonitorBEInterface::extractTH3F
       makeTagCopies(me);
   }
   else if (isCollateME(me) || collateHistograms_ )  {
-      collate3D(me,h3);
+      if (!fromRemoteNode) collate3D(me,h3);
       return;
   }  
 
@@ -638,6 +638,10 @@ void DaqMonitorBEInterface::extractInt
 	  if(fromRemoteNode) dir->canDeleteFromMenu[name] = false;
           makeTagCopies(me);
       } 
+      if (fromRemoteNode) {
+          MonitorElementRootInt * put_here = dynamic_cast<MonitorElementRootInt *> (me);
+          if(put_here) put_here->Fill(atoi(value.c_str()));
+      }
       else cout << " me " << name << " of type int already exists, value unchanged" << endl;
   }
 }
@@ -659,6 +663,10 @@ void DaqMonitorBEInterface::extractFloat
 	  // set canDelete flag if ME arrived from remote node
 	  if(fromRemoteNode)  dir->canDeleteFromMenu[name] = false;
 	  makeTagCopies(me);
+      }
+      if (fromRemoteNode) {
+          MonitorElementRootFloat * put_here = dynamic_cast<MonitorElementRootFloat *> (me);
+          if(put_here) put_here->Fill(atof(value.c_str()));
       }
       else cout << " me " << name << " of type float already exists, value unchanged " << endl;
   } 
