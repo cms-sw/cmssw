@@ -2,6 +2,7 @@
   <class name="FWDisplayEvent"/>
   <class name="FWDataProxyBuilder"/>
   <class name="FWRPZDataProxyBuilder"/>
+  <class name="FWRPZ2DDataProxyBuilder"/>
   <class name="FW3DLegoDataProxyBuilder"/>
   <class name="FW3DLegoViewManager"/>
   <class name="FWPhysicsObjectDesc"/>
