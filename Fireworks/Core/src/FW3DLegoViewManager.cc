@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.5 2008/01/28 14:02:35 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.6 2008/02/03 02:43:55 dmytro Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "TList.h"
 #include "TEveManager.h"
 #include "TClass.h"
+#include "TColor.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
@@ -45,6 +46,9 @@ FW3DLegoViewManager::FW3DLegoViewManager():
   m_legoRebinFactor(1)
 {
   m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
+   
+   m_legoCanvas->SetFillColor(Color_t(kBlack));
+     
   // one way of connecting event processing function to a canvas
   m_legoCanvas->AddExec("ex", "FW3DLegoViewManager::DynamicCoordinates()");
   
@@ -58,23 +62,12 @@ FW3DLegoViewManager::FW3DLegoViewManager():
 
   m_background = new TH2F("bkgLego","Background distribution",
 			  82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
-  m_background->SetFillColor(Color_t(kWhite));
+   m_background->SetFillColor( Color_t(TColor::GetColor("#151515")) );
+  m_background->Rebin2D();
   m_stack->Add(m_background);
 
   m_legoCanvas->cd();
-  m_stack->Draw("lego1 fb bb");
-  m_stack->GetHistogram()->GetXaxis()->SetRangeUser(-1.74,1.74); // zoomed in default view
-  m_stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
-  m_stack->GetHistogram()->GetYaxis()->SetTitle("#phi");
-  m_stack->GetHistogram()->GetXaxis()->SetLabelSize(0.03);
-  m_stack->GetHistogram()->GetXaxis()->SetTickLength(0.02);
-  m_stack->GetHistogram()->GetXaxis()->SetTitleOffset(1.2);
-  m_stack->GetHistogram()->GetYaxis()->SetLabelSize(0.03);
-  m_stack->GetHistogram()->GetYaxis()->SetTickLength(0.02);
-  m_stack->GetHistogram()->GetYaxis()->SetTitleOffset(1.2);
-  m_stack->GetHistogram()->GetZaxis()->SetTitle("Et, [GeV]");
-  m_stack->GetHistogram()->GetZaxis()->SetLabelSize(0.03);
-  m_stack->GetHistogram()->GetZaxis()->SetTickLength(0.02); 
+  // m_stack->GetHistogram()->GetXaxis()->SetRangeUser(-1.74,1.74); // zoomed in default view
   
   m_stack->Draw("lego1 fb bb");
   m_legoCanvas->Modified();
@@ -110,16 +103,43 @@ void
 FW3DLegoViewManager::newEventAvailable()
 {
   
-  for ( std::vector<FW3DLegoModelProxy>::iterator proxy = 
+   for ( std::vector<FW3DLegoModelProxy>::iterator proxy = 
 	   m_modelProxies.begin();
 	proxy != m_modelProxies.end(); ++proxy ) {
     bool firstTime = (proxy->product == 0);
     proxy->builder->build( &(proxy->product) );
     if(firstTime && 0!= proxy->product) {
-      m_stack->Add(proxy->product);
+       proxy->product->Rebin2D();
+       m_stack->Add(proxy->product);
     }
   }
+
   m_legoCanvas->cd();
+  
+  m_stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
+  m_stack->GetHistogram()->GetXaxis()->SetTitleColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetYaxis()->SetTitle("#phi");
+  m_stack->GetHistogram()->GetYaxis()->SetTitleColor(Color_t(kYellow));
+  
+  m_stack->GetHistogram()->GetXaxis()->SetLabelSize(0.03);
+  m_stack->GetHistogram()->GetXaxis()->SetLabelColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetXaxis()->SetAxisColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetXaxis()->SetTickLength(0.02);
+  m_stack->GetHistogram()->GetXaxis()->SetTitleOffset(1.2);
+   
+  m_stack->GetHistogram()->GetYaxis()->SetLabelSize(0.03);
+  m_stack->GetHistogram()->GetYaxis()->SetLabelColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetYaxis()->SetAxisColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetYaxis()->SetTickLength(0.02);
+  m_stack->GetHistogram()->GetYaxis()->SetTitleOffset(1.2);
+  
+  m_stack->GetHistogram()->GetZaxis()->SetTitle("Et, [GeV]");
+  m_stack->GetHistogram()->GetZaxis()->SetTitleColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetZaxis()->SetLabelColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetZaxis()->SetAxisColor(Color_t(kYellow));
+  m_stack->GetHistogram()->GetZaxis()->SetLabelSize(0.03);
+  m_stack->GetHistogram()->GetZaxis()->SetTickLength(0.02); 
+   
   m_stack->Draw("lego1 fb bb");
   m_legoCanvas->Modified();
   m_legoCanvas->Update();
