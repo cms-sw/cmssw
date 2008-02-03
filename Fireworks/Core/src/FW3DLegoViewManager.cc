@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.4 2008/01/25 19:29:28 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.5 2008/01/28 14:02:35 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ FW3DLegoViewManager::FW3DLegoViewManager():
   m_stack->SetMaximum(100);
 
   m_background = new TH2F("bkgLego","Background distribution",
-			  78, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
+			  82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
   m_background->SetFillColor(Color_t(kWhite));
   m_stack->Add(m_background);
 

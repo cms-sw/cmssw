@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id$
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@ class TH2F;
 
 namespace fw3dlego
 {
-  extern const double xbins[79];
+  extern const double xbins[83];
 }
 
 class FW3DLegoDataProxyBuilder

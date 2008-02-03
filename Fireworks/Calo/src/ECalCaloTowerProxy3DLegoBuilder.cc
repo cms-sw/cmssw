@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.2 2008/01/21 01:15:38 chrjones Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 {
   if (0==*product) {
     *product = new TH2F("ecalLego","CaloTower ECAL Et distribution",
-			78, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
+			82, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
   }
   (*product)->Reset();
   (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
