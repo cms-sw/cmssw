@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.2 2008/01/21 01:17:20 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.3 2008/01/28 14:02:35 chrjones Exp $
 //
 
 // system include files
@@ -78,15 +78,17 @@ void
 FWViewManagerManager::registerProxyBuilder(const std::string& type, 
                                            const std::string& proxyBuilderName)
 {
+   
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
       if((*itVM)->useableBuilder(proxyBuilderName)) {
-         //std::cout <<"REGISTERING "<<type<<std::endl;
+         std::cout <<"REGISTERING "<<type << ", " << proxyBuilderName <<std::endl;
          (*itVM)->registerProxyBuilder(type,proxyBuilderName);
-         break;
+         return;
       }
    }
+   std::cout << "rejecting " << type << ", " << proxyBuilderName <<std::endl;
 }
 
 //

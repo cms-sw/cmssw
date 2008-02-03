@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.12 2008/01/28 14:04:13 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.13 2008/01/29 12:18:46 chrjones Exp $
 //
 
 // system include files
@@ -221,6 +221,7 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
   if(itFind != m_typeToBuilder.end()) {
      if(itFind->second.second) {
+	std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
         FWRPZDataProxyBuilder* builder = reinterpret_cast<
         FWRPZDataProxyBuilder*>( 
                                 createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
@@ -233,6 +234,7 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
            iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
         }
      } else {
+	std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
         FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
         FWRPZ2DDataProxyBuilder*>( 
                                 createInstanceOf(TClass::GetClass(typeid(FWRPZ2DDataProxyBuilder)),
@@ -253,11 +255,11 @@ void
 FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
 					   const std::string& iBuilder)
 {
-   bool is2dType = false;
-   if(iType.find(kBuilderPrefixes[0])) {
-      is2dType = true;
+   bool is3dType = true;
+   if(iBuilder.find(kBuilderPrefixes[1]) != std::string::npos) {
+      is3dType = false;
    }
-   m_typeToBuilder[iType]=make_pair(iBuilder,is2dType);
+   m_typeToBuilder[iType]=make_pair(iBuilder,is3dType);
 }
 
 void 

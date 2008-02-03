@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.4 2008/01/21 01:17:20 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.5 2008/01/22 16:34:08 chrjones Exp $
 //
 
 // system include files
@@ -90,7 +90,7 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
    void* inst = c->New();
    void* baseClassInst = c->DynamicCast(iBaseClass,inst);
    if(0==baseClassInst) {
-     std::cerr<<"conversion to "<<iBaseClass->ClassName() << " failed"<<std::endl;
+     std::cerr<<"conversion to "<<iBaseClass->ClassName() << " for class " << iNameOfClass << " failed"<<std::endl;
       return 0;
    }
    return baseClassInst;
