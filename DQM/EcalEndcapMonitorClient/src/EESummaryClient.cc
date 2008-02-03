@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/21 08:11:06 $
- * $Revision: 1.83 $
+ * $Date: 2008/01/22 19:47:13 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
 */
@@ -1047,7 +1047,8 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ix, iy );
 
-              if(xval!=0) hasRealDigi = true;
+              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
+              if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( xval != 0 ) {
