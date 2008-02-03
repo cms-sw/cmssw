@@ -1,3 +1,9 @@
+2008-02-02  Harry Cheung <cheung@fnal.gov>
+
+        * tag V01-05-01
+        * Fix the monitoring of statistics and allow setting of the maximum
+          request rates and server rates in the SMProxyServer XML config file
+
 2008-01-28  Harry Cheung <cheung@fnal.gov>
 
         * tag V01-05-00
