@@ -70,7 +70,7 @@ namespace popcon
 	  try{
 	    if (m_dbService->isNewTagRequest(m_record) ){
 	      std::cerr << "Creating new IOV " << (*it).second << std::endl;
-	      m_dbService->createNewIOV<T>((*it).first, m_since ? (*it).second : Time_t(0), m_record, m_LoggingOn);
+	      m_dbService->createNewIOV<T>((*it).first, m_since ? (*it).second : cond::Time_t(0), m_record, m_LoggingOn);
 	    }
 	    else{
 	      if (m_since){

@@ -37,7 +37,7 @@ namespace popcon
 {
    class PopConAnalyzerBase : public edm::EDAnalyzer {
    public:
-     using cond::Time_t;
+     typedef cond::Time_t Time_t;
      
      //One needs to inherit this class and implement the constructor to 
      // instantiate handler object
