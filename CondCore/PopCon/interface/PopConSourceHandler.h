@@ -3,7 +3,9 @@
 
 
 #include "CondCore/PopCon/interface/IOVPair.h"
-#include "CondCore/PopCon/interface/OfflineDBInterface.h"
+#include "CondCore/DBOutputService/interface/TagInfo.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
+
 
 #include <vector>
 #include <string>
@@ -22,7 +24,7 @@ namespace popcon {
 
     typedef PopConSourceHandler<T> self;
 
-    PopConSourceHandler(cond::TagInfo const  tagInfo,
+    PopConSourceHandler(cond::TagInfo const & tagInfo,
 			cond::LogDBEntry const & logDBEntry) : 
       m_tagInfo(tagInfo),
       m_logDBEntry(logDBEntry) {}

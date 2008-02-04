@@ -20,7 +20,7 @@ namespace popcon{
     PopConAnalyzer(const edm::ParameterSet& pset) : 
       PopConAnalyzerBase(pset),
       m_handler(pset.getParameter<edm::ParameterSet>("Source"),
-		pset.getParameter<std::string> ("connect")),
+		m_tagInfo,m_logDBEntry),
       m_payload_cont(0) {}
 
 

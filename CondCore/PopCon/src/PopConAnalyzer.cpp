@@ -22,10 +22,6 @@ namespace popcon {
   PopConAnalyzerBase::~PopConAnalyzerBase(){}
   
 
-  std::string  PopConAnalyzerBase::tag() const {
-    return m_output.tag();
-  }
-
 
   void PopConAnalyzerBase::beginJob(const edm::EventSetup& es) {	
     if(m_debug) std::cerr << "Begin Job\n"; 
@@ -89,7 +85,7 @@ namespace popcon {
   void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
     if(m_debug) std::cerr << "Analyze Begins\n"; 
     try{
-      m_dbService->setLogHeader(m_record,sourceId(),"something clever");
+      m_dbService->setLogHeaderForRecord(m_record,sourceId(),"something clever");
       if(greenLight){
 	//get New objects 	  
 	if (takeTheData()) {
