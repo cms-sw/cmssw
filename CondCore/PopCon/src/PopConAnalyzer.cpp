@@ -25,8 +25,10 @@ namespace popcon {
     try{
       std::cout<<"payload name "<<m_payload_name<<std::endl;
       m_tag = m_dbService->tag(m_record);
-      m_dbService->tagInfo(m_record,m_tagInfo);
-      m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
+      if (!m_dbService->isNewTagRequest(m_record) ) {
+	m_dbService->tagInfo(m_record,m_tagInfo);
+	m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
+      }
       
       /*     
 	
