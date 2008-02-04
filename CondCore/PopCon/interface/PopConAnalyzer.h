@@ -39,7 +39,7 @@ namespace popcon{
     }
      
     void write() {
-      this->template writeThem<T>(m_payload_cont, lasrSince);
+      this->template writeThem<T>(m_payload_cont, lastSince());
     }
     
     SourceHandler m_handler;	

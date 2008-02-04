@@ -10,11 +10,8 @@ namespace popcon {
     m_loggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
     m_debug(pset.getParameter< bool > ("debug")),
     m_output(m_dbService,m_record,sinceAppend,m_loggingOn),
-    m_tag(m_dbService->tag(m_record)),
     tryToValidate(false), corrupted(false), greenLight (true), fixed(true)
     {
-      m_dbService->tagInfo(m_record,m_tagInfo);
-      m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
     //TODO set the policy (cfg or global configuration?)
     //Policy if corrupted data found
     }
@@ -27,6 +24,9 @@ namespace popcon {
     if(m_debug) std::cerr << "Begin Job\n"; 
     try{
       std::cout<<"payload name "<<m_payload_name<<std::endl;
+      m_tag = m_dbService->tag(m_record);
+      m_dbService->tagInfo(m_record,m_tagInfo);
+      m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
       
       /*     
 	

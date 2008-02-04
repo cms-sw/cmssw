@@ -77,7 +77,7 @@ namespace popcon
        m_output.write(payload_vect,lsc);
      }
 
-   private:
+   protected:
 
      std::string logMsg;
      
