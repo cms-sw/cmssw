@@ -26,7 +26,7 @@ pyrelvallocal=cmssw_base+"/src/Configuration/PyReleaseValidation"
 if os.path.exists(pyrelvallocal):
     RELEASE='CMSSW_BASE'
     print "Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version"
-elif not s.path.exists(pyrelvallocal):
+elif not os.path.exists(pyrelvallocal):
     RELEASE='CMSSW_RELEASE_BASE'
     
 # Valgrind Memcheck Parser coordinates:
