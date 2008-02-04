@@ -19,7 +19,7 @@
 ///   }
 ///
 /// \author F. Ronga (ETH Zurich)
-/// \version $Id: ElectronSelector.h,v 1.2 2008/01/25 15:35:13 fronga Exp $
+/// \version $Id: ElectronSelector.h,v 1.3 2008/01/30 15:54:34 fronga Exp $
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,6 +30,8 @@
 
 namespace pat {
 
+  enum ElectronType { GOOD = 0, BAD, HOVERE, SHOWER, MATCHING };
+
   class ElectronSelector {
 
     typedef reco::PixelMatchGsfElectron            Electron;
@@ -39,17 +41,18 @@ namespace pat {
     ElectronSelector( const edm::ParameterSet& config );
     ~ElectronSelector() {}
 
-    /// Returns true if electron matches criteria. 
+    /// Returns 0 if electron matches criteria, a flag otherwise.
     /// Criteria depend on the selector's configuration.
     /// Electron IDs only need to be provided if selection is based
     /// on it (cut, neural net or likelihood). Cluster shapes are for
     /// custom selection only.
-    const bool filter( const unsigned int&          index,
-                       const edm::View<Electron>&   electrons,
-                       const ElectronIDmap&         electronIDs = 0,
-                       const reco::ClusterShape*    clusterShape = 0
-                       ) const;
-
+    const unsigned int 
+    filter( const unsigned int&          index,
+            const edm::View<Electron>&   electrons,
+            const ElectronIDmap&         electronIDs = 0,
+            const reco::ClusterShape*    clusterShape = 0
+            ) const;
+    
     /// Returns the electron ID object based of the given electron.
     /// The latter is defined by an index in the vector of electrons.
     /// The ID is found in the association map.
@@ -68,10 +71,11 @@ namespace pat {
 
 
     /// Full-fledged selection based on SusyAnalyser
-    const bool customSelection_( const unsigned int&        index,
-                                 const edm::View<Electron>& electrons,
-                                 const reco::ClusterShape*  clusterShape ) const;
-
+    const unsigned int  
+    customSelection_( const unsigned int&        index,
+                      const edm::View<Electron>& electrons,
+                      const reco::ClusterShape*  clusterShape ) const;
+    
     // Custom selection cuts
     double HoverEBarmax_;        double HoverEEndmax_;
     double SigmaEtaEtaBarmax_;   double SigmaEtaEtaEndmax_;

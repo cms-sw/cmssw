@@ -45,29 +45,33 @@ ElectronSelector::ElectronSelector( const edm::ParameterSet& config ) :
 
 
 //______________________________________________________________________________
-const bool ElectronSelector::filter( const unsigned int&        index, 
-                                     const edm::View<Electron>& electrons,
-                                     const ElectronIDmap&       electronIDs,
-                                     const reco::ClusterShape*  clusterShape 
-                                     ) const
+const unsigned int 
+ElectronSelector::filter( const unsigned int&        index, 
+                          const edm::View<Electron>& electrons,
+                          const ElectronIDmap&       electronIDs,
+                          const reco::ClusterShape*  clusterShape 
+                          ) const
 {
 
   // List of possible selections
   if      ( selectionType_ == "none"       ) 
     {
-      return true;
+      return GOOD;
     }
   else if ( selectionType_ == "cut"        ) 
     {
-      return electronID( index, electrons, electronIDs )->cutBasedDecision();
+      if ( electronID(index,electrons,electronIDs)->cutBasedDecision() ) return GOOD;
+      return BAD;
     }
   else if ( selectionType_ == "likelihood" )
     {
-      return ( electronID( index, electrons, electronIDs )->likelihood() > value_ );
+      if ( electronID(index,electrons,electronIDs)->likelihood() > value_ ) return GOOD;
+      return BAD;
     }
   else if ( selectionType_ == "neuralnet" ) // FIXME: Check sign of comparison!
     {
-      return ( electronID( index, electrons, electronIDs )->neuralNetOutput() > value_ );
+      if ( electronID(index,electrons,electronIDs)->neuralNetOutput() > value_ ) return GOOD;
+      return BAD;
     }
   else if ( selectionType_ == "custom"     ) 
     {
@@ -99,7 +103,7 @@ ElectronSelector::electronID( const unsigned int& index,
 
 
 //______________________________________________________________________________
-const bool 
+const unsigned int 
 ElectronSelector::customSelection_( const unsigned int&        index,
                                     const edm::View<Electron>& electrons,
                                     const reco::ClusterShape*  clusterShape
@@ -138,41 +142,40 @@ ElectronSelector::customSelection_( const unsigned int&        index,
 
   if (  (hOverE > HoverEBarmax_       && !inEndCap )
      || (hOverE > HoverEEndmax_       &&  inEndCap ) )
-    return false;
+    return HOVERE;
 
   if (  (E9overE25 < E9overE25Barmin_ && !inEndCap )
      || (E9overE25 < E9overE25Endmin_ &&  inEndCap ) )
-    return false;
+    return SHOWER;
 
   if (  (sigmaee > SigmaEtaEtaBarmax_ && !inEndCap )
      || (sigmaee > SigmaEtaEtaEndmax_ &&  inEndCap ) )
-    return false;
+    return SHOWER;
 
   if (  (sigmapp > SigmaPhiPhiBarmax_ && !inEndCap )
      || (sigmapp > SigmaPhiPhiEndmax_ &&  inEndCap ) )
-    return false;
+    return SHOWER;
 
   if (  (eOverPin < EoverPInBarmin_   && !inEndCap )
      || (eOverPin < EoverPInEndmin_   &&  inEndCap ) )
-    return false;
+    return MATCHING;
 
   if (  (fabs(deltaEtaIn) > DeltaEtaInBarmax_   && !inEndCap )
      || (fabs(deltaEtaIn) > DeltaEtaInEndmax_   &&  inEndCap ) )
-    return false;
+    return MATCHING;
 
   if (  (fabs(deltaPhiIn) < DeltaPhiInBarmax_   && !inEndCap )
      || (fabs(deltaPhiIn) < DeltaPhiInEndmax_   &&  inEndCap ) )
-    return false;
+    return MATCHING;
 
   if (  (fabs(deltaPhiOut) < DeltaPhiOutBarmax_ && !inEndCap )
      || (fabs(deltaPhiOut) < DeltaPhiOutEndmax_ &&  inEndCap ) )
-    return false;
+    return MATCHING;
 
   if (  (invEOverInvP > InvEMinusInvPBarmax_ && !inEndCap )
      || (invEOverInvP > InvEMinusInvPEndmax_ &&  inEndCap ) )
-    return false;
+    return MATCHING;
    
-
-  return true;
+  return GOOD;
 
 }
