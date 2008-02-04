@@ -58,8 +58,7 @@ ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
 
 }
 
-void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{  
+void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  
   Handle<reco::CandidateView> particles;
   iEvent.getByLabel (src_, particles );
   if (!particles.isValid()) {
@@ -84,22 +83,21 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int iMo2 = -1;
     int iDa1 = -1;
     int iDa2 = -1;
-    std::vector<const reco::Candidate *> cands_;
-    cands_.clear();
-    vector<const Candidate *>::const_iterator found = cands_.begin();
-    for( CandidateView::const_iterator p = particles->begin();
-         p != particles->end(); ++ p ) {
-      cands_.push_back( & * p );
+    vector<const reco::Candidate *> cands;
+    vector<const Candidate *>::const_iterator found = cands.begin();
+    for(CandidateView::const_iterator p = particles->begin();
+	p != particles->end(); ++ p) {
+      cands.push_back(&*p);
     }
 
-    for( CandidateView::const_iterator p  = particles->begin();
-	 p != particles->end(); 
-	 p ++) {
+    for(CandidateView::const_iterator p  = particles->begin();
+	p != particles->end(); 
+	p ++) {
       // Particle Name
       int id = p->pdgId();
-      const ParticleData * pd = pdt_->particle( id );
-      const char* particleName = (char*)( pd->name().c_str() );  
-
+      const ParticleData * pd = pdt_->particle(id);
+      string particleName = pd == 0 ? "???" : pd->name();
+      
       // Particle Index
       idx =  p - particles->begin();
 
@@ -111,22 +109,22 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
       int nMo = p->numberOfMothers();
       int nDa = p->numberOfDaughters();
 
-      found = find( cands_.begin(), cands_.end(), p->mother(0) );
-      if ( found != cands_.end() ) iMo1 = found - cands_.begin() ;
+      found = find(cands.begin(), cands.end(), p->mother(0));
+      if(found != cands.end()) iMo1 = found - cands.begin() ;
 
-      found = find( cands_.begin(), cands_.end(), p->mother(nMo-1) );
-      if ( found != cands_.end() ) iMo2 = found - cands_.begin() ;
+      found = find(cands.begin(), cands.end(), p->mother(nMo-1));
+      if(found != cands.end()) iMo2 = found - cands.begin() ;
      
-      found = find( cands_.begin(), cands_.end(), p->daughter(0) );
-      if ( found != cands_.end() ) iDa1 = found - cands_.begin() ;
+      found = find(cands.begin(), cands.end(), p->daughter(0));
+      if(found != cands.end()) iDa1 = found - cands.begin() ;
 
-      found = find( cands_.begin(), cands_.end(), p->daughter(nDa-1) );
-      if ( found != cands_.end() ) iDa2 = found - cands_.begin() ;
+      found = find(cands.begin(), cands.end(), p->daughter(nDa-1));
+      if(found != cands.end()) iDa2 = found - cands.begin() ;
 
       printf(" %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |\n",
              idx,
              p->pdgId(),
-             particleName,
+             particleName.c_str(),
              p->status(),
              iMo1,iMo2,iDa1,iDa2,nMo,nDa,
              p->pt(),
@@ -142,5 +140,5 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 }
 
-DEFINE_FWK_MODULE( ParticleListDrawer );
+DEFINE_FWK_MODULE(ParticleListDrawer);
 
