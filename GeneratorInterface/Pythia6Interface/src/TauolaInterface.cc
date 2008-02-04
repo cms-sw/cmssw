@@ -1,8 +1,8 @@
 #include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
 
 /*
- *  $Date: 2007/04/30 09:39:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/08 15:16:44 $
+ *  $Revision: 1.3 $
  *  
  *  Christian Veelken
  *   04/17/07
@@ -12,8 +12,11 @@
 #include <stdio.h>
 #include <iostream>
 
-//#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
-#include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
+#include <math.h>
+
+// #include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
+// #include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_2.h"
 #include "GeneratorInterface/CommonInterface/interface/TauolaWrapper.h"
 
 using namespace edm;
