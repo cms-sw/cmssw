@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.3 2008/01/27 06:23:20 dmytro Exp $
+// $Id: DumpGeom.cc,v 1.4 2008/01/30 22:04:09 case Exp $
 //
 //
 
@@ -616,7 +616,7 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
       
     std::string name = s.str();
-    id = int((*git)->geographicalId());
+    id = int((*git)->geographicalID());
     std::cout << "Tracker id: " << id << " \tname: " << name << std::endl;
     idToName_[id] = name;
   }
@@ -678,7 +678,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       DDCompactView::walker_type::value_type info = 
 	 walker.current();
       if(verbose_) {
-	 for(int i=0; i<parentStack.size();++i) {
+	 for(unsigned int i=0; i<parentStack.size();++i) {
 	    std::cout <<" ";
 	 }
 	 std::cout << info.first.name()<<" "<<info.second->copyno_<<" "
@@ -697,7 +697,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 						 info.second->translation()));
 	 child->SetLineColor(kBlue);
       }
-      if(0 == child || childAlreadyExists || level_ == parentStack.size()) {
+      if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
 	 if(0!=child) {
 	    child->SetLineColor(kRed);
 	 }
