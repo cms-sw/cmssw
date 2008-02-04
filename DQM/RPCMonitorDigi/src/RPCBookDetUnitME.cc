@@ -41,6 +41,13 @@ using namespace std;
     
     dbe->setCurrentFolder(folder);
     
+    //temporary 
+    
+    char layer[128];
+    sprintf(layer ,"layer_roll%d",detId.roll());
+    std::cout<<"\n rool ->"<<layer<<std::endl;
+   // sleep(20);
+
     /// Name components common to current RPDDetId  
     char detUnitLabel[328];
     char layerLabel[328];
@@ -50,6 +57,7 @@ using namespace std;
     std::string nameRoll = RPCname.name();
     sprintf(detUnitLabel ,"%s",nameRoll.c_str());
     sprintf(layerLabel ,"%s",nameRoll.c_str());
+   
     
     char meId [328];
     char meTitle [328];
@@ -92,7 +100,7 @@ using namespace std;
       
       sprintf(meId,"ClusterSize_%s",detUnitLabel);
       sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
-      meMap[meId] = dbe->book1D(meId, meTitle, 21, 0.5, 20.5);
+      meMap[meId] = dbe->book1D(meId, meTitle, 20, 0.5, 20.5);
 
       /*
       std::cout <<"detUnitLabel:"<<detUnitLabel
@@ -157,7 +165,7 @@ using namespace std;
       
       sprintf(meId,"BXWithData_%s",detUnitLabel);
       sprintf(meTitle,"NumberOfBXsWithData_for_%s",layerLabel);
-      meMap[meId] = dbe->book1D(meId, meTitle, 5, 0.5, 5.5);
+      meMap[meId] = dbe->book1D(meId, meTitle, 11, -5.5, 5.5);
       
     }
     
@@ -190,7 +198,7 @@ using namespace std;
     
     sprintf(meId,"RecHitCounter_%s",detUnitLabel);
     sprintf(meTitle,"RecHitCounter_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle,101,-0.5,100.5);
+    meMap[meId] = dbe->book1D(meId, meTitle,100,-0.5,100.5);
     
     }
     

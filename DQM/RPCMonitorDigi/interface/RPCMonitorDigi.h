@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2007/03/12 22:37:14 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/26 11:00:51 $
+ *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -58,6 +58,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         MonitorElement * ClusterSize_for_EndcapForward;
         MonitorElement * ClusterSize_for_EndcapBackward;
 	MonitorElement * ClusterSize_for_BarrelandEndcaps;
+	MonitorElement * NumberofClusters_for_Barrel;
         
 	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
         std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;
