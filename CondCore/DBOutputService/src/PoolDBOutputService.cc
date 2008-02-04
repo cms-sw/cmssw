@@ -48,10 +48,10 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
   //catconnect.append(connect);
-  conHandler.registerConnection("outputdb",connect,0);
+  conHandler.registerConnection("outputdb",connect,-1);
   if( !logconnect.empty() ){
     m_logdbOn=true;
-    conHandler.registerConnection("logdb",logconnect,0);
+    conHandler.registerConnection("logdb",logconnect,-1);
   }
   m_session->open();
   conHandler.connect(m_session);
