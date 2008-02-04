@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2007/11/05 17:38:07 $
- * $Revision: 1.1 $
+ * $Date: 2007/12/04 08:16:10 $
+ * $Revision: 1.2 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -57,9 +57,15 @@ private:
   bool debug;
   int nevents;
   int counter;
+
+  /// variables to set by configuration file
   int TotEvents;
   int TriggerWidth;
+  float upperLimit;
   bool cosmicRun;
+  bool fastAnalysis;
+  int wh;
+  int sect;
 
   /// tTrig from the DB
   float tTrig;

@@ -8,6 +8,7 @@
 
 
 #include "CalibMuon/DTCalibration/plugins/DTNoiseCalibration.h"
+#include "CalibMuon/DTCalibration/test/DBTools/DTCalibrationMap.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -23,18 +24,21 @@
 // Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 // Database
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include "TH2F.h"
 #include "TFile.h"
 
 using namespace edm;
 using namespace std;
-
-
 
 
 DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
@@ -44,19 +48,25 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
   // Get the debug parameter for verbose output
   debug = ps.getUntrackedParameter<bool>("debug");
 
+  // The analysis type
+  fastAnalysis = ps.getUntrackedParameter<bool>("fastAnalysis", true);
+  // The wheel & sector interested for the time-dependent analysis
+  wh = ps.getUntrackedParameter<int>("wheel", 0);
+  sect = ps.getUntrackedParameter<int>("sector", 6);
+
   // The total numeber of events
   TotEvents = ps.getUntrackedParameter<int>("TotEvents");
 
-  // The trigger width
+  // The trigger mode
+  cosmicRun = ps.getUntrackedParameter<bool>("cosmicRun", false);
+
+  // The trigger width (if noise run)
   TriggerWidth = ps.getUntrackedParameter<int>("TriggerWidth");
 
   // The root file which will contain the histos
   string rootFileName = ps.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
-
-  // The trigger mode
-  cosmicRun = ps.getUntrackedParameter<bool>("cosmicRun", false);
 
   parameters=ps;
 
@@ -113,17 +123,27 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
 	  abort();
 	}
       }	
-      hTDCTriggerWidth->Fill(tdcTime);
 
-      // Set the tTrigValue if the run is triggered by cosmics
-      if ( parameters.getUntrackedParameter<bool>("readDB", true) ) 
-	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
-      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 1000);
+      if((!fastAnalysis &&
+	 (*dtLayerId_It).first.superlayerId().chamberId().wheel()==wh &&
+	 (*dtLayerId_It).first.superlayerId().chamberId().sector()==sect) ||
+	 fastAnalysis)
+	hTDCTriggerWidth->Fill(tdcTime);
+
+      // Set the window of interest if the run is triggered by cosmics
+      if ( parameters.getUntrackedParameter<bool>("readDB", true) ) {
+	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS);
+	upperLimit = tTrig-500;
+      }
+      else { 
+	tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
+	upperLimit = tTrig-500;
+      }
 	
-      if((cosmicRun && (*digiIt).countsTDC()<tTrig) || (!cosmicRun) ){
+      if((cosmicRun && (*digiIt).countsTDC()<upperLimit) || (!cosmicRun) ){
 
-	if(debug)
-	  cout<<"tdcTime (ns): "<<((*digiIt).countsTDC()*25)/32<<" --- TriggerWidth (ns): "<<(tTrig*25)/32<<endl;
+	if(debug && cosmicRun)
+	  cout<<"tdcTime (ns): "<<((*digiIt).countsTDC()*25)/32<<" --- TriggerWidth (ns): "<<(upperLimit*25)/32<<endl;
 
 	// Get the number of wires
 	const  DTLayerId dtLId = (*dtLayerId_It).first;
@@ -134,31 +154,39 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
 	
 	// book the occupancy histos
 	theFile->cd();
-	hOccupancyHisto = theHistoOccupancyMap[dtLId];
-	if(hOccupancyHisto == 0) {
-	  string HistoName = "DigiOccupancy_" + getLayerName(dtLId);
-	  theFile->cd();
-	  hOccupancyHisto = new TH1F(HistoName.c_str(), HistoName.c_str(), nWires, firstWire, lastWire+1);
-	  if(debug)
-	    cout << "  New Occupancy Histo: " << hOccupancyHisto->GetName() << endl;
-	  theHistoOccupancyMap[dtLId] = hOccupancyHisto;
-	}
-	
-	hOccupancyHisto->Fill((*digiIt).wire());
-	
-	// book the digi event plot every 1000 events
-	if(theHistoEvtPerWireMap.find(dtLId) == theHistoEvtPerWireMap.end() ||
-	   (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
-	    skippedPlot[dtLId] != counter)) {
-	  skippedPlot[dtLId] = counter;
-	  stringstream toAppend; toAppend << counter;
-	  Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
-	  theFile->cd();
-	  hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
-	  if(hEvtPerWireH){
+	if((!fastAnalysis &&
+	   dtLId.superlayerId().chamberId().wheel()==wh &&
+	   dtLId.superlayerId().chamberId().sector()==sect) ||
+	   fastAnalysis){
+	  hOccupancyHisto = theHistoOccupancyMap[dtLId];
+	  if(hOccupancyHisto == 0) {
+	    string HistoName = "DigiOccupancy_" + getLayerName(dtLId);
+	    theFile->cd();
+	    hOccupancyHisto = new TH1F(HistoName.c_str(), HistoName.c_str(), nWires, firstWire, lastWire+1);
 	    if(debug)
-	      cout << "  New Histo with the number of digi per evt per wire: " << hEvtPerWireH->GetName() << endl;
-	    theHistoEvtPerWireMap[dtLId]=hEvtPerWireH;
+	      cout << "  New Occupancy Histo: " << hOccupancyHisto->GetName() << endl;
+	    theHistoOccupancyMap[dtLId] = hOccupancyHisto;
+	  }
+	  hOccupancyHisto->Fill((*digiIt).wire());
+	}
+
+	// book the digi event plot every 1000 events if the analysis is not "fast" and if is the correct sector
+	if(!fastAnalysis &&
+	   dtLId.superlayerId().chamberId().wheel()==wh &&
+	   dtLId.superlayerId().chamberId().sector()==sect) {
+	  if(theHistoEvtPerWireMap.find(dtLId) == theHistoEvtPerWireMap.end() ||
+	     (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
+	      skippedPlot[dtLId] != counter)){ 
+	    skippedPlot[dtLId] = counter;
+	    stringstream toAppend; toAppend << counter;
+	    Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	    theFile->cd();
+	    hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
+	    if(hEvtPerWireH){
+	      if(debug)
+		cout << "  New Histo with the number of digi per evt per wire: " << hEvtPerWireH->GetName() << endl;
+	      theHistoEvtPerWireMap[dtLId]=hEvtPerWireH;
+	    }
 	  }
 	}
       }
@@ -199,7 +227,7 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
 	  for (DTDigiCollection::const_iterator digi = layerDigi.first;
 	       digi!=layerDigi.second;
 	       ++digi){
-	    if((cosmicRun && (*digi).countsTDC()<tTrig) || (!cosmicRun))
+	    if((cosmicRun && (*digi).countsTDC()<upperLimit) || (!cosmicRun))
 	      DigiPerWirePerEvent[(*digi).wire()]+=1;
 	  }
 	  // fill the digi event histo
@@ -243,16 +271,17 @@ void DTNoiseCalibration::endJob(){
   theFile->cd();
   hTDCTriggerWidth->Write();
 
-  // save on file the occupancy histo
+  // save on file the occupancy histo and write the list of noisy cells
   double TriggerWidth_s=0;
+  DTStatusFlag *statusMap = new DTStatusFlag();
   for(map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap.begin();
       lHisto != theHistoOccupancyMap.end();
       lHisto++) {
     if(cosmicRun){
       if ( parameters.getUntrackedParameter<bool>("readDB", true) ) 
 	tTrigMap->slTtrig( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS); 
-      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 1000);
-      double TriggerWidth_ns = (tTrig*25)/32;
+      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
+      double TriggerWidth_ns = ((tTrig-500)*25)/32;
       TriggerWidth_s = TriggerWidth_ns/1e9;
     }
     if(!cosmicRun)
@@ -260,10 +289,25 @@ void DTNoiseCalibration::endJob(){
     if(debug)
       cout<<"TriggerWidth (s): "<<TriggerWidth_s<<"  TotEvents: "<<TotEvents<<endl;
     double normalization = 1/double(TotEvents*TriggerWidth_s);
-    (*lHisto).second->Scale(normalization);
-    theFile->cd();
-    (*lHisto).second->Write();
+    if((*lHisto).second){
+      (*lHisto).second->Scale(normalization);
+      theFile->cd();
+      (*lHisto).second->Write();
+      const DTTopology& dtTopo = dtGeom->layer((*lHisto).first)->specificTopology();
+      const int firstWire = dtTopo.firstChannel();
+      const int lastWire = dtTopo.lastChannel();
+      for(int bin=firstWire; bin<=lastWire; bin++){
+	//from definition of "noisy cell"
+	if((*lHisto).second->GetBinContent(bin)>500){
+	  DTWireId wireID((*lHisto).first, bin);
+	  statusMap->setCellNoise(wireID,1);
+	}
+      }
+    }
   }
+  cout << "Writing Noise Map object to DB!" << endl;
+  string record = "DTStatusFlagRcd";
+  DTCalibDBUtils::writeToDB<DTStatusFlag>(record, statusMap);
 
  
   /*
