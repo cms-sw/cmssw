@@ -1,11 +1,11 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.17 $
-///  last update: $Date: 2007/10/19 15:10:39 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.18 $
+///  last update: $Date: 2007/12/04 23:39:24 $
+///  by         : $Author: ratnik $
 
-#include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
+#include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h" 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
