@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2007/01/17 16:18:05 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/02/01 17:57:59 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -41,7 +41,8 @@ class MuonTrajectoryBuilder {
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event& event) = 0;
   
- private:
+    double doublecomputeNDOF(const Trajectory& trajectory);
 
+ private:
 };
 #endif

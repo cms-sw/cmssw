@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2007/10/24 15:54:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/04 14:41:46 $
+ *  $Revision: 1.16 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -56,8 +56,9 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 	"/" << (*jter)->foundHits() << " Shared RecHits: " << match;
 
       // get the chi2()/d.o.f
-      double chi2_dof_i = (*iter)->chiSquared() / (2.0*(*iter)->foundHits() - 4.0) ;
-      double chi2_dof_j = (*jter)->chiSquared() / (2.0*(*jter)->foundHits() - 4.0) ;
+      
+      double chi2_dof_i = (*iter)->chiSquared() / computeNDOF(**iter) ;
+      double chi2_dof_j = (*jter)->chiSquared() / computeNDOF(**jter) ;
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
@@ -77,22 +78,21 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
           else mask[j] = false;
         }
 
-        /*
-        if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
-          if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
-            mask[i] = false;
-            skipnext=true;
-          }
-          else mask[j] = false;
-        }
-        else { // different number of hits
-          if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
-	    mask[i] = false;
-            skipnext=true;
-          }
-          else mask[j] = false;
-	}
-        */
+//         if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
+//           if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
+//             mask[i] = false;
+//             skipnext=true;
+//           }
+//           else mask[j] = false;
+//         }
+//         else { // different number of hits
+//           if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
+// 	    mask[i] = false;
+//             skipnext=true;
+//           }
+//           else mask[j] = false;
+// 	}
+        
       }
       if(skipnext) break;
       j++;
@@ -244,4 +244,19 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
   
   candC.clear();
   candC = result;
+}
+
+
+double MuonTrajectoryCleaner::computeNDOF(const Trajectory& trajectory) const {
+  
+  const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
+  
+  double ndof = 0.;
+  
+  for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
+      rechit != transRecHits.end(); ++rechit)
+    if ((*rechit)->isValid()) ndof += (*rechit)->dimension();
+  
+  // FIXME! in case of Boff is dof - 4
+  return max(ndof - 5., 0.);
 }
