@@ -15,7 +15,7 @@ namespace popcon{
     public:
     typedef T Payload;
     typedef S SourceHandler;
-    typedef std::vector<std::pair<Payload*, popcon::IOVPair> > Container;
+    typedef std::vector<std::pair<Payload*, cond::Time_t> > Container;
 
     PopConAnalyzer(const edm::ParameterSet& pset) : 
       PopConAnalyzerBase(pset),
@@ -48,7 +48,7 @@ namespace popcon{
     virtual void displayHelper() const{
          typename Container::const_iterator it;
       for (it = m_payload_cont.begin(); it != m_payload_cont.end(); it++){
-	std::cerr<<"Since " <<(*it).second.first << " till " << (*it).second.second << std::endl;
+	std::cerr<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
       }
     }  
   };

@@ -2,7 +2,7 @@
 #define OUTPUT_HELPER_H
 
 
-#include "CondCore/PopCon/interface/IOVPair.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/PopCon/interface/Exception.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -15,21 +15,12 @@
 namespace popcon
 {
 
-  struct SinceLess
+  struct TimeLess
   {
     template <typename T1>
-    bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
+    bool operator()(const std::pair<T1,cond::Time_t>& x, const std::pair<T1,cond::Time_t>& y)
     {
-      return (x.second.first < y.second.first);
-    }
-  };
-  
-  struct TillLess
-  {
-    template <typename T1>
-    bool operator()(const std::pair<T1,popcon::IOVPair>& x, const std::pair<T1,popcon::IOVPair>& y)
-    {
-    return (x.second.second < y.second.second);
+    return (x.second < y.second);
     }
   };
 
@@ -60,16 +51,13 @@ namespace popcon
     void write (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
       
       typename std::vector<std::pair<T*,popcon::IOVPair> >::iterator it;
-      if(m_since){
-	//sort ascending so the since order is respected 
-	std::sort(payload_vect.begin(), payload_vect.end(),SinceLess());
-      }else{ 
-	std::sort(payload_vect.begin(), payload_vect.end(),TillLess());
-      }
+	//sort ascending so the since/till order is respected 
+      std::sort(payload_vect.begin(), payload_vect.end(),TimeLess());
+      
       //check if attempting to insert an object with lower since-time than the last existing IOV
       it = payload_vect.begin();
       ///try{
-      if (((*it).second.first < lsc) && m_since){
+      if ((*it).second < lsc) {
 	throw popcon::Exception("IOV sequence Exception");
       }
       
@@ -81,17 +69,17 @@ namespace popcon
 	for (it = payload_vect.begin(); it != payload_vect.end(); it++){
 	  try{
 	    if (m_dbService->isNewTagRequest(m_record) ){
-	      std::cerr << "Creating new IOV " << (*it).second.second << std::endl; 
-	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
+	      std::cerr << "Creating new IOV " << (*it).second << std::endl;
+	      m_dbService->createNewIOV<T>((*it).first, m_since ? (*it).second : Time_t(0), m_record, m_LoggingOn);
 	    }
 	    else{
 	      if (m_since){
-		std::cerr << "Appending since time " <<  (*it).second.first << std::endl; 
-		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record, m_LoggingOn);
+		std::cerr << "Appending since time " <<  (*it).second << std::endl; 
+		m_dbService->appendSinceTime<T>((*it).first, (*it).second, m_record, m_LoggingOn);
 	      } 
 	      else {
-		std::cerr << "Appending till time "  << (*it).second.second << std::endl; 
-		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
+		std::cerr << "Appending till time "  << (*it).second << std::endl; 
+		m_dbService->appendTillTime<T>((*it).first, (*it).second, m_record, m_LoggingOn);
 	      }
 	    }
 	  }catch(std::exception& er){

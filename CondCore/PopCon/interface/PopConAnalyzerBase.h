@@ -30,7 +30,8 @@
 // #include "CondCore/PopCon/interface/StateCreator.h"
 //#include "CondCore/PopCon/interface/Logger.h"
 
-#include "CondCore/PopCon/interface/IOVPair.h"
+#include "CondCore/DBCommon/interface/Time.h"
+
 
 namespace popcon
 {
