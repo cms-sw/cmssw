@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.112 2008/02/01 20:23:20 wmtan Exp $
+$Id: RootFile.cc,v 1.113 2008/02/04 17:47:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -101,8 +101,6 @@ namespace edm {
     FileIndex *findexPtr = &fileIndex_;
     std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
 
-    readEventDescriptionTree();
-
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if (!metaDataTree) 
@@ -125,6 +123,8 @@ namespace edm {
     }
 
     metaDataTree->GetEntry(0);
+
+    readEventDescriptionTree();
 
     validateFile();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
