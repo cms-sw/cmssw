@@ -23,8 +23,8 @@ public:
 
 private:
   edm::InputTag src_;
-  Fitter fitter_;
   bool setLongLived_;
+  Fitter fitter_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
 

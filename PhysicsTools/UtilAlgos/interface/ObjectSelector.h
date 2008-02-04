@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.24 $
  *
- * $Id: ObjectSelector.h,v 1.23 2007/10/02 12:55:59 llista Exp $
+ * $Id: ObjectSelector.h,v 1.24 2008/01/17 13:29:38 llista Exp $
  *
  */
 
@@ -39,35 +39,35 @@ template<typename Selector,
 class ObjectSelector : public Base {
 public:
   /// constructor 
-  explicit ObjectSelector( const edm::ParameterSet & cfg ) :
-    Base( cfg ),
-    src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-    filter_( false ),
-    selector_( cfg ),
-    sizeSelector_( reco::modules::make<SizeSelector>( cfg ) ),
-    postProcessor_( cfg ) {
-    const std::string filter( "filter" );
+  explicit ObjectSelector(const edm::ParameterSet & cfg) :
+    Base(cfg),
+    src_(cfg.template getParameter<edm::InputTag>("src")),
+    filter_(false),
+    selector_(cfg),
+    sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
+    postProcessor_(cfg) {
+    const std::string filter("filter");
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
-    bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
-    if ( found ) filter_ = cfg.template getParameter<bool>( filter );
-    postProcessor_.init( * this );
+    bool found = std::find(bools.begin(), bools.end(), filter) != bools.end();
+    if (found) filter_ = cfg.template getParameter<bool>(filter);
+    postProcessor_.init(* this);
    }
   /// destructor
   virtual ~ObjectSelector() { }
   
 private:
   /// process one event
-  bool filter( edm::Event& evt, const edm::EventSetup& es ) {
-    Init::init( selector_, evt, es );
+  bool filter(edm::Event& evt, const edm::EventSetup& es) {
+    Init::init(selector_, evt, es);
     using namespace std;
     edm::Handle<typename Selector::collection> source;
-    evt.getByLabel( src_, source );
-    StoreManager manager( source );
-    selector_.select( source, evt );
-    manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
-    bool result = ( ! filter_ || sizeSelector_( manager.size() ) );
-    edm::OrphanHandle<OutputCollection> filtered = manager.put( evt );
-    postProcessor_.process( filtered, evt );
+    evt.getByLabel(src_, source);
+    StoreManager manager(source);
+    selector_.select(source, evt, es);
+    manager.cloneAndStore(selector_.begin(), selector_.end(), evt);
+    bool result = (! filter_ || sizeSelector_(manager.size()));
+    edm::OrphanHandle<OutputCollection> filtered = manager.put(evt);
+    postProcessor_.process(filtered, evt);
     return result;
   }
   /// source collection label

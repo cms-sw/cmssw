@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.7 2007/03/09 14:07:08 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.8 2007/05/16 09:52:56 llista Exp $
  *
  */
 
@@ -33,22 +33,22 @@ private:
   typedef typename container::const_iterator const_iterator;
   
 public:
-  ObjectPairCollectionSelector( const edm::ParameterSet & cfg ) : 
-    select_( reco::modules::make<Selector>( cfg ) ) { }
+  ObjectPairCollectionSelector(const edm::ParameterSet & cfg) : 
+    select_(reco::modules::make<Selector>(cfg)) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const edm::Handle<InputCollection> & c, const edm::Event & ) {
+  void select(const edm::Handle<InputCollection> &c, const edm::Event &, const edm::EventSetup &) {
     unsigned int s = c->size();
-    std::vector<bool> v( s, false );
-    for( unsigned int i = 0; i < s; ++ i )
-      for( unsigned int j = i + 1; j < s; ++ j ) {
-	if ( select_( (*c)[ i ], (*c)[ j ] ) )
-	  v[ i ] = v[ j ] = true;
+    std::vector<bool> v(s, false);
+    for(unsigned int i = 0; i < s; ++i)
+      for(unsigned int j = i + 1; j < s; ++j) {
+	if(select_((*c)[i], (*c)[j]))
+	  v[i] = v[j] = true;
       }
     selected_.clear();
-    for( unsigned int i = 0; i < s; ++i )
-    if ( v[ i ] ) 
-      addRef_( selected_, c, i );
+    for(unsigned int i = 0; i < s; ++i)
+    if (v[i]) 
+      addRef_(selected_, c, i);
   }
   
 private:

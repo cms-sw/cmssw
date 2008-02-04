@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociatedVariableCollectionSelector.h,v 1.1 2007/11/12 11:37:36 llista Exp $
+ * \version $Id: AssociatedVariableCollectionSelector.h,v 1.2 2008/01/17 13:29:38 llista Exp $
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -37,7 +37,7 @@ public:
     select_(reco::modules::make<Selector>(cfg)) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select(const edm::Handle<InputCollection> & c, const edm::Event & evt) {
+  void select(const edm::Handle<InputCollection>& c, const edm::Event& evt, const edm::EventSetup&) {
     selected_.clear();    
     edm::Handle<VarCollection> var;
     evt.getByLabel(var_, var);
