@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.25 2008/01/23 23:35:18 wdd Exp $
+$Id: Wrapper.h,v 1.26 2008/01/24 23:38:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -230,7 +230,7 @@ namespace edm {
   template <typename T>
   struct DoIsProductEqual
   {
-    bool operator()(T& a, T& b) { return a.IsProductEqual(b); }
+    bool operator()(T& a, T& b) { return a.isProductEqual(b); }
   };
 
   template <typename T>
@@ -273,7 +273,7 @@ namespace edm {
     };
 
 #ifndef __REFLEX__
-    template <typename T, void (T::*)(T&)>  struct mergeProduct_function;
+    template <typename T, bool (T::*)(T const &)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
 
@@ -284,7 +284,7 @@ namespace edm {
 	sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T, void (T::*)(T&)>  struct isProductEqual_function;
+    template <typename T, bool (T::*)(T const &)>  struct isProductEqual_function;
     template <typename T> no_tag  has_isProductEqual_helper(...);
     template <typename T> yes_tag has_isProductEqual_helper(isProductEqual_function<T, &T::isProductEqual> * dummy);
 
