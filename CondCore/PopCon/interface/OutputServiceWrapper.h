@@ -81,16 +81,16 @@ namespace popcon
 	for (it = payload_vect.begin(); it != payload_vect.end(); it++){
 	  try{
 	    if (m_dbService->isNewTagRequest(m_record) ){
-	      std::cerr << "Creating new IOV " << (*it).second.second <<endl; 
+	      std::cerr << "Creating new IOV " << (*it).second.second << std::endl; 
 	      m_dbService->createNewIOV<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
 	    }
 	    else{
 	      if (m_since){
-		std::cerr << "Appending since time " <<  (*it).second.first << endl; 
+		std::cerr << "Appending since time " <<  (*it).second.first << std::endl; 
 		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record, m_LoggingOn);
 	      } 
 	      else {
-		std::cerr << "Appending till time "  (*it).second.second << endl; 
+		std::cerr << "Appending till time "  (*it).second.second << std::endl; 
 		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
 	      }
 	    }
