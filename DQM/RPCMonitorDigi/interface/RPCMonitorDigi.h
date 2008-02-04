@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2007/11/26 11:00:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/04 13:00:30 $
+ *  $Revision: 1.8 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -40,10 +40,17 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	virtual void endJob(void);
         
 	/// Booking of MonitoringElemnt for one RPCDetId (= roll)
-	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId & detId);
+	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId & detId);	
+	
 	
 	/// Booking of MonitoringElemnt at Wheel/Disk level
 	std::map<std::string, MonitorElement*> bookRegionRing(int region, int ring);
+
+       
+
+	
+
+	
 
    private:
 	
@@ -58,7 +65,11 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         MonitorElement * ClusterSize_for_EndcapForward;
         MonitorElement * ClusterSize_for_EndcapBackward;
 	MonitorElement * ClusterSize_for_BarrelandEndcaps;
+<<<<<<< RPCMonitorDigi.h
+	MonitorElement * s1;
+=======
 	MonitorElement * NumberofClusters_for_Barrel;
+>>>>>>> 1.8
         
 	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
         std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;

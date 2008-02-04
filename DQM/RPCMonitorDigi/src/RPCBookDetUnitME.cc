@@ -9,6 +9,7 @@
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 
+
 using namespace std;
 
 /// Booking of MonitoringElemnt for one RPCDetId (= roll)
@@ -62,6 +63,7 @@ using namespace std;
     char meId [328];
     char meTitle [328];
     
+        
     
     if (dqmexpert) {
       
@@ -71,6 +73,7 @@ using namespace std;
       sprintf(meId,"Occupancy_%s",detUnitLabel);
       sprintf(meTitle,"Occupancy_for_%s",layerLabel);
       
+
       /*
       std::cout <<"detUnitLabel:"<<detUnitLabel
 		<<"\nLayerLabel "<<layerLabel
@@ -235,9 +238,31 @@ using namespace std;
     //sprintf(meTitle,"GlobalClusterSize_for_Enscap+");
     //meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
     
+    dbe->setCurrentFolder(GlobalHistogramsFolder);
+    sprintf(meId,"Occupancy_%s_%d_Sector_%d",ringType.c_str(),detId.ring(),detId.sector());
+    sprintf(meTitle,"Occupancy_%s_%d_Sector_%d",ringType.c_str(),detId.ring(),detId.sector());
+
+    if (detId.sector()==9 || detId.sector()==11 ) {
+      
+      meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 14, 0.5, 14.5);
+      
+    }
+    
+    else  if (detId.sector()==4) {
+      
+      meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 22, 0.5, 22.5);
+    }
+    else {
+      meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 16, 0.5, 16.5);
+      
+    }
+    
+    
     std::cout <<"End of Booking "<<std::endl;
     return meMap;
   }
+
+
   
   
 
