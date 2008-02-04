@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.2 2008/01/02 23:52:42 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.3 2008/01/18 20:10:23 wmtan Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -101,6 +101,7 @@ namespace edm {
 	output_ << "The state machine reports it has been terminated\n";
       }
     }
+    return epSuccess;
   }
 
   void MockEventProcessor::readFile() {
