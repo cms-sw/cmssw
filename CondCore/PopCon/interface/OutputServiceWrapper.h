@@ -35,14 +35,16 @@ namespace popcon
 
   class OutputServiceWrapper {
   private:
-    edm::Service<cond::service::PoolDBOutputService> m_dbService;
+    edm::Service<cond::service::PoolDBOutputService> & m_dbService;
     std::string  m_record;
     bool m_since;
     bool m_LoggingOn;
     std::string logMsg;
     
   public:
-    OutputServiceWrapper(std::string const & record, bool since, bool log) :
+    OutputServiceWrapper(edm::Service<cond::service::PoolDBOutputService> & dbService,
+			 std::string const & record, bool since, bool log) :
+      m_dbService(dbService),
       m_record(record), m_since(since), m_LoggingOn(log){}
     
     std::string tag() const {

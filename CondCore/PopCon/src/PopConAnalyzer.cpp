@@ -4,18 +4,21 @@
 namespace popcon {
 
   PopConAnalyzerBase::PopConAnalyzerBase(const edm::ParameterSet& pset):
-    m_payload_name(pset.getUntrackedParameter<std::string> ("name","")) ,
-    m_offline_connection(pset.getParameter<std::string> ("connect")),
+    m_record(pset.getParameter<std::string> ("record")),
+    m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     sinceAppend(pset.getParameter<bool> ("SinceAppendMode")),
-    m_debug(pset.getParameter< bool > ("debug")),
     m_loggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
-    m_output(pset.getParameter<std::string> ("record"),sinceAppend,m_loggingOn),
+    m_debug(pset.getParameter< bool > ("debug")),
+    m_output(m_dbService,m_record,sinceAppend,m_loggingOn),
+    m_tag(m_dbService->tag(m_record)),	 
+    m_output(m_dbService,m_record,sinceAppend,m_loggingOn),
     tryToValidate(false), corrupted(false), greenLight (true), fixed(true)
     {
-    
+      m_dbService->tagInfo(m_record,m_tagInfo);
+      m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
     //TODO set the policy (cfg or global configuration?)
     //Policy if corrupted data found
-  }
+    }
   
   PopConAnalyzerBase::~PopConAnalyzerBase(){}
   
@@ -88,7 +91,7 @@ namespace popcon {
   void PopConAnalyzerBase::analyze(const edm::Event& evt, const edm::EventSetup& est){
     if(m_debug) std::cerr << "Analyze Begins\n"; 
     try{
-      m_output.setLogHeader(sourceId(),"something clever");
+       m_dbService->setLogHeader(sourceId(),"something clever");
       if(greenLight){
 	//get New objects 	  
 	if (takeTheData()) {

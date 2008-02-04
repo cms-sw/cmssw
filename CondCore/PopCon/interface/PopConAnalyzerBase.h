@@ -14,6 +14,10 @@
 //
 #include "CondCore/PopCon/interface/OutputServiceWrapper.h"
 
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondCore/DBOutputService/interface/TagInfo.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
+
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,8 +45,14 @@ namespace popcon
      ~PopConAnalyzerBase();
      
 
-     std::string tag() const;
-     
+     std::string tag() const {
+       return m_tag;
+     }
+ 
+     Time_t lastSince() const {
+       return m_tagInfo.lastInterval.first;
+     }
+    
    private:
 
      virtual void beginJob(const edm::EventSetup& es);
@@ -71,16 +81,25 @@ namespace popcon
 
      std::string logMsg;
      
+
+     edm::Service<cond::service::PoolDBOutputService> m_dbService;
+
+     std::string  m_record;
+
      std::string m_payload_name;
-     
-     std::string m_offline_connection;
-     
+          
      bool sinceAppend;
 
      bool m_loggingOn;
  
      bool m_debug;
-    
+     
+     std::string m_tag;
+
+     cond::TagInfo m_tagInfo;
+
+     cond::LogDBEntry m_logDBEntry;
+   
      OutputServiceWrapper m_output;
     
      

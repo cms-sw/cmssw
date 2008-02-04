@@ -39,8 +39,7 @@ namespace popcon{
     }
      
     void write() {
-      Time_t last_since = m_handler.getSinceForTag(tag());
-      this->template writeThem<T>(m_payload_cont, last_since);
+      this->template writeThem<T>(m_payload_cont, lasrSince);
     }
     
     SourceHandler m_handler;	

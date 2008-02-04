@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PAYLOAD_H
-#define TEMPLATE_PAYLOAD_H
+#ifndef  PopConSourceHandler_H
+#define  PopConSourceHandler_H
 
 
 #include "CondCore/PopCon/interface/IOVPair.h"
@@ -22,10 +22,11 @@ namespace popcon {
 
     typedef PopConSourceHandler<T> self;
 
-    PopConSourceHandler(const std::string& connect_string) : 
-      m_db_iface(connect_string) {}
-
- 
+    PopConSourceHandler(cond::TagInfo const  tagInfo,
+			cond::LogDBEntry const & logDBEntry) : 
+      m_tagInfo(tagInfo),
+      m_logDBEntry(logDBEntry) {}
+    
     virtual ~PopConSourceHandler(){
     }
     
@@ -34,9 +35,6 @@ namespace popcon {
       return const_cast<self*>(this)->returnData();
     }
 
-    Time_t getSinceForTag(const std::string& tag) const {
-      return (m_db_iface.getSpecificTagInfo(tag)).last_since;
-    }
 
     std::vector<std::pair<T*, popcon::IOVPair> > const &  returnData() {
       this->getNewObjects();
@@ -50,17 +48,16 @@ namespace popcon {
     // return a string identifing the source
     virtual std::string id() const=0;
    
-    private:
-    //Offline Database Interface object
-    popcon::OfflineDBInterface m_db_iface;
+
     
     protected:
+
+     cond::TagInfo const & m_tagInfo;
+
+     cond::LogDBEntry const & m_logDBEntry;
+
+
      
-    //Is is sufficient for getNewObjects algorithm?
-    std::map<std::string, PayloadIOV> getOfflineInfo(){
-      return m_db_iface.getStatusMap();
-    }
-      
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
     std::vector<std::pair<T*, popcon::IOVPair> >  m_to_transfer;
