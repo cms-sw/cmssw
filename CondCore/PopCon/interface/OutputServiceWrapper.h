@@ -90,7 +90,7 @@ namespace popcon
 		m_dbService->appendSinceTime<T>((*it).first, (*it).second.first, m_record, m_LoggingOn);
 	      } 
 	      else {
-		std::cerr << "Appending till time "  (*it).second.second << std::endl; 
+		std::cerr << "Appending till time "  << (*it).second.second << std::endl; 
 		m_dbService->appendTillTime<T>((*it).first, (*it).second.second, m_record, m_LoggingOn);
 	      }
 	    }
