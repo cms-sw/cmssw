@@ -22,6 +22,11 @@ template<class C> class EcalUncalibRecHitMaxSampleAlgo : public EcalUncalibRecHi
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights,
                                             const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix);
+
+ private:
+  int16_t  amplitude_,  pedestal_, jitter_, sampleAdc_, gainId_;
+  double   chi2_;
+
 };
 
 /// compute rechits
@@ -30,42 +35,42 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
 					      const double* gainRatios,
 					      const EcalWeightSet::EcalWeightMatrix** weights,
 					      const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) {
-  
-  double amplitude_(-1.),  pedestal_(4095.), jitter_(-1.), chi2_(-1.);
-  
-  int gainId=-1;
-  double sampleAdc;
 
-  for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
+  amplitude_ = -1;
+  pedestal_  = 4095;
+  jitter_    = -1;
+  chi2_      = -1;
+
+  for(int16_t iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
     
-    gainId = dataFrame.sample(iSample).gainId(); 
+    gainId_ = dataFrame.sample(iSample).gainId(); 
 	
     // ampli gain 12
-    if ( gainId == 1){
-      sampleAdc = dataFrame.sample(iSample).adc();
+    if ( gainId_ == 1){
+      sampleAdc_ = dataFrame.sample(iSample).adc();
     }
       
     else
       {
-	if ( gainId == 2){ 	  // ampli gain 6
-	  sampleAdc = 200 + (dataFrame.sample(iSample).adc() - 200) * 2 ;
+	if ( gainId_ == 2){ 	  // ampli gain 6
+	  sampleAdc_ = 200 + (dataFrame.sample(iSample).adc() - 200) * 2 ;
 	}
-	else  {  // accounts for gainId==3 or 0 - ampli gain 1 and gain0
-	  sampleAdc = 200 + (dataFrame.sample(iSample).adc() - 200) * 12 ;
+	else  {  // accounts for gainId_==3 or 0 - ampli gain 1 and gain0
+	  sampleAdc_ = 200 + (dataFrame.sample(iSample).adc() - 200) * 12 ;
 	}
       }
     
-    if( sampleAdc >amplitude_ )	  {
-      amplitude_ = sampleAdc;
-      jitter_ = iSample;
+    if( sampleAdc_ >amplitude_ )	  {
+      amplitude_ = sampleAdc_;
+      jitter_    = iSample;
     }// if statement
     
-    if (sampleAdc<pedestal_) pedestal_ = sampleAdc;
+    if (sampleAdc_<pedestal_) pedestal_ = sampleAdc_;
 
   }// loop on samples
       
       
-  return EcalUncalibratedRecHit( dataFrame.id(), amplitude_-pedestal_ , pedestal_, jitter_ - 6, chi2_);
+  return EcalUncalibratedRecHit( dataFrame.id(), static_cast<double>(amplitude_-pedestal_) , static_cast<double>(pedestal_), static_cast<double>(jitter_ - 6), chi2_);
 }
 
 #endif
