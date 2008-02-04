@@ -236,6 +236,11 @@ namespace cond{
       void setLogHeaderForRecord(const std::string& EventSetupRecordName,
 			   const std::string& provenance,
 			   const std::string& comment);
+      // 
+      // Retrieve tag information of the data
+      // 
+      void tagInfo(const std::string& EventSetupRecordName,
+		   cond::TagInfo& result );
       virtual ~PoolDBOutputService();  
     private:
       void connect();    
@@ -254,9 +259,6 @@ namespace cond{
       //			    const std::string& EventSetupRecordName);
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
       UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
-      
-      void tagInfo(const std::string& EventSetupRecordName,
-		   cond::TagInfo& result );
       
     private:
       std::string m_timetype; 

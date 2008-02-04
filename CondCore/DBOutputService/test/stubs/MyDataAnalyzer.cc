@@ -75,6 +75,14 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"payloadContainer "<<result.payloadContainer<<"\n";
     std::cout<<"exectime "<<result.exectime<<"\n";
     std::cout<<"execmessage "<<result.execmessage<<std::endl;
+    //example for retrieving tag info
+    cond::TagInfo taginfo;
+    mydbservice->tagInfo(m_record,taginfo);
+    std::cout<<"Here's the tag info for "<<m_record<<"\n";
+    std::cout<<"tag name "<<taginfo.name<<"\n";
+    std::cout<<"iov token "<<taginfo.token<<"\n";
+    std::cout<<"last since "<<taginfo.lastInterval.first<<"\n";
+    std::cout<<"last till "<<taginfo.lastInterval.second<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){
