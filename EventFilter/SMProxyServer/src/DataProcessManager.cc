@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.5 2008/01/28 20:47:59 hcheung Exp $
+// $Id: DataProcessManager.cc,v 1.6 2008/02/02 02:35:29 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -764,12 +764,37 @@ namespace stor
       std::cout << " SM " << smURL << " has halted" << std::endl;
       return false;
     } else {
-      EventMsgView eventView(&buf_[0]);
-      ++receivedEvents_;
-      addMeasurement((unsigned long)data.d_.length());
-      if(eventServer_.get() != NULL) {
+      // 05-Feb-2008, KAB:  catch (and rethrow) any exceptions decoding
+      // the event data so that we can display the returned HTML and
+      // (hopefully) give the user a hint as to the cause of the problem.
+      try {
+        HeaderView hdrView(&buf_[0]);
+        if (hdrView.code() != Header::EVENT) {
+          throw cms::Exception("getOneEventFromSM", "DataProcessManager");
+        }
+        EventMsgView eventView(&buf_[0]);
+        ++receivedEvents_;
+        addMeasurement((unsigned long)data.d_.length());
+        if(eventServer_.get() != NULL) {
           eventServer_->processEvent(eventView);
           return true;
+        }
+      }
+      catch (cms::Exception excpt) {
+        const unsigned int MAX_DUMP_LENGTH = 1000;
+        edm::LogError("getOneEventFromSM") << "========================================";
+        edm::LogError("getOneEventFromSM") << "Exception decoding the getEventData response!";
+        if (data.d_.length() <= MAX_DUMP_LENGTH) {
+          edm::LogError("getOneEventFromSM") << "Here is the raw text that was returned:";
+          edm::LogError("getOneEventFromSM") << data.d_;
+        }
+        else {
+          edm::LogError("getOneEventFromSM") << "Here are the first " << MAX_DUMP_LENGTH <<
+            " characters of the raw text that was returned:";
+          edm::LogError("getOneEventFromSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+        }
+        edm::LogError("getOneEventFromSM") << "========================================";
+        throw excpt;
       }
     }
     return false;
