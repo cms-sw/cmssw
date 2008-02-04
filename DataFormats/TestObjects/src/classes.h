@@ -6,6 +6,9 @@
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
+#include "DataFormats/TestObjects/interface/ThingWithMerge.h"
+#include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 
 #include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
@@ -28,6 +31,10 @@ struct dictionary {
   edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
   edm::Wrapper<edmtest::DSTVSimpleProduct> dummyw21;
   edm::Wrapper<edmtest::DSTVSimpleDerivedProduct> dummyw22;
+
+  edm::Wrapper<edmtest::Thing> dummy105;
+  edm::Wrapper<edmtest::ThingWithMerge> dummy104;
+  edm::Wrapper<edmtest::ThingWithIsEqual> dummy103;
 
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
