@@ -2,7 +2,7 @@
 #define  PopConSourceHandler_H
 
 
-#include "CondCore/PopCon/interface/IOVPair.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBOutputService/interface/TagInfo.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
 
