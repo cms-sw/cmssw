@@ -94,9 +94,13 @@ CSCEventData::CSCEventData(unsigned short * buf){
     //if (nclct()== 1)
     //	cfeb_available_2 = (theTMBData->tmbHeader().ActiveCFEBs() >> icfeb) & 1;
     //if ( (cfeb_available==1)&&(cfeb_available_2 == 1) ) {
+
+    //cfeb_available cannot be trusted - need additional verification!
+
     if ( cfeb_available==1 )   {
       // Fill CFEB data and convert it into cathode digis
       theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
+      if (theCFEBData[icfeb]->trailerReached()) break;
       theCFEBData[icfeb]->check();
       pos += theCFEBData[icfeb]->sizeInWords();
     }

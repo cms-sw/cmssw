@@ -33,21 +33,32 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 	} 
       else 
 	{
-	  // OK.  Maybe it's good.
-	  CSCCFEBTimeSlice * goodSlice 
-	    = reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
-	  // show that a good slice starts here
-	  theSliceStarts.push_back(std::pair<int, bool>(pos, true));
-	  // it will just be an array of CSCCFEBTimeSlices, so we'll
-	  // grab the number of time slices from the first good one
-	  maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
-	  pos += goodSlice->sizeInWords();
-	  
-	  if (!goodSlice->check()) {
-	    edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
-					  << " " << *(buf+pos+3) << " " << *(buf+pos+2) << " "  
-					  << *(buf+pos+1) << " "<< *(buf+pos);
-	    // return;
+	  //check if dmb trailer is reached unexpectedly
+	  trailerReached_= (*(buf+pos) & 0xF000) == 0xF000 && (*(buf+pos+1) & 0xF000) == 0xF000
+	    && (*(buf+pos+2) & 0xF000) == 0xF000 && (*(buf+pos+3) & 0xF000) == 0xF000
+	    && (*(buf+pos+4) & 0xF000) == 0xE000 && (*(buf+pos+5) & 0xF000) == 0xE000
+	    && (*(buf+pos+6) & 0xF000) == 0xE000 && (*(buf+pos+7) & 0xF000) == 0xE000;
+	
+	  if (trailerReached_) {
+	    edm::LogError ("CSCCFEBData") << "CFEB data reached DMB Trailer unexpectedly!";
+	    break;
+	  } else {
+	    // OK.  Maybe it's good.
+	    CSCCFEBTimeSlice * goodSlice 
+	      = reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
+	    // show that a good slice starts here
+	    theSliceStarts.push_back(std::pair<int, bool>(pos, true));
+	    // it will just be an array of CSCCFEBTimeSlices, so we'll
+	    // grab the number of time slices from the first good one
+	    maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
+	    pos += goodSlice->sizeInWords();
+	    
+	    if (!goodSlice->check()) {
+	      edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
+					    << " " << *(buf+pos+3) << " " << *(buf+pos+2) << " "  
+					    << *(buf+pos+1) << " "<< *(buf+pos);
+	      // return;
+	    }
 	  }
 	}
       ++theNumberOfSamples;
@@ -266,6 +277,11 @@ bool CSCCFEBData::check() const
       if(slice==0 || !timeSlice(i)->check()) result = false;
     }
   return result;
+}
+
+bool CSCCFEBData::trailerReached() const
+{
+  return trailerReached_;
 }
 
 
