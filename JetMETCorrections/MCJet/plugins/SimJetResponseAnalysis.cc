@@ -31,7 +31,8 @@
 
 #include "CaloTowerBoundriesMC.h"
 #include "JetUtilMC.h"
-
+namespace cms
+{
 typedef CaloJetCollection::const_iterator CalJetIter;
 typedef GenJetCollection::const_iterator GenJetIter;
 
@@ -682,9 +683,4 @@ void  SimJetResponseAnalysis::GetSimJetResponse(){
     }
   }
 }
-
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_FWK_MODULE(SimJetResponseAnalysis);
+}
