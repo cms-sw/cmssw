@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.h,v 1.2 2007/07/09 12:58:51 drell Exp $
+// $Id: V0Producer.h,v 1.3 2007/09/27 19:50:06 drell Exp $
 //
 //
 
@@ -50,33 +50,6 @@ private:
   virtual void endJob() ;
 
   edm::ParameterSet theParams;
-
-  // Track reconstruction algorithm label, so we know which tracks
-  //  to pull from the Event to find Vees with
-  std::string trackRecoAlgo;
-
-  // Options to use the KalmanVertexFitter to refit tracks to the vertex
-  //  and whether or not to store the full refitted tracks in the V0Candidate
-  int useSmoothedTrax;
-  int storeSmoothedTrax;
-
-  // Parameters to select which V0 particles to reconstruct
-  int reconstructKshorts;
-  int reconstructLambdas;
-
-  // Parameters for post-vertex-fit cuts:
-
-  // Vertex chi2 cut
-  double chi2Cut;
-  // Vertex radius cut
-  double rVtxCut;
-  // Vertex significance cut (r_vtx / sigma(r_vtx))
-  double vtxSigCut;
-  // Particle collinearity cut (for lambda0)
-  double collinCut;
-  // Kshort mass width (will cut above and below by this amount)
-  double kShortMassCut;
-  double lambdaMassCut;
       
 };
 

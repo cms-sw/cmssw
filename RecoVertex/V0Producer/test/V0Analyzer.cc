@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id$
+// $Id: V0Analyzer.cc,v 1.1 2007/10/29 21:21:13 drell Exp $
 //
 //
 
@@ -101,6 +101,16 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* myNumSimKshortsHisto;
   TH1D* myNumRecoKshortsHisto;
   TH1D* myInnermostHitDistanceHisto;
+
+  // Histograms for figuring out the best cuts
+  TH1D* step1massHisto;
+  TH1D* step2massHisto;
+  TH1D* step3massHisto;
+
+  TH1D* vertexChi2Histo;
+  TH1D* rVtxHisto;
+  TH1D* vtxSigHisto;
+
 
 
       // ----------member data ---------------------------
@@ -211,6 +221,53 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string innermostHitDistanceHistoLabelLong(algo+
 		  string(" distance between innermost hits of track pairs"));
   string innermostHitDistanceHistoLabelShort(vernum + string("hitDist"));
+
+  //-----------------------------------------
+
+  string s1massHistoLabelLong(algo+
+			      string(" m_{#pi #pi}, all tracks"));
+  string s1massHistoLabelShort(vernum + string("mPiPiS1"));
+
+  string s2massHistoLabelLong(algo+
+		    string(" m_{#pi #pi}, R_{vtx} > 0.1, #chi^2 < 1"));
+  string s2massHistoLabelShort(vernum + string("mPiPiS2"));
+
+  string s3massHistoLabelLong(algo+
+			      string(" m_{#pi #pi}, all cuts implemented"));
+  string s3massHistoLabelShort(vernum + string("mPiPiS3"));
+
+  string vertexChi2HistoLabelLong(algo+
+				  string(" vertex #chi^{2}"));
+  string vertexChi2HistoLabelShort(vernum + string("vtxChi2"));
+
+  string rVtxHistoLabelLong(algo+
+			    string(" r_{vtx} of V^{0} decay"));
+  string rVtxHistoLabelShort(vernum + string("rVtx"));
+
+  string vtxSigHistoLabelLong(algo+
+			      string(" V^{0} vertex significance"));
+  string vtxSigHistoLabelShort(vernum + string("#sigma rVtx"));
+
+  step1massHisto = new TH1D(s1massHistoLabelShort.c_str(),
+			    s1massHistoLabelLong.c_str(),
+			    100, 0., 2.);
+  step2massHisto = new TH1D(s2massHistoLabelShort.c_str(),
+			    s2massHistoLabelLong.c_str(),
+			    100, 0., 2.);
+  step3massHisto = new TH1D(s3massHistoLabelShort.c_str(),
+			    s3massHistoLabelLong.c_str(),
+			    100, 0., 2.);
+
+  vertexChi2Histo = new TH1D(vertexChi2HistoLabelShort.c_str(),
+			     vertexChi2HistoLabelLong.c_str(),
+			     100, 0., 2.);
+  rVtxHisto = new TH1D(rVtxHistoLabelShort.c_str(),
+		       rVtxHistoLabelLong.c_str(),
+		       100, 0., 1.);
+  vtxSigHisto = new TH1D(vtxSigHistoLabelShort.c_str(),
+			 vtxSigHistoLabelLong.c_str(),
+			 100, 0., 100.);
+
 
   myKshortMassHisto = new TH1D(massHistoLabelShort.c_str(), 
 			       massHistoLabelLong.c_str(),
@@ -383,6 +440,45 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     double recoRad = vtxPos.perp();
     double recoCosTheta = vtxPos.z() / vtxPos.mag();
     double recoEta = -log( tan( acos( recoCosTheta )/2. ) );
+
+    double x_ = k0s.x();
+    double y_ = k0s.y();
+    double z_ = k0s.z();
+    double sig00 = k0s.covariance(0,0);
+    double sig11 = k0s.covariance(1,1);
+    double sig22 = k0s.covariance(2,2);
+    double sig01 = k0s.covariance(0,1);
+    double sig02 = k0s.covariance(0,2);
+    double sig12 = k0s.covariance(1,2);
+
+    //double vtxR = vtxPos.mag();
+    double vtxR = vtxPos.perp();
+    double vtxChi2 = k0s.chi2();
+    /*double vtxError =
+      sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
+	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
+	    / vtxR;*/
+    double vtxError =
+      sqrt( sig00*(x_*x_) + sig11*(y_*y_)
+	    + 2*sig01*(x_*y_) ) / vtxR;
+    double vtxSig = vtxR / vtxError;
+
+    vertexChi2Histo->Fill(vtxChi2, 1.);
+
+    step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+    if(vtxChi2 < 1.) {
+      rVtxHisto->Fill(vtxR, 1.);
+      if(vtxR > 0.1) {
+	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	vtxSigHisto->Fill(vtxSig, 1.);
+	if(vtxSig > 22.) {
+	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	}
+      }
+    }
+
+    //theKshorts[ksndx]
+
 
     //if(theKshorts.size() < 2) {
     myEtaEfficiencyHisto->Fill(recoEta, 1.);

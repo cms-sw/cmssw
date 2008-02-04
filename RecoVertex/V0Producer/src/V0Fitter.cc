@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.11 2007/10/29 21:21:13 drell Exp $
+// $Id: V0Fitter.cc,v 1.12 2007/12/04 21:07:12 drell Exp $
 //
 //
 
@@ -28,26 +28,35 @@ const double piMass = 0.13957018;
 const double piMassSquared = piMass*piMass;
 
 // Constructor and (empty) destructor
-V0Fitter::V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-		   std::string trackRecoAlgo, const int useRefittedTrax,
-		   const int storeRefittedTrax, const double chi2Cut_,
-		   const double rVtxCut_, const double vtxSigCut_,
-		   const double collinCut_, const double kShortMassCut_,
-		   const double lambdaMassCut_,
-		   const int doK0s, const int doLam) :
-  recoAlg(trackRecoAlgo) {
-  useRefTrax = useRefittedTrax;
-  storeRefTrax = storeRefittedTrax;
-  doKshorts = doK0s;
-  doLambdas = doLam;
+V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
+		   const edm::Event& iEvent, const edm::EventSetup& iSetup) :
+  recoAlg(theParameters.getUntrackedParameter("trackRecoAlgorithm",
+				   std::string("ctfWithMaterialTracks"))) {
+  using std::string;
 
-  // Initialize cut values
-  chi2Cut = chi2Cut_;
-  rVtxCut = rVtxCut_;
-  vtxSigCut = vtxSigCut_;
-  collinCut = collinCut_;
-  kShortMassCut = kShortMassCut_;
-  lambdaMassCut = lambdaMassCut_;
+  // ------> Initialize parameters from PSet. ALL TRACKED, so no defaults.
+  // First set bits to do various things:
+  //  -decide whether to use the KVF track smoother, and whether to store those
+  //     tracks in the reco::Vertex
+  useRefTrax = theParameters.getParameter<bool>(string("useSmoothing"));
+  storeRefTrax = theParameters.getParameter<bool>(
+				string("storeSmoothedTracksInRecoVertex"));
+
+  //  -whether to reconstruct K0s
+  doKshorts = theParameters.getParameter<bool>(string("selectKshorts"));
+  //  -whether to reconstruct Lambdas
+  doLambdas = theParameters.getParameter<bool>(string("selectLambdas"));
+
+  //  -whether to do cuts or store all found V0 
+  doPostFitCuts = theParameters.getParameter<bool>(string("doPostFitCuts"));
+
+  // Second, initialize post-fit cuts
+  chi2Cut = theParameters.getParameter<double>(string("chi2Cut"));
+  rVtxCut = theParameters.getParameter<double>(string("rVtxCut"));
+  vtxSigCut = theParameters.getParameter<double>(string("vtxSignificanceCut"));
+  collinCut = theParameters.getParameter<double>(string("collinearityCut"));
+  kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
+  lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
 
   // FOR DEBUG:
   initFileOutput();
@@ -311,8 +320,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       if( continue_ ) {
-	if(theRecoVertex.totalChiSquared() > chi2Cut ) {
+	if(theRecoVertex.totalChiSquared() > chi2Cut 
+	   || theRecoVertex.totalChiSquared() < 0.) {
 	  continue_ = false;
+	}
+	if(!doPostFitCuts) {
+	  continue_ = true;
 	}
       }
 
@@ -582,18 +595,23 @@ void V0Fitter::applyPostFitCuts() {
     }
     const double kShortMass = 0.49767;
     const double lambdaMass = 1.1156;
+
     if( theIt->mass() < kShortMass + kShortMassCut && 
 	theIt->mass() > kShortMass - kShortMassCut && writeVee &&
-	doKshorts) {
+	doKshorts && doPostFitCuts) {
       //theIt->setPdgId(310);
       if(theIt->pdgId() == 310) {
 	theKshorts.push_back( *theIt );
       }
     }
+    else if( !doPostFitCuts && theIt->pdgId() == 310 && doKshorts ) {
+      theKshorts.push_back( *theIt );
+    }
+
     //3122
     else if( theIt->mass() < lambdaMass + lambdaMassCut &&
 	theIt->mass() > lambdaMass - lambdaMassCut && writeVee &&
-	     doLambdas) {
+	     doLambdas && doPostFitCuts ) {
       //theIt->setPdgId(3122);
       if(theIt->pdgId() == 3122) {
 	theLambdas.push_back( *theIt );
@@ -602,7 +620,14 @@ void V0Fitter::applyPostFitCuts() {
 	theLambdaBars.push_back( *theIt );
       }
     }
+    else if ( !doPostFitCuts && theIt->pdgId() == 3122 && doLambdas ) {
+      theLambdas.push_back( *theIt );
+    }
+    else if ( !doPostFitCuts && theIt->pdgId() == -3122 && doLambdas ) {
+      theLambdaBars.push_back( *theIt );
+    }
   }
+
   static int numkshorts = 0;
   numkshorts += theKshorts.size();
   std::cout << "Ending cuts with " << theKshorts.size() << " K0s, "

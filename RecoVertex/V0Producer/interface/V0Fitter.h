@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.4 2007/09/27 19:50:06 drell Exp $
+// $Id: V0Fitter.h,v 1.5 2007/10/29 21:21:12 drell Exp $
 //
 //
 
@@ -54,13 +54,8 @@
 
 class V0Fitter {
  public:
-  V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-	   std::string trackRecoAlgo, const int useRefittedTrax,
-	   const int storeRefittedTrax, const double chi2Cut, 
-	   const double rVtxCut, const double vtxSigCut, 
-	   const double collinCut, const double kShortMassCut,
-	   const double lambdaMassCut, 
-	   const int doKshort, const int doLambda);
+  V0Fitter(const edm::ParameterSet& theParams,
+	   const edm::Event& iEvent, const edm::EventSetup& iSetup);
   ~V0Fitter();
 
   // Get methods for the VertexCollections
@@ -91,10 +86,12 @@ class V0Fitter {
   const TrackerGeometry* trackerGeom;
 
   std::string recoAlg;
-  int useRefTrax;
-  int storeRefTrax;
-  int doKshorts;
-  int doLambdas;
+  bool useRefTrax;
+  bool storeRefTrax;
+  bool doKshorts;
+  bool doLambdas;
+
+  bool doPostFitCuts;
 
   // Cuts
   double chi2Cut;

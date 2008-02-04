@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.1 2007/07/05 12:25:42 drell Exp $
+// $Id: V0Producer.cc,v 1.2 2007/07/09 12:58:52 drell Exp $
 //
 //
 
@@ -25,23 +25,7 @@
 
 // Constructor
 V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
-  theParams(iConfig),
-  trackRecoAlgo(iConfig.getUntrackedParameter("trackRecoAlgorithm", 
-			    std::string("ctfWithMaterialTracks"))) {
-
-  // Get parameter to find whether we need to use the refitter
-  // Defaults to 1 (true)
-  useSmoothedTrax = iConfig.getUntrackedParameter("useSmoothing", 1);
-  storeSmoothedTrax = iConfig.getUntrackedParameter(
-			       "storeSmoothedTracksInRecoVertex", 1);
-  chi2Cut = iConfig.getUntrackedParameter("chi2Cut", 1.);
-  rVtxCut = iConfig.getUntrackedParameter("rVtxCut", 0.1);
-  vtxSigCut = iConfig.getUntrackedParameter("vtxSignificanceCut", 22.);
-  collinCut = iConfig.getUntrackedParameter("collinearityCut", 0.02);
-  kShortMassCut = iConfig.getUntrackedParameter("kShortMassCut", 0.25);
-  lambdaMassCut = iConfig.getUntrackedParameter("lambdaMassCut", 0.25);
-  reconstructKshorts = iConfig.getUntrackedParameter("selectKshorts", 1);
-  reconstructLambdas = iConfig.getUntrackedParameter("selectLambdas", 1);
+  theParams(iConfig) {
 
    // Registering V0 Collections
   //produces<reco::VertexCollection>("Kshort");
@@ -71,10 +55,7 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    // Create V0Fitter object which reconstructs the vertices and creates
    //  (and contains) collections of Kshorts, Lambda0s, and Lambda0Bars
-   V0Fitter theVees(iEvent, iSetup, trackRecoAlgo, 
-		    useSmoothedTrax, storeSmoothedTrax,
-		    chi2Cut, rVtxCut, vtxSigCut, collinCut, kShortMassCut,
-		    lambdaMassCut, reconstructKshorts, reconstructLambdas);
+   V0Fitter theVees(theParams, iEvent, iSetup);
 
    // Create auto_ptr for each collection to be stored in the Event
    /*std::auto_ptr<reco::VertexCollection> k0sOut(new
