@@ -15,17 +15,23 @@
 //#include <iostream>
 cond::SequenceManager::SequenceManager(cond::CoralTransaction& coraldb,
 				       const std::string& sequenceTableName):
-  m_schema(coraldb.nominalSchema()),
+  m_coraldb(coraldb),
   m_sequenceTableName( sequenceTableName ),
   m_tableToId(),
   m_sequenceTableExists( false ),
   m_whereClause( std::string("REFTABLE_NAME")+" =:"+std::string("REFTABLE_NAME")), 
   m_whereData( 0 ),
-  m_setClause( std::string("IDVALUE")+" = "+std::string("IDVALUE")+" + 1")
+  m_setClause( std::string("IDVALUE")+" = "+std::string("IDVALUE")+" + 1"),
+  m_started( false )
 {
-  m_sequenceTableExists=m_schema.existsTable(m_sequenceTableName) ;
   m_whereData = new coral::AttributeList; 
   m_whereData->extend<std::string>(std::string("REFTABLE_NAME"));
+  init();
+}
+void
+cond::SequenceManager::init(){ 
+  m_sequenceTableExists=m_coraldb.nominalSchema().existsTable(m_sequenceTableName) ;
+  m_started=true;
 }
 cond::SequenceManager::~SequenceManager()
 {  
@@ -34,6 +40,7 @@ cond::SequenceManager::~SequenceManager()
 unsigned long long
 cond::SequenceManager::incrementId( const std::string& tableName ){
   std::map< std::string, unsigned long long >::iterator iSequence = m_tableToId.find( tableName );
+  coral::ISchema& schema=m_coraldb.nominalSchema();
   if ( iSequence == m_tableToId.end() ) {
     // Make sure that the sequence table exists.
     if ( ! m_sequenceTableExists ) {
@@ -41,7 +48,7 @@ cond::SequenceManager::incrementId( const std::string& tableName ){
     }
     // Lock the entry in the table.
     unsigned long long lastIdUsed = 0;
-    if ( ! ( this->lockEntry( tableName, lastIdUsed ) ) ) {
+    if ( ! ( this->lockEntry( schema, tableName, lastIdUsed ) ) ) {
       // Create the entry in the table if it does not exist.
       coral::AttributeList rowData;
       rowData.extend<std::string>("REFTABLE_NAME");
@@ -51,7 +58,7 @@ cond::SequenceManager::incrementId( const std::string& tableName ){
       ++iAttribute;
       unsigned long long startingIdValue = 0;
       iAttribute->data< unsigned long long >() = startingIdValue;
-      m_schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
+      schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
       m_tableToId.insert( std::make_pair( tableName, startingIdValue ) );
       return startingIdValue;
     }
@@ -64,7 +71,7 @@ cond::SequenceManager::incrementId( const std::string& tableName ){
 
   // Increment the oid in the database as well
   m_whereData->begin()->data<std::string>() = tableName;
-  m_schema.tableHandle(m_sequenceTableName).dataEditor().updateRows(m_setClause,m_whereClause,*m_whereData );
+  schema.tableHandle(m_sequenceTableName).dataEditor().updateRows(m_setClause,m_whereClause,*m_whereData );
   return oid;
 }
 
@@ -76,7 +83,7 @@ cond::SequenceManager::updateId( const std::string& tableName,
     throw;
   }
   bool update = false;
-  coral::IQuery* query = m_schema.tableHandle( m_sequenceTableName ).newQuery();
+  coral::IQuery* query = m_coraldb.nominalSchema().tableHandle( m_sequenceTableName ).newQuery();
   query->limitReturnedRows( 1, 0 );
   query->addToOutputList( std::string("IDVALUE") );
   query->defineOutputType( std::string("IDVALUE"),coral::AttributeSpecification::typeNameForType<unsigned long long>() );
@@ -95,14 +102,14 @@ cond::SequenceManager::updateId( const std::string& tableName,
   iAttribute->data< unsigned long long >() = lastId;
   ++iAttribute;
   iAttribute->data< std::string >() = tableName;
-
+  coral::ISchema& schema= m_coraldb.nominalSchema();
   if ( update ) {
     // Update the entry in the table
     std::string setClause(std::string("IDVALUE")+" =: "+std::string("IDVALUE"));
-    m_schema.tableHandle( m_sequenceTableName ).dataEditor().updateRows( setClause,m_whereClause,rowData );
+    schema.tableHandle( m_sequenceTableName ).dataEditor().updateRows( setClause,m_whereClause,rowData );
     m_tableToId.erase( tableName );
   } else {
-    m_schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
+    schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
   }
   m_tableToId.insert( std::make_pair( tableName, lastId ) );
 }
@@ -119,6 +126,7 @@ cond::SequenceManager::existSequencesTable(){
 void
 cond::SequenceManager::createSequencesTable()
 {
+  coral::ISchema& schema= m_coraldb.nominalSchema();
   coral::TableDescription description( "CONDSEQ" );
   description.setName(m_sequenceTableName);
   description.insertColumn(std::string("REFTABLE_NAME"),
@@ -128,14 +136,15 @@ cond::SequenceManager::createSequencesTable()
 			   coral::AttributeSpecification::typeNameForType<unsigned long long>() );
   description.setNotNullConstraint(std::string("IDVALUE"));
   description.setPrimaryKey( std::vector< std::string >( 1, std::string("REFTABLE_NAME")));
-  m_schema.createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  schema.createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   m_sequenceTableExists=true;
 }
 
 bool
-cond::SequenceManager::lockEntry( const std::string& sequenceName,
+cond::SequenceManager::lockEntry( coral::ISchema& schema,
+				  const std::string& sequenceName,
 				  unsigned long long& lastId ){
-  std::auto_ptr< coral::IQuery > query( m_schema.tableHandle(m_sequenceTableName).newQuery());
+  std::auto_ptr< coral::IQuery > query( schema.tableHandle(m_sequenceTableName).newQuery());
   query->limitReturnedRows( 1, 0 );
   query->addToOutputList( std::string("IDVALUE") );
   query->defineOutputType( std::string("IDVALUE"), coral::AttributeSpecification::typeNameForType<unsigned long long>() );

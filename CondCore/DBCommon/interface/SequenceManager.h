@@ -47,12 +47,13 @@ namespace cond {
   private:
 
     /// Locks the id entry in the ref table and returns the lastId value  
-    bool lockEntry( const std::string& reftableName,
+    bool lockEntry( coral::ISchema& schema,
+		    const std::string& reftableName,
 		    unsigned long long& lastId );
-
+    void init();
     private:
-      /// The schema in use
-      coral::ISchema& m_schema;
+      /// The coraldb in use
+      cond::CoralTransaction& m_coraldb;
 
       /// Sequence table name
       std::string m_sequenceTableName;
@@ -71,6 +72,7 @@ namespace cond {
 
       /// The set clause for updating a sequence entry
       std::string m_setClause;
+      bool m_started;
     };
 }//ns cond
 #endif
