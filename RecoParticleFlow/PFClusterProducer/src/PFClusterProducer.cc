@@ -273,19 +273,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     }
 
     if(clusteringEcal_) {
-      // initialize clustering algorithm
-//       PFClusterAlgo clusteralgo( rechits ); 
-      
-//       clusteralgo.setThreshBarrel( threshEcalBarrel_ );
-//       clusteralgo.setThreshSeedBarrel( threshSeedEcalBarrel_ );
-      
-//       clusteralgo.setThreshEndcap( threshEcalEndcap_ );
-//       clusteralgo.setThreshSeedEndcap( threshSeedEcalEndcap_ );
-      
-//       clusteralgo.setNNeighbours( nNeighboursEcal_ );
-//       clusteralgo.setPosCalcNCrystal( posCalcNCrystalEcal_ );
-//       clusteralgo.setPosCalcP1( posCalcP1Ecal_ );
-//       clusteralgo.setShowerSigma( showerSigmaEcal_ );
       
       // do clustering
       clusterAlgoECAL_.doClustering( rechitsHandle );
@@ -422,8 +409,12 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
 				 rhcHandle);
   
   if(!found) {
-    edm::LogError("PFClusterProducer")
-      <<"could not find rechits "<<inputTagEcalRecHitsEB_<<endl;
+
+    ostringstream err;
+    err<<"could not find rechits "<<inputTagEcalRecHitsEB_;
+    LogError("PFClusterProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
   }
   else {
     assert( rhcHandle.isValid() );
@@ -459,8 +450,11 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
 			    rhcHandle);
   
   if(!found) {
-    edm::LogError("PFClusterProducer")
-      <<"could not find rechits "<<inputTagEcalRecHitsEE_<<endl;
+    ostringstream err;
+    err<<"could not find rechits "<<inputTagEcalRecHitsEE_;
+    LogError("PFClusterProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
   }
   else {
     assert( rhcHandle.isValid() );
@@ -551,8 +545,11 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 				   caloTowers);
 
     if(!found) {
-      edm::LogError("PFClusterProducer")
-	<<"could not find calotowers "<<inputTagCaloTowers_<<endl;
+      ostringstream err;
+      err<<"could not find rechits "<<inputTagCaloTowers_;
+      LogError("PFClusterProducer")<<err.str()<<endl;
+    
+      throw cms::Exception( "MissingProduct", err.str());
     }
     else {
       assert( caloTowers.isValid() );
@@ -640,8 +637,11 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 				   hcalHandle );
 
     if(!found) {
-      edm::LogError("PFClusterProducer")
-	<<"could not find rechits "<<inputTagHcalRecHitsHBHE_<<endl;
+      ostringstream err;
+      err<<"could not find rechits "<<inputTagHcalRecHitsHBHE_;
+      LogError("PFClusterProducer")<<err.str()<<endl;
+    
+      throw cms::Exception( "MissingProduct", err.str());
     }
     else {
       assert( hcalHandle.isValid() );
@@ -730,8 +730,11 @@ void PFClusterProducer::createPSRecHits(vector<reco::PFRecHit>& rechits,
 				 pRecHits);
 
   if(!found) {
-    edm::LogError("PFClusterProducer")
-      <<"could not find rechits "<<inputTagEcalRecHitsES_<<endl;
+    ostringstream err;
+    err<<"could not find rechits "<<inputTagEcalRecHitsES_;
+    LogError("PFClusterProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
   }
   else {
     assert( pRecHits.isValid() );
@@ -875,34 +878,6 @@ PFClusterProducer::createEcalRecHit( const DetId& detid,
   return rh;
 }
 
-
-
-// reco::PFRecHit* 
-// PFClusterProducer::createHcalRecHit( const DetId& detid,
-// 				     double energy,
-// 				     int layer,
-// 				     const CaloSubdetectorGeometry* geom,
-// 				     unsigned newDetId ) {
-  
-//   const CaloCellGeometry *thisCell = geom->getGeometry(detid);
-//   if(!thisCell) {
-//     edm::LogError("PFClusterProducer")
-//       <<"warning detid "<<detid.rawId()<<" not found in layer "
-//       <<layer<<endl;
-//     return 0;
-//   }
-  
-//   const GlobalPoint& position = thisCell->getPosition();
-  
-//   unsigned id = detid;
-//   if(newDetId) id = newDetId;
-//   reco::PFRecHit *rh = 
-//     new reco::PFRecHit( id,  layer, energy, 
-// 			position.x(), position.y(), position.z(), 
-// 			0,0,0 );
-  
-//   return rh;
-// }
 
 
 reco::PFRecHit* 
@@ -1102,24 +1077,6 @@ PFClusterProducer::findRecHitNeighbours
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
     
-  //C everything should be ok here.
-  //C the vector is now a vector<unsigned>
-  //C and that's indeed an unsigned which is found in the map.
-//   vector<unsigned> neighbours;
-//   neighbours.reserve(8);
-//   neighbours.push_back( rhnorth );
-//   neighbours.push_back( rhnorthwest );
-//   neighbours.push_back( rhwest );
-//   neighbours.push_back( rhsouthwest );
-//   neighbours.push_back( rhsouth );
-//   neighbours.push_back( rhsoutheast );
-//   neighbours.push_back( rheast );
-//   neighbours.push_back( rhnortheast );
-  
-//   //C take care of the initialization of the empty slots !!
-//   rh.setNeighbours( neighbours );
-
-//   cout<<(*rh)<<endl;
 
 }
 
