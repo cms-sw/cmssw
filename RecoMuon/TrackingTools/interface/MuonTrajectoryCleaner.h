@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2006/11/23 02:29:36 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/04 14:58:52 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -34,7 +34,7 @@ class MuonTrajectoryCleaner {
   void clean(CandidateContainer &muonTrajectories); //used by reference...
 
   /// Compute the dof of a trajectory
-  double doublecomputeNDOF(const Trajectory& trajectory);
+  double computeNDOF(const Trajectory& trajectory) const;
   
 protected:
 
