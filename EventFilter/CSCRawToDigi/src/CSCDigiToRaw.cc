@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/11/02 17:34:36 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/01/22 18:58:23 $
+ *  $Revision: 1.18 $
  *  \author A. Tumanov - Rice
  */
 
@@ -41,6 +41,11 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
     {
       CSCDetId const cscDetId=(*j).first;
       CSCDetId chamberID =cscDetId.chamberId();
+     
+      bool me1a = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==4);
+      bool zplus = (CSCDetId::endcap(cscDetId) == 1);
+      bool me1b = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==1);
+
       //std::cout<<"strip id"<<cscDetId<<std::endl;
       // find the entry into the map
       map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
@@ -70,7 +75,11 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
       std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr) 
         {
-          cscData.add(*digiItr, cscDetId.layer() );    
+	  CSCStripDigi digi = *digiItr;
+	  int strip = digi.getStrip();
+	  if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
+	  if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
+          cscData.add(digi, cscDetId.layer() );    
         }
     }
   //repeat the same for wire digis
