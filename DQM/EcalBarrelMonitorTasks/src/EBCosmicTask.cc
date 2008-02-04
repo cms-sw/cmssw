@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/01/22 19:14:39 $
- * $Revision: 1.88 $
+ * $Date: 2008/01/22 19:47:11 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -51,7 +51,8 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
   for (int i = 0; i < 36; i++) {
     meCutMap_[i] = 0;
     meSelMap_[i] = 0;
-    meSpectrumMap_[i] = 0;
+    meSpectrum_[0][i] = 0;
+    meSpectrum_[1][i] = 0;
   }
 
 }
@@ -100,9 +101,12 @@ void EBCosmicTask::setup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
-      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
-      meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
+      sprintf(histo, "EBCT 1x1 energy spectrum %s", Numbers::sEB(i+1).c_str());
+      meSpectrum_[0][i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[0][i]->setAxisTitle("energy (GeV)", 1);
+      sprintf(histo, "EBCT 3x3 energy spectrum %s", Numbers::sEB(i+1).c_str());
+      meSpectrum_[1][i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[1][i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }
@@ -130,8 +134,10 @@ void EBCosmicTask::cleanup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
-      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
-      meSpectrumMap_[i] = 0;
+      if ( meSpectrum_[0][i] ) dbe_->removeElement( meSpectrum_[0][i]->getName() );
+      meSpectrum_[0][i] = 0;
+      if ( meSpectrum_[1][i] ) dbe_->removeElement( meSpectrum_[1][i]->getName() );
+      meSpectrum_[1][i] = 0;
     }
 
   }
@@ -237,6 +243,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
         // look for the seeds 
         float e3x3 = 0.;
         bool isSeed = true;
+
         // evaluate 3x3 matrix around a seed
         for(int icry=0; icry<9; ++icry) {
           unsigned int row    = icry/3;
@@ -266,8 +273,10 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
           if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, e3x3);
         }
 
+        if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
+
         if ( isSeed && jitter > minJitter_ && jitter < maxJitter_ ) {
-          if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(e3x3);
+          if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
         }
 
       }

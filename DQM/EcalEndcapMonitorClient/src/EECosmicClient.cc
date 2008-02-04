@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.40 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,10 +63,12 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -130,15 +132,18 @@ void EECosmicClient::cleanup(void) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
       if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
     }
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -278,10 +283,15 @@ void EECosmicClient::analyze(void){
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
+
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dbe_->get(histo);
+    h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
+    meh04_[ism-1] = me;
 
   }
 
@@ -343,7 +353,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(1);
   labelGrid.SetMinimum(0.1);
 
-  string imgNameME[3], imgName, meName;
+  string imgNameME[4], imgName, meName;
 
   TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, 2*csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
@@ -454,6 +464,37 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    imgNameME[3] = "";
+
+    obj1f = h04_[ism-1];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameME[3] = meName + ".png";
+      imgName = htmlDir + imgNameME[3];
+
+      cAmp->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cAmp->Update();
+      cAmp->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -480,10 +521,14 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    if ( imgNameME[2].size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[2] << "\"></td>" << endl;
-    else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 3 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    }
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;

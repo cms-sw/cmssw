@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2008/01/09 12:17:30 $
- * $Revision: 1.27 $
+ * $Date: 2008/01/13 18:23:15 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -60,7 +60,7 @@ MonitorElement* meCutMap_[36];
 
 MonitorElement* meSelMap_[36];
 
-MonitorElement* meSpectrumMap_[36];
+MonitorElement* meSpectrum_[2][36];
 
 double lowThreshold_;
 double highThreshold_;
