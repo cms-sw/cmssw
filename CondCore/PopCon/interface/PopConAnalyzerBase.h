@@ -37,6 +37,7 @@ namespace popcon
 {
    class PopConAnalyzerBase : public edm::EDAnalyzer {
    public:
+     using cond::Time_t;
      
      //One needs to inherit this class and implement the constructor to 
      // instantiate handler object
@@ -74,7 +75,7 @@ namespace popcon
      
    protected:
      template <typename T>
-     void writeThem (std::vector<std::pair<T*,popcon::IOVPair> > &  payload_vect, Time_t lsc){
+     void writeThem (std::vector<std::pair<T*,Time_t> > &  payload_vect, Time_t lsc){
        m_output.write(payload_vect,lsc);
      }
 

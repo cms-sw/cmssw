@@ -48,9 +48,9 @@ namespace popcon
 
   public:
     template <typename T>
-    void write (std::vector<std::pair<T*, cond::Time_t> > &  payload_vect, Time_t lsc){
+    void write (std::vector<std::pair<T*, cond::Time_t> > &  payload_vect, cond::Time_t lsc){
       
-      typename std::vector<std::pair<T*,  cond::Time_t> >::iterator it;
+      typedef typename std::vector<std::pair<T*,  cond::Time_t> >::iterator it;
 	//sort ascending so the since/till order is respected 
       std::sort(payload_vect.begin(), payload_vect.end(),TimeLess());
       
