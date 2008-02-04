@@ -21,8 +21,9 @@ namespace popcon {
   template <class T>
     class PopConSourceHandler{
     public: 
-
+    typedef T value_type;
     typedef PopConSourceHandler<T> self;
+    typedef std::vector<std::pair<T*, cond::Time_t> > Container;
 
     PopConSourceHandler(cond::TagInfo const & tagInfo,
 			cond::LogDBEntry const & logDBEntry) : 
@@ -33,12 +34,12 @@ namespace popcon {
     }
     
     // this is the only mandatory interface
-    std::vector<std::pair<T*, popcon::IOVPair> > const & operator()() const {
+    Container const & operator()() const {
       return const_cast<self*>(this)->returnData();
     }
 
 
-    std::vector<std::pair<T*, popcon::IOVPair> > const &  returnData() {
+    Container const &  returnData() {
       this->getNewObjects();
       return this->m_to_transfer;
     }
@@ -62,7 +63,7 @@ namespace popcon {
      
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
-    std::vector<std::pair<T*, popcon::IOVPair> >  m_to_transfer;
+    Container m_to_transfer;
   };
 }
 #endif
