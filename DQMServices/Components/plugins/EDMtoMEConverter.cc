@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/25 23:16:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/01 01:15:17 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -74,7 +74,7 @@ void EDMtoMEConverter::endJob()
   std::string MsgLoggerCat = "EDMtoMEConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " runs.";
+      << "Terminating having processed " << count << " files from the begin/endRun() method.";
   return;
 }
 
