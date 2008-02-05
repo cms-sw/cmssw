@@ -25,20 +25,24 @@ namespace popcon {
     typedef PopConSourceHandler<T> self;
     typedef std::vector<std::pair<T*, cond::Time_t> > Container;
 
-    PopConSourceHandler(cond::TagInfo const & tagInfo,
-			cond::LogDBEntry const & logDBEntry) : 
-      m_tagInfo(tagInfo),
-      m_logDBEntry(logDBEntry) {}
+    PopConSourceHandler{}
     
     virtual ~PopConSourceHandler(){
     }
     
-    // this is the only mandatory interface
-    Container const & operator()() const {
-      return const_cast<self*>(this)->returnData();
+
+    void initialize (cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry)  {
+      m_tagInfo = tagInfo;
+      m_logDBEntry = logDBEntry;
     }
 
-
+    // this is the only mandatory interface
+    Container const & operator()(cond::TagInfo const & tagInfo, 
+				 cond::LogDBEntry const & logDBEntry) const {
+      const_cast<self*>(this)->initalize(tagInfo, logDBEntry);
+      return const_cast<self*>(this)->returnData();
+    }
+    
     Container const &  returnData() {
       this->getNewObjects();
       return this->m_to_transfer;
