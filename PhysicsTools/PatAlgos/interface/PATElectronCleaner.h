@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.5 2008/01/25 15:36:41 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.6 2008/01/30 15:54:33 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -18,22 +18,22 @@
    PSet selection = {
      string type = "none | cut | likelihood | neuralnet | custom"
      [ // If cut-based, give electron ID source
-       InputTag eIDsource = <source>
+       InputTag eIdSource = <source>
      ]
      [ // If likelihood/neuralnet, give ID source and cut value
-       InputTag eIDsource = <source>
+       InputTag eIdSource = <source>
        double value = xxx
      ]
      [ // If custom, give cluster shape sources and cut values
-       InputTag barrelClusterShapeAssociation = <source 1>
-       InputTag endcapClusterShapeAssociation = <source 2>
+       InputTag clusterShapeBarrel = <source 1>
+       InputTag clusterShapeEndcap = <source 2>
        double <cut> = <value>
        ...
      ]
    }
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.5 2008/01/25 15:36:41 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.6 2008/01/30 15:54:33 fronga Exp $
 */
 
 

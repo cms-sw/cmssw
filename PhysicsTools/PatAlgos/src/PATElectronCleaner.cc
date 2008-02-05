@@ -1,10 +1,9 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.5 2008/01/25 15:36:49 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.6 2008/01/30 15:54:34 fronga Exp $
 //
 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
 
@@ -46,7 +45,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   const reco::ClusterShape* clusterShape;
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDs;
   if ( selectionType_ != "none" && selectionType_ != "custom" ) {
-    iEvent.getByLabel( selectionCfg_.getParameter<edm::InputTag>("eIDsource"), 
+    iEvent.getByLabel( selectionCfg_.getParameter<edm::InputTag>("eIdSource"), 
                        electronIDs );
   } 
 
@@ -60,7 +59,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
       const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
       clusterShape = &(*shapeRef);
     }
-    if ( !selector_->filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
+    if ( selector_->filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
 
     // clone the electron so we can modify it (if we want)
     reco::PixelMatchGsfElectron ourElectron = srcElectron; 
@@ -74,7 +73,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     removeDuplicates(); 
   }
 
-  // tell him that we're done.
+  // tell him that we're done. 
   helper_.done(); // he does event.put by itself
 }
 
@@ -107,9 +106,9 @@ PATElectronCleaner::getClusterShape_( const reco::GsfElectron* electron,
   // Get association maps linking BasicClusters to ClusterShape.
   edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleBarrel;
   edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
-  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("barrelClusterShapeAssocProducer"),
+  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("clusterShapeBarrel"),
                     clusterShapeHandleBarrel );
-  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("endcapClusterShapeAssocProducer"),
+  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("clusterShapeEndcap"),
                     clusterShapeHandleEndcap );
 
   // Find entry in map corresponding to seed BasicCluster of SuperCluster
