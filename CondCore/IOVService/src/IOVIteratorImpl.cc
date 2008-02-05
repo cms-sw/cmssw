@@ -12,7 +12,7 @@ void cond::IOVIteratorImpl::init(){
   m_iov=cond::TypedRef<cond::IOV>(m_pooldb, m_token);
   m_isOpen=true;
   m_pos=m_iov->iov.begin();
-  m_count = empty() ? 0 : 1;
+  m_count = 0;
   m_since=m_globalSince;
 }
 
@@ -28,8 +28,8 @@ bool cond::IOVIteratorImpl::empty() const {
 size_t cond::IOVIteratorImpl::size() const {
   return m_iov->iov.size();
 }
-size_t cond::IOVIteratorImpl::remaining() const {
-  return size()-m_count;
+size_t cond::IOVIteratorImpl::position() const {
+  return m_count;
 }
 
 
@@ -44,7 +44,7 @@ bool cond::IOVIteratorImpl::next(){
   }
   if (atEnd() ) return false;
 
-  m_since = m_pos->first;
+  m_since = m_pos->first+1;
   ++m_pos;
   if (atEnd() ) return false;
   ++m_count;

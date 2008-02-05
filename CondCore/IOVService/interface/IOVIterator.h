@@ -11,7 +11,11 @@ namespace cond{
     virtual size_t size() const=0;
     virtual size_t remaining() const=0;
     virtual bool atEnd() const=0;
-    virtual std::string payloadToken() const=0;   
+    virtual std::string payloadToken() const=0;
+ 
+    /** return the "closed" validity interval:
+	i.e. the payload is valid at both extremes included 
+     */
     virtual cond::ValidityInterval validity() const=0;
   protected:
     IOVIterator(){}
