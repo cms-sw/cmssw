@@ -29,8 +29,9 @@ namespace popcon {
 	m_dbService->tagInfo(m_record,m_tagInfo);
 	m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
 
-	std::cerr << "TAG, last since, size " << m_tag 
+	std::cerr << "TAG, last since/till, size " << m_tag 
 		  << ", " << lastSince() 
+		  << "/" << m_tagInfo.lastInterval.second
 		  << ", " << m_tagInfo.size << std::endl;
 	std::cerr << "Last writer, size" <<  m_logDBEntry.provenance 
 		  << ", " << m_logDBEntry.payloadIdx << std::endl;
