@@ -43,6 +43,21 @@ Main changes and new features by subsystem:
  - Bug fix in PhotonProducer and ConvertedPhotonProducer: occasionally  the SuperClusterRef was set to the wrong cluster
  - Looser chi2 cut for conversion track trajectory building
 
+- Muons
+ - Added the link between L1 candidate, L2 muons, L3 muons
+ - Added the link between seed, stand alone muons, global muons muons
+ - Implemented a specific seed for the L2 muon reconstruction
+ - First implementation of the RPC-stand-alone seed
+ - Improvement in the current seed generator
+ - Fix of a memory leak when deleting the trajectory
+ - Remove trajectory available flag in the global reconstruction
+ - Modified match penalty for segment track match. As in LastStation
+   algorithm now use distance rather than pull to penalize if error of
+   extrapolation gets artificially small. Improves hadron muon separation.
+ - Added a isGoodMuon method based on compatibility info only - cut
+   based and compatibility based approach will have to be combined eventually.
+ - Added an isolator that counts deposits above threshold in a cone
+
 - Jets
  - derive all jets from CompositeRefBaseCandidate rather than
    CompositeRefCandidate before   as a result some constituent accessors changed
