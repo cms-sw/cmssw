@@ -4,14 +4,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
-const int kBPIX = 1; // where the hell is this '1' defined?
-const int kFPIX = 2; // dito for '2'
+const int kBPIX = PixelSubdetector::PixelBarrel;
+const int kFPIX = PixelSubdetector::PixelEndcap;
 
 // constructor ----------------------------------------------------------------
 
@@ -78,21 +79,21 @@ AlignmentTrackSelector::~AlignmentTrackSelector()
 AlignmentTrackSelector::Tracks 
 AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) const 
 {
-  Tracks result;
   
   if (applyMultiplicityFilter_ && multiplicityOnInput_ && 
       (tracks.size() < static_cast<unsigned int>(minMultiplicity_) 
        || tracks.size() > static_cast<unsigned int>(maxMultiplicity_))) {
 //     edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::select" << "skip due to input size "
 //                          << tracks.size() << ".";
-    return result; // still empty
+    return Tracks(); // empty collection
   }
   
+  Tracks result = tracks;
   // apply basic track cuts (if selected)
-  if (applyBasicCuts_)  result= this->basicCuts(tracks);
+  if (applyBasicCuts_)  result = this->basicCuts(result);
   
   // filter N tracks with highest Pt (if selected)
-  if (applyNHighestPt_) result= this->theNHighestPtTracks(result);
+  if (applyNHighestPt_) result = this->theNHighestPtTracks(result);
   
   // apply minimum multiplicity requirement (if selected)
   if (applyMultiplicityFilter_ && !multiplicityOnInput_) {
