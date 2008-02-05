@@ -1,19 +1,19 @@
 <lcgdict>
  <class name="Pedestals::Item"/>
  <class name="std::vector<Pedestals::Item>"/>
- <class name="Pedestals" id="7E52FD73-8557-DA11-BEF0-0008743F7CC7"/>
- <class name="BlobPedestals" id="24EB66B4-DDA2-DA11-972F-000E0C5CE043"/>
+ <class name="Pedestals" class_version="Pedestals_200"/>
+ <class name="BlobPedestals" class_version="BlobPedestals_200"/>
 
- <class name="BlobNoises" id="D0A5B88E-362D-D909-8860-000347D7BFC3"/>
+ <class name="BlobNoises" class_version="BlobNoises_200"/>
  <class name="BlobNoises::DetRegistry"/>  
  <class name="std::vector<BlobNoises::DetRegistry>"/>
 
- <class name="mySiStripNoises" id="64D1537C-03C0-DA11-A617-0016761581E6"/>
+ <class name="mySiStripNoises" class_version="mySiStripNoises_200"/>
  <class name="mySiStripNoises::SiStripData"/>
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
 
- <class name="CalibHistograms"/>
+ <class name="CalibHistograms" class_version="CalibHistograms_200"/>
  <class name="std::vector<CalibHistogram>"/>
  <class name="std::vector<float>"/>
 
@@ -23,7 +23,7 @@
  <class name="std::vector<BlobComplexContent>"/>
  <class name="BlobComplexObjects"/>
  <class name="std::vector<BlobComplexObjects>"/>
- <class name="BlobComplex"/>
+ <class name="BlobComplex" class_version="BlobComplex_200"/>
  <class name="__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<const BlobComplexObjects*,std::vector<BlobComplexObjects> >"/>
@@ -38,5 +38,6 @@
  <class name="__gnu_cxx::__normal_iterator<float*,std::vector<float> >"/>
  <class name="std::bitset<7>"/>
  <class name="BitArray<9>"/>
- <class name="boostTypeObj"/>
+ <class name="boostTypeObj" class_version="boostTypeObj_200"/>
 </lcgdict>   
+
