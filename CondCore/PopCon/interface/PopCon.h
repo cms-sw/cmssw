@@ -18,7 +18,12 @@
 #include "CondCore/DBCommon/interface/Time.h"
 
 
-c
+#include <boost/bind.hpp>
+#include <algorithm>
+#include <vector>
+#include <string>
+
+
 #include<iostream>
 
 

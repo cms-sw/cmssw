@@ -25,6 +25,8 @@ namespace popcon {
     typedef T value_type;
     typedef PopConSourceHandler<T> self;
     typedef std::vector<std::pair<T*, cond::Time_t> > Container;
+    typedef cond::Time_t Time_t;
+
 
     PopConSourceHandler(){}
     
@@ -64,7 +66,7 @@ namespace popcon {
 
     void sort() {
       std::sort(>m_to_transfer.begin(),m_to_transfer.end(),
-		boost::bind(std::less<cont::Time_t>(),
+		boost::bind(std::less<cond::Time_t>(),
 			    boost::bind(&Container::value_type::second,_1),
 			    boost::bind(&Container::value_type::second,_2)
 			    )
