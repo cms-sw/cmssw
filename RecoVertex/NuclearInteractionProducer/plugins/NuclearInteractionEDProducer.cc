@@ -3,7 +3,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearVertexBuilder.h"
@@ -89,14 +88,12 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
          vertexBuilder->build(primary_track, secondary_tracks);
          likelihoodCalculator->calculate( vertexBuilder->getVertex() );
 
-         theNuclearInteractions->push_back( reco::NuclearInteraction( seeds, vertexBuilder->getVertex(), likelihoodCalculator->result() ) );
+         reco::NuclearInteraction nuclInter(seeds, vertexBuilder->getVertex(), likelihoodCalculator->result() );
+         theNuclearInteractions->push_back( nuclInter );
 
-         edm::LogInfo("NuclearInteractionMaker") << 
-                  "New nuclear interaction found : primary track with id=" << primary_track.key() << "\n"
-                  "   position : x=" << vertexBuilder->getVertex().x() << "  y=" << vertexBuilder->getVertex().y() << "  z=" << vertexBuilder->getVertex().z() << "\n"
-                  "   Number of seeds = " << seeds.size() << "\n"
-                  "   Number of secondary tracks = " << secondary_tracks.size() << "\n"
-                  "   Likelihood = " << likelihoodCalculator->result() << "\n";
+         std::ostringstream  str;
+         print(str, nuclInter, vertexBuilder);
+         edm::LogInfo("NuclearInteractionMaker") << str.str();
 
    }
 
@@ -127,4 +124,25 @@ bool NuclearInteractionEDProducer::isInside( const reco::TrackRef& track, const 
     unsigned int seedKey = track->seedRef().key();
     for (unsigned int i=0; i< seeds.size(); i++) { if( seeds[i].key() == seedKey ) return true; }
     return false;
+}
+
+// -- print out
+void print(std::ostringstream& out, const reco::NuclearInteraction& nucl, const std::auto_ptr< NuclearVertexBuilder >& builder) {
+   out<<"Nuclear Interaction with vertex position : (";
+   out<< nucl.vertex().position().x() << " , "
+      << nucl.vertex().position().y() << " , "
+      << nucl.vertex().position().z() << ")";
+   out<<"\tLikelihood : " << nucl.likelihood() << std::endl;
+   out<<"\tPrimary Track : Pt = " << nucl.primaryTrack()->pt() << "  - Nhits = "
+      << nucl.primaryTrack()->numberOfValidHits() << std::endl;
+   out << "\tNumber of seeds : " << nucl.seedsSize() << std::endl;
+   out << "\tNumber of secondary Tracks : " << nucl.secondaryTracksSize() << std::endl;
+   int it=0;
+   for( reco::NuclearInteraction::trackRef_iterator itr_=nucl.secondaryTracks_begin(); itr_ != nucl.secondaryTracks_end(); itr_++, it++) {
+                out << "\t\t Secondary track " << it << " : Pt = " << (*itr_)->pt() 
+                    << " - Nhits = " << (*itr_)->numberOfValidHits()
+                    << " - Dist = " << builder->distanceOfClosestApproach(it) 
+                    << " - chi2 = " << (*itr_)->normalizedChi2() << std::endl;
+      }
+   out << "----------------" << std::endl;
 }

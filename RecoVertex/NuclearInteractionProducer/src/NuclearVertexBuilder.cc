@@ -10,6 +10,8 @@
 
 void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks) {
 
+     FilldistanceOfClosestApproach( primTrack, secTracks);
+
      if( secTracks.size() != 0) {
          if( FillVertexWithAdaptVtxFitter(primTrack, secTracks) ) return;
          else if( FillVertexWithCrossingPoint(primTrack, secTracks) ) return;
@@ -46,8 +48,8 @@ void NuclearVertexBuilder::FillVertexWithLastPrimHit(const reco::TrackRef& primT
                                          primTrack->outerPosition().z()),
                                          reco::Vertex::Error(), 0.,0.,0);
        the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
-       for( unsigned short i=0; i < secTracks.size(); i++) {
-             if( distanceOfClosestApproach( primTrack, secTracks[i] ) < minDistFromPrim_ )
+       for( unsigned short i=0; i != secTracks.size(); i++) {
+             if( distanceOfClosestApproach( i ) < minDistFromPrim_ )
                  the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
        }
 }
@@ -56,9 +58,9 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
          std::vector<reco::TransientTrack> transientTracks;
          transientTracks.push_back( theTransientTrackBuilder->build(primTrack));
          // get the secondary track with the max number of hits
-         for( reco::TrackRefVector::const_iterator tk = secTracks.begin(); tk != secTracks.end(); tk++) {
-                 if( distanceOfClosestApproach( primTrack, *tk ) < minDistFromPrim_ )
-                    transientTracks.push_back( theTransientTrackBuilder->build(*tk));
+         for( unsigned short i=0; i != secTracks.size(); i++ ) {
+                 if( distanceOfClosestApproach( i ) < minDistFromPrim_ )
+                    transientTracks.push_back( theTransientTrackBuilder->build( secTracks[i]) );
          }
          if( transientTracks.size() == 1 ) return  false;
          AdaptiveVertexFitter AVF;
@@ -91,14 +93,12 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
                    unsigned short nhits = secTracks[i]->numberOfValidHits();
                    if( nhits > maxHits ) { maxHits = nhits; indice=i; }
             }
-            FreeTrajectoryState secTraj = getTrajectory(secTracks[indice]);
 
             // Closest points
-            ClosestApproachInRPhi *theApproach = new ClosestApproachInRPhi();
-            bool status = theApproach->calculate(primTraj,secTraj);
             GlobalPoint crossing;
-            if( status ) crossing = theApproach->crossingPoint();
+            if( distanceOfClosestApproach( indice ) < minDistFromPrim_ ) crossing = crossingPoint(indice);
             else return false;
+
              // Create vertex (creation point)
             the_vertex = reco::Vertex(reco::Vertex::Point(crossing.x(),
                                                           crossing.y(),
@@ -107,18 +107,31 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
 
             the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
             for( unsigned short i=0; i < secTracks.size(); i++) {
-                if( distanceOfClosestApproach( primTrack, secTracks[i] ) < minDistFromPrim_ ){
+                if( distanceOfClosestApproach( i ) < minDistFromPrim_ ){
                   if( i==indice ) the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 1.0);
                   else the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
                }
             }
+            return true;
 }
 
-float NuclearVertexBuilder::distanceOfClosestApproach( const reco::TrackRef& primTrack, const reco::TrackRef& secTrack ) const {
+void NuclearVertexBuilder::FilldistanceOfClosestApproach( const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks )  {
+            distances_.clear();
+            crossingPoints_.clear();
             FreeTrajectoryState primTraj = getTrajectory(primTrack);
-            FreeTrajectoryState secTraj = getTrajectory(secTrack);
             ClosestApproachInRPhi *theApproach = new ClosestApproachInRPhi();
-            bool status = theApproach->calculate(primTraj,secTraj);
-            if( status ) return theApproach->distance();
-            else return 1000;
+            for( unsigned short i=0; i != secTracks.size(); i++) {
+              FreeTrajectoryState secTraj = getTrajectory(secTracks[i]);
+              bool status = theApproach->calculate(primTraj,secTraj);
+              if( status ) { 
+                   distances_.push_back(theApproach->distance());
+                   crossingPoints_.push_back(theApproach->crossingPoint());
+              }
+              else { 
+                   distances_.push_back(1000);
+                   crossingPoints_.push_back( GlobalPoint( 0.0,0.0,0.0 ) );
+              }
+            }
+            delete theApproach;
+            return;
 }
