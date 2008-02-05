@@ -3,6 +3,7 @@
 
 // Move geomCorrection from the base class, modify it. 
 // comment out etaCorrection. d.k. 06/06
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 //#include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
@@ -31,7 +32,7 @@ class PixelCPEInitial : public PixelCPEBase
 {
  public:
   // PixelCPEInitial( const DetUnit& det );
-  PixelCPEInitial(edm::ParameterSet const& conf, const MagneticField*);
+  PixelCPEInitial(edm::ParameterSet const& conf, const MagneticField*, const SiPixelLorentzAngle *);
     
   //LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;

@@ -1,3 +1,5 @@
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+
 #ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEParmError_H
 #define RecoLocalTracker_SiPixelRecHits_PixelCPEParmError_H
 
@@ -35,7 +37,7 @@ class PixelCPEParmError : public PixelCPEBase
 {
  public:
   // PixelCPEParmError( const DetUnit& det );
-  PixelCPEParmError(edm::ParameterSet const& conf, const MagneticField*);
+  PixelCPEParmError(edm::ParameterSet const& conf, const MagneticField*, const SiPixelLorentzAngle*);
   ~PixelCPEParmError();
 
   //LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;

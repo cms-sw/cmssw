@@ -1,3 +1,5 @@
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+
 //#include "Utilities/Configuration/interface/Architecture.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -25,8 +27,8 @@ const float degsPerRad = 57.29578;
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
 PixelCPEParmError::PixelCPEParmError(edm::ParameterSet const & conf, 
-				     const MagneticField *mag) 
-  : PixelCPEBase(conf,mag)
+				     const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle) 
+  : PixelCPEBase(conf,mag,0,lorentzAngle)
 {
   pixelErrorParametrization_ = new PixelErrorParametrization(conf);
 }

@@ -27,6 +27,7 @@
 //!         DetSetVector by V.Chiochia (Zurich University).
 //!
 //! \version v2, May 30, 2006  
+//! change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 //!
 //---------------------------------------------------------------------------
 
@@ -55,6 +56,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 class MagneticField;
 class SiPixelCPEParmErrors;
@@ -74,7 +76,7 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    void setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors);
+    void setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle * lorentzAngle);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);

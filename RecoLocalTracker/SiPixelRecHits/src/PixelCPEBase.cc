@@ -7,6 +7,7 @@
 //                                    09/09/07, replaced assert statements with throw cms::Exception 
 //                                              and fix an invalid pointer check in setTheDet function 
 //                                    09/21/07, implement caching of Lorentz drift direction
+// // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -38,14 +39,15 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors) 
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors, const SiPixelLorentzAngle* lorentzAngle) 
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
     probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0)
 {
   //--- Lorentz angle tangent per Tesla
-  theTanLorentzAnglePerTesla =
-    conf.getParameter<double>("TanLorentzAnglePerTesla");
+//   theTanLorentzAnglePerTesla =
+//     conf.getParameter<double>("TanLorentzAnglePerTesla");
+	lorentzAngle_ = lorentzAngle;
 
   //--- Algorithm's verbosity
   theVerboseLevel = 
@@ -80,7 +82,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
       throw cms::Exception(" PixelCPEBase::setTheDet : ")
             << " Wrong pointer to PixelGeomDetUnit object !!!";
     }
-  
+
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
   switch ( thePart ) 
@@ -95,14 +97,13 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
       throw cms::Exception("PixelCPEBase::setTheDet :")
       	<< "PixelCPEBase: A non-pixel detector type in here?" ;
     }
-       
+
   //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
   //--- The call goes via BoundSurface, returned by theDet->surface(), but
   //--- position() is implemented in GloballyPositioned<> template
   //--- ( BoundSurface : Surface : GloballyPositioned<float> )
   theDetR = theDet->surface().position().perp();
   theDetZ = theDet->surface().position().z();
-
   //--- Define parameters for chargewidth calculation
 
   //--- bounds() is implemented in BoundSurface itself.
@@ -130,11 +131,12 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
   //--- applied backwards on every other module in barrel and
   //--- blade in forward.)
   theSign = isFlipped() ? -1 : 1;
-  
+
   //--- The Lorentz shift.
   theLShiftX = lorentzShiftX();
+
   theLShiftY = lorentzShiftY();
-  
+
   // testing 
   if(thePart == GeomDetEnumerators::PixelBarrel) {
     //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
@@ -152,6 +154,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
 			       << " theOffsetY = " << theOffsetY 
 			       << " theLShiftX  = " << theLShiftX;
     }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -345,9 +348,7 @@ bool PixelCPEBase::isFlipped() const
 //-----------------------------------------------------------------------------
 float PixelCPEBase::lorentzShiftX() const 
 {
-
   LocalVector dir;
-  
   Param & p = const_cast<PixelCPEBase*>(this)->m_Params[ theDet->geographicalId().rawId() ];
   if ( p.topology ) 
     {
@@ -367,7 +368,6 @@ float PixelCPEBase::lorentzShiftX() const
       //cout << "new direction: dir = " << dir << endl;
 
     }
-
   //LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
   
   // max shift in cm 
@@ -481,28 +481,30 @@ void PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 //-----------------------------------------------------------------------------
 LocalVector 
 PixelCPEBase::driftDirection( GlobalVector bfield ) const {
-  Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
-  LocalVector Bfield = detFrame.toLocal(bfield);
-  
-  float alpha2;
-  if (alpha2Order) {
-      alpha2 = theTanLorentzAnglePerTesla*theTanLorentzAnglePerTesla;
-  } else {
-    alpha2 = 0.0;
-  }
-  
-  // &&& dir_x should have a "-" and dir_y a "+"
-  float dir_x =  ( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  float dir_y = -( theTanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
-  float dir_z = -( 1 + alpha2* Bfield.z()*Bfield.z() );
-  float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
-  LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
-   
-  if ( theVerboseLevel > 9 ) 
-      LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			       << theDriftDirection    ;
-  
-  return theDriftDirection;
+
+	Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
+	LocalVector Bfield = detFrame.toLocal(bfield);
+	if(lorentzAngle_ == 0){
+    	throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
+	}
+	double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+	float alpha2;
+	if (alpha2Order) {
+		alpha2 = langle*langle;
+	} else {
+		alpha2 = 0.0;
+	}
+	// &&& dir_x should have a "-" and dir_y a "+"
+	float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+	float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+	float dir_z = -( 1 + alpha2* Bfield.z()*Bfield.z() );
+	float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
+	LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+	if ( theVerboseLevel > 9 ) 
+		LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
+					<< theDriftDirection    ;
+	
+	return theDriftDirection;
 }
 
 //-----------------------------------------------------------------------------
@@ -514,10 +516,13 @@ PixelCPEBase::computeLorentzShifts() const
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   GlobalVector global_Bfield = magfield_->inTesla( theDet->surface().position() );
   LocalVector  Bfield        = detFrame.toLocal(global_Bfield);
-  
+  if(lorentzAngle_ == 0){
+    	throw cms::Exception("invalidPointer") << "[PixelCPEBase::computeLorentzShifts] zero pointer to lorentz angle record ";
+	}
+  double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
   double alpha2;
   if ( alpha2Order) {
-    alpha2 = theTanLorentzAnglePerTesla * theTanLorentzAnglePerTesla;
+    alpha2 = langle * langle;
   }
   else  {
     alpha2 = 0.0;
@@ -531,8 +536,8 @@ PixelCPEBase::computeLorentzShifts() const
   // **********************************************************************
       
   // Note correct signs for dir_x and dir_y!
-  double dir_x = -( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  double dir_y =  ( theTanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+  double dir_x = -( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+  double dir_y =  ( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
   double dir_z = -( 1                                       + alpha2* Bfield.z()* Bfield.z() );
 
   // &&& Why do we need to scale???
@@ -555,7 +560,7 @@ PixelCPEBase::computeLorentzShifts() const
     LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
 			     << driftDirection_    ;
     
-    cout << "Lorentz Drift (in cm) along X = " << lorentzShiftInCmX_ << endl;
-    cout << "Lorentz Drift (in cm) along Y = " << lorentzShiftInCmY_ << endl;
+//     cout << "Lorentz Drift (in cm) along X = " << lorentzShiftInCmX_ << endl;
+//     cout << "Lorentz Drift (in cm) along Y = " << lorentzShiftInCmY_ << endl;
   }
 }

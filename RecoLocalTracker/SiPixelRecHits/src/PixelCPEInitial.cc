@@ -1,5 +1,6 @@
 // Move geomCorrection from the base class, modify it. 
 // comment out etaCorrection. d.k. 06/06
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
@@ -23,8 +24,8 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEInitial::PixelCPEInitial(edm::ParameterSet const & conf, const MagneticField *mag) 
-  : PixelCPEBase(conf,mag)
+PixelCPEInitial::PixelCPEInitial(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle) 
+  : PixelCPEBase(conf,mag,0,lorentzAngle)
 {
 }
 

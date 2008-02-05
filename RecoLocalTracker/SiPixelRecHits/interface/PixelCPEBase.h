@@ -7,6 +7,7 @@
 // Perform the position and error evaluation of pixel hits using 
 // the Det angle to estimate the track impact angle.
 // Move geomCorrection to the concrete class. d.k. 06/06.
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 //-----------------------------------------------------------------------------
 
 #include <utility>
@@ -34,6 +35,7 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #endif
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include <ext/hash_map>
 
 class MagneticField;
@@ -41,7 +43,7 @@ class SiPixelCPEParmErrors;
 class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelCPEParmErrors * parmErrors = 0);
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelCPEParmErrors * parmErrors = 0, const SiPixelLorentzAngle * lorentzAngle = 0);
     
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
@@ -182,12 +184,14 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 
 
   //--- Global quantities
-  mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
+//   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
 
   mutable const   MagneticField * magfield_;          // magnetic field
 
 	mutable const   SiPixelCPEParmErrors * parmErrors_;
+	
+	mutable const SiPixelLorentzAngle * lorentzAngle_;
   
   bool  alpha2Order;                          // switch on/off E.B effect.
 

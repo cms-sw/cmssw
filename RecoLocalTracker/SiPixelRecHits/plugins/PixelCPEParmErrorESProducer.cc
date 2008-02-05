@@ -31,11 +31,14 @@ PixelCPEParmErrorESProducer::produce(const TkPixelCPERecord & iRecord){
 
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-
+  
+  ESHandle<SiPixelLorentzAngle> lorentzAngle;
+  iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle );
+  
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEParmError(pset_,magfield.product()) );
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEParmError(pset_,magfield.product(),lorentzAngle.product()) );
   return cpe_;
 }
 
