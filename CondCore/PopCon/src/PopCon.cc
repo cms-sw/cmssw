@@ -3,11 +3,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#incluce<iostream>
+#include<iostream>
 
 namespace popcon {
 
-  PopConAnalyzer::PopConAnalyzer(const edm::ParameterSet& pset):
+  PopCon::PopCon(const edm::ParameterSet& pset):
     m_record(pset.getParameter<std::string> ("record")),
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     m_since(pset.getParameter<bool> ("SinceAppendMode")),
@@ -30,7 +30,7 @@ namespace popcon {
       m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
       
       std::cerr << "TAG, last since/till, size " << m_tag 
-		<< ", " << lastSince() 
+		<< ", " <<  m_tagInfo.lastInterval.first
 		<< "/" << m_tagInfo.lastInterval.second
 		<< ", " << m_tagInfo.size << std::endl;
       std::cerr << "Last writer, size" <<  m_logDBEntry.provenance 

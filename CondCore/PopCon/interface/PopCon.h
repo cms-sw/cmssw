@@ -114,13 +114,13 @@ namespace popcon {
       // sort?
       std::sort(payloads.begin(),payloads.end(),
 		boost::bind(std::less<Time_t>(),
-			    boost::bind(&Container::value_type::second,_1)
+			    boost::bind(&Container::value_type::second,_1),
 			    boost::bind(&Container::value_type::second,_2)
 			    )
 		);
-      displayHelper(payloads,m_sice);
+      displayHelper(payloads,m_since);
       std::for_each(payloads.begin(),payloads.end(),
-		    boost::bind(&popcon::Popcon::writeOne<value_type>,this,
+		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,
 				boost::bind(&Container::value_type::first,_1),
 				boost::bind(&Container::value_type::second,_1)
 				)
