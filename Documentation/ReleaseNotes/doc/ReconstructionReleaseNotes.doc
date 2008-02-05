@@ -43,6 +43,14 @@ Main changes and new features by subsystem:
  - Bug fix in PhotonProducer and ConvertedPhotonProducer: occasionally  the SuperClusterRef was set to the wrong cluster
  - Looser chi2 cut for conversion track trajectory building
 
+- Tracking
+ - Runge-Kutta propagator is now the default in the final track fit
+ - Strip cluster parameter estimator fixed for merged hits
+ - Improved GroupedTrajectoryBuilder
+ - New features not in default sequence that can be enabled by the user
+  - Introduction of combined seeder using hit triplets+pairs with vertex constraint
+  - Introduction of track filter based on primary vertex compatibility
+
 - Muons
  - Added the link between L1 candidate, L2 muons, L3 muons
  - Added the link between seed, stand alone muons, global muons muons
