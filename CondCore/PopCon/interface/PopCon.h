@@ -62,7 +62,7 @@ namespace popcon {
     
     bool m_since;
     
-    bool m_loggingOn;
+    bool m_LoggingOn;
     
     std::string m_tag;
     
