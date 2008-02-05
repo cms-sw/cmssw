@@ -2,50 +2,19 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
 <PoolDatabase >
    <PoolContainer name="PedestalsRcd" tech="homogeneous" >
-   <Class name="Pedestals" mapping_version="Pedestals_200">
+   <Class name="Pedestals" mapping_version="Pedestals_base">
    </Class>
    </PoolContainer >
    <PoolContainer name="BlobNoisesRcd" tech="homogeneous" >
-   <Class name="BlobNoises" mapping_version="BlobNoises_200">
+   <Class table="BLOBNOISES" id_columns="IOV_VALUE_ID" name="BlobNoises" mapping_version="BlobNoises-1.0">
    </Class>
    </PoolContainer >
    <PoolContainer name="CalibHistogramsRcd" tech="homogeneous" >
-   <Class name="BlobNoises" mapping_version="CalibHistograms_200">
+   <Class name="BlobNoises" mapping_version="CalibHistograms_base">
    </Class>
    </PoolContainer >
    <PoolContainer name="BlobComplexRcd" tech="homogeneous" >
-   <Class name="BlobComplex" mapping_version="BlobComplex_200">
-   </Class>
-   </PoolContainer >
-
-   <PoolContainer name="mySiStripNoisesRcd" tech="homogeneous" >
-   <Class name="mySiStripNoises" mapping_version="mySiStripNoises_200">
-       <Container table="DETREGISTRYINDEX" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
-      <Object table="DETREGISTRYINDEX" id_columns="POS IOV_VALUE_ID" name="value_type" >
-        <Primitive column="DETID" name="detid" />
-        <Primitive column="IDBEGIN" name="ibegin" />
-        <Primitive column="IDEND" name="iend" />
-      </Object >
-    </Container >
-    <Blob column="NOISEDATA" name="v_noises"/>
-   </Class>
-   </PoolContainer >
-   
-   <PoolContainer name="mySiStripNoisesRcd" tech="homogeneous" >
-   <Class name="mySiStripNoises" mapping_version="mySiStripNoises_200">
-       <Container table="DETREGISTRYINDEX" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
-      <Object table="DETREGISTRYINDEX" id_columns="POS IOV_VALUE_ID" name="value_type" >
-        <Primitive column="DETID" name="detid" />
-        <Primitive column="IDBEGIN" name="ibegin" />
-        <Primitive column="IDEND" name="iend" />
-      </Object >
-    </Container >
-    <Blob column="NOISEDATA" name="v_noises"/>
-   </Class>
-   </PoolContainer >
-   
-   <PoolContainer name="boostTypeObjRcd" tech="homogeneous" >
-   <Class name="boostTypeObj" mapping_version="boostTypeObj_200">
+   <Class name="BlobComplex" mapping_version="BlobComplex_base">
    </Class>
    </PoolContainer >
 </PoolDatabase >
