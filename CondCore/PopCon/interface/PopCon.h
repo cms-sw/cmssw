@@ -75,7 +75,7 @@ namespace popcon {
 
 
   template<typename T>
-  void Popcon::writeOne(T * payload, Time_t time) {
+  void PopCon::writeOne(T * payload, Time_t time) {
     if (m_dbService->isNewTagRequest(m_record) ){
       std::cerr << "Creating new IOV " << time << std::endl;
       m_dbService->createNewIOV<T>(payload, m_since ?  m_dbService->endOfTime() : time, m_record, m_LoggingOn);
@@ -102,7 +102,7 @@ namespace popcon {
   }
 
     template<typename Source>
-    void Popcon::write(Source const & source) {
+    void PopCon::write(Source const & source) {
       typedef typename Source::value_type value_type;
       typedef typename Source::Container Container;
 
