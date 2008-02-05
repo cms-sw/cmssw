@@ -82,11 +82,11 @@ void HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   nEventsTot++;
   MakeGeneratorAnalysis( iEvent );
-  MakeLevel1Analysis( iEvent );
-  if(usingMET) MakeLevel2METAnalysis( iEvent );
-  MakeLevel2Analysis( iEvent );
-  MakeLevel25Analysis( iEvent );
-  MakeLevel3Analysis( iEvent );
+    MakeLevel1Analysis( iEvent );
+    if(usingMET) MakeLevel2METAnalysis( iEvent );
+    MakeLevel2Analysis( iEvent );
+    MakeLevel25Analysis( iEvent );
+    MakeLevel3Analysis( iEvent );
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -210,8 +210,8 @@ if(debug >=1)     cout << " --> event accepted Level 1 and matched with generate
 //------------------------------------------------------------------------------------------------------------------
 void HLTTauAnalyzer::MakeLevel2METAnalysis( const edm::Event& iEvent )
 {
-  if(!isL1Accepted) return;
   isL2METAccepted = false;
+  if(!isL1Accepted) return;
   edm::Handle<TriggerFilterObjectWithRefs> recoMET;
   if(!iEvent.getByLabel( metReco,recoMET )) return;
 VRmet metRefVec;
@@ -230,6 +230,7 @@ void HLTTauAnalyzer::MakeLevel2Analysis( const edm::Event& iEvent )
  isL2FilterAccepted   = false;
  size_t NbL2Taus = 0, NbL2TausMatched = 0;
   if(!isL1Accepted) return;
+  if(!isL2METAccepted && usingMET) return;
 
  
 
@@ -479,12 +480,26 @@ void HLTTauAnalyzer::endJob()
  ComputeEfficiency(nEventsL1McMatched,nEventsL2McMatched,Eff,Efferr);
   out << "Efficiency MC "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
   out <<endl;
+
+
   if(usingMET){
-    out<<"Pay attetion! MET selection is also used "<<endl;
-    ComputeEfficiency(nEventsL1,nEventsL2MET,Eff,Efferr);
-    out<<"MET Efficiency "<<std::setprecision(3)<<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
-    out <<endl;
-  }
+     ComputeEfficiency(nEventsL1,nEventsL2MET,Eff,Efferr);
+     out<<"MET Efficiency "<<std::setprecision(3)<<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+     out <<endl;
+  out  <<"L2TauJets Events "<<nEventsL2<<endl;
+   out <<"L2TauJets Mc Matched Events "<<nEventsL2McMatched<<endl;
+   ComputeEfficiency(nEventsL2MET, nEventsL2,Eff,Efferr);
+  out << "Efficiency "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+ 
+  out  <<"L2FilterTauJets Events "<<nEventsL2Filtered<<endl;
+   out <<"L2FilterTauJets Mc Matched Events "<<nEventsL2FilteredMcMatched<<endl;
+   ComputeEfficiency(nEventsL2,nEventsL2Filtered,Eff,Efferr);
+   out << "Efficiency "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+   ComputeEfficiency(nEventsL2McMatched,nEventsL2FilteredMcMatched,Eff,Efferr);
+   out << "Efficiency MC "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
+   out <<endl;
+    
+  }else{
 
   out  <<"L2FilterTauJets Events "<<nEventsL2Filtered<<endl;
   out <<"L2FilterTauJets Mc Matched Events "<<nEventsL2FilteredMcMatched<<endl;
@@ -494,6 +509,7 @@ void HLTTauAnalyzer::endJob()
   out << "Efficiency MC "<<std::setprecision(3) <<Eff<<" +/- "<<std::setprecision(2) <<Efferr<<endl;
   out <<endl;
     
+}
   out  <<"L25TauJets Events "<<nEventsL25<<endl;
   out <<"L25TauJets Mc Matched Events "<<nEventsL25McMatched<<endl;
   ComputeEfficiency(nEventsL2Filtered,nEventsL25,Eff,Efferr);
