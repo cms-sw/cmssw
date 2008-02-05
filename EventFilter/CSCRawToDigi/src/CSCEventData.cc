@@ -62,12 +62,11 @@ CSCEventData::CSCEventData(unsigned short * buf){
 
   if (nalct() ==1)  {
     theALCTHeader = new CSCALCTHeader( pos );
-    pos += theALCTHeader->sizeInWords(); //size of the header
-    
     if(!theALCTHeader->check()){  
       edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
     } 
     else {
+      pos += theALCTHeader->sizeInWords(); //size of the header
       //fill ALCT Digis
       theALCTHeader->ALCTDigis();    
       theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
