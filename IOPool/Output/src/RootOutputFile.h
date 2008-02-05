@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.22 2008/01/30 00:29:19 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.23 2008/02/01 20:23:42 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -73,11 +73,19 @@ namespace edm {
 
   private:
     struct OutputItem {
-      OutputItem() : branchDescription_(0), selected_(false), renamed_(false), product_(0) {}
+      OutputItem() : branchDescription_(0),
+	 entryDescriptionIDSharedPtr_(new EntryDescriptionID),
+	 entryDescriptionIDPtr_(entryDescriptionIDSharedPtr_.get()),
+	 selected_(false), renamed_(false), product_(0) {}
       OutputItem(BranchDescription const* bd, bool sel, bool ren) :
-	branchDescription_(bd), selected_(sel), renamed_(ren), product_(0) {}
+	branchDescription_(bd),
+	entryDescriptionIDSharedPtr_(new EntryDescriptionID),
+	entryDescriptionIDPtr_(entryDescriptionIDSharedPtr_.get()),
+	selected_(sel), renamed_(ren), product_(0) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
+      boost::shared_ptr<EntryDescriptionID> entryDescriptionIDSharedPtr_;
+      mutable EntryDescriptionID * entryDescriptionIDPtr_;
       bool selected_;
       bool renamed_;
       mutable void const* product_;
@@ -121,7 +129,6 @@ namespace edm {
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
-    EntryDescriptionID * entryDescriptionIDPtr_;
     mutable bool newFileAtEndOfRun_;
   };
 }

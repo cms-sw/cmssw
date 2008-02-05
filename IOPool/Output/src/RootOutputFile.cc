@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.42 2008/02/02 00:43:12 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.43 2008/02/02 21:28:58 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -68,7 +68,6 @@ namespace edm {
       lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
-      entryDescriptionIDPtr_(new EntryDescriptionID),
       newFileAtEndOfRun_(false) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -81,7 +80,7 @@ namespace edm {
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, entryDescriptionIDPtr_, it->product_);
+	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->entryDescriptionIDPtr_, it->product_);
       }
     }
     // Don't split metadata tree or event description tree
@@ -343,10 +342,10 @@ namespace edm {
       if (bh.provenance() == 0) {
 	// No product with this ID was put into the event.
 	// Use a default constructed EntryDescription
-	*entryDescriptionIDPtr_ = EntryDescription().id();
+	*i->entryDescriptionIDPtr_ = EntryDescription().id();
       } else {
 	product = bh.wrapper();
-	*entryDescriptionIDPtr_ = bh.provenance()->event().id();
+	*i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
       }
       if (i->selected_) {
 	if (product == 0) {
