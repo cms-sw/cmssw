@@ -4,7 +4,7 @@ set verbose
 #Defining the number of events for each test
 set TimeSizeNumberOfEvents=100
 set IgProfNumberOfEvents=5
-set ValgrindNumberOfEvents=0
+set ValgrindNumberOfEvents=1
 
 set cmsScimark2NumOfTimes=10
 set cmsScimark2LargeNumOfTimes=10

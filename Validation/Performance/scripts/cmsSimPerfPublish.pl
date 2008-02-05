@@ -81,14 +81,26 @@ $ValgrindNumOfEvents=1;
 		       );
 #Get the CMSSW_VERSION from the environment
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
-$CMSSW_RELEASE_BASE=$ENV{'CMSSW_BASE'};
+$CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
+$CMSSW_BASE=$ENV{'CMSSW_BASE'};
 $HOST=$ENV{'HOST'};
 $LocalPath=`pwd`;
 $ShowTagsResult=`showtags -r`;
 
+#Adding a check for a local version of the packages
+$PerformancePkg="$CMSSW_BASE/src/Validation/Performance";
+if (-e $PerformancePkg)
+{
+    $BASE_PERFORMANCE=$PerformancePkg;
+    print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
+}
+else
+{
+    $BASE_PERFORMANCE="$CMSSW_RELEASE_BASE/src/Validation/Performance";
+}
+
 #Define the web publishing area
-#$WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
-$WebArea="/tmp/gbenelli/"."$CMSSW_VERSION";
+$WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
 #Dump some info in a file
 if (-e! $WebArea)
 {
@@ -132,7 +144,7 @@ else
     system("cp -pR cms*.log $WebArea/.");
 #Copy the perf_style.css file from Validation/Performance/doc
     print "Copying perf_style.css style file to $WebArea/.\n";
-    system("cp -pR $CMSSW_RELEASE_BASE/src/Validation/Performance/doc/perf_style.css $WebArea/.");
+    system("cp -pR $BASE_PERFORMANCE/doc/perf_style.css $WebArea/.");
     @Dir=`ls`;
     chomp(@Dir);
 #Produce a small logfile with basic info on the Production area
@@ -147,7 +159,7 @@ else
     $IndexFile="$WebArea"."/index.html";
     open(INDEX,">$IndexFile")||die "Cannot open file $IndexFile!\n$!\n";
     print "Writing an index.html file with links to the profiles report information for easier navigation\n"; 
-    $TemplateHtml="$CMSSW_RELEASE_BASE"."/src/Validation/Performance/doc/index.html";
+    $TemplateHtml="$BASE_PERFORMANCE"."/doc/index.html";
     open(TEMPLATE,"<$TemplateHtml")||die "Couldn't open file $TemplateHtml - $!\n";
     #Loop line by line to build our index.html based on the template one
     while (<TEMPLATE>)
@@ -179,8 +191,8 @@ else
 	    foreach (@LogFiles)
 	    {
 		chomp($_);
-		$LogFileLink="$WebArea/"."$_";
-		print INDEX "<a href="."$LogFileLink"."> $_ <\/a>";;
+		#$LogFileLink="$WebArea/"."$_";
+		print INDEX "<a href="."$_"."> $_ <\/a>";;
 		print INDEX "<br><br>";
 	    }
 	    next;
