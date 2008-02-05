@@ -20,7 +20,7 @@ namespace cond{
     virtual bool rewind();
     virtual bool empty() const;
     virtual size_t size() const;
-    virtual size_t remaining() const;
+    virtual size_t position() const;
     virtual bool atEnd() const;
     virtual std::string payloadToken() const;
     virtual cond::ValidityInterval validity() const;

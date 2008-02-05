@@ -13,7 +13,7 @@ void cond::IOVRevIteratorImpl::init(){
   m_isOpen=true;
   m_pos=m_iov->iov.rbegin();
   m_next=m_pos; m_next++;
-  m_count = size();
+  m_count = empty() ? 0 : size()-1;
 }
 
 
@@ -28,8 +28,8 @@ bool cond::IOVRevIteratorImpl::empty() const {
 size_t cond::IOVRevIteratorImpl::size() const {
   return m_iov->iov.size();
 }
-size_t cond::IOVRevIteratorImpl::remaining() const {
-  return size()-m_count;
+size_t cond::IOVRevIteratorImpl::position() const {
+  return m_count;
 }
 
 
@@ -69,7 +69,7 @@ cond::IOVRevIteratorImpl::validity() const{
   cond::Time_t till=m_globalTill;
   if (!atEnd()) {
     till = m_pos->first;
-    if (m_next!=iov().rend()) since =  m_next->first;
+    if (m_next!=iov().rend()) since =  m_next->first + 1;
   }
   return cond::ValidityInterval(since,till);
 }
