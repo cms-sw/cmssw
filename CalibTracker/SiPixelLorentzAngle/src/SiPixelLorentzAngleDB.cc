@@ -39,7 +39,7 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 	
 	float langle;
 	
-	if(magneticField_ != 0) langle = 0.2 / magneticField_;
+	if(magneticField_ != 0) langle = (0.106*4) / magneticField_;
 	
 	else langle = 0.;
 	
