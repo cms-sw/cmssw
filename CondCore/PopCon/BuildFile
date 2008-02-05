@@ -1,24 +1,9 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-<use name=ObjectRelationalAccess>
-<use name=RelationalStorageService>
-<use name=CoralCommon>
 
 <export>
 <lib name=CondCorePopCon>
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-<use name=ObjectRelationalAccess>
-<use name=RelationalStorageService>
-<use name=CoralCommon>
 </export>
