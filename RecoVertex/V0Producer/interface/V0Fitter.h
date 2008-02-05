@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.5 2007/10/29 21:21:12 drell Exp $
+// $Id: V0Fitter.h,v 1.6 2008/02/04 21:54:57 drell Exp $
 //
 //
 
@@ -69,11 +69,6 @@ class V0Fitter {
   std::vector<reco::V0Candidate> getLambdaBars() const;
 
  private:
-  // VertexCollection objects that get filled by the fitAll method
-  //reco::VertexCollection K0s;
-  //reco::VertexCollection Lam0;
-  //reco::VertexCollection Lam0Bar;
-
   // STL vector of V0Candidate that will be filled with V0Candidates by fitAll()
   std::vector<reco::V0Candidate> theKshorts;
   std::vector<reco::V0Candidate> theLambdas;
@@ -104,14 +99,7 @@ class V0Fitter {
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  // Applies cuts to the track collection before fitting vertices to
-  //  each oppositely-charged track pair
-  void applyPreFitCuts(std::vector<reco::Track> &tracks);
-
-  // Applies cuts to theCands after vertices have been fit.
-  //  This method should probably also contain the way to differentiate
-  //  between Kshorts and lambdas, writing the PDGid to the Particle once
-  //  this cut has been calculated.
+  // Applies cuts to the V0Candidates after they are fitted/created.
   void applyPostFitCuts();
 
   // Stuff for debug file output.

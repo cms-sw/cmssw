@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.14 2008/02/05 00:34:51 drell Exp $
+// $Id: V0Fitter.cc,v 1.15 2008/02/05 21:22:18 drell Exp $
 //
 //
 
@@ -522,10 +522,6 @@ std::vector<reco::V0Candidate> V0Fitter::getLambdaBars() const {
   return theLambdaBars;
 }
 
-void V0Fitter::applyPreFitCuts(std::vector<reco::Track> &tracks) {
-
-}
-
 
 // Method that applies cuts to the vector of pre-cut candidates.
 void V0Fitter::applyPostFitCuts() {
@@ -539,12 +535,6 @@ void V0Fitter::applyPostFitCuts() {
     double rVtxMag = sqrt( theIt->vertex().x()*theIt->vertex().x() +
 			   theIt->vertex().y()*theIt->vertex().y() +
 			   theIt->vertex().z()*theIt->vertex().z() );
-    // WRONG!
-
-    /*    double sigmaRvtxMag = 
-      sqrt( theIt->vertex().xError()*theIt->vertex().xError() *
-	    theIt->vertex().yError()*theIt->vertex().yError() *
-	    theIt->vertex().zError()*theIt->vertex().zError() );*/
 
     double x_ = theIt->vertex().x();
     double y_ = theIt->vertex().y();
@@ -564,7 +554,6 @@ void V0Fitter::applyPostFitCuts() {
     if( theIt->vertex().chi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
 	rVtxMag/sigmaRvtxMag > vtxSigCut ) {
-      //rVtxMag/sigmaRvtxMag > 0. ) {
       writeVee = true;
     }
     const double kShortMass = 0.49767;
@@ -573,7 +562,6 @@ void V0Fitter::applyPostFitCuts() {
     if( theIt->mass() < kShortMass + kShortMassCut && 
 	theIt->mass() > kShortMass - kShortMassCut && writeVee &&
 	doKshorts && doPostFitCuts) {
-      //theIt->setPdgId(310);
       if(theIt->pdgId() == 310) {
 	theKshorts.push_back( *theIt );
       }
@@ -586,7 +574,6 @@ void V0Fitter::applyPostFitCuts() {
     else if( theIt->mass() < lambdaMass + lambdaMassCut &&
 	theIt->mass() > lambdaMass - lambdaMassCut && writeVee &&
 	     doLambdas && doPostFitCuts ) {
-      //theIt->setPdgId(3122);
       if(theIt->pdgId() == 3122) {
 	theLambdas.push_back( *theIt );
       }
