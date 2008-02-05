@@ -6,7 +6,8 @@
 #include "CondCore/DBOutputService/interface/TagInfo.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
 
-
+#include <boost/bind.hpp>
+#include <algorithm>
 #include <vector>
 #include <string>
 
@@ -49,8 +50,9 @@ namespace popcon {
     }
     
     Container const &  returnData() {
-      this->getNewObjects();
-      return this->m_to_transfer;
+      getNewObjects();
+      sort();
+      return m_to_transfer;
     }
     
     //Implement to fill m_to_transfer vector
@@ -59,8 +61,15 @@ namespace popcon {
 
     // return a string identifing the source
     virtual std::string id() const=0;
-   
 
+    void sort() {
+      std::sort(>m_to_transfer.begin(),m_to_transfer.end(),
+		boost::bind(std::less<cont::Time_t>(),
+			    boost::bind(&Container::value_type::second,_1),
+			    boost::bind(&Container::value_type::second,_2)
+			    )
+		);
+    }
     
   private:
     
