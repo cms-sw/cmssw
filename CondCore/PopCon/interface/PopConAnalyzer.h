@@ -20,7 +20,7 @@ namespace popcon{
     typedef S SourceHandler;
 
     PopConAnalyzer(const edm::ParameterSet& pset) : 
-      Populator(pset),
+      m_populator(pset),
       m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 
@@ -37,10 +37,10 @@ namespace popcon{
 
 
     void write() {
-      populator.write(m_source);
+      m_populator.write(m_source);
 
     }
-    PopCon populator;
+    PopCon m_populator;
     SourceHandler m_source;	
 
   };
