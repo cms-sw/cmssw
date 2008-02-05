@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.8 2008/01/29 23:56:48 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.9 2008/02/01 14:53:18 fblekman Exp $
 //
 //
 
@@ -35,6 +35,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
+  savePixelHists_(iConfig.getUntrackedParameter<bool>("savePixelLevelHists",false)),
   chi2Threshold_(iConfig.getUntrackedParameter<double>("minChi2NDFforHistSave",10)),
   chi2ProbThreshold_(iConfig.getUntrackedParameter<double>("minChi2ProbforHistSave",0.05)),
   maxGainInHist_(iConfig.getUntrackedParameter<double>("maxGainInHist",10)),
@@ -273,6 +274,9 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       bookkeeper_[detid]["prob_2d"]->Fill(ipix->col(),ipix->row(),prob);
     }
   }
+  
+  if(!savePixelHists_)
+    return true;
   if(makehistopersistent){
     setDQMDirectory(detid);
     std::ostringstream pixelinfo;

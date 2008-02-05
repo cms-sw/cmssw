@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.6 2008/01/29 18:10:15 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.7 2008/01/29 23:56:48 fblekman Exp $
 //
 //
 
@@ -68,6 +68,7 @@ private:
 
   // flags
   bool reject_badpoints_;
+  bool savePixelHists_;
   bool reject_plateaupoints_;
   bool reject_single_entries_;
   double reject_badpoints_frac_;
