@@ -1,6 +1,7 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
