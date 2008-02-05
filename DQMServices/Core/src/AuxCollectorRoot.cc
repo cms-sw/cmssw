@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/AuxCollectorRoot.h"
+#include "DQMServices/Core/src/AuxCollectorRoot.h"
 
 using std::string;
 using std::cout;

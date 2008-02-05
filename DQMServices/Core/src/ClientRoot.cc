@@ -1,7 +1,7 @@
-#include "DQMServices/Core/interface/MonitorData.h"
+#include "DQMServices/Core/src/MonitorData.h"
 #include "DQMServices/Core/src/ClientRoot.h"
-#include "DQMServices/Core/interface/SocketUtils.h"
-#include "DQMServices/Core/interface/DQMMessage.h"
+#include "DQMServices/Core/src/SocketUtils.h"
+#include "DQMServices/Core/src/DQMMessage.h"
 
 #include "TObjectTable.h"
 #include "TROOT.h"

@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/SendTimeProfile.h"
+#include "DQMServices/Core/src/SendTimeProfile.h"
 
 ClassImp(SendTimeProfile)
 

@@ -1,8 +1,8 @@
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
-#include "DQMServices/Core/interface/DQMTagHelper.h"
-#include "DQMServices/Core/interface/SenderBase.h"
-#include "DQMServices/Core/interface/DQMMessage.h"
-#include "DQMServices/Core/interface/SocketUtils.h"
+#include "DQMServices/Core/src/DQMTagHelper.h"
+#include "DQMServices/Core/src/SenderBase.h"
+#include "DQMServices/Core/src/DQMMessage.h"
+#include "DQMServices/Core/src/SocketUtils.h"
 
 #include "Utilities/General/interface/MutexUtils.h"
 

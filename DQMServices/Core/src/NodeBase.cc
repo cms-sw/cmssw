@@ -1,7 +1,7 @@
-#include "DQMServices/Core/interface/NodeBase.h"
-#include "DQMServices/Core/interface/MonitorData.h"
-#include "DQMServices/Core/interface/SocketUtils.h"
-#include "DQMServices/Core/interface/DQMMessage.h"
+#include "DQMServices/Core/src/NodeBase.h"
+#include "DQMServices/Core/src/MonitorData.h"
+#include "DQMServices/Core/src/SocketUtils.h"
+#include "DQMServices/Core/src/DQMMessage.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>

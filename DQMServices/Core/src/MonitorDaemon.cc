@@ -1,5 +1,5 @@
-#include "DQMServices/Core/interface/MonitorData.h"
-#include "DQMServices/Core/interface/MonitorDaemon.h"
+#include "DQMServices/Core/src/MonitorData.h"
+#include "DQMServices/Core/src/MonitorDaemon.h"
 
 #include "SealBase/SharedLibrary.h"
 

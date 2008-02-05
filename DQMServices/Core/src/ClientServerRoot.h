@@ -2,7 +2,7 @@
 #define ClientServerRoot_H
 
 #include "DQMServices/Core/src/ClientRoot.h"
-#include "DQMServices/Core/interface/SenderBase.h"
+#include "DQMServices/Core/src/SenderBase.h"
 
 #include <string>
 #include <vector>

@@ -1,7 +1,7 @@
 #ifndef DQM_SERVICES_NODE_ROOT_DQM_MESSAGE_H
 #define DQM_SERVICES_NODE_ROOT_DQM_MESSAGE_H
 
-#include "DQMServices/Core/interface/DQMRootBuffer.h"
+#include "DQMServices/Core/src/DQMRootBuffer.h"
 class TClass;
 
 class DQMMessage

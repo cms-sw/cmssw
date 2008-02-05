@@ -2,7 +2,7 @@
 #define MonitorDaemon_H
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/RootMonitorThread.h"
+#include "DQMServices/Core/src/RootMonitorThread.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

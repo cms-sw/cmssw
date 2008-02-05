@@ -11,8 +11,8 @@ Description: Class shipping monitoring from DQM source to downstream collector
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#include "DQMServices/Core/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/RootMonitorThread.h"
+#include "DQMServices/Core/src/MonitorDaemon.h"
+#include "DQMServices/Core/src/RootMonitorThread.h"
 
 
 //

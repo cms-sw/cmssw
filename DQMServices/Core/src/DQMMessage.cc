@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/DQMMessage.h"
+#include "DQMServices/Core/src/DQMMessage.h"
 #include <SealBase/DebugAids.h>
 #include <iostream>
 

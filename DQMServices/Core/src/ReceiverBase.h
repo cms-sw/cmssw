@@ -3,8 +3,8 @@
 
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/NodeBase.h"
-#include "DQMServices/Core/interface/MonitorData.h"
+#include "DQMServices/Core/src/NodeBase.h"
+#include "DQMServices/Core/src/MonitorData.h"
 
 #include <TString.h>
 #include <TTimeStamp.h>

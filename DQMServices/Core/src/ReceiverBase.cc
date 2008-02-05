@@ -1,10 +1,10 @@
-#include "DQMServices/Core/interface/DQMTagHelper.h"
-#include "DQMServices/Core/interface/ReceiverBase.h"
-#include "DQMServices/Core/interface/SocketUtils.h"
-#include "DQMServices/Core/interface/DQMMessage.h"
+#include "DQMServices/Core/src/DQMTagHelper.h"
+#include "DQMServices/Core/src/ReceiverBase.h"
+#include "DQMServices/Core/src/SocketUtils.h"
+#include "DQMServices/Core/src/DQMMessage.h"
 //#include "DQMServices/Diagnostic/interface/TimeMonitor.h"
 //include if you want diagnostic stuff to be active
-//#include "DQMServices/Core/interface/ProfileDiagnostic.h" 
+//#include "DQMServices/Core/src/ProfileDiagnostic.h" 
 
 #include <sys/socket.h>
 #include <sys/types.h>

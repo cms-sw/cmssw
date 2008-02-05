@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/DQMTagHelper.h"
+#include "DQMServices/Core/src/DQMTagHelper.h"
 
 #include <iostream>
 #include <vector>

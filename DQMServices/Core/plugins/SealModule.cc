@@ -1,7 +1,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-#include "DQMServices/Core/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/DQMShipMonitoring.h"
+#include "DQMServices/Core/src/MonitorDaemon.h"
+#include "DQMServices/Core/src/DQMShipMonitoring.h"
 
 typedef edm::serviceregistry::ParameterSetMaker<MonitorDaemon> maker_md;
 typedef edm::serviceregistry::AllArgsMaker<DQMShipMonitoring> maker_sm;

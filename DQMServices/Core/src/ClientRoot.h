@@ -10,7 +10,7 @@
 #include <SealBase/Callback.h>
 
 #include <TTimeStamp.h>
-#include "DQMServices/Core/interface/ReceiverBase.h"
+#include "DQMServices/Core/src/ReceiverBase.h"
 
 class TString;
 class DQMMessage;

@@ -1,8 +1,8 @@
 #ifndef _SENDER_BASE_H_
 #define _SENDER_BASE_H_
 
-#include "DQMServices/Core/interface/NodeBase.h"
-#include "DQMServices/Core/interface/MonitorData.h"
+#include "DQMServices/Core/src/NodeBase.h"
+#include "DQMServices/Core/src/MonitorData.h"
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 
 class DQMMessage;
 class MonitorElementRootFolder;
-#include "DQMServices/Core/interface/DQMRootBuffer.h"
+#include "DQMServices/Core/src/DQMRootBuffer.h"
 
 /** base class for clients that send (any kind of) monitoring information;the class 
    organizes the objects it owns through the NodeBase::bei (DaqMonitorBEInterface) 

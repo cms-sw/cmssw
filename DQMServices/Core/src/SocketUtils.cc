@@ -1,5 +1,5 @@
-#include "DQMServices/Core/interface/SocketUtils.h"
-#include "DQMServices/Core/interface/DQMMessage.h"
+#include "DQMServices/Core/src/SocketUtils.h"
+#include "DQMServices/Core/src/DQMMessage.h"
 #include <sstream>
 #include <iostream>
 #include <string>

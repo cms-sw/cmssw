@@ -7,7 +7,7 @@
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Core/interface/Tokenizer.h"
 
-#include "DQMServices/Core/interface/DQMTagHelper.h"
+#include "DQMServices/Core/src/DQMTagHelper.h"
 #include "DQMServices/Core/interface/QCriterionRoot.h"
 
 

@@ -20,7 +20,7 @@ Implementation:
 #include <iostream>
 
 // user include files
-#include "DQMServices/Core/interface/DQMShipMonitoring.h"
+#include "DQMServices/Core/src/DQMShipMonitoring.h"
 
 //
 // constructors and destructor

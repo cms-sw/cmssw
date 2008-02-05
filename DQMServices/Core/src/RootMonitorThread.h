@@ -4,7 +4,7 @@
 #include "Utilities/Threads/interface/Thread.h"
 #include "Utilities/General/interface/MutexUtils.h"
 
-#include "DQMServices/Core/interface/SenderBase.h"
+#include "DQMServices/Core/src/SenderBase.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
