@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.6 2008/02/01 17:29:59 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.7 2008/02/05 13:35:09 roberfro Exp $
 //
 //
 
@@ -68,8 +68,6 @@ public:
 
       std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
       std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;
-
-      float minDistFromPrim_;
 
 };
 

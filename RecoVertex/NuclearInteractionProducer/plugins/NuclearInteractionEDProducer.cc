@@ -17,8 +17,7 @@ NuclearInteractionEDProducer::NuclearInteractionEDProducer(const edm::ParameterS
 conf_(iConfig), 
 primaryProducer_(iConfig.getParameter<std::string>("primaryProducer")),
 seedsProducer_(iConfig.getParameter<std::string>("seedsProducer")),
-secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")),
-minDistFromPrim_(iConfig.getParameter<double>("minDistFromPrimary")) {
+secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")){
 
   produces<reco::NuclearInteractionCollection>();
 }
@@ -112,7 +111,7 @@ NuclearInteractionEDProducer::beginJob(const edm::EventSetup& es)
    edm::ESHandle<TransientTrackBuilder> builder;
    es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
 
-   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), minDistFromPrim_) );
+   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), conf_) );
    likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
 
 }

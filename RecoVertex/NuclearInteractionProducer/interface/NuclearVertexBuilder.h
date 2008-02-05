@@ -8,17 +8,26 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class FreeTrajectoryState;
 
 class NuclearVertexBuilder {
 
   public :
-       NuclearVertexBuilder( const MagneticField * mag, const TransientTrackBuilder* transientTkBuilder, float dist ) : theMagField(mag), theTransientTrackBuilder(transientTkBuilder), minDistFromPrim_(dist) {}
+       NuclearVertexBuilder( const MagneticField * mag, const TransientTrackBuilder* transientTkBuilder, const edm::ParameterSet& iConfig ) : 
+               theMagField(mag), 
+               theTransientTrackBuilder(transientTkBuilder), 
+               minDistFromPrim_( iConfig.getParameter<double>("minDistFromPrimary") ),
+               chi2Cut_(iConfig.getParameter<double>("chi2Cut")) {}
+
        void build( const reco::TrackRef& primaryTrack, const reco::TrackRefVector& secondaryTrack );
        reco::Vertex  getVertex() const { return the_vertex; } 
 
        double distanceOfClosestApproach(int i) const { return distances_[i]; }
        GlobalPoint crossingPoint(int i) const { return crossingPoints_[i]; }
+
+       bool isGoodSecondaryTrack( const reco::TrackRef& secTrack, int i );
 
   private :
        FreeTrajectoryState getTrajectory(const reco::TrackRef& track) const;
@@ -31,7 +40,8 @@ class NuclearVertexBuilder {
 
        const MagneticField * theMagField;
        const TransientTrackBuilder* theTransientTrackBuilder;
-       float minDistFromPrim_;
+       double minDistFromPrim_;
+       double chi2Cut_;
 
        std::vector<double> distances_;  // distance of closest approach
        std::vector<GlobalPoint> crossingPoints_; // crossing points

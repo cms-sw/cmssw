@@ -49,7 +49,7 @@ void NuclearVertexBuilder::FillVertexWithLastPrimHit(const reco::TrackRef& primT
                                          reco::Vertex::Error(), 0.,0.,0);
        the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
        for( unsigned short i=0; i != secTracks.size(); i++) {
-             if( distanceOfClosestApproach( i ) < minDistFromPrim_ )
+             if( isGoodSecondaryTrack(secTracks[i], i) )
                  the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
        }
 }
@@ -59,7 +59,7 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
          transientTracks.push_back( theTransientTrackBuilder->build(primTrack));
          // get the secondary track with the max number of hits
          for( unsigned short i=0; i != secTracks.size(); i++ ) {
-                 if( distanceOfClosestApproach( i ) < minDistFromPrim_ )
+                 if( isGoodSecondaryTrack(secTracks[i], i) )
                     transientTracks.push_back( theTransientTrackBuilder->build( secTracks[i]) );
          }
          if( transientTracks.size() == 1 ) return  false;
@@ -87,16 +87,16 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
             FreeTrajectoryState primTraj = getTrajectory(primTrack);
 
             // get the secondary track with the max number of hits
-            unsigned short maxHits = 0; int indice=0;
+            unsigned short maxHits = 0; int indice=-1;
             for( unsigned short i=0; i < secTracks.size(); i++) {
                    // Add references to daughters
                    unsigned short nhits = secTracks[i]->numberOfValidHits();
-                   if( nhits > maxHits ) { maxHits = nhits; indice=i; }
+                   if( nhits > maxHits && isGoodSecondaryTrack(secTracks[i], i)) { maxHits = nhits; indice=i; }
             }
 
             // Closest points
             GlobalPoint crossing;
-            if( distanceOfClosestApproach( indice ) < minDistFromPrim_ ) crossing = crossingPoint(indice);
+            if( indice!=-1 ) crossing = crossingPoint(indice);
             else return false;
 
              // Create vertex (creation point)
@@ -107,7 +107,7 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
 
             the_vertex.add(reco::TrackBaseRef( primTrack ), 1.0);
             for( unsigned short i=0; i < secTracks.size(); i++) {
-                if( distanceOfClosestApproach( i ) < minDistFromPrim_ ){
+                if( isGoodSecondaryTrack(secTracks[i], i) ){
                   if( i==indice ) the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 1.0);
                   else the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
                }
@@ -135,3 +135,9 @@ void NuclearVertexBuilder::FilldistanceOfClosestApproach( const reco::TrackRef& 
             delete theApproach;
             return;
 }
+
+bool NuclearVertexBuilder::isGoodSecondaryTrack( const reco::TrackRef& secTrack, int i ) {
+          if( distanceOfClosestApproach(i) < minDistFromPrim_ && 
+              secTrack->normalizedChi2() < chi2Cut_ ) return true;
+          else return false;
+} 
