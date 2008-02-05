@@ -31,9 +31,14 @@ namespace popcon {
     }
     
 
+    cond::TagInfo const & tagInfo() const { return  *m_tagInfo; }
+
+    cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
+
+
     void initialize (cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry)  {
-      m_tagInfo = tagInfo;
-      m_logDBEntry = logDBEntry;
+      m_tagInfo = &tagInfo;
+      m_logDBEntry = &logDBEntry;
     }
 
     // this is the only mandatory interface
@@ -57,11 +62,11 @@ namespace popcon {
    
 
     
-    protected:
+    private:
 
-     cond::TagInfo const & m_tagInfo;
+     cond::TagInfo const * m_tagInfo;
 
-     cond::LogDBEntry const & m_logDBEntry;
+     cond::LogDBEntry const * m_logDBEntry;
 
 
      
