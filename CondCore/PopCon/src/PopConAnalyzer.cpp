@@ -23,11 +23,17 @@ namespace popcon {
   void PopConAnalyzerBase::beginJob(const edm::EventSetup& es) {	
     if(m_debug) std::cerr << "Begin Job\n"; 
     try{
-      std::cout<<"payload name "<<m_payload_name<<std::endl;
+      std::cerr<<"payload name "<<m_payload_name<<std::endl;
       m_tag = m_dbService->tag(m_record);
       if (!m_dbService->isNewTagRequest(m_record) ) {
 	m_dbService->tagInfo(m_record,m_tagInfo);
 	m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
+
+	std::cerr << "TAG, last since, size " << m_tag 
+		  << ", " << lastSince() 
+		  << ", " << m_tagInfo.size << std::endl;
+	std::cerr << "Last writer, size" <<  m_logDBEntry.provenance 
+		  << ", " << m_logDBEntry.payloadIdx << std::endl;
       }
       
       /*     
