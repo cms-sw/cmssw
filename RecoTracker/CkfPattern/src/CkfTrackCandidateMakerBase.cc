@@ -97,9 +97,6 @@ namespace cms{
     es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
     theNavigationSchool = navigationSchoolH.product();
 
-    // set the correct navigation
-    NavigationSetter setter( *theNavigationSchool);
-
     // set the TrajectoryBuilder
     edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
@@ -112,6 +109,9 @@ namespace cms{
   { 
     // getting objects from the EventSetup
     setEventSetup( es ); 
+
+    // set the correct navigation
+    NavigationSetter setter( *theNavigationSchool);
 
     // method for Debugging
     printHitsDebugger(e);

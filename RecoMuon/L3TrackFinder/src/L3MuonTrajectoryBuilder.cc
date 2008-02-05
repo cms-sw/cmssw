@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/08/22 17:44:33 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/05 19:11:57 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -107,11 +107,6 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     
   GlobalTrajectoryBuilderBase::setEvent(event);
     
-  // retrieve navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  // set the correct navigation    
-  if(nav.isValid()) NavigationSetter setter(*nav.product());
     
   if (theFirstEvent) {
       
@@ -234,6 +229,12 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
 // build a tracker Trajectory from a seed
 //
 L3MuonTrajectoryBuilder::TC L3MuonTrajectoryBuilder::makeTrajsFromSeeds(const vector<TrajectorySeed>& tkSeeds) const {
+
+  // retrieve navigation school
+  edm::ESHandle<NavigationSchool> nav;
+  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  // set the correct navigation
+  NavigationSetter setter(*nav.product());
 
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTrajsFromSeeds";
   TC result;
