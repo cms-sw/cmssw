@@ -11,7 +11,7 @@ namespace popcon {
     m_record(pset.getParameter<std::string> ("record")),
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     m_since(pset.getParameter<bool> ("SinceAppendMode")),
-    m_loggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true))
+    m_LoggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true))
     {
     //TODO set the policy (cfg or global configuration?)
     //Policy if corrupted data found
