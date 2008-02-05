@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/01/25 23:14:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/01 01:19:12 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -45,11 +45,13 @@ class MEtoEDM
 
   typedef std::vector<MEtoEDMObject> MEtoEdmObjectVector;
 
-  void putMEtoEdmObject(std::vector<std::string> name,
-			std::vector<TagList> tags,
-			std::vector<T> object);
+  void putMEtoEdmObject(std::vector<std::string> const &name,
+			std::vector<TagList> const &tags,
+			std::vector<T> const &object);
 
-  MEtoEdmObjectVector getMEtoEdmObject() const {return MEtoEdmObject;}
+  const MEtoEdmObjectVector & getMEtoEdmObject() const {return MEtoEdmObject;}
+
+  bool mergeProduct(MEtoEDM<T> const &newMEtoEDM);
 
  private:
 

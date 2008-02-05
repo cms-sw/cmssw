@@ -3,8 +3,8 @@
  *  See header file for description of class
  *  
  *
- *  $Date: 2008/01/25 23:14:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/01 01:19:22 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -13,9 +13,9 @@
 #include <stdlib.h>
 
 template <>
-void MEtoEDM<TH1F>::putMEtoEdmObject(std::vector<std::string> name,
-				     std::vector<TagList> tags,
-				     std::vector<TH1F> object)
+void MEtoEDM<TH1F>::putMEtoEdmObject(std::vector<std::string> const &name,
+				     std::vector<TagList> const &tags,
+				     std::vector<TH1F> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -29,9 +29,9 @@ void MEtoEDM<TH1F>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<TH2F>::putMEtoEdmObject(std::vector<std::string> name,
-				     std::vector<TagList> tags,
-				     std::vector<TH2F> object)
+void MEtoEDM<TH2F>::putMEtoEdmObject(std::vector<std::string> const &name,
+				     std::vector<TagList> const &tags,
+				     std::vector<TH2F> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -45,9 +45,9 @@ void MEtoEDM<TH2F>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<TH3F>::putMEtoEdmObject(std::vector<std::string> name,
-				     std::vector<TagList> tags,
-				     std::vector<TH3F> object)
+void MEtoEDM<TH3F>::putMEtoEdmObject(std::vector<std::string> const &name,
+				     std::vector<TagList> const &tags,
+				     std::vector<TH3F> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -61,9 +61,9 @@ void MEtoEDM<TH3F>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<TProfile>::putMEtoEdmObject(std::vector<std::string> name,
-					 std::vector<TagList> tags,
-					 std::vector<TProfile> object)
+void MEtoEDM<TProfile>::putMEtoEdmObject(std::vector<std::string> const &name,
+					 std::vector<TagList> const &tags,
+					 std::vector<TProfile> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -77,9 +77,10 @@ void MEtoEDM<TProfile>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<TProfile2D>::putMEtoEdmObject(std::vector<std::string> name,
-					   std::vector<TagList> tags,
-					   std::vector<TProfile2D> object)
+void 
+MEtoEDM<TProfile2D>::putMEtoEdmObject(std::vector<std::string> const &name,
+				      std::vector<TagList> const &tags,
+				      std::vector<TProfile2D> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -93,9 +94,9 @@ void MEtoEDM<TProfile2D>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<float>::putMEtoEdmObject(std::vector<std::string> name,
-				      std::vector<TagList> tags,
-				      std::vector<float> object)
+void MEtoEDM<float>::putMEtoEdmObject(std::vector<std::string> const &name,
+				      std::vector<TagList> const &tags,
+				      std::vector<float> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -109,9 +110,9 @@ void MEtoEDM<float>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<int>::putMEtoEdmObject(std::vector<std::string> name,
-				    std::vector<TagList> tags,
-				    std::vector<int> object)
+void MEtoEDM<int>::putMEtoEdmObject(std::vector<std::string> const &name,
+				    std::vector<TagList> const &tags,
+				    std::vector<int> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -125,9 +126,9 @@ void MEtoEDM<int>::putMEtoEdmObject(std::vector<std::string> name,
 }
 
 template <>
-void MEtoEDM<TString>::putMEtoEdmObject(std::vector<std::string> name,
-					std::vector<TagList> tags,
-					std::vector<TString> object)
+void MEtoEDM<TString>::putMEtoEdmObject(std::vector<std::string> const &name,
+					std::vector<TagList> const &tags,
+					std::vector<TString> const &object)
 {
 
   MEtoEdmObject.resize(name.size());
@@ -138,4 +139,93 @@ void MEtoEDM<TString>::putMEtoEdmObject(std::vector<std::string> name,
   }
 
   return;
+}
+
+template <>
+bool MEtoEDM<TH1F>::mergeProduct(MEtoEDM<TH1F> const &newMEtoEDM)
+{
+
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+    MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+  }
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<TH2F>::mergeProduct(MEtoEDM<TH2F> const &newMEtoEDM)
+{
+
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+    MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+  }
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<TH3F>::mergeProduct(MEtoEDM<TH3F> const &newMEtoEDM)
+{
+
+  const MEtoEdmObjectVector newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+    MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+  }
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<TProfile>::mergeProduct(MEtoEDM<TProfile> const &newMEtoEDM)
+{
+
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+    MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+  }
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<TProfile2D>::mergeProduct(MEtoEDM<TProfile2D> const &newMEtoEDM)
+{
+
+  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
+  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+    MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+  }
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<float>::mergeProduct(MEtoEDM<float> const &newMEtoEDM)
+{
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<int>::mergeProduct(MEtoEDM<int> const &newMEtoEDM)
+{
+
+  return true;
+
+}
+
+template <>
+bool MEtoEDM<TString>::mergeProduct(MEtoEDM<TString> const &newMEtoEDM)
+{
+
+  return true;
+
 }
