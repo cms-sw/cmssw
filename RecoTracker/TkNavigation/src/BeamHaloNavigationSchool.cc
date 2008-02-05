@@ -21,7 +21,7 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
 {
   edm::LogInfo("BeamHaloNavigationSchool")<<"*********Running BeamHaloNavigationSchool *********";
   theBarrelLength = 0;theField = field; theTracker = theInputTracker;
-
+  theAllDetLayersInSystem=&theInputTracker->allLayers();
   // Get barrel layers
   /*sideways does not need barrels*/
   /*  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 

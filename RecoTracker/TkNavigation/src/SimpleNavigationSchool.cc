@@ -30,6 +30,9 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
 					       const MagneticField* field) : 
   theBarrelLength(0),theField(field), theTracker(theInputTracker)
 {
+
+  theAllDetLayersInSystem=&theInputTracker->allLayers();
+
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {

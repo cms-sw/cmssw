@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/09/25 19:31:52 $
+ *  $Revision: 1.1 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -44,6 +44,13 @@ using namespace std;
 typedef std::vector<DetLayer*> LayerContainer;
 /* Constructor */
 MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muonGeom, const GeometricSearchTracker * trackerGeom, const MagneticField * field) : theMuonDetLayerGeometry(muonGeom), theGeometricSearchTracker(trackerGeom), theMagneticField(field), theBarrelLength(0) {
+  //need to allocate the vector itself, to concatenate the two vectors of DetLayers
+  // it has to be deleted in the destructor
+  std::vector<DetLayer*> * allLayers = new std::vector<DetLayer*>();
+  allLayers->reserve(muonGeom->allLayers().size()+trackerGeom->allLayers().size());
+  allLayers->insert(allLayers->end(), muonGeom->allLayers().begin(), muonGeom->allLayers().end());
+  allLayers->insert(allLayers->end(), trackerGeom->allLayers().begin(), trackerGeom->allLayers().end());
+  theAllDetLayersInSystem=allLayers;
   
   // Get tracker barrel layers
   std::vector<BarrelDetLayer*> blc = trackerGeom->barrelLayers();
@@ -88,7 +95,8 @@ MuonTkNavigationSchool::~MuonTkNavigationSchool() {
    for_each(theMuonForwardNLC.begin(),theMuonForwardNLC.end(), delete_layer());
    for_each(theMuonBackwardNLC.begin(),theMuonBackwardNLC.end(), delete_layer());
 
-
+   //delete the vector containing all the detlayers
+   delete theAllDetLayersInSystem;
 }
 /* Operations as NavigationSchool */
 
