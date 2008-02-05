@@ -18,10 +18,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 
 
-#include<string>
-#include <boost/bind.hpp>
-#include <algorithm>
-
+c
 #include<iostream>
 
 
@@ -109,15 +106,7 @@ namespace popcon {
       initialize();
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"something clever");
 
-      (copy??)
-      Container payloads = source(m_tagInfo,m_logDBEntry);
-      // sort?
-      std::sort(payloads.begin(),payloads.end(),
-		boost::bind(std::less<Time_t>(),
-			    boost::bind(&Container::value_type::second,_1),
-			    boost::bind(&Container::value_type::second,_2)
-			    )
-		);
+      Container const & payloads = source(m_tagInfo,m_logDBEntry);
       displayHelper(payloads,m_since);
       std::for_each(payloads.begin(),payloads.end(),
 		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,
