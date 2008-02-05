@@ -10,13 +10,18 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+
 using namespace std;
 
   //Constructor
 
 SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) : 
   conf_(conf){
-  	magneticField_ = conf_.getParameter<bool>("magneticField");
+  	magneticField_ = conf_.getParameter<double>("magneticField");
 //   if(conf_.getParameter<bool>("DoCalibration")) siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
 //   else siStripLorentzAngleAlgorithm_=0;
 }
@@ -26,19 +31,26 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
 void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
   
 	SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
+	   
 	
 	edm::ESHandle<TrackerGeometry> pDD;
 	c.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
+	
 	float langle;
-	if(magneticField_) langle = 0.424;
+	
+	if(magneticField_ != 0) langle = 0.2 / magneticField_;
+	
 	else langle = 0.;
+	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
 		if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 			uint32_t detid=((*it)->geographicalId()).rawId();
-			if ( ! LorentzAngle->putLorentzAngle(detid,langle) )
+			if ( ! LorentzAngle->putLorentzAngle(detid,langle ) )
+// 			if ( ! LorentzAngle->putLorentzAngle(detid,langle) )
 					edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
+		
 			}
 			
 		}      

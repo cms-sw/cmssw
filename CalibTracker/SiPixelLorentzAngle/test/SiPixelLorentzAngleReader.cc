@@ -25,8 +25,7 @@ void SiPixelLorentzAngleReader::analyze( const edm::Event& e, const edm::EventSe
   std::map<unsigned int,float>::const_iterator it;
   for (it=detid_la.begin();it!=detid_la.end();it++)
       {
-	edm::LogInfo("SiPixelLorentzAngleReader")  << "detid " << it->first << " \t"
-						   << " Lorentz angle  " << it->second;
+	  			std::cout  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second  << std::endl;
+			edm::LogInfo("SiPixelLorentzAngleReader")  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second;
       } 
 }
-

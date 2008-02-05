@@ -14,6 +14,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+// Magnetic field
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 // #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleAlgorithm.h"
 
 class SiPixelLorentzAngleDB : public edm::EDAnalyzer
@@ -35,7 +39,7 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
 
   std::vector< std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
-  bool magneticField_;
+  double magneticField_;
 //   double appliedVoltage_;
 //   double chargeMobility_;
 //   double temperature_;
