@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.12 2007/12/04 21:07:12 drell Exp $
+// $Id: V0Fitter.cc,v 1.13 2008/02/04 21:54:58 drell Exp $
 //
 //
 
@@ -86,9 +86,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Create std::vectors for Tracks and TrackRefs (required for
   //  passing to the KalmanVertexFitter)
+  vector<TrackRef> theTrackRefs_;//temporary, for pre-cut TrackRefs
   vector<Track> theTracks;
-  //vector<Track> theTracks_;
-  vector<TrackRef> theTrackRefs_;
   vector<TrackRef> theTrackRefs;
   vector<TransientTrack> theTransTracks;
 
@@ -111,15 +110,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(unsigned int indx = 0; indx < theTrackHandle->size(); indx++) {
     TrackRef tmpRef( theTrackHandle, indx );
     theTrackRefs_.push_back( tmpRef );
-    //theTracks_.push_back( *tmpRef );
   }
-
-  //std::cout << "@@@@ " << theTrackHandle->size() << std::endl;
-
-  // Fill our std::vector<Track> with the reconstructed tracks from
-  //  the handle
-  /*  theTracks.insert( theTracks.end(), theTrackHandle->begin(),
-      theTrackHandle->end() );*/
 
   // Beam spot.  I'm hardcoding to (0,0,0) right now, but will use 
   //  reco::BeamSpot later.
@@ -141,21 +132,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     TrajectoryStateClosestToBeamLine
       tscb( tmpTk.stateAtBeamLine() );
     //if( tscb.transverseImpactParameter().value() > 0.1 ) {
-    if(tscb.transverseImpactParameter().value() > 0.) {
-    /*if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
-	     * theTrackRefs_[indx2]->dxy( beamSpot )
-	     + theTrackRefs_[indx2]->dsz( beamSpot )
-	     * theTrackRefs_[indx2]->dsz( beamSpot ) ) > 0.5 ) {*/
+    if(tscb.transverseImpactParameter().value() > 0.) {//This removes the cut.
       theTrackRefs.push_back( theTrackRefs_[indx2] );
       theTracks.push_back( *(theTrackRefs_[indx2]) );
       theTransTracks.push_back( tmpTk );
     }
   }
-
-  // UNUSED:
-  // Call private method that does initial cutting of the reconstructed
-  //  tracks.  Passes theTracks by reference.
-  //applyPreFitCuts(theTracks);
 
   //----->> Initial cuts finished.
 
@@ -163,11 +145,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Loop over tracks and vertex good charged track pairs
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
-      //vector<Track> theTracks;  
-      vector<TransientTrack> transTracks;
 
-      //theTracks.push_back( theTransTracks[trdx1].track() );
-      //theTracks.push_back( theTransTracks[trdx2].track() );
+      vector<TransientTrack> transTracks;
 
       TrackRef positiveTrackRef;
       TrackRef negativeTrackRef;
@@ -357,15 +336,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	// Store track info in reco::Vertex object.  If the option is set,
 	//  store the refitted ones as well.
-	//float one_ = 1.;
 	//if(storeRefTrax) {
 	for( ; traxIter != traxEnd; traxIter++) {
 	  if( traxIter->track().charge() > 0. ) {
-	    //theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
 	    thePositiveRefTrack = new TransientTrack(*traxIter);
 	  }
 	  else if (traxIter->track().charge() < 0.) {
-	    //theVtx.add( negativeTrackRef, traxIter->track(), one_);
 	    theNegativeRefTrack = new TransientTrack(*traxIter);
 	  }
 	}
@@ -396,10 +372,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
 	else {
 	  trajPlus = new TrajectoryStateClosestToPoint(
-		//thePositiveTransTrack.trajectoryStateClosestToPoint(vtxPos));
 			 posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
 	  trajMins = new TrajectoryStateClosestToPoint(
-		//theNegativeTransTrack.trajectoryStateClosestToPoint(vtxPos));
 			 negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
 
 	}
@@ -417,10 +391,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	//cleanup stuff we don't need anymore
 	delete trajPlus;
 	delete trajMins;
-	trajPlus = trajMins = NULL;
+	trajPlus = trajMins = 0;
 	delete thePositiveRefTrack;
 	delete theNegativeRefTrack;
-	thePositiveRefTrack = theNegativeRefTrack = NULL;
+	thePositiveRefTrack = theNegativeRefTrack = 0;
 
 	// calculate total energy of V0 3 ways:
 	//  Assume it's a kShort, a Lambda, or a LambdaBar.
@@ -639,17 +613,3 @@ void V0Fitter::applyPostFitCuts() {
 
 }
 
-
-/*
-reco::VertexCollection V0Fitter::getKshortCollection() const {
-  return K0s;
-}
-
-reco::VertexCollection V0Fitter::getLambdaCollection() const {
-  return Lam0;
-}
-
-reco::VertexCollection V0Fitter::getLambdaBarCollection() const {
-  return Lam0Bar;
-}
-*/
