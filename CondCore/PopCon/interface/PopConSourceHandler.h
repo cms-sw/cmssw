@@ -25,7 +25,7 @@ namespace popcon {
     typedef PopConSourceHandler<T> self;
     typedef std::vector<std::pair<T*, cond::Time_t> > Container;
 
-    PopConSourceHandler{}
+    PopConSourceHandler(){}
     
     virtual ~PopConSourceHandler(){
     }

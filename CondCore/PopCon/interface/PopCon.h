@@ -94,7 +94,7 @@ namespace popcon {
   }
 
   template<typename Container>
-  void displayHelper(Container const & payloads, bool sinceAppend) const{
+  void displayHelper(Container const & payloads, bool sinceAppend) {
     typename Container::const_iterator it;
     for (it = payloads.begin(); it != payloads.end(); it++){
       std::cerr<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
