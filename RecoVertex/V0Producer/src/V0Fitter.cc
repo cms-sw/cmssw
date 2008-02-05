@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.13 2008/02/04 21:54:58 drell Exp $
+// $Id: V0Fitter.cc,v 1.14 2008/02/05 00:34:51 drell Exp $
 //
 //
 
@@ -299,13 +299,13 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       if( continue_ ) {
-	if(theRecoVertex.totalChiSquared() > chi2Cut 
+	if(theRecoVertex.totalChiSquared() > 20. 
 	   || theRecoVertex.totalChiSquared() < 0.) {
 	  continue_ = false;
 	}
-	if(!doPostFitCuts) {
-	  continue_ = true;
-	}
+	//if(!doPostFitCuts) {
+	//  continue_ = true;
+	//}
       }
 
 

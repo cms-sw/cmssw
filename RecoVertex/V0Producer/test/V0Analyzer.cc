@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.1 2007/10/29 21:21:13 drell Exp $
+// $Id: V0Analyzer.cc,v 1.2 2008/02/04 21:54:58 drell Exp $
 //
 //
 
@@ -108,8 +108,10 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* step3massHisto;
 
   TH1D* vertexChi2Histo;
-  TH1D* rVtxHisto;
-  TH1D* vtxSigHisto;
+  TH1D* rVtxHisto1;
+  TH1D* vtxSigHisto1;
+  TH1D* rVtxHisto2;
+  TH1D* vtxSigHisto2;
 
 
 
@@ -241,12 +243,20 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string vertexChi2HistoLabelShort(vernum + string("vtxChi2"));
 
   string rVtxHistoLabelLong(algo+
-			    string(" r_{vtx} of V^{0} decay"));
-  string rVtxHistoLabelShort(vernum + string("rVtx"));
+			    string(" r_{vtx} of V^{0} decay - radial"));
+  string rVtxHistoLabelShort(vernum + string("rVtxRadial"));
 
   string vtxSigHistoLabelLong(algo+
+			      string(" V^{0} vertex significance - radial"));
+  string vtxSigHistoLabelShort(vernum + string("#sigma rVtxRadial"));
+
+  string rVtxHistoLabel2Long(algo+
+			    string(" r_{vtx} of V^{0} decay"));
+  string rVtxHistoLabel2Short(vernum + string("rVtxSpherical"));
+
+  string vtxSigHistoLabel2Long(algo+
 			      string(" V^{0} vertex significance"));
-  string vtxSigHistoLabelShort(vernum + string("#sigma rVtx"));
+  string vtxSigHistoLabel2Short(vernum + string("#sigma rVtxSpherical"));
 
   step1massHisto = new TH1D(s1massHistoLabelShort.c_str(),
 			    s1massHistoLabelLong.c_str(),
@@ -260,12 +270,18 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 
   vertexChi2Histo = new TH1D(vertexChi2HistoLabelShort.c_str(),
 			     vertexChi2HistoLabelLong.c_str(),
-			     100, 0., 2.);
-  rVtxHisto = new TH1D(rVtxHistoLabelShort.c_str(),
+			     100, 0., 20.);
+  rVtxHisto1 = new TH1D(rVtxHistoLabelShort.c_str(),
 		       rVtxHistoLabelLong.c_str(),
 		       100, 0., 1.);
-  vtxSigHisto = new TH1D(vtxSigHistoLabelShort.c_str(),
+  vtxSigHisto1 = new TH1D(vtxSigHistoLabelShort.c_str(),
 			 vtxSigHistoLabelLong.c_str(),
+			 100, 0., 100.);
+  rVtxHisto2 = new TH1D(rVtxHistoLabel2Short.c_str(),
+		       rVtxHistoLabel2Long.c_str(),
+		       100, 0., 1.);
+  vtxSigHisto2 = new TH1D(vtxSigHistoLabel2Short.c_str(),
+			 vtxSigHistoLabel2Long.c_str(),
 			 100, 0., 100.);
 
 
@@ -451,29 +467,37 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     double sig02 = k0s.covariance(0,2);
     double sig12 = k0s.covariance(1,2);
 
-    //double vtxR = vtxPos.mag();
+    double vtxRSph = vtxPos.mag();
     double vtxR = vtxPos.perp();
     double vtxChi2 = k0s.chi2();
-    /*double vtxError =
+    double vtxErrorSph =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
 	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
-	    / vtxR;*/
+      / vtxRSph;
     double vtxError =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_)
 	    + 2*sig01*(x_*y_) ) / vtxR;
+    double vtxSigSph = vtxRSph / vtxErrorSph;
     double vtxSig = vtxR / vtxError;
 
     vertexChi2Histo->Fill(vtxChi2, 1.);
 
     step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
     if(vtxChi2 < 1.) {
-      rVtxHisto->Fill(vtxR, 1.);
+      rVtxHisto1->Fill(vtxR, 1.);
       if(vtxR > 0.1) {
 	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
-	vtxSigHisto->Fill(vtxSig, 1.);
+	vtxSigHisto1->Fill(vtxSig, 1.);
 	if(vtxSig > 22.) {
 	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
 	}
+      }
+    }
+
+    if(vtxChi2 < 1.) {
+      rVtxHisto2->Fill(vtxRSph, 1.);
+      if(vtxRSph > 0.1) {
+	vtxSigHisto2->Fill(vtxSigSph, 1.);
       }
     }
 
