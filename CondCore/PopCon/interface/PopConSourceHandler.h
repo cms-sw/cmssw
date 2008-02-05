@@ -44,7 +44,7 @@ namespace popcon {
     // this is the only mandatory interface
     Container const & operator()(cond::TagInfo const & tagInfo, 
 				 cond::LogDBEntry const & logDBEntry) const {
-      const_cast<self*>(this)->initalize(tagInfo, logDBEntry);
+      const_cast<self*>(this)->initialize(tagInfo, logDBEntry);
       return const_cast<self*>(this)->returnData();
     }
     

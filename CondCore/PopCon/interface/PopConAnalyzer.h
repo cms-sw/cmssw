@@ -15,34 +15,36 @@
 
 namespace popcon{
   template <typename S>
-    class PopConAnalyzer : public EDAnalyzer {
-    public:
+  class PopConAnalyzer : public edm::EDAnalyzer {
+  public:
     typedef S SourceHandler;
-
+    
     PopConAnalyzer(const edm::ParameterSet& pset) : 
       m_populator(pset),
       m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
-
-
-    ~PopConAnalyzer(){}
- 
-   private:
- 
+    
+    
+    virtual ~PopConAnalyzer(){}
+    
+  private:
+    
     virtual void beginJob(const edm::EventSetup&){}
     virtual void endJob() {
       write();
     }
-     
+    
     virtual void analyze(const edm::Event&, const edm::EventSetup&){} 
-
-
+    
+    
     void write() {
       m_populator.write(m_source);
-
+      
     }
+    
+  private:
     PopCon m_populator;
     SourceHandler m_source;	
-
   };
+
 }
 #endif

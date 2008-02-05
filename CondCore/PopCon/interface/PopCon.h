@@ -109,8 +109,8 @@ namespace popcon {
       initialize();
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"something clever");
 
-
-      Container const & payloads = source(m_tagInfo,m_logDBEntry);
+      (copy??)
+      Container payloads = source(m_tagInfo,m_logDBEntry);
       // sort?
       std::sort(payloads.begin(),payloads.end(),
 		boost::bind(std::less<Time_t>(),
