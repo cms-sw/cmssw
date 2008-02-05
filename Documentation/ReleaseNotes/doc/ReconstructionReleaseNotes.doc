@@ -75,6 +75,8 @@ Main changes and new features by subsystem:
  - JetCorrections
   - implement many factorized jet corrections:  pileup, relative, absolute, em, flavor
 
+- BTag
+ - Fixes in combined secondary vertex tag (missing PTDR features implemented)
 
 - Tau 
  - Added a HighEfficiency collection to the EventContent
