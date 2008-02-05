@@ -62,14 +62,14 @@ namespace popcon {
    
 
     
-    private:
-
-     cond::TagInfo const * m_tagInfo;
-
-     cond::LogDBEntry const * m_logDBEntry;
-
-
-     
+  private:
+    
+    cond::TagInfo const * m_tagInfo;
+    
+    cond::LogDBEntry const * m_logDBEntry;
+    
+  protected:
+    
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
     Container m_to_transfer;
