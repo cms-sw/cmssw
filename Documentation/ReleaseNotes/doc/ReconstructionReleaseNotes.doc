@@ -43,6 +43,16 @@ Main changes and new features by subsystem:
  - Bug fix in PhotonProducer and ConvertedPhotonProducer: occasionally  the SuperClusterRef was set to the wrong cluster
  - Looser chi2 cut for conversion track trajectory building
 
+- Jets
+ - derive all jets from CompositeRefBaseCandidate rather than
+   CompositeRefCandidate before   as a result some constituent accessors changed
+ - access to PF specific constituents for PFJets
+ - run JetTracks associators for all jet collections, store associations in RECO and
+   association summaries in AOD
+ - JetCorrections
+  - implement many factorized jet corrections:  pileup, relative, absolute, em, flavor
+
+
 - Tau 
  - Added a HighEfficiency collection to the EventContent
 
