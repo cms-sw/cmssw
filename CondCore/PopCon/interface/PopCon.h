@@ -7,6 +7,7 @@
 
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CondCore/DBOutputService/interface/TagInfo.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
@@ -32,7 +33,7 @@ namespace popcon {
   /* Populator of the Condition DB
    *
    */
-  call Popcon {
+  class PopCon {
   public:
     typedef cond::Time_t Time_t;
 
