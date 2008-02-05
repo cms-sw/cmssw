@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.5 2007/10/09 04:33:34 dlange Exp $
+// $Id: TrackHitFilter.cc,v 1.6 2007/12/06 01:57:45 ratnik Exp $
 //
 //
 
@@ -25,7 +25,6 @@
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/TrackReco/interface/TrackExtra.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
-#include "DataFormats/DetId/interface/DetId.h" 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h" 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -39,7 +38,9 @@ using namespace reco;
 TrackHitFilter::TrackHitFilter(const edm::ParameterSet& iConfig):
   theSrc( iConfig.getParameter<edm::InputTag>( "src" ) ),
   theHitSel( iConfig.getParameter<std::string>( "hitSelection" ) ),
-  theMinHits( iConfig.getParameter<unsigned int>( "minHitsForRefit" ) )
+  theMinHits( iConfig.getParameter<unsigned int>( "minHitsForRefit" ) ),
+  rejectBadMods( iConfig.getParameter<bool>( "rejectBadMods" ) ),
+  theBadMods( iConfig.getParameter<std::vector<unsigned int> >( "theBadModules" ) )
 {
 
    //register your products, and/or set an "alias" label
@@ -97,7 +98,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        int type = typeAndLay.first;   
        int layer = typeAndLay.second;
        
-       if (keepThisHit(type, layer)) acchits++; 
+       if (keepThisHit( hit->geographicalId(), type, layer )) acchits++; 
        
      }
      
@@ -133,7 +134,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 int type = typeAndLay.first;   
 	 int layer = typeAndLay.second;
 	 
-	 if (keepThisHit(type, layer)) {
+	 if (keepThisHit( hit->geographicalId(), type, layer )) {
    
 	   myTrk->setHitPattern( * hit, i ++ );
 	   trhSelectedHits->push_back( hit );
@@ -165,7 +166,7 @@ void
 TrackHitFilter::endJob() {
 }
 
-bool TrackHitFilter::keepThisHit(int type, int layer) 
+bool TrackHitFilter::keepThisHit(DetId id, int type, int layer) 
 {
   bool keepthishit = true;
   
@@ -178,10 +179,31 @@ bool TrackHitFilter::keepThisHit(int type, int layer)
   else if ( theHitSel == "PixelAndDSStripBarrelOnly" ) {
     if (!((abs(type)==1)
 	  || ((abs(type)==3 || abs(type)==5) && layer<2))) keepthishit = false;
-	   }	   
+  }	   
   else if ( theHitSel == "SiStripOnly" ) {
     if (abs(type)>=1 && abs(type)<=2) keepthishit = false; 
   } 
+  else if ( theHitSel == "TOBOnly" ) {
+     if (abs(type)!=5) keepthishit = false;
+  }
+  else if ( theHitSel == "TOBandTIBl4Only" ) {
+    if (!(abs(type)==5 || (abs(type)==3 && layer>=4))) keepthishit = false;
+  }
+  else if ( theHitSel == "TOBandTIBl34Only" ) {
+    if (!(abs(type)==5 || (abs(type)==3 && layer>=3))) keepthishit = false;
+  }
+  else if ( theHitSel == "TOBandTIBl234Only" ) {
+    if (!(abs(type)==5 || (abs(type)==3 && layer>=2))) keepthishit = false;
+  }
+  
+  if (rejectBadMods) {
+    for( std::vector<unsigned int>::const_iterator iMod = theBadMods.begin(); iMod != theBadMods.end(); ++iMod ) {  
+      if (id.rawId() == *iMod) {
+	keepthishit = false;
+        LogDebug("HitFilter") << "TrackHitFilter **** Rejected a hit on module " << id.rawId();
+      }
+    }
+  }
 
   return keepthishit;
 }

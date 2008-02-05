@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.h,v 1.4 2007/07/26 15:59:27 covarell Exp $
+// $Id: TrackHitFilter.h,v 1.5 2007/12/06 01:57:45 ratnik Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-
+#include "DataFormats/DetId/interface/DetId.h" 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 
@@ -42,11 +42,12 @@ class TrackHitFilter : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      bool keepThisHit(int type, int layer);
+      bool keepThisHit(DetId id, int type, int layer);
 
    protected:
       edm::InputTag theSrc;    
       std::string theHitSel;
       unsigned int theMinHits;
-
+      bool rejectBadMods;
+      std::vector<unsigned int> theBadMods; 
 };
