@@ -101,6 +101,7 @@ private:
  MonitorElement* meEBe25_; 
 
  MonitorElement* meEBe1oe4_;
+ MonitorElement* meEBe1oe9_;
  MonitorElement* meEBe4oe9_;
  MonitorElement* meEBe9oe16_;
  MonitorElement* meEBe1oe25_;

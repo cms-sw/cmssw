@@ -80,28 +80,28 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
     menESHits2zm_ = dbe_->book1D(histo, histo, 50, 0., 50. ) ;
 
     sprintf (histo, "ES hits energy layer 1 z+" ) ;
-    meESEnergyHits1zp_ = dbe_->book1D(histo, histo, 100, 0., 0.001 ) ;
+    meESEnergyHits1zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
 
     sprintf (histo, "ES hits energy layer 2 z+" ) ;
-    meESEnergyHits2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.001 ) ;
+    meESEnergyHits2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
 
     sprintf (histo, "ES hits energy layer 1 z-" ) ;
-    meESEnergyHits1zm_ = dbe_->book1D(histo, histo, 100, 0., 0.001 ) ;
+    meESEnergyHits1zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
 
     sprintf (histo, "ES hits energy layer 2 z-" ) ;
-    meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.001 ) ;
+    meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
 
     sprintf (histo, "ES E1+0.7*E2 z+" ) ;
-    meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.001);
+    meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
 
     sprintf (histo, "ES E1+0.7*E2 z-" ) ;
-    meE1alphaE2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.001);
+    meE1alphaE2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
 
     sprintf (histo, "EE vs ES z+" ) ;
-    meEEoverESzp_ = dbe_->bookProfile(histo, histo, 150, 0., 300., 80, 0., 80.);
+    meEEoverESzp_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
 
     sprintf (histo, "EE vs ES z-" ) ;
-    meEEoverESzm_ = dbe_->bookProfile(histo, histo, 150, 0., 300., 80, 0., 80.);
+    meEEoverESzm_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
 
     sprintf (histo, "ES ene2oEne1 z+" ) ;
     me2eszpOver1eszp_ = dbe_->book1D(histo, histo, 50, 0., 10.);

@@ -57,6 +57,7 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   meEEe25_ = 0; 
 
   meEEe1oe4_   = 0;  
+  meEEe1oe9_   = 0;  
   meEEe4oe9_   = 0;  
   meEEe9oe16_  = 0;
   meEEe1oe25_  = 0;  
@@ -90,7 +91,7 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
     meEEzmOccupancy_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
     sprintf (histo, "EE longitudinal shower profile" ) ;
-    meEELongitudinalShower_ = dbe_->bookProfile(histo, histo, 26,0,26, 100, 0, 3000);
+    meEELongitudinalShower_ = dbe_->bookProfile(histo, histo, 26,0,26, 100, 0, 20000);
 
     sprintf (histo, "EE+ hits energy spectrum" );
     meEEzpHitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
@@ -115,6 +116,9 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
 
     sprintf (histo, "EE E1oE4" ) ;
     meEEe1oe4_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+
+    sprintf (histo, "EE E1oE9" ) ;
+    meEEe1oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
 
     sprintf (histo, "EE E4oE9" ) ;
     meEEe4oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
@@ -247,6 +251,7 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     }
     
     if (meEEe1oe4_   && ee4  > 0.1 ) meEEe1oe4_  ->Fill(ee1/ee4);
+    if (meEEe1oe9_   && ee9  > 0.1 ) meEEe1oe9_  ->Fill(ee1/ee9);
     if (meEEe4oe9_   && ee9  > 0.1 ) meEEe4oe9_  ->Fill(ee4/ee9);
     if (meEEe9oe16_  && ee16 > 0.1 ) meEEe9oe16_ ->Fill(ee9/ee16);
     if (meEEe16oe25_ && ee25 > 0.1 ) meEEe16oe25_->Fill(ee16/ee25);

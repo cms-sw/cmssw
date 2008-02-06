@@ -52,6 +52,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   meEBe25_ = 0; 
 
   meEBe1oe4_   = 0;  
+  meEBe1oe9_   = 0;  
   meEBe4oe9_   = 0;  
   meEBe9oe16_  = 0;
   meEBe1oe25_  = 0;  
@@ -76,7 +77,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
     meEBOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   
     sprintf (histo, "EB longitudinal shower profile" ) ;
-    meEBLongitudinalShower_ = dbe_->bookProfile(histo, histo, 26, 0., 26., 100, 0., 3000.);
+    meEBLongitudinalShower_ = dbe_->bookProfile(histo, histo, 26, 0., 26., 100, 0., 20000.);
 
     sprintf (histo, "EB hits energy spectrum" );
     meEBhitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
@@ -98,6 +99,9 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
 
     sprintf (histo, "EB E1oE4" ) ;
     meEBe1oe4_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
+
+    sprintf (histo, "EB E1oE9" ) ;
+    meEBe1oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
 
     sprintf (histo, "EB E4oE9" ) ;
     meEBe4oe9_ = dbe_->book1D(histo, histo, 100, 0.4, 1.1);
@@ -211,6 +215,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     }
     
     if (meEBe1oe4_   && eb4  > 0.1 ) meEBe1oe4_  -> Fill(eb1/eb4);
+    if (meEBe1oe9_   && eb9  > 0.1 ) meEBe1oe9_  -> Fill(eb1/eb9);
     if (meEBe4oe9_   && eb9  > 0.1 ) meEBe4oe9_  -> Fill(eb4/eb9);
     if (meEBe9oe16_  && eb16 > 0.1 ) meEBe9oe16_ -> Fill(eb9/eb16);
     if (meEBe1oe25_  && eb25 > 0.1 ) meEBe1oe25_ -> Fill(eb1/eb25);
