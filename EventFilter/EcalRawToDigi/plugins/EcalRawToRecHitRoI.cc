@@ -134,10 +134,11 @@ void EcalRawToRecHitRoI::endJob(){
 #include <sstream>
 std::string EcalRawToRecHitRoI::dumpFEDs(const std::vector<int> & FEDs){
   std::stringstream ss;
-  for (int i=0; i < (int)FEDs.size(); i++) {
-    ss<< "unpack FED " << FEDs[i] << std::endl;
+  ss<<"unpack FED: ";
+  for (uint i=0; i < FEDs.size(); i++) {
+    ss<< FEDs[i] << ((i!= FEDs.size()-1)? ", ":"\n");
   }
-  ss<< "Number of FEDS is " << FEDs.size() << std::endl;
+  ss<< "Number of FEDS is " << FEDs.size();
   return ss.str();
 }
 
