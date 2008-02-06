@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/31 22:17:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/06/22 09:12:50 $
+ *  $Revision: 1.10 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -49,7 +49,7 @@ const int FEDNumbering::MAXTriggerGCTFEDID = 749;
 
 
 const int FEDNumbering::MINTriggerLTCFEDID = 816;
-const int FEDNumbering::MAXTriggerLTCFEDID = 823;
+const int FEDNumbering::MAXTriggerLTCFEDID = 824;
 const int FEDNumbering::MINTriggerLTCmtccFEDID = 815;
 const int FEDNumbering::MAXTriggerLTCmtccFEDID = 815;
 const int FEDNumbering::MINTriggerLTCTriggerFEDID = 816;
