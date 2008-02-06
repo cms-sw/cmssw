@@ -12,7 +12,9 @@
 
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+#include<string>
 
 namespace popcon{
   class ExPedestalSource : public popcon::PopConSourceHandler<Pedestals>{

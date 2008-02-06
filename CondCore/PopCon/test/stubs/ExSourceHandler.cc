@@ -1,5 +1,9 @@
 #include "ExSourceHandler.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
+#include<iostream>
+
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")){
 }
@@ -10,7 +14,8 @@ popcon::ExPedestalSource::~ExPedestalSource()
 }
 
 void popcon::ExPedestalSource::getNewObjects() {
-   std::cerr << "------- " << name << " - > getNewObjects\" << std::endl;
+   std::cerr << "------- " << name 
+	     << " - > getNewObjects" << std::endl;
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;
   std::cerr << tagInfo().name << " , last object valid since " 
