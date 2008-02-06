@@ -1,6 +1,6 @@
 #include <memory>
 #include <iostream>
-#include "CondTools/SiPixel/test/SiPixelCondObjBuilder.h"
+#include "CondTools/SiPixel/test/SiPixelCondObjForHLTBuilder.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +14,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 namespace cms{
-SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
+SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet& iConfig) :
       conf_(iConfig),
       appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
       SiPixelGainCalibration_(0),
@@ -33,7 +33,7 @@ SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
 }
 
 void
-SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    unsigned int run=iEvent.id().run();
@@ -42,16 +42,16 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    int mycol = 415;
    int myrow = 159;
 
-   edm::LogInfo("SiPixelCondObjBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
+   edm::LogInfo("SiPixelCondObjForHLTBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
    //
    // Instantiate Gain calibration offset and define pedestal/gain range
    //
-   SiPixelGainCalibration_ = new SiPixelGainCalibration(0., 50, 0., 10.);
+   SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(0., 50, 0., 10.);
 
 
    edm::ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
-   edm::LogInfo("SiPixelCondObjBuilder") <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
+   edm::LogInfo("SiPixelCondObjForHLTBuilder") <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
    
    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
      if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
@@ -74,6 +74,8 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
        // Loop over columns and rows of this DetID
        for(int i=0; i<ncols; i++) {
+         float totalPed = 0.0;
+         float totalGain = 0.0;
 	 for(int j=0; j<nrows; j++) {
 	   nchannels++;
 	   
@@ -104,14 +106,19 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	   gain =  2.8;
  	   ped  = 28.2;
 
-	   // Insert data in the container
-	   SiPixelGainCalibration_->setData( ped , gain , theSiPixelGainCalibration);
+           totalPed     += ped;
+           totalGain    += gain;
+
 	 }
+         float averagePed       = totalPed/static_cast<float>(nrows);
+         float averageGain      = totalGain/static_cast<float>(nrows);
+         //only fill by column
+         SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
        }
 
        SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
-       if( !SiPixelGainCalibration_->put(detid,range,ncols) )
-	 edm::LogError("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] detid already exists"<<std::endl;
+       if( !SiPixelGainCalibration_->put(detid,range) )
+	 edm::LogError("SiPixelCondObjForHLTBuilder")<<"[SiPixelCondObjForHLTBuilder::analyze] detid already exists"<<std::endl;
      }
    }
    std::cout << " ---> PIXEL Modules  " << nmodules  << std::endl;
@@ -134,54 +141,51 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    edm::LogInfo(" --- writeing to DB!");
    edm::Service<cond::service::PoolDBOutputService> mydbservice;
    if(!mydbservice.isAvailable() ){
-      std::cout << "Didn't get DB" << std::endl;
      edm::LogError("db service unavailable");
      return;
    } else { edm::LogInfo("DB service OK"); }
 
    try{
 //     size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
-//     edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration "
+//     edm::LogInfo("SiPixelCondObjForHLTBuilder")<<"CallbackToken SiPixelGainCalibration "
 //         <<callbackToken<<std::endl;
 //       unsigned long long tillTime;
 //     if ( appendMode_)
 //	 tillTime = mydbservice->currentTime();
 //       else
 //	 tillTime = mydbservice->endOfTime();
-//     edm::LogInfo("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] tillTime = "
+//     edm::LogInfo("SiPixelCondObjForHLTBuilder")<<"[SiPixelCondObjForHLTBuilder::analyze] tillTime = "
 //         <<tillTime<<std::endl;
 //     mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(
 //           SiPixelGainCalibration_, tillTime , callbackToken);
 
      if( mydbservice->isNewTagRequest(recordName_) ){
-         mydbservice->createNewIOV<SiPixelGainCalibration>(
+         mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
              SiPixelGainCalibration_, mydbservice->endOfTime(),recordName_);
      } else {
-         mydbservice->appendSinceTime<SiPixelGainCalibration>(
+         mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
             SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
      }
      edm::LogInfo(" --- all OK");
    } 
    catch(const cond::Exception& er){
-        std::cout << "Database exception!   " << er.what() << std::endl;
-        edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
+        edm::LogError("SiPixelCondObjForHLTBuilder")<<er.what()<<std::endl;
    } 
    catch(const std::exception& er){
-        std::cout << "Standard exception!   " << er.what() << std::endl;
-        edm::LogError("SiPixelCondObjBuilder")<<"caught std::exception "<<er.what()<<std::endl;
+        edm::LogError("SiPixelCondObjForHLTBuilder")<<"caught std::exception "<<er.what()<<std::endl;
    }
    catch(...){
-        edm::LogError("SiPixelCondObjBuilder")<<"Funny error"<<std::endl;
+        edm::LogError("SiPixelCondObjForHLTBuilder")<<"Funny error"<<std::endl;
    }
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjBuilder::beginJob(const edm::EventSetup&) {
+SiPixelCondObjForHLTBuilder::beginJob(const edm::EventSetup&) {
   if(fromFile_) {
     if( loadFromFile() ) {
-      edm::LogInfo("SiPixelCondObjBuilder")<<" Calibration loaded: Map size " 
+      edm::LogInfo("SiPixelCondObjForHLTBuilder")<<" Calibration loaded: Map size " 
 					   <<calmap_.size() <<" max "
 					   <<calmap_.max_size() << " "
 					   <<calmap_.empty()<<std::endl;
@@ -192,11 +196,11 @@ SiPixelCondObjBuilder::beginJob(const edm::EventSetup&) {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelCondObjBuilder::endJob() {
+SiPixelCondObjForHLTBuilder::endJob() {
    
 }
 
-bool SiPixelCondObjBuilder::loadFromFile() {
+bool SiPixelCondObjForHLTBuilder::loadFromFile() {
   
   float par0,par1,par2,par3;
   int rocid,colid,rowid;
@@ -205,10 +209,10 @@ bool SiPixelCondObjBuilder::loadFromFile() {
   std::ifstream in_file;  // data file pointer
   in_file.open( fileName_.c_str() , std::ios::in ); // in C++
   if (in_file.bad()) {
-    edm::LogError("SiPixelCondObjBuilder")<<"Input file not found"<<std::endl;
+    edm::LogError("SiPixelCondObjForHLTBuilder")<<"Input file not found"<<std::endl;
   }
   if ( in_file.eof() != 0 ) {
-    edm::LogError("SiPixelCondObjBuilder")<< in_file.eof() << " " << in_file.gcount() << " "
+    edm::LogError("SiPixelCondObjForHLTBuilder")<< in_file.eof() << " " << in_file.gcount() << " "
 	   << in_file.fail() << " " << in_file.good() << " end of file "
 					  << std::endl;
     return false;
@@ -217,7 +221,7 @@ bool SiPixelCondObjBuilder::loadFromFile() {
   char line[500];
   for (int i = 0; i < 3; i++) {
     in_file.getline(line, 500,'\n');
-    edm::LogInfo("SiPixelCondObjBuilder")<<line<<std::endl;
+    edm::LogInfo("SiPixelCondObjForHLTBuilder")<<line<<std::endl;
   }
   //Loading calibration constants from file, loop on pixels
   for(int i=0;i<(52*80);i++)  {
