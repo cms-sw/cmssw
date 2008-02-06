@@ -178,6 +178,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
     edm::LogError("ConverionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+    return;
   }
   reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionBarrel.size() << "\n";
@@ -189,6 +190,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
+    return;
   }
   reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionEndcap.size() << "\n";
@@ -199,6 +201,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+    return;
   }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
@@ -208,6 +211,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+    return;
   }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";

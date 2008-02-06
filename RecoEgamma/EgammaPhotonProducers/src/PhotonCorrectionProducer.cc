@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.18 2007/12/10 21:13:05 futyand Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.19 2007/12/31 18:43:15 ratnik Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -73,7 +73,8 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::Handle<reco::PhotonCollection> photonHandle;
   evt.getByLabel(photonProducer_, photonCollection_, photonHandle);    
   if (!photonHandle.isValid()) {
-    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<photonCollection_.c_str();
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product photons "<<photonCollection_.c_str();
+    return; 
   }
   
   const reco::PhotonCollection& photonCollection = *(photonHandle.product());
@@ -83,13 +84,15 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
   evt.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
   if (!barrelClShpHandle.isValid()) {
-    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product barrelclustershape "<<barrelClusterShapeMapCollection_.c_str();
+    return;
   }
 
   edm::Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
   evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
   if (!endcapClShpHandle.isValid()) {
-    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product endcapclustershape "<<endcapClusterShapeMapCollection_.c_str();
+    return;
   }
 
   for (reco::PhotonCollection::const_iterator ph = photonCollection.begin(); ph != photonCollection.end(); ph++)

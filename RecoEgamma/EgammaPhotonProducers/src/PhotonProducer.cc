@@ -42,6 +42,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
+  usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
@@ -83,6 +84,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+    return;
   }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
@@ -92,6 +94,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+    return;
   }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
@@ -101,6 +104,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
   if (!barrelClShpHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
+    return; 
   }
   const reco::BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
 
@@ -109,6 +113,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
   if (!endcapClShpHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
+    return;
   }
   const reco::BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
 
@@ -117,6 +122,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(barrelHitProducer_, barrelHitCollection_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelHitCollection_.c_str();
+    return;
   }
   const EcalRecHitCollection *barrelRecHits = barrelHitHandle.product();
 
@@ -125,6 +131,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(endcapHitProducer_, endcapHitCollection_, endcapHitHandle);
   if (!endcapHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapHitCollection_.c_str();
+    return;
   }
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
 
@@ -137,29 +144,35 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
+  theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  if (!hbhe.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
+    return; 
+  }
+
   if (hOverEConeSize_ > 0.) {
-    theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-    if (!hbhe.isValid()) {
-      edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    }
     mhbhe=  new HBHERecHitMetaCollection(*hbhe);
   }
+
 
   // Get ElectronPixelSeeds
   Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product ElectronPixelSeedHandle "<< "\n";
+    return;
   }
   const reco::ElectronPixelSeedCollection& pixelSeeds = *pixelSeedHandle;
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
-  if (vertexProducer_ != "") {
+  if ( usePrimaryVertex_ ) {
+    std::cout <<  " using primary vertex " << std::endl;
     theEvent.getByLabel(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
       edm::LogError("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+      return;
     }
     vertexCollection = *(vertexHandle.product());
   }

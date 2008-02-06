@@ -83,6 +83,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
   if (!theTCCollection.isValid()) {
     edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product "<< trackCSuperClusterAssociationCollection_.c_str();
+    return;
   }
   reco::TrackCandidateSuperClusterAssociationCollection scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
   LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";

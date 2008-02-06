@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.11 2007/12/10 21:08:36 futyand Exp $ 
- **  $Date: 2007/12/10 21:08:36 $ 
- **  $Revision: 1.11 $
+ **  $Id: PhotonProducer.h,v 1.12 2008/01/20 17:10:52 nancy Exp $ 
+ **  $Date: 2008/01/20 17:10:52 $ 
+ **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -72,6 +72,7 @@ class PhotonProducer : public edm::EDProducer {
   double minSCEt_;
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
+  bool usePrimaryVertex_;
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
