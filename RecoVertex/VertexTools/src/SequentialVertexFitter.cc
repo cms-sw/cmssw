@@ -281,26 +281,28 @@ SequentialVertexFitter<N>::fit(const vector<RefCountedVertexTrack> & tracks,
     for (typename vector<RefCountedVertexTrack>::const_iterator i 
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
       fVertex = theUpdator->add(fVertex,*i);
+      if (!fVertex.isValid()) break;
     }
 
-    validVertex = true;
+    validVertex = fVertex.isValid();
     // check tracker bounds and NaN in position
-    if (!insideTrackerBounds(fVertex.position())) {
-      LogDebug("RecoVertex/SequentialVertexFitter") 
-	 << "Fitted position is out of tracker bounds.\n";
-      validVertex = false;
-    }
-    
-    if (hasNan(fVertex.position())) {
+    if (validVertex && hasNan(fVertex.position())) {
       LogDebug("RecoVertex/SequentialVertexFitter") 
 	 << "Fitted position is NaN.\n";
+      validVertex = false;
+    }
+
+    if (validVertex && !insideTrackerBounds(fVertex.position())) {
+      LogDebug("RecoVertex/SequentialVertexFitter") 
+	 << "Fitted position is out of tracker bounds.\n";
       validVertex = false;
     }
 
     if (!validVertex) {
       // reset initial vertex position to (0,0,0) and force new iteration 
       // if number of steps not exceeded
-      fVertex = CachingVertex<N>(GlobalPoint(0,0,0), fVertex.error(),
+      GlobalError error(AlgebraicSymMatrix(3,1)*10000);
+      fVertex = CachingVertex<N>(GlobalPoint(0,0,0), error,
                               initialTracks, 0);
     }
 
