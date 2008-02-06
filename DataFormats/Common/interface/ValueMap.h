@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.11 2007/12/21 22:46:51 wmtan Exp $
+ * \version $Id: ValueMap.h,v 1.12 2008/02/06 10:43:22 llista Exp $
  *
  */
 
@@ -152,6 +152,8 @@ namespace edm {
 	if(end == end_) return values_->end();
 	return values_->begin() + end->second; 
       }
+      size_t size() const { return end() - begin(); }
+      const T & operator[](size_t i) { return *(begin()+i); }
       const_iterator& operator++() { ++i_; return *this; }
       const_iterator operator++(int) { const_iterator ci = *this; ++i_; return ci; }
       const_iterator& operator--() { --i_; return *this; }

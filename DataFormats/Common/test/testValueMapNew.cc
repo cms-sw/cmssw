@@ -1,4 +1,4 @@
-// $Id: testValueMapNew.cc,v 1.1 2007/10/30 13:43:38 llista Exp $
+// $Id: testValueMapNew.cc,v 1.2 2008/02/06 10:43:23 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -115,9 +115,20 @@ void testValueMapNew::test(const edm::ValueMap<int> & values) {
   CPPUNIT_ASSERT(e-b == 2);
   CPPUNIT_ASSERT(b.id()==ProductID(2));
   CPPUNIT_ASSERT((b+1).id()==ProductID(3));
-  ProductID pids[2] = { ProductID(2), ProductID(3) };
+  ProductID pids[] = { ProductID(2), ProductID(3) };
+  const std::vector<int> * w[] = { &w1, &w2 }; 
   for(i = b; i != e; ++i) {
-    CPPUNIT_ASSERT(i.id() == pids[i - b]);
+    size_t idx = i - b;
+    CPPUNIT_ASSERT(i.id() == pids[idx]);
+    CPPUNIT_ASSERT(i.size() == w[idx]->size());
+    {
+      std::vector<int>::const_iterator b = i.begin(), e = i.end(), j;
+      for(j = b; j != e; ++j) {
+	size_t jdx = j - b;
+	CPPUNIT_ASSERT(*j == (*w[idx])[jdx]);
+	CPPUNIT_ASSERT(i[jdx] == (*w[idx])[jdx]);
+      }
+    }
   }
 }
 
