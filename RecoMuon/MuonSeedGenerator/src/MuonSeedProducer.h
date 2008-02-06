@@ -44,12 +44,6 @@ class MuonSeedProducer: public edm::EDProducer {
   /// Builder where seeds are formed
   MuonSeedBuilder* muonSeedBuilder_;
 
-  /// Efficiency study
-  int theNumerator[120];
-  int theNumerator2[120];
-  int theDenominator[120];
-
-
 };
 
 #endif

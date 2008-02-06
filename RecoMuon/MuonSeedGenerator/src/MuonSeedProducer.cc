@@ -52,16 +52,6 @@ MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset){
   // Builder which returns seed collection 
   muonSeedBuilder_   = new MuonSeedBuilder( pset ); 
 
-
-  if (debug) {
-    // Initialize statistics
-    for ( int i = 0; i < 120; i++ ) {
-      theNumerator[i]=0;
-      theNumerator2[i]=0;
-      theDenominator[i]=0;
-    }
-  }
-
 }
 
 
@@ -71,38 +61,6 @@ MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset){
 MuonSeedProducer::~MuonSeedProducer(){
 
   delete muonSeedBuilder_;
-
-
-  if ( debug ) {
-    // Printout efficiency performance and ghost rate
-    std::cout << "*** Efficiency and ghost rate *** "<< std::endl;
-    std::cout << "eta | # track | # reco seed | # ghost | eff" << std::endl;
-    
-    float eff, ghost;
-    float sumSeed  = 0;
-    float sumEvent = 0;
-    float sumGhost = 0;
-    for ( int i = 0; i < 120; i++ ) {
-      sumSeed += 1.* theNumerator[i];
-      sumEvent+= 1.* theDenominator[i];
-      sumGhost+= 1.* theNumerator2[i];
-      float eta = i * 2. / 100.;
-      if ( theDenominator[i] > 0 ) {
-	eff = (1.*theNumerator[i])/theDenominator[i];
-	ghost = theNumerator2[i];
-      } else {
-	eff = -1;
-	ghost = -1;
-      }
-      std::cout << eta << "  " << theDenominator[i] << "  " 
-		<< theNumerator[i] << "  " << ghost << "  " << eff << std::endl;
-    }
-    std::cout << "Global eff and fake rate" << std::endl;
-    if (sumEvent > 0 ) {
-      std::cout << "Eff   = " << sumSeed/sumEvent << std::endl;
-      std::cout << "Ghost = " << sumGhost/sumEvent << std::endl;
-    }
-  }
 
 }
 
@@ -137,30 +95,5 @@ void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup)
 
   // Append muon seed collection to event
   event.put( output );
-
-
-  // This is a statistical test useful only for debugging purposes.
-  // Obviously this should be remove when running on data
-  if (debug) {
-    // Simtrack for efficiency study
-    edm::Handle<edm::SimTrackContainer> simTracks;
-    event.getByLabel("g4SimHits",simTracks);
-    
-    int theEta = -1;
-    for (edm::SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); ++it) {
-      if (abs((*it).type()) != 13) continue;
-      double Eta = (*it).momentum().eta();
-      if (Eta < 0.) Eta = -Eta;
-      theEta = int(Eta * 100. / 2.);
-      break;
-    }    
-    
-    if (theEta > -1 && theEta < 120) {
-      theDenominator[theEta]++;
-            
-      if (nSeeds > 0) theNumerator[theEta]++;
-      if (nSeeds > 1) theNumerator2[theEta]++;
-    }
-  }
 
 }
