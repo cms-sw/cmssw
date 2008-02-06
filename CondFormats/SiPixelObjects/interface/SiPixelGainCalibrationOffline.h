@@ -1,22 +1,22 @@
-#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibration_h
-#define CondFormats_SiPixelObjects_SiPixelGainCalibration_h
+#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibrationOffline_h
+#define CondFormats_SiPixelObjects_SiPixelGainCalibrationOffline_h
 // -*- C++ -*-
 //
 // Package:    SiPixelObjects
-// Class:      SiPixelGainCalibration
+// Class:      SiPixelGainCalibrationOffline
 // 
-/**\class SiPixelGainCalibration SiPixelGainCalibration.h CondFormats/SiPixelObjects/src/SiPixelGainCalibration.cc
+/**\class SiPixelGainCalibrationOffline SiPixelGainCalibrationOffline.h CondFormats/SiPixelObjects/src/SiPixelGainCalibrationOffline.cc
 
- Description: Gain calibration object for the Silicon Pixel detector.  Store gain/pedestal information at pixel granularity
+ Description: Gain calibration object for the Silicon Pixel detector.  Stores pedestal at pixel granularity, gain at column granularity.
 
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Vincenzo Chiochia
-//         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibration.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
+//         Created:  Tue 8 12:31:25 CEST 2007
+// $Id: SiPixelGainCalibrationOffline.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
 //
 //
 #include<vector>
@@ -24,14 +24,12 @@
 #include<iostream>
 #include<boost/cstdint.hpp>
 
-class SiPixelGainCalibration {
+class SiPixelGainCalibrationOffline {
 
  public:
 
   struct DecodingStructure{  
-    unsigned int gain :8;
-    unsigned int ped  :8;
-    //    unsigned int ped :10;
+    unsigned int datum :8;
   };
   
   struct DetRegistry{
@@ -52,9 +50,9 @@ class SiPixelGainCalibration {
   typedef Registry::const_iterator                         RegistryIterator;
   
   // Constructors
-  SiPixelGainCalibration();
-  SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain);
-  virtual ~SiPixelGainCalibration(){};
+  SiPixelGainCalibrationOffline();
+  SiPixelGainCalibrationOffline(float minPed, float maxPed, float minGain, float maxGain);
+  virtual ~SiPixelGainCalibrationOffline(){};
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
@@ -63,11 +61,12 @@ class SiPixelGainCalibration {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   // Set and get public methods
-  void  setData(float ped, float gain, std::vector<char>& vped);
+  void  setDataGain(float gain, const int& nRows, std::vector<char>& vped);
+  void  setDataPedestal(float pedestal, std::vector<char>& vped);
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
 
-  // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationServiceBash
+  // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationOfflineServiceBash
   // both throw exceptions if ran
   float getPed   (const int& col, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const Range& range, const int& nCols) const;

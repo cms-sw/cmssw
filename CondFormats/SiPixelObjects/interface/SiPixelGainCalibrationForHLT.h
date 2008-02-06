@@ -1,13 +1,13 @@
-#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibration_h
-#define CondFormats_SiPixelObjects_SiPixelGainCalibration_h
+#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibrationForHLT_h
+#define CondFormats_SiPixelObjects_SiPixelGainCalibrationForHLT_h
 // -*- C++ -*-
 //
 // Package:    SiPixelObjects
-// Class:      SiPixelGainCalibration
+// Class:      SiPixelGainCalibrationForHLT
 // 
-/**\class SiPixelGainCalibration SiPixelGainCalibration.h CondFormats/SiPixelObjects/src/SiPixelGainCalibration.cc
+/**\class SiPixelGainCalibrationForHLT SiPixelGainCalibrationForHLT.h CondFormats/SiPixelObjects/src/SiPixelGainCalibrationForHLT.cc
 
- Description: Gain calibration object for the Silicon Pixel detector.  Store gain/pedestal information at pixel granularity
+ Description: Gain calibration object for the Silicon Pixel detector for use at HLT.  Stores only average gain and average pedestal per column.
 
  Implementation:
      <Notes on implementation>
@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibration.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
 //
 //
 #include<vector>
@@ -24,21 +24,19 @@
 #include<iostream>
 #include<boost/cstdint.hpp>
 
-class SiPixelGainCalibration {
+class SiPixelGainCalibrationForHLT {
 
  public:
 
   struct DecodingStructure{  
     unsigned int gain :8;
     unsigned int ped  :8;
-    //    unsigned int ped :10;
   };
   
   struct DetRegistry{
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-    int ncols;
   };
   
   class StrictWeakOrdering{
@@ -52,11 +50,11 @@ class SiPixelGainCalibration {
   typedef Registry::const_iterator                         RegistryIterator;
   
   // Constructors
-  SiPixelGainCalibration();
-  SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain);
-  virtual ~SiPixelGainCalibration(){};
+  SiPixelGainCalibrationForHLT();
+  SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain);
+  virtual ~SiPixelGainCalibrationForHLT(){};
 
-  bool  put(const uint32_t& detID,Range input, const int& nCols);
+  bool  put(const uint32_t& detID,Range input);
   const Range getRange(const uint32_t& detID) const;
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
   const int getNCols(const uint32_t& detID) const;
@@ -64,13 +62,13 @@ class SiPixelGainCalibration {
 
   // Set and get public methods
   void  setData(float ped, float gain, std::vector<char>& vped);
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
+  float getPed   (const int& col, const Range& range, const int& nCols) const;
+  float getGain  (const int& col, const Range& range, const int& nCols) const;
 
   // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationServiceBash
   // both throw exceptions if ran
-  float getPed   (const int& col, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const Range& range, const int& nCols) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
 
   private:
 

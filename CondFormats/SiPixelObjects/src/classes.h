@@ -29,6 +29,16 @@ std::vector<char>::const_iterator p2;
 std::vector< SiPixelGainCalibration::DetRegistry >::iterator p3;
 std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator p4;
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+std::vector< SiPixelGainCalibrationForHLT::DetRegistry >::iterator p5;
+std::vector< SiPixelGainCalibrationForHLT::DetRegistry >::const_iterator p6;
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+std::vector< SiPixelGainCalibrationOffline::DetRegistry >::iterator p7;
+std::vector< SiPixelGainCalibrationOffline::DetRegistry >::const_iterator p8;
+
+
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 // &&& Not sure what we need for templates here.
 

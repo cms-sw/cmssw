@@ -58,6 +58,16 @@ const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint3
     return SiPixelGainCalibration::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend);
 }
 
+const std::pair<const SiPixelGainCalibration::Range, const int>
+SiPixelGainCalibration::getRangeAndNCols(const uint32_t& DetId) const {
+  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibration::StrictWeakOrdering());
+  if (p==indexes.end()|| p->detid!=DetId) 
+    return std::make_pair(SiPixelGainCalibration::Range(v_pedestals.end(),v_pedestals.end()), 0); 
+  else 
+    return std::make_pair(SiPixelGainCalibration::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend), p->ncols);
+}
+  
+
 void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
   SiPixelGainCalibration::RegistryIterator begin = indexes.begin();
@@ -143,4 +153,18 @@ float SiPixelGainCalibration::decodeGain( unsigned int gain ) const {
   float decodedGain = (float)(gain*precision + minGain_);
   return decodedGain;
 
+}
+
+
+// functions for template compatibility with other payloads. should never run.
+float SiPixelGainCalibration::getPed(const int& col, const Range& range, const int& nCols) const {
+   throw cms::Exception("ConfigurationError")
+      << "[SiPixelGainCalibration::getPed(col, range)] Data is stored at pixel granularity in this payload.  Please use getPed(col, row, range, ncols)";
+   return -1.;
+}
+
+float SiPixelGainCalibration::getGain(const int& col, const Range& range, const int& nCols) const {
+   throw cms::Exception("ConfigurationError")
+      << "[SiPixelGainCalibration::getGain(col, range)] Data is stored at pixel granularity in this payload.  Please use getGain(col, row, range, ncols)";
+   return -1.;
 }
