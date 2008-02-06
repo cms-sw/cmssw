@@ -81,7 +81,9 @@ void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
   const DDCompactView & cpv = *pDD;
   DDExpandedView epv(cpv);
   int pospartid=0;
-  while(epv.next()){
+  size_t lastfound;
+  std::string lgname;
+   while(epv.next()){
  
     //for table physicalpartstree
     std::ostringstream parent, child,logicalpartid,parentid;
@@ -90,8 +92,12 @@ void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
     parent << hist[hist.size()-2].logicalPart().name();
     logicalpartid << epv.geoHistory();
     parentid<<hist[hist.size()-2];
-    physicalPartsTreeOS<<logicalpartid.str()<<","<< parentid.str() << "," << child.str()<<std::endl;
-
+    lgname=logicalpartid.str();
+    lastfound=lgname.find_last_of("/\\");
+    lgname=lgname.substr(lastfound+1,lgname.size());
+    physicalPartsTreeOS<<lgname<<","<< parentid.str() << "," << child.str()<<std::endl;
+//    std::cout << "Logical Part Name= "<<logicalpartid.str() << std::endl;
+     
     //for table nominalPlacements
     bool reflection = false;
 

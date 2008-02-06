@@ -1,6 +1,6 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id: MaterialForOnline.cc,v 1.2 2007/11/27 00:13:58 case Exp $
+// $Id: MaterialForOnline.cc,v 1.3 2008/01/22 19:14:05 muzaffar Exp $
 //
 //
 
@@ -89,7 +89,7 @@ MaterialForOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 MaterialForOnline::beginJob(const edm::EventSetup& iSetup)
 {
-  std::string materialFileName("MATERIAL.dat");
+  std::string materialFileName("MATERIALS.dat");
   std::string elementaryMaterialFileName("ELEMENTARYMATERIALS.dat");
   std::string compositeMaterialFileName("COMPOSITEMATERIALS.dat");
   std::string materialFractionFileName("MATERIALFRACTIONS.dat");
