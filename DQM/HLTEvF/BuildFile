@@ -7,6 +7,21 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/MuonReco>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/RecoCandidate>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/HepMCCandidate>
+<use name=L1TriggerConfig/L1Geometry>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1Trigger>
+<use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/HepMCProduct>
+<use name=PhysicsTools/Parser>
+<use name=PhysicsTools/UtilAlgos>
 <use name=root>
 <export>
    <lib name=DQMHLTEvF>
@@ -19,5 +34,20 @@
    <use name=DQMServices/Core>
    <use name=DQMServices/XdaqCollector>
    <use name=DQMServices/WebComponents>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/RecoCandidate>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/HepMCCandidate>
+<use name=L1TriggerConfig/L1Geometry>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1Trigger>
+<use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/HepMCProduct>
+<use name=PhysicsTools/Parser>
+<use name=PhysicsTools/UtilAlgos>
    <use name=root>
 </export>
