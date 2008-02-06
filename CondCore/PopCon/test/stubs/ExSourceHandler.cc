@@ -14,7 +14,7 @@ popcon::ExPedestalSource::~ExPedestalSource()
 }
 
 void popcon::ExPedestalSource::getNewObjects() {
-   std::cerr << "------- " << name 
+   std::cerr << "------- " << m_name 
 	     << " - > getNewObjects" << std::endl;
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;
@@ -30,17 +30,8 @@ void popcon::ExPedestalSource::getNewObjects() {
   std::cin >> snc;
 
 
-  //the following code cannot work as event setup is not initialized with a real time!
-  //
-  //Using ES to get the data:
-  
-  /*	edm::ESHandle<CSCPedestals> pedestals;
-  //esetup.get<CSCPedestalsRcd>().get(pedestals);
-  //mypedestals = pedestals.product();
-  std::cout << "size " << mypedestals->pedestals.size() << std::endl;
-  */
 
-  //changed to an empty objec
+  
   Pedestals * p0 = new Pedestals;
   Pedestals * p1 = new Pedestals;
   Pedestals * p2 = new Pedestals;
@@ -48,5 +39,5 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));
 
-  std::cerr << "------- " << name << " - > getNewObjects\" << std::endl;
+  std::cerr << "------- " << name << " - > getNewObjects" << std::endl;
 }
