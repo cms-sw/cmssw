@@ -1,5 +1,6 @@
-<use name=CalibTracker/SiStripConnectivity>
+<use name=CalibTracker/SiStripESProducers>
 <use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripPedestals>
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/SiStripCommon>
@@ -11,7 +12,7 @@
 
 <export>
   <lib name=OnlineDBSiStripESSources>
-  <use name=CalibTracker/SiStripConnectivity>
+  <use name=CalibTracker/SiStripESProducers>
   <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/SiStripPedestals>
   <use name=CondFormats/SiStripObjects>

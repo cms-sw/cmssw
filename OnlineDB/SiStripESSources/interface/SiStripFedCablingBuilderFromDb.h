@@ -1,21 +1,23 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.13 2007/05/25 13:15:29 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 
-#include "CalibTracker/SiStripConnectivity/interface/SiStripFedCablingESSource.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
 #include <ctime>
 
+class SiStripFedCablingRcd;
 class SiStripFedCabling;
 class SiStripFecCabling;
 class DcuDetIdMap;
 
-class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
+class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, public edm::EventSetupRecordIntervalFinder {
   
  public:
 
@@ -27,7 +29,7 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   // -------------------- Methods to build FED cabling --------------------
   
   /** Builds FED cabling using info from configuration database. */
-  virtual SiStripFedCabling* makeFedCabling();
+  virtual SiStripFedCabling* make( const SiStripFedCablingRcd& ); 
   
   // -------------------- Convert b/w FED and FEC cabling --------------------
   
@@ -80,7 +82,12 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
 					 SiStripConfigDb::DcuDetIdMap& );
   
  protected:
-
+  
+  /** */
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+			       const edm::IOVSyncValue&,
+			       edm::ValidityInterval& );
+  
   /** */
   static void assignDcuAndDetIds( SiStripFecCabling&,
 				  SiStripConfigDb::DcuDetIdMap&,
