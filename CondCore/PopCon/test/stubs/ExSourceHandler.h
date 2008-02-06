@@ -19,8 +19,8 @@ namespace popcon{
   public:
     void getNewObjects();
     std::string id() const { return m_name;}
-    ~CSCPedestalsImpl(); 
-    CSCPedestalsImpl(const edm::ParameterSet& pset); 
+    ~ExPedestalSource(); 
+    ExPedestalSource(const edm::ParameterSet& pset); 
     
   private:
     std::string m_name;
