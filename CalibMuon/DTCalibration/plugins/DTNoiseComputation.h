@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseComputation.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/06 15:08:24 $
+ * $Revision: 1.2 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -57,6 +57,7 @@ private:
   bool debug;
   int counter;
   int MaxEvents;
+  bool fastAnalysis;
   
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;

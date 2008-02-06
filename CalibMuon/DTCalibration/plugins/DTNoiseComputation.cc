@@ -8,10 +8,13 @@
 
 
 #include "CalibMuon/DTCalibration/plugins/DTNoiseComputation.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 // Framework
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
@@ -46,6 +49,9 @@ DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet& ps){
 
   // Get the debug parameter for verbose output
   debug = ps.getUntrackedParameter<bool>("debug");
+
+  // The analysis type
+  fastAnalysis = ps.getUntrackedParameter<bool>("fastAnalysis", true);
 
   // The root file which contain the histos
   string rootFileName = ps.getUntrackedParameter<string>("rootFileName");
@@ -259,19 +265,21 @@ void DTNoiseComputation::endJob(){
       }
     }
   }
-  //fill the histo with the time constant as a function of the average noise
-  for(map<DTWireId, double>::const_iterator AvNoise = theAverageNoise.begin();
-      AvNoise != theAverageNoise.end();
-      AvNoise++) {
-    DTWireId wire = (*AvNoise).first;
-    theNoiseHisto->Fill((*AvNoise).second, theTimeConstant[wire]);
-    cout<<"Layer: "<<getLayerName(wire.layerId())<<"  wire: "<<wire.wire()<<endl;
-    cout<<"The Average noise: "<<(*AvNoise).second<<endl;
-    cout<<"The time constant: "<<theTimeConstant[wire]<<endl;
-  }
-  theNewFile->cd();
-  theNoiseHisto->Write();
-  
+
+  if(!fastAnalysis){
+    //fill the histo with the time constant as a function of the average noise
+    for(map<DTWireId, double>::const_iterator AvNoise = theAverageNoise.begin();
+	AvNoise != theAverageNoise.end();
+	AvNoise++) {
+      DTWireId wire = (*AvNoise).first;
+      theNoiseHisto->Fill((*AvNoise).second, theTimeConstant[wire]);
+      cout<<"Layer: "<<getLayerName(wire.layerId())<<"  wire: "<<wire.wire()<<endl;
+      cout<<"The Average noise: "<<(*AvNoise).second<<endl;
+      cout<<"The time constant: "<<theTimeConstant[wire]<<endl;
+    }
+    theNewFile->cd();
+    theNoiseHisto->Write();
+  }  
 
 
   // histos with the integrated noise per layer
