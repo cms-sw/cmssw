@@ -39,5 +39,5 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));
 
-  std::cerr << "------- " << name << " - > getNewObjects" << std::endl;
+  std::cerr << "------- " << m_name << " - > getNewObjects" << std::endl;
 }
