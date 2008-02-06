@@ -3,7 +3,7 @@
 // Package:    SiStripQualityFakeESSource
 // Class:      SiStripQualityFakeESSource
 // 
-/**\class SiStripQualityFakeESSource  CalibTracker/SiStripQualityFakeESSource/plugins/SiStripQualityFakeESSource.cc
+/**\class SiStripQualityFakeESSource  CalibTracker/SiStripQualityFakeESSource/plugins/fake/SiStripQualityFakeESSource.cc
 
  Description: <one line class summary>
 
@@ -13,11 +13,11 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 11:46:09 CEST 2007
-// $Id$
+// $Id: SiStripQualityFakeESSource.cc,v 1.1 2007/10/08 17:34:22 giordano Exp $
 //
 //
 
-#include "CalibTracker/SiStripESProducers/plugins/SiStripQualityFakeESSource.h"
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityFakeESSource.h"
 
 SiStripQualityFakeESSource::SiStripQualityFakeESSource(const edm::ParameterSet& iConfig)
 {

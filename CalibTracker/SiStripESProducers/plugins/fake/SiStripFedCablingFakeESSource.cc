@@ -1,10 +1,11 @@
-#include "CalibTracker/SiStripESProducers/plugins/SiStripFedCablingFakeESSource.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripFedCablingFakeESSource.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
+#include "CalibTracker/Records/interface/SiStripHashedDetIdRcd.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripFedIdListReader.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <vector>
@@ -19,6 +20,7 @@ SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource( const edm::Paramet
     detIds_( pset.getParameter<edm::FileInPath>("DetIdsFile") ),
     fedIds_( pset.getParameter<edm::FileInPath>("FedIdsFile") )
 {
+  findingRecord<SiStripFedCablingRcd>();
   edm::LogVerbatim("FedCabling") 
     << "[SiStripFedCablingFakeESSource::" << __func__ << "]"
     << " Constructing object...";
@@ -34,7 +36,7 @@ SiStripFedCablingFakeESSource::~SiStripFedCablingFakeESSource() {
 
 // -----------------------------------------------------------------------------
 // 
-SiStripFedCabling* SiStripFedCablingFakeESSource::makeFedCabling() {
+SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingRcd& ) {
   edm::LogVerbatim("FedCabling")
     << "[SiStripFedCablingFakeESSource::" << __func__ << "]"
     << " Building \"fake\" FED cabling map"
@@ -136,6 +138,15 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::makeFedCabling() {
   
   return cabling;
   
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripFedCablingFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& key, 
+						    const edm::IOVSyncValue& iov_sync, 
+						    edm::ValidityInterval& iov_validity ) {
+  edm::ValidityInterval infinity( iov_sync.beginOfTime(), iov_sync.endOfTime() );
+  iov_validity = infinity;
 }
 
 

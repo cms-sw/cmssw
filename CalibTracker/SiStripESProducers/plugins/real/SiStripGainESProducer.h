@@ -5,7 +5,7 @@
 // Package:    SiStripGainESProducer
 // Class:      SiStripGainESProducer
 // 
-/**\class SiStripGainESProducer SiStripGainESProducer.h CalibTracker/SiStripESProducer/plugins/SiStripGainESProducer.cc
+/**\class SiStripGainESProducer SiStripGainESProducer.h CalibTracker/SiStripESProducer/plugins/real/SiStripGainESProducer.cc
 
  Description: <one line class summary>
 
@@ -15,7 +15,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiStripGainESProducer.h,v 1.3 2007/06/13 14:05:24 gbruno Exp $
+// $Id: SiStripGainESProducer.h,v 1.1 2007/10/11 12:52:55 giordano Exp $
 //
 //
 

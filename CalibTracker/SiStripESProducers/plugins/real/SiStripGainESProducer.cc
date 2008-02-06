@@ -3,7 +3,7 @@
 // Package:    SiStripGainESProducer
 // Class:      SiStripGainESProducer
 // 
-/**\class SiStripGainESProducer SiStripGainESProducer.h CalibTracker/SiStripESProducer/plugins/SiStripGainESProducer.cc
+/**\class SiStripGainESProducer SiStripGainESProducer.h CalibTracker/SiStripESProducer/plugins/real/SiStripGainESProducer.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiStripGainESProducer.cc,v 1.4 2007/07/28 09:15:17 elmer Exp $
+// $Id: SiStripGainESProducer.cc,v 1.1 2007/10/11 12:52:55 giordano Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibTracker/SiStripESProducers/plugins/SiStripGainESProducer.h"
+#include "CalibTracker/SiStripESProducers/plugins/real/SiStripGainESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

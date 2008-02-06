@@ -44,19 +44,23 @@ void testSiStripQualityESProducer::analyze( const edm::Event& e, const edm::Even
     printObject(twoSiStripQualityESH_.product());
   
     edm::LogInfo("testSiStripQualityESProducer") << canvas << "[testSiStripQualityESProducer::analyze] Print difference (First - Second) SiStripQuality Rcd" << canvas << std::endl;
-    printObject(&(*SiStripQualityESH_ - *twoSiStripQualityESH_));
+    const SiStripQuality& tmp1 = *SiStripQualityESH_ - *twoSiStripQualityESH_;
+    printObject(&tmp1);
     edm::LogInfo("testSiStripQualityESProducer") << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Second - First) SiStripQuality Rcd" << canvas << std::endl;
-    printObject(&(*twoSiStripQualityESH_ - *SiStripQualityESH_));    
+    const SiStripQuality& tmp2 = *twoSiStripQualityESH_ - *SiStripQualityESH_;
+    printObject(&tmp2);    
   }
-
+  
   
   if(!firstIOV){
     edm::LogInfo("testSiStripQualityESProducer") << canvas << "[testSiStripQualityESProducer::analyze] Print previous SiStripQuality Rcd " << canvas << std::endl;
     printObject(m_Quality_);
     edm::LogInfo("testSiStripQualityESProducer") << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Current - Previous) SiStripQuality Rcd" << canvas << std::endl;
-    printObject(&(*SiStripQualityESH_ - *m_Quality_));
+    const SiStripQuality& tmp1 = *SiStripQualityESH_ - *m_Quality_;
+    printObject(&tmp1);
     edm::LogInfo("testSiStripQualityESProducer") << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Previous - Current) SiStripQuality Rcd" << canvas << std::endl;
-    printObject(&(*m_Quality_ - *SiStripQualityESH_));
+    const SiStripQuality& tmp2 = *m_Quality_ - *SiStripQualityESH_;
+    printObject(&tmp2);
   }
 
   firstIOV=false;
@@ -71,7 +75,6 @@ void testSiStripQualityESProducer::printObject(const SiStripQuality* SiStripQual
   SiStripBadStrip::RegistryIterator rbegin = SiStripQuality_->getRegistryVectorBegin();
   SiStripBadStrip::RegistryIterator rend   = SiStripQuality_->getRegistryVectorEnd();
   uint32_t detid;
-  unsigned short Nstrips;
     
   if (rbegin==rend)
     return;

@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripESProducers/plugins/SiStripFedCablingESProducer.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -10,32 +10,26 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SiStripFedCablingESProducer::SiStripFedCablingESProducer( const edm::ParameterSet& pset ) {
-  setWhatProduced( this );
-  findingRecord<SiStripFedCablingRcd>();
+  setWhatProduced( this, &SiStripFedCablingESProducer::produce );
 }
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiStripFedCablingRcd& ) { 
+SiStripFedCablingESProducer::~SiStripFedCablingESProducer() {}
+
+// -----------------------------------------------------------------------------
+//
+std::auto_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiStripFedCablingRcd& rcd ) { 
   
-  SiStripFedCabling* cabling = makeFedCabling();
+  SiStripFedCabling* temp = make( rcd );
   
-  if ( !cabling ) {
+  if ( !temp ) {
     edm::LogWarning(mlCabling_)
       << "[SiStripFedCablingESProducer::" << __func__ << "]"
       << " Null pointer to SiStripFedCabling object!";
   }
   
-  std::auto_ptr<SiStripFedCabling> ptr(cabling);
+  std::auto_ptr<SiStripFedCabling> ptr( temp );
   return ptr;
 
-}
-
-// -----------------------------------------------------------------------------
-//
-void SiStripFedCablingESProducer::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
-						  const edm::IOVSyncValue& iosv, 
-						  edm::ValidityInterval& oValidity ) {
-  edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );
-  oValidity = infinity;
 }

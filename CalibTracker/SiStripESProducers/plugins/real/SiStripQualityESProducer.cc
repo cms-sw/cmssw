@@ -3,7 +3,7 @@
 // Package:    SiStripQualityESProducer
 // Class:      SiStripQualityESProducer
 // 
-/**\class SiStripQualityESProducer SiStripQualityESProducer.h CalibTracker/SiStripESProducers/plugins/SiStripQualityESProducer.cc
+/**\class SiStripQualityESProducer SiStripQualityESProducer.h CalibTracker/SiStripESProducers/plugins/real/SiStripQualityESProducer.cc
 
  Description: <one line class summary>
 
@@ -13,13 +13,13 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.3 2007/10/18 09:00:08 giordano Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.4 2007/11/19 15:41:06 giordano Exp $
 //
 //
 
 
 
-#include "CalibTracker/SiStripESProducers/plugins/SiStripQualityESProducer.h"
+#include "CalibTracker/SiStripESProducers/plugins/real/SiStripQualityESProducer.h"
 
 
 
