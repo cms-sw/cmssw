@@ -37,6 +37,8 @@ namespace reco {
 
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
 
+    typedef std::vector<REPPoint> REPPointVector;
+ 
     /// default constructor. Sets energy and position to zero
     PFRecHit();
 
@@ -122,6 +124,10 @@ namespace reco {
     const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
 
+    /// rechit corners
+    const REPPointVector& getCornersREP() const 
+      { return cornersrep_; }    
+
     const std::vector< unsigned >& neighbours4() const 
       {return neighbours4_;}  
 
@@ -191,7 +197,7 @@ namespace reco {
 
     /// rechit cell corners
     std::vector< math::XYZPoint > cornersxyz_;
-
+    REPPointVector cornersrep_;
   
     /// indices to existing neighbours (1 common side)
     std::vector< unsigned >   neighbours4_;

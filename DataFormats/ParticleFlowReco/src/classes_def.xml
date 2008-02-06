@@ -16,6 +16,7 @@
     <field name="seedState_" transient="true"/>
     <field name="nNeighbours_" transient="true"/>
     <field name="nCorners_" transient="true"/>
+    <field name="cornersrep_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>

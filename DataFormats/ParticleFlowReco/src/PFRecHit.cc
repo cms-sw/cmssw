@@ -18,6 +18,15 @@ PFRecHit::PFRecHit() :
   for(unsigned i=0; i<nCorners_; i++) { 
     cornersxyz_.push_back( posxyz_ );    
   }
+
+  cornersrep_.reserve( nCorners_ );
+  for ( unsigned i=0; i<nCorners_; ++i ) {
+    cornersrep_.push_back( 
+      REPPoint(cornersxyz_[i].Rho(),
+	       cornersxyz_[i].Eta(),
+	       cornersxyz_[i].Phi() ) );
+  }
+
 }
 
 
@@ -34,7 +43,15 @@ PFRecHit::PFRecHit(unsigned detId,
   posxyz_(position),
   posrep_( position.Rho(), position.Eta(), position.Phi() ),
   axisxyz_(axisxyz),
-  cornersxyz_(cornersxyz) {
+  cornersxyz_(cornersxyz) 
+{
+  cornersrep_.reserve( nCorners_ );
+  for ( unsigned i=0; i<nCorners_; ++i ) {
+    cornersrep_.push_back( 
+      REPPoint(cornersxyz_[i].Rho(),
+	       cornersxyz_[i].Eta(),
+	       cornersxyz_[i].Phi() ) );
+  }
 }
 
 PFRecHit::PFRecHit(unsigned detId,
@@ -57,7 +74,16 @@ PFRecHit::PFRecHit(unsigned detId,
   cornersxyz_.reserve( nCorners_ );
   for(unsigned i=0; i<nCorners_; i++) { 
     cornersxyz_.push_back( posxyz_ );    
-  }  
+  } 
+
+  cornersrep_.reserve( nCorners_ );
+  for ( unsigned i=0; i<nCorners_; ++i ) {
+    cornersrep_.push_back( 
+      REPPoint(cornersxyz_[i].Rho(),
+	       cornersxyz_[i].Eta(),
+	       cornersxyz_[i].Phi() ) );
+  }
+ 
 }    
 
 
@@ -70,6 +96,7 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   posrep_(other.posrep_),
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
+  cornersrep_(other.cornersrep_),
   //   neighbours_(other.neighbours_),
   neighbours4_(other.neighbours4_),
   neighbours8_(other.neighbours8_),
@@ -82,7 +109,8 @@ PFRecHit::~PFRecHit()
 {}
 
 
-const PFRecHit::REPPoint& PFRecHit::positionREP() const {
+const PFRecHit::REPPoint& 
+PFRecHit::positionREP() const {
   //   if( posrep_ == REPPoint() ) {
   //     posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
   //   }
@@ -90,8 +118,12 @@ const PFRecHit::REPPoint& PFRecHit::positionREP() const {
 }
 
 
-void PFRecHit::calculatePositionREP() {
+void 
+PFRecHit::calculatePositionREP() {
   posrep_.SetCoordinates( posxyz_.Rho(),  posxyz_.Eta(),  posxyz_.Phi() );
+  for ( unsigned i=0; i<nCorners_; ++i ) {
+    cornersrep_[i].SetCoordinates(cornersxyz_[i].Rho(),cornersxyz_[i].Eta(),cornersxyz_[i].Phi() );
+  }
 }
 
 
@@ -195,9 +227,13 @@ void PFRecHit::setNECorner( double posx, double posy, double posz ) {
 
 void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
   assert( cornersxyz_.size() == nCorners_);
+  assert( cornersrep_.size() == nCorners_);
   assert( i<cornersxyz_.size() );
 
   cornersxyz_[i] = math::XYZPoint( posx, posy, posz);
+  cornersrep_[i] = REPPoint(cornersxyz_[i].Rho(),
+			    cornersxyz_[i].Eta(),
+			    cornersxyz_[i].Phi() );
 }
 
 
@@ -225,9 +261,9 @@ void PFRecHit::size(double& deta, double& dphi) const {
   double maxphi=-9999;
   double mineta=9999;
   double maxeta=-9999;
-  for ( unsigned ic=0; ic<cornersxyz_.size(); ++ic ) { 
-    double eta = cornersxyz_[ic].Eta();
-    double phi = cornersxyz_[ic].Phi();
+  for ( unsigned ic=0; ic<cornersrep_.size(); ++ic ) { 
+    double eta = cornersrep_[ic].Eta();
+    double phi = cornersrep_[ic].Phi();
     
     if(phi>maxphi) maxphi=phi;
     if(phi<minphi) minphi=phi;
