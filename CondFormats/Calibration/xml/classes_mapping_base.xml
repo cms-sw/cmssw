@@ -10,7 +10,7 @@
    </Class>
    </PoolContainer >
    <PoolContainer name="CalibHistogramsRcd" tech="homogeneous" >
-   <Class name="BlobNoises" mapping_version="CalibHistograms_base">
+   <Class name="CalibHistograms" mapping_version="CalibHistograms_base">
    </Class>
    </PoolContainer >
    <PoolContainer name="BlobComplexRcd" tech="homogeneous" >
