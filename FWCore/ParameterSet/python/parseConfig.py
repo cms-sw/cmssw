@@ -1530,7 +1530,8 @@ def _validateSequences(values):
     Adds a placeholders for missing keys"""
     keys = set()
     leaves = list()
-    for key, value in values:
+    expandedValues = _findAndHandleProcessBlockIncludes(values)
+    for key, value in expandedValues:
         keys.add(key)
         if isinstance(value, _ModuleSeries):
            value.getLeaves(leaves)
