@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.14 2008/01/30 00:32:01 wmtan Exp $
+$Id: Principal.h,v 1.15 2008/02/02 21:25:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -119,8 +119,6 @@ namespace edm {
 
     void addGroup(ConstBranchDescription const& bd, ProductStatus status);
 
-    // void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
-
     void addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov);
 
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
@@ -134,6 +132,9 @@ namespace edm {
     // ----- Mark this Principal as having been updated in the
     // current Process.
     void addToProcessHistory() const;
+
+    // merge Principals possibly containing different groups.
+    void combine(Principal & other);
 
   protected:
     // ----- Add a new Group

@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.23 2008/02/02 00:42:12 wmtan Exp $
+  $Id: Principal.cc,v 1.24 2008/02/02 21:28:45 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -558,5 +558,22 @@ namespace edm {
 
     // Now fix up the Group
     g.setProvenance(prov);
+  }
+
+  void
+  Principal::combine(Principal & other) {
+
+    for (Principal::const_iterator i = other.begin(), iEnd = other.end(); i != iEnd; ++i) {
+      if (!(*i)->productUnavailable()) {
+	Group * g = getExistingGroup(**i);
+	if (g == 0) {
+	  std::auto_ptr<Group> g(new Group());
+	  g->swap(**i);
+	  addGroup_(g);
+	} else if (g->productUnavailable()){
+	  g->swap(**i);
+	}
+      }
+    }
   }
 }
