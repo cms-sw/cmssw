@@ -10,10 +10,10 @@ popcon::ExPedestalSource::~ExPedestalSource()
 }
 
 void popcon::ExPedestalSource::getNewObjects() {
-  std::cout << "------- " << name << " - > getNewObjects\n";
+   std::cerr << "------- " << name << " - > getNewObjects\" << std::endl;
   //check whats already inside of database
-  std::cout<<"got offlineInfo"<<std::endl;
-  std::cout << tagInfo().name << " , last object valid since " 
+  std::cerr<<"got offlineInfo"<<std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
 
   
@@ -42,5 +42,6 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,snc));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));
+
   std::cerr << "------- " << name << " - > getNewObjects\" << std::endl;
 }
