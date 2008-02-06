@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.13 2008/01/15 16:27:43 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.14 2008/01/22 18:46:07 muzaffar Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -765,7 +765,7 @@ void SiStripFecKey::initGranularity() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFecKey::terse( std::stringstream& ss ) {
+void SiStripFecKey::terse( std::stringstream& ss ) const {
   ss << " FecKey=0x" 
      << std::hex
      << std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
@@ -795,26 +795,35 @@ void SiStripFecKey::terse( std::stringstream& ss ) {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripFecKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripFecKey::print]" << std::endl
+     << std::hex
+     << " FEC key              : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " FEC VME crate        : " << fecCrate() << std::endl
+     << " FEC VME slot         : " << fecSlot() << std::endl 
+     << " FEC control ring     : " << fecRing() << std::endl
+     << " CCU I2C address      : " << ccuAddr() << std::endl
+     << " CCU chan (FE module) : " << ccuChan() << std::endl
+     << " LaserDriver channel  : " << lldChan() << std::endl 
+     << " APV I2C address      : " << i2cAddr() << std::endl 
+     << " Directory            : " << path() << std::endl
+     << " Granularity          : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel              : " << channel() << std::endl
+     << " isValid              : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
-  return os << " [SiStripFecKey::print]" << std::endl
-	    << std::hex
-	    << " FEC key              : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " FEC VME crate        : " << input.fecCrate() << std::endl
-	    << " FEC VME slot         : " << input.fecSlot() << std::endl 
-	    << " FEC control ring     : " << input.fecRing() << std::endl
-	    << " CCU I2C address      : " << input.ccuAddr() << std::endl
-	    << " CCU chan (FE module) : " << input.ccuChan() << std::endl
-	    << " LaserDriver channel  : " << input.lldChan() << std::endl 
-	    << " APV I2C address      : " << input.i2cAddr() << std::endl 
-	    << " Directory            : " << input.path() << std::endl
-	    << " Granularity          : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel              : " << input.channel() << std::endl
-	    << " isValid              : " << input.isValid();
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
 }
 
 // -----------------------------------------------------------------------------

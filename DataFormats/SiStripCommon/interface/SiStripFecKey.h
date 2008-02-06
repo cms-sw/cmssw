@@ -1,14 +1,10 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.13 2008/01/14 09:16:54 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.h,v 1.14 2008/01/15 16:27:05 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
-#include <sstream>
-#include <ostream>
-#include <string>
-#include <boost/cstdint.hpp>
 
 /**
    @class SiStripFecKey
@@ -144,11 +140,16 @@ class SiStripFecKey : public SiStripKey {
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
 
+  // ---------- Print methods ----------
+
   /** A terse summary of the key  */
-  void terse( std::stringstream& ss );
+  virtual void print( std::stringstream& ss ) const;
+
+  /** A terse summary of the key  */
+  virtual void terse( std::stringstream& ss ) const;
   
  private:
-
+  
   // ---------- Private methods ----------
   
   void initFromValue();

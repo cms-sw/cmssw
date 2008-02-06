@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.10 2007/06/29 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.11 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -7,7 +7,6 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
 
 // -----------------------------------------------------------------------------
 // 
@@ -487,24 +486,32 @@ void SiStripFedKey::initGranularity() {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripFedKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripFedKey::print]" << std::endl
+     << std::hex
+     << " FED key         : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " FED id          : " << fedId() << std::endl
+     << " Front-End unit  : " << feUnit() << std::endl 
+     << " Front-End chan  : " << feChan() << std::endl
+     << " (internal chan) : " 
+     << "(" << fedChannel() << ")" << std::endl
+     << " FED APV         : " << fedApv() << std::endl
+     << " Directory       : " << path() << std::endl
+     << " Granularity     : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel         : " << channel() << std::endl
+     << " isValid         : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripFedKey& input ) {
-  return os << std::endl
-	    << " [SiStripFedKey::print]" << std::endl
-	    << std::hex
-	    << " FED key         : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " FED id          : " << input.fedId() << std::endl
-	    << " Front-End unit  : " << input.feUnit() << std::endl 
-	    << " Front-End chan  : " << input.feChan() << std::endl
-	    << " (internal chan) : " 
-	    << "(" << input.fedChannel() << ")" << std::endl
-	    << " FED APV         : " << input.fedApv() << std::endl
-	    << " Directory       : " << input.path() << std::endl
-	    << " Granularity     : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel         : " << input.channel() << std::endl
-	    << " isValid         : " << input.isValid();
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
 }

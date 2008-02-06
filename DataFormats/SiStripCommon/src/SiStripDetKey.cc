@@ -1,10 +1,9 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.6 2007/03/26 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.7 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include <sstream>
 
 // -----------------------------------------------------------------------------
 // 
@@ -158,18 +157,26 @@ void SiStripDetKey::initGranularity() {;}
 
 // -----------------------------------------------------------------------------
 //
+void SiStripDetKey::print( std::stringstream& ss ) const {
+  ss << " [SiStripDetKey::print]" << std::endl
+     << std::hex
+     << " 32-bit key  : 0x" 
+     << std::setfill('0') 
+     << std::setw(8) << key() << std::endl
+     << std::setfill(' ') 
+     << std::dec
+     << " Directory   : " << path() << std::endl
+     << " Granularity : "
+     << SiStripEnumsAndStrings::granularity( granularity() ) << std::endl
+     << " Channel     : " << channel() << std::endl
+     << " isValid    : " << isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripDetKey& input ) {
-  return os << std::endl
-	    << " [SiStripDetKey::print]" << std::endl
-	    << std::hex
-	    << " 32-bit key  : 0x" 
-	    << std::setfill('0') 
-	    << std::setw(8) << input.key() << std::endl
-	    << std::setfill(' ') 
-	    << std::dec
-	    << " Directory   : " << input.path() << std::endl
-	    << " Granularity : "
-	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
- 	    << " Channel     : " << input.channel() << std::endl
-	    << " isValid    : " << input.isValid();
+  std::stringstream ss;
+  input.print(ss);
+  os << ss.str();
+  return os;
 }

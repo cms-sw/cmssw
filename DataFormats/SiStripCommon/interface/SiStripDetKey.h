@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDetKey.h,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripDetKey.h,v 1.6 2007/07/31 15:20:24 ratnik Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h
@@ -6,8 +6,6 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include <ostream>
-#include <string>
 
 class SiStripDetKey;
 
@@ -97,6 +95,14 @@ class SiStripDetKey : public SiStripKey {
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
+
+  // ---------- Print methods ----------
+  
+  /** Print member data of the key  */
+  virtual void print( std::stringstream& ss ) const;
+  
+  /** A terse summary of the key  */
+  virtual void terse( std::stringstream& ss ) const {;}
   
  private: 
 
