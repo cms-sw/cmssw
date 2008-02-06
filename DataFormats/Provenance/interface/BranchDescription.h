@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.6 2007/08/28 17:49:44 wmtan Exp $
+$Id: BranchDescription.h,v 1.7 2007/10/09 07:04:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -183,6 +183,8 @@ namespace edm {
   bool operator<(BranchDescription const& a, BranchDescription const& b);
 
   bool operator==(BranchDescription const& a, BranchDescription const& b);
+
+  bool combinable(BranchDescription const& a, BranchDescription const& b);
 
   std::string match(BranchDescription const& a,
 	BranchDescription const& b,
