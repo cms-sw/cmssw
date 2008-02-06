@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/10/26 12:50:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/22 15:06:11 $
+ *  $Revision: 1.7 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -21,6 +21,12 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include <map>
+#include <set>
+
+#include "DataFormats/Common/interface/DetSet.h"
 
 #include <iostream>
 
@@ -41,12 +47,16 @@ public:
 
    edm::Handle<RPCDigiCollection> rpcDigis;
    event.getByLabel(label, rpcDigis);
+
    edm::Handle<edm::PSimHitContainer> simHits; 
    event.getByLabel("g4SimHits","MuonRPCHits",simHits);    
 
    edm::ESHandle<RPCGeometry> pDD;
    eventSetup.get<MuonGeometryRecord>().get( pDD );
    
+   edm::Handle< edm::DetSetVector<RPCDigiSimLink> > thelinkDigis;
+   event.getByLabel("muonRPCDigis","RPCDigiSimLink", thelinkDigis);
+
    RPCDigiCollection::DigiRangeIterator detUnitIt;
    for (detUnitIt=rpcDigis->begin();
 	detUnitIt!=rpcDigis->end();
@@ -82,6 +92,20 @@ public:
 	}
       }// for digis in layer
     }// for layers
+
+   for (edm::DetSetVector<RPCDigiSimLink>::const_iterator itlink = thelinkDigis->begin(); itlink != thelinkDigis->end(); itlink++)
+     {
+
+       for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink->data.begin();digi_iter != itlink->data.end();++digi_iter){
+	 
+	 const PSimHit* hit = digi_iter->getSimHit();
+	 float xpos = hit->localPosition().x();
+	 int strip = digi_iter->getStrip();
+	 int bx = digi_iter->getBx();
+	 std::cout<<"DetUnit: "<<hit->detUnitId()<<"  "<<"Pos X: "<<xpos<<"  "<<"Strip: "<<strip<<"  "<<"Bx: "<<bx<<std::endl;
+       }
+     }
+
    std::cout<<"--------------"<<std::endl;
   }
   

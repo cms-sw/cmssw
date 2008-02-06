@@ -6,8 +6,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 
-class RPCDigitizer;
 class RPCGeometry;
 class RPCSimSetUp;
 class RPCSynchronizer;
@@ -15,6 +15,9 @@ class RPCSynchronizer;
 class RPCDigiProducer : public edm::EDProducer
 {
 public:
+
+  typedef RPCDigitizer::DigiSimLinks DigiSimLinks;
+  typedef RPCDigitizer::RPCDigiSimLinks RPCDigitizerSimLinks;
 
   explicit RPCDigiProducer(const edm::ParameterSet& ps);
   virtual ~RPCDigiProducer();

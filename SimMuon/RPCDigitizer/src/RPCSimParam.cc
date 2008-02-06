@@ -61,8 +61,13 @@ RPCSimParam::simulate(const RPCRoll* roll,
 		      const edm::PSimHitContainer& rpcHits)
 {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  theDigiSimLinks = DigiSimLinks(roll->id().rawId());
+  theRpcDigiSimLinks.clear();
+  //    theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology=roll->specs()->topology();
+
+  std::cout<<"NUMERO DI SIMHIT: "<<rpcHits.size()<<std::endl;
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
 
@@ -114,8 +119,14 @@ RPCSimParam::simulate(const RPCRoll* roll,
 
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	std::pair<int, int> digi(*i,time_hit);
-	
+	std::pair<unsigned int, int> digi(*i,time_hit);
+
+	DetectorHitMap::iterator itp = theDetectorHitMap.find(digi);
+	//	if(itp == theDetectorHitMap.end())
+	  //	  theDetectorHitMap.insert(std::pair< std::pair<unsigned int,int>, const PSimHit* >(digi,&(*_hit)));
+	  theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
+	std::cout<<"SIMPARAM"<<"  "<<"DetUnit: "<<roll->id().rawId()<<"  "<<"Pos X: "<<entr<<"  "<<"Strip: "<<*i<<"  "<<"Bx: "<<time_hit<<std::endl;
+
 	strips.insert(digi);
       }
     }

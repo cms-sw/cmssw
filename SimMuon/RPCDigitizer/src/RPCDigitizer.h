@@ -8,8 +8,9 @@
  *  \author Marcello Maggi -- INFN Bari
  *
  */
-
-
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -23,10 +24,11 @@ namespace edm{
 class RPCRoll;
 class RPCSim;
 class RPCSimSetUp;
-
 class RPCDigitizer
 {
 public:
+  typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
+  typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
 
   RPCDigitizer(const edm::ParameterSet& config);
 
@@ -35,7 +37,9 @@ public:
   /**  digitize
    */
   void doAction(MixCollection<PSimHit> & simHits,
-                RPCDigiCollection & rpcDigis);
+                RPCDigiCollection & rpcDigis,
+		DigiSimLinks & RPCDigiSimLinks,
+		RPCDigiSimLinks & rpcDigiSimLink);
 
 
   /// sets geometry
@@ -53,7 +57,6 @@ private:
   RPCSim* theRPCSim;
   RPCSimSetUp * theSimSetUp;
   std::string theName;
-
 };
 
 #endif

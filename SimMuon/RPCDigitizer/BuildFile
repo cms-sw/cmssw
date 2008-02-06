@@ -9,23 +9,22 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/MuonDetId>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=FWCore/PluginManager>
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimGeneral/HepPDTRecord>
+<use name=Utilities/General>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=SimDataFormats/RPCDigiSimLink>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 
 <export>
   <lib name=SimMuonRPCDigitizer>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=Geometry/Records>
-  <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/RPCGeometry>
-  <use name=Utilities/Timing>
-  <use name=FWCore/MessageLogger>
-  <use name=MagneticField/Records>
-  <use name=MagneticField/Engine>
-  <use name=DataFormats/RPCDigi>
-  <use name=DataFormats/MuonDetId>
-  <use name=boost>
-
 </export>
+
+
+
 
