@@ -1,7 +1,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 
 using namespace sistrip;
 
@@ -278,6 +280,118 @@ void SiStripFedCabling::print( std::stringstream& ss ) const {
      << " (" << nfeds << " FEDs) are unconnected (" 
      << percent << "%)" << std::endl
      << std::endl;
+  
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripFedCabling::terse( std::stringstream& ss ) const {
+  
+  ss << "[SiStripFedCabling::" << __func__ << "]";
+    
+  const std::vector<uint16_t>& fed_ids = feds();
+  if ( feds().empty() ) {
+    ss << " No FEDs found! Unable to print cabling map!";
+    return;
+  } 
+  
+  ss << " Printing cabling map for " << fed_ids.size()
+     << " FEDs: " << std::endl << std::endl;
+  
+  std::vector<uint16_t>::const_iterator ifed = fed_ids.begin(); 
+  for ( ; ifed != fed_ids.end(); ifed++ ) {
+
+    const std::vector<FedChannelConnection>& conns = connections(*ifed);
+    
+    uint16_t connected = 0;
+    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+    for ( ; iconn != conns.end(); iconn++ ) { 
+      if ( iconn->fedId() != sistrip::invalid_ ) { 
+	connected++; 
+	iconn->terse(ss); 
+	ss << std::endl;
+      } 
+    }
+
+    ss << " Found " << connected 
+       << " connected channels for FED id " << *ifed << std::endl
+       << std::endl;
+    
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripFedCabling::summary( std::stringstream& ss ) const {
+
+  ss << "[SiStripFedCabling::" << __func__ << "]";
+  
+  const std::vector<uint16_t>& fed_ids = feds();
+  if ( feds().empty() ) {
+    ss << " No FEDs found!";
+    return;
+  } 
+  
+  ss << " Found " << feds().size() << " FEDs"
+     << " with number of connected channels per front-end unit: " 
+     << std::endl
+     << " FedId FeUnit1 FeUnit2 FeUnit3 FeUnit4 FeUnit5 FeUnit6 FeUnit7 FeUnit8 Total" 
+     << std::endl;
+  
+  uint16_t total = 0;
+  uint16_t nfeds = 0;
+  
+  // iterate through fed ids
+  std::vector<uint16_t>::const_iterator ii = fed_ids.begin(); 
+  std::vector<uint16_t>::const_iterator jj = fed_ids.end(); 
+  for ( ; ii != jj; ++ii ) { 
+    
+    // check number of connection objects
+    const std::vector<FedChannelConnection>& conns = connections(*ii);
+    if ( conns.size() < 96 ) { 
+      edm::LogError(mlCabling_) 
+	<< "[SiStripFedCabling::" << __func__ << "]"
+	<< " Unexpected size for FedChannelConnection vector! " 
+	<< conns.size();
+      return;
+    }
+
+    // count connected channels at level of fe unit
+    std::vector<uint16_t> connected;
+    connected.resize(8,0);
+    for ( uint16_t ichan = 0; ichan < 96; ++ichan ) {
+      if ( conns[ichan].fedId() < sistrip::valid_ ) { 
+	uint16_t unit = SiStripFedKey::feUnit(ichan);
+	if ( unit > 8 ) { continue; }
+	connected[unit-1]++; 
+      } 
+    }
+
+    // increment counters
+    uint16_t tot = 0 ;
+    ss << " " << std::setw(5) << *ii;
+    if ( !connected.empty() ) { nfeds++; }
+    for ( uint16_t unit = 0; unit < 8; ++unit ) {
+      ss << " " << std::setw(7) << connected[unit];
+      if ( !connected.empty() ) { tot += connected[unit]; }
+    }
+    ss << " " << std::setw(5) << tot << std::endl;
+    total += tot;
+    
+  } 
+  
+  // print out
+  float percent = (100.*total) / (96.*nfeds);
+  percent = static_cast<uint16_t>( 10.*percent );
+  percent /= 10.;
+  ss << " Found: " << std::endl 
+     << " " << nfeds << " out of " << feds().size() << " FEDs with at least one connected channel " << std::endl 
+     << " " << feds().size() - nfeds << " out of " << feds().size() << " FEDs with no connected channels." << std::endl 
+     << " " << total << " connected channels in total" << std::endl
+     << " " << percent << "% of FED channels are connected"  << std::endl
+     << " " << detected_.size()  << " APV pairs have been detected, but are not connected" << std::endl
+     << " " << undetected_.size() << " APV pairs are undetected (wrt DCU-DetId map)" << std::endl;
   
 }
 

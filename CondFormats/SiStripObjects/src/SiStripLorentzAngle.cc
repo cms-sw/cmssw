@@ -16,5 +16,6 @@ const float& SiStripLorentzAngle::getLorentzAngle(const uint32_t& detid) const  
   else {
     edm::LogError("SiStripLorentzAngle") << "SiStripLorentzAngle for DetID " << detid << " is not stored" << std::endl; 
   }
-  return 0;
+  static float temp = 0.; // added by R.B. 
+  return temp;
 }

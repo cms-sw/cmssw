@@ -42,6 +42,12 @@ class SiStripFedCabling {
   
   /** Prints all connection information for this FED cabling object. */
   void print( std::stringstream& ) const;
+  
+  /** Prints terse information for this FED cabling object. */
+  void terse( std::stringstream& ) const;
+  
+  /** Prints summary information for this FED cabling object. */
+  void summary( std::stringstream& ) const;
 
   // -------------------- Methods to retrieve connections --------------------
 

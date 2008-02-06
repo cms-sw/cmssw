@@ -61,6 +61,9 @@ class FedChannelConnection {
   /** Prints all information for this connection object. */
   void print( std::stringstream& ) const;
   
+  /** Prints terse information for this connection object. */
+  void terse( std::stringstream& ) const;
+  
   // -------------------- Module and detector information --------------------
 
   /** Returns DCUid for this module. */
