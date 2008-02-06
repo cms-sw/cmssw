@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.15 2007/12/19 17:51:54 bainbrid Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.16 2008/01/22 18:44:27 muzaffar Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -344,6 +344,52 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 // -----------------------------------------------------------------------------
 //
 void SiStripModule::print( std::stringstream& ss ) const {
+
+  ss << " [SiStripModule::" << __func__ << "]" << std::endl
+     << " Crate/FEC/Ring/CCU/Module               : "
+     << key().fecCrate() << "/"
+     << key().fecSlot() << "/"
+     << key().fecRing() << "/"
+     << key().ccuAddr() << "/"
+     << key().ccuChan() << std::endl;
+
+  ss << " ActiveApvs                              : ";
+  std::vector<uint16_t> apvs = activeApvs();
+  if ( apvs.empty() ) { ss << "NONE!"; }
+  std::vector<uint16_t>::const_iterator iapv = apvs.begin();
+  for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
+  ss << std::endl;
+  
+  ss << " DcuId/DetId/nPairs                      : "
+     << std::hex
+     << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
+     << std::dec
+     << nApvPairs() << std::endl;
+  
+  FedCabling channels = fedChannels();
+  ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
+  FedCabling::const_iterator ichan = channels.begin();
+  for ( ; ichan != channels.end(); ichan++ ) {
+    ss << ichan->first << "/"
+       << ichan->second.fedCrate_ << "/"
+       << ichan->second.fedSlot_ << "/"
+       << ichan->second.fedId_ << "/"
+       << ichan->second.fedCh_ << ", ";
+  }
+  ss << std::endl;
+  
+  ss << " DCU/MUX/PLL/LLD found                   : "
+     << bool(dcu0x00_) << "/"
+     << bool(mux0x43_) << "/"
+     << bool(pll0x44_) << "/"
+     << bool(lld0x60_);
+  
+}
+
+// -----------------------------------------------------------------------------
+//@@ NEEDS MODIFYING!!!!
+void SiStripModule::terse( std::stringstream& ss ) const {
 
   ss << " [SiStripModule::" << __func__ << "]" << std::endl
      << " Crate/FEC/Ring/CCU/Module               : "

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.h,v 1.16 2007/03/28 09:11:51 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.h,v 1.17 2007/05/24 15:16:56 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCabling_H
 #define CalibFormats_SiStripObjects_SiStripFecCabling_H
@@ -51,6 +51,8 @@ class SiStripFecCabling {
   NumberOfDevices countDevices() const;
   /** */
   void print( std::stringstream& ) const;
+  /** */
+  void terse( std::stringstream& ) const;
 
   // ---------- Methods used to build FEC cabling ----------
 

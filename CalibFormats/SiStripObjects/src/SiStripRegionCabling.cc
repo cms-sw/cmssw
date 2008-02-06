@@ -72,5 +72,3 @@ const uint32_t SiStripRegionCabling::physicalLayer(const SubDet subdet, const ui
   else if (subdet == TEC) return TIDLAYERS + layer;
   else return ALLLAYERS;
 }
-
-EVENTSETUP_DATA_REG(SiStripRegionCabling);

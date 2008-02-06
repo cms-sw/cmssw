@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.h,v 1.10 2007/05/15 13:20:12 bainbrid Exp $
+// Last commit: $Id: SiStripModule.h,v 1.11 2007/12/19 17:51:53 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -150,6 +150,9 @@ class SiStripModule {
 
   /** Prints some debug information for this module. */
   void print( std::stringstream& ) const; 
+
+  /** Prints some terse debug information for this module. */
+  void terse( std::stringstream& ) const; 
 
   /** Returns cable length. */
   inline const uint16_t& length() const;

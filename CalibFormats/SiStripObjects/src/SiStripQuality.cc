@@ -1,7 +1,7 @@
  //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.7 2007/11/04 22:29:15 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.8 2007/11/19 15:36:11 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -106,7 +106,7 @@ void SiStripQuality::addInvalidConnectionFromCabling(){
     std::vector<FedChannelConnection>::const_iterator itconns=fedconns.begin();
     std::vector<FedChannelConnection>::const_iterator itconnsEnd=fedconns.end();
     
-    short nApvPairs=SiStripDetCabling_->nApvPairs(*itdet);
+    unsigned short nApvPairs=SiStripDetCabling_->nApvPairs(*itdet);
     short ngoodConn=0, goodConn=0;
     for(;itconns!=itconnsEnd;++itconns){
       //LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] apvpair " << itconns->apvPairNumber() << " napvpair " << itconns->nApvPairs()<< " detid " << itconns->detId() << std::endl;
@@ -481,5 +481,3 @@ short SiStripQuality::getBadFibers(const uint32_t& detid) const{
     return p->BadFibers;
   return 0;
 } 
-
-EVENTSETUP_DATA_REG(SiStripQuality);

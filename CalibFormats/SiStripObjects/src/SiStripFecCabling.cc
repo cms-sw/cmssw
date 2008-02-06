@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.22 2007/05/24 15:19:11 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.23 2007/12/19 17:51:54 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -286,13 +286,26 @@ void SiStripFecCabling::print( std::stringstream& ss ) const {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripFecCabling::terse( std::stringstream& ss ) const {
+  for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
+    for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
+      for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+	    imod->terse(ss); 
+	    ss << std::endl;
+	  } 
+	}
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripFecCabling& cabling ) {
   std::stringstream ss;
   cabling.print(ss);
   os << ss.str();
   return os;
 }
-
-// -----------------------------------------------------------------------------
-// 
-EVENTSETUP_DATA_REG(SiStripFecCabling);

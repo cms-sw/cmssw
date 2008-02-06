@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.1 2007/05/02 12:33:45 gbruno Exp $
+// $Id: SiStripGain.cc,v 1.2 2007/05/10 22:56:24 gbruno Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -55,5 +55,3 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId) const {
 }
 
 
-
-EVENTSETUP_DATA_REG(SiStripGain);

@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.13 2007/11/19 15:35:45 giordano Exp $
+// $Id: SiStripDetCabling.cc,v 1.14 2008/01/22 18:44:27 muzaffar Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 using namespace std;
@@ -172,6 +172,7 @@ const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  }else{
    return 0;
  }
+ return 0;
 }
 
 //---- map of detector to list of APVs for APVs seen from FECs and FEDs
@@ -264,4 +265,3 @@ bool SiStripDetCabling::IsInMap(const uint32_t& det_id, const std::map<uint32_t,
   return (it!=map.end());
 }
 
-EVENTSETUP_DATA_REG(SiStripDetCabling);

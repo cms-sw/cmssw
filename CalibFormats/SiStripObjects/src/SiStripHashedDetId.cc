@@ -1,7 +1,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
@@ -127,7 +126,3 @@ std::ostream& operator<< ( std::ostream& os, const SiStripHashedDetId& input ) {
   os << ss.str();
   return os;
 }
-
-// -----------------------------------------------------------------------------
-//
-EVENTSETUP_DATA_REG(SiStripHashedDetId);
