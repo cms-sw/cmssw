@@ -1,13 +1,6 @@
-<use name=DataFormats/SiStripCommon>
-<use name=FWCore/MessageLogger>
-<use name=boost>
-<use name=root>
+<use name=CondFormats/SiStripObjects>
 
 <export>
  <lib name=DQMSiStripCommissioningAnalysis>
- <use name=DataFormats/SiStripCommon>
- <use name=FWCore/MessageLogger>
- <use name=boost>
- <use name=root>
 </export>
 
