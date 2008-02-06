@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.19 2008/01/30 00:28:29 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.20 2008/02/01 20:23:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -19,15 +19,24 @@ namespace edm {
  boost::shared_ptr<BranchMap const> bMap,
  boost::shared_ptr<TFile const> filePtr,
  FileFormatVersion const& fileFormatVersion)
- : entryNumber_(entry), branches_(bMap), filePtr_(filePtr), fileFormatVersion_(fileFormatVersion) {}
+ : entryNumber_(entry), branches_(bMap), filePtr_(filePtr), fileFormatVersion_(fileFormatVersion), nextReader_() {}
 
   RootDelayedReader::~RootDelayedReader() {}
 
   std::auto_ptr<EDProduct>
-  RootDelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep) const {
+  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
     SetRefStreamer(ep);
-    input::EventBranchInfo const& branchInfo = getBranchInfo(k);
+    iterator iter = branchIter(k);
+    if (!found(iter)) {
+      assert(nextReader_);
+      return nextReader_->getProduct(k, ep);
+    }
+    input::EventBranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch *br = branchInfo.productBranch_;
+    if (br == 0) {
+      assert(nextReader_);
+      return nextReader_->getProduct(k, ep);
+    }
     TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
@@ -37,8 +46,13 @@ namespace edm {
   }
 
   std::auto_ptr<EntryDescription>
-  RootDelayedReader::getProvenance(BranchKey const& k) const {
-    TBranch *br = getProvenanceBranch(k);
+  RootDelayedReader::getProvenance_(BranchKey const& k) const {
+    iterator iter = branchIter(k);
+    if (!found(iter)) {
+      assert(nextReader_);
+      return nextReader_->getProvenance(k);
+    }
+    TBranch *br = getProvenanceBranch(iter);
 
     if (fileFormatVersion_.value_ <= 5) {
       std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription); 
