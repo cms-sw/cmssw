@@ -74,8 +74,6 @@ void PedestalsTask::book() {
 			     connection().lldChannel(),
 			     extra_info ).title();
   
-//   peds_[1].histo_ = dqm()->book1D( title, title, 
-// 				   nbins, -0.5, nbins*1.-0.5 );
   peds_[1].histo_ = dqm()->bookProfile( title, title, 
    					nbins, -0.5, nbins*1.-0.5,
    					1025, 0., 1025. );

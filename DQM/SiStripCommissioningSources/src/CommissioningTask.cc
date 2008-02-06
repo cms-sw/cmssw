@@ -203,11 +203,8 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
     // Set sum of contents and squares
     histo_set.vSumOfContents_[bin] += value;
     histo_set.vSumOfSquares_[bin] += value*value;
-    LogDebug("commissioning") << "added one entry in bin " << bin << " of histoset at " << this 
-                              << " counters are now: " << histo_set.vNumOfEntries_[bin] << " "
-			      << histo_set.vSumOfContents_[bin] << " " 
-			      << histo_set.vSumOfSquares_[bin];
   }
+
 }
 
 // -----------------------------------------------------------------------------
