@@ -4,8 +4,8 @@
 
 
 
-typedef popcon::PopConAnalyzer<popcon::ExPedestalSource> ExAnalyzer;
+typedef popcon::PopConAnalyzer<popcon::ExPedestalSource> ExPopConAnalyzer1;
 //define this as a plug-in
-DEFINE_FWK_MODULE(ExAnalyzer);
+DEFINE_FWK_MODULE(ExPopConAnalyzer1);
 
 
