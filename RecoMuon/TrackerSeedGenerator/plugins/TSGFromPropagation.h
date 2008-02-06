@@ -14,15 +14,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
-#include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+class LayerMeasurements;
+class Chi2MeasurementEstimator;
+class Propagator;
+class MeasurementTracker;
+class GeometricSearchTracker;
+class DirectTrackerNavigation;
+class TrajectoryStateTransform;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
 
@@ -80,6 +80,8 @@ private:
   const MuonServiceProxy* theService;
 
   const Chi2MeasurementEstimator* theEstimator;
+
+  TrajectoryStateTransform* theTSTransformer;
 
   edm::ParameterSet theConfig;
 

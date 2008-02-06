@@ -2,28 +2,35 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/12/06 19:38:38 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/02/01 10:43:56 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu - Purdue University 
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
-#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theConfig (iConfig)
 {
 }
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theTSTransformer(0), theConfig (iConfig)
 {
 }
 
@@ -37,6 +44,7 @@ TSGFromPropagation::~TSGFromPropagation()
   if ( theNavigation ) delete theNavigation;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
+  if ( theTSTransformer ) delete  theTSTransformer;
   LogTrace(category) << " TSGFromPropagation dtor finished  ";
 
 }
@@ -117,6 +125,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
 
+  theTSTransformer = new TrajectoryStateTransform();
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
@@ -153,27 +162,23 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon) const {
 
   TrajectoryStateOnSurface innerTS;
-  const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
   if ( staMuon.first && staMuon.first->isValid() ) {
 
     if (staMuon.first->direction() == alongMomentum) {
-      LogTrace(category)<<"alongMomentum";
       innerTS = staMuon.first->firstMeasurement().updatedState();
     } 
     else if (staMuon.first->direction() == oppositeToMomentum) { 
-      LogTrace(category)<<"oppositeToMomentum";
       innerTS = staMuon.first->lastMeasurement().updatedState();
     }
-    else edm::LogError(category)<<"Wrong propagation direction!";
 
   } else {
 
-    TrajectoryStateTransform tsTransformer;
-    innerTS = tsTransformer.innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
+    innerTS = theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
   }
   return  innerTS;
 
+//    return theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
 }
 
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
@@ -185,10 +190,8 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) c
   LogTrace(category)<<"Trajectory State on Surface of Seed";
   LogTrace(category)<<tsos;
 
-  TrajectoryStateTransform tsTransform;
-    
   PTrajectoryStateOnDet* seedTSOS =
-    tsTransform.persistentState(tsos,tm.recHit()->geographicalId().rawId());
+    theTSTransformer->persistentState(tsos,tm.recHit()->geographicalId().rawId());
     
   edm::OwnVector<TrackingRecHit> container;
 
@@ -205,7 +208,7 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
 
   if ( tms.size() < 2 ) return;
 
-  vector<bool> mask(tms.size(),true);
+  std::vector<bool> mask(tms.size(),true);
 
   std::vector<TrajectoryMeasurement> result;
   std::vector<TrajectoryMeasurement>::const_iterator iter;
