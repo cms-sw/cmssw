@@ -1,4 +1,4 @@
-// $Id: testValueMapNew.cc,v 1.1 2007/10/29 12:53:35 llista Exp $
+// $Id: testValueMapNew.cc,v 1.1 2007/10/30 13:43:38 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -47,10 +47,10 @@ testValueMapNew::testValueMapNew() {
 
   const int ww1[4] = { 2, 1, 0, 2 };
   w1.resize(4);
-  std::copy( ww1, ww1 + 4, w1.begin() );
+  std::copy(ww1, ww1 + 4, w1.begin());
   const int ww2[5] = { 1, 0, 2, 1, -1 };
   w2.resize(5);
-  std::copy( ww2, ww2 + 5, w2.begin() );
+  std::copy(ww2, ww2 + 5, w2.begin());
 }
 
 void testValueMapNew::checkAll() {
@@ -85,28 +85,40 @@ void testValueMapNew::checkAll() {
 }
 
 void testValueMapNew::test(const edm::ValueMap<int> & values) {
-  CPPUNIT_ASSERT(values.contains(ProductID(1)));
+  CPPUNIT_ASSERT(values.idSize()==2);
+  CPPUNIT_ASSERT(!values.contains(ProductID(0)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(1)));
   CPPUNIT_ASSERT(values.contains(ProductID(2)));
   CPPUNIT_ASSERT(values.contains(ProductID(3)));
   CPPUNIT_ASSERT(!values.contains(ProductID(4)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(5)));
   int r1 = values[edm::Ref<CKey1>(handleK1, 0)];
   int r2 = values[edm::Ref<CKey1>(handleK1, 1)];
   int r3 = values[edm::Ref<CKey1>(handleK1, 2)];
   int r4 = values[edm::Ref<CKey1>(handleK1, 3)];
-  CPPUNIT_ASSERT( r1 == w1[0] );
-  CPPUNIT_ASSERT( r2 == w1[1] );
-  CPPUNIT_ASSERT( r3 == w1[2] );
-  CPPUNIT_ASSERT( r4 == w1[3] );
+  CPPUNIT_ASSERT(r1 == w1[0]);
+  CPPUNIT_ASSERT(r2 == w1[1]);
+  CPPUNIT_ASSERT(r3 == w1[2]);
+  CPPUNIT_ASSERT(r4 == w1[3]);
   int s1 = values[edm::Ref<CKey2>(handleK2, 0)];
   int s2 = values[edm::Ref<CKey2>(handleK2, 1)];
   int s3 = values[edm::Ref<CKey2>(handleK2, 2)];
   int s4 = values[edm::Ref<CKey2>(handleK2, 3)];
   int s5 = values[edm::Ref<CKey2>(handleK2, 4)];
-  CPPUNIT_ASSERT( s1 == w2[0] );
-  CPPUNIT_ASSERT( s2 == w2[1] );
-  CPPUNIT_ASSERT( s3 == w2[2] );
-  CPPUNIT_ASSERT( s4 == w2[3] );
-  CPPUNIT_ASSERT( s5 == w2[4] );
-  CPPUNIT_ASSERT( values.size() == w1.size()+w2.size() );
+  CPPUNIT_ASSERT(s1 == w2[0]);
+  CPPUNIT_ASSERT(s2 == w2[1]);
+  CPPUNIT_ASSERT(s3 == w2[2]);
+  CPPUNIT_ASSERT(s4 == w2[3]);
+  CPPUNIT_ASSERT(s5 == w2[4]);
+  CPPUNIT_ASSERT(values.size() == w1.size()+w2.size());
+  edm::ValueMap<int>::const_iterator b = values.begin(), e = values.end(), i;
+  CPPUNIT_ASSERT(e-b == 2);
+  CPPUNIT_ASSERT(b.id()==ProductID(2));
+  CPPUNIT_ASSERT((b+1).id()==ProductID(3));
+  ProductID pids[2] = { ProductID(2), ProductID(3) };
+  for(i = b; i != e; ++i) {
+    CPPUNIT_ASSERT(i.id() == pids[i - b]);
+  }
 }
+
 

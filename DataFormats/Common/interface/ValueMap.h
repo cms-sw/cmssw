@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.10 2007/11/07 10:25:13 llista Exp $
+ * \version $Id: ValueMap.h,v 1.11 2007/12/21 22:46:51 wmtan Exp $
  *
  */
 
@@ -119,7 +119,7 @@ namespace edm {
     }
     value_type get(ProductID id, size_t idx) const { 
       typename id_offset_vector::const_iterator f = getIdOffset(id);
-      if(f==ids_.end()||f->first != id) throwNotExisting();
+      if(f==ids_.end()) throwNotExisting();
       offset off = f->second;
       size_t j = off+idx;
       if(j >= values_.size()) throwIndexBound();
@@ -133,17 +133,58 @@ namespace edm {
       return getIdOffset(id) != ids_.end();
     }
     size_t size() const { return values_.size(); }
+    size_t idSize() const { return ids_.size(); }
     bool empty() const { return values_.empty(); }
     void clear() { values_.clear(); ids_.clear(); }
 
     typedef helper::Filler<ValueMap<T> > Filler;
+
+    struct const_iterator {
+      typedef ptrdiff_t difference_type;
+      const_iterator() {}
+      ProductID id() const { return i_->first; }
+      typename container::const_iterator begin() const { 
+	return values_->begin() + i_->second; 
+      }
+      typename container::const_iterator end() const { 
+	if(i_ == end_) return values_->end();
+	id_offset_vector::const_iterator end = i_; ++end;
+	if(end == end_) return values_->end();
+	return values_->begin() + end->second; 
+      }
+      const_iterator& operator++() { ++i_; return *this; }
+      const_iterator operator++(int) { const_iterator ci = *this; ++i_; return ci; }
+      const_iterator& operator--() { --i_; return *this; }
+      const_iterator operator--(int) { const_iterator ci = *this; --i_; return ci; }
+      difference_type operator-(const const_iterator & o) const { return i_ - o.i_; }
+      const_iterator operator+(difference_type n) const { return const_iterator(i_ + n, end_, values_); }
+      const_iterator operator-(difference_type n) const { return const_iterator(i_ - n, end_, values_); }
+      bool operator<(const const_iterator & o) const { return i_ < o.i_; }
+      bool operator==(const const_iterator& ci) const { return i_ == ci.i_; }
+      bool operator!=(const const_iterator& ci) const { return i_ != ci.i_; }
+      const_iterator & operator +=(difference_type d) { i_ += d; return *this; }
+      const_iterator & operator -=(difference_type d) { i_ -= d; return *this; }      
+    private:
+      const_iterator(const id_offset_vector::const_iterator & i_,
+		     const id_offset_vector::const_iterator & end,
+		     const container * values) :
+	values_(values), i_(i_), end_(end) { }
+      const container * values_;
+      id_offset_vector::const_iterator i_, end_;
+      friend class ValueMap<T>;
+    };
+
+    const_iterator begin() const { return const_iterator(ids_.begin(), ids_.end(), &values_); }
+    const_iterator end() const { return const_iterator(ids_.end(), ids_.end(), &values_); }
 
   protected:
     container values_;
     id_offset_vector ids_;
 
     typename id_offset_vector::const_iterator getIdOffset(ProductID id) const {
-      return std::lower_bound(ids_.begin(), ids_.end(), id, IDComparator());
+      typename id_offset_vector::const_iterator i = std::lower_bound(ids_.begin(), ids_.end(), id, IDComparator());
+      if(i==ids_.end()) return i;
+      return i->first == id ? i : ids_.end();
     }
 
     void throwIndexBound() const {

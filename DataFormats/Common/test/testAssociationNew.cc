@@ -1,4 +1,4 @@
-// $Id: testAssociationNew.cc,v 1.1 2007/10/29 12:53:35 llista Exp $
+// $Id: testAssociationNew.cc,v 1.2 2007/10/30 13:43:38 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -94,7 +94,7 @@ void testAssociationNew::checkAll() {
 }
 
 void testAssociationNew::test(const edm::Association<CVal> & assoc) {
-  CPPUNIT_ASSERT(assoc.contains(ProductID(1)));
+  CPPUNIT_ASSERT(!assoc.contains(ProductID(1)));
   CPPUNIT_ASSERT(assoc.contains(ProductID(2)));
   CPPUNIT_ASSERT(assoc.contains(ProductID(3)));
   CPPUNIT_ASSERT(!assoc.contains(ProductID(4)));
