@@ -1,7 +1,7 @@
 <lcgdict>
  <class name="Pedestals::Item"/>
  <class name="std::vector<Pedestals::Item>"/>
- <class name="Pedestals" class_version="Pedestals_v00"/>
+ <class name="Pedestals" class_version="Pedestals_v01"/>
  <class name="BlobPedestals" class_version="BlobPedestals_v00"/>
 
  <class name="BlobNoises" class_version="BlobNoises_v00"/>

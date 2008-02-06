@@ -7,7 +7,7 @@ public:
     Item(){}
     ~Item(){}
     float m_mean;
-    float m_variance;
+    //float m_variance;
   };
   Pedestals();
   virtual ~Pedestals(){}
