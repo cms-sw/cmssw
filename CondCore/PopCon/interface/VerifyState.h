@@ -25,7 +25,7 @@ namespace popcon {
     bool selfConsistent() const;
 
     // verify that last log entry is from this sourceId
-    bool constistentWith(std::string & sourceId) const;
+    bool consistentWith(std::string & sourceId) const;
 
     
     
