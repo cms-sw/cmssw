@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="PedestalsRcd" >
+   <Class table="PEDESTALS" id_columns="ID" name="Pedestals" mapping_version="Pedestals_v01_base" >
+     <Container table="PEDESTALS_M_PEDEST_1" id_columns="ID_ID" name="m_pedestals" position_column="POS" >
+       <Object table="PEDESTALS_M_PEDEST_1" id_columns="POS ID_ID" name="value_type" >
+         <Primitive column="M_PEDESTALS_VALUE_TYPE_M_MEAN" name="m_mean" />
+       </Object >
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
