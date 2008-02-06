@@ -27,10 +27,15 @@ class CSCTFTrackBuilder
 
   ~CSCTFTrackBuilder();
 
-  void buildTracks(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*, 
+  void buildTracks(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*,
 		   L1CSCTrackCollection*, CSCTriggerContainer<csctf::TrackStub>*);
-  
+
  private:
+  bool run_core;
+  bool trigger_on_ME1a, trigger_on_ME1b, trigger_on_ME2, trigger_on_ME3, trigger_on_ME4;
+  bool trigger_on_MB1a, trigger_on_MB1d;
+  unsigned int singlesTrackRank, singlesTrackOutput;
+  int  lctMinBX, lctMaxBX, trackMinBX, trackMaxBX; 
 
   CSCTFDTReceiver* my_dtrc;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
