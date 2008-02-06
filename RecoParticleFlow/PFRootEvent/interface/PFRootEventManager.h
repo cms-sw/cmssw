@@ -188,6 +188,9 @@ class PFRootEventManager {
   int chargeValue(const int& pdgId) const;
    
   
+  /// preprocess a rectrack vector from a given rectrack branch
+  void PreprocessRecTracks( reco::PFRecTrackCollection& rectracks); 
+  
   /// preprocess a rechit vector from a given rechit branch
   void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
                           bool findNeighbours);

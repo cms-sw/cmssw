@@ -1159,15 +1159,20 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   //       fillOutEventWithCaloTowers( caloTowers_ );
   //   } 
 
-//   if(rechitsECALBranch_) {
-//     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
-//   }
-//   if(rechitsHCALBranch_) {
-//     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
-//   }
-//   if(rechitsPSBranch_) {
-//     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
-//   }
+   if(rechitsECALBranch_) {
+     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
+   }
+   if(rechitsHCALBranch_) {
+     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
+   }
+   if(rechitsPSBranch_) {
+     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
+   }
+
+   if ( recTracksBranch_ ) { 
+     PreprocessRecTracks( recTracks_);
+   }
+   
 //   if(clustersECALBranch_ && !doClustering_) {
 //     for(unsigned i=0; i<clustersECAL_->size(); i++) 
 //       (*clustersECAL_)[i].calculatePositionREP();
@@ -1354,6 +1359,13 @@ int PFRootEventManager::chargeValue(const int& Id) const {
 
 
 void 
+PFRootEventManager::PreprocessRecTracks(reco::PFRecTrackCollection& recTracks) {  
+  for( unsigned i=0; i<recTracks.size(); ++i ) {     
+    recTracks[i].calculatePositionREP();
+  }
+}
+ 
+void 
 PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits, 
                                       bool findNeighbours) {
   
@@ -1369,7 +1381,7 @@ PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits,
   
   if(findNeighbours) {
     for(unsigned i=0; i<rechits.size(); i++) { 
-      setRecHitNeigbours( rechits[i], detId2index ); 
+      setRecHitNeigbours( rechits[i], detId2index );
     }
   }
 }
