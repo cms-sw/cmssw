@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.113 2008/02/04 17:47:44 wmtan Exp $
+$Id: RootFile.cc,v 1.109 2008/01/21 03:11:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -15,7 +14,6 @@ $Id: RootFile.cc,v 1.113 2008/02/04 17:47:44 wmtan Exp $
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -103,9 +101,7 @@ namespace edm {
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
-    if (!metaDataTree) 
-      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::metaDataTreeName()
-							 << " in the input file.";
+    assert(metaDataTree != 0);
 
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
@@ -123,8 +119,6 @@ namespace edm {
     }
 
     metaDataTree->GetEntry(0);
-
-    readEventDescriptionTree();
 
     validateFile();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
@@ -201,34 +195,7 @@ namespace edm {
     reportOpened();
   }
 
-  void
-  RootFile::readEventDescriptionTree()
-  { 
-    if (fileFormatVersion_.value_ < 6) return; 
-    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
-    if (!entryDescriptionTree) 
-      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::entryDescriptionTreeName()
-							 << " in the input file.";
-
-
-    EntryDescriptionID idBuffer;
-    EntryDescriptionID* pidBuffer = &idBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
-
-    EntryDescription entryDescriptionBuffer;
-    EntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
-
-    EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
-
-    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      entryDescriptionTree->GetEntry(i);  // magically fills idBuffer and entryDescriptionBuffer
-      if (idBuffer != entryDescriptionBuffer.id())
-	throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
-      registry.insertMapped(entryDescriptionBuffer);
-    }
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
+  RootFile::~RootFile() {
   }
 
   bool
@@ -401,9 +368,6 @@ namespace edm {
 
   void
   RootFile::fillEventAuxiliary() {
-    if (fileFormatVersion_.value_ >= 6) {
-      eventTree_.fillStatus();
-    }
     if (fileFormatVersion_.value_ >= 3) {
       EventAuxiliary *pEvAux = &eventAux_;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
@@ -435,9 +399,6 @@ namespace edm {
 
   void
   RootFile::fillLumiAuxiliary() {
-    if (fileFormatVersion_.value_ >= 6) {
-      lumiTree_.fillStatus();
-    }
     if (fileFormatVersion_.value_ >= 3) {
       LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
       lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
@@ -451,9 +412,6 @@ namespace edm {
 
   void
   RootFile::fillRunAuxiliary() {
-    if (fileFormatVersion_.value_ >= 6) {
-      runTree_.fillStatus();
-    }
     if (fileFormatVersion_.value_ >= 3) {
       RunAuxiliary *pRunAux = &runAux_;
       runTree_.fillAux<RunAuxiliary>(pRunAux);
@@ -529,12 +487,12 @@ namespace edm {
     fillEventAuxiliaryAndHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
-	RunAuxiliary runAux(eventAux_.run(), eventAux_.time(), eventAux_.time());
 	boost::shared_ptr<RunPrincipal> rp(
-	  new RunPrincipal(runAux, pReg, processConfiguration_));
-	LuminosityBlockAuxiliary lumiAux(rp->run(), eventAux_.luminosityBlock(), eventAux_.time(), eventAux_.time());
+	  new RunPrincipal(eventAux_.run(), eventAux_.time(), eventAux_.time(), pReg, processConfiguration_));
 	lbp = boost::shared_ptr<LuminosityBlockPrincipal>(
-	  new LuminosityBlockPrincipal(lumiAux,
+	  new LuminosityBlockPrincipal(eventAux_.luminosityBlock(),
+				       eventAux_.time(),
+				       eventAux_.time(),
 				       pReg,
 				       rp,
 				       processConfiguration_));
@@ -544,12 +502,16 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-		eventAux_,
-		pReg,
-		lbp,
-		processConfiguration_,
+                eventID(),
+		eventAux_.processGUID(),
+		eventAux_.time(), pReg,
+		lbp, processConfiguration_,
+		eventAux_.isRealData(),
+		eventAux_.experimentType(),
+		eventAux_.bunchCrossing(),
+                eventAux_.storeNumber(),
 		eventAux_.processHistoryID_,
-		eventTree_.makeDelayedReader(fileFormatVersion_)));
+		eventTree_.makeDelayedReader()));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(thisEvent->groupGetter());
@@ -582,10 +544,10 @@ namespace edm {
       if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
         fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
       }
-      RunAuxiliary runAux(run.run(), eventAux_.time(), Timestamp::invalidTimestamp());
       return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(runAux,
-	  pReg,
+          new RunPrincipal(run.run(),
+	  eventAux_.time(),
+	  Timestamp::invalidTimestamp(), pReg,
 	  processConfiguration_));
     }
     runTree_.setEntryNumber(fileIndexIter_->entry_); 
@@ -603,11 +565,13 @@ namespace edm {
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<RunPrincipal> thisRun(
-	new RunPrincipal(runAux_,
+	new RunPrincipal(runAux_.run(),
+			 runAux_.beginTime(),
+			 runAux_.endTime(),
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
-			 runTree_.makeDelayedReader(fileFormatVersion_)));
+			 runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(thisRun->groupGetter());
     // Read in all the products now.
@@ -643,13 +607,14 @@ namespace edm {
         fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
       }
       while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	   fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	   getEntryTypeSkippingDups() == FileIndex::kEvent) {
         ++fileIndexIter_;
         --eventsToSkip_;
       }
-      LuminosityBlockAuxiliary lumiAux(rp->run(), lumi.luminosityBlock(), eventAux_.time_, Timestamp::invalidTimestamp());
       return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumiAux,
+	new LuminosityBlockPrincipal(lumi.luminosityBlock(),
+				     eventAux_.time_,
+				     Timestamp::invalidTimestamp(),
 				     pReg,
 				     rp,
 				     processConfiguration_));
@@ -672,10 +637,12 @@ namespace edm {
       lumiAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_,
+	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(),
+				     lumiAux_.beginTime(),
+				     lumiAux_.endTime(),
 				     pReg, rp, processConfiguration_,
 				     lumiAux_.processHistoryID_,
-				     lumiTree_.makeDelayedReader(fileFormatVersion_)));
+				     lumiTree_.makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(thisLumi->groupGetter());
     // Read in all the products now.
@@ -686,7 +653,7 @@ namespace edm {
       fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
     }
     while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	 fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	 getEntryTypeSkippingDups() == FileIndex::kEvent) {
       ++fileIndexIter_;
       --eventsToSkip_;
     }
