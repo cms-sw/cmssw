@@ -1,7 +1,8 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.43 2007/12/11 19:36:13 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.44 2007/12/19 18:05:26 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iostream>
 #include <fstream>
 
@@ -11,6 +12,10 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 // 
 uint32_t SiStripConfigDb::cntr_ = 0;
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripConfigDb::allowCalibUpload_ = false;
 
 // -----------------------------------------------------------------------------
 // 
@@ -29,20 +34,14 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   openConnection_(false)
 {
   cntr_++;
-  LogTrace(mlConfigDb_)
+  edm::LogVerbatim(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
-    << " Constructing object using Service..."
+    << " Constructing database service..."
     << " (Class instance: " << cntr_ << ")";
-
+  
   // Set DB connection parameters
   dbParams_.reset();
   dbParams_.setParams( pset );
-  
-  stringstream ss;
-  ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Database connection parameters:" << endl
-     << dbParams_ << endl;
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
   
   // Open connection
   openDbConnection();
@@ -172,15 +171,15 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
     << " (Class instance: " << cntr_ << ")";
 
   dbParams_.reset();
-  dbParams_.usingDb_ = false; 
-  dbParams_.inputModuleXml_ = input_module_xml; 
-  dbParams_.inputDcuInfoXml_ = input_dcuinfo_xml; 
-  dbParams_.inputFecXml_ = input_fec_xml; 
-  dbParams_.inputFedXml_ = input_fed_xml; 
-  dbParams_.outputModuleXml_ = output_module_xml; 
+  dbParams_.usingDb_          = false; 
+  dbParams_.inputModuleXml_   = input_module_xml; 
+  dbParams_.inputDcuInfoXml_  = input_dcuinfo_xml; 
+  dbParams_.inputFecXml_      = input_fec_xml; 
+  dbParams_.inputFedXml_      = input_fed_xml; 
+  dbParams_.outputModuleXml_  = output_module_xml; 
   dbParams_.outputDcuInfoXml_ = output_dcuinfo_xml; 
-  dbParams_.outputFecXml_ = output_fec_xml; 
-  dbParams_.outputFedXml_ = output_fed_xml; 
+  dbParams_.outputFecXml_     = output_fec_xml; 
+  dbParams_.outputFedXml_     = output_fed_xml; 
 
   stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -219,6 +218,7 @@ SiStripConfigDb::DbParams::DbParams() :
   calMinor_(0),
   dcuMajor_(0),
   dcuMinor_(0),
+  runType_(sistrip::UNDEFINED_RUN_TYPE),
   force_(true),
   inputModuleXml_(""),
   inputDcuInfoXml_(""),
@@ -259,17 +259,48 @@ void SiStripConfigDb::DbParams::reset() {
   calMinor_ = 0;
   dcuMajor_ = 0;
   dcuMinor_ = 0;
-  force_ = true;
-  inputModuleXml_ = "";
-  inputDcuInfoXml_ = "";
-  inputFecXml_ = vector<string>(1,"");
-  inputFedXml_ = vector<string>(1,"");
-  inputDcuConvXml_ = "";
-  outputModuleXml_ = "";
+  runType_  = sistrip::UNDEFINED_RUN_TYPE;
+  force_    = true;
+  inputModuleXml_   = "";
+  inputDcuInfoXml_  = "";
+  inputFecXml_      = vector<string>(1,"");
+  inputFedXml_      = vector<string>(1,"");
+  inputDcuConvXml_  = "";
+  outputModuleXml_  = "";
   outputDcuInfoXml_ = "";
-  outputFecXml_ = "";
-  outputFedXml_ = "";
-  tnsAdmin_ = "";
+  outputFecXml_     = "";
+  outputFedXml_     = "";
+  tnsAdmin_         = "";
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripConfigDb::DeviceAddress::DeviceAddress() : 
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_), 
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_), 
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_), 
+  i2cAddr_(sistrip::invalid_),
+  fedId_(sistrip::invalid_),
+  feUnit_(sistrip::invalid_),
+  feChan_(sistrip::invalid_)
+{ reset(); }
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::DeviceAddress::reset() { 
+  fecCrate_ = sistrip::invalid_; 
+  fecSlot_  = sistrip::invalid_; 
+  fecRing_  = sistrip::invalid_; 
+  ccuAddr_  = sistrip::invalid_; 
+  ccuChan_  = sistrip::invalid_; 
+  lldChan_  = sistrip::invalid_;
+  i2cAddr_  = sistrip::invalid_;
+  fedId_    = sistrip::invalid_;
+  feUnit_   = sistrip::invalid_;
+  feChan_   = sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
@@ -347,6 +378,7 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
      << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
      << " Partition                 : " << partition_ << endl
      << " Run number                : " << runNumber_ << endl
+     << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << endl
      << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << endl
      << " FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << endl
      << " FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << endl
@@ -385,10 +417,10 @@ ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
 // 
 void SiStripConfigDb::openDbConnection() {
 
-  edm::LogVerbatim(mlConfigDb_) 
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Opening connection to database...";
-
+  
   // Check
   if ( openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
@@ -410,6 +442,10 @@ void SiStripConfigDb::openDbConnection() {
   connections_.clear();
   dcuDetIdMap_.clear();
   fedIds_.clear();
+
+  LogTrace(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Opened connection to database!";
   
 }
 
@@ -417,7 +453,7 @@ void SiStripConfigDb::openDbConnection() {
 //
 void SiStripConfigDb::closeDbConnection() {
 
-  edm::LogVerbatim(mlConfigDb_) 
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Closing connection to database...";
 
@@ -435,7 +471,7 @@ void SiStripConfigDb::closeDbConnection() {
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
   
-  edm::LogVerbatim(mlConfigDb_) 
+  LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Closed connection to database...";
   
@@ -558,11 +594,11 @@ void SiStripConfigDb::usingDatabase() {
   if ( !dbParams_.tnsAdmin_.empty() ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Overriding TNS_ADMIN value using cfg file!"
-       << " Original value was \"" << tns_admin
-       << "\"! New value is \"" << dbParams_.tnsAdmin_ << "\"!";
+       << " Overriding TNS_ADMIN value using cfg file!" << std::endl
+       << "  Original value was \"" << tns_admin << "\"!" << std::endl
+       << "  New value is \"" << dbParams_.tnsAdmin_ << "\"!";
     tns_admin = dbParams_.tnsAdmin_;
-    edm::LogWarning(mlConfigDb_) << ss.str();
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
   }
   
   // Remove trailing slash and set TNS_ADMIN
@@ -607,13 +643,13 @@ void SiStripConfigDb::usingDatabase() {
   
   // Create device factory object
   try { 
-    edm::LogVerbatim(mlConfigDb_)
+    LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Creating DeviceFactory object...";
     factory_ = new DeviceFactory( dbParams_.user_, 
 				  dbParams_.passwd_, 
 				  dbParams_.path_ ); 
-    edm::LogVerbatim(mlConfigDb_)
+    LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Created DeviceFactory object!";
   } catch (...) { 
@@ -664,31 +700,62 @@ void SiStripConfigDb::usingDatabase() {
     TkRun* run = deviceFactory(__func__)->getRun( dbParams_.partition_, 
 						  dbParams_.runNumber_ );
     if ( run ) {
+
       if ( run->getRunNumber() ) {
+
 #ifdef USING_NEW_DATABASE_MODEL
 	dbParams_.cabMajor_ = run->getConnectionVersionMajorId();
 	dbParams_.cabMinor_ = run->getConnectionVersionMinorId();
 #endif
+
 	dbParams_.fecMajor_ = run->getFecVersionMajorId();
 	dbParams_.fecMinor_ = run->getFecVersionMinorId();
 	dbParams_.fedMajor_ = run->getFedVersionMajorId();
 	dbParams_.fedMinor_ = run->getFedVersionMinorId();
+
 #ifdef USING_NEW_DATABASE_MODEL
 	if ( !dbParams_.force_ ) { //@@ check if forcing versions specified in .cfi
 	  dbParams_.dcuMajor_ = run->getDcuInfoVersionMajorId();
 	  dbParams_.dcuMinor_ = run->getDcuInfoVersionMinorId();
 	}
 #endif
+
 	std::stringstream ss;
-	ss << "[SiStripConfigDb::" << __func__ << "]"
-	   << " Versions overridden using values retrieved for specific run number: "
-	   << std::endl << dbParams_;
-	edm::LogVerbatim(mlConfigDb_) << ss.str();
+	LogTrace(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " Description versions overridden"
+	  << " using values retrieved for run number "
+	  << run->getRunNumber();
+	
       } else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL run number returned!";
       }
+      
+      uint16_t type = run->getModeId( run->getMode() );
+      if      ( type ==  1 ) { dbParams_.runType_ = sistrip::PHYSICS; }
+      else if ( type ==  2 ) { dbParams_.runType_ = sistrip::PEDESTALS; }
+      else if ( type ==  3 ) { dbParams_.runType_ = sistrip::CALIBRATION; }
+      else if ( type == 33 ) { dbParams_.runType_ = sistrip::CALIBRATION_DECO; }
+      else if ( type ==  4 ) { dbParams_.runType_ = sistrip::OPTO_SCAN; }
+      else if ( type ==  5 ) { dbParams_.runType_ = sistrip::APV_TIMING; }
+      else if ( type ==  6 ) { dbParams_.runType_ = sistrip::APV_LATENCY; }
+      else if ( type ==  7 ) { dbParams_.runType_ = sistrip::FINE_DELAY_PLL; }
+      else if ( type ==  8 ) { dbParams_.runType_ = sistrip::FINE_DELAY_TTC; }
+      else if ( type == 10 ) { dbParams_.runType_ = sistrip::MULTI_MODE; }
+      else if ( type == 12 ) { dbParams_.runType_ = sistrip::FED_TIMING; }
+      else if ( type == 13 ) { dbParams_.runType_ = sistrip::FED_CABLING; }
+      else if ( type == 14 ) { dbParams_.runType_ = sistrip::VPSP_SCAN; }
+      else if ( type == 15 ) { dbParams_.runType_ = sistrip::DAQ_SCOPE_MODE; }
+      else if ( type == 16 ) { dbParams_.runType_ = sistrip::QUITE_FAST_CABLING; }
+      else if ( type ==  0 ) { 
+	dbParams_.runType_ = sistrip::UNDEFINED_RUN_TYPE;
+	edm::LogWarning(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " NULL run type returned!";
+      } else { dbParams_.runType_ = sistrip::UNKNOWN_RUN_TYPE; }
+      
     } else {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
@@ -697,6 +764,12 @@ void SiStripConfigDb::usingDatabase() {
 	<< dbParams_.runNumber_;
     }
   }
+  
+  std::stringstream ss;
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Database connection parameters: "
+     << std::endl << dbParams_;
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
   
   // DCU-DetId 
   try { 

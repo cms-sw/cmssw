@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.36 2007/12/11 17:03:57 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.37 2007/12/19 18:05:25 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -22,6 +22,8 @@
 #include <string>
 #include <map>
 
+//#define USING_NEW_DATABASE_MODEL
+
 /*
   - Remaining work:
   - run number, o2o
@@ -29,8 +31,6 @@
   - calibrations data-handling
   - psu mapping
 */
-
-//#define USING_NEW_DATABASE_MODEL
 
 #ifdef USING_NEW_DATABASE_MODEL
 namespace sistrip {
@@ -67,14 +67,16 @@ class SiStripConfigDb {
 		   const edm::ActivityRegistry& );
 
   /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. */
+      as arguments the database connection parameters. DO NOT USE: TO
+      BE DEPRECATED!!! */
   SiStripConfigDb( std::string confdb, 
 		   std::string db_partition,
 		   uint32_t    db_major_vers = 0,
 		   uint32_t    db_minor_vers = 0 ); 
 
   /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. */
+      as arguments the database connection parameters. DO NOT USE: TO
+      BE DEPRECATED!!! */
   SiStripConfigDb( std::string db_user, 
 		   std::string db_passwd, 
 		   std::string db_path,
@@ -83,7 +85,8 @@ class SiStripConfigDb {
 		   uint32_t    db_minor_vers = 0 ); 
   
   /** Constructor when using xml files, which takes as arguments the
-      paths to the various input (and output) xml files. */
+      paths to the various input (and output) xml files. DO NOT USE:
+      TO BE DEPRECATED!!! */
   SiStripConfigDb( std::string input_module_xml,
 		   std::string input_dcuinfo_xml,
 		   std::vector<std::string> input_fec_xml,
@@ -107,10 +110,23 @@ class SiStripConfigDb {
   typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
 
 #ifdef USING_NEW_DATABASE_MODEL
+
   /** */
   typedef std::vector<ConnectionDescription*> FedConnections;
+
+  /** */
+  typedef CommissioningAnalysisDescription AnalysisDescription;
+  
+  /** */
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
+
+  /** */
+  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
+
 #else
+
   typedef std::vector<FedChannelConnectionDescription*> FedConnections;
+
 #endif
 
   /** Key is DCU id. */
@@ -157,6 +173,7 @@ class SiStripConfigDb {
     uint32_t calMinor_;
     uint32_t dcuMajor_;
     uint32_t dcuMinor_;
+    sistrip::RunType runType_;
     bool force_;
     std::string inputModuleXml_;
     std::string inputDcuInfoXml_;
@@ -181,7 +198,11 @@ class SiStripConfigDb {
     uint16_t fecRing_;
     uint16_t ccuAddr_;
     uint16_t ccuChan_;
+    uint16_t lldChan_;
     uint16_t i2cAddr_;
+    uint16_t fedId_;
+    uint16_t feUnit_;
+    uint16_t feChan_;
   };
 
 
@@ -229,6 +250,9 @@ class SiStripConfigDb {
   
   /** Closes connection to DeviceFactory API. */
   void closeDbConnection();
+
+  /** Returns DB connection parameters. */
+  inline const DbParams& dbParams() const;
   
   /** Returns whether using database or xml files. */
   inline const bool& usingDb() const;
@@ -290,6 +314,42 @@ class SiStripConfigDb {
   /** Creates "dummy" FED connections based on FEC cabling. */
   void createFedConnections( const SiStripFecCabling& );
   
+
+  // ---------- Commissioning analyses ---------- 
+  
+#ifdef USING_NEW_DATABASE_MODEL
+
+  /** Returns analysis descriptions for given analysis type:
+      T_UNKNOWN, 
+      T_ANALYSIS_FASTFEDCABLING, 
+      T_ANALYSIS_TIMING,
+      T_ANALYSIS_OPTOSCAN, 
+      T_ANALYSIS_VPSPSCAN,
+      T_ANALYSIS_PEDESTAL, 
+      T_ANALYSIS_APVLATENCY, 
+      T_ANALYSIS_FINEDELAY,
+      T_ANALYSIS_CALIBRATION.
+  */
+  const AnalysisDescriptions& getAnalysisDescriptions( const AnalysisType& );
+  
+  /** Uploads all analysis descriptions in cache to DB/xml. Must be
+      called AFTER the upload of any hardware parameters. */
+  void uploadAnalysisDescriptions( bool use_as_calibrations_for_physics = false ); 
+
+  /** Appends analysis descriptions to internal cache. */
+  void createAnalysisDescriptions( AnalysisDescriptions& );
+  
+  /** Creates analysis descriptions based on FEC cabling. */
+  void createAnalysisDescriptions( const SiStripFecCabling& ) {;}
+  
+  /** Extracts unique hardware address of device from description. */
+  DeviceAddress deviceAddress( const AnalysisDescription& ); //@@ uses temp offsets!
+
+  /** */
+  std::string analysisType( const AnalysisType& analysis_type ) const;
+
+#endif
+
 
   // ---------- DCU-DetId info ----------
 
@@ -356,11 +416,19 @@ class SiStripConfigDb {
   /** FED-FEC connection descriptions. */
   FedConnections connections_;
 
+#ifdef USING_NEW_DATABASE_MODEL
+
+  /** Vector of analysis descriptions for all commissioning runs. */
+  AnalysisDescriptions analyses_;
+
+#endif
+ 
   /** TkDcuInfo objects, containing DcuId-DetId map. */
   DcuDetIdMap dcuDetIdMap_;
   
   /** FED ids. */ 
   std::vector<uint16_t> fedIds_;
+
 
   // ---------- Miscellaneous ----------
 
@@ -373,12 +441,17 @@ class SiStripConfigDb {
   
   /** Static counter of instances of this class. */
   static uint32_t cntr_;
+
+  static bool allowCalibUpload_;
   
 };
 
 
 // ---------- Inline methods ----------
 
+
+/** Returns DB connection parameters. */
+const SiStripConfigDb::DbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
 const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }

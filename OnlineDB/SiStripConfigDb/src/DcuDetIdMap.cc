@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.9 2006/11/24 11:41:58 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.10 2007/11/20 22:39:27 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
@@ -47,4 +47,5 @@ void SiStripConfigDb::uploadDcuDetIdMap() {
   catch (... ) {
     handleException( __func__, "Problems updating objects in TkDcuInfoFactory!" );
   }
+  
 }

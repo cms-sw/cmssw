@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.13 2007/11/07 15:55:33 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.14 2007/11/20 22:39:27 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -89,6 +89,8 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
 						       &(dbParams_.fecMinor_),
 						       new_major_version );
   } catch (...) { handleException( __func__ ); }
+  
+  allowCalibUpload_ = true;
   
 }
 
@@ -277,27 +279,6 @@ void SiStripConfigDb::createDeviceDescriptions( const SiStripFecCabling& fec_cab
       << " No device descriptions created!";
   } 
   
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::DeviceAddress::DeviceAddress() : 
-  fecCrate_(sistrip::invalid_), 
-  fecSlot_(sistrip::invalid_), 
-  fecRing_(sistrip::invalid_), 
-  ccuAddr_(sistrip::invalid_), 
-  ccuChan_(sistrip::invalid_), 
-  i2cAddr_(sistrip::invalid_) { reset(); }
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DeviceAddress::reset() { 
-  fecCrate_ = sistrip::invalid_; 
-  fecSlot_ = sistrip::invalid_; 
-  fecRing_ = sistrip::invalid_; 
-  ccuAddr_ = sistrip::invalid_; 
-  ccuChan_ = sistrip::invalid_; 
-  i2cAddr_ = sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------

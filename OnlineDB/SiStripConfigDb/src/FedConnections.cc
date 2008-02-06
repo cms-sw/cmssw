@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.10 2007/11/28 18:52:03 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.11 2007/12/11 16:32:39 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
@@ -92,6 +92,8 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 #endif
 
   }
+
+  allowCalibUpload_ = true;
   
 }
 

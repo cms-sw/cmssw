@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.14 2007/11/09 13:52:57 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.15 2007/11/20 22:39:27 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -66,6 +66,8 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) {
 						   (uint16_t*)(&dbParams_.fedMinor_),
 						   (new_major_version?1:0) ); 
   } catch (...) { handleException( __func__ ); }
+
+  allowCalibUpload_ = true;
   
 }
 
