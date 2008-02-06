@@ -13,12 +13,14 @@
 
 namespace popcon {
 
-  //Online DB source handler, aims at returning the vector of data to be 
-  //transferred to the online database
-  //Subdetector developers inherit over this class with template parameter of 
-  //payload class; need to implement the getNewObjects method and overload the 
-  //constructor; 
-  
+  /** Online DB source handler, aims at returning the vector of data to be 
+   * transferred to the online database
+   * Subdetector developers inherit over this class with template parameter of 
+   * payload class; 
+   * need just to implement the getNewObjects method that loads the calibs,
+   * the sourceId methods that return a text identifier of the source,
+   * and provide a constructor that accept a ParameterSet
+   */
   template <class T>
     class PopConSourceHandler{
     public: 
@@ -36,6 +38,7 @@ namespace popcon {
 
     cond::TagInfo const & tagInfo() const { return  *m_tagInfo; }
 
+    // return last successful log entry for the tag in question
     cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
 
 
