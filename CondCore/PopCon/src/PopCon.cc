@@ -19,7 +19,7 @@ namespace popcon {
       std::cerr << "This is PopCon (Populator of Condition) V2.00" << std::endl;
       std::cerr << "It is still in active developement\n"
 		<< "We apologise for the verbosity of the output, for the criptic messages, for the limited functionalities and the poor documentation" << std::endl;
-      std::ceer << "Please report any problem and feature request through the savannah portal under the category conditions" <<  std::endl;
+      std::cerr << "Please report any problem and feature request through the savannah portal under the category conditions" <<  std::endl;
 
     }
   
