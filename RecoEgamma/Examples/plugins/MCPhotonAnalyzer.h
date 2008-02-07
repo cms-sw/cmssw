@@ -72,6 +72,7 @@ class MCPhotonAnalyzer : public edm::EDAnalyzer
       TH1F* h_MCPhoEta1_;
       TH1F* h_MCPhoEta2_;
       TH1F* h_MCPhoEta3_;
+      TH1F* h_MCPhoEta4_;
       TH1F* h_MCPhoPhi_;
       // Conversion
       TH1F* h_MCConvPhoE_;
@@ -81,9 +82,11 @@ class MCPhotonAnalyzer : public edm::EDAnalyzer
       TH1F* h_MCConvPhoREta1_;
       TH1F* h_MCConvPhoREta2_;
       TH1F* h_MCConvPhoREta3_;
+      TH1F* h_MCConvPhoREta4_;
       TH1F* h_convFracEta1_;
       TH1F* h_convFracEta2_;
       TH1F* h_convFracEta3_;
+      TH1F* h_convFracEta4_;
 
 
       /// Conversions with two tracks
