@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.9 2008/01/26 12:49:36 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.10 2008/01/26 20:20:34 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -160,7 +160,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if (parton.isNonnull() && parton.isAvailable()) {
           ajet.setGenParton(*parton);
       } else {
-          reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
+          reco::Particle bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
           ajet.setGenParton(bestParton);
       }
     }
