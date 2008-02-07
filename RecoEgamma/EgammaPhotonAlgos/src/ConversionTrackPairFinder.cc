@@ -58,7 +58,7 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
   for( std::vector<reco::TransientTrack>::const_iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
     //std::cout  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum()  << "\n";  
     
-    if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
+    if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() > 5000 ) continue; 
     
     
     
@@ -89,7 +89,7 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  inOutTrk.begin(); iTk !=  inOutTrk.end(); iTk++) {
     //   std::cout << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
     
-    if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
+    if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() >5000 ) continue; 
     
     
     const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
