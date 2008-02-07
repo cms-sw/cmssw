@@ -303,7 +303,8 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
 	bool quietVeto = (nwC && neC && seC && swC);
 
 	// only isolated if both vetoes are false
-	if(!(quietVeto || neighborVeto)){
+	// BUT: quietThreshold = 0 forces all candidates to be non-iso
+	if(!(quietVeto || neighborVeto || (quietThreshold == 0))){
 	  if(candidateEt > isoElectron)
 	    isoElectron = candidateEt;
 	}
