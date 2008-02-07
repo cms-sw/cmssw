@@ -10,6 +10,7 @@
 CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig)
 {
   dtstubs.clear();
+  if( !dttrig ) return dtstubs;
 
   const int dt_minBX = L1MuDTTFConfig::getBxMin();
   const int dt_maxBX = L1MuDTTFConfig::getBxMax();

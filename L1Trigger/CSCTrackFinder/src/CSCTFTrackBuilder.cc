@@ -201,27 +201,31 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
     // Now we put tracks from singles in a certain endcap/sector/bx only
     //   if there were no tracks from the core in this endcap/sector/bx
     L1CSCTrackCollection tracksFromSingles;
-    for(int endcap=0; endcap<2; endcap++)
-       for(int sector=0; sector<6; sector++)
+    for(unsigned int endcap=0; endcap<2; endcap++)
+       for(unsigned int sector=0; sector<6; sector++)
           for(int bx=0; bx<lctMaxBX-lctMinBX; bx++)
              if( myLCTcontainer[endcap][sector][bx].begin() !=
                  myLCTcontainer[endcap][sector][bx].end() ){ // VP was detected in endcap/sector/bx
+                bool coreTrackExists = false;
                 // tracks are not ordered to be accessible by endcap/sector/bx => loop them all
                 for(L1CSCTrackCollection::iterator trk=trkcoll->begin(); trk<trkcoll->end(); trk++)
                    if( trk->first.endcap()-1 == endcap &&
                        trk->first.sector()-1 == sector &&
                        trk->first.BX()-trackMinBX == bx && 
-                       trk->first.outputLink() == singlesTrackOutput ) 
+                       trk->first.outputLink() == singlesTrackOutput ){
+                       coreTrackExists = true;
                        break;
-                   else {
-                       csc::L1TrackId trackId(endcap,sector);
+                   }
+                   if( coreTrackExists == false ){
+                       csc::L1TrackId trackId(endcap+1,sector+1);
                        csc::L1Track   track(trackId);
                        track.setRank(singlesTrackRank);
                        track.setBx(bx+trackMinBX);
                        tracksFromSingles.push_back(L1CSCTrack(track,myLCTcontainer[endcap][sector][bx]));
                    } 
              }
-    trkcoll->resize( trkcoll->size() + tracksFromSingles.size() );
-    trkcoll->insert( trkcoll->end(), tracksFromSingles.begin(), tracksFromSingles.end() );
+    if( tracksFromSingles.size() )
+       trkcoll->insert( trkcoll->end(), tracksFromSingles.begin(), tracksFromSingles.end() );
+    // End of add-on for singles
 }
 
