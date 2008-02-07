@@ -1,15 +1,12 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.5 2007/12/19 18:18:10 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 
-class VpspScanHistosUsingDb : public VpspScanHistograms, public CommissioningHistosUsingDb {
+class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScanHistograms {
   
  public:
   
@@ -23,15 +20,14 @@ class VpspScanHistosUsingDb : public VpspScanHistograms, public CommissioningHis
 			 SiStripConfigDb* const );
 
   virtual ~VpspScanHistosUsingDb();
- 
-  virtual void addDcuDetIds();
 
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
 
   void update( SiStripConfigDb::DeviceDescriptions& );
   
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
   
 };
 

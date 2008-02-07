@@ -1,11 +1,13 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.5 2007/12/12 15:06:19 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.6 2007/12/19 18:18:10 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,12 +18,14 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
-  : db_(0),
+  : runType_(sistrip::UNDEFINED_RUN_TYPE),
+    db_(0),
     cabling_(0),
-    test_(false)
+    uploadAnal_(true),
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
-    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object..." << endl;
   
   if ( params.usingDb_ ) {
@@ -49,7 +53,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
 				 params.minor_ );
       db_->openDbConnection();
     } else {
-      edm::LogWarning(mlDqmClient_) 
+      edm::LogError(mlDqmClient_) 
 	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
 	<< " Unexpected value for database connection parameters!"
 	<< " confdb=" << params.confdb_
@@ -84,13 +88,17 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db )
-  : db_(db),
+CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
+							sistrip::RunType type )
+  : CommissioningHistograms(),
+    runType_(type),
+    db_(db),
     cabling_(0),
-    test_(false)
+    uploadAnal_(true),
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
-    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
   
   // Retrieve DCU-DetId map from DB
@@ -98,9 +106,15 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
   
   // Build FEC cabling object from connections found in DB
   SiStripFecCabling fec_cabling;
-  SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
-						   fec_cabling,
-						   dcuid_detid_map );
+  if ( runType_ == sistrip::FAST_CABLING ) {
+    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_,
+								fec_cabling,
+								dcuid_detid_map );
+  } else {
+    SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
+						     fec_cabling,
+						     dcuid_detid_map );
+  }
   
   // Build FED cabling from FEC cabling
   cabling_ = new SiStripFedCabling();
@@ -108,10 +122,80 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 						 *cabling_ );
   std::stringstream ss;
   ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-     << " FED cabling:" << std::endl
-     << *cabling_;
+     << " Terse print out of FED cabling:" << std::endl;
+  cabling_->terse(ss);
   LogTrace(mlDqmClient_) << ss.str();
   
+  std::stringstream sss;
+  sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Summary of FED cabling:" << std::endl;
+  cabling_->summary(sss);
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
+							MonitorUserInterface* const mui,
+							sistrip::RunType type )
+  : CommissioningHistograms( mui, type ),
+    runType_(type),
+    db_(db),
+    cabling_(0),
+    uploadAnal_(true),
+    uploadConf_(false)
+{
+  LogTrace(mlDqmClient_) 
+    << "[" << __PRETTY_FUNCTION__ << "]"
+    << " Constructing object...";
+  
+  // Retrieve DCU-DetId map from DB
+  SiStripConfigDb::DcuDetIdMap dcuid_detid_map = db->getDcuDetIdMap();
+  
+  // Build FEC cabling object from connections found in DB
+  SiStripFecCabling fec_cabling;
+  if ( runType_ == sistrip::FAST_CABLING ) {
+    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_,
+								fec_cabling,
+								dcuid_detid_map );
+  } else {
+    SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
+						     fec_cabling,
+						     dcuid_detid_map );
+  }
+  
+  // Build FED cabling from FEC cabling
+  cabling_ = new SiStripFedCabling();
+  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, 
+						 *cabling_ );
+  std::stringstream ss;
+  ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+     << " Terse print out of FED cabling:" << std::endl;
+  cabling_->terse(ss);
+  LogTrace(mlDqmClient_) << ss.str();
+  
+  std::stringstream sss;
+  sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Summary of FED cabling:" << std::endl;
+  cabling_->summary(sss);
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+CommissioningHistosUsingDb::CommissioningHistosUsingDb()
+  : CommissioningHistograms( reinterpret_cast<MonitorUserInterface*>(0), sistrip::UNDEFINED_RUN_TYPE ),
+    runType_(sistrip::UNDEFINED_RUN_TYPE),
+    db_(0),
+    cabling_(0),
+    uploadAnal_(false),
+    uploadConf_(false)
+{
+  LogTrace(mlDqmClient_) 
+    << "[" << __PRETTY_FUNCTION__ << "]"
+    << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -119,7 +203,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
   if ( db_ ) { delete db_; }
   LogTrace(mlDqmClient_) 
-    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Destructing object...";
 }
 
@@ -135,8 +219,55 @@ CommissioningHistosUsingDb::DbParams::DbParams() :
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
+void CommissioningHistosUsingDb::uploadAnalyses() {
   
+  if ( !db_ ) {
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Aborting upload...";
+    return;
+  }
+  
+  // Upload commissioning analysis results 
+  SiStripConfigDb::AnalysisDescriptions anals;
+  create( anals );
+  db_->createAnalysisDescriptions( anals );
+
+  edm::LogVerbatim(mlDqmClient_) 
+    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+    << " Created analysis descriptions for " 
+    << anals.size() << " devices";
+  
+  // Update analysis descriptions with new commissioning results
+  if ( uploadAnal_ ) {
+    if ( uploadConf_ ) { 
+      edm::LogVerbatim(mlDqmClient_)
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Uploading major version of analysis descriptions to DB"
+	<< " (will be used for physics)...";
+    } else {
+      edm::LogVerbatim(mlDqmClient_)
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Uploading minor version of analysis descriptions to DB"
+	<< " (will not be used for physics)...";
+    }
+    db_->uploadAnalysisDescriptions( uploadConf_ ); 
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Upload of analysis descriptions to DB finished!";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " TEST only! No analysis descriptions will be uploaded to DB...";
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistosUsingDb::addDcuDetIds() {
+
   if ( !cabling_ ) {
     edm::LogWarning(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
@@ -144,64 +275,98 @@ void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
     return;
   }
   
-  if ( !anal ) {
-    edm::LogWarning(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " NULL pointer to CommissioningAnalysis object!";
-    return;
-  }
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+
+    CommissioningAnalysis* anal = ianal->second;
   
-  SiStripFedKey fed_key = anal->fedKey();
-  SiStripFecKey fec_key = anal->fecKey();
+    if ( !anal ) {
+      edm::LogWarning(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " NULL pointer to CommissioningAnalysis object!";
+      return;
+    }
+    
+    SiStripFedKey fed_key = anal->fedKey();
+    SiStripFecKey fec_key = anal->fecKey();
+    
+    FedChannelConnection conn = cabling_->connection( fed_key.fedId(),
+						      fed_key.fedChannel() );
   
-  FedChannelConnection conn = cabling_->connection( fed_key.fedId(),
-						    fed_key.fedChannel() );
+    SiStripFedKey fed( conn.fedId(),
+		       SiStripFedKey::feUnit( conn.fedCh() ),
+		       SiStripFedKey::feChan( conn.fedCh() ) );
   
-  SiStripFedKey fed( conn.fedId(),
-		     SiStripFedKey::feUnit( conn.fedCh() ),
-		     SiStripFedKey::feChan( conn.fedCh() ) );
+    SiStripFecKey fec( conn.fecCrate(),
+		       conn.fecSlot(),
+		       conn.fecRing(),
+		       conn.ccuAddr(),
+		       conn.ccuChan(),
+		       conn.lldChannel() );
   
-  SiStripFecKey fec( conn.fecCrate(),
-		     conn.fecSlot(),
-		     conn.fecRing(),
-		     conn.ccuAddr(),
-		     conn.ccuChan(),
-		     conn.lldChannel() );
-  
-  if ( fed_key.path() != fed.path() ) {
+    if ( fed_key.path() != fed.path() ) {
 
-    std::stringstream ss;
-    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
-       << " Incompatible FED key retrieved from cabling!" << std::endl
-       << " FED key from analysis object  : " << fed_key.path() << std::endl
-       << " FED key from cabling object   : " << fed.path() << std::endl
-       << " FED id/ch from analysis object: " << fed_key.fedId() << "/" << fed_key.fedChannel() << std::endl
-       << " FED id/ch from cabling object : " << conn.fedId() << "/" << conn.fedCh();
-    edm::LogWarning(mlDqmClient_) << ss.str();
+      std::stringstream ss;
+      ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	 << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
+	 << " Incompatible FED key retrieved from cabling!" << std::endl
+	 << " FED key from analysis object  : " << fed_key.path() << std::endl
+	 << " FED key from cabling object   : " << fed.path() << std::endl
+	 << " FED id/ch from analysis object: " << fed_key.fedId() << "/" << fed_key.fedChannel() << std::endl
+	 << " FED id/ch from cabling object : " << conn.fedId() << "/" << conn.fedCh();
+      edm::LogWarning(mlDqmClient_) << ss.str();
 
-  } else if ( fec_key.path() != fec.path() ) {
+    } else if ( fec_key.path() != fec.path() ) {
 
-    std::stringstream ss;
-    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
-       << " Incompatible FEC key retrieved from cabling!" << std::endl
-       << " FEC key from analysis object : " << fec_key.path() << std::endl
-       << " FEC key from cabling object  : " << fec.path();
-    edm::LogWarning(mlDqmClient_) << ss.str();
+      std::stringstream ss;
+      ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	 << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
+	 << " Incompatible FEC key retrieved from cabling!" << std::endl
+	 << " FEC key from analysis object : " << fec_key.path() << std::endl
+	 << " FEC key from cabling object  : " << fec.path();
+      edm::LogWarning(mlDqmClient_) << ss.str();
 
-  } else {
+    } else {
 
-    anal->dcuId( conn.dcuId() );
-    anal->detId( conn.detId() );
+      anal->dcuId( conn.dcuId() );
+      anal->detId( conn.detId() );
 
-//     LogTrace(mlDqmClient_) 
-//       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-//       << " Updated CommissioningAnalysis object with"
-//       << " DCU id " << conn.dcuId()
-//       << " and DetId " << conn.detId();
+    }
 
   }
 
 }
 
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
+
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << " Creating AnalysisDescriptions...";
+
+  // Clear descriptions container
+  desc.clear();
+  
+  // Iterate through analysis objects and create analysis descriptions
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) {
+    create( desc, ianal ); 
+  }
+
+  if (1) {
+    std::stringstream sss;
+    SiStripConfigDb::AnalysisDescriptions::const_iterator ii = desc.begin();
+    SiStripConfigDb::AnalysisDescriptions::const_iterator jj = desc.end();
+    for ( ; ii != jj; ++ii ) { 
+      FastFedCablingAnalysisDescription* tmp = dynamic_cast<FastFedCablingAnalysisDescription*>( *ii );
+      if ( tmp ) { sss << tmp->toString(); }
+    }
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Analysis descriptions:" << std::endl << sss.str(); 
+  }
+
+}

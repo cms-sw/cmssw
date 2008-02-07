@@ -1,6 +1,7 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.8 2007/12/12 15:06:19 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.9 2007/12/19 18:18:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
@@ -12,8 +13,8 @@ using namespace sistrip;
 /** */
 PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 						const DbParams& params )
-  : PedestalsHistograms( mui ),
-    CommissioningHistosUsingDb( params )
+  : CommissioningHistosUsingDb( params ),
+    PedestalsHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -24,8 +25,9 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 /** */
 PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 						SiStripConfigDb* const db )
-  : PedestalsHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistograms( mui, sistrip::PEDESTALS ),
+    CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
+    PedestalsHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -36,8 +38,8 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 /** */
 PedestalsHistosUsingDb::PedestalsHistosUsingDb( DaqMonitorBEInterface* bei,
 						SiStripConfigDb* const db ) 
-  : PedestalsHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
+    PedestalsHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -54,18 +56,10 @@ PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedestalsHistosUsingDb::addDcuDetIds() {
-  PedestalsHistograms::Analyses::iterator ianal = data_.begin();
-  PedestalsHistograms::Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
-}
+void PedestalsHistosUsingDb::uploadConfigurations() {
 
-// -----------------------------------------------------------------------------
-/** */
-void PedestalsHistosUsingDb::uploadToConfigDb() {
-
-  if ( !db_ ) {
-    edm::LogWarning(mlDqmClient_) 
+  if ( !db() ) {
+    edm::LogError(mlDqmClient_) 
       << "[PedestalsHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
       << " Aborting upload...";
@@ -73,14 +67,14 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with new peds/noise values
-  const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  if ( !test_ ) { 
-    LogTrace(mlDqmClient_) 
+  if ( doUploadConf() ) { 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[PedestalsHistosUsingDb::" << __func__ << "]"
       << " Uploading pedestals/noise to DB...";
-    db_->uploadFedDescriptions(true); 
-    LogTrace(mlDqmClient_) 
+    db()->uploadFedDescriptions(true); // always major version 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[PedestalsHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size() 
       << " FED descriptions!";
@@ -104,7 +98,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
       // Build FED and FEC keys
-      const FedChannelConnection& conn = cabling_->connection( (*ifed)->getFedId(), ichan );
+      const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
       if ( conn.fecCrate() == sistrip::invalid_ ||
 	   conn.fecSlot() == sistrip::invalid_ ||
 	   conn.fecRing() == sistrip::invalid_ ||
@@ -122,23 +116,26 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 			     conn.lldChannel() );
 
       // Locate appropriate analysis object 
-      map<uint32_t,PedestalsAnalysis*>::const_iterator iter = data_.find( fec_key.key() );
-      if ( iter != data_.end() ) {
+      Analyses::const_iterator iter = data().find( fec_key.key() );
+      if ( iter != data().end() ) {
 
 	// Check if analysis is valid
 	if ( !iter->second->isValid() ) { continue; }
+
+	PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
+	if ( !anal ) { continue; }
 	
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
-	  for ( uint16_t istr = 0; istr < iter->second->peds()[iapv].size(); istr++ ) { 
+	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
 	    
 	    static float high_threshold = 5.;
 	    static float low_threshold  = 2.;
 	    static bool  disable_strip  = false;
-	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( iter->second->peds()[iapv][istr] ), 
+	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr] ), 
 					       high_threshold, 
 					       low_threshold, 
-					       iter->second->noise()[iapv][istr],
+					       anal->noise()[iapv][istr],
 					       disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
 	    (*ifed)->getFedStrips().setStrip( addr, data );
@@ -171,3 +168,57 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
     << updated << " channels";
 
 }
+
+// -----------------------------------------------------------------------------
+/** */
+void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+					  Analysis analysis ) {
+
+  PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
+  
+  SiStripFecKey key( analysis->first );
+  
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+    
+    // Create description
+    PedestalsAnalysisDescription* tmp;
+    tmp = new PedestalsAnalysisDescription( anal->dead()[iapv],
+					    anal->noisy()[iapv],
+					    anal->pedsMean()[iapv],
+					    anal->pedsSpread()[iapv],
+					    anal->noiseMean()[iapv],
+					    anal->noiseSpread()[iapv],
+					    anal->rawMean()[iapv],
+					    anal->rawSpread()[iapv],
+					    anal->pedsMax()[iapv], 
+					    anal->pedsMin()[iapv], 
+					    anal->noiseMax()[iapv],
+					    anal->noiseMin()[iapv],
+					    anal->rawMax()[iapv],
+					    anal->rawMin()[iapv],
+					    key.fecCrate(),
+					    key.fecSlot(),
+					    key.fecRing(),
+					    key.ccuAddr(),
+					    key.ccuChan(),
+					    SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+					    db()->dbParams().partition_,
+					    db()->dbParams().runNumber_,
+					    anal->isValid(),
+					    "" );
+      
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+
+    // Store description
+    desc.push_back( tmp );
+      
+  }
+
+}
+

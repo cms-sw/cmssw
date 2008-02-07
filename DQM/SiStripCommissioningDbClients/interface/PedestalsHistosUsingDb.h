@@ -1,15 +1,12 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.5 2007/12/12 15:06:15 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
+#include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
-#include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <map>
 
-class PedestalsHistosUsingDb : public PedestalsHistograms, public CommissioningHistosUsingDb {
+class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public PedestalsHistograms {
   
  public:
   
@@ -24,13 +21,13 @@ class PedestalsHistosUsingDb : public PedestalsHistograms, public CommissioningH
   
   virtual ~PedestalsHistosUsingDb();
  
-  virtual void addDcuDetIds();
- 
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
 
   void update( SiStripConfigDb::FedDescriptions& );
+
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
 
 };
 

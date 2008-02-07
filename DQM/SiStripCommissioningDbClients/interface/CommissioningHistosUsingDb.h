@@ -1,21 +1,42 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.5 2007/12/12 15:06:15 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <boost/cstdint.hpp>
 #include <string>
-#include <map>
 
 class SiStripConfigDb;
 class SiStripFedCabling;
-class CommissioningAnalysis;
+class MonitorUserInterface;
 
-class CommissioningHistosUsingDb {
+class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
  public:
 
-  /** */ 
+  // ---------- con(de)structors ----------
+
+  // DEPRECATE
+  class DbParams;
+  // DEPRECATE
+  CommissioningHistosUsingDb( const DbParams& );
+
+  // DEPRECATE
+  CommissioningHistosUsingDb( SiStripConfigDb* const,
+			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
+
+  CommissioningHistosUsingDb( SiStripConfigDb* const,
+			      MonitorUserInterface* const,			      
+			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
+  
+  virtual ~CommissioningHistosUsingDb();
+
+  // ---------- db connection params ----------
+
+  // DEPRECATE
   class DbParams {
   public:
     bool usingDb_;
@@ -26,37 +47,58 @@ class CommissioningHistosUsingDb {
     DbParams();
     ~DbParams() {;}
   };
-  
-  /** */ 
-  CommissioningHistosUsingDb( const DbParams& );
 
-  /** */ 
-  CommissioningHistosUsingDb( SiStripConfigDb* const );
-  
-  /** */ 
-  virtual ~CommissioningHistosUsingDb();
+  // ---------- public interface ----------
 
-  inline void testOnly( bool );
+  void uploadAnalyses();
   
+  virtual void uploadConfigurations() {;}
+  
+  inline void doUploadAnal( bool );
+  
+  inline void doUploadConf( bool );
+  
+  virtual void addDcuDetIds();
+
+  // ---------- protected methods ----------
+
  protected:
+  
+  virtual void create( SiStripConfigDb::AnalysisDescriptions& );
 
-  /** */
-  void addDcuDetId( CommissioningAnalysis* );
+  virtual void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ) {;}
+  
+  inline SiStripConfigDb* const db() const; 
 
-  /** */
-  SiStripConfigDb* db_;
+  inline SiStripFedCabling* const cabling() const;
+  
+  inline bool doUploadAnal() const;
+  
+  inline bool doUploadConf() const;
 
-  /** */
-  SiStripFedCabling* cabling_;
-
-  bool test_;
+  // ---------- private member data ----------
   
  private: 
 
-  CommissioningHistosUsingDb() {;}
+  CommissioningHistosUsingDb(); // private constructor
+
+  sistrip::RunType runType_;
+  
+  SiStripConfigDb* db_;
+  
+  SiStripFedCabling* cabling_;
+  
+  bool uploadAnal_;
+  
+  bool uploadConf_;
 
 };
 
-void CommissioningHistosUsingDb::testOnly( bool test ) { test_ = test; }
+void CommissioningHistosUsingDb::doUploadConf( bool upload ) { uploadConf_ = upload; }
+void CommissioningHistosUsingDb::doUploadAnal( bool upload ) { uploadAnal_ = upload; }
+SiStripConfigDb* const CommissioningHistosUsingDb::db() const { return db_; } 
+SiStripFedCabling* const CommissioningHistosUsingDb::cabling() const { return cabling_; }
+bool CommissioningHistosUsingDb::doUploadAnal() const { return uploadConf_; }
+bool CommissioningHistosUsingDb::doUploadConf() const { return uploadAnal_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H

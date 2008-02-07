@@ -1,16 +1,12 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.1 2007/06/19 12:31:08 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.2 2007/12/19 18:18:10 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <string>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 
-class FastFedCablingHistosUsingDb : public FastFedCablingHistograms, public CommissioningHistosUsingDb {
+class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public FastFedCablingHistograms  {
   
  public:
   
@@ -25,9 +21,9 @@ class FastFedCablingHistosUsingDb : public FastFedCablingHistograms, public Comm
 
   virtual ~FastFedCablingHistosUsingDb();
  
-  virtual void addDcuDetIds();
+  virtual void addDcuDetIds() {;} // override
   
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
   
@@ -36,6 +32,8 @@ class FastFedCablingHistosUsingDb : public FastFedCablingHistograms, public Comm
 	       const SiStripConfigDb::DcuDetIdMap& );
   
   void update( SiStripConfigDb::FedDescriptions& );
+
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
   
 };
 

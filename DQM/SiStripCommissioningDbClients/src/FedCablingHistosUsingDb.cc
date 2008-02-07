@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.8 2007/12/11 17:27:12 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.9 2007/12/19 18:18:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -24,7 +24,7 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
 FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
 						  SiStripConfigDb* const db ) 
   : FedCablingHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+    CommissioningHistosUsingDb( db, mui )
 {
   LogTrace(mlDqmClient_)
     << "[FedCablingHistosUsingDb::" << __func__ << "]"
@@ -53,17 +53,9 @@ FedCablingHistosUsingDb::~FedCablingHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FedCablingHistosUsingDb::addDcuDetIds() {
-  FedCablingHistograms::Analyses::iterator ianal = data_.begin();
-  FedCablingHistograms::Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void FedCablingHistosUsingDb::uploadToConfigDb() {
+void FedCablingHistosUsingDb::uploadConfigurations() {
   
-  if ( !db_ ) {
+  if ( !db() ) {
     edm::LogWarning(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
@@ -72,17 +64,17 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   }
 
   // Retrieve descriptions for DCU id and DetId 
-  SiStripConfigDb::DeviceDescriptions dcus = db_->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids = db_->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
   
   // Update FED connection descriptions
-  const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
+  const SiStripConfigDb::FedConnections& conns = db()->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns), dcus, detids );
-  if ( !test_ ) { 
+  if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED connections to DB...";
-    db_->uploadFedConnections(true); 
+    db()->uploadFedConnections(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << conns.size() 
@@ -94,13 +86,13 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with enabled/disabled channels
-  const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  if ( !test_ ) { 
+  if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(true); 
+    db()->uploadFedDescriptions(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size()
@@ -125,14 +117,14 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Found existing FED channel connections!"
       << " No upload to DB will be performed!";
-    test_ = true; // Inhibit DB upload
+    doUploadConf(false); // Inhibit DB upload
     conns.clear();
   }
     
   // Retrieve and clear FED-FEC mapping in base class
   FedToFecMap& fed_map = const_cast<FedToFecMap&>( mapping() );
   fed_map.clear();
-
+  
   // Counter for unconnected channels
   uint16_t unconnected = 0;
 
@@ -213,7 +205,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
       if ( dcu->getDcuType() != "FEH" ) { continue; }
 
       // Set DCU id if I2C address is consistent
-      const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
+      const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*dcu);
       SiStripFecKey path( addr.fecCrate_ + sistrip::FEC_CRATE_OFFSET, 
 			  addr.fecSlot_, 
 			  addr.fecRing_ + sistrip::FEC_RING_OFFSET, 

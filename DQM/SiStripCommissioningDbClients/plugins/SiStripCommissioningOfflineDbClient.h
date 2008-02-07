@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.2 2007/06/19 12:30:36 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.3 2007/07/13 14:17:51 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -24,15 +24,16 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
   
  protected:
   
-  void createCommissioningHistograms();
-  void testUploadToDb();
-  void uploadToDb();
+  void createHistos();
+  void uploadToConfigDb();
 
  private:
 
   bool uploadToDb_;
 
-  bool test_;
+  bool uploadAnal_;
+
+  bool uploadConf_;
 
   bool uploadFecSettings_;
 

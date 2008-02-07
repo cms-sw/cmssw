@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.1 2007/12/11 16:09:53 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -25,12 +25,13 @@ class LatencyHistosUsingDb : public LatencyHistograms, public CommissioningHisto
 
   virtual ~LatencyHistosUsingDb();
 
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
   
   void update( SiStripConfigDb::DeviceDescriptions& );
   
+  void create( SiStripConfigDb::AnalysisDescriptions& );
   
 };
 

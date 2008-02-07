@@ -1,7 +1,6 @@
 <use name=DataFormats/SiStripCommon>
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiStripObjects>
-<use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommissioningClients>
 <use name=DQMServices/Core>
 <use name=DQMServices/UI>

@@ -1,6 +1,7 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.7 2007/11/20 22:40:53 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.8 2007/12/19 18:18:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
@@ -11,8 +12,8 @@ using namespace sistrip;
 /** */
 OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 					      const DbParams& params )
-  : OptoScanHistograms( mui ),
-    CommissioningHistosUsingDb( params )
+  : CommissioningHistosUsingDb( params ),
+    OptoScanHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -23,8 +24,9 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 /** */
 OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 					      SiStripConfigDb* const db )
-  : OptoScanHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
+    CommissioningHistosUsingDb( db, mui, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -35,8 +37,8 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 /** */
 OptoScanHistosUsingDb::OptoScanHistosUsingDb( DaqMonitorBEInterface* bei,
 					      SiStripConfigDb* const db ) 
-  : OptoScanHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -53,18 +55,10 @@ OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void OptoScanHistosUsingDb::addDcuDetIds() {
-  OptoScanHistograms::Analyses::iterator ianal = data_.begin();
-  OptoScanHistograms::Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void OptoScanHistosUsingDb::uploadToConfigDb() {
+void OptoScanHistosUsingDb::uploadConfigurations() {
   
-  if ( !db_ ) {
-    edm::LogWarning(mlDqmClient_) 
+  if ( !db() ) {
+    edm::LogError(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
       << " Aborting upload...";
@@ -72,14 +66,14 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   }
 
   // Update LLD descriptions with new bias/gain settings
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
+  const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions(); 
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
-  if ( !test_ ) { 
-    LogTrace(mlDqmClient_) 
+  if ( doUploadConf() ) { 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " Uploading LLD settings to DB...";
-    db_->uploadDeviceDescriptions(true); 
-    LogTrace(mlDqmClient_) 
+    db()->uploadDeviceDescriptions(true); 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " Upload of LLD settings to DB finished!";
   } else {
@@ -107,7 +101,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     if ( !desc ) { continue; }
     
     // Retrieve device addresses from device description
-    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
+    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
     SiStripFecKey fec_path;
     
     // Iterate through LLD channels
@@ -123,13 +117,15 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       fec_path = SiStripFecKey( fec_key );
       
       // Iterate through all channels and extract LLD settings 
-      map<uint32_t,OptoScanAnalysis*>::const_iterator iter = data_.find( fec_key );
-      if ( iter != data_.end() ) {
+      Analyses::const_iterator iter = data().find( fec_key );
+      if ( iter != data().end() ) {
 
-	// Check if analysis is valid
 	if ( !iter->second->isValid() ) { continue; }
 
-	uint16_t gain = iter->second->gain();
+	OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( iter->second );
+	if ( !anal ) { continue; }
+	
+	uint16_t gain = anal->gain();
 	std::stringstream ss;
 	ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	   << " Updating gain/bias LLD settings for crate/FEC/slot/ring/CCU/LLD "
@@ -143,7 +139,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
 	   << static_cast<uint16_t>( desc->getBias(ichan) );
 	desc->setGain( ichan, gain );
-	desc->setBias( ichan, iter->second->bias()[gain] );
+	desc->setBias( ichan, anal->bias()[gain] );
 	updated++;
 	ss << " to "
 	   << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
@@ -174,11 +170,71 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 
 }
 
-
-
-
-
-
-
-
+// -----------------------------------------------------------------------------
+/** */
+void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+					  Analysis analysis ) {
   
+  OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
+  
+  SiStripFecKey key( analysis->first );
+
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+
+    // Create description
+    OptoScanAnalysisDescription* tmp;
+    tmp = new OptoScanAnalysisDescription( anal->gain(),
+					   anal->bias()[0],
+					   anal->bias()[1],
+					   anal->bias()[2],
+					   anal->bias()[3],
+					   anal->measGain()[0],
+					   anal->measGain()[1],
+					   anal->measGain()[2],
+					   anal->measGain()[3],
+					   anal->zeroLight()[0],
+					   anal->zeroLight()[1],
+					   anal->zeroLight()[2],
+					   anal->zeroLight()[3],
+					   anal->linkNoise()[0],
+					   anal->linkNoise()[1],
+					   anal->linkNoise()[2],
+					   anal->linkNoise()[3],
+					   anal->liftOff()[0],
+					   anal->liftOff()[1],
+					   anal->liftOff()[2],
+					   anal->liftOff()[3],
+					   anal->threshold()[0],
+					   anal->threshold()[1],
+					   anal->threshold()[2],
+					   anal->threshold()[3],
+					   anal->tickHeight()[0],
+					   anal->tickHeight()[1],
+					   anal->tickHeight()[2],
+					   anal->tickHeight()[3],
+					   key.fecCrate(),
+					   key.fecSlot(),
+					   key.fecRing(),
+					   key.ccuAddr(),
+					   key.ccuChan(),
+					   SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+					   db()->dbParams().partition_,
+					   db()->dbParams().runNumber_,
+					   anal->isValid(),
+					   "" );
+      
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+    
+    // Store description
+    desc.push_back( tmp );
+    
+  }
+
+}
+

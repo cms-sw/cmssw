@@ -1,16 +1,12 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.5 2007/12/19 18:18:10 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <string>
-#include <map>
+#include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 
-class OptoScanHistosUsingDb : public OptoScanHistograms, public CommissioningHistosUsingDb {
+class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScanHistograms {
   
  public:
   
@@ -24,15 +20,14 @@ class OptoScanHistosUsingDb : public OptoScanHistograms, public CommissioningHis
 			 SiStripConfigDb* const );
 
   virtual ~OptoScanHistosUsingDb();
- 
-  virtual void addDcuDetIds();
 
-  virtual void uploadToConfigDb();
+  virtual void uploadConfigurations();
   
  private:
   
   void update( SiStripConfigDb::DeviceDescriptions& );
-  
+
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
   
 };
 

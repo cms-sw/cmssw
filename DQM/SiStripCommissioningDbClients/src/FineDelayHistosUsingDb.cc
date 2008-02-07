@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.1 2007/12/11 16:09:57 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.2 2007/12/11 17:11:12 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -54,9 +54,9 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::uploadToConfigDb() {
+void FineDelayHistosUsingDb::uploadConfigurations() {
   
-  if ( !db_ ) {
+  if ( !db() ) {
     edm::LogWarning(mlDqmClient_) 
       << "[FineDelayHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
@@ -65,7 +65,7 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
   }
   
     // Retrieve and update PLL device descriptions
-    const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
+    const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions( PLL ); 
     bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
     
     // Check if new PLL settings are valid 
@@ -78,11 +78,11 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
     }
     
     // Upload PLL device descriptions
-    if ( !test_ ) { 
+    if ( doUploadConf() ) { 
       LogTrace(mlDqmClient_) 
 	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
 	<< " Uploading PLL settings to DB...";
-      db_->uploadDeviceDescriptions(true); 
+      db()->uploadDeviceDescriptions(true); 
       LogTrace(mlDqmClient_) 
 	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
 	<< " Upload of PLL settings to DB finished!";
@@ -93,15 +93,15 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
     }
 
     // Update FED descriptions with new ticker thresholds
-    const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+    const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
     update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
 
     // Update FED descriptions with new ticker thresholds
-    if ( !test_ ) { 
+    if ( doUploadConf() ) { 
       LogTrace(mlDqmClient_) 
 	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
 	<< " Uploading FED ticker thresholds to DB...";
-      db_->uploadFedDescriptions(true); 
+      db()->uploadFedDescriptions(true); 
       LogTrace(mlDqmClient_) 
 	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
 	<< " Upload of FED ticker thresholds to DB finished!";
@@ -132,7 +132,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     if ( !desc ) { continue; }
     
     // Retrieve device addresses from device description
-    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
+    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
     SiStripFecKey fec_path;
     
     // PLL delay settings
@@ -272,7 +272,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
       // Build FED and FEC keys
-      const FedChannelConnection& conn = cabling_->connection( (*ifed)->getFedId(), ichan );
+      const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
       if ( conn.fecCrate() == sistrip::invalid_ ||
 	   conn.fecSlot() == sistrip::invalid_ ||
 	   conn.fecRing() == sistrip::invalid_ ||
@@ -348,4 +348,70 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
     << " Updated FED ticker thresholds for " 
     << updated << " channels";
   */
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
+
+  edm::LogVerbatim(mlDqmClient_) 
+    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+    << " Creating TimingAnalysisDescriptions...";
+  
+  // Clear descriptions container
+  desc.clear();
+  
+  // Iterate through analysis objects and create analysis descriptions
+  typedef std::map<uint32_t,FineDelayAnalysis> Analyses; 
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) {
+
+    FineDelayAnalysis* anal = &(ianal->second);
+    if ( !anal ) { continue; }
+
+    SiStripFecKey key( ianal->first );
+
+    for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+
+      // Create description
+      FineDelayAnalysisDescription* tmp;
+      tmp = new FineDelayAnalysisDescription( anal->maximum(),
+					      anal->error(),
+					      key.fecCrate(),
+					      key.fecSlot(),
+					      key.fecRing(),
+					      key.ccuAddr(),
+					      key.ccuChan(),
+					      SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+					      db()->dbParams().partition_,
+					      db()->dbParams().runNumber_,
+					      anal->isValid(),
+					       "" );
+      
+      // Add comments
+      typedef std::vector<std::string> Strings;
+      Strings errors = anal->getErrorCodes();
+      Strings::const_iterator istr = errors.begin();
+      Strings::const_iterator jstr = errors.end();
+      for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+
+      // Store description
+      desc.push_back( tmp );
+      
+    }
+
+  }
+
+//   std::stringstream sss;
+//   SiStripConfigDb::AnalysisDescriptions::iterator ii = desc.begin();
+//   SiStripConfigDb::AnalysisDescriptions::iterator jj = desc.end();
+//   for ( ; ii != jj; ++ii ) { 
+//     FineDelayAnalysisDescription* tmp = dynamic_cast<FineDelayAnalysisDescription*>( *ii );
+//     if ( tmp ) { sss << tmp->toString(); }
+//   }
+//   edm::LogVerbatim(mlDqmClient_) 
+//     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+//     << " Analysis descriptions:" << std::endl << sss.str(); 
+
 }

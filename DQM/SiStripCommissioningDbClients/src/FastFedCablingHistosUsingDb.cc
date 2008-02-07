@@ -1,6 +1,7 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.7 2007/12/11 17:27:12 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.8 2007/12/19 18:18:10 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
@@ -11,8 +12,8 @@ using namespace sistrip;
 /** */
 FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* mui,
 							  const DbParams& params )
-  : FastFedCablingHistograms( mui ),
-    CommissioningHistosUsingDb( params )
+  : CommissioningHistosUsingDb( params ),
+    FastFedCablingHistograms( mui )
 {
   LogTrace(mlDqmClient_)
     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -23,8 +24,9 @@ FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* 
 /** */
 FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* mui,
 							  SiStripConfigDb* const db ) 
-  : FastFedCablingHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistograms( mui, sistrip::FAST_CABLING ),
+    CommissioningHistosUsingDb( db, mui, sistrip::FAST_CABLING ),
+    FastFedCablingHistograms( mui )
 {
   LogTrace(mlDqmClient_)
     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -35,8 +37,8 @@ FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* 
 /** */
 FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DaqMonitorBEInterface* bei,
 							  SiStripConfigDb* const db ) 
-  : FastFedCablingHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db, sistrip::FAST_CABLING ),
+    FastFedCablingHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -53,18 +55,10 @@ FastFedCablingHistosUsingDb::~FastFedCablingHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistosUsingDb::addDcuDetIds() {
-  FastFedCablingHistograms::Analyses::iterator ianal = data_.begin();
-  FastFedCablingHistograms::Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void FastFedCablingHistosUsingDb::uploadToConfigDb() {
+void FastFedCablingHistosUsingDb::uploadConfigurations() {
   
-  if ( !db_ ) {
-    edm::LogWarning(mlDqmClient_) 
+  if ( !db() ) {
+    edm::LogError(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
       << " Aborting upload...";
@@ -72,17 +66,17 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
   }
 
   // Retrieve descriptions for DCU id and DetId 
-  SiStripConfigDb::DeviceDescriptions dcus = db_->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids = db_->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
   
   // Update FED connection descriptions
-  const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
+  const SiStripConfigDb::FedConnections& conns = db()->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns), dcus, detids );
-  if ( !test_ ) { 
+  if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED connections to DB...";
-    db_->uploadFedConnections(true); 
+    db()->uploadFedConnections(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << conns.size() 
@@ -94,13 +88,13 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with enabled/disabled channels
-  const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  if ( !test_ ) { 
+  if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(true); 
+    db()->uploadFedDescriptions(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size()
@@ -131,10 +125,14 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
   uint16_t unconnected = 0;
 
   // Update FED-FEC mapping in base class, based on analysis results
-  map<uint32_t,FastFedCablingAnalysis*>::const_iterator ianal;
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) {
-    
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) {
+
     if ( !ianal->second->isValid() ) { continue; }
+    
+    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
+    if ( !anal ) { continue; }
     
     // Retrieve DCU id matching id from histogram
     bool found = false;
@@ -145,34 +143,34 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( dcu ) { 
 	if ( dcu->getDcuType() == "FEH" ) { 
-	  if ( dcu->getDcuHardId() == ianal->second->dcuId() ) {
+	  if ( dcu->getDcuHardId() == anal->dcuId() ) {
 	    
 	    // Label as "found"
 	    found = true; 
 	    
 	    // Retrieve I2C addresses
-	    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
+	    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*dcu);
 	
 	    // Create connection object and set member data 
 #ifdef USING_NEW_DATABASE_MODEL	
 	    ConnectionDescription* conn = new ConnectionDescription();
-	    conn->setFedId( ianal->second->fedKey().fedId() );
-	    conn->setFedChannel( ianal->second->fedKey().fedChannel() );
+	    conn->setFedId( anal->fedKey().fedId() );
+	    conn->setFedChannel( anal->fedKey().fedChannel() );
 	    conn->setFecHardwareId( "" ); //@@
 	    conn->setFecCrateSlot( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
 	    conn->setFecSlot( addr.fecSlot_ );
 	    conn->setRingSlot( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
 	    conn->setCcuAddress( addr.ccuAddr_ );
 	    conn->setI2cChannel( addr.ccuChan_ );
-	    conn->setApvAddress( SiStripFecKey::i2cAddr(ianal->second->lldCh(),true) );
+	    conn->setApvAddress( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
 	    conn->setDcuHardId( dcu->getDcuHardId() );
 	    //@@ conn->setDetId( sistrip::invalid32_ );
 	    //@@ conn->setApvPairs( sistrip::invalid_ );
 	    //@@ conn->setFiberLength( sistrip::invalid_ );
 #else
 	    FedChannelConnectionDescription* conn = new FedChannelConnectionDescription(); 
-	    conn->setFedId( ianal->second->fedKey().fedId() );
-	    conn->setFedChannel( ianal->second->fedKey().fedChannel() );
+	    conn->setFedId( anal->fedKey().fedId() );
+	    conn->setFedChannel( anal->fedKey().fedChannel() );
 	    conn->setFecSupervisor( "" );
 	    conn->setFecSupervisorIP( "" );
 	    conn->setFecInstance( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
@@ -180,7 +178,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 	    conn->setRing( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
 	    conn->setCcu( addr.ccuAddr_ );
 	    conn->setI2c( addr.ccuChan_ );
-	    conn->setApv( SiStripFecKey::i2cAddr(ianal->second->lldCh(),true) );
+	    conn->setApv( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
 	    conn->setDcuHardId( dcu->getDcuHardId() );
 	    conn->setDetId( sistrip::invalid32_ );
 	    conn->setApvPairs( sistrip::invalid_ ); 
@@ -272,14 +270,17 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
       uint32_t fed_key = fed.key();
       
       // Retrieve analysis for given FED id and channel
-      map<uint32_t,FastFedCablingAnalysis*>::const_iterator ianal = data_.find(fed_key);
-      if ( ianal == data_.end() ) { continue; }
+      Analyses::const_iterator iter = data().find( fed_key );
+      if ( iter == data().end() ) { continue; }
       
-      if ( !ianal->second->isValid() ) { continue; }
+      if ( !iter->second->isValid() ) { continue; }
+      
+      FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( iter->second );
+      if ( !anal ) { continue; }
       
       // Retrieve FED id and channel 
-      uint16_t fed_id = ianal->second->fedKey().fedId();
-      uint16_t fed_ch = ianal->second->fedKey().fedChannel();
+      uint16_t fed_id = anal->fedKey().fedId();
+      uint16_t fed_ch = anal->fedKey().fedChannel();
       
       // Enable front-end unit and channel
       Fed9U::Fed9UAddress addr( fed_ch );
@@ -302,11 +303,12 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
 	<< " FED channels and disabled " << feds.size() * 96 - connected 
 	<< " FED channels (" << 100 * connected / ( feds.size() * 96 )
 	<< "% of total)";
+    edm::LogVerbatim(mlDqmClient_) << sss.str();
   } else {
     sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
 	<< " Found no FEDs! (and therefore no connected channels)";
+    edm::LogWarning(mlDqmClient_) << sss.str();
   }
-  edm::LogVerbatim(mlDqmClient_) << sss.str();
   
   // Some debug 
   std::stringstream ss;
@@ -336,5 +338,52 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
     }
   }
   LogTrace(mlDqmClient_) << ss.str();
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+					  Analysis analysis ) {
+  
+  FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
+  
+  SiStripFecKey key( analysis->first );
+  
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+    
+    // Create description
+    FastFedCablingAnalysisDescription* tmp;
+    tmp = new FastFedCablingAnalysisDescription( anal->highLevel(),
+						 anal->highRms(),
+						 anal->lowLevel(),
+						 anal->lowRms(),
+						 anal->max(),
+						 anal->min(),
+						 anal->dcuId(),
+						 anal->lldCh(),
+						 key.fecCrate(),
+						 key.fecSlot(),
+						 key.fecRing(),
+						 key.ccuAddr(),
+						 key.ccuChan(),
+						 SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+						 db()->dbParams().partition_,
+						 db()->dbParams().runNumber_,
+						 anal->isValid(),
+						 "" );
+      
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+
+    // Store description
+    desc.push_back( tmp );
+      
+  }
   
 }
