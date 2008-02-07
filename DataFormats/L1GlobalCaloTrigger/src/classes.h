@@ -21,6 +21,10 @@ namespace {
     L1GctEtHad etHad;
     L1GctEtMiss etMiss;
     L1GctJetCounts jetCounts;
+    L1GctEtMissCollection etMissColl;
+    L1GctEtTotalCollection etTotColl;
+    L1GctEtHadCollection etHadColl;
+    L1GctJetCountsCollection jetCountsColl;
     L1GctFibreWord fibreWord;
 
     edm::Wrapper<L1GctInternEmCandCollection> w_internEmCand;
@@ -31,6 +35,10 @@ namespace {
     edm::Wrapper<L1GctEtHad> w_etHad;
     edm::Wrapper<L1GctEtMiss> w_etMiss;
     edm::Wrapper<L1GctJetCounts> w_jetCounts;
+    edm::Wrapper<L1GctEtTotalCollection> w_etTotColl;
+    edm::Wrapper<L1GctEtHadCollection> w_etHadColl;
+    edm::Wrapper<L1GctEtMissCollection> w_etMissColl;
+    edm::Wrapper<L1GctJetCountsCollection> w_jetCountsColl;
 
     edm::Ref<L1GctInternEmCandCollection> internEmRef ;
     edm::Ref<L1GctEmCandCollection> emRef ;
@@ -39,6 +47,9 @@ namespace {
     edm::RefProd<L1GctEtTotal> etTotRef ;
     edm::RefProd<L1GctEtHad> etHadRef ;
     edm::RefProd<L1GctEtMiss> etMissRef ;
+    edm::Ref<L1GctEtHadCollection> etHadCollRef ;
+    edm::Ref<L1GctEtMissCollection> etMissCollRef ;
+    edm::Ref<L1GctEtTotalCollection> etTotCollRef ;
 
   }
 }
