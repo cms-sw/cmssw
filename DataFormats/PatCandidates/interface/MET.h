@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+// $Id: MET.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -13,11 +13,12 @@
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+  \version  $Id: MET.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
 */
 
 
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 

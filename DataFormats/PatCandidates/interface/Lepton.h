@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+// $Id: Lepton.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,10 +13,10 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.4 2008/01/22 21:58:14 lowette Exp $
+  \version  $Id: Lepton.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
 */
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 

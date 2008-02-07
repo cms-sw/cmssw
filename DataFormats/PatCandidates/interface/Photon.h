@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.2 2008/01/23 15:53:14 lowette Exp $
+// $Id: Photon.h,v 1.3 2008/01/26 20:19:44 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,11 +13,8 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.2 2008/01/23 15:53:14 lowette Exp $
+  \version  $Id: Photon.h,v 1.3 2008/01/26 20:19:44 gpetrucc Exp $
 */
-
-
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"

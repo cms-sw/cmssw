@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.3 2008/01/22 21:58:13 lowette Exp $
+// $Id: Electron.h,v 1.4 2008/01/26 20:19:37 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,11 +13,10 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.3 2008/01/22 21:58:13 lowette Exp $
+  \version  $Id: Electron.h,v 1.4 2008/01/26 20:19:37 gpetrucc Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
