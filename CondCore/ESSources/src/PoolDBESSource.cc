@@ -188,7 +188,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
     }
   }else{
-    std::string globaltag=iConfig.getParameter<std::string>("globaltag");
+    std::string globaltag=iConfig.getUntrackedParameter<std::string>("globaltag");
     cond::Connection* c=conHandler.getConnection(connect);
     conHandler.connect(m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();
