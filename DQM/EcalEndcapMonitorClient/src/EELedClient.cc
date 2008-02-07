@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/18 18:06:49 $
- * $Revision: 1.51 $
+ * $Date: 2008/01/25 14:01:50 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1324,7 +1324,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1F* obj1f;
   TProfile* objp;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/20 17:11:28 $
- * $Revision: 1.54 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1168,7 +1168,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

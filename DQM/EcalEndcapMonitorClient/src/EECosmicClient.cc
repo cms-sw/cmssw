@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.41 $
+ * $Date: 2008/02/04 19:41:12 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -361,7 +361,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   TProfile2D* objp;
   TH1F* obj1f;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

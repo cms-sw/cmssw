@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/01/22 19:47:13 $
- * $Revision: 1.53 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -494,7 +494,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
   TH2F* obj2f;
   TH1F* obj1f;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
