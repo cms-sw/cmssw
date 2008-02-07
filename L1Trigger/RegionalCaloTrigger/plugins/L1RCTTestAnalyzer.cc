@@ -32,9 +32,25 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
 
   edm::Service<TFileService> fs;
   h_emRank = fs->make<TH1F>( "emRank", "emRank", 64, 0., 64. );
-  h_regionSum = fs->make<TH1F>( "regionSum", "regionSum", 100, 0., 100. );
   h_emIeta = fs->make<TH1F>( "emIeta", "emIeta", 22, 0., 22. );
+  h_emIphi = fs->make<TH1F>( "emIphi", "emIphi", 18, 0., 18. );
+  h_emIso = fs->make<TH1F>( "emIso", "emIso", 2, 0., 2. );
+  h_emRankInIetaIphi = fs->make<TH2F>( "emRank2D", "emRank2D", 22, 0., 22.,
+				       18, 0., 18. );
+  h_emIsoInIetaIphi = fs->make<TH2F>( "emIso2D", "emIso2D", 22, 0., 22.,
+				      18, 0., 18. );
+  h_emNonIsoInIetaIphi = fs->make<TH2F>( "emNonIso2D", "emNonIso2D", 22, 0., 
+					 22., 18, 0., 18. );
+
+  h_regionSum = fs->make<TH1F>( "regionSum", "regionSum", 100, 0., 100. );
+  h_regionIeta = fs->make<TH1F>( "regionIeta", "regionIeta", 22, 0., 22. );
+  h_regionIphi = fs->make<TH1F>( "regionIphi", "regionIphi", 18, 0., 18. );
   h_regionMip = fs->make<TH1F>( "regionMip", "regionMipBit", 2, 0., 2. );
+  h_regionSumInIetaIphi = fs->make<TH2F>( "regionSum2D", "regionSum2D", 22, 
+					  0., 22., 18, 0., 18. );
+  h_regionFGInIetaIphi = fs->make<TH2F>( "regionFG2D", "regionFG2D", 22, 0.,
+					 22., 18, 0., 18. );
+
   h_towerMip = fs->make<TH1F>( "towerMip", "towerMipBit", 2, 0., 2. );
 
   // get names of modules, producing object collections
@@ -108,6 +124,21 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        {
 	 h_emRank->Fill( (*em).rank() );
 	 h_emIeta->Fill( (*em).regionId().ieta() );
+	 h_emIphi->Fill( (*em).regionId().iphi() );
+	 h_emIso->Fill( (*em).isolated() );
+	 h_emRankInIetaIphi->Fill( (*em).regionId().ieta(), 
+				   (*em).regionId().iphi(),
+				   (*em).rank() );
+	 if ((*em).isolated())
+	   {
+	     h_emIsoInIetaIphi->Fill( (*em).regionId().ieta(),
+				      (*em).regionId().iphi() );
+	   }
+	 else
+	   {
+	     h_emNonIsoInIetaIphi->Fill( (*em).regionId().ieta(),
+					 (*em).regionId().iphi() );
+	   }
        }
 
      if (showEmCands)
@@ -158,6 +189,12 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      if ( (*rgn).et() > 0 )
        {
 	 h_regionSum->Fill( (*rgn).et() );
+	 h_regionIeta->Fill( (*rgn).gctEta() );
+	 h_regionIphi->Fill( (*rgn).gctPhi() );
+	 h_regionSumInIetaIphi->Fill( (*rgn).gctEta(), (*rgn).gctPhi(),
+				      (*rgn).et() );
+	 h_regionFGInIetaIphi->Fill( (*rgn).gctEta(), (*rgn).gctPhi(),
+				     (*rgn).fineGrain() );
        }
      h_regionMip->Fill( (*rgn).mip() );
    }

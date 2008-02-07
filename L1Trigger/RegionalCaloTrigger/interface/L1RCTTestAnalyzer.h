@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.5 2007/03/26 15:05:29 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.6 2008/01/28 13:32:41 jleonard Exp $
 //
 //
 
@@ -38,6 +38,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "TH1F.h"
+#include "TH2F.h"
 
 //
 // class declaration
@@ -55,10 +56,25 @@ private:
   std::string m_HepMCProduct;
   bool showEmCands;
   bool showRegionSums;
+
   TH1F * h_emRank;
-  TH1F * h_regionSum;
   TH1F * h_emIeta;
+  TH1F * h_emIphi;
+  TH1F * h_emIso;
+  TH2F * h_emRankInIetaIphi;
+  // add isolated/non-iso?
+  TH2F * h_emIsoInIetaIphi;
+  TH2F * h_emNonIsoInIetaIphi;
+
+  TH1F * h_regionSum;
+  TH1F * h_regionIeta;
+  TH1F * h_regionIphi;
   TH1F * h_regionMip;
+  TH2F * h_regionSumInIetaIphi;
+  // add bits in ieta/iphi?  tau, overflow, mip, quiet, finegrain? 
+  // (is fine grain same thing as mip??)
+  TH2F * h_regionFGInIetaIphi;
+
   TH1F * h_towerMip;
 };
 
