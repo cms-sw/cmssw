@@ -21,7 +21,8 @@ class L1GctJetCounts {
   /// static maximum number of jet counts
   /// This can be up to 12 but we use some of the
   /// available bandwidth for other information.
-  static const unsigned MAX_COUNTS;
+  static const unsigned MAX_TOTAL_COUNTS;
+  static const unsigned MAX_TRUE_COUNTS;
 
   enum numberOfBits {
     kEtHfSumBits     = 7,
@@ -41,8 +42,12 @@ class L1GctJetCounts {
    *  count 0 should be in bits 4:0 of the data0 argument. */
   L1GctJetCounts(uint32_t data0, uint32_t data1);
 
+  L1GctJetCounts(uint32_t data0, uint32_t data1, int16_t bx);
+
   /// constructor for emulator
   L1GctJetCounts(std::vector<unsigned> counts);
+
+  L1GctJetCounts(std::vector<unsigned> counts, int16_t bx);
 
   /// destructor
   virtual ~L1GctJetCounts();
@@ -63,24 +68,27 @@ class L1GctJetCounts {
   unsigned count(unsigned i) const;
 
   /// get individual counts (for use with FWLite)
-  unsigned count00() const { return (MAX_COUNTS<1 ?  0 : count(0)); }
-  unsigned count01() const { return (MAX_COUNTS<2 ?  0 : count(1)); }
-  unsigned count02() const { return (MAX_COUNTS<3 ?  0 : count(2)); }
-  unsigned count03() const { return (MAX_COUNTS<4 ?  0 : count(3)); }
-  unsigned count04() const { return (MAX_COUNTS<5 ?  0 : count(4)); }
-  unsigned count05() const { return (MAX_COUNTS<6 ?  0 : count(5)); }
-  unsigned count06() const { return (MAX_COUNTS<7 ?  0 : count(6)); }
-  unsigned count07() const { return (MAX_COUNTS<8 ?  0 : count(7)); }
-  unsigned count08() const { return (MAX_COUNTS<9 ?  0 : count(8)); }
-  unsigned count09() const { return (MAX_COUNTS<10 ? 0 : count(9)); }
-  unsigned count10() const { return (MAX_COUNTS<11 ? 0 : count(10)); }
-  unsigned count11() const { return (MAX_COUNTS<12 ? 0 : count(11)); }
+  unsigned count00() const { return (MAX_TRUE_COUNTS<1 ?  0 : count(0)); }
+  unsigned count01() const { return (MAX_TRUE_COUNTS<2 ?  0 : count(1)); }
+  unsigned count02() const { return (MAX_TRUE_COUNTS<3 ?  0 : count(2)); }
+  unsigned count03() const { return (MAX_TRUE_COUNTS<4 ?  0 : count(3)); }
+  unsigned count04() const { return (MAX_TRUE_COUNTS<5 ?  0 : count(4)); }
+  unsigned count05() const { return (MAX_TRUE_COUNTS<6 ?  0 : count(5)); }
+  unsigned count06() const { return (MAX_TRUE_COUNTS<7 ?  0 : count(6)); }
+  unsigned count07() const { return (MAX_TRUE_COUNTS<8 ?  0 : count(7)); }
+  unsigned count08() const { return (MAX_TRUE_COUNTS<9 ?  0 : count(8)); }
+  unsigned count09() const { return (MAX_TRUE_COUNTS<10 ? 0 : count(9)); }
+  unsigned count10() const { return (MAX_TRUE_COUNTS<11 ? 0 : count(10)); }
+  unsigned count11() const { return (MAX_TRUE_COUNTS<12 ? 0 : count(11)); }
 
   /// Use some jet count bits for Hf information
   unsigned hfTowerCountPositiveEta() const;
   unsigned hfTowerCountNegativeEta() const;
   unsigned hfTowerEtSumPositiveEta() const;
   unsigned hfTowerEtSumNegativeEta() const;
+
+  /// get bunch-crossing index
+  int16_t bx() const { return m_bx; }
 
   /// equality operator
   int operator==(const L1GctJetCounts& c) const { return (m_data0==c.raw0() && m_data1==c.raw1()); }
@@ -92,6 +100,7 @@ class L1GctJetCounts {
 
   uint32_t m_data0;
   uint32_t m_data1;
+  int16_t m_bx;
 
 };
 
