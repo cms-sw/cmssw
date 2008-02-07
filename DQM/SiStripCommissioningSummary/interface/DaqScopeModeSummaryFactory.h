@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningSummary_DaqScopeModeSummaryFactory_H
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 
 class SummaryGenerator;
 

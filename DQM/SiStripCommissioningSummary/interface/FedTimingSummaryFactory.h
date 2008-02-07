@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningSummary_FedTimingSummaryFactory_H
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 
 class SummaryGenerator;
 

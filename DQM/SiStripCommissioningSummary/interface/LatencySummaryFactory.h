@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningSummary_LatencySummaryFactory_H
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/LatencyAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/LatencyAnalysis.h"
 
 class SummaryGenerator;
 

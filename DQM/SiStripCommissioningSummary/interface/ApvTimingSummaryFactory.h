@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 
 template<>
 class SummaryPlotFactory<ApvTimingAnalysis*> : public SummaryPlotFactoryBase {

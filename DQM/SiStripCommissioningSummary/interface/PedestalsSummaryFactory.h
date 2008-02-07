@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
 
 template<>
 class SummaryPlotFactory<PedestalsAnalysis*> : public SummaryPlotFactoryBase {

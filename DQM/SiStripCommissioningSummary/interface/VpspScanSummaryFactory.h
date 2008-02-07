@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
 
 template<>
 class SummaryPlotFactory<VpspScanAnalysis*> : public SummaryPlotFactoryBase {

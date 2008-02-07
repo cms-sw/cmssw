@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningSummary_FineDelaySummaryFactory_H
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FineDelayAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FineDelayAnalysis.h"
 
 class SummaryGenerator;
 

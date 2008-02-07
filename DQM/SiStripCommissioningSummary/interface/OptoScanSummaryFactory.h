@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 
 template<>
 class SummaryPlotFactory<OptoScanAnalysis*> : public SummaryPlotFactoryBase {

@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningSummary_CalibrationSummaryFactory_H
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/CalibrationAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 
 class SummaryGenerator;
 

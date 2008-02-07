@@ -1,7 +1,6 @@
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
-<use name=DQM/SiStripCommissioningAnalysis>
 <use name=boost>
 <use name=root>
 
@@ -10,7 +9,6 @@
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/SiStripCommon>
   <use name=DataFormats/SiStripDetId>
-  <use name=DQM/SiStripCommissioningAnalysis>
   <use name=boost>
   <use name=root>
 </export>
