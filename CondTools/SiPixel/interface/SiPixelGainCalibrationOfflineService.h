@@ -11,7 +11,7 @@
 // *******                                                          *******
 // ************************************************************************
 // ************************************************************************
-/
+
 // Gain CalibrationOffline base class
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
 
