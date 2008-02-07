@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.6 2008/01/30 15:54:34 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.7 2008/02/05 17:54:06 fronga Exp $
 //
 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -54,15 +54,15 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     // read the source electron
     const reco::PixelMatchGsfElectron &srcElectron = helper_.srcAt(idx);    
 
+    // clone the electron so we can modify it (if we want)
+    reco::PixelMatchGsfElectron ourElectron = srcElectron; 
+
     // perform the selection
     if ( selectionType_ == "custom" ) {
       const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
       clusterShape = &(*shapeRef);
     }
     if ( selector_->filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
-
-    // clone the electron so we can modify it (if we want)
-    reco::PixelMatchGsfElectron ourElectron = srcElectron; 
 
     // write the muon
     helper_.addItem(idx, ourElectron); 
