@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.4 2008/01/16 16:04:42 gpetrucc Exp $
+// $Id: PATMuonCleaner.cc,v 1.5 2008/01/17 02:50:12 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
@@ -19,13 +19,16 @@ using pat::PATMuonCleaner;
 
 PATMuonCleaner::PATMuonCleaner(const edm::ParameterSet & iConfig) :
   muonSrc_(iConfig.getParameter<edm::InputTag>( "muonSource" )),
-  helper_(muonSrc_) 
+  helper_(muonSrc_),
+  selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection"))
 {
   // produces vector of muons
   produces<std::vector<reco::Muon> >();
 
   // producers also backmatch to the muons
   produces<reco::CandRefValueMap>();
+
+  selector_ = std::auto_ptr<MuonSelector>( new MuonSelector(selectionCfg_) );
 }
 
 
@@ -45,7 +48,7 @@ void PATMuonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     reco::Muon ourMuon = srcMuon; 
 
     // perform the selection
-    if (false) continue; // now there is no real selection for muons
+    if ( selector_->filter(idx,helper_.source()) ) continue; 
 
     // write the muon
     helper_.addItem(idx, ourMuon); 

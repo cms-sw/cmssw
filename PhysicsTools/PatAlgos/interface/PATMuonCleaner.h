@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.2 2008/01/15 22:05:01 gpetrucc Exp $
+// $Id: PATMuonCleaner.h,v 1.3 2008/01/16 16:04:37 gpetrucc Exp $
 //
 
 /**
@@ -9,10 +9,21 @@
   \brief    Produces a clean list of muons, and associated back-references to the original muon collection
 
    The PATMuonCleaner produces a list of clean muons with associated back-references to the original muon collection.
-   At the moment it really does <b>no cleaning at all</b>, but this will be implemented later.
+
+   Muon selection is performed using the standard muon ID helper functions.
+   It can be configured in the following way:
+
+   PSet selection = {
+   string type = "none | globalMuons | muId | custom" // muId not implemented yet
+   [ // If custom, give cut values
+     double dPbyPmax = ...
+     double chi2max  = ...
+     int    nHitsMin = ...
+   ]
+   }
  
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf, 
-  \version  $Id: PATMuonCleaner.h,v 1.2 2008/01/15 22:05:01 gpetrucc Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.3 2008/01/16 16:04:37 gpetrucc Exp $
 */
 
 
@@ -26,6 +37,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
+
+#include "PhysicsTools/PatUtils/interface/MuonSelector.h"
 
 #include <string>
 
@@ -47,6 +60,9 @@ namespace pat {
                                   reco::Muon,
                                   reco::MuonCollection, 
                                   GreaterByPt<reco::Muon> > helper_;
+
+      edm::ParameterSet selectionCfg_;       ///< Defines everything about the selection
+      std::auto_ptr<MuonSelector> selector_; ///< Actually performs the selection
   };
 
 
