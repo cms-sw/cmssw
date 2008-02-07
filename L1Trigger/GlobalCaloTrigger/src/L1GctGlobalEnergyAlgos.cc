@@ -356,6 +356,16 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etCo
   return result;
 }
 
+//----------------------------------------------------------------------------------
+//
+// The following method contains the bit-slicing
+// of the Hf information for minbias triggers
+// into 5-bit fields so it can be output using the 
+// L1GctJetCounts object (from DataFormats/L1GlobalCaloTrigger).
+//
+// NOTE: the reverse operation of combining the 5-bit fields
+// back into Hf information is carried out in L1GctJetCounts.
+//
 void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
 {
   assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
