@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.5 2007/05/26 18:55:13 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.6 2007/07/09 07:29:20 llista Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.5 2007/05/26 18:55:13 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.6 2007/07/09 07:29:20 llista Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -33,9 +33,16 @@ namespace edm {
   ProductRegistry::copyProduct(BranchDescription const& productDesc) {
     throwIfFrozen();
     productDesc.init();
-    productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
-    if (productDesc.productID().id_ >= nextID_) {
-      nextID_ = productDesc.productID().id_ + 1;
+    BranchKey k = BranchKey(productDesc);
+    ProductList::iterator iter = productList_.find(k);
+    if (iter == productList_.end()) {
+      productList_.insert(std::make_pair(k, productDesc));
+      if (productDesc.productID().id_ >= nextID_) {
+        nextID_ = productDesc.productID().id_ + 1;
+      }
+    } else {
+      assert(combinable(iter->second, productDesc));
+      iter->second.present_ = iter->second.present() || productDesc.present();
     }
   }
   
