@@ -1,0 +1,12 @@
+<lcgdict>
+
+ <class name="RPCDigiSimLink"/>
+ <class name="edm::DetSet<RPCDigiSimLink>"/>
+ <class name="std::vector<RPCDigiSimLink>"/>
+ <class name="edm::DetSetVector<RPCDigiSimLink>"/>
+ <class name="std::vector<edm::DetSet<RPCDigiSimLink> >"/>
+ <class name="edm::Wrapper< edm::DetSet<RPCDigiSimLink> >"/>
+ <class name="edm::Wrapper< std::vector<edm::DetSet<RPCDigiSimLink> > >"/>
+ <class name="edm::Wrapper< edm::DetSetVector<RPCDigiSimLink> >"/>
+
+</lcgdict>
