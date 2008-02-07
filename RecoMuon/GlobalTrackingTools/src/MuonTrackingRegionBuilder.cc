@@ -1,36 +1,40 @@
-/** \class MuonTrackingRegionBuilder
- *  Base class for the Muon reco TrackingRegion Builder
- *
- *  $Date: 2007/05/09 19:28:21 $
- *  $Revision: 1.1 $
- *  \author A. Everett - Purdue University
- */
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
-//#include <cmath>
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
-
+//double region_dEta,region_dPhi,Par_eta,Par_phi;
 /// constructor
 MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service)
   : theService(service)
-{
-  theMakeTkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
+  {
 
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
-  theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
+  // Parmetersa
+  Nsigma = par.getParameter<double>("Rescale");
 
+  HalfZRegion_size = par.getParameter<double>("DeltaZ_Region");
+  Delta_R_Region = par.getParameter<double>("DeltaR");
+  TkEscapePt = par.getParameter<double>("EscapePt");
+  Phi_minimum = par.getParameter<double>("Phi_min");
+  Eta_minimum = par.getParameter<double>("Eta_min");
+  //Upper Limits Parameters   
+  Eta_Region_parameter1 = par.getParameter<double>("EtaR_UpperLimit_Par1"); 
+  Eta_Region_parameter2 = par.getParameter<double>("EtaR_UpperLimit_Par2");
+  Phi_Region_parameter1 = par.getParameter<double>("PhiR_UpperLimit_Par1");
+  Phi_Region_parameter2 = par.getParameter<double>("PhiR_UpperLimit_Par2");
+  //Fixed Limits
+  theFixedFlag = par.getParameter<bool>("UsedFixedRegion");
+  Phi_fixed = par.getParameter<double>("Phi_fixed");
+  Eta_fixed = par.getParameter<double>("Eta_fixed");
 }
 
 RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::TrackRef& track) const
@@ -40,6 +44,8 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
 
 RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const
 {
+
+  const string category = "MuonTrackingRegionBuilder";
  
   //Get muon free state updated at vertex
   TrajectoryStateTransform tsTransform;
@@ -47,22 +53,13 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   
   //Get track direction at vertex
   GlobalVector dirVector(muFTS.momentum());
-  
-  //Get region size using momentum uncertainty
-  
+
   //Get track momentum
   const math::XYZVector& mo = staTrack.innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z());
-  if ( staTrack.p() > 1.0 ) {
+  if ( staTrack.p() > 1.5 ) {
     mom = dirVector; 
   }
-  
-  //Get Mu state on inner muon surface
-  //TrajectoryStateOnSurface muTSOS = tsTransform.innerStateOnSurface(*staTrack,*theService->trackingGeometry(),&*theService->magneticField());
-  
-  //Get Mu state on tracker bound
-  //StateOnTrackerBound fromInside(&*theService->propagator(stateOnTrackerOutProp));
-  //muTSOS = fromInside(muFTS);
   
   //Get error of momentum of the Mu state
   GlobalError  dirErr(muFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
@@ -71,87 +68,69 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
 			 dirVector.z() + sqrt(dirErr.czz()));
   
   //Get dEta and dPhi
-  float eta1 = dirVector.eta();
-  float eta2 = dirVecErr.eta();
-  float deta(fabs(eta1- eta2));
-  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(dirVecErr.phi())));
-  
-  //Get vertex, Pt constraints  
+  double deta =Nsigma*(fabs(dirVector.eta()-dirVecErr.eta()));
+  double dphi =Nsigma*(fabs(deltaPhi(dirVector.phi(),dirVecErr.phi())));
+  //Get vertex  
   GlobalPoint vertexPos = (muFTS.position());
   GlobalError vertexErr = (muFTS.cartesianError().position());
   
-  double minPt    = max(1.5,mom.perp()*0.6);
-  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
-  
-  //Adjust tracking region dEta and dPhi  
-  double deltaEta = 0.1;
-  double deltaPhi = 0.1;
+  /* Region_Parametrizations to take into account possible 
+     L2 matrix inconsistencies. Detailed Explanation in TWIKI
+     page.
+  */
+  double region_dEta,region_dPhi,region_dEta1,region_dPhi1,Par_eta,Par_phi;
+  double acoeff1_Phi,acoeff1_Eta,acoeff3_Phi,acoeff3_Eta;
 
-  if ( deta > 0.05 ) {
-    deltaEta += deta/2;
-  }
-  if ( dphi > 0.07 ) {
-    deltaPhi += 0.15;
-  }
-
-  deltaPhi = min(double(0.2), deltaPhi);
-  if(mom.perp() < 25.) deltaPhi = max(double(dphi),0.3);
-  if(mom.perp() < 10.) deltaPhi = max(deltaPhi,0.8);
- 
-  deltaEta = min(double(0.2), deltaEta);
-  if( mom.perp() < 6.0 ) deltaEta = 0.5;
-  if( fabs(eta1) > 2.25 ) deltaEta = 0.6;
-  if( fabs(eta1) > 3.0 ) deltaEta = 1.0;
-  //if( fabs(eta1) > 2. && mom.perp() < 10. ) deltaEta = 1.;
-  //if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta= max(0.07,deltaEta);
-  if ( fabs(eta1) < 1.3  && fabs(eta1) > 1.0 ) deltaPhi = max(0.3,deltaPhi);
-
-  deltaEta = min(double(1.), 1.25 * deltaEta);
-  deltaPhi = 1.2 * deltaPhi;
-  
-  //Get region size using position uncertainty
-  
-  //Get innerMu position
-  const math::XYZPoint& po = staTrack.innerPosition();
-  GlobalPoint pos(po.x(),po.y(),po.z());    
-  //pos = muTSOS.globalPosition();
-  
-  float eta3 = pos.eta();
-  float deta2(fabs(eta1- eta3));
-  float dphi2(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi())));  
-     
-  //Adjust tracking region dEta dPhi
-  double deltaEta2 = 0.05;
-  double deltaPhi2 = 0.07;
+  // Eta , ptparametrization as in MC study
+  //Parametrization 2nd bin in pt from MC study  
+  if(abs(mom.perp())<=10.){
+    // angolar coefficients
+    acoeff1_Phi = (Phi_Region_parameter2-Phi_Region_parameter1)/5;
+    acoeff1_Eta = (Eta_Region_parameter2-Eta_Region_parameter1)/5;
     
-  if ( deta2 > 0.05 ) {
-    deltaEta2 += deta2 / 2;
+    Par_eta  = Eta_Region_parameter1 + (acoeff1_Eta)*(mom.perp()-5.);
+    Par_phi  = Phi_Region_parameter1 + (acoeff1_Phi)*(mom.perp()-5.) ;
   }
-  if ( dphi2 > 0.07 ) {
-    deltaPhi2 += 0.15;
-    if ( fabs(eta3) < 1.0 && mom.perp() < 6. ) deltaPhi2 = dphi2;
+  
+  //Parametrization 2nd bin in pt from MC study  
+  if(abs(mom.perp())>10. && abs(mom.perp())<100.){
+    
+    Par_eta = Eta_Region_parameter2;
+    Par_phi = Phi_Region_parameter2;
   }
-  if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta2=max(0.07,deltaEta2);
-  if ( fabs(eta1) < 1.3  && fabs(eta1) > 1.0 ) deltaPhi2=max(0.3,deltaPhi2);
+  //Parametrization 3rd bin in pt from MC study
+  if(abs(mom.perp())>=100.){
+    // angolar coefficients
+    acoeff3_Phi = (Phi_Region_parameter1-Phi_Region_parameter2)/900;
+    acoeff3_Eta = (Eta_Region_parameter1-Eta_Region_parameter2)/900;
+    
+    Par_eta = Eta_Region_parameter2 + (acoeff3_Eta)*(mom.perp()-100.);
+    Par_phi = Phi_Region_parameter2 + (acoeff3_Phi)*(mom.perp()-100.);
+  }
+  // here decide to use parametrization or dinamical region
+  region_dPhi1 = min(Par_phi,dphi);
+  region_dEta1 = min(Par_eta,deta);
   
-  deltaEta2 = 1 * max(double(2.5 * deta2),deltaEta2);
-  deltaPhi2 = 1 * max(double(3.5 * dphi2),deltaPhi2);
-  
-  //Use whichever will give smallest region size
-  deltaEta = min(deltaEta,deltaEta2);
-  deltaPhi = min(deltaPhi,deltaPhi2);
+  // minimum size
+  region_dPhi = max(Phi_minimum,region_dPhi1);
+  region_dEta = max(Eta_minimum,region_dEta1);
 
-  if( theMakeTkSeedFlag ) {
-    deltaEta = deltaEta2;
-    deltaPhi = deltaPhi2;
-    vertexPos = theVertexPos;
-  }
-  
+  LogDebug(category)<< "The selected region is: "<< region_dEta <<" Eta and "<<region_dPhi<<" phi and the mom is "<<mom.perp();  
+
+  double deltaZ   = HalfZRegion_size;
+  double deltaR   = Delta_R_Region;
+  double minPt    = max(TkEscapePt,mom.perp()*0.6);
+
   RectangularEtaPhiTrackingRegion * region = 0;  
 
+  if(theFixedFlag) {
+    region_dEta = Eta_fixed;
+    region_dPhi = Phi_fixed;
+  }
+
   region = new RectangularEtaPhiTrackingRegion(dirVector, vertexPos,
-                                             minPt, 0.2,
-                                             deltaZ, deltaEta, deltaPhi);
+                                               minPt, deltaR,
+                                               deltaZ, region_dEta, region_dPhi);
   
   return region;
   

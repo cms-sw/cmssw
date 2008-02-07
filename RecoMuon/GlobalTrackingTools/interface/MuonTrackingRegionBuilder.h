@@ -4,7 +4,7 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2007/05/09 19:28:20 $
+ *  $Date: 2007/08/15 15:15:28 $
  *  $Revision: 1.1 $
  *  \author A. Everett - Purdue University
  */
@@ -34,16 +34,28 @@ class MuonTrackingRegionBuilder {
   RectangularEtaPhiTrackingRegion* region(const reco::TrackRef&) const;
 
   RectangularEtaPhiTrackingRegion* region(const reco::Track&) const;
-  
+
  private:
-  edm::ParameterSet theRegionPSet;
+
   const MuonServiceProxy * theService;
 
-  bool theMakeTkSeedFlag;
+  bool theFixedFlag;
 
+  double HalfZRegion_size; 
+  double Delta_R_Region;
+  double TkEscapePt;
+  double Nsigma;
+  double Eta_Region_parameter1; 
+  double Eta_Region_parameter2;
+  double Phi_Region_parameter1;
+  double Phi_Region_parameter2;
+
+  double Phi_minimum;
+  double Eta_minimum;
+  double Phi_fixed;
+  double Eta_fixed;
   GlobalPoint theVertexPos;
   GlobalError theVertexErr;
-  
 
 };
 #endif

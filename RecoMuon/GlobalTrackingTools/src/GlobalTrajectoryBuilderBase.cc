@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/10/31 22:18:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/03 21:42:48 $
+ *  $Revision: 1.6 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -105,7 +105,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theTrackTransformer = new TrackTransformer(par.getParameter<ParameterSet>("TrackTransformer"));
 
-  ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("RegionBuilderParameters");
+  ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
   regionBuilderPSet.addParameter<bool>("RegionalSeedFlag",false);
 
   theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
