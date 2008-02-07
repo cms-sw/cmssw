@@ -4,6 +4,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=TrackingTools/TransientTrackingRecHit>
 <use name=clhep>
 <use name=boost>
 <use name=root>
@@ -15,6 +16,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=TrackingTools/TransientTrackingRecHit>
 <use name=clhep>
 <use name=boost>
 <use name=root>

@@ -110,10 +110,17 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
 
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) 
 {
-  
+  //check in case of TTRH
+  if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
+      return associateHit(*ttrh->hit());
+  }
+ 
   //vector with the matched SimHit
   std::vector<PSimHit> result; 
   simtrackid.clear();
+
+
+
   
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
@@ -220,6 +227,11 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) 
 {
   
+  //check in case of TTRH
+  if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
+      return associateHitId(*ttrh->hit());
+  }
+   
   //vector with the matched SimTrackID 
   simtrackid.clear();
   
@@ -242,20 +254,20 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 	  simtrackid = associateSimpleRecHit(rechit);
 	}
       //check if it is a matched SiStripMatchedRecHit2D
-      if(const SiStripMatchedRecHit2D * rechit = 
+      else  if(const SiStripMatchedRecHit2D * rechit = 
 	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateMatchedRecHit(rechit);
 	}
       //check if it is a  ProjectedSiStripRecHit2D
-      if(const ProjectedSiStripRecHit2D * rechit = 
+      else if(const ProjectedSiStripRecHit2D * rechit = 
 	 dynamic_cast<const ProjectedSiStripRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateProjectedRecHit(rechit);
 	}
     }
   //check we are in the pixel tracker
-  if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
+  else if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
       detid.subdetId() == PixelSubdetector::PixelEndcap) 
     {
       if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
@@ -264,11 +276,12 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 	}
     }
   //check if these are GSRecHits (from FastSim)
-  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+  else if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
     {
       simtrackid = associateGSRecHit(rechit);
     }
-
+  
+ 
   return simtrackid;  
 }
 
