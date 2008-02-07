@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.14 2007/12/04 15:13:49 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.15 2008/02/07 07:00:12 franzoni Exp $
  */
 
 #include <vector>
@@ -67,11 +67,11 @@ class EcalDCCHeaderBlock
     TECHNICAL_EXTERNAL_TRIGGER =4
   };
   
-  enum TCC_DTT_TYPE{
-    TCC_LASER     = 4,
-    TCC_LED       = 5,
-    TCC_TESTPULSE = 6,
-    TCC_PEDESTAL  = 7
+  enum TTC_DTT_TYPE{
+    TTC_LASER     = 4,
+    TTC_LED       = 5,
+    TTC_TESTPULSE = 6,
+    TTC_PEDESTAL  = 7
   };
 
   struct EcalDCCEventSettings{
@@ -100,7 +100,7 @@ class EcalDCCHeaderBlock
   void setFedId(const int& fedId) { fedId_=fedId; };
 
   void setErrors(const int& dccErrors) { dccErrors_=dccErrors; };
-  void setDccInTCCCommand(const int& dccInTCCCommand) { dccInTCCCommand_=dccInTCCCommand; };
+  void setDccInTTCCommand(const int& dccInTTCCommand) { dccInTTCCommand_=dccInTTCCommand; };
   void setRunNumber(const int& run){runNumber_ = run;}
   void setLV1(const int& LV1){LV1event_ = LV1;}
   void setBX(const int& BX){BX_ = BX;}
@@ -123,7 +123,7 @@ class EcalDCCHeaderBlock
   //TODO add all the get methods
   
   int getDCCErrors() const{ return dccErrors_;}
-  int getDccInTCCCommand() const{ return dccInTCCCommand_; };
+  int getDccInTTCCommand() const{ return dccInTTCCommand_; };
   int getRunNumber() const {return runNumber_ ;}
   int getLV1() const {return LV1event_ ;}
   int getBX() const {return BX_ ;}
@@ -147,7 +147,7 @@ class EcalDCCHeaderBlock
   int dccId_;  //to be used as the Key
   int fedId_;
   int dccErrors_;
-  int dccInTCCCommand_;
+  int dccInTTCCommand_;
   int orbitNumber_;
   short runType_;
 
