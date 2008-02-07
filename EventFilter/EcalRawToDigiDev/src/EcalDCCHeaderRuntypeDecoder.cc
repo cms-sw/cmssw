@@ -97,31 +97,31 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
     EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;
     CleanEcalDCCSettingsInfo(&theSettings);
 
-    int dccIdInTCCCommand                    = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
-    int halfInTCCCommand                     = (detTrigType >> H_HALF_B)     &  H_HALF_MASK;
-    int detailedTriggerTypeInTCCCommand      = (detTrigType >> H_TR_TYPE_B)  &  H_TR_TYPE_MASK;
-    int wavelengthInTCCCommand               = (detTrigType >> H_WAVEL_B)    &  H_WAVEL_MASK;
+    int dccIdInTTCCommand                    = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
+    int halfInTTCCommand                     = (detTrigType >> H_HALF_B)     &  H_HALF_MASK;
+    int detailedTriggerTypeInTTCCommand      = (detTrigType >> H_TR_TYPE_B)  &  H_TR_TYPE_MASK;
+    int wavelengthInTTCCommand               = (detTrigType >> H_WAVEL_B)    &  H_WAVEL_MASK;
 
 
-    theHeader-> setRtHalf( halfInTCCCommand );
-    theHeader-> setDccInTCCCommand( dccIdInTCCCommand );
-    if (detailedTriggerTypeInTCCCommand == EcalDCCHeaderBlock::TCC_LASER){
+    theHeader-> setRtHalf( halfInTTCCommand );
+    theHeader-> setDccInTTCCommand( dccIdInTTCCommand );
+    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LASER){
       if(isLocal) theHeader->        setRunType(EcalDCCHeaderBlock::LASER_STD);
       else        theHeader->        setRunType(EcalDCCHeaderBlock::LASER_GAP);
-      theSettings.wavelength = wavelengthInTCCCommand;    }
+      theSettings.wavelength = wavelengthInTTCCommand;    }
     
     
-    if (detailedTriggerTypeInTCCCommand == EcalDCCHeaderBlock::TCC_LED){
+    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
       if(isLocal)  theHeader->      setRunType(EcalDCCHeaderBlock::LED_STD);
       else         theHeader->      setRunType(EcalDCCHeaderBlock::LED_GAP);
     }
     
-    if (detailedTriggerTypeInTCCCommand == EcalDCCHeaderBlock::TCC_TESTPULSE){
+    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_MGPA);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_GAP);
     }
     
-    if (detailedTriggerTypeInTCCCommand == EcalDCCHeaderBlock::TCC_PEDESTAL){
+    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_PEDESTAL){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_STD);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_GAP);
     }
