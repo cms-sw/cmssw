@@ -39,32 +39,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
     if (tmp=="Mode:"){
       in >> mode_;
-      std::cout << "PixelCalibConfiguration mode="<<mode_
-		<< std::endl;
-
-      assert(mode_=="FEDBaselineWithTestDACs"||
-	     mode_=="FEDAddressLevelWithTestDACs"||
-	     mode_=="FEDBaselineWithPixels"||
-	     mode_=="AOHBias"||
-	     mode_=="AOHAndFEDChannelMappingTest"||
-	     mode_=="TBMUB"||
-	     mode_=="ROCUBEqualization"||
-	     mode_=="VsfAndVHldDel"||
-	     mode_=="Iana"||
-	     mode_=="FEDAddressLevelWithPixels"||
-	     mode_=="GainCalibration"||
-             mode_=="GainCalibrationWithSLink"||
-	     mode_=="PixelAlive"||
-             mode_=="PixelAliveWithSLink"||
-	     mode_=="SCurve"||
-             mode_=="SCurveWithSLink"||
-	     mode_=="Delay25"||
-	     mode_=="ClockPhaseCalibration"||
-	     mode_=="TemperatureCalibration"||
-	     mode_=="ThresholdCalDelayFIFO1"||
-	     mode_=="2DEfficiencyScan"||
-	     mode_=="CalDelCalibration"||
-             mode_=="ThresholdCalDelay");
+      std::cout << "PixelCalibConfiguration mode="<<mode_<< std::endl;
       in >>tmp;
     } else {
       mode_="FEDChannelOffsetPixel";
