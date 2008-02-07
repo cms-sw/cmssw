@@ -36,7 +36,12 @@ class L1GctEtMiss {
   /// For use with raw data from the unpacker.
   L1GctEtMiss(uint32_t rawData);
   
+  /// For use with raw data from the unpacker.
+  L1GctEtMiss(uint32_t rawData, int16_t bx);
+  
   L1GctEtMiss(unsigned et, unsigned phi, bool oflow);
+
+  L1GctEtMiss(unsigned et, unsigned phi, bool oflow, int16_t bx);
 
   virtual ~L1GctEtMiss();
 
@@ -58,6 +63,9 @@ class L1GctEtMiss {
   /// get the Et
   unsigned phi() const { return (m_data>>kEtMissPhiShift) & kETMissPhiMask; }
 
+  /// get bunch-crossing index
+  int16_t bx() const { return m_bx; }
+
   /// equality operator
   int operator==(const L1GctEtMiss& e) const { return m_data==e.raw(); }
 
@@ -67,6 +75,7 @@ class L1GctEtMiss {
  private:
 
   uint32_t m_data;
+  int16_t m_bx;
 
 };
 

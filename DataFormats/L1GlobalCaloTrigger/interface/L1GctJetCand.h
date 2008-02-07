@@ -77,7 +77,7 @@ public:
   unsigned capIndex() const { return m_source & 0xff; }
 
   /// get bunch-crossing index
-  int bx() const { return m_bx; }
+  int16_t bx() const { return m_bx; }
 
   /// equality operator
   int operator==(const L1GctJetCand& c) const { return ((m_data==c.raw() && 

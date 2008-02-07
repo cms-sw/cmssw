@@ -27,7 +27,9 @@ class L1GctEtTotal {
 
   L1GctEtTotal();
   L1GctEtTotal(uint16_t rawData);
+  L1GctEtTotal(uint16_t rawData, int16_t bx);
   L1GctEtTotal(unsigned et, bool oflow);
+  L1GctEtTotal(unsigned et, bool oflow, int16_t bx);
   virtual ~L1GctEtTotal();
 
   /// name method
@@ -45,6 +47,9 @@ class L1GctEtTotal {
   /// get the overflow
   bool overFlow() const { return (m_data & kEtTotalOFlowBit)!=0; }
 
+  /// get bunch-crossing index
+  int16_t bx() const { return m_bx; }
+
   /// equality operator
   int operator==(const L1GctEtTotal& e) const { return m_data==e.raw(); }
 
@@ -54,6 +59,7 @@ class L1GctEtTotal {
  private:
 
   uint16_t m_data;
+  int16_t m_bx;
 
 };
 

@@ -27,7 +27,9 @@ class L1GctEtHad {
 
   L1GctEtHad();
   L1GctEtHad(uint16_t rawData);
+  L1GctEtHad(uint16_t rawData, int16_t bx);
   L1GctEtHad(unsigned et, bool oflow);
+  L1GctEtHad(unsigned et, bool oflow, int16_t bx);
   virtual ~L1GctEtHad();
 
   /// name method
@@ -45,6 +47,9 @@ class L1GctEtHad {
   /// get the overflow
   bool overFlow() const { return (m_data & kEtHadOFlowBit)!=0; }
 
+  /// get bunch-crossing index
+  int16_t bx() const { return m_bx; }
+
   /// equality operator
   int operator==(const L1GctEtHad& e) const { return m_data==e.raw(); }
 
@@ -54,6 +59,7 @@ class L1GctEtHad {
  private:
 
   uint16_t m_data;
+  int16_t m_bx;
 
 };
 
