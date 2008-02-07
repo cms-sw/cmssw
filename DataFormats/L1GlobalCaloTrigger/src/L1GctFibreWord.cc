@@ -9,7 +9,7 @@ L1GctFibreWord::L1GctFibreWord() :
 {
 }
 
-L1GctFibreWord::L1GctFibreWord(uint32_t data, uint16_t block, uint16_t index, uint16_t bx) :
+L1GctFibreWord::L1GctFibreWord(uint32_t data, uint16_t block, uint16_t index, int16_t bx) :
   data_(data),
   block_(block),
   index_(index),
