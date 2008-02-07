@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 
 class MonitorUserInterface;
 

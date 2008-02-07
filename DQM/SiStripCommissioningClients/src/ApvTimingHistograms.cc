@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -12,8 +13,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::APV_TIMING ),
-    factory_( new Factory )
+  : CommissioningHistograms( mui, sistrip::APV_TIMING )
 {
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
@@ -23,8 +23,7 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::ApvTimingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::APV_TIMING ),
-    factory_( new Factory )
+  : CommissioningHistograms( bei, sistrip::APV_TIMING )
 {
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
@@ -52,10 +51,10 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Reset minimum / maximum delays
   float time_min =  1. * sistrip::invalid_;
@@ -86,7 +85,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     // Perform histo analysis
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
     anal->analysis( profs );
-    data_[iter->first] = anal; 
+    data()[iter->first] = anal; 
 
     // Check time of rising edge
     if ( anal->time() > sistrip::valid_ ) { continue; }
@@ -148,11 +147,13 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   }
   
   // Set reference time for all analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
-    ianal->second->refTime( time_max ); 
-    if ( ianal->second->isValid() ) { valid++; }
-    if ( !ianal->second->getErrorCodes().empty() ) { 
-      errors[ianal->second->getErrorCodes()[0]]++;
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
+    ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
+    if ( !anal ) { continue; }
+    anal->refTime( time_max ); 
+    if ( anal->isValid() ) { valid++; }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
   }
 
@@ -185,7 +186,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[FastFedCablingHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
@@ -197,21 +198,6 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
-}
-
-// -----------------------------------------------------------------------------	 
-/** */	 
-void ApvTimingHistograms::printAnalyses() {
-  Analyses::iterator ianal = data_.begin();
-  Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { 
-    if ( ianal->second ) { 
-      std::stringstream ss;
-      ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -228,10 +214,18 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
   // Analyze histograms
-  if ( data_.empty() ) { histoAnalysis( false ); }
+  if ( data().empty() ) { histoAnalysis( false ); }
+
+  // Check
+  if ( data().empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[ApvTimingHistograms::" << __func__ << "]"
+      << " No analyses generated!";
+    return;
+  }
   
   // Extract data to be histogrammed
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
+  uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Create summary histogram (if it doesn't already exist)
   TH1* summary = 0;
@@ -239,6 +233,6 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
   // Fill histogram with data
-  factory_->fill( *summary );
+  factory()->fill( *summary );
   
 }

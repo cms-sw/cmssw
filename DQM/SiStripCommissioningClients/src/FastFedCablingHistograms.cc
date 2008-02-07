@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -12,8 +13,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FAST_CABLING ),
-  factory_( new Factory )
+  : CommissioningHistograms( mui, sistrip::FAST_CABLING )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
@@ -23,8 +23,7 @@ FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::FAST_CABLING ),
-  factory_( new Factory )
+  : CommissioningHistograms( bei, sistrip::FAST_CABLING )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
@@ -52,10 +51,10 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Iterate through map containing histograms
   for ( iter = histos().begin(); 
@@ -79,8 +78,10 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FastFedCablingAnalysis* anal = new FastFedCablingAnalysis( iter->first );
+    FedToFecMap::const_iterator ifed = mapping().find( iter->first );
+    if ( ifed != mapping().end() ) { anal->fecKey( ifed->second ); }
     anal->analysis( profs );
-    data_[iter->first] = anal; 
+    data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 
       errors[anal->getErrorCodes()[0]]++;
@@ -104,7 +105,7 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[FastFedCablingHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
@@ -118,34 +119,29 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
   
 }
 
-// -----------------------------------------------------------------------------	 
-/** */	 
-void FastFedCablingHistograms::printAnalyses() {
-  Analyses::iterator ianal = data_.begin();
-  Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { 
-    if ( ianal->second ) { 
-      std::stringstream ss;
-      ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-    }
-  }
-}
-
 // -----------------------------------------------------------------------------
 /** */
 void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
 						   const sistrip::Presentation& pres, 
 						   const std::string& dir,
 						   const sistrip::Granularity& gran ) {
+  LogTrace(mlDqmClient_)
+    << "[FastFedCablingHistograms::" << __func__ << "]";
   
   // Analyze histograms if not done already
-  if ( data_.empty() ) { histoAnalysis( false ); }
+  if ( data().empty() ) { histoAnalysis( false ); }
+
+  // Check
+  if ( data().empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[FastFedCablingHistograms::" << __func__ << "]"
+      << " No analyses generated!";
+    return;
+  }
   
   // Extract data to be histogrammed
   sistrip::View view = SiStripEnumsAndStrings::view(dir);
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
+  uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Use base method to create summary histogram
   TH1* summary = 0;
@@ -153,7 +149,7 @@ void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& m
   else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
   // Fill histogram with data
-  factory_->fill( *summary );
+  factory()->fill( *summary );
   
 }
 

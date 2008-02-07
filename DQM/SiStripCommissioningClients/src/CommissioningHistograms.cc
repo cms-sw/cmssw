@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
@@ -13,26 +14,28 @@ using namespace sistrip;
 /** */
 CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 						  const sistrip::RunType& task ) 
-  : mui_(mui),
+  : task_(task),
+    mui_(mui),
     bei_(0),
-    histos_(),
-    task_(task)
+    data_(),
+    factory_( new Factory ),
+    histos_()
 {
   LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
 
   // MonitorUserInterface
   if ( mui_ ) { bei_ = mui_->getBEInterface(); }
   else {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to MonitorUserInterface!";
   }
   
   // DaqMonitorBEInterface
   if ( !bei_ ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to DaqMonitorBEInterface!";
   }
@@ -44,18 +47,20 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 /** */
 CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
 						  const sistrip::RunType& task ) 
-  : mui_(0),
+  : task_(task),
+    mui_(0),
     bei_(bei),
-    histos_(),
-    task_(task)
+    data_(),
+    factory_( new Factory ),
+    histos_()
 {
   LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
 
   // DaqMonitorBEInterface
   if ( !bei_ ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to DaqMonitorBEInterface!";
   }
@@ -65,9 +70,24 @@ CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
 
 // -----------------------------------------------------------------------------
 /** */
+CommissioningHistograms::CommissioningHistograms() 
+  : task_(sistrip::UNDEFINED_RUN_TYPE),
+    mui_(0),
+    bei_(0),
+    data_(),
+    factory_( new Factory ),
+    histos_()
+{
+  LogTrace(mlDqmClient_)
+    << "[" << __PRETTY_FUNCTION__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 CommissioningHistograms::~CommissioningHistograms() {
   LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
+    << "[" << __PRETTY_FUNCTION__ << "]"
     << " Destructing object...";
   clearHistosMap();
   //@@ do not delete MUI or BEI ptrs!
@@ -89,136 +109,13 @@ void CommissioningHistograms::Histo::print( std::stringstream& ss ) const {
 }
 
 // -----------------------------------------------------------------------------
-// Temporary fix: builds a list of histogram directories
-void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
-					   std::vector<std::string>& contents ) {
-
-#ifndef USING_NEW_COLLATE_METHODS
-  
-  LogTrace(mlDqmClient_) 
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " Building histogram list...";
-
-  contents.clear();
-
-  if ( !bei ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
-  }
-
-  bei->cd();
-  std::vector<MonitorElement*> mons;
-  mons = bei->getAllContents( bei->pwd() );
-  std::vector<MonitorElement*>::const_iterator iter = mons.begin();
-  for ( ; iter != mons.end(); iter++ ) {
-    std::vector<std::string>::iterator istr = contents.begin();
-    bool found = false;
-    while ( !found && istr != contents.end()  ) {
-      if ( std::string((*iter)->getPathname()+"/:") == *istr ) { found = true; }
-      istr++;
-    }
-    if ( istr == contents.end() ) { 
-      std::string temp = (*iter)->getPathname() + "/:"; // + (*iter)->getName();
-      contents.push_back( temp ); 
-    }
-  }
-  
-  LogTrace(mlDqmClient_) 
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " Found " << contents.size() << " directories!";
-
-  if ( contents.empty() ) { 
-    edm::LogWarning(mlDqmClient_) 
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " No directories found when building list!";
-  }
-
-#endif
-  
-}
-
-// -----------------------------------------------------------------------------
-/** Extract run type string from "added contents". */
-sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const bei,
-						   const std::vector<std::string>& contents ) {
-  
-  // Check if histograms present
-  if ( contents.empty() ) { 
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " Found no histograms!";
-    return sistrip::UNKNOWN_RUN_TYPE; 
-  }
-  
-  // Iterate through added contents
-  std::vector<std::string>::const_iterator istr = contents.begin();
-  while ( istr != contents.end() ) {
-
-    // Extract source directory path 
-    std::string source_dir = istr->substr( 0, istr->find(":") );
-    
-    // Generate corresponding client path (removing trailing "/")
-    SiStripFecKey path( source_dir );
-    std::string client_dir = path.path();
-    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
-    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); } 
-#ifdef USING_NEW_COLLATE_METHODS
-    client_dir = "Collate/" + client_dir;
-#endif
-    
-    // Iterate though MonitorElements from source directory
-    std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
-    std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
-    for ( ; ime != me_list.end(); ime++ ) {
-      
-      if ( !(*ime) ) {
-	edm::LogWarning(mlDqmClient_)
-	  << "[CommissioningHistograms::" << __func__ << "]"
-	  << " NULL pointer to MonitorElement!";
-	continue;
-      }
-
-      // Search for run type in string
-      std::string title = (*ime)->getName();
-      std::string::size_type pos = title.find( sistrip::taskId_ );
-
-      // Extract commissioning task from string 
-      if ( pos != std::string::npos ) { 
-	std::string value = title.substr( pos+sistrip::taskId_.size()+1, std::string::npos ); 
-	if ( !value.empty() ) { 
-	  edm::LogVerbatim(mlDqmClient_)
-	    << "[CommissioningHistograms::" << __func__ << "]"
-	    << " Found string \"" <<  title.substr(pos,std::string::npos)
-	    << "\" with value \"" << value << "\"";
-	  if ( !(bei->get(client_dir+sistrip::dir_+title.substr(pos,std::string::npos))) ) { 
-	    bei->setCurrentFolder(client_dir);
-	    bei->bookString( title.substr(pos,std::string::npos), value ); 
-	    edm::LogVerbatim(mlDqmClient_)
-	      << "[CommissioningHistograms::" << __func__ << "]"
-	      << " Booked string \"" << title.substr(pos,std::string::npos)
-	      << "\" in directory \"" << client_dir << "\"";
-	  }
-	  return SiStripEnumsAndStrings::runType( value ); 
-	}
-      }
-
-    }
-
-    istr++;
-    
-  }
-  return sistrip::UNKNOWN_RUN_TYPE;
-}
-
-// -----------------------------------------------------------------------------
 //
 uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
 					     const std::vector<std::string>& contents ) {
   
   // Check if histograms present
   if ( contents.empty() ) { 
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Found no histograms!";
     return 0; 
@@ -246,7 +143,7 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
     for ( ; ime != me_list.end(); ime++ ) {
       
       if ( !(*ime) ) {
-	edm::LogWarning(mlDqmClient_)
+	edm::LogError(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
 	  << " NULL pointer to MonitorElement!";
 	continue;
@@ -260,14 +157,14 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
       if ( pos != std::string::npos ) { 
 	std::string value = title.substr( pos+sistrip::runNumber_.size()+1, std::string::npos ); 
 	if ( !value.empty() ) { 
-	  edm::LogVerbatim(mlDqmClient_)
+	  LogTrace(mlDqmClient_)
 	    << "[CommissioningHistograms::" << __func__ << "]"
 	    << " Found string \"" <<  title.substr(pos,std::string::npos)
 	    << "\" with value \"" << value << "\"";
 	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) { 
 	    bei->setCurrentFolder(client_dir);
 	    bei->bookString( title.substr(pos,std::string::npos), value ); 
-	    edm::LogVerbatim(mlDqmClient_)
+	    LogTrace(mlDqmClient_)
 	      << "[CommissioningHistograms::" << __func__ << "]"
 	      << " Booked string \"" << title.substr(pos,std::string::npos)
 	      << "\" in directory \"" << client_dir << "\"";
@@ -289,15 +186,138 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
 }
 
 // -----------------------------------------------------------------------------
+/** Extract run type string from "added contents". */
+sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const bei,
+						   const std::vector<std::string>& contents ) {
+  
+  // Check if histograms present
+  if ( contents.empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Found no histograms!";
+    return sistrip::UNKNOWN_RUN_TYPE; 
+  }
+  
+  // Iterate through added contents
+  std::vector<std::string>::const_iterator istr = contents.begin();
+  while ( istr != contents.end() ) {
+
+    // Extract source directory path 
+    std::string source_dir = istr->substr( 0, istr->find(":") );
+    
+    // Generate corresponding client path (removing trailing "/")
+    SiStripFecKey path( source_dir );
+    std::string client_dir = path.path();
+    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
+    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); } 
+#ifdef USING_NEW_COLLATE_METHODS
+    client_dir = "Collate/" + client_dir;
+#endif
+    
+    // Iterate though MonitorElements from source directory
+    std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
+    std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
+    for ( ; ime != me_list.end(); ime++ ) {
+      
+      if ( !(*ime) ) {
+	edm::LogError(mlDqmClient_)
+	  << "[CommissioningHistograms::" << __func__ << "]"
+	  << " NULL pointer to MonitorElement!";
+	continue;
+      }
+
+      // Search for run type in string
+      std::string title = (*ime)->getName();
+      std::string::size_type pos = title.find( sistrip::taskId_ );
+
+      // Extract commissioning task from string 
+      if ( pos != std::string::npos ) { 
+	std::string value = title.substr( pos+sistrip::taskId_.size()+1, std::string::npos ); 
+	if ( !value.empty() ) { 
+	  LogTrace(mlDqmClient_)
+	    << "[CommissioningHistograms::" << __func__ << "]"
+	    << " Found string \"" <<  title.substr(pos,std::string::npos)
+	    << "\" with value \"" << value << "\"";
+	  if ( !(bei->get(client_dir+sistrip::dir_+title.substr(pos,std::string::npos))) ) { 
+	    bei->setCurrentFolder(client_dir);
+	    bei->bookString( title.substr(pos,std::string::npos), value ); 
+	    LogTrace(mlDqmClient_)
+	      << "[CommissioningHistograms::" << __func__ << "]"
+	      << " Booked string \"" << title.substr(pos,std::string::npos)
+	      << "\" in directory \"" << client_dir << "\"";
+	  }
+	  return SiStripEnumsAndStrings::runType( value ); 
+	}
+      }
+
+    }
+
+    istr++;
+    
+  }
+  return sistrip::UNKNOWN_RUN_TYPE;
+}
+
+// -----------------------------------------------------------------------------
+// Temporary fix: builds a list of histogram directories
+void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
+					   std::vector<std::string>& contents ) {
+
+#ifndef USING_NEW_COLLATE_METHODS
+  
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Building histogram list...";
+
+  contents.clear();
+
+  if ( !bei ) {
+    edm::LogError(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " NULL pointer to DaqMonitorBEInterface!";
+  }
+
+  bei->cd();
+  std::vector<MonitorElement*> mons;
+  mons = bei->getAllContents( bei->pwd() );
+  std::vector<MonitorElement*>::const_iterator iter = mons.begin();
+  for ( ; iter != mons.end(); iter++ ) {
+    std::vector<std::string>::iterator istr = contents.begin();
+    bool found = false;
+    while ( !found && istr != contents.end()  ) {
+      if ( std::string((*iter)->getPathname()+"/:") == *istr ) { found = true; }
+      istr++;
+    }
+    if ( istr == contents.end() ) { 
+      std::string temp = (*iter)->getPathname() + "/:"; // + (*iter)->getName();
+      contents.push_back( temp ); 
+    }
+  }
+  
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Found " << contents.size() << " directories!";
+
+  if ( contents.empty() ) { 
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " No directories found when building list!";
+  }
+
+#endif
+  
+}
+
+// -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::extractHistograms( const std::vector<std::string>& contents ) {
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Extracting available histograms...";
   
   // Check pointer
   if ( !bei_ ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to DaqMonitorBEInterface!";
     return;
@@ -305,7 +325,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   
   // Check list of histograms
   if ( contents.empty() ) { 
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Empty contents vector!";
     return; 
@@ -326,30 +346,19 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
-//     edm::LogWarning(mlDqmClient_)
-//       << "[CommissioningHistograms::" << __func__ << "]"
-//       << " Source dir: " << source_dir;
 
     // Extract view and create key
     sistrip::View view = SiStripEnumsAndStrings::view( source_dir );
     SiStripKey path;
     if ( view == sistrip::CONTROL_VIEW ) { path = SiStripFecKey( source_dir ); }
     else if ( view == sistrip::READOUT_VIEW ) { path = SiStripFedKey( source_dir ); }
-    else { 
-//       edm::LogWarning(mlDqmClient_)
-// 	<< "[CommissioningHistograms::" << __func__ << "]"
-// 	<< " Unknown view! Building SiStripKey...";
-      path = SiStripKey(); 
-    }
+    else { path = SiStripKey(); }
     
     // Check path is valid
     if ( path.granularity() == sistrip::FEC_SYSTEM ||
 	 path.granularity() == sistrip::FED_SYSTEM || 
 	 path.granularity() == sistrip::UNKNOWN_GRAN ||
 	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
-//       edm::LogWarning(mlDqmClient_)
-// 	<< "[CommissioningHistograms::" << __func__ << "]"
-// 	<< " Invalid granularity: " << std::endl << path;
       continue; 
     }
     
@@ -389,7 +398,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 	   << std::endl << title 
 	   << " found in path " 
 	   << std::endl << path;
-	edm::LogWarning(mlDqmClient_) << ss.str();
+	edm::LogError(mlDqmClient_) << ss.str();
       } else {
 	channel = title.channel();
       }
@@ -404,12 +413,17 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 			     temp.ccuAddr(),
 			     temp.ccuChan(),
 			     channel ).key();
+	mapping_[title.keyValue()] = key;
       } else if ( view == sistrip::READOUT_VIEW ) { 
-	key = SiStripFedKey( path.key() ).key(); 
+	key = SiStripFedKey( path.key() ).key();
+	uint32_t temp = SiStripFecKey( sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       channel ).key(); //@@ just record lld channel
+	mapping_[title.keyValue()] = temp;
       } else { key = SiStripKey( path.key() ).key(); }
-
-      // Fill map (typically FED-FEC, sometimes FEC-FED)
-      mapping_[title.keyValue()] = key;
       
       // Find CME in histos map
       Histo* histo = 0;
@@ -434,18 +448,24 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 	     source_dir.find("EvF") == std::string::npos ) { 
 	  histo->me_ = bei_->get( client_dir +"/"+(*ime)->getName() ); 
 	  if ( !histo->me_ ) { 
-	    edm::LogWarning(mlDqmClient_)
+	    edm::LogError(mlDqmClient_)
 	      << "[CommissioningHistograms::" << __func__ << "]"
 	      << " NULL pointer to MonitorElement!";
 	  }
 	}
 
       }
-      
-    }
-  }
 
+    }
+    
+  }
+  
   //printHistosMap();
+  
+  LogTrace(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Found histograms for " << histos_.size()
+    << " structures in cached histogram map!";
   
 }
 
@@ -455,13 +475,13 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 
 #ifndef USING_NEW_COLLATE_METHODS
 
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Creating collated histograms...";
 
   // Check pointer
   if ( !mui_ ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to MonitorUserInterface!";
     return;
@@ -525,7 +545,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	channel = SiStripFecKey::lldChan( title.channel() );
       } else if ( title.granularity() == sistrip::UNKNOWN_GRAN || 
 		  title.granularity() == sistrip::UNDEFINED_GRAN ) {
-	edm::LogWarning(mlDqmClient_)
+	edm::LogError(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
 	  << " Unexpected granularity for histogram title: "
 	  << title << " found in path " << path;
@@ -585,10 +605,6 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	  if ( histo->cme_ ) { 
 	    mui_->add( histo->cme_, bei_->pwd()+"/"+(*ime) );
 	    histo->me_ = histo->cme_->getMonitorElement(); 
-// 	    LogTrace(mlDqmClient_)
-// 	      << "[CommissioningHistograms::" << __func__ << "]"
-// 	      << " Created histogram with title " << histo->title_
-// 	      << " at location " << bei_->pwd();
 	  }
 	}
 	
@@ -602,10 +618,6 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	  if ( (*ime) == (*ihis)->title_ ) { 
 	    if ( (*ihis)->cme_ ) {
 	      mui_->add( (*ihis)->cme_, bei_->pwd()+"/"+(*ime) );
-// 	      LogTrace(mlDqmClient_)
-// 		<< "[CommissioningHistograms::" << __func__ << "]"
-// 		<< " Added to histogram with title " << (*ihis)->title_
-// 		<< " at location " << bei_->pwd();
 	    }
 	    break; 
 	  }
@@ -618,9 +630,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   
   //printHistosMap();
 
-  edm::LogVerbatim(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " Created collated histograms!";
+  LogTrace(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Found histograms for " << histos_.size()
+    << " structures in cached histogram map!";
   
 #endif
 
@@ -628,19 +641,55 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::clearHistosMap() {
+void CommissioningHistograms::histoAnalysis( bool debug ) {
   LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Clearing histogram map...";
-  HistosMap::iterator ihistos = histos_.begin();
-  for ( ; ihistos != histos_.end(); ihistos++ ) {
-    Histos::iterator ihisto = ihistos->second.begin();
-    for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
-      if ( *ihisto ) { delete *ihisto; }
+    << " (Derived) implementation to come...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::printAnalyses() {
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
-    ihistos->second.clear();
   }
-  histos_.clear();
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::printSummary() {
+
+  std::stringstream good;
+  std::stringstream bad;
+  
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      if ( ianal->second->isValid() ) { ianal->second->summary( good ); }
+      else { ianal->second->summary( bad ); }
+    }
+  }
+
+  if ( good.str().empty() ) { good << "None found!"; }
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Printing summary of good analyses:" << "\n"
+    << good.str();
+  
+  if ( bad.str().empty() ) { return; } //@@ bad << "None found!"; }
+  edm::LogWarning(mlDqmClient_) 
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Printing summary of bad analyses:" << "\n"
+    << bad.str();
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -667,18 +716,19 @@ void CommissioningHistograms::printHistosMap() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::histoAnalysis( bool debug ) {
+void CommissioningHistograms::clearHistosMap() {
   LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::printAnalyses() {
-  LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come...";
+    << " Clearing histogram map...";
+  HistosMap::iterator ihistos = histos_.begin();
+  for ( ; ihistos != histos_.end(); ihistos++ ) {
+    Histos::iterator ihisto = ihistos->second.begin();
+    for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
+      if ( *ihisto ) { delete *ihisto; }
+    }
+    ihistos->second.clear();
+  }
+  histos_.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -694,128 +744,10 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& hi
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::addDcuDetIds() {
-  LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come..."; 
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::uploadToConfigDb() {
-  LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come..."; 
-}
-
-// -----------------------------------------------------------------------------
-/** Wraps other createSummaryHisto() method. */
-void CommissioningHistograms::createSummaryHisto( pair<sistrip::Monitorable,
-						  sistrip::Presentation> summ0, 
-						  pair<std::string,
-						  sistrip::Granularity> summ1 ) {
-  createSummaryHisto( summ0.first, summ0.second, summ1.first, summ1.second );
-}
-
-// -----------------------------------------------------------------------------
-// 
-TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon, 
-					 const sistrip::Presentation& pres, 
-					 const sistrip::View& view,
-					 const std::string& directory,
-					 const uint32_t& xbins, 
-					 const float& xlow,
-					 const float& xhigh ) {
-  
-  // Remember pwd 
-  std::string pwd = bei_->pwd();
-#ifdef USING_NEW_COLLATE_METHODS
-  bei_->setCurrentFolder( "Collate/"+directory );
-#else
-  bei_->setCurrentFolder( directory );
-#endif
-  
-  // Construct histogram name 
-  std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
-  
-  // Check if summary plot already exists and remove
-  MonitorElement* me = bei_->get( bei_->pwd() + "/" + name );
-  if ( me ) { 
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " Summary plots with name \"" << me->getName()
-      << "\" already exists! Removing..."; 
-    mui_->getBEInterface()->removeElement( name );
-    me = 0;
-  } 
-  
-  // Create summary plot
-  float high = static_cast<float>( xbins );
-  if ( pres == sistrip::HISTO_1D ) { 
-    if ( xlow < 1. * sistrip::valid_ && 
-	 xhigh < 1. * sistrip::valid_ ) { 
-      me = mui_->getBEInterface()->book1D( name, name, xbins, xlow, xhigh ); 
-    } else {
-      me = mui_->getBEInterface()->book1D( name, name, xbins, 0., high ); 
-    }
-  } else if ( pres == sistrip::HISTO_2D_SUM ) { 
-    me = mui_->getBEInterface()->book1D( name, name, 
-					 xbins, 0., high ); 
-  } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
-    me = mui_->getBEInterface()->book2D( name, name, xbins, 0., high, 
-					 sistrip::FED_ADC_RANGE+1, 
-					 0., 
-					 sistrip::FED_ADC_RANGE*1. ); 
-  } else if ( pres == sistrip::PROFILE_1D ) { 
-    me = mui_->getBEInterface()->bookProfile( name, name, xbins, 0., high, 
-					      sistrip::FED_ADC_RANGE+1, 
-					      0., 
-					      sistrip::FED_ADC_RANGE*1. ); 
-  } else { 
-    me = 0; 
-    LogTrace(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " Unexpected presentation \"" 
-      << SiStripEnumsAndStrings::presentation( pres )
-      << "\" Unable to create summary plot!";
-  }
-  
-  // Check pointer
-  if ( me ) { 
-    LogTrace(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " Created summary plot with name \"" << me->getName()
-      << "\" in directory \""
-      << bei_->pwd() << "\"!"; 
-  } else {
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to MonitorElement!"
-      << " Unable to create summary plot!";
-  }
-  
-  // Extract root object
-  TH1* summary = ExtractTObject<TH1>().extract( me ); 
-  if ( !summary ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " Unable to extract root object!"
-      << " Returning NULL pointer!"; 
-  }
-  
-  // Return to pwd
-  bei_->setCurrentFolder( pwd );
-  
-  return summary;
-  
-}
-
-// -----------------------------------------------------------------------------
-/** */
 void CommissioningHistograms::remove( std::string pattern ) {
   
   if ( !mui_ ) { 
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to MonitorUserInterface!"; 
     return;
@@ -823,7 +755,7 @@ void CommissioningHistograms::remove( std::string pattern ) {
   
   mui_->getBEInterface()->setVerbose(0);
 
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Removing histograms...";
   
@@ -860,7 +792,7 @@ void CommissioningHistograms::remove( std::string pattern ) {
     
   }
 
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Removed histograms!";
 
@@ -874,7 +806,7 @@ void CommissioningHistograms::save( std::string& path,
 				    uint32_t run_number ) {
   
   if ( !mui_ ) { 
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NULL pointer to MonitorUserInterface!"; 
     return;
@@ -909,10 +841,10 @@ void CommissioningHistograms::save( std::string& path,
   }
   
   // Save file with appropriate filename
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Saving histograms to root file \""
-    << ss.str() << "\"... (This may take some time!)";
+    << " Saving histograms to root file"
+    << " (This may take some time!)";
   path = ss.str();
 #ifdef USING_NEW_COLLATE_METHODS
   bei_->save( path, "Collate" ); 
@@ -921,6 +853,97 @@ void CommissioningHistograms::save( std::string& path,
 #endif 
   edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Saved histograms to root file!";
+    << " Saved histograms to root file \""
+    << ss.str() << "\"!";
   
 }
+
+// -----------------------------------------------------------------------------
+// 
+TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon, 
+					 const sistrip::Presentation& pres, 
+					 const sistrip::View& view,
+					 const std::string& directory,
+					 const uint32_t& xbins, 
+					 const float& xlow,
+					 const float& xhigh ) {
+  
+  // Remember pwd 
+  std::string pwd = bei_->pwd();
+#ifdef USING_NEW_COLLATE_METHODS
+  bei_->setCurrentFolder( "Collate/"+directory );
+#else
+  bei_->setCurrentFolder( directory );
+#endif
+  
+  // Construct histogram name 
+  std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
+  
+  // Check if summary plot already exists and remove
+  MonitorElement* me = bei_->get( bei_->pwd() + "/" + name );
+  if ( me ) { 
+    mui_->getBEInterface()->removeElement( name );
+    me = 0;
+  } 
+  
+  // Create summary plot
+  float high = static_cast<float>( xbins );
+  if ( pres == sistrip::HISTO_1D ) { 
+    if ( xlow < 1. * sistrip::valid_ && 
+	 xhigh < 1. * sistrip::valid_ ) { 
+      me = mui_->getBEInterface()->book1D( name, name, xbins, xlow, xhigh ); 
+    } else {
+      me = mui_->getBEInterface()->book1D( name, name, xbins, 0., high ); 
+    }
+  } else if ( pres == sistrip::HISTO_2D_SUM ) { 
+    me = mui_->getBEInterface()->book1D( name, name, 
+					 xbins, 0., high ); 
+  } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
+    me = mui_->getBEInterface()->book2D( name, name, xbins, 0., high, 
+					 sistrip::FED_ADC_RANGE+1, 
+					 0., 
+					 sistrip::FED_ADC_RANGE*1. ); 
+  } else if ( pres == sistrip::PROFILE_1D ) { 
+    me = mui_->getBEInterface()->bookProfile( name, name, xbins, 0., high, 
+					      sistrip::FED_ADC_RANGE+1, 
+					      0., 
+					      sistrip::FED_ADC_RANGE*1. ); 
+  } else { 
+    me = 0; 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Unexpected presentation \"" 
+      << SiStripEnumsAndStrings::presentation( pres )
+      << "\" Unable to create summary plot!";
+  }
+  
+  // Check pointer
+  if ( me ) { 
+    LogTrace(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Created summary plot with name \"" << me->getName()
+      << "\" in directory \""
+      << bei_->pwd() << "\"!"; 
+  } else {
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " NULL pointer to MonitorElement!"
+      << " Unable to create summary plot!";
+  }
+  
+  // Extract root object
+  TH1* summary = ExtractTObject<TH1>().extract( me ); 
+  if ( !summary ) {
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Unable to extract root object!"
+      << " Returning NULL pointer!"; 
+  }
+  
+  // Return to pwd
+  bei_->setCurrentFolder( pwd );
+  
+  return summary;
+  
+}
+

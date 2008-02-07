@@ -3,11 +3,11 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/LatencySummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/LatencyAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/LatencyAnalysis.h"
 
 class MonitorUserInterface;
 
-class LatencyHistograms : public CommissioningHistograms {
+class LatencyHistograms : virtual public CommissioningHistograms {
 
  public:
   

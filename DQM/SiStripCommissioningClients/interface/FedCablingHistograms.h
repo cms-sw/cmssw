@@ -3,12 +3,12 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/FedCablingSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
 
 class MonitorUserInterface;
 class DaqMonitorBEInterface;
 
-class FedCablingHistograms : public CommissioningHistograms {
+class FedCablingHistograms : virtual public CommissioningHistograms {
 
  public:
   

@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 
 class MonitorUserInterface;
 

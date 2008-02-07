@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.24 2007/12/19 18:14:38 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.25 2008/01/25 15:06:40 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
+//#include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
@@ -48,7 +48,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     map_(),
     plots_()
 {
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Constructing object...";
   setInputFiles( inputFiles_,
@@ -60,7 +60,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
 // -----------------------------------------------------------------------------
 // 
 SiStripCommissioningOfflineClient::~SiStripCommissioningOfflineClient() {
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Destructing object...";
 }
@@ -68,7 +68,7 @@ SiStripCommissioningOfflineClient::~SiStripCommissioningOfflineClient() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup ) {
-  edm::LogVerbatim(mlDqmClient_) 
+  LogTrace(mlDqmClient_) 
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Analyzing root file(s)...";
 
@@ -114,7 +114,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     }
   }
   if ( clientHistos_ && inputFiles_.size() == 1 ) {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Collated histograms found in input root file \""
       << inputFiles_[0] << "\"";
@@ -147,19 +147,22 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << " Aborting...";
     return;
   }
-  bei->setVerbose(3); //@@
+  bei->setVerbose(0);
   
   // Open root file(s) and create ME's
   if ( inputFiles_.empty() ) {
-    edm::LogVerbatim(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No input root files specified!";
     return;
   }
 
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Opening root files. This may take some time!...";
   std::vector<std::string>::const_iterator jfile = inputFiles_.begin();
   for ( ; jfile != inputFiles_.end(); jfile++ ) {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Opening root file \"" << *jfile
       << "\"... (This may take some time.)";
@@ -174,11 +177,11 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 #else
     bei->open( *jfile );
 #endif
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Opened root file \"" << *jfile << "\"!";
   }
-
+  
   // Retrieve list of histograms
   std::vector<std::string> contents;
   bei->getContents( contents ); 
@@ -192,33 +195,26 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       if ( istr->find("Collector") == std::string::npos &&
 	   istr->find("EvF") == std::string::npos &&
 	   istr->find("Collate") != std::string::npos ) { 
+	temp.push_back( *istr );
+      }
 #else
       if ( istr->find("Collector") == std::string::npos &&
 	   istr->find("EvF") == std::string::npos &&
 	   istr->find("FU") == std::string::npos ) { 
-#endif
 	temp.push_back( *istr );
       }
+#endif
     }
     contents.clear();
     contents = temp;
   }
   
   // Some debug
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Found " << contents.size() 
     << " directories containing MonitorElements in "
     << inputFiles_.size() << " root files";
-//   std::stringstream sss;
-//   sss << std::endl;
-//   std::vector<std::string>::iterator jstr = contents.begin();
-//   for ( ; jstr != contents.end(); jstr++ ) {
-//     sss << " " << *jstr << std::endl;
-//   }
-//   LogTrace(mlDqmClient_)
-//     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-//     << " Dump of contents: " << sss.str();
   
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 
@@ -228,13 +224,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Check runType
   if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Unknown commissioning runType: " 
       << SiStripEnumsAndStrings::runType( runType_ );
     return;
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Run type is " 
       << SiStripEnumsAndStrings::runType( runType_ )
@@ -243,18 +239,18 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Open and parse "summary plot" xml file
   if ( createSummaryPlots_ ) {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsing summary plot XML file...";
     SummaryPlotXmlParser xml_file;
     xml_file.parseXML(xmlFile_);
     plots_ = xml_file.summaryPlots(runType_);
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsed summary plot XML file and found " 
       << plots_.size() << " plots defined!";
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Null string for SummaryPlotXmlFile!"
       << " No summary plots will be created!";
@@ -283,50 +279,30 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   edm::LogVerbatim(mlDqmClient_) << ss.str();
 
   // Virtual method that creates CommissioningHistogram object
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Creating CommissioningHistogram object...";
-  createCommissioningHistograms(); 
+  createHistos(); 
   if ( histos_ ) {
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Created CommissioningHistogram object!";
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " NULL pointer to CommissioningHistogram object!"
       << " Aborting...";
     return;
   }
   
-  // Virtual method to switch on test mode for database uploads
-  testUploadToDb();
-  
   // Perform collation
-//    if ( collateHistos_ ) { 
-    if ( histos_ ) { 
-#ifdef USING_NEW_COLLATE_METHODS
-      histos_->extractHistograms( contents ); 
-#else
-      if ( !clientHistos_ ) { histos_->createCollations( contents ); }
-      else { histos_->extractHistograms( contents ); }
-#endif
-    }
-//   } else {
-// #ifdef USING_NEW_COLLATE_METHODS
-//       histos_->extractHistograms( contents ); 
-// #else
-//       edm::LogWarning(mlDqmClient_)
-// 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-// 	<< " No histogram collation performed!";
-// #endif
-//   }
-
   if ( histos_ ) { 
-    edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " Found histograms for " << histos_->histos().size()
-      << " structures in cached histogram map!";
+#ifdef USING_NEW_COLLATE_METHODS
+    histos_->extractHistograms( contents ); 
+#else
+    if ( !clientHistos_ ) { histos_->createCollations( contents ); }
+    else { histos_->extractHistograms( contents ); }
+#endif
   }
 
   // Trigger update methods
@@ -339,30 +315,26 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Triggered update of histograms!";
-// #else
-//   edm::LogWarning(mlDqmClient_) 
-//     << "[SiStripCommissioningOfflineClient::" << __func__ << "]" 
-//     << " WARNING: No access to doSummary() method! >>> Inform expert! <<<";
 #endif
   
   // Perform analysis
   if ( analyzeHistos_ ) { 
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Analyzing histograms...";
     if ( histos_ ) { histos_->histoAnalysis( true ); }
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Analyzed histograms!";
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No histogram analysis performed!";
   }
   
   // Create summary plots
   if ( createSummaryPlots_ ) { 
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generating summary plots...";
     std::vector<SummaryPlot>::const_iterator iplot =  plots_.begin();
@@ -374,93 +346,48 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 				     iplot->granularity() );
       }
     }
-    edm::LogVerbatim(mlDqmClient_)
+    LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generated summary plots!";
   } else {
-    edm::LogVerbatim(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No summary plots generated!";
   }
   
   // Save client root file
   if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
-  //if ( !clientHistos_ && histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
-  
-  // Add DCUid and DetIds to analyses
-  if ( histos_ ) { histos_->addDcuDetIds(); }
-  
-  // Print analyses
-  if ( histos_ ) { histos_->printAnalyses(); }
   
   // Virtual method to trigger the database upload
-  uploadToDb();
+  uploadToConfigDb();
+  
+  // Print analyses
+  if ( histos_ ) { 
+    histos_->printAnalyses(); 
+    histos_->printSummary(); 
+  }
   
   // Remove all ME/CME objects and delete MUI
   if ( histos_ ) { histos_->remove(); }
   if ( mui_ ) { 
     if ( mui_->getBEInterface() ) { 
-      mui_->getBEInterface()->setVerbose(3); 
+      mui_->getBEInterface()->setVerbose(0); 
     }
     delete mui_; 
   }
   
-  edm::LogVerbatim(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Finished analyzing root file(s)...";
   
 }
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripCommissioningOfflineClient::createCommissioningHistograms() {
-
-  // Check pointer
-  if ( histos_ ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " CommissioningHistogram object already exists!"
-      << " Aborting...";
-    return;
-  } 
-
-  // Check pointer to MUI
-  if ( !mui_ ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
-    return;
-  }
-
-  // Create "commissioning histograms" object 
-  if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::FED_CABLING )          { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::APV_TIMING )           { histos_ = new ApvTimingHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(   mui_ ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(   mui_ ); }
-  else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::APV_LATENCY )          { histos_ = new LatencyHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::FINE_DELAY )           { histos_ = new FineDelayHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::CALIBRATION      ||
-            runType_ == sistrip::CALIBRATION_DECO ||
-            runType_ == sistrip::CALIBRATION_SCAN ||
-            runType_ == sistrip::CALIBRATION_SCAN_DECO) { histos_ = new CalibrationHistograms( mui_,runType_ ); }
-  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
-  else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE )   { 
-    histos_ = 0;
-    edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " Unknown run type!";
-  }
   
-}
-
 // -----------------------------------------------------------------------------
 // 
 void SiStripCommissioningOfflineClient::analyze( const edm::Event& event, 
 						 const edm::EventSetup& setup ) {
   if ( !(event.id().event()%10) ) {
-    edm::LogVerbatim(mlDqmClient_) 
+    LogTrace(mlDqmClient_) 
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Empty event loop! User can kill job...";
   }
@@ -469,6 +396,56 @@ void SiStripCommissioningOfflineClient::analyze( const edm::Event& event,
 // -----------------------------------------------------------------------------
 // 
 void SiStripCommissioningOfflineClient::endJob() {}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripCommissioningOfflineClient::createHistos() {
+  
+  // Check pointer
+  if ( histos_ ) {
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " CommissioningHistogram object already exists!"
+      << " Aborting...";
+    return;
+  } 
+  
+  // Check pointer to MUI
+  if ( !mui_ ) {
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " NULL pointer to MonitorUserInterface!";
+    return;
+  }
+
+  // Create "commissioning histograms" object 
+  if      ( runType_ == sistrip::FAST_CABLING )         { histos_ = new FastFedCablingHistograms( mui_ ); }
+  else if ( runType_ == sistrip::FED_CABLING )          { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( runType_ == sistrip::APV_TIMING )           { histos_ = new ApvTimingHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::APV_LATENCY )          { histos_ = new LatencyHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::FINE_DELAY )           { histos_ = new FineDelayHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::CALIBRATION      ||
+	    runType_ == sistrip::CALIBRATION_DECO ||
+	    runType_ == sistrip::CALIBRATION_SCAN ||
+	    runType_ == sistrip::CALIBRATION_SCAN_DECO) { histos_ = new CalibrationHistograms( mui_,runType_ ); }
+  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
+    histos_ = 0; 
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Undefined run type!";
+    return;
+  } else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE )   { 
+    histos_ = 0;
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Unknown run type!";
+    return;
+  }
+  
+}
 
 // -----------------------------------------------------------------------------
 // 
@@ -490,7 +467,7 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
   DIR* dp;
   struct dirent* dirp;
   if ( (dp = opendir(path.c_str())) == NULL ) {
-    edm::LogWarning(mlDqmClient_) 
+    edm::LogError(mlDqmClient_) 
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Error locating directory \"" << path
       << "\". No such directory!";
@@ -521,9 +498,9 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
     std::vector<std::string>::const_iterator ifile = files.begin();
     std::vector<std::string>::const_iterator jfile = files.end();
     for ( ; ifile != jfile; ++ifile ) { ss << std::endl << *ifile; }
-    edm::LogWarning(mlDqmClient_) << ss.str();
+    edm::LogError(mlDqmClient_) << ss.str();
   } else if ( files.empty() ) {
-    edm::LogWarning(mlDqmClient_)
+    edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No input files found!" ;
   }

@@ -1,5 +1,5 @@
 <use name=DataFormats/SiStripCommon>
-<use name=DQM/SiStripCommissioningAnalysis>
+<use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommissioningSummary>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
@@ -20,7 +20,7 @@
 <export>
   <lib name=DQMSiStripCommissioningClients>
   <use name=DataFormats/SiStripCommon>
-  <use name=DQM/SiStripCommissioningAnalysis>
+  <use name=CondFormats/SiStripObjects>
   <use name=DQM/SiStripCommissioningSummary>
   <use name=DQM/SiStripCommon>
   <use name=DQMServices/Core>

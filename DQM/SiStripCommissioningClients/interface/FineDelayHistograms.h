@@ -3,11 +3,11 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/FineDelaySummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/FineDelayAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/FineDelayAnalysis.h"
 
 class MonitorUserInterface;
 
-class FineDelayHistograms : public CommissioningHistograms {
+class FineDelayHistograms : virtual public CommissioningHistograms {
 
  public:
   

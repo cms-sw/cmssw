@@ -3,11 +3,11 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/CalibrationSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/CalibrationAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 
 class MonitorUserInterface;
 
-class CalibrationHistograms : public CommissioningHistograms {
+class CalibrationHistograms : virtual public CommissioningHistograms {
 
  public:
   

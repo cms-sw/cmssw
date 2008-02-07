@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -12,8 +13,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
-    factory_( new Factory )
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistograms::" << __func__ << "]"
@@ -23,8 +23,7 @@ OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistograms::OptoScanHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::OPTO_SCAN ),
-    factory_( new Factory )
+  : CommissioningHistograms( bei, sistrip::OPTO_SCAN )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistograms::" << __func__ << "]"
@@ -42,6 +41,8 @@ OptoScanHistograms::~OptoScanHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void OptoScanHistograms::histoAnalysis( bool debug ) {
+  LogTrace(mlDqmClient_)
+    << "[OptoScanHistograms::" << __func__ << "]";
 
   // Some initialisation
   uint16_t valid = 0;
@@ -50,10 +51,10 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
-  data_.clear();
+  data().clear();
   
   // Iterate through map containing histograms
   for ( iter = histos().begin();
@@ -78,7 +79,7 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     // Perform histo analysis
     OptoScanAnalysis* anal = new OptoScanAnalysis( iter->first );
     anal->analysis( profs );
-    data_[iter->first] = anal; 
+    data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 
       errors[anal->getErrorCodes()[0]]++;
@@ -115,7 +116,7 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
 	ss << " " << ii->first << ": " << ii->second << std::endl;
 	count += ii->second;
       }
-      edm::LogVerbatim(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[FastFedCablingHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
@@ -127,25 +128,6 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
-}
-
-// -----------------------------------------------------------------------------	 
-/** */
-void OptoScanHistograms::printAnalyses() {
-  Analyses::iterator ianal = data_.begin();
-  Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) { 
-    if ( ianal->second ) { 
-      std::stringstream ss;
-      if ( true ) { ianal->second->print( ss, ianal->second->gain() ); }
-      else {
-	ss << " Gain setting " << ianal->second->gain() << " is optimum setting!" << std::endl;
-	for ( uint16_t igain = 0; igain < 4; ++igain ) { ianal->second->print( ss, igain ); }
-      }
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -162,10 +144,18 @@ void OptoScanHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  if ( data_.empty() ) { histoAnalysis( false ); }
+  if ( data().empty() ) { histoAnalysis( false ); }
+
+  // Check
+  if ( data().empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[OptoScanHistograms::" << __func__ << "]"
+      << " No analyses generated!";
+    return;
+  }
   
   // Extract data to be histogrammed
-  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
+  uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Create summary histogram (if it doesn't already exist)
   TH1* summary = 0;
@@ -173,6 +163,6 @@ void OptoScanHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
   // Fill histogram with data
-  factory_->fill( *summary );
+  factory()->fill( *summary );
 
 }
