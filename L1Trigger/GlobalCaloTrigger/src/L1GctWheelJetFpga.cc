@@ -20,7 +20,7 @@ const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
 const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
 const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
 const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = std::min(L1GctJetCounterSetup::MAX_JET_COUNTERS,
-                                                                L1GctJetCounts::MAX_COUNTS);
+                                                                L1GctJetCounts::MAX_TRUE_COUNTS);
 
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
