@@ -66,7 +66,7 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"logId "<<result.logId<<"\n";
     std::cout<<"destinationDB "<<result.destinationDB<<"\n";
     std::cout<<"provenance "<<result.provenance<<"\n";
-    std::cout<<"comment "<<result.comment<<"\n";
+    std::cout<<"usertext "<<result.usertext<<"\n";
     std::cout<<"iovtag "<<result.iovtag<<"\n";
     std::cout<<"iovtimetype "<<result.iovtimetype<<"\n";
     std::cout<<"payloadIdx "<<result.payloadIdx<<"\n";

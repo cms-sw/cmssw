@@ -317,11 +317,11 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
   return std::make_pair(payloadIdx,iovToken);
 }
 void
-cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& comment)
+cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& usertext)
 {
   cond::service::UserLogInfo& myloginfo=this->lookUpUserLogInfo(EventSetupRecordName);
   myloginfo.provenance=dataprovenance;
-  myloginfo.comment=comment;
+  myloginfo.usertext=usertext;
 }
 const cond::Logger& 
 cond::service::PoolDBOutputService::queryLog()const{

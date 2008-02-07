@@ -7,7 +7,7 @@ namespace cond{
     unsigned long long logId;
     std::string destinationDB;   
     std::string provenance;
-    std::string comment;
+    std::string usertext;
     std::string iovtag;
     std::string iovtimetype;
     unsigned int payloadIdx;

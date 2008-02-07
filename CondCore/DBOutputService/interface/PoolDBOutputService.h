@@ -235,7 +235,7 @@ namespace cond{
       // optional. User can inject additional information into the log associated with a given record
       void setLogHeaderForRecord(const std::string& EventSetupRecordName,
 			   const std::string& provenance,
-			   const std::string& comment);
+			   const std::string& usertext);
       // 
       // Retrieve tag information of the data
       // 

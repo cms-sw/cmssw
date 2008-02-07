@@ -6,7 +6,7 @@ namespace cond{
     class UserLogInfo{
     public:
       std::string provenance;
-      std::string comment;
+      std::string usertext;
     };
     class NullUserLogInfo : public UserLogInfo{
     };

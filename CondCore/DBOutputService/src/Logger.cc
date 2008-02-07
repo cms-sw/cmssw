@@ -111,7 +111,7 @@ cond::Logger::createLogDBIfNonExist(){
 
   description.insertColumn(std::string("PROVENANCE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  description.insertColumn(std::string("COMMENT"),
+  description.insertColumn(std::string("USERTEXT"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.insertColumn(std::string("EXECMESSAGE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
@@ -184,7 +184,7 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
   query->defineOutputType( "max_logid", "unsigned long long" );
   query->addToOutputList( "DESTINATIONDB" );
   query->addToOutputList( "PROVENANCE" );
-  query->addToOutputList( "COMMENT" );
+  query->addToOutputList( "USERTEXT" );
   query->addToOutputList( "IOVTAG" );
   query->addToOutputList( "IOVTIMETYPE" );
   query->addToOutputList( "PAYLOADINDEX","payloadindex" );
@@ -203,7 +203,7 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
     logentry.logId=row["max_logid"].data<unsigned long long>();
     logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
     logentry.provenance=row["PROVENANCE"].data<std::string>();
-    logentry.comment=row["COMMENT"].data<std::string>();
+    logentry.usertext=row["USERTEXT"].data<std::string>();
     logentry.iovtag=row["IOVTAG"].data<std::string>();
     logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
     logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
@@ -237,7 +237,7 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
   query->defineOutputType( "max_logid", "unsigned long long" );
   query->addToOutputList( "DESTINATIONDB" );
   query->addToOutputList( "PROVENANCE" );
-  query->addToOutputList( "COMMENT" );
+  query->addToOutputList( "USERTEXT" );
   query->addToOutputList( "IOVTAG" );
   query->addToOutputList( "IOVTIMETYPE" );
   query->addToOutputList( "PAYLOADINDEX","payloadindex" );
@@ -256,7 +256,7 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     logentry.logId=row["max_logid"].data<unsigned long long>();
     logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
     logentry.provenance=row["PROVENANCE"].data<std::string>();
-    logentry.comment=row["COMMENT"].data<std::string>();
+    logentry.usertext=row["USERTEXT"].data<std::string>();
     logentry.iovtag=row["IOVTAG"].data<std::string>();
     logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
     logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
@@ -292,7 +292,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData.extend<std::string>("PAYLOADNAME");
     rowData.extend<std::string>("PAYLOADTOKEN");
     rowData.extend<std::string>("PROVENANCE");
-    rowData.extend<std::string>("COMMENT");
+    rowData.extend<std::string>("USERTEXT");
     rowData.extend<std::string>("IOVTAG");
     rowData.extend<std::string>("IOVTIMETYPE");
     rowData.extend<unsigned int>("PAYLOADINDEX");
@@ -304,7 +304,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["PAYLOADNAME"].data< std::string >() = payloadName;
     rowData["PAYLOADTOKEN"].data< std::string >() = payloadToken;
     rowData["PROVENANCE"].data< std::string >() = userLogInfo.provenance;
-    rowData["COMMENT"].data< std::string >() = userLogInfo.comment;
+    rowData["USERTEXT"].data< std::string >() = userLogInfo.usertext;
     rowData["IOVTAG"].data< std::string >() = iovtag;
     rowData["IOVTIMETYPE"].data< std::string >() = iovtimetype;
     rowData["PAYLOADINDEX"].data< unsigned int >() = payloadIdx;
