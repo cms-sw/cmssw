@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 18:58:23 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/04 21:37:08 $
+ *  $Revision: 1.19 $
  *  \author A. Tumanov - Rice
  */
 
@@ -79,6 +79,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 	  int strip = digi.getStrip();
 	  if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
 	  if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
+	  if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
           cscData.add(digi, cscDetId.layer() );    
         }
     }
