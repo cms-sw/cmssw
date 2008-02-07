@@ -1,25 +1,26 @@
 #ifndef PhysicsTools_PatUtils_ElectronSelector_h
 #define PhysicsTools_PatUtils_ElectronSelector_h
 
-///
-/// \class ElectronSelector ElectronSelector.h "PhysicsTools/PatUtils/ElectronSelector.h"
-/// \brief Selects good electrons
-///
-/// The electron selector returns a boolean decision based on one of the possible
-/// selections: either eId-based (cut, likelihood, neural net) or custom (user-defined
-/// set of cuts). This is driven by the configuration parameters.
-///   PSet configuration = {
-///     string type = "none | cut | likelihood | neuralnet | custom"
-///     [ double value = xxx  // likelihood/neuralnet cut value ]
-///     [ // List of custom cuts
-///       double ... = xxx
-///       double ... = xxx
-///       double ... = xxx 
-///     ]
-///   }
-///
-/// \author F. Ronga (ETH Zurich)
-/// \version $Id: ElectronSelector.h,v 1.3 2008/01/30 15:54:34 fronga Exp $
+/**
+    \class ElectronSelector ElectronSelector.h "PhysicsTools/PatUtils/ElectronSelector.h"
+    \brief Selects good electrons
+   
+    The electron selector returns a flag (passed=0) based on one of the possible
+    selections: either eId-based (cut, likelihood, neural net) or custom (user-defined
+    set of cuts). This is driven by the configuration parameters.
+      PSet configuration = {
+        string type = "none | cut | likelihood | neuralnet | custom"
+        [ double value = xxx  // likelihood/neuralnet cut value ]
+        [ // List of custom cuts
+          double ... = xxx
+          double ... = xxx
+          double ... = xxx 
+        ]
+      }
+   
+    \author F. Ronga (ETH Zurich)
+    \version $Id: ElectronSelector.h,v 1.4 2008/02/04 14:20:55 fronga Exp $
+**/
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
