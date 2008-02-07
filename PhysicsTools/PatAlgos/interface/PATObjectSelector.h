@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSelector.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: PATObjectSelector.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
@@ -14,6 +14,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
@@ -36,6 +37,10 @@ namespace pat {
               std::vector<Tau>,
               StringCutObjectSelector<Tau>
           > PATTauSelector;
+  typedef SingleObjectSelector<
+              std::vector<Photon>,
+              StringCutObjectSelector<Photon>
+          > PATPhotonSelector;
   typedef SingleObjectSelector<
               std::vector<Jet>,
               StringCutObjectSelector<Jet>

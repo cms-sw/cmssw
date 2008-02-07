@@ -1,5 +1,5 @@
 //
-// $Id: ObjectFilter.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: PATObjectFilter.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectFilter_h
@@ -14,6 +14,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
@@ -26,6 +27,7 @@ namespace pat {
   typedef ObjectCountFilter<std::vector<Electron>, AnySelector, MinNumberSelector> PATElectronMinFilter;
   typedef ObjectCountFilter<std::vector<Muon>,     AnySelector, MinNumberSelector> PATMuonMinFilter;
   typedef ObjectCountFilter<std::vector<Tau>,      AnySelector, MinNumberSelector> PATTauMinFilter;
+  typedef ObjectCountFilter<std::vector<Photon>,   AnySelector, MinNumberSelector> PATPhotonMinFilter;
   typedef ObjectCountFilter<std::vector<Jet>,      AnySelector, MinNumberSelector> PATJetMinFilter;
   typedef ObjectCountFilter<std::vector<MET>,      AnySelector, MinNumberSelector> PATMETMinFilter;
   typedef ObjectCountFilter<std::vector<Particle>, AnySelector, MinNumberSelector> PATParticleMinFilter;
@@ -33,6 +35,7 @@ namespace pat {
   typedef ObjectCountFilter<std::vector<Electron>, AnySelector, MaxNumberSelector> PATElectronMaxFilter;
   typedef ObjectCountFilter<std::vector<Muon>,     AnySelector, MaxNumberSelector> PATMuonMaxFilter;
   typedef ObjectCountFilter<std::vector<Tau>,      AnySelector, MaxNumberSelector> PATTauMaxFilter;
+  typedef ObjectCountFilter<std::vector<Photon>,   AnySelector, MaxNumberSelector> PATPhotonMaxFilter;
   typedef ObjectCountFilter<std::vector<Jet>,      AnySelector, MaxNumberSelector> PATJetMaxFilter;
   typedef ObjectCountFilter<std::vector<MET>,      AnySelector, MaxNumberSelector> PATMETMaxFilter;
   typedef ObjectCountFilter<std::vector<Particle>, AnySelector, MaxNumberSelector> PATParticleMaxFilter;
