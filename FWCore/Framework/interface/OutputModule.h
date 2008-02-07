@@ -21,6 +21,7 @@ $Id: OutputModule.h,v 1.70 2008/01/15 06:51:49 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 
@@ -233,7 +234,6 @@ namespace edm {
     virtual void writeModuleDescriptionRegistry() {}
     virtual void writeParameterSetRegistry() {}
     virtual void writeProductDescriptionRegistry() {}
-    virtual void writeEntryDescriptions() {}
     virtual void finishEndFile() {}
   };
 }
