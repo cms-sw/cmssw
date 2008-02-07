@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include <vector>
 
 namespace {
@@ -35,11 +36,13 @@ namespace {
     SiStripMatchedRecHit2D a2;
     SiPixelRecHit b1;
     SiTrackerGSRecHit2D c1;
+    SiTrackerGSRecHit2D d1;
 
     edm::ClonePolicy<SiStripRecHit2D>  a4;
     edm::ClonePolicy<SiStripMatchedRecHit2D > a5;
     edm::ClonePolicy<SiPixelRecHit> b2;
     edm::ClonePolicy<SiTrackerGSRecHit2D>  c2;
+    edm::ClonePolicy<SiTrackerMultiRecHit>  d2;
 
     edm::OwnVector<SiStripRecHit2D,
       edm::ClonePolicy<SiStripRecHit2D> > a6;
@@ -57,6 +60,10 @@ namespace {
       edm::ClonePolicy<SiTrackerGSRecHit2D> > c3;
     edm::OwnVector<SiTrackerGSRecHit2D,
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::const_iterator it8;
+    edm::OwnVector<SiTrackerMultiRecHit,
+      edm::ClonePolicy<SiTrackerMultiRecHit> > d3;
+    edm::OwnVector<SiTrackerMultiRecHit,
+      edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator it9;
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2D,
