@@ -319,11 +319,14 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       std::string det =  "HB";
       if (subdet == static_cast<int>(HcalForward)) {
 	det = "HF";
-	if (layer > 0) {
-	  vhithc += e;
-	} else {
-	  vhitec += e;
-	}
+	if      (layer == 1) vhithc += e;
+	else if (layer == 0) vhitec += e;
+	else
+	  edm::LogInfo("ValidHcal") << "SimG4HcalValidation::HitPMT " 
+				    << subdet << " " << (2*zside-1)*etaIndex 
+				    << " " << phiIndex << " " << layer+1 
+				    << " R " << pos.rho() << " Phi " << phi/deg
+				    << " Edep " << e << " Time " << time;
       } else if (subdet == static_cast<int>(HcalEndcap)) {
 	if (etaIndex <= 20) {
 	  det  = "HES";

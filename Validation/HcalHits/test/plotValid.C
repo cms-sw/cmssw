@@ -1,5 +1,20 @@
+#include "Rtypes.h"
+#include "TROOT.h"
+#include "TRint.h"
+#include "TObject.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TRefArray.h"
 #include "TStyle.h"
+#include "TGraph.h"
+
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
 void setTDRStyle();
 
@@ -249,6 +264,156 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
 
     if (save > 0) myc->SaveAs(fileps);
 
+  }
+}
+void plotHFPosition(char file[100]="hf.out", int save=0) {
+
+  setTDRStyle();
+  std::ifstream theFile(file);
+  static const int NPMAX=20000;
+  int    etaIndex[NPMAX], phiIndex[NPMAX], depths[NPMAX], np=0;
+  float  radiusH[NPMAX], phiH[NPMAX];
+  double deg=3.1415926/180.;
+  while (theFile) {
+    int   ieta, iphi, idep;
+    float rr, phideg;
+    theFile >> ieta >> iphi >> idep >> rr >> phideg;
+    if (np < NPMAX) {
+      etaIndex[np] = ieta;
+      phiIndex[np] = iphi;
+      depths[np]   = idep;
+      radiusH[np]  = rr;
+      if (phideg < 0) phideg += 360;
+      int iphi = (int)(phideg/20);
+      float phi = (phideg - iphi*20.0);
+      if (phi > 10) phi -= 20;
+      phiH[np] = phi*deg;
+      np++;
+    }
+  }
+  std::cout << np << " points found\n";
+  //  for (int i=0; i<np; i++) std::cout << std::setw(4) << i << " " << std::setw(3) << etaIndex[i] << " " << std::setw(3) << phiIndex[i] << " " << depths[i] << " " << std::setw(6) << radiusH[i] << " " << std::setw(6) << phiH[i] << "\n";
+
+  int symbol[14] = {20,21,22,23,24,25,26,27,28,29,30,3,5,2};
+  int colr[3]    = {2,4,1};
+  TGraph *gr[3][14];
+  float x1[NPMAX], y1[NPMAX], x2[NPMAX], y2[NPMAX], x3[NPMAX], y3[NPMAX];
+  int np1, np2, np3;
+  for (int i=0; i<13; i++) {
+    np1 = np2 = np3 = 0;
+    for (int j=0; j<np; j++) {
+      if (etaIndex[j] == (i+29)) {
+	int k = 2;
+	if (depths[j] == 3) k = 0;
+	else if (depths[j] == 4) k = 1;
+	if (k == 0) {
+	  x1[np1] = radiusH[j]*cos(phiH[j]);
+	  y1[np1] = radiusH[j]*sin(phiH[j]);
+	  np1++;
+	  //	  if (np1 == 1) std::cout << i << " 0 " <<x1[0] << " " <<y1[0] << "\n";
+	} else if (k==1) {
+	  x2[np2] = radiusH[j]*cos(phiH[j]);
+	  y2[np2] = radiusH[j]*sin(phiH[j]);
+	  np2++;
+	  //	  if (np2 == 1) std::cout << i << " 1 " <<x2[0] << " " <<y2[0] << "\n";
+	} else {
+	  x3[np3] = radiusH[j]*cos(phiH[j]);
+	  y3[np3] = radiusH[j]*sin(phiH[j]);
+	  np3++;
+	}
+      }
+    }
+    //    std::cout << "i " << i << " " <<np1 << " " <<np2 << " " <<np3 <<"\n";
+    if (np1 > 0) {
+      gr[0][i] = new TGraph(np1,x1,y1); gr[0][i]->SetTitle(""); 
+      gr[0][i]->SetMarkerStyle(symbol[i]);  gr[0][i]->SetMarkerColor(colr[0]);
+    } else 
+      gr[0][i] = 0;
+    if (np2 > 0) {
+      gr[1][i] = new TGraph(np2,x2,y2); gr[1][i]->SetTitle(""); 
+      gr[1][i]->SetMarkerStyle(symbol[i]);  gr[1][i]->SetMarkerColor(colr[1]);
+    } else 
+      gr[1][i] = 0;
+    if (np3 > 0) {
+      gr[2][i] = new TGraph(np3,x3,y3); gr[2][i]->SetTitle(""); 
+      gr[2][i]->SetMarkerStyle(symbol[i]);  gr[2][i]->SetMarkerColor(colr[2]);
+    } else 
+      gr[2][i] = 0;
+  }
+  np1 = np2 = np3 = 0;
+  for (int j=0; j<np; j++) {
+    if (etaIndex[j] < 29 || etaIndex[j] > 41) {
+      int k = 2;
+      if (depths[j] == 3) k = 0;
+      else if (depths[j] == 4) k = 1;
+      if (k == 0) {
+	x1[np1] = radiusH[j]*cos(phiH[j]);
+	y1[np1] = radiusH[j]*sin(phiH[j]);
+	np1++;
+	if (np1 == 1) std::cout << i << " 0 " <<x1[0] << " " <<y1[0] << "\n";
+      } else if (k==1) {
+	x2[np2] = radiusH[j]*cos(phiH[j]);
+	y2[np2] = radiusH[j]*sin(phiH[j]);
+	np2++;
+	if (np2 == 1) std::cout << i << " 1 " <<x2[0] << " " <<y2[0] << "\n";
+      } else {
+	x3[np3] = radiusH[j]*cos(phiH[j]);
+	y3[np3] = radiusH[j]*sin(phiH[j]);
+	np3++;
+      }
+    }
+  }
+  //    std::cout << "i " << i << " " <<np1 << " " <<np2 << " " <<np3 <<"\n";
+  if (np1 > 0) {
+    gr[0][13] = new TGraph(np1,x1,y1); gr[0][13]->SetTitle(""); 
+    gr[0][13]->SetMarkerStyle(symbol[13]);  gr[0][13]->SetMarkerColor(colr[0]);
+  } else 
+    gr[0][13] = 0;
+  if (np2 > 0) {
+    gr[1][13] = new TGraph(np2,x2,y2); gr[1][13]->SetTitle(""); 
+    gr[1][13]->SetMarkerStyle(symbol[13]);  gr[1][13]->SetMarkerColor(colr[1]);
+  } else 
+    gr[1][13] = 0;
+  if (np3 > 0) {
+    gr[2][13] = new TGraph(np3,x3,y3); gr[2][13]->SetTitle(""); 
+    gr[2][13]->SetMarkerStyle(symbol[13]);  gr[2][13]->SetMarkerColor(colr[2]);
+  } else 
+    gr[2][13] = 0;
+
+  TCanvas *c0  = new TCanvas("c0","PMT Hits",800,600); 
+  TH1F *vFrame = c0->DrawFrame(1000.0,-250.0,1500.0,250.0);
+  vFrame->SetXTitle("x (mm)");
+  vFrame->SetYTitle("y (mm)");
+  for (int i=0; i<=13; i++) {
+    for (int j=0; j<3; j++) {
+      if (gr[j][i] != 0) {
+	gr[j][i]->Draw("p");
+	gr[j][i]->SetLineColor(colr[j]); gr[j][i]->SetLineWidth(2);
+	//	std::cout << "Next " << i << " " << j << "\n";
+      }
+    }
+  }
+  TLegend *leg1 = new TLegend(0.75,0.55,0.90,0.90);
+  char list[40];
+  for (i=0; i<= 13; i++) {
+    if (i < 13) sprintf (list, "#eta = %d", i+29);
+    else        sprintf (list, "Unknown #eta");
+    if      (gr[0][i] != 0) leg1->AddEntry(gr[0][i], list, "P");
+    else if (gr[1][i] != 0) leg1->AddEntry(gr[1][i], list, "P");
+  }
+  for (i=0; i<2; i++) {
+    if (i == 0) sprintf (list, "Long Fibre");
+    else        sprintf (list, "Short Fibre");
+    if      (gr[i][0] != 0) leg1->AddEntry(gr[i][0], list, "L");
+    else if (gr[i][1] != 0) leg1->AddEntry(gr[i][1], list, "L");
+    else if (gr[i][2] != 0) leg1->AddEntry(gr[i][2], list, "L");
+  }
+  leg1->SetFillColor(0); leg1->SetTextSize(0.03); 
+  leg1->SetBorderSize(1); leg1->Draw();
+
+  if (save != 0) {
+    if (save > 0) c0->SaveAs("PMTHits.eps");
+    else          c0->SaveAs("PMTHits.gif");
   }
 }
 
