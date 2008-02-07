@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.30 2006/12/05 22:01:43 rpw Exp $
+ * $Id: pset_lex.l,v 1.31 2007/07/23 23:42:35 wmtan Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -197,7 +197,7 @@ char* stringDupQuoted(const char* s,char quotetype)
 using namespace edm::pset;
 #include "FWCore/ParameterSet/src/pset_parse.h"
 
-extern void pset_parse (void);
+extern int pset_parse (void);
 
 namespace edm {
    namespace pset {
@@ -229,7 +229,11 @@ namespace edm {
 
        // Do the parsing; this sets global_gunk. Immediately grab
        // ownership of the created structure.
-       pset_parse();
+       if (pset_parse() != 0) {
+	 yy_delete_buffer(buf);
+	 throw edm::Exception(errors::Configuration) 
+	   << "Parsing of input file failed\n";
+       }
 
        ParseResults ps(global_gunk);
 
