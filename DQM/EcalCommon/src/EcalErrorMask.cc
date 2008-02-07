@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.21 2008/01/01 16:47:58 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.22 2008/01/01 16:50:42 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.21 $
-  \date $Date: 2008/01/01 16:47:58 $
+  \version $Revision: 1.22 $
+  \date $Date: 2008/01/01 16:50:42 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -220,7 +220,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       if( !verifySyntax ) {
 	EcalLogicID id;
         if(subdet == EcalBarrel) id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
-        if(subdet == EcalEndcap) id = EcalLogicID( "EE_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_readout_tower", 1021000000+10000*sm+it, sm, it, 0 );
 	std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
 	if( i != mapTTErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();

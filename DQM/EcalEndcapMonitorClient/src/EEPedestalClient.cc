@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.56 $
+ * $Date: 2008/02/07 13:39:02 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -540,7 +540,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1[ecid] = p;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

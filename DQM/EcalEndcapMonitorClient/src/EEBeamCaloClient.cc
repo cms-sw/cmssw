@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -307,7 +307,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", ism, ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", ism, ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

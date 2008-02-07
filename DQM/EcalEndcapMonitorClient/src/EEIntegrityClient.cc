@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.55 $
+ * $Date: 2008/02/07 13:39:02 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -397,7 +397,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1[ecid] = c1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -490,7 +490,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_trigger_tower", Numbers::iSM(ism, EcalEndcap), itt);
+              ecid = LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt);
               dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
