@@ -42,6 +42,8 @@ public:
   virtual ~LBRecord() {}
 
   RPCLinkBoardData lbData() const;
+
+  std::string print()  const;
 };
 }
 #endif

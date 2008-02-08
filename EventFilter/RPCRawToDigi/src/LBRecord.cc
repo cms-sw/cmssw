@@ -49,3 +49,11 @@ RPCLinkBoardData LBRecord::lbData() const
    
   return RPCLinkBoardData (bits,halfP,eod,partitionNumber,lbNumber);
 }
+
+std::string LBRecord::print() const
+{
+  std::ostringstream str;
+  RPCLinkBoardData data = lbData();
+  str <<" DATA";  
+  return str.str();
+}

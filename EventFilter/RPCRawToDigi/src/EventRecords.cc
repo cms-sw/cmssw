@@ -63,3 +63,14 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords> & dat
   return result;
 
 }
+
+std::string EventRecords::print(DataRecord::recordName type) const
+{
+  std::ostringstream str;
+  if (type == DataRecord::StartOfBXData && theValidBX) str <<" ==>"<< theBXRecord.print(); 
+  if (type == DataRecord::StartOfTbLinkInputNumberData&& theValidTB) 
+      str <<" ==>"<< theTBRecord.print(); 
+   if (type == DataRecord::LinkBoardData && theValidLB) str <<" ==>"<< theLBRecord.print();
+  if (type == DataRecord::EmptyWord) str <<" ==> EPMTY";
+  return str.str();
+}

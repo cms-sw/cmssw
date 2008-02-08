@@ -1,4 +1,4 @@
-//#include <memory>
+#include <iostream>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 

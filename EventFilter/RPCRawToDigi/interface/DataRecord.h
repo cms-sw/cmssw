@@ -11,6 +11,7 @@ class DataRecord {
 public:
   typedef uint16_t RecordType;
   enum recordName {
+    None = 0,
     StartOfBXData = 1,
     StartOfTbLinkInputNumberData = 2,
     LinkBoardData = 3,

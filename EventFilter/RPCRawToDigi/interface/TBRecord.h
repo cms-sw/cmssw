@@ -35,6 +35,7 @@ public:
   }
 
   int rmb() const { return (theData >> TB_RMB_SHIFT) & TB_RMB_MASK; }
+  std::string print()  const;
 
 };
 }

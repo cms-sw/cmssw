@@ -36,6 +36,8 @@ public:
 
   static std::vector<EventRecords> mergeRecords(const std::vector<EventRecords> & r); 
 
+  std::string print(DataRecord::recordName type) const;
+
 private:
   int theTriggerBX;
   bool theValidBX, theValidTB, theValidLB; 

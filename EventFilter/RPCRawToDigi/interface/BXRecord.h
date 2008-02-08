@@ -27,6 +27,7 @@ public:
 
   virtual ~BXRecord() {}
   int bx() const { return ((theData>>BX_SHIFT)&BX_MASK); } 
+  std::string print()  const;
 };
 }
 #endif
