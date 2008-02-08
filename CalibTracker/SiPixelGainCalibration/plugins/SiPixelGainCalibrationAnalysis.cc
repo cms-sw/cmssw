@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.10 2008/02/05 15:19:43 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.11 2008/02/08 13:49:35 fblekman Exp $
 //
 //
 
@@ -81,7 +81,7 @@ std::vector<float> SiPixelGainCalibrationAnalysis::CalculateAveragePerColumn(uin
 bool
 SiPixelGainCalibrationAnalysis::checkCorrectCalibrationType()
 {
-  if(calibrationMode_=="Gain")
+  if(calibrationMode_=="GainCalibration")
     return true;
   else if(calibrationMode_=="unknown"){
     edm::LogInfo("SiPixelGainCalibrationAnalysis") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
