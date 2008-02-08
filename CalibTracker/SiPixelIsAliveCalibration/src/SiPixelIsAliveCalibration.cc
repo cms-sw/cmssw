@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.12 2008/01/31 13:05:10 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.13 2008/02/01 14:53:48 fblekman Exp $
 //
 //
 
@@ -101,8 +101,9 @@ SiPixelIsAliveCalibration::checkCorrectCalibrationType(){
     edm::LogInfo("SiPixelIsAliveCalibration") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
     return true;
   }
-  else
-    edm::LogError("SiPixelIsAliveCalibration")<< "unknown calibration mode for Pixel ALive, should be \"PixelAlive\" and is \"" << calibrationMode_ << "\"";
+  else{
+    //    edm::LogError("SiPixelIsAliveCalibration")<< "unknown calibration mode for Pixel ALive, should be \"PixelAlive\" and is \"" << calibrationMode_ << "\"";
+  }
   return false;
 
 }
