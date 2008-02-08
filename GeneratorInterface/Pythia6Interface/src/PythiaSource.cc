@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/01/22 21:09:57 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/02/04 23:20:42 $
+ *  $Revision: 1.18 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -32,6 +32,8 @@ using namespace std;
 
 #include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/IO_HEPEVT.h"
+
+// #include "GeneratorInterface/CommonInterface/interface/Txgive.h"
 
 #define PYGIVE pygive_
 extern "C" {
@@ -88,7 +90,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  useExternalGenerators_(false),
+  useTauola_(false),
+  useTauolaPolarization_(false)
   
 {
   
@@ -216,6 +221,62 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       call_pyinit( "CMS", "p", "p", comenergy );
     }
 
+  // TAUOLA, etc.
+  //
+  useExternalGenerators_ = pset.getUntrackedParameter<bool>("UseExternalGenerators",false);
+//  useTauola_ = pset.getUntrackedParameter<bool>("UseTauola", false);
+//  useTauolaPolarization_ = pset.getUntrackedParameter<bool>("UseTauolaPolarization", false);
+  
+  if ( useExternalGenerators_ ) {
+ // read External Generator parameters
+    ParameterSet ext_gen_params =
+       pset.getParameter<ParameterSet>("ExternalGenerators") ;
+    vector<string> extGenNames =
+       ext_gen_params.getParameter< vector<string> >("parameterSets");
+    for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
+    {
+      string curSet = extGenNames[ip];
+      ParameterSet gen_par_set =
+         ext_gen_params.getUntrackedParameter< ParameterSet >(curSet);
+/*
+     cout << "----------------------------------------------" << endl;
+     cout << "Read External Generator parameter set "  << endl;
+     cout << "----------------------------------------------" << endl;
+*/
+     if ( curSet == "Tauola" )
+     {
+        useTauola_ = true;
+        if ( useTauola_ ) {
+           cout << "--> use TAUOLA" << endl;
+        } 
+	useTauolaPolarization_ = gen_par_set.getParameter<bool>("UseTauolaPolarization");
+        if ( useTauolaPolarization_ ) 
+	{
+           cout << "(Polarization effects enabled)" << endl;
+           tauola_.enablePolarizationEffects();
+        } 
+	else 
+	{
+           cout << "(Polarization effects disabled)" << endl;
+           tauola_.disablePolarizationEffects();
+        }
+	vector<string> cards = gen_par_set.getParameter< vector<string> >("InputCards");
+	cout << "----------------------------------------------" << endl;
+        cout << "Initializing Tauola" << endl;
+        for( vector<string>::const_iterator
+                itPar = cards.begin(); itPar != cards.end(); ++itPar )
+        {
+           call_txgive(*itPar);
+        }
+        tauola_.initialize();
+        //call_pretauola(-1); // initialize TAUOLA package for tau decays
+     }
+    }
+    // cout << "----------------------------------------------" << endl;
+  }
+
+
+
   cout << endl; // Stetically add for the output
   //********                                      
   
@@ -226,6 +287,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 
 PythiaSource::~PythiaSource(){
   call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
   clear(); 
 }
 
@@ -267,8 +332,6 @@ bool PythiaSource::produce(Event & e) {
 	  ee = sqrt(pe*pe+pmass*pmass);
 	}
     
-	
-
 	/*
 	cout <<" pt = " << pt 
 	     <<" eta = " << eta 
@@ -297,8 +360,17 @@ bool PythiaSource::produce(Event & e) {
 	call_pyevnt();      // generate one event with Pythia
       }
 
+    if ( useTauola_ ) {
+      tauola_.processEvent();
+      //call_pretauola(0); // generate tau decays with TAUOLA
+    }
+
+    // convert to stdhep format
+    //
     call_pyhepc( 1 );
     
+    // convert stdhep (hepevt) to hepmc
+    //
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
     evt->set_signal_process_id(pypars.msti[0]);
