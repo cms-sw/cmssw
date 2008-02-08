@@ -61,9 +61,9 @@ SiPixelSCurveCalibrationAnalysis::checkCorrectCalibrationType()
     edm::LogInfo("SiPixelSCurveCalibrationAnalysis") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
     return true;
   }
-  else
-    edm::LogError("SiPixelSCurveCalibrationAnalysis") << "unknown calibration mode for SCurves, should be \"SCurve\" and is \"" << calibrationMode_ << "\"";
-  
+  else{
+    //    edm::LogDebug("SiPixelSCurveCalibrationAnalysis") << "unknown calibration mode for SCurves, should be \"SCurve\" and is \"" << calibrationMode_ << "\"";
+  }
   return false;
 }
 
