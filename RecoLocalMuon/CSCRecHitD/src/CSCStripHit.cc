@@ -1,4 +1,4 @@
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <iostream>
 
 CSCStripHit::CSCStripHit() :

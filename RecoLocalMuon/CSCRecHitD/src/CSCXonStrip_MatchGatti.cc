@@ -3,11 +3,11 @@
 //---- Large part is copied from RecHitB
 //---- author: Stoyan Stoynev - NU
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCXonStrip_MatchGatti.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripCrosstalk.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripNoiseMatrix.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCFindPeakTime.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripCrosstalk.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripNoiseMatrix.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -30,7 +30,8 @@
 #include <cmath>
 #include <iostream>
 #include <fstream> 
-#include <iomanip> 
+//#include <iomanip.h> 
+//#include <iomanip> 
                                                                                                  
 #ifndef M_PI_2
 #define M_PI_2 1.57079632679489661923

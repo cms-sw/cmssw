@@ -1,10 +1,10 @@
 // This is CSCMake2DRecHit
 //---- Taken from RecHitB. Possible changes
-
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCMake2DRecHit.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCXonStrip_MatchGatti.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHit.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCWireHit.h>
+ 
+#include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>

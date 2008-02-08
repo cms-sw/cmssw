@@ -2,13 +2,13 @@
 
 // Copied from RecHitB. Possible changes
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCRecHitDBuilder.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCHitFromStripOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCHitFromWireOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCMake2DRecHit.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCWireHitCollection.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHitCollection.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCRangeMapForRecHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecHitDBuilder.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHitCollection.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRangeMapForRecHit.h>
  
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>

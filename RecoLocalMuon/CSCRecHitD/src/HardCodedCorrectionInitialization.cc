@@ -4,7 +4,7 @@
 //---- Maybe should be but in DB... 
 //---- author Stoyan Stoynev - NU
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCXonStrip_MatchGatti.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
 
 //#include <vector>
 

@@ -1,4 +1,4 @@
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCWireHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 #include <iostream>
 
 CSCWireHit::CSCWireHit() :

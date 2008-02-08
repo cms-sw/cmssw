@@ -1,6 +1,6 @@
 
 // Extract XTalks
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripCrosstalk.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripCrosstalk.h>
 
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>

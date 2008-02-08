@@ -1,6 +1,6 @@
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCRecHitDProducer.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCRecHitDBuilder.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripGainAvg.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecHitDProducer.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecHitDBuilder.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripGainAvg.h>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDProducer.h>

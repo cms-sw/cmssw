@@ -1,13 +1,13 @@
 // This is  CSCHitFromStripOnly.cc
 // Taken from RecHitB. Possible changes 
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCHitFromStripOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCPeakBinOfStripPulse.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripGain.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripData.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHitData.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHit.h>
-//#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripHitCollection.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCPeakBinOfStripPulse.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripGain.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripData.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitData.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 //#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>

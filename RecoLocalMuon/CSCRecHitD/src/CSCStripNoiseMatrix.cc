@@ -1,6 +1,6 @@
 // Read in strip digi collection and apply calibrations to ADC counts
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCStripNoiseMatrix.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripNoiseMatrix.h>
 
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>

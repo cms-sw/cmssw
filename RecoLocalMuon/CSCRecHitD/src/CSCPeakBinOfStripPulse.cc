@@ -1,6 +1,6 @@
 // This is CSCPeakBinOfStripPulse
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCPeakBinOfStripPulse.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCPeakBinOfStripPulse.h>
 
 #include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
 

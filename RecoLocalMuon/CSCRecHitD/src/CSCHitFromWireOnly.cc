@@ -8,8 +8,8 @@
  */
 //---- Some changes from Stoyan Stoynev - NU 
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCHitFromWireOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCWireHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>

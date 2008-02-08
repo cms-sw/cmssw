@@ -5,7 +5,7 @@
  * adapted from PulseTime.h originally written by S. Durkin
  */ 
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCFindPeakTime.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>

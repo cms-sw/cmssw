@@ -3,7 +3,7 @@
  *  author: Dominique Fortin -UCR
  */
 
-#include <RecoLocalMuon/CSCRecHitD/interface/CSCRangeMapForRecHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRangeMapForRecHit.h>
 
 CSCRangeMapForRecHit::CSCRangeMapForRecHit() {}
 
