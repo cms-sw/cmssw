@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.9 2008/02/01 14:53:18 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.10 2008/02/05 15:19:43 fblekman Exp $
 //
 //
 
@@ -45,6 +45,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   recordName_(conf_.getParameter<std::string>("record")),
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
   theGainCalibrationDbInput_(0),
+  theGainCalibrationDbInputOffline_(0),
+  theGainCalibrationDbInputHLT_(0),
   theGainCalibrationDbInputService_(iConfig)
 {
   ::putenv("CORAL_AUTH_USER=me");
@@ -144,24 +146,54 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     int nrows = bookkeeper_[detid]["gain2d"]->getNbinsY();
     int ncols = bookkeeper_[detid]["ped2d"]->getNbinsX();   
     
-    std::vector<char> theSiPixelGainCalibration;
+    std::vector<char> theSiPixelGainCalibrationPerPixel;
+    std::vector<char> theSiPixelGainCalibrationPerColumn;
+    std::vector<char> theSiPixelGainCalibrationGainPerColPedPerPixel;
 
+
+    std::vector<float> gainpercol ;
+    std::vector<float> pedpercol ;
     // Loop over columns and rows of this DetID
     for(int i=1; i<=ncols; i++) {
+      float pedforthiscol=0;
+      float gainforthiscol=0;
+      int nusedrows=0;
       for(int j=1; j<=nrows; j++) {
 	nchannels++;
-	     
 	float ped = bookkeeper_[detid]["ped2d"]->getBinContent(i,j);
 	float gain = bookkeeper_[detid]["gain2d"]->getBinContent(i,j);
+	
+	// and fill and convert in the SiPixelGainCalibration object:
+	theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
+	theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
 
-	theGainCalibrationDbInput_->setData( ped , gain , theSiPixelGainCalibration);
+	pedforthiscol+=ped;
+	gainforthiscol+=gain;
+	nusedrows++;
       }
+      if(nusedrows>0){
+	pedforthiscol/=nusedrows;
+	gainforthiscol/=nusedrows;
+      }
+      theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol,nrows,theSiPixelGainCalibrationGainPerColPedPerPixel);
+      theGainCalibrationDbInputHLT_->setData(pedforthiscol,gainforthiscol,theSiPixelGainCalibrationPerColumn);
+	
+      
     }
 
-    SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
+    SiPixelGainCalibration::Range range(theSiPixelGainCalibrationPerPixel.begin(),theSiPixelGainCalibrationPerPixel.end());
+    SiPixelGainCalibrationForHLT::Range hltrange(theSiPixelGainCalibrationPerColumn.begin(),theSiPixelGainCalibrationPerColumn.end());
+    SiPixelGainCalibrationOffline::Range offlinerange(theSiPixelGainCalibrationGainPerColPedPerPixel.begin(),theSiPixelGainCalibrationGainPerColPedPerPixel.end());
+    
+    // now start creating the various database objects
     if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
-      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists"<<std::endl;
+      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
+    if( !theGainCalibrationDbInputOffline_->put(detid,offlinerange,ncols) )
+      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Offline (gain per col, ped per pixel) calibration database"<<std::endl;
+    if(!theGainCalibrationDbInputHLT_->put(detid,hltrange) )
+      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for HLT (pedestal and gain per column) calibration database"<<std::endl;
   }
+  
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << " ---> PIXEL Modules  " << nmodules  << "\n"
 						 << " ---> PIXEL Channels " << nchannels << std::endl;
 
@@ -171,11 +203,27 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     edm::LogError("db service unavailable");
     return;
     if( mydbservice->isNewTagRequest(recordName_) ){
+      
       mydbservice->createNewIOV<SiPixelGainCalibration>(
 							theGainCalibrationDbInput_, mydbservice->endOfTime(),recordName_);
-    } else {
+      
+      mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
+							   theGainCalibrationDbInputHLT_,mydbservice->endOfTime(),recordName_);
+      
+      mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
+							       theGainCalibrationDbInputOffline_,mydbservice->endOfTime(),recordName_);
+      
+    } 
+    else {
+      
       mydbservice->appendSinceTime<SiPixelGainCalibration>(
 							   theGainCalibrationDbInput_, mydbservice->currentTime(),recordName_);
+      
+      mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
+							   theGainCalibrationDbInputHLT_, mydbservice->currentTime(),recordName_);
+      
+      mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
+							   theGainCalibrationDbInputOffline_, mydbservice->currentTime(),recordName_);
     }
     edm::LogInfo(" --- all OK");
   } 

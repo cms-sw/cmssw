@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.7 2008/01/29 23:56:48 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.8 2008/02/05 15:19:43 fblekman Exp $
 //
 //
 
@@ -31,6 +31,11 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+
 #include "TLinearFitter.h"
 
 //
@@ -85,6 +90,8 @@ private:
   std::string  recordName_;
   bool appendMode_;
   SiPixelGainCalibration *theGainCalibrationDbInput_;
+  SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
+  SiPixelGainCalibrationForHLT *theGainCalibrationDbInputHLT_;
   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
 
 };
