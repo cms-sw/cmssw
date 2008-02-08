@@ -31,7 +31,7 @@ else
     $BASE_PYRELVAL="$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation";
 }
 #Setting the path for the cmsDriver.py command:
-$cmsDriver="$BASE_PYRELVAL/data/cmsDriver.py";
+$cmsDriver="$BASE_PYRELVAL/scripts/cmsDriver.py";
 
 if ($#ARGV != 2) {
 	print "Usage: cmsSimPyRelVal.pl NumberOfEventsPerCfgFile Candles Profile

@@ -39,7 +39,7 @@ else
     $BASE_PYRELVAL="$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation";
 }
 #Setting the path for the cmsDriver.py command:
-$cmsDriver="$BASE_PYRELVAL/data/cmsDriver.py";
+$cmsDriver="$BASE_PYRELVAL/scripts/cmsDriver.py";
 $cmsSimPyRelVal="$BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
 $cmsRelvalreport="$BASE_PYRELVAL/scripts/cmsRelvalreport.py";
 
