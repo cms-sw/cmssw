@@ -101,23 +101,24 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hRHGlobal2 = new TH2F("hRHGlobal2","recHit global X,Y station 2",400,-800.,800.,400,-800.,800.);
   hRHGlobal3 = new TH2F("hRHGlobal3","recHit global X,Y station 3",400,-800.,800.,400,-800.,800.);
   hRHGlobal4 = new TH2F("hRHGlobal4","recHit global X,Y station 4",400,-800.,800.,400,-800.,800.);
-  hRHResid11b = new TH1F("hRHResid11b","SimHitX - Reconstructed X (ME11b)",60,-1.0,1.0);
-  hRHResid12 = new TH1F("hRHResid12","SimHitX - Reconstructed X (ME11)",60,-1.0,1.0);
-  hRHResid13 = new TH1F("hRHResid13","SimHitX - Reconstructed X (ME11)",60,-1.0,1.0);
-  hRHResid11a = new TH1F("hRHResid11a","SimHitX - Reconstructed X (ME11a)",60,-1.0,1.0);
-  hRHResid21 = new TH1F("hRHResid21","SimHitX - Reconstructed X (ME21)",60,-1.0,1.0);
-  hRHResid22 = new TH1F("hRHResid22","SimHitX - Reconstructed X (ME22)",60,-1.0,1.0);
-  hRHResid31 = new TH1F("hRHResid31","SimHitX - Reconstructed X (ME31)",60,-1.0,1.0);
-  hRHResid32 = new TH1F("hRHResid32","SimHitX - Reconstructed X (ME32)",60,-1.0,1.0);
-  hRHResid41 = new TH1F("hRHResid41","SimHitX - Reconstructed X (ME41)",60,-1.0,1.0);
-  hRHResid42 = new TH1F("hRHResid42","SimHitX - Reconstructed X (ME42)",60,-1.0,1.0);
+  hRHResid11b = new TH1F("hRHResid11b","SimHitX - Reconstructed X (ME11b)",100,-1.0,1.0);
+  hRHResid12 = new TH1F("hRHResid12","SimHitX - Reconstructed X (ME11)",100,-1.0,1.0);
+  hRHResid13 = new TH1F("hRHResid13","SimHitX - Reconstructed X (ME11)",100,-1.0,1.0);
+  hRHResid11a = new TH1F("hRHResid11a","SimHitX - Reconstructed X (ME11a)",100,-1.0,1.0);
+  hRHResid21 = new TH1F("hRHResid21","SimHitX - Reconstructed X (ME21)",100,-1.0,1.0);
+  hRHResid22 = new TH1F("hRHResid22","SimHitX - Reconstructed X (ME22)",100,-1.0,1.0);
+  hRHResid31 = new TH1F("hRHResid31","SimHitX - Reconstructed X (ME31)",100,-1.0,1.0);
+  hRHResid32 = new TH1F("hRHResid32","SimHitX - Reconstructed X (ME32)",100,-1.0,1.0);
+  hRHResid41 = new TH1F("hRHResid41","SimHitX - Reconstructed X (ME41)",100,-1.0,1.0);
+  hRHResid42 = new TH1F("hRHResid42","SimHitX - Reconstructed X (ME42)",100,-1.0,1.0);
+
 
   // segments
   hSCodeBroad = new TH1F("hSCodeBroad","broad scope code for recHits",33,-16.5,16.5);
-  hSCodeNarrow1 = new TH1F("hSCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5);
-  hSCodeNarrow2 = new TH1F("hSCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5);
-  hSCodeNarrow3 = new TH1F("hSCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5);
-  hSCodeNarrow4 = new TH1F("hSCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5);
+  hSCodeNarrow1 = new TH1F("hSCodeNarrow1","narrow scope Segment code station 1",801,-400.5,400.5);
+  hSCodeNarrow2 = new TH1F("hSCodeNarrow2","narrow scope Segment code station 2",801,-400.5,400.5);
+  hSCodeNarrow3 = new TH1F("hSCodeNarrow3","narrow scope Segment code station 3",801,-400.5,400.5);
+  hSCodeNarrow4 = new TH1F("hSCodeNarrow4","narrow scope Segment code station 4",801,-400.5,400.5);
   hSnHits1 = new TH1F("hSnHits1","N hits on Segments in Station 1",7,-0.5,6.5);
   hSnHits2 = new TH1F("hSnHits2","N hits on Segments in Station 2",7,-0.5,6.5);
   hSnHits3 = new TH1F("hSnHits3","N hits on Segments in Station 3",7,-0.5,6.5);
@@ -135,6 +136,16 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hSGlobalTheta = new TH1F("hSGlobalTheta","segment global theta",64,0,1.6);
   hSGlobalPhi   = new TH1F("hSGlobalPhi",  "segment global phi",  128,-3.2,3.2);
   hSnSegments   = new TH1F("hSnSegments","number of segments",11,-0.5,10.5);
+  hSResid11b = new TH1F("hSResid11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME11b)",100,-0.5,0.5);
+  hSResid12  = new TH1F("hSResid12","Fitted Position on Strip - Reconstructed for Layer 3 (ME12)",100,-0.5,0.5);
+  hSResid13  = new TH1F("hSResid13","Fitted Position on Strip - Reconstructed for Layer 3 (ME13)",100,-0.5,0.5);
+  hSResid11a = new TH1F("hSResid11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME11a)",100,-0.5,0.5);
+  hSResid21  = new TH1F("hSResid21","Fitted Position on Strip - Reconstructed for Layer 3 (ME21)",100,-0.5,0.5);
+  hSResid22  = new TH1F("hSResid22","Fitted Position on Strip - Reconstructed for Layer 3 (ME22)",100,-0.5,0.5);
+  hSResid31  = new TH1F("hSResid31","Fitted Position on Strip - Reconstructed for Layer 3 (ME31)",100,-0.5,0.5);
+  hSResid32  = new TH1F("hSResid32","Fitted Position on Strip - Reconstructed for Layer 3 (ME32)",100,-0.5,0.5);
+  hSResid41  = new TH1F("hSResid41","Fitted Position on Strip - Reconstructed for Layer 3 (ME41)",100,-0.5,0.5);
+  hSResid42  = new TH1F("hSResid42","Fitted Position on Strip - Reconstructed for Layer 3 (ME42)",100,-0.5,0.5);
 
 }
 
@@ -223,6 +234,16 @@ CSCValidation::~CSCValidation(){
     hRHResid41->Write();
     hRHResid42->Write();
   }
+  hSResid11b->Write();
+  hSResid12->Write();
+  hSResid13->Write();
+  hSResid11a->Write();
+  hSResid21->Write();
+  hSResid22->Write();
+  hSResid31->Write();
+  hSResid32->Write();
+  hSResid41->Write();
+  hSResid42->Write();
   rHTree->Write();
   theFile->cd();
 
@@ -265,7 +286,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   nEventsAnalyzed++;
 
   // printalot debug output
-  bool printalot = (nEventsAnalyzed < 100);
+  bool printalot = (nEventsAnalyzed < 1);
 
   int iRun   = event.id().run();
   int iEvent = event.id().event();
@@ -312,6 +333,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -359,6 +381,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -449,6 +472,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     // Find chamber with rechits in CSC 
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     int kEndcap  = idrec.endcap();
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = idrec.ring();
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
@@ -460,6 +484,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float xreco = rhitlocal.x();
     float yreco = rhitlocal.y();
     float zreco = rhitlocal.z();
+    float phireco = rhitlocal.phi();
     LocalError rerrlocal = (*recIt).localPositionError();  
     float xxerr = rerrlocal.xx();
     float yyerr = rerrlocal.yy();
@@ -470,9 +495,11 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     // Transform hit position from local chamber geometry to global CMS geom
     GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
-    float grecx = rhitglobal.x();
-    float grecy = rhitglobal.y();
-    float grecz = rhitglobal.z();
+    float grecx   =  rhitglobal.x();
+    float grecy   =  rhitglobal.y();
+    float grecz   =  rhitglobal.z();
+    float grecphi =  rhitglobal.phi();
+    float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
     if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
 
@@ -525,10 +552,18 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX1->Fill(xreco);
       hRHY1->Fill(yreco);
       hRHGlobal1->Fill(grecx,grecy);
-      if (kRing == 1 && isSimulation) hRHResid11b->Fill(simHitXres);
-      if (kRing == 2 && isSimulation) hRHResid12->Fill(simHitXres);
-      if (kRing == 3 && isSimulation) hRHResid13->Fill(simHitXres);
-      if (kRing == 4 && isSimulation) hRHResid11a->Fill(simHitXres);
+      if (kRing == 1){
+        if (isSimulation) hRHResid11b->Fill(simHitXres);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid12->Fill(simHitXres);
+      }
+      if (kRing == 3){
+        if (isSimulation) hRHResid13->Fill(simHitXres);
+      }
+      if (kRing == 4){
+        if (isSimulation) hRHResid11a->Fill(simHitXres);
+      }
     }
     if (kStation == 2) {
       hRHCodeNarrow2->Fill(kCodeNarrow);
@@ -536,8 +571,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX2->Fill(xreco);
       hRHY2->Fill(yreco);
       hRHGlobal2->Fill(grecx,grecy);
-      if (kRing == 1 && isSimulation) hRHResid21->Fill(simHitXres);
-      if (kRing == 2 && isSimulation) hRHResid22->Fill(simHitXres);
+      if (kRing == 1){
+        if (isSimulation) hRHResid21->Fill(simHitXres);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid22->Fill(simHitXres);
+      }
     }
     if (kStation == 3) {
       hRHCodeNarrow3->Fill(kCodeNarrow);
@@ -545,8 +584,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX3->Fill(xreco);
       hRHY3->Fill(yreco);
       hRHGlobal3->Fill(grecx,grecy);
-      if (kRing == 1 && isSimulation) hRHResid31->Fill(simHitXres);
-      if (kRing == 2 && isSimulation) hRHResid32->Fill(simHitXres);
+      if (kRing == 1){
+        if (isSimulation) hRHResid31->Fill(simHitXres);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid32->Fill(simHitXres);
+      }
     }
     if (kStation == 4) {
       hRHCodeNarrow4->Fill(kCodeNarrow);
@@ -554,8 +597,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX4->Fill(xreco);
       hRHY4->Fill(yreco);
       hRHGlobal4->Fill(grecx,grecy);
-      if (kRing == 1 && isSimulation) hRHResid41->Fill(simHitXres);
-      if (kRing == 2 && isSimulation) hRHResid42->Fill(simHitXres);
+      if (kRing == 1){
+        if (isSimulation) hRHResid41->Fill(simHitXres);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid42->Fill(simHitXres);
+      }
     }
     
     // get the channels in this recHit
@@ -591,6 +638,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     //
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
     int kEndcap  = id.endcap();
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -604,6 +652,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float segX     = localPos.x();
     float segY     = localPos.y();
     float segZ     = localPos.z();
+    float segPhi   = localPos.phi();
     LocalVector segDir = (*it).localDirection();
     double theta   = segDir.theta();
     double phi     = segDir.phi();
@@ -616,6 +665,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int nRH = (*it).nRecHits();
     if (printalot) printf("    nRH = %i\n",nRH);
     int jRH = 0;
+    HepMatrix sp(6,1);
+    HepMatrix se(6,1);
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
@@ -625,6 +676,30 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
       if (printalot) printf("\t%i RH\tendcap/station/ring/chamber/layer: %i %i %i %i %i\n",jRH,kEndcap,kRing,kStation,kChamber,kLayer);
+
+      // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
+      if (nRH == 6){
+        const CSCLayer* csclayer = cscGeom->layer( idRH );
+        const CSCLayerGeometry *layerGeom = csclayer->geometry();
+        LocalPoint rhlp = (*iRH).localPosition();
+        float swidth = layerGeom->stripPitch(rhlp);
+        se(kLayer,1) = sqrt((*iRH).localPositionError().xx())/swidth;
+        // Take into account half-strip staggering of layers (ME1/1 has no staggering)
+        if (kStation == 1 && (kRing == 1 || kRing == 4)) sp(kLayer,1) = layerGeom->strip(rhlp);
+        else{
+          if (kLayer == 1 || kLayer == 3 || kLayer == 5) sp(kLayer,1) = layerGeom->strip(rhlp);
+          if (kLayer == 2 || kLayer == 4 || kLayer == 6) sp(kLayer,1) = layerGeom->strip(rhlp) - 0.5;
+        }
+      }
+
+    }
+
+    float residual = -99;
+
+    // Fit all points except layer 3, then compare expected value for layer 3 to reconstructed value
+    if (nRH == 6){
+      float expected = FitX(sp,se);
+      residual = expected - sp(3,1);
     }
 
     //
@@ -632,6 +707,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float globX = 0.;
     float globY = 0.;
     float globZ = 0.;
+    float globpPhi = 0.;
+    float globR = 0.;
     float globTheta = 0.;
     float globPhi   = 0.;
     const CSCChamber* cscchamber = cscGeom->chamber(id);
@@ -640,6 +717,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       globX = globalPosition.x();
       globY = globalPosition.y();
       globZ = globalPosition.z();
+      globpPhi =  globalPosition.phi();
+      globR   =  sqrt(globX*globX + globY*globY);
       GlobalVector globalDirection = cscchamber->toGlobal(segDir);
       globTheta = globalDirection.theta();
       globPhi   = globalDirection.phi();
@@ -673,24 +752,54 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hSnHits1->Fill(nhits);
       hSTheta1->Fill(theta);
       hSGlobal1->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid11b->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid12->Fill(residual);
+      }
+      if (kRing == 3){
+        hSResid13->Fill(residual);
+      }
+      if (kRing == 4){
+        hSResid11a->Fill(residual);
+      }
     }
     if (kStation == 2) {
       hSCodeNarrow2->Fill(kCodeNarrow);
       hSnHits2->Fill(nhits);
       hSTheta2->Fill(theta);
       hSGlobal2->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid21->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid22->Fill(residual);
+      }
     }
     if (kStation == 3) {
       hSCodeNarrow3->Fill(kCodeNarrow);
       hSnHits3->Fill(nhits);
       hSTheta3->Fill(theta);
       hSGlobal3->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid31->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid32->Fill(residual);
+      }
     }
     if (kStation == 4) {
       hSCodeNarrow4->Fill(kCodeNarrow);
       hSnHits4->Fill(nhits);
       hSTheta4->Fill(theta);
       hSGlobal4->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid41->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid42->Fill(residual);
+      }
     }
     hSnhits->Fill(nhits);
     hSChiSqProb->Fill(chisqProb);
@@ -704,6 +813,50 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // exit
   if (printalot) printf("==exit===CSCValidation===== run %i\tevent %i\n\n",iRun,iEvent);
 }
+
+//-------------------------------------------------------------------------------------
+// Fits a straight line to a set of 5 points with errors.  Functions assumes 6 points
+// and removes hit in layer 3.  It then returns the expected position value in layer 3
+// based on the fit.
+//-------------------------------------------------------------------------------------
+float CSCValidation::FitX(HepMatrix points, HepMatrix errors){
+
+  float S   = 0;
+  float Sx  = 0;
+  float Sy  = 0;
+  float Sxx = 0;
+  float Sxy = 0;
+  float sigma2 = 0;
+
+  for (int i=1;i<7;i++){
+    if (i != 3){
+      sigma2 = errors(i,1)*errors(i,1);
+      S = S + (1/sigma2);
+      Sy = Sy + (points(i,1)/sigma2);
+      Sx = Sx + ((i)/sigma2);
+      Sxx = Sxx + (i*i)/sigma2;
+      Sxy = Sxy + (((i)*points(i,1))/sigma2);
+    }
+  }
+
+  float delta = S*Sxx - Sx*Sx;
+  float intercept = (Sxx*Sy - Sx*Sxy)/delta;
+  float slope = (S*Sxy - Sx*Sy)/delta;
+
+  float chi = 0;
+  float chi2 = 0;
+
+  // calculate chi2 (not currently used)
+  for (int i=1;i<7;i++){
+    chi = (points(i,1) - intercept - slope*i)/(errors(i,1));
+    chi2 = chi2 + chi*chi;
+  }
+
+  return (intercept + slope*3);
+
+}
+
+
 
 DEFINE_FWK_MODULE(CSCValidation);
 

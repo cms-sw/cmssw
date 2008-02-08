@@ -2,9 +2,9 @@
   gROOT->Reset();
   gROOT->ProcessLine(".L myFunctions.C");
 
-  std::string newReleasePath = "/uscms/home/akub19/work/validation/CMSSW_1_8_0_pre5/src/RecoLocalMuon/CSCValidation/test/";
-  std::string refReleasePath = "/uscms/home/akub19/work/validation/CMSSW_1_7_3/src/RecoLocalMuon/CSCValidation/test/";
-  int datatype = 1;              // 1 = data, 2 = mc
+  std::string newReleasePath = "/uscms/home/akub19/work/DEV/CMSSW_1_8_0_pre7/src/RecoLocalMuon/CSCValidation/test/";
+  std::string refReleasePath = "/uscms/home/akub19/work/DEV/CMSSW_1_8_0_pre7/src/RecoLocalMuon/CSCValidation/test/";
+  int datatype = 2;              // 1 = data, 2 = mc
 
   TFile *f1;
   TFile *f2;
@@ -42,13 +42,18 @@
   Compare1DPlots2("recHits/hRHX4","recHits/hRHY4",f1,f2,"recHits, LocalX, Station 4","recHits, LocalY, Station 4","rH_local_pos_station4.gif");
   if (datatype == 2){
     Compare1DPlots2("recHits/hRHResid11a","recHits/hRHResid11b",f1,f2,"SimHit X - Reco X (ME11a)","SimHit X - Reco X (ME11b)","rH_resid_ME11.gif");
-    Compare1DPlots2("recHits/hRHResid12","recHits/hRHResid13",f1,f2,"SimHit X - Reco X (ME12)","SimHit X - Reco X (ME13)","rH_resid_ME12_ME13.gif"); 
-    Compare1DPlots2("recHits/hRHResid21","recHits/hRHResid22",f1,f2,"SimHit X - Reco X (ME21)","SimHit X - Reco X (ME22)","rH_resid_ME21_ME22.gif"); 
-    Compare1DPlots2("recHits/hRHResid31","recHits/hRHResid32",f1,f2,"SimHit X - Reco X (ME31)","SimHit X - Reco X (ME32)","rH_resid_ME31_ME32.gif"); 
-    Compare1DPlots2("recHits/hRHResid41","recHits/hRHResid42",f1,f2,"SimHit X - Reco X (ME41)","SimHit X - Reco X (ME42)","rH_resid_ME41_ME42.gif"); 
+    Compare1DPlots2("recHits/hRHResid12","recHits/hRHResid13",f1,f2,"SimHit X - Reco X (ME12)","SimHit X - Reco X (ME13)","rH_sH_resid_ME12_ME13.gif"); 
+    Compare1DPlots2("recHits/hRHResid21","recHits/hRHResid22",f1,f2,"SimHit X - Reco X (ME21)","SimHit X - Reco X (ME22)","rH_sH_resid_ME21_ME22.gif"); 
+    Compare1DPlots2("recHits/hRHResid31","recHits/hRHResid32",f1,f2,"SimHit X - Reco X (ME31)","SimHit X - Reco X (ME32)","rH_sH_resid_ME31_ME32.gif"); 
+    Compare1DPlots2("recHits/hRHResid41","recHits/hRHResid42",f1,f2,"SimHit X - Reco X (ME41)","SimHit X - Reco X (ME42)","rH_sH_resid_ME41_ME42.gif"); 
   }
   Compare1DPlots2("recHits/hRHLayer1","recHits/hRHLayer2",f1,f2,"recHits in a Layer, Station 1","recHits in a Layer, Station 2","rH_per_layer_stations1and2.gif");
   Compare1DPlots2("recHits/hRHLayer3","recHits/hRHLayer4",f1,f2,"recHits in a Layer, Station 3","recHits in a Layer, Station 4","rH_per_layer_stations3and4.gif");
+  Compare1DPlots2("recHits/hSResid11a","recHits/hSResid11b",f1,f2,"Fitted Position on Strip - Reco Pos (ME11a)","Fitted Position on Strip - Reco Pos (ME11b)","rH_fit_resid_ME11.gif");
+  Compare1DPlots2("recHits/hSResid12","recHits/hSResid13",f1,f2,"Fitted Position on Strip - Reco Pos (ME12)","Fitted Position on Strip - Reco Pos (ME13)","rH_fit_resid_ME12_ME13.gif");
+  Compare1DPlots2("recHits/hSResid21","recHits/hSResid22",f1,f2,"Fitted Position on Strip - Reco Pos (ME21)","Fitted Position on Strip - Reco Pos (ME22)","rH_fit_resid_ME21_ME22.gif");
+  Compare1DPlots2("recHits/hSResid31","recHits/hSResid32",f1,f2,"Fitted Position on Strip - Reco Pos (ME31)","Fitted Position on Strip - Reco Pos (ME32)","rH_fit_resid_ME31_ME32.gif");
+  Compare1DPlots2("recHits/hSResid41","recHits/hSResid42",f1,f2,"Fitted Position on Strip - Reco Pos (ME41)","Fitted Position on Strip - Reco Pos (ME42)","rH_fit_resid_ME41_ME42.gif");
 
 
   //produce segment comparison plots

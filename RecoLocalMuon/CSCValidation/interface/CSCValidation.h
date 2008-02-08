@@ -68,6 +68,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
@@ -106,6 +107,9 @@ public:
 protected:
 
 private: 
+
+  // some useful functions
+  float FitX(HepMatrix sp, HepMatrix ep);
 
   // counter
   int nEventsAnalyzed;
@@ -176,6 +180,17 @@ private:
   TH1F *hRHResid32;
   TH1F *hRHResid41;
   TH1F *hRHResid42;
+  TH1F *hSResid11b;
+  TH1F *hSResid12;
+  TH1F *hSResid13;
+  TH1F *hSResid11a;
+  TH1F *hSResid21;
+  TH1F *hSResid22;
+  TH1F *hSResid31;
+  TH1F *hSResid32;
+  TH1F *hSResid41;
+  TH1F *hSResid42;
+
 
   TH1F *hSCodeBroad;
   TH1F *hSCodeNarrow1;
