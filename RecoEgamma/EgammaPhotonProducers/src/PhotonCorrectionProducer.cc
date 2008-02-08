@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.19 2007/12/31 18:43:15 ratnik Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.20 2008/02/06 17:22:07 nancy Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -22,6 +22,8 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -46,6 +48,10 @@ PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& ps)
   barrelClusterShapeMapCollection_ = ps.getParameter<std::string>("barrelClusterShapeMapCollection");
   endcapClusterShapeMapProducer_   = ps.getParameter<std::string>("endcapClusterShapeMapProducer");
   endcapClusterShapeMapCollection_ = ps.getParameter<std::string>("endcapClusterShapeMapCollection");
+
+  conversionProducer_ = ps.getParameter<std::string>("conversionProducer");
+  conversionCollection_ = ps.getParameter<std::string>("conversionCollection");
+
 
 
   std::string word;
@@ -74,9 +80,10 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   evt.getByLabel(photonProducer_, photonCollection_, photonHandle);    
   if (!photonHandle.isValid()) {
     edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product photons "<<photonCollection_.c_str();
-    return; 
+    return;
   }
   
+  // Photons completed with ref to conversions and corrections
   const reco::PhotonCollection& photonCollection = *(photonHandle.product());
   std::auto_ptr<reco::PhotonCollection> photon_ap(new reco::PhotonCollection);
 
@@ -95,6 +102,20 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     return;
   }
 
+
+  ///// Get the conversion collection
+  edm::Handle<reco::ConversionCollection> conversionHandle; 
+  evt.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
+  if (!conversionHandle.isValid()) {
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str();
+    return;
+  }
+  const reco::ConversionCollection& conversionCollection = *(conversionHandle.product());
+
+
+
+
+
   for (reco::PhotonCollection::const_iterator ph = photonCollection.begin(); ph != photonCollection.end(); ph++)
     {
       double corrfactor = 1.;
@@ -110,9 +131,31 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
       
       float correctedEnergy = (ph->superCluster()->rawEnergy() +
 	                       ph->superCluster()->preshowerEnergy())*corrfactor;
+
       reco::Photon* correctedPhoton = ph->clone();
+      const reco::SuperCluster* aClus=&(*(correctedPhoton->superCluster()));
+
+
       correctedPhoton->setP4(ph->p4()/ph->energy()*correctedEnergy);
-      //std::cout << "photon energy before, after correction: " << ph->energy() << ", " << correctedPhoton.energy() << std::endl;
+      // 
+
+      int icp=0;    
+      for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+	
+	reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+	icp++;      
+	if ( &(*itCP->superCluster())  != &(*aClus)  ) continue; 
+	if ( !(*itCP).isConverted() ) continue;  
+	
+	
+	correctedPhoton->addConversion(cpRef);     
+	
+	
+      }		     
+
+
+
+
       photon_ap->push_back(*correctedPhoton);
     }
   
