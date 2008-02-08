@@ -16,7 +16,7 @@
 bool TrackOrigin::hasParticles(std::set<int> const & list) const
 {
   // look into the TrackingParticle trail
-  TrackingParticleRefVector::const_iterator tpi;
+  SimParticleTrail::const_iterator tpi;
   for (tpi = simParticleTrail_.begin(); tpi != simParticleTrail_.end(); tpi++)
      if (list.find((*tpi)->pdgId()) != list.end())
        return true;
@@ -33,7 +33,7 @@ bool TrackOrigin::hasParticles(std::set<int> const & list) const
 
 bool TrackOrigin::hasPhotonConversion() const
 {
-  TrackingVertexContainer::const_iterator tvr;
+  SimVertexTrail::const_iterator tvr;
   TrackingParticleRefVector sources, daughters;
   for (tvr = simVertexTrail_.begin(); tvr != simVertexTrail_.end(); tvr++)
   {

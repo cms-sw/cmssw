@@ -31,6 +31,12 @@ public:
 
   //! GenVertex trail type.
   typedef std::vector<const HepMC::GenVertex *> GenVertexTrail;
+
+  //! SimParticle trail type.
+  typedef std::vector<TrackingParticleRef> SimParticleTrail;
+
+  //! SimVertex trail type.
+  typedef std::vector<TrackingVertexRef> SimVertexTrail;
   
   //! Void constructor.
   TrackHistory() 
@@ -83,13 +89,13 @@ public:
   bool evaluate (edm::RefToBase<reco::Track>, reco::RecoToSimCollection const &, bool maxMatch = true);
 
   //! Return all the simulated vertexes in the history.
-  TrackingVertexContainer simVertexTrail()
+  SimVertexTrail simVertexTrail()
   {
     return simVertexTrail_;
   }
 
   //! Return all the simulated particle in the history.
-  TrackingParticleRefVector simParticleTrail()
+  SimParticleTrail simParticleTrail()
   {
     return simParticleTrail_;
   }
@@ -112,8 +118,8 @@ protected:
   
   GenVertexTrail genVertexTrail_;
   GenParticleTrail genParticleTrail_;
-  TrackingVertexContainer simVertexTrail_; 
-  TrackingParticleRefVector simParticleTrail_;
+  SimVertexTrail simVertexTrail_; 
+  SimParticleTrail simParticleTrail_;
   
 private:
 

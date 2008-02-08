@@ -132,7 +132,7 @@ VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (tracer.evaluate(track, association, associationByHits_))
     {
       // Get the list of TrackingVertexes associated to
-      TrackingVertexContainer vertexes(tracer.simVertexTrail());
+      TrackOrigin::SimVertexTrail vertexes(tracer.simVertexTrail());
          
       // Loop over all vertexes                       
       if( !vertexes.empty() )

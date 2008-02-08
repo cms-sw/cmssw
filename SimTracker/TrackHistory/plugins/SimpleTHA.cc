@@ -118,7 +118,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (tracer.evaluate(track, association, associationByHits_))
     {
       // Get the list of TrackingParticles associated to
-      TrackingParticleRefVector simParticles(tracer.simParticleTrail());
+      TrackOrigin::SimParticleTrail simParticles(tracer.simParticleTrail());
 
       std::cout << std::endl << "History for track #" << index << " : " << std::endl;
 
@@ -131,7 +131,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackingVertexContainer simVertexes(tracer.simVertexTrail());
+      TrackOrigin::SimVertexTrail simVertexes(tracer.simVertexTrail());
          
       // Loop over all simVertexes                       
       if( !simVertexes.empty() )
