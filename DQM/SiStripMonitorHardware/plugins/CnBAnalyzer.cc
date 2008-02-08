@@ -7,7 +7,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-
 // This is the maximum number of histogrammed FEDs
 // If the number of FEDs exceeds this limit we have a crash
 #define N_MAX_FEDS  (1024)
@@ -137,7 +136,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   LogInfo("FEDBuffer") << "Number of Tracker Fed Buffers:" << fedIds_.size();
-  LogInfo("FEDBuffer") << "EVENTNUMB" << iEvent.id().event();
+  LogInfo("FEDBuffer") << "EVENTNUMB: " << iEvent.id().event();
 
 
   /**************************/
@@ -156,6 +155,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for (ifed = fedIds_.begin() ; ifed != fedIds_.end(); ifed++ ) {
     
+    LogInfo("FEDBuffer") << "A FED event: ";
     createDetailedFedHistograms((*ifed), runNumber_);
     
     // Retrieve FED raw data for given FED... there it is :)      
@@ -167,10 +167,12 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     size_u32 = static_cast<Fed9U::u32>( input.size() / 4 );
     
     Fed9UEventAnalyzer myEventAnalyzer(fedIdBoundaries_, swapOn_);
-
+    
     // The Initialize function is true if we have a good
     // non-corrupted tracker buffer
     if (myEventAnalyzer.Initialize(data_u32, size_u32)) {
+      
+      LogInfo("FEDBuffer") << "FEDevent correctly initialized";
       
       // The Fed9UErrorCondition structure may cointain all the relevant
       // errors specific to the event
@@ -187,10 +189,18 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
       if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
   
-
+      LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
+      LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
+      LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
+      LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
+      
       
       // Fill the Front-end failure counters 
       for (unsigned int iFrontEnd=0; iFrontEnd<8; iFrontEnd++) {
+	LogInfo("FEDBuffer") << "feOverflow[" << iFrontEnd << "] = " << thisFedEventErrs.feOverflow[iFrontEnd];
+	LogInfo("FEDBuffer") << "apvAddressError[" << iFrontEnd << "] = " << thisFedEventErrs.apvAddressError[iFrontEnd];
+	LogInfo("FEDBuffer") << "apvAddressError[" << iFrontEnd << "] = " << thisFedEventErrs.apvAddressError[iFrontEnd];
+
 	if (thisFedEventErrs.feOverflow[iFrontEnd])
 	  feOverFlow_[*ifed]->Fill(iFrontEnd*24+1);
 	if (thisFedEventErrs.apvAddressError[iFrontEnd])
@@ -200,8 +210,19 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       // Fill the channel failure counters 
       for (unsigned int iChannel=0; iChannel<96; iChannel++) {
-	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBERUNLOCKED)
+	LogInfo("FEDBuffer") << "channel[" << iChannel << "] = " << hex << thisFedEventErrs.channel[iChannel];
+
+
+	// debug
+	int a, b;
+	double c;
+	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBERUNLOCKED) {
+	  a=chanErrUnlock_[*ifed]->getBinContent(iChannel+1); // debug
 	  chanErrUnlock_[*ifed]->Fill(iChannel*2+1);
+	  b=chanErrUnlock_[*ifed]->getBinContent(iChannel+1); // debug
+	  LogInfo("FEDBuffer") << "mersi: channel " << c << "errFiberUnlocked moved from "
+			       << a << " to " << b;
+	}
 	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBEROUTOFSYNCH)
 	  chanErrOOS_[*ifed]->Fill(iChannel*2+1);	
       }      
@@ -209,6 +230,8 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
       // apv[96*2]
       for (unsigned int iApv=0; iApv<192; iApv++) {
+	LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
+
 	if (thisFedEventErrs.apv[iApv])
 	  badApv_[*ifed]->Fill(iApv+1);
       }
@@ -303,7 +326,7 @@ void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
 
   // NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE
   // NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE
-  // Directories and data structures are created for all ppossible FEDs
+  // Directories and data structures are created for all possible FEDs
   // It will be up to the client to look only at the sensible plots.
   // NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE
   // NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE - NOT TRUE
@@ -339,21 +362,26 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id, const int
     
     
     //   bool feOverflow[8];
-    feOverFlow_[fed_id]     = dbe->book1D( "FedUnit Overflow","FedUnit Overflow for FED #"+fedNumber.str(),
+    feOverFlow_[fed_id]     = dbe->book1D( "FedUnit Overflow",
+					   "FedUnit Overflow for FED #"+fedNumber.str(),
 					   8, 0.5, 192.5 );
     
     //   bool apvAddressError[8];
-    feAPVAddr_[fed_id]      = dbe->book1D( "APV Address error","FedUnit APV Address error for FED #"+fedNumber.str(),
+    feAPVAddr_[fed_id]      = dbe->book1D( "APV Address error",
+					   "FedUnit APV Address error for FED #"+fedNumber.str(),
 					   8, 0.5, 192.5 );
     
     // Channel[96]
-    chanErrUnlock_[fed_id]  = dbe->book1D( "Unlock error", "Unlocked Fiber error for FED #"+fedNumber.str(),
+    chanErrUnlock_[fed_id]  = dbe->book1D( "Unlock error",
+					   "Unlocked Fiber error for FED #"+fedNumber.str(),
 					   96, 0.5, 192.5);
-    chanErrOOS_[fed_id]     = dbe->book1D( "OOS error", "OutOfSynch Fiber error for FED #"+fedNumber.str(),
+    chanErrOOS_[fed_id]     = dbe->book1D( "OOS error",
+					   "OutOfSynch Fiber error for FED #"+fedNumber.str(),
 					   96, 0.5, 192.5);
     
     // apv[96*2]
-    badApv_[fed_id]         = dbe->book1D( "Bad APV error", "Bad APV error for FED #"+fedNumber.str(),
+    badApv_[fed_id]         = dbe->book1D( "Bad APV error",
+					   "Bad APV error for FED #"+fedNumber.str(),
 					   192, 0.5, 192.5);
 
 
