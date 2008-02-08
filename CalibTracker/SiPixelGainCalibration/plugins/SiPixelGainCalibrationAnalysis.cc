@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.11 2008/02/08 13:49:35 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.12 2008/02/08 14:29:11 fblekman Exp $
 //
 //
 
@@ -137,35 +137,46 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
 }
 //-----------method to fill the database
 void SiPixelGainCalibrationAnalysis::fillDatabase(){
+  // only create when necessary.
+  theGainCalibrationDbInput_ = new SiPixelGainCalibration();
+  theGainCalibrationDbInputHLT_ = new SiPixelGainCalibrationForHLT();
+  theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline();
 
   uint32_t nchannels=0;
   uint32_t nmodules=0;
+  //  std::cout << "now starting loop on detids" << std::endl;
+  uint32_t detid=0;
   for(std::map<uint32_t,std::map<std::string, MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
-    uint32_t detid=idet->first;
+    if(detid==idet->first)
+      continue;
+    detid=idet->first;
+    edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now creating database object for detid " << detid << std::endl;
     // Get the module sizes.
-    int nrows = bookkeeper_[detid]["gain2d"]->getNbinsY();
-    int ncols = bookkeeper_[detid]["ped2d"]->getNbinsX();   
-    
+
+    int nrows = bookkeeper_[detid]["gain_2d"]->getNbinsY();
+    int ncols = bookkeeper_[detid]["gain_2d"]->getNbinsX();   
+
     std::vector<char> theSiPixelGainCalibrationPerPixel;
     std::vector<char> theSiPixelGainCalibrationPerColumn;
     std::vector<char> theSiPixelGainCalibrationGainPerColPedPerPixel;
-
-
-    std::vector<float> gainpercol ;
-    std::vector<float> pedpercol ;
+    
     // Loop over columns and rows of this DetID
+    //    std::cout <<" now starting loop over pixels..." << std::endl;
     for(int i=1; i<=ncols; i++) {
       float pedforthiscol=0;
       float gainforthiscol=0;
       int nusedrows=0;
+      //      std::cout << "now lookign at col " << i << std::endl;
       for(int j=1; j<=nrows; j++) {
 	nchannels++;
-	float ped = bookkeeper_[detid]["ped2d"]->getBinContent(i,j);
-	float gain = bookkeeper_[detid]["gain2d"]->getBinContent(i,j);
+	float ped = bookkeeper_[detid]["ped_2d"]->getBinContent(i,j);
+	float gain = bookkeeper_[detid]["gain_2d"]->getBinContent(i,j);
 	
+	//	std::cout << "looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
 	// and fill and convert in the SiPixelGainCalibration object:
 	theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
 	theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
+	//	std::cout <<"done with database filling..." << std::endl;
 
 	pedforthiscol+=ped;
 	gainforthiscol+=gain;
@@ -175,16 +186,18 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
 	pedforthiscol/=nusedrows;
 	gainforthiscol/=nusedrows;
       }
+      //      std::cout << "filling objects..." << std::endl;
       theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol,nrows,theSiPixelGainCalibrationGainPerColPedPerPixel);
       theGainCalibrationDbInputHLT_->setData(pedforthiscol,gainforthiscol,theSiPixelGainCalibrationPerColumn);
 	
-      
     }
 
+    //    std::cout << "setting range..." << std::endl;
     SiPixelGainCalibration::Range range(theSiPixelGainCalibrationPerPixel.begin(),theSiPixelGainCalibrationPerPixel.end());
     SiPixelGainCalibrationForHLT::Range hltrange(theSiPixelGainCalibrationPerColumn.begin(),theSiPixelGainCalibrationPerColumn.end());
     SiPixelGainCalibrationOffline::Range offlinerange(theSiPixelGainCalibrationGainPerColPedPerPixel.begin(),theSiPixelGainCalibrationGainPerColPedPerPixel.end());
     
+    //    std::cout <<"putting things in db..." << std::endl;
     // now start creating the various database objects
     if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
       edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
