@@ -457,19 +457,15 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   unsigned int thestation = 999;
   unsigned int thecham    = 999;
 
-  // Stoyans cutoff limit at 20 hits
-  unsigned int UpperLimit = maxRecHitsInCluster; 
-  if (int(rechits.size()) < minHitsPerSegment){ 
-    return segmentInChamber;
-  }
-  else if(rechits.size()>UpperLimit){ // avoid too messy events; alternative?
-    std::cout<<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
-      " ... Segment finding in the cluster/chamber canceled! "<<std::endl;
-    return segmentInChamber;  
-  }
+  std::vector<int> hits_onLayerNumber(6);
 
+  // Stoyans cutoff limit at 20 hits
+  unsigned int UpperLimit = maxRecHitsInCluster;
+  if (int(rechits.size()) < minHitsPerSegment) return segmentInChamber;
+ 
   for(int iarray = 0; iarray <6; ++iarray) { // magic number 6: number of layers in CSC chamber - not gonna change :)
     PAhits_onLayer[iarray].clear();
+    hits_onLayerNumber[iarray] = 0;    
   }
 
   chosen_Psegments.clear();
@@ -511,8 +507,6 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   curv_noL5_A.clear();
   curv_noL6_A.clear();
 
-  std::vector<int> hits_onLayerNumber(6);
-
   // definition of middle layer for n-hit segment
   int midlayer_pointer[6] = {0,0,2,3,3,4};
   
@@ -552,10 +546,53 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   }
  
   // We have now counted the hits per layer and filled pointers to the hits into an array
+  
+  int tothits = 0;
+  int maxhits = 0;
+  int nexthits = 0;
+  int maxlayer = -1;
+  int nextlayer = -1;
 
-  // for(int i = 0; i< hits_onLayerNumber.size(); ++i){
-  //   std::cout<<"We have "<<hits_onLayerNumber[i]<<" hits on layer "<<i+1<<std::endl;
-  // }
+  for(uint i = 0; i< hits_onLayerNumber.size(); ++i){
+    //std::cout<<"We have "<<hits_onLayerNumber[i]<<" hits on layer "<<i+1<<std::endl;
+    tothits += hits_onLayerNumber[i];
+    if (hits_onLayerNumber[i] > maxhits) {
+      nextlayer = maxlayer;
+      nexthits = maxhits;
+      maxlayer = i;
+      maxhits = hits_onLayerNumber[i];
+    }
+    else if (hits_onLayerNumber[i] > nexthits) {
+      nextlayer = i;
+      nexthits = hits_onLayerNumber[i];
+    }
+  }
+
+  if (tothits > (int)UpperLimit) {
+    if (n_layers_occupied_tot > 4) {
+      tothits = tothits - hits_onLayerNumber[maxlayer];
+      n_layers_occupied_tot = n_layers_occupied_tot - 1;
+      PAhits_onLayer[maxlayer].clear();
+      hits_onLayerNumber[maxlayer] = 0;
+    }
+  }
+
+  if (tothits > (int)UpperLimit) {
+    if (n_layers_occupied_tot > 4) {
+      tothits = tothits - hits_onLayerNumber[nextlayer];
+      n_layers_occupied_tot = n_layers_occupied_tot - 1;
+      PAhits_onLayer[nextlayer].clear();
+      hits_onLayerNumber[nextlayer] = 0;
+    }
+  }
+
+  if (tothits > (int)UpperLimit){ 
+	LogDebug("CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
+	  " ... Segment finding in the cluster/chamber canceled! \n";
+	//     std::cout<<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
+	//     " ... Segment finding in the cluster/chamber canceled! "<<std::endl;
+    return segmentInChamber;  
+  }
    
   // Find out which station, ring and chamber we are in 
   // Used to choose station/ring dependant y-weight cuts
@@ -1206,7 +1243,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     
   default : 
     // Fallback - should never occur.
-    std::cout<<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers."<<std::endl;
+    LogDebug("CSC") <<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers.\n";
+    //     std::cout<<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers."<<std::endl;
     hit_drop_limit = 0.1;
   }
 
@@ -1314,7 +1352,8 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
       // skip here too if segment was marked bad
       SumCommonHits =0;
       if( Psegments[iCand].size() != Psegments[iiCand].size() ) {
-	std::cout<<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!"<<std::endl;
+	LogDebug("CSC") <<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!\n";
+// 	std::cout<<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!"<<std::endl;
       }
       else {
 	for( int ihits = 0; ihits < int(Psegments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (alsways have by construction)
