@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/07 13:39:02 $
- * $Revision: 1.56 $
+ * $Date: 2008/02/07 16:27:49 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -564,7 +564,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_l1[ecid] = vpt_l1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -605,7 +605,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_l1[ecid] = vpt_l1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

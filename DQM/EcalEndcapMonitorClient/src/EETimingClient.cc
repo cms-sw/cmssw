@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/07 13:39:02 $
- * $Revision: 1.58 $
+ * $Date: 2008/02/07 16:27:49 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -302,7 +302,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset[ecid] = t;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

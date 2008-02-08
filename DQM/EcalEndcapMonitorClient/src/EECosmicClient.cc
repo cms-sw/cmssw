@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/02/07 13:39:02 $
- * $Revision: 1.43 $
+ * $Date: 2008/02/07 16:27:48 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -229,7 +229,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_hashed", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
