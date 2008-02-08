@@ -1,10 +1,11 @@
 #include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: EntryDescription.cc,v 1.1 2008/01/25 16:02:06 wmtan Exp $
+$Id: EntryDescription.cc,v 1.2 2008/01/25 21:06:48 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -84,6 +85,7 @@ namespace edm {
     if (moduleDescriptionID_ != entry->moduleDescriptionID_) {
       moduleDescriptionID_ = ModuleDescriptionID();
     }
-  }
 
+    EntryDescriptionRegistry::instance()->insertMapped(*this);
+  }
 }
