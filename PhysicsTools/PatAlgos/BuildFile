@@ -12,6 +12,5 @@
 <use name=JetMETCorrections/Objects>
 <use name=TrackingTools/TransientTrack>
 <use name=root>
-
+<flags CXXFLAGS="-Os">
 <flags EDM_PLUGIN=1>
-<flags CXXFLAGS="-O0 -ggdb -DDEBUG">

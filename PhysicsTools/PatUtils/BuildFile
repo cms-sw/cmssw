@@ -6,7 +6,6 @@
 <use name=TrackingTools/TransientTrack>
 <use name=root>
 <flags LDFLAGS="-lMLP">
-<flags CXXFLAGS="-O0 -ggdb -DDEBUG">
 <export>
     <lib name=PhysicsToolsPatUtils>
     <use name=DataFormats/Candidate>
