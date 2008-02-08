@@ -64,21 +64,13 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
       
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      //meanwhile computes the number of degrees of freedom
       TransientTrackingRecHit::RecHitContainer hits;
       
       float ndof=0;     
-
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
 	   i!=recHitVec.second; i++){
 	hits.push_back(builder->build(&(*i) ));
-	if ((*i).isValid()){
-	  ndof = ndof + (i->dimension())*(i->weight());
-	}
       }      
-      
-      
-      ndof = ndof - 5;
       
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
@@ -112,9 +104,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	TransientTrackingRecHit::RecHitContainer hits;       
 	for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
 	  hits.push_back(builder->build(&**i ));
-	  if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());      
 	}
-	ndof = ndof - 5;
 	
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -166,9 +156,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	TransientTrackingRecHit::RecHitContainer hits;       
 	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd();++j){
 	  hits.push_back(builder->build(&**j ));
-	  if ((*j)->isValid()) ndof = ndof + ((*j)->dimension())*((*j)->weight());      
 	}
-	ndof = ndof - 5;
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -230,9 +218,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	TransientTrackingRecHit::RecHitContainer hits;       
 	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd(); ++j){
 	  hits.push_back(builder->build(&**j ));
-	  if ((*j)->isValid()) ndof = ndof + ((*j)->dimension())*((*j)->weight());      
 	}
-	ndof = ndof - 5;
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 

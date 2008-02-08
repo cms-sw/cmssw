@@ -62,10 +62,15 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
       innertsos = theTraj->lastMeasurement().updatedState();
     }
     
+    ndof = 0;
+    TransientTrackingRecHit::RecHitContainer validHits;
+    theTraj->validRecHits(validHits);
+    for (TransientTrackingRecHit::RecHitContainer::iterator h=validHits.begin();h!=validHits.end();++h)
+      ndof = ndof + ((*h)->dimension())*((*h)->weight());
+    ndof = ndof - 5;
     
     TSCPBuilderNoMaterial tscpBuilder;
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
-
 
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );//FIXME Correct?   
@@ -147,7 +152,13 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 // 		<< sqrt((*ic).localError().matrix()[0][0])/sinTheta << std::endl;
 //     }
     
-    
+    ndof = 0;
+    TransientTrackingRecHit::RecHitContainer validHits;
+    theTraj->validRecHits(validHits);
+    for (TransientTrackingRecHit::RecHitContainer::iterator h=validHits.begin();h!=validHits.end();++h)
+      ndof = ndof + ((*h)->dimension())*((*h)->weight());
+    ndof = ndof - 5;
+   
     TSCPBuilderNoMaterial tscpBuilder;
 
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
