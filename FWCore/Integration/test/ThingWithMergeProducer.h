@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include <string>
+
 namespace edmtest {
   class ThingWithMergeProducer : public edm::EDProducer {
   public:
@@ -25,6 +27,7 @@ namespace edmtest {
   private:
 
     bool changeIsEqualValue_;
+    std::string labelToGet_;
   };
 }
 

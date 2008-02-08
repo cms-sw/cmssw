@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: TestMergeResults.cc,v 1.1 2008/02/04 20:14:20 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -24,6 +24,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include <string>
 #include <vector>
 #include <iostream>
 
@@ -59,6 +60,7 @@ namespace edmtest
     void abortWithMessage(char* whichFunction, char* product, int expectedValue, int actualValue);
 
     std::vector<int> default_;
+    std::vector<std::string> defaultvstring_;
 
     std::vector<int> expectedBeginRunProd_;
     std::vector<int> expectedEndRunProd_;
@@ -69,6 +71,8 @@ namespace edmtest
     std::vector<int> expectedEndRunNew_;
     std::vector<int> expectedBeginLumiNew_;
     std::vector<int> expectedEndLumiNew_;
+
+    std::vector<std::string> expectedParents_;
 
     bool verbose_;
 
@@ -90,6 +94,7 @@ namespace edmtest
 
   TestMergeResults::TestMergeResults(edm::ParameterSet const& ps):
     default_(),
+    defaultvstring_(),
     expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunProd", default_)),
     expectedEndRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunProd", default_)),
     expectedBeginLumiProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiProd", default_)),
@@ -99,6 +104,8 @@ namespace edmtest
     expectedEndRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunNew", default_)),
     expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiNew", default_)),
     expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
+
+    expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
 
     verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
 
@@ -131,6 +138,38 @@ namespace edmtest
     if (verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
 
     edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
+
+    if (expectedParents_.size() != 0 && run.run() == 1) {
+
+      run.getByLabel(tag, h_thing);
+      std::vector<edm::ProductID> parents = h_thing.provenance()->event().parents_;
+      assert(parents.size() == expectedParents_.size());
+      for (unsigned int i = 0; i < parents.size(); ++i) {
+        run.get(parents[i], h_thing);
+        assert(h_thing.provenance()->moduleLabel() == expectedParents_[i]);
+        assert(h_thing->a == 10001);
+      }
+
+      run.getByLabel(tag, h_thingWithMerge);
+      parents = h_thingWithMerge.provenance()->event().parents_;
+      assert(parents.size() == expectedParents_.size());
+      for (unsigned int i = 0; i < parents.size(); ++i) {
+        run.get(parents[i], h_thing);
+        assert(h_thing.provenance()->moduleLabel() == expectedParents_[i]);
+        assert(h_thing->a == 10001);
+      }
+
+      run.getByLabel(tag, h_thingWithIsEqual);
+      parents = h_thingWithIsEqual.provenance()->event().parents_;
+      assert(parents.size() == expectedParents_.size());
+      for (unsigned int i = 0; i < parents.size(); ++i) {
+        run.get(parents[i], h_thing);
+        assert(h_thing.provenance()->moduleLabel() == expectedParents_[i]);
+        assert(h_thing->a == 10001);
+      }
+    }
+
+
     if ((index0_ + 2) < expectedBeginRunProd_.size()) {
 
       run.getByLabel(tag, h_thing);
