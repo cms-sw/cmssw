@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+import os,os.path,string
+import sys
+import xml.dom.minidom
+from optparse import OptionParser
+class mappingGenerator:
+    def __init__(self):
+        """
+        Generate mapping xml file for a given class_version with default mapping rules. The result xml file can be customised by the user. The mapping xml file name rule: <class_version>.xml where the class_version parameter is taken from classes_def.xml. If class_version parameter is not present in classes_def.xml, the schema evolution is disabled for this class and this command will fail.
+        usage: %prog [options]
+        -c, --classversion : the class_version to generate mapping(required)
+        -d, --dictionary : dictionary ( default to classes_def.xml dir SubsystemnamePackagename )
+        -p, --path : path to classes_def.xml (default to current Subsystem/Package/src)
+        -v, --verbose: verbose mode
+        -h, --help: print usage
+        """
+        self.__verbose=False
+        cmsswbase=os.getenv('CMSSW_BASE')
+        currentdir=os.getcwd()
+        if cmsswbase == None :
+            raise ValueError, "cmssw environment variables not set"
+        
+        self.__verbose=False
+        self.__classversion="Pedestals_v0"
+        self.__classname=""
+        self.__dictionary="CondFormatsCalibration"
+        self.__poolcontainer=""
+        self.__defaultXMLheader="\n".join([
+            "<?xml version=\'1.0\' encoding=\"UTF-8\"?>",
+            "<!DOCTYPE PoolDatabase SYSTEM \"InMemory\">",
+            "<PoolDatabase>",
+            "<PoolContainer name=\"##CONTAINERNAME##\" tech=\"homogeneous\" >",
+            "<Class name=\"##CLASSNAME##\" mapping_version=\"##MAPPINGVERSION##\">",
+            "</Class>",
+            "</PoolContainer>",
+            "</PoolDatabase>"])
+        self.__defaultXMLheader='\"'+self.__defaultXMLheader+'\"'
+    def buildtempxml(self,containername,classname,classversion):
+        self.__defaultXMLheader=self.__defaultXMLheader.replace("##CONTAINERNAME##",containername)
+        self.__defaultXMLheader=self.__defaultXMLheader.replace("##CLASSNAME##",classname)
+        self.__defaultXMLheader=self.__defaultXMLheader.replace("##MAPPINGVERSION##",classversion)
+
+    def parseclassdefxml(self,classversion):
+        """
+        Parse classes_def.xml to get parameter
+        self.__classname
+        and default values of
+        self.__poolcontainer
+        self.__dictionary 
+        """
+        f=open(os.path.join(self.__path,"classes_def.xml"),'r')
+        searchfor="class_version=\""+classversion+"\""
+        print 'searchfor ',searchfor
+        for line in f:
+            pos=line.find(searchfor)
+            if pos>0: #found line
+                fields=line.split(' ')
+                print fields
+                for field in fields:
+                    if field.find("name=") != -1:
+                        print 'found name'
+                        result=field.split("\"")[1]
+                        self.__classname=result
+                        if self.__poolcontainer=="":
+                            self.__poocontainer=self.__classname+"Rcd"
+                        print "###############", result
+        f.close()
+        
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n"
+        parser = OptionParser()
+        parser.add_option("-c","--classversion",action="store",dest="classversion",
+                          help="class_version to generate mapping (required)")
+        parser.add_option("-P","--Path",action="store",dest="path",
+                          help="path to file classes_def.xml( required )")
+        parser.add_option("-p","--poolcontainer",action="store",dest="poolcontainer",
+                          help="pool container associated with the class (default to classNameRcd, i.e. eventsetup record name)")        
+        parser.add_option("-d","--dictionary",action="store",dest="dictionary",
+                          help="dictionary(default is deduced from class_def.xml directory SubsystemNamePackageName)")
+        parser.add_option("-v","--verbose",action="store_true",dest="verbose",
+                          help="verbose mode")
+
+        (options, args) = parser.parse_args()        
+        self.__classversion=options.classversion
+        self.__path=os.path.abspath(options.path)
+        self.parseclassdefxml(self.__classversion)
+        if options.poolcontainer:
+            #overwrite the default with option
+            self.__poolcontainer=options.poolcontainer
+        if options.dictionary:
+            self.__dictionary=options.dictionary
+        self.__verbose=options.verbose
+        self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
+        #self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
+        if self.__verbose is True:
+            print "classversion %s : " % self.__classversion
+      
+    def generate(self):
+        '''create xml catalog with given input
+        '''        
+        outfilename=self.__classversion+".xml"
+        if self.__verbose is False:
+            print 'here'
+            cmd=' '.join(['echo\"',self.__defaultXMLheader,'\" | ','pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
+        else:
+            print 'there'
+            #sys.stdin.read(self.__defaultXMLheader)
+            #cmd1="echo -n "+self.__defaultXMLheader
+            #cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
+            cmd=' '.join(['echo ',self.__defaultXMLheader,'|', 'pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
+        print cmd
+
+        os.system(cmd) 
+if __name__ == "__main__":
+    me=mappingGenerator()    
+    me.parsecmdln()
+    me.generate()
+
+
