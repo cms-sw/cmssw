@@ -3,9 +3,9 @@
 /** \class PhotonCorrectionProducer
  **  
  **
- **  $Id: PhotonCorrectionProducer.h,v 1.3 2006/07/27 19:36:37 nancy Exp $ 
- **  $Date: 2006/07/27 19:36:37 $ 
- **  $Revision: 1.3 $
+ **  $Id: PhotonCorrectionProducer.h,v 1.4 2006/12/17 14:14:00 futyand Exp $ 
+ **  $Date: 2006/12/17 14:14:00 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -34,11 +34,15 @@ class PhotonCorrectionProducer : public edm::EDProducer
       std::string photonProducer_;
       std::string photonCollection_;
       std::string photonCorrCollection_;
+      std::string conversionProducer_;
+      std::string conversionCollection_;
       std::string barrelClusterShapeMapProducer_;
       std::string barrelClusterShapeMapCollection_;
       std::string endcapClusterShapeMapProducer_;
       std::string endcapClusterShapeMapCollection_;
       std::string algoCollection_;  //correction algorithm collection      
+
+
 };
 
 

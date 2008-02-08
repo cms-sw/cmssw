@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.10 2007/09/25 10:46:56 nancy Exp $ 
- **  $Date: 2007/09/25 10:46:56 $ 
- **  $Revision: 1.10 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.12 2007/12/07 20:46:40 nancy Exp $ 
+ **  $Date: 2007/12/07 20:46:40 $ 
+ **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -59,10 +59,6 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   std::string ConvertedPhotonCollection_;
   std::string PhotonWithConversionsCollection_;
 
-
-  std::string photonProducer_   ;
-  std::string photonCollection_ ;
- 
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;
