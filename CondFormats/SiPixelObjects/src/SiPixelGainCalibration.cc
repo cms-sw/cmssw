@@ -117,7 +117,7 @@ float SiPixelGainCalibration::encodeGain( const float& gain ) {
   
   if(gain < minGain_ || gain > maxGain_ ) {
     throw cms::Exception("InsertFailure")
-      << "[SiPixelGainCalibration::encodeGain] Trying to encode gain out of range\n";
+      << "[SiPixelGainCalibration::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
     double precision   = (maxGain_-minGain_)/255.;
     float  encodedGain = (float)((gain-minGain_)/precision);
@@ -130,7 +130,7 @@ float SiPixelGainCalibration::encodePed( const float& ped ) {
 
   if(ped < minPed_ || ped > maxPed_ ) {
     throw cms::Exception("InsertFailure")
-      << "[SiPixelGainCalibration::encodePed] Trying to encode pedestal out of range\n";
+      << "[SiPixelGainCalibration::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
     double precision   = (maxPed_-minPed_)/255.;
     float  encodedPed = (float)((ped-minPed_)/precision);
