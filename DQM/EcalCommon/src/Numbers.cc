@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.45 2008/01/05 09:18:35 dellaric Exp $
+// $Id: Numbers.cc,v 1.46 2008/01/28 15:41:14 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.45 $
-  \date $Date: 2008/01/05 09:18:35 $
+  \version $Revision: 1.46 $
+  \date $Date: 2008/01/28 15:41:14 $
 */
 
 #include <sstream>
@@ -580,11 +580,9 @@ int Numbers::indexEE( const int ism, const int ix, const int iy ){
   if( ism >=  1 && ism <=  9 ) iz = -1;
   if( ism >= 10 && ism <= 18 ) iz = +1;
 
-  if( EEDetId::validDetId(ix, iy, iz) ) {
+  if( EEDetId::validDetId(Numbers::ix0EE(ism)+ix, Numbers::iy0EE(ism)+iy, iz) ) {
 
-    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
-
-    return( id.hashedIndex() );
+    return( 1000*(Numbers::ix0EE(ism)+ix) + Numbers::iy0EE(ism)+iy );
 
   } else {
 
