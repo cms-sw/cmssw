@@ -132,7 +132,7 @@ system(
 system(
     "mkdir ZPrimeJJM700_Valgrind;
     cd ZPrimeJJM700_Valgrind;
-    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
+    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN,SIM --fileout=ZPJJ__SIM.root --customise=Simulation.py >& ZPrimeJJM700_GEN_SIM.log;
     $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
     mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
     $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
