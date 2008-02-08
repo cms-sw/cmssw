@@ -68,10 +68,25 @@ void GlobalHitsTester::beginJob(const edm::EventSetup& iSetup)
 
 void GlobalHitsTester::endJob()
 {
-  std::string MsgLoggerCat = "GlobalHitsAnalyzer_endJob";
+  std::string MsgLoggerCat = "GlobalHitsTester_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " events.";
+  return;
+}
+
+void GlobalHitsTester::beginRun(const edm::Run& iRun, 
+				const edm::EventSetup& iSetup)
+{
+  return;
+}
+
+void GlobalHitsTester::endRun(const edm::Run& iRun, 
+			      const edm::EventSetup& iSetup)
+{
+  meTestInt->Fill(100);
+  meTestFloat->Fill(3.141592);
+
   return;
 }
 
@@ -90,7 +105,4 @@ void GlobalHitsTester::analyze(const edm::Event& iEvent,
     meTestProfile1->Fill(RandomVal1, RandomVal2);
     meTestProfile2->Fill(RandomVal1, RandomVal2, RandomVal3);
   }
-  
-  meTestInt->Fill(100);
-  meTestFloat->Fill(3.141592);
 }

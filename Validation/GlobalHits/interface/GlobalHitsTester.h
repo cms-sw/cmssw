@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/11/20 23:53:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/25 22:08:18 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -86,6 +87,9 @@ class GlobalHitsTester : public edm::EDAnalyzer
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+
   
 private:
   std::string fName;
