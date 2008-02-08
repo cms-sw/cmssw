@@ -67,8 +67,8 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   bcEndcapCollection_     = conf_.getParameter<std::string>("bcEndcapCollection");
 
 
-  photonProducer_         = conf_.getParameter<std::string>("photonProducer");
-  photonCollection_       = conf_.getParameter<std::string>("photonCorrCollection");
+  //  photonProducer_         = conf_.getParameter<std::string>("photonProducer");
+  // photonCollection_       = conf_.getParameter<std::string>("photonCorrCollection");
   
   
   scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
@@ -99,12 +99,12 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
-  PhotonWithConversionsCollection_     = conf_.getParameter<std::string>("photonWithConversionsCollection");
+  //  PhotonWithConversionsCollection_     = conf_.getParameter<std::string>("photonWithConversionsCollection");
   
   
   // Register the product
   produces< reco::ConversionCollection >(ConvertedPhotonCollection_);
-  produces< reco::PhotonCollection >(PhotonWithConversionsCollection_);
+  // produces< reco::PhotonCollection >(PhotonWithConversionsCollection_);
   
   // instantiate the Track Pair Finder algorithm
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
@@ -167,8 +167,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   
   using namespace edm;
   nEvt_++;  
-  LogInfo("ConvertedPhotonProducer") << "Analyzing event number: " << theEvent.id() << " Global counter " << nEvt_  << "\n";
-  LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
+  
+  std::cout  << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
 
   
   
@@ -179,31 +179,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   reco::ConversionCollection outputConvPhotonCollection;
   std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
 
-
-
-  /// Photon completed with conversion info
-  reco::PhotonCollection outputPhotonCollection;
-  std::auto_ptr<reco::PhotonCollection> outputPhotonCollection_p(new reco::PhotonCollection);
-
-
-
-
-  // Get the photons
-  Handle<reco::PhotonCollection> photonHandle;
-  theEvent.getByLabel(photonProducer_,photonCollection_,photonHandle);
-  if (!photonHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<photonCollection_.c_str();
-    return; 
-  }
-  reco::PhotonCollection photonCollection = *(photonHandle.product());
-  
   
   // Get the Super Cluster collection in the Barrel
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
-    return; 
+    return;
   }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
@@ -226,7 +208,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel(conversionOITrackProducerBarrel_,  outInTrkBarrelHandle);
   if (!outInTrkBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrackBarrel " << "\n";
-    return; 
+    return;
   }
   LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer Barrel outInTrack collection size " << (*outInTrkBarrelHandle).size() << "\n";
   //// Get the Out In CKF tracks from conversions in the Endcap
@@ -244,7 +226,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel( conversionOITrackProducerBarrel_, outInTrackSCBarrelAssociationCollection_, outInTrkSCBarrelAssocHandle);
   if (!outInTrkSCBarrelAssocHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCBarrelAssociationCollection_.c_str() <<"\n";
-    return; 
+    return;
   }
   reco::TrackSuperClusterAssociationCollection outInTrackSCBarrelAss = *outInTrkSCBarrelAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackBarrelSCAssoc collection size " << (*outInTrkSCBarrelAssocHandle).size() <<"\n";
@@ -265,8 +247,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel(conversionIOTrackProducerBarrel_, inOutTrkBarrelHandle);
   if (!inOutTrkBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrackBarrel " << "\n";
-    return; 
- }
+    return;
+  }
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Barre; inOutTrack collection size " << (*inOutTrkBarrelHandle).size() << "\n";
 
   //// Get the In Out  CKF tracks from conversions in the Endcap
@@ -284,7 +266,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel( conversionIOTrackProducerBarrel_, inOutTrackSCBarrelAssociationCollection_, inOutTrkSCBarrelAssocHandle);
   if (!inOutTrkSCBarrelAssocHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCBarrelAssociationCollection_.c_str() <<"\n";
-    return; 
+    return;
   }
   reco::TrackSuperClusterAssociationCollection inOutTrackSCBarrelAss = *inOutTrkSCBarrelAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCBarrelAssocHandle).size() <<"\n";
@@ -293,7 +275,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel( conversionIOTrackProducerEndcap_, inOutTrackSCEndcapAssociationCollection_, inOutTrkSCEndcapAssocHandle);
   if (!inOutTrkSCEndcapAssocHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCEndcapAssociationCollection_.c_str() <<"\n";
-    return; 
+    return;
   }
   reco::TrackSuperClusterAssociationCollection inOutTrackSCEndcapAss = *inOutTrkSCEndcapAssocHandle;  
   LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCEndcapAssocHandle).size() <<"\n";
@@ -657,60 +639,11 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
-  edm::OrphanHandle<reco::ConversionCollection> cpHandle;
-  cpHandle=theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  std::cout  << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
 
+  // edm::OrphanHandle<reco::ConversionCollection> cpHandle;
+  theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 
-  reco::ConversionCollection cpCollection= *(cpHandle.product());
-
-  //  std::cout << " ConvertedPhotonProducer orhpan handle size " << cpCollection.size() << std::endl;
-  //std::cout << " ConvertedPhotonProducer corrected photon size " << photonCorrCollection.size() << std::endl;   
-  for(reco::PhotonCollection::iterator phoItr = photonCollection.begin(); phoItr != photonCollection.end(); phoItr++) {
-
-
-    reco::Photon* photon= phoItr->clone();
-    const reco::SuperCluster* aClus=&(*(photon->superCluster()));
-    //    std::cout << "ConvertedPhotonProducer  Loop on  Photons: SC energy " <<  aClus->energy() << std::endl;
-    
-    
-    int icp=0;    
-    for( reco::ConversionCollection::iterator  itCP = cpCollection.begin(); itCP != cpCollection.end(); itCP++) {
-      
-      reco::ConversionRef cpRef(reco::ConversionRef(cpHandle,icp));
-      icp++;      
-      if ( &(*itCP->superCluster())  != &(*aClus)  ) continue; 
-      if ( !(*itCP).isConverted() ) continue;  
-
-
-      photon->addConversion(cpRef);     
- 
-      
-    }		     
-    
-    outputPhotonCollection.push_back(*photon);    
-
-  }
-
-
-  outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
-  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Putting in the event  " <<  (*outputPhotonCollection_p).size() << " photons completed with conversions " << "\n";  
-  theEvent.put( outputPhotonCollection_p, PhotonWithConversionsCollection_ );
-
-  /*
-  edm::OrphanHandle<reco::PhotonCollection> phoHandle;
-  phoHandle=theEvent.put( outputPhotonCollection_p, PhotonWithConversionsCollection_ );
- 
-  reco::PhotonCollection newphoCollection= *(phoHandle.product());
-  std::cout << " Newly created photon collection size " << newphoCollection.size() << std::endl;  
-  for(reco::PhotonCollection::iterator phoItr = newphoCollection.begin(); phoItr != newphoCollection.end(); phoItr++) {
-
-    std::cout << " Loop and  check ref to conversion size " << (*phoItr).conversions().size() << " r9 " << (*phoItr).r9() << " r19 " << (*phoItr).r19() << " 5x5 " << (*phoItr).e5x5() <<  std::endl;
-    for ( int iCP=0; iCP<(*phoItr).conversions().size(); ++iCP) {
-      std::cout << " Inv Mass " << (*phoItr).conversions()[iCP]->pairInvariantMass() << " dCotTheta " << (*phoItr).conversions()[iCP]->pairCotThetaSeparation() << " EoverP " <<  (*phoItr).conversions()[iCP]->EoverP()  <<  " primary vertex " << (*phoItr).conversions()[iCP]->zOfPrimaryVertexFromTracks() << " pairMomentum " << (*phoItr).conversions()[iCP]->pairMomentum()  <<  std::endl;
-    }
-  }
-  */
 
 
   
