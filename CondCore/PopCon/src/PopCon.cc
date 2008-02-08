@@ -39,8 +39,8 @@ namespace popcon {
 		<< ", " <<  m_tagInfo.lastInterval.first
 		<< "/" << m_tagInfo.lastInterval.second
 		<< ", " << m_tagInfo.size << std::endl;
-      std::cerr << "Last writer, size" <<  m_logDBEntry.provenance 
-		<< ", " << m_logDBEntry.payloadIdx << std::endl;
+      std::cerr << "Last writer, size " <<  m_logDBEntry.provenance 
+		<< ", " << m_logDBEntry.payloadIdx+1 << std::endl;
     }
   }
 
