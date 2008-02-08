@@ -237,11 +237,15 @@ std::set <unsigned int> PixelDetectorConfig::getFEDs(PixelNameTranslation* trans
   std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 	
   for (;imodule!=modules_.end();++imodule) {
-    const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-    for (unsigned int i=0;i<module_hdwaddress->size();i++){
-      unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
-      feds.insert(fednumber);
-    }
+  
+		std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
+		for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+		{
+			const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+			unsigned int fednumber=channel_hdwaddress.fednumber();
+			feds.insert(fednumber);
+		}
+
   }
 	
   return feds;
@@ -258,13 +262,16 @@ std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAnd
   std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 
   for (;imodule!=modules_.end();++imodule) {
-    const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-    assert(module_hdwaddress!=0);
-    for (unsigned int i=0;i<module_hdwaddress->size();i++){
-      unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
-      unsigned int fedchannel=(*module_hdwaddress)[i].fedchannel();
-      fedsChannels[fednumber].insert(fedchannel);
-    }
+  
+		std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
+		for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+		{
+			const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+			unsigned int fednumber=channel_hdwaddress.fednumber();
+			unsigned int fedchannel=channel_hdwaddress.fedchannel();
+			fedsChannels[fednumber].insert(fedchannel);
+		}
+  
   }
 
   return fedsChannels;

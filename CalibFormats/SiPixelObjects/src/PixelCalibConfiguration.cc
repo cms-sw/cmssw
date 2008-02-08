@@ -799,10 +799,12 @@ std::set <unsigned int> PixelCalibConfiguration::getFEDCrates(const PixelNameTra
 
 	for (;imodule!=modules_.end();++imodule)
 	{
-		const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-		for (unsigned int i=0;i<module_hdwaddress->size();i++){
-		  unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
-		  fedcrates.insert(fedconfig->crateFromFEDNumber(fednumber));
+		std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
+		for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+		{
+			const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+			unsigned int fednumber=channel_hdwaddress.fednumber();
+			fedcrates.insert(fedconfig->crateFromFEDNumber(fednumber));
 		}
 	}
 
@@ -819,10 +821,12 @@ std::set <unsigned int> PixelCalibConfiguration::getFECCrates(const PixelNameTra
 
 	for (;imodule!=modules_.end();++imodule)
 	{
-		const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-		for (unsigned int i=0;i<module_hdwaddress->size();i++){
-		  unsigned int fecnumber=(*module_hdwaddress)[i].fecnumber();
-		  feccrates.insert(fecconfig->crateFromFECNumber(fecnumber));
+		std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
+		for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+		{
+			const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+			unsigned int fecnumber=channel_hdwaddress.fecnumber();
+			feccrates.insert(fecconfig->crateFromFECNumber(fecnumber));
 		}
 	}
 

@@ -100,39 +100,6 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 	    }
 	    if ( foundChannel == false ) channelTranslationTable_[aChannel] = hdwAdd;
 	    
-    // Fill moduleTranslationtable_ below
-   
-    //    const PixelHdwAddress* aHdwAdd=getHdwAddress(aModule);
-    const std::vector<PixelHdwAddress>& aHdwAdd(*getHdwAddress(aModule));
-    if (&aHdwAdd==0){
-      //      std::cout << "Inserting new module:"<<aModule<<std::endl;
-      std::vector<PixelHdwAddress> tmp;
-      tmp.push_back(hdwAdd);
-      moduleTranslationtable_[aModule]=tmp;
-    }
-    else{
-      //std::cout << "Module:"<<aModule<<" already existing."<<std::endl;
-      assert(aHdwAdd.size()<3);
-      assert(aHdwAdd.size()>0);
-     
-      assert(aHdwAdd[0].fecnumber()==fecnumber);
-      assert(aHdwAdd[0].mfec()==mfec);
-      assert(aHdwAdd[0].mfecchannel()==mfecchannel);
-      assert(aHdwAdd[0].hubaddress()==hubaddress);
-     
-      if (aHdwAdd.size()==1){
-	if (!(aHdwAdd[0].fednumber()==fednumber&&
-	      aHdwAdd[0].fedchannel()==fedchannel)){
-	  moduleTranslationtable_[aModule].push_back(hdwAdd);
-	}
-      }
-      else{
-	assert((aHdwAdd[0].fednumber()==fednumber&&
-		aHdwAdd[0].fedchannel()==fedchannel)||
-	       (aHdwAdd[1].fednumber()==fednumber&&
-		aHdwAdd[1].fedchannel()==fedchannel));
-      }
-    }
   }//end for r
 }//end contructor
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -239,39 +206,6 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	    }
 	}
       if ( foundChannel == false )	channelTranslationTable_[aChannel] = hdwAdd;
-
-	    
-      // Fill moduleTranslationtable_
-      const std::vector<PixelHdwAddress>& aHdwAdd(*getHdwAddress(aModule));
-      if (&aHdwAdd==0){
-	//std::cout << "Inserting new module:"<<aModule<<std::endl;
-	std::vector<PixelHdwAddress> tmp;
-	tmp.push_back(hdwAdd);
-	moduleTranslationtable_[aModule]=tmp;
-      }
-      else{
-	//std::cout << "Module:"<<aModule<<" already existing."<<std::endl;
-	assert(aHdwAdd.size()<3);
-	assert(aHdwAdd.size()>0);
-
-	assert(aHdwAdd[0].fecnumber()==fecnumber);
-	assert(aHdwAdd[0].mfec()==mfec);
-	assert(aHdwAdd[0].mfecchannel()==mfecchannel);
-	assert(aHdwAdd[0].hubaddress()==hubaddress);
-	      
-	if (aHdwAdd.size()==1){
-	  if (!(aHdwAdd[0].fednumber()==fednumber&&
-		aHdwAdd[0].fedchannel()==fedchannel)){
-	    moduleTranslationtable_[aModule].push_back(hdwAdd);
-	  }
-	}
-	else{
-	  assert((aHdwAdd[0].fednumber()==fednumber&&
-		  aHdwAdd[0].fedchannel()==fedchannel)||
-		 (aHdwAdd[1].fednumber()==fednumber&&
-		  aHdwAdd[1].fedchannel()==fedchannel));
-	}
-      }
     }
   }
   while (!in.eof());
@@ -315,8 +249,6 @@ std::list<const PixelModuleName*> PixelNameTranslation::getModules() const
 	}
       if (!foundOne) listOfModules.push_back( &(channelTranslationTable_itr->first.module()) );
     }
-	
-  assert( listOfModules.size() == moduleTranslationtable_.size() );
 
   return listOfModules;
 }
@@ -352,26 +284,20 @@ const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& a
 
 }
 
-const std::vector<PixelHdwAddress>* PixelNameTranslation::getHdwAddress(const PixelModuleName& aModule) const{
-
-  if (moduleTranslationtable_.find(aModule)==moduleTranslationtable_.end()){
-    //std::cout<<"Could not look up module:"<<aModule<<std::endl;
-    //std::map<PixelModuleName,std::vector<PixelHdwAddress> >::const_iterator it=moduleTranslationtable_.begin();
-    //for(;it!=moduleTranslationtable_.end();++it){
-    //  std::cout << "Module name:"<<it->first<<std::endl;
-    //}
-    return 0;
-  }
-    
-  return &(moduleTranslationtable_.find(aModule))->second;
-
-}
-
 const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& aChannel) const
 {
   std::map<PixelChannel, PixelHdwAddress >::const_iterator channelHdwAddress_itr = channelTranslationTable_.find(aChannel);
   assert( channelHdwAddress_itr != channelTranslationTable_.end() );
   return channelHdwAddress_itr->second;
+}
+
+const PixelHdwAddress& PixelNameTranslation::firstHdwAddress(const PixelModuleName& aModule) const
+{
+	std::set<PixelChannel> channelsOnModule = getChannelsOnModule(aModule);
+	assert( channelsOnModule.size() > 0 );
+	std::set<PixelChannel>::const_iterator firstChannel = channelsOnModule.begin();
+	assert( firstChannel != channelsOnModule.end() );
+	return getHdwAddress( *firstChannel );
 }
 
 const PixelChannel& PixelNameTranslation::getChannelForROC(const PixelROCName& aROC) const
