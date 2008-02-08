@@ -1,16 +1,17 @@
+
 /** \file MEtoEDMConverter.cc
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/01 01:15:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/04 20:13:09 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 
 MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
-  fName(""), verbosity(0), frequency(0), count(0)
+  fName(""), verbosity(0), frequency(0)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
@@ -239,6 +240,8 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   if (hasString)
     produces<MEtoEDM<TString>, edm::InRun>(fName);
 
+  count.clear();
+
 } // end constructor
 
 MEtoEDMConverter::~MEtoEDMConverter() 
@@ -255,7 +258,7 @@ void MEtoEDMConverter::endJob()
   std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " files from the begin/endRun() method.";
+      << "Terminating having processed " << count.size() << " runs.";
   return;
 }
 
@@ -263,19 +266,19 @@ void MEtoEDMConverter::beginRun(edm::Run& iRun,
 				 const edm::EventSetup& iSetup)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_beginRun";
-  
-  // keep track of number of runs processed
-  ++count;
-  
+    
   int nrun = iRun.run();
   
-  if (verbosity) {
+  // keep track of number of runs processed
+  ++count[nrun];
+
+  if (verbosity) {  // keep track of number of runs processed
     edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << count << " runs total)";
+      << "Processing run " << nrun << " (" << count.size() << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || count == 1) {
+    if (nrun%frequency == 0 || count.size() == 1) {
       edm::LogInfo(MsgLoggerCat)
-	<< "Processing run " << nrun << " (" << count << " runs total)";
+	<< "Processing run " << nrun << " (" << count.size() << " runs total)";
     }
   }
   
@@ -319,8 +322,7 @@ void MEtoEDMConverter::beginRun(edm::Run& iRun,
 
 void MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
- 
- 
+  
   std::string MsgLoggerCat = "MEtoEDMConverter_endRun";
   
   if (verbosity)
@@ -522,6 +524,40 @@ void MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     pOut8->putMEtoEdmObject(StringME.name,StringME.tags,StringME.object);
     iRun.put(pOut8,fName);
   }
+
+  TH1FME.name.clear();
+  TH1FME.tags.clear();
+  TH1FME.object.clear();
+
+  TH2FME.name.clear();
+  TH2FME.tags.clear();
+  TH2FME.object.clear();
+
+  TH3FME.name.clear();
+  TH3FME.tags.clear();
+  TH3FME.object.clear();
+
+  TProfileME.name.clear();
+  TProfileME.tags.clear();
+  TProfileME.object.clear();
+
+  TProfile2DME.name.clear();
+  TProfile2DME.tags.clear();
+  TProfile2DME.object.clear();
+
+  FloatME.name.clear();
+  FloatME.tags.clear();
+  FloatME.object.clear();
+
+  IntME.name.clear();
+  IntME.tags.clear();
+  IntME.object.clear();
+
+  StringME.name.clear();
+  StringME.tags.clear();
+  StringME.object.clear();
+
+  taglist.clear();
 
   return;
 }

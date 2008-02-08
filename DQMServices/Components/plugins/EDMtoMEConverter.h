@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/01/12 20:57:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/01 01:15:19 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,6 +41,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "TString.h"
 #include "TH1F.h"
@@ -61,6 +63,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void respondToOpenInputFile(const edm::FileBlock&);
 
   typedef std::vector<uint32_t> TagList;
 
@@ -75,7 +78,8 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information
-  unsigned int count;
+  unsigned int countf;
+  std::map<int,int> count;
 
   std::vector<std::string> classtypes;
 

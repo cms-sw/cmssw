@@ -2,15 +2,15 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/01 01:15:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/04 20:13:08 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
-  fName(""), verbosity(0), frequency(0), count(0)
+  fName(""), verbosity(0), frequency(0)
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_EDMtoMEConverter";
   
@@ -56,6 +56,9 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   classtypes.push_back("Float");
   classtypes.push_back("Int");
   classtypes.push_back("String");
+
+  count.clear();
+  countf = 0;
   
 } // end constructor
 
@@ -74,7 +77,15 @@ void EDMtoMEConverter::endJob()
   std::string MsgLoggerCat = "EDMtoMEConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " files from the begin/endRun() method.";
+      << "Terminating having processed " << count.size() << " runs across " 
+      << countf << " files.";
+  return;
+}
+
+void EDMtoMEConverter::respondToOpenInputFile(const edm::FileBlock& iFb)
+{
+  ++countf;
+
   return;
 }
 
@@ -83,21 +94,21 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_beginRun";
   
-  // keep track of number of events processed
-  ++count;
-  
   int nrun = iRun.run();
   
+  // keep track of number of unique runs processed
+  ++count[nrun];
+
   if (verbosity) {
     edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << count << " runs total)";
+      << "Processing run " << nrun << " (" << count.size() << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || count == 1) {
+    if (nrun%frequency == 0 || count.size() == 1) {
       edm::LogInfo(MsgLoggerCat)
-	<< "Processing run " << nrun << " (" << count << " runs total)";
+	<< "Processing run " << nrun << " (" << count.size() << " runs total)";
     }
   }
-  
+
   return;
 }
 

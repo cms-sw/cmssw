@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/01/25 23:16:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/01 01:15:23 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -131,7 +131,7 @@ class MEtoEDMConverter : public edm::EDProducer
   mestorage<TString> StringME;
 
   // private statistics information
-  unsigned int count;
+  std::map<int,int> count;
 
 }; // end class declaration
 
