@@ -125,10 +125,8 @@ double HFFibre::attLength(double lambda) {
   return att;
 }
 
-double HFFibre::tShift(G4ThreeVector point, int depth) {
+double HFFibre::tShift(G4ThreeVector point, int depth, bool fromEndAbs) {
 
-  double zint   = point.z(); 
-  double zz     = std::abs(zint) - gpar[4];
   double hR     = sqrt((point.x())*(point.x())+(point.y())*(point.y()));
   int    ieta   = 0;
   for (int i = nBinR-1; i > 0; i--)
@@ -139,14 +137,21 @@ double HFFibre::tShift(G4ThreeVector point, int depth) {
   } else {
     if ((int)(longFL.size())  > ieta) length = longFL[ieta];
   }
-  double zFibre = length - zz;
+  double zFibre = length;
+  if (fromEndAbs) 
+    zFibre     -= gpar[1];
+  else {
+    double zint = point.z(); 
+    double zz   = std::abs(zint) - gpar[4];
+    zFibre     -= zz;
+  }
   if (depth == 2) zFibre += gpar[0];
   double time   = zFibre/cFibre;
   LogDebug("HFShower") << "HFFibre::tShift for point " << point
 		       << " (R = " << hR/cm << " cm, Index = " << ieta 
-		       << ", Fibre Length = " << length/cm 
-		       << " cm, traversed length = " << zFibre/cm 
-		       << " cm) = " << time/ns << " ns";
+		       << ", depth = " << depth << ", Fibre Length = " 
+		       << length/cm       << " cm, traversed length = " 
+		       << zFibre/cm  << " cm) = " << time/ns << " ns";
   return time;
 }
 

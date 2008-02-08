@@ -371,7 +371,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
 	hit[nHit].position = pos;
 	hit[nHit].depth    = depth;
-	hit[nHit].time     = (tSlice + (pe[i].t()));
+	hit[nHit].time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);

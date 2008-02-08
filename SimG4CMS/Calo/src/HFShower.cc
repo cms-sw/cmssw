@@ -111,7 +111,7 @@ int HFShower::getHits(G4Step * aStep) {
   double zCoor    = localPos.z();
   double zFibre   = (fibreLength(name)-zCoor);
   double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time     = fibre->tShift(globalPos, depth);
+  double time     = fibre->tShift(globalPos, depth, false);
 
   LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
 		       << " " << fibreLength(name) << " " << zFibre << " Time "

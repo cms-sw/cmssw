@@ -167,11 +167,12 @@ void drawHFPosition(char file[100]="hf.out", int save=0) {
     for (int j=0; j<3; j++) {
       if (gr[j][i] != 0) {
 	gr[j][i]->Draw("p");
+	gr[j][i]->SetLineColor(colr[j]); gr[j][i]->SetLineWidth(2);
 	//	std::cout << "Next " << i << " " << j << "\n";
       }
     }
   }
-  TLegend *leg1 = new TLegend(0.75,0.60,0.90,0.90);
+  TLegend *leg1 = new TLegend(0.75,0.55,0.90,0.90);
   char list[40];
   for (i=0; i<= 13; i++) {
     if (i < 13) sprintf (list, "#eta = %d", i+29);
@@ -179,8 +180,20 @@ void drawHFPosition(char file[100]="hf.out", int save=0) {
     if      (gr[0][i] != 0) leg1->AddEntry(gr[0][i], list, "P");
     else if (gr[1][i] != 0) leg1->AddEntry(gr[1][i], list, "P");
   }
+  for (i=0; i<2; i++) {
+    if (i == 0) sprintf (list, "Long Fibre");
+    else        sprintf (list, "Short Fibre");
+    if      (gr[i][0] != 0) leg1->AddEntry(gr[i][0], list, "L");
+    else if (gr[i][1] != 0) leg1->AddEntry(gr[i][1], list, "L");
+    else if (gr[i][2] != 0) leg1->AddEntry(gr[i][2], list, "L");
+  }
   leg1->SetFillColor(0); leg1->SetTextSize(0.03); 
-  leg1->SetBorderSize(2); leg1->Draw();
+  leg1->SetBorderSize(1); leg1->Draw();
+
+  if (save != 0) {
+    if (save > 0) c0->SaveAs("PMTHits.eps");
+    else          c0->SaveAs("PMTHits.gif");
+  }
 }
 
 void setTDRStyle() {

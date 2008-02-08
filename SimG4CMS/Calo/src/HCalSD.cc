@@ -6,6 +6,7 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -643,12 +644,13 @@ void HCalSD::getHitPMT (G4Step* aStep) {
 
     double beta = preStepPoint->GetBeta();
     if (beta > betaThr) {
-      edepositEM  = edep*GeV; edepositHAD = 0.;
+      edepositEM  = edep*GeV; edepositHAD = aStep->GetTotalEnergyDeposit();
     } else {
-      edepositEM  = 0.; edepositHAD = edep*GeV;
+      edepositEM  = 0.; edepositHAD = aStep->GetTotalEnergyDeposit();
     }
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
-                        << " of " << primaryID << " with " << theTrack->GetDefinition()->GetParticleName()
+                        << " of " << primaryID << " with " 
+			<< theTrack->GetDefinition()->GetParticleName()
                         << " of " << preStepPoint->GetKineticEnergy()/GeV 
                         << " GeV with velocity " << beta << " UnitID "
                         << std::hex << unitID << std::dec;

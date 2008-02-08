@@ -26,7 +26,8 @@ public:
   ~HFFibre();
 
   double              attLength(double lambda);
-  double              tShift(G4ThreeVector point, int depth);
+  double              tShift(G4ThreeVector point, int depth, 
+			     bool fromEndAbs=false);
 
 protected:
 
