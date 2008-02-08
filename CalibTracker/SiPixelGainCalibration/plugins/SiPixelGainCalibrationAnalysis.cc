@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.12 2008/02/08 14:29:11 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.13 2008/02/08 16:23:54 fblekman Exp $
 //
 //
 
@@ -87,8 +87,9 @@ SiPixelGainCalibrationAnalysis::checkCorrectCalibrationType()
     edm::LogInfo("SiPixelGainCalibrationAnalysis") <<  "calibration mode is: " << calibrationMode_ << ", continuing anyway..." ;
     return true;
   }
-  else
-    edm::LogError("SiPixelGainCalibrationAnalysis") << "unknown calibration mode for Gain calibration, should be \"Gain\" and is \"" << calibrationMode_ << "\"";
+  else{
+    //    edm::LogError("SiPixelGainCalibrationAnalysis") << "unknown calibration mode for Gain calibration, should be \"Gain\" and is \"" << calibrationMode_ << "\"";
+  }
   return false;
 }
 
