@@ -986,7 +986,7 @@ class _ReplaceSetter(object):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
-        if nodots.isdigit():
+        if nodots[0] == '-' or nodots.isdigit():
             pass
         elif result == 'true':
             result = 'True'
@@ -1011,7 +1011,8 @@ class _ReplaceSetter(object):
                result = "cms.VInputTag("+result+")"
             else:
                result = "["+result+"]"
-        elif result.find(':') != -1:
+        # some frontier address strings have colons and slashes 
+        elif result.find(':') != -1 and result.find('/') == -1:
             result = repr(cms.InputTag._valueFromString(result))
         else:
             # need the quotes
