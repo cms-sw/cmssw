@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/08 17:37:35 $
- * $Revision: 1.75 $
+ * $Date: 2008/02/09 10:18:35 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1163,6 +1163,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           int ic = Numbers::indexEE(ism, ix, iy);
 
+          if ( ic == -1 ) continue;
+
           if ( econn ) {
             try {
               ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
@@ -1242,6 +1244,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
           int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
@@ -1323,6 +1327,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           int ic = Numbers::indexEE(ism, ix, iy);
 
+          if ( ic == -1 ) continue;
+
           if ( econn ) {
             try {
               ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
@@ -1402,6 +1408,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
           int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
