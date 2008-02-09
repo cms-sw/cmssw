@@ -6,6 +6,12 @@
 <use name=Geometry/DTGeometry>
 <use name=Geometry/MuonNumbering>
 <use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalPreshowerAlgo>
+<use name=Geometry/CaloTopology>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/EcalDetId>
 <lib name=Gpad>
 <lib name=Geom>
 <flags EDM_PLUGIN=1>

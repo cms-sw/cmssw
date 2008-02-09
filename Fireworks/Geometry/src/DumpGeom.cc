@@ -13,10 +13,13 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.4 2008/01/30 22:04:09 case Exp $
+// $Id: DumpGeom.cc,v 1.5 2008/02/04 04:51:38 dmytro Exp $
 //
 //
 
+//MECase:  Uncomment this to use the modified Ecal and CaloGeometry Packages from 
+//   /afs/cern.ch/user/c/case/public/forDmytro/Geometry
+//#define ECAL169
 
 // system include files
 #include <memory>
@@ -77,6 +80,16 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+
 #include "TTree.h"
 
 //
@@ -105,6 +118,10 @@ class DumpGeom : public edm::EDAnalyzer {
 			 const MuonDDDConstants& muonConstants);
       void mapTrackerGeometry(const DDCompactView& cview,
 			      const GeometricDet& gd);
+#ifdef ECAL169
+      void mapEcalGeometry(const DDCompactView& cview,
+			      const CaloGeometry& cg);
+#endif
       // ----------member data ---------------------------
       int level_;
       bool verbose_;
@@ -462,7 +479,7 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
       // this works fine if you have access
       // unsigned int rawid = dtnum.getDetId( mdddnum.geoHistoryToBaseNumber( fview.geoHistory() ) );
       
-      std::cout << "DT chamber id: " << rawid << " \tname: " << name << std::endl;
+      //      std::cout << "DT chamber id: " << rawid << " \tname: " << name << std::endl;
       
       idToName_[rawid] = name;
       
@@ -533,7 +550,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
      idToName_[chamberId.rawId()] = name;
-     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
+     //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
 
 /* We don't need layers for now, till we get geometry for them fixed
     int jend   = chamberId.endcap();
@@ -617,11 +634,117 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
       
     std::string name = s.str();
     id = int((*git)->geographicalID());
-    std::cout << "Tracker id: " << id << " \tname: " << name << std::endl;
+    //    std::cout << "Tracker id: " << id << " \tname: " << name << std::endl;
     idToName_[id] = name;
   }
 
 }
+
+/**
+ ** By Michael Case
+ ** method mapTrackerGeometry(...)
+ ** date: 02-07-2008
+ ** Description:
+ **   Map Ecal DetId to DD path 
+ **   The code for CaloGeometry, EcalBarrelAlgo, EcalEndcapAlgo were all modified in
+ **   The 169 series.  The correction WILL be different for 18X.  The files should
+ **   be located on /afs/cern.ch/user/c/case/public/fwevtstuff/.
+ **/
+#ifdef ECAL169
+void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
+			       const CaloGeometry& cg) {
+
+  //  build(*pG,DetId::Ecal,EcalBarrel,*pDD);
+  {
+  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+
+//   int n=0;
+  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal, EcalBarrel);
+  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+//     n++;
+//     const CaloCellGeometry* cell=geom->getGeometry(*i);
+//     EBDetId closestCell = EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.))) ;
+//     assert (closestCell == EBDetId(*i) );
+    unsigned int tid(*i);
+    std::vector<int> tint = geom->getDDNavType(tid);
+    DDExpandedView epv(cview);
+    epv.goTo(tint);
+    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+    // build map here
+    std::stringstream s;
+    s << "/cms:World_1";
+    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
+    ++ancestor; // skip the first ancestor
+    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
+      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+    std::string name = s.str();
+    idToName_[tid] = name;
+
+  }
+  }
+
+  //  build(*pG,DetId::Ecal,EcalEndcap,*pDD);
+  {
+  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+
+//   int n=0;
+  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalEndcap);
+  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+//     n++;
+//     const CaloCellGeometry* cell=geom->getGeometry(*i);
+//     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
+//     assert (closestCell == EEDetId(*i) );
+    unsigned int tid(*i);
+    std::vector<int> tint = geom->getDDNavType(tid);
+    DDExpandedView epv(cview);
+    epv.goTo(tint);
+    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+    // build map here
+    std::stringstream s;
+    s << "/cms:World_1";
+    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
+    ++ancestor; // skip the first ancestor
+    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
+      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+    std::string name = s.str();
+    idToName_[tid] = name;
+  }
+  }
+
+  // preshower
+  {
+  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
+//   int n=0;
+  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);
+  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+//     n++;
+//     const CaloCellGeometry* cell=geom->getGeometry(*i);
+//     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
+//     assert (closestCell == EEDetId(*i) );
+    unsigned int tid(*i);
+    std::vector<int> tint = geom->getDDNavType(tid);
+    DDExpandedView epv(cview);
+    epv.goTo(tint);
+    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+    // build map here
+    std::stringstream s;
+    s << "/cms:World_1";
+    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
+    ++ancestor; // skip the first ancestor
+    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
+      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+    std::string name = s.str();
+    idToName_[tid] = name;
+  }
+  }
+
+}
+
+#endif
 
 // ------------ method called to for each event  ------------
 void
@@ -638,6 +761,9 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::ESHandle<GeometricDet> rDD;
    iSetup.get<IdealGeometryRecord>().get( rDD );
    
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<IdealGeometryRecord>().get(pG);     
+
    std::auto_ptr<TGeoManager> geom(new TGeoManager("cmsGeo","CMS Detector"));
    //NOTE: the default constructor does not create the identity matrix
    if(0==gGeoIdentity) {
@@ -763,6 +889,8 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    mapDTGeometry(*viewH, *mdc);
    mapCSCGeometry(*viewH, *mdc);
    mapTrackerGeometry(*viewH, *rDD);
+   mapEcalGeometry(*viewH, *pG);
+
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
 
