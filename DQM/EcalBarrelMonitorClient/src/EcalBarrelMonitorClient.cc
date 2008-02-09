@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/09 10:18:32 $
- * $Revision: 1.370 $
+ * $Date: 2008/02/09 10:31:25 $
+ * $Revision: 1.371 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -880,6 +880,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1037,6 +1038,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1176,6 +1178,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }

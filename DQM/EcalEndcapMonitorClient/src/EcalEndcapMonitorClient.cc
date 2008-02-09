@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.129 $
+ * $Date: 2008/02/09 10:31:26 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -911,6 +911,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1068,6 +1069,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1208,6 +1210,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
