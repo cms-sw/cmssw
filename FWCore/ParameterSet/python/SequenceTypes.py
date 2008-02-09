@@ -19,6 +19,8 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
+    def resolve(self, processDict):
+        return self
     def isOperation(self):
         """Returns True if the object is an operator (e.g. *,+ or !) type"""
         return False
@@ -76,6 +78,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def _postProcessFixup(self,lookuptable):
         self._seq = self._seq._clonesequence(lookuptable)
         return self
+    def resolve(self, processDict):
+        self._seq = self._seq.resolve(processDict)
+        return self
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
     #def insertAfter(self,which,new):
@@ -95,12 +100,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return deps
     def nameInProcessDesc_(self, myname):
         return myname
-    def fillNamesList(self, l, otherSequences):
-        return self._seq.fillNamesList(l, otherSequences)
-    def insertInto(self, parameterSet, myname, otherSequences):
+    def fillNamesList(self, l, processDict):
+        return self._seq.fillNamesList(l, processDict)
+    def insertInto(self, parameterSet, myname, processDict):
         # represented just as a list of names in the ParameterSet
         l = []
-        self.fillNamesList(l, otherSequences)
+        self.resolve(processDict)
+        self.fillNamesList(l, processDict)
         parameterSet.addVString(True, myname, l)
     def visit(self,visitor):
         """Passes to visitor's 'enter' and 'leave' method each item describing the module sequence.
@@ -122,9 +128,13 @@ class _SequenceOperator(_Sequenceable):
         return self._left.dumpSequencePython()+self._pySymbol+self._right.dumpSequencePython()
     def _clonesequence(self, lookuptable):
         return type(self)(self._left._clonesequence(lookuptable),self._right._clonesequence(lookuptable))
-    def fillNamesList(self, l, otherSequences):
-        self._left.fillNamesList(l, otherSequences)
-        self._right.fillNamesList(l, otherSequences)
+    def resolve(self, processDict):
+        self._left = self._left.resolve(processDict)
+        self._right = self._right.resolve(processDict)
+        return self
+    def fillNamesList(self, l, processDict):
+        self._left.fillNamesList(l, processDict)
+        self._right.fillNamesList(l, processDict)
     def isOperation(self):
         return True
     def _visitSubNodes(self,visitor):
@@ -169,10 +179,13 @@ class _SequenceNegation(_Sequenceable):
         return '~%s' %self.__operand.dumpSequencePython()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l, otherSequences):
+    def fillNamesList(self, l, processDict):
         l.append(self.__str__())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
+    def resolve(self, processDict):
+        self.__operand = self.__operand.resolve(processDict)
+        return self
     def isOperation(self):
         return True
     def _visitSubNodes(self,visitor):
@@ -208,24 +221,42 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
     def _visitSubNodes(self,visitor):
         self.visit(visitor)
 
-class SequencePlaceholder(_ModuleSequenceType,_Sequenceable):
+class SequencePlaceholder(_Sequenceable):
     def __init__(self, name):
         self._name = name
     def _placeImpl(self,name,proc):
         pass
+    def __str__(self):
+        return self._name
     def insertInto(self, parameterSet, myname):
         raise RuntimeError("The SequencePlaceholder "+self._name
                            +" was never overridden")
-    def fillNamesList(self, l, otherSequences):
+    def resolve(self, processDict):
+        if not self._name in processDict:
+            print str(processDict.keys())
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.i\n Known keys are:"+str(processDict.keys()))
+        return  processDict[self._name]
+
+    def _clonesequence(self, lookuptable):
+        if id(self) not in lookuptable:
+            #for sequences held by sequences we need to clone
+            # on the first reference
+            clone = type(self)(self._name)
+            lookuptable[id(self)]=clone
+            lookuptable[id(clone)]=clone
+        return lookuptable[id(self)]
+    def fillNamesList(self, l, processDict):
         """ Resolves SequencePlaceholders """
-        if not self._name in otherSequences:
+        if not self._name in processDict:
             raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved")
         else:
-            otherSequences[self._name].fillNamesList(l, otherSequences)
+            processDict[self._name].fillNamesList(l, processDict)
     def copy(self):
         returnValue =SequencePlaceholder.__new__(type(self))
         returnValue.__init__(self._name)
         return returnValue
+    def dumpSequenceConfig(self):
+        return self._name
     def dumpPython(self, options):
         result = 'cms.SequencePlaceholder(\"'
         if options.isCfg:
@@ -244,9 +275,9 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setSchedule_(self)
-    def fillNamesList(self, l, otherSequences):
+    def fillNamesList(self, l, processDict):
         for seq in self:
-            seq.fillNamesList(l, otherSequences)
+            seq.fillNamesList(l, processDict)
 
 if __name__=="__main__":
     import unittest
@@ -323,7 +354,10 @@ if __name__=="__main__":
             d['s3'] = s3
             p.fillNamesList(l, d)
             self.assertEqual(l, ['m1', 'm2'])
-
+            p.resolve(d)
+            l = list()
+            p.fillNamesList(l, d)
+            self.assertEqual(l, ['m1', 'm2'])
     
     unittest.main()
 
