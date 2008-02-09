@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/02/08 17:37:35 $
- * $Revision: 1.45 $
+ * $Date: 2008/02/09 10:18:35 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -207,12 +207,12 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update_channel ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "Sel (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Cut (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
 
             cout << endl;
 
@@ -223,17 +223,13 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           o.setAvgEnergy(mean01);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset[ecid] = o;
           }
 
         }

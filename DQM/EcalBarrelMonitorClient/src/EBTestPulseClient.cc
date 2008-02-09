@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/01/22 19:47:10 $
- * $Revision: 1.182 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -405,7 +405,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update01 || update02 || update03 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
             cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
@@ -437,7 +437,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                              UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
                              UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             vector<float> sample01, sample02, sample03;
 
@@ -498,13 +498,9 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1[ecid] = adc;
-              if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1[ecid] = adc;
+            if ( Numbers::icEB(ism, ie, ip) == 1 ) dataset2[ecid] = shape;
           }
 
         }
@@ -594,12 +590,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                            UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset3[ecid] = pn;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset3[ecid] = pn;
         }
 
       }
@@ -884,7 +876,7 @@ void EBTestPulseClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -973,7 +965,7 @@ void EBTestPulseClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;

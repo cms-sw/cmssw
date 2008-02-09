@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/01/22 19:47:09 $
- * $Revision: 1.185 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -305,7 +305,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     bool update0 = false;
 
     if ( h00_ ) {
-      num00  = h00_->GetBinContent(ism);
+      num00 = h00_->GetBinContent(ism);
       if ( num00 > 0 ) update0 = true;
     }
 
@@ -339,7 +339,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -376,12 +376,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1[ecid] = c1;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1[ecid] = c1;
           }
 
           status = status && val;
@@ -423,7 +419,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( iet == 1 && ipt == 1 ) {
+          if ( Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -461,12 +457,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int itt = Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
-              dataset2[ecid] = c2;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
+            dataset2[ecid] = c2;
           }
 
           status = status && val;
@@ -501,7 +493,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ie ==1 && ip == 1 ) {
 
             cout << "Preparing dataset for mem of SM=" << ism << endl;
 
@@ -538,12 +530,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset3[ecid] = c3;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset3[ecid] = c3;
           }
 
           status = status && val;
@@ -622,12 +610,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         int itt = 68 + iet;
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt);
-            dataset4[ecid] = c4;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt);
+          dataset4[ecid] = c4;
         }
 
         status = status && val;
@@ -848,7 +832,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -868,7 +852,7 @@ void EBIntegrityClient::analyze(void){
 
             int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -961,7 +945,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -981,7 +965,7 @@ void EBIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;

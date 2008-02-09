@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/02/04 19:41:10 $
- * $Revision: 1.99 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -198,7 +198,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update_channel ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -217,12 +217,8 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset[ecid] = o;
           }
 
         }

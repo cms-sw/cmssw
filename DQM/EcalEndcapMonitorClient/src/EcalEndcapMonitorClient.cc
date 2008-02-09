@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/09 10:31:26 $
- * $Revision: 1.130 $
+ * $Date: 2008/02/09 10:33:28 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1009,16 +1009,6 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
   cout << "====================" << endl;
   cout << endl;
-
-  if ( econn ) {
-    try {
-      cout << "Fetching EcalLogicID vectors ..." << endl;
-      LogicID::init( econn, EcalEndcap );
-      cout << "done." << endl;
-    } catch(runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   if ( maskFile_.size() != 0 ) {
     try {

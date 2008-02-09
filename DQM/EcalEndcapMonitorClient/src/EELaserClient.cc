@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.76 $
+ * $Date: 2008/02/09 18:33:14 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1096,11 +1096,11 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update01 || update02 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L1A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
             cout << endl;
 
@@ -1120,28 +1120,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_bl[ecid] = apd_bl;
           }
 
         }
 
         if ( update09 || update10 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L1B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+            cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
 
             cout << endl;
 
@@ -1161,28 +1157,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_bl[ecid] = apd_bl;
           }
 
         }
 
         if ( update03 || update04 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L2A (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
             cout << endl;
 
@@ -1202,28 +1194,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_ir[ecid] = apd_ir;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_ir[ecid] = apd_ir;
           }
 
         }
 
         if ( update11 || update12 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L2B (" << ix << "," << iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
+            cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
 
             cout << endl;
 
@@ -1243,28 +1231,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_ir[ecid] = apd_ir;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_ir[ecid] = apd_ir;
           }
 
         }
 
         if ( update05 || update06 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L3A (" << ix << "," << iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+            cout << "L3A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
             cout << endl;
 
@@ -1284,28 +1268,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_gr[ecid] = apd_gr;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_gr[ecid] = apd_gr;
           }
 
         }
 
         if ( update13 || update14 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L3B (" << ix << "," << iy << ") " << num13 << " " << mean13 << " " << rms13 << endl;
+            cout << "L3B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num13 << " " << mean13 << " " << rms13 << endl;
 
             cout << endl;
 
@@ -1325,28 +1305,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_gr[ecid] = apd_gr;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_gr[ecid] = apd_gr;
           }
 
         }
 
         if ( update07 || update08 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L4A (" << ix << "," << iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+            cout << "L4A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
 
             cout << endl;
 
@@ -1366,28 +1342,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_rd[ecid] = apd_rd;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_rd[ecid] = apd_rd;
           }
 
         }
 
         if ( update15 || update16 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "L4B (" << ix << "," << iy << ") " << num15 << " " << mean15 << " " << rms15 << endl;
+            cout << "L4B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num15 << " " << mean15 << " " << rms15 << endl;
 
             cout << endl;
 
@@ -1407,17 +1379,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_rd[ecid] = apd_rd;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_rd[ecid] = apd_rd;
           }
 
         }
@@ -1554,12 +1522,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg09_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset2_bl[ecid] = pn_bl;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset2_bl[ecid] = pn_bl;
         }
 
       }
@@ -1600,12 +1564,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg10_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset2_ir[ecid] = pn_ir;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset2_ir[ecid] = pn_ir;
         }
 
       }
@@ -1646,12 +1606,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg11_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset2_gr[ecid] = pn_gr;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset2_gr[ecid] = pn_gr;
         }
 
       }
@@ -1692,12 +1648,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg12_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset2_rd[ecid] = pn_rd;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset2_rd[ecid] = pn_rd;
         }
 
       }
@@ -2716,13 +2668,13 @@ void EELaserClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::indexEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, jx, jy);
 
             if ( ic == -1 ) continue;
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
@@ -2956,7 +2908,7 @@ void EELaserClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;

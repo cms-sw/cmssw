@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/01/22 19:47:09 $
- * $Revision: 1.72 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -280,21 +280,21 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         int step = 0;
         if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
         if( step > 0 && step < 86){
-	//if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
-	if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
+        //if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
+        if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
         }
         //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
         if ( update_channel ) {
 
-          if ( ie == 1 && ip == 1 ) {
-	//if ( mean01 !=0) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
+        //if ( mean01 !=0) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
             cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
-	  cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
+            cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
 
             cout << endl;
 
@@ -306,12 +306,8 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           o.setAvgEnergy(mean01);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset[ecid] = o;
           }
 
         }
@@ -442,49 +438,49 @@ void EBBeamCaloClient::analyze(void){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
       if( step>0 ){//this crystal has been scanned or is dbeng scanned
-	DoneCry++;
-	float E3x3RMS = -1, E3x3 =-1, E1=-1;
-	if(hBE3x3vsCry_){
-	  //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
-	  //E3x3 = hBE3x3vsCry_->GetBinContent(step);
-	  E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
-	  E3x3 = hBE3x3vsCry_->GetBinContent(cry);
-	}
-	//if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
-	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
-	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
-	bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
-	bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
-	//cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
-	int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
-	int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
-	//fill the RedGreen histo
-	if(ieta >0 && iphi >0 ){
-	  if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-	  else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
-	}
+        DoneCry++;
+        float E3x3RMS = -1, E3x3 =-1, E1=-1;
+        if(hBE3x3vsCry_){
+          //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+          //E3x3 = hBE3x3vsCry_->GetBinContent(step);
+          E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
+          E3x3 = hBE3x3vsCry_->GetBinContent(cry);
+        }
+        //if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
+        if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
+        bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
+        bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
+        bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
+        //cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
+        int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
+        int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
+        //fill the RedGreen histo
+        if(ieta >0 && iphi >0 ){
+          if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+          else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+        }
 
-	float Entries = -1;
-	//if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
-	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
-	bool Nent = ( Entries * prescaling_  > minEvtNum_ );
-	//cout<<"step: "<<step<<" entries: "<<Entries<<endl;
-	//cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
-	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
-	bool readCryOk = true;
-	if( hBReadCryErrors_ ) {
-	  int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
-	  if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
-	    if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
-	    else {readCryOk = false;}
-	  }
-	}
+        float Entries = -1;
+        //if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
+        if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
+        bool Nent = ( Entries * prescaling_  > minEvtNum_ );
+        //cout<<"step: "<<step<<" entries: "<<Entries<<endl;
+        //cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
+        //cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
+        bool readCryOk = true;
+        if( hBReadCryErrors_ ) {
+          int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
+          if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
+            if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
+            else {readCryOk = false;}
+          }
+        }
 
-	if(Nent && readCryOk ){ meEBBCaloRedGreenSteps_->setBinContent(step,1,1.);}
-	else{ meEBBCaloRedGreenSteps_->setBinContent(step,1,0.);}
+        if(Nent && readCryOk ){ meEBBCaloRedGreenSteps_->setBinContent(step,1,1.);}
+        else{ meEBBCaloRedGreenSteps_->setBinContent(step,1,0.);}
 
-	if (readCryOk &&  meEBBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
-	else if ( !readCryOk ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
+        if (readCryOk &&  meEBBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
+        else if ( !readCryOk ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
       }// end of if (step>0)
     }//end of loop over cry
   }//end of if(hBcryDone_)
@@ -500,14 +496,14 @@ void EBBeamCaloClient::analyze(void){
       int ieta=0,iphi=0;
       float found =0; //there should be just one bin filled but...
       for (int b_eta =1; b_eta<86; b_eta++){
-	for (int b_phi =1; b_phi<21; b_phi++){
-	  float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-	  if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
-	}
+        for (int b_phi =1; b_phi<21; b_phi++){
+          float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
+          if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+        }
       }
       if(ieta >0 && iphi >0 ){
-	if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-	else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+        if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+        else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
       }
     }
     if(hBReadCryErrors_){
@@ -528,14 +524,14 @@ void EBBeamCaloClient::analyze(void){
   //       int ieta=0,iphi=0;
   //       float found =0; //there should be just one bin filled but...
   //       for (int b_eta =1; b_eta<86; b_eta++){
-  // 	for (int b_phi =1; b_phi<21; b_phi++){
-  // 	  float bc = meCryInBeam->getBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-  // 	  if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
-  // 	}
+  //         for (int b_phi =1; b_phi<21; b_phi++){
+  //           float bc = meCryInBeam->getBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
+  //           if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+  //         }
   //       }
   //       if(ieta >0 && iphi >0 ){
-  // 	if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-  // 	else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+  //         if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+  //         else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
   //       }
   //     }
   //     float nErr = ErrRedCry->getBinContent(1);// for a non autoscan just the first bin should be filled
@@ -654,7 +650,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     meName = obj2f->GetName();
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenSMImg = meName + ".png";
@@ -689,7 +685,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenImg = meName + ".png";
@@ -728,7 +724,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     meName = obj2f->GetName();
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenAutoImg = meName + ".png";
@@ -778,7 +774,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     numCryReadImg = meName + ".png";
@@ -806,7 +802,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryReadErrImg = meName + ".png";
@@ -835,7 +831,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     E1MaxCryImg = meName + ".png";
@@ -863,7 +859,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     DesyncImg = meName + ".png";
@@ -900,7 +896,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryOnBeamImg = meName + ".png";
@@ -936,7 +932,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryMaxEneImg = meName + ".png";
@@ -985,7 +981,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     ene1Img = meName + ".png";
@@ -1013,7 +1009,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     ene3x3Img = meName + ".png";
@@ -1042,7 +1038,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     EBBeamCentered = meName + ".png";
@@ -1075,9 +1071,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       meName = objp1->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       pulseImg[ind] = meName + ".png";
       pulseImgF[ind] = htmlDir + pulseImg[ind] ;
@@ -1097,9 +1093,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       meName = obj1f->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       gainsImg[ind] = meName + ".png";
       gainsImgF[ind] = htmlDir + gainsImg[ind];
@@ -1179,7 +1175,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryDoneImg = meName + ".png";
@@ -1207,7 +1203,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     EntriesVScryImg = meName + ".png";
@@ -1242,7 +1238,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
      E1vsCryImg = meName + ".png";
@@ -1270,7 +1266,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     E3x3vsCryImg = meName + ".png";
@@ -1307,7 +1303,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryVSeventImg = meName + ".png";
@@ -1330,17 +1326,17 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
       float temp = objp1->GetBinContent(bin);
       if(temp >0){
-	if(temp < Ymin){Ymin=temp;}
-	if(temp > Ymax){Ymax=temp;}
+        if(temp < Ymin){Ymin=temp;}
+        if(temp > Ymax){Ymax=temp;}
       }
     }
     //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
     if( Ymin < Ymax+1 ){
        for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
-	 if( objp1->GetBinError(bin) >0 ){
-	   objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
-	   // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
-	 }
+         if( objp1->GetBinError(bin) >0 ){
+           objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
+           // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
+         }
        }
        objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);
     }
@@ -1363,7 +1359,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     TBmoving = meName + ".png";

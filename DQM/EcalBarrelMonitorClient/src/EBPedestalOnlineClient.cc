@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/01/22 19:47:09 $
- * $Revision: 1.120 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -246,7 +246,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
         if ( update03 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -270,12 +270,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset[ecid] = p;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset[ecid] = p;
           }
 
         }
@@ -373,7 +369,7 @@ void EBPedestalOnlineClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
                   float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;

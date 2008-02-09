@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/08 17:37:35 $
- * $Revision: 1.60 $
+ * $Date: 2008/02/09 10:18:35 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -275,11 +275,11 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update01 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "crystal (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
 
             cout << endl;
 
@@ -288,25 +288,21 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
 
-//          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
-//            t.setTaskStatus(true);
-//          } else {
-//            t.setTaskStatus(false);
-//          }
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+            t.setTaskStatus(true);
+          } else {
+            t.setTaskStatus(false);
+          }
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset[ecid] = t;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset[ecid] = t;
           }
 
         }
@@ -432,11 +428,11 @@ void EETimingClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::indexEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, jx, jy);
 
             if ( ic == -1 ) continue;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;

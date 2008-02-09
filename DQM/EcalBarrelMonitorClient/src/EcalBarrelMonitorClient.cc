@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/09 10:31:25 $
- * $Revision: 1.371 $
+ * $Date: 2008/02/09 10:33:28 $
+ * $Revision: 1.372 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -978,16 +978,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
   cout << "====================" << endl;
   cout << endl;
-
-  if ( econn ) {
-    try {
-      cout << "Fetching EcalLogicID vectors ..." << endl;
-      LogicID::init( econn, EcalBarrel );
-      cout << "done." << endl;
-    } catch(runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   if ( maskFile_.size() != 0 ) {
     try {
