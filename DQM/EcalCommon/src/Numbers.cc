@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.47 2008/02/08 21:18:27 dellaric Exp $
+// $Id: Numbers.cc,v 1.48 2008/02/09 10:18:34 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.47 $
-  \date $Date: 2008/02/08 21:18:27 $
+  \version $Revision: 1.48 $
+  \date $Date: 2008/02/09 10:18:34 $
 */
 
 #include <sstream>
@@ -426,6 +426,8 @@ int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, con
 
       EEDetId id(i1, i2, iz, EEDetId::XYMODE);
 
+      if( Numbers::iSM( id ) != ism ) return( -1 );
+
       if( Numbers::map ) {
 
         EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
@@ -612,6 +614,8 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runti
   if( EEDetId::validDetId(ix, iy, iz) ) {
 
     EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+
+    if( Numbers::iSM( id ) != ism ) return( -1 );
 
     if( Numbers::map ) {
 
