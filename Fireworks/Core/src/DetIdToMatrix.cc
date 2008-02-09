@@ -33,11 +33,6 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
 
 void DetIdToMatrix::loadMap(const char* fileName) 
 {
-   // CSC chamber frame has local coordinates rotated with respect
-   // to the reference framed used in the offline reconstruction
-   // -z is endcap is also reflected
-   TGeoRotation inverseCscRotation("iCscRot",0,90,0); 
-   
    if (!manager_) {
       std::cout << "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." << std::endl;
       return;
@@ -56,19 +51,7 @@ void DetIdToMatrix::loadMap(const char* fileName)
    tree->SetBranchAddress("path",&path);
    for ( unsigned int i = 0; i < tree->GetEntries(); ++i) {
       tree->GetEntry(i);
-      if ( manager_->cd(path) ) {
-	 idToPath_[id] = path;
-	 DetId detId(id);
-	 if ( detId.subdetId() == MuonSubdetId::CSC ) {
-	    TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-	    if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
-	    idToMatrix_[id] = m;
-	 }
-	 else
-	   idToMatrix_[id] = *(manager_->GetCurrentMatrix());
-      }
-      else
-	std::cout << "WARNING: incorrect path " << path << "\nSkipped DetId: " << id << std::endl;
+      idToPath_[id] = path;
    }
    f.Close();
 }
@@ -76,10 +59,30 @@ void DetIdToMatrix::loadMap(const char* fileName)
 const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
 {
    std::map<unsigned int, TGeoHMatrix>::const_iterator itr = idToMatrix_.find(id);
-   if ( itr != idToMatrix_.end() )
-     return &(itr->second);
-   else
-     return 0;
+   if ( itr != idToMatrix_.end() ) return &(itr->second);
+   
+   const char* path = getPath( id );
+   if ( ! path ) return 0;
+   if ( ! manager_->cd(path) ) {
+      std::cout << "ERROR: incorrect path " << path << "\nfor DetId: " << id << std::endl;
+      return 0;
+   }
+   
+   // CSC chamber frame has local coordinates rotated with respect
+   // to the reference framed used in the offline reconstruction
+   // -z is endcap is also reflected
+   static const TGeoRotation inverseCscRotation("iCscRot",0,90,0); 
+   
+   DetId detId(id);
+   if ( detId.subdetId() == MuonSubdetId::CSC ) {
+      TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+      if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
+      idToMatrix_[id] = m;
+   } else {
+      idToMatrix_[id] = *(manager_->GetCurrentMatrix());
+   }
+   
+   return &idToMatrix_[id];
 }
 
 const char* DetIdToMatrix::getPath( unsigned int id ) const 

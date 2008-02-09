@@ -49,7 +49,7 @@ class DetIdToMatrix
    TEveGeoShapeExtract* getAllExtracts(const char* elementListName = "CMS") const;
    
  private:
-   std::map<unsigned int, TGeoHMatrix> idToMatrix_;
+   mutable std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_; 
    mutable TGeoManager* manager_;
 	
