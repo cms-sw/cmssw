@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/01/22 18:48:08 $
- * $Revision: 1.66 $
+ * $Date: 2008/01/22 19:47:10 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -298,7 +298,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTimingCrystalDat ... " << flush;
+      cout << "Inserting MonTimingCrystalDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

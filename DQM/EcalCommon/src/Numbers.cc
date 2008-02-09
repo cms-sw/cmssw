@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.46 2008/01/28 15:41:14 dellaric Exp $
+// $Id: Numbers.cc,v 1.47 2008/02/08 21:18:27 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.46 $
-  \date $Date: 2008/01/28 15:41:14 $
+  \version $Revision: 1.47 $
+  \date $Date: 2008/02/08 21:18:27 $
 */
 
 #include <sstream>
@@ -39,7 +39,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
 
   if( Numbers::init ) return;
 
-  std::cout << "Initializing ECAL Geometry ... " << std::flush;
+  std::cout << "Initializing ECAL Geometry ..." << std::endl;
 
   Numbers::init = true;
 

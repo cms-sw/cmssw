@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/07 16:27:49 $
- * $Revision: 1.57 $
+ * $Date: 2008/02/08 17:37:35 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -621,7 +621,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLedDat ... " << flush;
+      cout << "Inserting MonLedDat ..." << endl;
       if ( dataset1_l1.size() != 0 ) econn->insertDataArraySet(&dataset1_l1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -724,7 +724,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ... " << flush;
+      cout << "Inserting MonPnDat ..." << endl;
       if ( dataset2_l1.size() != 0 ) econn->insertDataArraySet(&dataset2_l1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

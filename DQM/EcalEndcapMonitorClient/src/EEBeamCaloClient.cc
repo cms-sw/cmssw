@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/02/07 16:27:48 $
- * $Revision: 1.37 $
+ * $Date: 2008/02/08 17:37:35 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -323,7 +323,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << flush;
+      cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

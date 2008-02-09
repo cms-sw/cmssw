@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/01/20 17:11:37 $
- * $Revision: 1.184 $
+ * $Date: 2008/01/22 19:47:09 $
+ * $Revision: 1.185 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -640,7 +640,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonCrystalConsistencyDat ... " << flush;
+      cout << "Inserting MonConsistencyDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);

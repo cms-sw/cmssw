@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/07 16:27:48 $
- * $Revision: 1.57 $
+ * $Date: 2008/02/08 17:37:35 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -668,7 +668,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonCrystalConsistencyDat ... " << flush;
+      cout << "Inserting MonConsistencyDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);

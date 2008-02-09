@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.cc,v 1.5 2008/01/22 19:13:31 muzaffar Exp $
+// $Id: MonitorXMLParser.cc,v 1.6 2008/01/22 19:54:04 dellaric Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2008/01/22 19:13:31 $
+  \version $Revision: 1.6 $
+  \date $Date: 2008/01/22 19:54:04 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -438,7 +438,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     char* message = xercesc::XMLString::transcode( e.getMessage() );
     
     std::ostringstream buf ;
-    buf << "Error parsing file: " << message << std::flush;
+    buf << "Error parsing file: " << message << std::endl;
     
     xercesc::XMLString::release( &message );
     
@@ -449,7 +449,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     char* message = xercesc::XMLString::transcode( e.getMessage() );
     
     std::ostringstream buf;
-    buf << "Encountered DOM Exception: " << message << std::flush;
+    buf << "Encountered DOM Exception: " << message << std::endl;
     
     xercesc::XMLString::release( &message );
       

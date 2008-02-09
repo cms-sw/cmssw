@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/01/28 13:04:23 $
- * $Revision: 1.368 $
+ * $Date: 2008/01/28 15:40:48 $
+ * $Revision: 1.369 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -908,7 +908,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunIOV ... " << flush;
+      cout << "Fetching RunIOV ..." << endl;
 //      runiov_ = econn->fetchRunIOV(&runtag, run_);
       runiov_ = econn->fetchRunIOV(location_, run_);
       cout << "done." << endl;
@@ -933,13 +933,13 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunIOV ... " << flush;
+        cout << "Inserting RunIOV ..." << endl;
         econn->insertRunIOV(&runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
         try {
-          cout << "Fetching RunIOV (again) ... " << flush;
+          cout << "Fetching RunIOV (again) ..." << endl;
 //          runiov_ = econn->fetchRunIOV(&runtag, run_);
           runiov_ = econn->fetchRunIOV(location_, run_);
           cout << "done." << endl;
@@ -980,17 +980,17 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      std::cout << "Fetching EcalLogicID vectors ..." << std::flush;
+      cout << "Fetching EcalLogicID vectors ..." << endl;
       LogicID::init( econn, EcalBarrel );
-      std::cout << "done." << std::endl;
+      cout << "done." << endl;
     } catch(runtime_error &e) {
-      std::cerr << e.what() << std::endl;
+      cerr << e.what() << endl;
     }
   }
 
   if ( maskFile_.size() != 0 ) {
     try {
-      cout << "Fetching masked channels from file ... " << flush;
+      cout << "Fetching masked channels from file ..." << endl;
       EcalErrorMask::readFile(maskFile_, verbose_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -999,7 +999,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   } else {
     if ( econn ) {
       try {
-        cout << "Fetching masked channels from DB ... " << flush;
+        cout << "Fetching masked channels from DB ..." << endl;
         EcalErrorMask::readDB(econn, &runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
@@ -1142,7 +1142,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Inserting MonRunDat ... " << flush;
+      cout << "Inserting MonRunDat ..." << endl;
       econn->insertDataSet(&dataset, &moniov_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -1155,6 +1155,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1195,7 +1196,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunDat ... " << flush;
+      cout << "Fetching RunDat ..." << endl;
       econn->fetchDataSet(&dataset, &runiov_);
       cout << "done." << endl;
       foundRunDat = true;
@@ -1220,7 +1221,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunDat ... " << flush;
+        cout << "Inserting RunDat ..." << endl;
         econn->insertDataSet(&dataset, &runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
