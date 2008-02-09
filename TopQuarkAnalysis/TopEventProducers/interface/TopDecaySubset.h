@@ -29,7 +29,8 @@ class TopDecaySubset : public edm::EDProducer {
   void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
   void fillRefs(const reco::GenParticleRefProd&, reco::GenParticleCollection&);
 
-  reco::Particle::LorentzVector fourVector(const reco::GenParticle&);
+  reco::Particle::LorentzVector fourVector(const reco::GenParticle::const_iterator, 
+					   const reco::GenParticle::const_iterator);
  protected:
   void fillTree(int& index, const reco::GenParticle&, reco::GenParticleCollection&);
  private:

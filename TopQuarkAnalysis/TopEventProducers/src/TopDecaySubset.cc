@@ -36,19 +36,21 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
-Particle::LorentzVector TopDecaySubset::fourVector(const reco::GenParticle& p)
+Particle::LorentzVector TopDecaySubset::fourVector(const reco::GenParticle::const_iterator first,
+						   const reco::GenParticle::const_iterator last)
 {
   Particle::LorentzVector vec;
-  GenParticle::const_iterator pd=p.begin();
-  for( ; pd!=p.end(); ++pd){
-    if( pd->status() == TopDecayID::status ){
-      vec+=fourVector( *pd );
+  reco::GenParticle::const_iterator p=first;
+  for( ; p!=last; ++p){
+    if( p->status() == TopDecayID::status ){
+      vec+=fourVector( p->begin(), p->end() );
     }
     else{
       //skip W with status 2 to
       //prevent double counting
-      if( abs(pd->pdgId())!=TopDecayID::WID )
-	vec+=pd->p4();
+      if( abs(p->pdgId())!=TopDecayID::WID ){
+	vec+=p->p4();
+      }
     }
   }
   return vec;
@@ -59,8 +61,8 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
   GenParticleCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
     if( t->status() == TopDecayID::status && abs( t->pdgId() )==TopDecayID::tID ){ //is top      
-      GenParticle* cand = new GenParticle( t->threeCharge(), fourVector( *t ), 
-							     t->vertex(), t->pdgId(), t->status(), false );
+      GenParticle* cand = new GenParticle( t->threeCharge(), fourVector( t->begin(), t->end() ), 
+					   t->vertex(), t->pdgId(), t->status(), false );
       auto_ptr<reco::GenParticle> ptr( cand );
       sel.push_back( *ptr );
       ++idx;
@@ -72,15 +74,15 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
       GenParticle::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
 	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::bID ){ //is beauty	  
-	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( *td ), 
-								 td->vertex(), td->pdgId(), td->status(), false );
+	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( td->begin(), td->end() ), 
+					       td->vertex(), td->pdgId(), td->status(), false );
 	  auto_ptr<GenParticle> ptr( cand );
 	  sel.push_back( *ptr );	  
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	}
 	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
-	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( *td ), 
-								 td->vertex(), td->pdgId(), td->status(), true );
+	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( td->begin(), td->end() ), 
+					       td->vertex(), td->pdgId(), td->status(), true );
 	  auto_ptr<GenParticle> ptr( cand );
 	  sel.push_back( *ptr );
 	  topDaughs.push_back( ++idx ); //push index of top daughter
@@ -91,8 +93,8 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
 	  GenParticle::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
 	    if (wd->pdgId() != td->pdgId()) {
-	      GenParticle* cand = new GenParticle( wd->threeCharge(), fourVector( *wd ), 
-								     wd->vertex(), wd->pdgId(), wd->status(), false);
+	      GenParticle* cand = new GenParticle( wd->threeCharge(), fourVector( wd->begin(), wd->end() ), 
+						   wd->vertex(), wd->pdgId(), wd->status(), false);
 	      auto_ptr<GenParticle> ptr( cand );
 	      sel.push_back( *ptr );
 	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
@@ -135,7 +137,7 @@ void TopDecaySubset::fillTree(int& idx, const reco::GenParticle& particle, reco:
   int idx0 = idx;
   GenParticle::const_iterator daughter=particle.begin();
   for( ; daughter!=particle.end(); ++daughter){
-    GenParticle* cand = new GenParticle( daughter->threeCharge(), fourVector( *daughter ),
+    GenParticle* cand = new GenParticle( daughter->threeCharge(), fourVector( daughter->begin(), daughter->end() ),
                                                            daughter->vertex(), daughter->pdgId(), daughter->status(), false);
     auto_ptr<GenParticle> ptr( cand );
     sel.push_back( *ptr );
