@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/01/22 19:47:15 $
- * $Revision: 1.27 $
+ * $Date: 2008/02/04 19:41:13 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -281,7 +281,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
         if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
 
-        if ( isSeed && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( isSeed && xval >= lowThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
           if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
         }
 

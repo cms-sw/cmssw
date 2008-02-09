@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/01/22 19:47:11 $
- * $Revision: 1.89 $
+ * $Date: 2008/02/04 19:41:11 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -275,7 +275,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
         if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
 
-        if ( isSeed && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( isSeed && xval >= lowThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
           if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
         }
 
