@@ -457,6 +457,9 @@ class Process(object):
             result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
 
+    def _insertInto(self, parameterSet, itemDict):
+        for name,value in itemDict.iteritems():
+            value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item):
         vitems = []
         if not item == None:
@@ -502,9 +505,11 @@ class Process(object):
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
         for triggername in triggerPaths:
-            self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
+            #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
+            self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
-            self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
+            #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
+            self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -512,6 +517,8 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
+        self._insertInto(processPSet, self.psets_())
+        self._insertInto(processPSet, self.vpsets_())
         self._insertManyInto(processPSet, "@all_modules", all_modules)
         self._insertOneInto(processPSet,  "@all_sources", self.source_())
         self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
