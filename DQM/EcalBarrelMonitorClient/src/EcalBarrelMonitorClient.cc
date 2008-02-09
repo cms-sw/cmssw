@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/01/28 15:40:48 $
- * $Revision: 1.369 $
+ * $Date: 2008/02/09 10:18:32 $
+ * $Revision: 1.370 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1015,6 +1015,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1238,6 +1239,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }

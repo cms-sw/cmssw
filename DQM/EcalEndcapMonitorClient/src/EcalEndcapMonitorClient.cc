@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/01/28 15:41:15 $
- * $Revision: 1.128 $
+ * $Date: 2008/02/09 10:18:35 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1046,6 +1046,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1270,6 +1271,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
