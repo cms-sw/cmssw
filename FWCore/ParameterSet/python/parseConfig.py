@@ -1441,23 +1441,25 @@ def dumpPython(d, options):
     if options.isCfg:
         prefix = 'process.'
     for key,value in d:
+        newLabel = prefix+key
+        # dashes aren't allowed in python identifier
+        newLabel.replace('-','_')
         if isinstance(value,_IncludeFromNode):
             value.createFile(False)
-            newLabel = prefix + key
-            includes += value.dumpPythonAs(prefix+key, options)
+            includes += value.dumpPythonAs(newLabel, options)
         elif isinstance(value,_IncludeNode):
             value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
             replaces += prefix+value.dumpPython(options)+"\n"
         elif isinstance(value,_ModuleSeries):
-            sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
+            sequences += newLabel+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value,_Schedule):
-            schedules += prefix+key+" = "+value.dumpPython(options)+"\n"
+            schedules += newLabel+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value, cms.ESPrefer):
             others += value.dumpPythonAs(key, options)
         else:
-            others += prefix+key+" = "+value.dumpPython(options)+"\n"
+            others += newLabel+" = "+value.dumpPython(options)+"\n"
     return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
 
 class _ConfigReturn(object):
