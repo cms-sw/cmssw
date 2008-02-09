@@ -1,12 +1,12 @@
-// $Id: LogicID.cc,v 1.8 2008/01/28 15:41:14 dellaric Exp $
+// $Id: LogicID.cc,v 1.9 2008/02/09 19:50:10 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.8 $
-  \date $Date: 2008/01/28 15:41:14 $
+  \version $Revision: 1.9 $
+  \date $Date: 2008/02/09 19:50:10 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -69,7 +69,7 @@ EcalLogicID LogicID::getEcalLogicID( std::string name,
   }
   if( name == "EE_crystal_number" ) {
     return( EcalLogicID( "EE_crystal_number",
-                         2010000000+1000000*((id1>=1&&id1<=9)?2:0)+id2,
+                         2010000000+1000000*((id1>=1&&id1<=9)?2:0)+1000*int(id2/1000)+int(id2%1000),
                          (id1>=1&&id1<=9)?+1:-1,
                          int(id2/1000),
                          int(id2%1000) ) );
@@ -77,8 +77,7 @@ EcalLogicID LogicID::getEcalLogicID( std::string name,
   if( name == "EE_readout_tower" ) {
     return( EcalLogicID( "EE_readout_tower",
                          2000000000+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9)))+id2,
-                         (id1>=1&&id1<=9)?+1:-1,
-                         id1,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9))),
                          id2 ) );
   }
   if( name == "EE_mem_channel" ) {
