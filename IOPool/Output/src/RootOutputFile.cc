@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.43 2008/02/02 21:28:58 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.44 2008/02/05 22:56:42 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -327,28 +327,30 @@ namespace edm {
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
-      // If fast cloning, process only produced or renamed branches.
-      if (fastCloning && fastMetaCloning && !i->branchDescription_->produced() && !i->renamed_) continue;
-
       ProductID const& id = i->branchDescription_->productID_;
-
       if (id == ProductID()) {
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
       }
 
+      bool getProd = i->selected_ && (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
+      bool getProv = i->branchDescription_->produced() || i->renamed_ || !fastMetaCloning;
+
       EDProduct const* product = 0;
-      BasicHandle const bh = principal.getForOutput(id, i->selected_);
-      if (bh.provenance() == 0) {
-	// No product with this ID was put into the event.
-	// Use a default constructed EntryDescription
-	*i->entryDescriptionIDPtr_ = EntryDescription().id();
-      } else {
-	product = bh.wrapper();
-	*i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
+      BasicHandle const bh = principal.getForOutput(id, getProd, getProv);
+      if (getProv) {
+        if (bh.provenance() == 0) {
+	  // No product with this ID was put into the event.
+	  // Use a default constructed EntryDescription
+	  *i->entryDescriptionIDPtr_ = EntryDescription().id();
+        } else {
+	  product = bh.wrapper();
+	  *i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
+        }
       }
-      if (i->selected_) {
+      if (getProd) {
 	if (product == 0) {
+	  // No product with this ID is in the event.
 	  // Add a null product.
 	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
 	  product = static_cast<EDProduct *>(cp->New());
