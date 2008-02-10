@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.32 2008/02/02 00:42:12 wmtan Exp $
+$Id: Group.cc,v 1.33 2008/02/02 21:27:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -49,7 +49,7 @@ namespace edm {
   Group::status() const {
     // for backward compatibility
     if (productstatus::unknown(status_) && product_) {
-      status_ = (product_->isPresent() || dropped_ ? productstatus::present() : productstatus::neverCreated());
+      status_ = (product_->isPresent() ? productstatus::present() : productstatus::neverCreated());
     }
     return status_;
   }
