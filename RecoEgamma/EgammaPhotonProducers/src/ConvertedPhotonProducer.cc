@@ -90,12 +90,6 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   inOutTrackSCEndcapAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCEndcapAssociation");
   
   
-  barrelClusterShapeMapProducer_   = conf_.getParameter<std::string>("barrelClusterShapeMapProducer");
-  barrelClusterShapeMapCollection_ = conf_.getParameter<std::string>("barrelClusterShapeMapCollection");
-  endcapClusterShapeMapProducer_   = conf_.getParameter<std::string>("endcapClusterShapeMapProducer");
-  endcapClusterShapeMapCollection_ = conf_.getParameter<std::string>("endcapClusterShapeMapCollection");
-  
-  
   
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
@@ -168,7 +162,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   using namespace edm;
   nEvt_++;  
   
-  std::cout  << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
+  LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
 
   
   
@@ -325,8 +319,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   
   
   reco::SuperClusterCollection::iterator aClus;
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
-  
+    
   
   ///// Find the +/- pairs
   std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*> allPairs;
@@ -639,9 +632,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
-  std::cout  << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
 
-  // edm::OrphanHandle<reco::ConversionCollection> cpHandle;
+
   theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 
 

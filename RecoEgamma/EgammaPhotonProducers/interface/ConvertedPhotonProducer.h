@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.12 2007/12/07 20:46:40 nancy Exp $ 
- **  $Date: 2007/12/07 20:46:40 $ 
- **  $Revision: 1.12 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.13 2008/02/08 17:25:35 nancy Exp $ 
+ **  $Date: 2008/02/08 17:25:35 $ 
+ **  $Revision: 1.13 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -68,13 +68,6 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   std::string scHybridBarrelCollection_;
   std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
-
-  std::string barrelClusterShapeMapProducer_;
-  std::string barrelClusterShapeMapCollection_;
-  std::string endcapClusterShapeMapProducer_;
-  std::string endcapClusterShapeMapCollection_;
-
- 
 
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
