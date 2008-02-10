@@ -153,20 +153,22 @@ void PFRootEventManager::readOptions(const char* file,
     string outjetfilename;
     options_->GetOpt("pfjet_benchmark", "outjetfile", outjetfilename);
 	
-	bool pfjBenchmarkDebug;
+    bool pfjBenchmarkDebug;
     options_->GetOpt("pfjet_benchmark", "debug", pfjBenchmarkDebug);
     
     bool PlotAgainstReco;
     options_->GetOpt("pfjet_benchmark", "PlotAgainstReco", PlotAgainstReco);
     
     double deltaRMax=0.1;
-	options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
-    PFJetBenchmark_.setup(
-	            outjetfilename, 
-				pfjBenchmarkDebug,
-				PlotAgainstReco,
-				deltaRMax);
-	}
+    options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
+
+
+    // COLIN:PFJetBenchmark does not compile in 2_0_X
+    //     PFJetBenchmark_.setup( outjetfilename, 
+    // 			   pfjBenchmarkDebug,
+    // 			   PlotAgainstReco,
+    // 			   deltaRMax );
+  }
 
 
   // input root file --------------------------------------------
@@ -949,7 +951,7 @@ PFRootEventManager::~PFRootEventManager() {
 
 
 void PFRootEventManager::write() {
-if(doPFJetBenchmark_) PFJetBenchmark_.write();
+  // if(doPFJetBenchmark_) PFJetBenchmark_.write();
   if(!outFile_) return;
   else {
     outFile_->cd(); 
@@ -1019,11 +1021,15 @@ bool PFRootEventManager::processEntry(int entry) {
 	double deltaEt=0;
 	double deltaChargedEnergy = 0.;
 	double deltaEmEnergy = 0.;
-	PFJetBenchmark_.process(pfJets_, genJets_);
-	deltaEt = PFJetBenchmark_.deltaEtMax_;
-	deltaChargedEnergy = PFJetBenchmark_.deltaChargedEnergyMax_;
-	deltaEmEnergy = PFJetBenchmark_.deltaEmEnergyMax_;
+
+	//COLIN: PFJetBenchmark does not work in 2_0_X
+	// 	PFJetBenchmark_.process(pfJets_, genJets_);
+	// 	deltaEt = PFJetBenchmark_.deltaEtMax_;
+	// 	deltaChargedEnergy = PFJetBenchmark_.deltaChargedEnergyMax_;
+	// 	deltaEmEnergy = PFJetBenchmark_.deltaEmEnergyMax_;
+
 	if( verbosity_ == VERBOSE ){ //start debug print
+
 	cout << " =====================PFJetBenchmark =================" << endl;
 	cout<<"delta Et max "<<deltaEt
 	    <<" deltaChargedEnergy Max " << deltaChargedEnergy
