@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.15 2008/02/02 21:25:59 wmtan Exp $
+$Id: Principal.h,v 1.16 2008/02/06 19:41:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -64,7 +64,7 @@ namespace edm {
 
     BasicHandle  get(ProductID const& oid) const;
 
-    BasicHandle  getForOutput(ProductID const& oid, bool selected) const;
+    BasicHandle  getForOutput(ProductID const& oid, bool getProd, bool getProv) const;
 
     BasicHandle  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;

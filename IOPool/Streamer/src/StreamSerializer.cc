@@ -139,7 +139,7 @@ namespace edm
         throw Exception(errors::ProductNotFound,"InvalidID")
           << "StreamSerializer::serializeEvent: invalid ProductID supplied in productRegistry\n";
       }
-      BasicHandle const bh = eventPrincipal.getForOutput(id, true);
+      BasicHandle const bh = eventPrincipal.getForOutput(id, true, true);
       if (bh.provenance() == 0) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.

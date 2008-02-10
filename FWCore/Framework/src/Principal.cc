@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.24 2008/02/02 21:28:45 wmtan Exp $
+  $Id: Principal.cc,v 1.25 2008/02/06 19:41:22 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -186,10 +186,10 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getForOutput(ProductID const& oid, bool selected) const {
+  Principal::getForOutput(ProductID const& oid, bool getProd, bool getProv) const {
     ProductStatus & status = const_cast<ProductStatus &>(productStatuses_[Group::index(oid)]);
 
-    SharedConstGroupPtr const& g = getGroup(oid, selected, true, false);
+    SharedConstGroupPtr const& g = getGroup(oid, getProd, getProv, false);
     if (g.get() == 0) {
       if (!oid.isValid()) {
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
