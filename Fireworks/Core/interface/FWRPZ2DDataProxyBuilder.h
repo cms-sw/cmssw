@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.1 2008/01/12 17:22:54 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.2 2008/01/28 14:02:25 chrjones Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ class FWRPZ2DDataProxyBuilder
       void setRhoPhiProj(TEveElement*);
       void setRhoZProj(TEveElement*);
    
-   private:
+   protected:
       virtual void buildRhoPhi(const FWEventItem* iItem, 
                                TEveElementList** product) = 0 ;
       virtual void buildRhoZ(const FWEventItem* iItem, 
