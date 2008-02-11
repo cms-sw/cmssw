@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.4 2008/01/26 20:19:43 gpetrucc Exp $
+// $Id: Muon.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -12,10 +12,11 @@
    Muon implements the analysis-level muon class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Muon.h,v 1.4 2008/01/26 20:19:43 gpetrucc Exp $
+  \version  $Id: Muon.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
