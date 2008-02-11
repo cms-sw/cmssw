@@ -7,13 +7,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.10 2007/07/31 15:20:04 ratnik Exp $
+ * \version $Id: SuperCluster.h,v 1.11 2007/09/03 09:50:32 futyand Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
 namespace reco {
   class SuperCluster : public EcalCluster {
@@ -30,13 +32,22 @@ namespace reco {
     SuperCluster( double energy, const Point& position,
                   const BasicClusterRef & seed,
                   const BasicClusterRefVector& clusters,
-		  double Epreshower = 0.);
+		  double Epreshower=0.,
+		  double phiWidth=0., double etaWidth=0. );
 
     /// raw uncorrected energy (sum of energies of component BasicClusters)
     double rawEnergy() const;
 
     /// energy deposited in preshower 
     double preshowerEnergy() const { return preshowerEnergy_; }
+
+    /// obtain phi and eta width of the Super Cluster
+    double phiWidth() const { return phiWidth_; }
+    double etaWidth() const { return etaWidth_; }
+
+    //Assign new variables to supercluster
+    void setPhiWidth( double pw ) { phiWidth_ = pw; }
+    void setEtaWidth( double ew ) { etaWidth_ = ew; }
 
     /// seed BasicCluster
     const BasicClusterRef & seed() const { return seed_; }
@@ -73,6 +84,9 @@ namespace reco {
     double preshowerEnergy_;
 
     mutable double rawEnergy_;
+    
+    double phiWidth_;
+    double etaWidth_;
 
   };
 
