@@ -72,6 +72,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 	  //   <<it->pz()<<endl;
 	  //cout <<" *";
 	  assert(i->superCluster().isNonnull());
+#if 0
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
@@ -84,5 +85,6 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 		    tList->AddElement(shape);
 	       }
 	  }
+#endif
      }
 }
