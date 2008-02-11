@@ -90,6 +90,12 @@ namespace pos{
     //Control and data Regs for setting Baseline Adjustment
     int Nbaseln,NCbaseln,SCbaseln,Sbaseln;
 
+    //data Regs for TTs adjustable levels
+    int Ooslvl,Errlvl;
+
+    //data Regs adjustable fifo Almost Full levels
+    int Nfifo1Bzlvl,NCfifo1Bzlvl,SCfifo1Bzlvl,Sfifo1Bzlvl,fifo3Wrnlvl;
+
     //The values as read from file so that they can be restored after
     //calibration
     int Nbaseln_original,NCbaseln_original,SCbaseln_original,
