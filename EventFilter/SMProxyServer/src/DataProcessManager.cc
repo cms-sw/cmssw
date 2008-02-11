@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.6 2008/02/02 02:35:29 hcheung Exp $
+// $Id: DataProcessManager.cc,v 1.7 2008/02/04 22:32:07 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -32,8 +32,7 @@ namespace stor
     cmd_q_(edm::getEventBuffer(voidptr_size,50)),
     alreadyRegistered_(false),
     alreadyRegisteredDQM_(false),
-    ser_prods_size_(0),
-    serialized_prods_(1000000),
+    headerRefetchRequested_(false),
     buf_(2000),
     headerRetryInterval_(5),
     dqmServiceManager_(new stor::DQMServiceManager()),
@@ -41,7 +40,6 @@ namespace stor
     receivedDQMEvents_(0),
     samples_(100)
   {
-// TODO fixme: handle multiple HLT outputs for INIT messages!
     // for performance measurements
     pmeter_ = new stor::SMPerformanceMeter();
     init();
@@ -59,10 +57,10 @@ namespace stor
     eventpage_ = "/geteventdata";
     DQMeventpage_ = "/getDQMeventdata";
     headerpage_ = "/getregdata";
-    consumerName_ = "SMProxyServer";
+    consumerName_ = stor::PROXY_SERVER_NAME;
     //consumerPriority_ = "PushMode"; // this means push mode!
     consumerPriority_ = "Normal";
-    DQMconsumerName_ = "SMProxyServer";
+    DQMconsumerName_ = stor::PROXY_SERVER_NAME;
     //DQMconsumerPriority_ =  "PushMode"; // this means push mode!
     DQMconsumerPriority_ =  "Normal";
 
@@ -88,6 +86,7 @@ namespace stor
 
     alreadyRegistered_ = false;
     alreadyRegisteredDQM_ = false;
+    headerRefetchRequested_ = false;
 
     edm::ParameterSet ps = ParameterSet();
     // TODO fixme: only request event types that are requested by connected consumers?
@@ -158,7 +157,6 @@ namespace stor
   {
     // called with this data process manager's own thread.
     // first register with the SM for each subfarm
-    // TODO fixme: handle multiple INIT messages from mltiple HLT output modules
     bool doneWithRegistration = false;
     // TODO fixme: improve method of hardcored fixed retries
     unsigned int count = 0; // keep of count of tries and quit after 255
@@ -176,6 +174,12 @@ namespace stor
     while(!DoneWithJob)
     {
       // work loop
+      // if a header re-fetch has been requested, reset the header vars
+      if (headerRefetchRequested_) {
+        headerRefetchRequested_ = false;
+        gotOneHeader = false;
+        countINIT = 0;
+      }
       // register as event consumer to all SM senders
       if(!alreadyRegistered_) {
         if(!doneWithRegistration)
@@ -214,7 +218,6 @@ namespace stor
       }
       // now get one INIT header (product registry) and save it
       // as long as at least one SMsender registered with
-      // TODO fixme for multiple INIT messages for multiple HLT output modules
       // TODO fixme: use the data member for got header to go across runs
       if(!gotOneHeader)
       {
@@ -229,7 +232,7 @@ namespace stor
         edm::LogInfo("processCommands") << "Got the product registry";
         alreadysaidINIT = true;
       }
-      if(alreadyRegistered_ && haveHeader()) {
+      if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
         getEventFromAllSM();
       }
       if(alreadyRegisteredDQM_) {
@@ -541,11 +544,7 @@ namespace stor
     OtherMessageBuilder requestMessage(&msgBuff[0], Header::HEADER_REQUEST,
                                        sizeof(char_uint32));
     uint8 *bodyPtr = requestMessage.msgBody();
-    char_uint32 convertedId;
-    convert(smRegMap_[smURL], convertedId);
-    for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-      bodyPtr[idx] = convertedId[idx];
-    }
+    convert(smRegMap_[smURL], bodyPtr);
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
     setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
     struct curl_slist *headers=NULL;
@@ -574,9 +573,98 @@ namespace stor
     // rely on http transfer string of correct length!
     int len = data.d_.length();
     FDEBUG(9) << "getHeaderFromSM received registry len = " << len << std::endl;
-    serialized_prods_.resize(len);
-    for (int i=0; i<len ; i++) serialized_prods_[i] = data.d_[i];
-    ser_prods_size_ = len;
+
+    // check that we've received a valid INIT message
+    // or a set of INIT messages.  Save everything that we receive.
+    bool addedNewInitMsg = false;
+    try
+    {
+      HeaderView hdrView(&data.d_[0]);
+      if (hdrView.code() == Header::INIT)
+      {
+        InitMsgView initView(&data.d_[0]);
+        if (initMsgCollection_->testAndAddIfUnique(initView))
+        {
+          addedNewInitMsg = true;
+        }
+      }
+      else if (hdrView.code() == Header::INIT_SET)
+      {
+        OtherMessageView otherView(&data.d_[0]);
+        bodyPtr = otherView.msgBody();
+        uint32 fullSize = otherView.bodySize();
+        while ((unsigned int) (bodyPtr-otherView.msgBody()) < fullSize)
+        {
+          InitMsgView initView(bodyPtr);
+          if (initMsgCollection_->testAndAddIfUnique(initView))
+          {
+            addedNewInitMsg = true;
+          }
+          bodyPtr += initView.size();
+        }
+      }
+      else
+      {
+        throw cms::Exception("getHeaderFromSM", "DataProcessManager");
+      }
+    }
+    catch (cms::Exception excpt)
+    {
+      const unsigned int MAX_DUMP_LENGTH = 1000;
+      edm::LogError("getHeaderFromSM") << "========================================";
+      edm::LogError("getHeaderFromSM") << "Exception decoding the getRegistryData response!";
+      if (data.d_.length() <= MAX_DUMP_LENGTH) {
+        edm::LogError("getHeaderFromSM") << "Here is the raw text that was returned:";
+        edm::LogError("getHeaderFromSM") << data.d_;
+      }
+      else {
+        edm::LogError("getHeaderFromSM") << "Here are the first " << MAX_DUMP_LENGTH <<
+          " characters of the raw text that was returned:";
+        edm::LogError("getHeaderFromSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+      }
+      edm::LogError("getHeaderFromSM") << "========================================";
+      throw excpt;
+    }
+
+    // check if any currently connected consumers have trigger
+    // selection requests that match more than one INIT message
+    if (addedNewInitMsg && eventServer_.get() != NULL)
+    {
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+        eventServer_->getConsumerTable();
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+        consumerIter;
+      for (consumerIter = consumerTable.begin();
+           consumerIter != consumerTable.end();
+           consumerIter++)
+      {
+        boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+        try
+        {
+          Strings consumerSelection = consPtr->getTriggerRequest();
+          initMsgCollection_->getElementForSelection(consumerSelection);
+        }
+        catch (const edm::Exception& excpt)
+        {
+          // store a warning message in the consumer pipe to be
+          // sent to the consumer at the next opportunity
+          consPtr->setRegistryWarning(excpt.what());
+        }
+        catch (const cms::Exception& excpt)
+        {
+          // store a warning message in the consumer pipe to be
+          // sent to the consumer at the next opportunity
+          std::string errorString;
+          errorString.append(excpt.what());
+          errorString.append("\n");
+          errorString.append(initMsgCollection_->getSelectionHelpString());
+          errorString.append("\n\n");
+          errorString.append("*** Please select trigger paths from one and ");
+          errorString.append("only one HLT output module. ***\n");
+          consPtr->setRegistryWarning(errorString);
+        }
+      }
+    }
 
     return true;
   }
@@ -612,18 +700,8 @@ namespace stor
 
   bool DataProcessManager::haveHeader()
   {
-    if(ser_prods_size_ > 0) return true;
+    if(initMsgCollection_->size() > 0) return true;
     return false;
-  }
-
-  unsigned int DataProcessManager::headerSize()
-  {
-    return ser_prods_size_;
-  }
-
-  std::vector<unsigned char> DataProcessManager::getHeader()
-  {
-    return serialized_prods_;
   }
 
   void DataProcessManager::getEventFromAllSM()
@@ -715,15 +793,16 @@ namespace stor
     setopt(han,CURLOPT_WRITEDATA,&data);
 
     // send our consumer ID as part of the event request
+    // The event request body consists of the consumerId and the
+    // number of INIT messages in our collection.  The latter is used
+    // to determine if we need to re-fetch the INIT message collection.
     char msgBuff[100];
     OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
-                                       sizeof(char_uint32));
+                                       2 * sizeof(char_uint32));
     uint8 *bodyPtr = requestMessage.msgBody();
-    char_uint32 convertedId;
-    convert(smRegMap_[smURL], convertedId);
-    for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-      bodyPtr[idx] = convertedId[idx];
-    }
+    convert(smRegMap_[smURL], bodyPtr);
+    bodyPtr += sizeof(char_uint32);
+    convert((uint32) initMsgCollection_->size(), bodyPtr);
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
     setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
     struct curl_slist *headers=NULL;
@@ -738,7 +817,7 @@ namespace stor
 
     if(messageStatus!=0)
     { 
-      cerr << "curl perform failed for header" << endl;
+      cerr << "curl perform failed for event" << endl;
       edm::LogError("getOneEventFromSM") << "curl perform failed for event. "
         << "Could not get event from an already registered Storage Manager"
         << " at " << smURL;
@@ -762,6 +841,10 @@ namespace stor
     if (msgView.code() == Header::DONE) {
       // TODO fixme:just print message for now
       std::cout << " SM " << smURL << " has halted" << std::endl;
+      return false;
+    } else if (msgView.code() == Header::NEW_INIT_AVAILABLE) {
+      std::cout << "Received NEW_INIT_AVAILABLE message" << std::endl;
+      headerRefetchRequested_ = true;
       return false;
     } else {
       // 05-Feb-2008, KAB:  catch (and rethrow) any exceptions decoding
@@ -893,16 +976,10 @@ namespace stor
 
     // send our consumer ID as part of the event request
     char msgBuff[100];
-    // Later make this change when Header::DQMEVENT_REQUEST is available
-    //OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
-    OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
+    OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
                                        sizeof(char_uint32));
     uint8 *bodyPtr = requestMessage.msgBody();
-    char_uint32 convertedId;
-    convert(DQMsmRegMap_[smURL], convertedId);
-    for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-      bodyPtr[idx] = convertedId[idx];
-    }
+    convert(DQMsmRegMap_[smURL], bodyPtr);
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
     setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
     struct curl_slist *headers=NULL;
@@ -917,8 +994,8 @@ namespace stor
 
     if(messageStatus!=0)
     { 
-      cerr << "curl perform failed for header" << endl;
-      edm::LogError("getOneDQMEventFromSM") << "curl perform failed for event. "
+      cerr << "curl perform failed for DQM event" << endl;
+      edm::LogError("getOneDQMEventFromSM") << "curl perform failed for DQM event. "
         << "Could not get DQMevent from an already registered Storage Manager"
         << " at " << smURL;
       return false;

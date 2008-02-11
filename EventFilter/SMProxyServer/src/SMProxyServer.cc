@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.9 2008/01/28 20:47:59 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.10 2008/02/02 02:35:29 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -826,22 +826,42 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
     }
     if (eventServer.get() != NULL)
     {
-      boost::shared_ptr< std::vector<char> > bufPtr =
-        eventServer->getEvent(consumerId);
-      if (bufPtr.get() != NULL)
+      // if we've stored a "registry warning" in the consumer pipe, send
+      // that instead of an event so that the consumer can react to
+      // the warning
+      boost::shared_ptr<ConsumerPipe> consPtr =
+        eventServer->getConsumer(consumerId);
+      if (consPtr.get() != NULL && consPtr->hasRegistryWarning())
       {
-        EventMsgView msgView(&(*bufPtr)[0]);
-
-        unsigned char* from = msgView.startAddress();
-        unsigned int dsize = msgView.size();
-        if(dsize > mybuffer_.capacity() ) mybuffer_.resize(dsize);
+        std::vector<char> registryWarning = consPtr->getRegistryWarning();
+        const char* from = &registryWarning[0];
+        unsigned int msize = registryWarning.size();
+        if(mybuffer_.capacity() < msize) mybuffer_.resize(msize);
         unsigned char* pos = (unsigned char*) &mybuffer_[0];
 
-        copy(from,from+dsize,pos);
-        len = dsize;
-        FDEBUG(10) << "sending event " << msgView.event() << std::endl;
-        ++sentEvents_;
-        addOutMeasurement(len);
+        copy(from,from+msize,pos);
+        len = msize;
+        consPtr->clearRegistryWarning();
+      }
+      else
+      {
+        boost::shared_ptr< std::vector<char> > bufPtr =
+          eventServer->getEvent(consumerId);
+        if (bufPtr.get() != NULL)
+        {
+          EventMsgView msgView(&(*bufPtr)[0]);
+
+          unsigned char* from = msgView.startAddress();
+          unsigned int dsize = msgView.size();
+          if(dsize > mybuffer_.capacity() ) mybuffer_.resize(dsize);
+          unsigned char* pos = (unsigned char*) &mybuffer_[0];
+
+          copy(from,from+dsize,pos);
+          len = dsize;
+          FDEBUG(10) << "sending event " << msgView.event() << std::endl;
+          ++sentEvents_;
+          addOutMeasurement(len);
+        }
       }
     }
     
@@ -866,6 +886,8 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  unsigned int len = 0;
+
   // determine the consumer ID from the header request
   // message, if it is available.
   auto_ptr< vector<char> > httpPostData;
@@ -890,53 +912,71 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   // check we are in the right state
   // first test if SMProxyServer is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  bool haveHeaderAlready = false;
-  if(dpm_.get() != NULL) haveHeaderAlready = dpm_->haveHeader();
-  if(fsm_.stateName()->toString() == "Enabled" && haveHeaderAlready)
+  if(fsm_.stateName()->toString() == "Enabled" && dpm_.get() != NULL &&
+     dpm_->getInitMsgCollection().get() != NULL &&
+     dpm_->getInitMsgCollection()->size() > 0)
     {
-      if(!dpm_->haveHeader()) // should not get here! (except for threading...)
-	{ // not available yet - return zero length stream, should return MsgCode NOTREADY
-	  int len = 0;
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	} 
-      else 
-	{
-	  // overlay an INIT message view on the serialized
-	  // products array so that we can initialize the consumer event selection
-	  unsigned int len = dpm_->headerSize();
-          std::vector<unsigned char> serialized_prods = dpm_->getHeader();
-	  InitMsgView initView(&serialized_prods[0]);
-	  if (dpm_.get() != NULL)
-	    {
-	      boost::shared_ptr<EventServer> eventServer = dpm_->getEventServer();
-	      if (eventServer.get() != NULL)
-		{
-		  boost::shared_ptr<ConsumerPipe> consPtr =
-		    eventServer->getConsumer(consumerId);
-		  if (consPtr.get() != NULL)
-		    {
-		      consPtr->initializeSelection(initView);
-		    }
-		}
-	    }
-          if(len > mybuffer_.capacity() ) mybuffer_.resize(len);
-	  for (int i=0; i<(int)len; i++) mybuffer_[i]=serialized_prods[i];
-	  
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	}
-    } 
-  else 
-    {
-      // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-      int len = 0;
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write((char*) &mybuffer_[0],len);
+      std::string errorString;
+      InitMsgSharedPtr serializedProds;
+      boost::shared_ptr<EventServer> eventServer = dpm_->getEventServer();
+      if (eventServer.get() != NULL)
+      {
+        boost::shared_ptr<ConsumerPipe> consPtr =
+          eventServer->getConsumer(consumerId);
+        if (consPtr.get() != NULL)
+        {
+          boost::shared_ptr<InitMsgCollection> initMsgCollection =
+            dpm_->getInitMsgCollection();
+          try
+          {
+            Strings consumerSelection = consPtr->getTriggerRequest();
+            serializedProds =
+              initMsgCollection->getElementForSelection(consumerSelection);
+            if (serializedProds.get() != NULL)
+            {
+              Strings triggerNameList;
+              InitMsgView initView(&(*serializedProds)[0]);
+              initView.hltTriggerNames(triggerNameList);
+              consPtr->initializeSelection(triggerNameList);
+            }
+          }
+          catch (const edm::Exception& excpt)
+          {
+            errorString = excpt.what();
+          }
+          catch (const cms::Exception& excpt)
+          {
+            errorString.append(excpt.what());
+            errorString.append("\n");
+            errorString.append(initMsgCollection->getSelectionHelpString());
+            errorString.append("\n\n");
+            errorString.append("*** Please select trigger paths from one and ");
+            errorString.append("only one HLT output module. ***\n");
+          }
+        }
+      }
+      if (errorString.length() > 0) {
+        len = errorString.length();
+      }
+      else if (serializedProds.get() != NULL) {
+        len = serializedProds->size();
+      }
+      else {
+        len = 0;
+      }
+      if (mybuffer_.capacity() < len) mybuffer_.resize(len);
+      if (errorString.length() > 0) {
+        const char *errorBytes = errorString.c_str();
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
+      }
+      else if (serializedProds.get() != NULL) {
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=(*serializedProds)[i];
+      }
     }
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+  out->write((char*) &mybuffer_[0],len);
 }
 
 
@@ -1049,8 +1089,7 @@ void SMProxyServer::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
     in->read(&(*bufPtr)[0], contentLength);
     OtherMessageView requestMessage(&(*bufPtr)[0]);
     // make the change below when a tag of IOPool/Streamer can be used without FW changes
-    //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
-    if (requestMessage.code() == Header::EVENT_REQUEST)
+    if (requestMessage.code() == Header::DQMEVENT_REQUEST)
     {
       uint8 *bodyPtr = requestMessage.msgBody();
       consumerId = convert32(bodyPtr);
@@ -1497,6 +1536,9 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       boost::shared_ptr<DQMEventServer>
         DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
       dpm_->setDQMEventServer(DQMeventServer);
+      boost::shared_ptr<InitMsgCollection>
+        initMsgCollection(new InitMsgCollection());
+      dpm_->setInitMsgCollection(initMsgCollection);
       dpm_->setMaxEventRequestRate(maxEventRequestRate_);
       dpm_->setMaxDQMEventRequestRate(maxDQMEventRequestRate_);
 
