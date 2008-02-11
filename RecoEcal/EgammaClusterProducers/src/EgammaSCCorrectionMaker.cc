@@ -12,7 +12,7 @@
 
 EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
 {
-
+ 
   // The verbosity level
   std::string debugString = ps.getParameter<std::string>("VerbosityLevel");
   if      (debugString == "DEBUG")   verbosity_ = EgammaSCEnergyCorrectionAlgo::pDEBUG;
@@ -40,6 +40,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
+  oldEnergyScaleCorrection_ = ps.getParameter<bool>("applyOldCorrection");
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
   etThresh_ =  ps.getParameter<double>("etThresh");
@@ -49,7 +50,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, verbosity_);
+  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, verbosity_, oldEnergyScaleCorrection_);
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
@@ -64,21 +65,23 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
    
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
-  evt.getByLabel(sCInputProducer_, sCInputCollection_, pRawSuperClusters);
-  if (!pRawSuperClusters.isValid()) {
+  try { 
+    evt.getByLabel(sCInputProducer_, sCInputCollection_, pRawSuperClusters);
+  } catch ( cms::Exception& ex ) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the rawSuperClusters " 
       << sCInputCollection_.c_str() ;
-  }
+  }    
   
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHits;
-  evt.getByLabel(rHInputProducer_, rHInputCollection_, pRecHits);
-  if (!pRecHits.isValid()) {
+  try { 
+    evt.getByLabel(rHInputProducer_, rHInputCollection_, pRecHits);
+  } catch ( cms::Exception& ex ) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the RecHits " 
       << rHInputCollection_.c_str() ;
-  }
+  }    
   
   // Create a pointer to the RecHits and raw SuperClusters
   const EcalRecHitCollection *hitCollection = pRecHits.product();
@@ -96,10 +99,14 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
         newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
       }
 
-      if(newClus.energy()*sin(newClus.position().theta())>etThresh_)
+      if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
+	//Print out bool parameter showing which energy corr is applied 
+	//and corrected energy of SC before placing SCs in collection
+	std::cout << "boolPar & CorrEnergy " << oldEnergyScaleCorrection_ 
+		  << " : " << newClus.energy() << std::endl;
 	corrClusters->push_back(newClus);
+      }
     }
- 
   // Put collection of corrected SuperClusters into the event
   evt.put(corrClusters, outputCollection_);   
   
