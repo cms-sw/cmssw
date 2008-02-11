@@ -14,6 +14,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
 #include <vector>
 #include <set>
@@ -58,6 +59,12 @@ class HybridClusterAlgo
   // colection of all rechits
   const EcalRecHitCollection *recHits_;
 
+
+  // geometry
+  const CaloSubdetectorGeometry* geometry;
+
+  SuperClusterShapeAlgo* SCShape_;
+
   //Set of DetIds that have already been used.
   std::set<DetId> useddetids;
 
@@ -82,21 +89,26 @@ class HybridClusterAlgo
   //The default constructor
   HybridClusterAlgo(){ }
   
-
   //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    int step,
 		    double ethresh, 
 		    double eseed,
 		    double ewing,
+<<<<<<< HybridClusterAlgo.h
+                const PositionCalc& posCalculator,
+		    bool dynamicPhiRoad = false,
+=======
                     const PositionCalc& posCalculator,
                     bool dynamicPhiRoad = false,
+>>>>>>> 1.23
 		    DebugLevel debugLevel = pINFO);
 
   // destructor
   ~HybridClusterAlgo() 
   {
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
+     delete SCShape_;
   } 
 
   //Hand over the map, the geometry, and I'll hand you back clusters.
