@@ -18,7 +18,9 @@ class EgammaSCEnergyCorrectionAlgo
     enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
     // public member functions
-    EgammaSCEnergyCorrectionAlgo(double noise, VerbosityLevel verbosity = pERROR);
+    EgammaSCEnergyCorrectionAlgo(double noise, 
+				 VerbosityLevel verbosity = pERROR, 
+				 bool applyOldCorrection = true);
     ~EgammaSCEnergyCorrectionAlgo();
 
     // take a SuperCluster and return a corrected SuperCluster
@@ -31,6 +33,13 @@ class EgammaSCEnergyCorrectionAlgo
     }
  
   private:
+    // Zhang shower leakage corrections
+    double fEta(double eta);
+    // F(brem) correction with brem = phiWidth/etaWidth
+    double fBrem(double brem, double e);
+    // F(et, eta) correction
+    double fEtEta(double et, double eta);
+
     // correction factor as a function of number of crystals,
     // BasicCluster algo and location in the detector    
     float fNCrystals(int nCry, reco::AlgoId theAlgo, EcalSubdetector theBase);
@@ -45,6 +54,9 @@ class EgammaSCEnergyCorrectionAlgo
 
     //  the verbosity level
     VerbosityLevel verbosity_;
+    
+    //parameter to switch off/on f(nCry) correction
+    bool applyOldCorrection_;
 };
 
 #endif /*RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_*/
