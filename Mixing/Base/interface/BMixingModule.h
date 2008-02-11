@@ -68,6 +68,7 @@ namespace edm {
       std::vector<edm::EventID> eventIDs_;
       std::vector<int> fileSeqNrs_;
       std::vector<unsigned int> nrEvents_;
+      const static unsigned int maxNbSources_;
 
   private:
 
@@ -75,10 +76,10 @@ namespace edm {
       boost::shared_ptr<PileUp> cosmics_;
       boost::shared_ptr<PileUp> beamHalo_p_;
       boost::shared_ptr<PileUp> beamHalo_m_;
+      boost::shared_ptr<PileUp> fwdDet_;
       ModuleDescription md_;
 
       unsigned int eventId_;
-      const static unsigned int maxNbSources;
   };
 
 }//edm

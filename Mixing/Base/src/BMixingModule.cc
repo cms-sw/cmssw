@@ -18,7 +18,7 @@
 using namespace std;
 
 int edm::BMixingModule::vertexoffset = 0;
-const unsigned int edm::BMixingModule::maxNbSources =4;
+const unsigned int edm::BMixingModule::maxNbSources_ =5;
 
 namespace
 {
@@ -98,6 +98,7 @@ namespace edm {
     cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
     beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
     beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
+    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_);
 
     //prepare playback info structures
     fileSeqNrs_.resize(maxBunch_-minBunch_+1);
@@ -118,8 +119,8 @@ namespace edm {
     addSignals(e);
 
     // Read the PileUp 
-    std::vector<EventPrincipalVector> pileup[maxNbSources];
-    bool doit[]={false,false,false,false};
+    std::vector<EventPrincipalVector> pileup[maxNbSources_];
+    bool doit[maxNbSources_];
 
     if ( input_)  {  
       if (playback_) {
@@ -143,9 +144,8 @@ namespace edm {
 // 	  }
 // 	}
 // 	// end testprint
-      } 
+      } else doit[0]=false; 
     }
-
     if (cosmics_) {
       if (playback_) {
 	getEventStartInfo(e,1);
@@ -157,7 +157,7 @@ namespace edm {
       if (cosmics_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
 	doit[1]=true;
-      } 
+      }  else doit[1]=false;
     }
 
     if (beamHalo_p_) {
@@ -171,7 +171,7 @@ namespace edm {
       if (beamHalo_p_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
 	doit[2]=true;
-      } 
+      }  else doit[2]=false;
     }
 
     if (beamHalo_m_) {
@@ -183,9 +183,24 @@ namespace edm {
 	setEventStartInfo(3);
       }
       if (beamHalo_m_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding beam Halo- to signal event "<<e.id();
+	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
 	doit[3]=true;
-      } 
+      }  else doit[3]=false;
+    }
+
+    if (fwdDet_) {
+      if (playback_) {
+	getEventStartInfo(e,4);
+	fwdDet_->readPileUp(pileup[4],eventIDs_, fileSeqNrs_, nrEvents_);
+      } else {
+	fwdDet_->readPileUp(pileup[4],eventIDs_, fileSeqNrs_, nrEvents_);
+	setEventStartInfo(4);
+      }
+
+      if (fwdDet_->doPileup()) {  
+	LogDebug("MixingModule") <<"\n\n==============================>Adding fwd detector source  to signal event "<<e.id();
+	doit[4]=true;
+      }  else doit[4]=false;
     }
 
     // and merge it
@@ -193,7 +208,7 @@ namespace edm {
     // ordered by bunchcrossing
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       setBcrOffset();
-      for (unsigned int isource=0;isource<maxNbSources;++isource) {
+      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
         setSourceOffset(isource);
 	if (doit[isource])   {
 	  merge(bunchCrossing, (pileup[isource])[bunchCrossing-minBunch_]);
