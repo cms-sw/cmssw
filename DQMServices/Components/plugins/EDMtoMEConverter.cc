@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/04 20:13:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/08 06:40:30 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -59,12 +59,18 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
   count.clear();
   countf = 0;
+
+  fileData.clear();
   
 } // end constructor
 
 EDMtoMEConverter::~EDMtoMEConverter() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (outputfile.size() != 0 && dbe) {
+    if (jobRepSvc.isAvailable()) jobRepSvc->
+				   reportAnalysisFile(outputfile,fileData); 
+    dbe->save(outputfile);
+  }
 } // end destructor
 
 void EDMtoMEConverter::beginJob(const edm::EventSetup& iSetup)
