@@ -10,6 +10,15 @@
 
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
+<<<<<<< HybridClusterAlgo.cc
+				     int step, 
+				     double ethresh, 
+				     double eseed,
+				     double ewing,
+				     const PositionCalc& posCalculator,
+				     bool dynamicPhiRoad,
+				     DebugLevel debugLevel) :
+=======
                   int step, 
                   double ethresh, 
                   double eseed,
@@ -17,6 +26,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
                   const PositionCalc& posCalculator,
                   bool dynamicPhiRoad,
                   DebugLevel debugLevel) :
+>>>>>>> 1.35
    eb_st(eb_str),
    phiSteps_(step), dynamicPhiRoad_(dynamicPhiRoad), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)
 {
@@ -43,6 +53,9 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   //Pass in a pointer to the collection.
   recHits_ = recColl;
   
+  //Pass the geometry
+  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
+
   if ( debugLevel_ == pDEBUG ) {
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
   }
@@ -429,9 +442,21 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     posX /= ClusterE;
     posY /= ClusterE;
     posZ /= ClusterE;
-    reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc);
-    SCcoll.push_back(suCl);
 
+    double preshowerE = 0.;
+    double phiWidth = 0.;
+    double etaWidth = 0.;
+    //Calculate phiWidth & etaWidth for SuperClusters
+    reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc, preshowerE, phiWidth, etaWidth);
+    SCShape_->Calculate_Covariances(suCl);
+    phiWidth = SCShape_->phiWidth();
+    etaWidth = SCShape_->etaWidth();
+    //Assign phiWidth & etaWidth to SuperCluster as data members
+    suCl.setPhiWidth(phiWidth);
+    suCl.setEtaWidth(etaWidth);
+
+    SCcoll.push_back(suCl);
+    
     if ( debugLevel_ == pDEBUG ){
       std::cout << "Super cluster sum: " << ClusterE << std::endl;
       std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
