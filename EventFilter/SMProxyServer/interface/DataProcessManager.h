@@ -1,9 +1,10 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.3 2008/01/28 20:11:18 hcheung Exp $
+// $Id: DataProcessManager.h,v 1.4 2008/02/02 02:35:28 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 
@@ -41,6 +42,12 @@ namespace stor
       eventServer_ = es;
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
+
+    void setInitMsgCollection(boost::shared_ptr<InitMsgCollection>& imColl)
+    {
+      initMsgCollection_ = imColl;
+    }
+    boost::shared_ptr<InitMsgCollection>& getInitMsgCollection() { return initMsgCollection_; }
 
     void setMaxEventRequestRate(double rate);
     void setMaxDQMEventRequestRate(double rate);
@@ -85,8 +92,6 @@ namespace stor
     bool haveRegWithDQMServer();
     bool haveRegWithEventServer();
     bool haveHeader();
-    unsigned int headerSize();
-    std::vector<unsigned char> getHeader();
 
     // *** for performance measurements
     unsigned long receivedevents() { return receivedEvents_; }
@@ -132,8 +137,7 @@ namespace stor
 
     bool alreadyRegistered_;
     bool alreadyRegisteredDQM_;
-    unsigned int  ser_prods_size_;
-    std::vector<unsigned char> serialized_prods_;
+    bool headerRefetchRequested_;
     std::vector<unsigned char> buf_;
 
     std::vector<std::string> smList_;
@@ -166,6 +170,7 @@ namespace stor
 
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
+    boost::shared_ptr<InitMsgCollection> initMsgCollection_;
 
     boost::shared_ptr<boost::thread> me_;
 
