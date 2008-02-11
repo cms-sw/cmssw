@@ -56,44 +56,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       dirName+=assoc;
       dbe_->setCurrentFolder(dirName.c_str());
 
-      vector<double> etaintervalsv;
-      vector<double> pTintervalsv;
-      vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
-      vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
-  
-      double step=(max-min)/nint;
-      ostringstream title,name;
-      etaintervalsv.push_back(min);
-      for (int k=1;k<nint+1;k++) {
-	double d=min+k*step;
-	etaintervalsv.push_back(d);
-	totSIMveta.push_back(0);
-	totASSveta.push_back(0);
-	totASS2veta.push_back(0);
-	totRECveta.push_back(0);
-      }
-
-      etaintervals.push_back(etaintervalsv);
-      totSIMeta.push_back(totSIMveta);
-      totASSeta.push_back(totASSveta);
-      totASS2eta.push_back(totASS2veta);
-      totRECeta.push_back(totRECveta);
-
-      double steppT = (maxpT-minpT)/nintpT;
-      pTintervalsv.push_back(minpT);
-      for (int k=1;k<nintpT+1;k++) {
-        double d=minpT+k*steppT;
-        pTintervalsv.push_back(d);
-        totSIMvpT.push_back(0);
-        totASSvpT.push_back(0);
-        totASS2vpT.push_back(0);
-        totRECvpT.push_back(0);
-      }
-      pTintervals.push_back(pTintervalsv);
-      totSIMpT.push_back(totSIMvpT);
-      totASSpT.push_back(totASSvpT);
-      totASS2pT.push_back(totASS2vpT);
-      totRECpT.push_back(totRECvpT);
+      setUpVectors();
 
       dbe_->goUp();
       string subDirName = dirName + "/simulation";
@@ -116,6 +79,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
       h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintpT,minpT,maxpT) );
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
+      h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintpT,minpT,maxpT) );
       h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
       h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
       h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nint,min,max) );
@@ -214,7 +178,6 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 }
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
-
   using namespace reco;
 
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
@@ -240,7 +203,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //get collections from the event
       //
-      edm::Handle<View<Track> > trackCollection;
+      edm::Handle<View<Track> >  trackCollection;
       event.getByLabel(label[www], trackCollection);
       
       //associate tracks
@@ -519,167 +482,65 @@ void MultiTrackValidator::endJob() {
       h->FitSlicesY();
 
       //resolution of track params: get sigma from 2D histos
-      //       TH2F* d0res_eta = new TH2F("d0res_eta","d0res_eta",nint,min,max, 100, -0.01, 0.01);
-      //       copy2D(d0res_eta,d0res_vs_eta[w]);
       FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
       fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
-      //       delete d0res_eta;
-      //       TH2F* d0res_pt = new TH2F("d0res_pt","d0res_pt",nintpT,minpT,maxpT, 100, -0.01, 0.01);
-      //       copy2D(d0res_pt,d0res_vs_pt[w]);
       FitSlicesYTool fsyt_d0Pt(d0res_vs_pt[w]);
       fsyt_d0Pt.getFittedSigmaWithError(h_d0rmshPt[w]);
-      //       delete d0res_pt;      
-      //       TH2F* ptres_eta = new TH2F("ptres_eta","ptres_eta",nint,min,max, 100, -0.1, 0.1);
-      //       copy2D(ptres_eta,ptres_vs_eta[w]);
       FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
       fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
-      //       delete ptres_eta;
-      //       TH2F* ptres_pt = new TH2F("ptres_pt","ptres_pt",nintpT,minpT,maxpT, 100, -0.1, 0.1);
-      //       copy2D(ptres_pt,ptres_vs_pt[w]);
       FitSlicesYTool fsyt_ptPt(ptres_vs_pt[w]);
       fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[w]);
-      //       delete ptres_pt;
-      //       TH2F* z0res_eta = new TH2F("z0res_eta","z0res_eta",nint,min,max, 150, -0.05, 0.05);
-      //       copy2D(z0res_eta,z0res_vs_eta[w]);
       FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
       fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
-      //       delete z0res_eta;
-      //       TH2F* z0res_pt = new TH2F("z0res_pt","z0res_pt",nintpT,minpT,maxpT, 150, -0.05, 0.05);
-      //       copy2D(z0res_pt,z0res_vs_pt[w]);
       FitSlicesYTool fsyt_z0Pt(z0res_vs_pt[w]);
       fsyt_z0Pt.getFittedSigmaWithError(h_z0rmshPt[w]);
-      //       delete z0res_pt;
-      //       TH2F* phires_eta = new TH2F("phires_eta","phires_eta",nint,min,max, 100, -0.003, 0.003);
-      //       copy2D(phires_eta,phires_vs_eta[w]);
       FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
       fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
-      //       delete phires_eta;
-      //       TH2F* phires_pt = new TH2F("phires_pt","phires_pt",nintpT,minpT,maxpT, 100, -0.003, 0.003);
-      //       copy2D(phires_pt,phires_vs_pt[w]);
       FitSlicesYTool fsyt_phiPt(phires_vs_pt[w]);
       fsyt_phiPt.getFittedSigmaWithError(h_phirmshPt[w]);
-      //       delete phires_pt;
-      //       TH2F* cotThetares_eta = new TH2F("cotThetares_eta","cotThetares_eta",nint,min,max, 120, -0.01, 0.01);
-      //       copy2D(cotThetares_eta,cotThetares_vs_eta[w]);
       FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
       fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
-      //       delete cotThetares_eta;
-      //       TH2F* cotThetares_pt = new TH2F("cotThetares_pt","cotThetares_pt",nintpT,minpT,maxpT, 120, -0.01, 0.01);
-      //       copy2D(cotThetares_pt,cotThetares_vs_pt[w]);
       FitSlicesYTool fsyt_cotThetaPt(cotThetares_vs_pt[w]);
       fsyt_cotThetaPt.getFittedSigmaWithError(h_cotThetarmshPt[w]);
-      //       delete cotThetares_pt;
 
       //chi2 and #hit vs eta: get mean from 2D histos
-      //       TH2F* chi2_eta = new TH2F("chi2_eta","chi2_eta",nint,min,max, 200, 0, 20 );
-      //       copy2D(chi2_eta,chi2_vs_eta[w]);
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
-      //       delete chi2_eta;
-      //       TH2F* nhits_eta = new TH2F("nhits_eta","nhits_eta",nint,min,max,25,0,25);
-      //       copy2D(nhits_eta,nhits_vs_eta[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
-      //       delete nhits_eta;
    
       //pulls of track params vs eta: get sigma from 2D histos
-      //       TH2F* d0pull_eta = new TH2F("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10);
-      //       copy2D(d0pull_eta,d0pull_vs_eta[w]);
       FitSlicesYTool fsyt_d0p(d0pull_vs_eta[w]);
       fsyt_d0p.getFittedSigmaWithError(h_d0pulleta[w]);
-      //       delete d0pull_eta;
-      //       TH2F* ptpull_eta = new TH2F("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10); 
-      //       copy2D(ptpull_eta,ptpull_vs_eta[w]);
       FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
       fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
       fsyt_ptp.getFittedMeanWithError(h_ptshifteta[w]);      
-      //       delete ptpull_eta;
-      //       TH2F* z0pull_eta = new TH2F("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10); 
-      //       copy2D(z0pull_eta,z0pull_vs_eta[w]);
       FitSlicesYTool fsyt_z0p(z0pull_vs_eta[w]);
       fsyt_z0p.getFittedSigmaWithError(h_z0pulleta[w]);
-      //       delete z0pull_eta;
-      //       TH2F* phipull_eta = new TH2F("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10); 
-      //       copy2D(phipull_eta,phipull_vs_eta[w]);
       FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
       fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
-      //       delete phipull_eta;
-      //       TH2F* thetapull_eta = new TH2F("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10);
-      //       copy2D(thetapull_eta,thetapull_vs_eta[w]);
       FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
       fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
-      //       delete thetapull_eta;
       
       //fill efficiency plot vs eta
-      double eff,err;
-      for (unsigned int j=0; j<totASSeta[w].size(); j++){
-        if (totSIMeta[w][j]!=0){
-          eff = ((double) totASSeta[w][j])/((double) totSIMeta[w][j]);
-	  err = sqrt(eff*(1-eff)/((double) totSIMeta[w][j]));
-          h_effic[w]->setBinContent(j+1, eff);
-          h_effic[w]->setBinError(j+1,err);
-        }
-        else {
-          h_effic[w]->setBinContent(j+1, 0);
-        }
-      }
+      fillPlotFromVectors(h_effic[w],totASSeta[w],totSIMeta[w],"effic");
       //fill efficiency plot vs pt
-      for (unsigned int j=0; j<totASSpT[w].size(); j++){
-	if (totSIMpT[w][j]!=0){
-	  eff = ((double) totASSpT[w][j])/((double) totSIMpT[w][j]);
-	  err = sqrt(eff*(1-eff)/((double) totSIMpT[w][j]));
-	  h_efficPt[w]->setBinContent(j+1, eff);
-	  h_efficPt[w]->setBinError(j+1,err);
-	}
-	else {
-	  h_efficPt[w]->setBinContent(j+1, 0);
-	}
-      }
-      
+      fillPlotFromVectors(h_efficPt[w],totASSpT[w],totSIMpT[w],"effic");
       //fill fakerate plot
-      double frate,ferr;
-      for (unsigned int j=0; j<totASS2eta[w].size(); j++){
-        if (totRECeta[w][j]!=0){
-          frate = 1-((double) totASS2eta[w][j])/((double) totRECeta[w][j]);
-	  ferr = sqrt( frate*(1-frate)/(double) totRECeta[w][j] );
-          h_fakerate[w]->setBinContent(j+1, frate);
-	  h_fakerate[w]->setBinError(j+1,ferr);
-        }
-        else {
-          h_fakerate[w]->setBinContent(j+1, 0);
-        }
-      }
+      fillPlotFromVectors(h_fakerate[w],totASS2eta[w],totRECeta[w],"fakerate");
+      fillPlotFromVectors(h_fakeratePt[w],totASS2pT[w],totRECpT[w],"fakerate");
 
-      for (unsigned int j=0; j<totRECeta[w].size(); j++){
-	h_recoeta[w]->setBinContent(j+1, totRECeta[w][j]);
-      }
-      for (unsigned int j=0; j<totSIMeta[w].size(); j++){
-	h_simuleta[w]->setBinContent(j+1, totSIMeta[w][j]);
-      }
-      for (unsigned int j=0; j<totASSeta[w].size(); j++){
-	h_assoceta[w]->setBinContent(j+1, totASSeta[w][j]);
-      }
-      for (unsigned int j=0; j<totASS2eta[w].size(); j++){
-	h_assoc2eta[w]->setBinContent(j+1, totASS2eta[w][j]);
-      }
+      fillPlotFromVector(h_recoeta[w],totRECeta[w]);
+      fillPlotFromVector(h_simuleta[w],totSIMeta[w]);
+      fillPlotFromVector(h_assoceta[w],totASSeta[w]);
+      fillPlotFromVector(h_assoc2eta[w],totASS2eta[w]);
 
-      for (unsigned int j=0; j<totRECpT[w].size(); j++){
-        h_recopT[w]->setBinContent(j+1, totRECpT[w][j]);
-      }
-      for (unsigned int j=0; j<totSIMpT[w].size(); j++){
-        h_simulpT[w]->setBinContent(j+1, totSIMpT[w][j]);
-      }
-      for (unsigned int j=0; j<totASSpT[w].size(); j++){
-        h_assocpT[w]->setBinContent(j+1, totASSpT[w][j]);
-      }
-      for (unsigned int j=0; j<totASS2pT[w].size(); j++){
-        h_assoc2pT[w]->setBinContent(j+1, totASS2pT[w][j]);
-      }   
+      fillPlotFromVector(h_recopT[w],totRECpT[w]);
+      fillPlotFromVector(h_simulpT[w],totSIMpT[w]);
+      fillPlotFromVector(h_assocpT[w],totASSpT[w]);
+      fillPlotFromVector(h_assoc2pT[w],totASS2pT[w]);
 
       w++;
     }
   }
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
-
-
-
 
