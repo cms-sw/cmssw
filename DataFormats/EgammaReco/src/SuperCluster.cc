@@ -1,4 +1,4 @@
-// $Id: SuperCluster.cc,v 1.9 2007/07/31 15:20:04 ratnik Exp $
+// $Id: SuperCluster.cc,v 1.10 2007/08/02 14:37:02 futyand Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
@@ -10,10 +10,11 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const BasicClusterRef & seed,
                             const BasicClusterRefVector& clusters,
-			    double Epreshower) :
+			    double Epreshower, double phiWidth, double etaWidth) :
   EcalCluster(energy,position), rawEnergy_(-1.)
 {
-
+  phiWidth_ = phiWidth;
+  etaWidth_ = etaWidth;
   seed_ = seed;
   preshowerEnergy_ = Epreshower;
 
