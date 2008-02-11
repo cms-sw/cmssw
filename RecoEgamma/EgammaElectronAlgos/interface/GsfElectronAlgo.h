@@ -42,8 +42,8 @@ public:
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
                          double maxDeltaEta, double maxDeltaPhi, 
-			 bool highPtPresel, double highPtMin);
-
+			 bool highPtPresel, double highPtMin,
+		         bool applyEtaCorrection);
   ~GsfElectronAlgo();
 
   void setupES(const edm::EventSetup& setup);
@@ -111,7 +111,10 @@ public:
   // high pt preselection parameters
   bool highPtPreselection_;
   double highPtMin_;
- 
+  
+  //if this parameter is true the result of fEta correction will be set as energy of eletron
+  bool applyEtaCorrection_;
+  
   // input configuration
   std::string hbheLabel_;
   std::string hbheInstanceName_;
