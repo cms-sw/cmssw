@@ -1,3 +1,8 @@
+2008-02-11  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-06-00
+	* Fix SMProxyServer to handle when there are multiple HLT output modules.
+
 2008-02-02  Harry Cheung <cheung@fnal.gov>
 
         * tag V01-05-01
