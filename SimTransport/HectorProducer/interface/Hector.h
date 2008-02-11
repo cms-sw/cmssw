@@ -14,6 +14,7 @@
 #include "H_BeamParticle.h"
 #include <string>
 
+
 class Hector {
 
 public:
@@ -95,6 +96,7 @@ public:
   /*!Returns the direction of fly for the particle \a n, 1 in case of forward, -1 in case of backward
     \param part_n code of a particle (HepMC::GenParticle::barcode())
   */
+
   int getDirect( unsigned int part_n ) const;
 
   /*!Prints properties of all particles in a beamline*/

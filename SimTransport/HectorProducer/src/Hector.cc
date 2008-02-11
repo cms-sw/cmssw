@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
 //Hector
 #include "SimTransport/HectorProducer/interface/Hector.h"
 #include "SimTransport/HectorProducer/interface/HectorGenParticle.h"
@@ -71,8 +72,10 @@ Hector::Hector(const edm::ParameterSet & param) :
 			  << "   RP220b:    " << m_rpp220_b << "\n"
 			  << "   SigmaE:    " << m_sig_e << "\n";
 
+
   //edm::FileInPath b1("SimTransport/HectorData/twiss_ip5_b1_v6.5.txt");
   //edm::FileInPath b2("SimTransport/HectorData/twiss_ip5_b2_v6.5.txt");
+
 edm::FileInPath b1(beam1filename.c_str());
 edm::FileInPath b2(beam2filename.c_str());
 
@@ -416,6 +419,7 @@ void Hector::reconstruct(){
 	    m_x0[line] = m_rp420_b->getX0();
 	    m_y0[line] = m_rp420_b->getY0();
 	  } */
+
 	}
       }
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
