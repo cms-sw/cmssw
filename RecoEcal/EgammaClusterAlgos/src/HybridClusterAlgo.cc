@@ -10,7 +10,6 @@
 
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
-<<<<<<< HybridClusterAlgo.cc
 				     int step, 
 				     double ethresh, 
 				     double eseed,
@@ -18,15 +17,6 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     const PositionCalc& posCalculator,
 				     bool dynamicPhiRoad,
 				     DebugLevel debugLevel) :
-=======
-                  int step, 
-                  double ethresh, 
-                  double eseed,
-                  double ewing,
-                  const PositionCalc& posCalculator,
-                  bool dynamicPhiRoad,
-                  DebugLevel debugLevel) :
->>>>>>> 1.35
    eb_st(eb_str),
    phiSteps_(step), dynamicPhiRoad_(dynamicPhiRoad), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)
 {
