@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.9 2007/11/29 19:14:10 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.10 2008/01/29 19:35:37 biery Exp $
  */
 
 #include <string>
@@ -40,6 +40,9 @@
 
 namespace stor
 {
+
+  static const std::string PROXY_SERVER_NAME("SMProxyServer");
+
   class ConsumerPipe
   {
   public:
@@ -51,11 +54,12 @@ namespace stor
     ~ConsumerPipe();
 
     uint32 getConsumerId() const;
-    void initializeSelection(InitMsgView const& initView);
+    void initializeSelection(Strings const& fullTriggerList);
     bool isIdle() const;
     bool isDisconnected() const;
     bool isReadyForEvent() const;
-    bool hasError() const { return errorWasReported_; }
+    bool isProxyServer() const { return consumerIsProxyServer_; }
+    bool hasRegistryWarning() const { return registryWarningWasReported_; }
     bool wantsEvent(EventMsgView const& eventView) const;
     void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getEvent();
@@ -67,8 +71,10 @@ namespace stor
     time_t getLastEventRequestTime() { return(lastEventRequestTime_);}
     std::string getHostName() { return(hostName_);}
     std::vector<std::string> getTriggerRequest() const;
-    void setErrorMessage(std::string message);
-    std::string getErrorMessage() { return errorMessage_; }
+    void setRegistryWarning(std::string const& message);
+    void setRegistryWarning(std::vector<char> const& message);
+    std::vector<char> getRegistryWarning() { return registryWarningMessage_; }
+    void clearRegistryWarning() { registryWarningWasReported_ = false; }
 
   private:
 
@@ -81,6 +87,7 @@ namespace stor
     int events_;
     boost::shared_ptr<edm::ParameterSet> requestParamSet_;
     std::string hostName_;
+    bool consumerIsProxyServer_;
 
     // event selector that does the work of accepting/rejecting events
     boost::shared_ptr<edm::EventSelector> eventSelector_;
@@ -98,9 +105,9 @@ namespace stor
     bool pushEvent();
     unsigned int pushEventFailures_;
 
-    // track whether an error has occurred
-    bool errorWasReported_;
-    std::string errorMessage_;
+    // track whether a registry warning has been received
+    bool registryWarningWasReported_;
+    std::vector<char> registryWarningMessage_;
 
     // 28-Nov-2007, KAB: upgrade to a queue of events
     std::deque< boost::shared_ptr< std::vector<char> > > eventQueue_;
