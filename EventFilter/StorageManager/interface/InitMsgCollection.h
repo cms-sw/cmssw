@@ -6,7 +6,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output streams.
  *
- * $Id: InitMsgCollection.h,v 1.1 2008/01/18 19:14:10 biery Exp $
+ * $Id: InitMsgCollection.h,v 1.1 2008/01/29 20:26:35 biery Exp $
  */
 
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -30,6 +30,8 @@ namespace stor
     bool testAndAddIfUnique(InitMsgView const& initMsgView);
     InitMsgSharedPtr getElementForSelection(Strings const& triggerSelection);
     InitMsgSharedPtr getLastElement();
+    InitMsgSharedPtr getElementAt(unsigned int index);
+    InitMsgSharedPtr getFullCollection() { return serializedFullSet_; }
 
     void clear();
     int size();
@@ -43,6 +45,7 @@ namespace stor
     void add(InitMsgView const& initMsgView);
 
     std::vector<InitMsgSharedPtr> initMsgList_;
+    InitMsgSharedPtr serializedFullSet_;
 
     boost::mutex listLock_;
 
