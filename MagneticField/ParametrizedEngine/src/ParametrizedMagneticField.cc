@@ -2,8 +2,8 @@
  *
  *  Magnetic Field based on the Veikko Karimaki's Parametrization
  *
- *  $Date: 2007/28/06 16:08:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/02 11:49:15 $
+ *  $Revision: 1.1 $
  *  \author M. Chiorboli - Universit\`a and INFN Catania
  */
 
@@ -49,11 +49,21 @@ bool ParametrizedMagneticField::trackerField(const GlobalPoint& gp, double a, do
 // b0=field at centre, l=solenoid length, a=radius (m) (phenomen. parameters) 
 
 // static const float b0=40.681, l=15.284, a=4.6430;   // cmssw
+  std::cout << "trackerField inizio a  = " << a << std::endl;
+  std::cout << "trackerField inizio l  = " << l << std::endl;
+  std::cout << "trackerField inizio gp = " << gp << std::endl;
+
  static const float b0=40.681;
  static float ap2=4.0*a*a/(l*l);  
  static float hb0=0.5*b0*sqrt(1.0+ap2);
  static float hlova=1.0/sqrt(ap2);
  static float ainv=2.0*hlova/l;
+ std::cout << "trackerField b0    = " << b0    << std::endl;
+ std::cout << "trackerField ap2   = " << ap2   << std::endl;
+ std::cout << "trackerField hb0   = " << hb0   << std::endl;
+ std::cout << "trackerField hlova = " << hlova << std::endl;
+ std::cout << "trackerField ainv  = " << ainv  << std::endl;
+
  float xyz[3];//, bxyz[3];
  xyz[0]=0.01*gp.x();
  xyz[1]=0.01*gp.y();
@@ -83,6 +93,14 @@ bool ParametrizedMagneticField::trackerField(const GlobalPoint& gp, double a, do
   //bvec.y()=0.1*br*xyz[1]*rinv;
   //bvec.z()=0.1*bz;
   bvec = 0.1*GlobalVector(br*xyz[0]*rinv, br*xyz[1]*rinv, bz);
+
+  std::cout << "trackerField gp " << gp << std::endl;
+  std::cout << "trackerField a "  << a  << std::endl;
+  std::cout << "trackerField l "  << l  << std::endl;
+  std::cout << "trackerField bvec_x " << bvec.x()  << std::endl;
+  std::cout << "trackerField bvec_y " << bvec.y()  << std::endl;
+  std::cout << "trackerField bvec_z " << bvec.z()  << std::endl;
+
   return true;
  }   
  return false;

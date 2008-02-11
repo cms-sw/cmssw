@@ -14,7 +14,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id$
+// $Id: MagneticFieldPlotter.cc,v 1.1 2007/07/02 11:49:34 chiorbo Exp $
 //
 //
 
@@ -50,8 +50,8 @@ MagneticFieldPlotter::MagneticFieldPlotter(const edm::ParameterSet& iConfig):
 {
   theHistoFile = 0;
   
-  nZstep   = 100;
-  nPhistep = 100;
+  nZstep   = 1;
+  nPhistep = 1;
   zHalfLength = 280;
 
 }
@@ -71,8 +71,10 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    theMGField = &(*ESMGField);
 
    
-   float radius[5] = {10, 20, 30, 50, 100};
-   for(int iR=0; iR<5; iR++) {
+   //   float radius[5] = {10, 20, 30, 50, 100};
+   float radius[1] = {100};
+   //   for(int iR=0; iR<5; iR++) {
+   for(int iR=0; iR<1; iR++) {
        for(int iPhi=0; iPhi<nPhistep; iPhi++) {
      for(int iZ=0; iZ<nZstep; iZ++) {
        float zCoordinate = (float)iZ*zHalfLength*2/(float)nZstep - zHalfLength;
@@ -82,6 +84,12 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 GlobalVector myFieldVector = theMGField->inTesla(gp);
 	 float Br   = myFieldVector.x()*cos(gp.phi()) + myFieldVector.y()*sin(gp.phi());
 	 float Bphi = - myFieldVector.x()*sin(gp.phi()) + myFieldVector.y()*cos(gp.phi());
+	 cout << "Radius  = " << rCoordinate       ;
+	 cout << ", Z     = " << zCoordinate      ;
+	 cout << ", Phi    = " << phiCoordinate     <<endl;
+	 cout << "Bz     = " << myFieldVector.z() ;
+	 cout << ", Br     = " << Br                ;
+	 cout << ", Bphi   = " << Bphi              << endl;
 	 gBz[iR]  ->Fill(phiCoordinate,zCoordinate,myFieldVector.z());
 	 gBr[iR]  ->Fill(phiCoordinate,zCoordinate,Br               );
 	 gBphi[iR]->Fill(phiCoordinate,zCoordinate,Bphi             );
