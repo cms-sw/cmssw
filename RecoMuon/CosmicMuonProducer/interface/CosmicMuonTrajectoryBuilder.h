@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/12/16 06:44:43 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/06 03:42:07 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -93,7 +93,7 @@ private:
 
   void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
-  std::vector<const TrajectoryMeasurement*> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const MeasurementEstimator*);
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const MeasurementEstimator*);
 
   void incrementChamberCounters(const DetLayer *layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 
