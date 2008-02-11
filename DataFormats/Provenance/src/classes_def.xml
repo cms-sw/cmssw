@@ -31,6 +31,9 @@
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
+ <class name="edm::EntryDescription">
+   <field name="moduleDescriptionPtr_" transient="true"/>
+ </class>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
    <field name="wrappedName_" transient="true"/>
@@ -72,4 +75,5 @@
  <class name="std::set<edm::Hash<3> >"/>
  <class name="std::map<edm::Hash<3>,edm::ProcessConfiguration>"/>
  <class name="std::pair<edm::Hash<3>,edm::ProcessConfiguration>"/>
+ <class name="edm::Hash<4>"/>
 </lcgdict>
