@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/02/04 19:41:13 $
- * $Revision: 1.28 $
+ * $Date: 2008/02/09 23:08:26 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,7 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibRecHitCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   lowThreshold_  = 0.06125; // 7 ADC counts at G200
@@ -206,7 +206,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     Handle<EcalUncalibratedRecHitCollection> uhits;
 
-    if ( e.getByLabel(EcalUncalibRecHitCollection_, uhits) ) {
+    if ( e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
     
       for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -289,7 +289,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }  else {
 
-      LogWarning("EECosmicTask") << EcalUncalibRecHitCollection_ << " not available";
+      LogWarning("EECosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
     }
 

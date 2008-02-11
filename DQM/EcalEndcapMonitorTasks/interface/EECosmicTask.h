@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2008/01/09 12:17:31 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/04 19:41:12 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -53,7 +53,7 @@ DaqMonitorBEInterface* dbe_;
 bool enableCleanup_;
 
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag EcalUncalibRecHitCollection_; 
+edm::InputTag EcalUncalibratedRecHitCollection_; 
 edm::InputTag EcalRecHitCollection_;
 
 MonitorElement* meCutMap_[18];
