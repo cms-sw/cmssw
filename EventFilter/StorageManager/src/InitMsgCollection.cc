@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.1 2008/01/29 20:26:36 biery Exp $
+ * $Id: InitMsgCollection.cc,v 1.2 2008/01/30 19:45:08 biery Exp $
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
+#include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
@@ -27,6 +28,9 @@ InitMsgCollection::InitMsgCollection()
 {
   FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
   initMsgList_.clear();
+
+  serializedFullSet_.reset(new InitMsgBuffer(2 * sizeof(Header)));
+  OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
 }
 
 /**
@@ -273,7 +277,8 @@ InitMsgCollection::getElementForSelection(Strings const& triggerSelection)
 }
 
 /**
- * Returns a shared pointer to the last element in the collection.
+ * Returns a shared pointer to the last element in the collection
+ * or an empty pointer if the collection has no elements.
  *
  * @return the last InitMsgSharedPtr in the collection.
  */
@@ -286,6 +291,24 @@ InitMsgSharedPtr InitMsgCollection::getLastElement()
     ptrToLast = initMsgList_.back();
   }
   return ptrToLast;
+}
+
+/**
+ * Returns a shared pointer to the requested element in the collection
+ * or an empty pointer if the requested index if out of bounds.
+ *
+ * @param index The index of the requested element.
+ * @return the InitMsgSharedPtr at the requested index in the collection.
+ */
+InitMsgSharedPtr InitMsgCollection::getElementAt(unsigned int index)
+{
+  boost::mutex::scoped_lock sl(listLock_);
+
+  InitMsgSharedPtr ptrToElement;
+  if (index >= 0 && index < initMsgList_.size()) {
+    ptrToElement = initMsgList_[index];
+  }
+  return ptrToElement;
 }
 
 /**
@@ -306,25 +329,6 @@ int InitMsgCollection::size()
 {
   boost::mutex::scoped_lock sl(listLock_);
   return initMsgList_.size();
-}
-
-/**
- * Adds the specified INIT message to the collection (unconditionally).
- *
- * @param initMsgView The INIT message to add to the collection.
- */
-void InitMsgCollection::add(InitMsgView const& initMsgView)
-{
-  //dumpInitVerbose(&initMsgView);
-  InitMsgSharedPtr serializedProds(new InitMsgBuffer(initMsgView.size()));
-  initMsgList_.push_back(serializedProds);
-  std::copy(initMsgView.startAddress(),
-            initMsgView.startAddress()+initMsgView.size(),
-            &(*serializedProds)[0]);
-
-  //InitMsgSharedPtr serializedProds2 = initMsgList_[initMsgList_.size()-1];
-  //InitMsgView initView(&(*serializedProds2)[0]);
-  //dumpInitVerbose(&initView);
 }
 
 /**
@@ -404,4 +408,37 @@ std::string InitMsgCollection::stringsToText(Strings const& list,
   }
   resultString.append(")");
   return resultString;
+}
+
+/**
+ * Adds the specified INIT message to the collection (unconditionally).
+ *
+ * @param initMsgView The INIT message to add to the collection.
+ */
+void InitMsgCollection::add(InitMsgView const& initMsgView)
+{
+  // add the message to the internal list
+  InitMsgSharedPtr serializedProds(new InitMsgBuffer(initMsgView.size()));
+  initMsgList_.push_back(serializedProds);
+  std::copy(initMsgView.startAddress(),
+            initMsgView.startAddress()+initMsgView.size(),
+            &(*serializedProds)[0]);
+
+  // calculate various sizes needed for adding the message to
+  // the serialized version of the full set
+  OtherMessageView fullSetView(&(*serializedFullSet_)[0]);
+  unsigned int oldBodySize = fullSetView.bodySize();
+  unsigned int oldBufferSize = serializedFullSet_->size();
+  unsigned int newBodySize = oldBodySize + initMsgView.size();
+  unsigned int newBufferSize = oldBufferSize + initMsgView.size();
+
+  // add the message to the serialized full set of messages
+  serializedFullSet_->resize(newBufferSize);
+  OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0],
+                                 Header::INIT_SET,
+                                 newBodySize);
+  uint8 *copyPtr = fullSetMsg.msgBody() + oldBodySize;
+  std::copy(initMsgView.startAddress(),
+            initMsgView.startAddress()+initMsgView.size(),
+            copyPtr);
 }
