@@ -168,7 +168,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
   if ( usePrimaryVertex_ ) {
-    std::cout <<  " using primary vertex " << std::endl;
     theEvent.getByLabel(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
       edm::LogError("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
