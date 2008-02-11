@@ -1,4 +1,10 @@
-2008-02-20  Harry Cheung <cheung@fnal.gov>
+2008-02-11  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-03 
+	* Support for SMProxyServer as a special consumer when we have multiple
+	  HLT output modules.
+
+2008-02-02  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-02 
         * New version of SMPerformanceMeterfor thread safety so SMProxyServer can
