@@ -17,10 +17,9 @@ class mappingGenerator:
         self.__verbose=False
         cmsswbase=os.getenv('CMSSW_BASE')
         currentdir=os.getcwd()
+        self.__path=currentdir
         if cmsswbase == None :
             raise ValueError, "cmssw environment variables not set"
-        
-        self.__verbose=False
         self.__classversion="Pedestals_v0"
         self.__classname=""
         self.__dictionary="CondFormatsCalibration"
@@ -34,7 +33,7 @@ class mappingGenerator:
             "</Class>",
             "</PoolContainer>",
             "</PoolDatabase>"])
-        self.__defaultXMLheader='\"'+self.__defaultXMLheader+'\"'
+        self.__defaultXMLheader=self.__defaultXMLheader
     def buildtempxml(self,containername,classname,classversion):
         self.__defaultXMLheader=self.__defaultXMLheader.replace("##CONTAINERNAME##",containername)
         self.__defaultXMLheader=self.__defaultXMLheader.replace("##CLASSNAME##",classname)
@@ -50,7 +49,6 @@ class mappingGenerator:
         """
         f=open(os.path.join(self.__path,"classes_def.xml"),'r')
         searchfor="class_version=\""+classversion+"\""
-        print 'searchfor ',searchfor
         for line in f:
             pos=line.find(searchfor)
             if pos>0: #found line
@@ -58,7 +56,6 @@ class mappingGenerator:
                 print fields
                 for field in fields:
                     if field.find("name=") != -1:
-                        print 'found name'
                         result=field.split("\"")[1]
                         self.__classname=result
                         if self.__poolcontainer=="":
@@ -83,7 +80,8 @@ class mappingGenerator:
         parser.add_option("-v","--verbose",action="store_true",dest="verbose",
                           help="verbose mode")
 
-        (options, args) = parser.parse_args()        
+        (options, args) = parser.parse_args()
+
         self.__classversion=options.classversion
         self.__path=os.path.abspath(options.path)
         self.parseclassdefxml(self.__classversion)
@@ -92,9 +90,15 @@ class mappingGenerator:
             self.__poolcontainer=options.poolcontainer
         if options.dictionary:
             self.__dictionary=options.dictionary
+        else:
+            parent=os.path.split(self.__path)[0]
+            pkg=os.path.split(parent)[1]
+            subsys=os.path.split(parent)[0]
+            subsys=os.path.split(subsys)[1]
+            self.__dictionary=subsys+pkg
+            print self.__dictionary
         self.__verbose=options.verbose
         self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
-        #self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
         if self.__verbose is True:
             print "classversion %s : " % self.__classversion
       
@@ -102,15 +106,13 @@ class mappingGenerator:
         '''create xml catalog with given input
         '''        
         outfilename=self.__classversion+".xml"
+        f = open('temp.xml','w')
+        f.write(self.__defaultXMLheader)
+        f.close()
         if self.__verbose is False:
-            print 'here'
-            cmd=' '.join(['echo\"',self.__defaultXMLheader,'\" | ','pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
+            cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','temp.xml','-o',outfilename])
         else:
-            print 'there'
-            #sys.stdin.read(self.__defaultXMLheader)
-            #cmd1="echo -n "+self.__defaultXMLheader
-            #cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
-            cmd=' '.join(['echo ',self.__defaultXMLheader,'|', 'pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','/dev/stdin','-o',outfilename])
+            cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','temp.xml','-o',outfilename])
         print cmd
 
         os.system(cmd) 
