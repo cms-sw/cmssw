@@ -1,0 +1,88 @@
+#include "RVersion.h"
+#include "TColor.h"
+#include "TEvePolygonSetProjected.h"
+#include "TEveTrack.h"
+#include "TEveTrackPropagator.h"
+#include "TEveManager.h"
+#include "TEveStraightLineSet.h"
+#include "TEveGeoNode.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+ElectronsProxy3DBuilder::ElectronsProxy3DBuilder()
+{
+}
+
+ElectronsProxy3DBuilder::~ElectronsProxy3DBuilder()
+{
+}
+
+void ElectronsProxy3DBuilder::build (const FWEventItem* iItem, 
+				     TEveElementList** product)
+{
+     TEveElementList* tList = *product;
+     printf("Calling electron proxy\n");
+     
+     if(0 == tList) {
+	  tList =  new TEveElementList(iItem->name().c_str(), "GSF Electrons", true);
+	  *product = tList;
+	  tList->SetMainColor(iItem->defaultDisplayProperties().color());
+	  gEve->AddElement(tList);
+     } else {
+	  tList->DestroyElements();
+     }
+     
+     using reco::PixelMatchGsfElectronCollection;
+     const PixelMatchGsfElectronCollection *electrons = 0;
+     printf("getting electrons\n");
+     iItem->get(electrons);
+     printf("got electrons\n");
+   
+     if (electrons == 0) {
+	  std::cout <<"failed to get GSF electrons" << std::endl;
+	  return;
+     }
+     printf("%d GSF electrons\n", electrons->size());
+   
+     TEveTrackPropagator *propagator = new TEveTrackPropagator();
+     propagator->SetMagField( -4.0);
+     propagator->SetMaxR( 120 );
+     propagator->SetMaxZ( 300 );
+
+     int index=0;
+     TEveRecTrack t;
+     t.fBeta = 1.;
+     for(PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
+	 i != electrons->end(); ++i, ++index) {
+	  assert(i->gsfTrack().isNonnull());
+	  t.fP = TEveVector(i->gsfTrack()->px(),
+			    i->gsfTrack()->py(),
+			    i->gsfTrack()->pz());
+	  t.fV = TEveVector(i->gsfTrack()->vx(),
+			    i->gsfTrack()->vy(),
+			    i->gsfTrack()->vz());
+	  t.fSign = i->gsfTrack()->charge();
+	  TEveTrack* trk = new TEveTrack(&t, propagator);
+	  trk->SetMainColor(iItem->defaultDisplayProperties().color());
+	  gEve->AddElement(trk,tList);
+	  //cout << it->px()<<" "
+	  //   <<it->py()<<" "
+	  //   <<it->pz()<<endl;
+	  //cout <<" *";
+	  assert(i->superCluster().isNonnull());
+	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
+	  for (std::vector<DetId>::const_iterator k = detids.begin();
+	       k != detids.end(); ++k) {
+// 	       const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( k->rawId() );
+	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( k->rawId() );
+	       if(0!=extract) {
+		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+		    shape->SetMainTransparency(50);
+		    shape->SetMainColor(tList->GetMainColor());
+		    tList->AddElement(shape);
+	       }
+	  }
+     }
+}
