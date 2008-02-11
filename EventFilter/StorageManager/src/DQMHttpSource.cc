@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.8 2007/09/14 13:18:31 hcheung Exp $
+ *  $Id: DQMHttpSource.cc,v 1.9 2008/01/22 19:28:36 muzaffar Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -135,9 +135,7 @@ namespace edm
 
       // send our consumer ID as part of the event request
       char msgBuff[100];
-      // Later make this change when Header::DQMEVENT_REQUEST is available
-      //OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
-      OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
+      OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
                                          sizeof(char_uint32));
       uint8 *bodyPtr = requestMessage.msgBody();
       char_uint32 convertedId;
