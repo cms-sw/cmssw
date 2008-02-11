@@ -1,0 +1,40 @@
+How EventSelector::AcceptEvent() decides whether to accept an event for output:
+-------------------------------------------------------------------------------
+
+The user has supplied criteria, to be checked against the values of triggers in
+a list of triggers.  If the event is accepted on the basis of any criterion,
+it is accepted; otherwise it is rejected (acceptEvent retursns false).
+
+There are 3 relevant cases of types of criteria.
+
+A single or multiple positive criterion ("HLTx1", "HLT*", "*") will set
+appropriate bit checking in the decision bits, and the trigger will pass
+if any such matching triggers are PASS or EXCEPTION.  [A criterion that
+matches no triggers at all is detected and causes a throw.]
+
+A single negative criterion ("!HLTx1") or a wildcarded negative criterion 
+that happens to match only one trigger in the trigger list ("!HLTx*" if the 
+list has no other triggers starting with HLTx) will set, with an expectation 
+of FALSE, appropriate bit checking in the decision bits, and the trigger will 
+pass if any such matching triggers are FAIL or EXCEPTION. 
+
+A wildcarded negative criterion that matches more than one trigger in the 
+trigger list  ("!*", "!HLTx*" if it matches 2 triggers or more) will accept
+the event if all the matching triggers are FAIL.  It will reject the event
+if any of the triggers are PASS or EXCEPTION (this matches the behavior of
+"!*" before the partial wildcard feature was incorporated).  Triggers which
+are in the READY state are completely ignored.  (READY should never be 
+returned since the trigger paths have been run, but the state exists so we
+define the behavior).  If all triggers are READY, the negative crieriion will
+lead to accepting the event (this again matches the behavior of "!*" before 
+the partial wildcard feature was incorporated).
+
+The per-event "cost" of each negative criterion with multiple relevant 
+triggers is about the same as !* was in the past, which in turn is
+about the same as the decision_bits_ based set of positive criteria.
+ 
+------
+
+The behavior for EXCEPTION is expected to change (any day now, as of February
+8, 2008) because the above behavior makes it impossible or difficult to create
+an "exceptions only" stream.  This fiel will be modified when that happens.

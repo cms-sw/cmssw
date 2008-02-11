@@ -95,6 +95,9 @@ void testone(const Strings& paths,
 
   TriggerResults results(bm,paths);
 
+      //  std::cerr << "pattern=" << pattern 
+	// 	  << "mask=" << mask << "\n";
+
   bool a = select.acceptEvent(results);
   bool a1 = select1.acceptEvent(results);
   bool a2 = select2.acceptEvent(results);
@@ -105,7 +108,8 @@ void testone(const Strings& paths,
     {
       std::cerr << "failed to compare pattern with mask: "
 	   << "correct=" << answer << " "
-	   << "results=" << a << "  " << a1 << "  " << a2 << "  " << b2 << "\n"
+	   << "results=" << a << "  " << a1 << "  " << a2 
+	   		      << "  " << b2 << "  " << c1 << "\n"
 	   << "pattern=" << pattern << "\n"
 	   << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n"; 
