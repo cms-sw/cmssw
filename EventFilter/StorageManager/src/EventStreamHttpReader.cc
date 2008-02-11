@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.27 2008/01/22 19:28:36 muzaffar Exp $
+  $Id: EventStreamHttpReader.cc,v 1.28 2008/01/29 20:51:12 biery Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -193,11 +193,7 @@ namespace edm
       OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
                                          sizeof(char_uint32));
       uint8 *bodyPtr = requestMessage.msgBody();
-      char_uint32 convertedId;
-      convert(consumerId_, convertedId);
-      for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-        bodyPtr[idx] = convertedId[idx];
-      }
+      convert(consumerId_, bodyPtr);
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
       stor::setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
       struct curl_slist *headers=NULL;
@@ -327,11 +323,7 @@ namespace edm
       OtherMessageBuilder requestMessage(&msgBuff[0], Header::HEADER_REQUEST,
                                          sizeof(char_uint32));
       uint8 *bodyPtr = requestMessage.msgBody();
-      char_uint32 convertedId;
-      convert(consumerId_, convertedId);
-      for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-        bodyPtr[idx] = convertedId[idx];
-      }
+      convert(consumerId_, bodyPtr);
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
       stor::setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
       struct curl_slist *headers=NULL;
