@@ -12,6 +12,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TracksProxy3DBuilder.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 namespace {
    struct Fireworks_Core {

@@ -11,4 +11,5 @@
   <class name="DetIdToMatrix"/>
   <class name="TracksProxy3DBuilder"/>
   <class name="TEveElementIter"/>
+  <class name="FWGUIManager"/>
 </lcgdict>
