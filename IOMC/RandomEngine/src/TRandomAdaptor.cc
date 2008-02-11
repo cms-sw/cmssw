@@ -34,14 +34,14 @@ std::ostream & TRandomAdaptor::put ( std::ostream& os ) const
 }
 
 std::vector<unsigned long> TRandomAdaptor::put () const {
-  UInt_t itemSize = sizeof(UInt_t);
+  int32_t itemSize = sizeof(unsigned long);
   std::vector<unsigned long> v;
   v.push_back (CLHEP::engineIDulong<TRandomAdaptor>());
   TBuffer buffer(TBuffer::kWrite,1024*itemSize);
   trand_->Streamer(buffer);
   buffer.SetReadMode();
   char* bufferPtr = buffer.Buffer();
-  UInt_t numItems = (buffer.Length()+itemSize-1)/itemSize+1;
+  int32_t numItems = (buffer.Length()+itemSize-1)/itemSize;
   for( int i=0; i<(int)numItems; ++i)  {
     v.push_back(*(unsigned long*)(bufferPtr+i*itemSize));
   }
@@ -63,12 +63,12 @@ std::istream &  TRandomAdaptor::getState ( std::istream& is )
 bool TRandomAdaptor::get (const std::vector<unsigned long> & v) {
   if(v.empty())  return false;
   if(v[0] != CLHEP::engineIDulong<TRandomAdaptor>()) return false;
-  size_t numItems = v.size()-1;
-  int32_t itemSize = sizeof(UInt_t);
-  TBuffer buffer(TBuffer::kWrite,numItems*itemSize+1024);
+  int32_t numItems = v.size()-1;
+  int32_t itemSize = sizeof(unsigned long);
+  TBuffer buffer(TBuffer::kRead,numItems*itemSize+1024);
   char* bufferPtr = buffer.Buffer();
   for(int i=0; i<(int)numItems; ++i) {
-    *(unsigned int*)(bufferPtr+i*itemSize) = v[i+1];
+    *(unsigned long*)(bufferPtr+i*itemSize) = v[i+1];
   }
   trand_->Streamer(buffer);
   return true;

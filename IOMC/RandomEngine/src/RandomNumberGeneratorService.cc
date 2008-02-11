@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.9 2008/01/29 20:56:15 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.10 2008/01/30 19:58:01 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
 
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -29,7 +30,12 @@
 
 using namespace edm::service;
 
+typedef std::vector<std::string> VString;
+typedef std::vector<uint32_t>    Vuint32;
+typedef edm::ParameterSet        PSet;
+
 static const std::string sourceLabel("@source");
+
 
 RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& iPSet,
                                                            ActivityRegistry& iRegistry):
@@ -44,12 +50,113 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
 
   std::string labels;
   std::vector<uint32_t> seeds;
+  PSet  empty_PSet;
+  VString  empty_VString;
+  Vuint32  empty_Vuint32;
 
-  // Record the name of the file to use to store engine state at the end of each event.
-  // Again, a blank name means don't bother.
+  // Record the names of the files to use to store engine states at the end of
+  // each event and to restore engine states at the beginning of a job.
+  // A blank name means don't bother.
   saveFileName_    = iPSet.getUntrackedParameter<std::string>("saveFileName",   std::string());
   restoreFileName_ = iPSet.getUntrackedParameter<std::string>("restoreFileName",std::string());
 
+// Loop over parameters of type ParameterSet. Skip those with reserved names
+
+  std::string engineName;
+  uint32_t initialSeed;
+  std::vector<uint32_t> initialSeedSet;
+  VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
+  for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
+    if((*it != std::string("moduleEngines")) &&
+       (*it != std::string("moduleSeeds"))   &&
+       (*it != std::string("moduleSeedVectors"))) {
+      PSet secondary = iPSet.getParameter<edm::ParameterSet>(*it);
+      engineName = secondary.getUntrackedParameter<std::string>("engineName",std::string("HepJamesRandom"));
+      if(!isEngineNameValid(engineName)) {
+        throw edm::Exception(edm::errors::Configuration)
+          << "The specified Random Engine name, " << engineName
+          << " does not correspond to a supported engine." ;
+      }
+
+// For the RanecuEngine case, require a seed set containing exactly two seeds.
+
+      if(engineName == std::string("RanecuEngine")) {
+        if(secondary.exists("initialSeedSet")) {
+          initialSeedSet = secondary.getUntrackedParameter<std::vector<uint32_t> >("initialSeedSet",empty_Vuint32);
+          uint32_t nSeeds = initialSeedSet.size();
+          uint32_t mSeeds = expectedSeedCount(engineName);
+          if(nSeeds != mSeeds) {
+            throw edm::Exception(edm::errors::Configuration)
+              << "RanecuEngine requires 2 seeds and "
+              << nSeeds << " seeds were\n"
+              << "specified in the configuration file for "
+              << "the module with label " << *it << "." ;
+          }
+          seedMap_[*it] = initialSeedSet;
+          CLHEP::HepRandomEngine* engine = new RanecuEngine();
+          engineMap_[*it] = engine;
+          if (initialSeedSet[0] > std::numeric_limits<uint32_t>::max() ||
+              initialSeedSet[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 32 bit integer
+            throw edm::Exception(edm::errors::Configuration)
+              << "The RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << " .\n"
+              << "The seeds passed to the RandomNumberGenerationService from the\n"
+     	         "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
+              << " (or one was negative\nor larger "
+                 "than a 32 bit unsigned integer).\nThis was for "
+              << "the module with label " << *it << ".";
+          }
+          long int seedL[2];
+          seedL[0] = static_cast<long int>(initialSeedSet[0]);
+          seedL[1] = static_cast<long int>(initialSeedSet[1]);
+          engine->setSeeds(seedL,0);
+        } else {
+          throw edm::Exception(edm::errors::Configuration)
+            << "No initial seed set was supplied for engine " << engineName
+            << ". Aborting." ;
+        }
+
+// For the other engines, require one seed each as follows:
+//   If a single seed is offered, accept it unconditionally.
+//   If a seed set is offered use the first element of the set unconditionally.
+//   If both are offered, preferentially use the first element of the set.
+
+      } else {
+        initialSeed = 0;
+        if(secondary.exists("initialSeed"))  {
+          initialSeed = secondary.getUntrackedParameter<uint32_t>("initialSeed",0);
+        }
+        if(secondary.exists("initialSeedSet"))  {
+          initialSeedSet = secondary.getUntrackedParameter<std::vector<uint32_t> >("initialSeedSet",empty_Vuint32);
+          initialSeed = initialSeedSet[0];
+        }
+        if(initialSeed == 0)  { 
+          throw edm::Exception(edm::errors::Configuration)
+            << "No initial seed was supplied for engine " << engineName
+            << ". Aborting." ;
+        }
+        seeds.clear();
+        seeds.push_back(initialSeed);
+        seedMap_[*it] = seeds;
+        if(engineName == "HepJamesRandom") {
+          if (initialSeed > 900000000) {
+            throw edm::Exception(edm::errors::Configuration)
+              << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+              << "The seed passed to the RandomNumberGenerationService from the\n"
+                 "configuration file was " << initialSeed
+              << " or negative or larger\n"
+                 "than a 32 bit unsigned integer.  This was for "
+              << "the module with label " << *it << ".";
+          }
+          long int seedL = static_cast<long int>(initialSeed);
+          CLHEP::HepRandomEngine* engine = new HepJamesRandom(seedL);
+          engineMap_[*it] = engine;
+        } else if(engineName == "TRandom3") {
+          CLHEP::HepRandomEngine* engine = new TRandomAdaptor(initialSeed);
+          engineMap_[*it] = engine;
+        }
+      }
+    }
+  }
 
   // Now get the seeds from the configuration file.  The seeds are used to initialize the
   // random number engines.  Each is associated with either the source or a module label.
@@ -75,12 +182,14 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     const edm::ParameterSet& moduleSeedVectors = iPSet.getParameter<edm::ParameterSet>("moduleSeedVectors");
     
     std::vector<std::string> names = moduleSeedVectors.getParameterNames();
-    for(std::vector<std::string>::const_iterator itName = names.begin(); itName != names.end(); ++itName) {
+    for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end(); itName != itNameEnd; ++itName) {
 
-      if(moduleSeedVectors.exists(*itName)) {
-        seeds = moduleSeedVectors.getUntrackedParameter<std::vector<uint32_t> >(*itName);
-        if (seeds.size() > 0) {
-          seedMap_[*itName] = seeds;
+      if(seedMap_.find(*itName) == seedMap_.end()) {
+        if(moduleSeedVectors.exists(*itName)) {
+          seeds = moduleSeedVectors.getUntrackedParameter<std::vector<uint32_t> >(*itName);
+          if (seeds.size() > 0) {
+            seedMap_[*itName] = seeds;
+          }
         }
       }
     }
@@ -93,7 +202,8 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     const edm::ParameterSet& moduleSeeds = iPSet.getParameter<edm::ParameterSet>("moduleSeeds");
     
     std::vector<std::string> names = moduleSeeds.getParameterNames();
-    for(std::vector<std::string>::const_iterator itName = names.begin(); itName != names.end(); ++itName) {
+    for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end();
+                                                 itName != itNameEnd; ++itName) {
 
     // If we already have a seed vector for this label ignore this one
       if (seedMap_.find(*itName) == seedMap_.end()) {
@@ -114,103 +224,108 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // Loop over the engines where the seed(s) were specified and see
   // if the engine is also specified.  If not, default to HepJamesRandom.
   // Create the engines and fill the map.
-  for (std::map<std::string, std::vector<uint32_t> >::iterator seedIter = seedMap_.begin();
-       seedIter != seedMap_.end();
-       ++seedIter) {
+  for (std::map<std::string, std::vector<uint32_t> >::iterator seedIter  = seedMap_.begin();
+                                                               seedIter != seedMap_.end();
+                                                             ++seedIter) {
 
     // Initialize with default engine
     std::string engineName = "HepJamesRandom";
 
-    if (seedIter->first == sourceLabel) {
-      if(iPSet.exists("sourceEngine")) {
-        engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
+    // Go see if this module name already appears in the engineMap_ as a consequence of
+    // the new cfg format. Enter this engine only if it isn't already there.
+    if(engineMap_.find(seedIter->first) == engineMap_.end()) {	
+ 
+      if (seedIter->first == sourceLabel) {
+        if(iPSet.exists("sourceEngine")) {
+          engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
+        }
+      } else if(iPSet.exists("moduleEngines")) {
+        const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
+        if(moduleEngines.exists(seedIter->first)) {
+          engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
+        }
       }
-    } else if(iPSet.exists("moduleEngines")) {
-      const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
-      if(moduleEngines.exists(seedIter->first)) {
-        engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
-      }
-    }
       // OK if none, use default
 
-    std::string outputString = "the module with label \"";
-    outputString += seedIter->first;
-    outputString += "\"";
-    if (seedIter->first == sourceLabel) outputString = "the source";
+      std::string outputString = "the module with label \"";
+      outputString += seedIter->first;
+      outputString += "\"";
+      if (seedIter->first == sourceLabel) outputString = "the source";
 
-    if (engineName == "HepJamesRandom") {
+      if (engineName == "HepJamesRandom") {
 
-      if (seedIter->second.size() != 1) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "HepJamesRandom engine requires 1 seed and "
-          << seedIter->second.size()
-          << " seeds were\n"
-          << "specified in the configuration file for "
-          << outputString << ".";
+        if (seedIter->second.size() != 1) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "HepJamesRandom engine requires 1 seed and "
+            << seedIter->second.size()
+            << " seeds were\n"
+            << "specified in the configuration file for "
+            << outputString << ".";
+        }
+
+        if (seedIter->second[0] > 900000000) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+            << "The seed passed to the RandomNumberGenerationService from the\n"
+               "configuration file was " << seedIter->second[0]
+            << " or negative or larger\n"
+               "than a 32 bit unsigned integer.  This was for "
+            << outputString << ".";
+        }
+        long seedL = static_cast<long>(seedIter->second[0]);
+        CLHEP::HepRandomEngine* engine = new CLHEP::HepJamesRandom(seedL);
+        engineMap_[seedIter->first] = engine;
       }
+      else if (engineName == "RanecuEngine") {
 
-      if (seedIter->second[0] > 900000000) {
+        if (seedIter->second.size() != 2) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "RanecuEngine requires 2 seeds and "
+            << seedIter->second.size()
+            << " seeds were\n"
+            << "specified in the configuration file for "
+            << outputString << ".";
+        }
+
+        if (seedIter->second[0] > std::numeric_limits<uint32_t>::max() ||
+            seedIter->second[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 31 bit integer
+          throw edm::Exception(edm::errors::Configuration)
+            << "The RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << ".\n"
+            << "The seeds passed to the RandomNumberGenerationService from the\n"
+   	       "configuration file were " << seedIter->second[0] << " and " << seedIter->second[1]
+            << " (or one was negative\nor larger "
+               "than a 32 bit unsigned integer).\nThis was for "
+            << outputString << ".";
+        }
+        long seedL[2];
+        seedL[0] = static_cast<long>(seedIter->second[0]);
+        seedL[1] = static_cast<long>(seedIter->second[1]);
+        CLHEP::HepRandomEngine* engine = new CLHEP::RanecuEngine();
+        engine->setSeeds(seedL, 0);
+        engineMap_[seedIter->first] = engine;
+
+      } else if (engineName == "TRandom3") {
+
+        if (seedIter->second.size() != 1) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "TRandom3 engine requires 1 seed and "
+            << seedIter->second.size()
+            << " seeds were\n"
+            << "specified in the configuration file for "
+            << outputString << ".";
+        }
+        long seedL = static_cast<long>(seedIter->second[0]);
+        CLHEP::HepRandomEngine* engine = new TRandomAdaptor(seedL);
+        engineMap_[seedIter->first] = engine;
+      } 
+      else {
         throw edm::Exception(edm::errors::Configuration)
-          << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
-          << "The seed passed to the RandomNumberGenerationService from the\n"
-             "configuration file was " << seedIter->second[0]
-          << " or negative or larger\n"
-             "than a 32 bit unsigned integer.  This was for "
-          << outputString << ".";
+          << "The configuration file requested the RandomNumberGeneratorService\n"
+             "create an unknown random engine type named \""
+          << engineName
+          << "\"\nfor " << outputString
+          << "\nCurrently the only valid types are HepJamesRandom and RanecuEngine";
       }
-      long seedL = static_cast<long>(seedIter->second[0]);
-      CLHEP::HepRandomEngine* engine = new CLHEP::HepJamesRandom(seedL);
-      engineMap_[seedIter->first] = engine;
-    }
-    else if (engineName == "RanecuEngine") {
-
-      if (seedIter->second.size() != 2) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "RanecuEngine requires 2 seeds and "
-          << seedIter->second.size()
-          << " seeds were\n"
-          << "specified in the configuration file for "
-          << outputString << ".";
-      }
-
-      if (seedIter->second[0] > 2147483647 ||
-          seedIter->second[1] > 2147483647) {  // They need to fit in a 31 bit integer
-        throw edm::Exception(edm::errors::Configuration)
-          << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
-          << "The seeds passed to the RandomNumberGenerationService from the\n"
-	  "configuration file were " << seedIter->second[0] << " and " << seedIter->second[1]
-          << " (or one was negative\nor larger "
-             "than a 32 bit unsigned integer).\nThis was for "
-          << outputString << ".";
-      }
-      long seedL[2];
-      seedL[0] = static_cast<long>(seedIter->second[0]);
-      seedL[1] = static_cast<long>(seedIter->second[1]);
-      CLHEP::HepRandomEngine* engine = new CLHEP::RanecuEngine();
-      engine->setSeeds(seedL, 0);
-      engineMap_[seedIter->first] = engine;
-
-    } else if (engineName == "TRandom3") {
-
-      if (seedIter->second.size() != 1) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "TRandom3 engine requires 1 seed and "
-          << seedIter->second.size()
-          << " seeds were\n"
-          << "specified in the configuration file for "
-          << outputString << ".";
-      }
-      long seedL = static_cast<long>(seedIter->second[0]);
-      CLHEP::HepRandomEngine* engine = new TRandomAdaptor(seedL);
-      engineMap_[seedIter->first] = engine;
-    } 
-    else {
-      throw edm::Exception(edm::errors::Configuration)
-        << "The configuration file requested the RandomNumberGeneratorService\n"
-           "create an unknown random engine type named \""
-        << engineName
-        << "\"\nfor " << outputString
-        << "\nCurrently the only valid types are HepJamesRandom and RanecuEngine";
     }
   }
 
@@ -558,7 +673,6 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
         // These two lines actually restore the seed and engine state.
         engine->second->setSeed(engineSeedsL[0], 0);
         engine->second->get(engineStateL);
-
       }
       else if (engineStateL[0] == CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
 
@@ -566,10 +680,8 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
 
         // This line actually restores the engine state.
         engine->second->get(engineStateL);
-
       }
 
-//  The next few lines may need work.  This is where we restore the TRandom3 engine state
       else if (engineStateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
 
         checkEngineType(engine->second->name(), std::string("TRandom3"), engineLabel);
@@ -577,7 +689,6 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
         // This line actually restores the engine state.
         engine->second->setSeed(engineSeedsL[0], 0);
         engine->second->get(engineStateL);
-
       }
       // This should not be possible because this code should be able to restore
       // any kind of engine whose state can be saved.
@@ -785,10 +896,10 @@ void
 RandomNumberGeneratorService::dumpVector(const std::vector<uint32_t> &v)
 {
   if(v.empty()) return;
-  size_t numItems = v.size()-1;
+  size_t numItems = v.size();
   for( int i=0; i<(int)numItems; ++i)  {
     if( i != 0 && i%10 == 0 )  std::cerr << std::endl;
-    std::cerr << std::setw(13) << v[i+1] ;
+    std::cerr << std::setw(13) << v[i] ;
   }
     if(numItems%10 != 0)  std::cerr << std::endl;
 }
@@ -844,7 +955,6 @@ void RandomNumberGeneratorService::restoreEngineState()
     edm::Exception except(edm::errors::Configuration, sstr.str());
     throw except;
   }
-//print();
 
   std::string text;
   inFile >> text;
@@ -941,22 +1051,31 @@ bool RandomNumberGeneratorService::processStanza(std::istream &is)
       edm::Exception except(edm::errors::Configuration, sstr.str());
       throw except;
     } else {
-      sstr << "Configuration: Module label does not match any existing label."
-           << "\nThere is a mismatch between the configuration file and the state"
-           << "\nsave file, " << saveFileName_ << "\n" ;
+      sstr << "Configuration: The module label, " << moduleLabel 
+           << ", found in the state save file does not match any label "
+           << "in the configuration file.  There is a mismatch between "
+           << "the configuration file and the state save file, "
+           << saveFileName_ << "\n" ;
       edm::Exception except(edm::errors::Configuration, sstr.str());
       throw except;
     } 
   } else {
     engine = iter->second;
     if(engine->name() != engineName) {
-      sstr << "Configuration: Engine name in configuragion file does not match name"
-           << "\nin the state save file, " << saveFileName_ << "\n" ;
+      sstr << "Configuration: The engine name in the configuration file (" << engine->name() 
+           << ")\ndoes not match the name (" << engineName << ") in the state save file,\n" 
+           << saveFileName_ << ", for the module labelled " << moduleLabel << "\n" ;
       edm::Exception except(edm::errors::Configuration, sstr.str());
       throw except;
     }
     engine->setSeed(initialSeed,0);
-    engine->get(stateVector);
+    bool success = engine->get(stateVector);
+    if(!success) {
+      sstr << "Configuration: Setting the state of " << engine->name() << " failed.\n"
+           << "Aborting.\n" ;
+      edm::Exception except(edm::errors::Configuration, sstr.str());
+      throw except;
+    }
   }
   return true;
 }
@@ -998,4 +1117,22 @@ void RandomNumberGeneratorService::saveEngineState()
     }
   }
   outFile << "</RandomEngineStates>\n" ;
+}
+
+bool RandomNumberGeneratorService::isEngineNameValid(std::string const &name)
+{
+  bool valid = false;
+  if(name == std::string("HepJamesRandom")) valid = true;
+  if(name == std::string("RanecuEngine"))   valid = true;
+  if(name == std::string("TRandom3"))       valid = true;
+  return valid;
+}
+
+int32_t RandomNumberGeneratorService::expectedSeedCount(std::string const &name)
+{
+  int32_t count = 0;
+  if(name == std::string("HepJamesRandom")) count = 1;
+  if(name == std::string("RanecuEngine"))   count = 2;
+  if(name == std::string("TRandom3"))       count = 1;
+  return count;
 }

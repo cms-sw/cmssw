@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.3 2007/02/15 22:38:06 wdd Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.4 2008/01/29 20:56:15 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -112,6 +112,11 @@ namespace edm {
       void restoreEngineState();
 
       bool processStanza(std::istream &is);
+
+      bool isEngineNameValid(std::string const &name);
+
+      int32_t expectedSeedCount(std::string const &name);
+
 
       // ---------- member data --------------------------------
 
