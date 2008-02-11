@@ -90,18 +90,18 @@ namespace edm
 
   void MixingModule::createnewEDProduct() {
     for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch_,maxBunch_,bunchSpace_,simHitSubdetectors_[ii]);
+      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch_,maxBunch_,bunchSpace_,simHitSubdetectors_[ii],maxNbSources_);
     }
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii]);
+      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii],maxNbSources_);
     }
 
-    cfTracks_=new CrossingFrame<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
-    cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
-    cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
+    cfTracks_=new CrossingFrame<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
+    cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
+    cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
 
     //create playback info
-    playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_); 
+    playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
   }
  
 
