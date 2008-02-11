@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.16 2008/01/28 19:51:39 hcheung Exp $
+ * $Id: ConsumerPipe.cc,v 1.17 2008/01/29 19:35:38 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -51,7 +51,17 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   initializationDone = false;
   pushMode_ = false;
   if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
-  errorWasReported_ = false;
+  registryWarningWasReported_ = false;
+
+  // determine if we're connected to a proxy server
+  consumerIsProxyServer_ = false;
+  //if (consumerName_ == PROXY_SERVER_NAME)
+  if (consumerName_.find("urn") != std::string::npos &&
+      consumerName_.find("xdaq") != std::string::npos &&
+      consumerName_.find("pushEventData") != std::string::npos)
+  {
+    consumerIsProxyServer_ = true;
+  }
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -100,29 +110,17 @@ uint32 ConsumerPipe::getConsumerId() const
 
 /**
  * Initializes the event selection for this consumer based on the
- * list of available triggers stored in the specified InitMsgView
- * and the request ParameterSet that was specified in the constructor.
+ * specified full list of triggers and the request ParameterSet
+ * that was specified in the constructor.
  */
-void ConsumerPipe::initializeSelection(InitMsgView const& initView)
+void ConsumerPipe::initializeSelection(Strings const& fullTriggerList)
 {
   FDEBUG(5) << "Initializing consumer pipe, ID = " <<
     consumerId_ << std::endl;
 
-  // fetch the list of trigger names from the init message
-  Strings triggerNameList;
-  initView.hltTriggerNames(triggerNameList);
-
-  // TODO fake the process name (not yet available from the init message?)
-  std::string processName = "HLT";
-
-  /* ---printout the trigger names in the INIT message
-  std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
-  for(int i=0; i< triggerNameList.size(); ++i)
-    std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
-  */
   // create our event selector
   eventSelector_.reset(new EventSelector(requestParamSet_->getUntrackedParameter("SelectEvents", ParameterSet()),
-					 triggerNameList));
+					 fullTriggerList));
   // indicate that initialization is complete
   initializationDone = true;
 
@@ -347,12 +345,20 @@ std::vector<std::string> ConsumerPipe::getTriggerRequest() const
   return EventSelector::getEventSelectionVString(*requestParamSet_);
 }
 
-void ConsumerPipe::setErrorMessage(std::string message)
+void ConsumerPipe::setRegistryWarning(std::string const& message)
 {
-  // assign the error message before setting the error flag to true
-  // to avoid race conditions in which the hasError() method would
-  // return true but the message hasn't been set (simpler than adding
-  // a mutex for the error message string)
-  errorMessage_ = message;
-  errorWasReported_ = true;
+  // convert the string to a vector of char and then pass off the work
+  std::vector<char> warningBuff(message.size());;
+  std::copy(message.begin(), message.end(), warningBuff.begin());
+  setRegistryWarning(warningBuff);
+}
+
+void ConsumerPipe::setRegistryWarning(std::vector<char> const& message)
+{
+  // assign the registry warning text before setting the warning flag
+  // to avoid race conditions in which the hasRegistryWarning() method
+  // would return true but the message hasn't been set (simpler than
+  // adding a mutex for the warning message string)
+  registryWarningMessage_ = message;
+  registryWarningWasReported_ = true;
 }
