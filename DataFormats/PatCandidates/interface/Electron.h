@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.4 2008/01/26 20:19:37 gpetrucc Exp $
+// $Id: Electron.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,18 +13,19 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.4 2008/01/26 20:19:37 gpetrucc Exp $
+  \version  $Id: Electron.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
 */
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
 namespace pat {
 
 
-  typedef reco::PixelMatchGsfElectron ElectronType;
-  typedef reco::PixelMatchGsfElectronCollection ElectronTypeCollection;
+  typedef reco::GsfElectron ElectronType;
+  typedef reco::GsfElectronCollection ElectronTypeCollection;
 
 
   class Electron : public Lepton<ElectronType> {
