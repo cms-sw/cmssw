@@ -12,6 +12,7 @@ namespace {
   std::vector<std::vector<unsigned int> > dummy2v;
   std::vector<long> dummy3;
   std::vector<int> dummy4;
+  std::vector<std::vector<int> > dummy4v;
   std::vector<std::string> dummy5;
   std::vector<char> dummy6;
   std::vector<char*> dummy6p;
