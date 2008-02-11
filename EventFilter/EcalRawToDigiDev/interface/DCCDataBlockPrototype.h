@@ -1,4 +1,4 @@
- #ifndef DCCDATABLOCKPROTOTYPE_HH
+#ifndef DCCDATABLOCKPROTOTYPE_HH
 #define DCCDATABLOCKPROTOTYPE_HH
 
 /*
@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/24 11:39:35 $
+ * $Revision: 1.5 $
  * \author N. Almeida
  *
 */

@@ -37,15 +37,12 @@ class DCCSCBlock : public DCCFEBlock {
    EEDetId                                * pDetId_;
    EEDataFrame                            * pDFId_;
 	 
-   std::auto_ptr<EEDigiCollection>             * digis_;
-	
-	/* 
-    todo : update this for the endcap...
-	 
-    auto_ptr<EEDetIdCollection>            * invalidGains_;  
-    auto_ptr<EEDetIdCollection>            * invalidGainsSwitch_ ;
-    auto_ptr<EEDetIdCollection>            * invalidChIds_;
-	*/
+   std::auto_ptr<EEDigiCollection>        * digis_;
+
+   // to restructure as common collections to DCCTowerBlock, to inherit from DCCFEBlock
+   std::auto_ptr<EEDetIdCollection>       * invalidGains_;
+   std::auto_ptr<EEDetIdCollection>       * invalidGainsSwitch_ ;
+   std::auto_ptr<EEDetIdCollection>       * invalidChIds_;
     
 };
 

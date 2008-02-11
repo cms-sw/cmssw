@@ -99,19 +99,18 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  
           edm::LogWarning("EcalRawToDigiDevChId")
             <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n Xtal id was expected to increase but it didn't "
-            <<"\n Last valid unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId;
+            <<"\n Xtal id was expected to increase but it didn't. "
+            <<"\n Last valid unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
 	  
 	  int st = lastStripId_;
 	  int ch = lastXtalId_;
 	  ch++;
 	  if (ch > NUMB_XTAL)	{ch=1; st++;}
-	  if (st >  NUMB_STRIP)	{ch=-1; st=-1;}
+	  if (st > NUMB_STRIP)	{ch=-1; st=-1;}
 	  
 	  // adding channel following the last valid
 	  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
 	  (*invalidChIds_)->push_back(*pDetId_);
-
 	  
 	  errorOnXtal = true;
 	
@@ -136,7 +135,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	int ch = lastXtalId_;
 	ch++;
 	if (ch > NUMB_XTAL)	{ch=1; st++;}
-	if (st >  NUMB_STRIP)	{ch=-1; st=-1;}
+	if (st > NUMB_STRIP)	{ch=-1; st=-1;}
 	
 	// adding channel following the last valid
 	pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);

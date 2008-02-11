@@ -122,6 +122,11 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
+  // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+  produces<EEDetIdCollection>("EcalEEIntegrityGainErrors");
+  produces<EEDetIdCollection>("EcalEEIntegrityGainSwitchErrors");
+  produces<EEDetIdCollection>("EcalEEIntegrityChIdErrors");
+
   // Integrity Errors
   produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
   produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
@@ -215,7 +220,23 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // create the collection for invalid chids
   std::auto_ptr< EBDetIdCollection> productInvalidChIds(new EBDetIdCollection);
   theUnpacker_->setInvalidChIdsCollection(&productInvalidChIds);
-         
+  
+  ///////////////// make EEDetIdCollections for these ones
+    
+  // create the collection for invalid gains
+  std::auto_ptr<EEDetIdCollection> productInvalidEEGains(new EEDetIdCollection);
+  theUnpacker_->setInvalidEEGainsCollection(&productInvalidEEGains); 
+    
+  // create the collection for invalid gain Switch
+  std::auto_ptr<EEDetIdCollection> productInvalidEEGainsSwitch(new EEDetIdCollection);
+  theUnpacker_->setInvalidEEGainsSwitchCollection(&productInvalidEEGainsSwitch);
+    
+  // create the collection for invalid chids
+  std::auto_ptr<EEDetIdCollection> productInvalidEEChIds(new EEDetIdCollection);
+  theUnpacker_->setInvalidEEChIdsCollection(&productInvalidEEChIds);
+
+  ///////////////// make EEDetIdCollections for these ones    
+
   // create the collection for EB srflags       
   std::auto_ptr<EBSrFlagCollection> productEBSrFlags(new EBSrFlagCollection);
   theUnpacker_->setEBSrFlagsCollection(&productEBSrFlags);
@@ -231,6 +252,8 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
    // create the collection for EE tpgs
   std::auto_ptr<EcalTrigPrimDigiCollection> productEETps(new EcalTrigPrimDigiCollection);
   theUnpacker_->setEETpsCollection(&productEETps);
+
+  /////////////////////// collections for problems pertaining towers are already EE+EB communal
 
   // create the collection for invalid TTIds
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds(new EcalElectronicsIdCollection);
@@ -259,8 +282,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
  
   // create the collection for invalid Mem Gain Errors 
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains(new EcalElectronicsIdCollection);
-  theUnpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
- 
+  theUnpacker_->setInvalidMemGainsCollection(& productInvalidMemGains); 
   //  double TIME_START = clock(); 
   
 
@@ -313,6 +335,11 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productInvalidGains,"EcalIntegrityGainErrors");
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
       e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      // EE (leaving for now the same names as in EB)
+      e.put(productInvalidGains,"EcalIntegrityGainErrors");
+      e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
+      e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      // EE
       e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
       e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
       e.put(productPnDiodeDigis);

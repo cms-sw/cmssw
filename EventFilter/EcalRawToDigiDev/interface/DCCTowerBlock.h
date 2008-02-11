@@ -37,6 +37,7 @@ class DCCTowerBlock : public DCCFEBlock {
     
     EBDetId                             * pDetId_;
 
+    // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
     std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
     std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
     std::auto_ptr<EBDetIdCollection>    * invalidChIds_;

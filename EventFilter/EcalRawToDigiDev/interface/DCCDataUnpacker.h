@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/10/19 14:36:15 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/19 18:20:14 $
+ * $Revision: 1.10 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -91,6 +91,17 @@ public :
  
   void setInvalidChIdsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
   { invalidChIds_           = x; }
+
+  // EE 
+  void setInvalidEEGainsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  { invalidEEGains_           = x; }
+  
+  void setInvalidEEGainsSwitchCollection( std::auto_ptr<EEDetIdCollection>              * x )
+  { invalidEEGainsSwitch_     = x; }
+ 
+  void setInvalidEEChIdsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  { invalidEEChIds_           = x; }
+  // EE 
  
   void setInvalidTTIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>         * x )
   { invalidTTIds_           = x; }
@@ -148,6 +159,17 @@ public :
   std::auto_ptr<EBDetIdCollection>            * invalidChIdsCollection()
   { return invalidChIds_;          }
 
+  //EE
+  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsCollection()
+  { return invalidEEGains_;          }
+  
+  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsSwitchCollection()
+  { return invalidEEGainsSwitch_;    }
+  
+  std::auto_ptr<EEDetIdCollection>            * invalidEEChIdsCollection()
+  { return invalidEEChIds_;          }
+  //EE
+
   std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
   { return invalidTTIds_;          }  
   
@@ -183,29 +205,34 @@ public :
 protected :
 
   // Data collections pointers
-  std::auto_ptr<EBDigiCollection>                       * ebDigis_;
-  std::auto_ptr<EEDigiCollection>                       * eeDigis_;
-  std::auto_ptr<EcalTrigPrimDigiCollection >      * ebTps_;
-  std::auto_ptr<EcalTrigPrimDigiCollection >      * eeTps_;
-  std::auto_ptr<EcalRawDataCollection>             * dccHeaders_;
-  std::auto_ptr<EBDetIdCollection>                    * invalidGains_;
-  std::auto_ptr<EBDetIdCollection>                    * invalidGainsSwitch_;
-  std::auto_ptr<EBDetIdCollection>                    * invalidChIds_;
-  std::auto_ptr<EBSrFlagCollection>                   * ebSrFlags_;
-  std::auto_ptr<EESrFlagCollection>                   * eeSrFlags_;
-  std::auto_ptr<EcalElectronicsIdCollection>          * invalidTTIds_;
-  std::auto_ptr<EcalElectronicsIdCollection>          * invalidBlockLengths_; 
+  std::auto_ptr<EBDigiCollection>            * ebDigis_;
+  std::auto_ptr<EEDigiCollection>            * eeDigis_;
+  std::auto_ptr<EcalTrigPrimDigiCollection > * ebTps_;
+  std::auto_ptr<EcalTrigPrimDigiCollection > * eeTps_;
+  std::auto_ptr<EcalRawDataCollection>       * dccHeaders_;
+  std::auto_ptr<EBDetIdCollection>           * invalidGains_;
+  std::auto_ptr<EBDetIdCollection>           * invalidGainsSwitch_;
+  std::auto_ptr<EBDetIdCollection>           * invalidChIds_;
+  //EE
+  std::auto_ptr<EEDetIdCollection>           * invalidEEGains_;
+  std::auto_ptr<EEDetIdCollection>           * invalidEEGainsSwitch_;
+  std::auto_ptr<EEDetIdCollection>           * invalidEEChIds_;
+  //EE
+  std::auto_ptr<EBSrFlagCollection>          * ebSrFlags_;
+  std::auto_ptr<EESrFlagCollection>          * eeSrFlags_;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_; 
   
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemTtIds_ ;
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemBlockSizes_ ;
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemChIds_ ;
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemGains_ ;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemTtIds_ ;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemBlockSizes_ ;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemChIds_ ;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemGains_ ;
   std::auto_ptr<EcalPnDiodeDigiCollection>   * pnDiodeDigis_;
 
-  EcalElectronicsMapper                  * electronicsMapper_;
-  DCCEventBlock                            * currentEvent_;
-  DCCEBEventBlock                        * ebEventBlock_;
-  DCCEEEventBlock                        * eeEventBlock_;
+  EcalElectronicsMapper  * electronicsMapper_;
+  DCCEventBlock          * currentEvent_;
+  DCCEBEventBlock        * ebEventBlock_;
+  DCCEEEventBlock        * eeEventBlock_;
 		
 };
 
