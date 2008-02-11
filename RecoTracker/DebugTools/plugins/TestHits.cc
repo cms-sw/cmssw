@@ -190,7 +190,7 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
 
 void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  LogTrace("TestHits") << "new event" << std::endl;
+  LogTrace("TestHits") << "\nnew event";
 
   iEvent.getByLabel(srcName,theTCCollection ); 
   hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
@@ -199,7 +199,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++){
 
-    LogTrace("TestHits") << "new candidate" << std::endl;
+    LogTrace("TestHits") << "\n*****************new candidate*****************" << std::endl;
       
     const TrackCandidate * theTC = &(*i);
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
@@ -224,15 +224,16 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //call the fitter
     vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
-    if (result.size()==0) break;
+    if (result.size()==0) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
+    double tchi2 = 0;
 
     TSOS lastState = theTSOS;
     for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
       if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
-      LogTrace("TestHits") << "new hit" ;
+      LogTrace("TestHits") << "*****************new hit*****************" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
       int layerId  = 0;
@@ -262,7 +263,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tm->backwardPredictedState().isValid()) 
 	currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
       TSOS updatedState = tm->updatedState();
- 
+      tchi2+=tm->estimate();
+
       //plot chi2 increment
       double chi2increment = tm->estimate();
       LogTrace("TestHits") << "tm->estimate()=" << tm->estimate();
@@ -324,6 +326,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //double pullGPZ_rs = (rhitGPos.z()-shitGPos.z());
       
       LogTrace("TestHits") << "rs" << std::endl;
+      LogVerbatim("TestHits") << "assSimHits.size()=" << assSimHits.size() ;
+      LogVerbatim("TestHits") << "tsos globalPos   =" << tsosGPos ;
+      LogVerbatim("TestHits") << "sim hit globalPos=" << shitGPos ;
+      LogVerbatim("TestHits") << "rec hit globalPos=" << rhitGPos ;
+      LogVerbatim("TestHits") << "geographicalId   =" << rhit->det()->geographicalId().rawId() ;
+      LogVerbatim("TestHits") << "surface position =" << surf->position() ;
 
       title.str("");
       title << "PullGP_X_" << subdetId << "-" << layerId << "_rs";
@@ -583,6 +591,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }    
       lastState = updatedState;
     }
+    LogTrace("TestHits") << "traj chi2="  << tchi2 ;
+    LogTrace("TestHits") << "track chi2=" << result[0].chiSquared() ;
   }
   delete hitAssociator;
   LogTrace("TestHits") << "end of event" << std::endl;

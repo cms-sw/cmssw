@@ -20,15 +20,21 @@ using namespace std;
 using namespace edm;
 
 TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig):
-  conf_(iConfig){
+  conf_(iConfig) {
   LogTrace("TestTrackHits") << conf_;
   propagatorName = conf_.getParameter<std::string>("Propagator");   
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   srcName = conf_.getParameter<std::string>("src");   
   tpName = conf_.getParameter<std::string>("tpname");   
   updatorName = conf_.getParameter<std::string>("updator");
-  mineta = conf_.getParameter<double>("mineta");
-  maxeta = conf_.getParameter<double>("maxeta");
+  ParameterSet cuts = conf_.getParameter<ParameterSet>("RecoTracksCuts"); 
+  selectRecoTracks = RecoTrackSelector(cuts.getParameter<double>("ptMin"),
+				       cuts.getParameter<double>("minRapidity"),
+				       cuts.getParameter<double>("maxRapidity"),
+				       cuts.getParameter<double>("tip"),
+				       cuts.getParameter<double>("lip"),
+				       cuts.getParameter<int>("minHit"),
+				       cuts.getParameter<double>("maxChi2"));
 }
 
 TestTrackHits::~TestTrackHits(){}
@@ -41,7 +47,7 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   iSetup.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
   iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",trackAssociator);
- 
+
   file = new TFile("test_track_hits.root","recreate");
   for (int i=0; i!=6; i++)
     for (int j=0; j!=9; j++){
@@ -56,11 +62,17 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
       title << "Chi2Increment_" << i+1 << "-" << j+1 ;
       hChi2Increment[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
       title.str("");
+      title << "Chi2IncrementVsEta_" << i+1 << "-" << j+1 ;
+      hChi2IncrementVsEta[title.str()] = new TH2F(title.str().c_str(),title.str().c_str(),50,-2.5,2.5,1000,0,100);
+      title.str("");
       title << "Chi2GoodHit_" << i+1 << "-" << j+1 ;
       hChi2GoodHit[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
       title.str("");
       title << "Chi2BadHit_" << i+1 << "-" << j+1 ;
       hChi2BadHit[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
+      title.str("");
+      title << "Chi2MergedHit_" << i+1 << "-" << j+1 ;
+      hChi2MergedHit[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
 
       title.str("");
       title << "PullGP_X_" << i+1 << "-" << j+1 << "_ts";
@@ -105,6 +117,10 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
       if ( ((i==2||i==4)&&(j==0||j==1)) || (i==3||i==5) ){
 	//mono
 	title.str("");
+	title << "Chi2Increment_mono_" << i+1 << "-" << j+1 ;
+	hChi2Increment_mono[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
+
+	title.str("");
 	title << "PullGP_X_" << i+1 << "-" << j+1 << "_ts_mono";
 	hPullGP_X_ts_mono[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,-50,50);
 	title.str("");
@@ -145,6 +161,10 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
 	hPullGP_Z_rs_mono[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,-50,50);
 
 	//stereo
+	title.str("");
+	title << "Chi2Increment_stereo_" << i+1 << "-" << j+1 ;
+	hChi2Increment_stereo[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
+
 	title.str("");
 	title << "PullGP_X_" << i+1 << "-" << j+1 << "_ts_stereo";
 	hPullGP_X_ts_stereo[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,-50,50);
@@ -189,9 +209,27 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
   hTotChi2Increment = new TH1F("TotChi2Increment","TotChi2Increment",1000,0,100);
   hTotChi2GoodHit = new TH1F("TotChi2GoodHit","TotChi2GoodHit",1000,0,100);
   hTotChi2BadHit = new TH1F("TotChi2BadHit","TotChi2BadHit",1000,0,100);
+  hTotChi2MergedHit = new TH1F("TotChi2MergedHit","TotChi2MergedHit",1000,0,100);
   hProcess_vs_Chi2  = new TH2F("Process_vs_Chi2","Process_vs_Chi2",1000,0,100,17,-0.5,16.5);  
   hClsize_vs_Chi2   = new TH2F("Clsize_vs_Chi2","Clsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
-  hGoodHit_vs_Chi2  = new TH2F("hGoodHit_vs_Chi2","hGoodHit_vs_Chi2",10000,0,1000,2,-0.5,1.5);
+  hPixClsize_vs_Chi2= new TH2F("PixClsize_vs_Chi2","PixClsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
+  hPrjClsize_vs_Chi2= new TH2F("PrjClsize_vs_Chi2","PrjClsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
+  hSt1Clsize_vs_Chi2= new TH2F("St1Clsize_vs_Chi2","St1Clsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
+  hSt2Clsize_vs_Chi2= new TH2F("St2Clsize_vs_Chi2","St2Clsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
+  hGoodHit_vs_Chi2  = new TH2F("GoodHit_vs_Chi2","GoodHit_vs_Chi2",10000,0,1000,2,-0.5,1.5);
+  hClusterSize = new TH1F("ClusterSize","ClusterSize",40,-0.5,39.5);
+  hPixClusterSize = new TH1F("PixClusterSize","PixClusterSize",40,-0.5,39.5);
+  hPrjClusterSize = new TH1F("PrjClusterSize","PrjClusterSize",40,-0.5,39.5);
+  hSt1ClusterSize = new TH1F("St1ClusterSize","St1ClusterSize",40,-0.5,39.5);
+  hSt2ClusterSize = new TH1F("St2ClusterSize","St2ClusterSize",40,-0.5,39.5);
+  hSimHitVecSize = new TH1F("hSimHitVecSize","hSimHitVecSize",40,-0.5,39.5);
+  hPixSimHitVecSize = new TH1F("PixSimHitVecSize","PixSimHitVecSize",40,-0.5,39.5);
+  hPrjSimHitVecSize = new TH1F("PrjSimHitVecSize","PrjSimHitVecSize",40,-0.5,39.5);
+  hSt1SimHitVecSize = new TH1F("St1SimHitVecSize","St1SimHitVecSize",40,-0.5,39.5);
+  hSt2SimHitVecSize = new TH1F("St2SimHitVecSize","St2SimHitVecSize",40,-0.5,39.5);
+  goodbadmerged = new TH1F("goodbadmerged","goodbadmerged",3,0.5,3.5);
+  energyLossRatio = new TH1F("energyLossRatio","energyLossRatio",100,0,1);
+  mergedPull = new TH1F("mergedPull","mergedPull",200,0,20);
 }
 
 void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -202,14 +240,21 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByLabel(srcName,trajTrackAssociationCollectionHandle);
   iEvent.getByLabel(tpName,trackingParticleCollectionHandle);
 
+  LogTrace("TestTrackHits") << "Tr collection size=" << trackCollectionHandle->size();
+  LogTrace("TestTrackHits") << "TP collection size=" << trackingParticleCollectionHandle->size();
+
   hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  
   reco::RecoToSimCollection recSimColl=trackAssociator->associateRecoToSim(trackCollectionHandle,
 									   trackingParticleCollectionHandle,
 									   &iEvent);
   
   TrajectoryStateCombiner combiner;
 
+  int evtHits = 0;
   int i=0;
+  int yy=0;
+  int yyy=0;
   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
     
     LogTrace("TestTrackHits") << "\n*****************new trajectory********************" ;
@@ -220,21 +265,46 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Ref<vector<Trajectory> >  traj(trajCollectionHandle, i);
     reco::TrackRef tmptrack = (*trajTrackAssociationCollectionHandle.product())[traj];
     edm::RefToBase<reco::Track> track(tmptrack);
-    if (track->eta()>maxeta || track->eta()<mineta) continue;
+    if ( !selectRecoTracks( *track ) ) {
+      LogTrace("TestTrackHits") << "track does not pass quality cuts: skippingtrack #" << ++yyy;
+      i++;
+      continue;
+    }
 
     std::vector<std::pair<TrackingParticleRef, double> > tP;
     if(recSimColl.find(track) != recSimColl.end()){
       tP = recSimColl[track];
-    } else continue;//skip fake tracks
-    if (tP.size()==0) continue;
+      if (tP.size()!=0) {
+	edm::LogVerbatim("TestTrackHits") << "reco::Track #" << ++yyy << " with pt=" << track->pt() 
+					  << " associated with quality:" << tP.begin()->second <<" good track #" << ++yy << " has hits:" << track->numberOfValidHits() << "\n";
+      }
+    }else{
+      edm::LogVerbatim("TestTrackHits") << "reco::Track #" << ++yyy << " with pt=" << track->pt()
+					 << " NOT associated to any TrackingParticle" << "\n";
+      i++;
+      continue;
+    }
+//     if(recSimColl.find(track) != recSimColl.end()) {
+//       tP = recSimColl[track];
+//     } else {
+//       LogTrace("TestTrackHits") << "fake track: skipping track " << ++yyy;
+//       continue;//skip fake tracks
+//     }
+//     if (tP.size()==0) {
+//       LogTrace("TestTrackHits") << "fake track: skipping track " << ++yyy;
+//       continue;
+//     }
     TrackingParticleRef tp = tP.begin()->first;
     LogTrace("TestTrackHits") << "a tp is associated with fraction=" << tP.begin()->second;
+    //LogTrace("TestTrackHits") << "last tp is associated with fraction=" << (tP.end()-1)->second;
     vector<unsigned int> tpids;
     for (TrackingParticle::g4t_iterator g4T=tp->g4Track_begin(); g4T!=tp->g4Track_end(); ++g4T) {
       LogTrace("TestTrackHits") << "tp id=" << g4T->trackId();
       tpids.push_back(g4T->trackId());
     }
 
+    //LogTrace("TestTrackHits") << "Analyzing hits of track number " << ++yyy << " good track number " << ++yy;
+    int pp = 0;
     for (vector<TrajectoryMeasurement>::iterator tm=tmColl.begin();tm!=tmColl.end();++tm){
       
       tchi2+=tm->estimate();
@@ -246,6 +316,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       TSOS state = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
 
       if (rhit->isValid()==0 && rhit->det()!=0) continue;
+      evtHits++;
+      LogTrace("TestTrackHits") << "valid hit #" << ++pp << "of hits=" << track->numberOfValidHits();
 
       int subdetId = rhit->det()->geographicalId().subdetId();
       int layerId  = 0;
@@ -261,17 +333,49 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const Surface * surf = rhit->surface();
       if (surf==0) continue;
 
-      double delta = 99999;
-      LocalPoint rhitLPv = rhit->localPosition();
+      double energyLoss_ = 0.;
+      unsigned int monoId = 0;
+      vector<double> energyLossM;
+      vector<double> energyLossS;
       vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit)->hit());
-      if (assSimHits.size()==0) continue;
+      unsigned int  simhitvecsize = assSimHits.size();
+      if (simhitvecsize==0) continue;
       PSimHit shit;
+      vector<unsigned int> trackIds;
+      energyLossS.clear();
+      energyLossM.clear();
       for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
-	if ((m->localPosition()-rhitLPv).mag()<delta) {
+	unsigned int tId = m->trackId();
+	if (find(trackIds.begin(),trackIds.end(),tId)==trackIds.end()) trackIds.push_back(tId);
+	if (m->energyLoss()>energyLoss_) {
 	  shit=*m;
-	  delta = (m->localPosition()-rhitLPv).mag();
+	  energyLoss_ = m->energyLoss();
+	}
+	if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())) {
+	  if (monoId==0) monoId = m->detUnitId();
+	  if (monoId == m->detUnitId()){
+	    energyLossM.push_back(m->energyLoss());
+	  }
+	  else {
+	    energyLossS.push_back(m->energyLoss());
+	  }
+	  //cout << "detUnitId="  << m->detUnitId() << " trackId=" << m->trackId() << " energyLoss=" << m->energyLoss() << endl;
+	} else {
+	  energyLossM.push_back(m->energyLoss());
 	}
       }
+      //double delta = 99999;
+      //LocalPoint rhitLPv = rhit->localPosition();
+      //vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit)->hit());
+      //unsigned int  simhitvecsize = assSimHits.size();
+      //if (simhitvecsize==0) continue;
+      //PSimHit shit;
+      //for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+      //  if ((m->localPosition()-rhitLPv).mag()<delta) {
+      //    shit=*m;
+      //    delta = (m->localPosition()-rhitLPv).mag();
+      //  }
+      //}
 
       //plot chi2 increment
       double chi2increment = tm->estimate();
@@ -279,12 +383,53 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill( chi2increment );
+      title.str("");
+      title << "Chi2IncrementVsEta_" << subdetId << "-" << layerId;
+      hChi2IncrementVsEta[title.str()]->Fill( track->eta(), chi2increment );
       hTotChi2Increment->Fill( chi2increment );
       hProcess_vs_Chi2->Fill( chi2increment, shit.processType() );
-      if (dynamic_cast<const SiPixelRecHit*>(rhit->hit()))	
-	hClsize_vs_Chi2->Fill( chi2increment, ((const SiPixelRecHit*)(rhit->hit()))->cluster()->size() );
-      if (dynamic_cast<const SiStripRecHit2D*>(rhit->hit()))	
-	hClsize_vs_Chi2->Fill( chi2increment, ((const SiStripRecHit2D*)(rhit->hit()))->cluster()->amplitudes().size() );
+
+      int clustersize = 0;
+      bool mergedhit = false;
+      if (dynamic_cast<const SiPixelRecHit*>(rhit->hit())){	
+	clustersize =  ((const SiPixelRecHit*)(rhit->hit()))->cluster()->size() ;
+	hPixClsize_vs_Chi2->Fill(chi2increment, clustersize);
+	hPixClusterSize->Fill(clustersize);
+	hPixSimHitVecSize->Fill(simhitvecsize);
+	if (simhitvecsize>1) mergedhit = true;
+      }
+      else if (dynamic_cast<const SiStripRecHit2D*>(rhit->hit())){
+	clustersize =  ((const SiStripRecHit2D*)(rhit->hit()))->cluster()->amplitudes().size() ;
+	hSt1Clsize_vs_Chi2->Fill(chi2increment, clustersize);
+	hSt1ClusterSize->Fill(clustersize);
+	hSt1SimHitVecSize->Fill(simhitvecsize);
+	if (simhitvecsize>1) mergedhit = true;
+      }
+      else if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())){
+	int clsize1 = ((const SiStripMatchedRecHit2D*)(rhit->hit()))->monoHit()->cluster()->amplitudes().size();
+	int clsize2 =  ((const SiStripMatchedRecHit2D*)(rhit->hit()))->stereoHit()->cluster()->amplitudes().size();
+	if (clsize1>clsize2) clustersize = clsize1;
+	else clustersize = clsize2;
+	hSt2Clsize_vs_Chi2->Fill(chi2increment, clustersize);
+	hSt2ClusterSize->Fill(clustersize);
+	hSt2SimHitVecSize->Fill(simhitvecsize);
+	if (simhitvecsize>2) mergedhit = true;
+      }
+      else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(rhit->hit())){
+	clustersize =  ((const ProjectedSiStripRecHit2D*)(rhit->hit()))->originalHit().cluster()->amplitudes().size();
+	hPrjClsize_vs_Chi2->Fill(chi2increment, clustersize);
+	hPrjClusterSize->Fill(clustersize);
+	hPrjSimHitVecSize->Fill(simhitvecsize);
+	if (simhitvecsize>1) mergedhit = true;
+      }
+      hClsize_vs_Chi2->Fill( chi2increment, clustersize);
+      hClusterSize->Fill(clustersize);
+      hSimHitVecSize->Fill(simhitvecsize);
+
+      //       if (dynamic_cast<const SiPixelRecHit*>(rhit->hit()))	
+      // 	hClsize_vs_Chi2->Fill( chi2increment, ((const SiPixelRecHit*)(rhit->hit()))->cluster()->size() );
+      //       if (dynamic_cast<const SiStripRecHit2D*>(rhit->hit()))	
+      // 	hClsize_vs_Chi2->Fill( chi2increment, ((const SiStripRecHit2D*)(rhit->hit()))->cluster()->amplitudes().size() );
 
       std::vector<SimHitIdpr> simTrackIds = hitAssociator->associateHitId(*(rhit)->hit());
       bool goodhit = false;
@@ -296,23 +441,70 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if (goodhit) {
-	LogVerbatim("TestTrackHits") << "good hit" ;
-	title.str("");
-	title << "Chi2GoodHit_" << subdetId << "-" << layerId;
-	hChi2GoodHit[title.str()]->Fill( chi2increment );
-	hTotChi2GoodHit->Fill( chi2increment );
+	if (energyLossM.size()>1&&energyLossS.size()<=1) {
+	  sort(energyLossM.begin(),energyLossM.end(),greater<double>());
+	  energyLossRatio->Fill(energyLossM[1]/energyLossM[0]);
+	}
+	else if (energyLossS.size()>1&&energyLossM.size()<=1) {
+	  sort(energyLossS.begin(),energyLossS.end(),greater<double>());
+	  energyLossRatio->Fill(energyLossS[1]/energyLossS[0]);
+	}
+	else if (energyLossS.size()>1&&energyLossM.size()>1) {
+	  sort(energyLossM.begin(),energyLossM.end(),greater<double>());
+	  sort(energyLossS.begin(),energyLossS.end(),greater<double>());
+	  energyLossM[1]/energyLossM[0] > energyLossS[1]/energyLossS[0] 
+	    ? energyLossRatio->Fill(energyLossM[1]/energyLossM[0]) 
+	    : energyLossRatio->Fill(energyLossS[1]/energyLossS[0]);
+	}
+	if ( mergedhit ) {
+	  //not optimized for matched hits
+	  LogVerbatim("TestTrackHits") << "MERGED HIT" << endl;
+	  title.str("");
+	  title << "Chi2MergedHit_" << subdetId << "-" << layerId;
+	  hChi2MergedHit[title.str()]->Fill( chi2increment );
+	  hTotChi2MergedHit->Fill( chi2increment );	  
+	  for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
+	    unsigned int tId = m->trackId();
+	    LogVerbatim("TestTrackHits") << "component with id=" << tId <<  " eLoss=" << m->energyLoss() << " pType=" <<  m->processType();
+	    if (find(tpids.begin(),tpids.end(),tId)==tpids.end()) continue;
+	    if (m->processType()==2) {
+	      GlobalPoint gpr = rhit->globalPosition();
+	      AlgebraicSymMatrix ger = rhit->globalPositionError().matrix();
+	      GlobalPoint gps = surf->toGlobal(m->localPosition());
+	      LogVerbatim("TestTrackHits") << gpr << " " << gps << " " << ger;
+	      HepVector delta(3);
+	      delta[0]=gpr.x()-gps.x();
+	      delta[1]=gpr.y()-gps.y();
+	      delta[2]=gpr.z()-gps.z();
+	      LogVerbatim("TestTrackHits") << delta << " " << ger ;
+	      double mpull = sqrt(delta[0]*delta[0]/ger[0][0]+delta[1]*delta[1]/ger[1][1]+delta[2]*delta[2]/ger[2][2]);
+	      LogVerbatim("TestTrackHits") << "hit pull=" << mpull;//ger.similarity(delta);
+	      mergedPull->Fill(mpull);
+	      break;
+	    }
+	  }
+	} else {
+	  LogVerbatim("TestTrackHits") << "good hit" ;
+	  title.str("");
+	  title << "Chi2GoodHit_" << subdetId << "-" << layerId;
+	  hChi2GoodHit[title.str()]->Fill( chi2increment );
+	  hTotChi2GoodHit->Fill( chi2increment );	  
+	}
       } else {
 	LogVerbatim("TestTrackHits") << "bad hit" ;
 	title.str("");
 	title << "Chi2BadHit_" << subdetId << "-" << layerId;
 	hChi2BadHit[title.str()]->Fill( chi2increment );
 	hTotChi2BadHit->Fill( chi2increment );
+	goodbadmerged->Fill(2);
       }
       hGoodHit_vs_Chi2->Fill(chi2increment,goodhit);
 
       LocalVector shitLMom;
       LocalPoint shitLPos;
       if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())) {
+	if (simhitvecsize>2 && goodhit) goodbadmerged->Fill(3);
+	else if (goodhit) goodbadmerged->Fill(1);
 	double rechitmatchedx = rhit->localPosition().x();
 	double rechitmatchedy = rhit->localPosition().y();
         double mindist = 999999;
@@ -334,6 +526,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	shitLPos = closestPair.first;
 	shitLMom = closestPair.second;
       } else {
+	if (simhitvecsize>1 && goodhit) goodbadmerged->Fill(3);
+	else if (goodhit) goodbadmerged->Fill(1);
 	shitLPos = shit.localPosition();	
 	shitLMom = shit.momentumAtEntry();
       }
@@ -492,6 +686,13 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	//double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y());
 	//double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z());
 
+	MeasurementExtractor meMo(monoState);
+	double chi2mono = computeChi2Increment(meMo,tMonoHit);
+
+	title.str("");
+	title << "Chi2Increment_mono_" << subdetId << "-" << layerId ;
+	hChi2Increment_mono[title.str()]->Fill(chi2mono);
+
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_rs_mono";
 	hPullGP_X_rs_mono[title.str()]->Fill( pullGPX_rs_mono );
@@ -582,6 +783,13 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	GlobalPoint stereoRhitGPos = tStereoHit->globalPosition();
 	GlobalError stereoRhitGPEr = tStereoHit->globalPositionError();
 
+	MeasurementExtractor meSt(stereoState);
+	double chi2stereo = computeChi2Increment(meSt,tStereoHit);
+
+	title.str("");
+	title << "Chi2Increment_stereo_" << subdetId << "-" << layerId ;
+	hChi2Increment_stereo[title.str()]->Fill(chi2stereo);
+
 	double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x())/sqrt(stereoRhitGPEr.cxx());
 	double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y())/sqrt(stereoRhitGPEr.cyy());
 	double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z())/sqrt(stereoRhitGPEr.czz());
@@ -655,8 +863,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     LogTrace("TestTrackHits") << "track chi2=" << track->chi2() ;
     i++;
   }
+  LogTrace("TestTrackHits") << "end of event: processd hits=" << evtHits ;
   delete hitAssociator;
-  LogTrace("TestTrackHits") << "end of event" ;
 }
 
 void TestTrackHits::endJob() {
@@ -711,9 +919,27 @@ void TestTrackHits::endJob() {
   hTotChi2Increment->Write();
   hTotChi2GoodHit->Write();
   hTotChi2BadHit->Write();
+  hTotChi2MergedHit->Write();
   hProcess_vs_Chi2->Write();
   hClsize_vs_Chi2->Write();
+  hPixClsize_vs_Chi2->Write();
+  hPrjClsize_vs_Chi2->Write();
+  hSt1Clsize_vs_Chi2->Write();
+  hSt2Clsize_vs_Chi2->Write();
   hGoodHit_vs_Chi2->Write();
+  hClusterSize->Write();
+  hPixClusterSize->Write();
+  hPrjClusterSize->Write();
+  hSt1ClusterSize->Write();
+  hSt2ClusterSize->Write();
+  hSimHitVecSize->Write();
+  hPixSimHitVecSize->Write();
+  hPrjSimHitVecSize->Write();
+  hSt1SimHitVecSize->Write();
+  hSt2SimHitVecSize->Write();
+  goodbadmerged->Write();
+  energyLossRatio->Write();
+  mergedPull->Write();
   for (int i=0; i!=6; i++)
     for (int j=0; j!=9; j++){
       if (i==0 && j>2) break;
@@ -727,11 +953,17 @@ void TestTrackHits::endJob() {
       title << "Chi2Increment_" << i+1 << "-" << j+1 ;
       hChi2Increment[title.str()]->Write();
       title.str("");
+      title << "Chi2IncrementVsEta_" << i+1 << "-" << j+1 ;
+      hChi2IncrementVsEta[title.str()]->Write();
+      title.str("");
       title << "Chi2GoodHit_" << i+1 << "-" << j+1 ;
       hChi2GoodHit[title.str()]->Write();
       title.str("");
       title << "Chi2BadHit_" << i+1 << "-" << j+1 ;
       hChi2BadHit[title.str()]->Write();
+      title.str("");
+      title << "Chi2MergedHit_" << i+1 << "-" << j+1 ;
+      hChi2MergedHit[title.str()]->Write();
 
       gp_ts->cd();
       gp_tsx->cd();
@@ -790,6 +1022,13 @@ void TestTrackHits::endJob() {
       hPullGP_Z_rs[title.str()]->Write();
 
       if ( ((i==2||i==4)&&(j==0||j==1)) || (i==3||i==5) ){
+	chi2d->cd();
+	title.str("");
+	title << "Chi2Increment_mono_" << i+1 << "-" << j+1 ;
+	hChi2Increment_mono[title.str()]->Write();
+	title.str("");
+	title << "Chi2Increment_stereo_" << i+1 << "-" << j+1 ;
+	hChi2Increment_stereo[title.str()]->Write();
 	//mono
 	gp_ts->cd();
 	gp_tsx_mono->cd();
@@ -937,6 +1176,17 @@ TestTrackHits::projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
 }
 
+template<unsigned int D> 
+double TestTrackHits::computeChi2Increment(MeasurementExtractor me, 
+					   TransientTrackingRecHit::ConstRecHitPointer rhit) {
+  typedef typename AlgebraicROOTObject<D>::Vector VecD;
+  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
+  VecD r = asSVector<D>(rhit->parameters()) - me.measuredParameters<D>(*rhit);
+  
+  SMatDD R = asSMatrix<D>(rhit->parametersError()) + me.measuredError<D>(*rhit);
+  R.Invert();
+  return ROOT::Math::Similarity(r,R) ;
+}
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

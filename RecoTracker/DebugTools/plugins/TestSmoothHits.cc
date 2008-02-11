@@ -231,7 +231,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       vector<Trajectory> smoothed = smooth->trajectories(*it);
       result.insert(result.end(), smoothed.begin(), smoothed.end());
     }
-    if (result.size()==0) break;
+    if (result.size()==0) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
 
     TSOS lastState = theTSOS;
