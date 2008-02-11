@@ -204,7 +204,7 @@ while (<TEMPLATE>)
     }
     if ($_=~/DirectoryBrowsing/)
     {
-	print INDEX "Click <a href=\.\/>here<\/a> to browse the directory containing all results (but the root files)\n";
+	print INDEX "Click <a href=\.\/\.>here<\/a> to browse the directory containing all results (but the root files)\n";
 	next;
     }
     if ($_=~/PublicationDate/)
