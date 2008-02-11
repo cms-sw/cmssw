@@ -7,12 +7,12 @@
 
  Description: top algorithm producing TrackCandidate and Electron objects from supercluster
               driven pixel seeded Ckf tracking
-
+ 
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.1 2007/12/08 15:16:05 futyand Exp $
+// $Id: GsfElectronAlgo.cc,v 1.2 2007/12/17 16:31:54 uberthon Exp $
 //
 //
 
@@ -85,12 +85,14 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi, 
-					       bool highPtPresel, double highPtMin):  
+					       bool highPtPresel, double highPtMin,
+   				               bool applyEtaCorrection):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
-  highPtPreselection_(highPtPresel), highPtMin_(highPtMin)
+  highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
+  applyEtaCorrection_(applyEtaCorrection)
 {   
  // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
@@ -454,7 +456,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       ElectronClassification theClassifier;
       theClassifier.correct(ele);
       ElectronEnergyCorrector theEnCorrector;
-      theEnCorrector.correct(ele);
+      theEnCorrector.correct(ele, applyEtaCorrection_);
       ElectronMomentumCorrector theMomCorrector;
       theMomCorrector.correct(ele,vtxTSOS_);
       outEle.push_back(ele);
