@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.37 2008/01/30 19:45:08 biery Exp $
+// $Id: StorageManager.cc,v 1.38 2008/02/02 02:26:34 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -304,7 +304,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
     unsigned int regSz = smfusenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid);
 
-    // 29-Jan-2008, KAB: attempt to add the INIT message to our collection
+    // attempt to add the INIT message to our collection
     // of INIT messages.  (This assumes that we have a full INIT message
     // at this point.)  (In principle, this could be done in the
     // FragmentCollector::processHeader method, but then how would we
@@ -335,34 +335,50 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid);
 
+        // limit this (and other) interaction with the InitMsgCollection
+        // to a single thread so that we can present a coherent
+        // picture to consumers
+        boost::mutex::scoped_lock sl(consumerInitMsgLock_);
+
         // check if any currently connected consumers have trigger
         // selection requests that match more than one INIT message
+        boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+        std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+          eventServer->getConsumerTable();
+        std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+          consumerIter;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
         {
-          // limit interactions between the list of consumers and
-          // the InitMsgCollection to a single thread
-          boost::mutex::scoped_lock sl(consumerInitMsgLock_);
-          boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
 
-          std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-            eventServer->getConsumerTable();
-          std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-            consumerIter;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               consumerIter++)
+          // for regular consumers, we need to test whether the consumer
+          // trigger selection now matches more than one INIT message.
+          // We could loop through the INIT messages to run this test,
+          // but instead we simply ask the collection for the correct
+          // one and trust it to throw an exception if multiple INIT
+          // messages match the selection.
+          // (For consumer(s) that are instances of the proxy server, we
+          // notify them of the presence of new INIT messages in the
+          // eventdataWebPage routine.)
+          if (! consPtr->isProxyServer())
           {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            Strings consumerSelection = consPtr->getTriggerRequest();
             try
             {
-              serializedProds = initMsgCollection->getElementForSelection(consumerSelection);
+              Strings consumerSelection = consPtr->getTriggerRequest();
+              initMsgCollection->getElementForSelection(consumerSelection);
             }
             catch (const edm::Exception& excpt)
             {
-              consPtr->setErrorMessage(excpt.what());
+              // store a warning message in the consumer pipe to be
+              // sent to the consumer at the next opportunity
+              consPtr->setRegistryWarning(excpt.what());
             }
             catch (const cms::Exception& excpt)
             {
+              // store a warning message in the consumer pipe to be
+              // sent to the consumer at the next opportunity
               std::string errorString;
               errorString.append(excpt.what());
               errorString.append("\n");
@@ -370,7 +386,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
               errorString.append("\n\n");
               errorString.append("*** Please select trigger paths from one and ");
               errorString.append("only one HLT output module. ***\n");
-              consPtr->setErrorMessage(errorString);
+              consPtr->setRegistryWarning(errorString);
             }
           }
         }
@@ -1477,6 +1493,7 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
   // determine the consumer ID from the event request
   // message, if it is available.
   unsigned int consumerId = 0;
+  int consumerInitMsgCount = -1;
   std::string lengthString = in->getenv("CONTENT_LENGTH");
   unsigned long contentLength = std::atol(lengthString.c_str());
   if (contentLength > 0) 
@@ -1488,6 +1505,11 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 	{
 	  uint8 *bodyPtr = requestMessage.msgBody();
 	  consumerId = convert32(bodyPtr);
+          if (requestMessage.bodySize() >= (2 * sizeof(char_uint32)))
+            {
+              bodyPtr += sizeof(char_uint32);
+              consumerInitMsgCount = convert32(bodyPtr);
+            }
 	}
     }
 
@@ -1500,22 +1522,39 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
     boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
     if (eventServer.get() != NULL)
     {
-      boost::shared_ptr<ConsumerPipe> consPtr = eventServer->getConsumer(consumerId);
-      if (consPtr.get() != NULL && consPtr->hasError())
+      // if we've stored a "registry warning" in the consumer pipe, send
+      // that instead of an event so that the consumer can react to
+      // the warning
+      boost::shared_ptr<ConsumerPipe> consPtr =
+        eventServer->getConsumer(consumerId);
+      if (consPtr.get() != NULL && consPtr->hasRegistryWarning())
       {
-        std::string errorMessage = consPtr->getErrorMessage();
-        const char* from = errorMessage.c_str();
-        unsigned int msize = errorMessage.length();
+        std::vector<char> registryWarning = consPtr->getRegistryWarning();
+        const char* from = &registryWarning[0];
+        unsigned int msize = registryWarning.size();
         if(mybuffer_.capacity() < msize) mybuffer_.resize(msize);
         unsigned char* pos = (unsigned char*) &mybuffer_[0];
 
         copy(from,from+msize,pos);
         len = msize;
+        consPtr->clearRegistryWarning();
       }
+      // if the consumer is an instance of the proxy server and
+      // it knows about fewer INIT messages than we do, tell it
+      // that new INIT message(s) are available
+      else if (consPtr.get() != NULL && consPtr->isProxyServer() &&
+               consumerInitMsgCount >= 0 &&
+               jc_->getInitMsgCollection()->size() > consumerInitMsgCount)
+      {
+        OtherMessageBuilder othermsg(&mybuffer_[0],
+                                     Header::NEW_INIT_AVAILABLE);
+        len = othermsg.size();
+      }
+      // otherwise try to send an event
       else
       {
         boost::shared_ptr< std::vector<char> > bufPtr =
-            eventServer->getEvent(consumerId);
+          eventServer->getEvent(consumerId);
         if (bufPtr.get() != NULL)
         {
           EventMsgView msgView(&(*bufPtr)[0]);
@@ -1596,20 +1635,59 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
           eventServer->getConsumer(consumerId);
         if (consPtr.get() != NULL)
         {
-          // limit interactions between the list of consumers and
-          // the InitMsgCollection to a single thread
+          // limit this (and other) interaction with the InitMsgCollection
+          // to a single thread so that we can present a coherent
+          // picture to consumers
           boost::mutex::scoped_lock sl(consumerInitMsgLock_);
           boost::shared_ptr<InitMsgCollection> initMsgCollection =
             jc_->getInitMsgCollection();
+
           try
           {
-            Strings consumerSelection = consPtr->getTriggerRequest();
-            serializedProds =
-              initMsgCollection->getElementForSelection(consumerSelection);
+            if (consPtr->isProxyServer())
+            {
+              // If the INIT message collection has more than one element,
+              // we build up a special response message that contains all
+              // of the INIT messages in the collection (code = INIT_SET).
+              // We can use an InitMsgBuffer to do this (and assign it
+              // to the serializedProds local variable) because it
+              // is really just a vector of char (it doesn't have any
+              // internal structure that limits it to being used just for
+              // single INIT messages).
+              if (initMsgCollection->size() > 1)
+              {
+                serializedProds = initMsgCollection->getFullCollection();
+              }
+              else
+              {
+                serializedProds = initMsgCollection->getLastElement();
+              }
+            }
+            else
+            {
+              Strings consumerSelection = consPtr->getTriggerRequest();
+              serializedProds =
+                initMsgCollection->getElementForSelection(consumerSelection);
+            }
             if (serializedProds.get() != NULL)
             {
-              InitMsgView initView(&(*serializedProds)[0]);
-              consPtr->initializeSelection(initView);
+              uint8* regPtr = &(*serializedProds)[0];
+              HeaderView hdrView(regPtr);
+
+              // if the response that we're sending is an INIT_SET rather
+              // than a single INIT message, we simply use the first INIT
+              // message in the collection.  Since all we need is the
+              // full trigger list, any of the INIT messages should be fine
+              // (because all of them should have the same full trigger list).
+              if (hdrView.code() == Header::INIT_SET) {
+                OtherMessageView otherView(&(*serializedProds)[0]);
+                regPtr = otherView.msgBody();
+              }
+
+              Strings triggerNameList;
+              InitMsgView initView(regPtr);
+              initView.hltTriggerNames(triggerNameList);
+              consPtr->initializeSelection(triggerNameList);
             }
           }
           catch (const edm::Exception& excpt)
@@ -1897,9 +1975,7 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
     auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
     in->read(&(*bufPtr)[0], contentLength);
     OtherMessageView requestMessage(&(*bufPtr)[0]);
-    // make the change below when a tag of IOPool/Streamer can be used without FW changes
-    //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
-    if (requestMessage.code() == Header::EVENT_REQUEST)
+    if (requestMessage.code() == Header::DQMEVENT_REQUEST)
     {
       uint8 *bodyPtr = requestMessage.msgBody();
       consumerId = convert32(bodyPtr);
