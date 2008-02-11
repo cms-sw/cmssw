@@ -33,6 +33,7 @@ KFFittingSmootherESProducer::produce(const TrackingComponentsRecord & iRecord){
   std::string sname = pset_.getParameter<std::string>("Smoother");
   double theEstimateCut = pset_.getParameter<double>("EstimateCut");
   int theMinNumberOfHits = pset_.getParameter<int>("MinNumberOfHits");
+  bool rejectTracksFlag = pset_.getParameter<bool>("RejectTracks");
 
   edm::ESHandle<TrajectoryFitter> fit;
   edm::ESHandle<TrajectorySmoother> smooth;
@@ -41,8 +42,7 @@ KFFittingSmootherESProducer::produce(const TrackingComponentsRecord & iRecord){
   iRecord.get(sname, smooth);
   
   _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),
-								       theEstimateCut,theMinNumberOfHits
-								       ));
+								       theEstimateCut,theMinNumberOfHits,rejectTracksFlag));
   return _fitter;
 }
 

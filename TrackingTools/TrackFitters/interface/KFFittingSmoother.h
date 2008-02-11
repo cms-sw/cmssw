@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2007/05/09 13:34:14 $
- *  $Revision: 1.4.2.1 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.9 $
  *  \author todorov, cerati
  */
 
@@ -23,11 +23,13 @@ public:
   KFFittingSmoother(const TrajectoryFitter& aFitter,
                     const TrajectorySmoother& aSmoother,
 		    double estimateCut = -1,
-		    int minNumberOfHits = 5) :
+		    int minNumberOfHits = 5,
+		    bool rejectTracks = false) :
     theFitter(aFitter.clone()),
     theSmoother(aSmoother.clone()),
     theEstimateCut(estimateCut),
-    theMinNumberOfHits(minNumberOfHits) {}
+    theMinNumberOfHits(minNumberOfHits),
+    rejectTracksFlag(rejectTracks) {}
   
   virtual ~KFFittingSmoother();
   
@@ -51,6 +53,7 @@ private:
   const TrajectorySmoother* theSmoother;
   double theEstimateCut;
   int theMinNumberOfHits;
+  bool rejectTracksFlag;
   
   std::vector<Trajectory> smoothingStep(std::vector<Trajectory>& fitted) const;
   TrajectoryStateWithArbitraryError   tsosWithError;

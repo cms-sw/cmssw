@@ -62,15 +62,26 @@ fit(const TrajectorySeed& aSeed,
     if (tmp_first.size()==0) tmp_first = smoothed;
     
     if (smoothed.size()==0) {
-      LogTrace("TrackFitters") << "smoothed.size()==0 => returning orignal trajectory" ;
-      return tmp_first;
+	if (rejectTracksFlag){
+	  LogTrace("TrackFitters") << "smoothed.size()==0 => trajectory rejected";
+	  return vector<Trajectory>();
+	} else {
+	  LogTrace("TrackFitters") << "smoothed.size()==0 => returning orignal trajectory" ;
+	  return tmp_first;
+	}
     }
-    if (theEstimateCut>0){
+
+    if (theEstimateCut>0) {
       if (smoothed[0].foundHits()<theMinNumberOfHits) {
-	LogTrace("TrackFitters") 
-	  << "smoothed[0].foundHits()<theMinNumberOfHits => returning orignal trajectory with chi2=" 
-	  <<  tmp_first[0].chiSquared() ;
-	return tmp_first;
+	if (rejectTracksFlag){
+	  LogTrace("TrackFitters") << "smoothed[0].foundHits()<theMinNumberOfHits => trajectory rejected";
+	  return vector<Trajectory>();
+	} else {
+	  LogTrace("TrackFitters") 
+	    << "smoothed[0].foundHits()<theMinNumberOfHits => returning orignal trajectory with chi2=" 
+	    <<  tmp_first[0].chiSquared() ;
+	  return tmp_first;
+	}
       }
       //check if there are outliers
       std::vector<TrajectoryMeasurement> vtm = smoothed[0].measurements();
