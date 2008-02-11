@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.14 2007/11/13 19:05:44 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.15 2008/01/22 19:11:44 muzaffar Exp $
 //
 //
 
@@ -250,6 +250,7 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   if(incldt){
+#include "dtpart.inl"
   }
   
   if(incldtMB4){
