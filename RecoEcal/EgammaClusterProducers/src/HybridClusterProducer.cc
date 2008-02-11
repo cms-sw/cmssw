@@ -67,7 +67,11 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
                                    posCalculator_,
+<<<<<<< HybridClusterProducer.cc
+				   ps.getParameter<bool>("dynamicPhiRoad"),
+=======
                                    ps.getParameter<bool>("dynamicPhiRoad"),
+>>>>>>> 1.19
                                    debugL);
 
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
@@ -166,11 +170,13 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
+
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;  
-  
+
   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
   superclusters_p->assign(superClusters.begin(), superClusters.end());
+  
   evt.put(superclusters_p, superclusterCollection_);
 
   // BasicClusterShapeAssociationMap
