@@ -204,7 +204,9 @@ while (<TEMPLATE>)
     }
     if ($_=~/DirectoryBrowsing/)
     {
-	print INDEX "Click <a href=\.\/\.>here<\/a> to browse the directory containing all results (but the root files)\n";
+	#Create a subdirectory DirectoryBrowsing to circumvent the fact the dir is not browsable if there is an index.html in it.
+	system("mkdir $WebArea/DirectoryBrowsing");
+	print INDEX "Click <a href=\.\/DirectoryBrowsing\/\.>here<\/a> to browse the directory containing all results (except the root files)\n";
 	next;
     }
     if ($_=~/PublicationDate/)
@@ -308,8 +310,8 @@ while (<TEMPLATE>)
 	next;
     }
     print INDEX $NewFileLine;
+    
 } #End of while loop on template html file
-
 foreach (@Dir)
 {
     $CurrentDir=$_;
@@ -322,6 +324,16 @@ foreach (@Dir)
 	    $RemoteDirRootFiles="$WebArea/"."$CurrentDir/*.root";
 	    $RemoveRootFiles=`rm -Rf $RemoteDirRootFiles`; 
 	}
+    }
+}
+#Creating symbolic links to the web area in subdirectory to allow directory browsing:
+@DirectoryContent=`ls $WebArea`;
+foreach (@DirectoryContent)
+{
+    chomp($_);
+    if (($_ ne "index.html")&&($_ ne "DirectoryBrowsing"))
+    {
+	system("ln -s $WebArea/$_ $WebArea/DirectoryBrowsing/$_");
     }
 }
 print INDEX "\<\/body\>\n";
