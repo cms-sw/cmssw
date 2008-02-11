@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SiPixelFakeGainESSource
-// Class:      SiPixelFakeGainESSource
+// Package:    SiPixelFakeGainForHLTESSource
+// Class:      SiPixelFakeGainForHLTESSource
 // 
-/**\class SiPixelFakeGainESSource SiPixelFakeGainESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeGainESSource.cc
+/**\class SiPixelFakeGainForHLTESSource SiPixelFakeGainForHLTESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeGainForHLTESSource.cc
 
  Description: <one line class summary>
 
@@ -13,13 +13,13 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.cc,v 1.5 2008/01/22 19:15:07 muzaffar Exp $
+// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.5 2008/01/22 19:15:07 muzaffar Exp $
 //
 //
 
 // user include files
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainESSource.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainForHLTESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -27,17 +27,17 @@
 //
 // constructors and destructor
 //
-SiPixelFakeGainESSource::SiPixelFakeGainESSource(const edm::ParameterSet& conf_) :
+SiPixelFakeGainForHLTESSource::SiPixelFakeGainForHLTESSource(const edm::ParameterSet& conf_) :
   fp_(conf_.getParameter<edm::FileInPath>("file"))
 {
- edm::LogInfo("SiPixelFakeGainESSource::SiPixelFakeGainESSource");
+ edm::LogInfo("SiPixelFakeGainForHLTESSource::SiPixelFakeGainForHLTESSource");
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
-  findingRecord<SiPixelGainCalibrationRcd>();
+  findingRecord<SiPixelGainCalibrationForHLTRcd>();
 }
 
-SiPixelFakeGainESSource::~SiPixelFakeGainESSource()
+SiPixelFakeGainForHLTESSource::~SiPixelFakeGainForHLTESSource()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -45,13 +45,13 @@ SiPixelFakeGainESSource::~SiPixelFakeGainESSource()
 
 }
 
-std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiPixelGainCalibrationRcd & )
+std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(const SiPixelGainCalibrationForHLTRcd & )
 {
 
    using namespace edm::es;
    unsigned int nmodules = 0;
    uint32_t nchannels = 0;
-   SiPixelGainCalibration * obj = new SiPixelGainCalibration(25.,30., 2.,3.);
+   SiPixelGainCalibrationForHLT * obj = new SiPixelGainCalibrationForHLT(25.,30., 2.,3.);
    SiPixelDetInfoFileReader reader(fp_.fullPath());
    const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
@@ -63,31 +63,36 @@ std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiP
 
      // Loop over columns and rows
      for(int i=0; i<detUnitDimensions.first; i++) {
+       float totalGain  = 0.0;
+       float totalPed   = 0.0; 
        for(int j=0; j<detUnitDimensions.second; j++) {
+         //this innerloop is unnecessary but is left as an example in case someone wishes to provide gain/ped distributions etc
 	 nchannels++;
-	 float gain =  2.8;
-	 float ped  = 28.2;	 
-	 obj->setData(ped, gain , theSiPixelGainCalibration);	 
+         totalGain      += 2.8;
+         totalPed       += 28.2;
        }
+       float gain       = totalGain/(float)detUnitDimensions.second;
+       float ped        = totalPed/(float)detUnitDimensions.second;
+       obj->setData(ped, gain , theSiPixelGainCalibration);	 
      }
 
      //std::cout << "detid " << (*detit) << std::endl;
 
-     SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
-     if( !obj->put(*detit,range,detUnitDimensions.first) )
-       edm::LogError("SiPixelFakeGainESSource")<<"[SiPixelFakeGainESSource::produce] detid already exists"<<std::endl;
+     SiPixelGainCalibrationForHLT::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
+     if( !obj->put(*detit,range) )
+       edm::LogError("SiPixelFakeGainForHLTESSource")<<"[SiPixelFakeGainForHLTESSource::produce] detid already exists"<<std::endl;
    }
 
    //std::cout << "Modules = " << nmodules << " Channels " << nchannels << std::endl;
    
 
    // 
-   return std::auto_ptr<SiPixelGainCalibration>(obj);
+   return std::auto_ptr<SiPixelGainCalibrationForHLT>(obj);
 
 
 }
 
-void SiPixelFakeGainESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
+void SiPixelFakeGainForHLTESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
 						const edm::IOVSyncValue& iosv, 
 						edm::ValidityInterval& oValidity ) {
   edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );

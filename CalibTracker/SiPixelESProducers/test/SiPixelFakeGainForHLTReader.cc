@@ -1,20 +1,20 @@
 #include <memory>
 
-#include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainReader.h"
+#include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainForHLTReader.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 namespace cms{
-SiPixelFakeGainReader::SiPixelFakeGainReader(const edm::ParameterSet& conf): 
+SiPixelFakeGainForHLTReader::SiPixelFakeGainForHLTReader(const edm::ParameterSet& conf): 
     conf_(conf),
     filename_(conf.getParameter<std::string>("fileName")),
-    SiPixelGainCalibrationService_(conf)
+    SiPixelGainCalibrationForHLTService_(conf)
 {
 }
 
 void
-SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+SiPixelFakeGainForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   unsigned int nmodules = 0;
   uint32_t nchannels = 0;
@@ -22,19 +22,19 @@ SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // Get the Geometry
   iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );     
-  edm::LogInfo("SiPixelFakeGainReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
+  edm::LogInfo("SiPixelFakeGainForHLTReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
   
-  // Get the calibration data
-  //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  //edm::LogInfo("SiPixelFakeGainReader") << "[SiPixelFakeGainReader::analyze] End Reading FakeGainects" << std::endl;
-  //SiPixelGainCalibrationService_.setESObjects(iSetup);
+  // Get the calibrationForHLT data
+  //iSetup.get<SiPixelGainCalibrationForHLTRcd>().get(SiPixelGainCalibrationForHLT_);
+  //edm::LogInfo("SiPixelFakeGainForHLTReader") << "[SiPixelFakeGainForHLTReader::analyze] End Reading FakeGainForHLTects" << std::endl;
+  //SiPixelGainCalibrationForHLTService_.setESObjects(iSetup);
 
   //  for(TrackerGeometry::DetContainer::const_iterator it = tkgeom->dets().begin(); it != tkgeom->dets().end(); it++){
   //   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
   //     uint32_t detid=((*it)->geographicalId()).rawId();
   // Get the list of DetId's
   
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationForHLTService_.getDetIds();
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
     uint32_t detid = *detid_iter;
@@ -55,23 +55,15 @@ SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     int ncols = topol.ncolumns();   // cols in y
     
     for(int col_iter=0; col_iter<ncols; col_iter++) {
-      for(int row_iter=0; row_iter<nrows; row_iter++) {
-         nchannels++;
-
-         float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
-         p_iter->second->Fill( ped );
-
-         float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
-         g_iter->second->Fill( gain );
-
-//std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
-   
-      }
+       float ped  = SiPixelGainCalibrationForHLTService_.getPedestal(detid, col_iter);
+       float gain  = SiPixelGainCalibrationForHLTService_.getGain(detid, col_iter);
+       p_iter->second->Fill( ped );
+       g_iter->second->Fill( gain );
     }
   }
   
-  edm::LogInfo("SiPixelFakeGainReader") <<"[SiPixelFakeGainReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
-  edm::LogInfo("SiPixelFakeGainReader") <<"[SiPixelFakeGainReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
+  edm::LogInfo("SiPixelFakeGainForHLTReader") <<"[SiPixelFakeGainForHLTReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
+  edm::LogInfo("SiPixelFakeGainForHLTReader") <<"[SiPixelFakeGainForHLTReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
   fFile->ls();
   fFile->Write();
   fFile->Close();    
@@ -79,10 +71,10 @@ SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelFakeGainReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelFakeGainForHLTReader::beginJob(const edm::EventSetup& iSetup)
 {
 
-  edm::LogInfo("SiPixelFakeGainReader") <<"[SiPixelFakeGainReader::beginJob] Opening ROOT file  " <<std::endl;
+  edm::LogInfo("SiPixelFakeGainForHLTReader") <<"[SiPixelFakeGainForHLTReader::beginJob] Opening ROOT file  " <<std::endl;
   fFile = new TFile(filename_.c_str(),"RECREATE");
   fFile->mkdir("Pedestals");
   fFile->mkdir("Gains");
@@ -92,21 +84,21 @@ SiPixelFakeGainReader::beginJob(const edm::EventSetup& iSetup)
   // Get Geometry
   iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );
 
-  // Get the calibration data
+  // Get the calibrationForHLT data
   //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
   //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  SiPixelGainCalibrationService_.setESObjects(iSetup);
-  edm::LogInfo("SiPixelFakeGainReader") << "[SiPixelFakeGainReader::beginJob] End Reading FakeGainects" << std::endl;
+  SiPixelGainCalibrationForHLTService_.setESObjects(iSetup);
+  edm::LogInfo("SiPixelFakeGainForHLTReader") << "[SiPixelFakeGainForHLTReader::beginJob] End Reading FakeGainForHLTects" << std::endl;
   // Get the list of DetId's
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
-  //SiPixelGainCalibration_->getDetIds(vdetId_);
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationForHLTService_.getDetIds();
+  //SiPixelGainCalibrationForHLT_->getDetIds(vdetId_);
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
     uint32_t detid = *detid_iter;
     
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
     if (_PixelGeomDetUnit==0){
-      edm::LogError("SiPixelFakeGainDisplay")<<"[SiPixelFakeGainReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
+      edm::LogError("SiPixelFakeGainForHLTDisplay")<<"[SiPixelFakeGainForHLTReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
       continue;
     }     
     // Book histograms
@@ -122,7 +114,7 @@ SiPixelFakeGainReader::beginJob(const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelFakeGainReader::endJob() {
+SiPixelFakeGainForHLTReader::endJob() {
   std::cout<<" ---> End job "<<std::endl;
 }
 }
