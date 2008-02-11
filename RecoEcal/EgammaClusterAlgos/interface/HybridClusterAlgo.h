@@ -95,13 +95,8 @@ class HybridClusterAlgo
 		    double ethresh, 
 		    double eseed,
 		    double ewing,
-<<<<<<< HybridClusterAlgo.h
-                const PositionCalc& posCalculator,
-		    bool dynamicPhiRoad = false,
-=======
                     const PositionCalc& posCalculator,
                     bool dynamicPhiRoad = false,
->>>>>>> 1.23
 		    DebugLevel debugLevel = pINFO);
 
   // destructor
