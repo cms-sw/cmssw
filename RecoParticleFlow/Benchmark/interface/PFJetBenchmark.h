@@ -34,33 +34,51 @@ public:
   void setup(
       std::string Filename,
 	  bool debug, 
-	  bool PlotAgainstReco, 
+	  bool PlotAgainstReco=0, 
 	  double deltaRMax=0.1  
 	  );
   void process(const reco::PFJetCollection& , const reco::GenJetCollection& );
   void write();
-  void gettrue (const reco::GenJet* truth , double& true_chargedEnergy, double& true_emEnergy);
-  //void printPFJet (const reco::PFJet*);
+  void gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
+  double& true_NeutralHadEnergy, double& true_NeutralEmEnergy);
+  void printPFJet (const reco::PFJet*);
   void printGenJet (const reco::GenJet*);
-  // Data members
-  double deltaEtMax_;
-  double deltaChargedEnergyMax_;
-  double deltaEmEnergyMax_; 
+  double resPtMax() const {return resPtMax_;};
+  double resChargedHadEnergyMax() const {return resChargedHadEnergyMax_;};
+  double resNeutralHadEnergyMax() const {return resNeutralHadEnergyMax_;};
+  double resNeutralEmEnergyMax() const {return resNeutralEmEnergyMax_;};
 
+ 
 private:
 
   TFile *file_;
 
-  TH1F *hDeltaEt;
-  TH1F *hDeltaEch;
-  TH1F *hDeltaEem;
-  TH2F *hDeltaEtvsEt;
-  TH2F *hDeltaEtOverEtvsEt;
-  TH2F *hDeltaEtvsEta;
-  TH2F *hDeltaEtOverEtvsEta;
+// histograms
+// Jets inclusive  distributions  (Pt > 20 GeV)
+  TH1F *hNjets;
+  TH1F *hjetsPt;
+  TH1F *hjetsEta;
 
-  TH1F *hDeltaR;
-  TH2F *hDeltaRvsEt;
+// delta Pt or E quantities for Barrel
+  TH1F *hBRPt;
+  TH1F *hBRCHE;
+  TH1F *hBRNHE;
+  TH1F *hBRNEE;
+  TH2F *hBRPtvsPt ;
+  TH2F *hBRCHEvsPt ;
+  TH2F *hBRNHEvsPt;
+  TH2F *hBRNEEvsPt;
+  
+  // delta Pt or E quantities for Endcap
+  TH1F *hERPt ;
+  TH1F *hERCHE;
+  TH1F *hERNHE;
+  TH1F *hERNEE;
+  TH2F *hERPtvsPt ;
+  TH2F *hERCHEvsPt;
+  TH2F *hERNHEvsPt ;
+  TH2F *hERNEEvsPt;
+
 
 protected:
 
@@ -68,6 +86,10 @@ protected:
   bool debug_;
   bool PlotAgainstReco_;
   double deltaRMax_;
+  double resPtMax_;
+  double resChargedHadEnergyMax_;
+  double resNeutralHadEnergyMax_;
+  double resNeutralEmEnergyMax_; 
 };
 
 #endif // RecoParticleFlow_Benchmark_PFJetBenchmark_h
