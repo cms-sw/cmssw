@@ -113,9 +113,8 @@ class mappingGenerator:
             cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','temp.xml','-o',outfilename])
         else:
             cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','temp.xml','-o',outfilename])
-        print cmd
-
-        os.system(cmd) 
+        os.system(cmd)
+        os.remove('temp.xml')
 if __name__ == "__main__":
     me=mappingGenerator()    
     me.parsecmdln()
