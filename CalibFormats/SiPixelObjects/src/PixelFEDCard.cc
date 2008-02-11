@@ -264,6 +264,53 @@ PixelFEDCard::PixelFEDCard(string fileName):
          &SpecialDac);
   if(localDEBUG)
     printf("Special Random testDAC mode (on = 0x1, off=0x0):%x\n",SpecialDac);
+
+
+      //These bits set the number of Out of consecutive out of sync events until a TTs OOs 
+  fscanf(infile,"Number of Consecutive (max 1023) Out of Syncs till TTs OOS set:%d\n",
+         &Ooslvl);
+  if(localDEBUG)
+    printf("Number of Consecutive (max 1023) Out of Syncs till TTs OOS set:%d\n",Ooslvl);
+
+      //These bits set the number of Empty events until a TTs Error 
+  fscanf(infile,"Number of Consecutive (max 1023) Empty events till TTs ERR set:%d\n",
+         &Errlvl);
+  if(localDEBUG)
+    printf("Number of Consecutive (max 1023) Empty events till TTs ERR set:%d\n",Errlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 N
+  fscanf(infile,"N Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         &Nfifo1Bzlvl);
+  if(localDEBUG)
+    printf("N Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",Nfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 NC
+  fscanf(infile,"NC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         &NCfifo1Bzlvl);
+  if(localDEBUG)
+    printf("NC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",NCfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 SC
+  fscanf(infile,"SC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         &SCfifo1Bzlvl);
+  if(localDEBUG)
+    printf("SC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",SCfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 S
+  fscanf(infile,"S Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         &Sfifo1Bzlvl);
+  if(localDEBUG)
+    printf("S Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",Sfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-3, Almost full = TTs WARN in fifo-3
+  fscanf(infile,"Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",
+         &fifo3Wrnlvl);
+  if(localDEBUG)
+    printf("Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",fifo3Wrnlvl);
+
+
+
+
    
   fclose(infile);
 
@@ -438,6 +485,33 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"Special Random testDAC mode (on = 0x1, off=0x0):0x%x\n",
          SpecialDac);
 
+      //These bits set the number of Out of consecutive out of sync events until a TTs OOs 
+  fprintf(outfile,"Number of Consecutive (max 1023) Out of Syncs till TTs OOS set:%d\n",
+         Ooslvl);
+ 
+      //These bits set the number of Empty events until a TTs Error 
+  fprintf(outfile,"Number of Consecutive (max 1023) Empty events till TTs ERR set:%d\n",
+         Errlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 N
+  fprintf(outfile,"N Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         Nfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 NC
+  fprintf(outfile,"NC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         NCfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 SC
+  fprintf(outfile,"SC Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         SCfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-1, Almost full = TTs BUSY in fifo-1 S
+  fprintf(outfile,"S Fifo-1 almost full level,sets TTs BUSY (max 1023):%d\n",
+         Sfifo1Bzlvl);
+
+      //These bits set the Almost Full level in fifo-3, Almost full = TTs WARN in fifo-3
+  fprintf(outfile,"Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",
+         fifo3Wrnlvl);
 
   fclose(outfile);
 
