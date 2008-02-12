@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/01/20 17:37:31 $ 
- ** $Revision: 1.6 $
+ ** $Date: 2008/02/12 17:26:21 $ 
+ ** $Revision: 1.7 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -58,15 +58,13 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
 
   edm::Service<TFileService> fs;
 
-  h1_scEt_ = fs->make<TH1F>("scEt","Uncorrected photons : SC Et ",100,0.,100.);
-  h1_scE_ = fs->make<TH1F>("scE","Uncorrected photons : SC Energy ",100,0.,100.);
-  h1_scEta_ = fs->make<TH1F>("scEta","Uncorrected photons:  SC Eta ",40,-3., 3.);
-  h1_scPhi_ = fs->make<TH1F>("scPhi","Uncorrected photons: SC Phi ",40,-3.14, 3.14);
+  h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,0.,100.);
+  h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,0.,100.);
+  h1_scEta_ = fs->make<TH1F>("scEta"," SC Eta ",40,-3., 3.);
+  h1_scPhi_ = fs->make<TH1F>("scPhi"," SC Phi ",40,-3.14, 3.14);
   //
-  h1_phoE_ = fs->make<TH1F>("phoE","Uncorrected photons : photon Energy ",100,0., 100.);
-  h1_phoEta_ = fs->make<TH1F>("phoEta","Uncorrected photons:  photon Eta ",40,-3., 3.);
-  h1_phoPhi_ = fs->make<TH1F>("phoPhi","Uncorrected photons: photon Phi ",40,-3.14, 3.14);
-  //
+  
+ //
   h1_recEoverTrueE_ = fs->make<TH1F>("recEoverTrueE"," Reco photon Energy over Generated photon Energy ",100,0., 3);
   h1_deltaEta_ = fs->make<TH1F>("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
   h1_deltaPhi_ = fs->make<TH1F>("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-0.2, 0.2);
@@ -75,6 +73,7 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_corrPho_Eta_ = fs->make<TH1F>("corrPhoEta","Corrected photons:  Eta ",40,-3., 3.);
   h1_corrPho_Phi_ = fs->make<TH1F>("corrPhoPhi","Corrected photons:  Phi ",40,-3.14, 3.14);
   h1_corrPho_R9_ = fs->make<TH1F>("corrPhoR9","Corrected photons:  3x3 energy / SuperCluster energy",100,0.,1.2);
+
 
 
 }
@@ -129,7 +128,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       int index=0;
       int iMatch=-1;
 
-      // loop over uncorrected  Photon candidates 
+      // loop over corrected  Photon candidates 
       for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
 	/////  Set event vertex
@@ -166,15 +165,17 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	h1_scPhi_->Fill( localPhotons[iMatch].superCluster()->position().phi() );
 	std::cout << "h2" << std::endl;
 	
-	h1_phoE_->Fill( localPhotons[iMatch].energy() );
-	h1_phoEta_->Fill( localPhotons[iMatch].eta() );
-	h1_phoPhi_->Fill( localPhotons[iMatch].phi() );
-      }    
 
-      minDelta=10000.;
-      localPhotons.clear();
-      index=0;
-      iMatch=-1;
+	h1_corrPho_E_->Fill( localPhotons[iMatch].energy() );
+	h1_corrPho_Eta_->Fill( localPhotons[iMatch].eta() );
+	h1_corrPho_Phi_->Fill( localPhotons[iMatch].phi() );
+	h1_corrPho_R9_->Fill( localPhotons[iMatch].r9() );
+
+	h1_recEoverTrueE_ -> Fill( localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
+	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
+
+      }    
 
 
 
@@ -189,32 +190,6 @@ void
 SimplePhotonAnalyzer::endJob() {
 //========================================================================
 
-/*
-  rootFile_->cd();
-
-  h1_scE_  -> Write();
-  h1_scEt_  -> Write();
-  h1_scEta_-> Write();
-  h1_scPhi_-> Write();
-
-
-  h1_phoE_  -> Write();
-  h1_phoEta_-> Write();
-  h1_phoPhi_-> Write();
-
-  h1_recEoverTrueE_     ->  Write();
-  h1_deltaEta_ ->  Write();
-  h1_deltaPhi_ ->  Write();
-
-
-  h1_corrPho_E_->Write();
-  h1_corrPho_Eta_->Write();
-  h1_corrPho_Phi_->Write();
-  h1_corrPho_R9_->Write();
-
-
-  rootFile_->Close();
-*/
 
 
 }
