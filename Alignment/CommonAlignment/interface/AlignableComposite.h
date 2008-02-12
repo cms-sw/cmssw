@@ -16,6 +16,9 @@
 /// alignment is defined by the mechanical mounting of detectors
 /// in various structures, while the GeomDet hierarchy is
 /// optimised for pattern recognition.
+///
+/// Note that AlignableComposite owns (and deletes in its destructor)
+/// all its component which are added by addComponent. 
 
 class GeomDet;
 
@@ -23,10 +26,6 @@ class AlignableComposite : public Alignable
 {
 
 public:
-
-  /// Constructor from GeomDet
-  explicit AlignableComposite( const GeomDet* geomDet );
-
   /// Constructor for a composite with given rotation.
   /// Position is found from average of daughters' positions later.
   /// Default values for backward compatibility with MuonAlignment.
@@ -34,9 +33,11 @@ public:
 		      StructureType = align::invalid,
 		      const RotationType& = RotationType() );
 
+  /// deleting its components
   virtual ~AlignableComposite();
 
   /// Add a component and set its mother to this alignable.
+  /// (Note: The component will be adopted, e.g. later deleted.)
   /// Also find average position of this composite from its sensors' positions.
   virtual void addComponent( Alignable* component );
 
@@ -83,6 +84,9 @@ public:
   virtual AlignmentErrors* alignmentErrors() const;
 
 protected:
+  /// Constructor from GeomDet, only for use in AlignableDet
+  explicit AlignableComposite( const GeomDet* geomDet );
+
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   
 private:
