@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.11 2007/10/24 09:15:14 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.12 2008/01/09 16:35:31 speer Exp $
 //
 //
 
@@ -171,7 +171,11 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
 */
          if(     track.pt() > m_cutMinPt  &&                          // minimum pt
-                 fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
+		 // CHANGE: refer to PV
+		 //                 fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
+		 fabs(IPTools::signedTransverseImpactParameter(transientTrack, direction, *pv).second.value())
+		 < m_cutMaxTIP &&                // max transverse i.p.
+		 // end of correction
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
                  fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter, loose only to reject PU
                  track.normalizedChi2() < m_cutMaxChiSquared &&   // normalized chi2
