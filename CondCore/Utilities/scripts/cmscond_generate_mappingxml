@@ -10,7 +10,8 @@ class mappingGenerator:
         usage: %prog [options]
         -c, --classversion : the class_version to generate mapping(required)
         -d, --dictionary : dictionary ( default to classes_def.xml dir SubsystemnamePackagename )
-        -p, --path : path to classes_def.xml (default to current Subsystem/Package/src)
+        -P, --path : path to classes_def.xml (default to current Subsystem/Package/src)
+        -p, --poolcontainer : pool container name (default to classnameRcd)
         -v, --verbose: verbose mode
         -h, --help: print usage
         """
@@ -70,7 +71,6 @@ class mappingGenerator:
         parser = OptionParser()
         parser.add_option("-c","--classversion",action="store",dest="classversion",
                           help="class_version to generate mapping (required)")
-        parser.add_option("-a","--all",action="store_true",dest="all",help="process all classes in the classes_def.xml")
         parser.add_option("-P","--Path",action="store",dest="path",
                           help="path to file classes_def.xml( required )")
         parser.add_option("-p","--poolcontainer",action="store",dest="poolcontainer",
@@ -81,7 +81,6 @@ class mappingGenerator:
                           help="verbose mode")
 
         (options, args) = parser.parse_args()
-        self.__all=options.all
         self.__classversion=options.classversion
         self.__path=os.path.abspath(options.path)
         self.parseclassdefxml(self.__classversion)
@@ -100,13 +99,10 @@ class mappingGenerator:
         self.__verbose=options.verbose
         self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
         if self.__verbose is True:
-            if self.__all is True:
-                print 'processing all classes '
-                print 'process info ',self.__classversiondict
-            else:
-                print "classversion %s : " % self.__classversiondict.item[0]
-
-      
+            print "classname : %s " % self.__classname
+            print "classversion : %s " % self.__classversion
+            print "poolcontainer : %s " % self.__poolcontainer
+            
     def generate(self):
         '''create xml catalog with given input
         '''        
