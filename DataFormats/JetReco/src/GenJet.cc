@@ -1,6 +1,6 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.8 2006/12/08 21:15:11 fedor Exp $
+// $Id: GenJet.cc,v 1.9 2007/09/20 21:04:59 fedor Exp $
 
 #include <sstream>
 
@@ -30,6 +30,11 @@ GenJet::GenJet (const LorentzVector& fP4,
   : Jet (fP4, Point(0,0,0), fConstituents),
     m_specific (fSpecific)
 {}
+
+/// Detector Eta (use reference Z and jet kinematics only)
+float GenJet::detectorEta (float fZVertex) const {
+  return Jet::detectorEta (fZVertex, eta());
+}
 
 const GenParticleCandidate* GenJet::genParticle (const Candidate* fConstituent) {
   const Candidate* base = fConstituent;

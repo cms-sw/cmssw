@@ -106,6 +106,9 @@ namespace {
     edm::reftobase::RefHolder<reco::CaloJetRef> rhcj;
     edm::reftobase::RefHolder<reco::GenJetRef> rhgj;
     edm::reftobase::RefHolder<reco::PFJetRef> rhpfj;
+    edm::RefToBaseVector<reco::Jet> jrtbv;
+    edm::Wrapper<edm::RefToBaseVector<reco::Jet> > jrtbv_w;
+    edm::reftobase::BaseVectorHolder<reco::Jet> * bvhj_p;    // pointer since it's pure virtual
   }
 }
 #endif

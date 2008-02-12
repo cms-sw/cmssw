@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.15 2007/08/24 17:35:23 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.16 2007/09/20 21:04:43 fedor Exp $
  ************************************************************/
 
 
@@ -62,6 +62,9 @@ public:
   float invisibleEnergy() const {return m_specific.m_InvisibleEnergy;};
   /** Returns other energy (undecayed Sigmas etc.)*/
   float auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
+
+  /// Detector Eta (use reference Z and jet kinematics only)
+  float detectorEta (float fZVertex) const;
 
   /// convert generic constituent to specific type
   static const GenParticleCandidate* genParticle (const reco::Candidate* fConstituent);

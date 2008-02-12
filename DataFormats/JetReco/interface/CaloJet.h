@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.29 2007/08/24 17:35:23 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.30 2007/09/20 21:04:43 fedor Exp $
  ************************************************************/
 
 
@@ -116,6 +116,16 @@ class CaloJet : public Jet {
   int n90() const {return nCarrying (0.9);}
   /** Returns the number of constituents carrying a 60% of the total Jet energy*/
   int n60() const {return nCarrying (0.6);}
+
+  /// Physics Eta (use jet Z and kinematics only)
+  float physicsEtaQuick (float fZVertex) const;
+  /// Physics Eta (use jet Z and kinematics only)
+  float physicsEta (float fZVertex) const {return physicsEtaQuick (fZVertex);}
+  /// Physics p4 (use jet Z and kinematics only)
+  LorentzVector p4 (float fZVertex) const;
+  
+  /// Physics Eta (loop over constituents)
+  float physicsEtaDetailed (float fZVertex) const;
 
 
   /// convert generic constituent to specific type

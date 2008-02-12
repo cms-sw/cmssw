@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.14 2007/05/04 23:23:03 fedor Exp $
+// $Id: CaloJet.cc,v 1.15 2007/09/20 21:04:59 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -30,6 +30,33 @@ CaloJet::CaloJet (const LorentzVector& fP4,
   : Jet (fP4, Point(0,0,0), fConstituents),
     m_specific (fSpecific)
 {}
+
+
+/// Physics Eta (use reference Z and jet kinematics only)
+float CaloJet::physicsEtaQuick (float fZVertex) const {
+  return Jet::physicsEta (fZVertex, eta());
+}
+
+/// Physics Eta (loop over constituents)
+float CaloJet::physicsEtaDetailed (float fZVertex) const {
+  Jet::LorentzVector correctedMomentum;
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    const Candidate* c = towers[i];
+    double etaRef = Jet::physicsEta (fZVertex, c->eta());
+    math::PtEtaPhiMLorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->mass());
+    correctedMomentum += p4;
+  }
+  return correctedMomentum.eta();
+}
+
+  /// Physics p4 (use jet Z and kinematics only)
+CaloJet::LorentzVector CaloJet::p4 (float fZVertex) const {
+  double physicsEta = Jet::physicsEta (fZVertex, eta());
+  math::PtEtaPhiMLorentzVectorD p4 (p()/cosh(physicsEta), physicsEta, phi(), mass());
+  return CaloJet::LorentzVector (p4);
+}
+
 
 CaloTowerRef CaloJet::caloTower (const reco::Candidate* fConstituent) {
   if (fConstituent) {

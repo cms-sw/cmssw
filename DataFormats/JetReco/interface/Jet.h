@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.20 2007/08/20 17:53:30 fedor Exp $
+ * \version   $Id: Jet.h,v 1.21 2007/09/20 21:04:43 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -64,11 +64,11 @@ namespace reco {
     /// # of constituents
     virtual int nConstituents () const {return numberOfDaughters();}
 
-    /// Physics Eta (use jet Z and kinematics only)
-    virtual float physicsEtaQuick (float fZVertex) const;
+    /// static function to convert detector eta to physics eta
+    static float physicsEta (float fZVertex, float fDetectorEta);
 
-    /// Physics Eta (loop over constituents)
-    virtual float physicsEtaDetailed (float fZVertex) const;
+    /// static function to convert physics eta to detector eta
+    static float detectorEta (float fZVertex, float fPhysicsEta);
 
     /// list of constituents
     Constituents getJetConstituents () const;

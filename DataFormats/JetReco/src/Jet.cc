@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.16 2007/09/20 21:04:59 fedor Exp $
+// $Id: Jet.cc,v 1.17 2007/10/31 16:50:16 elmer Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -16,10 +16,11 @@ namespace {
   class CaloPoint {
   public:
     CaloPoint (double fZ, double fEta) {
-      const double R_BARREL = 0.5*(143.+407.); // 1/2(EBrin+HOrout) from CaloTowerHardcodeGeometryLoader
-      const double Z_ENDCAP = 0.5*(320.+568.); // 1/2(EEz+HEz)
-      const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.0) -1.); // eta=3
-      const double Z_FORWARD = 1100.+0.5*165.;
+      const double depth = 0.1; // one for all relative depth of the reference point between ECAL begin and HCAL end
+      const double R_BARREL = depth*143.+(1.-depth)*407.;
+      const double Z_ENDCAP = depth*320.+(1.-depth)*568.; // 1/2(EEz+HEz)
+      const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.) -1.); // eta=3
+      const double Z_FORWARD = 1100.+depth*165.;
       const double ETA_MAX = 5.2;
       const double Z_BIG = 1.e5;
       
@@ -219,26 +220,17 @@ float Jet::maxDistance () const {
   return result;
 }
 
-/// Physics Eta (use jet Z and kinematics only)
-float Jet::physicsEtaQuick (float fZVertex) const {
-  CaloPoint refPoint (vertex().z(), eta());
+/// static function to convert detector eta to physics eta
+float Jet::physicsEta (float fZVertex, float fDetectorEta) {
+  CaloPoint refPoint (0., fDetectorEta);
   return refPoint.etaReference (fZVertex);
 }
 
-/// Physics Eta (loop over constituents)
-float Jet::physicsEtaDetailed (float fZVertex) const {
-  Jet::LorentzVector correctedMomentum;
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
-  for (unsigned i = 0; i < towers.size(); ++i) {
-    const Candidate* c = towers[i];
-    CaloPoint refPoint (c->vertex().z(), c->eta());
-    double etaRef = refPoint.etaReference(fZVertex);
-    math::PtEtaPhiELorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->energy());
-    correctedMomentum += p4;
-  }
-  return correctedMomentum.eta();
+/// static function to convert physics eta to detector eta
+float Jet::detectorEta (float fZVertex, float fPhysicsEta) {
+  CaloPoint refPoint (fZVertex, fPhysicsEta);
+  return refPoint.etaReference (0.);
 }
-
 
 Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;
