@@ -20,7 +20,24 @@ This package contains the standard configuration fragments (*.cff) for most comm
 
 \subsection gen Generator Sequences
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/Generator.cff"> Generator.cff</a> is 
-the default configuration fragment for CMSSW Event Generation.
+the default configuration fragment for CMSSW Event Generation and Generator-level analysis tools.
+Consists of the following:
+
+- <b> pgen = { VertexSmearing & GeneInfo & genJetMET } </b>
+ - Includes modeling of the IR spread. Also includes extraction and separate storage of the 
+   generator's particles, event weights and event scale. In addition, it includes construction 
+   of jets and MET from generator-level particles.
+   Specifically, this sequence is composed of 3 (sub)sequences:
+  - <b> VertexSmearing </b> (see detailed information below, in the Additional Files)
+  - <b> GeneInfo </b> which in its turn involves underlaying components: 
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/data/genParticles.cfi">genParticles</a>,
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi">genEventWeight</a>,
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/data/genEventScale.cfi">genEventScale</a>
+  - <b> genJetMET </b> which in turn involves the following: 
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoJets/Configuration/data/GenJetParticles.cff">genJetParticles</a>,
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoJets/Configuration/data/RecoGenJets.cff">recoGenJets</a>,
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMET/Configuration/data/GenMETParticles.cff">genMETParticles</a>,
+    <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMET/Configuration/data/RecoGenMET.cff">recoGenMET</a>
 
 \subsection sim Simulation Sequences
 
@@ -28,10 +45,10 @@ the default configuration fragment for CMSSW Event Generation.
 the default configuration fragment for CMSSW Simulation. Requires setup of random seeds for all components
  in play (see below). Consists of the following:
 
-- <b> psim = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">VtxSmeared</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">g4SimHits</a> } </b>
- - Includes modeling of the IR spread (see details below) and full-scale Geant4-based simulation of particles passage 
-   through CMS detector, in the presence of the magnetic field. CMS detector description and magnetic field record are 
-   included in the configuration together with the simulation module (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimG4Core/Configuration/data/SimG4Core.cff">SimG4Core/Configuration/data/SimG4Core.cff</a>)
+- <b> psim = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">g4SimHits</a> } </b>
+ - Includes full-scale Geant4-based simulation of particles passage through CMS detector, in the presence of the magnetic field. 
+   CMS detector description and magnetic field record are included in the configuration together with the simulation module 
+   (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimG4Core/Configuration/data/SimG4Core.cff">SimG4Core/Configuration/data/SimG4Core.cff</a>)
 - <b> pdigi = { mix, doAllDigi, trackingParticles }</b>
  - Includes modeling of pileup (see details below), detector electronics responce for all detector subsystems, and
    association of generator particles and vertices with Geant4-simulated tracks and vertices.
