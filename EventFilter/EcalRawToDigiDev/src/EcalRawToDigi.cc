@@ -123,9 +123,9 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
   // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-  produces<EEDetIdCollection>("EcalEEIntegrityGainErrors");
-  produces<EEDetIdCollection>("EcalEEIntegrityGainSwitchErrors");
-  produces<EEDetIdCollection>("EcalEEIntegrityChIdErrors");
+  produces<EEDetIdCollection>("EcalIntegrityGainErrors");
+  produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors");
+  produces<EEDetIdCollection>("EcalIntegrityChIdErrors");
 
   // Integrity Errors
   produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
