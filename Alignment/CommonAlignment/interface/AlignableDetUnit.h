@@ -19,8 +19,8 @@ public:
   /// Destructor
   virtual ~AlignableDetUnit();
 
-  /// Do nothing (no components here)
-  virtual void addComponent( Alignable* ) {}
+  /// No components here => exception!
+  virtual void addComponent( Alignable* );
 
   /// Returns a null vector (no components here)
   virtual Alignables components() const { return Alignables(); }

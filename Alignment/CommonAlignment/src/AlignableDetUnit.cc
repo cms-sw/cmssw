@@ -1,10 +1,12 @@
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit(align::ID id, const AlignableSurface& surf):
@@ -17,6 +19,14 @@ AlignableDetUnit::AlignableDetUnit(align::ID id, const AlignableSurface& surf):
 //__________________________________________________________________________________________________
 AlignableDetUnit::~AlignableDetUnit() {
   delete theAlignmentPositionError;
+}
+
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::addComponent( Alignable* /*unused*/)
+{
+  throw cms::Exception("LogicError") 
+    << "AlignableDetUnit cannot have components, but try to add one!";
 }
 
 //__________________________________________________________________________________________________
