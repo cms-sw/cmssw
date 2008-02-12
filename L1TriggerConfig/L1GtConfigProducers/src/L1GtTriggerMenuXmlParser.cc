@@ -28,6 +28,9 @@
 #include <boost/cstdint.hpp>
 
 // user include files
+// base class
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 
@@ -43,7 +46,8 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // constructor
-L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() {
+L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() : L1GtXmlParserTags()
+{
     // error handler for xml-parser
     m_xmlErrHandler = 0;
 
@@ -729,124 +733,67 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
 
 }
 
-// methods for the VME file
+// FIXME remove it after new L1 Trigger Menu Editor available
+// mirrors the LUT table from GTgui format to correct bit format
+boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
+        int maxBitsLUT, int maxBitsReal)
+{
 
-/**
- * writeVmeLine Write a line of the vme bus preamble to the output file
- *
- * @param clkcond
- * @param address The address to be written.
- * @param value The value to be written.
- * @param ofs The output stream where the line is written to.
- *
- */
+    LogTrace("L1GtTriggerMenuXmlParser") << "\n maxBitsLUT (dec) = "
+            << maxBitsLUT << std::endl;
 
-void L1GtTriggerMenuXmlParser::writeVmeLine(unsigned int clkcond, unsigned long int address,
-    unsigned int value, std::ofstream& ofs) {
-
-    ofs << " "; // begin with a space
-    ofs << std::fixed << std::setprecision(1) << std::setw(5); // 1 digit after dot for Time
-    ofs << std::dec << m_vmePreambleTime;
-    ofs << "> ";
-    ofs << std::setw(1); // width 1 for clkcond
-    ofs << clkcond << " ";
-    ofs << std::setw(6); // width 6 for address
-    ofs << std::setfill('0'); // leading zeros
-    ofs << std::hex << std::uppercase << address << " "; // switch to hexadecimal uppercase and write address
-    ofs << std::setw(2); // width 2 for value
-    ofs << std::setfill(' '); // no leading zeros for value
-    ofs << value << std::dec << std::nouppercase;
-    ofs << m_vmePreambleLineRest; // write the rest
-    ofs << std::endl; // end of line
-
-    m_vmePreambleTime += m_vmePreambleTimeTick;
-}
-
-/**
- * addVmeAddress add two lines to the preamble and increase the preamble time
- *
- * @param node The node to add to the preamble.
- * @param ofs The filestream for writing out the lines.
- * @return "true" if succeeded, "false" if an error occured.
- *
- */
-
-bool L1GtTriggerMenuXmlParser::addVmeAddress(XERCES_CPP_NAMESPACE::DOMNode* node, std::ofstream& ofs) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-    std::string addrSrc = getXMLTextValue(node); // source string for the address
-    std::string binaryNumbers = "01";
-
-    unsigned int startPos = addrSrc.find_first_of(binaryNumbers);
-    unsigned int endPos = addrSrc.find_first_not_of(binaryNumbers, startPos);
-
-    if (startPos == endPos) {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No address value found." << std::endl;
-        return false;
+    boost::uint64_t newLUT = 0ULL;
+    int newBit = -1;
+    
+    int firstBin = 0;
+    int diffScale = maxBitsLUT - maxBitsReal;
+    
+    if (diffScale != 0) {
+        firstBin = 1;
     }
 
-    if (startPos < endPos - 1) {
-        endPos = endPos - 1; // the last digit is ignored
+    for (int oldBit = 0; oldBit < maxBitsLUT; ++oldBit) {
+
+        int bitValue = (oldLUT & (1 << oldBit)) >> oldBit;
+
+        newBit = maxBitsReal/2 + firstBin - oldBit - 1;
+
+        if (newBit < 0) {
+            int newVal = (maxBitsLUT/2 + std::abs(newBit) - 1 );
+            int endValid = maxBitsLUT/2 + maxBitsReal/2;
+            if ((newVal < endValid)) {
+                newBit = newVal;
+            }
+            else {
+                newBit = oldBit + (maxBitsReal - maxBitsLUT)/2;
+
+                if (newBit >= maxBitsLUT/2) {
+                    newBit = oldBit;
+                }
+            }
+        }
+
+        newLUT = newLUT | (bitValue << newBit);
+
+        LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number = " << oldBit
+                << "  new bit number = " << newBit << "\n  bit value = "
+                << bitValue << std::endl;
     }
 
-    addrSrc = addrSrc.substr(startPos, endPos - startPos);
-    char* endPtr = (char*) addrSrc.c_str(); // end pointer for conversion
-
-    if (*endPtr != 0) {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error converting binary address."
+    LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
+            << std::hex << "\n    GTgui.XML:    " << oldLUT << std::dec
+            << std::hex << "\n    Mirror:       " << newLUT << std::dec
             << std::endl;
 
-        return false;
-    }
-
-    // integer value of address
-    unsigned long int address = strtoul(addrSrc.c_str(), &endPtr, 2);
-
-    // look for the value
-
-    DOMNode* valueNode = findXMLChild(node->getFirstChild(), vmexml_value_tag);
-
-    if (valueNode == 0) {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Found no value node for address." << std::hex
-            << address << std::dec << std::endl;
-
-        return false;
-    }
-
-    std::string valueSrc = getXMLTextValue(valueNode); // source string for the value
-
-    startPos = valueSrc.find_first_of(binaryNumbers);
-    endPos = valueSrc.find_first_not_of(binaryNumbers, startPos);
-
-    if (startPos == endPos) {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No binary value found." << std::endl;
-
-        return false;
-    }
-
-    valueSrc = valueSrc.substr(startPos, endPos - startPos);
-    endPtr = (char*) valueSrc.c_str();
-
-    if (*endPtr != 0) {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error converting binary value." << std::endl;
-
-        return false;
-    }
-
-    unsigned long int value = strtoul(valueSrc.c_str(), &endPtr, 2);
-
-    writeVmeLine(1, address, value, ofs);
-    writeVmeLine(0, address, value, ofs);
-
-    return true;
-
+    return newLUT;
 }
 
+// methods for the VME file
+
+
 /**
- * parseVmeXML parse a xml file for vme bus preamble specification, 
- *     write it to a file and store the time
- *
+ * parseVmeXML parse a xml file
+ * 
  * @param parser The parser to use for parsing the file.
  *
  * @return true if succeeded, false if an error occured.
@@ -856,8 +803,6 @@ bool L1GtTriggerMenuXmlParser::addVmeAddress(XERCES_CPP_NAMESPACE::DOMNode* node
 bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser) {
 
     XERCES_CPP_NAMESPACE_USE
-
-    // simply search for address tags within the chips and write them to the file
 
     DOMDocument* doc = parser->getDocument();
     DOMNode* n1 = doc->getFirstChild();
@@ -870,27 +815,20 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
     }
 
     // find "vme"-tag
-    n1 = findXMLChild(n1, vmexml_vme_tag);
+    n1 = findXMLChild(n1, m_xmlTagVme);
     if (n1 == 0) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No vme tag found." << std::endl;
-
         return false;
     }
 
     n1 = n1->getFirstChild();
 
-    // open the file
-    std::ofstream ofs(m_vmePreambleFileName);
-
-    // reset the time
-    m_vmePreambleTime = 0.0;
-
     unsigned int chipCounter = 0; // count chips
 
     while (chipCounter < m_numberConditionChips) {
 
-        n1 = findXMLChild(n1, vmexml_condchip_tag, true);
+        n1 = findXMLChild(n1, m_xmlTagChip, true);
         if (n1 == 0) {
             // just break if no more chips found
             break;
@@ -899,40 +837,8 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
         // node for a particle
         DOMNode* particleNode = n1->getFirstChild();
 
-        DOMNode* addressNode; // an adress node
-
-        while ((particleNode = findXMLChild(particleNode, "")) != 0) {
-
-            // check if muon
-            if (getXMLAttribute(particleNode, vmexml_attr_particle) == vmexml_attr_particle_muon) {
-
-                // node for walking through a particle
-                DOMNode* walkNode = particleNode->getFirstChild();
-
-                while ((walkNode = findXMLChild(walkNode, "")) != 0) {
-                    addressNode = walkNode->getFirstChild();
-                    while ((addressNode = findXMLChild(addressNode, vmexml_address_tag)) != 0) {
-                        // LogTrace("L1GtTriggerMenuXmlParser") << getXMLTextValue(addressNode);
-                        addVmeAddress(addressNode, ofs);
-                        addressNode = addressNode->getNextSibling();
-                    }
-                    walkNode = walkNode->getNextSibling();
-                }
-
-            }
-            else { // other particles than muon just contain adress nodes
-
-                addressNode = particleNode->getFirstChild();
-                while ((addressNode = findXMLChild(addressNode, vmexml_address_tag)) != 0) {
-                    // LogTrace("L1GtTriggerMenuXmlParser") << getXMLTextValue(addressNode);
-                    addVmeAddress(addressNode, ofs);
-                    addressNode = addressNode->getNextSibling();
-                }
-            }
-
-            particleNode = particleNode->getNextSibling();
-        } // end while particle
-
+        // FIXME parse vme.xml, modify the menu
+        
         n1 = n1->getNextSibling();
         chipCounter++;
     } // end while chipCounter
@@ -1426,8 +1332,21 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
+    /// <<<<<
+    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
+    // FIXME write it correctly in the new GTgui and remove this conversion block
+
+    int maxBitsReal = 64;
+    
+    // maximum number of bits for eta range
+    int maxBitsLUT = 64;
+
+    /// >>>>>>
+    
     for (int i = 0; i < nrObj; i++) {
-        objParameter[i].etaRange = tmpValues[i];
+        
+        objParameter[i].etaRange = mirror(tmpValues[i], maxBitsLUT, maxBitsReal);
+        //objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
         //<< "      etaRange (hex) for muon " << i << " = "
@@ -1679,8 +1598,25 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
+    /// <<<<<
+    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
+    // FIXME write it correctly in the new GTgui and remove this conversion block
+
+    int maxBitsReal = 14;
+    
+    if (caloObjType == ForJet) {
+        maxBitsReal = 8;
+    }
+
+    // maximum number of bits for eta range
+    int maxBitsLUT = 16;
+
+    /// >>>>>>
+    
     for (int i = 0; i < nrObj; i++) {
-        objParameter[i].etaRange = tmpValues[i];
+        
+        objParameter[i].etaRange = static_cast<unsigned int> (mirror(tmpValues[i], maxBitsLUT, maxBitsReal));
+        //objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
         //<< "      etaRange (hex) for calo object " << i << " = "
@@ -2556,87 +2492,3 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
 
 // static class members
 
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagDef("def");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagChip("condition_chip_");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagConditions("conditions");
-// see parseAlgorithms note for "prealgos"
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagAlgorithms("prealgos");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrCondition("condition");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObject("particle");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType("type");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionMuon("muon");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionCalo("calo");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionEnergySum("esums");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionJetCounts("jet_cnts");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectMu("muon");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectNoIsoEG("eg");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectIsoEG("ieg");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectCenJet("jet");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectForJet("fwdjet");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectTauJet("tau");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectETM("etm");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectETT("ett");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectHTT("htt");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectJetCounts("jet_cnts");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType1s("1_s");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2s("2_s");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2wsc("2_wsc");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2cor("2_cor");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType3s("3");
-const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType4s("4");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrMode("mode");
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrModeBit("bit");
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrMax("max");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrNr("nr");
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrPin("pin");
-const std::string L1GtTriggerMenuXmlParser::m_xmlAttrPinA("a");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagPtHighThreshold("pt_h_threshold");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagPtLowThreshold("pt_l_threshold");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagQuality("quality");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagEta("eta");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhi("phi");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhiHigh("phi_h");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhiLow("phi_l");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagChargeCorrelation("charge_correlation");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnableMip("en_mip");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnableIso("en_iso");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagRequestIso("request_iso");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagDeltaEta("delta_eta");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagDeltaPhi("delta_phi");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagEtThreshold("et_threshold");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnergyOverflow("en_overflow");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagCountThreshold("et_threshold");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagCountOverflow("en_overflow");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagOutput("output");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagOutputPin("output_pin");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagGEq("ge_eq");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagValue("value");
-
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagChipDef("chip_def");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagChip1("chip_1");
-const std::string L1GtTriggerMenuXmlParser::m_xmlTagCa("ca");
-
-//vmexml std::strings
-const std::string L1GtTriggerMenuXmlParser::vmexml_vme_tag("vme");
-const std::string L1GtTriggerMenuXmlParser::vmexml_condchip_tag("cond_chip_");
-const std::string L1GtTriggerMenuXmlParser::vmexml_address_tag("address");
-const std::string L1GtTriggerMenuXmlParser::vmexml_value_tag("value");
-
-const std::string L1GtTriggerMenuXmlParser::vmexml_attr_particle("particle");
-const std::string L1GtTriggerMenuXmlParser::vmexml_attr_particle_muon("muon");
-
-const char L1GtTriggerMenuXmlParser::m_vmePreambleFileName[] = "testxxoo3.data";
-const double L1GtTriggerMenuXmlParser::m_vmePreambleTimeTick = 12.5;
-const char
-    L1GtTriggerMenuXmlParser::m_vmePreambleLineRest[] =
-        " 3 00000 00000 00000 00000 00000 00000 00000 00000 0000000 0000000 = XXXXXXXXXXXXXX XXXXXXXXXXXXXX";

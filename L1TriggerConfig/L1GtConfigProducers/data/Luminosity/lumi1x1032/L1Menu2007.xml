@@ -101,9 +101,9 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
       <L1_TripleTauJet40>TripleTauJet40<output_pin nr="20" pin="b"/>
         <output_pin nr="17" pin="a"/>
       </L1_TripleTauJet40>
-      <L1_QuadJet30>QuadCenJet30 OR QuadForJet30 OR QuadTauJet30 OR (TripleCenJet30 AND (SingleForJet30_1 OR SingleTauJet30_2)) OR (TripleForJet30 AND (SingleCenJet30_1 OR SingleTauJet30_2)) OR (TripleTauJet30 AND (SingleCenJet30_1 OR SingleForJet30_1)) OR (DoubleCenJet30 AND DoubleForJet30) OR (DoubleCenJet30 AND DoubleTauJet30_1) OR (DoubleForJet30 AND DoubleTauJet30_1) OR (DoubleCenJet30 AND SingleForJet30_1 AND SingleTauJet30_2) OR (DoubleForJet30 AND SingleCenJet30_1 AND SingleTauJet30_2) OR (DoubleTauJet30_1 AND SingleCenJet30_1 AND SingleForJet30_1)<output_pin nr="17" pin="b"/>
+      <L1_QuadJet40>QuadCenJet40 OR QuadForJet40 OR QuadTauJet40 OR (TripleCenJet40 AND (SingleForJet40_x1 OR SingleTauJet40_x2)) OR (TripleForJet40 AND (SingleCenJet40_x1 OR SingleTauJet40_x2)) OR (TripleTauJet40_x1 AND (SingleCenJet40_x1 OR SingleForJet40_x1)) OR (DoubleCenJet40_x1 AND DoubleForJet40) OR (DoubleCenJet40_x1 AND DoubleTauJet40_x4) OR (DoubleForJet40 AND DoubleTauJet40_x4) OR (DoubleCenJet40_x1 AND SingleForJet40_x1 AND SingleTauJet40_x2) OR (DoubleForJet40 AND SingleCenJet40_x1 AND SingleTauJet40_x2) OR (DoubleTauJet40_x4 AND SingleCenJet40_x1 AND SingleForJet40_x1)<output_pin nr="17" pin="b"/>
         <output_pin nr="18" pin="a"/>
-      </L1_QuadJet30>
+      </L1_QuadJet40>
       <L1_MinBias_HTT10>HTT10<output_pin nr="18" pin="b"/>
         <output_pin nr="19" pin="a"/>
       </L1_MinBias_HTT10>
@@ -161,22 +161,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleTauJet60_x1>
-      <DoubleCenJet30 condition="calo" particle="jet" type="2_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </DoubleCenJet30>
       <SingleForJet70_1 condition="calo" particle="fwdjet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -203,19 +187,22 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleCenJet40>
-      <SingleCenJet30_1 condition="calo" particle="jet" type="1_s">
+      <DoubleCenJet40_x1 condition="calo" particle="jet" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
+          <value>0f</value>
+          <value>0f</value>
         </et_threshold>
         <eta max="7ffe" min="0000">
+          <value>7ffe</value>
           <value>7ffe</value>
         </eta>
         <phi max="3ffff" min="00000">
           <value>3ffff</value>
+          <value>3ffff</value>
         </phi>
         <location>A0</location>
-      </SingleCenJet30_1>
+      </DoubleCenJet40_x1>
       <DoubleNoIsoEG10_5 condition="calo" particle="eg" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -580,6 +567,19 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleTauJet40_x4>
+      <SingleTauJet40_x2 condition="calo" particle="tau" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleTauJet40_x2>
       <DoubleTauJet60 condition="calo" particle="tau" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -596,6 +596,19 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleTauJet60>
+      <SingleForJet40_x1 condition="calo" particle="fwdjet" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleForJet40_x1>
       <DoubleIsoEG15_2 condition="calo" particle="ieg" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -827,19 +840,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </TripleIsoEG5>
-      <SingleTauJet30_2 condition="calo" particle="tau" type="1_s">
+      <QuadForJet40 condition="calo" particle="fwdjet" type="4">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
         </et_threshold>
         <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
           <value>7ffe</value>
         </eta>
         <phi max="3ffff" min="00000">
           <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
         </phi>
         <location>A0</location>
-      </SingleTauJet30_2>
+      </QuadForJet40>
       <SingleForJet60 condition="calo" particle="fwdjet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1005,28 +1027,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleCenJet50_1>
-      <QuadForJet30 condition="calo" particle="fwdjet" type="4">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </QuadForJet30>
       <SingleIsoEG5_2 condition="calo" particle="ieg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1040,28 +1040,22 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleIsoEG5_2>
-      <TripleTauJet30 condition="calo" particle="tau" type="4">
+      <DoubleTauJet40_x4 condition="calo" particle="tau" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>00</value>
+          <value>0f</value>
+          <value>0f</value>
         </et_threshold>
         <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
           <value>7ffe</value>
           <value>7ffe</value>
         </eta>
         <phi max="3ffff" min="00000">
           <value>3ffff</value>
           <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
         </phi>
         <location>A0</location>
-      </TripleTauJet30>
+      </DoubleTauJet40_x4>
       <DoubleTauJet40_x3 condition="calo" particle="tau" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1078,19 +1072,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleTauJet40_x3>
-      <SingleForJet30_1 condition="calo" particle="fwdjet" type="1_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </SingleForJet30_1>
       <TripleForJet50 condition="calo" particle="fwdjet" type="4">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1207,6 +1188,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleIsoEG10_4>
+      <TripleForJet40 condition="calo" particle="fwdjet" type="4">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>00</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </TripleForJet40>
       <ETM20_5 condition="esums" particle="etm" type="etm">
         <et_threshold max="fff" min="000">
           <ge_eq mode="bit">1</ge_eq>
@@ -1288,6 +1291,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleIsoEG10_1>
+      <TripleTauJet40_x1 condition="calo" particle="tau" type="4">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>00</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </TripleTauJet40_x1>
       <SingleNoIsoEG5_1 condition="calo" particle="eg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1356,28 +1381,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleTauJet30_x2>
-      <TripleForJet30 condition="calo" particle="fwdjet" type="4">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>00</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </TripleForJet30>
       <SingleNoIsoEG10_8 condition="calo" particle="eg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1873,6 +1876,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleForJet100>
+      <QuadCenJet40 condition="calo" particle="jet" type="4">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </QuadCenJet40>
       <DoubleNoIsoEG5 condition="calo" particle="eg" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1889,6 +1914,22 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleNoIsoEG5>
+      <DoubleForJet40 condition="calo" particle="fwdjet" type="2_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </DoubleForJet40>
       <SingleCenJet70_1 condition="calo" particle="jet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -1902,28 +1943,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleCenJet70_1>
-      <QuadCenJet30 condition="calo" particle="jet" type="4">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </QuadCenJet30>
       <ETM50_x2 condition="esums" particle="etm" type="etm">
         <et_threshold max="fff" min="000">
           <ge_eq mode="bit">1</ge_eq>
@@ -1935,22 +1954,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </ETM50_x2>
-      <DoubleForJet30 condition="calo" particle="fwdjet" type="2_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </DoubleForJet30>
       <ETM50_x1 condition="esums" particle="etm" type="etm">
         <et_threshold max="fff" min="000">
           <ge_eq mode="bit">1</ge_eq>
@@ -2153,6 +2156,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleCenJet30_pEta_x1>
+      <TripleCenJet40 condition="calo" particle="jet" type="4">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>00</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </TripleCenJet40>
       <Dummy condition="esums" particle="htt" type="htt">
         <et_threshold max="fff" min="000">
           <ge_eq mode="bit">1</ge_eq>
@@ -2190,6 +2215,19 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleIsoEG10_18>
+      <SingleCenJet40_x1 condition="calo" particle="jet" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleCenJet40_x1>
       <JetCounts2 condition="jet_cnts" particle="jet_cnts" type="2">
         <et_threshold max="1f" min="00">
           <ge_eq mode="bit">0</ge_eq>
@@ -2197,28 +2235,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </et_threshold>
         <location>A0</location>
       </JetCounts2>
-      <TripleCenJet30 condition="calo" particle="jet" type="4">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>00</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </TripleCenJet30>
       <SingleIsoEG15_3 condition="calo" particle="ieg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -2363,22 +2379,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </DoubleCenJet60>
-      <DoubleTauJet30_1 condition="calo" particle="tau" type="2_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </DoubleTauJet30_1>
       <SingleCenJet100_1 condition="calo" particle="jet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -2392,6 +2392,28 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleCenJet100_1>
+      <QuadTauJet40 condition="calo" particle="tau" type="4">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+          <value>0f</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </QuadTauJet40>
       <HTT200_10 condition="esums" particle="htt" type="htt">
         <et_threshold max="fff" min="000">
           <ge_eq mode="bit">1</ge_eq>
@@ -2442,28 +2464,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleTauJet70_1>
-      <QuadTauJet30 condition="calo" particle="tau" type="4">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-          <value>0b</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </QuadTauJet30>
       <DoubleCenJet40 condition="calo" particle="jet" type="2_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -2629,9 +2629,9 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
       <L1_ETM20>ETM20<output_pin nr="44" pin="b"/>
         <output_pin nr="44" pin="a"/>
       </L1_ETM20>
-      <L1_ETM30>ETM30<output_pin nr="45" pin="b"/>
+      <L1_ETM45>ETM45<output_pin nr="45" pin="b"/>
         <output_pin nr="45" pin="a"/>
-      </L1_ETM30>
+      </L1_ETM45>
       <L1_ETM40>ETM40<output_pin nr="46" pin="b"/>
         <output_pin nr="46" pin="a"/>
       </L1_ETM40>
@@ -5519,6 +5519,17 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleTauJet70_3>
+      <ETM45 condition="esums" particle="etm" type="etm">
+        <et_threshold max="fff" min="000">
+          <ge_eq mode="bit">1</ge_eq>
+          <en_overflow mode="bit">0</en_overflow>
+          <value>05a</value>
+        </et_threshold>
+        <phi max="ffffffffffffffffff" min="000000000000000000">
+          <value>ffffffffffffffffff</value>
+        </phi>
+        <location>A0</location>
+      </ETM45>
       <SingleTauJet70_2 condition="calo" particle="tau" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -5616,17 +5627,6 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
         </phi>
         <location>A0</location>
       </SingleNoIsoEG12_4>
-      <ETM30 condition="esums" particle="etm" type="etm">
-        <et_threshold max="fff" min="000">
-          <ge_eq mode="bit">1</ge_eq>
-          <en_overflow mode="bit">0</en_overflow>
-          <value>03c</value>
-        </et_threshold>
-        <phi max="ffffffffffffffffff" min="000000000000000000">
-          <value>ffffffffffffffffff</value>
-        </phi>
-        <location>A0</location>
-      </ETM30>
       <SingleNoIsoEG12_3 condition="calo" particle="eg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>

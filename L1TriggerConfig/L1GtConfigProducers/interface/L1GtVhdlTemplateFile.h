@@ -86,6 +86,12 @@ class L1GtVhdlTemplateFile
 		bool split(const std::string &param, std::vector<std::string> &result);
 		/// extracts all conditions from a algorithm
 		void getConditionsFromAlgo(std::string condString, std::vector<std::string> &result);
+		
+		/// FIXME
+		std::string lines2String();
+		
+		std::vector<std::string> returnLinesVec();
+		
 
 };
 #endif											  /*L1GtConfigProducers_L1GtVhdlTemplateFile_h*/

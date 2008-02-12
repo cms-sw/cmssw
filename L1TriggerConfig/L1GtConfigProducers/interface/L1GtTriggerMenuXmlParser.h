@@ -29,6 +29,9 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
 // user include files
+// base class
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 
@@ -37,7 +40,7 @@ class L1GtCondition;
 class L1GtAlgorithm;
 
 // class declaration
-class L1GtTriggerMenuXmlParser
+class L1GtTriggerMenuXmlParser : public L1GtXmlParserTags
 {
 
 public:
@@ -168,22 +171,17 @@ private:
 
     /// shutdown the xml utils and deallocate parser and error handler
     void cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+    
+    /// FIXME remove it after new L1 Trigger Menu Editor available
+    /// mirrors the LUT table from GTgui format to correct bit format
+    boost::uint64_t mirror(const boost::uint64_t oldLUT, int maxBitsLUT, int maxBitsReal);
 
 private:
 
     // methods for the VME file
 
-    /// write a vme line
-    void writeVmeLine(unsigned int clkcond, unsigned long int address,
-                      unsigned int value, std::ofstream& ofs);
-
-    /// add two lines to the preamble
-    bool addVmeAddress(XERCES_CPP_NAMESPACE::DOMNode* node, std::ofstream& ofs);
-
-    /// parse the vme bus preamble xml file, write the preamble file and store the time
+    /// parse the vme xml file
     bool parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-
-
 
 private:
 
@@ -258,9 +256,6 @@ private:
     /// error handler for xml-parser
     XERCES_CPP_NAMESPACE::ErrorHandler* m_xmlErrHandler;
 
-    /// time for the vme bus preamble
-    double m_vmePreambleTime;
-
     /// hardware limits
 
     /// number of condition chips
@@ -292,96 +287,6 @@ private:
     /// map containing the algorithms (global map)
     AlgorithmMap m_algorithmMap;
 
-private:
-
-    // strings for the def.xml-syntax
-    static const std::string m_xmlTagDef;
-    static const std::string m_xmlTagChip;
-    static const std::string m_xmlTagConditions;
-    static const std::string m_xmlTagAlgorithms;
-
-    static const std::string m_xmlConditionAttrCondition;
-    static const std::string m_xmlConditionAttrObject;
-    static const std::string m_xmlConditionAttrType;
-    static const std::string m_xmlConditionAttrConditionMuon;
-    static const std::string m_xmlConditionAttrConditionCalo;
-    static const std::string m_xmlConditionAttrConditionEnergySum;
-    static const std::string m_xmlConditionAttrConditionJetCounts;
-
-    static const std::string m_xmlConditionAttrObjectMu;
-    static const std::string m_xmlConditionAttrObjectNoIsoEG;
-    static const std::string m_xmlConditionAttrObjectIsoEG;
-    static const std::string m_xmlConditionAttrObjectCenJet;
-    static const std::string m_xmlConditionAttrObjectForJet;
-    static const std::string m_xmlConditionAttrObjectTauJet;
-    static const std::string m_xmlConditionAttrObjectETM;
-    static const std::string m_xmlConditionAttrObjectETT;
-    static const std::string m_xmlConditionAttrObjectHTT;
-    static const std::string m_xmlConditionAttrObjectJetCounts;
-
-    static const std::string m_xmlConditionAttrType1s;
-    static const std::string m_xmlConditionAttrType2s;
-    static const std::string m_xmlConditionAttrType2wsc;
-    static const std::string m_xmlConditionAttrType2cor;
-    static const std::string m_xmlConditionAttrType3s;
-    static const std::string m_xmlConditionAttrType4s;
-
-
-    static const std::string m_xmlAttrMode;
-    static const std::string m_xmlAttrModeBit;
-    static const std::string m_xmlAttrMax;
-
-    static const std::string m_xmlAttrNr;
-    static const std::string m_xmlAttrPin;
-    static const std::string m_xmlAttrPinA;
-
-    static const std::string m_xmlTagPtHighThreshold;
-    static const std::string m_xmlTagPtLowThreshold;
-    static const std::string m_xmlTagQuality;
-    static const std::string m_xmlTagEta;
-    static const std::string m_xmlTagPhi;
-    static const std::string m_xmlTagPhiHigh;
-    static const std::string m_xmlTagPhiLow;
-    static const std::string m_xmlTagChargeCorrelation;
-    static const std::string m_xmlTagEnableMip;
-    static const std::string m_xmlTagEnableIso;
-    static const std::string m_xmlTagRequestIso;
-    static const std::string m_xmlTagDeltaEta;
-    static const std::string m_xmlTagDeltaPhi;
-
-    static const std::string m_xmlTagEtThreshold;
-    static const std::string m_xmlTagEnergyOverflow;
-
-    static const std::string m_xmlTagCountThreshold;
-    static const std::string m_xmlTagCountOverflow;
-
-    static const std::string m_xmlTagOutput;
-    static const std::string m_xmlTagOutputPin;
-
-    static const std::string m_xmlTagGEq;
-    static const std::string m_xmlTagValue;
-
-    static const std::string m_xmlTagChipDef;
-    static const std::string m_xmlTagChip1;
-    static const std::string m_xmlTagCa;
-
-    // strings for the vme bus xml file syntax
-    static const std::string vmexml_vme_tag;
-    static const std::string vmexml_condchip_tag;
-    static const std::string vmexml_address_tag;
-    static const std::string vmexml_value_tag;
-
-    static const std::string vmexml_attr_particle;
-    static const std::string vmexml_attr_particle_muon;
-
-    // name of the file to write the vme bus preamble
-    static const char m_vmePreambleFileName[];
-
-    // time for one line
-    static const double m_vmePreambleTimeTick;
-
-    // the rest of a line in the preamble
-    static const char m_vmePreambleLineRest[];
 
 };
 
