@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.2 2007/02/25 16:29:55 nancy Exp $ 
- **  $Date: 2007/02/25 16:29:55 $ 
- **  $Revision: 1.2 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.3 2007/03/26 22:30:12 nancy Exp $ 
+ **  $Date: 2007/03/26 22:30:12 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -24,8 +24,9 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
-
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -49,19 +50,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   int nEvt_;
   
 
-  std::string OutInTrackCandidateBarrelCollection_;
-  std::string InOutTrackCandidateBarrelCollection_;
-
-  std::string OutInTrackCandidateEndcapCollection_;
-  std::string InOutTrackCandidateEndcapCollection_;
+  std::string OutInTrackCandidateCollection_;
+  std::string InOutTrackCandidateCollection_;
 
 
-  std::string OutInTrackSuperClusterBarrelAssociationCollection_;
-  std::string InOutTrackSuperClusterBarrelAssociationCollection_;
-  std::string OutInTrackSuperClusterEndcapAssociationCollection_;
-  std::string InOutTrackSuperClusterEndcapAssociationCollection_;
-
-
+  std::string OutInTrackSuperClusterAssociationCollection_;
+  std::string InOutTrackSuperClusterAssociationCollection_;
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;
@@ -87,6 +81,17 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
  
   
   bool isInitialized;
+
+
+  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForOutIn;  
+  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForInOut;  
+  
+  void buildCollections( const edm::Handle<reco::SuperClusterCollection> & scHandle,
+			 const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+			 TrackCandidateCollection& outInTracks,
+			 TrackCandidateCollection& inOutTracks,
+			 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecOI,
+			 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecIO);
 
 
 };
