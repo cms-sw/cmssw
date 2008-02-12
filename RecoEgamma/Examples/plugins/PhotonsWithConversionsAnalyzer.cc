@@ -49,9 +49,7 @@ using namespace std;
 
  
 PhotonsWithConversionsAnalyzer::PhotonsWithConversionsAnalyzer( const edm::ParameterSet& pset )
-   : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
-     fOutputFile_(0)
-{
+  {
 
   photonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");
   photonCollection_ = pset.getParameter<std::string>("photonCollection");
@@ -81,7 +79,7 @@ void PhotonsWithConversionsAnalyzer::beginJob( const edm::EventSetup& setup)
 
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 
-  //  fOutputFile_   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
+
 
   edm::Service<TFileService> fs;
 
