@@ -296,17 +296,17 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (muon->isEnergyValid()) {
          //EM
-         if (fabs(muon->track().get()->eta()) > 1.479)
+         if (fabs(muon->eta()) > 1.479)
             hEnergyEMEndcap->Fill(muon->calEnergy().em);
          else
             hEnergyEMBarrel->Fill(muon->calEnergy().em);
          //HAD
-         if (fabs(muon->track().get()->eta()) > 1.4)
+         if (fabs(muon->eta()) > 1.4)
             hEnergyHAEndcap->Fill(muon->calEnergy().had);
          else
             hEnergyHABarrel->Fill(muon->calEnergy().had);
          //HO
-         if (fabs(muon->track().get()->eta()) < 1.26)
+         if (fabs(muon->eta()) < 1.26)
             hEnergyHO->Fill(muon->calEnergy().ho);
       }
 
