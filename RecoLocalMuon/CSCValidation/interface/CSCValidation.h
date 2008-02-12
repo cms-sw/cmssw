@@ -70,6 +70,15 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
+#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
+#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
+#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
+#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
+
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "TVector3.h"
@@ -110,11 +119,37 @@ private:
 
   // some useful functions
   float FitX(HepMatrix sp, HepMatrix ep);
+  HepMatrix GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
 
   // counter
   int nEventsAnalyzed;
 
   // my histograms
+  TH1F *hCalibGainsS;
+  TH1F *hCalibGainsI;
+  TH1F *hCalibGainsChi2;
+  TH1F *hCalibXtalkSL;
+  TH1F *hCalibXtalkSR;
+  TH1F *hCalibXtalkIL;
+  TH1F *hCalibXtalkIR;
+  TH1F *hCalibXtalkChi2L;
+  TH1F *hCalibXtalkChi2R;
+  TH1F *hCalibPedsP;
+  TH1F *hCalibPedsR;
+  TH1F *hCalibNoise33;
+  TH1F *hCalibNoise34;
+  TH1F *hCalibNoise35;
+  TH1F *hCalibNoise44;
+  TH1F *hCalibNoise45;
+  TH1F *hCalibNoise46;
+  TH1F *hCalibNoise55;
+  TH1F *hCalibNoise56;
+  TH1F *hCalibNoise57;
+  TH1F *hCalibNoise66;
+  TH1F *hCalibNoise67;
+  TH1F *hCalibNoise77;
+
+
   TH1F *hWireAll;
   TH1F *hWireTBinAll;
   TH1F *hWirenGroupsTotal;

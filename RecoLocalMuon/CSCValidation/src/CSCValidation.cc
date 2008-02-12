@@ -37,11 +37,40 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   theFile->mkdir("Digis");
   theFile->mkdir("recHits");
   theFile->mkdir("Segments");
+  theFile->mkdir("Calib");
   theFile->cd();
 
   // Book the histograms
 
   printf("\n\n\n==book my histograms====\n\n\n");
+
+  // calib
+  hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",217728,0,217728);
+  hCalibGainsI = new TH1F("hCalibGainsI","Gains Intercept",217728,0,217728);
+  hCalibGainsChi2 = new TH1F("hCalibGainsChi2","Gains Chi2",217728,0,217728);
+  hCalibXtalkSL = new TH1F("hCalibXtalkSL","Xtalk Slope Left",217728,0,217728);
+  hCalibXtalkSR = new TH1F("hCalibXtalkSR","Xtalk Slope Right",217728,0,217728);
+  hCalibXtalkIL = new TH1F("hCalibXtalkIL","Xtalk Intercept Left",217728,0,217728);
+  hCalibXtalkIR = new TH1F("hCalibXtalkIR","Xtalk Intercept Right",217728,0,217728);
+  hCalibXtalkChi2L = new TH1F("hCalibXtalkChi2L","Xtalk Chi2 Left",217728,0,217728);
+  hCalibXtalkChi2R = new TH1F("hCalibXtalkChi2R","Xtalk Chi2 Right",217728,0,217728);
+  hCalibPedsP = new TH1F("hCalibPedsP","Peds",217728,0,217728);
+  hCalibPedsR = new TH1F("hCalibPedsR","Peds RMS",217728,0,217728);
+  hCalibNoise33 = new TH1F("hCalibNoise33","Noise Matrix 33",217728,0,217728);
+  hCalibNoise34 = new TH1F("hCalibNoise34","Noise Matrix 34",217728,0,217728);
+  hCalibNoise35 = new TH1F("hCalibNoise35","Noise Matrix 35",217728,0,217728);
+  hCalibNoise44 = new TH1F("hCalibNoise44","Noise Matrix 44",217728,0,217728);
+  hCalibNoise45 = new TH1F("hCalibNoise45","Noise Matrix 45",217728,0,217728);
+  hCalibNoise46 = new TH1F("hCalibNoise46","Noise Matrix 46",217728,0,217728);
+  hCalibNoise55 = new TH1F("hCalibNoise55","Noise Matrix 55",217728,0,217728);
+  hCalibNoise56 = new TH1F("hCalibNoise56","Noise Matrix 56",217728,0,217728);
+  hCalibNoise57 = new TH1F("hCalibNoise57","Noise Matrix 57",217728,0,217728);
+  hCalibNoise66 = new TH1F("hCalibNoise66","Noise Matrix 66",217728,0,217728);
+  hCalibNoise67 = new TH1F("hCalibNoise67","Noise Matrix 67",217728,0,217728);
+  hCalibNoise77 = new TH1F("hCalibNoise77","Noise Matrix 77",217728,0,217728);
+
+
+
 
   // wire digis
   hWireAll  = new TH1F("hWireAll","all wire group numbers",121,-0.5,120.5);
@@ -159,6 +188,33 @@ CSCValidation::~CSCValidation(){
 
   // Write the histos to file
 
+  theFile->cd();
+
+  // calib
+  theFile->cd("Calib");
+  hCalibGainsS->Write();
+  hCalibGainsI->Write();
+  hCalibGainsChi2->Write();
+  hCalibXtalkSL->Write();
+  hCalibXtalkSR->Write();
+  hCalibXtalkIL->Write();
+  hCalibXtalkIR->Write();
+  hCalibXtalkChi2L->Write();
+  hCalibXtalkChi2R->Write();
+  hCalibPedsP->Write();
+  hCalibPedsR->Write();
+  hCalibNoise33->Write();
+  hCalibNoise34->Write();
+  hCalibNoise35->Write();
+  hCalibNoise44->Write();
+  hCalibNoise45->Write();
+  hCalibNoise46->Write();
+  hCalibNoise55->Write();
+  hCalibNoise56->Write();
+  hCalibNoise57->Write();
+  hCalibNoise66->Write();
+  hCalibNoise67->Write();
+  hCalibNoise77->Write();
   theFile->cd();
 
   // wire digis
@@ -323,9 +379,69 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // ==============================================
   //
+  // look at Calibrations
+  //
+  // ==============================================
+
+  // Only do this for the first event
+  if (nEventsAnalyzed == 1){
+    // get the gains
+    edm::ESHandle<CSCDBGains> hGains;
+    eventSetup.get<CSCDBGainsRcd>().get( hGains );
+    const CSCDBGains* pGains = hGains.product();
+    // get the crosstalks
+    edm::ESHandle<CSCDBCrosstalk> hCrosstalk;
+    eventSetup.get<CSCDBCrosstalkRcd>().get( hCrosstalk );
+    const CSCDBCrosstalk* pCrosstalk = hCrosstalk.product();
+    // get the noise matrix
+    edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
+    eventSetup.get<CSCDBNoiseMatrixRcd>().get( hNoiseMatrix );
+    const CSCDBNoiseMatrix* pNoiseMatrix = hNoiseMatrix.product();
+    // get pedestals
+    edm::ESHandle<CSCDBPedestals> hPedestals;
+    eventSetup.get<CSCDBPedestalsRcd>().get( hPedestals );
+    const CSCDBPedestals* pPedestals = hPedestals.product();
+
+    // testing
+    for (int i = 0; i < pGains->gains.size(); i++){
+      hCalibGainsS->SetBinContent(i+1,pGains->gains[i].gain_slope);
+      hCalibGainsI->SetBinContent(i+1,pGains->gains[i].gain_intercept);
+      hCalibGainsChi2->SetBinContent(i+1,pGains->gains[i].gain_chi2);
+    }
+    for (int i = 0; i < pCrosstalk->crosstalk.size(); i++){
+      hCalibXtalkSL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_left);
+      hCalibXtalkSR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_right);
+      hCalibXtalkIL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_left);
+      hCalibXtalkIR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_right);
+      hCalibXtalkChi2L->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_left);
+      hCalibXtalkChi2R->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_right);
+    }
+    for (int i = 0; i < pPedestals->pedestals.size(); i++){
+      hCalibPedsP->SetBinContent(i+1,pPedestals->pedestals[i].ped);
+      hCalibPedsR->SetBinContent(i+1,pPedestals->pedestals[i].rms);
+    }
+    for (int i = 0; i < pNoiseMatrix->matrix.size() ; i++){
+      hCalibNoise33->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem33);
+      hCalibNoise34->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem34);
+      hCalibNoise35->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem35);
+      hCalibNoise44->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem44);
+      hCalibNoise45->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem45);
+      hCalibNoise46->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem46);
+      hCalibNoise55->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem55);
+      hCalibNoise56->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem56);
+      hCalibNoise57->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem57);
+      hCalibNoise66->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem66);
+      hCalibNoise67->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem67);
+      hCalibNoise77->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem77);
+    }  
+
+  } // end calib
+  
+  // ==============================================
+  //
   // look at DIGIs
   //
-  // ===============================================
+  // ==============================================
 
   //
   // WIRE GROUPS
@@ -490,6 +606,20 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float yyerr = rerrlocal.yy();
     float xyerr = rerrlocal.xy();
 
+    // Find the charge associated with this hit
+    CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
+    int nStrips     =  hitstrips.size();
+    int centerid    =  nStrips/2 + 1;
+    int centerStrip =  hitstrips[centerid - 1];
+    HepMatrix rHcharge = GetCharge3x3(*strips, idrec, centerStrip);    
+    float rHsumQ = rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3) +
+                   rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3) +
+                   rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3);
+    float rHratioQl = (rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3)) /
+                      (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
+    float rHratioQr = (rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3)) /
+                      (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
+
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
 
@@ -500,6 +630,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float grecz   =  rhitglobal.z();
     float grecphi =  rhitglobal.phi();
     float grecr   =  sqrt(grecx*grecx + grecy+grecy);
+
 
     if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
 
@@ -856,6 +987,96 @@ float CSCValidation::FitX(HepMatrix points, HepMatrix errors){
 
 }
 
+//---------------------------------------------------------------------------------------
+// Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
+// the 3 time bin x 3 strip charge in the form of a matrix.  The charge matrix is centered
+// on the peak charge of the center strip Will return 0's for strip if no digi is present
+// (i.e. to the left of the leftmost strip in a chamber).  Charge is ped subtracted.
+//---------------------------------------------------------------------------------------
+
+HepMatrix CSCValidation::GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+
+  float ADC[8];
+  int peakTime = -1;
+  HepMatrix bcharge(3,3);
+  bcharge(1,1) = 0;
+  bcharge(1,2) = 0;
+  bcharge(1,3) = 0;
+  bcharge(2,1) = 0;
+  bcharge(2,2) = 0;
+  bcharge(2,3) = 0;
+  bcharge(3,1) = 0;
+  bcharge(3,2) = 0;
+  bcharge(3,3) = 0;
+
+  // Loop over strip digis responsible for this recHit and sum charge
+  CSCStripDigiCollection::DigiRangeIterator sIt;
+  CSCStripDigiCollection::DigiRangeIterator sIt2;
+
+  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+    CSCDetId id = (CSCDetId)(*sIt).first;
+    if (id == idRH){
+
+      // First, find the peak charge in the center strip
+      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      for ( ; digiItr != last; ++digiItr ) {
+        int thisStrip = digiItr->getStrip();
+        if (thisStrip == (centerStrip)){
+          float diff = 0;
+          float peakADC = -1;
+          vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+            if (diff > peakADC){
+              peakADC = diff;
+              peakTime = iCount;
+            }
+          }
+          bcharge(2,1) = ADC[peakTime-1];
+          bcharge(2,2) = ADC[peakTime];
+          bcharge(2,3) = ADC[peakTime+1];
+        }
+      }
+
+      // Then get the charge on the neighboring strips
+      vector<CSCStripDigi>::const_iterator digiItr2 = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last2 = (*sIt).second.second;
+      for ( ; digiItr2 != last2; ++digiItr2 ) {
+        int thisStrip = digiItr2->getStrip();
+        if (thisStrip == (centerStrip - 1)){
+          float diff = 0;
+          vector<int> myADCVals = digiItr2->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+          }
+          bcharge(1,1) = ADC[peakTime-1];
+          bcharge(1,2) = ADC[peakTime];
+          bcharge(1,3) = ADC[peakTime+1];
+        }
+
+        if (thisStrip == (centerStrip + 1)){
+          float diff = 0;
+          vector<int> myADCVals = digiItr2->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+          }
+          bcharge(3,1) = ADC[peakTime-1];
+          bcharge(3,2) = ADC[peakTime];
+          bcharge(3,3) = ADC[peakTime+1];
+        }
+      }
+    }
+  }
+
+  return bcharge;
+}
 
 
 DEFINE_FWK_MODULE(CSCValidation);
