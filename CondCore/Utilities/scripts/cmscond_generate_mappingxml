@@ -77,7 +77,7 @@ class mappingGenerator:
         parser.add_option("-P","--Path",action="store",dest="path",
                           help="path to file classes_def.xml( required )")
         parser.add_option("-m","--mappingversion",action="store",dest="mappingversion",
-                          help="mappingversion associated with this class version(default to m00)")        
+                          help="mappingversion associated with this class version(default to basic)")        
         parser.add_option("-d","--dictionary",action="store",dest="dictionary",
                           help="dictionary(default is deduced from class_def.xml directory SubsystemNamePackageName)")
         parser.add_option("-v","--verbose",action="store_true",dest="verbose",
