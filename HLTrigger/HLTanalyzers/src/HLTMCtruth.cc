@@ -57,7 +57,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTMCtruth::analyze(const CandidateCollection& mctruth,
+void HLTMCtruth::analyze(const CandidateView& mctruth,
 			 //const HepMC::GenEvent hepmc,
 			 const double pthat,
 			 TTree* HltTree) {
