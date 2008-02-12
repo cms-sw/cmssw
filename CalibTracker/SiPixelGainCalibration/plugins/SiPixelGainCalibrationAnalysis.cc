@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.13 2008/02/08 16:23:54 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.14 2008/02/08 16:41:17 fblekman Exp $
 //
 //
 
@@ -47,7 +47,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   theGainCalibrationDbInput_(0),
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
-  theGainCalibrationDbInputService_(iConfig)
+  theGainCalibrationDbInputService_(iConfig),
+  gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(0.)
 {
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
@@ -139,9 +140,21 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
 //-----------method to fill the database
 void SiPixelGainCalibrationAnalysis::fillDatabase(){
   // only create when necessary.
-  theGainCalibrationDbInput_ = new SiPixelGainCalibration();
-  theGainCalibrationDbInputHLT_ = new SiPixelGainCalibrationForHLT();
-  theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline();
+  // process the minimum and maximum gain & ped values...
+  if(gainlow_>gainhi_){  
+    float temp=gainhi_;
+    gainhi_=gainlow_;
+    gainlow_=temp;
+  }
+  if(pedlow_>pedhi_){  
+    float temp=pedhi_;
+    pedhi_=pedlow_;
+    pedlow_=temp;
+  }
+ 
+  theGainCalibrationDbInput_ = new SiPixelGainCalibration(pedlow_,pedhi_,gainlow_,gainhi_);
+  theGainCalibrationDbInputHLT_ = new SiPixelGainCalibrationForHLT(pedlow_,pedhi_,gainlow_,gainhi_);
+  theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline(pedlow_,pedhi_,gainlow_,gainhi_);
 
   uint32_t nchannels=0;
   uint32_t nmodules=0;
@@ -326,6 +339,14 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       makehistopersistent=true;
 
     if(result==0){
+      if(slope<gainlow_)
+	gainlow_=slope;
+      if(slope>gainhi_)
+	gainhi_=slope;
+      if(intercept>pedhi_)
+	pedhi_=intercept;
+      if(intercept<pedlow_)
+	pedlow_=intercept;
       bookkeeper_[detid]["gain_1d"]->Fill(slope);
       bookkeeper_[detid]["gain_2d"]->Fill(ipix->col(),ipix->row(),slope);
       bookkeeper_[detid]["ped_1d"]->Fill(intercept);

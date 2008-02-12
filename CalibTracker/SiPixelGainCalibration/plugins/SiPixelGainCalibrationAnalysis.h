@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.8 2008/02/05 15:19:43 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.9 2008/02/08 13:49:35 fblekman Exp $
 //
 //
 
@@ -94,4 +94,9 @@ private:
   SiPixelGainCalibrationForHLT *theGainCalibrationDbInputHLT_;
   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
 
+  // keep track of lowest and highest vals for range
+  float gainlow_;
+  float gainhi_;
+  float pedlow_;
+  float pedhi_;
 };
