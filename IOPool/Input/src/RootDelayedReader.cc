@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.20 2008/02/01 20:23:14 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.21 2008/02/06 06:26:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -59,9 +59,6 @@ namespace edm {
       BranchEntryDescription* ppb = pb.get();
       br->SetAddress(&ppb);
       br->GetEntry(entryNumber_);
-      if (pb->status_ == BranchEntryDescription::CreatorNotRun) {
-	return std::auto_ptr<EntryDescription>(0);
-      }
       std::auto_ptr<EntryDescription> result = pb->convertToEntryDescription();
       EntryDescriptionRegistry::instance()->insertMapped(*result);
       br->SetAddress(0);

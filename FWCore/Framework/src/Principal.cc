@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.25 2008/02/06 19:41:22 wmtan Exp $
+  $Id: Principal.cc,v 1.26 2008/02/10 23:28:54 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -201,8 +201,6 @@ namespace edm {
     status = g->status();
     if (productstatus::onDemand(status)) {
       status = productstatus::neverCreated();
-    }
-    if (!productstatus::present(status)) {
       return BasicHandle();
     }
     return BasicHandle(g->product(), &g->provenance());

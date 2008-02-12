@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.33 2008/02/02 21:27:34 wmtan Exp $
+$Id: Group.cc,v 1.34 2008/02/10 23:27:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -71,8 +71,7 @@ namespace edm {
   bool 
   Group::provenanceAvailable() const { 
     if (onDemand()) return false;
-    if (productstatus::unknown(status())) return true;
-    return productstatus::present(status_);
+    return true;    
   }
 
   void 

@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.44 2008/02/05 22:56:42 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.45 2008/02/10 23:29:54 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -324,6 +324,7 @@ namespace edm {
     bool const fastMetaCloning = (branchType == InEvent) && currentlyFastMetaCloning_;
 
     OutputItemList const& items = outputItemList_[branchType];
+
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
@@ -340,9 +341,18 @@ namespace edm {
       BasicHandle const bh = principal.getForOutput(id, getProd, getProv);
       if (getProv) {
         if (bh.provenance() == 0) {
-	  // No product with this ID was put into the event.
-	  // Use a default constructed EntryDescription
-	  *i->entryDescriptionIDPtr_ = EntryDescription().id();
+	  // No product with this ID is in the event.
+	  // Create and write the provenance.
+	  if (i->branchDescription_->produced_) {
+	    EntryDescription entryDescription;
+	    entryDescription.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
+            EntryDescriptionRegistry::instance()->insertMapped(entryDescription);
+	    *i->entryDescriptionIDPtr_ = entryDescription.id();
+	  } else {
+	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
+	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
+	  }
         } else {
 	  product = bh.wrapper();
 	  *i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
