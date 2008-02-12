@@ -64,9 +64,11 @@ class WriterProxyT : public WriterProxy
 
 typedef edmplugin::PluginFactory<l1t::WriterProxy * ()> WriterFactory;
 
+
 // Defines new type, creates static instance of this class and register it for plugin
 #define REGISTER_L1_WRITER(record,type) \
     template class l1t::WriterProxyT<record, type>; \
+    static edm::eventsetup::heterocontainer::HCTypeTagTemplate<type, edm::eventsetup::DataKey> dummy ## _ ## record ## _ ## type ; \
     typedef l1t::WriterProxyT<record, type> record ## _ ## type ## _Writer; \
     DEFINE_EDM_PLUGIN(l1t::WriterFactory, record ## _ ## type ## _Writer, #record "@" #type "@Writer")
 
