@@ -92,7 +92,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<GenMETCollection> genmet,genmetDummy;
   edm::Handle<METCollection> ht,htDummy;
   // edm::Handle<edm::HepMCProduct> hepmcHandle;
-  edm::Handle<CandidateCollection> mctruth,mctruthDummy;
+  edm::Handle<CandidateView> mctruth,mctruthDummy;
   edm::Handle< double > genEventScale;
   edm::Handle<PixelMatchGsfElectronCollection> Electron, ElectronDummy;
   edm::Handle<PhotonCollection> Photon, PhotonDummy;
