@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.9 2008/02/01 15:23:52 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.10 2008/02/12 12:02:14 fblekman Exp $
 //
 //
 
@@ -199,8 +199,10 @@ SiPixelCalibDigiProducer::clear(){
 
   intermediate_data_.erase(intermediate_data_.begin(),intermediate_data_.end());
   intermediate_data_.clear();
-  // do not erase the error bits, just increase them...
-  
+
+  // and erase the error bits
+  error_data_.erase(error_data_.begin(), error_data_.end());
+  error_data_.clear();
 }
 
 ////////////////////////////////////////////////////
