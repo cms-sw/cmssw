@@ -20,16 +20,22 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-  colNames.push_back("ROC_NAME");//0
-  colNames.push_back("PIXFEC");//1
-  colNames.push_back("MFEC_POSN");//2
-  colNames.push_back("MFEC_CHAN");//3
-  colNames.push_back("HUB_ADDRS");//4
-  colNames.push_back("PORT_NUMBER");//5
-  colNames.push_back("ROC_POSN");//6
-  colNames.push_back("PIXFED");//7
-  colNames.push_back("FED_CHAN");//8
-  colNames.push_back("FED_ROC_NUM");//9
+  colNames.push_back("CONFIG_KEY_ID" );//0
+  colNames.push_back("CONFG_KEY"     );//1
+  colNames.push_back("VERSION"       );//2
+  colNames.push_back("KIND_OF_COND"  );//3
+  colNames.push_back("SERIAL_NUMBER" );//4
+  colNames.push_back("ROC_NAME"      );//5
+  colNames.push_back("PXLFEC_NAME"   );//6
+  colNames.push_back("MFEC_POSN"     );//7
+  colNames.push_back("MFEC_CHAN"     );//8
+  colNames.push_back("HUB_ADDRS"     );//9
+  colNames.push_back("PORT_NUM"      );//10
+  colNames.push_back("ROC_I2C_ADDR"  );//11
+  colNames.push_back("PXLFED_NAME"   );//12
+  colNames.push_back("FED_CHAN"      );//13
+  colNames.push_back("FED_ROC_NUM"   );//14
+
 
   for(unsigned int c = 0 ; c < ins.size() ; c++){
     for(unsigned int n=0; n<colNames.size(); n++){
@@ -48,19 +54,19 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
  
 
  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
-   std::string rocname       = tableMat[r][colM[colNames[0]]];//ROC_NAME
-   std::string TBMChannel = "A"; assert(0); // need to add this to the input table
-   tableMat[r][colM[colNames[1]]].erase(0 , 8);//PIXFEC
-   unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str());//"PIXFEC"
-   unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str());//"MFEC_POSN"
-   unsigned int mfecchannel  = (unsigned int)atoi(tableMat[r][colM[colNames[3]]].c_str());//"MFEC_CHAN"
-   unsigned int hubaddress   = (unsigned int)atoi(tableMat[r][colM[colNames[4]]].c_str());//"HUB_ADDRS"
-   unsigned int portaddress  = (unsigned int)atoi(tableMat[r][colM[colNames[5]]].c_str());//"PORT_NUMBER"
-   unsigned int rocid        = (unsigned int)atoi(tableMat[r][colM[colNames[6]]].c_str());//"ROC_POSN"
-   tableMat[r][colM[colNames[7]]].erase(0,7);//FED
-   unsigned int fednumber    = (unsigned int)atoi(tableMat[r][colM[colNames[7]]].c_str());//"FED"	
-   unsigned int fedchannel   = (unsigned int)atoi(tableMat[r][colM[colNames[8]]].c_str());//"FED_CHAN"
-   unsigned int fedrocnumber = (unsigned int)atoi(tableMat[r][colM[colNames[9]]].c_str());//"FED_ROC_NUM"
+   std::string rocname       = tableMat[r][colM["ROC_NAME"]] ;
+   std::string TBMChannel = "A"; // assert(0); // need to add this to the input table
+   tableMat[r][colM["PXLFEC_NAME"]].erase(0 , 8);//PIXFEC
+   unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM["PXLFEC_NAME"]].c_str());
+   unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM["MFEC_POSN"]].c_str());
+   unsigned int mfecchannel  = (unsigned int)atoi(tableMat[r][colM["MFEC_CHAN"]].c_str());
+   unsigned int hubaddress   = (unsigned int)atoi(tableMat[r][colM["HUB_ADDRS"]].c_str());
+   unsigned int portaddress  = (unsigned int)atoi(tableMat[r][colM["PORT_NUM"]].c_str());
+   unsigned int rocid	     = (unsigned int)atoi(tableMat[r][colM["ROC_I2C_ADDR"]].c_str());
+   tableMat[r][colM["PXLFED_NAME"]].erase(0,7);//FED
+   unsigned int fednumber    = (unsigned int)atoi(tableMat[r][colM["PXLFED_NAME"]].c_str());
+   unsigned int fedchannel   = (unsigned int)atoi(tableMat[r][colM["FED_CHAN"]].c_str());
+   unsigned int fedrocnumber = (unsigned int)atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str());
 	
 	
    PixelROCName aROC(rocname);

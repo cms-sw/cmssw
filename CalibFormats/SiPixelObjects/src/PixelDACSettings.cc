@@ -158,28 +158,35 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   int dacValue;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-  colNames.push_back("ROC_NAME");//0
-  colNames.push_back("DAC_NAME");//1
-  colNames.push_back("DAC_VALUE");//2
+  colNames.push_back("CONFIG_KEY_ID");//0
+  colNames.push_back("CONFG_KEY");//1
+  colNames.push_back("VERSION");//2
+  colNames.push_back("KIND_OF_COND");
+  colNames.push_back("ROC_NAME");
+  colNames.push_back("HUB_ADDRS");
+  colNames.push_back("PORT_NUMBER");
+  colNames.push_back("I2C_ADDR");
+  colNames.push_back("GEOM_ROC_NUM");
+  colNames.push_back("DAC_NAME");
+  colNames.push_back("DAC_VALUE");
 
-  
-       for(unsigned int c = 0 ; c < ins.size() ; c++){
-   for(unsigned int n=0; n<colNames.size(); n++){
-     if(tableMat[0][c] == colNames[n]){
-       colM[colNames[n]] = c;
-       break;
-     }
-   }
- }//end for
- for(unsigned int n=0; n<colNames.size(); n++){
-   if(colM.find(colNames[n]) == colM.end()){
-     std::cerr << "[PixelDACSettings::PixelDACSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-     assert(0);
-   }
- }
+  for(unsigned int c = 0 ; c < ins.size() ; c++){
+    for(unsigned int n=0; n<colNames.size(); n++){
+      if(tableMat[0][c] == colNames[n]){
+	colM[colNames[n]] = c;
+	break;
+      }
+    }
+  }//end for
+  for(unsigned int n=0; n<colNames.size(); n++){
+    if(colM.find(colNames[n]) == colM.end()){
+      std::cerr << "[PixelDACSettings::PixelDACSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      assert(0);
+    }
+  }
 
 	
-	 for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
   
    // currentRocName.str("");
     
@@ -192,11 +199,11 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
 	//	   << "_PLQ"       << tableMat[r][colM["PLAQ_POS"]]                 
 	//	   << "_ROC"       << tableMat[r][colM["ROC_POSN"]];                
 		   
-		   dacName =tableMat[r][colM[colNames[1]]];
-		   dacValue = atoi(tableMat[r][colM[colNames[2]]].c_str());
-  
-  pDSM.insert(std::pair<std::string,std::pair<std::string,int> >(tableMat[r][colM[colNames[0]]],std::pair<std::string,int>(dacName,dacValue)));
-  
+    dacName  = tableMat[r][colM["DAC_NAME"]];
+    dacValue = atoi(tableMat[r][colM["DAC_VALUE"]].c_str());
+    
+    pDSM.insert(std::pair<std::string,std::pair<std::string,int> >(tableMat[r][colM["ROC_NAME"]],std::pair<std::string,int>(dacName,dacValue)));
+    
   }//end for r
   
   dacsettings_.clear();

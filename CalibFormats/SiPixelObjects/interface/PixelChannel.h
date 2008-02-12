@@ -33,7 +33,7 @@ namespace pos{
     }
 
     private:
-    PixelModuleName module_;
+    PixelModuleName module_    ;
     PixelTBMChannel TBMChannel_;
   };
 }

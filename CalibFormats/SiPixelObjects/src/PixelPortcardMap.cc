@@ -18,9 +18,14 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-  colNames.push_back("PORTCARD_NAME");//0
-  colNames.push_back("AOH_CHAN");//1
-  colNames.push_back("PANEL_NAME");//2
+  colNames.push_back("CONFIG_KEY_ID");//0
+  colNames.push_back("CONFG_KEY");//1
+  colNames.push_back("VERSION");//2
+  colNames.push_back("KIND_OF_COND");
+  colNames.push_back("SERIAL_NUMBER");
+  colNames.push_back("PORT_CARD");
+  colNames.push_back("PANEL_NAME");
+  colNames.push_back("AOH_CHAN");
 
   for(unsigned int c = 0 ; c < ins.size() ; c++){
     for(unsigned int n=0; n<colNames.size(); n++){
@@ -46,9 +51,9 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
   
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
 
-    portcardname = tableMat[r][colM[colNames[0]]];
-    modulename =   tableMat[r][colM[colNames[2]]];
-    aohstring = tableMat[r][colM[colNames[1]]];
+    portcardname = tableMat[r][colM["PORT_CARD"]];
+    modulename =   tableMat[r][colM["PANEL_NAME"]];
+    aohstring = tableMat[r][colM["AOH_NAME"]];
     //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
     aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
     //std::cout<<aoh<<std::endl;
@@ -59,7 +64,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
       assert(0);
     }
 
-    std::string tbmChannel = "A"; assert(0); // add TBMChannel to the input, then remove assert
+    std::string tbmChannel = "A";// assert(0); // add TBMChannel to the input, then remove assert
     PixelChannel channel(module, tbmChannel);
     std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
     map_[channel] = portcardAndAOH;
