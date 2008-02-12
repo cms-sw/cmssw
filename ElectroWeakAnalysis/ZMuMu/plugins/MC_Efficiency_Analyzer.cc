@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -34,7 +35,7 @@ public:
     MuonsMap_( pset.getParameter<InputTag>( "MuonsMap" ) ),
     Tracks_( pset.getParameter<InputTag>( "Tracks" ) ),
     TracksMap_( pset.getParameter<InputTag>( "TracksMap" ) ),
-    genParticle_( pset.getParameter<InputTag>( "genParticle" ) ),
+    genParticles_( pset.getParameter<InputTag>( "genParticles" ) ),
     StandAlone_( pset.getParameter<InputTag>( "StandAlone" ) ),
     StandAloneMap_( pset.getParameter<InputTag>( "StandAloneMap" ) ),
     etacut_( pset.getParameter<double>( "etacut" ) ),
@@ -70,13 +71,13 @@ public:
     Handle<CandMatchMap> StandAloneMap;
     event.getByLabel(StandAloneMap_, StandAloneMap);
     
-    Handle<CandidateCollection> genParticle;
-    event.getByLabel(genParticle_, genParticle);
+    Handle<GenParticleCollection> genParticles;
+    event.getByLabel(genParticles_, genParticles);
 
     //Getting muons from Z MC  
-    for( size_t k = 0; k < genParticle->size(); k++ ) 
+    for( size_t k = 0; k < genParticles->size(); k++ ) 
       {
-	const Candidate & ZCand = (*genParticle)[ k ];
+	const Candidate & ZCand = (*genParticles)[ k ];
 	int status = ZCand.status(); 
 	
 	if (ZCand.pdgId()==23&& status==3 )
@@ -199,7 +200,7 @@ vector< int >::const_iterator p2;
   
 private:
   
-  InputTag zMuMu_, Muons_, MuonsMap_, Tracks_, TracksMap_, genParticle_, StandAlone_,StandAloneMap_;
+  InputTag zMuMu_, Muons_, MuonsMap_, Tracks_, TracksMap_, genParticles_, StandAlone_,StandAloneMap_;
   double etacut_, ptcut_, deltaRStacut_;
   int nMuMC, nMureco, nTrk, nSta, nNotMuMatching;
   vector<double> v_;
