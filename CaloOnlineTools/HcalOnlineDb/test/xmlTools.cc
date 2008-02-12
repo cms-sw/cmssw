@@ -684,6 +684,8 @@ int testocci( void )
 int testDB( string _tag, string _filename )
 {
 
+  cout << "DEBUG" << endl;
+
   HCALConfigDB * db = new HCALConfigDB();
   db -> connect( _filename );
 
