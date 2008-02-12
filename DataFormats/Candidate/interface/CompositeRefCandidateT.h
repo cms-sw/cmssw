@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.7 2007/11/06 15:19:22 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.8 2007/12/10 12:16:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -52,11 +52,11 @@ namespace reco {
     /// number of mothers
     virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate * daughter( size_type ) const;
+    virtual const Candidate * daughter(size_type) const;
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
-    virtual const Candidate * mother( size_type ) const;
+    virtual const Candidate * mother(size_type = 0) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate * daughter( size_type );
+    virtual Candidate * daughter(size_type);
     /// add a daughter via a reference
     void addDaughter( const typename daughters::value_type & );    
     /// add a daughter via a reference
