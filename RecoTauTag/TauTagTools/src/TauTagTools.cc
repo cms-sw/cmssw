@@ -16,6 +16,7 @@ namespace TauTagTools{
   TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
+      if(pv.isFake()) tktorefpointmaxDZ=30.;
       if ((**iTk).pt()>=tkminPt &&
 	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
@@ -46,6 +47,7 @@ namespace TauTagTools{
     return filteredPFChargedHadrCands;
   }
   PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
+    if(pv.isFake()) ChargedHadrCand_tktorefpointmaxDZ = 30.;
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
