@@ -38,7 +38,12 @@
   <class name="SiPixelFedCablingMap"/>
   <class name="std::vector<sipixelobjects::PixelFEDCabling>"/>
 
+  <class name="SiPixelPerformanceSummary"/>
+  <class name="SiPixelPerformanceSummary::DetSummary"/>
+  <class name="std::vector<SiPixelPerformanceSummary::DetSummary>"/>
+
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
+
 </lcgdict>   

@@ -37,9 +37,14 @@ std::vector< SiPixelGainCalibrationForHLT::DetRegistry >::const_iterator p6;
 std::vector< SiPixelGainCalibrationOffline::DetRegistry >::iterator p7;
 std::vector< SiPixelGainCalibrationOffline::DetRegistry >::const_iterator p8;
 
-
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 // &&& Not sure what we need for templates here.
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
+namespace{
+  std::vector<SiPixelPerformanceSummary::DetSummary>::iterator spps1;
+  std::vector<SiPixelPerformanceSummary::DetSummary>::const_iterator spps2;
+}  
+  
