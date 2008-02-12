@@ -61,29 +61,21 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   
-  OutInTrackCandidateBarrelCollection_ = conf_.getParameter<std::string>("outInTrackCandidateBarrelCollection");
-  InOutTrackCandidateBarrelCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateBarrelCollection");
+  OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
+  InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
 
-  OutInTrackCandidateEndcapCollection_ = conf_.getParameter<std::string>("outInTrackCandidateEndcapCollection");
-  InOutTrackCandidateEndcapCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateEndcapCollection");
 
-  OutInTrackSuperClusterBarrelAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCBarrelAssociationCollection");
-  InOutTrackSuperClusterBarrelAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCBarrelAssociationCollection");
+  OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
+  InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
-  OutInTrackSuperClusterEndcapAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCEndcapAssociationCollection");
-  InOutTrackSuperClusterEndcapAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCEndcapAssociationCollection");
 
   // Register the product
-  produces< TrackCandidateCollection > (OutInTrackCandidateBarrelCollection_);
-  produces< TrackCandidateCollection > (InOutTrackCandidateBarrelCollection_);
-  produces< TrackCandidateCollection > (OutInTrackCandidateEndcapCollection_);
-  produces< TrackCandidateCollection > (InOutTrackCandidateEndcapCollection_);
+  produces< TrackCandidateCollection > (OutInTrackCandidateCollection_);
+  produces< TrackCandidateCollection > (InOutTrackCandidateCollection_);
   //
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( OutInTrackSuperClusterBarrelAssociationCollection_);
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( InOutTrackSuperClusterBarrelAssociationCollection_);
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( OutInTrackSuperClusterEndcapAssociationCollection_);
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( InOutTrackSuperClusterEndcapAssociationCollection_);
-
+  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( OutInTrackSuperClusterAssociationCollection_);
+  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( InOutTrackSuperClusterAssociationCollection_);
+  
 
 }
 
@@ -143,6 +135,7 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
 }
 
 
+
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   
   using namespace edm;
@@ -160,18 +153,13 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // create empty output collections
   //
   //  Out In Track Candidates
-  std::auto_ptr<TrackCandidateCollection> outInTrackCandidateBarrel_p(new TrackCandidateCollection); 
-  std::auto_ptr<TrackCandidateCollection> outInTrackCandidateEndcap_p(new TrackCandidateCollection); 
+  std::auto_ptr<TrackCandidateCollection> outInTrackCandidate_p(new TrackCandidateCollection); 
   //  In Out  Track Candidates
-  std::auto_ptr<TrackCandidateCollection> inOutTrackCandidateBarrel_p(new TrackCandidateCollection); 
-  std::auto_ptr<TrackCandidateCollection> inOutTrackCandidateEndcap_p(new TrackCandidateCollection); 
+  std::auto_ptr<TrackCandidateCollection> inOutTrackCandidate_p(new TrackCandidateCollection); 
   //   Track Candidate  Super Cluster Association
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> outInAssocBarrel_p(new reco::TrackCandidateSuperClusterAssociationCollection);
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> inOutAssocBarrel_p(new reco::TrackCandidateSuperClusterAssociationCollection);
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> outInAssocEndcap_p(new reco::TrackCandidateSuperClusterAssociationCollection);
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> inOutAssocEndcap_p(new reco::TrackCandidateSuperClusterAssociationCollection);
-
-
+  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> outInAssoc_p(new reco::TrackCandidateSuperClusterAssociationCollection);
+  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> inOutAssoc_p(new reco::TrackCandidateSuperClusterAssociationCollection);
+ 
    
   // Get the basic cluster collection in the Barrel 
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
@@ -218,54 +206,105 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   
 
   /////////////
+  vecOfSCRefForOutIn.clear();
+  vecOfSCRefForInOut.clear();
+
+  buildCollections(scBarrelHandle, bcBarrelHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scEndcapHandle, bcEndcapHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
 
 
-  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefBarrelForOutIn;  
-  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefBarrelForInOut;  
-  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefEndcapForOutIn;  
-  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefEndcapForInOut;  
+
+
+  LogDebug("ConversionTrackCandidateProducer")  << "  ConversionTrackCandidateProducer vecOfSCRefForOutIn size " << vecOfSCRefForOutIn.size() << " vecOfSCRefForInOut size " << vecOfSCRefForInOut.size()  << "\n"; 
   
+
+
+  // put all products in the event
+ // Barrel
+ LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidate_p).size() << " Out In track Candidates " << "\n";
+ edm::LogInfo("ConversionTrackCandidateProducer") << "Number of outInTrackCandidates: " <<  (*outInTrackCandidate_p).size() << "\n";
+ const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackC = theEvent.put( outInTrackCandidate_p, OutInTrackCandidateCollection_ );
+ LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
+ //
+ LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
+ edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidate_p).size() << "\n";
+ const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put( inOutTrackCandidate_p, InOutTrackCandidateCollection_ );
+ LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
   
+
+ LogDebug("ConversionTrackCandidateProducer") << " ConversionTrackCandidateProduce Going to fill association maps  " <<  "\n";
+ for (unsigned int i=0;i< vecOfSCRefForOutIn.size(); ++i) {
+   outInAssoc_p->insert(edm::Ref<TrackCandidateCollection>(refprodOutInTrackC,i), vecOfSCRefForOutIn[i]  );
+ }
+ for (unsigned int i=0;i< vecOfSCRefForInOut.size(); ++i) {
+   inOutAssoc_p->insert(edm::Ref<TrackCandidateCollection>(refprodInOutTrackC,i), vecOfSCRefForInOut[i]  );
+ }
+ 
+
+  
+ LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC association: size  " <<  (*outInAssoc_p).size() << "\n";  
+ theEvent.put( outInAssoc_p, OutInTrackSuperClusterAssociationCollection_);
+ 
+ LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC association: size  " <<  (*inOutAssoc_p).size() << "\n";  
+ theEvent.put( inOutAssoc_p, InOutTrackSuperClusterAssociationCollection_);
+
+
+  
+}
+
+
+void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco::SuperClusterCollection> & scHandle,
+                                                         const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+							 TrackCandidateCollection& outInTrackCandidates,
+							 TrackCandidateCollection& inOutTrackCandidates,
+							 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecOI,
+							 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecIO)
+
+{
+
+
   //  Loop over SC in the barrel and reconstruct converted photons
-  int iSC=0; // index in product collection
-  int lSC=0; // local index on barrel
-
+  
+  int lSC=0; // local index for getting the right Ref to supercluster 
+  reco::BasicClusterCollection clusterCollection = *(bcHandle.product());
+  reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
-  for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); ++aClus) {
+
+  for(aClus = scCollection.begin(); aClus != scCollection.end(); ++aClus) {
   
    LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() <<  " Energy " <<  aClus->energy() << "\n";
 
     theOutInSeedFinder_->setCandidate(*aClus);
-    theOutInSeedFinder_->makeSeeds(  clusterCollectionBarrel );
+    theOutInSeedFinder_->makeSeeds(  clusterCollection );
 
 
     
-    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(),  *outInTrackCandidateBarrel_p);    
+    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(),  outInTrackCandidates);    
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds(  clusterCollectionBarrel);
+    theInOutSeedFinder_->makeSeeds(  clusterCollection);
     
-    std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(),  *inOutTrackCandidateBarrel_p); 
+    std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(),  inOutTrackCandidates); 
 
 
     // Debug
-   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << (*outInTrackCandidateBarrel_p).size() << " in out track size " << (*inOutTrackCandidateBarrel_p).size() <<   "\n";
+   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";
 
 
     //////////// Fill vectors of Ref to SC to be used for the Track-SC association
-    reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scBarrelHandle, lSC));
-    reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scBarrelHandle, lSC));
-
+    reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scHandle, lSC));
+    reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scHandle, lSC));
+    lSC++;
 
     for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); ++it) {
-      vecOfSCRefBarrelForOutIn.push_back( scRefOutIn );
+      vecOfSCRefForOutIn.push_back( scRefOutIn );
            
      LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Barrel OutIn Tracks Number of hits " << (*it).foundHits() << "\n"; 
     }
 
     for (std::vector<Trajectory>::const_iterator it = theInOutTracks.begin(); it !=  theInOutTracks.end(); ++it) {
-      vecOfSCRefBarrelForInOut.push_back( scRefInOut );
+      vecOfSCRefForInOut.push_back( scRefInOut );
 
      LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Barrel InOut Tracks Number of hits " << (*it).foundHits() << "\n"; 
     }
@@ -273,118 +312,11 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
 
 
-    iSC++;
-    lSC++;
-  }
+    
 
-
-  //  Loop over SC in the Endcap and reconstruct tracks from converted photons
-  lSC=0; // reset local index for endcap
-  for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); ++aClus) {
-  
-     LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << " Energy " <<  aClus->energy() << "\n";
-
-    theOutInSeedFinder_->setCandidate(*aClus);
-    theOutInSeedFinder_->makeSeeds(  clusterCollectionEndcap );
-
-    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(),  *outInTrackCandidateEndcap_p);    
-    
-    theInOutSeedFinder_->setCandidate(*aClus);
-    theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds(  clusterCollectionEndcap );
-    LogDebug("ConversionTrackCandidateProducer")  << " ConversionTrackCandidateProducer inout seedfinding ended. Going to make the inout tracks " << "\n";
-    
-    
-    std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(),  *inOutTrackCandidateEndcap_p); 
-    
-    
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size endcap " << (*outInTrackCandidateEndcap_p).size() << " in out track size " << (*inOutTrackCandidateEndcap_p).size() <<   "\n";
-  
-  
-  //////////// Fill vectors of Ref to SC to be used for the Track-SC association
-  
-  reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scEndcapHandle, lSC));
-  reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scEndcapHandle, lSC));
-  
-  for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); ++it) {
-    
-    vecOfSCRefEndcapForOutIn.push_back( scRefOutIn );
-    LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap OutIn Tracks Number of hits " << (*it).foundHits() << "\n"; 
-  }
-  
-  for (std::vector<Trajectory>::const_iterator it = theInOutTracks.begin(); it !=  theInOutTracks.end(); ++it) {
-    
-    vecOfSCRefEndcapForInOut.push_back( scRefInOut );
-    LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap InOut Tracks Number of hits " << (*it).foundHits() << "\n"; 
-  }
-  
-    
-    iSC++;
-    lSC++; 
   }
 
 
 
-  LogDebug("ConversionTrackCandidateProducer")  << "  ConversionTrackCandidateProducer vecOfSCRefBarrelForOutIn size " << vecOfSCRefBarrelForOutIn.size() << " vecOfSCRefBarrelForInOut size " << vecOfSCRefBarrelForInOut.size()  << "\n"; 
-  LogDebug("ConversionTrackCandidateProducer")  << "  ConversionTrackCandidateProducer vecOfSCRefEndcapForOutIn size " << vecOfSCRefEndcapForOutIn.size() << " vecOfSCRefEndcapForInOut size " << vecOfSCRefEndcapForInOut.size()  << "\n"; 
-  
-
-  // put all products in the event
- // Barrel
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidateBarrel_p).size() << " Out In track Candidates " << "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of outInTrackCandidates: " <<  (*outInTrackCandidateBarrel_p).size() << "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackCBarrel = theEvent.put( outInTrackCandidateBarrel_p, OutInTrackCandidateBarrelCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodOutInTrackCBarrel size  " <<  (*(refprodOutInTrackCBarrel.product())).size()  <<  "\n";
- //
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidateBarrel_p).size() << " In Out track Candidates " <<  "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidateBarrel_p).size() << "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackCBarrel = theEvent.put( inOutTrackCandidateBarrel_p, InOutTrackCandidateBarrelCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodInOutTrackCBarrel size  " <<  (*(refprodInOutTrackCBarrel.product())).size()  <<  "\n";
- // Endcap
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidateEndcap_p).size() << " Out In track Candidates " << "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of outInTrackCandidates: " <<  (*outInTrackCandidateEndcap_p).size() << "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackCEndcap = theEvent.put( outInTrackCandidateEndcap_p, OutInTrackCandidateEndcapCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodOutInTrackCEndcap size  " <<  (*(refprodOutInTrackCEndcap.product())).size()  <<  "\n";
- //
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidateEndcap_p).size() << " In Out track Candidates " <<  "\n";
- edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidateEndcap_p).size() << "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackCEndcap = theEvent.put( inOutTrackCandidateEndcap_p, InOutTrackCandidateEndcapCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodInOutTrackCEndcap size  " <<  (*(refprodInOutTrackCEndcap.product())).size()  <<  "\n";
-
-
-  
-
- LogDebug("ConversionTrackCandidateProducer") << " ConversionTrackCandidateProduce Going to fill association maps for the barrel " <<  "\n";
- for (unsigned int i=0;i< vecOfSCRefBarrelForOutIn.size(); ++i) {
-   outInAssocBarrel_p->insert(edm::Ref<TrackCandidateCollection>(refprodOutInTrackCBarrel,i), vecOfSCRefBarrelForOutIn[i]  );
- }
- for (unsigned int i=0;i< vecOfSCRefBarrelForInOut.size(); ++i) {
-   inOutAssocBarrel_p->insert(edm::Ref<TrackCandidateCollection>(refprodInOutTrackCBarrel,i), vecOfSCRefBarrelForInOut[i]  );
- }
- 
-
- LogDebug("ConversionTrackCandidateProducer") << " ConversionTrackCandidateProduce Going to fill association maps for the endcap " <<  "\n";
- for (unsigned int i=0;i< vecOfSCRefEndcapForOutIn.size(); ++i) {
-   outInAssocEndcap_p->insert(edm::Ref<TrackCandidateCollection>(refprodOutInTrackCEndcap,i), vecOfSCRefEndcapForOutIn[i]  );
- }
- for (unsigned int i=0;i< vecOfSCRefEndcapForInOut.size(); ++i) {
-   inOutAssocEndcap_p->insert(edm::Ref<TrackCandidateCollection>(refprodInOutTrackCEndcap,i), vecOfSCRefEndcapForInOut[i]  );
- }
- 
-  
-  
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC Barrel association: size  " <<  (*outInAssocBarrel_p).size() << "\n";  
- theEvent.put( outInAssocBarrel_p, OutInTrackSuperClusterBarrelAssociationCollection_);
- 
- LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC Barrel association: size  " <<  (*inOutAssocBarrel_p).size() << "\n";  
- theEvent.put( inOutAssocBarrel_p, InOutTrackSuperClusterBarrelAssociationCollection_);
-
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC Endcap association: size  " <<  (*outInAssocEndcap_p).size() << "\n";  
- theEvent.put( outInAssocEndcap_p, OutInTrackSuperClusterEndcapAssociationCollection_);
- 
- LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC Endcap association: size  " <<  (*inOutAssocEndcap_p).size() << "\n";  
- theEvent.put( inOutAssocEndcap_p, InOutTrackSuperClusterEndcapAssociationCollection_);
-
-
-  
 }
+
