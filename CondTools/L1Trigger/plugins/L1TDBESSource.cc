@@ -9,6 +9,8 @@
 
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 
+//#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+
 #include <iostream>
 
 namespace l1t
@@ -22,7 +24,8 @@ L1TDBESSource::L1TDBESSource(const edm::ParameterSet& iConfig)
     reader (iConfig.getParameter<std::string> ("connect"), iConfig.getParameter<std::string> ("catalog"))
 {
     // HACK: Technically I should not require this line. But without it, I can't get L1TriggerKey to register.
-    static edm::eventsetup::heterocontainer::HCTypeTagTemplate<L1TriggerKey, edm::eventsetup::DataKey> test;
+    //static edm::eventsetup::heterocontainer::HCTypeTagTemplate<L1TriggerKey, edm::eventsetup::DataKey> test;
+    //static edm::eventsetup::heterocontainer::HCTypeTagTemplate<L1CaloEtScale, edm::eventsetup::DataKey> test2;
 
     // make sure that we can provide information about the key as well
     registerRecord ("L1TriggerKeyRcd");

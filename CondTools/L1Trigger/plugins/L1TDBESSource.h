@@ -10,17 +10,17 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
-#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+//#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
+//#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+//#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
+//#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
 #include "CondTools/L1Trigger/interface/Interval.h"
 #include "CondTools/L1Trigger/interface/DataReader.h"
 
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id: L1TDBESSource.h,v 1.2 2007/08/22 15:07:35 giedrius Exp $
+// $Id: L1TDBESSource.h,v 1.3 2007/09/28 11:51:22 jbrooke Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.
