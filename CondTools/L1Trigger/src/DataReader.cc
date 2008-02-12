@@ -18,13 +18,13 @@ DataReader::DataReader (const std::string & connect, const std::string & catalog
 {
     // we always maintain pool connection open, so that DataProxy could load the data.
 //     pool->connect ();
-    connection->connect ( session );
+  //connection->connect ( session );
 }
 
 DataReader::~DataReader ()
 {
 //     pool->disconnect ();
-    connection->disconnect ();
+  //connection->disconnect ();
 }
 
 L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_t & run)
@@ -57,7 +57,7 @@ IntervalManager<edm::RunNumber_t, std::string> DataReader::loadIntervals (const 
     // convert tag to tag token
 //     coral->connect (cond::ReadOnly);
 //     coral->startTransaction (true);
-    connection->connect ( session );
+  //connection->connect ( session );
 
   cond::CoralTransaction& coral = connection->coralTransaction() ;
     coral.start (true);
@@ -83,7 +83,7 @@ IntervalManager<edm::RunNumber_t, std::string> DataReader::loadIntervals (const 
     delete iovIt;
     pool.commit ();
 
-    connection->disconnect ();
+    //connection->disconnect ();
 
     return intervals;
 }
@@ -112,7 +112,7 @@ std::string DataReader::payloadToken (const std::string & tag, const edm::RunNum
 {
 //     coral->connect (cond::ReadOnly);
 //     coral->startTransaction (true);
-    connection->connect ( session );
+  //connection->connect ( session );
   cond::CoralTransaction& coral = connection->coralTransaction() ;
     coral.start (true);
     std::string payload;
@@ -138,7 +138,7 @@ std::string DataReader::payloadToken (const std::string & tag, const edm::RunNum
     delete iovIt;
     pool.commit ();
 
-    connection->disconnect ();
+    //connection->disconnect ();
 
     assert (!payload.empty ());
     return payload;

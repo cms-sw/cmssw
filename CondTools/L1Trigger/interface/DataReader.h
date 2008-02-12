@@ -130,7 +130,7 @@ template<typename T>
 T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
 {
 /*     pool->connect (); */
-  connection->connect( session ) ;
+  //connection->connect( session ) ;
 /*     pool->startTransaction (false); */
   cond::PoolTransaction& pool = connection->poolTransaction() ;
   pool.start( false ) ;
@@ -145,7 +145,7 @@ T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
 
     pool.commit ();
 /*     pool->disconnect (); */
-    connection->disconnect ();
+    //connection->disconnect ();
     return T (*ref);
 }
 

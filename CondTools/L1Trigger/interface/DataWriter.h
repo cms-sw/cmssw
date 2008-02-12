@@ -83,7 +83,7 @@ template<typename T>
 void DataWriter::writePayload (L1TriggerKey & key, T * payload, const std::string & recordName)
 {
 /*     pool->connect (); */
-    connection->connect ( session );
+  //connection->connect ( session );
 /*     pool->startTransaction (false); */
   cond::PoolTransaction& pool = connection->poolTransaction() ;
     pool.start (false);
@@ -98,7 +98,7 @@ void DataWriter::writePayload (L1TriggerKey & key, T * payload, const std::strin
 
     pool.commit ();
 /*     pool->disconnect (); */
-    connection->disconnect ();
+    //connection->disconnect ();
 }
 
 } // ns

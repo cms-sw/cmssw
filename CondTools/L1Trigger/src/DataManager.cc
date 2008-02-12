@@ -28,6 +28,7 @@ DataManager::DataManager (const std::string & connect, const std::string & catal
     session->configuration ().setAuthenticationMethod (cond::Env);
     session->configuration ().connectionConfiguration ()->enableConnectionSharing ();
     session->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
+    session->open() ;
     
 
     // create Coral connection and pool. This ones should be connected on required basis
@@ -44,6 +45,7 @@ DataManager::DataManager (const std::string & connect, const std::string & catal
     metadata = new cond::MetaData (coral);
 
     // wsun: need to disconnect?
+    // connection->disconnect() ;
 
     // can I use two sessions? One for pool and one for coral? So that I could connect to one and another....
     // will sqlite will be happy with transactions?
@@ -51,6 +53,8 @@ DataManager::DataManager (const std::string & connect, const std::string & catal
 
 DataManager::~DataManager ()
 {
+  connection->disconnect() ;
+
     // detele all in reverse direction
     // closing and comminting may be a good idea here
     // in case we have exception in some other part between connect/close pairs
