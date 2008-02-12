@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.13 2008/02/08 17:25:35 nancy Exp $ 
- **  $Date: 2008/02/08 17:25:35 $ 
- **  $Revision: 1.13 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.14 2008/02/10 16:55:55 nancy Exp $ 
+ **  $Date: 2008/02/10 16:55:55 $ 
+ **  $Revision: 1.14 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -18,7 +18,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -42,23 +42,21 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
  private:
 
+  void buildCollections ( const edm::Handle<reco::SuperClusterCollection> & scHandle,
+			  const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+			  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>& allPairs,
+			  reco::ConversionCollection & outputConvPhotonCollection);
+    
   
-  std::string conversionOITrackProducerBarrel_;
-  std::string conversionIOTrackProducerBarrel_;
+  std::string conversionOITrackProducer_;
+  std::string conversionIOTrackProducer_;
 
-  std::string conversionOITrackProducerEndcap_;
-  std::string conversionIOTrackProducerEndcap_;
 
-  std::string outInTrackSCBarrelAssociationCollection_;
-  std::string inOutTrackSCBarrelAssociationCollection_;
-
-  std::string outInTrackSCEndcapAssociationCollection_;
-  std::string inOutTrackSCEndcapAssociationCollection_;
+  std::string outInTrackSCAssociationCollection_;
+  std::string inOutTrackSCAssociationCollection_;
 
 
   std::string ConvertedPhotonCollection_;
-  std::string PhotonWithConversionsCollection_;
-
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;
