@@ -28,6 +28,8 @@ class L1RCTParameters {
  public:
 
   // constructor
+  L1RCTParameters() {}
+
   L1RCTParameters(double eGammaLSB,
 		  double jetMETLSB,
 		  double eMinForFGCut,
@@ -86,7 +88,7 @@ class L1RCTParameters {
 
   // default constructor is not implemented
 
-  L1RCTParameters();
+  //L1RCTParameters();
 
   // LSB of the eGamma object corresponds to this ET (in GeV)
 
