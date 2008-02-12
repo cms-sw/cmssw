@@ -47,6 +47,9 @@ public:
   /// reset the data content (not position id!)
   void reset() { m_data = 0; }
 
+  /// get raw data
+  uint16_t raw() const { return m_data; }
+
   /// get Et
   unsigned et() const { return (isHf() ? m_data&0xff : m_data&0x3ff); }
 
@@ -104,6 +107,15 @@ public:
 
   /// get bunch-crossing index
   int bx() const { return m_bx; }
+
+  /// equality operator, including rank, feature bits, and position
+  int operator==(const L1CaloRegion& c) const { return ((m_data==c.raw() && m_id==c.id()) || (this->empty() && c.empty())); }
+
+  /// inequality operator
+  int operator!=(const L1CaloRegion& c) const { return !(*this == c); }
+
+  /// is there any information in the candidate
+  bool empty() const { return (m_data == 0); }
 
   /// print to stream
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);

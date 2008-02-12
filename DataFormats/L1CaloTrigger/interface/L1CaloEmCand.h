@@ -64,6 +64,15 @@ public:
   /// get DetID object
   L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(),rctCard(),rctRegion()); }
 
+  /// equality operator, including rank, isolation, position
+  int operator==(const L1CaloEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated() && m_rctCrate==c.rctCrate() && this->regionId()==c.regionId()) || (this->empty() && c.empty())); }
+
+  /// inequality operator
+  int operator!=(const L1CaloEmCand& c) const { return !(*this == c); }
+
+  /// is there any information in the candidate
+  bool empty() const { return (rank() == 0 && m_iso == 0); }
+
 
  private:
 
