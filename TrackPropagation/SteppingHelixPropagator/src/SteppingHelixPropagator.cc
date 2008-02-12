@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/10/09 01:37:26 $
- *  $Revision: 1.47 $
+ *  $Date: 2008/02/12 17:19:13 $
+ *  $Revision: 1.48 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.47 2007/10/09 01:37:26 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.48 2008/02/12 17:19:13 slava77 Exp $
 //
 //
 
@@ -1278,7 +1278,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       if (lR < 850){
 	bool isIron = false;
 	//sanity check in addition to flags
-	if (useIsYokeFlag_ && useMagVolumes_ && ! sv.magVol != 0){
+	if (useIsYokeFlag_ && useMagVolumes_ && sv.magVol != 0){
 	  isIron = sv.isYokeVol;
 	} else {
 	  double bMag = sv.bf.mag();
