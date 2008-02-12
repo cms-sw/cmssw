@@ -8,9 +8,9 @@
  *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2007/10/08 14:38:15 $
- *  $Revision: 1.6 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2008/02/12 19:10:35 $
+ *  $Revision: 1.7 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -23,11 +23,8 @@ namespace edm {
 
 class AlignmentParameterSelector {
  public:
-  /// Constructor from tracker only
-  explicit AlignmentParameterSelector(AlignableTracker *aliTracker);
-
-  /// Constructor from tracker and muon
-  AlignmentParameterSelector( AlignableTracker *aliTracker, AlignableMuon *aliMuon );
+  /// Constructor from tracker only or from tracker and muon
+  explicit AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon *aliMuon = 0);
 
   /// Destructor
   virtual ~AlignmentParameterSelector() {}

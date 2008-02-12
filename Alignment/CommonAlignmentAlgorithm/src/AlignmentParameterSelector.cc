@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/10/08 14:38:16 $
- *  $Revision: 1.11 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2008/02/12 19:10:36 $
+ *  $Revision: 1.12 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -17,19 +17,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //________________________________________________________________________________
-AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker) :
-  theTracker(aliTracker), theMuon(0), theSelectedAlignables(), 
-  theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
-{
-  this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
-}
-
-//________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon) :
   theTracker(aliTracker), theMuon(aliMuon), theSelectedAlignables(), 
   theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
 {
-  this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
+  this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer, theRphiOrStereoDetUnit
 }
 
 //________________________________________________________________________________
