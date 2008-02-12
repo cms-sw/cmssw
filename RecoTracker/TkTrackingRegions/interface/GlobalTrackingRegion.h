@@ -26,7 +26,7 @@ public:
       thePrecise(precise) { }
 
   GlobalTrackingRegion ( float ptMin = 1., float originRadius = 0.2, 
-      float originHalfLength = 15., float originZPos = 0.,
+      float originHalfLength = 22.7, float originZPos = 0.,
       bool precise = false)
     : TrackingRegionBase(GlobalVector( 0, 0, 0), GlobalPoint( 0, 0, originZPos),
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),

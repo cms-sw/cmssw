@@ -16,24 +16,27 @@ public:
     thePtMin            = regionPSet.getParameter<double>("ptMin");
     theOriginRadius     = regionPSet.getParameter<double>("originRadius");
     theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
-    theOriginZPos       = regionPSet.getParameter<double>("originZPos");
+    double xPos         = regionPSet.getParameter<double>("originXPos");
+    double yPos         = regionPSet.getParameter<double>("originYPos");
+    double zPos         = regionPSet.getParameter<double>("originZPos");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
+    theOrigin = GlobalPoint(xPos,yPos,zPos);
   }   
 
   virtual ~GlobalTrackingRegionProducer(){}
 
   virtual std::vector<TrackingRegion* > regions(const edm::Event&, const edm::EventSetup&) const {
     std::vector<TrackingRegion* > result;
-    result.push_back( new GlobalTrackingRegion(
-        thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos, thePrecise) );
+    result.push_back( 
+        new GlobalTrackingRegion( thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
     return result;
   }
 
 private:
   double thePtMin; 
+  GlobalPoint theOrigin;
   double theOriginRadius; 
   double theOriginHalfLength; 
-  double theOriginZPos;
   bool thePrecise;
 };
 
