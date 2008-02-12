@@ -13,23 +13,27 @@
 namespace {
   namespace {
     edm::EDCollection<EBDetId> vEBDI_;
+    edm::EDCollection<EEDetId> vEEDI_;
     edm::EDCollection<EcalTrigTowerDetId> vETTDI_;
     edm::EDCollection<EcalElectronicsId> vEELI_;
     edm::EDCollection<EcalTriggerElectronicsId> vETELI_;
 
     EBDetIdCollection theEBDI_;
+    EEDetIdCollection theEEDI_;
     EcalTrigTowerDetIdCollection theETTDI_;
     EcalScDetIdCollection theESCDI_;
     EcalElectronicsIdCollection theEELI_;
     EcalTriggerElectronicsIdCollection theETELI_;
 
     edm::Wrapper<EBDetIdCollection> anotherEBDIw_;
+    edm::Wrapper<EEDetIdCollection> anotherEEDIw_;
     edm::Wrapper<EcalTrigTowerDetIdCollection> anothertheETTDIw_;
     edm::Wrapper<EcalScDetIdCollection> anothertheESCDIw_;
     edm::Wrapper<EcalElectronicsIdCollection> anothertheEELIw_;
     edm::Wrapper<EcalTriggerElectronicsIdCollection> anothertheETELIw_;
 
     edm::Wrapper< edm::EDCollection<EBDetId> > theEBDIw_;
+    edm::Wrapper< edm::EDCollection<EEDetId> > theEEDIw_;
     edm::Wrapper< edm::EDCollection<EcalTrigTowerDetId> > theETTDIw_;
     edm::Wrapper< edm::EDCollection<EcalScDetIdCollection> > theESCDIw_;
     edm::Wrapper< edm::EDCollection<EcalElectronicsId> > theEELIw_;
