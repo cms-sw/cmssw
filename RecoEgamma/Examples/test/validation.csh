@@ -18,11 +18,12 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_1_7_0/src/RecoEgamma/Examples/test/photonAnalyzer.root
-setenv OLDFILE ~/scratch0/CMSSW_1_6_7/src/RecoEgamma/Examples/test/photonAnalyzer.root
+setenv NEWFILE ~/scratch0/CMSSW/test/CMSSW_2_0_0_pre2/src/RecoEgamma/Examples/test/photonAnalyzer.root 
+setenv OLDFILE ~/scratch0/CMSSW/newTags/CMSSW_1_6_7/src/RecoEgamma/Examples/test/photonAnalyzer.root
+
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 170
+setenv NEWRELEASE 200pre2
 setenv OLDRELEASE 167
 #Name of sample (affects output directory name and html description only)
 setenv SAMPLE RelValSingleGammaPt35
@@ -94,16 +95,12 @@ cat > scaledhistos <<EOF
   scE
   scEta
   scPhi
-  phoE
-  phoEta
-  phoPhi
-  recEoverTrueE
-  deltaEta
-  deltaPhi
   corrPhoE
   corrPhoEta
   corrPhoPhi
-  corrPhoR9
+  recEoverTrueE
+  deltaEta
+  deltaPhi
 EOF
 
 cat > unscaledhistos <<EOF
@@ -154,11 +151,14 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd();
 $i->SetLineColor(4);
+$i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd();
+simplePhotonAnalyzer->cd();
 Double_t nnew=$i->GetEntries();
 $i->SetLineColor(2);
+$i->SetLineWidth(3);
 $i->Scale(nold/nnew);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -173,9 +173,12 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd();
 $i->SetLineColor(4);
+$i->SetLineWidth(3);
 $i->Draw();
 file_new->cd();
+simplePhotonAnalyzer->cd();
 $i->SetLineColor(2);
+$i->SetLineWidth(3);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
 
@@ -222,6 +225,7 @@ cat > begin.html <<EOF
 <h1>$NEWRELEASE vs $OLDRELEASE $TYPE validation</h1>
 
 <p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/$ANALYZER.cc">RecoEgamma/Examples/plugins/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/$CFG.cfg">RecoEgamma/Examples/test/$CFG.cfg</a>, using $SAMPLE as input.
+
 <p>The script used to make the plots is <a href="validation.C">here</a>.
 
 <p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
