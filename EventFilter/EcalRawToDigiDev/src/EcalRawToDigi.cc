@@ -336,9 +336,9 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
       e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
       // EE (leaving for now the same names as in EB)
-      e.put(productInvalidGains,"EcalIntegrityGainErrors");
-      e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
-      e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      e.put(productInvalidEEGains,"EcalIntegrityGainErrors");
+      e.put(productInvalidEEGainsSwitch, "EcalIntegrityGainSwitchErrors");
+      e.put(productInvalidEEChIds, "EcalIntegrityChIdErrors");
       // EE
       e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
       e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
