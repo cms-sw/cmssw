@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/07/12 14:35:18 $
- *  $Revision: 1.10 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/10/08 14:38:16 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -11,7 +11,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" // for enums TID/TIB/etc.
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -112,14 +112,22 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
 
   unsigned int numAli = 0;
 
-  // Check if name contains muon and react if alignable muon not initialized
-  // /!\ There is no corresponding check for the tracker!
-  if ( name.find("Muon") != std::string::npos && !theMuon )
-    throw cms::Exception("BadConfig") << "@SUB=TrackerAlignmentSelector::addSelection"
-                                      << "Configuration requires access to AlignableMuon,"
-                                      << " which is not initialized";
-
-  if      (name == "AllDets")       numAli += this->addAllDets(paramSel);
+  ////////////////////////////////////
+  // Generic Tracker Section
+  ////////////////////////////////////
+  if (name.find("Tracker") == 0) { // string starts with "Tracker"
+    if (!theTracker) {
+      throw cms::Exception("BadConfig") << "[TrackerAlignmentSelector::addSelection] "
+					<< "Configuration requires access to AlignableTracker"
+					<< " (for " << name << ") that is not initialized";
+    }
+    const std::string substructName(name, 7); // erase "Tracker" at the beginning
+    numAli += this->add(theTracker->subStructures(substructName), paramSel);
+  }
+  ////////////////////////////////////
+  // Old hardcoded (i.e. deprecated) tracker section (NOTE: no check on theTracker != 0)
+  ////////////////////////////////////
+  else if (name == "AllDets")       numAli += this->addAllDets(paramSel);
   else if (name == "AllRods")       numAli += this->addAllRods(paramSel);
   else if (name == "AllLayers")     numAli += this->addAllLayers(paramSel);
   else if (name == "AllComponents") numAli += this->add(theTracker->components(), paramSel);
@@ -213,46 +221,58 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
     numAli += this->add(theTracker->TIDLayers(), paramSel);
     numAli += this->add(theTracker->endcapLayers(), paramSel);
   }
-  //
+  ////////////////////////////////////
   // Muon selection
-  //
-  else if (name == "MuonDTSuperLayers")  add(theMuon->DTSuperLayers(), paramSel);
-  else if (name == "MuonDTChambers")  	 add(theMuon->DTChambers(), paramSel);
-  else if (name == "MuonDTStations")  	 add(theMuon->DTStations(), paramSel);
-  else if (name == "MuonDTWheels")    	 add(theMuon->DTWheels(), paramSel);
-  else if (name == "MuonBarrel")      	 add(theMuon->DTBarrel(), paramSel);
-  else if (name == "MuonCSCLayers")   	 add(theMuon->CSCLayers(), paramSel);
-  else if (name == "MuonCSCChambers") 	 add(theMuon->CSCChambers(), paramSel);
-  else if (name == "MuonCSCStations") 	 add(theMuon->CSCStations(), paramSel);
-  else if (name == "MuonEndcaps")     	 add(theMuon->CSCEndcaps(), paramSel);
+  ////////////////////////////////////
+  // Check if name contains muon and react if alignable muon not initialized
+  else if (name.find("Muon") != std::string::npos) {
+    if  (!theMuon) {
+      throw cms::Exception("BadConfig") << "[TrackerAlignmentSelector::addSelection] "
+					<< "Configuration requires access to AlignableMuon"
+					<< " which is not initialized";
+    }
+    else if (name == "MuonDTSuperLayers")  add(theMuon->DTSuperLayers(), paramSel);
+    else if (name == "MuonDTChambers")  	 add(theMuon->DTChambers(), paramSel);
+    else if (name == "MuonDTStations")  	 add(theMuon->DTStations(), paramSel);
+    else if (name == "MuonDTWheels")    	 add(theMuon->DTWheels(), paramSel);
+    else if (name == "MuonBarrel")      	 add(theMuon->DTBarrel(), paramSel);
+    else if (name == "MuonCSCLayers")   	 add(theMuon->CSCLayers(), paramSel);
+    else if (name == "MuonCSCChambers") 	 add(theMuon->CSCChambers(), paramSel);
+    else if (name == "MuonCSCStations") 	 add(theMuon->CSCStations(), paramSel);
+    else if (name == "MuonEndcaps")     	 add(theMuon->CSCEndcaps(), paramSel);
 
-  else if (name == "AllMuonChambers") {
-     add(theMuon->DTChambers(), paramSel);
-     add(theMuon->CSCChambers(), paramSel);
-  }
-  else if (name == "AllMuonStations") {
-     add(theMuon->DTStations(), paramSel);
-     add(theMuon->CSCStations(), paramSel);
-  }
-  else if (name == "AllMuonComponents") {
-     add(theMuon->components(), paramSel);
-  }
-  //
-  // ALL tracker dets + muon chambers
-  //
-  else if (name == "AllTrackerAndMuon") {
-     addAllDets(paramSel);
-     add(theMuon->DTChambers(), paramSel);
-     add(theMuon->CSCChambers(), paramSel);
-  }
-  //
-  // not found!
-  //
-  else { // @SUB-syntax is not supported by exception, but anyway useful information... 
-    throw cms::Exception("BadConfig") <<"@SUB=TrackerAlignmentSelector::addSelection"
+    else if (name == "AllMuonChambers") {
+      add(theMuon->DTChambers(), paramSel);
+      add(theMuon->CSCChambers(), paramSel);
+    }
+    else if (name == "AllMuonStations") {
+      add(theMuon->DTStations(), paramSel);
+      add(theMuon->CSCStations(), paramSel);
+    }
+    else if (name == "AllMuonComponents") {
+      add(theMuon->components(), paramSel);
+    }
+    ////////////////////////////////////
+    // ALL tracker dets + muon chambers (as subsection of muon part...
+    ////////////////////////////////////
+    else if (name == "AllTrackerAndMuon") {
+      addAllDets(paramSel);
+      add(theMuon->DTChambers(), paramSel);
+      add(theMuon->CSCChambers(), paramSel);
+    }
+    ////////////////////////////////////
+    // not found, but Muon
+    ////////////////////////////////////
+    else {
+      throw cms::Exception("BadConfig") <<"[AlignmentParameterSelector::addSelection]"
+					<< ": Selection '" << name << "' invalid!";
+    }
+  } // end of "name.find("Muon") != std::string::npos"
+  else {
+    throw cms::Exception("BadConfig") <<"[AlignmentParameterSelector::addSelection]"
 				      << ": Selection '" << name << "' invalid!";
   }
-
+  
   this->setSpecials(""); // reset
 
   return numAli;
@@ -267,34 +287,11 @@ unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables
   // loop on Alignable objects
   for (align::Alignables::const_iterator iAli = alignables.begin();
        iAli != alignables.end(); ++iAli) {
-    bool keep = true;
-    
-    if (theOnlySS || theOnlyDS || theSelLayers) {
-      TrackerAlignableId idProvider;
-      std::pair<int,int> typeLayer = idProvider.typeAndLayerFromDetId( (*iAli)->id() );
-      int type  = typeLayer.first;
-      int layer = typeLayer.second;
 
-      // select on single/double sided barrel layers
-      if (theOnlySS // only single sided
-	  && (std::abs(type) == StripSubdetector::TIB || std::abs(type) == StripSubdetector::TOB)
-	  && layer <= 2) {
-	  keep = false;
-      }
-      if (theOnlyDS // only double sided
-	  && (std::abs(type) == StripSubdetector::TIB || std::abs(type) == StripSubdetector::TOB)
-	  && layer > 2) {
-	  keep = false;
-      }
-      // reject layers
-      if (theSelLayers && (layer < theMinLayer || layer > theMaxLayer)) {
-	keep = false;
-      }
-    }
-    // check ranges
-    if (keep && this->outsideRanges(*iAli)) keep = false;
-
-    if (keep) {
+    if (!this->layerDeselected(*iAli)      // check layers
+	&& !this->detUnitDeselected(*iAli) // check detunit selection
+	&& !this->outsideRanges(*iAli)) {  // check ranges
+      // all fine, so add to output arrays
       theSelectedAlignables.push_back(*iAli);
       theSelectedParameters.push_back(paramSel);
       ++numAli;
@@ -302,6 +299,56 @@ unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables
   }
 
   return numAli;
+}
+
+//_________________________________________________________________________
+bool AlignmentParameterSelector::layerDeselected(const Alignable *ali) const
+{
+  if (theOnlySS || theOnlyDS || theSelLayers) {
+    TrackerAlignableId idProvider;
+    std::pair<int,int> typeLayer = idProvider.typeAndLayerFromDetId(ali->id());
+    int type  = typeLayer.first;
+    int layer = typeLayer.second;
+    
+    // select on single/double sided barrel layers in TIB/TOB
+    if (theOnlySS // only single sided
+	&& (std::abs(type) == SiStripDetId::TIB || std::abs(type) == SiStripDetId::TOB)
+	&& layer <= 2) {
+      return true;
+    }
+    if (theOnlyDS // only double sided
+	&& (std::abs(type) == SiStripDetId::TIB || std::abs(type) == SiStripDetId::TOB)
+	&& layer > 2) {
+      return true;
+    }
+    
+    // reject layers
+    if (theSelLayers && (layer < theMinLayer || layer > theMaxLayer)) {
+      return true;
+    }
+  }
+  
+  return false; // do not deselect...
+}
+
+//_________________________________________________________________________
+bool AlignmentParameterSelector::detUnitDeselected(const Alignable *ali) const
+{
+
+  if (theRphiOrStereoDetUnit != Both && ali->alignableObjectId() == align::AlignableDetUnit) {
+    const SiStripDetId detId(ali->geomDetId()); // do not know yet whether right type...
+    if (detId.det() == DetId::Tracker 
+	&& (detId.subdetId() == SiStripDetId::TIB || detId.subdetId() == SiStripDetId::TID ||
+	    detId.subdetId() == SiStripDetId::TOB || detId.subdetId() == SiStripDetId::TEC)) {
+      // We have a DetUnit in strip, so check for a selection of stereo/rphi (DetUnits in 1D layers are rphi):
+      if ((theRphiOrStereoDetUnit == Stereo && !detId.stereo())
+	  || (theRphiOrStereoDetUnit == Rphi   &&  detId.stereo())) {
+	return true;
+      }
+    }
+  }
+
+  return false; // do not deselect...
 }
 
 //_________________________________________________________________________
@@ -429,11 +476,26 @@ std::string AlignmentParameterSelector::setSpecials(const std::string &name)
     theMaxLayer = 99999;
   }
 
+  theRphiOrStereoDetUnit = Both;
+  if (newName.rfind("Unit") != std::string::npos) {
+    const std::string::size_type uRph = newName.rfind("UnitRphi");
+    if (uRph != std::string::npos) {
+      newName.erase(uRph + 4, 4); // keep 'Unit' (4) and erase 'Rphi' (4)
+      theRphiOrStereoDetUnit = Rphi;
+    }
+    const std::string::size_type uSte = newName.rfind("UnitStereo");
+    if (uSte != std::string::npos) {
+      newName.erase(uSte + 4, 6); // keep 'Unit' (4) and erase 'Stereo' (6)
+      theRphiOrStereoDetUnit = Stereo;
+    }
+  }
+
   if (newName != name) {
     LogDebug("Alignment") << "@SUB=AlignmentParameterSelector::setSpecials"
-                          << name << " makes theOnlySS " << theOnlySS
+                          << name << " becomes " << newName << ", makes theOnlySS " << theOnlySS
                           << ", theOnlyDS " << theOnlyDS << ", theSelLayers " << theSelLayers
-                          << ", theMinLayer " << theMinLayer << ", theMaxLayer " << theMaxLayer;
+                          << ", theMinLayer " << theMinLayer << ", theMaxLayer " << theMaxLayer
+			  << ", theRphiOrStereoDetUnit " << theRphiOrStereoDetUnit;
   }
 
   return newName;

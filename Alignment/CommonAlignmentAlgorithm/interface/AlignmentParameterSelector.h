@@ -8,9 +8,9 @@
  *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2007/07/12 14:35:17 $
- *  $Revision: 1.5 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/10/08 14:38:15 $
+ *  $Revision: 1.6 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -60,7 +60,10 @@ class AlignmentParameterSelector {
   /// as addSelection with one argument, but overwriting geometrical restrictions
   unsigned int addSelection(const std::string &name, const std::vector<char> &paramSel, 
 			    const edm::ParameterSet &pSet);
-
+  /// true if layer is deselected via "Layers<N><M>" or "DS/SS"
+  bool layerDeselected(const Alignable *alignable) const;
+  /// true if alignable is DetUnit deselected by Unit<Rphi/Stereo> selection 
+  bool detUnitDeselected(const Alignable *alignable) const;
   /// true if geometrical restrictions in eta, phi, r, x, y, z not satisfied
   bool outsideRanges(const Alignable *alignable) const;
   /// true if ranges.size() is even and ranges[i] <= value < ranges[i+1] for any even i
@@ -100,11 +103,15 @@ class AlignmentParameterSelector {
   bool theSelLayers;
   int  theMinLayer;
   int  theMaxLayer;
+  enum RphiOrStereoDetUnit { Stereo, Both, Rphi};
+  RphiOrStereoDetUnit theRphiOrStereoDetUnit;
   /// Setting the special switches and returning input string, but after removing the 'special
   /// indicators' from it. Known specials are:
   /// "SS" anywhere in name: in TIB/TOB restrict to single sided Dets/Rods/Layers
   /// "DS" anywhere in name: in TIB/TOB restrict to double sided Dets/Rods/Layers
-  /// "Layers14" at end of name: in TIB/TOB restrict to layers 1 to 4, similar for other digits
+  /// "Layers14" at end of name: in tracker restrict to layers/disks 1 to 4, similar for other digits
+  /// "UnitStereo" and "UnitRphi" anywhere in name:
+  ///      for a DetUnit in strip select only if stereo or rphi module (keep 'Unit' in name!)
   std::string setSpecials(const std::string &name);
 
 };
