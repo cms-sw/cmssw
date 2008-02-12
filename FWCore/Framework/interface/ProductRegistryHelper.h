@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.12 2007/03/04 06:00:22 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.13 2007/06/14 17:52:15 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -75,14 +75,21 @@ namespace edm {
 
     template <typename ProductType, BranchType B> 
     TypeLabelItem const& produces(std::string const& instanceName) {
-
-      ProductType aproduct;
-      TypeID tid(aproduct);
-      TypeLabelItem tli(B, tid, instanceName);
-      typeLabelList_.push_back(tli);
-      return *typeLabelList_.rbegin();
+      TypeID tid(typeid(ProductType));
+      return produces<B>(tid,instanceName);
     }
 
+   
+    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+       return produces<InEvent>(id,instanceName);
+    }
+
+    template <BranchType B>
+    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+       TypeLabelItem tli(B, id, instanceName);
+       typeLabelList_.push_back(tli);
+       return *typeLabelList_.rbegin();
+    }
   private:
     TypeLabelList typeLabelList_;
   };
