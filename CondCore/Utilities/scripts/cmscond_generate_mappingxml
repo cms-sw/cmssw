@@ -20,9 +20,9 @@ class mappingGenerator:
         self.__path=currentdir
         if cmsswbase == None :
             raise ValueError, "cmssw environment variables not set"
-        self.__classversion="Pedestals_v0"
+        self.__classversion=""
         self.__classname=""
-        self.__dictionary="CondFormatsCalibration"
+        self.__dictionary=""
         self.__poolcontainer=""
         self.__defaultXMLheader="\n".join([
             "<?xml version=\'1.0\' encoding=\"UTF-8\"?>",
@@ -53,14 +53,13 @@ class mappingGenerator:
             pos=line.find(searchfor)
             if pos>0: #found line
                 fields=line.split(' ')
-                print fields
+                #print fields
                 for field in fields:
                     if field.find("name=") != -1:
                         result=field.split("\"")[1]
                         self.__classname=result
                         if self.__poolcontainer=="":
-                            self.__poocontainer=self.__classname+"Rcd"
-                        print "###############", result
+                            self.__poolcontainer=self.__classname+"Rcd"
         f.close()
         
     def parsecmdln(self):
@@ -71,6 +70,7 @@ class mappingGenerator:
         parser = OptionParser()
         parser.add_option("-c","--classversion",action="store",dest="classversion",
                           help="class_version to generate mapping (required)")
+        parser.add_option("-a","--all",action="store_true",dest="all",help="process all classes in the classes_def.xml")
         parser.add_option("-P","--Path",action="store",dest="path",
                           help="path to file classes_def.xml( required )")
         parser.add_option("-p","--poolcontainer",action="store",dest="poolcontainer",
@@ -81,7 +81,7 @@ class mappingGenerator:
                           help="verbose mode")
 
         (options, args) = parser.parse_args()
-
+        self.__all=options.all
         self.__classversion=options.classversion
         self.__path=os.path.abspath(options.path)
         self.parseclassdefxml(self.__classversion)
@@ -96,11 +96,16 @@ class mappingGenerator:
             subsys=os.path.split(parent)[0]
             subsys=os.path.split(subsys)[1]
             self.__dictionary=subsys+pkg
-            print self.__dictionary
+            #print self.__dictionary
         self.__verbose=options.verbose
         self.buildtempxml(self.__poolcontainer,self.__classname,self.__classversion)
         if self.__verbose is True:
-            print "classversion %s : " % self.__classversion
+            if self.__all is True:
+                print 'processing all classes '
+                print 'process info ',self.__classversiondict
+            else:
+                print "classversion %s : " % self.__classversiondict.item[0]
+
       
     def generate(self):
         '''create xml catalog with given input
@@ -115,6 +120,7 @@ class mappingGenerator:
             cmd=' '.join(['pool_build_object_relational_mapping','-c','sqlite_file:dummy.db','-dry','-d',self.__dictionary,'-f','temp.xml','-o',outfilename])
         os.system(cmd)
         os.remove('temp.xml')
+        os.remove('dummy.db')
 if __name__ == "__main__":
     me=mappingGenerator()    
     me.parsecmdln()
