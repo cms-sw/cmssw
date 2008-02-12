@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.4 2008/01/26 14:55:58 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.5 2008/01/26 20:20:34 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -182,47 +182,3 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (addLRValues_) delete theLeptonLRCalc_;
 
 }
-
-reco::GenParticleCandidate PATMuonProducer::findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon) { throw cms::Exception("NO"); }
-void PATMuonProducer::matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons) {  throw cms::Exception("NO"); }
-#if 0
-reco::GenParticleCandidate PATMuonProducer::findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon) {
-  reco::GenParticleCandidate gen(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
-  for (std::vector<std::pair<const reco::Candidate*, const MuonType*> >::const_iterator pairGenRecoMuons = pairGenRecoMuonsVector_.begin(); pairGenRecoMuons != pairGenRecoMuonsVector_.end(); ++pairGenRecoMuons) {
-    float dR = DeltaR<reco::Candidate>()( muon, *(pairGenRecoMuons->second));
-    if( !(dR > 0) ){
-      gen = *(dynamic_cast<const reco::GenParticleCandidate*>( pairGenRecoMuons->first ) );
-    }
-  }
-  return gen;
-}
-
-
-void PATMuonProducer::matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons) {
-  pairGenRecoMuonsVector_.clear();
-  for(edm::View<reco::Candidate>::const_iterator part = parts.begin(); part != parts.end(); ++part){
-    reco::GenParticleCandidate gen = *(dynamic_cast<const reco::GenParticleCandidate*>( &(*part)) );
-    if( abs(gen.pdgId())==13 && gen.status()==1 ){
-      bool  found = false;
-      float minDR = 99999;
-      const MuonType * rec = 0;
-      for (edm::View<MuonType>::const_iterator itMuon = muons.begin() ; itMuon != muons.end(); ++itMuon){
-	float dR = DeltaR<reco::Candidate>()( gen, *itMuon);
-	float ptRecOverGen = itMuon->pt()/gen.pt();
-	if ( ( ptRecOverGen > minRecoOnGenEt_ ) && 
-	     ( ptRecOverGen < maxRecoOnGenEt_ ) && 
-	     ( dR < maxDeltaR_) ){
-	  if ( dR < minDR ){
-	    rec = &(*itMuon);
-	    minDR = dR;
-	    found = true;
-	  }
-	}
-      }
-      if( found == true ){
-	pairGenRecoMuonsVector_.push_back( std::pair<const reco::Candidate*, const MuonType *>(&(*part), rec ) );
-      }
-    }
-  }
-}
-#endif

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.5 2008/01/25 16:17:00 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.6 2008/01/26 12:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.5 2008/01/25 16:17:00 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.6 2008/01/26 12:49:35 gpetrucc Exp $
 */
 
 
@@ -21,14 +21,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -55,8 +53,6 @@ namespace pat {
 
     private:
 
-      reco::GenParticleCandidate findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec);
-      void matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons);
       double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
                         const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
 	                unsigned int idx);
@@ -99,9 +95,6 @@ namespace pat {
       CaloIsolationEnergy  * calIsolation_;
       LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Electron>       pTComparator_;
-      // other
-// FIXME!!!!! this should not be persistent, even not a member!!!
-      std::vector<std::pair<const reco::Candidate *, const ElectronType *> > pairGenRecoElectronsVector_;
 
   };
 

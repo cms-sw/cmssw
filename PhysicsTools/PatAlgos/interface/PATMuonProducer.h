@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.2 2008/01/21 16:26:14 lowette Exp $
+// $Id: PATMuonProducer.h,v 1.3 2008/02/07 18:17:25 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.2 2008/01/21 16:26:14 lowette Exp $
+  \version  $Id: PATMuonProducer.h,v 1.3 2008/02/07 18:17:25 lowette Exp $
 */
 
 
@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
@@ -46,11 +45,6 @@ namespace pat {
       ~PATMuonProducer();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
-    private:
-
-      reco::GenParticleCandidate findTruth(const edm::View<reco::Candidate> & parts, const MuonType & muon);  
-      void matchTruth(const edm::View<reco::Candidate> & parts, const edm::View<MuonType> & muons);
 
     private:
 
@@ -78,9 +72,6 @@ namespace pat {
       ObjectResolutionCalc * theResoCalc_;
       LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Muon>      pTComparator_;
-      // other
-// FIXME!!!!! this should not be persistent, even not a member!!!
-      std::vector<std::pair<const reco::Candidate *, const MuonType *> > pairGenRecoMuonsVector_;
 
   };
 

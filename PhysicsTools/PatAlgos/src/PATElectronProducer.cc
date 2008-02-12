@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.9 2008/01/26 14:55:58 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.10 2008/01/26 20:20:34 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -184,54 +184,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 }
 
-#if 0
-reco::GenParticleCandidate PATElectronProducer::findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec) {
-  reco::GenParticleCandidate theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
-  for(std::vector<std::pair<const reco::Candidate *, const ElectronType *> >::const_iterator pairGenRecoElectrons = pairGenRecoElectronsVector_.begin(); pairGenRecoElectrons != pairGenRecoElectronsVector_.end(); ++pairGenRecoElectrons){
-    if (fabs(elec.pt() - (pairGenRecoElectrons->second)->pt()) < 0.00001) {
-      theGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(pairGenRecoElectrons->first)));
-    }
-  }
-  return theGenElectron;
-}
-
-
-void PATElectronProducer::matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons) {
-  pairGenRecoElectronsVector_.clear();
-  for(edm::View<reco::Candidate>::const_iterator itGenElectron = particles.begin(); itGenElectron != particles.end(); ++itGenElectron) {
-    reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenElectron)));
-    if (abs(aGenElectron.pdgId())==11 && aGenElectron.status()==1){
-      const ElectronType * bestRecoElectron = 0;
-      bool recoElectronFound = false;
-      float bestDR = 100000;
-      //loop over reconstructed electrons
-      for (edm::View<ElectronType>::const_iterator itElectron = electrons.begin(); itElectron != electrons.end(); ++itElectron) {
-	float recoEtOnGenEt = itElectron->et()/aGenElectron.et();
-	// if the charge is the same and the energy comparable
-	//FIXME set recoEtOnGenEt cut configurable 
-	  float currDR = DeltaR<reco::Candidate>()(aGenElectron, *itElectron);
-	  //if ( aGenElectron.charge()==itElectron->charge() && recoEtOnGenEt > minRecoOnGenEt_ 
-	  //     &&  recoEtOnGenEt < maxRecoOnGenEt_ && currDR < maxDeltaR_ ) {
-	  if (  recoEtOnGenEt > minRecoOnGenEt_ 
-		&&  recoEtOnGenEt < maxRecoOnGenEt_ && currDR < maxDeltaR_ ) {
-	    //if the reco electrons is the closest one
-	    if ( currDR < bestDR) {
-	      bestRecoElectron = &(*itElectron);
-	      bestDR = currDR;
-	      recoElectronFound = true;
-	    }
-	  }
-      }
-      if(recoElectronFound == true){
-	pairGenRecoElectronsVector_.push_back(std::pair<const reco::Candidate *, const ElectronType *>(&*itGenElectron, bestRecoElectron));
-      }
-    }
-  }
-}
-#else
-reco::GenParticleCandidate PATElectronProducer::findTruth(const edm::View<reco::Candidate> & parts, const ElectronType & elec) {throw cms::Exception("NO");}
-void PATElectronProducer::matchTruth(const edm::View<reco::Candidate> & particles, const edm::View<ElectronType> & electrons)  {throw cms::Exception("NO");}
-#endif
 
 double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType> > & electrons,
                                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
