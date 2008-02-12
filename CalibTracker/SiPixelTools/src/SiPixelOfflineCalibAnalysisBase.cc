@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.6 2008/01/31 16:48:57 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.7 2008/02/01 14:18:19 fblekman Exp $
 //
 //
 
@@ -35,9 +35,11 @@ std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig)
 {
    siPixelCalibDigiProducer_ = iConfig.getParameter<edm::InputTag>("DetSetVectorSiPixelCalibDigiTag");
+   createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
    outputFileName_ = iConfig.getParameter<std::string>("outputFileName");
    daqBE_ = &*edm::Service<DaqMonitorBEInterface>();
    folderMaker_ = new SiPixelFolderOrganizer();
+   
 }
 
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase()
@@ -117,7 +119,7 @@ void
 SiPixelOfflineCalibAnalysisBase::endJob() {
   this->calibrationEnd();
    edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Running end job... output file name is: " << outputFileName_;
-   if (!outputFileName_.empty()) 
+   if (!outputFileName_.empty() && createOutputFile_) 
    {
       edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Writing ROOT file to: " << outputFileName_ << std::endl;
       daqBE_->save(outputFileName_);

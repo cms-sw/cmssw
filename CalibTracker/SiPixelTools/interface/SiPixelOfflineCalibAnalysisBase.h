@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.6 2008/01/31 16:48:57 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.7 2008/02/01 14:18:18 fblekman Exp $
 //
 //
 
@@ -112,6 +112,7 @@ private:
   DaqMonitorBEInterface* daqBE_;
   SiPixelHistogramId * theHistogramIdWorker_;
   std::string outputFileName_;
+  bool createOutputFile_;
   
   //store set of detIDs that have been encountered
   //second int argument can be a derived class result flag
