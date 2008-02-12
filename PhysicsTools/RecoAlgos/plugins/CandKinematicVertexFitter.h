@@ -1,16 +1,15 @@
 #ifndef RecoAlgos_CandKalmanVertexFitter_h
 #define RecoAlgos_CandKalmanVertexFitter_h
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
-#include "PhysicsTools/RecoCandUtils/interface/CandCommonVertexFitter.h"
+#include "PhysicsTools/RecoCandUtils/interface/CandKinematicVertexFitter.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace reco {
   namespace modules {
-    template<typename Fitter>
-    struct CandVertexFitterEventSetupInit {
-      static void init(CandCommonVertexFitter<Fitter> & fitter, 
+    struct CandKinematicVertexFitterEventSetupInit {
+      static void init(CandKinematicVertexFitter & fitter, 
 		       const edm::Event & evt,
 		       const edm::EventSetup& es) { 
 	edm::ESHandle<MagneticField> h;
@@ -19,9 +18,9 @@ namespace reco {
       }
     };
 
-    template<typename Fitter>
-    struct EventSetupInit<CandCommonVertexFitter<Fitter> > {
-      typedef CandVertexFitterEventSetupInit<Fitter> type;
+    template<>
+    struct EventSetupInit<CandKinematicVertexFitter> {
+      typedef CandKinematicVertexFitterEventSetupInit type;
     };
   }
 }
