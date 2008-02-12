@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
-<PoolDatabase >
-   <PoolContainer name="PedestalsRcd" tech="homogeneous" >
-   <Class name="Pedestals" base_mapping="Pedestals_v00_base">
-   </Class>
-   </PoolContainer >
-</PoolDatabase >
-
