@@ -1,12 +1,11 @@
 /** \file
  * 
- *  $Date: 2006/12/14 22:34:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/23 12:08:20 $
+ *  $Revision: 1.4 $
  *
  * \author N.Terentiev, CMU
  */
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
-#include <bitset>
 
 using namespace std;
 

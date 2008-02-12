@@ -1,12 +1,11 @@
 /** \file
  * 
- *  $Date: 2007/05/03 23:27:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/07/23 12:08:20 $
+ *  $Revision: 1.13 $
  *
  * \author M.Schmitt, Northwestern
  */
 #include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
-#include <bitset>
 
 using namespace std;
 
@@ -50,14 +49,16 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
 }
 
 // Getters
-int CSCStripDigi::getStrip() const { return strip; }
-std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
+//int CSCStripDigi::getStrip() const { return strip; }
+//std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
 
 
 // Setters
-void CSCStripDigi::setStrip(int istrip) {
-  strip = istrip;
-}
+//void CSCStripDigi::setStrip(int istrip) {
+//  strip = istrip;
+//}
+
+
 void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
   bool badVal = false;
   for (int i=0; i<(int)vADCCounts.size(); i++) {

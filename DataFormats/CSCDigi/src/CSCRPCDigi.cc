@@ -2,15 +2,14 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU.
  *
- * $Date: 2006/04/06 11:18:37 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/23 12:08:20 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
 
 
 #include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
-#include <bitset>
 
 /// Constructors
 

@@ -2,12 +2,11 @@
  * 
  *  Digi for CSC DDU info available in DDU
  *
- *  $Date: 2007/05/21 20:06:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/23 12:08:20 $
+ *  $Revision: 1.2 $
  *
  */
 #include <DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h>
-#include <bitset>
 
 using namespace std;
 
