@@ -119,6 +119,7 @@ public:
     return str.str();
   }
 
+  virtual void setDirection(const GlobalVector & dir ) { theDirection = dir; }
 
 private:
   

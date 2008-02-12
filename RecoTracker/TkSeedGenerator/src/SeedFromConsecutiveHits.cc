@@ -60,13 +60,14 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
     TrajectoryStateOnSurface state = (iHit==0) ? 
         thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : thePropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
-
     if (!state.isValid()) return;
 
     const TransientTrackingRecHit::ConstRecHitPointer& tth = hits[iHit]; 
-    updatedState =  theUpdator.update(state, *tth);
-    _hits.push_back(hit->clone());
-      
+    
+    TransientTrackingRecHit::RecHitPointer newtth = tth->clone(state);
+    updatedState =  theUpdator.update(state, *newtth);
+
+    _hits.push_back(newtth->hit()->clone());
   } 
   PTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
     transformer.persistentState(updatedState, hit->geographicalId().rawId()) );
