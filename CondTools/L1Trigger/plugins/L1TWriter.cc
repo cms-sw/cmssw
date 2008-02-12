@@ -13,7 +13,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.2 2007/08/22 15:07:35 giedrius Exp $
+// $Id: L1TWriter.cc,v 1.3 2008/01/22 18:47:10 muzaffar Exp $
 //
 //
 
@@ -97,7 +97,10 @@ void L1TWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::set<std::string> types = rIt->second;
 
         for (std::set<std::string>::const_iterator tIt = types.begin (); tIt != types.end (); tIt++)
+	  {
+	    std::cout << "WRITING: " << record << " " << *tIt << std::endl ;
             writer.writePayload (newKey, iSetup, record, *tIt);
+	  }
     }
 
     // save key to DB
@@ -105,7 +108,6 @@ void L1TWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // This can be easaly done via PoolDBService, but due to limited interface i have to do it myself...
     if (!keyTag.empty ())
         writer.writeKey (new L1TriggerKey (newKey), keyTag, run);
-
 }
 
 template<typename Record, typename Value>
