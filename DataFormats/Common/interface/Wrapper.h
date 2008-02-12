@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.26 2008/01/24 23:38:35 wmtan Exp $
+$Id: Wrapper.h,v 1.27 2008/02/04 20:12:07 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,7 +26,7 @@ $Id: Wrapper.h,v 1.26 2008/01/24 23:38:35 wmtan Exp $
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
-
+   
   template <class T>
   class Wrapper : public EDProduct {
   public:
@@ -42,6 +42,10 @@ namespace edm {
     static const std::type_info& productTypeInfo() { return typeid(T);}
     static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
     
+    /**REFLEX must call the following constructor
+        the constructor takes ownership of T* */
+    Wrapper(T*);
+     
   private:
     virtual bool isPresent_() const {return present;}
 #ifndef __REFLEX__
@@ -64,6 +68,7 @@ namespace edm {
     // We make the copy constructor and assignment operator private.
     Wrapper(Wrapper<T> const& rh); // disallow copy construction
     Wrapper<T> & operator=(Wrapper<T> const&); // disallow assignment
+     
     bool present;
     //   T const obj;
     T obj;
@@ -334,6 +339,24 @@ namespace edm {
     }
   }
 
+  template <class T>
+  Wrapper<T>::Wrapper(T* ptr) :
+  EDProduct(), 
+  present(ptr != 0),
+  obj()
+  { 
+     std::auto_ptr<T> temp(ptr);
+     if (present) {
+        // The following will call swap if T has such a function,
+        // and use assignment if T has no such function.
+        typename boost::mpl::if_c<detail::has_swap_function<T>::value, 
+         DoSwap<T>, 
+        DoAssign<T> >::type swap_or_assign;
+        swap_or_assign(obj, *ptr);	
+     }
+     
+  }
+   
 #ifndef __REFLEX__
   template <class T>
   bool Wrapper<T>::isMergeable_()
