@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.12 2008/01/09 16:35:31 speer Exp $
+// $Id: TrackIPProducer.cc,v 1.11 2007/10/24 09:15:14 arizzi Exp $
 //
 //
 
@@ -175,7 +175,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 //                 fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
 		 fabs(IPTools::signedTransverseImpactParameter(transientTrack, direction, *pv).second.value())
 		 < m_cutMaxTIP &&                // max transverse i.p.
-		 // end of correction
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
                  fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter, loose only to reject PU
                  track.normalizedChi2() < m_cutMaxChiSquared &&   // normalized chi2
@@ -230,8 +229,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                if(n==first) use = second; else use = first;
                TrajectoryStateOnSurface trackState1 =  builder->build(selectedTracks[n]).impactPointState();
                TrajectoryStateOnSurface trackState2 =  builder->build(selectedTracks[use]).impactPointState();
-	       minDist.calculate(trackState1,trackState2);
-               std::pair<GlobalPoint,GlobalPoint> points = minDist.points();
+               std::pair<GlobalPoint,GlobalPoint> points = minDist.points(trackState1,trackState2);
                float distance = ( points.first - points.second ).mag();
                ipData[n].closestToFirstTrack=points.first;
                ipData[n].distanceToFirstTrack=distance;
