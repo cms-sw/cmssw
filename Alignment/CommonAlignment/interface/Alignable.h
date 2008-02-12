@@ -16,8 +16,8 @@ class Alignments;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2007/06/25 08:49:48 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/10/08 13:21:29 $
+ *  $Revision: 1.28 $
  *  (last update by $Author: cklae $)
  */
 
@@ -54,6 +54,7 @@ public:
   AlignmentParameters* alignmentParameters() const { return theAlignmentParameters; }
 
   /// Add a component to alignable
+  /// (GF: Should be interface in Composite, but needed in AlignableBuilder::build)
   virtual void addComponent( Alignable* ) = 0;
 
   /// Return vector of all direct components

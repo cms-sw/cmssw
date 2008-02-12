@@ -3,10 +3,7 @@
 
 /** \class AlignSetup
  *
- *  A singleton class to hold objects used by modules in alignment.
- *
- *  Facilitate information transfer between different modules. An object
- *  created by one module can be easily accessed by another via AlignSetup.
+ *  A helper class to hold objects used by modules in alignment.
  *
  *  AlignSetup has a template parameter to specify the type of objects it
  *  holds. Objects are stored in a map<string, Type*>. Users put/get an
@@ -14,11 +11,8 @@
  *  It returns 0 if the name is not found on get().
  *  It throws an exception if an object of the same name exists on put().
  *
- *  AlignSetup owns all the objects it holds. It deletes all the objects
- *  on destruction.
- *
- *  $Date: 2007/10/08 13:36:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/18 09:41:07 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
