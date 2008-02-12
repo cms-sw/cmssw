@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/09/26 06:59:32 $
+ *  $Revision: 1.17 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -34,10 +34,10 @@ public:
   bool operator==(const CSCStripDigi& digi) const;
 
   // Get the strip number
-  int getStrip() const;
+  int getStrip() const { return strip;}
 
   // Get ADC readings
-  std::vector<int> getADCCounts() const;
+  std::vector<int> getADCCounts() const { return ADCCounts; }
 
   /// Other getters
   std::vector<uint16_t> getADCOverflow() const {return ADCOverflow;}
@@ -45,7 +45,7 @@ public:
   std::vector<uint16_t> getErrorstat() const {return Errorstat;}
 
   // Set the strip number
-  void setStrip(int strip);
+  void setStrip(int istrip) { strip = istrip; }
 
   // Set with a vector of ADC readings
   void setADCCounts (std::vector<int> ADCCounts);
@@ -67,7 +67,7 @@ private:
 };
 
 #include<iostream>
-// needed by COBRA
+// once upon a time was needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
   o << " " << digi.getStrip();
   for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
