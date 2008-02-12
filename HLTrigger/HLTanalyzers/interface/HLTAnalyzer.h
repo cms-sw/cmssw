@@ -15,7 +15,14 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+
 // #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 /** \class HLTAnalyzer
   *  
@@ -47,6 +54,8 @@ private:
   std::string Electron_,Photon_,muon_;
   std::string l1extramc_,particleMapSource_,mctruth_; 
   std::string ecalDigisLabel_,hcalDigisLabel_;
+  std::string gtReadoutRecord_,gtObjectMap_; 
+
   int errCnt;
   const int errMax(){return 100;}
 

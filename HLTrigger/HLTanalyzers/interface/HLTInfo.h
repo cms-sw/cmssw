@@ -21,7 +21,6 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
-// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -39,10 +38,16 @@
 /* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h" */
 /* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"  */
 
-
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
-
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 typedef std::vector<std::string> MyStrings;
 
@@ -69,6 +74,8 @@ public:
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
 	       const l1extra::L1EtMissParticleCollection& l1extmet,
 //	       const l1extra::L1ParticleMapCollection& l1mapcoll,
+	       const L1GlobalTriggerReadoutRecord& L1GTRR,
+	       const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
 	       TTree* tree);
 
 private:

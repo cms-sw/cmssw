@@ -31,7 +31,7 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const CandidateView& mctruth,
+  void analyze(const CandidateCollection& mctruth,
 	       //const HepMC::GenEvent hepmc,
 	       const double pthat,
 	       TTree* tree);
