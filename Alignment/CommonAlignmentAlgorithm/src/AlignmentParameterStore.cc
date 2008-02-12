@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.20 $
- *  $Date: 2007/12/04 23:25:34 $
- *  (last update by $Author: ratnik $)
+ *  $Revision: 1.21 $
+ *  $Date: 2008/01/22 18:46:13 $
+ *  (last update by $Author: muzaffar $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -287,7 +287,10 @@ void AlignmentParameterStore::applyParameters(Alignable* alignable)
 
   // Rotation in local frame
   align::EulerAngles angles = ap->rotation();
-  alignable->rotateInLocalFrame( align::toMatrix(angles) );
+  align::RotationType rot = alignable->surface().toGlobal( align::toMatrix(angles) );
+  align::rectify(rot); // correct for rounding errors
+  alignable->rotateInGlobalFrame(rot);
+//   alignable->rotateInLocalFrame( align::toMatrix(angles) );
 }
 
 
