@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2007/07/05 10:34:46 $
- ** $Revision: 1.1 $
+ ** $Date: 2008/01/20 17:37:42 $
+ ** $Revision: 1.2 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -40,8 +40,6 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       virtual void endJob();
  private:
 
-      std::string outputFile_; 
-      TFile*  rootFile_;
 
       std::string mcProducer_;
       std::string mcCollection_;
