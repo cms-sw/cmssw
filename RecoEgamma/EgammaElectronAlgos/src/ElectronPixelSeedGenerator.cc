@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.30 2007/10/19 11:44:55 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.31 2007/12/17 16:31:54 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -24,11 +24,13 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -98,6 +100,17 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 }
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
+  //---------------------------------------------
+  //Getting the beamspot from the Event:
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByType(recoBeamSpotHandle);
+
+  // gets its position
+  //  const math::XYZPoint& BSPosition_ = recoBeamSpotHandle->position();
+  BSPosition_ = recoBeamSpotHandle->position();
+
+  //---------------------------------------------
+
   theSetup= &setup; 
 
   theMeasurementTracker->updatePixels(e);
@@ -121,7 +134,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 
 			 seedCluster->position().z());
-  const GlobalPoint vertexPos(0.,0.,0.);
+
+  const GlobalPoint vertexPos(BSPosition_.x(),BSPosition_.y(),BSPosition_.z());
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
 
@@ -174,8 +188,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits = 
     myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   float vertexZ = myMatchEle->getVertex();
-  GlobalPoint eleVertex(0.,0.,vertexZ); 
- 
+  GlobalPoint eleVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
   int isEle = 0;
   if (!elePixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] electron compatible hits found ";
@@ -200,7 +213,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
     myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   vertexZ = myMatchPos->getVertex();
    
-  GlobalPoint posVertex(0.,0.,vertexZ); 
+  GlobalPoint posVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
   if (!posPixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] positron compatible hits found ";
     isEle == 1 ? isEle = 3 : isEle = 2;
