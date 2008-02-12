@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="CalibHistograms_basic" >
+   <Class table="CALIBHISTOGRAMS" id_columns="ID" name="CalibHistograms" mapping_version="basic" >
+     <Container table="CALIBHISTOGRAMS_M__1" id_columns="ID_ID" name="m_data" position_column="POS" >
+       <Object table="CALIBHISTOGRAMS_M__1" id_columns="POS ID_ID" name="value_type" >
+         <Container table="CALIBHISTOGRAMS_M__2" id_columns="ID_POS ID_ID_ID" name="m_histo" position_column="POS" >
+           <Primitive column="M_DATA_VALUE_TYPE_M_HISTO_VA_1" name="value_type" />
+         </Container >
+       </Object >
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
