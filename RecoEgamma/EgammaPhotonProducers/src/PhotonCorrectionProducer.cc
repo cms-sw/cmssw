@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.20 2008/02/06 17:22:07 nancy Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.21 2008/02/08 17:29:07 nancy Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -104,15 +104,16 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
 
   ///// Get the conversion collection
+  bool validConversions=true;
   edm::Handle<reco::ConversionCollection> conversionHandle; 
   evt.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
   if (!conversionHandle.isValid()) {
-    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str();
-    return;
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Corrected Photons will be made with null reference to conversions " << "\n";
+    //return;
+    validConversions=false;
   }
-  const reco::ConversionCollection& conversionCollection = *(conversionHandle.product());
-
-
+  reco::ConversionCollection conversionCollection;
+  if (validConversions) conversionCollection = *(conversionHandle.product());
 
 
 
@@ -139,21 +140,22 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
       correctedPhoton->setP4(ph->p4()/ph->energy()*correctedEnergy);
       // 
 
-      int icp=0;    
-      for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
-	
-	reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-	icp++;      
-	if ( &(*itCP->superCluster())  != &(*aClus)  ) continue; 
-	if ( !(*itCP).isConverted() ) continue;  
-	
-	
-	correctedPhoton->addConversion(cpRef);     
-	
-	
-      }		     
+      if ( validConversions) {
+	int icp=0;    
+	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+	  
+	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+	  icp++;      
+	  if ( &(*itCP->superCluster())  != &(*aClus)  ) continue; 
+	  if ( !(*itCP).isConverted() ) continue;  
+	  
+	  
+	  correctedPhoton->addConversion(cpRef);     
+	  
+	  
+	}		     
 
-
+      }
 
 
       photon_ap->push_back(*correctedPhoton);
