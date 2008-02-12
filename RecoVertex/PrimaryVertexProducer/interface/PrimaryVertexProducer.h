@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.7 2006/09/29 11:26:57 werdmann Exp $
+// $Id: PrimaryVertexProducer.h,v 1.8 2007/12/20 23:44:15 yumiceva Exp $
 //
 //
 
@@ -47,6 +47,7 @@ public:
   // access to config
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
+  edm::InputTag beamSpotLabel;
   
 private:
   // ----------member data ---------------------------
