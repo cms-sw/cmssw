@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.3 2008/01/22 21:58:16 lowette Exp $
+// $Id: PATMETProducer.cc,v 1.4 2008/01/26 20:20:34 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
@@ -49,7 +49,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(metSrc_, mets);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<edm::View<reco::Candidate> > particles;
+  edm::Handle<edm::View<reco::GenParticle> > particles;
   if (addGenMET_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
@@ -70,13 +70,10 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // calculate the generated MET (just sum of neutrinos)
     if (addGenMET_) {
       reco::Particle theGenMET(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0));
-//      for(reco::CandidateCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
-      for(edm::View<reco::Candidate>::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
-        reco::Candidate * aTmpGenPart = const_cast<reco::Candidate *>(&*itGenPart);
-        reco::GenParticleCandidate aGenPart = *(dynamic_cast<reco::GenParticleCandidate *>(aTmpGenPart));
-        if ((aGenPart.status()==1) &&
-            (abs(aGenPart.pdgId())==12 || abs(aGenPart.pdgId())==14 || abs(aGenPart.pdgId())==16)) {
-          theGenMET.setP4(theGenMET.p4() + aGenPart.p4());
+      for(edm::View<reco::GenParticle>::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
+        if ((itGenPart->status()==1) &&
+            (abs(itGenPart->pdgId())==12 || abs(itGenPart->pdgId())==14 || abs(itGenPart->pdgId())==16)) {
+          theGenMET.setP4(theGenMET.p4() + itGenPart->p4());
         }
       }
       amet.setGenMET(theGenMET);

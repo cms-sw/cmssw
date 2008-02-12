@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.8 2008/01/25 16:17:02 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.9 2008/01/26 20:20:34 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -9,7 +9,6 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include <DataFormats/TauReco/interface/PFTau.h>
