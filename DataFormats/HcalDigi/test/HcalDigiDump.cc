@@ -9,8 +9,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2007/10/03 01:46:29 $
-$Revision: 1.12 $
+$Date: 2008/01/22 19:12:09 $
+$Revision: 1.13 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -31,6 +31,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<CastorDigiCollection> > castor;
   std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
+  std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
 
   try {
@@ -80,6 +81,20 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       const HcalTrigPrimDigiCollection& c=*(*i);
       
       for (HcalTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
+    }
+  } catch (...) {
+    cout << "No HCAL Trigger Primitive Digis." << endl;
+  }
+
+  try {
+    e.getManyByType(hotp);
+    std::vector<edm::Handle<HOTrigPrimDigiCollection> >::iterator i;
+    for (i=hotp.begin(); i!=hotp.end(); i++) {
+      const HOTrigPrimDigiCollection& c=*(*i);
+      
+      for (HOTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
 	cout << *j << std::endl;
 
     }

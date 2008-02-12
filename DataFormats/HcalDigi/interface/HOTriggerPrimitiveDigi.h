@@ -3,23 +3,27 @@
 
 #include <boost/cstdint.hpp>
 #include <ostream>
-
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 /** \class HOTriggerprimitiveDigi
  *  Simple container packer/unpacker for a single 
  *  Trigger Primitive from an HO HTR
  *
  *
- *  $Date: 2008/01/28 12:20:34 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/02/12 19:04:27 $
+ *  $Revision: 1.1 $
  *  \author J. St. John - Boston U
  */
 class HOTriggerPrimitiveDigi {
 public:
+  typedef HcalDetId key_type; ///< For the sorted collection
+ 
   HOTriggerPrimitiveDigi() { theHO_TP=0; }
   HOTriggerPrimitiveDigi(uint32_t data) { theHO_TP=data; }
   HOTriggerPrimitiveDigi(int ieta, int iphi, int nsamples, int whichSampleTriggered, int databits);
-  
+ 
+  const HcalDetId id() const { return HcalDetId(HcalOuter,ieta(),iphi(),4); }
+ 
   /// get the raw (packed) Triger Primitive
   uint32_t raw() const { return theHO_TP; }
   /// get the raw ieta value 
@@ -37,7 +41,7 @@ public:
   /// get the number of the triggering sample
   int whichSampleTriggered() const { return (theHO_TP>>16)&0x000F; }
   /// get the single-bit data
-  int data() const { return (theHO_TP>>20)&0x03FF; }
+  int bits() const { return (theHO_TP>>20)&0x03FF; }
 
   static const int HO_TP_SAMPLES_MAX = 10;
 
