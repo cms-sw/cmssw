@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.2 2008/01/25 15:46:19 muriel Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.3 2008/02/11 17:54:13 muriel Exp $
 //
 //
 
@@ -36,13 +36,12 @@ Implementation:
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-
+#include "TMath.h" 
 
 
 using namespace std;
 using namespace edm;
 using namespace reco;
-
 //
 // constructors and destructor
 //
@@ -139,7 +138,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
        hpt[level-2] = dbe_->book1D(name,title, NBINS, 0., 100);
        hpt[level-2]->setAxisTitle("Pt", 1);
        sprintf(name,"HLTMuonL%i_ptlx",level);
-       sprintf(title,"L%i Muon 90% efficiency Pt",level);
+       sprintf(title,"L%i Muon 90 percent efficiency Pt",level);
        hptlx[level-2] = dbe_->book1D(name,title, NBINS, 0., 100);
        hptlx[level-2]->setAxisTitle("90% efficiency Pt", 1);
        sprintf(name,"HLTMuonL%i_eta",level);
@@ -167,7 +166,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
        hpteta[level-2]->setAxisTitle("#eta", 2);
        sprintf(name,"HLTMuonL%i_dr",level);
        sprintf(title,"L%i Muon radial impact",level);         
-       hdr[level-2] = dbe_->book1D(name,title, NBINS, -0.5, 0.5);
+       hdr[level-2] = dbe_->book1D(name,title, NBINS, -0.3, 0.3);
        hdr[level-2]->setAxisTitle("R Impact (cm)", 1);
        sprintf(name,"HLTMuonL%i_dz",level);
        sprintf(title,"L%i Muon Z impact",level);         
@@ -197,12 +196,12 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
        hdimumass[level-2]->setAxisTitle("Di Muon Invariant Mass (GeV)");
        sprintf(name,"HLTMuonL%i_drphi",level);
        sprintf(title,"L%i #Deltar vs #phi",level);         
-       hdrphi[level-2] = dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,NBINS,-999.,999.,"");
+       hdrphi[level-2] = dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
        hdrphi[level-2]->setAxisTitle("#phi", 1);
        hdrphi[level-2]->setAxisTitle("#Deltar", 2);
        sprintf(name,"HLTMuonL%i_dzeta",level);
        sprintf(title,"L%i #Deltaz vs #eta",level);         
-       hdzeta[level-2] = dbe_->bookProfile(name,title, NBINS,-2.5, 2.5 ,NBINS,-999., 999.,"");
+       hdzeta[level-2] = dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
        hdzeta[level-2]->setAxisTitle("#eta", 1);
        hdzeta[level-2]->setAxisTitle("#Deltaz", 2);
        if (level == 2 ) {
@@ -212,10 +211,10 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
 	 hL2etares->setAxisTitle("#Delta#eta", 1);
 	 hL2phires = dbe_->book1D("HLTMuonL2_phires", "L2 Muon #Delta#phi (wrt L3)", NBINS, -0.1, 0.1);
 	 hL2phires->setAxisTitle("#Delta#phi", 1);
-	 hL2phiresphi = dbe_->bookProfile("HLTMuonL2_phiresphi", "L2 Muon #Delta#phi vs #phi", NBINS, -3.15, 3.15,NBINS,-999.,999.,"");
+	 hL2phiresphi = dbe_->bookProfile("HLTMuonL2_phiresphi", "L2 Muon #Delta#phi vs #phi", NBINS, -3.15, 3.15,1,-999.,999.,"s");
 	 hL2phiresphi->setAxisTitle("<#Delta#phi>", 2);
 	 hL2phiresphi->setAxisTitle("#phi", 1);
-	 hL2etareseta = dbe_->bookProfile("HLTMuonL2_etareseta", "L2 Muon #Delta#eta vs #eta", NBINS,-2.5, 2.5 ,NBINS,-999., 999.,"");
+	 hL2etareseta = dbe_->bookProfile("HLTMuonL2_etareseta", "L2 Muon #Delta#eta vs #eta", NBINS,-2.5, 2.5,1,-999.,999.,"s");
 	 hL2etareseta->setAxisTitle("<#Delta#eta>", 2);
 	 hL2etareseta->setAxisTitle("#eta", 1);
        }
@@ -273,27 +272,29 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       hpt[0]->Fill(tk->pt());      
       double apar0 = fabs(tk->parameter(0));
       if (apar0>0)hptlx[0]->Fill((1+3.9*tk->error(0)/apar0)*tk->pt());      
-      heta[0]->Fill(tk->eta());      
-      hphi[0]->Fill(tk->phi()); 
-      hetaphi[0]->Fill(tk->phi(),tk->eta()); 
-      hptphi[0]->Fill(tk->pt(),tk->phi()); 
-      hpteta[0]->Fill(tk->pt(),tk->eta()); 
-      hnhit[0]->Fill(tk->numberOfValidHits()); 
-      hdr[0]->Fill(tk->d0()); 
-      hdz[0]->Fill(tk->dz()); 
-      hdrphi[0]->Fill(tk->phi(),tk->d0()); 
-      hdzeta[0]->Fill(tk->eta(),tk->dz());
-      herr0[0]->Fill(tk->error(0)); 
       hcharge[0]->Fill(tk->charge()); 
-      cand2=cand;
-      ++cand2;
-      for (; cand2!=l2mucands->end(); cand2++) {
-	TrackRef tk2=cand2->get<TrackRef>();
-	if ( tk->charge()*tk2->charge() == -1 ){
-	  double mass=(cand->p4()+cand2->p4()).M();
-	  hdimumass[0]->Fill(mass);
+      if ( tk->charge() != 0 ) {
+	heta[0]->Fill(tk->eta());      
+	hphi[0]->Fill(tk->phi()); 
+	hetaphi[0]->Fill(tk->phi(),tk->eta()); 
+	hptphi[0]->Fill(tk->pt(),tk->phi()); 
+	hpteta[0]->Fill(tk->pt(),tk->eta()); 
+	hnhit[0]->Fill(tk->numberOfValidHits()); 
+	hdr[0]->Fill(tk->d0()); 
+	hdz[0]->Fill(tk->dz()); 
+	hdrphi[0]->Fill(tk->phi(),tk->d0()); 
+	hdzeta[0]->Fill(tk->eta(),tk->dz());
+	herr0[0]->Fill(tk->error(0)); 
+	cand2=cand;
+	++cand2;
+	for (; cand2!=l2mucands->end(); cand2++) {
+	  TrackRef tk2=cand2->get<TrackRef>();
+	  if ( tk->charge()*tk2->charge() == -1 ){
+	    double mass=(cand->p4()+cand2->p4()).M();
+	    hdimumass[0]->Fill(mass);
+	  }
 	}
-      }
+      } else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
     }
   }
   iEvent.getByLabel (l3collectionTag_,l3mucands);
@@ -350,7 +351,10 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	    hL2etares->Fill(tk->eta()-l2tk->eta());
 	    hL2etareseta->Fill(tk->eta(),tk->eta()-l2tk->eta());
 	    hL2phires->Fill(tk->phi()-l2tk->phi());
-	    hL2phiresphi->Fill(tk->phi(),tk->phi()-l2tk->phi());
+	    double dphi=tk->phi()-l2tk->phi();
+	    if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
+	    else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
+	    hL2phiresphi->Fill(tk->phi(),dphi);
 	    break;
 	  }
 	}
