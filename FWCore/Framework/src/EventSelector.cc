@@ -326,6 +326,8 @@ namespace edm
                                        Strings const& fullTriggerList)
   {
     // an empty selection list is not valid
+    // (we default an empty "SelectEvents" parameter to {"*","!*"} in
+    // the getEventSelectionVString method below to help avoid this)
     if (pathspec.size() == 0)
     {
       return false;
@@ -361,7 +363,7 @@ namespace edm
                iState++)
           {
             sampleResults[iPath] = HLTPathStatus(static_cast<hlt::HLTState>(iState), 0);
-            if (evtSelector.acceptEvent(sampleResults))
+            if (evtSelector.wantAll() || evtSelector.acceptEvent(sampleResults))
             {
               oneResultMatched = true;
               break;
@@ -441,8 +443,10 @@ namespace edm
         {
           sampleResults[iPath] =
             HLTPathStatus(static_cast<hlt::HLTState>(iState), 0);
-          bool accept1 = selector1.acceptEvent(sampleResults);
-          bool accept2 = selector2.acceptEvent(sampleResults);
+          bool accept1 = selector1.wantAll() ||
+            selector1.acceptEvent(sampleResults);
+          bool accept2 = selector2.wantAll() ||
+            selector2.acceptEvent(sampleResults);
           if (accept1 != accept2)
           {
             exactMatch = false;
@@ -519,7 +523,7 @@ namespace edm
     for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
     {
       sampleResults[iPath] = (*maskedResults)[iPath];
-      if (! selector.acceptEvent(sampleResults))
+      if (! selector.wantAll() && ! selector.acceptEvent(sampleResults))
       {
         maskedResults->reset(iPath);
       }
@@ -542,6 +546,7 @@ namespace edm
     // default the selection to everything (wildcard)
     Strings selection;
     selection.push_back("*");
+    selection.push_back("!*");
 
     // the SelectEvents parameter is a ParameterSet within
     // a ParameterSet, so we have to pull it out twice
