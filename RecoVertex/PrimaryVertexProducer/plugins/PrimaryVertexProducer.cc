@@ -37,7 +37,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
 
   trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
   beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
-  
+ 
   //  produces<VertexCollection>("PrimaryVertex");
   produces<reco::VertexCollection>();
 
@@ -60,105 +60,88 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   reco::VertexCollection vColl;
 
 
-  try {
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Reconstructing event number: " << iEvent.id() << "\n";
+  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+    << "Reconstructing event number: " << iEvent.id() << "\n";
     
-   // get the BeamSpot, it will alwys be needed, even when not used as a constraint
-   reco::BeamSpot vertexBeamSpot;
-   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-   try{
-     iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
-     vertexBeamSpot = *recoBeamSpotHandle;
-     edm::LogInfo("RecoVertex/PrimaryVertexProducer")
-		 << " found BeamSpot"
-		 << *recoBeamSpotHandle << "\n";
-   }catch(const edm::Exception & err){
-     if ( err.categoryCode() != edm::errors::ProductNotFound ) {
-       edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-	 << "Unexpected exception occured retrieving BeamSpot in event: " 
-	 << iEvent.id() << "\n" << err.what() << "\n";
-	 throw;
-     }
-     if(fVerbose){
-       cout << "RecoVertex/PrimaryVertexProducer: "
-	    << "No beam spot available from EventSetup \n"
-	    << "continue using default BeamSpot" 
-	    << endl;
-     }
-     vertexBeamSpot.dummy();
-   }
-
-
-    // get RECO tracks from the event
-    // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel, tks);
-
-
-    // interface RECO tracks to vertex reconstruction
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-    vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
-   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-   if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
-      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-   }
-
-
-   // call vertex reconstruction
-   vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
-   if(fVerbose){
-     std::cout <<"RecoVertex/PrimaryVertexProducer: "
-	       << " found " << t_vts.size() << " reconstructed vertices" << "\n";
-   }
-   
-   // convert transient vertices returned by the theAlgo to (reco) vertices
-   for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
-	iv != t_vts.end(); iv++) {
-     reco::Vertex v = *iv;
-     vColl.push_back(v);
-   }
-
-   if (vColl.empty()) {
-     vColl.push_back(reco::Vertex(vertexBeamSpot.position(), 
-    			    vertexBeamSpot.rotatedCovariance3D(),0.,0.,0));
-     if(fVerbose){
-       std::cout <<"RecoVertex/PrimaryVertexProducer: "
-		 << " will put Vertex derived from BeamSpot into Event.\n";
-     }
-   }
-
-   if(fVerbose){
-     cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
-     int ivtx=0;
-     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
-	 v!=vColl.end(); ++v){
-       std::cout << "recvtx "<< ivtx++ 
-		 << "#trk " << std::setw(3) << v->tracksSize()
-		 << " chi2 " << std::setw(4) << v->chi2() 
-		 << " ndof " << std::setw(3) << v->ndof() 
-		 << " x "  << std::setw(6) << v->position().x() 
-		 << " dx " << std::setw(6) << v->xError()
-		 << " y "  << std::setw(6) << v->position().y() 
-		 << " dy " << std::setw(6) << v->yError()
-		 << " z "  << std::setw(6) << v->position().z() 
-		 << " dz " << std::setw(6) << v->zError()
-		 << std::endl;
-     }
-   }
-
-  }  catch (std::exception & err) {
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Exception during event number: " << iEvent.id() 
-      << "\n" << err.what() << "\n";
-    cout << "RecoVertex/PrimaryVertexProducer"
-	 << "Exception during event number: " << iEvent.id() 
-	 << "\n" << err.what() << "\n";
+  // get the BeamSpot, it will alwys be needed, even when not used as a constraint
+  reco::BeamSpot vertexBeamSpot;
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
+  if (recoBeamSpotHandle.isValid()){
+    vertexBeamSpot = *recoBeamSpotHandle;
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer")
+      << " found BeamSpot"
+      << *recoBeamSpotHandle << "\n";
+  }else{
+    vertexBeamSpot.dummy();
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer")
+      << "No beam spot available from EventSetup \n"
+      << "continue using default BeamSpot\n" ;
   }
+
+
+
+  // get RECO tracks from the event
+  // `tks` can be used as a ptr to a reco::TrackCollection
+  edm::Handle<reco::TrackCollection> tks;
+  iEvent.getByLabel(trackLabel, tks);
+
+
+  // interface RECO tracks to vertex reconstruction
+  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+    << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
+  edm::ESHandle<TransientTrackBuilder> theB;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+  vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
+  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+    << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+  if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
+		     << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+  }
+
+
+  // call vertex reconstruction
+  vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
+  if(fVerbose){
+    std::cout <<"RecoVertex/PrimaryVertexProducer: "
+	      << " found " << t_vts.size() << " reconstructed vertices" << "\n";
+  }
+   
+  // convert transient vertices returned by the theAlgo to (reco) vertices
+  for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+       iv != t_vts.end(); iv++) {
+    reco::Vertex v = *iv;
+    vColl.push_back(v);
+  }
+
+  if (vColl.empty()) {
+    vColl.push_back(reco::Vertex(vertexBeamSpot.position(), 
+				 vertexBeamSpot.rotatedCovariance3D(),0.,0.,0));
+    if(fVerbose){
+      std::cout <<"RecoVertex/PrimaryVertexProducer: "
+		<< " will put Vertex derived from BeamSpot into Event.\n";
+    }
+  }
+
+  if(fVerbose){
+    cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
+    int ivtx=0;
+    for(reco::VertexCollection::const_iterator v=vColl.begin(); 
+	v!=vColl.end(); ++v){
+      std::cout << "recvtx "<< ivtx++ 
+		<< "#trk " << std::setw(3) << v->tracksSize()
+		<< " chi2 " << std::setw(4) << v->chi2() 
+		<< " ndof " << std::setw(3) << v->ndof() 
+		<< " x "  << std::setw(6) << v->position().x() 
+		<< " dx " << std::setw(6) << v->xError()
+		<< " y "  << std::setw(6) << v->position().y() 
+		<< " dy " << std::setw(6) << v->yError()
+		<< " z "  << std::setw(6) << v->position().z() 
+		<< " dz " << std::setw(6) << v->zError()
+		<< std::endl;
+    }
+  }
+
   
   *result = vColl;
   //  iEvent.put(result, "PrimaryVertex");
