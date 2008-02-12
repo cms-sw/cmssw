@@ -37,9 +37,10 @@ class BitArray {
   class refToBit{
     friend class BitArray;
 
-    refToBit();
+    //refToBit();
 
   public:
+    refToBit() {}
     refToBit(BitArray& b, int pos) {
       _word = &b.getWord(pos);
       _pos = getPosInWord(pos);
