@@ -16,67 +16,78 @@ class AlignableTracker: public AlignableComposite
 public:
   
   /// Constructor (builds the full hierarchy)
-  AlignableTracker( const TrackerGeometry* tracker ); 
+  explicit AlignableTracker(const TrackerGeometry *tracker); 
+
+  /// Return alignables of subdet and hierarchy level determined by name
+  /// as defined in tracker part of Alignment/CommonAlignment/StructureType.h
+  Alignables& subStructures(const std::string &subStructName) {
+    return alignableLists_.find(subStructName);
+  }
 
   /// Return TOB half barrels
-  Alignables& outerHalfBarrels() { return alignableLists_.find("TOBHalfBarrel"); }
+  Alignables& outerHalfBarrels() { return this->subStructures("TOBHalfBarrel");}
   /// Return TIB half barrels
-  Alignables& innerHalfBarrels() { return alignableLists_.find("TIBHalfBarrel"); }
+  Alignables& innerHalfBarrels() { return this->subStructures("TIBHalfBarrel");}
   /// Return Pixel half barrels
-  Alignables& pixelHalfBarrels() { return alignableLists_.find("TPBHalfBarrel"); }
+  Alignables& pixelHalfBarrels() { return this->subStructures("TPBHalfBarrel");}
   /// Return TECs
-  Alignables& endCaps() { return alignableLists_.find("TECEndcap"); }
+  Alignables& endCaps() { return this->subStructures("TECEndcap");}
   /// Return TPEs
-  Alignables& pixelEndCaps() { return alignableLists_.find("TPEEndcap"); }
+  Alignables& pixelEndCaps() { return this->subStructures("TPEEndcap");}
   /// Return TIDs
-  Alignables& TIDs() { return alignableLists_.find("TIDEndcap"); }
+  Alignables& TIDs() { return this->subStructures("TIDEndcap");}
 
   /// Return inner and outer barrel GeomDets together 
-  Alignables barrelGeomDets() { return merge( innerBarrelGeomDets(), outerBarrelGeomDets() ); }
+  Alignables barrelGeomDets() { return this->merge(this->innerBarrelGeomDets(),
+						   this->outerBarrelGeomDets());}
   /// Return inner barrel and TID GeomDets together 
-  Alignables TIBTIDGeomDets() { return merge( innerBarrelGeomDets(), TIDGeomDets() ); }
+  Alignables TIBTIDGeomDets() { return this->merge(this->innerBarrelGeomDets(),
+						   this->TIDGeomDets());
+  }
   /// Return inner barrel GeomDets 
-  Alignables& innerBarrelGeomDets() { return alignableLists_.find("TIBModule"); }
+  Alignables& innerBarrelGeomDets() { return this->subStructures("TIBModule");}
   /// Return outer barrel GeomDets
-  Alignables& outerBarrelGeomDets() { return alignableLists_.find("TOBModule"); }
+  Alignables& outerBarrelGeomDets() { return this->subStructures("TOBModule");}
   /// Return pixel barrel GeomDets
-  Alignables& pixelHalfBarrelGeomDets() { return alignableLists_.find("TPBModule"); }
+  Alignables& pixelHalfBarrelGeomDets() { return this->subStructures("TPBModule");}
   /// Return endcap  GeomDets
-  Alignables& endcapGeomDets() { return alignableLists_.find("TECModule"); }
+  Alignables& endcapGeomDets() { return this->subStructures("TECModule");}
   /// Return TID  GeomDets  
-  Alignables& TIDGeomDets() { return alignableLists_.find("TIDModule"); }
+  Alignables& TIDGeomDets() { return this->subStructures("TIDModule");}
   /// Return pixel endcap GeomDets
-  Alignables& pixelEndcapGeomDets() { return alignableLists_.find("TPEModule"); }
+  Alignables& pixelEndcapGeomDets() { return this->subStructures("TPEModule");}
   
   /// Return inner and outer barrel rods
-  Alignables barrelRods() { return merge( innerBarrelRods(), outerBarrelRods() ); }
+  Alignables barrelRods() { return this->merge(this->innerBarrelRods(), this->outerBarrelRods());}
   /// Return inner barrel rods
-  Alignables& innerBarrelRods() { return alignableLists_.find("TIBString"); }
+  Alignables& innerBarrelRods() { return this->subStructures("TIBString");}
   /// Return outer barrel rods
-  Alignables& outerBarrelRods() { return alignableLists_.find("TOBRod"); }
+  Alignables& outerBarrelRods() { return this->subStructures("TOBRod");}
   /// Return pixel half barrel ladders (implemented as AlignableRods)
-  Alignables& pixelHalfBarrelLadders() { return alignableLists_.find("TPBLadder"); }
+  Alignables& pixelHalfBarrelLadders() { return this->subStructures("TPBLadder");}
   /// Return encap petals
-  Alignables& endcapPetals() { return alignableLists_.find("TECPetal"); }
+  Alignables& endcapPetals() { return this->subStructures("TECPetal");}
   /// Return TID rings
-  Alignables& TIDRings() { return alignableLists_.find("TIDRing"); }
+  Alignables& TIDRings() { return this->subStructures("TIDRing");}
   /// Return pixel endcap petals
-  Alignables& pixelEndcapPetals() { return alignableLists_.find("TPEPanel"); }
+  Alignables& pixelEndcapPetals() { return this->subStructures("TPEPanel");}
 		     
   /// Return inner and outer barrel layers
-  Alignables barrelLayers() { return merge( innerBarrelLayers(), outerBarrelLayers() ); }
+  Alignables barrelLayers() { return this->merge(this->innerBarrelLayers(),
+						 this->outerBarrelLayers() );
+  }
   /// Return inner barrel layers
-  Alignables& innerBarrelLayers() { return alignableLists_.find("TIBLayer"); }
+  Alignables& innerBarrelLayers() { return this->subStructures("TIBLayer");}
   /// Return outer barrel layers
-  Alignables& outerBarrelLayers() { return alignableLists_.find("TOBLayer"); }
+  Alignables& outerBarrelLayers() { return this->subStructures("TOBLayer");}
   /// Return pixel half barrel layers
-  Alignables& pixelHalfBarrelLayers() { return alignableLists_.find("TPBLayer"); }
+  Alignables& pixelHalfBarrelLayers() { return this->subStructures("TPBLayer");}
   /// Return endcap layers
-  Alignables& endcapLayers() { return alignableLists_.find("TECDisk"); }
+  Alignables& endcapLayers() { return this->subStructures("TECDisk");}
   /// Return TID layers
-  Alignables& TIDLayers() { return alignableLists_.find("TIDDisk"); }
+  Alignables& TIDLayers() { return this->subStructures("TIDDisk");}
   /// Return pixel endcap layers
-  Alignables& pixelEndcapLayers() { return alignableLists_.find("TPEHalfDisk"); }
+  Alignables& pixelEndcapLayers() { return this->subStructures("TPEHalfDisk");}
 
   /// Return alignments, sorted by DetId
   Alignments* alignments() const;
