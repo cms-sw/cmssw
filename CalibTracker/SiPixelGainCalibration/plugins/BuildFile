@@ -6,6 +6,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/SiPixelRawData>
 <use name=CondTools/SiPixel>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>

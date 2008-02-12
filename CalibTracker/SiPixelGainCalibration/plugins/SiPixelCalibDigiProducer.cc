@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.8 2008/01/23 12:04:04 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.9 2008/02/01 15:23:52 fblekman Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -55,12 +56,16 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   iEventCounter_(0),
   ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
   control_pattern_size_(iConfig.getParameter<bool>("checkPatternEachEvent")),
+  includeErrors_(iConfig.getUntrackedParameter<bool>("includeErrors",false)),
+  errorType(iConfig.getUntrackedParameter<int>("errorTypeNumber",31)),// see definition in SiPixelRawDataErrors::errorMessage for detauls. 31 is defined as 'event number mismatch'...
   conf_(iConfig),
   number_of_pixels_per_pattern_(0)
 
 {
    //register your products
   produces< edm::DetSetVector<SiPixelCalibDigi> >();
+  if(includeErrors_)
+    produces< edm::DetSetVector<SiPixelRawDataError> > ();
 
 }
 
@@ -194,6 +199,8 @@ SiPixelCalibDigiProducer::clear(){
 
   intermediate_data_.erase(intermediate_data_.begin(),intermediate_data_.end());
   intermediate_data_.clear();
+  // do not erase the error bits, just increase them...
+  
 }
 
 ////////////////////////////////////////////////////
@@ -278,18 +285,30 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   fill(iEvent,iSetup); // fill method where the actual looping over the digis is done.
 
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigi> > pOut(new edm::DetSetVector<SiPixelCalibDigi>);
- 
+  std::auto_ptr<edm::DetSetVector<SiPixelRawDataError> > pErr (new edm::DetSetVector<SiPixelRawDataError> );
+  
   // copy things over into pOut if necessary (this is only once per pattern)
   if(store()){
     //    std::cout << "in loop" << std::endl;
     for(std::map<pixelstruct,SiPixelCalibDigi>::const_iterator idet=intermediate_data_.begin(); idet!=intermediate_data_.end();++idet){
-      if(!control_pattern_size_)
+      uint32_t detid=idet->first.first;
+      if(!control_pattern_size_){
 	if(! checkPixel(idet->first.first,idet->first.second.first,idet->first.second.second))
 	  continue;
-      uint32_t detid=idet->first.first;
+      }
+
+      
       SiPixelCalibDigi tempdigi=idet->second;
       edm::DetSet<SiPixelCalibDigi> & detSet = pOut->find_or_insert(detid);
       detSet.data.push_back(tempdigi);
+    }
+    if(includeErrors_){
+      for(std::map<pixelstruct,SiPixelRawDataError>::const_iterator ierr=error_data_.begin(); ierr!=error_data_.end();++ierr){
+	uint32_t detid=ierr->first.first;
+	SiPixelRawDataError temperror = ierr->second;
+	edm::DetSet<SiPixelRawDataError> & errSet = pErr->find_or_insert(detid);
+	errSet.data.push_back(temperror);
+      }
     }
     edm::LogInfo("INFO") << "now filling event " << iEventCounter_ << " as pixel pattern changes every " <<  pattern_repeat_ << " events..." << std::endl;
     clear();
@@ -346,6 +365,23 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
     errorlog<<")";
   }
   edm::LogError("ERROR") << errorlog.str() << std::endl;
+  if(includeErrors_){// book the error
+    
+    pixelstruct temppixelworker;
+    temppixelworker.first=detid;
+    temppixelworker.second.first=row;
+    temppixelworker.second.second=col;
+    std::map<pixelstruct,SiPixelRawDataError>::const_iterator ierr = error_data_.find(temppixelworker);
+    if(ierr== error_data_.end()){
+      const unsigned int errorword32=1;
+      SiPixelRawDataError temperr(errorword32,errorType,fedid);
+      error_data_[temppixelworker]=temperr;
+      error_data_[temppixelworker].setMessage();
+    }
+    else
+      error_data_[temppixelworker].setWord32(error_data_[temppixelworker].getWord32()+1);
+  }
+    
   return false;
 }
 
@@ -362,7 +398,6 @@ SiPixelCalibDigiProducer::beginJob(const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiPixelCalibDigiProducer::endJob() {
+void SiPixelCalibDigiProducer::endJob() {
 }
 DEFINE_FWK_MODULE(SiPixelCalibDigiProducer);

@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.4 2007/12/13 11:00:46 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.5 2008/01/23 10:44:11 fblekman Exp $
 //
 //
 
@@ -83,6 +83,8 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       
       bool ignore_non_pattern_;
       bool control_pattern_size_;
+      bool includeErrors_;
+      int errorType;
       edm::ParameterSet conf_;
       std::string label_;
       std::string instance_;
@@ -94,6 +96,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
 
       // worker variables
       std::map<pixelstruct,SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
+      std::map<pixelstruct,SiPixelRawDataError> error_data_;
       //      std::vector<SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
       std::vector<pixelstruct> detPixelMap_;// map to keep track of which pixels are filled where in intermediate_data_
       uint32_t pattern_repeat_; // keeps track of when the pattern should change
