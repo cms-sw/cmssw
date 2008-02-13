@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.6 2008/01/30 15:54:33 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.7 2008/02/05 17:54:07 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -12,28 +12,30 @@
    The PATElectronCleaner produces analysis-level pat::Electron's starting from
    a collection of objects of ElectronType. 
 
-   Electron selection is performed based on the electron ID or on user-defined cuts. 
-   The selection is steered by the configuration parameter:
+   The selection is based on the electron ID or on user-defined cuts. 
+   It is steered by the configuration parameters:
 
-   PSet selection = {
-     string type = "none | cut | likelihood | neuralnet | custom"
-     [ // If cut-based, give electron ID source
-       InputTag eIdSource = <source>
-     ]
-     [ // If likelihood/neuralnet, give ID source and cut value
-       InputTag eIdSource = <source>
-       double value = xxx
-     ]
-     [ // If custom, give cluster shape sources and cut values
-       InputTag clusterShapeBarrel = <source 1>
-       InputTag clusterShapeEndcap = <source 2>
-       double <cut> = <value>
-       ...
-     ]
-   }
+\code
+PSet selection = {
+   string type = "none | cut | likelihood | neuralnet | custom"
+   [ // If cut-based, give electron ID source
+     InputTag eIdSource = <source>
+   ]
+   [ // If likelihood/neuralnet, give ID source and cut value
+     InputTag eIdSource = <source>
+     double value = xxx
+   ]
+   [ // If custom, give cluster shape sources and cut values
+     InputTag clusterShapeBarrel = <source 1>
+     InputTag clusterShapeEndcap = <source 2>
+     double <cut> = <value>
+     ...
+   ]
+}
+\endcode
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.6 2008/01/30 15:54:33 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.7 2008/02/05 17:54:07 fronga Exp $
 */
 
 

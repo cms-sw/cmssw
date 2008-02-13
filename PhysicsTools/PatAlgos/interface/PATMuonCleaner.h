@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.3 2008/01/16 16:04:37 gpetrucc Exp $
+// $Id: PATMuonCleaner.h,v 1.4 2008/02/07 15:48:53 fronga Exp $
 //
 
 /**
@@ -10,20 +10,22 @@
 
    The PATMuonCleaner produces a list of clean muons with associated back-references to the original muon collection.
 
-   Muon selection is performed using the standard muon ID helper functions.
-   It can be configured in the following way:
+   The muon selection is based on reconstruction, custom selection or (in the future) muon
+   identification algorithms. It is steered by the configuration parameters:
 
-   PSet selection = {
+\code
+PSet selection = {
    string type = "none | globalMuons | muId | custom" // muId not implemented yet
    [ // If custom, give cut values
      double dPbyPmax = ...
      double chi2max  = ...
      int    nHitsMin = ...
    ]
-   }
+}
+\endcode
  
-  \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf, 
-  \version  $Id: PATMuonCleaner.h,v 1.3 2008/01/16 16:04:37 gpetrucc Exp $
+  \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
+  \version  $Id: PATMuonCleaner.h,v 1.4 2008/02/07 15:48:53 fronga Exp $
 */
 
 
