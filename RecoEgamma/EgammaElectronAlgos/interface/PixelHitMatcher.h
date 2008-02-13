@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.6 2007/10/15 13:29:32 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.7 2008/02/13 10:41:44 uberthon Exp $
 //
 //
 
@@ -95,13 +95,18 @@ class PixelHitMatcher{
   std::vector<Hep3Vector> predicted2Hits();
   float getVertex();
  
-  void set1stLayer (float dummyphi1min, float dummyphi1max,float zmin1, float zmax1)
+  void set1stLayer (float dummyphi1min, float dummyphi1max)
     { 
       meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
       meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+    }
+
+  void set1stLayerZRange (float zmin1, float zmax1)
+    { 
       meas1stBLayer.setZRange(zmin1,zmax1);
       meas1stFLayer.setZRange(zmin1,zmax1);
     }
+
   void set2ndLayer (float dummyphi2min, float dummyphi2max)
     { 
                                          meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max) ;

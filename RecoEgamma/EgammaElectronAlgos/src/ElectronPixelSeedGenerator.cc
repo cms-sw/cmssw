@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.32 2008/02/12 15:55:04 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.33 2008/02/13 10:41:45 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -142,6 +142,9 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
 
+  myMatchEle->set1stLayerZRange(zmin1,zmax1);
+  myMatchPos->set1stLayerZRange(zmin1,zmax1);
+  
   //Here change the deltaPhi window of the first pixel layer in function of the seed pT
   if (dynamicphiroad)
     {
@@ -177,8 +180,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
 	}
 
 
-      myMatchEle->set1stLayer(ephimin1,ephimax1,zmin1,zmax1);
-      myMatchPos->set1stLayer(pphimin1,pphimax1,zmin1,zmax1);
+      myMatchEle->set1stLayer(ephimin1,ephimax1);
+      myMatchPos->set1stLayer(pphimin1,pphimax1);
       myMatchEle->set2ndLayer(phimin2,phimax2);
       myMatchPos->set2ndLayer(phimin2,phimax2);
 
