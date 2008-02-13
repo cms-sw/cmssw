@@ -51,27 +51,40 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type_,*arg,**kargs):
-        super(ESPrefer,self).__init__(type_,*arg,**kargs)
+    def __init__(self,type_,targetLabel=''):
+        super(ESPrefer,self).__init__(type_)
+        self._targetLabel = targetLabel
+        if targetLabel is None:
+            self._targetLabel = str('')
     def _placeImpl(self,name,proc):
-        if name == '':
-            name=self.type_()
         proc._placeESPrefer(name,self)
-    def moduleLabel_(self,myname):
-       # the C++ parser can give it a name like "label@prefer".  Get rid of that.
-       return myname.split('@')[0]
     def nameInProcessDesc_(self, myname):
-       # the C++ parser can give it a name like "label@prefer".  Get rid of that.
-       return "esprefer_" + self.type_() + "@" + myname.split('@')[0]
+        # the C++ parser can give it a name like "label@prefer".  Get rid of that.
+        return "esprefer_" + self.type_() + "@" + self._targetLabel
+    def copy(self):
+        returnValue = ESPrefer.__new__(type(self))
+        returnValue.__init__(self.type_(), self._targetLabel)
+        return returnValue
+    def moduleLabel_(self, myname):
+        return self._targetLabel
     def dumpPythonAs(self, label, options=PrintOptions()):
-       name = self.moduleLabel_(label)
-       if name == '':
-          name = type_()
+       result = options.indentation()
+       basename = self._targetLabel
+       if basename == '':
+           basename = self.type_()
        if options.isCfg:
-           return options.indentation()+'process.prefer(\"'+name+'\")'
+           # do either type or label
+           result += 'process.prefer(\"'+basename+'\")\n'
        else:
            # use the base class Module
-           return options.indentation()+'es_prefer_'+name+' = '+self.dumpPython(options)
+           result += 'es_prefer_'+basename+' = cms.ESPrefer(\"'+self.type_()+'\"'
+           if self._targetLabel != '':
+              result += ',\"'+self._targetLabel+'\"'
+           result += ')\n'
+       return result
+    def dumpConfig(self, options):
+       result = options.indentation() + 'es_prefer '+ self._targetLabel+ ' = ' + self.type_() + '{}\n'
+       return result
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -158,7 +171,12 @@ if __name__ == "__main__":
             self.assertEqual(9, m.i.value())
             self.assertEqual(10, m.j.value())
             juicer = ESPrefer("JuiceProducer")
-            self.assertEqual(juicer.dumpPythonAs("juicer"), "process.prefer(\"juicer\")")
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "process.prefer(\"juicer\")")
+            options.isCfg = False
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "es_prefer_juicer = cms.ESPrefer(\"JuiceProducer\")\n")
+
 
         
         def testService(self):
