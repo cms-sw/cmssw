@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/06/07 12:16:41 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/06/15 12:30:49 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -18,13 +18,14 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 // Framework Headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // C++ Headers
 #include <map>
@@ -112,7 +113,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     }
   }
   
-    if ( theMuonNavigationFlag && theSchool ) NavigationSetter setter(*theSchool);
+  //  NavigationSetter setter(*muonNavigationSchool());
 
   // Propagators
   theChangeInTrackingComponentsRecord = false;

@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/05/10 19:34:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/15 12:30:45 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -19,9 +19,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 
 namespace edm {class ParameterSet; class EventSetup;}
-class MuonNavigationSchool;
 
 class MuonServiceProxy {
 public:
@@ -54,6 +54,10 @@ public:
   /// check if the MuonReco Geometry has been changed
   bool isTrackingComponentsRecordChanged() const {return theChangeInTrackingComponentsRecord;}
   
+  const MuonNavigationSchool *muonNavigationSchool() const{
+    return theSchool;
+  }
+
  protected:
   
  private:

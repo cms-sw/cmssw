@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/09/07 13:32:59 $
- *   $Revision: 1.21 $
+ *   $Date: 2007/12/17 17:23:05 $
+ *   $Revision: 1.22 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -29,7 +29,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -98,6 +100,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
 
   // Update the services
   theService->update(eventSetup);
+  NavigationSetter setter(*theService->muonNavigationSchool());
   
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;
