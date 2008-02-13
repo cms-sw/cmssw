@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/03 02:57:10 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/11 19:09:18 jmuelmen Exp $
 //
 
 // system include files
@@ -86,7 +86,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      using std::string;
      string name = "superclusters";
      TEveGeoShapeExtract* container = new TEveGeoShapeExtract(name.c_str());
-     char index[2] = "0";
+     char index[3] = "00";
      for (PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
 	  i != electrons->end(); ++i, ++index[0]) {
 	  assert(i->superCluster().isNonnull());
@@ -95,6 +95,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	  if (id.subdetId() != EcalBarrel) 
 	       // skip these for now
 	       continue;
+#if 0
 	  double size = 1;
 	  double r = 122;
 	  double phi = i->superCluster()->position().phi();
@@ -114,18 +115,40 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	  extract->SetRnrElements(true);
 	  extract->SetShape(sc_box);
 	  container->AddElement(extract);
-#if 0
+#else
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
-	       k != detids.end(); ++k) {
+	       k != detids.end(); ++k, ++index[1]) {
 // 	       const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( k->rawId() );
 	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( k->rawId() );
-	       if(0!=extract) {
-		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-		    shape->SetMainTransparency(50);
-		    shape->SetMainColor(tList->GetMainColor());
+	       assert(extract != 0);
+	       TVector3 v(extract->GetTrans()[12], 
+			  extract->GetTrans()[13], 
+			  extract->GetTrans()[14]);
+	       TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+	       shape->SetMainTransparency(50);
+	       shape->SetMainColor(tList->GetMainColor());
 // 		    tList->AddElement(shape);
+	       double size = 1;
+	       double r = 122;
+	       double phi = v.Phi();
+	       double phi_deg_min = (phi - 0.0085) * 180 / M_PI;
+	       double phi_deg_max = (phi + 0.0085) * 180 / M_PI;
+	       TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
+						  phi_deg_min, phi_deg_max);
+	       TEveGeoShapeExtract *extract2 = new TEveGeoShapeExtract((name + index).c_str());
+	       TColor* c = gROOT->GetColor(tList->GetMainColor());
+	       Float_t rgba[4] = { 1, 0, 0, 1 };
+	       if (c) {
+		    rgba[0] = c->GetRed();
+		    rgba[1] = c->GetGreen();
+		    rgba[2] = c->GetBlue();
 	       }
+	       extract2->SetRGBA(rgba);
+	       extract2->SetRnrSelf(true);
+	       extract2->SetRnrElements(true);
+	       extract2->SetShape(sc_box);
+	       container->AddElement(extract2);
 	  }
 #endif
      }
@@ -202,7 +225,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	  extract->SetRnrElements(true);
 	  extract->SetShape(sc_box);
 	  container->AddElement(extract);
-#if 0
+#if 1
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
