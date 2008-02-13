@@ -225,7 +225,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   inputTagCaloTowers_ = 
     iConfig.getParameter<InputTag>("caloTowers");
    
-
+  
+  neighbourmapcalculated_ = false;
     
   // produce PFRecHits yes/no
   produceRecHits_ = 
@@ -255,7 +256,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
 
   if( processEcal_ ) {
-    
+
+
     vector<reco::PFRecHit> *prechits = new vector<reco::PFRecHit>;
     vector<reco::PFRecHit>& rechits = *prechits;
 
@@ -398,6 +400,12 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
   // get the endcap topology
   EcalEndcapTopology ecalEndcapTopology(geoHandle);
 
+    
+  if(!neighbourmapcalculated_)
+    ecalNeighbArray( *ecalBarrelGeometry,
+		     ecalBarrelTopology,
+		     *ecalEndcapGeometry,
+		     ecalEndcapTopology );
 
          
   // get the ecalBarrel rechits
@@ -483,11 +491,13 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
   // do navigation
   for(unsigned i=0; i<rechits.size(); i++ ) {
     
-    findRecHitNeighbours( rechits[i], idSortedRecHits, 
-			  ecalBarrelTopology, 
-			  *ecalBarrelGeometry, 
-			  ecalEndcapTopology,
-			  *ecalEndcapGeometry);
+//     findRecHitNeighbours( rechits[i], idSortedRecHits, 
+// 			  ecalBarrelTopology, 
+// 			  *ecalBarrelGeometry, 
+// 			  ecalEndcapTopology,
+// 			  *ecalEndcapGeometry);
+    findRecHitNeighboursECAL( rechits[i], idSortedRecHits ); 
+			      
   }
 } 
 
@@ -964,6 +974,59 @@ PFClusterProducer::findEcalRecHitGeometry(const DetId& detid,
 }
 
 
+
+void 
+PFClusterProducer::findRecHitNeighboursECAL
+( reco::PFRecHit& rh, 
+  const map<unsigned,unsigned >& sortedHits ) {
+  
+  DetId center( rh.detId() );
+
+
+  DetId north = move( center, NORTH );
+  DetId northeast = move( center, NORTHEAST );
+  DetId northwest = move( center, NORTHWEST ); 
+  DetId south = move( center, SOUTH );  
+  DetId southeast = move( center, SOUTHEAST );  
+  DetId southwest = move( center, SOUTHWEST );  
+  DetId east  = move( center, EAST );  
+  DetId west  = move( center, WEST );  
+    
+  PFClusterAlgo::IDH i = sortedHits.find( north.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+  
+  i = sortedHits.find( northeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+  
+  i = sortedHits.find( south.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+    
+  i = sortedHits.find( southwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
+  i = sortedHits.find( east.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+    
+  i = sortedHits.find( southeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
+  i = sortedHits.find( west.rawId() );
+  if(i != sortedHits.end() ) 
+     rh.add4Neighbour( i->second );
+   
+  i = sortedHits.find( northwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+}
+
+
+
 void 
 PFClusterProducer::findRecHitNeighbours
 ( reco::PFRecHit& rh, 
@@ -1246,6 +1309,281 @@ DetId PFClusterProducer::getNorth(const DetId& id,
 
 
 
+// Build the array of (max)8 neighbors
+void 
+PFClusterProducer::ecalNeighbArray(const CaloSubdetectorGeometry& barrelGeom,
+				   const CaloSubdetectorTopology& barrelTopo,
+				   const CaloSubdetectorGeometry& endcapGeom,
+				   const CaloSubdetectorTopology& endcapTopo ){
+  
+
+  static const CaloDirection orderedDir[8]={SOUTHWEST,
+					    SOUTH,
+					    SOUTHEAST,
+					    WEST,
+					    EAST,
+					    NORTHWEST,
+					    NORTH,
+                                            NORTHEAST};
+
+  const unsigned nbarrel = 62000;
+  // Barrel first. The hashed index runs from 0 to 61199
+  neighboursEB_.resize(nbarrel);
+  
+  //std::cout << " Building the array of neighbours (barrel) " ;
+
+  std::vector<DetId> vec(barrelGeom.getValidDetIds(DetId::Ecal,
+						   EcalBarrel));
+  unsigned size=vec.size();    
+  for(unsigned ic=0; ic<size; ++ic) 
+    {
+      // We get the 9 cells in a square. 
+      std::vector<DetId> neighbours(barrelTopo.getWindow(vec[ic],3,3));
+      //      std::cout << " Cell " << EBDetId(vec[ic]) << std::endl;
+      unsigned nneighbours=neighbours.size();
+
+      unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
+      if(hashedindex>=nbarrel)
+        {
+          LogDebug("CaloGeometryTools")  << " Array overflow " << std::endl;
+        }
+
+
+      // If there are 9 cells, it is easy, and this order is know:
+//      6  7  8
+//      3  4  5 
+//      0  1  2   (0 = SOUTHWEST)
+
+      if(nneighbours==9)
+        {
+          neighboursEB_[hashedindex].reserve(8);
+          for(unsigned in=0;in<nneighbours;++in)
+            {
+              // remove the centre
+              if(neighbours[in]!=vec[ic]) 
+                {
+                  neighboursEB_[hashedindex].push_back(neighbours[in]);
+                  //          std::cout << " Neighbour " << in << " " << EBDetId(neighbours[in]) << std::endl;
+                }
+            }
+        }
+      else
+        {
+          DetId central(vec[ic]);
+          neighboursEB_[hashedindex].resize(8,DetId(0));
+          for(unsigned idir=0;idir<8;++idir)
+            {
+              DetId testid=central;
+              bool status=stdmove(testid,orderedDir[idir],
+				  barrelTopo, endcapTopo);
+              if(status) neighboursEB_[hashedindex][idir]=testid;
+            }
+
+        }
+    }
+
+  // Moved to the endcap
+
+  //  std::cout << " done " << size << std::endl;
+  //  std::cout << " Building the array of neighbours (endcap) " ;
+
+  vec.clear();
+  vec=endcapGeom.getValidDetIds(DetId::Ecal,EcalEndcap);
+  size=vec.size();    
+  // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
+  // of crystals
+  const unsigned nendcap=19960;
+
+  neighboursEE_.resize(nendcap);
+  for(unsigned ic=0; ic<size; ++ic) 
+    {
+      // We get the 9 cells in a square. 
+      std::vector<DetId> neighbours(endcapTopo.getWindow(vec[ic],3,3));
+      unsigned nneighbours=neighbours.size();
+      // remove the centre
+      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
+      
+      if(hashedindex>=nendcap)
+        {
+          LogDebug("CaloGeometryTools")  << " Array overflow " << std::endl;
+        }
+
+      if(nneighbours==9)
+        {
+          neighboursEE_[hashedindex].reserve(8);
+          for(unsigned in=0;in<nneighbours;++in)
+            {     
+              // remove the centre
+              if(neighbours[in]!=vec[ic]) 
+                {
+                  neighboursEE_[hashedindex].push_back(neighbours[in]);
+                }
+            }
+        }
+      else
+        {
+          DetId central(vec[ic]);
+          neighboursEE_[hashedindex].resize(8,DetId(0));
+          for(unsigned idir=0;idir<8;++idir)
+            {
+              DetId testid=central;
+              bool status=stdmove(testid,orderedDir[idir],
+				  barrelTopo, endcapTopo );
+              if(status) neighboursEE_[hashedindex][idir]=testid;
+            }
+
+        }
+    }
+  //  std::cout << " done " << size <<std::endl;
+  neighbourmapcalculated_ = true;
+}
+
+
+
+bool 
+PFClusterProducer::stdsimplemove(DetId& cell, 
+				  const CaloDirection& dir,
+				  const CaloSubdetectorTopology& barrelTopo,
+				  const CaloSubdetectorTopology& endcapTopo ) 
+  const {
+
+  std::vector<DetId> neighbours;
+  if(cell.subdetId()==EcalBarrel)
+    neighbours = barrelTopo.getNeighbours(cell,dir);
+  else if(cell.subdetId()==EcalEndcap)
+    neighbours= endcapTopo.getNeighbours(cell,dir);
+  
+  if(neighbours.size()>0 && !neighbours[0].null())
+    {
+      cell = neighbours[0];
+      return true;
+    }
+  else 
+    {
+      cell = DetId(0);
+      return false;
+    }
+}
+
+
+
+bool 
+PFClusterProducer::stdmove(DetId& cell, 
+			   const CaloDirection& dir,
+			   const CaloSubdetectorTopology& barrelTopo,
+			   const CaloSubdetectorTopology& endcapTopo ) 
+  
+  const {
+
+
+  bool result; 
+
+  if(dir==NORTH) {
+    result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
+    return result;
+  }
+  else if(dir==SOUTH) {
+    result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
+    return result;
+  }
+  else if(dir==EAST) {
+    result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
+    return result;
+  }
+  else if(dir==WEST) {
+    result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
+    return result;
+  }
+
+
+  // One has to try both paths
+  else if(dir==NORTHEAST)
+    {
+      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
+      if(result)
+        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
+      else
+        {
+          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
+          if(result)
+            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
+          else
+            return false; 
+        }
+    }
+  else if(dir==NORTHWEST)
+    {
+      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
+      if(result)
+        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
+      else
+        {
+          result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
+          if(result)
+            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
+          else
+            return false; 
+        }
+    }
+  else if(dir == SOUTHEAST)
+    {
+      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
+      if(result)
+        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
+      else
+        {
+          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
+          if(result)
+            return stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
+          else
+            return false; 
+        }
+    }
+  else if(dir == SOUTHWEST)
+    {
+      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
+      if(result)
+        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
+      else
+        {
+          result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
+          if(result)
+            return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
+          else
+            return false; 
+        }
+    }
+  cell = DetId(0);
+  return false;
+}
+
+
+
+
+
+DetId PFClusterProducer::move(DetId cell, 
+			      const CaloDirection&dir ) const
+{  
+  DetId originalcell = cell; 
+  if(dir==NONE || cell==DetId(0)) return false;
+
+  // Conversion CaloDirection and index in the table
+  // CaloDirection :NONE,SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST, NORTHEAST,NORTHWEST,NORTH
+  // Table : SOUTHWEST,SOUTH,SOUTHEAST,WEST,EAST,NORTHWEST,NORTH, NORTHEAST
+  static const int calodirections[9]={-1,1,2,0,4,3,7,5,6};
+    
+  assert(neighbourmapcalculated_);
+
+  DetId result = (originalcell.subdetId()==EcalBarrel) ? 
+    neighboursEB_[EBDetId(originalcell).hashedIndex()][calodirections[dir]]:
+    neighboursEE_[EEDetId(originalcell).hashedIndex()][calodirections[dir]];
+  return result; 
+}
+
+
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PFClusterProducer);
+

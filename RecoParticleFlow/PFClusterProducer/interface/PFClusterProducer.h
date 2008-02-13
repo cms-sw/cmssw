@@ -16,7 +16,7 @@
 // #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-
+#include "Geometry/CaloTopology/interface/CaloDirection.h"
 /**\class PFClusterProducer 
 \brief Producer for particle flow rechits (PFRecHit) 
 and clusters (PFCluster). 
@@ -101,6 +101,10 @@ class PFClusterProducer : public edm::EDProducer {
 			  const CaloSubdetectorTopology& endcapTopo,
 			  const CaloSubdetectorGeometry& endcapGeom );
   
+  void 
+    findRecHitNeighboursECAL( reco::PFRecHit& rh, 
+			      const std::map<unsigned,unsigned >& sortedHits );
+
   /// find and set the neighbours to a given rechit
   /// this works for hcal CaloTowers. 
   /// Should be possible to have a single function for all detectors
@@ -112,8 +116,23 @@ class PFClusterProducer : public edm::EDProducer {
   DetId getNorth(const DetId& id, const CaloSubdetectorTopology& topology);
   DetId getSouth(const DetId& id, const CaloSubdetectorTopology& topology);
   
+  void ecalNeighbArray( const CaloSubdetectorGeometry& barrelGeom,
+			const CaloSubdetectorTopology& barrelTopo,
+			const CaloSubdetectorGeometry& endcapGeom,
+			const CaloSubdetectorTopology& endcapTopo );
 
-  
+  DetId move(DetId cell, const CaloDirection& dir ) const;
+
+  bool stdsimplemove(DetId& cell, 
+		     const CaloDirection& dir,
+		     const CaloSubdetectorTopology& barrelTopo,
+		     const CaloSubdetectorTopology& endcapTopo ) const;
+
+
+  bool stdmove(DetId& cell, 
+	       const CaloDirection& dir,
+	       const CaloSubdetectorTopology& barrelTopo,
+	       const CaloSubdetectorTopology& endcapTopo ) const;
 
   // ----------member data ---------------------------
 
@@ -156,7 +175,15 @@ class PFClusterProducer : public edm::EDProducer {
   /// produce rechits yes/no 
   bool   produceRecHits_;
   
+  /// for each ecal barrel rechit, keep track of the neighbours
+  std::vector<std::vector<DetId> >  neighboursEB_;
 
+  /// for each ecal endcap rechit, keep track of the neighbours
+  std::vector<std::vector<DetId> >  neighboursEE_;
+  
+  /// set to true in ecalNeighbArray
+  bool  neighbourmapcalculated_;
+  
   // ----------access to event data
   edm::InputTag    inputTagEcalRecHitsEB_;
   edm::InputTag    inputTagEcalRecHitsEE_;
