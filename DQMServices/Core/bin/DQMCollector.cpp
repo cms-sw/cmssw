@@ -1,73 +1,81 @@
-#include <string>
+#include "DQMServices/Core/interface/DQMNet.h"
+#include "classlib/utils/DebugAids.h"
 #include <iostream>
 #include <signal.h>
 #include <unistd.h>
 #include "TROOT.h"
 
-#include "DQMServices/Core/interface/CollectorRoot.h"
-#include "DQMServices/Core/src/ClientRoot.h"
-
-class DummyCollector : public CollectorRoot
+sig_atomic_t s_stop = 0;
+static void interrupt (int sig) 
 {
-
-public:
-  virtual void process(){}
-  DummyCollector(bool keepStaleSources, int port_no) : 
-    CollectorRoot("Collector", port_no, keepStaleSources)
-  {
-    inputAvail_=true;
-    run();
-  }
-  static CollectorRoot *instance(bool keepStaleSources = false,
-				 int port_no = CollectorRoot::defListenPort)
-  {
-    if(instance_==0)
-      instance_ = new DummyCollector(keepStaleSources, port_no);
-    return instance_;
-  }
-
-private:
-  static CollectorRoot * instance_;
-};
-
-CollectorRoot *DummyCollector::instance_=0; 
-
-extern void InitGui(); 
-VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
-TROOT producer("producer","Simple histogram producer",initfuncs);
-
-void interrupt (int sig) 
-{
-  close (ClientRoot::ss);
-  exit (1);
+  s_stop = 1;
 }
 
-// usage: DQMCollector <keepStaleSources> <port_no>
-// <keepStaleSources>: enter "1" if corresponding monitoring information 
-//                     should stay in memory after sources are done processing 
-//                     and/or disconnect (default: 0)
-// <port_no>         : port number for connection with sources and clients 
-//                     (default: 9090)
-int main(int argc, char *argv[])
+class DQMCollector : public DQMBasicNet
 {
-  bool keepStaleSources = true;
-  if(argc >= 2)
-    keepStaleSources = (atoi(argv[1]) != 0);
-
-  // default port #
-  int port_no = 9090;
-  if(argc >= 3) port_no = atoi(argv[2]);
-
-  signal (SIGINT, interrupt);
-  try
+public:
+  bool shouldStop(void)
     {
-      DummyCollector::instance(keepStaleSources, port_no);
+      return s_stop != 0;
     }
-  catch (...)
+  
+  DQMCollector(char *appname, int port, bool debugging)
+    : DQMBasicNet (appname)
     {
-      return -1;
+      // Establish the server side.
+      debug(debugging);
+      startLocalServer(port);
     }
-  //  gROOT->SetBatch(kTRUE);
-  //TApplication app("app",&argc,argv);
-  return 0;
+};
+
+//////////////////////////////////////////////////////////////////////
+// Always abort on assertion failure.
+static char
+onAssertFail (const char *message)
+{
+  std::cout.flush();
+  fflush(stdout);
+  std::cerr.flush();
+  fflush(stderr);
+  std::cerr << message << "ABORTING\n";
+  return 'a';
+}
+
+//////////////////////////////////////////////////////////////////////
+// Run the main program.
+int main (int argc, char **argv)
+{
+  lat::DebugAids::failHook(&onAssertFail);
+
+  // Check and process arguments.
+  int port = 9090;
+  bool debug = false;
+  bool bad = false;
+  for (int i = 1; i < argc; ++i)
+    if (i < argc-1 && ! strcmp(argv[i], "--listen"))
+      port = atoi(argv[i+1]);
+    else if (! strcmp(argv[i], "--debug"))
+      debug = true;
+    else if (! strcmp(argv[i], "--no-debug"))
+      debug = false;
+    else
+    {
+      bad = true;
+      break;
+    }
+
+  if (bad || ! port)
+  {
+    std::cerr << "Usage: " << argv[0] << " --listen PORT [--[no-]debug]\n";
+    return 1;
+  }
+
+  // Initialise ROOT.
+  ROOT::GetROOT();
+  signal(SIGINT, &interrupt);
+
+  // Start serving.
+  DQMCollector server (argv[0], port, debug);
+  server.run();
+  exit(0);
 }

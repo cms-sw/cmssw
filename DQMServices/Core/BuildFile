@@ -2,8 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=Utilities/General>
-<use name=Utilities/Threads>
+<use name=Iguana/Utilities>
 <use name=rootcintex>
 <use name=root>
 <export>
@@ -11,8 +10,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
-  <use name=Utilities/General>
-  <use name=Utilities/Threads>
+  <use name=Iguana/Utilities>
   <use name=rootcintex>
   <use name=root>
   <lib name=DQMServicesCore>

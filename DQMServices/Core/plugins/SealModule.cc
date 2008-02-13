@@ -1,10 +1,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/src/DQMService.h"
 
-#include "DQMServices/Core/src/MonitorDaemon.h"
-#include "DQMServices/Core/src/DQMShipMonitoring.h"
-
-typedef edm::serviceregistry::ParameterSetMaker<MonitorDaemon> maker_md;
-typedef edm::serviceregistry::AllArgsMaker<DQMShipMonitoring> maker_sm;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(MonitorDaemon,maker_md);
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(DQMShipMonitoring,maker_sm);
-
+#define COMMA ,
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(DQM,edm::serviceregistry::AllArgsMaker<DQMService>);
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(DaqMonitorROOTBackEnd,edm::serviceregistry::ParameterSetMaker<DaqMonitorBEInterface COMMA DaqMonitorROOTBackEnd>);

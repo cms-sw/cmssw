@@ -769,7 +769,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// reset updated contents and updated QReports
   void resetMonitoringDiff();
       
-  boost::mutex::scoped_lock * dqm_locker;
   // ------------------- data structures -----------------------------
   
   /// directory monitoring structure for all MEs
@@ -786,7 +785,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// saved here by a downstream class, till ReceiverBase 
   /// sends the request to the sender
   struct SubcRequests_ {
-    LockMutex::Mutex mutex;
     std::list<std::string> toAdd; 
     std::list<std::string> toRemove; 
   };
@@ -942,14 +940,10 @@ class DaqMonitorBEInterface: public StringUtil
   friend class MonitorUIRoot;
   friend class DQMTagHelper;
 
-  friend class ClientRoot;             // these will likely be removed
-  friend class ClientServerRoot;
-  friend class NodeBase;
-  friend class SenderBase;
-  friend class ReceiverBase;
+  friend class DQMService;
+  friend class DQMNet;
 
   // ------ these friends from within DQMServices added since V01-00-01
-  friend class RootMonitorThread;
   friend class QTestStatusChecker;
 
   friend class EDMtoMEConverter;       // need clone methods

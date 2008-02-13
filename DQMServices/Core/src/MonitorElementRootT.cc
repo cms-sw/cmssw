@@ -706,7 +706,6 @@ void MonitorElementRootObject::copyFunctions(TH1 * copyFromThis, TH1 * copyToThi
 
 void MonitorElementRootH1::copyFrom(TH1F * just_in)
 {
-  LockMutex a(this->mutex);
   TH1F * orig = (TH1F*)operator->();
   if(orig->GetTitle() != just_in->GetTitle())
     this->setTitle(just_in->GetTitle());
@@ -723,7 +722,6 @@ void MonitorElementRootH1::copyFrom(TH1F * just_in)
 
 void MonitorElementRootH2::copyFrom(TH2F * just_in)
 {
-  LockMutex a(this->mutex);
   TH2F * orig = (TH2F*)operator->();
   if(orig->GetTitle() != just_in->GetTitle())
     this->setTitle(just_in->GetTitle());
@@ -740,7 +738,6 @@ void MonitorElementRootH2::copyFrom(TH2F * just_in)
 
 void MonitorElementRootProf::copyFrom(TProfile * just_in)
 {
-  LockMutex a(this->mutex);
   TProfile * orig = (TProfile*)operator->();
   if(orig->GetTitle() != just_in->GetTitle())
     this->setTitle(just_in->GetTitle());
@@ -890,7 +887,6 @@ MonitorElementRootProf2D::addProfiles(TProfile2D * h1, TProfile2D * h2,
 
 void MonitorElementRootH3::copyFrom(TH3F * just_in)
 {
-  LockMutex a(this->mutex);
   TH3F * orig = (TH3F*)operator->();
   if(orig->GetTitle() != just_in->GetTitle())
     this->setTitle(just_in->GetTitle());

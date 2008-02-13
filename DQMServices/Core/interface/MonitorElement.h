@@ -8,7 +8,7 @@
 #include <set>
 #include <map>
 
-#include "Utilities/General/interface/MutexUtils.h"
+//#include "Utilities/General/interface/MutexUtils.h"
 
 #include "DQMServices/Core/interface/DQMDefinitions.h"
 #include "DQMServices/Core/interface/QReport.h"
@@ -158,8 +158,6 @@ class MonitorElement
   virtual void setTitle(std::string new_title) = 0;
   /// set # of bin entries (to be used for profiles)
   virtual void setBinEntries(int bin, float nentries) = 0;
-
-  LockMutex::Mutex mutex;
 
   //
   /// whether soft-reset is enabled

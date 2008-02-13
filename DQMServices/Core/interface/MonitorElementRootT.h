@@ -139,8 +139,7 @@ class MonitorElementRootFolder : public MonitorElementRootObject
   std::string getRootName() const {return rootFolderName_;}
   
   friend class DaqMonitorBEInterface;
-  friend class SenderBase;
-  friend class ReceiverBase;
+  friend class DQMService;
   friend class DQMTagHelper;
   /// for fast access to objects_
   friend class MonitorUIRoot;
@@ -264,7 +263,6 @@ class MonitorElementRootInt : public MonitorElementInt, public FoldableMonitor
 
   void Fill(float x)
   {
-    LockMutex a(mutex);
     MonitorElementInt::Fill(x);
     this->MonitorElementInt::operator*()=(int)x;
     valobj->SetTitle(valueString().c_str());
@@ -293,7 +291,6 @@ class MonitorElementRootFloat : public MonitorElementFloat,
   
   void Fill(float x)
   {
-    LockMutex a(mutex);
     MonitorElementFloat::Fill(x);
     this->MonitorElementFloat::operator*()=x;
     valobj->SetTitle(valueString().c_str());
@@ -386,7 +383,6 @@ class MonitorElementRootH1 : public MonitorElementRootObject
   MonitorElementRootObject(h,name){}
   void Fill(float x, float w)
   {
-    LockMutex a(mutex);
     ((TH1F*)operator->())->Fill(x,w);
   }
   void Fill(float x){Fill(x, 1);}
@@ -458,7 +454,6 @@ class MonitorElementRootH2 : public MonitorElementRootObject
   MonitorElementRootObject(h,name){}
   void Fill(float x, float y, float w)
   {
-    LockMutex a(mutex);
     ((TH2F*)operator->())->Fill(x,y,w);
   }
   void Fill(float x, float y){Fill(x,y,1);}
@@ -526,7 +521,6 @@ class MonitorElementRootProf : public MonitorElementRootObject
   MonitorElementRootObject(h,name){}
   void Fill(float x, float y, float w)
   {
-    LockMutex a(mutex);
     ((TProfile*)operator->())->Fill(x,y,w);
   }
   void Fill(float x, float y){Fill(x, y, 1);}
@@ -604,7 +598,6 @@ class MonitorElementRootProf2D : public MonitorElementRootObject
     MonitorElementRootObject(h,name){}
   void Fill(float x, float y, float z, float w)
   {
-    LockMutex a(mutex);
     ((TProfile2D*)operator->())->Fill(x,y,z,w);
   }
   
@@ -683,7 +676,6 @@ class MonitorElementRootH3 :  public MonitorElementRootObject
   MonitorElementRootObject(h,name){}
   void Fill(float x, float y, float z, float w)
   {
-    LockMutex a(mutex);
     ((TH3F*)operator->())->Fill(x,y,z,w);
     
   }
