@@ -26,6 +26,7 @@
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
@@ -39,7 +40,6 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   theOutInTrackFinder_(0), 
   theInOutSeedFinder_(0),
   theInOutTrackFinder_(0),
-  theLayerMeasurements_(0),
   isInitialized(0)
 
 {
@@ -86,8 +86,6 @@ ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {
   delete theOutInTrackFinder_;
   delete theInOutSeedFinder_;  
   delete theInOutTrackFinder_;
-  delete theLayerMeasurements_;
-  delete theNavigationSchool_;
 
 
 }
@@ -108,9 +106,13 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
   theEventSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
   theMeasurementTracker_ = measurementTrackerHandle.product();
   
-  theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
-  theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
-  NavigationSetter setter( *theNavigationSchool_);
+  
+  edm::ESHandle<NavigationSchool> nav;
+  theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  theNavigationSchool_ = nav.product();
+  
+
+
   
   // get the Out In Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInSeedFinder" << "\n";
@@ -146,8 +148,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   
   // Update MeasurementTracker
   theMeasurementTracker_->update(theEvent);
-  
-  
+  // Set the navigation school  
+  NavigationSetter setter(*theNavigationSchool_);  
   
   //
   // create empty output collections
