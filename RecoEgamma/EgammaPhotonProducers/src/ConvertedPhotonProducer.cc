@@ -125,8 +125,8 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   theMeasurementTracker_ = measurementTrackerHandle.product();
   
   theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
-  theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
-  NavigationSetter setter( *theNavigationSchool_);
+  //  theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
+  // NavigationSetter setter( *theNavigationSchool_);
 
   // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
   theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
