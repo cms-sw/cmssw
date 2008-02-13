@@ -434,12 +434,12 @@ void PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   float qm = 0.0;
   int isize = pixelsVec.size();
   for (int i=0;  i<isize; ++i) {
-    if ( int(pixelsVec[i].x) == imin )
+    if ( (pixelsVec[i].x) == imin )
       q1 += pixelsVec[i].adc;
-    else if ( int(pixelsVec[i].x) == imax) 
-      q2 += pixelsVec[i].adc;
+    else if ( (pixelsVec[i].x) == imax) 
+      q2 += float(pixelsVec[i].adc);
     else 
-      qm += pixelsVec[i].adc;
+      qm += float(pixelsVec[i].adc);
   }
   return;
 } 
@@ -459,13 +459,13 @@ void PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   float qm=0;
   int isize = pixelsVec.size();
   for (int i=0;  i<isize; ++i) {
-    if ( int(pixelsVec[i].y) == imin) 
+    if ( (pixelsVec[i].y) == imin) 
       q1 += pixelsVec[i].adc;
-    else if ( int(pixelsVec[i].y) == imax) 
+    else if ( (pixelsVec[i].y) == imax) 
       q2 += pixelsVec[i].adc;
     //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
     else  
-      qm += pixelsVec[i].adc;
+      qm += float(pixelsVec[i].adc);
   }
   return;
 } 

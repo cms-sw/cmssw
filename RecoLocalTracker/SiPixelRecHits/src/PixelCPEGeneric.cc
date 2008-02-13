@@ -302,12 +302,17 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
   // Fetch the pixels vector from the cluster.
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
 
-  // Obtain the cluster boundaries (note: in measurement units!)
-  float xmin = cluster.minPixelRow()+0.5;
-  float xmax = cluster.maxPixelRow()+0.5;
-  
-  float ymin = cluster.minPixelCol()+0.5;
-  float ymax = cluster.maxPixelCol()+0.5;
+  // Obtain boundaries in index units
+  int xmin = cluster.minPixelRow();
+  int xmax = cluster.maxPixelRow();
+  int ymin = cluster.minPixelCol();
+  int ymax = cluster.maxPixelCol();
+
+//   // Obtain the cluster boundaries (note: in measurement units!)
+//   float xmin = cluster.minPixelRow()+0.5;
+//   float xmax = cluster.maxPixelRow()+0.5;  
+//   float ymin = cluster.minPixelCol()+0.5;
+//   float ymax = cluster.maxPixelCol()+0.5;
   
   // Iterate over the pixels.
   int isize = pixelsVec.size();
@@ -315,19 +320,19 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
     //
     // X projection
     if (pixelsVec[i].x == xmin)       // need to match with tolerance!!! &&&
-      Q_f_X += pixelsVec[i].adc;
+      Q_f_X += float(pixelsVec[i].adc);
     else if (pixelsVec[i].x == xmax) 
-      Q_l_X += pixelsVec[i].adc;
+      Q_l_X += float(pixelsVec[i].adc);
     else 
-      Q_m_X += pixelsVec[i].adc;
+      Q_m_X += float(pixelsVec[i].adc);
     //
     // Y projection
     if (pixelsVec[i].y == ymin) 
-      Q_f_Y += pixelsVec[i].adc;
+      Q_f_Y += float(pixelsVec[i].adc);
     else if (pixelsVec[i].y == ymax) 
-      Q_l_Y += pixelsVec[i].adc;
+      Q_l_Y += float(pixelsVec[i].adc);
     else 
-      Q_m_Y += pixelsVec[i].adc;
+      Q_m_Y += float(pixelsVec[i].adc);
   }
 
   return;

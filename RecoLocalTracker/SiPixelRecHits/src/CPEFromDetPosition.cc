@@ -1,3 +1,5 @@
+// OBSOLETE, DO NOT USE. 02/08 d.k.
+//
 //#include "Utilities/Configuration/interface/Architecture.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"

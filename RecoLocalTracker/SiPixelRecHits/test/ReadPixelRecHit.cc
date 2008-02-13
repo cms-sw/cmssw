@@ -31,6 +31,11 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+// To use root histos
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+
 using namespace std;
 
 //#define DO_HISTO Defined in *.h
@@ -51,115 +56,235 @@ void ReadPixelRecHit::beginJob(const edm::EventSetup& iSetup) {
 
 #ifdef DO_HISTO  
   // put here whatever you want to do at the beginning of the job
-  hFile = new TFile ( "histo.root", "RECREATE" );
+  // hFile = new TFile ( "histo.root", "RECREATE" );
  
-  hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
-  hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
-  hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
-  hladder1id = new TH1F( "hladder1id", "Ladder L1 id", 50, 0., 50.);
-  hladder2id = new TH1F( "hladder2id", "Ladder L2 id", 50, 0., 50.);
-  hladder3id = new TH1F( "hladder3id", "Ladder L3 id", 50, 0., 50.);
-  hz1id = new TH1F( "hz1id", "Z-index id L1", 10, 0., 10.);
-  hz2id = new TH1F( "hz2id", "Z-index id L2", 10, 0., 10.);
-  hz3id = new TH1F( "hz3id", "Z-index id L3", 10, 0., 10.);
+  // NEW way to use root (from 2.0.0?) 
+  edm::Service<TFileService> fs;
+
+  // Histos go to a subdirectory "PixRecHits") 
+  //TFileDirectory subDir = fs->mkdir( "mySubDirectory" );
+  //TFileDirectory subSubDir = subDir.mkdir( "mySubSubDirectory" );
+  //h_pt    = fs->make<TH1F>( "pt"  , "p_{t}", 100,  0., ptMax_ );
+
+  hpixid = fs->make<TH1F>( "hpixid", "Pix det id", 10, 0., 10.);
+  hpixsubid = fs->make<TH1F>( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
+  hlayerid = fs->make<TH1F>( "hlayerid", "Pix layer id", 10, 0., 10.);
+  hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 50, 0., 50.);
+  hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 50, 0., 50.);
+  hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 50, 0., 50.);
+  hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 10, 0., 10.);
+  hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 10, 0., 10.);
+  hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 10, 0., 10.);
    
-  hrecHitsPerDet1 = new TH1F( "hrecHitsPerDet1", "RecHits per det l1",
+  hrecHitsPerDet1 = fs->make<TH1F>( "hrecHitsPerDet1", "RecHits per det l1",
                             200, -0.5, 199.5);
-  hrecHitsPerDet2 = new TH1F( "hrecHitsPerDet2", "RecHits per det l2",
+  hrecHitsPerDet2 = fs->make<TH1F>( "hrecHitsPerDet2", "RecHits per det l2",
                             200, -0.5, 199.5);
-  hrecHitsPerDet3 = new TH1F( "hrecHitsPerDet3", "RecHits per det l3",
+  hrecHitsPerDet3 = fs->make<TH1F>( "hrecHitsPerDet3", "RecHits per det l3",
                             200, -0.5, 199.5);
-  hrecHitsPerLay1 = new TH1F( "hrecHitsPerLay1", "RecHits per layer l1",
+  hrecHitsPerLay1 = fs->make<TH1F>( "hrecHitsPerLay1", "RecHits per layer l1",
                             2000, -0.5, 1999.5);
-  hrecHitsPerLay2 = new TH1F( "hrecHitsPerLay2", "RecHits per layer l2",
+  hrecHitsPerLay2 = fs->make<TH1F>( "hrecHitsPerLay2", "RecHits per layer l2",
                             2000, -0.5, 1999.5);
                              
                              
-  hrecHitsPerLay3 = new TH1F( "hrecHitsPerLay3", "RecHits per layer l3",
+  hrecHitsPerLay3 = fs->make<TH1F>( "hrecHitsPerLay3", "RecHits per layer l3",
                             2000, -0.5, 1999.5);
-  hdetsPerLay1 = new TH1F( "hdetsPerLay1", "Full dets per layer l1",
+  hdetsPerLay1 = fs->make<TH1F>( "hdetsPerLay1", "Full dets per layer l1",
                            161, -0.5, 160.5);
-  hdetsPerLay3 = new TH1F( "hdetsPerLay3", "Full dets per layer l3",
+  hdetsPerLay3 = fs->make<TH1F>( "hdetsPerLay3", "Full dets per layer l3",
                            353, -0.5, 352.5);
-  hdetsPerLay2 = new TH1F( "hdetsPerLay2", "Full dets per layer l2",
+  hdetsPerLay2 = fs->make<TH1F>( "hdetsPerLay2", "Full dets per layer l2",
                            257, -0.5, 256.5);
   
-  hcharge1 = new TH1F( "hcharge1", "Clu charge l1", 200, 0.,200.); //in ke
-  hcharge2 = new TH1F( "hcharge2", "Clu charge l2", 200, 0.,200.);
-  hcharge3 = new TH1F( "hcharge3", "Clu charge l3", 200, 0.,200.);
-  hadcCharge1 = new TH1F( "hadcCharge1", "pix charge l1", 50, 0.,50.); //in ke
-  hadcCharge2 = new TH1F( "hadcCharge2", "pix charge l2", 50, 0.,50.); //in ke
-  hadcCharge3 = new TH1F( "hadcCharge3", "pix charge l3", 50, 0.,50.); //in ke
-  hadcCharge1big = new TH1F( "hadcCharge1big", "big pix charge l1", 50, 0.,50.); //in ke
+  hcharge1 = fs->make<TH1F>( "hcharge1", "Clu charge l1", 200, 0.,200.); //in ke
+  hcharge2 = fs->make<TH1F>( "hcharge2", "Clu charge l2", 200, 0.,200.);
+  hcharge3 = fs->make<TH1F>( "hcharge3", "Clu charge l3", 200, 0.,200.);
+  hadcCharge1 = fs->make<TH1F>( "hadcCharge1", "pix charge l1", 50, 0.,50.); //in ke
+  hadcCharge2 = fs->make<TH1F>( "hadcCharge2", "pix charge l2", 50, 0.,50.); //in ke
+  hadcCharge3 = fs->make<TH1F>( "hadcCharge3", "pix charge l3", 50, 0.,50.); //in ke
+  hadcCharge1big = fs->make<TH1F>( "hadcCharge1big", "big pix charge l1", 50, 0.,50.); //in ke
   
-  hxpos1 = new TH1F( "hxpos1", "Layer 1 cols", 700,-3.5,3.5);
-  hxpos2 = new TH1F( "hxpos2", "Layer 2 cols", 700,-3.5,3.5);
-  hxpos3 = new TH1F( "hxpos3", "Layer 3 cols", 700,-3.5,3.5);
+  hxpos1 = fs->make<TH1F>( "hxpos1", "Layer 1 cols", 700,-3.5,3.5);
+  hxpos2 = fs->make<TH1F>( "hxpos2", "Layer 2 cols", 700,-3.5,3.5);
+  hxpos3 = fs->make<TH1F>( "hxpos3", "Layer 3 cols", 700,-3.5,3.5);
    
-  hypos1 = new TH1F( "hypos1", "Layer 1 rows", 200,-1.,1.);
-  hypos2 = new TH1F( "hypos2", "Layer 2 rows", 200,-1.,1.);
-  hypos3 = new TH1F( "hypos3", "layer 3 rows", 200,-1.,1.);
+  hypos1 = fs->make<TH1F>( "hypos1", "Layer 1 rows", 200,-1.,1.);
+  hypos2 = fs->make<TH1F>( "hypos2", "Layer 2 rows", 200,-1.,1.);
+  hypos3 = fs->make<TH1F>( "hypos3", "layer 3 rows", 200,-1.,1.);
  
-  hsize1 = new TH1F( "hsize1", "layer 1 clu size",100,-0.5,99.5);
-  hsize2 = new TH1F( "hsize2", "layer 2 clu size",100,-0.5,99.5);
-  hsize3 = new TH1F( "hsize3", "layer 3 clu size",100,-0.5,99.5);
-  hsizex1 = new TH1F( "hsizex1", "lay1 clu size in x",
+  hsize1 = fs->make<TH1F>( "hsize1", "layer 1 clu size",100,-0.5,99.5);
+  hsize2 = fs->make<TH1F>( "hsize2", "layer 2 clu size",100,-0.5,99.5);
+  hsize3 = fs->make<TH1F>( "hsize3", "layer 3 clu size",100,-0.5,99.5);
+  hsizex1 = fs->make<TH1F>( "hsizex1", "lay1 clu size in x",
                       10,-0.5,9.5);
-  hsizex2 = new TH1F( "hsizex2", "lay2 clu size in x",
+  hsizex2 = fs->make<TH1F>( "hsizex2", "lay2 clu size in x",
                       10,-0.5,9.5);
-  hsizex3 = new TH1F( "hsizex3", "lay3 clu size in x",
+  hsizex3 = fs->make<TH1F>( "hsizex3", "lay3 clu size in x",
                       10,-0.5,9.5);
-  hsizey1 = new TH1F( "hsizey1", "lay1 clu size in y",
+  hsizey1 = fs->make<TH1F>( "hsizey1", "lay1 clu size in y",
                       20,-0.5,19.5);
-  hsizey2 = new TH1F( "hsizey2", "lay2 clu size in y",
+  hsizey2 = fs->make<TH1F>( "hsizey2", "lay2 clu size in y",
                       20,-0.5,19.5);
-  hsizey3 = new TH1F( "hsizey3", "lay3 clu size in y",
+  hsizey3 = fs->make<TH1F>( "hsizey3", "lay3 clu size in y",
                       20,-0.5,19.5);
    
-  hdetr = new TH1F("hdetr","det r",150,0.,15.);
-  hdetz = new TH1F("hdetz","det z",520,-26.,26.);
+  hdetr = fs->make<TH1F>("hdetr","det r",150,0.,15.);
+  hdetz = fs->make<TH1F>("hdetz","det z",520,-26.,26.);
   
   // Forward edcaps
-  hdetrF = new TH1F("hdetrF","Fdet r",150,5.,20.);
-  hdetzF = new TH1F("hdetzF","Fdet z",600,-60.,60.);
+  hdetrF = fs->make<TH1F>("hdetrF","Fdet r",150,5.,20.);
+  hdetzF = fs->make<TH1F>("hdetzF","Fdet z",600,-60.,60.);
  
-  hdisk = new TH1F( "hdisk", "FPix disk id", 10, 0., 10.);
-  hblade = new TH1F( "hblade", "FPix blade id", 30, 0., 30.);
-  hmodule = new TH1F( "hmodule", "FPix plaq. id", 10, 0., 10.);
-  hpanel = new TH1F( "hpanel", "FPix panel id", 10, 0., 10.);
-  hside = new TH1F( "hside", "FPix size id", 10, 0., 10.);
+  hdisk = fs->make<TH1F>( "hdisk", "FPix disk id", 10, 0., 10.);
+  hblade = fs->make<TH1F>( "hblade", "FPix blade id", 30, 0., 30.);
+  hmodule = fs->make<TH1F>( "hmodule", "FPix plaq. id", 10, 0., 10.);
+  hpanel = fs->make<TH1F>( "hpanel", "FPix panel id", 10, 0., 10.);
+  hside = fs->make<TH1F>( "hside", "FPix size id", 10, 0., 10.);
  
-  hcharge1F = new TH1F( "hcharge1F", "Clu charge 21", 200, 0.,200.); //in ke
-  hcharge2F = new TH1F( "hcharge2F", "Clu charge 22", 200, 0.,200.);
-  hxpos1F = new TH1F( "hxpos1F", "Disk 1 cols", 700,-3.5,3.5);
-  hxpos2F = new TH1F( "hxpos2F", "Disk 2 cols", 700,-3.5,3.5);
-  hypos1F = new TH1F( "hypos1F", "Disk 1 rows", 200,-1.,1.);
-  hypos2F = new TH1F( "hypos2F", "Disk 2 rows", 200,-1.,1.);
-  hsize1F = new TH1F( "hsize1F", "Disk 1 clu size",100,-0.5,99.5);
-  hsize2F = new TH1F( "hsize2F", "Disk 2 clu size",100,-0.5,99.5);
-  hsizex1F = new TH1F( "hsizex1F", "d1 clu size in x",
+  hcharge1F = fs->make<TH1F>( "hcharge1F", "Clu charge 21", 200, 0.,200.); //in ke
+  hcharge2F = fs->make<TH1F>( "hcharge2F", "Clu charge 22", 200, 0.,200.);
+  hxpos1F = fs->make<TH1F>( "hxpos1F", "Disk 1 cols", 700,-3.5,3.5);
+  hxpos2F = fs->make<TH1F>( "hxpos2F", "Disk 2 cols", 700,-3.5,3.5);
+  hypos1F = fs->make<TH1F>( "hypos1F", "Disk 1 rows", 200,-1.,1.);
+  hypos2F = fs->make<TH1F>( "hypos2F", "Disk 2 rows", 200,-1.,1.);
+  hsize1F = fs->make<TH1F>( "hsize1F", "Disk 1 clu size",100,-0.5,99.5);
+  hsize2F = fs->make<TH1F>( "hsize2F", "Disk 2 clu size",100,-0.5,99.5);
+  hsizex1F = fs->make<TH1F>( "hsizex1F", "d1 clu size in x",
                       10,-0.5,9.5);
-  hsizex2F = new TH1F( "hsizex2F", "d2 clu size in x",
+  hsizex2F = fs->make<TH1F>( "hsizex2F", "d2 clu size in x",
                       10,-0.5,9.5);
-  hsizey1F = new TH1F( "hsizey1F", "d1 clu size in y",
+  hsizey1F = fs->make<TH1F>( "hsizey1F", "d1 clu size in y",
                       20,-0.5,19.5);
-  hsizey2F = new TH1F( "hsizey2F", "d2 clu size in y",
+  hsizey2F = fs->make<TH1F>( "hsizey2F", "d2 clu size in y",
                       20,-0.5,19.5);
-  hadcCharge1F = new TH1F( "hadcCharge1F", "pix charge d1", 50, 0.,50.); //in ke
-  hadcCharge2F = new TH1F( "hadcCharge2F", "pix charge d2", 50, 0.,50.); //in ke
+  hadcCharge1F = fs->make<TH1F>( "hadcCharge1F", "pix charge d1", 50, 0.,50.); //in ke
+  hadcCharge2F = fs->make<TH1F>( "hadcCharge2F", "pix charge d2", 50, 0.,50.); //in ke
 
-  hrecHitsPerDet1F = new TH1F( "hrecHitsPerDet1F", "RecHits per det l1",
+  hrecHitsPerDet1F = fs->make<TH1F>( "hrecHitsPerDet1F", "RecHits per det l1",
                             200, -0.5, 199.5);
-  hrecHitsPerDet2F = new TH1F( "hrecHitsPerDet2F", "RecHits per det l2",
+  hrecHitsPerDet2F = fs->make<TH1F>( "hrecHitsPerDet2F", "RecHits per det l2",
                             200, -0.5, 199.5);
-  hrecHitsPerLay1F = new TH1F( "hrecHitsPerLay1F", "RecHits per layer l1",
+  hrecHitsPerLay1F = fs->make<TH1F>( "hrecHitsPerLay1F", "RecHits per layer l1",
                             2000, -0.5, 1999.5);
-  hrecHitsPerLay2F = new TH1F( "hrecHitsPerLay2F", "RecHits per layer l2",
+  hrecHitsPerLay2F = fs->make<TH1F>( "hrecHitsPerLay2F", "RecHits per layer l2",
                             2000, -0.5, 1999.5);
-  hdetsPerLay1F = new TH1F( "hdetsPerLay1F", "Full dets per layer l1",
+  hdetsPerLay1F = fs->make<TH1F>( "hdetsPerLay1F", "Full dets per layer l1",
                            161, -0.5, 160.5);
-  hdetsPerLay2F = new TH1F( "hdetsPerLay2F", "Full dets per layer l2",
+  hdetsPerLay2F = fs->make<TH1F>( "hdetsPerLay2F", "Full dets per layer l2",
                            257, -0.5, 256.5);
+
+
+//   hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
+//   hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
+//   hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
+//   hladder1id = new TH1F( "hladder1id", "Ladder L1 id", 50, 0., 50.);
+//   hladder2id = new TH1F( "hladder2id", "Ladder L2 id", 50, 0., 50.);
+//   hladder3id = new TH1F( "hladder3id", "Ladder L3 id", 50, 0., 50.);
+//   hz1id = new TH1F( "hz1id", "Z-index id L1", 10, 0., 10.);
+//   hz2id = new TH1F( "hz2id", "Z-index id L2", 10, 0., 10.);
+//   hz3id = new TH1F( "hz3id", "Z-index id L3", 10, 0., 10.);
+   
+//   hrecHitsPerDet1 = new TH1F( "hrecHitsPerDet1", "RecHits per det l1",
+//                             200, -0.5, 199.5);
+//   hrecHitsPerDet2 = new TH1F( "hrecHitsPerDet2", "RecHits per det l2",
+//                             200, -0.5, 199.5);
+//   hrecHitsPerDet3 = new TH1F( "hrecHitsPerDet3", "RecHits per det l3",
+//                             200, -0.5, 199.5);
+//   hrecHitsPerLay1 = new TH1F( "hrecHitsPerLay1", "RecHits per layer l1",
+//                             2000, -0.5, 1999.5);
+//   hrecHitsPerLay2 = new TH1F( "hrecHitsPerLay2", "RecHits per layer l2",
+//                             2000, -0.5, 1999.5);
+                             
+                             
+//   hrecHitsPerLay3 = new TH1F( "hrecHitsPerLay3", "RecHits per layer l3",
+//                             2000, -0.5, 1999.5);
+//   hdetsPerLay1 = new TH1F( "hdetsPerLay1", "Full dets per layer l1",
+//                            161, -0.5, 160.5);
+//   hdetsPerLay3 = new TH1F( "hdetsPerLay3", "Full dets per layer l3",
+//                            353, -0.5, 352.5);
+//   hdetsPerLay2 = new TH1F( "hdetsPerLay2", "Full dets per layer l2",
+//                            257, -0.5, 256.5);
+  
+//   hcharge1 = new TH1F( "hcharge1", "Clu charge l1", 200, 0.,200.); //in ke
+//   hcharge2 = new TH1F( "hcharge2", "Clu charge l2", 200, 0.,200.);
+//   hcharge3 = new TH1F( "hcharge3", "Clu charge l3", 200, 0.,200.);
+//   hadcCharge1 = new TH1F( "hadcCharge1", "pix charge l1", 50, 0.,50.); //in ke
+//   hadcCharge2 = new TH1F( "hadcCharge2", "pix charge l2", 50, 0.,50.); //in ke
+//   hadcCharge3 = new TH1F( "hadcCharge3", "pix charge l3", 50, 0.,50.); //in ke
+//   hadcCharge1big = new TH1F( "hadcCharge1big", "big pix charge l1", 50, 0.,50.); //in ke
+  
+//   hxpos1 = new TH1F( "hxpos1", "Layer 1 cols", 700,-3.5,3.5);
+//   hxpos2 = new TH1F( "hxpos2", "Layer 2 cols", 700,-3.5,3.5);
+//   hxpos3 = new TH1F( "hxpos3", "Layer 3 cols", 700,-3.5,3.5);
+   
+//   hypos1 = new TH1F( "hypos1", "Layer 1 rows", 200,-1.,1.);
+//   hypos2 = new TH1F( "hypos2", "Layer 2 rows", 200,-1.,1.);
+//   hypos3 = new TH1F( "hypos3", "layer 3 rows", 200,-1.,1.);
+ 
+//   hsize1 = new TH1F( "hsize1", "layer 1 clu size",100,-0.5,99.5);
+//   hsize2 = new TH1F( "hsize2", "layer 2 clu size",100,-0.5,99.5);
+//   hsize3 = new TH1F( "hsize3", "layer 3 clu size",100,-0.5,99.5);
+//   hsizex1 = new TH1F( "hsizex1", "lay1 clu size in x",
+//                       10,-0.5,9.5);
+//   hsizex2 = new TH1F( "hsizex2", "lay2 clu size in x",
+//                       10,-0.5,9.5);
+//   hsizex3 = new TH1F( "hsizex3", "lay3 clu size in x",
+//                       10,-0.5,9.5);
+//   hsizey1 = new TH1F( "hsizey1", "lay1 clu size in y",
+//                       20,-0.5,19.5);
+//   hsizey2 = new TH1F( "hsizey2", "lay2 clu size in y",
+//                       20,-0.5,19.5);
+//   hsizey3 = new TH1F( "hsizey3", "lay3 clu size in y",
+//                       20,-0.5,19.5);
+   
+//   hdetr = new TH1F("hdetr","det r",150,0.,15.);
+//   hdetz = new TH1F("hdetz","det z",520,-26.,26.);
+  
+//   // Forward edcaps
+//   hdetrF = new TH1F("hdetrF","Fdet r",150,5.,20.);
+//   hdetzF = new TH1F("hdetzF","Fdet z",600,-60.,60.);
+ 
+//   hdisk = new TH1F( "hdisk", "FPix disk id", 10, 0., 10.);
+//   hblade = new TH1F( "hblade", "FPix blade id", 30, 0., 30.);
+//   hmodule = new TH1F( "hmodule", "FPix plaq. id", 10, 0., 10.);
+//   hpanel = new TH1F( "hpanel", "FPix panel id", 10, 0., 10.);
+//   hside = new TH1F( "hside", "FPix size id", 10, 0., 10.);
+ 
+//   hcharge1F = new TH1F( "hcharge1F", "Clu charge 21", 200, 0.,200.); //in ke
+//   hcharge2F = new TH1F( "hcharge2F", "Clu charge 22", 200, 0.,200.);
+//   hxpos1F = new TH1F( "hxpos1F", "Disk 1 cols", 700,-3.5,3.5);
+//   hxpos2F = new TH1F( "hxpos2F", "Disk 2 cols", 700,-3.5,3.5);
+//   hypos1F = new TH1F( "hypos1F", "Disk 1 rows", 200,-1.,1.);
+//   hypos2F = new TH1F( "hypos2F", "Disk 2 rows", 200,-1.,1.);
+//   hsize1F = new TH1F( "hsize1F", "Disk 1 clu size",100,-0.5,99.5);
+//   hsize2F = new TH1F( "hsize2F", "Disk 2 clu size",100,-0.5,99.5);
+//   hsizex1F = new TH1F( "hsizex1F", "d1 clu size in x",
+//                       10,-0.5,9.5);
+//   hsizex2F = new TH1F( "hsizex2F", "d2 clu size in x",
+//                       10,-0.5,9.5);
+//   hsizey1F = new TH1F( "hsizey1F", "d1 clu size in y",
+//                       20,-0.5,19.5);
+//   hsizey2F = new TH1F( "hsizey2F", "d2 clu size in y",
+//                       20,-0.5,19.5);
+//   hadcCharge1F = new TH1F( "hadcCharge1F", "pix charge d1", 50, 0.,50.); //in ke
+//   hadcCharge2F = new TH1F( "hadcCharge2F", "pix charge d2", 50, 0.,50.); //in ke
+
+//   hrecHitsPerDet1F = new TH1F( "hrecHitsPerDet1F", "RecHits per det l1",
+//                             200, -0.5, 199.5);
+//   hrecHitsPerDet2F = new TH1F( "hrecHitsPerDet2F", "RecHits per det l2",
+//                             200, -0.5, 199.5);
+//   hrecHitsPerLay1F = new TH1F( "hrecHitsPerLay1F", "RecHits per layer l1",
+//                             2000, -0.5, 1999.5);
+//   hrecHitsPerLay2F = new TH1F( "hrecHitsPerLay2F", "RecHits per layer l2",
+//                             2000, -0.5, 1999.5);
+//   hdetsPerLay1F = new TH1F( "hdetsPerLay1F", "Full dets per layer l1",
+//                            161, -0.5, 160.5);
+//   hdetsPerLay2F = new TH1F( "hdetsPerLay2F", "Full dets per layer l2",
+//                            257, -0.5, 256.5);
+
+
+  cout<<" book histos "<<endl;
 
 #endif
 }
@@ -167,8 +292,10 @@ void ReadPixelRecHit::beginJob(const edm::EventSetup& iSetup) {
 void ReadPixelRecHit::endJob(){
   cout << " End PixelRecHitTest " << endl;
 #ifdef DO_HISTO
-  hFile->Write();
-  hFile->Close();
+  //hFile->ls();
+  //hFile->pwd();
+  //hFile->Write();
+  //hFile->Close();
 #endif 
 
 }
