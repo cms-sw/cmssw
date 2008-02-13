@@ -132,7 +132,7 @@ void LMFRunIOV::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, sub_run_type, db_timestamp FROM lmf_run_iov WHERE lmf_iov_id = :1");
+     stmt->setSQL("SELECT tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, subrun_type, db_timestamp FROM lmf_run_iov WHERE lmf_iov_id = :1");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
@@ -200,8 +200,8 @@ int LMFRunIOV::writeDB()
   try {
     Statement* stmt = m_conn->createStatement();
     
-    stmt->setSQL("INSERT INTO lmf_run_iov (lmf_iov_id, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, sub_run_type) "
-		 "VALUES (lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5)");
+    stmt->setSQL("INSERT INTO lmf_run_iov (lmf_iov_id, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, subrun_type) "
+		 "VALUES (lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5, :6)");
     stmt->setInt(1, lmfRunTagID);
     stmt->setInt(2, runIOVID);
     stmt->setInt(3, m_subRunNum);
