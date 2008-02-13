@@ -1,7 +1,8 @@
 #include "CondTools/Hcal/interface/HcalPedestalsSourceHandler.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
-popcon::HcalPedestalsSourceHandler::HcalPedestalsSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, unsigned int sinceTime, unsigned int tillTime) 
-  : popcon::PopConSourceHandler<HcalPedestals>(name,cstring,evt,est), snc(sinceTime), tll(tillTime)
+popcon::HcalPedestalsSourceHandler::HcalPedestalsSourceHandler(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect, unsigned int sinceTime, unsigned int tillTime) 
+  : popcon::PopConSourceHandler<HcalPedestals>(name,cstring,cat,evt,est), m_pop_connect(pconnect), snc(sinceTime), tll(tillTime)
 {
 	m_name = name;
 	m_cs = cstring;
@@ -51,6 +52,9 @@ void popcon::HcalPedestalsSourceHandler::getNewObjects()
 
 	popcon::IOVPair iop = {snc,tll};
 	std::cout << "IOV used: " << snc << ", " << tll << std::endl;
+
+//	std::vector<DetId> channels = mypedestals->getAllChannels();
+//	for (int i=0; i<channels.size(); i++) std::cout << channels[i] << std::endl;
 
 	m_to_transfer->push_back(std::make_pair((HcalPedestals*)mypedestals,iop));
 
