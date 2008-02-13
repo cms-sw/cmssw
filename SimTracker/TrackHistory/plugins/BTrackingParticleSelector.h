@@ -11,7 +11,7 @@
  Selector to select only tracking particles originating from a B-hadron decay.
 */
 
-class BTrackSelector {
+class BTrackingParticleSelector {
 
  public:
   // input collection type
@@ -26,10 +26,10 @@ class BTrackSelector {
 
 
   // default constructor
-  BTrackSelector(): tracer(-2){};
+  BTrackingParticleSelector(): tracer(-2){};
 
   // constructor from parameter set configurability
-  BTrackSelector( const edm::ParameterSet & ): tracer(-2){};
+  BTrackingParticleSelector( const edm::ParameterSet & ): tracer(-2){};
 
   // select object from a collection and 
   // possibly event content
