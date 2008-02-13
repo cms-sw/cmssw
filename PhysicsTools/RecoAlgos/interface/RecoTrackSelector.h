@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/12/13 15:44:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/13 10:39:48 $
+ *  $Revision: 1.3 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -33,7 +33,6 @@ class RecoTrackSelector {
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2 ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-<<<<<<< RecoTrackSelector.h
     tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) { }
 
   const_iterator begin() const { return selected_.begin(); }
@@ -47,9 +46,6 @@ class RecoTrackSelector {
          trk != c->end(); ++ trk )
       if ( operator()(*trk,beamSpot.product()) ) selected_.push_back( & * trk );
   }
-=======
-    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) { }
->>>>>>> 1.2
 
   /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
   bool operator()( const reco::Track & t, const reco::BeamSpot* bs) {
@@ -57,14 +53,9 @@ class RecoTrackSelector {
       (t.numberOfValidHits() >= minHit_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
-<<<<<<< RecoTrackSelector.h
        fabs(t.dxy(bs->position())) <= tip_ &&
-       fabs(t.dz()) <= lip_ );
-=======
-       fabs(t.d0()) <= tip_ &&
-       fabs(t.dz()) <= lip_ &&
+       fabs(t.dz()) <= lip_  &&
        t.normalizedChi2()<=maxChi2_);
->>>>>>> 1.2
   }
 
   size_t size() const { return selected_.size(); }
@@ -76,38 +67,8 @@ class RecoTrackSelector {
   double tip_;
   double lip_;
   int    minHit_;
-<<<<<<< RecoTrackSelector.h
   double maxChi2_;
   container selected_;
-=======
-  double maxChi2_;
-
->>>>>>> 1.2
 };
 
-<<<<<<< RecoTrackSelector.h
-=======
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-
-namespace reco {
-  namespace modules {
-    
-    template<>
-    struct ParameterAdapter<RecoTrackSelector> {
-      static RecoTrackSelector make( const edm::ParameterSet & cfg ) {
-	return RecoTrackSelector(    
-          cfg.getParameter<double>( "ptMin" ),
-	  cfg.getParameter<double>( "minRapidity" ),
-	  cfg.getParameter<double>( "maxRapidity" ),
-	  cfg.getParameter<double>( "tip" ),
-	  cfg.getParameter<double>( "lip" ),
-	  cfg.getParameter<int>( "minHit" ), 
-	  cfg.getParameter<double>( "maxChi2" ) ); 
-      }
-    };
-    
-  }
-}
-
->>>>>>> 1.2
 #endif
