@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CSCNoiseMatrixDBConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixDBConditions.h"
 
 namespace popcon
 {

@@ -1,4 +1,6 @@
 #include "CalibMuon/CSCCalibration/test/stubs/CSCNoiseMatrixHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include<iostream>
 
 popcon::CSCDBNoiseMatrixImpl::CSCDBNoiseMatrixImpl(const edm::ParameterSet& pset): m_name(pset.getUntrackedParameter<std::string>("name","CSCDBNoiseMatrixImpl")){}
 
