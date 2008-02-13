@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/11/30 15:48:55 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/06 17:07:27 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -44,17 +44,23 @@ private:
 
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
 
+  TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
+
   const LayerMeasurements* tkLayerMeasurements() const { return theTkLayerMeasurements; } 
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
 
   edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
 
+  TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;
+
   TrajectorySeed createSeed(const TrajectoryMeasurement&) const;
 
   void selectMeasurements(std::vector<TrajectoryMeasurement>&) const;
 
   void validMeasurements(std::vector<TrajectoryMeasurement>&) const;
+
+  std::vector<TrajectoryMeasurement> findMeasurements_new(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
@@ -88,6 +94,8 @@ private:
   double theMaxChi2;
 
   double theErrorRescaling;
+
+  bool theUpdateStateFlag;
 
   bool theUseSecondMeasurementsFlag;
 

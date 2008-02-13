@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/02/01 10:43:56 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/02/06 17:07:33 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -13,6 +13,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -49,7 +50,7 @@ TSGFromPropagation::~TSGFromPropagation()
 
 }
 
-void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion&, std::vector<TrajectorySeed> & result) {
+void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
 
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
   MuonPatternRecoDumper debug;
@@ -74,38 +75,68 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   if ( nls.empty() ) return;
 
-  std::vector<TrajectoryMeasurement> alltm; 
+  int ndesLayer = 0;
 
-  for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
-       inl != nls.end(); inl++ ) {
+  bool usePredictedState = false;
 
-     if ( (!alltm.empty()) || (*inl == 0) ) break;
+  if ( theUpdateStateFlag ) { //use updated states
+     std::vector<TrajectoryMeasurement> alltm; 
 
-     std::vector<TrajectoryMeasurement> tmptm = findMeasurements(*inl, staState);
-     LogTrace(category) << " Number of measurements in used layer: "<<alltm.size();
+     for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
+         inl != nls.end(); inl++ ) {
 
-     if ( tmptm.empty() )  continue;
-     alltm.insert(alltm.end(),tmptm.begin(), tmptm.end());
+         if ( (!alltm.empty()) || (*inl == 0) ) {
+            LogTrace(category) << "final compatible layer: "<<ndesLayer;
+            break;
+         }
+         ndesLayer++;
+         std::vector<TrajectoryMeasurement> tmptm = findMeasurements_new(*inl, staState);
+         LogTrace(category) << " Number of measurements in used layer: "<<alltm.size();
+         if ( tmptm.empty() )  continue;
+         alltm.insert(alltm.end(),tmptm.begin(), tmptm.end());
+     }
+
+     if ( alltm.empty() ) {
+        LogTrace(category) << " NO Measurements Found: eta: "<<staState.globalPosition().eta() <<"pt "<<staState.globalMomentum().perp();
+        usePredictedState = true;
+     } else {
+       LogTrace(category) << " Measurements for seeds: "<<alltm.size();
+       selectMeasurements(alltm);
+       LogTrace(category) << " Measurements for seeds after select: "<<alltm.size();
+
+       for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
+            itm != alltm.end(); itm++) {
+        LogTrace(category) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
+//        if ( itm->recHit()->isValid() && itm->updatedState().isValid() )  {
+            TrajectorySeed ts = createSeed(*itm);
+            result.push_back(ts); 
+//        }
+       }
+     return;
+    }
   }
 
-  if ( alltm.empty() ) LogTrace(category) << " NO Measurements Found: eta: "<<staState.globalPosition().eta() <<"pt "<<staState.globalMomentum().perp();
+  if ( !theUpdateStateFlag || usePredictedState ) { //use predicted states
+     LogTrace(category) << "use predicted state: ";
+     for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
+         inl != nls.end(); inl++ ) {
 
-  LogTrace(category) << " Measurements for seeds: "<<alltm.size();
-  selectMeasurements(alltm);
-  LogTrace(category) << " Measurements for seeds after select: "<<alltm.size();
+         if ( !result.empty() || *inl == 0 ) {
+            LogTrace(category) << "final compatible layer: "<<ndesLayer;
+            break;
+         }
+         ndesLayer++;
+         std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());
+         LogTrace(category) << " compatDets "<<compatDets.size();
+         if ( compatDets.empty() ) continue;
+         TrajectorySeed ts = createSeed(compatDets.front().second, compatDets.front().first->geographicalId());
+         result.push_back(ts);
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
-       itm != alltm.end(); itm++) {
-   LogTrace(category) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
-
-//    if ( itm->recHit()->isValid() && itm->updatedState().isValid() )  {
-       TrajectorySeed ts = createSeed(*itm);
-       result.push_back(ts); 
-//    }
-  }
-
+     }
+     LogTrace(category) << "result: "<<result.size();
+     return;
+  } 
   return;
-
 }
     
 
@@ -122,6 +153,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   thePropagatorName = theConfig.getParameter<std::string>("Propagator");
 
   theService = service;
+
+  theUpdateStateFlag = theConfig.getParameter<bool>("UpdateState");
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
 
@@ -181,17 +214,29 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
 //    return theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
 }
 
-TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
+TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
 
-  TrajectoryStateOnSurface tsos = tm.updatedState(); 
+  StateOnTrackerBound fromOutside(&*propagator());
+  return fromOutside(innerState(staMuon));
+
+}
+
+TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const DetId& id) const {
+
+  PTrajectoryStateOnDet* seedTSOS =
+    theTSTransformer->persistentState(tsos, id.rawId());
+  edm::OwnVector<TrackingRecHit> container;
+
+  return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
+
+}
+
+TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
 
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
-  LogTrace(category)<<"Trajectory State on Surface of Seed";
-  LogTrace(category)<<tsos;
-
   PTrajectoryStateOnDet* seedTSOS =
-    theTSTransformer->persistentState(tsos,tm.recHit()->geographicalId().rawId());
+    theTSTransformer->persistentState(tm.updatedState(),tm.recHit()->geographicalId().rawId());
     
   edm::OwnVector<TrackingRecHit> container;
 
@@ -260,6 +305,7 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
 
 void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& tms) const {
 
+  if ( tms.empty()) return;
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
   std::vector<TrajectoryMeasurement> validMeasurements;
@@ -273,28 +319,36 @@ void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& t
   }
   tms.clear();
   tms.swap(validMeasurements);
+
   return;
 
 }
 
-std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
+std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements_new(const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
 
   std::vector<TrajectoryMeasurement> result;
 
-  if ( nl == 0 ) return result;
+  std::vector<DetLayer::DetWithState> compatDets = nl->compatibleDets(staState, *propagator(), *estimator());
+  if ( compatDets.empty() )  return result;
 
-  const std::string category = "Muon|RecoMuon|TSGFromPropagation";
+  for (std::vector<DetLayer::DetWithState>::const_iterator idws = compatDets.begin(); idws != compatDets.end(); ++idws) {
+     if ( idws->second.isValid() && (idws->first) )  {
+      std::vector<TrajectoryMeasurement> tmptm = 
+         theMeasTracker->idToDet(idws->first->geographicalId())->fastMeasurements(idws->second, idws->second, *propagator(), *estimator());
+         result.insert(result.end(),tmptm.begin(), tmptm.end());
+     }
+  }
+  
+  if ( !result.empty() ) validMeasurements(result);
 
-  MuonPatternRecoDumper debug;
-  LogTrace(category) << " findMeasurements: ";
-  LogTrace(category) << " this next layer: "<<debug.dumpLayer(nl);
-  result =
-      tkLayerMeasurements()->measurements((*nl), staState, *propagator(), *estimator());
+  return result;
+}
 
-  LogTrace(category) << "measurements: "<<result.size();
+
+std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
+
+  std::vector<TrajectoryMeasurement> result = tkLayerMeasurements()->measurements((*nl), staState, *propagator(), *estimator());
   validMeasurements(result);
-  LogTrace(category) << " valid measurements: "<<result.size();
-
   return result;
 }
 
