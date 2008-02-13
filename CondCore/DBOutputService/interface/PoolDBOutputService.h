@@ -56,6 +56,11 @@ namespace cond{
       // return the database session in use
       //
       cond::DBSession& session() const;
+      //
+      // return the database connection handle in use
+      //
+      cond::Connection& connection() const;
+      // 
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;

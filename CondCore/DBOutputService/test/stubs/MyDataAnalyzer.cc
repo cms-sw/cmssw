@@ -7,6 +7,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "MyDataAnalyzer.h"
 #include <cstdlib>
@@ -84,6 +85,12 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"last since "<<taginfo.lastInterval.first<<"\n";
     std::cout<<"last till "<<taginfo.lastInterval.second<<std::endl;
     std::cout<<"last payload "<<taginfo.lastPayloadToken<<std::endl;
+    //example for instantiate object by token
+    cond::PoolTransaction& pooldb=mydbservice->connection().poolTransaction();
+    pooldb.start(true);
+    cond::TypedRef<Pedestals> myinstance(pooldb,taginfo.lastPayloadToken);
+    std::cout<<"size of items "<<myinstance->m_pedestals.size()<<std::endl;
+    pooldb.commit();
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){

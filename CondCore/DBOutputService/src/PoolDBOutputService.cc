@@ -73,7 +73,10 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   iAR.watchPreModule(this,&cond::service::PoolDBOutputService::preModule);
   iAR.watchPostModule(this,&cond::service::PoolDBOutputService::postModule);
 }
-
+cond::Connection& 
+cond::service::PoolDBOutputService::connection() const{
+  return *m_connection;
+}
 std::string 
 cond::service::PoolDBOutputService::tag( const std::string& EventSetupRecordName ){
   return this->lookUpRecord(EventSetupRecordName).m_tag;
