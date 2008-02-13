@@ -9,6 +9,7 @@ namespace cond{
     std::string name;
     std::string token;
     cond::ValidityInterval lastInterval;
+    std::string lastPayloadToken;
     size_t size;
   };
 }

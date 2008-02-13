@@ -83,6 +83,7 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"iov token "<<taginfo.token<<"\n";
     std::cout<<"last since "<<taginfo.lastInterval.first<<"\n";
     std::cout<<"last till "<<taginfo.lastInterval.second<<std::endl;
+    std::cout<<"last payload "<<taginfo.lastPayloadToken<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){

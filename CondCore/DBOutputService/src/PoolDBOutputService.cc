@@ -339,6 +339,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   cond::IOVService iovmanager( pooldb );
   cond::IOVIterator* iit=iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter);
   result.lastInterval=iit->validity();
+  result.lastPayloadToken=iit->payloadToken();
   result.size=iit->size();
   pooldb.commit();
   delete iit;
