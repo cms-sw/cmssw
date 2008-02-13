@@ -28,6 +28,11 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
   if (geographicalId() != other->geographicalId()) return false;
 
   const SiStripRecHit2D* otherCast = static_cast<const SiStripRecHit2D*>(other);
-  return ( (cluster_ == otherCast->cluster()) || (clusterRegional_ == otherCast->cluster_regional()) ); 
+  // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
+  if (cluster_.isNonnull()) {
+    return (cluster_ == otherCast->cluster());
+  } else {
+    return (clusterRegional_ == otherCast->cluster_regional());
+  }
 }
 
