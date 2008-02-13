@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id$
+// $Id: TestOutliers.cc,v 1.1 2008/02/11 12:08:50 cerati Exp $
 //
 //
 
@@ -53,6 +53,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
 // class decleration
@@ -172,6 +173,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(trackTagsOld_,tracksOld);
   Handle<TrackingParticleCollection> tps;
   iEvent.getByLabel(tpTags_,tps);
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel("offlineBeamSpot",beamSpot); 
 
   hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
 
@@ -184,7 +187,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace("TestOutliers") << "recSimCollOld.size()=" << recSimCollOld.size() ;
   for(reco::TrackCollection::size_type j=0; j<tracksOld->size(); ++j){
     reco::TrackRef trackOld(tracksOld, j);
-    if ( !selectRecoTracks( *trackOld ) ) continue;
+    if ( !selectRecoTracks( *trackOld,beamSpot.product() ) ) continue;
     LogTrace("TestOutliers") << "trackOld->pt()=" << trackOld->pt() << " trackOld->numberOfValidHits()=" << trackOld->numberOfValidHits();
     vector<pair<TrackingParticleRef, double> > tpOld;
     if(recSimCollOld.find(trackOld) != recSimCollOld.end()){
@@ -196,7 +199,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace("TestOutliers") << "recSimCollOut.size()=" << recSimCollOut.size() ;
   for(reco::TrackCollection::size_type j=0; j<tracksOut->size(); ++j){
     reco::TrackRef trackOut(tracksOut, j);
-    if ( !selectRecoTracks( *trackOut ) ) continue;
+    if ( !selectRecoTracks( *trackOut,beamSpot.product() ) ) continue;
     LogTrace("TestOutliers") << "trackOut->pt()=" << trackOut->pt() << " trackOut->numberOfValidHits()=" << trackOut->numberOfValidHits();
     vector<pair<TrackingParticleRef, double> > tpOut;
     if(recSimCollOut.find(trackOut) != recSimCollOut.end()){
@@ -215,7 +218,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	 != (trackOld->numberOfValidHits()+trackOld->numberOfLostHits()) ) continue;
     ++i;
 
-    if ( !selectRecoTracks( *trackOld ) ) continue;//????
+    if ( !selectRecoTracks( *trackOld,beamSpot.product() ) ) continue;//????
 
     tracks->Fill(0);//FIXME
 
@@ -306,8 +309,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  //deltahitsNO->Fill(foundOld-trackOut->numberOfValidHits());
 
 	  RecoTrackSelector select(0.8, -2.5, 2.5, 3.5, 30, 5, 10000);
-	  if (select(*trackOut)) okcutsOut->Fill(1); else okcutsOut->Fill(0);
-	  if (select(*trackOld)) okcutsOld->Fill(1); else okcutsOld->Fill(0);
+	  if (select(*trackOut,beamSpot.product())) okcutsOut->Fill(1); else okcutsOut->Fill(0);
+	  if (select(*trackOld,beamSpot.product())) okcutsOld->Fill(1); else okcutsOld->Fill(0);
 
 	  trackingRecHit_iterator itOut = trackOut->recHitsBegin();
 	  for (trackingRecHit_iterator itOld = trackOld->recHitsBegin(); itOld!=trackOld->recHitsEnd(); itOld++,itOut++){

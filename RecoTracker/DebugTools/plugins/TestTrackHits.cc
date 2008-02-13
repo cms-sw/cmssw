@@ -13,6 +13,7 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -239,6 +240,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByLabel(srcName,trackCollectionHandle);
   iEvent.getByLabel(srcName,trajTrackAssociationCollectionHandle);
   iEvent.getByLabel(tpName,trackingParticleCollectionHandle);
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel("offlineBeamSpot",beamSpot); 
 
   LogTrace("TestTrackHits") << "Tr collection size=" << trackCollectionHandle->size();
   LogTrace("TestTrackHits") << "TP collection size=" << trackingParticleCollectionHandle->size();
@@ -265,7 +268,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Ref<vector<Trajectory> >  traj(trajCollectionHandle, i);
     reco::TrackRef tmptrack = (*trajTrackAssociationCollectionHandle.product())[traj];
     edm::RefToBase<reco::Track> track(tmptrack);
-    if ( !selectRecoTracks( *track ) ) {
+    if ( !selectRecoTracks( *track,beamSpot.product() ) ) {
       LogTrace("TestTrackHits") << "track does not pass quality cuts: skippingtrack #" << ++yyy;
       i++;
       continue;
