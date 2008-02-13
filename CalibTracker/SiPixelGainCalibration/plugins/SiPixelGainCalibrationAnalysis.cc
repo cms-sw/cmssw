@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.14 2008/02/08 16:41:17 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.15 2008/02/12 11:10:56 fblekman Exp $
 //
 //
 
@@ -31,7 +31,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   bookkeeper_(),
   bookkeeper_pixels_(),
   nfitparameters_(iConfig.getUntrackedParameter<int>("numberOfFitParameters",2)),
-  fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","pol1")),//"[1]*(x+[0])")),
+  fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","pol1")),
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
@@ -327,6 +327,10 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     
     slope = fitter.GetParameter(1);
     intercept = fitter.GetParameter(0);
+    // convert the gain and pedestal parameters to functional form y= x/gain+ ped
+    if(slope!=0)
+      slope = 1./ slope;
+    
     chi2 = fitter.GetChisquare()/fitter.GetNumberFreeParameters();
     prob = TMath::Prob(fitter.GetChisquare(),fitter.GetNumberFreeParameters());
     if(slope<0)
