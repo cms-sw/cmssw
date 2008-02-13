@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.33 2008/02/13 10:41:45 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.34 2008/02/13 12:05:47 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -111,8 +111,8 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setu
   double sigmaZ=recoBeamSpotHandle->sigmaZ();
   double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  zmin1=-3*sq;
-  zmax1=3*sq;
+  zmin1=BSPosition_.z()-3*sq;
+  zmax1=BSPosition_.z()+3*sq;
 
   theSetup= &setup; 
 
