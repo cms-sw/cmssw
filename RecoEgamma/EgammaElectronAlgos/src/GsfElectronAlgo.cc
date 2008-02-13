@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.2 2007/12/17 16:31:54 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.3 2008/02/11 13:20:58 kkaadze Exp $
 //
 //
 
@@ -612,6 +612,11 @@ GsfElectronAlgo::superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco
     math::XYZVector clusterGlobalDir(sc->x() - track->vx(), sc->y() - track->vy(), sc->z() - track->vz());
     //math::XYZVector clusterGlobalPos(sc->x(), sc->y(), sc->z());
     
+    double clusEt = sc->energy()*sin(clusterGlobalDir.theta());
+    double clusEstimatedCurvature = clusEt/0.3/4*100;  //4 tesla (temporary solution)
+    double DphiBending = sc->position().rho()/2./clusEstimatedCurvature; //ecal radius
+
+
     double tmpDr = ROOT::Math::VectorUtil::DeltaR(clusterGlobalDir, trackGlobalDir);
     if ( !(tmpDr < minDr) ) continue;
 
@@ -630,11 +635,13 @@ GsfElectronAlgo::superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco
     //    double eOverPout = sc->seed()->energy()/seedMom.mag();
  
     double Deta = fabs(clusterGlobalDir.eta() - trackGlobalDir.eta());
-    double Dphi = fabs(acos(cos(clusterGlobalDir.phi() - trackGlobalDir.phi())));
+    double dPhi = fabs(acos(cos(clusterGlobalDir.phi() - trackGlobalDir.phi())));
+    float dPhi1 = fabs(dPhi - DphiBending);
+    float dPhi2 = fabs(dPhi + DphiBending);
 
     //    if( !(eOverPout>0.5) ) continue;
     if( !(eOverPin<5) )  continue;
-    if( !(Dphi < 0.2) )  continue;
+    if( !(min(dPhi1,dPhi2) < 0.1) )  continue;
     if( !(Deta < 0.02) ) continue;
 
     //    cout << " in matchbox, dphi, deta: " << Dphi << " , " << Deta << endl;
