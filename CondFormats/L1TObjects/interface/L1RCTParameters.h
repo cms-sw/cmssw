@@ -37,12 +37,13 @@ class L1RCTParameters {
 		  double hOeCut,
 		  double eMinForHoECut,
 		  double eMaxForHoECut,
+		  double hMinForHoECut,
 		  double eActivityCut,
 		  double hActivityCut,
 		  double eicIsolationThreshold,
-		  bool ignoreTowerHB,
-		  bool ignoreTowerHEplus,
-		  bool ignoreTowerHEminus,
+		  bool noiseVetoHB,
+		  bool noiseVetoHEplus,
+		  bool noiseVetoHEminus,
 		  std::vector<double> eGammaECalScaleFactors,
 		  std::vector<double> eGammaHCalScaleFactors,
 		  std::vector<double> jetMETECalScaleFactors,
@@ -61,12 +62,13 @@ class L1RCTParameters {
   double hOeCut() const {return hOeCut_;}
   double eMinForHoECut() const {return eMinForHoECut_;}
   double eMaxForHoECut() const {return eMaxForHoECut_;}
+  double hMinForHoECut() const {return hMinForHoECut_;}
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
   double eicIsolationThreshold() const {return eicIsolationThreshold_;}
-  bool ignoreTowerHB() const {return ignoreTowerHB_;}
-  bool ignoreTowerHEplus() const {return ignoreTowerHEplus_;}
-  bool ignoreTowerHEminus() const {return ignoreTowerHEminus_;}
+  bool noiseVetoHB() const {return noiseVetoHB_;}
+  bool noiseVetoHEplus() const {return noiseVetoHEplus_;}
+  bool noiseVetoHEminus() const {return noiseVetoHEminus_;}
   std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
   std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
   std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
@@ -118,6 +120,10 @@ class L1RCTParameters {
 
   double eMaxForHoECut_;
 
+  // Minimum ET of the hcal (in GeV) above which H/E always fails (veto true)
+
+  double hMinForHoECut_;
+
   // If the ET of the ECAL trigger tower is above this value
   // the tower is deemed active (in GeV)  --  these are used
   // for tau pattern logic
@@ -141,17 +147,17 @@ class L1RCTParameters {
   // tower -- to reduce HCAL noise.  Endcaps enabled separately
   // to allow for lack of one/both ECAL endcaps.
 
-  bool ignoreTowerHB_;
+  bool noiseVetoHB_;
 
   // Ignores HCAL energy in plus endcap if no ECAL energy in
   // corresponding tower.  
 
-  bool ignoreTowerHEplus_;
+  bool noiseVetoHEplus_;
 
   // Ignores HCAL energy in minus endcap if no ECAL energy in
   // corresponding tower.
 
-  bool ignoreTowerHEminus_;
+  bool noiseVetoHEminus_;
 
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]

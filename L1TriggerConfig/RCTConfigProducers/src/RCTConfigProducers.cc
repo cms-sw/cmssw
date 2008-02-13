@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.3 2008/01/17 09:47:06 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.4 2008/01/29 12:38:22 jleonard Exp $
 //
 //
 
@@ -73,12 +73,13 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 iConfig.getParameter<double>("hOeCut"),
 			 iConfig.getParameter<double>("eMinForHoECut"),
 			 iConfig.getParameter<double>("eMaxForHoECut"),
+			 iConfig.getParameter<double>("hMinForHoECut"),
 			 iConfig.getParameter<double>("eActivityCut"),
 			 iConfig.getParameter<double>("hActivityCut"),
 			 iConfig.getParameter<double>("eicIsolationThreshold"),
-			 iConfig.getParameter<bool>("ignoreTowerHB"),
-			 iConfig.getParameter<bool>("ignoreTowerHEplus"),
-			 iConfig.getParameter<bool>("ignoreTowerHEminus"),
+			 iConfig.getParameter<bool>("noiseVetoHB"),
+			 iConfig.getParameter<bool>("noiseVetoHEplus"),
+			 iConfig.getParameter<bool>("noiseVetoHEminus"),
 			 iConfig.getParameter<std::vector< double > >("eGammaECalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("eGammaHCalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("jetMETECalScaleFactors"),

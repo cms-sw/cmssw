@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.10 2008/01/17 09:47:44 jleonard Exp $
+ * $Id: L1RCTParameters.cc,v 1.11 2008/01/29 12:40:29 jleonard Exp $
  **/
 
 #include <iostream>
@@ -18,12 +18,13 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double hOeCut,
 				 double eMinForHoECut,
 				 double eMaxForHoECut,
+				 double hMinForHoECut,
 				 double eActivityCut,
 				 double hActivityCut,
 				 double eicIsolationThreshold,
-				 bool ignoreTowerHB,
-				 bool ignoreTowerHEplus,
-				 bool ignoreTowerHEminus,
+				 bool noiseVetoHB,
+				 bool noiseVetoHEplus,
+				 bool noiseVetoHEminus,
 				 std::vector<double> eGammaECalScaleFactors,
 				 std::vector<double> eGammaHCalScaleFactors,
 				 std::vector<double> jetMETECalScaleFactors,
@@ -36,12 +37,13 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   hOeCut_(hOeCut),
   eMinForHoECut_(eMinForHoECut),
   eMaxForHoECut_(eMaxForHoECut),
+  hMinForHoECut_(hMinForHoECut),
   eActivityCut_(eActivityCut),
   hActivityCut_(hActivityCut),
   eicIsolationThreshold_(eicIsolationThreshold),
-  ignoreTowerHB_(ignoreTowerHB),
-  ignoreTowerHEplus_(ignoreTowerHEplus),
-  ignoreTowerHEminus_(ignoreTowerHEminus),
+  noiseVetoHB_(noiseVetoHB),
+  noiseVetoHEplus_(noiseVetoHEplus),
+  noiseVetoHEminus_(noiseVetoHEminus),
   eGammaECalScaleFactors_(eGammaECalScaleFactors),
   eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
   jetMETECalScaleFactors_(jetMETECalScaleFactors),

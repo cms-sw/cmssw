@@ -48,9 +48,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       etIn9Bits = 0x1FF;
     }
   else if((ecalInput == 0 && hcalInput > 0) &&
-	  ((rctParameters_->ignoreTowerHB() && iAbsEta > 0 && iAbsEta < 18)
-	   || (rctParameters_->ignoreTowerHEplus() && iAbsEta>17 && crtNo>8)
-	   || (rctParameters_->ignoreTowerHEminus() && iAbsEta>17 && crtNo<9)))
+	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
+	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
+	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
     {
       etIn7Bits = 0;
       etIn9Bits = 0;
@@ -105,7 +105,7 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
     }
   else 
     {
-      if(hcal > rctParameters_->eMinForHoECut()) veto = true;  // Change to hMinForHoECut() later - SD 2007-Aug-27
+      if(hcal > rctParameters_->hMinForHoECut()) veto = true;  // Changed from eMinForHoECut() - JLL 2008-Feb-13
     }
   return veto;
 }

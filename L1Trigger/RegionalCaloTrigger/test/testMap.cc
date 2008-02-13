@@ -18,12 +18,13 @@ int main()
 			0.5,                       // hOeCut
 			1.0,                       // eMinForHoECut
 			50.0,                      // eMaxForHoECut
+			1.0,                       // hMinForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
 			3.0,                       // eicIsolationThreshold
-			false,                     // ignoreTowerHB
-			false,                     // ignoreTowerHEplus
-			false,                     // ignoreTowerHEminus
+			false,                     // noiseVetoHB
+			false,                     // noiseVetoHEplus
+			false,                     // noiseVetoHEminus
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,
