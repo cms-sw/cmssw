@@ -18,3 +18,7 @@
 <library file="SimpleTHA.cc" name=SimpleTHA>
   <flags EDM_PLUGIN=1>
 </library>
+<library file="BTrackSelector.cc" name=BTrackSelection>
+  <flags EDM_PLUGIN=1>
+</library>
+
