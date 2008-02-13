@@ -1,4 +1,5 @@
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "DataFormats/CLHEP/interface/Migration.h" 
 #include <boost/cstdint.hpp> 
 
@@ -22,5 +23,20 @@ namespace {
     edm::reftobase::IndirectHolder<L2MuonTrajectorySeed> ihs;
     edm::reftobase::Holder< L2MuonTrajectorySeed, edm::Ref<L2MuonTrajectorySeedCollection> > rbh;
     edm::reftobase::RefHolder< edm::Ref<L2MuonTrajectorySeedCollection> > rbrh;
+  }
+  namespace {
+    std::vector<L3MuonTrajectorySeed> v12;
+    L3MuonTrajectorySeedCollection c12;
+    edm::Wrapper<L3MuonTrajectorySeedCollection> w12;
+    
+    edm::RefVectorIterator<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > rfitr12;
+    edm::Ref<L3MuonTrajectorySeedCollection> s12;
+    edm::RefProd<L3MuonTrajectorySeedCollection> s22;
+    edm::RefVector<L3MuonTrajectorySeedCollection> s32;
+    
+    edm::RefToBase<L3MuonTrajectorySeed> sr2;  
+    edm::reftobase::IndirectHolder<L3MuonTrajectorySeed> ihs2;
+    edm::reftobase::Holder< L3MuonTrajectorySeed, edm::Ref<L3MuonTrajectorySeedCollection> > rbh2;
+    edm::reftobase::RefHolder< edm::Ref<L3MuonTrajectorySeedCollection> > rbrh2;
   }
 }
