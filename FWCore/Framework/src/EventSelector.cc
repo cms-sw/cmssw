@@ -5,7 +5,12 @@
 //			 been placed in the doc area.  
 // 			 See ../doc/EventSelector-behavior.doc for details of
 //			 reactions to Ready or Exception states.
-
+// 1a M Fischler 2/13/08 Clear the nonveto_bits_ array at the start of init.
+//			 This is needed in the case of paths with wildcards,
+//			 on explicit processes other than a current process
+//			 (in which case init() is called whenever the trigger
+//			 PSetID changes, and we don't want the old array
+//			 contents to stick around.
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -54,7 +59,7 @@ namespace edm
     // std::cerr << "### init entered\n";
     accept_all_ = false;
     decision_bits_.clear();
-
+    nonveto_bits_.clear();
     nTriggerNames_ = triggernames.size();
     notStarPresent_ = false;
 
