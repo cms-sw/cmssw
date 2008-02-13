@@ -1,14 +1,11 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2008/01/22 18:56:02 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/02 11:54:15 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
- * Revision 1.7  2008/01/22 18:56:02  muzaffar
- * include cleanup. Only for cc/cpp files
- *
  * Revision 1.6  2008/01/02 11:54:15  elmer
  * Add missing math.h and TMath.h includes
  *
@@ -46,6 +43,7 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1THCALTPGXAna.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 //#include "DQM/L1TMonitor/interface/hcal_root_prefs.h"
 #include "TMath.h"
 
@@ -125,7 +123,7 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
 
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
-        std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
+    std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
   }
   else{
     outputFile_ = "L1TDQM.root";
@@ -466,7 +464,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 	  // occupancy maps (weighted and unweighted
 	  hcalTpOccEtaPhi_->Fill(ieta,iphi);
 	  hcalTpEtEtaPhi_->Fill(ieta,iphi,rank);
-	  if(rank = 1024)
+	  if(rank == 1024)
 	    {
 	      hcalTpSat_->Fill(ieta,iphi);
 	    }

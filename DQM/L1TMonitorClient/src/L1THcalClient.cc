@@ -1,11 +1,20 @@
 #include "DQM/L1TMonitorClient/interface/L1THcalClient.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/MonitorElementBaseT.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <iostream>
 #include <stdio.h>
 #include <string>
 #include <sstream>
 #include <math.h>
+#include <TROOT.h>
+#include <TStyle.h>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <TF1.h>
 using namespace edm;
 using namespace std;
@@ -288,7 +297,7 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
 	    {
               sprintf(subdirname,"%sEffByChannel/EtaTower%d/",output_dir.c_str(),ieta);
-	      eff_histo = this->get1DHisto((string)output_dir+(string)hname,dbe);
+	      eff_histo = this->get1DHisto((string)subdirname+(string)hname,dbe);
 	      turnon->SetParameter(0,1);
 	      turnon->SetParameter(1,1);
 	      turnon->SetParameter(2,6);
