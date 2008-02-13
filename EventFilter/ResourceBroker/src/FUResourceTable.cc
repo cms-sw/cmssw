@@ -324,10 +324,11 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 	break;
       }
       else {
+	count++;
 	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach,"
 			<<" nClients="<<shmBuffer_->nClients()
 			<<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
-			<<" ("<<++count<<")");
+			<<" ("<<count<<")");
 	::sleep(1);
       }
     }
