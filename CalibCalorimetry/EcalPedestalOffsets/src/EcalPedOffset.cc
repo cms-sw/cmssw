@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/01/22 19:08:09 $
- * $Revision: 1.4 $
+ * $Date: 2008/02/13 10:27:15 $
+ * $Revision: 1.5 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -216,7 +216,6 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
       itdigi != pDigis->end(); 
       ++itdigi)
   {
-    // Below for 1_7_0
     int gainId = ((EEDataFrame)(*itdigi)).sample(0).gainId();
     //int gainId = itdigi->sample(0).gainId();
     EEDetId detId = EEDetId(itdigi->id());
