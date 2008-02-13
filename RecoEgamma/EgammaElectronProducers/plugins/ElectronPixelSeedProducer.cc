@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.11 2007/12/17 16:32:16 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.12 2007/12/17 16:58:41 uberthon Exp $
 //
 //
 
@@ -53,8 +53,8 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
 					    pset.getParameter<double>("pPhiMax1"),
 					    pset.getParameter<double>("pPhiMin2"),
 					    pset.getParameter<double>("pPhiMax2"),
-					    pset.getParameter<double>("ZMin1"),
-					    pset.getParameter<double>("ZMax1"),
+						 //					    pset.getParameter<double>("ZMin1"),
+						 //					    pset.getParameter<double>("ZMax1"),
 					    pset.getParameter<double>("ZMin2"),
 					    pset.getParameter<double>("ZMax2"),
                                             pset.getParameter<bool>("dynamicPhiRoad"),

@@ -47,8 +47,6 @@ public:
 			  float ipphimax1,
 			  float iphimin2,
 			  float iphimax2,
-			  float izmin1,
-			  float izmax1,
 			  float izmin2,
 			  float izmax2,
 			  bool  idynamicphiroad,

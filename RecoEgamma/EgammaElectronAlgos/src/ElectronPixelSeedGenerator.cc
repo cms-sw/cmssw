@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.31 2007/12/17 16:31:54 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.32 2008/02/12 15:55:04 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -53,19 +53,20 @@
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float iephimax1,
 			                               float ipphimin1, float ipphimax1,
 			                               float ipphimin2, float ipphimax2,
-						       float izmin1, float izmax1,
+						       //						       float izmin1, float izmax1,
 						       float izmin2, float izmax2,
                                                        bool idynamicphiroad, double SCEtCut)
  : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
-   pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),SCEtCut_(SCEtCut),
+   pphimax2(ipphimax2),
+   zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),SCEtCut_(SCEtCut),
    myMatchEle(0), myMatchPos(0),theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
    theNavigationSchool(0), theSetup(0), pts_(0)
 {
       // Instantiate the pixel hit matchers
       LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
 		   << pphimin1 << ", " << pphimax1;
-      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
-      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
+      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin2, zmax2);
+      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin2, zmax2);
 }
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
@@ -100,16 +101,18 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 }
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
-  //---------------------------------------------
+
   //Getting the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByType(recoBeamSpotHandle);
 
   // gets its position
-  //  const math::XYZPoint& BSPosition_ = recoBeamSpotHandle->position();
   BSPosition_ = recoBeamSpotHandle->position();
-
-  //---------------------------------------------
+  double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+  zmin1=-3*sq;
+  zmax1=3*sq;
 
   theSetup= &setup; 
 
@@ -174,8 +177,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
 	}
 
 
-      myMatchEle->set1stLayer(ephimin1,ephimax1);
-      myMatchPos->set1stLayer(pphimin1,pphimax1);
+      myMatchEle->set1stLayer(ephimin1,ephimax1,zmin1,zmax1);
+      myMatchPos->set1stLayer(pphimin1,pphimax1,zmin1,zmax1);
       myMatchEle->set2ndLayer(phimin2,phimax2);
       myMatchPos->set2ndLayer(phimin2,phimax2);
 
