@@ -162,15 +162,10 @@ class Process(object):
                                 "Please either use the label '"+value.type_()+" or use the 'add_' method instead.")
         #clone the item
         newValue =value.copy()
-
-        #NOTE: for now, ESPrefer's are assigned the same label as the item to which they 'choose'
-        # however, only one of them can take the attribute name and it by rights should go to
-        # the module and not the ESPrefer
-        if not isinstance(value,ESPrefer):
-            if not self._okToPlace(name, value, self.__dict__):
-                print "WARNING: trying to override definition of process."+name
-                return
-            self.__dict__[name]=newValue
+        if not self._okToPlace(name, value, self.__dict__):
+            print "WARNING: trying to override definition of process."+name
+            return
+        self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
@@ -319,12 +314,7 @@ class Process(object):
         for name,item in items:
             if name == item.type_():
                 name = ''
-            else:
-                # python sometimes gives '@'-suffixes, to allow
-                # multiple names.  Remove these for .cfg  
-                name = ' '+name.split('@')[0]
-                #name = ' '+name
-            returnValue +=options.indentation()+typeName+name+' = '+item.dumpConfig(options)
+            returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
     def dumpConfig(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the configuration language"""
@@ -366,10 +356,7 @@ class Process(object):
             self.es_sources_().iteritems(),
             'es_source',
             options)
-        config+=self._dumpConfigOptionallyNamedList(
-            self.es_prefers_().iteritems(),
-            'es_prefer',
-            options)
+        config += self._dumpConfigESPrefers(options)
         for name,item in self.psets.iteritems():
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
         for name,item in self.vpsets.iteritems():
@@ -384,6 +371,11 @@ class Process(object):
         config += "}\n"
         options.unindent()
         return config
+    def _dumpConfigESPrefers(self, options):
+        result = ''
+        for name, item in self.es_prefers_().iteritems():
+            result += item.dumpConfig(options)
+        return result
     def _dumpPythonList(self, d, options):
         returnValue = ''
         for name,item in d.iteritems():

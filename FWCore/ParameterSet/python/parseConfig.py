@@ -657,6 +657,19 @@ def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
     return (type,toks[0][1])
 
+def _MakeESPrefer(s, loc, toks):
+    value = None
+    label = 'es_prefer_'+toks[0][1]
+    if len(toks[0]) == 4:
+        # type, label
+        value = cms.ESPrefer(toks[0][2], toks[0][1]) 
+    elif len(toks[0])==3:
+        value = cms.ESPrefer(toks[0][1])
+    else:
+        print "Strange parse of es_prefer "+str(toks)
+    return (label,value)
+
+    
 typeWithParameters = pp.Group(letterstart+scopedParameters)
 
 #secsources are parameters but they behave like Plugins
@@ -674,6 +687,10 @@ looper = pp.Group(pp.Keyword("looper")+_equalTo
 service = pp.Group(pp.Keyword("service")+_equalTo
                    +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Service))
                   ).setParseAction(_replaceKeywordWithType)
+
+es_prefer = pp.Group(pp.Keyword("es_prefer")+pp.Optional(letterstart)+_equalTo+label+scopedParameters).setParseAction(_MakeESPrefer)
+
+
 #for now, pretend all modules are filters since filters can function like
 # EDProducer's or EDAnalyzers
 module = pp.Group(pp.Suppress(pp.Keyword("module"))+label+_equalTo
@@ -708,9 +725,6 @@ def _labelOptional(alabel,type,appendToLabel=''):
 
 es_module = _labelOptional("es_module",cms.ESProducer)
 es_source = _labelOptional("es_source",cms.ESSource)
-#need to distinguish the es_prefer labels from the items they are actually choosing
-_es_prefer_label_extension = '@prefer'
-es_prefer = _labelOptional("es_prefer",cms.ESPrefer,_es_prefer_label_extension)
 
 plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source|es_prefer
 plugin.ignore(pp.cppStyleComment)
