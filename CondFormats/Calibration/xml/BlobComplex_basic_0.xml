@@ -3,46 +3,13 @@
  <PoolDatabase >
   <PoolContainer name="BlobComplex_basic" >
    <Class table="BLOBCOMPLEX" id_columns="ID" name="BlobComplex" mapping_version="basic" >
-     <Container table="BLOBCOMPLEX_OBJECTS" id_columns="ID_ID" name="objects" position_column="POS" >
-       <Object table="BLOBCOMPLEX_OBJECTS" id_columns="POS ID_ID" name="value_type" >
-         <Primitive column="OBJECTS_VALUE_TYPE_A" name="a" />
-         <Primitive column="OBJECTS_VALUE_TYPE_B" name="b" />
-         <Container table="BLOBCOMPLEX_OBJECT_1" id_columns="ID_POS ID_ID_ID" name="content" position_column="POS" >
-           <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="value_type" >
-             <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="data1" >
-               <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="first" >
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_1" name="a" />
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_2" name="b" />
-                 <Container table="BLOBCOMPLEX_OBJECT_2" id_columns="ID_POS ID_ID_POS ID_ID_ID_ID" name="values" position_column="POS" >
-                   <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_1" name="value_type" />
-                 </Container >
-               </Object >
-               <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_3" name="second" />
-             </Object >
-             <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="data2" >
-               <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="first" >
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_4" name="a" />
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_5" name="b" />
-                 <Container table="BLOBCOMPLEX_OBJECT_2" id_columns="ID_POS ID_ID_POS ID_ID_ID_ID" name="values" position_column="POS" >
-                   <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_2" name="value_type" />
-                 </Container >
-               </Object >
-               <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_6" name="second" />
-             </Object >
-             <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="data3" >
-               <Object table="BLOBCOMPLEX_OBJECT_1" id_columns="POS ID_POS ID_ID_ID" name="first" >
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_7" name="a" />
-                 <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_8" name="b" />
-                 <Container table="BLOBCOMPLEX_OBJECT_2" id_columns="ID_POS ID_ID_POS ID_ID_ID_ID" name="values" position_column="POS" >
-                   <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_3" name="value_type" />
-                 </Container >
-               </Object >
-               <Primitive column="OBJECTS_VALUE_TYPE_CONTENT_V_9" name="second" />
-             </Object >
-           </Object >
-         </Container >
-       </Object >
-     </Container >
+     <Container table="BLOBCOMPLEX_OBJECTS" id_columns="ID_ID" name="objects" position_column="POS">
+      <Object table="BLOBCOMPLEX_OBJECTS" id_columns="POS ID_ID" name="value_type">
+        <Primitive column="A" name="a"/>
+        <Primitive column="B" name="b"/>
+        <Blob column="CONTENT" name="content"/>
+      </Object>
+    </Container>
    </Class >
   </PoolContainer >
  </PoolDatabase >
