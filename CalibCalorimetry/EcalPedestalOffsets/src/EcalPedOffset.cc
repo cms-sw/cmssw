@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/02/13 10:27:15 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/13 10:46:50 $
+ * $Revision: 1.6 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -404,8 +404,6 @@ void EcalPedOffset::writeXMLFiles(std::string fileName)
     // open the output stream
     thisSMFileName+="_";
     thisSMFileName+=intToString(smRes->first);
-    thisSMFileName+="_";
-    thisSMFileName+=intToString(m_run);
     thisSMFileName+=".xml";
     std::ofstream xml_outfile;
     xml_outfile.open(thisSMFileName.c_str());
