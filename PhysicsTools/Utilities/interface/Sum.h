@@ -8,7 +8,7 @@ public:
  enum { parameters = A::parameters + B::parameters }; 
  Sum(const A & a, const B & b) : a_(a), b_(b) { }
  double operator()(double x) const {
-   return a_(x) - b_(x);
+   return a_(x) + b_(x);
  }
 private:
  A a_; 
