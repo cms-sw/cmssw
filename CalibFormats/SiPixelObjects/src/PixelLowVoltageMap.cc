@@ -51,15 +51,19 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     dpNameMap_.clear();
     
     std::string modulename;
-    std::string dpName;
+    std::string dpNameBase;
+    std::string ianaChannel;
+    std::string idigiChannel;
     
-    in >> modulename >> dpName;
+    in >> modulename >> dpNameBase >> ianaChannel >> idigiChannel;
     
     while (!in.eof()){
       cout << "Read modulename:"<<modulename<<endl;
       PixelModuleName module(modulename);
+      pair<string, string> channels(ianaChannel,idigiChannel);
+      pair<string, pair<string,string> > dpName(dpNameBase,channels);
       dpNameMap_[module]=dpName;
-      in >> modulename >> dpName;
+      in >> modulename >> dpNameBase >> ianaChannel >> idigiChannel;
     }
     
   }
@@ -68,9 +72,9 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
   }
 }
 
-std::string PixelLowVoltageMap::dpName(const PixelModuleName& module) const{
+std::string PixelLowVoltageMap::dpNameIana(const PixelModuleName& module) const{
 
-  std::map<PixelModuleName, std::string>::const_iterator i=
+  std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator i=
     dpNameMap_.find(module);
   
   if (i==dpNameMap_.end()) {
@@ -78,7 +82,21 @@ std::string PixelLowVoltageMap::dpName(const PixelModuleName& module) const{
 	 << endl;
   }
   
-  return i->second;
+  return i->second.first+"/"+i->second.second.first;
+
+}
+
+std::string PixelLowVoltageMap::dpNameIdigi(const PixelModuleName& module) const{
+
+  std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator i=
+    dpNameMap_.find(module);
+  
+  if (i==dpNameMap_.end()) {
+    cout << "PixelLowVoltageMap::dpName: Could not find module:"<<module
+	 << endl;
+  }
+
+  return i->second.first+"/"+i->second.second.second;
 
 }
 
@@ -93,11 +111,13 @@ void PixelLowVoltageMap::writeASCII(std::string dir) const {
     std::cout << "[PixelLowVoltageMap::writeASCII()] Could not open file " << filename << " for write" << std::endl ;
     exit(1);
   }
-  std::map<PixelModuleName, std::string>::const_iterator imodule=
+  std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator imodule=
     dpNameMap_.begin();
 
   for (;imodule!=dpNameMap_.end();++imodule) {
-    out << imodule->first<<" "<<imodule->second << std::endl;
+    out << imodule->first<<" "<<imodule->second.first 
+	<< " "<<imodule->second.second.first
+	<< " "<<imodule->second.second.first<<endl;
   }
 
   out.close();

@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
@@ -30,15 +31,16 @@ namespace pos{
 
     void writeASCII(std::string dir="") const;
 
-    std::string dpName(const PixelModuleName& module) const;
+    std::string dpNameIana(const PixelModuleName& module) const;
+    std::string dpNameIdigi(const PixelModuleName& module) const;
 
     std::set <unsigned int> getFEDs(PixelNameTranslation* translation) const;
     std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels(PixelNameTranslation* translation) const;
 
   private:
-
-    std::map<PixelModuleName, std::string> dpNameMap_;
- 
+    //ugly... FIXME
+    std::map<PixelModuleName, std::pair<std::string, std::pair<std::string, std::string> > > dpNameMap_;
+    //                                    base                    Iana          Idigi 
   };
 }
 #endif
