@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.10 2008/01/26 20:20:34 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.11 2008/02/07 18:18:20 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -20,6 +20,9 @@
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -94,7 +97,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
 
   // Get the vector of generated particles from the event if needed
-  edm::Handle<edm::Association<reco::CandidateCollection> > partonMatch;
+  edm::Handle<edm::Association<reco::GenParticleCollection> > partonMatch;
   if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_,  partonMatch);
   // Get the vector of GenJets from the event if needed
   edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;
@@ -156,7 +159,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
     // do the parton matching
     if (addGenPartonMatch_) {
-      reco::CandidateRef parton = (*partonMatch)[jetsRef];
+      reco::GenParticleRef parton = (*partonMatch)[jetsRef];
       if (parton.isNonnull() && parton.isAvailable()) {
           ajet.setGenParton(*parton);
       } else {

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.10 2008/01/26 20:20:34 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.11 2008/02/12 18:48:32 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
@@ -10,6 +10,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -80,7 +82,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 
   // prepare the MC matching
-  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
   if (addGenMatch_) {
     iEvent.getByLabel(genMatchSrc_, genMatch);
   }
@@ -130,7 +132,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     Electron anElectron(elecsRef);
     // match to generated final state electrons
     if (addGenMatch_) {
-      reco::CandidateRef genElectron = (*genMatch)[elecsRef];
+      reco::GenParticleRef genElectron = (*genMatch)[elecsRef];
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
         anElectron.setGenLepton(*genElectron);
       } else {

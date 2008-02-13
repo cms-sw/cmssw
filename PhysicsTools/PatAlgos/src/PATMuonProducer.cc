@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.5 2008/01/26 20:20:34 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.6 2008/02/12 18:48:32 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -12,6 +12,8 @@
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/Association.h"
 
@@ -75,7 +77,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   iEvent.getByLabel(muonSrc_, muons);
 
   // prepare the MC matching
-  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
   if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch);
 
   // prepare isolation calculation
@@ -112,7 +114,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     Muon aMuon(muonsRef);
     // match to generated final state muons
     if (addGenMatch_) {
-      reco::CandidateRef genMuon = (*genMatch)[muonsRef];
+      reco::GenParticleRef genMuon = (*genMatch)[muonsRef];
       if (genMuon.isNonnull() && genMuon.isAvailable() ) {
         aMuon.setGenLepton(*genMuon);
       } else {

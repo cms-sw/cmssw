@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.9 2008/01/26 20:20:34 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.10 2008/02/12 18:46:41 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -15,6 +15,8 @@
 #include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
 #include <DataFormats/TauReco/interface/CaloTau.h>
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -64,7 +66,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     return;
   }
    
-  edm::Handle<edm::Association<reco::CandidateCollection> > genMatch;
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
   if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch); 
 
   // prepare LR calculation if required
@@ -96,7 +98,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add MC match if demanded
     if (addGenMatch_) {
-      reco::CandidateRef genTau = (*genMatch)[tausRef];
+      reco::GenParticleRef genTau = (*genMatch)[tausRef];
       if (genTau.isNonnull() && genTau.isAvailable() ) {
         aTau.setGenLepton(*genTau);
       } else {

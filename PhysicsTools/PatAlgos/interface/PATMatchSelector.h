@@ -8,10 +8,10 @@
 
 #include <set>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+// #include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace pat {
-  template<typename T>
+  template<typename T1, typename T2>
   class PATMatchSelector {
   public:
     PATMatchSelector(const edm::ParameterSet& cfg) : 
@@ -26,7 +26,7 @@ namespace pat {
 	    i!=status.end(); ++i )  status_.insert(*i);
     }
     /// true if match is possible
-    bool operator()( const T & c, const reco::Candidate & mc ) const {
+    bool operator()( const T1 & c, const T2 & mc ) const {
       if ( checkCharge_ && c.charge() != mc.charge() ) return false;
       if ( !ids_.empty() ) {
 	if ( ids_.find(abs(mc.pdgId()))==ids_.end() )  return false;
