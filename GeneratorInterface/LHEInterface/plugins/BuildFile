@@ -1,0 +1,7 @@
+<library name="GeneratorInterfaceLHESource" file="LHESource.cc">
+	<use name=FWCore/Framework>
+	<use name=Foundation/PluginManager>
+	<use name=GeneratorInterface/LHEInterface>
+	<use name=boost>
+	<flags EDM_PLUGIN=1>
+</library>

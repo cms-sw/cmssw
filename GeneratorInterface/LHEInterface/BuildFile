@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=SimDataFormats/HepMCProduct>
+<use name=f77compiler>
+<use name=boost>
+<use name=xerces-c>
+<use name=hepmc>
+<use name=pythia6>
+#<use name=thepeg>
+<flags FFLAGS="-w">
+<export>
+	<lib name=GeneratorInterfaceLHEInterface>
+	<use name=FWCore/Framework>
+	<use name=SimDataFormats/HepMCProduct>
+	<use name=hepmc>
+</export>
