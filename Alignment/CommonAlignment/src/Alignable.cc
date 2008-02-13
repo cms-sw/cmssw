@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/10/08 13:21:29 $
- *  $Revision: 1.18 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/10/18 09:41:07 $
+ *  $Revision: 1.19 $
+ *  (last update by $Author: fronga $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -12,8 +12,8 @@
 
 //__________________________________________________________________________________________________
 Alignable::Alignable(align::ID id, const AlignableSurface& surf):
-  theDetId(id),
-  theId(id),
+  theDetId(id), // FIXME: inconsistent with other ctr., but needed for AlignableNavigator 
+  theId(id),    // (finally get rid of one of the IDs!)
   theSurface(surf),
   theAlignmentParameters(0),
   theMother(0),
@@ -23,6 +23,7 @@ Alignable::Alignable(align::ID id, const AlignableSurface& surf):
 
 //__________________________________________________________________________________________________
 Alignable::Alignable(align::ID id, const RotationType& rot):
+  theDetId(), // FIXME: inconsistent with other ctr., cf. above
   theId(id),
   theSurface(PositionType(), rot),
   theAlignmentParameters(0),

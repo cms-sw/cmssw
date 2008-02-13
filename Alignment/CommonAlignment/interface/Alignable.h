@@ -16,9 +16,9 @@ class Alignments;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2007/10/08 13:21:29 $
- *  $Revision: 1.28 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2008/02/12 18:06:49 $
+ *  $Revision: 1.29 $
+ *  (last update by $Author: flucke $)
  */
 
 class AlignmentParameters;
@@ -37,7 +37,8 @@ public:
   typedef align::Alignables   Alignables;
   typedef align::StructureType StructureType;
 
-  /// Constructor from id and surface
+  /// Constructor from id and surface, setting also geomDetId
+  /// (AlignableNavigator relies on the fact that only AlignableDet/DetUnit have geomDetId!)
   Alignable( align::ID, const AlignableSurface& );
 
   /// Constructor for a composite with given rotation.
