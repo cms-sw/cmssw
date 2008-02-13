@@ -51,12 +51,15 @@ public:
       returns success flag */
   bool update(void);
   bool doMonitoring(void);
+  int getNumUpdates(void) const { return numUpdates_; }
+  void subscribe(const char *) const {}
 
 private:
   /// use to get hold of structure with monitoring elements that class owns
   DaqMonitorBEInterface *bei_;
   /// client pointer
   DQMNet *net_;
+  int numUpdates_;
 };
 
 #endif

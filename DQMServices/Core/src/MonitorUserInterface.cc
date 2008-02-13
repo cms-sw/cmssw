@@ -17,7 +17,8 @@ MonitorUserInterface::MonitorUserInterface(const std::string &hostname, int port
 */
 MonitorUserInterface::MonitorUserInterface(void)
   : bei_ (DaqMonitorBEInterface::instance()),
-    net_ (0)
+    net_ (0),
+    numUpdates_ (0)
 {}
 
 MonitorUserInterface::~MonitorUserInterface(void)
@@ -57,6 +58,6 @@ MonitorUserInterface::doMonitoring(void)
   // initialization needed at beginning of monitoring cycle
   bei_->resetMonitorableDiff();
   bei_->resetMonitoringDiff();
-  net_->receive(bei_);
+  numUpdates_ += net_->receive(bei_);
   return true;
 }
