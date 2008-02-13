@@ -11,8 +11,7 @@
 //!  an inner class) and a container of channels. 
 //!
 //!  March 2007: Edge methods moved to RectangularPixelTopology class (V.Chiochia)
-//!
-//!  \author Petar Maksimovic, JHU
+//!  Feb 2008: Modify the Pixel class from float to shorts
 //---------------------------------------------------------------------------
 
 #include <vector>
@@ -23,12 +22,12 @@ class SiPixelCluster {
   
   class Pixel {
   public:
-    Pixel(){} // for root
-    Pixel( float pix_x, float pix_y, float pix_adc) :
+    Pixel() {} // for root
+    Pixel(int pix_x, int pix_y, int pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
-    float x;
-    float y;
-    float adc;
+    unsigned char  x;
+    unsigned short y;
+    unsigned short adc;
   };
   
   //--- Integer shift in x and y directions.
@@ -69,9 +68,9 @@ class SiPixelCluster {
   SiPixelCluster() : detId_(0) {}  // needed by vector::push_back()!
   // SiPixelCluster( unsigned int detid, const PixelDigiRange& range)
     
-  SiPixelCluster( const PixelPos& pix, float adc);
+  SiPixelCluster( const PixelPos& pix, int adc);
   
-  void add( const PixelPos& pix, float adc);
+  void add( const PixelPos& pix, int adc);
   
   // Analog linear average position (barycenter) 
   float x() const { return theSumX / theCharge;}
