@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/02/13 10:46:50 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/13 11:06:42 $
+ * $Revision: 1.7 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -450,8 +450,6 @@ void EcalPedOffset::makePlots ()
     << m_pedValues.size();
 
   // create the ROOT file
-  m_plotting+="_";
-  m_plotting+= intToString(m_run);
   m_plotting+=".root";
 
   TFile * rootFile = new TFile(m_plotting.c_str(),"RECREATE");
