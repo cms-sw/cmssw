@@ -45,7 +45,7 @@ ElectronSelector::ElectronSelector( const edm::ParameterSet& config ) :
 
 
 //______________________________________________________________________________
-const unsigned int 
+const pat::ParticleStatus
 ElectronSelector::filter( const unsigned int&        index, 
                           const edm::View<Electron>& electrons,
                           const ElectronIDmap&       electronIDs,
@@ -103,7 +103,7 @@ ElectronSelector::electronID( const unsigned int& index,
 
 
 //______________________________________________________________________________
-const unsigned int 
+const pat::ParticleStatus
 ElectronSelector::customSelection_( const unsigned int&        index,
                                     const edm::View<Electron>& electrons,
                                     const reco::ClusterShape*  clusterShape
@@ -137,8 +137,8 @@ ElectronSelector::customSelection_( const unsigned int&        index,
 
   // Now do the selection
   // These ones come straight from E/gamma algo
-  if ( (eOverPin < 0.8) && (fBrem < 0.2) ) return false;
-  if ( doBremEoverPcomp_ && (eOverPin < 0.9*(1-fBrem)) ) return false;
+  if ( (eOverPin < 0.8) && (fBrem < 0.2) ) return BAD;
+  if ( doBremEoverPcomp_ && (eOverPin < 0.9*(1-fBrem)) ) return BAD;
 
   if (  (hOverE > HoverEBarmax_       && !inEndCap )
      || (hOverE > HoverEEndmax_       &&  inEndCap ) )

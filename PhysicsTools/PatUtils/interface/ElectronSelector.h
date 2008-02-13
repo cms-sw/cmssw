@@ -5,21 +5,14 @@
     \class ElectronSelector ElectronSelector.h "PhysicsTools/PatUtils/ElectronSelector.h"
     \brief Selects good electrons
    
-    The electron selector returns a flag (passed=0) based on one of the possible
+    The electron selector returns a flag (see pat::ParticleStatus) based on one of the possible
     selections: either eId-based (cut, likelihood, neural net) or custom (user-defined
-    set of cuts). This is driven by the configuration parameters.
-      PSet configuration = {
-        string type = "none | cut | likelihood | neuralnet | custom"
-        [ double value = xxx  // likelihood/neuralnet cut value ]
-        [ // List of custom cuts
-          double ... = xxx
-          double ... = xxx
-          double ... = xxx 
-        ]
-      }
+    set of cuts). This is driven by the configuration parameters:
+
+    See the PATElectronCleaner documentation for configuration details.
    
-    \author F. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.4 2008/02/04 14:20:55 fronga Exp $
+    \author F.J. Ronga (ETH Zurich)
+    \version $Id: ElectronSelector.h,v 1.5 2008/02/07 15:51:01 fronga Exp $
 **/
 
 #include <string>
@@ -29,9 +22,9 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
-namespace pat {
+#include "PhysicsTools/PatUtils/interface/ParticleCode.h"
 
-  enum ElectronType { GOOD = 0, BAD, HOVERE, SHOWER, MATCHING };
+namespace pat {
 
   class ElectronSelector {
 
@@ -47,7 +40,7 @@ namespace pat {
     /// Electron IDs only need to be provided if selection is based
     /// on it (cut, neural net or likelihood). Cluster shapes are for
     /// custom selection only.
-    const unsigned int 
+    const ParticleStatus
     filter( const unsigned int&          index,
             const edm::View<Electron>&   electrons,
             const ElectronIDmap&         electronIDs = 0,
@@ -72,7 +65,7 @@ namespace pat {
 
 
     /// Full-fledged selection based on SusyAnalyser
-    const unsigned int  
+    const ParticleStatus
     customSelection_( const unsigned int&        index,
                       const edm::View<Electron>& electrons,
                       const reco::ClusterShape*  clusterShape ) const;

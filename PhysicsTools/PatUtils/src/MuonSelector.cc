@@ -24,7 +24,7 @@ MuonSelector::MuonSelector( const edm::ParameterSet& config ) :
 
 
 //______________________________________________________________________________
-const unsigned int 
+const pat::ParticleStatus
 MuonSelector::filter( const unsigned int&    index, 
                       const edm::View<Muon>& muons ) const
 {
@@ -56,7 +56,7 @@ MuonSelector::filter( const unsigned int&    index,
 }
 
 //______________________________________________________________________________
-const unsigned int 
+const pat::ParticleStatus
 MuonSelector::customSelection_( const unsigned int&    index, 
                       const edm::View<Muon>& muons ) const
 {
