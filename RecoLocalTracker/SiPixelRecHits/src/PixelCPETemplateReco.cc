@@ -169,13 +169,17 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   for ( ; pixIter != pixEnd; ++pixIter ) 
     {
       // *pixIter dereferences to Pixel struct, with public vars x, y, adc (all float)
+      // 02/13/2008 ggiurgiu@fnal.gov: type of x, y and adc has been changed to unsigned char, unsigned short, unsigned short
+      // in DataFormats/SiPixelCluster/interface/SiPixelCluster.h so the type cast to int is redundant. Leave it there, it 
+      // won't hurt. 
       int irow = int(pixIter->x) - row_offset;   // &&& do we need +0.5 ???
       int icol = int(pixIter->y) - col_offset;   // &&& do we need +0.5 ???
       
       // Gavril : what do we do here if the row/column is larger than 7/21 ?
       // Ignore them for the moment...
       if ( irow<7 && icol<21 )
-	clust_array_2d[irow][icol] = pixIter->adc;
+	// 02/13/2008 ggiurgiu@fnal.gov typecast pixIter->adc to float
+	clust_array_2d[irow][icol] = (float)pixIter->adc;
       //else
       //cout << " ----- Cluster is too large" << endl;
     }
