@@ -18,9 +18,9 @@ int main() {
     P0(new double(6000)), 
     mZmm(new double(91.3)), 
     GZmm(new double(2.5));
-  BreitWigner bw(mZmm, GZmm);
-  Polynomial<0> c(P0);
-  typedef Product<Polynomial<0>, BreitWigner> FitFunction;
+  function::BreitWigner bw(mZmm, GZmm);
+  function::Polynomial<0> c(P0);
+  typedef function::Product<function::Polynomial<0>, function::BreitWigner> FitFunction;
   FitFunction f(c, bw);
   typedef HistoChiSquare<FitFunction> ChiSquared;
   ChiSquared chi2(f, zMass, zMass->GetNbinsX(), 80, 120);
