@@ -101,7 +101,7 @@ AlignmentTrackSelector::~AlignmentTrackSelector()
 // do selection ---------------------------------------------------------------
 
 AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& /*unused*/) const 
+AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) const 
 {
   
   if (applyMultiplicityFilter_ && multiplicityOnInput_ && 

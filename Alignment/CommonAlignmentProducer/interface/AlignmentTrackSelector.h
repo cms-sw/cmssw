@@ -7,7 +7,6 @@
 
 namespace edm {
   class Event;
-  class EventSetup;
   class ParameterSet;
 }
 
@@ -27,7 +26,7 @@ class AlignmentTrackSelector
   ~AlignmentTrackSelector();
 
   /// select tracks
-  Tracks select(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& /*es*/) const;
+  Tracks select(const Tracks& tracks, const edm::Event& evt) const;
 
  private:
 
