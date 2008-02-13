@@ -1,23 +1,21 @@
-/** \class reco::modules::RecoTrackSelector
+/** \class reco::RecoTrackSelector
  *
- * Filter to select tracks according to pt, rapidity, tip, lip, number of hits
+ * Filter to select tracks according to pt, rapidity, tip, lip, number of hits, chi2
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/06/01 08:06:02 $
+ *  $Date: 2007/11/09 13:52:55 $
  *  $Revision: 1.1 $
  *
  */
 
+#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+
 #include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
 
 namespace reco {
-  namespace modules {
-    typedef SingleObjectSelector<reco::TrackCollection,::RecoTrackSelector> 
-    RecoTrackSelector ;
-
+    typedef ObjectSelector<RecoTrackSelector> RecoTrackSelector;
     DEFINE_FWK_MODULE( RecoTrackSelector );
-  }
 }
