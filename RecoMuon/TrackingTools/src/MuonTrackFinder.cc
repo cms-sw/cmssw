@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2007/09/06 17:39:02 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/12/17 17:23:08 $
+ *  $Revision: 1.37 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -75,9 +75,9 @@ MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seed
 			     edm::Event& event){
   
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
+  LogTrace(metname)<<"SA Recostruction starting from: "<<seeds->size()<<endl;  
   
   // Percolate the event 
-  LogTrace(metname)<<"Event percolation"<<endl;  
   setEvent(event);
   
   // Trajectory container
