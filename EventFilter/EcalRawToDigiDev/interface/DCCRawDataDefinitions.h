@@ -38,17 +38,20 @@ enum globalFieds{
   TCC_EB_NUMBTTS       = 68,
   TCCID_SMID_SHIFT_EB  = 27,
   
-  //ARRAY SIZES
   NUMB_SM             = 54,
   NUMB_FE             = 68,
   NUMB_TCC            = 108,
   NUMB_XTAL           = 5,
-  NUMB_STRIP          = 5
-  
-  
-    
-  
-  
+  NUMB_STRIP          = 5,
+
+  NUMB_SM_EE_MIN_MIN  = 1,
+  NUMB_SM_EE_MIN_MAX  = 9,
+  NUMB_SM_EB_MIN_MIN  = 10,
+  NUMB_SM_EB_MIN_MAX  = 27,
+  NUMB_SM_EB_PLU_MIN  = 28,
+  NUMB_SM_EB_PLU_MAX  = 45,
+  NUMB_SM_EE_PLU_MIN  = 46,
+  NUMB_SM_EE_PLU_MAX  = 54
 
 };
 

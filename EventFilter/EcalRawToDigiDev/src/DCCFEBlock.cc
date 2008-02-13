@@ -60,17 +60,40 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //display(cout);
 
 
+  uint activeDCC = mapper_->getActiveSM();
+  
   //check expected trigger tower id
-  if( expTowerID_ != towerId_){
+  if( expTowerID_ != towerId_ &&
+      expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){
     
     edm::LogWarning("EcalRawToDigiDevTowerId")
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
-      <<"\n => Skipping to next tower block...";
+      <<"\n => Skipping to next tower block... - mapper_->getActiveSM() is : " << mapper_->getActiveSM()
+      << " and TCCID_SMID_SHIFT_EB is: " <<TCCID_SMID_SHIFT_EB ;
 
-    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidTTIds_)->push_back(*eleTp);
-
+    
+    // in case of EB, FE is one-to-one with TT
+    // use those EcalElectronicsId for simplicity
+    if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
+      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+      (*invalidTTIds_)->push_back(*eleTp);
+    }// EE
+    else if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
+	      (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) )
+      {
+	EcalElectronicsId * scEleId = mapper_->getSCElectronicsPointer(activeDCC, expTowerID_);
+	(*invalidTTIds_)->push_back(*scEleId);
+      }
+    else
+      {
+	edm::LogWarning("EcalRawToDigiDevTowerId")
+	  <<"\n For event "<<event_->l1A()<<" there's fed: "<< mapper_->getActiveDCC()
+	  <<" activeDcc: "<<mapper_->getActiveSM()
+	  <<" but that activeDcc is not valid.";
+      }
+    
+    
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;     
   }

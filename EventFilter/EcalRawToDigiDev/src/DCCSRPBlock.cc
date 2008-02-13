@@ -27,15 +27,15 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   // Check SRP Length
   if( (*dwToEnd_) < blockLength_ ){
     
-	edm::LogWarning("EcalRawToDigiDevSRP")
+    edm::LogWarning("EcalRawToDigiDevSRP")
       <<"\n Event "<<l1_
       <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
     
-	//Note : add to error collection 
+    //Note : add to error collection 
     
-	return STOP_EVENT_UNPACKING;
-	
+    return STOP_EVENT_UNPACKING;
+    
   }
   
   
