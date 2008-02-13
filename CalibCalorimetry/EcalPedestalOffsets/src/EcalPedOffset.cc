@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2007/12/20 20:05:14 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/22 19:08:09 $
+ * $Revision: 1.4 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -22,14 +22,19 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
+#include "OnlineDB/EcalCondDB/interface/MonPedestalOffsetsDat.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-using namespace cms ;
-using namespace edm ;
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+using namespace cms;
+using namespace edm;
 
 //! ctor
 EcalPedOffset::EcalPedOffset (const ParameterSet& paramSet) :
@@ -84,6 +89,11 @@ EcalPedOffset::~EcalPedOffset ()
 void EcalPedOffset::beginJob (EventSetup const& eventSetup)
 {
   LogDebug ("EcalPedOffset") << "entering beginJob..." ;
+
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  eventSetup.get< EcalMappingRcd >().get(handle);
+  ecalElectronicsMap_ = handle.product();
+
 }
 
 
@@ -128,6 +138,9 @@ void EcalPedOffset::analyze (Event const& event,
       << m_barrelDigiCollection.c_str();
     barrelDigisFound = false;
   }
+
+  if(barrelDigis->size()==0) barrelDigisFound = false;
+
   // get the endcap digis
   // (one digi for each crystal)
   Handle<EEDigiCollection> endcapDigis;
@@ -138,7 +151,9 @@ void EcalPedOffset::analyze (Event const& event,
       << m_endcapDigiCollection.c_str();
     endcapDigisFound = false;
   }
-  
+
+  if(endcapDigis->size()==0) barrelDigisFound = false;
+
   if(barrelDigisFound)
     readDACs(barrelDigis, DACvalues);
   if(endcapDigisFound)
@@ -155,7 +170,6 @@ void EcalPedOffset::analyze (Event const& event,
 void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
                              std::map<int,int> DACvalues)
 {
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
   // loop over the digis
   for (EBDigiCollection::const_iterator itdigi = pDigis->begin(); 
@@ -164,7 +178,7 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
   {
     int gainId = ((EBDataFrame)(*itdigi)).sample(0).gainId();
     EBDetId detId = EBDetId(itdigi->id());
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
     int  crystalId = detId.ic();
 
@@ -172,7 +186,7 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
     if(DACvalues.find(FEDid)==DACvalues.end())
     {
       edm::LogError("EcalPedOffset")
-        << "Error! DCCid of digi does not match any DCCid found in DCC headers.";
+        << "Error! EB DCCid of digi does not match any DCCid found in DCC headers" << FEDid;
     }
 
     if (!m_pedValues.count(FEDid))
@@ -196,7 +210,6 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
 void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
                              std::map<int,int> DACvalues)
 {
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
   // loop over the digis
   for (EEDigiCollection::const_iterator itdigi = pDigis->begin(); 
@@ -207,15 +220,15 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
     int gainId = ((EEDataFrame)(*itdigi)).sample(0).gainId();
     //int gainId = itdigi->sample(0).gainId();
     EEDetId detId = EEDetId(itdigi->id());
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
-    int crystalId = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
+    int crystalId = 100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
 
     //TODO: Behavior here
     if(DACvalues.find(FEDid)==DACvalues.end())
     {
       edm::LogError("EcalPedOffset")
-        << "Error! DCCid of digi does not match any DCCid found in DCC headers.";
+        << "Error! EE DCCid of digi does not match any DCCid found in DCC headers: " << FEDid;
     }
 
     if (!m_pedValues.count(FEDid))
@@ -227,7 +240,7 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
       m_pedValues[FEDid]->insert(gainId,
           crystalId,
           DACvalues[FEDid],
-          ((EBDataFrame)(*itdigi)).sample(iSample).adc());
+          ((EEDataFrame)(*itdigi)).sample(iSample).adc());
     }
     
   } //end loop over digis
