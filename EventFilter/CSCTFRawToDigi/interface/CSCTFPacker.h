@@ -17,21 +17,18 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-#include "CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h"
-
 #include <string>
 
 class CSCTFPacker : public edm::EDProducer {
 private:
-	CSCTriggerMappingFromFile* TFMapping;
-
 	edm::InputTag lctProducer, trackProducer;
 
 	bool zeroSuppression;
 	unsigned short nTBINs;
 	unsigned short activeSectors;
 	bool putBufferToEvent;
-	int LCTtimeOffset, TRKtimeOffset;
+
+	bool swapME1strips;
 
 	FILE *file;
 

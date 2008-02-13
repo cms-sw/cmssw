@@ -8,19 +8,19 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
 CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
-	std::string mapPath = "/"+conf.getUntrackedParameter<std::string>("MappingFile","");
-	TFMapping = new CSCTriggerMappingFromFile(getenv("CMSSW_BASE") + mapPath);
-
-	// Following are required SP configuration parameters, initialized with default HW values:
-	zeroSuppression = conf.getUntrackedParameter<bool>("zeroSuppression",true);
-	nTBINs          = conf.getUntrackedParameter<int> ("nTBINs",7);
-	activeSectors   = conf.getUntrackedParameter<int> ("activeSectors",0x0FFF);
+	// "Readout" configuration
+	zeroSuppression = conf.getParameter<bool>("zeroSuppression");
+	nTBINs          = conf.getParameter<int> ("nTBINs");
+	activeSectors   = conf.getParameter<int> ("activeSectors");
 
 	// Configuration that controls CMSSW specific stuff
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
 	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile","");
 	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
 	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
+
+	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
+	swapME1strips = conf.getParameter<int>("swapME1strips");
 
 	file = 0;
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
@@ -80,7 +80,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			meDataRecord[sector][tbin][fpga][cscId][lctId].quality_            = lct->getQuality();
 			meDataRecord[sector][tbin][fpga][cscId][lctId].wire_group_id       = lct->getKeyWG();
 
-			meDataRecord[sector][tbin][fpga][cscId][lctId].clct_pattern_id     = lct->getStrip();
+			meDataRecord[sector][tbin][fpga][cscId][lctId].clct_pattern_id     = (swapME1strips && cscId<3 && station==0 && (*csc).first.endcap()==2 && lct->getStrip()<65 ? 65 - lct->getStrip() : lct->getStrip() );
 			meDataRecord[sector][tbin][fpga][cscId][lctId].csc_id              = (*csc).first.triggerCscId();
 			meDataRecord[sector][tbin][fpga][cscId][lctId].left_right          = lct->getBend();
 			meDataRecord[sector][tbin][fpga][cscId][lctId].bx0_                = 0; //?;

@@ -33,40 +33,27 @@
 //#include <iostream>
 #include <sstream>
 
-CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0),monitor(0){
+CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
-	m_minBX = pset.getUntrackedParameter<int>("MinBX",3);
-	m_maxBX = pset.getUntrackedParameter<int>("MaxBX",9);
+	// Edges of the time window, which LCTs are put into (unlike tracks, which are always centred around 0):
+	m_minBX = pset.getUntrackedParameter<int>("MinBX");
+	m_maxBX = pset.getUntrackedParameter<int>("MaxBX");
+
+	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
+	swapME1strips = pset.getParameter<int>("swapME1strips");
 
 	// Initialize slot<->sector assignment
-	slot2sector = pset.getUntrackedParameter< std::vector<int> >("slot2sector",std::vector<int>(0));
-	if( slot2sector.size() != 22 ){
-		if( slot2sector.size() ) edm::LogError("CSCTFUnpacker")<<"Wrong 'untracked vint32 slot2sector' size."
-			<<" SectorProcessor boards reside in some of 22 slots and assigned to 12 sectors. Using defaults";
-		// Use default assignment
-		LogDebug("CSCTFUnpacker|ctor")<<"Creating default slot<->sector assignment";
-		slot2sector.resize(22);
-		slot2sector[0] = 6; slot2sector[1] = 0; slot2sector[2] = 0;
-		slot2sector[3] = 0; slot2sector[4] = 0; slot2sector[5] = 0;
-		slot2sector[6] = 0; slot2sector[7] = 0; slot2sector[8] = 0;
-		slot2sector[9] = 0; slot2sector[10]= 0; slot2sector[11]= 0;
-		slot2sector[12]= 0; slot2sector[13]= 0;
-		slot2sector[14]= 0; slot2sector[15]= 0;
-		slot2sector[16]= 0; slot2sector[17]= 0; slot2sector[18]= 0;
-		slot2sector[19]= 0; slot2sector[20]= 0; slot2sector[21]= 0;
-	} else {
-		LogDebug("CSCTFUnpacker|ctor")<<"Reassigning slot<->sector map according to 'untracked vint32 slot2sector'";
-		for(int slot=0; slot<22; slot++)
-			if( slot2sector[slot]<0 || slot2sector[slot]>12 )
-				throw cms::Exception("Invalid configuration")<<"CSCTFUnpacker: sector index is set out of range (slot2sector["<<slot<<"]="<<slot2sector[slot]<<", should be [0-12])";
-	}
-	slot2sector.resize(32); // just for safety (in case of bad data)
+	slot2sector = pset.getParameter< std::vector<int> >("slot2sector");
+	LogDebug("CSCTFUnpacker|ctor")<<"Verifying slot<->sector map from 'untracked vint32 slot2sector'";
+	for(int slot=0; slot<22; slot++)
+		if( slot2sector[slot]<0 || slot2sector[slot]>12 )
+			throw cms::Exception("Invalid configuration")<<"CSCTFUnpacker: sector index is set out of range (slot2sector["<<slot<<"]="<<slot2sector[slot]<<", should be [0-12])";
+	// Just for safety (in case of bad data):
+	slot2sector.resize(32);
 
-	if( pset.getUntrackedParameter<bool>("runDQM", false) )
-		monitor = edm::Service<CSCTFMonitorInterface>().operator->();
-
-	std::string mappingFile = pset.getUntrackedParameter<std::string>("mapping",std::string(""));
+	// As we use standard CSC digi containers, we have to initialize mapping:
+	std::string mappingFile = pset.getParameter<std::string>("mappingFile");
 	if( mappingFile.length() ){
 		LogDebug("CSCTFUnpacker|ctor") << "Define ``mapping'' only if you want to screw up real geometry";
 		mapping = new CSCTriggerMappingFromFile(mappingFile);
@@ -171,10 +158,14 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							try{
 								CSCDetId id = mapping->detId(endcap,station,sector,subsector,cscid,0);
 								// corrlcts now have no layer associated with them
-								LCTProduct->insertDigi(id,CSCCorrelatedLCTDigi(0,lct[0].vp(),lct[0].quality(),lct[0].wireGroup(),
-													       lct[0].strip(),lct[0].pattern(),lct[0].l_r(),
-													       (lct[0].tbin()+(central_lct_bx-central_sp_bx)),
-													       lct[0].link() ));
+								LCTProduct->insertDigi(id,
+									CSCCorrelatedLCTDigi(
+										0,lct[0].vp(),lct[0].quality(),lct[0].wireGroup(),
+										(swapME1strips && cscid<=3 && station==1 && endcap==2 && lct[0].strip()<65 ? 65 - lct[0].strip() : lct[0].strip() ),
+										lct[0].pattern(),lct[0].l_r(),
+										(lct[0].tbin()+(central_lct_bx-central_sp_bx)),
+										lct[0].link() )
+									);
 
 // LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
 
@@ -227,10 +218,14 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							int subsector = ( lct->spInput()>6 ? 0 : (lct->spInput()-1)/3 + 1 );
 							try{
 								CSCDetId id = mapping->detId(track.first.m_endcap,station,track.first.m_sector,subsector,lct->csc(),0);
-								track.second.insertDigi(id,CSCCorrelatedLCTDigi(0,lct->vp(),lct->quality(),lct->wireGroup(),
-														lct->strip(),lct->pattern(),lct->l_r(),
-														(lct->tbin()+(central_lct_bx-central_sp_bx)),
-														lct->link() ));
+								track.second.insertDigi(id,
+									CSCCorrelatedLCTDigi(
+										0,lct->vp(),lct->quality(),lct->wireGroup(),
+										(swapME1strips && lct->csc()<=3 && station==1 && track.first.m_endcap==2 && lct[0].strip()<65 ? 65 - lct[0].strip() : lct[0].strip() ),
+										lct->pattern(),lct->l_r(),
+										(lct->tbin()+(central_lct_bx-central_sp_bx)),
+										lct->link() )
+									);
 							} catch(cms::Exception &e) {
 								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding track digi to collection in event"
 								      <<sp->header().L1A()<<" (endcap="<<track.first.m_endcap<<",station="<<station<<",sector="<<track.first.m_sector<<",subsector="<<subsector<<",cscid="<<lct->csc()<<",spSlot="<<sp->header().slot()<<")";
