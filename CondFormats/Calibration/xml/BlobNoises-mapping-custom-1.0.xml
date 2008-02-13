@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
-<PoolDatabase>
-   <PoolContainer name="BlobNoisesRcd" tech="homogeneous" >
-   <Class table="BLOBNOISES" id_columns="IOV_VALUE_ID" name="BlobNoises" mapping_version="BlobNoises-1.0">
-   </Class >
-   </PoolContainer>
-</PoolDatabase>
