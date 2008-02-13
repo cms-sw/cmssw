@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2007/05/01 20:21:26 $
- * $Revision: 1.10 $
+ * $Date: 2007/06/14 20:32:50 $
+ * $Revision: 1.11 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -38,6 +38,8 @@ using namespace std;
 
 /// Constructor
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
+
+  theAllDetLayersInSystem=&muonLayout->allLayers(); 
 
   // get all barrel DetLayers (DT + optional RPC) 
   vector<DetLayer*> barrel;
