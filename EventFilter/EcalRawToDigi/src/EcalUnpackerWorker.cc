@@ -56,6 +56,9 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setInvalidGainsSwitchCollection(&productInvalidGainsSwitch);
   //  unpacker_->setInvalidGainsSwitchStayCollection(&productInvalidGainsSwitch);
   unpacker_->setInvalidChIdsCollection(&productInvalidChIds);
+  unpacker_->setInvalidEEGainsCollection(&productInvalidEEGains);
+  unpacker_->setInvalidEEGainsSwitchCollection(&productInvalidEEGainsSwitch);
+  unpacker_->setInvalidEEChIdsCollection(&productInvalidEEChIds);
   unpacker_->setEBSrFlagsCollection(&productEBSrFlags);
   unpacker_->setEESrFlagsCollection(&productEESrFlags);
   unpacker_->setEBTpsCollection(&productEBTps);
@@ -124,6 +127,9 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
   productInvalidGainsSwitch.reset(new EBDetIdCollection);
   //  productInvalidGainsSwitchStay.reset(new EBDetIdCollection);
   productInvalidChIds.reset(new EBDetIdCollection);
+  productInvalidEEGains.reset(new EEDetIdCollection);
+  productInvalidEEGainsSwitch.reset(new EEDetIdCollection);
+  productInvalidEEChIds.reset(new EEDetIdCollection);
   productEBSrFlags.reset(new EBSrFlagCollection);
   productEESrFlags.reset(new EESrFlagCollection);
   productEBTps.reset(new EcalTrigPrimDigiCollection);
