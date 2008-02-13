@@ -233,28 +233,14 @@ void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, cons
 void L1GlobalCaloTrigger::setIsoEm(const L1CaloEmCand& em) 
 {
   if (em.bx()==0) {
-    unsigned crate = em.rctCrate();
-    unsigned sorterNo;
-    if ((crate%9) < 4) {
-      sorterNo = (crate/9)*2;
-    } else {
-      sorterNo = (crate/9)*2 + 1;
-    }
-    theIsoElectronSorters.at(sorterNo)->setInputEmCand(em); 
+    theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
   }
 }
 
 void L1GlobalCaloTrigger::setNonIsoEm(const L1CaloEmCand& em) 
 {
   if (em.bx()==0) {
-    unsigned crate = em.rctCrate();
-    unsigned sorterNo;
-    if ((crate%9) < 4) {
-      sorterNo = (crate/9)*2;
-    } else {
-      sorterNo = (crate/9)*2 + 1;
-    }
-    theNonIsoElectronSorters.at(sorterNo)->setInputEmCand(em); 
+    theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
   }
 }
 
@@ -316,6 +302,7 @@ void L1GlobalCaloTrigger::print() {
   LogInfo("L1GlobalCaloTrigger") << endl;
 
   for (unsigned i=0; i<theEmLeafCards.size(); i++) {
+    LogInfo("L1GlobalCaloTrigger") << ( (i==0) ? "Positive eta " : "Negative eta " ); 
     LogInfo("L1GlobalCaloTrigger") << "EM Leaf Card " << i << " : " << theEmLeafCards.at(i) << endl;
     LogInfo("L1GlobalCaloTrigger") << (*theEmLeafCards.at(i));
   }
@@ -413,12 +400,13 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
   }
 
   // EM leaf cards  
+  // Card 0 is positive eta, card 1 is negative eta
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     theEmLeafCards.at(i) = new L1GctEmLeafCard(i);
-    theIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getIsoElectronSorter0();
-    theIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getIsoElectronSorter1();
-    theNonIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getNonIsoElectronSorter0();
-    theNonIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getNonIsoElectronSorter1();
+    theIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getIsoElectronSorterU1();
+    theIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getIsoElectronSorterU2();
+    theNonIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getNonIsoElectronSorterU1();
+    theNonIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getNonIsoElectronSorterU2();
   }
 
    // Wheel Fpgas
@@ -445,3 +433,19 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
 
 }
+
+/// ordering of the electron sorters to give the correct
+/// priority to the candidates in the final sort 
+/// The priority ordering is:
+///    crates 13 -17 : priority 0 (highest)
+///    crates  9 -12 : priority 1
+///    crates  4 - 8 : priority 2
+///    crates  0 - 3 : priority 3 (lowest)
+unsigned L1GlobalCaloTrigger::sorterNo(const L1CaloEmCand& em) const {
+  unsigned crate = em.rctCrate();
+  assert (crate<18);
+  unsigned result = ( ((crate%9) < 4) ? 1 : 0 );
+  if (crate<9) result += 2;
+  return result;
+}
+

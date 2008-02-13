@@ -4,7 +4,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 
 #include <vector>
 #include <functional>
@@ -31,9 +31,13 @@ class L1GctEmLeafCard;
 class L1GctElectronFinalSort : public L1GctProcessor
 {
 public:
+  /// Use some definitions from the ElectronSorter in the leaf cards
+  typedef L1GctElectronSorter::prioritisedEmCand prioritisedEmCand;
+  typedef L1GctElectronSorter::rank_gt           rank_gt;
   ///     
   /// constructor
-  L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* card1, L1GctEmLeafCard* card2);
+  L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
+                                   L1GctEmLeafCard* negEtaCard);
   ///
   /// destrcutor
   ~L1GctElectronFinalSort();
@@ -48,26 +52,26 @@ public:
   virtual void process();
   ///
   /// set input data
-  void setInputEmCand(int i, L1GctEmCand cand);
+  void setInputEmCand(unsigned i, const L1GctEmCand& cand);
   ///
   /// return input data
-  inline std::vector<L1GctEmCand> getInputCands() { return m_inputCands; }
+  inline std::vector<L1GctEmCand> getInputCands()  const { return m_inputCands; }
   ///
   /// return output data
-  inline std::vector<L1GctEmCand> getOutputCands() { return m_outputCands; }
+  inline std::vector<L1GctEmCand> getOutputCands() const { return m_outputCands; }
   ///
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
   
- private:
-
-  /// comparison operator for sort
-  struct rank_gt : public std::binary_function<L1GctEmCand, L1GctEmCand, bool> {
-    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
-      if(x.rank()!=y.rank()){return x.rank() > y.rank();
-      }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
-      }else{ return x.phiIndex() > y.phiIndex();}}}};
-
+ //private:
+ //
+ // /// comparison operator for sort
+ // struct rank_gt : public std::binary_function<L1GctEmCand, L1GctEmCand, bool> {
+ //   bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
+ //     if(x.rank()!=y.rank()){return x.rank() > y.rank();
+ //     }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
+ //     }else{ return x.phiIndex() > y.phiIndex();}}}};
+ //
   
  private:
   ///
@@ -75,13 +79,15 @@ public:
   bool m_emCandsType;
   ///
   /// the 1st stage electron sorters
-  std::vector<L1GctEmLeafCard*> m_theLeafCards;
+  L1GctEmLeafCard* m_thePosEtaLeafCard;
+  L1GctEmLeafCard* m_theNegEtaLeafCard;
   ///
   /// input data
   std::vector<L1GctEmCand> m_inputCands;
   ///
   /// output data
   std::vector<L1GctEmCand> m_outputCands;
+
   
 };
 

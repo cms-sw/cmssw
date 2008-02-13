@@ -170,6 +170,11 @@ public:
   /// check we have done all the setup
   bool setupOk() { return (m_jetFinderParams != 0)
                            && (m_jetEtCalLut != 0); }
+
+  /// ordering of the electron sorters to give the correct
+  /// priority to the candidates in the final sort 
+  unsigned sorterNo(const L1CaloEmCand& em) const;
+
  private:
   
   /// pointers to the Jet Leaf cards

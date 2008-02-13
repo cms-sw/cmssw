@@ -49,10 +49,10 @@ class L1GctEmLeafCard : L1GctProcessor {
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
 
-  L1GctElectronSorter* getIsoElectronSorter0()    { return m_sorters.at(0); }
-  L1GctElectronSorter* getNonIsoElectronSorter0() { return m_sorters.at(1); }
-  L1GctElectronSorter* getIsoElectronSorter1()    { return m_sorters.at(2); }
-  L1GctElectronSorter* getNonIsoElectronSorter1() { return m_sorters.at(3); }
+  L1GctElectronSorter* getIsoElectronSorterU1()    { return m_sorters.at(0); }
+  L1GctElectronSorter* getNonIsoElectronSorterU1() { return m_sorters.at(1); }
+  L1GctElectronSorter* getIsoElectronSorterU2()    { return m_sorters.at(2); }
+  L1GctElectronSorter* getNonIsoElectronSorterU2() { return m_sorters.at(3); }
 
 private:
   /// card ID (0 or 1)

@@ -1,22 +1,27 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
+
 #include <iostream>
 
 
-L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* card1,L1GctEmLeafCard* card2):
+L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
+                                                         L1GctEmLeafCard* negEtaCard):
   m_emCandsType(iso),
-  m_theLeafCards(2),
+  m_thePosEtaLeafCard(0), m_theNegEtaLeafCard(0),
   m_inputCands(16),
   m_outputCands(4)
 {
-  if(card1!=0){
-    m_theLeafCards.at(0) = card1;
+  if(posEtaCard!=0){
+    m_thePosEtaLeafCard = posEtaCard;
   }else{
     throw cms::Exception("L1GctSetupError")
       <<"L1GctElectronFinalSort::Constructor() : 1st EmLeafCard passed is zero";
       }
-  if(card2!=0){
-    m_theLeafCards.at(1) = card2;
+  if(negEtaCard!=0){
+    m_theNegEtaLeafCard = negEtaCard;
   }else{
     throw cms::Exception("L1GctSetupError")
       <<"L1GctElectronFinalSort::Constructor() : 2nd EmLeafCard passed is zero";
@@ -36,46 +41,52 @@ void L1GctElectronFinalSort::reset(){
 }
 
 void L1GctElectronFinalSort::fetchInput() {
-  for (int i=0; i<2; i++) { /// loop over leaf cards
-    for (int j=0; j<2; j++) { /// loop over FPGAs
-      for (int k=0; k<4; k++) {  /// loop over candidates
-	if (m_emCandsType) {
-	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards.at(i)->getOutputIsoEmCands(j).at(k)); 
-	}
-	else {
-	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards.at(i)->getOutputNonIsoEmCands(j).at(k));
-	}
-      }
-    }     
+  for (int k=0; k<4; k++) {  /// loop over candidates from four electron sorter FPGAs
+    if (m_emCandsType) {
+      setInputEmCand(  k  , m_thePosEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
+      setInputEmCand( k+4 , m_thePosEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
+      setInputEmCand( k+8 , m_theNegEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
+      setInputEmCand( k+12, m_theNegEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
+    }
+    else {
+      setInputEmCand(  k  , m_thePosEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
+      setInputEmCand( k+4 , m_thePosEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
+      setInputEmCand( k+8 , m_theNegEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
+      setInputEmCand( k+12, m_theNegEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
+    }
   }
 }
 
 void L1GctElectronFinalSort::process(){
 
-  //Make temporary copy of data
-  std::vector<L1GctEmCand> data = m_inputCands;
- 
+  std::vector<prioritisedEmCand> data(m_inputCands.size());
+  // Assign a "priority" for sorting - this assumes the candidates
+  // have already been filled in "priority order"
+  for (unsigned i=0; i<m_inputCands.size(); i++) {
+    prioritisedEmCand c(m_inputCands.at(i), i);
+    data.at(i) = c;
+  }
+
   //Then sort it
   sort(data.begin(),data.end(),rank_gt());
   
   //Copy data to output buffer
   for(int i = 0; i<4; i++){
-    m_outputCands.at(i) = data.at(i);
+    m_outputCands.at(i) = data.at(i).emCand;
   }
 }
 
-void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand){
-  m_inputCands[i] = cand;
+void L1GctElectronFinalSort::setInputEmCand(unsigned i, const L1GctEmCand& cand){
+  assert (i<m_inputCands.size());
+  m_inputCands.at(i) = cand;
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {
   s << "===ElectronFinalSort===" << std::endl;
-  s << "Card type = " <<cand.m_emCandsType<<std::endl;
-  s << "No of Electron Leaf Cards " << cand.m_theLeafCards.size() << std::endl;
+  s << "Card type = " << ( cand.m_emCandsType ? "isolated" : "non-isolated" ) <<std::endl;
   s << "Pointers to the Electron Leaf cards are: "<<std::endl;
-  for (unsigned i=0; i<cand.m_theLeafCards.size(); i++) {
-    s << cand.m_theLeafCards.at(i)<<"  ";
-  }
+  s << "   Pos. eta: " << cand.m_thePosEtaLeafCard;
+  s << "   Neg. eta: " << cand.m_theNegEtaLeafCard;
   s << std::endl;
   s << "No of Electron Input Candidates " << cand.m_inputCands.size() << std::endl;
   s << "No of Electron Output Candidates " << cand.m_outputCands.size() << std::endl;

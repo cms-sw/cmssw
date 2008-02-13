@@ -13,14 +13,14 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id) :
   m_id(id),
   m_sorters(4)
 {
-
-  // sorters 0 and 1 are in FPGA 0
-  m_sorters.at(0) = new L1GctElectronSorter(4,true);
-  m_sorters.at(1) = new L1GctElectronSorter(4,false);
   
-  // sorters 2 and 3 are in FPGA 1
-  m_sorters.at(2) = new L1GctElectronSorter(5,true);
-  m_sorters.at(3) = new L1GctElectronSorter(5,false);
+  // sorters 0 and 1 are in FPGA U1 and deal with RCT crates 4-8 (13-17)
+  m_sorters.at(0) = new L1GctElectronSorter(5,true);
+  m_sorters.at(1) = new L1GctElectronSorter(5,false);
+
+  // sorters 2 and 3 are in FPGA U2 and deal with RCT crates 0-3 (9-12)
+  m_sorters.at(2) = new L1GctElectronSorter(4,true);
+  m_sorters.at(3) = new L1GctElectronSorter(4,false);
 }
 
 

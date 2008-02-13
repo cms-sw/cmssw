@@ -7,7 +7,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
-#include <functional>
+//#include <functional>
 #include <ostream>
 
 
@@ -29,7 +29,34 @@
 class L1GctElectronSorter : public L1GctProcessor
 {
  public:
+
+  /// Data type to associate each electron candidate with
+  /// a priority based on its position in the sorting tree.
+  /// Priority is used (as in the hardware) to decide which 
+  /// electron is preferred when they have equal rank.
+
+  struct prioritisedEmCand {
+    L1GctEmCand emCand;
+    unsigned short priority;
+
+    // Define some constructors
+    prioritisedEmCand() : emCand(), priority(0) {}
+    prioritisedEmCand(L1GctEmCand& c, unsigned short p)  : emCand(c), priority(p) {}
+    prioritisedEmCand(L1CaloEmCand& c, unsigned short p) : emCand(c), priority(p) {}
+
+    // Enable some methods
+    unsigned rank() const { return emCand.rank(); }
+
+  };
   
+  /// comparison operator for sort, used here and in the ElectronFinalSort
+  /// Candidates of equal rank are sorted by priority, with the lower value given precedence
+  struct rank_gt : public std::binary_function<prioritisedEmCand, prioritisedEmCand, bool> {
+    bool operator()(const prioritisedEmCand& x, const prioritisedEmCand& y) {
+      return ( x.rank() > y.rank() || ( (x.rank() == y.rank()) && (x.priority < y.priority) ) ) ;
+    }
+  };
+
   /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int nInputs, bool iso);
   ///   
@@ -45,7 +72,7 @@ class L1GctElectronSorter : public L1GctProcessor
   virtual void process();
   ///
   /// set input candidate
-  void setInputEmCand(L1CaloEmCand cand);
+  void setInputEmCand(const L1CaloEmCand& cand);
   ///	
   /// get input candidates
   inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
@@ -55,17 +82,6 @@ class L1GctElectronSorter : public L1GctProcessor
   ///
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);  
- private:
-  /// comparison operator for sort
-  struct rank_gt : public std::binary_function<L1GctEmCand, L1GctEmCand, bool> {
-    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
-      if(x.rank()!=y.rank()){return x.rank() > y.rank();
-      }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
-	}else{ return x.phiIndex() > y.phiIndex();}}}};
-
-  /// converts from L1CaloEmCand to L1GctEmCand
-  //  std::vector<L1GctEmCand> convertCaloToGct(std::vector<L1CaloEmCand> cand);
-  
  private:
   ///
   /// algo ID (is it FPGA 1 or 2 processing)

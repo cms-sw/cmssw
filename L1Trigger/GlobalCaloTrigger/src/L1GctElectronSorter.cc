@@ -22,6 +22,7 @@ L1GctElectronSorter::~L1GctElectronSorter()
 void L1GctElectronSorter::reset() {
   m_inputCands.clear();
   m_inputCands.resize(m_id*4);
+
   m_outputCands.clear();
   m_outputCands.resize(4);
 }
@@ -35,9 +36,12 @@ void L1GctElectronSorter::fetchInput() {
 void L1GctElectronSorter::process() {
 
   //Convert from caloEmCand to gctEmCand and make temporary copy of data
-  std::vector<L1GctEmCand> data(m_inputCands.size());
+  std::vector<prioritisedEmCand> data(m_inputCands.size());
+  // Assign a "priority" for sorting - this assumes the candidates
+  // have already been filled in "priority order"
   for (unsigned i=0; i<m_inputCands.size(); i++) {
-    data.at(i) = L1GctEmCand(m_inputCands.at(i));
+    prioritisedEmCand c(m_inputCands.at(i), i);
+    data.at(i) = c;
   }
 
   //Then sort it
@@ -45,21 +49,22 @@ void L1GctElectronSorter::process() {
 
   //Copy data to output buffer
   for(int i = 0; i<4; i++){
-    m_outputCands.at(i) = data.at(i);
+    m_outputCands.at(i) = data.at(i).emCand;
   }
 }
 
-void L1GctElectronSorter::setInputEmCand(L1CaloEmCand cand){
+void L1GctElectronSorter::setInputEmCand(const L1CaloEmCand& cand){
+  // Fills the candidates in "priority order"
+  // The lowest numbered RCT crate in each FPGA has highest priority.
+  // We distinguish the two FPGAs on a leaf card by the number of inputs.
+  // FPGA U1 has 5 inputs (crates 4-8) and FPGA U2 has 4 inputs (crates 0-3).
+  // Within a crate the four input candidates are arranged in the order
+  // that they arrive on the cable, using the index() method.
   unsigned crate = cand.rctCrate();
-  unsigned input = ((crate%9 < 4) ? (crate%9) : (crate%9 - 4));
-  unsigned i = input*4;
-  for (unsigned j=0; j<4; j++) {
-    if (m_inputCands.at(i).rank() == 0) {
-      m_inputCands.at(i) = cand;
-      break;
-    }
-    i++;
-  }
+  unsigned input = ( (m_id==4) ? (crate%9) : (crate%9 - 4) );
+  unsigned i = input*4 + cand.index();
+  assert (m_inputCands.at(i).rank()==0);
+  m_inputCands.at(i) = cand;
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
