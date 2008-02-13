@@ -246,14 +246,14 @@ void EcalTrigPrimESProducer::parseTextFile()
     if (subdet == 1) filename="SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilenameEE_ ;
     edm::FileInPath fileInPath(filename);
     infile[subdet].open(fileInPath.fullPath().c_str()) ;
-    edm::LogInfo("EcalTPG") <<"Using database file "<<filename;
+
     if (infile[subdet].is_open()) {
       while (!infile[subdet].eof()) {
 
 	infile[subdet]>>dataCard ;
 	
 	if (dataCard == "PHYSICS") {
-	  infile[subdet]>>std::dec>>id ;
+	  infile[subdet]>>id ;
 	  paramF.clear() ;
 	  for (int i=0 ; i <7 ; i++) {
 	    infile[subdet]>>dataF ;
@@ -291,17 +291,9 @@ void EcalTrigPrimESProducer::parseTextFile()
 	  }
 	  mapTower_[subdet][id] = param ;
 	}
-	
-	if (dataCard == "SLIDING") {
-	  infile[subdet]>>std::dec>>id ;
-	  param.clear() ;
-	  infile[subdet]>>std::hex>>data ;
-	  param.push_back(data) ;
-	  mapSliding_[subdet][id] = param ;
-	}
-	
+		
 	if (dataCard == "WEIGHT") {
-	  infile[subdet]>>std::dec>>id ;
+	  infile[subdet]>>std::hex>>id ;
 	  param.clear() ;
 	  for (int i=0 ; i <5 ; i++) {
 	    infile[subdet]>>std::hex>>data ;
@@ -311,7 +303,7 @@ void EcalTrigPrimESProducer::parseTextFile()
 	}
 	
 	if (dataCard == "FG") {
-	  infile[subdet]>>std::dec>>id ;
+	  infile[subdet]>>std::hex>>id ;
 	  param.clear() ;
 	  for (int i=0 ; i <5 ; i++) {
 	    infile[subdet]>>std::hex>>data ;
@@ -321,7 +313,7 @@ void EcalTrigPrimESProducer::parseTextFile()
 	}
 	
 	if (dataCard == "LUT") {
-	  infile[subdet]>>std::dec>>id ;
+	  infile[subdet]>>std::hex>>id ;
 	  param.clear() ;
 	  for (int i=0 ; i <1024 ; i++) {
 	    infile[subdet]>>std::hex>>data ;

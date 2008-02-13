@@ -67,7 +67,6 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::map<uint32_t, std::vector<uint32_t> > mapXtal_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapStrip_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapTower_[2] ;
-  std::map<uint32_t, std::vector<uint32_t> > mapSliding_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapWeight_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapFg_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapLut_[2] ;

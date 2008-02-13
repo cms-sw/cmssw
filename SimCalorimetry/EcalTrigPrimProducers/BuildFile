@@ -8,6 +8,7 @@
 <use name=SimCalorimetry/EcalTrigPrimAlgos>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/FEDRawData>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
@@ -23,6 +24,7 @@
 <use name=SimCalorimetry/EcalTrigPrimAlgos>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/FEDRawData>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
