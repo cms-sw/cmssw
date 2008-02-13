@@ -13,6 +13,7 @@ DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromPropagation, "TSGFromPropa
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "TSGFromL1Muon.h"
-
+#include "TSGFromL2Muon.h"
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(TSGFromL1Muon);
+DEFINE_ANOTHER_FWK_MODULE(TSGFromL2Muon);

@@ -4,6 +4,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/MuonSeed>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -29,6 +30,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/TrackerRecHit2D>
   <use name=DataFormats/TrajectorySeed>
+  <use name=DataFormats/MuonSeed>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>
