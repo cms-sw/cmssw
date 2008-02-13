@@ -1,0 +1,34 @@
+# DO not modify the line below
+#MODFILE mod_checkObject.cfg
+#
+# Format:
+# Object  Reference-file  Updated-values-file  Output-file
+# Object = Gains/Pedestals/PedestalWidths
+#
+
+
+# GREN pedestals v2 - done manually
+
+# GREN pedestal widths v2
+# PedestalWidths    CondFormats\/HcalObjects\/data\/hcal_widths_fC_v1.txt    CondTools\/Hcal\/test\/GRENpeds\/30066-widths_fC.txt    gren_widths_v2_with30066.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30066.txt    CondTools\/Hcal\/test\/GRENpeds\/30097-widths_fC.txt    gren_widths_v2_with30097.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30097.txt    CondTools\/Hcal\/test\/GRENpeds\/30129-widths_fC.txt    gren_widths_v2_with30129.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30129.txt    CondTools\/Hcal\/test\/GRENpeds\/30140-widths_fC.txt    gren_widths_v2_with30140.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30140.txt    CondTools\/Hcal\/test\/GRENpeds\/30142-widths_fC.txt    gren_widths_v2_with30142.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30142.txt    CondTools\/Hcal\/test\/GRENpeds\/30144-widths_fC.txt    gren_widths_v2_with30144.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30144.txt    CondTools\/Hcal\/test\/GRENpeds\/30146-widths_fC.txt    gren_widths_v2_with30146.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30146.txt    CondTools\/Hcal\/test\/GRENpeds\/30205-widths_fC.txt    gren_widths_v2_with30205.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30205.txt    CondTools\/Hcal\/test\/GRENpeds\/30209-widths_fC.txt    gren_widths_v2_with30209.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30209.txt    CondTools\/Hcal\/test\/GRENpeds\/30212-widths_fC.txt    gren_widths_v2_with30212.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30212.txt    CondTools\/Hcal\/test\/GRENpeds\/30260-widths_fC.txt    gren_widths_v2_with30260.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30260.txt    CondTools\/Hcal\/test\/GRENpeds\/30278-widths_fC.txt    gren_widths_v2_with30278.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30278.txt    CondTools\/Hcal\/test\/GRENpeds\/30333-widths_fC.txt    gren_widths_v2_with30333.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30333.txt    CondTools\/Hcal\/test\/GRENpeds\/30342-widths_fC.txt    gren_widths_v2_with30342.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30342.txt    CondTools\/Hcal\/test\/GRENpeds\/30414-widths_fC.txt    gren_widths_v2_with30414.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30414.txt    CondTools\/Hcal\/test\/GRENpeds\/30432-widths_fC.txt    gren_widths_v2_with30432.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30432.txt    CondTools\/Hcal\/test\/GRENpeds\/30441-widths_fC.txt    gren_widths_v2_with30441.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30441.txt    CondTools\/Hcal\/test\/GRENpeds\/30478-widths_fC.txt    gren_widths_v2_with30478.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30478.txt    CondTools\/Hcal\/test\/GRENpeds\/30496-widths_fC.txt    gren_widths_v2_with30496.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30496.txt    CondTools\/Hcal\/test\/GRENpeds\/30514-widths_fC.txt    gren_widths_v2_with30514.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30514.txt    CondTools\/Hcal\/test\/GRENpeds\/30620-widths_fC.txt    gren_widths_v2_with30620.txt
+# PedestalWidths    CondTools\/Hcal\/test\/gren_widths_v2_with30620.txt    CondTools\/Hcal\/test\/GRENpeds\/30625-widths_fC.txt    gren_widths_v2_with30625.txt
