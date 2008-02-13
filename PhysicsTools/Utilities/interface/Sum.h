@@ -6,7 +6,7 @@ class Sum {
 public:
  enum { arguments = 1 };
  enum { parameters = A::parameters + B::parameters }; 
- Product(const A & a, const B & b) : a_(a), b_(b) { }
+ Sum(const A & a, const B & b) : a_(a), b_(b) { }
  double operator()(double x) const {
    return a_(x) - b_(x);
  }
