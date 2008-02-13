@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.7 2008/02/05 17:54:06 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.8 2008/02/07 15:47:45 fronga Exp $
 //
 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -42,7 +42,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   helper_.newEvent(iEvent);
 
   // Get additional info from the event, if needed
-  const reco::ClusterShape* clusterShape;
+  const reco::ClusterShape* clusterShape = 0;
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDs;
   if ( selectionType_ != "none" && selectionType_ != "custom" ) {
     iEvent.getByLabel( selectionCfg_.getParameter<edm::InputTag>("eIdSource"), 
