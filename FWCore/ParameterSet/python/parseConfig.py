@@ -986,7 +986,7 @@ class _ReplaceSetter(object):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
-        if nodots[0] == '-' or nodots.isdigit():
+        if nodots.isdigit() or (len(nodots) > 0 and nodots[0] == '-'):
             pass
         elif result == 'true':
             result = 'True'
