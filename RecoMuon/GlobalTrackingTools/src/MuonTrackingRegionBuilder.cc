@@ -32,7 +32,7 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   Phi_Region_parameter1 = par.getParameter<double>("PhiR_UpperLimit_Par1");
   Phi_Region_parameter2 = par.getParameter<double>("PhiR_UpperLimit_Par2");
   //Fixed Limits
-  theFixedFlag = par.getParameter<bool>("UsedFixedRegion");
+  theFixedFlag = par.getParameter<bool>("UseFixedRegion");
   Phi_fixed = par.getParameter<double>("Phi_fixed");
   Eta_fixed = par.getParameter<double>("Eta_fixed");
 }
