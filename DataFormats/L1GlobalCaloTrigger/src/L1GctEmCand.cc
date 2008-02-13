@@ -94,7 +94,13 @@ L1CaloRegionDetId L1GctEmCand::regionId() const {
 
 // construct from rank, eta, phi
 void L1GctEmCand::construct(unsigned rank, unsigned eta, unsigned phi) {
-  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10);
+  if (rank>0) {
+    m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10);
+  } else {
+    // Default values for zero rank electrons,
+    // different in hardware for positive and negative eta
+    if ((eta & 0x8)==0) { m_data = 0x7000; } else { m_data = 0x7400; }
+  }
 }
 
 // pretty print
