@@ -110,7 +110,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
 {
   HcalDetId _id( _rawid );
 
-  long long int _condition_data_set_id;
+  double _condition_data_set_id;
   unsigned int _crate, _slot, _fiber, _channel;
   hcal::ConfigurationDatabase::FPGASelection _fpga;
 
@@ -128,15 +128,17 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
 
   try {
     Statement* stmt = _connection -> createStatement();
-    std::string query = ("SELECT CONDITION_DATA_SET_ID, CRATE, HTR_SLOT, HTR_FPGA, HTR_FIBER, FIBER_CHANNEL ");
+    std::string query = ("SELECT RECORD_ID, CRATE, HTR_SLOT, HTR_FPGA, HTR_FIBER, FIBER_CHANNEL ");
     query += " FROM CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS_V3 ";
     query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
     
     //SELECT
     ResultSet *rs = stmt->executeQuery(query.c_str());
 
+    _condition_data_set_id = 0.0;
+
     while (rs->next()) {
-      long long int _cdsi = rs -> getInt(1);
+      double _cdsi = rs -> getDouble(1);
       if ( _condition_data_set_id < _cdsi )
 	{
 	  _condition_data_set_id = _cdsi;
@@ -147,6 +149,8 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
 	  else _fpga  = hcal::ConfigurationDatabase::Bottom;
 	  _fiber    = rs -> getInt(5);
 	  _channel  = rs -> getInt(6);
+	  
+	  //cout << _cdsi << "   " << _crate << "   " << _slot << "   " << _fiber << "   " << _channel << endl;
 	}
     }
     //Always terminate statement
@@ -154,8 +158,14 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
   } catch (SQLException& e) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
+
+  int topbottom, luttype;
+  if ( _fpga == hcal::ConfigurationDatabase::Top ) topbottom = 1;
+  else topbottom = 0;
+  if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
+  else luttype = 2;
   
-  std::vector<unsigned int> result = getOnlineLUT( tag, _crate, _slot, _fpga, _fiber, _channel, _lt );
+  std::vector<unsigned int> result = getOnlineLUT( tag, _crate, _slot, topbottom, _fiber, _channel, luttype );
   
   return result;
 }
