@@ -12,6 +12,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
   
   nEvt_     = 0;
   for(int i=0; i<DEnsys; i++)
@@ -31,7 +32,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   }
   
   if(dbe!=NULL)
-    dbe->setCurrentFolder("L1T/L1DEMon");
+    dbe->setCurrentFolder(histFolder_);
   
   if(verbose())
     std::cout << "L1TDEMON::L1TDEMON()...done.\n" << std::flush;
@@ -48,13 +49,13 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   DaqMonitorBEInterface* dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if(dbe) {
-    dbe->setCurrentFolder("L1T/L1DEMon");
-    dbe->rmdir("L1T/L1DEMon");
+    dbe->setCurrentFolder(histFolder_);
+    dbe->rmdir(histFolder_);
   }
 
   if(dbe) {
 
-    dbe->setCurrentFolder("L1T/L1DEMon");
+    dbe->setCurrentFolder(histFolder_);
     
     for(int j=0; j<2; j++) {
       std::string lbl("sysncand"); 
@@ -98,7 +99,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
 
     for(int j=0; j<DEnsys; j++) {
 
-      dbe->setCurrentFolder(std::string("L1T/L1DEMon/"+SystLabelExt[j]));
+      dbe->setCurrentFolder(std::string(histFolder_+SystLabelExt[j]));
 
       std::string lbl("");
       lbl.clear();
@@ -158,7 +159,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     }
 
     ///correlation
-    dbe->setCurrentFolder("L1T/L1DEMon/CORR");
+    dbe->setCurrentFolder(histFolder_+"xcorr");
     const int ncorr = 3;
     std::string corrl[ncorr] = {"phi","eta","rank"};
     for(int i=0; i<DEnsys; i++) {

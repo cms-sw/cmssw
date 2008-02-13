@@ -59,6 +59,9 @@ class L1TdeECAL : public edm::EDAnalyzer {
   // root output file name
   std::string histFile_;
 
+ // dqm histogram folder
+  std::string histFolder_;
+
   // dqm common
   DaqMonitorBEInterface* dbe;
   bool monitorDaemon_;

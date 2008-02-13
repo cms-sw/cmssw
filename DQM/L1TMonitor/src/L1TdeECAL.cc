@@ -16,6 +16,7 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/xpert/Ecal/");
   
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DaqMonitorBEInterface", false)) { 
@@ -31,7 +32,7 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
   }
   
   if(dbe!=NULL)
-    dbe->setCurrentFolder("L1T/L1DEMonEcal");
+    dbe->setCurrentFolder(histFolder_);
   
   if(verbose())
     std::cout << "L1TdeECAL::L1TdeECAL()...done.\n" << std::flush;
@@ -48,12 +49,12 @@ L1TdeECAL::beginJob(const edm::EventSetup&) {
   DaqMonitorBEInterface* dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if(dbe) {
-    dbe->setCurrentFolder("L1T/L1DEMonEcal");
-    dbe->rmdir("L1T/L1DEMonEcal");
+    dbe->setCurrentFolder(histFolder_);
+    dbe->rmdir(histFolder_);
   }
 
   if(dbe) {
-    dbe->setCurrentFolder("L1T/L1DEMonEcal");
+    dbe->setCurrentFolder(histFolder_);
 
     etmapData.reserve(nSM);
     etmapEmul.reserve(nSM);
