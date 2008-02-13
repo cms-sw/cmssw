@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.5 2008/02/04 04:51:38 dmytro Exp $
+// $Id: DumpGeom.cc,v 1.6 2008/02/09 01:44:48 case Exp $
 //
 //
 
@@ -660,6 +660,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 
 //   int n=0;
   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal, EcalBarrel);
+
   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
 //     n++;
 //     const CaloCellGeometry* cell=geom->getGeometry(*i);
@@ -699,6 +700,11 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
     std::vector<int> tint = geom->getDDNavType(tid);
     DDExpandedView epv(cview);
     epv.goTo(tint);
+//     if (tid == 872420050 || tid == 872420051 ) {
+//       std::cout << "DumpGeom::detId = " << tid ;
+//       std::cout << " fvgeohist: " << epv.geoHistory() << std::endl;
+//     }
+
     //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
     // build map here
     std::stringstream s;
