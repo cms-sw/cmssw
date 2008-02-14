@@ -339,26 +339,33 @@ bool ApvTimingAnalysis::isValid() const {
 // 
 void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
+
+  float sampling1 = sistrip::invalid_;
+  if ( time_ <= sistrip::valid_ ) { sampling1 = time_ + optimumSamplingPoint_; }
+  
+  float sampling2 = sistrip::invalid_;
+  if ( refTime_ <= sistrip::valid_ ) { sampling2 = refTime_ + optimumSamplingPoint_; }
+  
   float adjust = sistrip::invalid_;
-  if ( time_ <= sistrip::valid_ && 
-       delay_ <= sistrip::valid_ ) { adjust = time_ + delay_; }
-  float sampling = sistrip::invalid_;
-  if ( refTime_ <= sistrip::valid_ ) { sampling = refTime_ + optimumSamplingPoint_; }
+  if ( sampling1 <= sistrip::valid_ && delay_ <= sistrip::valid_ ) { adjust = sampling1 + delay_; }
+
   ss <<  std::fixed << std::setprecision(2)
-     << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
-    //<< " Error on time of rising edge         [ns] : " << error_ << std::endl
-     << " Sampling point of last tick mark     [ns] : " << sampling << std::endl 
-     << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
-     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
-     << " Tick mark height                    [ADC] : " << height_ << std::endl
-     << " Baseline level                      [ADC] : " << base_ << std::endl 
-     << " Tick mark top                       [ADC] : " << peak_ << std::endl 
+     << " Tick mark: time of rising edge     [ns] : " << time_ << std::endl 
+    //<< " Error on time of rising edge     [ns] : " << error_ << std::endl
+     << " Last tick: time of rising edge     [ns] : " << refTime_ << std::endl 
+     << " Tick mark: time of sampling point  [ns] : " << sampling1 << std::endl 
+     << " Last tick: time of sampling point  [ns] : " << sampling2 << std::endl 
+     << " Last tick: adjusted sampling point [ns] : " << adjust << std::endl 
+     << " Delay required to synchronise      [ns] : " << delay_ << std::endl 
+     << " Tick mark bottom (baseline)       [ADC] : " << base_ << std::endl 
+     << " Tick mark top                     [ADC] : " << peak_ << std::endl 
+     << " Tick mark height                  [ADC] : " << height_ << std::endl
      << std::boolalpha 
-     << " isValid                                   : " << isValid()  << std::endl
+     << " isValid                                 : " << isValid()  << std::endl
      << std::noboolalpha
      << " Error codes (found "
      << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
-     << ")                    : ";
+     << ")                  : ";
   if ( getErrorCodes().empty() ) { ss << "(none)"; }
   else { 
     VString::const_iterator istr = getErrorCodes().begin();

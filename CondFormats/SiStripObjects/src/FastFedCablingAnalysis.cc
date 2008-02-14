@@ -11,9 +11,14 @@
 
 using namespace sistrip;
 
+
 // ----------------------------------------------------------------------------
 // 
 const float FastFedCablingAnalysis::threshold_ = 100.; // [ADC]
+
+// ----------------------------------------------------------------------------
+// 
+const float FastFedCablingAnalysis::dirtyThreshold_ = 800; // [ADC]
 
 // ----------------------------------------------------------------------------
 // 
@@ -27,7 +32,7 @@ const uint16_t FastFedCablingAnalysis::nBitsForLldCh_ = 2;
 // 
 FastFedCablingAnalysis::FastFedCablingAnalysis( const uint32_t& key ) 
   : CommissioningAnalysis(key,sistrip::fastCablingAnalysis_),
-    dcuId_(sistrip::invalid32_), 
+    dcuHardId_(sistrip::invalid32_), 
     lldCh_(sistrip::invalid_),
     highMedian_(1.*sistrip::invalid_),
     highMean_(1.*sistrip::invalid_),
@@ -40,13 +45,22 @@ FastFedCablingAnalysis::FastFedCablingAnalysis( const uint32_t& key )
     max_(1.*sistrip::invalid_),
     min_(1.*sistrip::invalid_),
     histo_(0,"")
-{;}
+{
+  fecKey( SiStripFecKey( sistrip::invalid_, 
+			 sistrip::invalid_, 
+			 sistrip::invalid_, 
+			 sistrip::invalid_, 
+			 sistrip::invalid_, 
+			 sistrip::invalid_, 
+			 sistrip::invalid_ ).key() );
+  fedKey( key );
+}
 
 // ----------------------------------------------------------------------------
 // 
 FastFedCablingAnalysis::FastFedCablingAnalysis() 
   : CommissioningAnalysis(sistrip::fastCablingAnalysis_),
-    dcuId_(sistrip::invalid32_), 
+    dcuHardId_(sistrip::invalid32_), 
     lldCh_(sistrip::invalid_),
     highMedian_(1.*sistrip::invalid_),
     highMean_(1.*sistrip::invalid_),
@@ -64,7 +78,7 @@ FastFedCablingAnalysis::FastFedCablingAnalysis()
 // ----------------------------------------------------------------------------
 // 
 void FastFedCablingAnalysis::reset() {
-    dcuId_ = sistrip::invalid32_; 
+    dcuHardId_ = sistrip::invalid32_; 
     lldCh_ = sistrip::invalid_;
     highMedian_ = 1.*sistrip::invalid_;
     highMean_ = 1.*sistrip::invalid_;
@@ -259,15 +273,15 @@ void FastFedCablingAnalysis::analyse() {
   }
   
   // Extract DCU id
-  dcuId_ = 0;
+  dcuHardId_ = 0;
   for ( uint16_t ibin = 0; ibin < nBitsForDcuId_; ibin++ ) {
     if ( entries[ibin] ) {
       if ( contents[ibin] > midRange_ ) {
-	dcuId_ += 0xFFFFFFFF & (1<<ibin);
+	dcuHardId_ += 0xFFFFFFFF & (1<<ibin);
       }
     }
   }
-  if ( !dcuId_ ) { dcuId_ = sistrip::invalid32_; }
+  if ( !dcuHardId_ ) { dcuHardId_ = sistrip::invalid32_; }
 
   // Extract DCU id
   lldCh_ = 0;
@@ -286,7 +300,7 @@ void FastFedCablingAnalysis::analyse() {
 // ----------------------------------------------------------------------------
 // 
 bool FastFedCablingAnalysis::isValid() const {
-  return ( dcuId_ < sistrip::invalid32_ &&
+  return ( dcuHardId_ < sistrip::invalid32_ &&
 	   lldCh_ < sistrip::valid_ && 
 	   highMedian_ < sistrip::valid_ && 
 	   highMean_ < sistrip::valid_ && 
@@ -303,58 +317,37 @@ bool FastFedCablingAnalysis::isValid() const {
 
 // ----------------------------------------------------------------------------
 // 
-void FastFedCablingAnalysis::header( std::stringstream& ss ) const { 
-  ss << "[" << myName() << "] Monitorables:" << std::endl;
-
-  //summary(ss);
-  
-  ss << " Crate/FEC/Ring/CCU/Mod/LLD      : (unknown)" 
-     << std::endl;
-
-  ss << " FedId/FeUnit/FeChan/FedChannel  : " 
-     << fedKey().fedId() << "/" 
-     << fedKey().feUnit() << "/" 
-     << fedKey().feChan() << "/"
-     << fedKey().fedChannel()
-     << std::endl;
-  
-  ss << " FecKey/Fedkey (hex)             :  " 
-     << "(unknown)"
-     << " / 0x" 
-     << std::hex 
-     << std::setw(8) << std::setfill('0') << fedKey().key() 
-     << std::dec
-     << std::endl;
-  
-}
+bool FastFedCablingAnalysis::isDirty() const {
+  return ( isValid() && highMean_ < dirtyThreshold_ );
+} 
 
 // ----------------------------------------------------------------------------
 // 
 void FastFedCablingAnalysis::summary( std::stringstream& ss ) const { 
 
-//   if ( !fecKey().lldChan() ||
-//        fecKey().lldChan() > sistrip::valid_ ) { return; }
+  SiStripFecKey fec_key( fecKey() );
+  SiStripFedKey fed_key( fedKey() );
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 type,
 					 sistrip::FED_KEY, 
-					 fedKey().key(),
+					 fed_key.key(),
 					 sistrip::LLD_CHAN, 
-					 fecKey().lldChan() ).title();
+					 fec_key.lldChan() ).title();
   
   ss << " Summary"
      << ":"
      << ( isValid() ? "Valid" : "Invalid" )
      << ":"
      << sistrip::readoutView_ << ":"
-     << fedKey().fedId() << "/" 
-     << fedKey().feUnit() << "/" 
-     << fedKey().feChan() 
+     << fed_key.fedId() << "/" 
+     << fed_key.feUnit() << "/" 
+     << fed_key.feChan() 
      << ":"
      << sistrip::dqmRoot_ << sistrip::dir_ 
      << "Collate" << sistrip::dir_ 
-     << fedKey().path()
+     << fed_key.path()
      << ":"
      << title
      << std::endl;
@@ -366,11 +359,11 @@ void FastFedCablingAnalysis::summary( std::stringstream& ss ) const {
 void FastFedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
   ss <<  std::fixed << std::setprecision(2)
-     << " Extracted DCU id                : 0x" 
+     << " DCU id extracted from histo     : 0x" 
      << std::hex
-     << std::setw(8) << std::setfill('0') << dcuId_ << std::endl
+     << std::setw(8) << std::setfill('0') << dcuHardId_ << std::endl
      << std::dec
-     << " Extracted LLD channel           : " << lldCh_ << std::endl
+     << " LLD chan extracted from histo   : " << lldCh_ << std::endl
      << " \"High\" level (mean+/-rms) [ADC] : " << highMean_ << " +/- " << highRms_ << std::endl
      << " \"Low\" level (mean+/-rms)  [ADC] : " << lowMean_ << " +/- " << lowRms_ << std::endl
      << " Median \"high\" level       [ADC] : " << highMedian_ << std::endl
@@ -380,6 +373,7 @@ void FastFedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
      << " Maximum level             [ADC] : " << max_ << std::endl
      << " Minimum level             [ADC] : " << min_ << std::endl;
   ss << std::boolalpha
+     << " isDirty                         : " << isDirty()  << std::endl
      << " isValid                         : " << isValid()  << std::endl
      << std::noboolalpha
      << " Error codes (found "  

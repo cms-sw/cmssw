@@ -35,8 +35,14 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Identifies if analysis is valid or not. */
   bool isValid() const;
 
+  /** Identifies if connection is missing. */
+  //bool isMissing() const;
+
+  /** Identifies if fibre is dirty or not. */
+  bool isDirty() const;
+  
   /** DCU hardware id (32-bits). */
-  inline const uint32_t& dcuId() const;
+  inline const uint32_t& dcuHardId() const;
   
   /** Linear Laser Driver channel. */
   inline const uint16_t& lldCh() const; 
@@ -66,9 +72,6 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
-
-  /** Overrides base method. */
-  void header( std::stringstream& ) const;
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
@@ -86,12 +89,22 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Performs histogram anaysis. */
   void analyse();
 
+  // ---------- public static data ----------
+
+ public:
+
+  /** Threshold to identify digital high from digital low. */
+  static const float threshold_;
+
+  /** Defines level [ADC] below which fibre is defined as "dirty". */
+  static const float dirtyThreshold_;
+
   // ---------- private member data ----------
 
  private:
 
   /** Extracted DCU id. */
-  uint32_t dcuId_;
+  uint32_t dcuHardId_;
 
   /** Extracted LLD channel. */
   uint16_t lldCh_;
@@ -126,9 +139,6 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** */
   float min_;
 
-  /** Threshold to identify digital high/low. */
-  static const float threshold_;
-
   /** */
   static const uint16_t nBitsForDcuId_;
 
@@ -142,7 +152,7 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
 // ---------- Inline methods ----------
   
-const uint32_t& FastFedCablingAnalysis::dcuId() const { return dcuId_; }
+const uint32_t& FastFedCablingAnalysis::dcuHardId() const { return dcuHardId_; }
 const uint16_t& FastFedCablingAnalysis::lldCh() const { return lldCh_; } 
 const float& FastFedCablingAnalysis::highLevel() const { return highMean_; }
 const float& FastFedCablingAnalysis::highRms() const { return highRms_; }

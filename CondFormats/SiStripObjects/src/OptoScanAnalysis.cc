@@ -416,6 +416,9 @@ bool OptoScanAnalysis::isValid() const {
 // ----------------------------------------------------------------------------
 // 
 void OptoScanAnalysis::summary( std::stringstream& ss ) const { 
+
+  SiStripFecKey fec_key( fecKey() );
+  SiStripFedKey fed_key( fedKey() );
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
 
@@ -427,23 +430,23 @@ void OptoScanAnalysis::summary( std::stringstream& ss ) const {
   std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::LLD_CHAN, 
-					  fecKey().lldChan(),
+					  fec_key.lldChan(),
 					  extra1.str() ).title();
   std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::LLD_CHAN, 
-					  fecKey().lldChan(),
+					  fec_key.lldChan(),
 					  extra2.str() ).title();
   std::string title3 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::LLD_CHAN, 
-					  fecKey().lldChan(),
+					  fec_key.lldChan(),
 					  extra3.str() ).title();
   
   ss << " Summary"
@@ -451,19 +454,19 @@ void OptoScanAnalysis::summary( std::stringstream& ss ) const {
      << ( isValid() ? "Valid" : "Invalid" )
      << ":"
      << sistrip::controlView_ << ":"
-     << fecKey().fecCrate() << "/" 
-     << fecKey().fecSlot() << "/" 
-     << fecKey().fecRing() << "/" 
-     << fecKey().ccuAddr() << "/" 
-     << fecKey().ccuChan() 
+     << fec_key.fecCrate() << "/" 
+     << fec_key.fecSlot() << "/" 
+     << fec_key.fecRing() << "/" 
+     << fec_key.ccuAddr() << "/" 
+     << fec_key.ccuChan() 
      << ":"
      << sistrip::dqmRoot_ << sistrip::dir_ 
      << "Collate" << sistrip::dir_ 
-     << SiStripFecKey( fecKey().fecCrate(),
-		       fecKey().fecSlot(), 
-		       fecKey().fecRing(), 
-		       fecKey().ccuAddr(), 
-		       fecKey().ccuChan() ).path()
+     << SiStripFecKey( fec_key.fecCrate(),
+		       fec_key.fecSlot(), 
+		       fec_key.fecRing(), 
+		       fec_key.ccuAddr(), 
+		       fec_key.ccuChan() ).path()
      << ":"
      << title1 << ";" << title2 << ";" << title3
      << std::endl;
@@ -476,7 +479,7 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
 
   if ( gain >= 4 ) { gain = gain_; }
 
-  if ( gain > bias_.size() ) {
+  if ( gain >= bias_.size() ) {
     edm::LogWarning(mlCommissioning_)
       << "[" << myName() << "::" << __func__ << "]"
       << " Unexpected gain setting: " << gain_;

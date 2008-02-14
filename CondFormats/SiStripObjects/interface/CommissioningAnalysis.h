@@ -56,22 +56,16 @@ class CommissioningAnalysis {
   inline const VString& getErrorCodes() const;
   
   /** Returns FEC key object (encodes control structure). */
-  inline const SiStripFecKey& fecKey() const;
+  inline const uint32_t& fecKey() const;
   
   /** Returns FED key object (encodes readout structure). */
-  inline const SiStripFedKey& fedKey() const;
+  inline const uint32_t& fedKey() const;
   
   /** Returns DCU id. */
   inline const uint32_t& dcuId() const;
   
   /** Returns DetId. */
   inline const uint32_t& detId() const;
-  
-  /** Sets DCU id. */
-  inline void dcuId( const uint32_t& );
-  
-  /** Sets DetId. */
-  inline void detId( const uint32_t& );
 
   // ---------- public print methods ----------
   
@@ -87,8 +81,19 @@ class CommissioningAnalysis {
   /** Navigate information for analysis print(). */
   virtual void summary( std::stringstream& ) const;
 
-  /** Setter for FEC key object (encodes control structure). */
+  // ---------- public setter methods ----------
+
+  /** Sets FEC key (encodes control structure). */
   inline void fecKey( const uint32_t& );
+
+  /** Sets FED key (encodes readout structure). */
+  inline void fedKey( const uint32_t& );
+  
+  /** Sets DCU id. */
+  inline void dcuId( const uint32_t& );
+  
+  /** Sets DetId. */
+  inline void detId( const uint32_t& );
   
   // ---------- protected methods ----------
 
@@ -124,10 +129,10 @@ class CommissioningAnalysis {
  private:
 
   /** FEC key object. */
-  SiStripFecKey fecKey_;
+  uint32_t fecKey_;
 
   /** FEC key object. */
-  SiStripFedKey fedKey_;
+  uint32_t fedKey_;
 
   /** DCU Id. */
   uint32_t dcuId_;
@@ -147,21 +152,22 @@ class CommissioningAnalysis {
 
 const CommissioningAnalysis::VString& CommissioningAnalysis::getErrorCodes() const { return errors_; }
 
-const SiStripFecKey& CommissioningAnalysis::fecKey() const { return fecKey_; }
-const SiStripFedKey& CommissioningAnalysis::fedKey() const { return fedKey_; }
+const uint32_t& CommissioningAnalysis::fecKey() const { return fecKey_; }
+const uint32_t& CommissioningAnalysis::fedKey() const { return fedKey_; }
 
 const uint32_t& CommissioningAnalysis::dcuId() const { return dcuId_; }
 const uint32_t& CommissioningAnalysis::detId() const { return detId_; }
 
+const std::string& CommissioningAnalysis::myName() const { return myName_; }
+
+void CommissioningAnalysis::fecKey( const uint32_t& key ) { fecKey_ = key; }
+void CommissioningAnalysis::fedKey( const uint32_t& key ) { fedKey_ = key; }
+
 void CommissioningAnalysis::dcuId( const uint32_t& dcu_id ) { dcuId_ = dcu_id; }
 void CommissioningAnalysis::detId( const uint32_t& det_id ) { detId_ = det_id; }
 
-const std::string& CommissioningAnalysis::myName() const { return myName_; }
-
 void CommissioningAnalysis::setErrorCodes( const VString& errors ) { errors_ = errors; }
 void CommissioningAnalysis::addErrorCode( const std::string& error ) { errors_.push_back(error) ;}
-
-void CommissioningAnalysis::fecKey( const uint32_t& key ) { fecKey_ = SiStripFecKey(key); }
 
 #endif // CondFormats_SiStripObjects_CommissioningAnalysis_H
 

@@ -271,6 +271,9 @@ void PedestalsAnalysis::analyse() {
 // ----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::summary( std::stringstream& ss ) const { 
+
+  SiStripFecKey fec_key( fecKey() );
+  SiStripFedKey fed_key( fedKey() );
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
   
@@ -282,30 +285,30 @@ void PedestalsAnalysis::summary( std::stringstream& ss ) const {
   std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::LLD_CHAN, 
-					  fecKey().lldChan(),
+					  fec_key.lldChan(),
 					  extra1.str() ).title();
   std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::LLD_CHAN, 
-					  fecKey().lldChan(),
+					  fec_key.lldChan(),
 					  extra2.str() ).title();
   std::string title3 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::APV, 
-					  SiStripFecKey::i2cAddr( fecKey().lldChan(), true ),
+					  SiStripFecKey::i2cAddr( fec_key.lldChan(), true ),
 					  extra3.str() ).title();
   std::string title4 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
-					  fedKey().key(),
+					  fed_key.key(),
 					  sistrip::APV, 
-					  SiStripFecKey::i2cAddr( fecKey().lldChan(), false ),
+					  SiStripFecKey::i2cAddr( fec_key.lldChan(), false ),
 					  extra3.str() ).title();
   
   
@@ -314,19 +317,19 @@ void PedestalsAnalysis::summary( std::stringstream& ss ) const {
      << ( isValid() ? "Valid" : "Invalid" )
      << ":"
      << sistrip::controlView_ << ":"
-     << fecKey().fecCrate() << "/" 
-     << fecKey().fecSlot() << "/" 
-     << fecKey().fecRing() << "/" 
-     << fecKey().ccuAddr() << "/" 
-     << fecKey().ccuChan() 
+     << fec_key.fecCrate() << "/" 
+     << fec_key.fecSlot() << "/" 
+     << fec_key.fecRing() << "/" 
+     << fec_key.ccuAddr() << "/" 
+     << fec_key.ccuChan() 
      << ":"
      << sistrip::dqmRoot_ << sistrip::dir_ 
      << "Collate" << sistrip::dir_ 
-     << SiStripFecKey( fecKey().fecCrate(),
-		       fecKey().fecSlot(), 
-		       fecKey().fecRing(), 
-		       fecKey().ccuAddr(), 
-		       fecKey().ccuChan() ).path()
+     << SiStripFecKey( fec_key.fecCrate(),
+		       fec_key.fecSlot(), 
+		       fec_key.fecRing(), 
+		       fec_key.ccuAddr(), 
+		       fec_key.ccuChan() ).path()
      << ":"
      << title1 << ";" << title2 << ";" << title3 << ";" << title4
      << std::endl;
@@ -368,33 +371,65 @@ bool PedestalsAnalysis::isValid() const {
 // ----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
-  if ( iapv == 1 || iapv == 2 ) { iapv--; }
-  else { iapv = 0; }
+
+  if ( iapv >= 2 ) { 
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected APV number: " << iapv;
+    return;
+  }
+  
+  if ( peds_[iapv].size() < 128 ||
+       noise_[iapv].size() < 128 ||
+       raw_[iapv].size() < 128 ) { 
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of pedestal/noise values: " 
+      << peds_[iapv].size() << ", " 
+      << noise_[iapv].size() << ", " 
+      << raw_[iapv].size();
+    return;
+  }
+  
   header( ss );
   ss << " Monitorables for APV number     : " << iapv;
   if ( iapv == 0 ) { ss << " (first of pair)"; }
   else if ( iapv == 1 ) { ss << " (second of pair)"; } 
   ss << std::endl;
-  ss << " Number of pedestal values       : " << peds_[iapv].size() << std::endl
-     << " Number of noise values          : " << noise_[iapv].size() << std::endl
-     << " Number of raw noise values      : " << raw_[iapv].size() << std::endl
-     << " Dead strips  (<5s) [strip]      : (" << dead_[iapv].size() << " in total) ";
+  ss << std::fixed << std::setprecision(2);
+  ss << " Example peds/noise for strips   : "
+     << "     0,     31,     63,    127" << std::endl
+     << "  Peds                     [ADC] : " 
+     << std::setw(6) << peds_[iapv][0] << ", " 
+     << std::setw(6) << peds_[iapv][31] << ", " 
+     << std::setw(6) << peds_[iapv][63] << ", " 
+     << std::setw(6) << peds_[iapv][127] << std::endl
+     << "  Noise                    [ADC] : " 
+     << std::setw(6) << noise_[iapv][0] << ", " 
+     << std::setw(6) << noise_[iapv][31] << ", " 
+     << std::setw(6) << noise_[iapv][63] << ", " 
+     << std::setw(6) << noise_[iapv][127] << std::endl
+     << "  Raw noise                [ADC] : " 
+     << std::setw(6) << raw_[iapv][0] << ", " 
+     << std::setw(6) << raw_[iapv][31] << ", " 
+     << std::setw(6) << raw_[iapv][63] << ", " 
+     << std::setw(6) << raw_[iapv][127] << std::endl
+     << " Dead strips (<5s)       [strip] : (" << dead_[iapv].size() << " in total) ";
   for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
     ss << dead_[iapv][ii] << " "; }
   
   ss << std::endl;
-  ss << " Noisy strips (>5s) [strip]      : (" << noisy_[iapv].size() << " in total) ";
+  ss << " Noisy strips (>5s)      [strip] : (" << noisy_[iapv].size() << " in total) ";
   for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
     ss << noisy_[iapv][ii] << " "; 
   } 
   ss << std::endl;
-  ss << std::fixed << std::setprecision(2)
-     << " Mean peds +/- spread [adc]      : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 
-     << " Min/Max pedestal [adc]          : " << pedsMin_[iapv] << " <-> " << pedsMax_[iapv] << std::endl
-     << " Mean noise +/- spread [adc]     : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << std::endl 
-     << " Min/Max noise [adc]             : " << noiseMin_[iapv] << " <-> " << noiseMax_[iapv] << std::endl
-     << " Mean raw noise +/- spread [adc] : " << rawMean_[iapv] << " +/- " << rawSpread_[iapv] << std::endl 
-     << " Min/Max raw noise [adc]         : " << rawMin_[iapv] << " <-> " << rawMax_[iapv] << std::endl
+  ss << " Mean peds +/- spread      [ADC] : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 
+     << " Min/Max pedestal          [ADC] : " << pedsMin_[iapv] << " <-> " << pedsMax_[iapv] << std::endl
+     << " Mean noise +/- spread     [ADC] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << std::endl 
+     << " Min/Max noise             [ADC] : " << noiseMin_[iapv] << " <-> " << noiseMax_[iapv] << std::endl
+     << " Mean raw noise +/- spread [ADC] : " << rawMean_[iapv] << " +/- " << rawSpread_[iapv] << std::endl 
+     << " Min/Max raw noise         [ADC] : " << rawMin_[iapv] << " <-> " << rawMax_[iapv] << std::endl
      << " Normalised noise                : " << "(yet to be implemented...)" << std::endl
      << std::boolalpha 
      << " isValid                         : " << isValid()  << std::endl

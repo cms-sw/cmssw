@@ -74,15 +74,6 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   /** Adds error codes for analysis (overrides private base). */ 
   inline void addErrorCode( const std::string& error );
-  
-  /** Optimum sampling point, defined w.r.t. rising edge [ns]. */
-  static const float optimumSamplingPoint_;
-  
-  /** Threshold defining minimum tick mark height [ADC]. */
-  static const float tickMarkHeightThreshold_;
-  
-  /** Threshold for FED frame finding (fraction of tick height). */
-  static const float frameFindingThreshold_;
 
   // ---------- private methods ----------
   
@@ -96,6 +87,19 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 
   /** Performs histogram anaysis. */
   void analyse();
+
+  // ---------- public static data ----------
+  
+ public:
+  
+  /** Optimum sampling point, defined w.r.t. rising edge [ns]. */
+  static const float optimumSamplingPoint_;
+  
+  /** Threshold defining minimum tick mark height [ADC]. */
+  static const float tickMarkHeightThreshold_;
+  
+  /** Threshold for FED frame finding (fraction of tick height). */
+  static const float frameFindingThreshold_;
 
   // ---------- private member data ----------
   
