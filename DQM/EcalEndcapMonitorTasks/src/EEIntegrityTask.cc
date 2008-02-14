@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/01/20 11:13:32 $
- * $Revision: 1.26 $
+ * $Date: 2008/01/22 19:47:15 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
  */
@@ -408,8 +408,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix + 0.5;
-      float xiy = iy + 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xix, xiy);
 
@@ -446,8 +446,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix + 0.5;
-      float xiy = iy + 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xix, xiy);
 
