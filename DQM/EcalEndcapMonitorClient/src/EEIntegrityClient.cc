@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.59 $
+ * $Date: 2008/02/09 19:50:12 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -359,7 +359,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 

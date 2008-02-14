@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.61 $
+ * $Date: 2008/02/09 19:50:13 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -275,7 +275,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update01 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -395,7 +395,7 @@ void EETimingClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {

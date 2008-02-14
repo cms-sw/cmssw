@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.59 $
+ * $Date: 2008/02/09 19:50:12 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -534,7 +534,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( update01 || update02 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -571,7 +571,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( update09 || update10 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -953,7 +953,7 @@ void EELedClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {
@@ -977,7 +977,7 @@ void EELedClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea05_[ism-1] ) {
@@ -994,7 +994,7 @@ void EELedClient::analyze(void){
 
         if ( update02 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn01_[ism-1] ) {
@@ -1011,7 +1011,7 @@ void EELedClient::analyze(void){
 
         if ( update14 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn05_[ism-1] ) {
@@ -1028,7 +1028,7 @@ void EELedClient::analyze(void){
 
         if ( update09 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met01_[ism-1] ) {
@@ -1049,7 +1049,7 @@ void EELedClient::analyze(void){
 
         if ( update21 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met05_[ism-1] ) {

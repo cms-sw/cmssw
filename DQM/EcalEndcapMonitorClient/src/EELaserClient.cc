@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/09 18:33:14 $
- * $Revision: 1.77 $
+ * $Date: 2008/02/09 19:50:12 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1096,7 +1096,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update01 || update02 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1133,7 +1133,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update09 || update10 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1170,7 +1170,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update03 || update04 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1207,7 +1207,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update11 || update12 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1244,7 +1244,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update05 || update06 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1281,7 +1281,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update13 || update14 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1318,7 +1318,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update07 || update08 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1355,7 +1355,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update15 || update16 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
@@ -2176,7 +2176,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {
@@ -2200,7 +2200,7 @@ void EELaserClient::analyze(void){
            val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea05_[ism-1] ) {
@@ -2224,7 +2224,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea02_[ism-1] ) {
@@ -2248,7 +2248,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea06_[ism-1] ) {
@@ -2272,7 +2272,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea03_[ism-1] ) {
@@ -2296,7 +2296,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea07_[ism-1] ) {
@@ -2320,7 +2320,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea04_[ism-1] ) {
@@ -2344,7 +2344,7 @@ void EELaserClient::analyze(void){
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea08_[ism-1] ) {
@@ -2361,7 +2361,7 @@ void EELaserClient::analyze(void){
 
         if ( update02 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn01_[ism-1] ) {
@@ -2378,7 +2378,7 @@ void EELaserClient::analyze(void){
 
         if ( update14 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn05_[ism-1] ) {
@@ -2395,7 +2395,7 @@ void EELaserClient::analyze(void){
 
         if ( update04 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn02_[ism-1] ) {
@@ -2412,7 +2412,7 @@ void EELaserClient::analyze(void){
 
         if ( update16 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn06_[ism-1] ) {
@@ -2429,7 +2429,7 @@ void EELaserClient::analyze(void){
 
         if ( update06 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn03_[ism-1] ) {
@@ -2446,7 +2446,7 @@ void EELaserClient::analyze(void){
 
         if ( update18 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn07_[ism-1] ) {
@@ -2463,7 +2463,7 @@ void EELaserClient::analyze(void){
 
         if ( update08 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn04_[ism-1] ) {
@@ -2480,7 +2480,7 @@ void EELaserClient::analyze(void){
 
         if ( update20 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn08_[ism-1] ) {
@@ -2497,7 +2497,7 @@ void EELaserClient::analyze(void){
 
         if ( update09 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met01_[ism-1] ) {
@@ -2517,7 +2517,7 @@ void EELaserClient::analyze(void){
 
         if ( update21 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met05_[ism-1] ) {
@@ -2537,7 +2537,7 @@ void EELaserClient::analyze(void){
 
         if ( update10 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met02_[ism-1] ) {
@@ -2557,7 +2557,7 @@ void EELaserClient::analyze(void){
 
         if ( update22 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met06_[ism-1] ) {
@@ -2577,7 +2577,7 @@ void EELaserClient::analyze(void){
 
         if ( update11 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met03_[ism-1] ) {
@@ -2597,7 +2597,7 @@ void EELaserClient::analyze(void){
 
         if ( update23 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met07_[ism-1] ) {
@@ -2617,7 +2617,7 @@ void EELaserClient::analyze(void){
 
         if ( update12 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met04_[ism-1] ) {
@@ -2637,7 +2637,7 @@ void EELaserClient::analyze(void){
 
         if ( update24 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met08_[ism-1] ) {
