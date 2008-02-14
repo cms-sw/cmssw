@@ -35,8 +35,9 @@ namespace popcon {
     public:
       Ref() : m_pooldb(0){}
       Ref(cond::PoolTransaction& pooldb, std::string token) : 
-	cond::TypedRef<value_type>(pooldb,token), m_pooldb(&pooldb){
+        m_pooldb(&pooldb){
 	m_pooldb->start(true);
+	(cond::TypedRef<value_type>&)(*this) = cond::TypedRef<value_type>(pooldb,token);
       }
       ~Ref() {
 	if (m_pooldb)
@@ -52,6 +53,7 @@ namespace popcon {
 	cond::TypedRef<value_type>::operator=(ref);
 	m_pooldb = ref.m_pooldb;
 	ref.m_pooldb=0; // avoid commit;
+	return *this;
       }
 
       mutable cond::PoolTransaction *m_pooldb;
