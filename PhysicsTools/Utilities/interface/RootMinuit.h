@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 
 namespace fit {
   
@@ -33,6 +34,9 @@ namespace fit {
       int ierflag;
       minuit_.mnparm(i, name.c_str(), *val, err, min, max, ierflag);
       return ierflag == 0;
+    }
+    bool setParameter(int i, const function::Parameter & par, double err, double min, double max) {
+      return setParameter(i, par.name(), par, err, min, max);
     }
     double getParameter(int i, double & err) const {
       double val;

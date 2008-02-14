@@ -21,8 +21,6 @@ namespace function {
       mean(new double(me)), sigma(new double(s)), 
       zs_(m, g, Ng, Ni), gauss_(me, s) {}
     double operator()(double x) const;  
-    void setParameters(double m, double g, double Ng, double Ni, 
-		       double me, double s); 
     boost::shared_ptr<double> mass, width, Ngamma, Nint, mean, sigma;
   private:
     ZLineShape zs_;

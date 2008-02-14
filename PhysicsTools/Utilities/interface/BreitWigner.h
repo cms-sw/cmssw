@@ -1,5 +1,6 @@
 #ifndef PhysicsTools_Utilities_ZMuMu_BreitWigner_h
 #define PhysicsTools_Utilities_ZMuMu_BreitWigner_h
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
 #include <cmath>
 
@@ -9,12 +10,12 @@ namespace function {
   struct BreitWigner {
     enum { arguments = 1 };
     enum { parameters = 2 };
-    BreitWigner(boost::shared_ptr<double> m, boost::shared_ptr<double> g): mass(m), width(g) {}
-    BreitWigner(double m, double g): mass(new double(m)), width(new double(g)) {}
-    void setParameters(double m, double g) {
-      *mass = m;
-      *width = g;
-    }
+    BreitWigner(const Parameter& m, const Parameter& g):
+      mass(m.ptr()), width(g.ptr()) { }
+    BreitWigner(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 
+      mass(m), width(g) {}
+    BreitWigner(double m, double g): 
+      mass(new double(m)), width(new double(g)) {}
     double operator()(double x) const {
       double m2 = *mass * (*mass); 
       double g2 = *width * (*width);

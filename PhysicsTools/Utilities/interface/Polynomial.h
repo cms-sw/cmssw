@@ -1,5 +1,6 @@
 #ifndef PhysicsTools_Utilities_Polynomial_h
 #define PhysicsTools_Utilities_Polynomial_h
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "boost/shared_ptr.hpp"
 
 namespace function {
@@ -10,7 +11,7 @@ namespace function {
     enum { parameters = n + 1 }; 
     Polynomial(const double * c);
     Polynomial(const boost::shared_ptr<double> * c);
-    void setParameters(const double * c);
+    Polynomial(const Parameter * p);
     double operator()(double x) const;
   private:
     boost::shared_ptr<double> c0_;
@@ -21,16 +22,15 @@ namespace function {
   Polynomial<n>::Polynomial(const boost::shared_ptr<double> * c) : 
     c0_(c), poly_(c + 1) {
   }
+  template<unsigned int n>
+  Polynomial<n>::Polynomial(const Parameter * c) : 
+    c0_(c->ptr()), poly_(c + 1) {
+  }
+  
   
   template<unsigned int n>
   Polynomial<n>::Polynomial(const double * c) : 
     c0_(new double(*c)), poly_(c + 1) {
-  }
-  
-  template<unsigned int n>
-  void Polynomial<n>::setParameters(const double * c) {
-    *c0_ = *c; 
-    poly_.setParameters(c + 1);
   }
 
   template<unsigned int n>
@@ -46,20 +46,20 @@ namespace function {
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c) {
     }
+    Polynomial(const Parameter * c) : 
+      c0_(c->ptr()) {
+    }
     Polynomial(const double * c) : 
       c0_(new double(*c)) {
     }
-    Polynomial(const boost::shared_ptr<double> c0) : 
+    Polynomial(boost::shared_ptr<double> c0) : 
       c0_(c0) {
+    }
+    Polynomial(const Parameter & c0) : 
+      c0_(c0.ptr()) {
     }
     Polynomial(double c0) : 
       c0_(new double(c0)) {
-    }
-    void setParameters(const double * c) {
-      *c0_ = *c; 
-    }
-    void setParameters(double c0) {
-      *c0_ = c0;
     }
     double operator()(double x) const {
       return *c0_;
@@ -76,22 +76,20 @@ namespace function {
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c), poly_(c + 1) {
     }
+    Polynomial(const Parameter * c) : 
+      c0_(c->ptr()), poly_(c + 1) {
+    }
     Polynomial(const double * c) : 
       c0_(new double(*c)), poly_(c + 1) {
-    }
-    void setParameters(const double * c) {
-      *c0_ = *c; 
-      poly_.setParameters(c + 1);
     }
     Polynomial(boost::shared_ptr<double> c0, boost::shared_ptr<double> c1) : 
       c0_(c0), poly_(c1) {
     }
+    Polynomial(const Parameter& c0, const Parameter& c1) : 
+      c0_(c0.ptr()), poly_(c1.ptr()) {
+    }
     Polynomial(double c0, double c1) : 
       c0_(new double(c0)), poly_(c1) {
-    }
-    void setParameters(double c0, double c1) {
-      *c0_ = c0; 
-      poly_.setParameters(c1);
     }
     double operator()(double x) const {
       return *c0_ + x*poly_(x);
@@ -112,20 +110,16 @@ namespace function {
     Polynomial(const double * c) : 
       c0_(new double(*c)), poly_(c + 1) {
     }
-    void setParameters(const double * c) {
-      *c0_ = *c; 
-      poly_.setParameters(c + 1);
-    }
     Polynomial(boost::shared_ptr<double> c0, 
 	       boost::shared_ptr<double> c1, 
 	       boost::shared_ptr<double> c2) : c0_(c0), poly_(c1, c2) {
     }
+    Polynomial(const Parameter &c0, 
+	       const Parameter &c1, 
+	       const Parameter &c2) : c0_(c0.ptr()), poly_(c1, c2) {
+    }
     Polynomial(double c0, double c1, double c2) : 
       c0_(new double(c0) ), poly_(c1, c2) {
-    }
-    void setParameters(double c0, double c1, double c2) {
-      *c0_ = c0; 
-      poly_.setParameters(c1, c2);
     }
     double operator()(double x) const {
       return *c0_ + x*poly_(x);

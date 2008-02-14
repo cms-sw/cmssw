@@ -1,8 +1,9 @@
 #include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "PhysicsTools/Utilities/interface/Product.h"
-#include "PhysicsTools/Utilities/interface/Polynomial.h"
+#include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/RootFunctionAdapter.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -16,23 +17,16 @@ using namespace boost;
 
 int main() { 
   gROOT->SetStyle("Plain");
-  string names[] = { 
-    "Yield", 
-    "mass", 
-    "Gamma" 
-  };
-  shared_ptr<double> 
-    Yield(new double(6000)), 
-    mass(new double(91.3)), 
-    Gamma(new double(2.5));
-  function::BreitWigner bw(mass, Gamma);
-  typedef function::Polynomial<0> Constant;
-  Constant c(Yield);
-  typedef function::Product<Constant, function::BreitWigner> FitFunction;
+  function::Parameter yield("Yield", 10000);
+  function::Parameter mass("Mass", 91.2);
+  function::Parameter gamma("Gamma", 2.5);
+  function::BreitWigner bw(mass, gamma);
+  function::Constant c(yield);
+  typedef function::Product<function::Constant, function::BreitWigner> FitFunction;
   FitFunction f(c, bw);
-  TF1 fun = root::tf1("fun", f, 0, 200, Yield, mass, Gamma);
+  TF1 fun = root::tf1("fun", f, 0, 200, yield, mass, gamma);
   TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
-  histo.FillRandom("fun", 10000);
+  histo.FillRandom("fun", yield);
   TCanvas canvas;
   fun.Draw();
   canvas.SaveAs("breitWigned.eps");
@@ -43,9 +37,9 @@ int main() {
   int ndof = chi2.degreesOfFreedom();
   cout << "N. deg. of freedom: " << ndof << endl;
   fit::RootMinuit<ChiSquared> minuit(3, chi2, true);
-  minuit.setParameter(0, names[0], Yield, 10, 100, 100000);
-  minuit.setParameter(1, names[1], mass, .1, 70., 110);
-  minuit.setParameter(2, names[2], Gamma, 1, 1, 10);
+  minuit.setParameter(0, yield, 10, 100, 100000);
+  minuit.setParameter(1, mass, .1, 70., 110);
+  minuit.setParameter(2, gamma, 1, 1, 10);
   //double amin =
   minuit.minimize();
   return 0;

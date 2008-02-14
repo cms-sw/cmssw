@@ -9,10 +9,6 @@ namespace function {
     enum { parameters = 2 };
     GammaZInterference(boost::shared_ptr<double> m, boost::shared_ptr<double> g): mass(m), width(g) {}
     GammaZInterference(double m, double g): mass(new double(m)), width(new double(g)) {}
-    void setParameters(double m, double g) { 
-      *mass = m;
-      *width = g;
-    }
     double operator()(double x) const { 
       double m2 = *mass * (*mass); 
       double g2 = *width * (*width);

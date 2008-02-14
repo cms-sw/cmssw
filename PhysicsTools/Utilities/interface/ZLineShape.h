@@ -16,17 +16,7 @@ namespace function {
 	       boost::shared_ptr<double> Ni)
       : mass(m), width(g), Ngamma(Ng), Nint(Ni), bw_(m, g), gp_(), gzi_(m, g) {}
     ZLineShape(double m, double g, double Ng, double Ni)
-      : mass(new double(m)), width(new double(g)), Ngamma(new double(Ng)), Nint(new double(Ni)), bw_(m, g), gp_(), gzi_(m, g) {}
-    void setParameters(double m, double g, double Ng, double Ni) {
-      *mass = m;
-      *width = g;
-      *Ngamma = Ng;
-      *Nint = Ni;
-      bw_.setParameters(m, g);
-      gp_.setParameters();
-      gzi_.setParameters(m, g);
-    }
-    double operator()(double x) const {
+      : mass(new double(m)), width(new double(g)), Ngamma(new double(Ng)), Nint(new double(Ni)), bw_(m, g), gp_(), gzi_(m, g) {}    double operator()(double x) const {
       return (1.0 - *Nint - *Ngamma) * bw_(x) + *Ngamma * gp_(x) + *Nint * gzi_(x);
   }
     boost::shared_ptr<double> mass, width, Ngamma, Nint; 
