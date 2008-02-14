@@ -112,5 +112,11 @@
    <class name="edm::reftobase::Holder<pat::METType, pat::METTypeRef>" />
    <class name="edm::reftobase::Holder<pat::METType, pat::METRef>" />
    <class name="edm::reftobase::RefHolder<pat::METRef>" />
+   <class name="edm::RefToBase<pat::ParticleType>" />
+   <class name="edm::reftobase::BaseHolder<pat::ParticleType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::ParticleType>" />
+   <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>" />
+   <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
 </lcgdict>
 

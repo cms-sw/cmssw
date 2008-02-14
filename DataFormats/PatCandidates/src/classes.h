@@ -160,5 +160,10 @@ namespace {
     edm::reftobase::Holder<pat::METType, pat::METTypeRef> rbh1MET;
     edm::reftobase::Holder<pat::METType, pat::METRef>     rbh2MET;
     edm::reftobase::RefHolder<pat::METRef> rhMET;
+    edm::RefToBase<pat::ParticleType>  rbParticle;
+    edm::reftobase::IndirectHolder<pat::ParticleType> rbihParticle;
+    edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef> rbh1Particle;
+    edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>     rbh2Particle;
+    edm::reftobase::RefHolder<pat::ParticleRef> rhParticle;
   }
 }
