@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/06/15 12:30:49 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/02/13 13:53:55 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -113,8 +113,6 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     }
   }
   
-  //  NavigationSetter setter(*muonNavigationSchool());
-
   // Propagators
   theChangeInTrackingComponentsRecord = false;
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
