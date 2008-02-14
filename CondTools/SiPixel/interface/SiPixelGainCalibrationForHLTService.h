@@ -18,17 +18,16 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h" 
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
 
-class SiPixelGainCalibrationForHLTService : public SiPixelGainCalibrationServiceBase<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>
+class SiPixelGainCalibrationForHLTService : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>
 {
 
  public:
-  explicit SiPixelGainCalibrationForHLTService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServiceBase<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>(conf){};
+  explicit SiPixelGainCalibrationForHLTService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>(conf){};
   ~SiPixelGainCalibrationForHLTService(){};
 
   // column granularity
-  float   getPedestal (const uint32_t& detID,const int& col) {return this->getPedestalByColumn(detID, col);};
-  float   getGain     (const uint32_t& detID,const int& col) {return this->getGainByColumn(detID, col);};
-
+  float   getPedestal (const uint32_t& detID,const int& col, const int& row = 0) {return this->getPedestalByColumn(detID, col);};
+  float   getGain     (const uint32_t& detID,const int& col, const int& row = 0) {return this->getGainByColumn(detID, col);};
 
 };
 #endif

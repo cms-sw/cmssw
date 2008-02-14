@@ -116,7 +116,7 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
          SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
        }
 
-       SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
+       SiPixelGainCalibrationForHLT::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
        if( !SiPixelGainCalibration_->put(detid,range) )
 	 edm::LogError("SiPixelCondObjForHLTBuilder")<<"[SiPixelCondObjForHLTBuilder::analyze] detid already exists"<<std::endl;
      }

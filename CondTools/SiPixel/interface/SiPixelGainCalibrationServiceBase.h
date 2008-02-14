@@ -23,27 +23,36 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <utility>
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h" 
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h" 
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineRcd.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h" 
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
-
-template<class thePayloadObject, class theDBRecordType>
+// Abstract base class provides common to different payload getters 
 class SiPixelGainCalibrationServiceBase {
+   public:
+      SiPixelGainCalibrationServiceBase(){};
+      virtual ~SiPixelGainCalibrationServiceBase(){};
+      virtual float getGain(const uint32_t& detID, const int& col, const int& row)=0;
+      virtual float getPedestal(const uint32_t& detID, const int& col, const int& row)=0;
+      virtual void  setESObjects(const edm::EventSetup& es )=0;
+      virtual std::vector<uint32_t> getDetIds()=0;
+};
+
+
+// Abstract template class that defines DB access types and payload specific getters
+template<class thePayloadObject, class theDBRecordType>
+class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibrationServiceBase {
 
  public:
-  explicit SiPixelGainCalibrationServiceBase(const edm::ParameterSet& conf);
-  ~SiPixelGainCalibrationServiceBase(){};
+  explicit SiPixelGainCalibrationServicePayloadGetter(const edm::ParameterSet& conf);
+  virtual ~SiPixelGainCalibrationServicePayloadGetter(){};
+
+  //Abstract methods
+  virtual float getGain(const uint32_t& detID, const int& col, const int& row)=0;
+  virtual float getPedestal(const uint32_t& detID, const int& col, const int& row)=0;
 
   void    setESObjects(const edm::EventSetup& es );
 
   std::vector<uint32_t> getDetIds();
 
  protected:
+
   float   getPedestalByPixel(const uint32_t& detID,const int& col, const int& row) ;
   float   getGainByPixel(const uint32_t& detID,const int& col, const int& row) ;
   float   getPedestalByColumn(const uint32_t& detID,const int& col) ;
@@ -61,18 +70,18 @@ class SiPixelGainCalibrationServiceBase {
 };
 
 template<class thePayloadObject, class theDBRecordType>
-SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::SiPixelGainCalibrationServiceBase(const edm::ParameterSet& conf):
+SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::SiPixelGainCalibrationServicePayloadGetter(const edm::ParameterSet& conf):
   conf_(conf),
   ESetupInit_(false)
 {
 
-  edm::LogInfo("SiPixelGainCalibrationServiceBase")  << "[SiPixelGainCalibrationServiceBase::SiPixelGainCalibrationServiceBase]";
+  edm::LogInfo("SiPixelGainCalibrationServicePayloadGetter")  << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]";
   old_detID = 0;
 
 }
 
 template<class thePayloadObject, class theDBRecordType>
-void SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::setESObjects( const edm::EventSetup& es ) {
+void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::setESObjects( const edm::EventSetup& es ) {
 
     es.get<theDBRecordType>().get(ped);
     ESetupInit_ = true;
@@ -80,7 +89,7 @@ void SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::setESO
 }
 
 template<class thePayloadObject, class theDBRecordType>
-std::vector<uint32_t> SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getDetIds() {
+std::vector<uint32_t> SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getDetIds() {
 
   std::vector<uint32_t> vdetId_;  
   ped->getDetIds(vdetId_);
@@ -89,7 +98,7 @@ std::vector<uint32_t> SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRe
 }
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getPedestalByPixel(const uint32_t& detID,const int& col, const int& row) { 
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByPixel(const uint32_t& detID,const int& col, const int& row) { 
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -103,12 +112,12 @@ float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getPe
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
       return  ped->getPed(col, row, old_range, old_cols);
   } else throw cms::Exception("NullPointer")
-    << "[SiPixelGainCalibrationServiceBase::getPedestalByPixel] SiPixelGainCalibrationRcd not initialized ";
+    << "[SiPixelGainCalibrationServicePayloadGetter::getPedestalByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getGainByPixel(const uint32_t& detID,const int& col, const int& row) {
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByPixel(const uint32_t& detID,const int& col, const int& row) {
   
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
@@ -122,12 +131,12 @@ float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getGa
     }
     return ped->getGain(col, row, old_range, old_cols);
   } else throw cms::Exception("NullPointer")
-    << "[SiPixelGainCalibrationServiceBase::getGainByPixel] SiPixelGainCalibrationRcd not initialized ";
+    << "[SiPixelGainCalibrationServicePayloadGetter::getGainByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getPedestalByColumn(const uint32_t& detID,const int& col) { 
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByColumn(const uint32_t& detID,const int& col) { 
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -141,12 +150,12 @@ float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getPe
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
       return  ped->getPed(col, old_range, old_cols);
   } else throw cms::Exception("NullPointer")
-    << "[SiPixelGainCalibrationServiceBase::getPedestalByColumn] SiPixelGainCalibrationRcd not initialized ";
+    << "[SiPixelGainCalibrationServicePayloadGetter::getPedestalByColumn] SiPixelGainCalibrationRcd not initialized ";
 }
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getGainByColumn(const uint32_t& detID,const int& col) {
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByColumn(const uint32_t& detID,const int& col) {
   
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
@@ -160,7 +169,7 @@ float SiPixelGainCalibrationServiceBase<thePayloadObject,theDBRecordType>::getGa
     }
     return ped->getGain(col, old_range, old_cols);
   } else throw cms::Exception("NullPointer")
-    << "[SiPixelGainCalibrationServiceBase::getGainByColumn] SiPixelGainCalibrationRcd not initialized ";
+    << "[SiPixelGainCalibrationServicePayloadGetter::getGainByColumn] SiPixelGainCalibrationRcd not initialized ";
 }
 
 

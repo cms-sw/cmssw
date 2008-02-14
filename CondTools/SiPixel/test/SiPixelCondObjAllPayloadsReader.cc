@@ -1,20 +1,30 @@
 #include <memory>
 
-#include "CondTools/SiPixel/test/SiPixelCondObjOfflineReader.h"
+#include "CondTools/SiPixel/test/SiPixelCondObjAllPayloadsReader.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 namespace cms{
-SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf): 
+SiPixelCondObjAllPayloadsReader::SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& conf): 
     conf_(conf),
-    filename_(conf.getParameter<std::string>("fileName")),
-    SiPixelGainCalibrationService_(conf)
+    filename_(conf.getParameter<std::string>("fileName"))
 {
+   std::string payloadType = conf.getParameter<std::string>("payloadType");
+   if (strcmp(payloadType.c_str(), "HLT") == 0)
+   {
+      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationForHLTService(conf);
+   } else if (strcmp(payloadType.c_str(), "Offline") == 0)
+   {
+      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationOfflineService(conf);
+   } else if (strcmp(payloadType.c_str(), "Full") == 0)
+   {
+      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationService(conf);
+   }
 }
 
 void
-SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+SiPixelCondObjAllPayloadsReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   unsigned int nmodules = 0;
   uint32_t nchannels = 0;
@@ -22,19 +32,19 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 
   // Get the Geometry
   iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );     
-  edm::LogInfo("SiPixelCondObjOfflineReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
+  edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
   
   // Get the calibration data
   //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  //edm::LogInfo("SiPixelCondObjOfflineReader") << "[SiPixelCondObjOfflineReader::analyze] End Reading CondObjOfflineects" << std::endl;
-  //SiPixelGainCalibrationService_.setESObjOfflineects(iSetup);
+  //edm::LogInfo("SiPixelCondObjAllPayloadsReader") << "[SiPixelCondObjAllPayloadsReader::analyze] End Reading CondObjects" << std::endl;
+  //SiPixelGainCalibrationService_.setESObjects(iSetup);
 
   //  for(TrackerGeometry::DetContainer::const_iterator it = tkgeom->dets().begin(); it != tkgeom->dets().end(); it++){
   //   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
   //     uint32_t detid=((*it)->geographicalId()).rawId();
   // Get the list of DetId's
   
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_->getDetIds();
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
     uint32_t detid = *detid_iter;
@@ -53,22 +63,25 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     // Get the module sizes.
     int nrows = topol.nrows();      // rows in x
     int ncols = topol.ncolumns();   // cols in y
-
+    
     for(int col_iter=0; col_iter<ncols; col_iter++) {
-       float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter);
-       g_iter->second->Fill( gain );
-       nchannels++;
-       for(int row_iter=0; row_iter<nrows; row_iter++) {
-          nchannels++;
-          float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
-          p_iter->second->Fill( ped );
-       }
-       //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+      for(int row_iter=0; row_iter<nrows; row_iter++) {
+	nchannels++;
+
+	float ped  = SiPixelGainCalibrationService_->getPedestal(detid, col_iter, row_iter);
+	p_iter->second->Fill( ped );
+
+	float gain  = SiPixelGainCalibrationService_->getGain(detid, col_iter, row_iter);
+	g_iter->second->Fill( gain );
+
+	//std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+	   
+      }
     }
   }
   
-  edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
-  edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Channels (i.e. Number of Columns)" << nchannels << std::endl;
+  edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<"[SiPixelCondObjAllPayloadsReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
+  edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<"[SiPixelCondObjAllPayloadsReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
   fFile->ls();
   fFile->Write();
   fFile->Close();    
@@ -76,10 +89,10 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelCondObjAllPayloadsReader::beginJob(const edm::EventSetup& iSetup)
 {
 
-  edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::beginJob] Opening ROOT file  " <<std::endl;
+  edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<"[SiPixelCondObjAllPayloadsReader::beginJob] Opening ROOT file  " <<std::endl;
   fFile = new TFile(filename_.c_str(),"RECREATE");
   fFile->mkdir("Pedestals");
   fFile->mkdir("Gains");
@@ -92,10 +105,10 @@ SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
   // Get the calibration data
   //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
   //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  SiPixelGainCalibrationService_.setESObjects(iSetup);
-  edm::LogInfo("SiPixelCondObjOfflineReader") << "[SiPixelCondObjOfflineReader::beginJob] End Reading CondObjOfflineects" << std::endl;
+  SiPixelGainCalibrationService_->setESObjects(iSetup);
+  edm::LogInfo("SiPixelCondObjAllPayloadsReader") << "[SiPixelCondObjAllPayloadsReader::beginJob] End Reading CondObjects" << std::endl;
   // Get the list of DetId's
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_->getDetIds();
   //SiPixelGainCalibration_->getDetIds(vdetId_);
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
@@ -103,7 +116,7 @@ SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
     
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
     if (_PixelGeomDetUnit==0){
-      edm::LogError("SiPixelCondObjOfflineDisplay")<<"[SiPixelCondObjOfflineReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
+      edm::LogError("SiPixelCondObjDisplay")<<"[SiPixelCondObjAllPayloadsReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
       continue;
     }     
     // Book histograms
@@ -119,7 +132,7 @@ SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelCondObjOfflineReader::endJob() {
+SiPixelCondObjAllPayloadsReader::endJob() {
   std::cout<<" ---> End job "<<std::endl;
 }
 }

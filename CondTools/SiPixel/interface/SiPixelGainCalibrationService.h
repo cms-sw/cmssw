@@ -18,11 +18,11 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h" 
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
 
-class SiPixelGainCalibrationService : public SiPixelGainCalibrationServiceBase<SiPixelGainCalibration,SiPixelGainCalibrationRcd>
+class SiPixelGainCalibrationService : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibration,SiPixelGainCalibrationRcd>
 {
 
  public:
-  explicit SiPixelGainCalibrationService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServiceBase<SiPixelGainCalibration,SiPixelGainCalibrationRcd>(conf){};
+  explicit SiPixelGainCalibrationService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibration,SiPixelGainCalibrationRcd>(conf){};
   ~SiPixelGainCalibrationService(){};
 
   // pixel granularity

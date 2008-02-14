@@ -114,7 +114,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
          //only fill by column
        }
 
-       SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
+       SiPixelGainCalibrationOffline::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
        if( !SiPixelGainCalibration_->put(detid,range, ncols) )
 	 edm::LogError("SiPixelCondObjOfflineBuilder")<<"[SiPixelCondObjOfflineBuilder::analyze] detid already exists"<<std::endl;
      }
