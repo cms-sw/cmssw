@@ -96,7 +96,7 @@ DQMNet::losePeer(const char *reason,
   Socket *s = peer->socket;
 
   for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
-    if (*i == peer)
+    if (i->peer == peer)
       waiting_.erase(i++);
     else
       ++i;
@@ -119,11 +119,6 @@ DQMNet::losePeer(const char *reason,
 void
 DQMNet::requestObject(Peer *p, const char *name, size_t len)
 {
-  // FIXME: Should we automatically record which exact peer the waiter
-  // is expecting to deliver data so we know to release the waiter if
-  // the other peer vanishes?  The current implementation stands a
-  // chance for the waiter to wait indefinitely -- although we do
-  // force terminate the wait after a while.
   Bucket **msg = &p->sendq;
   while (*msg)
     msg = &(*msg)->next;
@@ -143,17 +138,15 @@ DQMNet::requestObject(Peer *p, const char *name, size_t len)
 void
 DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner)
 {
-  assert (p->waitobj.empty());
-  assert (p->waitinfo.empty());
-  assert (! p->waitreq);
-  assert (std::find(waiting_.begin(), waiting_.end(), p) == waiting_.end());
-
-  p->waitobj = name;
-  p->waitinfo = info;
-  p->waitreq = Time::current();
-
+  // FIXME: Should we automatically record which exact peer the waiter
+  // is expecting to deliver data so we know to release the waiter if
+  // the other peer vanishes?  The current implementation stands a
+  // chance for the waiter to wait indefinitely -- although we do
+  // force terminate the wait after a while.
   requestObject(owner, name.size() ? &name[0] : 0, name.size());
-  waiting_.push_back(p);
+  WaitObject wo = { Time::current(), name, info, p };
+  waiting_.push_back(wo);
+  p->waiting++;
 }
 
 // Once an object has been updated, this is invoked for all waiting
@@ -161,19 +154,17 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, P
 void
 DQMNet::releaseFromWait(WaitList::iterator i, Object *o)
 {
-  Peer *p = *i;
-  Bucket **msg = &p->sendq;
+  Bucket **msg = &i->peer->sendq;
   while (*msg)
     msg = &(*msg)->next;
   *msg = new Bucket;
   (*msg)->next = 0;
 
-  releaseFromWait(*msg, *p, o);
+  releaseFromWait(*msg, *i, o);
 
+  assert(i->peer->waiting > 0);
+  i->peer->waiting--;
   waiting_.erase(i);
-  p->waitobj.clear();
-  p->waitinfo.clear();
-  p->waitreq = 0;
 }
 
 // Release everyone waiting for the object @a o.
@@ -181,7 +172,7 @@ void
 DQMNet::releaseWaiters(Object *o)
 {
   for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
-    if ((*i)->waitobj == o->name)
+    if (i->name == o->name)
       releaseFromWait(i++, o);
     else
       ++i;
@@ -375,20 +366,20 @@ DQMNet::shouldStop(void)
 // Once an object has been updated, this is invoked for all waiting
 // peers.  Send the requested object to the waiting peer.
 void
-DQMNet::releaseFromWait(Bucket *msg, Peer &p, Object *o)
+DQMNet::releaseFromWait(Bucket *msg, WaitObject &w, Object *o)
 {
   if (o)
     sendObjectToPeer (msg, *o, true, sendScalarAsText_);
   else
   {
     uint32_t words [3];
-    words[0] = sizeof(words) + p.waitobj.size();
+    words[0] = sizeof(words) + w.name.size();
     words[1] = DQM_REPLY_NONE;
-    words[2] = p.waitobj.size();
+    words[2] = w.name.size();
 
     msg->data.reserve(msg->data.size() + words[0]);
     copydata(msg, &words[0], sizeof(words));
-    copydata(msg, &p.waitobj[0], p.waitobj.size());
+    copydata(msg, &w.name[0], w.name.size());
   }
 }
 
@@ -861,7 +852,8 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
     // Process fully received messages as long as we can.
     size_t consumed = 0;
     DataBlob &data = p->incoming;
-    while (data.size()-consumed >= sizeof(uint32_t) && !p->waitreq)
+    while (data.size()-consumed >= sizeof(uint32_t)
+	   && p->waiting < MAX_PEER_WAITREQS)
     {
       uint32_t msglen;
       memcpy (&msglen, &data[0]+consumed, sizeof(msglen));
@@ -1010,7 +1002,7 @@ DQMNet::updateMask(Peer *p)
 
   // If we have nothing more to send and are no longer listening
   // for reads, close up the shop for this peer.
-  if (p->mask == IOUrgent && ! p->waitreq)
+  if (p->mask == IOUrgent && ! p->waiting)
   {
     assert (! p->sendq);
     if (debug_)
@@ -1343,8 +1335,8 @@ DQMNet::run(void)
     for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
       // If the peer has waited for too long, send something.
-      if ((*i)->waitreq < waitold)
-	releaseFromWait(i++, findObject(0, (*i)->waitobj));
+      if (i->time < waitold)
+	releaseFromWait(i++, findObject(0, i->name));
 
       // Keep it for now.
       else
@@ -1390,24 +1382,9 @@ DQMNet::sendLocalChanges(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */)
-  : DQMNet (appname)
+  : DQMImplNet<DQMNet::Object>(appname)
 {
-  local_ = static_cast<BasicPeer *>(createPeer((Socket *) -1));
-}
-
-DQMBasicNet::~DQMBasicNet(void)
-{
-  PeerMap::iterator pi, pe;
-  ObjectMap::iterator oi, oe;
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-    {
-      Object &o = oi->second;
-      delete o.object;
-      delete o.reference;
-      o.object = 0;
-      o.reference = 0;
-    }
+  local_ = static_cast<ImplPeer *>(createPeer((Socket *) -1));
 }
 
 int
@@ -1420,7 +1397,7 @@ DQMBasicNet::receive(DaqMonitorBEInterface *bei)
   ObjectMap::iterator oi, oe;
   for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
   {
-    BasicPeer &p = pi->second;
+    ImplPeer &p = pi->second;
     if (&p == local_)
       continue;
 
@@ -1449,102 +1426,6 @@ DQMBasicNet::receive(DaqMonitorBEInterface *bei)
   unlock();
 
   return updates;
-}
-
-DQMNet::Object *
-DQMBasicNet::findObject(Peer *p, const std::string &name, Peer **owner /* = 0 */)
-{
-  if (owner)
-    *owner = 0;
-  if (p)
-  {
-    BasicPeer *bp = static_cast<BasicPeer *>(p);
-    ObjectMap::iterator pos = bp->objs.find(name);
-    if (pos == bp->objs.end())
-      return 0;
-    else
-    {
-      if (owner) *owner = p;
-      return &pos->second;
-    }
-  }
-  else
-  {
-    for (PeerMap::iterator i = peers_.begin(), e = peers_.end(); i != e; ++i)
-    {
-      ObjectMap::iterator pos = i->second.objs.find(name);
-      if (pos != i->second.objs.end())
-      {
-	if (owner) *owner = &i->second;
-	return &pos->second;
-      }
-    }
-    return 0;
-  }
-}
-
-DQMNet::Object *
-DQMBasicNet::makeObject(Peer *p, const std::string &name)
-{
-  BasicPeer *bp = static_cast<BasicPeer *>(p);
-  Object *o = &bp->objs[name];
-  o->version = 0;
-  o->name = name;
-  o->object = 0;
-  o->reference = 0;
-  o->flags = 0;
-  o->lastreq = 0;
-  return o;
-}
- 
-// Mark all objects as dead.
-void
-DQMBasicNet::markAllObjectsDead(Peer *p)
-{
-  BasicPeer *bp = static_cast<BasicPeer *>(p);
-  for (ObjectMap::iterator i = bp->objs.begin(), e = bp->objs.end(); i != e; ++i)
-    i->second.flags |= DQM_FLAG_DEAD;
-}
-
-// Purge all old and dead objects.
-void
-DQMBasicNet::purgeDeadObjects(Time oldobj, Time deadobj)
-{
-  PeerMap::iterator pi, pe;
-  ObjectMap::iterator oi, oe;
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; )
-    {
-      Object &o = oi->second;
-
-      // Compact non-scalar objects that are unused.  We send scalar
-      // objects to the web server so we keep them around.
-      if (o.lastreq < oldobj && o.object && ! (o.flags & DQM_FLAG_SCALAR))
-      {
-	if (debug_)
-	  logme()
-	    << "DEBUG: compacting idle '" << o.name
-	    << "' from " << pi->second.peeraddr << std::endl;
-
-	delete o.object;
-	delete o.reference;
-	o.object = 0;
-	o.reference = 0;
-      }
-
-      // Remove if dead and unused.
-      if (o.lastreq < deadobj && (o.flags & DQM_FLAG_DEAD))
-      {
-	if (debug_)
-	  logme()
-	    << "DEBUG: removing dead '" << o.name
-	    << "' from " << pi->second.peeraddr << std::endl;
-
-	pi->second.objs.erase(oi++);
-      }
-      else
-	++oi;
-    }
 }
 
 /// Update the network cache for an object.  The caller must call
@@ -1579,118 +1460,12 @@ DQMBasicNet::removeLocalObject(const std::string &path)
   local_->objs.erase(path);
 }
 
-DQMNet::Peer *
-DQMBasicNet::getPeer(lat::Socket *s)
-{
-  PeerMap::iterator pos = peers_.find(s);
-  return pos == peers_.end() ? 0 : &pos->second;
-}
-
-DQMNet::Peer *
-DQMBasicNet::createPeer(lat::Socket *s)
-{
-  BasicPeer *p = &peers_[s];
-  p->socket = 0;
-  p->sendq = 0;
-  p->sendpos = 0;
-  p->mask = 0;
-  p->source = false;
-  p->update = false;
-  p->updated = false;
-  p->updatefull = false;
-  p->waitreq = 0;
-  p->automatic = 0;
-  return p;
-}
-
-void
-DQMBasicNet::removePeer(Peer *p, lat::Socket *s)
-{
-  BasicPeer *bp = static_cast<BasicPeer *>(p);
-  bool needflush = ! bp->objs.empty();
-
-  for (ObjectMap::iterator i = bp->objs.begin(), e = bp->objs.end(); i != e; )
-  {
-    Object &o = i->second;
-    delete o.object;
-    delete o.reference;
-    bp->objs.erase(i++);
-  }
-
-  peers_.erase(s);
-
-  // If we removed a peer with objects, our list of objects
-  // has changed and we need to update downstream peers.
-  if (needflush)
-    sendLocalChanges();
-}
-
-/// Send all objects to a peer and optionally mark sent objects old.
-void
-DQMBasicNet::sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear)
-{
-  PeerMap::iterator pi, pe;
-  ObjectMap::iterator oi, oe;
-  uint32_t numobjs = 0;
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    numobjs += pi->second.objs.size();
-
-  msg->data.reserve(msg->data.size() + 300*numobjs);
-
-  uint32_t nupdates = 0;
-  uint32_t words [4];
-  words[0] = sizeof(words);
-  words[1] = DQM_REPLY_LIST_BEGIN;
-  words[2] = numobjs;
-  words[3] = all;
-  DQMNet::copydata(msg, &words[0], sizeof(words));
-
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-      if (all || (oi->second.flags & DQM_FLAG_NEW))
-      {
-	sendObjectToPeer(msg, oi->second, data, sendScalarAsText_);
-	if (clear)
-	  oi->second.flags &= ~DQM_FLAG_NEW;
-	++nupdates;
-      }
-
-  words[1] = DQM_REPLY_LIST_END;
-  words[2] = nupdates;
-  copydata(msg, &words[0], sizeof(words));
-}
-
-void
-DQMBasicNet::sendObjectListToPeers(bool all)
-{
-  for (PeerMap::iterator i = peers_.begin(), e = peers_.end(); i != e; ++i)
-  {
-    BasicPeer &p = i->second;
-    if (! p.update)
-      continue;
-
-    if (debug_)
-      logme()
-	<< "DEBUG: notifying " << p.peeraddr
-	<< ", full = " << p.updatefull << std::endl;
-
-    Bucket **msg = &p.sendq;
-    while (*msg)
-      msg = &(*msg)->next;
-    *msg = new Bucket;
-    (*msg)->next = 0;
-
-    sendObjectListToPeer(*msg, p.updatefull, !p.updated || all, true);
-    p.updated = true;
-  }
-}
-
 void
 DQMBasicNet::requestFullUpdatesFromPeers(void)
 {
   for (PeerMap::iterator i = peers_.begin(), e = peers_.end(); i != e; ++i)
   {
-    BasicPeer &p = i->second;
+    ImplPeer &p = i->second;
     if (! p.source)
       continue;
 
@@ -1703,11 +1478,4 @@ DQMBasicNet::requestFullUpdatesFromPeers(void)
     uint32_t words[3] = { 3*sizeof(uint32_t), DQM_MSG_UPDATE_ME, 1 };
     copydata(*msg, words, sizeof(words));
   }
-}
-
-void
-DQMBasicNet::updatePeerMasks(void)
-{
-  for (PeerMap::iterator i = peers_.begin(), e = peers_.end(); i != e; )
-    updateMask(&(i++)->second);
 }
