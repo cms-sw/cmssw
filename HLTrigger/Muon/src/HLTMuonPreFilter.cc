@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //
 // constructors and destructor
 //
@@ -76,6 +76,10 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    iEvent.getByLabel (candTag_,mucands);
+   BeamSpot beamSpot;
+   Handle<BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   beamSpot = *recoBeamSpotHandle;
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
@@ -90,7 +94,8 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tk->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk->d0())>max_Dr_) continue;
+      //if (fabs(tk->d0())>max_Dr_) continue;
+      if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk->dz())>max_Dz_) continue;

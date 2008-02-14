@@ -22,6 +22,7 @@
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
 // constructors and destructor
@@ -93,7 +94,11 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    vector<L1MuonParticleRef> vl1cands;
    iEvent.getByLabel (linksTag_,museeds);
    previousLevelCands->getObjects(TriggerL1Mu,vl1cands);
-
+   BeamSpot beamSpot;
+   Handle<BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   beamSpot = *recoBeamSpotHandle;
+  
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
    RecoChargedCandidateCollection::const_iterator cand;
@@ -112,7 +117,8 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       if (tk->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk->d0())>max_Dr_) continue;
+      //if (fabs(tk->d0())>max_Dr_) continue;
+      if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk->dz())>max_Dz_) continue;

@@ -19,6 +19,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
 // constructors and destructor
@@ -84,11 +85,16 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    iEvent.getByLabel (candTag_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   BeamSpot beamSpot;
+   Handle<BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   beamSpot = *recoBeamSpotHandle;
+
 
    Handle<MuonTrackLinksCollection> mulinks; 
    vector<RecoChargedCandidateRef> vl2cands;
 
-   // needed to compare to L2
+   //needed to compare to L2
    iEvent.getByLabel (linksTag_,mulinks);
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
@@ -111,7 +117,8 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       if (tk->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk->d0())>max_Dr_) continue;
+      //if (fabs(tk->d0())>max_Dr_) continue;
+      if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk->dz())>max_Dz_) continue;

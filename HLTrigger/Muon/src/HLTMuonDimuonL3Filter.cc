@@ -20,6 +20,7 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "HLTrigger/Muon/interface/HLTMuonDimuonL3Filter.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -105,7 +106,11 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<MuonTrackLinksCollection> mulinks; 
    vector<RecoChargedCandidateRef> vl2cands;
-
+   BeamSpot beamSpot;
+   Handle<BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   beamSpot = *recoBeamSpotHandle;
+  
    // needed to compare to L3
    iEvent.getByLabel (linksTag_,mulinks);
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
@@ -131,7 +136,8 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tk1->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk1->d0())>max_Dr_) continue;
+      //      if (fabs(tk1->d0())>max_Dr_) continue;
+      if (fabs(tk1->dxy(beamSpot.position()))>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk1->dz())>max_Dz_) continue;
@@ -159,7 +165,8 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (tk2->numberOfValidHits()<min_Nhits_) continue;
 
             //dr cut
-            if (fabs(tk2->d0())>max_Dr_) continue;
+	    // if (fabs(tk2->d0())>max_Dr_) continue;
+	    if (fabs(tk2->dxy(beamSpot.position()))>max_Dr_) continue;
 
             //dz cut
             if (fabs(tk2->dz())>max_Dz_) continue;

@@ -18,6 +18,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+
+
 
 //
 // constructors and destructor
@@ -95,6 +99,11 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    iEvent.getByLabel (candTag_,mucands);
+   BeamSpot beamSpot;
+   Handle<BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   beamSpot = *recoBeamSpotHandle;
+  
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
@@ -114,7 +123,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tk1->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk1->d0())>max_Dr_) continue;
+      if (fabs(tk1->dxy(beamSpot.position()))>max_Dr_) continue;
+	  //if (fabs(tk1->d0())>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk1->dz())>max_Dz_) continue;
@@ -141,7 +151,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (tk2->numberOfValidHits()<min_Nhits_) continue;
 
             //dr cut
-            if (fabs(tk2->d0())>max_Dr_) continue;
+            //if (fabs(tk2->d0())>max_Dr_) continue;
+	    if (fabs(tk2->dxy(beamSpot.position()))>max_Dr_) continue;
 
             //dz cut
             if (fabs(tk2->dz())>max_Dz_) continue;
