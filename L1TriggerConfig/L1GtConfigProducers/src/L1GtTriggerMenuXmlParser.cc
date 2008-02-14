@@ -775,9 +775,9 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
         newLUT = newLUT | (bitValue << newBit);
 
-        LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number = " << oldBit
-                << "  new bit number = " << newBit << "\n  bit value = "
-                << bitValue << std::endl;
+        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number = " << oldBit
+        //        << "  new bit number = " << newBit << "\n  bit value = "
+        //        << bitValue << std::endl;
     }
 
     LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
