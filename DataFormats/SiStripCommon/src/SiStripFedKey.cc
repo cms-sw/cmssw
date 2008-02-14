@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.11 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.12 2008/02/06 14:32:54 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -482,6 +482,24 @@ void SiStripFedKey::initGranularity() {
     channel(sistrip::invalid_);
   }
   
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFedKey::terse( std::stringstream& ss ) const {
+  ss << " FedKey"
+    //<<"=0x" 
+    //<< std::hex
+    //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+    //<< std::dec
+    //<< ", " << ( isValid() ? "Valid" : "Invalid" )
+    //<< ", FedCrate=" << fedCrate()
+    //<< ", FedSlot=" << fedSlot()
+     << ", FedId=" << fedId()
+     << ", FeUnit=" << feUnit()
+     << ", FeChan=" << feChan()
+    //<< ", FedChannel=" << fedChannel()
+     << ", FedApv=" << fedApv();
 }
 
 // -----------------------------------------------------------------------------

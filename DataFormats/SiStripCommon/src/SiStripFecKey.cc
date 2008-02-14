@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.14 2008/01/22 18:46:07 muzaffar Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.15 2008/02/06 14:32:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -766,11 +766,12 @@ void SiStripFecKey::initGranularity() {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecKey::terse( std::stringstream& ss ) const {
-  ss << " FecKey=0x" 
-     << std::hex
-     << std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
-     << std::dec
-     << ", " << ( isValid() ? "Valid" : "Invalid" )
+  ss << " FecKey"
+    //<< "=0x" 
+    //<< std::hex
+    //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+    //<< std::dec
+    //<< ", " << ( isValid() ? "Valid" : "Invalid" )
      << ", Crate=" << fecCrate()
      << ", Slot=" << fecSlot()
      << ", Ring=" << fecRing()
@@ -778,19 +779,6 @@ void SiStripFecKey::terse( std::stringstream& ss ) const {
      << ", module=" << ccuChan()
      << ", LLD=" << lldChan()
      << ", I2C=" << i2cAddr();
-//   ss << " FecKey=0x"
-//      << std::hex 
-//      << std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
-//      << std::dec
-//      << ", IsValid="
-//      << std::boolalpha << std::setw(5) << isValid() << std::noboolalpha
-//      << ", Crate=" << std::setw(5) << fecCrate()
-//      << ", Slot=" << std::setw(5) << fecSlot()
-//      << ", Ring=" << std::setw(5) << fecRing()
-//      << ", CCU=" << std::setw(5) << ccuAddr()
-//      << ", module=" << std::setw(5) << ccuChan()
-//      << ", LLD=" << std::setw(5) << lldChan()
-//      << ", I2C=" << std::setw(5) << i2cAddr();
 }
 
 // -----------------------------------------------------------------------------

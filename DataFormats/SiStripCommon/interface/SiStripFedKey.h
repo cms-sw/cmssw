@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.h,v 1.11 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: SiStripFedKey.h,v 1.12 2008/02/06 14:32:47 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H
@@ -147,7 +147,7 @@ class SiStripFedKey : public SiStripKey {
   virtual void print( std::stringstream& ss ) const;
   
   /** A terse summary of the key  */
-  virtual void terse( std::stringstream& ss ) const {;}
+  virtual void terse( std::stringstream& ss ) const;
   
  private:
   

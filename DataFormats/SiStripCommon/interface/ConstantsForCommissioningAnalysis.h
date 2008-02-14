@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.7 2007/12/03 16:39:33 bainbrid Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.8 2007/12/19 17:56:25 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -24,7 +24,7 @@ namespace sistrip {
   
   // ---------- Fast FED cabling ----------
   
-  static const std::string fastCablingAnalysis_ = "FastFedCablingAnalysis";
+  static const std::string fastCablingAnalysis_ = "FastCablingAnalysis";
 
   // ---------- FED cabling ----------
   
