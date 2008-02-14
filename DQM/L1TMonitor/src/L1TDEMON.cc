@@ -244,11 +244,13 @@ L1TDEMON::endJob() {
   if(verbose())
     std::cout << "L1TDEMON::endJob Nevents: " << nEvt_ << "\n" << std::flush;
 
-  for(int i=1; i<sysrates->getNbinsX(); i++) {
-    double vali = sysrates->getBinContent(i)/nEvt_;
-    sysrates->setBinContent(i,vali);
+  if(verbose()) {
+    std::cout << "[L1TDEMON] systems disagreement rate:\n\t";
+    for(int i=0; i<DEnsys; i++)
+      printf("%4.2f ",sysrates->getBinContent(i));
+    std::cout << std::endl;  
   }
-  
+
   if(verbose()) {
     std::cout << "[L1TDEMON] verbose fill histo: ";
     for(int i=0; i<DEnsys; i++)
@@ -332,9 +334,20 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(!isComp[i]) continue;
     if(deMatch[i])
       deSysCount[i]++;
-    sysrates->Fill(i,(int)!deMatch[i]);
     for(int j=0; j<2; j++) 
       sysncand[j]->Fill(i,DEncand[i][j]);
+
+   //sysrates->Fill(i,(int)!deMatch[i]);
+    int ibin = i+1;
+    double rateb = sysrates->getBinContent(ibin);
+    double nerr = (nEvt_-1) * rateb;  
+    nerr += (int)!deMatch[i]; 
+    double rate = nerr / nEvt_;
+    sysrates->setBinContent(ibin,rate);
+    if(verbose() && rate>1)
+      std::cout << "problem, error rate for " << SystLabel[i] 
+		<<" is "<<sysrates->getBinContent(ibin)
+		<< std::endl;
   }
   
   // container for subsystem's leading candidate
