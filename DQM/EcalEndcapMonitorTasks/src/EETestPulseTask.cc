@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/01/22 19:47:15 $
- * $Revision: 1.33 $
+ * $Date: 2008/02/14 11:52:07 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -282,11 +282,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
 
-      int ic = Numbers::icEE(ism, ix, iy);
-
       int ism = Numbers::iSM( id );
- 
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
  
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -296,6 +292,8 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EETestPulseTask") << " det id = " << id;
       LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+
+      int ic = Numbers::icEE(ism, ix, iy);
 
       for (int i = 0; i < 10; i++) {
 

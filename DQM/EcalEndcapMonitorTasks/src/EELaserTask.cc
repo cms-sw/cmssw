@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/01/22 19:14:57 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/22 19:47:15 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -671,8 +671,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
-
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
