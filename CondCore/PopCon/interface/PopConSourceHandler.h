@@ -30,8 +30,35 @@ namespace popcon {
     typedef PopConSourceHandler<T> self;
     typedef std::vector<std::pair<T*, cond::Time_t> > Container;
     typedef cond::Time_t Time_t;
-    typedef cond::TypedRef<value_type> Ref; 
 
+    class Ref : public cond::TypedRef<value_type>  {
+    public:
+      Ref() : m_pooldb(0){}
+      Ref(cond::PoolTransaction& pooldb, std::string token) : 
+	cond::TypedRef<value_type>(pooldb,token), m_pooldb(&pooldb){
+	m_pooldb.start(true);
+      }
+      ~Ref() {
+	if (m_pooldb)
+	  m_pooldb.commit();
+      }
+
+      Ref(const Ref & ref) : 
+	cond::TypedRef<value_type>(ref), m_pooldb(ref.m_pooldb) {
+	ref.m_pooldb=0; // avoid commit;
+      }
+
+      Ref & operator=(const Ref & ref) {
+	cond::TypedRef<value_type>::operator=(ref);
+	m_pooldb = ref.m_pooldb;
+	ref.m_pooldb=0; // avoid commit;
+      }
+
+      mutable cond::PoolTransaction *m_pooldb;
+
+    };
+
+ 
     PopConSourceHandler(){}
     
     virtual ~PopConSourceHandler(){
@@ -41,9 +68,8 @@ namespace popcon {
     cond::TagInfo const & tagInfo() const { return  *m_tagInfo; }
 
     // return last paylod of the tag
-    value_type const & lastPayload() const {
-      const_cast<self*>(this)->loadPayload();
-      return *m_lastPayload;
+    Ref lastPayload() const {
+      return Ref(m_connection->poolTransaction(),tagInfo().lastPayloadToken);
     }
 
     // return last successful log entry for the tag in question
@@ -88,18 +114,6 @@ namespace popcon {
     }
 
 
-  private:
-
-    void loadPayload() {
-      if (m_lastPayload.ptr()) return;
-      cond::PoolTransaction& pooldb=m_connection->poolTransaction();
-      pooldb.start(true);
-      Ref instance(pooldb,tagInfo().lastPayloadToken);
-      m_lastPayload = instance; 
-      *m_lastPayload;// (get the object in memory....)
-      pooldb.commit();
-    }
-
     
   private:
     
@@ -109,7 +123,6 @@ namespace popcon {
     
     cond::LogDBEntry const * m_logDBEntry;
     
-    Ref m_lastPayload;
 
   protected:
     
