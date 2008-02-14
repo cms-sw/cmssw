@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.34 2008/02/10 23:27:39 wmtan Exp $
+$Id: Group.cc,v 1.35 2008/02/12 22:52:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -143,15 +143,27 @@ namespace edm {
   void
   Group::mergeGroup(Group * newGroup) {
 
-    if (productUnavailable() && !newGroup->productUnavailable()) {
-      provenance_->entryDescription()->mergeEntryDescription(newGroup->entryDescription());
-      status_ = productstatus::present();
-      dropped_ = false;
-      std::swap(product_, newGroup->product_);        
+    if (status() != newGroup->status()) {
+      throw edm::Exception(edm::errors::Unknown, "Merging")
+        << "Group::mergeGroup(), Trying to merge two run products or two lumi products.\n"
+        << "The products have different creation status's.\n"
+        << "For example \"present\" and \"notCreated\"\n"
+        << "The Framework does not currently support this and probably\n"
+        << "should not support this case.\n"
+        << "Likely a problem exists in the producer that created these\n"
+        << "products.  If this problem cannot be reasonably resolved by\n"
+        << "fixing the producer module, then contact the Framework development\n"
+        << "group with details so we can discuss whether and how to support this\n"
+        << "use case.\n"
+        << "className = " << provenance().className() << "\n"
+        << "moduleLabel = " << moduleLabel() << "\n"
+        << "instance = " << productInstanceName() << "\n"
+        << "process = " << processName() << "\n";
     }
-    else if (!productUnavailable() && !newGroup->productUnavailable()) {
 
-      provenance_->entryDescription()->mergeEntryDescription(newGroup->entryDescription());
+    provenance_->entryDescription()->mergeEntryDescription(newGroup->entryDescription());
+
+    if (!productUnavailable() && !newGroup->productUnavailable()) {
 
       if (product_->isMergeable()) {
         product_->mergeProduct(newGroup->product_.get());
@@ -179,9 +191,6 @@ namespace edm {
           << "instance = " << productInstanceName() << "\n"
           << "process = " << processName() << "\n";
       }
-    }
-    else {
-      provenance_->entryDescription()->mergeEntryDescription(newGroup->entryDescription());
     }
   }
 }
