@@ -92,12 +92,12 @@ namespace popcon {
 
     void loadPayload() {
       if (m_lastPayload.ptr()) return;
-      cond::PoolTransaction& pooldb=m_connection.poolTransaction();
-      pooldb->start(true);
+      cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+      pooldb.start(true);
       Ref instance(pooldb,tagInfo().lastPayloadToken);
       m_lastPayload = instance; 
       *m_lastPayload;// (get the object in memory....)
-      m_pooldb->commit();
+      pooldb.commit();
     }
 
     
