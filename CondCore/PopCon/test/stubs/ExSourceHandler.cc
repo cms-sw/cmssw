@@ -7,7 +7,7 @@
 
 namespace {
 
-  void fill(Pedestal & p, int nc) {
+  void fill(Pedestals & p, int nc) {
     p.reserve(nc);
     for(int ichannel=1; ichannel<=nc; ++ichannel){
       Pedestals::Item item;

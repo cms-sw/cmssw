@@ -43,7 +43,7 @@ namespace popcon {
     // return last paylod of the tag
     Ref lastPayload() {
       m_pooldb->start(true);
-      Ref instance(m_pooldb,tagInfo().lastPayloadToken);
+      Ref instance(*m_pooldb,tagInfo().lastPayloadToken);
       m_pooldb->commit();
       return instance;
     }
