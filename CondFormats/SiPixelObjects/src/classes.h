@@ -48,3 +48,5 @@ namespace{
   std::vector<SiPixelPerformanceSummary::DetSummary>::const_iterator spps2;
 }  
   
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"

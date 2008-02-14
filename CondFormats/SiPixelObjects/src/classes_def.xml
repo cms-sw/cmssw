@@ -46,4 +46,5 @@
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
 
+  <class name="SiPixelCalibConfiguration"/>
 </lcgdict>   
