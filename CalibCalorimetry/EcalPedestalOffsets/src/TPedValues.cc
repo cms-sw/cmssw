@@ -209,7 +209,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
           else if (gain ==1) gainHuman =6;
           else if (gain ==2) gainHuman =1;
           else               gainHuman =-1;
-          sprintf (name,"XTL%d_GAIN%d",(xtl+1),gainHuman) ;      
+          sprintf (name,"XTL%04d_GAIN%02d",(xtl+1),gainHuman) ;      
           graph.GetXaxis()->SetTitle("DAC value");
           graph.GetYaxis()->SetTitle("Average pedestal ADC");
           graph.Write (name);
