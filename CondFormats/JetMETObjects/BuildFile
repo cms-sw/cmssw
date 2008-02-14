@@ -3,5 +3,10 @@
 <use name=FWCore/Utilities>
 <export>
   <lib name=CondFormatsJetMETObjects>
+  <use name=FWCore/Utilities>
 </export>
 
+<<<<<<< BuildFile
+  
+=======
+>>>>>>> 1.4
