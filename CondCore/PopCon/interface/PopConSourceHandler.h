@@ -50,18 +50,18 @@ namespace popcon {
     cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
 
 
-    void initialize (cond::PoolTransaction& pooldb,
+    void initialize (cond::Connection* connection,
 		     cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
-      m_pooldb = &pooldb;
+      m_connection = connection;
       m_tagInfo = &tagInfo;
       m_logDBEntry = &logDBEntry;
     }
 
     // this is the only mandatory interface
-    Container const & operator()(cond::PoolTransaction& pooldb,
+    Container const & operator()(cond::Connection* connection,
 				 cond::TagInfo const & tagInfo, 
 				 cond::LogDBEntry const & logDBEntry) const {
-      const_cast<self*>(this)->initialize(pooldb, tagInfo, logDBEntry);
+      const_cast<self*>(this)->initialize(connection, tagInfo, logDBEntry);
       return const_cast<self*>(this)->returnData();
     }
     
@@ -92,8 +92,9 @@ namespace popcon {
 
     void loadPayload() {
       if (m_lastPayload.ptr()) return;
-      m_pooldb->start(true);
-      Ref instance(*m_pooldb,tagInfo().lastPayloadToken);
+      cond::PoolTransaction& pooldb=m_connection.poolTransaction();
+      pooldb->start(true);
+      Ref instance(pooldb,tagInfo().lastPayloadToken);
       m_lastPayload = instance; 
       *m_lastPayload;// (get the object in memory....)
       m_pooldb->commit();
@@ -102,7 +103,7 @@ namespace popcon {
     
   private:
     
-    cond::PoolTransaction * m_pooldb;
+    cond::Connection* m_connection;
 
     cond::TagInfo const * m_tagInfo;
     
