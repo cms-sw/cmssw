@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -15,6 +15,7 @@ using namespace sistrip;
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::APV_TIMING )
 {
+  factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -187,14 +188,14 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 	count += ii->second;
       }
       edm::LogWarning(mlDqmClient_) 
-	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< "[ApvTimingHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
 	<< ss.str();
     }
   } else {
     edm::LogWarning(mlDqmClient_) 
-      << "[FastFedCablingHistograms::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " No histograms to analyze!";
   }
   

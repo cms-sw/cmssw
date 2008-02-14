@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/VpspScanSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -15,6 +15,7 @@ using namespace sistrip;
 VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::VPSP_SCAN )
 {
+  factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -142,6 +143,10 @@ void VpspScanHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   LogTrace(mlDqmClient_)
     << "[VpspScanHistograms::" << __func__ << "]";
   
+  // Check view 
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
+
   // Analyze histograms if not done already
   if ( data().empty() ) { histoAnalysis( false ); }
 
@@ -154,7 +159,6 @@ void VpspScanHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   }
   
   // Extract data to be histogrammed
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
   uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Use base method to create summary histogram

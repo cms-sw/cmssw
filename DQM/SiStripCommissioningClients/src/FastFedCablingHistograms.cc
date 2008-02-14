@@ -1,11 +1,12 @@
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+
 
 using namespace std;
 using namespace sistrip;
@@ -15,6 +16,7 @@ using namespace sistrip;
 FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::FAST_CABLING )
 {
+  factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -107,8 +109,7 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
       }
       edm::LogWarning(mlDqmClient_) 
 	<< "[FastFedCablingHistograms::" << __func__ << "]"
-	<< " Found " << count << " errors ("
-	<< 100 * count / histos().size() << "%): " 
+	<< " Found " << count << " error strings: "
 	<< ss.str();
     }
   } else {
@@ -128,6 +129,10 @@ void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& m
   LogTrace(mlDqmClient_)
     << "[FastFedCablingHistograms::" << __func__ << "]";
   
+  // Check view 
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
+
   // Analyze histograms if not done already
   if ( data().empty() ) { histoAnalysis( false ); }
 
@@ -140,7 +145,6 @@ void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& m
   }
   
   // Extract data to be histogrammed
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
   uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Use base method to create summary histogram

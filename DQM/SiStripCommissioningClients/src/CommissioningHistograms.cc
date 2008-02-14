@@ -14,11 +14,11 @@ using namespace sistrip;
 /** */
 CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 						  const sistrip::RunType& task ) 
-  : task_(task),
+  : factory_(0),
+    task_(task),
     mui_(mui),
     bei_(0),
     data_(),
-    factory_( new Factory ),
     histos_()
 {
   LogTrace(mlDqmClient_)
@@ -47,11 +47,11 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 /** */
 CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
 						  const sistrip::RunType& task ) 
-  : task_(task),
+  : factory_(0),
+    task_(task),
     mui_(0),
     bei_(bei),
     data_(),
-    factory_( new Factory ),
     histos_()
 {
   LogTrace(mlDqmClient_)
@@ -71,11 +71,11 @@ CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::CommissioningHistograms() 
-  : task_(sistrip::UNDEFINED_RUN_TYPE),
+  : factory_(0),
+    task_(sistrip::UNDEFINED_RUN_TYPE),
     mui_(0),
     bei_(0),
     data_(),
-    factory_( new Factory ),
     histos_()
 {
   LogTrace(mlDqmClient_)
@@ -405,7 +405,10 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 
       // Build key 
       uint32_t key = sistrip::invalid32_;
+
       if ( view == sistrip::CONTROL_VIEW ) { 
+
+	// for all runs except cabling
 	SiStripFecKey temp( path.key() ); 
 	key = SiStripFecKey( temp.fecCrate(),
 			     temp.fecSlot(),
@@ -414,15 +417,19 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 			     temp.ccuChan(),
 			     channel ).key();
 	mapping_[title.keyValue()] = key;
+
       } else if ( view == sistrip::READOUT_VIEW ) { 
+
+	// for cabling run
 	key = SiStripFedKey( path.key() ).key();
 	uint32_t temp = SiStripFecKey( sistrip::invalid_,
 				       sistrip::invalid_,
 				       sistrip::invalid_,
 				       sistrip::invalid_,
 				       sistrip::invalid_,
-				       channel ).key(); //@@ just record lld channel
+				       channel ).key(); //@@ sistrip::invalid_ ).key(); // just record lld channel
 	mapping_[title.keyValue()] = temp;
+
       } else { key = SiStripKey( path.key() ).key(); }
       
       // Find CME in histos map
@@ -685,7 +692,7 @@ void CommissioningHistograms::printSummary() {
     << good.str();
   
   if ( bad.str().empty() ) { return; } //@@ bad << "None found!"; }
-  edm::LogWarning(mlDqmClient_) 
+  LogTrace(mlDqmClient_) 
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Printing summary of bad analyses:" << "\n"
     << bad.str();

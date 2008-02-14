@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/OptoScanSummaryFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -15,6 +15,7 @@ using namespace sistrip;
 OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::OPTO_SCAN )
 {
+  factory_ = auto_ptr<OptoScanSummaryFactory>( new OptoScanSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -117,14 +118,14 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
 	count += ii->second;
       }
       edm::LogWarning(mlDqmClient_) 
-	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< "[OptoScanHistograms::" << __func__ << "]"
 	<< " Found " << count << " errors ("
 	<< 100 * count / histos().size() << "%): " 
 	<< ss.str();
     }
   } else {
     edm::LogWarning(mlDqmClient_) 
-      << "[FastFedCablingHistograms::" << __func__ << "]"
+      << "[OptoScanHistograms::" << __func__ << "]"
       << " No histograms to analyze!";
   }
   

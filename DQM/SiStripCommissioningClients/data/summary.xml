@@ -7,14 +7,14 @@
 <SummaryPlot monitorable="HighLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
 <SummaryPlot monitorable="LowLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
-<SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
 </RunType>
 
@@ -43,7 +43,7 @@
 <SummaryPlot monitorable="LinkNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="BaselineLiftOff" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="LaserThreshold" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="TickMarkHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="TickHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 
 <SummaryPlot monitorable="ZeroLightLevel" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuAddr"/>
 

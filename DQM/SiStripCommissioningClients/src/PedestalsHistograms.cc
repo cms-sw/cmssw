@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/PedestalsSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -15,6 +15,7 @@ using namespace sistrip;
 PedestalsHistograms::PedestalsHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::PEDESTALS )
 {
+  factory_ = auto_ptr<PedestalsSummaryFactory>( new PedestalsSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistograms::" << __func__ << "]"
     << " Constructing object...";
@@ -142,12 +143,25 @@ void PedestalsHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
 					      const sistrip::Presentation& pres, 
 					      const std::string& dir,
 					      const sistrip::Granularity& gran ) {
+  LogTrace(mlDqmClient_)
+    << "[PedestalsHistograms::" << __func__ << "]";
+
+  // Check view 
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms if not done already
   if ( data().empty() ) { histoAnalysis( false ); }
+
+  // Check
+  if ( data().empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[PedestalsHistograms::" << __func__ << "]"
+      << " No analyses generated!";
+    return;
+  }
   
   // Extract data to be histogrammed
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
   uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
   
   // Use base method to create summary histogram

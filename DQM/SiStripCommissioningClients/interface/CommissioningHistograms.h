@@ -148,8 +148,12 @@ class CommissioningHistograms {
 
   // ---------- private member data ----------
 
- private:
+ protected:
 
+  std::auto_ptr<Factory> factory_;
+  
+ private:
+  
   sistrip::RunType task_;
   
   MonitorUserInterface* mui_;
@@ -157,8 +161,6 @@ class CommissioningHistograms {
   DaqMonitorBEInterface* bei_;
   
   Analyses data_;
-  
-  std::auto_ptr<Factory> factory_;
   
   HistosMap histos_;
   
