@@ -13,6 +13,7 @@
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
 #include "Pythia6Hadronisation.h"
+#include "Pythia8Hadronisation.h"
 
 namespace lhef {
 
@@ -43,6 +44,8 @@ Hadronisation *Hadronisation::create(const edm::ParameterSet &params)
 
 	if (name == "Pythia6")
 		return new Pythia6Hadronisation(params);
+	if (name == "Pythia8")
+		return new Pythia8Hadronisation(params);
 	else
 		throw cms::Exception("InvalidGenerator")
 			<< "Unknown MC generator \"" << name << "\""

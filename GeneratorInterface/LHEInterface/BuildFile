@@ -9,6 +9,8 @@
 <use name=xerces-c>
 <use name=hepmc>
 <use name=pythia6>
+<use name=pythia8>
+<lib name=hepmcinterface>
 #<use name=thepeg>
 <flags FFLAGS="-w">
 <export>

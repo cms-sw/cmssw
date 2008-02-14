@@ -100,7 +100,7 @@ Pythia6Hadronisation::Pythia6Hadronisation(const edm::ParameterSet &params) :
 
 		for(std::vector<std::string>::const_iterator line = lines.begin();
 		    line != lines.end(); ++line ) {
-			if (line->substr(0, line->length()) == "MRPY(1)")
+			if (line->substr(0, 7) == "MRPY(1)")
 				throw cms::Exception("PythiaError")
 					<< "Attempted to set random number"
 					   " using Pythia command 'MRPY(1)'."
@@ -135,7 +135,6 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::hadronize()
 	std::auto_ptr<HepMC::GenEvent> event(conv.read_next_event());
 
 	event->set_signal_process_id(pypars.msti[0]);   
-	//FIXME: event->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
 	if (maxEventsToPrint > 0) {
 		maxEventsToPrint--;

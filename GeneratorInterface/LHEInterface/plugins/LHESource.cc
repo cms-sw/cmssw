@@ -61,6 +61,9 @@ bool LHESource::produce(edm::Event &event)
 	std::auto_ptr<HepMC::GenEvent> hadronLevel =
 					hadronisation->hadronize();
 
+	hadronLevel->set_event_number(numberEventsInRun() -
+	                              remainingEvents() - 1);
+
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct());
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
