@@ -69,7 +69,7 @@ PixelMaxVsf::PixelMaxVsf(std::string filename):
 
 }
  
-bool PixelMaxVsf::getVsf(PixelROCName roc, double& Vsf) const{
+bool PixelMaxVsf::getVsf(PixelROCName roc, unsigned int& Vsf) const{
 
   std::map<PixelROCName,unsigned int>::const_iterator itr = rocs_.find(roc);
 
@@ -80,6 +80,13 @@ bool PixelMaxVsf::getVsf(PixelROCName roc, double& Vsf) const{
   Vsf=itr->second;
 
   return true;
+
+}
+
+
+void PixelMaxVsf::setVsf(PixelROCName roc, unsigned int Vsf){
+
+  rocs_[roc]=Vsf;
 
 }
 

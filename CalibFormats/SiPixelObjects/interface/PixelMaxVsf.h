@@ -24,7 +24,9 @@ namespace pos{
 
     void writeASCII(std::string dir="") const;
 
-    bool getVsf(PixelROCName roc, double& Vsf) const;
+    bool getVsf(PixelROCName roc, unsigned int& Vsf) const;
+
+    void setVsf(PixelROCName roc, unsigned int Vsf);
 
   private:
 

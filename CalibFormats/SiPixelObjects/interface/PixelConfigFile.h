@@ -24,6 +24,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelLowVoltageMap.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelMaxVsf.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
@@ -253,6 +254,12 @@ namespace pos{
 	data = (T*) new PixelLowVoltageMap(fullpath+"lowvoltagemap.dat");
 	std::cout << "Will return the PixelLowVoltageMap" << std::endl;
 	return;
+      }else if (typeid(data)==typeid(PixelMaxVsf*)){
+	std::cout << "Will fetch PixelMaxVsf" << std::endl;
+	assert(dir=="maxvsf");
+	data = (T*) new PixelMaxVsf(fullpath+"maxvsf.dat");
+	std::cout << "Will return the PixelMaxVsf" << std::endl;
+	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="nametranslation");
@@ -405,6 +412,12 @@ namespace pos{
 	assert(dir=="lowvoltagemap");
 	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
 	std::cout << "Will return1 the PixelLowVoltageMap" << std::endl;
+	return;
+      }else if (typeid(data)==typeid(PixelMaxVsf*)){
+	std::cout << "Will fetch1 PixelMaxVsf" << std::endl;
+	assert(dir=="maxvsf");
+	data = (T*) new PixelMaxVsf(fullpath+"maxvsf.dat");
+	std::cout << "Will return1 the PixelMaxVsf" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
