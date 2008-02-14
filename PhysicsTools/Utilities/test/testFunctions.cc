@@ -5,6 +5,7 @@
 #include "PhysicsTools/Utilities/interface/Sum.h"
 #include "PhysicsTools/Utilities/interface/Ratio.h"
 #include "PhysicsTools/Utilities/interface/Difference.h"
+#include "PhysicsTools/Utilities/interface/Minus.h"
 #include <cmath>
 
 class testFunctions : public CppUnit::TestFixture {
@@ -29,9 +30,11 @@ void testFunctions::checkAll() {
   Product<Gaussian, Gaussian> g1times2 = g1 * g2; 
   Difference<Gaussian, Gaussian> g1minus2 = g1 - g2;
   Ratio<Gaussian, Gaussian> g1over2 = g1 / g2; 
+  Minus<Gaussian> gm1 = - g1;
   double x = 0.5;
   CPPUNIT_ASSERT(fabs(g1plus2(x) - (g1(x) + g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1times2(x) - (g1(x) * g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1minus2(x) - (g1(x) - g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
+  CPPUNIT_ASSERT(fabs(gm1(x) - (-g1(x)) < epsilon));
 }
