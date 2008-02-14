@@ -14,13 +14,13 @@
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCRing.h"
 
 
 #include <vector>
 
 class GeomDet;
-class AlignableCSCChamber;
+class AlignableCSCRing;
 
 /// Concrete class for muon CSC Station alignable.
 ///
@@ -32,7 +32,7 @@ class AlignableCSCStation : public AlignableComposite
 
  public:
 
-  AlignableCSCStation( const std::vector<AlignableCSCChamber*> cscChambers );
+  AlignableCSCStation( const std::vector<AlignableCSCRing*> cscRings );
 
   ~AlignableCSCStation();
   
@@ -40,7 +40,7 @@ class AlignableCSCStation : public AlignableComposite
   {
 
         std::vector<Alignable*> result;
-        result.insert( result.end(), theCSCChambers.begin(), theCSCChambers.end() );
+        result.insert( result.end(), theCSCRings.begin(), theCSCRings.end() );
         return result;
 
   }
@@ -55,7 +55,7 @@ class AlignableCSCStation : public AlignableComposite
   // get the Surface
   AlignableSurface computeSurface() ;
 
-  AlignableCSCChamber &chamber(int i);  
+  AlignableCSCRing &ring(int i);  
   
   //virtual void twist(float);
 
@@ -72,7 +72,7 @@ class AlignableCSCStation : public AlignableComposite
 
 private:
 
-  std::vector<AlignableCSCChamber*> theCSCChambers;
+  std::vector<AlignableCSCRing*> theCSCRings;
 
 
 };

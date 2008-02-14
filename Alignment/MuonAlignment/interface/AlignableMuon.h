@@ -27,6 +27,7 @@ class AlignableDTStation;
 class AlignableDTChamber;
 class AlignableCSCEndcap;
 class AlignableCSCStation;
+class AlignableCSCRing;
 class AlignableCSCChamber;
 
 
@@ -68,6 +69,7 @@ public:
   std::vector<Alignable*> CSCLayers();
   std::vector<Alignable*> CSCChambers();
   std::vector<Alignable*> CSCStations();
+  std::vector<Alignable*> CSCRings();
   std::vector<Alignable*> CSCEndcaps();
 
   // Get DT alignments sorted by DetId
@@ -127,6 +129,7 @@ private:
   
   std::vector<AlignableCSCChamber*>  theCSCChambers;
   std::vector<AlignableCSCStation*>  theCSCStations;
+  std::vector<AlignableCSCRing*>     theCSCRings;
   std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
 
   std::vector<Alignable*> theMuonComponents;

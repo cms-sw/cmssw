@@ -7,8 +7,8 @@
  *
  *  Basically list the levels in the detector's hierarchy.
  *
- *  $Date: 2007/10/08 13:36:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/23 08:55:14 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -79,6 +79,7 @@ namespace align
     AlignableDTLayer,
     AlignableCSCEndcap,
     AlignableCSCStation,
+    AlignableCSCRing,
     AlignableCSCChamber,
     AlignableCSCLayer,
     AlignableMuon,
