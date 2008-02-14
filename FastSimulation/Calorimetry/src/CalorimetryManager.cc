@@ -466,7 +466,10 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       
       std::pair<double,double> response =
 	myHDResponse_->responseHCAL(EGen,pathEta,0); // 0=e/gamma
-      emeas = response.first;
+      e     = response.first;              //
+      sigma = response.second;             //
+      emeas = random->gaussShoot(e,sigma); //
+
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
 	LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
