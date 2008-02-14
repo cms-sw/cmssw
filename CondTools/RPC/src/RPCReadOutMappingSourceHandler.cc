@@ -1,16 +1,17 @@
 #include "CondTools/RPC/interface/RPCReadOutMappingSourceHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-popcon::RPCReadOutMappingSourceHandler::RPCReadOutMappingSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, 
-int validate, std::string host, std::string sid, std::string user, std::string
-pass, int port) : popcon::PopConSourceHandler<RPCReadOutMapping>(name,cstring,evt,est)
+popcon::RPCReadOutMappingSourceHandler::RPCReadOutMappingSourceHandler(const edm::ParameterSet& ps):
+  m_name(ps.getUntrackedParameter<std::string>("name","RPCReadOutMappingSourceHandler")),
+  m_validate(ps.getUntrackedParameter<int>("Validate",0)),
+  m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","lxplus.cern.ch")),
+  m_sid(ps.getUntrackedParameter<std::string>("OnlineDBSID","blah")),
+  m_user(ps.getUntrackedParameter<std::string>("OnlineDBUser","blaah")),
+  m_pass(ps.getUntrackedParameter<std::string>("OnlineDBPass","blaaah")),
+  m_port(ps.getUntrackedParameter<int>("OnlineDBPort",1521))
 {
-//	std::cout << "RPCReadOutMappingSourceHandler: RPCReadOutMappingSourceHandler constructor" << std::endl;
-        m_validate=validate;
-        m_host= host;
-        m_sid= sid;
-        m_user=user;
-        m_pass=pass;
-        m_port=port;
 }
 
 popcon::RPCReadOutMappingSourceHandler::~RPCReadOutMappingSourceHandler()
@@ -20,38 +21,23 @@ popcon::RPCReadOutMappingSourceHandler::~RPCReadOutMappingSourceHandler()
 void popcon::RPCReadOutMappingSourceHandler::getNewObjects()
 {
 
-	std::cout << "RPCReadOutMappingSourceHandler: RPCReadOutMappingSourceHandler::getNewObjects begins\n";
+//	std::cout << "RPCReadOutMappingSourceHandler: RPCReadOutMappingSourceHandler::getNewObjects begins\n";
+
+        edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
 	const RPCReadOutMapping* cabling_prev;
         if(m_validate==1) {
-          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
-	  std::map<std::string, popcon::PayloadIOV> mp = getOfflineInfo();
-	  edm::ESHandle<RPCReadOutMapping> theCabling;
-	  esetup.get<RPCReadOutMappingRcd>().get(theCabling);
-	  cabling_prev = theCabling.product();
-//	  std::cout << "size " << cabling_prev->theCabling.size() << std::endl;
-//
-//	for(std::map<std::string, popcon::PayloadIOV>::iterator it = mp.begin(); it != mp.end();it++)
-//	{
-//		std::cout << it->first << " , last object valid since " << it->second.last_since << std::endl;
-//
-//	}
+//          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
+          std::cout<<" Sorry, validation not available for the moment..."<<std::endl;
         }
 
 // now construct new cabling map from online DB
-//        ::putenv("CORAL_AUTH_USER=me");
-//        ::putenv("CORAL_AUTH_PASSWORD=test");
         ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
         readCablingMap();
         DisconnectOnlineDB();
 
-	unsigned int snc,tll;
-	
-        snc=event.id().run();
-        tll=9999999;
-
-	popcon::IOVPair iop = {snc,tll};
+        cond::Time_t snc=mydbservice->currentTime();
 
 // look for recent changes
         int difference=1;
@@ -59,7 +45,7 @@ void popcon::RPCReadOutMappingSourceHandler::getNewObjects()
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
-          m_to_transfer->push_back(std::make_pair((RPCReadOutMapping*)cabling,iop));
+          m_to_transfer.push_back(std::make_pair((RPCReadOutMapping*)cabling,snc));
         }
 
 	std::cout << "RPCReadOutMappingSourceHandler: RPCReadOutMappingSourceHandler::getNewObjects ends\n";

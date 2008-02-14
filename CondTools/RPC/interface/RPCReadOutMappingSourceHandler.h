@@ -9,11 +9,12 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/PopCon/interface/LogReader.h"
+//#include "CondCore/PopCon/interface/LogReader.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
@@ -36,9 +37,10 @@ namespace popcon
 	{
 
 		public:
-    RPCReadOutMappingSourceHandler(const std::string&, const std::string&, const edm::Event& evt, const edm::EventSetup& est, int validate, std::string host, std::string sid, std::string user, std::string pass, int port);
+    RPCReadOutMappingSourceHandler(const edm::ParameterSet& ps);
     ~RPCReadOutMappingSourceHandler();
     void getNewObjects();
+    std::string id() const {return m_name;}
     void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
     void readCablingMap();
@@ -48,6 +50,7 @@ namespace popcon
     RPCReadOutMapping * cabling;
     Environment* env;
     Connection* conn;
+    std::string m_name;
     int m_validate;
     std::string m_host;
     std::string m_sid;

@@ -9,11 +9,12 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/PopCon/interface/LogReader.h"
+//#include "CondCore/PopCon/interface/LogReader.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
@@ -37,9 +38,10 @@ namespace popcon
 	{
 
 		public:
-    RPCEMapSourceHandler(const std::string&, const std::string&, const edm::Event& evt, const edm::EventSetup& est, int validate, std::string host, std::string sid, std::string user, std::string pass, int port);
+    RPCEMapSourceHandler(const edm::ParameterSet& ps);
     ~RPCEMapSourceHandler();
     void getNewObjects();
+    std::string id() const {return m_name;}
     void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
     void readEMap();
@@ -49,12 +51,15 @@ namespace popcon
     RPCEMap * eMap;
     Environment* env;
     Connection* conn;
+    std::string m_name;
     int m_validate;
     std::string m_host;
     std::string m_sid;
     std::string m_user;
     std::string m_pass;
     int m_port;
+//    const edm::Event& event; 	 
+//    const edm::EventSetup& esetup;
 
   // utilities
     string IntToString(int num)

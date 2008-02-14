@@ -1,12 +1,15 @@
 #include "CondTools/RPC/interface/L1RPCConfigSourceHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-popcon::L1RPCConfigSourceHandler::L1RPCConfigSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, int validate, int ppt, std::string dataDir)
-: popcon::PopConSourceHandler<L1RPCConfig>(name,cstring,evt,est)
+popcon::L1RPCConfigSourceHandler::L1RPCConfigSourceHandler(const edm::ParameterSet& ps):
+  m_name(ps.getUntrackedParameter<std::string>("name","L1RPCConfigSourceHandler")),
+  m_validate(ps.getUntrackedParameter<int>("Validate",0)),
+  m_ppt(ps.getUntrackedParameter<int>("PACsPerTower")),
+  m_dataDir(ps.getUntrackedParameter<std::string>("filedir","L1Trigger/RPCTrigger/data/Eff90PPT12/"))
 {
-//	std::cout << "L1RPCConfigSourceHandler: L1RPCConfigSourceHandler constructor" << std::endl;
-        m_validate=validate;
-        m_ppt= ppt;
-        m_dataDir= dataDir;
+	//	std::cout << "L1RPCConfigSourceHandler: L1RPCConfigSourceHandler constructor" << std::endl;
   edm::FileInPath fp(m_dataDir+"pacPat_t0sc0sg0.xml");
   std::string patternsDirNameUnstriped = fp.fullPath();
   m_patternsDir = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
@@ -19,35 +22,28 @@ popcon::L1RPCConfigSourceHandler::~L1RPCConfigSourceHandler()
 void popcon::L1RPCConfigSourceHandler::getNewObjects()
 {
 
-	std::cout << "L1RPCConfigSourceHandler: L1RPCConfigSourceHandler::getNewObjects begins\n";
+  edm::Service<cond::service::PoolDBOutputService> mydbservice;
+
+//  std::cout << "L1RPCConfigSourceHandler: L1RPCConfigSourceHandler::getNewObjects begins\n";
+//  std::cerr << "------- " << m_name 
+//	     << " - > getNewObjects" << std::endl;
+//  std::cerr<<"Got offlineInfo, tag: "<<std::endl;
+//  std::cerr << tagInfo().name << " , last object valid from " 
+//	    << tagInfo().lastInterval.first << " to "
+//            << tagInfo().lastInterval.second << " , token is "
+//            << tagInfo().token << " and this is the payload "
+//            << tagInfo().lastPayloadToken << std::endl;
 
 // first check what is already there in offline DB
 	const L1RPCConfig* patterns_prev;
+
         if(m_validate==1) {
           std::cout<<" Validation was requested, so will check present contents"<<std::endl;
-	  std::map<std::string, popcon::PayloadIOV> mp = getOfflineInfo();
-	  edm::ESHandle<L1RPCConfig> thePatterns;
-	  esetup.get<L1RPCConfigRcd>().get(thePatterns);
-	  patterns_prev = thePatterns.product();
-//	  std::cout << "size " << patterns_prev->thePatterns.size() << std::endl;
-//
-//	for(std::map<std::string, popcon::PayloadIOV>::iterator it = mp.begin(); it != mp.end();it++)
-//	{
-//		std::cout << it->first << " , last object valid since " << it->second.last_since << std::endl;
-//
-//	}
         }
 
-//        ::putenv("CORAL_AUTH_USER=me");
-//        ::putenv("CORAL_AUTH_PASSWORD=test");
         readConfig();
 
-	unsigned int snc,tll;
-	
-        snc=event.id().run();
-        tll=9999999;
-
-	popcon::IOVPair iop = {snc,tll};
+        cond::Time_t snc=mydbservice->currentTime();
 
 // look for recent changes
         int difference=1;
@@ -55,7 +51,7 @@ void popcon::L1RPCConfigSourceHandler::getNewObjects()
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
-          m_to_transfer->push_back(std::make_pair((L1RPCConfig*)patterns,iop));
+          m_to_transfer.push_back(std::make_pair((L1RPCConfig*)patterns,snc));
         }
 
 	std::cout << "L1RPCConfigSourceHandler: L1RPCConfigSourceHandler::getNewObjects ends\n";

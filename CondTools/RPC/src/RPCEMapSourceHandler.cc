@@ -1,16 +1,18 @@
 #include "CondTools/RPC/interface/RPCEMapSourceHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, 
-int validate, std::string host, std::string sid, std::string user, std::string
-pass, int port) : popcon::PopConSourceHandler<RPCEMap>(name,cstring,evt,est)
+popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) :
+  m_name(ps.getUntrackedParameter<std::string>("name","RPCEMapSourceHandler")),
+  m_validate(ps.getUntrackedParameter<int>("Validate",0)),
+  m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","oracms.cern.ch")),
+  m_sid(ps.getUntrackedParameter<std::string>("OnlineDBSID","omds")),
+  m_user(ps.getUntrackedParameter<std::string>("OnlineDBUser","RPC_CONFIGURATION")),
+  m_pass(ps.getUntrackedParameter<std::string>("OnlineDBPass","blahblah")),
+  m_port(ps.getUntrackedParameter<int>("OnlineDBPort",1521))
 {
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler constructor" << std::endl;
-        m_validate=validate;
-        m_host= host;
-        m_sid= sid;
-        m_user=user;
-        m_pass=pass;
-        m_port=port;
 }
 
 popcon::RPCEMapSourceHandler::~RPCEMapSourceHandler()
@@ -20,46 +22,32 @@ popcon::RPCEMapSourceHandler::~RPCEMapSourceHandler()
 void popcon::RPCEMapSourceHandler::getNewObjects()
 {
 
-	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects begins\n";
+//	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects begins\n";
+
+        edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
 	const RPCEMap* eMap_prev;
         if(m_validate==1) {
-          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
-	  std::map<std::string, popcon::PayloadIOV> mp = getOfflineInfo();
-	  edm::ESHandle<RPCEMap> theCabling;
-	  esetup.get<RPCEMapRcd>().get(theCabling);
-	  eMap_prev = theCabling.product();
-//	  std::cout << "size " << eMap_prev->theCabling.size() << std::endl;
-//
-//	for(std::map<std::string, popcon::PayloadIOV>::iterator it = mp.begin(); it != mp.end();it++)
-//	{
-//		std::cout << it->first << " , last object valid since " << it->second.last_since << std::endl;
-//
-//	}
+//          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
+          std::cout<<" Sorry, validation not available for the moment..."<<std::endl;
+          m_validate=0;
         }
 
 // now construct new cabling map from online DB
-//        ::putenv("CORAL_AUTH_USER=me");
-//        ::putenv("CORAL_AUTH_PASSWORD=test");
         ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
         readEMap();
         DisconnectOnlineDB();
 
-	unsigned int snc,tll;
+        cond::Time_t snc=mydbservice->currentTime();
 	
-        snc=event.id().run();
-        tll=9999999;
-
-	popcon::IOVPair iop = {snc,tll};
-
 // look for recent changes
         int difference=1;
         if (m_validate==1) difference=Compare2EMaps(eMap_prev,eMap);
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
-          m_to_transfer->push_back(std::make_pair((RPCEMap*)eMap,iop));
+          m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
         }
 
 	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
