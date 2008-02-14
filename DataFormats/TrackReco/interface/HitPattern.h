@@ -7,6 +7,9 @@
 // Marcel Vos, INFN Pisa
 // v1.10 2007/05/08 bellan
 // Zongru Wan, Kansas State University
+// Jean-Roch Vlimant
+// Kevin Burkett
+// Boris Mangano
 //
 // Hit pattern is the summary information of the hits associated to track in
 // AOD.  When RecHits are no longer available, the compact hit pattern should
@@ -43,10 +46,33 @@
 // pattern.  The static hit pattern array might be improved to a dynamic one
 // in the future.
 //
+// Because of tracking with/without overlaps and with/without hit-splitting, 
+// the final number of hits per track is pretty "variable".  Compared with the
+// number of valid hits, the number of crossed layers with measurement should
+// be more robust to discriminate between good and fake track.
+//
+// Since 4-bit for sub-sub-structure is not enough to specify a muon layer,
+// the layer case counting methods are implemented for tracker only.  This is
+// different from the hit counting methods which are implemented for both 
+// tracker and muon detector.
+//
+// Given a tracker layer, specified by sub-structure and layer, the method
+// getTrackerLayerCase(substr, layer) groups all of the hits in the hit pattern
+// array for the layer together and returns one of the four cases
+//
+//      crossed
+//        layer case 0: valid + (missing, off, bad) ==> with measurement
+//        layer case 1: missing + (off, bad) ==> without measurement
+//        layer case 2: off, bad ==> totally off or bad, cannot say much
+//      not crossed
+//        layer case 999999: track outside acceptance or in gap ==> null
+//
 // Given a track, here is an example usage of hit pattern
 //
-//      // loop over the hits of the track
+//      // hit pattern of the track
 //      const reco::HitPattern& p = track->hitPattern();
+//
+//      // loop over the hits of the track
 //      for (int i=0; i<p.numberOfHits(); i++) {
 //        uint32_t hit = p.getHitPattern(i);
 //
@@ -64,6 +90,14 @@
 //        std::cout << std::endl;
 //      }
 //
+//      // count the number of valid pixel barrel *** hits ***
+//      std::cout << "number of of valid pixel barrel hits is "
+//                << p.numberOfValidPixelBarrelHits() << std::endl;
+//
+//      // count the number of pixel barrel *** layers *** with measurement
+//      std::cout << "number of of pixel barrel layers with measurement is "
+//                << p.pixelBarrelLayersWithMeasurement() << std::endl;
+//
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -75,7 +109,8 @@ namespace reco {
   public:
 
     // default constructor
-    HitPattern();
+    // init hit pattern array as 0x00000000, ..., 0x00000000
+    HitPattern() { for (int i=0; i<PatternSize; i++) hitPattern_[i] = 0; }
 
     // constructor from iterator (begin, end) pair
     template<typename I>
@@ -158,6 +193,45 @@ namespace reco {
     int numberOfLostMuonDTHits() const;       // not-null, not valid, muon DT
     int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
     int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
+
+    uint32_t getTrackerLayerCase(uint32_t substr, uint32_t layer) const;
+
+    int trackerLayersWithMeasurement() const;        // case 0: tracker
+    int pixelLayersWithMeasurement() const;          // case 0: pixel
+    int stripLayersWithMeasurement() const;          // case 0: strip
+    int pixelBarrelLayersWithMeasurement() const;    // case 0: pixel PXB
+    int pixelEndcapLayersWithMeasurement() const;    // case 0: pixel PXF
+    int stripTIBLayersWithMeasurement() const;       // case 0: strip TIB
+    int stripTIDLayersWithMeasurement() const;       // case 0: strip TID
+    int stripTOBLayersWithMeasurement() const;       // case 0: strip TOB
+    int stripTECLayersWithMeasurement() const;       // case 0: strip TEC
+    int trackerLayersWithoutMeasurement() const;     // case 1: tracker
+    int pixelLayersWithoutMeasurement() const;       // case 1: pixel
+    int stripLayersWithoutMeasurement() const;       // case 1: strip
+    int pixelBarrelLayersWithoutMeasurement() const; // case 1: pixel PXB
+    int pixelEndcapLayersWithoutMeasurement() const; // case 1: pixel PXF
+    int stripTIBLayersWithoutMeasurement() const;    // case 1: strip TIB
+    int stripTIDLayersWithoutMeasurement() const;    // case 1: strip TID
+    int stripTOBLayersWithoutMeasurement() const;    // case 1: strip TOB
+    int stripTECLayersWithoutMeasurement() const;    // case 1: strip TEC
+    int trackerLayersTotallyOffOrBad() const;        // case 2: tracker
+    int pixelLayersTotallyOffOrBad() const;          // case 2: pixel
+    int stripLayersTotallyOffOrBad() const;          // case 2: strip
+    int pixelBarrelLayersTotallyOffOrBad() const;    // case 2: pixel PXB
+    int pixelEndcapLayersTotallyOffOrBad() const;    // case 2: pixel PXF
+    int stripTIBLayersTotallyOffOrBad() const;       // case 2: strip TIB
+    int stripTIDLayersTotallyOffOrBad() const;       // case 2: strip TID
+    int stripTOBLayersTotallyOffOrBad() const;       // case 2: strip TOB
+    int stripTECLayersTotallyOffOrBad() const;       // case 2: strip TEC
+    int trackerLayersNull() const;                   // case 999999: tracker
+    int pixelLayersNull() const;                     // case 999999: pixel
+    int stripLayersNull() const;                     // case 999999: strip
+    int pixelBarrelLayersNull() const;               // case 999999: pixel PXB
+    int pixelEndcapLayersNull() const;               // case 999999: pixel PXF
+    int stripTIBLayersNull() const;                  // case 999999: strip TIB
+    int stripTIDLayersNull() const;                  // case 999999: strip TID
+    int stripTOBLayersNull() const;                  // case 999999: strip TOB
+    int stripTECLayersNull() const;                  // case 999999: strip TEC
 
   private:
 
