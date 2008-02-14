@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/12/19 19:40:41 $
- *  $Revision: 1.57 $
+ *  $Date: 2008/01/29 18:50:02 $
+ *  $Revision: 1.58 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -184,26 +184,22 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     track.setExtra(trackExtraRef);
     
     // build the updated-at-vertex track, starting from the previous track
-    reco::Track updatedTrack;
+    pair<bool,reco::Track> updateResult(false,reco::Track());
     
     if(theUpdatingAtVtx){
       // build the "bare" track UPDATED at vtx
-      pair<bool,reco::Track> updateResult = buildTrackUpdatedAtPCA(track);
+      updateResult = buildTrackUpdatedAtPCA(track);
 
-      if(!updateResult.first){ 
-	++trackIndex;
-	++trackUpdatedIndex;
-	continue;
+      if(!updateResult.first) ++trackIndex;
+      else{
+	
+	// set the persistent track-extra reference to the Track
+	updateResult.second.setExtra(trackExtraRef);
+	
+	// Fill the map
+	trackToTrackmap->insert(reco::TrackRef(trackCollectionRefProd,trackIndex++),
+				reco::TrackRef(trackUpdatedCollectionRefProd,trackUpdatedIndex++));
       }
-
-      reco::Track updatedTrack = updateResult.second;
-
-      // set the persistent track-extra reference to the Track
-      updatedTrack.setExtra(trackExtraRef);
-      
-      // Fill the map
-      trackToTrackmap->insert(reco::TrackRef(trackCollectionRefProd,trackIndex++),
-			      reco::TrackRef(trackUpdatedCollectionRefProd,trackUpdatedIndex++));
     }
     
     // Fill the track extra with the rec hit (persistent-)reference
@@ -213,7 +209,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       if((**recHit).isValid()){
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
 	track.setHitPattern( *singleHit, i ++ );
-	if(theUpdatingAtVtx) updatedTrack.setHitPattern( *singleHit, i ++ );
+	if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i ++ );
 	recHitCollection->push_back( singleHit );  
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
@@ -226,9 +222,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // fill the TrackCollection
     trackCollection->push_back(track);
     iTkRef++;
-    LogTrace(metname) << "Debug Track being loaded pt "<<  track.pt();
+    LogTrace(metname) << "Debug Track being loaded pt "<< track.pt();
     // fill the TrackCollection updated at vtx
-    if(theUpdatingAtVtx) updatedAtVtxTrackCollection->push_back(updatedTrack);
+    if(theUpdatingAtVtx && updateResult.first) 
+      updatedAtVtxTrackCollection->push_back(updateResult.second);
     
     // We don't need the original trajectory anymore.
     // It has been copied by value in the trajectoryCollection, if 
