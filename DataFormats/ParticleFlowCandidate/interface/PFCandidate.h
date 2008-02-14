@@ -10,6 +10,7 @@
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -47,6 +48,9 @@ namespace reco {
 
     /// return a clone
     virtual PFCandidate * clone() const;
+	
+	/// add an element to the current PFCandidate
+    void addElement( const reco::PFBlockElement* element );
     
     /// set track reference
     void    setTrackRef(const reco::TrackRef& ref);
@@ -162,6 +166,10 @@ namespace reco {
     /*     const std::vector<unsigned>& elementIndices() const {  */
     /*       return elementIndices_; */
     /*     } */
+	/// return elements
+    const edm::OwnVector< reco::PFBlockElement >& elements() const 
+      {return elements_;}
+
     
     /// return reference to the block
     PFBlockRef block() const { return blockRef_; } 
@@ -185,6 +193,9 @@ namespace reco {
 
     /// indices of the elements used in the PFBlock
     /*     std::vector<unsigned>   elementIndices_; */
+	
+	/// all elements used in the PFBlock 
+    edm::OwnVector< reco::PFBlockElement >          elements_;
 
     reco::TrackRef trackRef_;
     

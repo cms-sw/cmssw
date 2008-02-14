@@ -85,6 +85,10 @@ PFCandidate * PFCandidate::clone() const {
 }
 
 
+void PFCandidate::addElement(const  PFBlockElement* element ) {
+    elements_.push_back( element->clone() ); 
+}
+
 void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   if(!charge()) {
     string err;
@@ -170,19 +174,24 @@ ostream& reco::operator<<(ostream& out,
   out<<setiosflags(ios::right);
   out<<setiosflags(ios::fixed);
   out<<setprecision(3);
-  out<<" ( pT="<<setw(7)<<c.pt();
-  out<<", E ="<<setw(7)<<c.energy()<<" ) ";
-  out<<", iele = unknown";
+  out<<" E/pT/eta/phi " 
+      <<c.energy()<<"/"
+      <<c.pt()<<"/"
+	  <<c.eta()<<"/"
+	  <<c.phi()<<endl;
+  PFBlockRef blockRef = c.block(); 
+  int blockid = blockRef.key(); 
+  const edm::OwnVector< reco::PFBlockElement >& elements = c.elements();
+  out<< "\t# of elements " << elements.size() 
+     <<" from block " << blockid << endl;
+
+// print each element in turn
   
-  //   for(unsigned i=0; i<c.elementIndices_.size(); i++) {
-  //     out<<c.elementIndices_[0]<<" ";
-  //   }
-  //   out<<endl;
+  for(unsigned ie=0; ie<elements.size(); ie++) {
+  out<<"\t"<< elements[ie] <<endl;
+  }
   
   out<<resetiosflags(ios::right|ios::fixed);
-  
-  //  out<< *(c.blockRef_)<<endl;
-  
   return out;
 }
 
