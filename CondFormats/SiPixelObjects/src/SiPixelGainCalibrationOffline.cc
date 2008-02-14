@@ -79,10 +79,12 @@ void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) co
 
 void SiPixelGainCalibrationOffline::setDataGain(float gain, const int& nRows, std::vector<char>& vped){
    
+
   
   float theEncodedGain  = encodeGain(gain);
 
-  char gain_  = (static_cast<char>(theEncodedGain)) & 0xFF;
+
+  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
 
   vped.resize(vped.size()+1);
   //check to make sure the column is being placed in the right place in the blob
@@ -99,7 +101,7 @@ void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,  std::vector
 
   float theEncodedPedestal  = encodePed(pedestal);
 
-  char ped_  = (static_cast<char>(theEncodedPedestal)) & 0xFF;
+  unsigned int ped_  = (static_cast<unsigned int>(theEncodedPedestal)) & 0xFF;
 
   vped.resize(vped.size()+1);
   // insert in vector of char
@@ -108,9 +110,9 @@ void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,  std::vector
 
 float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, const Range& range, const int& nCols) const {
 
-  int nRows = (range.second-range.first)/nCols - 1;
+  int nRows = (range.second-range.first)/nCols;
   //int startOfColumn = *(range.first) + col*(nRows+1);
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(nRows+1)+row);
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(nRows)+row);
   if (col >= nCols || row >= nRows){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
@@ -121,7 +123,7 @@ float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, cons
 float SiPixelGainCalibrationOffline::getGain(const int& col, const Range& range, const int& nCols) const {
 
   int lengthOfColumnData = (range.second-range.first)/nCols;
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col+1)*(lengthOfColumnData));
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col+1)*(lengthOfColumnData)-1);
 
   if (col >= nCols){
     throw cms::Exception("CorruptedData")
