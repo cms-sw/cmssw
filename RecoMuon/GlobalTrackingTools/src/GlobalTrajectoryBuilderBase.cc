@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/03 21:42:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/07 21:52:48 $
+ *  $Revision: 1.7 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -118,7 +118,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
   theKFFitterName = par.getParameter<std::string>("KFFitter");
-
+  theTkTrajsAvailableFlag = true; 
 }
 
 //--------------
@@ -309,7 +309,7 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
 //
 vector<GlobalTrajectoryBuilderBase::TrackCand> 
 GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCand, 
-                                                         const vector<TrackCand>& tkTs) const {
+                                                         const vector<TrackCand>& tkTs) {
   
   // define eta-phi region
   RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staCand.second);
@@ -790,9 +790,10 @@ void GlobalTrajectoryBuilderBase::printHits(const ConstRecHitContainer& hits) co
 //
 // add Trajectory* to TrackCand if not already present
 //
-void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) const {
+void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) {
 
   if( candIn.first == 0 ) {
+    theTkTrajsAvailableFlag = false;
     LogTrace(theCategory) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));

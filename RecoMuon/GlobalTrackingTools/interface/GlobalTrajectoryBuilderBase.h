@@ -4,8 +4,8 @@
 /** \class GlobalTrajectoryBuilderBase
  *  class to build muon trajectory
  *
- *  $Date: 2007/08/17 15:08:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/22 17:44:29 $
+ *  $Revision: 1.3 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -75,13 +75,13 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
 
     /// make a TrackCand collection using tracker Track, Trajectory information
-    virtual std::vector<TrackCand> makeTkCandCollection(const TrackCand&) const = 0;
+    virtual std::vector<TrackCand> makeTkCandCollection(const TrackCand&) = 0;
 
     enum RefitDirection{inToOut,outToIn,undetermined};
     
     /// choose tracker tracks within region of interest
     std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
-                                                       const std::vector<TrackCand>&) const;
+                                                       const std::vector<TrackCand>&);
 
     /// define region of interest with tracker
     RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
@@ -105,7 +105,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     void printHits(const ConstRecHitContainer&) const;
 
     /// if TrackCand has only a TrackRef, attempt to add Trajectory*
-    void addTraj(TrackCand&) const;
+    void addTraj(TrackCand&);
 
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
@@ -122,6 +122,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
   protected:
     std::string theCategory;
+    bool theTkTrajsAvailableFlag;
     float thePtCut;
 
   private:

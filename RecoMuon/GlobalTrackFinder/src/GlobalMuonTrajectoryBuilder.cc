@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/10 19:54:57 $
- *  $Revision: 1.112 $
+ *  $Date: 2007/12/19 16:24:14 $
+ *  $Revision: 1.113 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -89,11 +89,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogInfo(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
-  if (event.getByLabel(theTkTrackLabel,handleTrackerTrajs)) {
+  if (event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && event.getByLabel(theTkTrackLabel,tkAssoMap)) {
     theTkTrajsAvailableFlag = true;
     allTrackerTrajs = &*handleTrackerTrajs;  
     
-    event.getByLabel(theTkTrackLabel,tkAssoMap);   
     if ( theFirstEvent ) {
       LogInfo(category) << "Tk Trajectories Found! ";
       theFirstEvent = false;
@@ -183,7 +182,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 //
 // make a TrackCand collection using tracker Track, Trajectory information
 //
-vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
+vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|makeTkCandCollection";
 

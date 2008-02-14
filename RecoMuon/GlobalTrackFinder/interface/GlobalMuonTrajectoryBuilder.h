@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/06/28 15:45:10 $
- *  $Revision: 1.61 $
+ *  $Date: 2007/08/17 15:30:11 $
+ *  $Revision: 1.62 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -39,7 +39,7 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
   
     /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) const;
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
 
   private:
   
