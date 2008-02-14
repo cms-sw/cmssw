@@ -6,6 +6,7 @@
 #include "TMinuit.h"
 #include <iostream>
 #include <vector>
+#include <string>
 #include <boost/shared_ptr.hpp>
 
 namespace fit {
@@ -27,10 +28,10 @@ namespace fit {
       minuit_.mnexcm("SET ERR", arglist, 1, ierflg);
       if ( ierflg != 0 ) std::cerr << "ERROR in set err!" << std::endl;
     }
-    bool setParameter(int i, const char * cname, boost::shared_ptr<double> val, double err, double min, double max) {
+    bool setParameter(int i, const std::string & name, boost::shared_ptr<double> val, double err, double min, double max) {
       pars_[i] = val;
       int ierflag;
-      minuit_.mnparm(i, cname, *val, err, min, max, ierflag);
+      minuit_.mnparm(i, name.c_str(), *val, err, min, max, ierflag);
       return ierflag == 0;
     }
     double getParameter(int i, double & err) const {
