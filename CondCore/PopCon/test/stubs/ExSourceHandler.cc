@@ -8,7 +8,7 @@
 namespace {
 
   void fill(Pedestals & p, int nc) {
-    p.reserve(nc);
+    p.m_pedestals.reserve(nc);
     for(int ichannel=1; ichannel<=nc; ++ichannel){
       Pedestals::Item item;
       item.m_mean=1.11*ichannel;
@@ -52,11 +52,11 @@ void popcon::ExPedestalSource::getNewObjects() {
 
   
   Pedestals * p0 = new Pedestals;
-  fill(p0,3);
+  fill(*p0,3);
   Pedestals * p1 = new Pedestals;
-  fill(p1,5);
+  fill(*p1,5);
   Pedestals * p2 = new Pedestals;
-  fill(p2,7);
+  fill(*p2,7);
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,snc));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));
