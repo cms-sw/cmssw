@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.6 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.7 2008/02/07 17:02:57 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -339,34 +339,93 @@ void CommissioningHistosUsingDb::addDcuDetIds() {
 }
 
 // -----------------------------------------------------------------------------
-/** */
+//
 void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
 
   LogTrace(mlDqmClient_) 
     << "[CommissioningHistosUsingDb::" << __func__ << "]"
     << " Creating AnalysisDescriptions...";
 
-  // Clear descriptions container
   desc.clear();
   
-  // Iterate through analysis objects and create analysis descriptions
+//   uint16_t size = 0;
+//   std::stringstream ss;
+//   ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+//      << " Analysis descriptions:" << std::endl;
+
   Analyses::iterator ianal = data().begin();
   Analyses::iterator janal = data().end();
-  for ( ; ianal != janal; ++ianal ) {
+  for ( ; ianal != janal; ++ianal ) { 
+
+    // create analysis description
     create( desc, ianal ); 
+    
+//     // debug
+//     if ( ianal->second ) {
+//       if ( desc.size()/2 > size ) { // print every 2nd description
+// 	size = desc.size()/2;
+// 	ianal->second->print(ss); 
+// 	ss << (*(desc.end()-2))->toString();
+// 	ss << (*(desc.end()-1))->toString();
+// 	ss << std::endl;
+//       }
+//     }
+
   }
 
-  if (1) {
-    std::stringstream sss;
-    SiStripConfigDb::AnalysisDescriptions::const_iterator ii = desc.begin();
-    SiStripConfigDb::AnalysisDescriptions::const_iterator jj = desc.end();
-    for ( ; ii != jj; ++ii ) { 
-      FastFedCablingAnalysisDescription* tmp = dynamic_cast<FastFedCablingAnalysisDescription*>( *ii );
-      if ( tmp ) { sss << tmp->toString(); }
-    }
-    edm::LogVerbatim(mlDqmClient_) 
+//   LogTrace(mlDqmClient_) << ss.str(); 
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningHistosUsingDb::detInfo( DetInfoMap& det_info ) {
+
+  if ( !db() ) {
+    edm::LogError(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Analysis descriptions:" << std::endl << sss.str(); 
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Aborting upload...";
+    return;
   }
 
+  // Retrieve DCUs and DetIds
+  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
+  
+  // Iterate through DCUs
+  bool found = false;
+  SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
+  SiStripConfigDb::DeviceDescriptions::const_iterator jdcu = dcus.end();
+  for ( ; idcu != jdcu; ++idcu ) {
+
+    // Extract descriptions for FEH DCUs
+    dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
+    if ( !dcu ) { continue; }
+    if ( dcu->getDcuType() != "FEH" ) { continue; }
+
+    // Set DCU id
+    DetInfo info;
+    info.dcuId_ = dcu->getDcuHardId();
+
+    // Set DetId adn number of APV pairs
+    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( dcu->getDcuHardId() );
+    if ( idet != detids.end() ) { 
+      info.detId_ = idet->second->getDetId();
+      info.pairs_ = idet->second->getApvNumber()/2; 
+    }
+
+    // Build FEC key
+    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress( *dcu );
+    SiStripFecKey fec_key( addr.fecCrate_,
+			   addr.fecSlot_,
+			   addr.fecRing_,
+			   addr.ccuAddr_,
+			   addr.ccuChan_ );
+    
+    // Add to map
+    if ( fec_key.isValid() ) { det_info[ fec_key.key() ] = info; }
+
+  }
+  
 }

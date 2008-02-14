@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.2 2007/12/11 17:11:12 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.3 2008/02/07 17:02:55 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -10,7 +10,7 @@
 #include <string>
 #include <map>
 
-class FineDelayHistosUsingDb : public FineDelayHistograms, public CommissioningHistosUsingDb {
+class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public FineDelayHistograms {
   
  public:
   
@@ -33,7 +33,7 @@ class FineDelayHistosUsingDb : public FineDelayHistograms, public CommissioningH
 
   void update( SiStripConfigDb::FedDescriptions& );
 
-  void create( SiStripConfigDb::AnalysisDescriptions& );
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
   
 };
 

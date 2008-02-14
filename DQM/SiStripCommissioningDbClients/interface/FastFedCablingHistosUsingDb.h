@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.2 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.3 2008/02/07 17:02:55 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
@@ -21,7 +21,7 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
 
   virtual ~FastFedCablingHistosUsingDb();
  
-  virtual void addDcuDetIds() {;} // override
+  virtual void addDcuDetIds(); // override
   
   virtual void uploadConfigurations();
   
@@ -34,6 +34,9 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
   void update( SiStripConfigDb::FedDescriptions& );
 
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
+
+  void connections( const SiStripConfigDb::DeviceDescriptions&, 
+		    const SiStripConfigDb::DcuDetIdMap& );
   
 };
 

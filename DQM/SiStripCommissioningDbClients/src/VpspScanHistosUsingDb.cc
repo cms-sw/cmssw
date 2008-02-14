@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.9 2007/12/19 18:18:11 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.10 2008/02/07 17:02:58 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -171,7 +171,8 @@ void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
   VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
-  SiStripFecKey key( analysis->first );
+  SiStripFecKey fec_key( anal->fecKey() ); 
+  SiStripFedKey fed_key( anal->fedKey() );
   
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
 
@@ -184,17 +185,21 @@ void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					   anal->bottomEdge()[iapv],
 					   anal->topLevel()[iapv],
 					   anal->bottomLevel()[iapv],
-					   key.fecCrate(),
-					   key.fecSlot(),
-					   key.fecRing(),
-					   key.ccuAddr(),
-					   key.ccuChan(),
-					   SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+					   fec_key.fecCrate(),
+					   fec_key.fecSlot(),
+					   fec_key.fecRing(),
+					   fec_key.ccuAddr(),
+					   fec_key.ccuChan(),
+					   SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
 					   db()->dbParams().partition_,
 					   db()->dbParams().runNumber_,
 					   anal->isValid(),
-					   "" );
-      
+					   "",
+					   fed_key.fedId(),
+					   fed_key.feUnit(),
+					   fed_key.feChan(),
+					   fed_key.fedApv() );
+    
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();

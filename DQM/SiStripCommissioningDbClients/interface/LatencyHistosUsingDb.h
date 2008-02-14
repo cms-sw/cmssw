@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.1 2007/12/11 16:09:53 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.2 2008/02/07 17:02:55 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -10,7 +10,7 @@
 #include <string>
 #include <map>
 
-class LatencyHistosUsingDb : public LatencyHistograms, public CommissioningHistosUsingDb {
+class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public LatencyHistograms {
   
  public:
   
@@ -31,7 +31,7 @@ class LatencyHistosUsingDb : public LatencyHistograms, public CommissioningHisto
   
   void update( SiStripConfigDb::DeviceDescriptions& );
   
-  void create( SiStripConfigDb::AnalysisDescriptions& );
+  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
   
 };
 

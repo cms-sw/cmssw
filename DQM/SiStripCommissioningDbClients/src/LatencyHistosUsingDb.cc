@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.2 2007/12/11 17:11:12 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.3 2008/02/07 17:02:57 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -11,8 +11,8 @@ using namespace sistrip;
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 					      const DbParams& params )
-  : LatencyHistograms( mui ),
-    CommissioningHistosUsingDb( params )
+  : CommissioningHistosUsingDb( params ),
+    LatencyHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -23,8 +23,8 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 					      SiStripConfigDb* const db )
-  : LatencyHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db ),
+    LatencyHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -35,8 +35,8 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( DaqMonitorBEInterface* bei,
 					      SiStripConfigDb* const db ) 
-  : LatencyHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db ),
+    LatencyHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -129,70 +129,50 @@ void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices 
     << "Updated Latency settings for " << updated << " devices";
 }
 
+
 // -----------------------------------------------------------------------------
 /** */
-void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
-
-  edm::LogVerbatim(mlDqmClient_) 
-    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Creating TimingAnalysisDescriptions...";
+void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+				     Analysis analysis ) {
   
-  // Clear descriptions container
-  desc.clear();
+  LatencyAnalysis* anal = dynamic_cast<LatencyAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
   
-  // Iterate through analysis objects and create analysis descriptions
-  typedef std::map<uint32_t,LatencyAnalysis> Analyses; 
-  Analyses::iterator ianal  = data_.begin();
-  Analyses::iterator janal  = data_.end();
-  for ( ; ianal != janal; ++ianal ) {
-
-    LatencyAnalysis* anal = &(ianal->second);
-    if ( !anal ) { continue; }
-
-    SiStripFecKey key( ianal->first );
-
-    uint16_t latency = static_cast<uint16_t>( ( data_.begin()->second.maximum() / (-25.) ) + 0.5 );
-
-    for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
-
-      // Create description
-      ApvLatencyAnalysisDescription* tmp;
-      tmp = new ApvLatencyAnalysisDescription( latency, 
-					       key.fecCrate(),
-					       key.fecSlot(),
-					       key.fecRing(),
-					       key.ccuAddr(),
-					       key.ccuChan(),
-					       SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
-					       db()->dbParams().partition_,
-					       db()->dbParams().runNumber_,
-					       anal->isValid(),
-					       "" );
-      
-      // Add comments
-      typedef std::vector<std::string> Strings;
-      Strings errors = anal->getErrorCodes();
-      Strings::const_iterator istr = errors.begin();
-      Strings::const_iterator jstr = errors.end();
-      for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
-
-      // Store description
-      desc.push_back( tmp );
-      
-    }
-
+  SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
+  SiStripFedKey fed_key( anal->fedKey() );
+  
+  uint16_t latency = static_cast<uint16_t>( ( anal->maximum() / (-25.) ) + 0.5 );
+  
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+    
+    ApvLatencyAnalysisDescription* tmp;
+    tmp = new ApvLatencyAnalysisDescription( latency, 
+					     fec_key.fecCrate(),
+					     fec_key.fecSlot(),
+					     fec_key.fecRing(),
+					     fec_key.ccuAddr(),
+					     fec_key.ccuChan(),
+					     SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					     db()->dbParams().partition_,
+					     db()->dbParams().runNumber_,
+					     anal->isValid(),
+					     "",
+					     fed_key.fedId(),
+					     fed_key.feUnit(),
+					     fed_key.feChan(),
+					     fed_key.fedApv() );
+    
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+    
+    // Store description
+    desc.push_back( tmp );
+    
   }
-
-//   std::stringstream sss;
-//   SiStripConfigDb::AnalysisDescriptions::iterator ii = desc.begin();
-//   SiStripConfigDb::AnalysisDescriptions::iterator jj = desc.end();
-//   for ( ; ii != jj; ++ii ) { 
-//     ApvLatencyAnalysisDescription* tmp = dynamic_cast<ApvLatencyAnalysisDescription*>( *ii );
-//     if ( tmp ) { sss << tmp->toString(); }
-//   }
-//   edm::LogVerbatim(mlDqmClient_) 
-//     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-//     << " Analysis descriptions:" << std::endl << sss.str(); 
-
+  
 }
 

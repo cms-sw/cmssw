@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.2 2007/12/11 17:11:12 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.3 2008/02/07 17:02:57 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -12,8 +12,8 @@ using namespace sistrip;
 /** */
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 						const DbParams& params )
-  : FineDelayHistograms( mui ),
-    CommissioningHistosUsingDb( params )
+  : CommissioningHistosUsingDb( params ),
+    FineDelayHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -24,8 +24,8 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 /** */
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 						SiStripConfigDb* const db ) 
-  : FineDelayHistograms( mui ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db ),
+    FineDelayHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -36,8 +36,8 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 /** */
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DaqMonitorBEInterface* bei,
 						SiStripConfigDb* const db ) 
-  : FineDelayHistograms( bei ),
-    CommissioningHistosUsingDb( db )
+  : CommissioningHistosUsingDb( db ),
+    FineDelayHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -352,66 +352,45 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
-
-  edm::LogVerbatim(mlDqmClient_) 
-    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Creating TimingAnalysisDescriptions...";
+void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+				     Analysis analysis ) {
   
-  // Clear descriptions container
-  desc.clear();
+  FineDelayAnalysis* anal = dynamic_cast<FineDelayAnalysis*>( analysis->second );
+  if ( !anal ) { return; }
   
-  // Iterate through analysis objects and create analysis descriptions
-  typedef std::map<uint32_t,FineDelayAnalysis> Analyses; 
-  Analyses::iterator ianal = data_.begin();
-  Analyses::iterator janal = data_.end();
-  for ( ; ianal != janal; ++ianal ) {
+  SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
+  SiStripFedKey fed_key( anal->fedKey() );
 
-    FineDelayAnalysis* anal = &(ianal->second);
-    if ( !anal ) { continue; }
-
-    SiStripFecKey key( ianal->first );
-
-    for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
-
-      // Create description
-      FineDelayAnalysisDescription* tmp;
-      tmp = new FineDelayAnalysisDescription( anal->maximum(),
-					      anal->error(),
-					      key.fecCrate(),
-					      key.fecSlot(),
-					      key.fecRing(),
-					      key.ccuAddr(),
-					      key.ccuChan(),
-					      SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
-					      db()->dbParams().partition_,
-					      db()->dbParams().runNumber_,
-					      anal->isValid(),
-					       "" );
+  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
       
-      // Add comments
-      typedef std::vector<std::string> Strings;
-      Strings errors = anal->getErrorCodes();
-      Strings::const_iterator istr = errors.begin();
-      Strings::const_iterator jstr = errors.end();
-      for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
-
-      // Store description
-      desc.push_back( tmp );
-      
-    }
-
+    FineDelayAnalysisDescription* tmp;
+    tmp = new FineDelayAnalysisDescription( anal->maximum(),
+					    anal->error(),
+					    fec_key.fecCrate(),
+					    fec_key.fecSlot(),
+					    fec_key.fecRing(),
+					    fec_key.ccuAddr(),
+					    fec_key.ccuChan(),
+					    SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					    db()->dbParams().partition_,
+					    db()->dbParams().runNumber_,
+					    anal->isValid(),
+					    "",
+					    fed_key.fedId(),
+					    fed_key.feUnit(),
+					    fed_key.feChan(),
+					    fed_key.fedApv() );
+    
+    // Add comments
+    typedef std::vector<std::string> Strings;
+    Strings errors = anal->getErrorCodes();
+    Strings::const_iterator istr = errors.begin();
+    Strings::const_iterator jstr = errors.end();
+    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+    
+    // Store description
+    desc.push_back( tmp );
+    
   }
-
-//   std::stringstream sss;
-//   SiStripConfigDb::AnalysisDescriptions::iterator ii = desc.begin();
-//   SiStripConfigDb::AnalysisDescriptions::iterator jj = desc.end();
-//   for ( ; ii != jj; ++ii ) { 
-//     FineDelayAnalysisDescription* tmp = dynamic_cast<FineDelayAnalysisDescription*>( *ii );
-//     if ( tmp ) { sss << tmp->toString(); }
-//   }
-//   edm::LogVerbatim(mlDqmClient_) 
-//     << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-//     << " Analysis descriptions:" << std::endl << sss.str(); 
-
+  
 }

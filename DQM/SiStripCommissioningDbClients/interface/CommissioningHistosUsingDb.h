@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.5 2007/12/12 15:06:15 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.6 2008/02/07 17:02:55 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -75,7 +75,22 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   inline bool doUploadAnal() const;
   
   inline bool doUploadConf() const;
-
+  
+  class DetInfo { 
+  public:
+    DetInfo() : 
+      dcuId_(sistrip::invalid32_), 
+      detId_(sistrip::invalid32_), 
+      pairs_(sistrip::invalid_) {;}
+    uint32_t dcuId_;
+    uint32_t detId_;
+    uint16_t pairs_;
+  };
+  
+  typedef std::map<uint32_t,DetInfo> DetInfoMap;
+  
+  void detInfo( DetInfoMap& );
+  
   // ---------- private member data ----------
   
  private: 

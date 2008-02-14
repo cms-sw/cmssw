@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.12 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.13 2008/02/07 17:02:57 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -376,8 +376,9 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
   ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
-  SiStripFecKey key( analysis->first );
-
+  SiStripFecKey fec_key( anal->fecKey() );
+  SiStripFedKey fed_key( anal->fedKey() );
+  
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
     
     // Create description
@@ -390,18 +391,22 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
 					 anal->peak(),
 					 anal->frameFindingThreshold(),
 					 anal->optimumSamplingPoint(),
-					 50.,  //@@ tickMarkHeightThreshold
+					 ApvTimingAnalysis::tickMarkHeightThreshold_,
 					 true, //@@ APV timing analysis (not FED timing)
-					 key.fecCrate(),
-					 key.fecSlot(),
-					 key.fecRing(),
-					 key.ccuAddr(),
-					 key.ccuChan(),
-					 SiStripFecKey::i2cAddr( key.lldChan(), !iapv ), 
+					 fec_key.fecCrate(),
+					 fec_key.fecSlot(),
+					 fec_key.fecRing(),
+					 fec_key.ccuAddr(),
+					 fec_key.ccuChan(),
+					 SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
 					 db()->dbParams().partition_,
 					 db()->dbParams().runNumber_,
 					 anal->isValid(),
-					 "" );
+					 "",
+					 fed_key.fedId(),
+					 fed_key.feUnit(),
+					 fed_key.feChan(),
+					 fed_key.fedApv() );
     
     // Add comments
     typedef std::vector<std::string> Strings;
@@ -412,6 +417,16 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
     
     // Store description
     desc.push_back( tmp );
+    
+//     std::stringstream sss;
+//     if ( tmp ) { 
+//       anal->print(sss); 
+//       sss << std::endl;
+//       sss << tmp->toString() << std::endl;
+//     }
+//     LogTrace(mlDqmClient_) 
+//       << "[CommissioningHistosUsingDb::" << __func__ << "]"
+//       << " Analysis descriptions:" << std::endl << sss.str(); 
     
   }
   
