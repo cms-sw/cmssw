@@ -5,13 +5,17 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+/*
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-
+*/
+#include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
+#include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
@@ -31,6 +35,7 @@
 
 using namespace reco;
 using namespace ctfseeding;
+using namespace l1extra;
 
 template <class T> T sqr( T t) {return t*t;}
 
@@ -38,7 +43,8 @@ template <class T> T sqr( T t) {return t*t;}
 TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theHitGenerator(0)
 {
-  produces<TrajectorySeedCollection>();
+  produces<L3MuonTrajectorySeedCollection>();
+  theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
@@ -62,22 +68,19 @@ void TSGFromL1Muon::beginJob(const edm::EventSetup& es)
 
 void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
-  // get L1 muon
-  edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-  ev.getByLabel("l1GmtEmulDigis",gmtrc_handle);
-  L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
-  std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
 
-  std::cout << " HERE - producing SEEDS" << std::endl;
-  for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
-    std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
-    std::vector<L1MuGMTExtendedCand> exc = igmtrr->getGMTCands();
-    if (exc.size() <= 0) continue;
-    std::cout <<" HAS L1 MUON" << std::endl;
-    L1MuGMTExtendedCand & muon = exc.front();
+  // get the L1mun particles
+  edm::Handle<L1MuonParticleCollection> l1muon;
+  ev.getByLabel(theSourceTag, l1muon);
+
+  uint iL1=0;
+  uint iL1max=l1muon->size();
+  for (; iL1!=iL1max;++iL1){
+    l1extra::L1MuonParticleRef l1Ref(l1muon, iL1);
+    // get the gmt extended candidate
+    const L1MuGMTExtendedCand & muon = (*l1muon)[iL1].gmtMuonCand();
 
     float phi_rec = muon.phiValue()+0.021817;
 
@@ -91,7 +94,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     // FIXME 0 preliminary optimisation for ptcut=10
     RectangularEtaPhiTrackingRegion region( dir, vtx, 10.,  0.1, 16., 0.15, 0.35);
     const OrderedSeedingHits & candidates = theHitGenerator->run(region,ev,es);
-    std::cout << "*** TSGFromL1Muon, size: " << candidates.size() << std::endl;
+    //    std::cout << "*** TSGFromL1Muon, size: " << candidates.size() << std::endl;
 
     unsigned int nSets = candidates.size();
     for (unsigned int ic= 0; ic <nSets; ic++) {
@@ -111,7 +114,6 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
       float pt_rec = std::max(getPt(phi_vtx, phi_rec, muon.etaValue(), muon.charge()),
                          getPt(phi_vtx, phi_rec, muon.etaValue(), -muon.charge()));
 
-
       // FIXME move it to the filter
       if (pt_rec < 8) continue;
 
@@ -122,19 +124,25 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
       if (!track) continue;
 
       SeedFromProtoTrack seed( *track, hits, es);
-      if (seed.isValid()) (*result).push_back( seed.trajectorySeed() );
 
-//      GlobalError vtxerr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
-//                                               0, 0, sqr(region.originZBound()));
-//      SeedFromConsecutiveHits seed( candidates[ic],region.origin(), vtxerr, es); 
-//      if (seed.isValid()) (*result).push_back( seed.TrajSeed() );
+      if (seed.isValid()){
+	//invalid reference
+	(*result).push_back(L3MuonTrajectorySeed(seed.trajectorySeed(), l1Ref) );
+      }
+      //      GlobalError vtxerr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
+      //                                               0, 0, sqr(region.originZBound()));
+      //      SeedFromConsecutiveHits seed( candidates[ic],region.origin(), vtxerr, es); 
+      //      if (seed.isValid()){
+      //      //invalid reference 
+      //      (*result).push_back(L3MuonTrajectorySeed(seed.TrajSeed(), l1Ref()) );
+      //    }
       delete track;
 
-    }
-  }
+    }//loop over candidate
+  }//has L1 info
 
 
-
+  edm::LogWarning("TSGFromL1Muon")<<result->size()<<" seeds to the event.";
 
 
   ev.put(result);

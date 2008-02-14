@@ -26,6 +26,7 @@ private:
  
 private:
   edm::ParameterSet theConfig;
+  edm::InputTag theSourceTag;
   OrderedHitsGenerator * theHitGenerator;
   const PixelFitter       * theFitter;
 
