@@ -8,6 +8,7 @@ namespace cond{
     static const std::string& metadataTable();
     static const std::string& tagColumn();
     static const std::string& tokenColumn();
+    static const std::string& timetypeColumn();
   };
 }
 #endif

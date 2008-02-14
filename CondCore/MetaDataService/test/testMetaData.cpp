@@ -3,6 +3,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include <string>
 #include <vector>
 #include <iterator>
@@ -22,21 +23,38 @@ int main(){
     coralTransaction.commit();
     std::string t2("token2");
     coralTransaction.start(false);
-    metadata_svc.addMapping("mytest2",t2);
+    metadata_svc.addMapping("mytest2",t2,cond::timestamp);
     coralTransaction.commit();
     coralTransaction.start(true);
-    std::string tok1=metadata_svc.getToken("mytest2");
+    std::string tok1=metadata_svc.getToken("mytest1");
+    cond::MetaDataEntry r1;
+    metadata_svc.getEntryByTag("mytest1",r1);
     coralTransaction.commit();
     std::cout<<"got token1 "<<tok1<<std::endl;
+    std::cout<<"got entry tagname "<<r1.tagname<<std::endl;
+    std::cout<<"got entry iovtoken "<<r1.iovtoken<<std::endl;
+    if(r1.timetype==cond::runnumber){
+      std::cout<<"runnumber"<<std::endl;
+    }else{
+      std::cout<<"timestamp"<<std::endl;
+    }
     coralTransaction.start(true);
     std::string tok2=metadata_svc.getToken("mytest2");
+    cond::MetaDataEntry r2;
+    metadata_svc.getEntryByTag("mytest2",r2);
     coralTransaction.commit();
     //coralTransaction.commit();
     std::cout<<"got token2 "<<tok2<<std::endl;
+    std::cout<<"got entry tagname "<<r2.tagname<<std::endl;
+    std::cout<<"got entry iovtoken "<<r2.iovtoken<<std::endl;
+    if(r2.timetype==cond::runnumber){
+      std::cout<<"runnumber"<<std::endl;
+    }else{
+      std::cout<<"timestamp"<<std::endl;
+    }
     std::string newtok2="newtoken2";
     coralTransaction.start(false);
     //coralTransaction.start();
-    std::cout<<"abp"<<std::endl;
     metadata_svc.replaceToken("mytest2",newtok2);
     coralTransaction.commit();
     //coralTransaction.commit();

@@ -19,7 +19,8 @@ cond::MetaData::MetaData(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
 }
 cond::MetaData::~MetaData(){
 }
-bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
+bool 
+cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken, cond::TimeType timetype ){
   try{
     try{
       this->createTable( cond::MetaDataNames::metadataTable() );
@@ -35,16 +36,18 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     dataEditor.rowBuffer( rowBuffer );
     rowBuffer[cond::MetaDataNames::tagColumn()].data<std::string>()=name;
     rowBuffer[cond::MetaDataNames::tokenColumn()].data<std::string>()=iovtoken;
+    rowBuffer[cond::MetaDataNames::timetypeColumn()].data<int>()=timetype;
     dataEditor.insertRow( rowBuffer );
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
     ///do not remove ! must ignore this exception!!!
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(std::exception& er){
-    throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
+    throw cond::Exception(std::string("MetaData::addMapping error: ")+er.what());
   }
   return true;
 }
-bool cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
+bool 
+cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
   try{
     if(!m_coraldb.nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
       throw cond::Exception( "MetaData::replaceToken MetaData table doesnot exist" );
@@ -69,7 +72,8 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
   }
   return true;
 }
-const std::string cond::MetaData::getToken( const std::string& name ){
+const std::string 
+cond::MetaData::getToken( const std::string& name ) const{
   std::string iovtoken;
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
@@ -93,12 +97,44 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }
   return iovtoken;
 }
-void cond::MetaData::createTable(const std::string& tabname){
+void 
+cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& result )const{
+  result.tagname=tagname;
+  try{
+    coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
+    std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    query->setRowCacheSize( 100 );
+    coral::AttributeList emptyBindVariableList;
+    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+tagname+"'";
+    query->setCondition( condition, emptyBindVariableList );
+    query->addToOutputList( cond::MetaDataNames::tokenColumn() );
+    query->addToOutputList( cond::MetaDataNames::timetypeColumn() );
+    coral::ICursor& cursor = query->execute();
+    while( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      result.iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
+      int tp=row[ cond::MetaDataNames::timetypeColumn() ].data<int>();
+      result.timetype=(cond::TimeType)tp;
+      //result.timetype=row[ cond::MetaDataNames::timetypeColumn() ].data<int>();
+    }
+  }catch(const coral::TableNotExistingException& er){
+    ///must ignore this exception!!!
+    //m_coraldb.commit();
+    return;
+  }catch(const std::exception& er){
+    throw cond::Exception( std::string("MetaData::getEntryByTag error: ")+er.what() );
+  }
+  return;
+}
+
+void 
+cond::MetaData::createTable(const std::string& tabname){
   coral::ISchema& schema=m_coraldb.nominalSchema();
   coral::TableDescription description;
   description.setName( tabname );
   description.insertColumn(  cond::MetaDataNames::tagColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
   description.insertColumn( cond::MetaDataNames::tokenColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
+  description.insertColumn( cond::MetaDataNames::timetypeColumn(), coral::AttributeSpecification::typeNameForId( typeid(int)) );
   std::vector<std::string> cols;
   cols.push_back( cond::MetaDataNames::tagColumn() );
   description.setPrimaryKey(cols);
@@ -125,7 +161,8 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
   }
   return result;
 }
-void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
+void 
+cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
@@ -144,7 +181,33 @@ void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
     throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
   }
 }
-void cond::MetaData::deleteAllEntries(){
+void 
+cond::MetaData::listAllEntries( std::vector<cond::MetaDataEntry>& result ) const{
+  try{
+    coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
+    std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    query->addToOutputList( cond::MetaDataNames::tagColumn() );
+    query->setMemoryCacheSize( 100 );
+    coral::ICursor& cursor = query->execute();
+    while( cursor.next() ){
+      cond::MetaDataEntry r;
+      const coral::AttributeList& row = cursor.currentRow();
+      r.tagname=row[cond::MetaDataNames::tagColumn()].data<std::string>();
+      r.iovtoken=row[cond::MetaDataNames::tokenColumn()].data<std::string>();
+      int tp=row[cond::MetaDataNames::timetypeColumn()].data<int>();
+      r.timetype=(cond::TimeType)tp;
+      result.push_back(r);
+    }
+    cursor.close();
+  }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
+    return;
+  }catch(const std::exception& er){
+    throw cond::Exception( std::string("MetaData::listAllEntries: " )+er.what() );
+  }
+}
+void 
+cond::MetaData::deleteAllEntries(){
   coral::AttributeList emptybinddata;
   try{
     coral::ITable& table=m_coraldb.nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());

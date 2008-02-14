@@ -11,3 +11,7 @@ const std::string& cond::MetaDataNames::tokenColumn(){
   static const std::string s_tokenColumn("TOKEN");
   return s_tokenColumn;
 }
+const std::string& cond::MetaDataNames::timetypeColumn(){
+  static const std::string s_timetypeColumn("TIMETYPE");
+  return s_timetypeColumn;
+}
