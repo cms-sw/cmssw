@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="SiPixelCalibConfiguration"/>
-  <class name="std::vector<short>"/>
-  <class name="std::vector<std::string>"/>
-</lcgdict>
