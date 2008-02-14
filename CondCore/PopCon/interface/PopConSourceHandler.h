@@ -36,11 +36,11 @@ namespace popcon {
       Ref() : m_pooldb(0){}
       Ref(cond::PoolTransaction& pooldb, std::string token) : 
 	cond::TypedRef<value_type>(pooldb,token), m_pooldb(&pooldb){
-	m_pooldb.start(true);
+	m_pooldb->start(true);
       }
       ~Ref() {
 	if (m_pooldb)
-	  m_pooldb.commit();
+	  m_pooldb->commit();
       }
 
       Ref(const Ref & ref) : 
