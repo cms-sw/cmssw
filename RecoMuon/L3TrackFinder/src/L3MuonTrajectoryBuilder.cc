@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 16:26:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/14 18:02:38 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -76,9 +76,7 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
   //
   // start seed generator;
   //
-  string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
-  ParameterSet seedGenPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
-  seedGenPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
+   ParameterSet seedGenPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
   theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
   theTkSeedGenerator->init(GlobalTrajectoryBuilderBase::service());

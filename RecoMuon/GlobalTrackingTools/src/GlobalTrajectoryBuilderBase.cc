@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/07 21:52:48 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/14 20:36:13 $
+ *  $Revision: 1.8 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -91,19 +91,19 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-
   theLayerMeasurements = new MuonDetLayerMeasurements();
 
   string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
-
+  
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
   trackMatcherPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
-
+  
   trackerPropagatorName = par.getParameter<string>("TrackerPropagator");
 
-  theTrackTransformer = new TrackTransformer(par.getParameter<ParameterSet>("TrackTransformer"));
+  ParameterSet trackTransformerPSet = par.getParameter<ParameterSet>("TrackTransformer");
+  trackTransformerPSet.addParameter<string>("Propagator",stateOnTrackerOutProp);
+  theTrackTransformer = new TrackTransformer(trackTransformerPSet);
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
   regionBuilderPSet.addParameter<bool>("RegionalSeedFlag",false);
