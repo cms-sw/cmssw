@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.15 2007/09/20 21:04:59 fedor Exp $
+// $Id: CaloJet.cc,v 1.16 2008/02/12 23:46:31 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -51,7 +51,7 @@ float CaloJet::physicsEtaDetailed (float fZVertex) const {
 }
 
   /// Physics p4 (use jet Z and kinematics only)
-CaloJet::LorentzVector CaloJet::p4 (float fZVertex) const {
+CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
   double physicsEta = Jet::physicsEta (fZVertex, eta());
   math::PtEtaPhiMLorentzVectorD p4 (p()/cosh(physicsEta), physicsEta, phi(), mass());
   return CaloJet::LorentzVector (p4);

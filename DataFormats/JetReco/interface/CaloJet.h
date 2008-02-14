@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.30 2007/09/20 21:04:43 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.31 2008/02/12 23:46:28 fedor Exp $
  ************************************************************/
 
 
@@ -122,7 +122,7 @@ class CaloJet : public Jet {
   /// Physics Eta (use jet Z and kinematics only)
   float physicsEta (float fZVertex) const {return physicsEtaQuick (fZVertex);}
   /// Physics p4 (use jet Z and kinematics only)
-  LorentzVector p4 (float fZVertex) const;
+  LorentzVector physicsP4 (float fZVertex) const;
   
   /// Physics Eta (loop over constituents)
   float physicsEtaDetailed (float fZVertex) const;
