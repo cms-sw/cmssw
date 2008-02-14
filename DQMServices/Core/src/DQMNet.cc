@@ -1352,6 +1352,25 @@ DQMNet::run(void)
   }
 }
 
+int
+DQMNet::receive(DaqMonitorBEInterface *)
+{
+  logme() << "ERROR: receive() method is not supported.\n";
+  return 0;
+}
+
+void
+DQMNet::updateLocalObject(Object &o)
+{
+  logme() << "ERROR: updateLocalObject() method is not supported.\n";
+}
+
+void
+DQMNet::removeLocalObject(const std::string &name)
+{
+  logme() << "ERROR: removeLocalObject() method is not supported.\n";
+}
+
 // Tell the network cache that there have been local changes that
 // should be advertised to the downstream listeners.
 void
@@ -1461,41 +1480,6 @@ DQMBasicNet::makeObject(Peer *p, const std::string &name)
   return o;
 }
  
-/// Send all objects to a peer and optionally mark sent objects old.
-void
-DQMBasicNet::sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear)
-{
-  PeerMap::iterator pi, pe;
-  ObjectMap::iterator oi, oe;
-  uint32_t numobjs = 0;
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    numobjs += pi->second.objs.size();
-
-  msg->data.reserve(msg->data.size() + 300*numobjs);
-
-  uint32_t nupdates = 0;
-  uint32_t words [4];
-  words[0] = sizeof(words);
-  words[1] = DQM_REPLY_LIST_BEGIN;
-  words[2] = numobjs;
-  words[3] = all;
-  DQMNet::copydata(msg, &words[0], sizeof(words));
-
-  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-    for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-      if (all || (oi->second.flags & DQM_FLAG_NEW))
-      {
-	sendObjectToPeer(msg, oi->second, data, sendScalarAsText_);
-	if (clear)
-	  oi->second.flags &= ~DQM_FLAG_NEW;
-	++nupdates;
-      }
-
-  words[1] = DQM_REPLY_LIST_END;
-  words[2] = nupdates;
-  copydata(msg, &words[0], sizeof(words));
-}
-
 // Mark all objects as dead.
 void
 DQMBasicNet::markAllObjectsDead(Peer *p)
@@ -1606,6 +1590,8 @@ void
 DQMBasicNet::removePeer(Peer *p, lat::Socket *s)
 {
   BasicPeer *bp = static_cast<BasicPeer *>(p);
+  bool needflush = ! bp->objs.empty();
+
   for (ObjectMap::iterator i = bp->objs.begin(), e = bp->objs.end(); i != e; )
   {
     Object &o = i->second;
@@ -1613,8 +1599,48 @@ DQMBasicNet::removePeer(Peer *p, lat::Socket *s)
     delete o.reference;
     bp->objs.erase(i++);
   }
-    
+
   peers_.erase(s);
+
+  // If we removed a peer with objects, our list of objects
+  // has changed and we need to update downstream peers.
+  if (needflush)
+    sendLocalChanges();
+}
+
+/// Send all objects to a peer and optionally mark sent objects old.
+void
+DQMBasicNet::sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear)
+{
+  PeerMap::iterator pi, pe;
+  ObjectMap::iterator oi, oe;
+  uint32_t numobjs = 0;
+  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
+    numobjs += pi->second.objs.size();
+
+  msg->data.reserve(msg->data.size() + 300*numobjs);
+
+  uint32_t nupdates = 0;
+  uint32_t words [4];
+  words[0] = sizeof(words);
+  words[1] = DQM_REPLY_LIST_BEGIN;
+  words[2] = numobjs;
+  words[3] = all;
+  DQMNet::copydata(msg, &words[0], sizeof(words));
+
+  for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
+    for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
+      if (all || (oi->second.flags & DQM_FLAG_NEW))
+      {
+	sendObjectToPeer(msg, oi->second, data, sendScalarAsText_);
+	if (clear)
+	  oi->second.flags &= ~DQM_FLAG_NEW;
+	++nupdates;
+      }
+
+  words[1] = DQM_REPLY_LIST_END;
+  words[2] = nupdates;
+  copydata(msg, &words[0], sizeof(words));
 }
 
 void

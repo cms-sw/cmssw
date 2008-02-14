@@ -34,10 +34,10 @@ public:
   static const uint32_t DQM_FLAG_REPORT_WARNING	= 0x2;
   static const uint32_t DQM_FLAG_REPORT_OTHER	= 0x4;
   static const uint32_t DQM_FLAG_SCALAR		= 0x8;
-  static const uint32_t DQM_FLAG_TEXT		= 0x1000000;
-  static const uint32_t DQM_FLAG_RECEIVED	= 0x2000000;
-  static const uint32_t DQM_FLAG_NEW		= 0x4000000;
-  static const uint32_t DQM_FLAG_DEAD		= 0x8000000;
+  static const uint32_t DQM_FLAG_TEXT		= 0x10000000;
+  static const uint32_t DQM_FLAG_RECEIVED	= 0x20000000;
+  static const uint32_t DQM_FLAG_NEW		= 0x40000000;
+  static const uint32_t DQM_FLAG_DEAD		= 0x80000000;
 
   struct Peer;
   struct QValue;
@@ -53,7 +53,7 @@ public:
     std::string		message;
   };
 
-  struct Object
+  struct CoreObject
   {
     uint64_t		version;
     std::string		name;
@@ -62,6 +62,10 @@ public:
     TObject		*reference;
     QReports		qreports;
     uint32_t		flags;
+  };
+  
+  struct Object : CoreObject
+  {
     DataBlob		rawdata;
     lat::Time		lastreq;
   };
@@ -121,9 +125,9 @@ public:
   void			start(void);
   void			run(void);
 
-  virtual int		receive(DaqMonitorBEInterface *bei) = 0;
-  virtual void		updateLocalObject(Object &o) = 0;
-  virtual void		removeLocalObject(const std::string &name) = 0;
+  virtual int		receive(DaqMonitorBEInterface *bei);
+  virtual void		updateLocalObject(Object &o);
+  virtual void		removeLocalObject(const std::string &name);
   void			sendLocalChanges(void);
 
 protected:
@@ -132,6 +136,7 @@ protected:
   void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
 
   virtual bool		shouldStop(void);
+  void			waitForData(Peer *p, const std::string &name, const std::string &info);
   virtual void		releaseFromWait(Bucket *msg, Peer &p, Object *o);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
@@ -163,7 +168,6 @@ private:
 				 lat::IOSelectEvent *event,
 				 lat::Error *err = 0);
   void			requestObject(const char *name, size_t len);
-  void			waitForData(Peer *p, const std::string &name, const std::string &info);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(Object *o);
 
@@ -230,7 +234,6 @@ protected:
   virtual void		updatePeerMasks(void);
 
 private:
-
   PeerMap		peers_;
   BasicPeer		*local_;
 };
