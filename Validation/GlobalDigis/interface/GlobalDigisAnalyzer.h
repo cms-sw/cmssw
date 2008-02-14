@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/11/15 23:22:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/20 23:56:25 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -87,6 +87,14 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
+// muon RPC info
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 // event info
 //#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -163,8 +171,6 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehEcalSHEvAEESHE[2];
   MonitorElement *mehEScalADC[3];
 
- 
-
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
   edm::InputTag ECalESSrc_;
@@ -195,13 +201,13 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
 
   // SiPxl
 
-   MonitorElement *mehSiPixeln[7];
+  MonitorElement *mehSiPixeln[7];
   MonitorElement *mehSiPixelADC[7];
   MonitorElement *mehSiPixelRow[7];
   MonitorElement *mehSiPixelCol[7];
-
+  
   edm::InputTag SiPxlSrc_;
-
+  
   // Muon info
   // DT
 
@@ -212,7 +218,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
 
   edm::InputTag MuDTSrc_;
 
-  // CSC Strip
+  // CSC
 
   MonitorElement *mehCSCStripn;
   MonitorElement *mehCSCStripADC;
@@ -220,11 +226,16 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehCSCWireTime;
 
   edm::InputTag MuCSCStripSrc_;
-float theCSCStripPedestalSum;
+  float theCSCStripPedestalSum;
   int theCSCStripPedestalCount;
 
-
   edm::InputTag MuCSCWireSrc_;
+
+  // RPC
+  MonitorElement *mehRPCMuonn;
+  MonitorElement *mehRPCRes[5];
+
+  edm::InputTag MuRPCSrc_;
 
   // private statistics information
   unsigned int count;

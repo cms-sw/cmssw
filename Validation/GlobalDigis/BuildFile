@@ -16,9 +16,13 @@
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/CSCDigi>
+<use name=DataFormats/RPCDigi>
+<use name=Geometry/RPCGeometry>
+<use name=Geometry/Records>
 <use name=SimDataFormats/ValidationFormats>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/TrackingHit>	
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
@@ -44,9 +48,13 @@
  <use name=DataFormats/DTDigi>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/CSCDigi>
+ <use name=DataFormats/RPCDigi>
+ <use name=Geometry/RPCGeometry>
+ <use name=Geometry/Records>
  <use name=SimDataFormats/ValidationFormats>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
+ <use name=SimDataFormats/TrackingHit>
  <use name=root>
  <use name=DQMServices/CoreROOT>
 </export>
