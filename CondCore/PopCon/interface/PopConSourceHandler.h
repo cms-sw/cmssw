@@ -41,12 +41,9 @@ namespace popcon {
     cond::TagInfo const & tagInfo() const { return  *m_tagInfo; }
 
     // return last paylod of the tag
-    Ref lastPayload() {
-      m_pooldb->start(true);
-      Ref instance(*m_pooldb,tagInfo().lastPayloadToken);
-      *instance; // (get the object in memory....)
-      m_pooldb->commit();
-      return instance;
+    value_type const & lastPayload() const {
+      const_cast<self*>(this)->loadPayload();
+      return *m_lastPayload();
     }
 
     // return last successful log entry for the tag in question
@@ -89,6 +86,19 @@ namespace popcon {
 			    )
 		);
     }
+
+
+    private
+
+    void loadPayload() {
+      if (m_lastPayload.ptr()) return;
+      m_pooldb->start(true);
+      Ref instance(*m_pooldb,tagInfo().lastPayloadToken);
+      m_lastPayload = instance; 
+      *m_lastPayload;// (get the object in memory....)
+      m_pooldb->commit();
+    }
+
     
   private:
     
@@ -98,6 +108,8 @@ namespace popcon {
     
     cond::LogDBEntry const * m_logDBEntry;
     
+    Ref m_lastPayload;
+
   protected:
     
     //vector of payload objects and iovinfo to be transferred
