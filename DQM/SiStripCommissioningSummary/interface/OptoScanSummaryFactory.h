@@ -1,24 +1,16 @@
 #ifndef DQM_SiStripCommissioningSummary_OptoScanSummaryFactory_H
 #define DQM_SiStripCommissioningSummary_OptoScanSummaryFactory_H
 
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
+#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 
-template<>
-class SummaryPlotFactory<OptoScanAnalysis*> : public SummaryPlotFactoryBase {
+class OptoScanSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*> {
   
- public:
+ protected:
   
-  uint32_t init( const sistrip::Monitorable&, 
-		 const sistrip::Presentation&,
-		 const sistrip::View&, 
-		 const std::string& top_level_dir, 
-		 const sistrip::Granularity&,
-		 const std::map<uint32_t,OptoScanAnalysis*>& data );
+  void extract( Iterator );
   
-  void fill( TH1& summary_histo );
-
+  void format();
+  
 };
 
 #endif // DQM_SiStripCommissioningSummary_OptoScanSummaryFactory_H

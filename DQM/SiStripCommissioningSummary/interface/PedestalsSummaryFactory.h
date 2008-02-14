@@ -1,24 +1,16 @@
 #ifndef DQM_SiStripCommissioningSummary_PedestalsSummaryFactory_H
 #define DQM_SiStripCommissioningSummary_PedestalsSummaryFactory_H
 
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
+#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 
-template<>
-class SummaryPlotFactory<PedestalsAnalysis*> : public SummaryPlotFactoryBase {
+class PedestalsSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*> {
   
- public:
+ protected:
   
-  uint32_t init( const sistrip::Monitorable&, 
-		 const sistrip::Presentation&,
-		 const sistrip::View&, 
-		 const std::string& top_level_dir, 
-		 const sistrip::Granularity&,
-		 const std::map<uint32_t,PedestalsAnalysis*>& data );
+  void extract( Iterator );
   
-  void fill( TH1& summary_histo );
-
+  void format();
+  
 };
 
 #endif // DQM_SiStripCommissioningSummary_PedestalsSummaryFactory_H

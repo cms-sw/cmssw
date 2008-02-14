@@ -3,6 +3,8 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
+#include <boost/cstdint.hpp>
+#include <map>
 
 class CommissioningAnalysis;
 
@@ -12,16 +14,25 @@ class SummaryPlotFactory<CommissioningAnalysis*> : public SummaryPlotFactoryBase
  public:
   
   SummaryPlotFactory<CommissioningAnalysis*>() {;}
+
   virtual ~SummaryPlotFactory<CommissioningAnalysis*>() {;}
+
+  typedef std::map<uint32_t,CommissioningAnalysis*>::const_iterator Iterator;
   
-  virtual uint32_t init( const sistrip::Monitorable&, 
-			 const sistrip::Presentation&,
-			 const sistrip::View&, 
-			 const std::string& top_level_dir, 
-			 const sistrip::Granularity&,
-			 const std::map<uint32_t,CommissioningAnalysis*>& data ) { return 0; }
+  uint32_t init( const sistrip::Monitorable&, 
+		 const sistrip::Presentation&,
+		 const sistrip::View&, 
+		 const std::string& top_level_dir, 
+		 const sistrip::Granularity&,
+		 const std::map<uint32_t,CommissioningAnalysis*>& data );
   
-  virtual void fill( TH1& summary_histo ) {;} 
+  void fill( TH1& summary_histo );
+
+ protected:
+  
+  virtual void extract( Iterator ) {;} 
+  
+  virtual void format() {;}
   
 };
 

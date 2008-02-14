@@ -2,10 +2,9 @@
 #define DQM_SiStripCommissioningSummary_SummaryPlotFactoryBase_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "TH1.h"
 #include <string>
-
-class SummaryGenerator;
 
 class SummaryPlotFactoryBase {
   

@@ -1,23 +1,15 @@
 #ifndef DQM_SiStripCommissioningSummary_ApvTimingSummaryFactory_H
 #define DQM_SiStripCommissioningSummary_ApvTimingSummaryFactory_H
 
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
+#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 
-template<>
-class SummaryPlotFactory<ApvTimingAnalysis*> : public SummaryPlotFactoryBase {
+class ApvTimingSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*> {
   
- public:
+ protected:
   
-  uint32_t init( const sistrip::Monitorable&, 
-		 const sistrip::Presentation&,
-		 const sistrip::View&, 
-		 const std::string& top_level_dir, 
-		 const sistrip::Granularity&,
-		 const std::map<uint32_t,ApvTimingAnalysis*>& data );
+  void extract( Iterator );
   
-  void fill( TH1& summary_histo );
+  void format();
   
 };
 
