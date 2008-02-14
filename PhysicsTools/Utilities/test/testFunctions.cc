@@ -6,6 +6,7 @@
 #include "PhysicsTools/Utilities/interface/Ratio.h"
 #include "PhysicsTools/Utilities/interface/Difference.h"
 #include "PhysicsTools/Utilities/interface/Minus.h"
+#include "PhysicsTools/Utilities/interface/Convolution.h"
 #include <cmath>
 
 class testFunctions : public CppUnit::TestFixture {
@@ -37,4 +38,6 @@ void testFunctions::checkAll() {
   CPPUNIT_ASSERT(fabs(g1minus2(x) - (g1(x) - g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(gm1(x) - (-g1(x)) < epsilon));
+  Convolution<Gaussian, Gaussian> gg(g1, g1, -5, 5, 1000);
+  CPPUNIT_ASSERT(fabs(gg(0) - g1(0)/sqrt(2))<epsilon);
 }
