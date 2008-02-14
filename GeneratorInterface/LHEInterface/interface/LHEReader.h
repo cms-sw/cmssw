@@ -27,7 +27,7 @@ class LHEReader {
 	class FileSource;
 	class XMLHandler;
 
-	const std::vector<std::string>	fileNames;
+	const std::vector<std::string>	fileURLs;
 
 	unsigned int			curIndex;
 	std::auto_ptr<Source>		curSource;

@@ -14,6 +14,8 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 
+#include "Utilities/StorageFactory/interface/Storage.h"
+
 namespace lhef {
 
 class XMLDocument {
@@ -21,6 +23,7 @@ class XMLDocument {
 	class Handler : public XERCES_CPP_NAMESPACE_QUALIFIER DefaultHandler {};
 
 	XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler);
+	XMLDocument(std::auto_ptr<Storage> &in, Handler &handler);
 	virtual ~XMLDocument();
 
 	bool parse();
@@ -38,6 +41,8 @@ class XMLDocument {
 
 		static unsigned int instances;
 	};
+
+	void init(Handler &handler);
 
 	std::auto_ptr<XercesPlatform>					platform;
 
@@ -73,8 +78,26 @@ class XMLSimpleStr {
 	char	*string;
 };
 
+template<typename T>
+class XMLInputSourceWrapper :
+			public XERCES_CPP_NAMESPACE_QUALIFIER InputSource {
+    public:
+	typedef typename T::Stream_t Stream_t;
+
+	XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
+	virtual ~XMLInputSourceWrapper() {}
+
+	virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream* makeStream() const
+	{ return new T(*obj); }
+
+    private:
+	std::auto_ptr<Stream_t>	obj;
+};
+
 class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
     public:
+	typedef std::istream Stream_t;
+
 	STLInputStream(std::istream &in);
 	virtual ~STLInputStream();
 
@@ -88,17 +111,26 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	unsigned int	pos;
 };
 
-class STLInputSource : public XERCES_CPP_NAMESPACE_QUALIFIER InputSource {
+class StorageInputStream :
+		public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
     public:
-	STLInputSource(std::auto_ptr<std::istream> &in);
-	virtual ~STLInputSource();
+	typedef Storage Stream_t;
 
-	virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream* makeStream() const
-	{ return new STLInputStream(*in); }
+	StorageInputStream(Storage &in);
+	virtual ~StorageInputStream();
+
+	virtual unsigned int curPos() const { return pos; }
+
+	virtual unsigned int readBytes(XMLByte *const buf,
+	                               const unsigned int size);
 
     private:
-	std::auto_ptr<std::istream>	in;
+	Storage		&in;
+	unsigned int	pos;
 };
+
+typedef XMLInputSourceWrapper<STLInputStream> STLInputSource;
+typedef XMLInputSourceWrapper<StorageInputStream> StorageInputSource;
 
 } // namespace lhef
 

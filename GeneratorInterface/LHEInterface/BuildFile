@@ -4,6 +4,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=SimDataFormats/HepMCProduct>
+<use name=Utilities/StorageFactory>
 <use name=f77compiler>
 <use name=boost>
 <use name=xerces-c>

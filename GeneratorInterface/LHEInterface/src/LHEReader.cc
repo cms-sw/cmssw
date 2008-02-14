@@ -5,12 +5,15 @@
 #include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 #include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
+#include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "XMLUtils.h"
 
@@ -27,13 +30,14 @@ class LHEReader::Source {
 
 class LHEReader::FileSource : public LHEReader::Source {
     public:
-	FileSource(const std::string &fileName) :
-		fileStream(new std::ifstream(fileName.c_str()))
+	FileSource(const std::string &fileURL) :
+		fileStream(StorageFactory::get()->open(fileURL,
+		                                       IOFlags::OpenRead))
 	{
-		if (!fileStream->good())
+		if (!fileStream.get())
 			throw cms::Exception("FileOpenError")
 				<< "Could not open LHE file \""
-				<< fileName << "\" for reading"
+				<< fileURL << "\" for reading"
 				<< std::endl;
 	}
 
@@ -43,7 +47,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-	std::auto_ptr<std::istream>	fileStream;
+	std::auto_ptr<Storage>		fileStream;
 };
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
@@ -161,7 +165,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 }
 
 LHEReader::LHEReader(const edm::ParameterSet &params) :
-	fileNames(params.getParameter< std::vector<std::string> >("inputFiles")),
+	fileURLs(params.getParameter< std::vector<std::string> >("inputFiles")),
 	curIndex(0), handler(new XMLHandler())
 {
 }
@@ -172,9 +176,9 @@ LHEReader::~LHEReader()
 
 boost::shared_ptr<LHEEvent> LHEReader::next()
 {
-	while(curDoc.get() || curIndex < fileNames.size()) {
+	while(curDoc.get() || curIndex < fileURLs.size()) {
 		if (!curDoc.get()) {
-			curSource.reset(new FileSource(fileNames[curIndex++]));
+			curSource.reset(new FileSource(fileURLs[curIndex++]));
 			curDoc.reset(curSource->createReader(*handler));
 			curCommon.reset();
 		}

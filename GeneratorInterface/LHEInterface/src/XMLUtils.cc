@@ -10,6 +10,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+
 #include "XMLUtils.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -43,6 +46,20 @@ XMLDocument::XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler) :
 	source(new STLInputSource(in)),
 	parser(XMLReaderFactory::createXMLReader()),
 	done(false)
+{
+	init(handler);
+}
+
+XMLDocument::XMLDocument(std::auto_ptr<Storage> &in, Handler &handler) :
+	platform(new XercesPlatform()),
+	source(new StorageInputSource(in)),
+	parser(XMLReaderFactory::createXMLReader()),
+	done(false)
+{
+	init(handler);
+}
+
+void XMLDocument::init(Handler &handler)
 {
 	parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
 	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
@@ -103,18 +120,33 @@ unsigned int STLInputStream::readBytes(XMLByte* const buf,
 	for(unsigned int i = 1; i <= rest; i++)
 		in.putback(rawBuf[readBytes - i]);
 
-	pos += readBytes;
-
+	pos += read;
 	return read;
 }
 
-STLInputSource::STLInputSource(std::auto_ptr<std::istream> &in) :
+StorageInputStream::StorageInputStream(Storage &in) :
 	in(in)
 {
 }
 
-STLInputSource::~STLInputSource()
+StorageInputStream::~StorageInputStream()
 {
+}
+
+unsigned int StorageInputStream::readBytes(XMLByte* const buf,
+                                           const unsigned int size)
+{
+	void *rawBuf = reinterpret_cast<void*>(buf);
+	unsigned int bytes = size * sizeof(XMLByte);
+	unsigned int readBytes = in.read(rawBuf, bytes);
+
+	unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
+	unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
+	if (rest)
+		in.position(-(IOOffset)rest, Storage::CURRENT);
+
+	pos += read;
+	return read;
 }
 
 } // namespace lhef
