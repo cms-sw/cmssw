@@ -43,9 +43,9 @@ namespace popcon {
     // return last paylod of the tag
     Ref lastPayload() {
       m_pooldb->start(true);
-      Ref myinstance(pooldb,taginfo().lastPayloadToken);
+      Ref instance(m_pooldb,tagInfo().lastPayloadToken);
       m_pooldb->commit();
-      return Ref;
+      return instance;
     }
 
     // return last successful log entry for the tag in question
@@ -60,9 +60,10 @@ namespace popcon {
     }
 
     // this is the only mandatory interface
-    Container const & operator()(cond::TagInfo const & tagInfo, 
+    Container const & operator()(cond::PoolTransaction& pooldb,
+				 cond::TagInfo const & tagInfo, 
 				 cond::LogDBEntry const & logDBEntry) const {
-      const_cast<self*>(this)->initialize(tagInfo, logDBEntry);
+      const_cast<self*>(this)->initialize(pooldb, tagInfo, logDBEntry);
       return const_cast<self*>(this)->returnData();
     }
     
