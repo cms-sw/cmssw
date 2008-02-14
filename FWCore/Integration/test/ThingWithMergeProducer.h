@@ -28,6 +28,7 @@ namespace edmtest {
 
     bool changeIsEqualValue_;
     std::string labelToGet_;
+    bool noPut_;
   };
 }
 

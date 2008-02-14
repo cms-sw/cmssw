@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.1 2008/02/04 20:15:40 wdd Exp $
+// $Id: ThingWithMergeProducer.cc,v 1.2 2008/02/08 17:35:51 wdd Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just
@@ -23,7 +23,8 @@
 namespace edmtest {
   ThingWithMergeProducer::ThingWithMergeProducer(edm::ParameterSet const& pset) :
     changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
-    labelToGet_(pset.getUntrackedParameter<std::string>("labelToGet", std::string()))
+    labelToGet_(pset.getUntrackedParameter<std::string>("labelToGet", std::string())),
+    noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
     produces<Thing, edm::InLumi>("beginLumi");
@@ -59,16 +60,16 @@ namespace edmtest {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 11;
-    e.put(result, std::string("event"));
+    if (!noPut_) e.put(result, std::string("event"));
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 12;
-    e.put(result2, std::string("event"));
+    if (!noPut_) e.put(result2, std::string("event"));
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 13;
     if (changeIsEqualValue_) result3->a = 14;
-    e.put(result3, std::string("event"));
+    if (!noPut_) e.put(result3, std::string("event"));
   }
 
   void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
@@ -81,16 +82,16 @@ namespace edmtest {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 101;
-    lb.put(result, "beginLumi");
+    if (!noPut_) lb.put(result, "beginLumi");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 102;
-    lb.put(result2, "beginLumi");
+    if (!noPut_) lb.put(result2, "beginLumi");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 103;
     if (changeIsEqualValue_) result3->a = 104;
-    lb.put(result3, "beginLumi");
+    if (!noPut_) lb.put(result3, "beginLumi");
   }
 
   void ThingWithMergeProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
@@ -103,16 +104,16 @@ namespace edmtest {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 1001;
-    lb.put(result, "endLumi");
+    if (!noPut_) lb.put(result, "endLumi");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 1002;
-    lb.put(result2, "endLumi");
+    if (!noPut_) lb.put(result2, "endLumi");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 1003;
     if (changeIsEqualValue_) result3->a = 1004;
-    lb.put(result3, "endLumi");
+    if (!noPut_) lb.put(result3, "endLumi");
   }
 
   // Functions that gets called by framework every run
@@ -126,16 +127,16 @@ namespace edmtest {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 10001;
-    r.put(result, "beginRun");
+    if (!noPut_) r.put(result, "beginRun");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 10002;
-    r.put(result2, "beginRun");
+    if (!noPut_) r.put(result2, "beginRun");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 10003;
     if (changeIsEqualValue_) result3->a = 10004;
-    r.put(result3, "beginRun");
+    if (!noPut_) r.put(result3, "beginRun");
   }
 
   void ThingWithMergeProducer::endRun(edm::Run& r, edm::EventSetup const&) {
@@ -148,16 +149,16 @@ namespace edmtest {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 100001;
-    r.put(result, "endRun");
+    if (!noPut_) r.put(result, "endRun");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 100002;
-    r.put(result2, "endRun");
+    if (!noPut_) r.put(result2, "endRun");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 100003;
     if (changeIsEqualValue_) result3->a = 100004;
-    r.put(result3, "endRun");
+    if (!noPut_) r.put(result3, "endRun");
   }
 }
 using edmtest::ThingWithMergeProducer;
