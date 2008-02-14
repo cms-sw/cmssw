@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/09/06 17:37:34 $
- *   $Revision: 1.31 $
+ *   $Date: 2007/10/07 17:28:08 $
+ *   $Revision: 1.32 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -99,14 +99,14 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   LogTrace(metname)<<endl<<endl<<endl;
   LogTrace(metname)<<"Global Muon Reconstruction started"<<endl;  
 
-  typedef vector<Trajectory> TrajColl;
-
   // Update the services
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
+
+  Handle<vector<Trajectory> > staMuonsTraj;
 
   LogTrace(metname) << "Taking " << staMuons->size() << " Stand Alone Muons "<<theSTACollectionLabel<<endl;
 
@@ -116,7 +116,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   edm::Handle<reco::TrackToTrackMap> updatedStaAssoMap;
 
-  if( event.getByLabel(theSTACollectionLabel.label(),staAssoMap) && event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap) ) {    
+  if( event.getByLabel(theSTACollectionLabel.label(), staMuonsTraj) && event.getByLabel(theSTACollectionLabel.label(),staAssoMap) && event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap) ) {    
     
     for(TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it){	
       const Ref<vector<Trajectory> > traj = it->key;
