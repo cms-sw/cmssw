@@ -44,6 +44,7 @@ namespace popcon {
     Ref lastPayload() {
       m_pooldb->start(true);
       Ref instance(*m_pooldb,tagInfo().lastPayloadToken);
+      *instance; // (get the object in memory....)
       m_pooldb->commit();
       return instance;
     }
