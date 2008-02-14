@@ -8,6 +8,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -20,7 +21,12 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
-  theDR_Veto(par.getParameter<double>("DR_Veto"))
+  theDR_Veto(par.getParameter<double>("DR_Veto")),
+  //will make it configurable in 20X (or later 18X?)
+  //   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
+  //   theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel"))
+  theBeamlineOption("BeamSpotFromEvent"),
+  theBeamSpotLabel("offlineBeamSpot")  
 {
 }
 
@@ -55,8 +61,25 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
 
   double vtx_z = muon.vz();
   LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
+  reco::TrackBase::Point beamPoint(0,0, 0);
+
+  if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
+    //pick beamSpot
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotH;
+
+    event.getByLabel(theBeamSpotLabel,beamSpotH);
+
+    if (beamSpotH.isValid()){
+      beamPoint = beamSpotH->position();
+      LogTrace(metname)<<"Extracted beam point at "<<beamPoint<<std::endl;
+    }
+  }
+
+  LogTrace(metname)<<"Using beam point at "<<beamPoint<<std::endl;
+
   TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
-       theDiff_r, muonDir, theDR_Max);
+       theDiff_r, muonDir, theDR_Max, beamPoint);
   TrackSelector::result_type sel_tracks = selection(*tracksH);
   LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
 

@@ -16,8 +16,10 @@ public:
   typedef muonisolation::Range<float> Range;
   typedef std::list<const reco::Track*> result_type;
   typedef edm::View<reco::Track> input_type;
-
-  TrackSelector(const Range & z, float r, const Direction &dir, float drMax);
+  typedef reco::TrackBase::Point BeamPoint;
+  
+  TrackSelector(const Range & z, float r, const Direction &dir, float drMax,
+		const BeamPoint& point = BeamPoint(0,0,0));
   result_type operator()(const input_type & tracks) const;
 
 
@@ -26,6 +28,7 @@ private:
   Range theR;
   Direction theDir;
   float theDR_Max;
+  BeamPoint theBeamPoint;
 
 }; 
 
