@@ -70,64 +70,8 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
 /*! \brief Read Configuration File
  *
  */
-void SiPixelInformationExtractor::readConfiguration() {
-  //  cout << "entering in SiPixelInformationExtractor::readConfiguration" << endl;
+void SiPixelInformationExtractor::readConfiguration() { }
 
-  // read layout configuration file
-  // ------------------------------
-/*  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
-  if (layoutParser_ == 0) {
-    layoutParser_ = new SiPixelLayoutParser();
-    layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
-  }
-  if (layoutParser_->getAllLayouts(layoutMap)) {
-     edm::LogInfo("SiPixelInformationExtractor") << 
-                  " Layouts correctly readout " << "\n" ;
-     //     cout << "SiPixelInformationExtractor: correctly Layout readout " << endl;
-  } else {
-    edm::LogInfo("SiPixelInformationExtractor") << 
-                 " Problem in reading Layout " << "\n" ;
-    //    cout << "SiPixelInformationExtractor: Problem in reading Layout " << endl;
-  }
-  if (layoutParser_) delete layoutParser_;
-  
-  // create default .png files for the slide show [Plot not ready yet!!]
-  // -------------------------------------------------------------------
-  createDummiesFromLayout();
-
-
-  // read quality test configuration file
-  // ------------------------------------
-  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
-  if (qtestsParser_ == 0) {
-    qtestsParser_ = new SiPixelQTestsParser();
-    qtestsParser_->getDocument(edm::FileInPath(localPath).fullPath());
-  }
-  if (qtestsParser_->getAllQTests(qtestsMap)){
-     edm::LogInfo("SiPixelInformationExtractor") << 
-                  " QTestsMap correctly readout " << "\n" ;
-     //     cout << "SiPixelInformationExtractor: correctly QTestsMap readout " << endl;
-     readQTestMap_ = true;
-  } else {
-    edm::LogInfo("SiPixelInformationExtractor") << 
-                 " Problem in reading QTestsMap " << "\n" ;
-    //    cout << "SiPixelInformationExtractor: Problem in reading QTestsMap " << endl;
-  }
-  if (qtestsParser_->monitorElementTestsMap(meQTestsMap)){
-    edm::LogInfo("SiPixelInformationExtractor") << 
-                 " ME-QTestsMap correctly readout " << "\n" ;
-    //    cout << "SiPixelInformationExtractor: correctly ME-QTestsMap readout " << endl;
-    readMeMap_ = true;
-  } else {
-    edm::LogInfo("SiPixelInformationExtractor") << 
-                 " Problem in reading ME-QTestsMap " << "\n" ;
-    //    cout << "SiPixelInformationExtractor: Problem in reading ME-QTestsMap " << endl;
-  }
-  if (qtestsParser_) delete qtestsParser_;
-  
-  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;
-*/
-}
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
@@ -541,7 +485,17 @@ void SiPixelInformationExtractor::plotHisto(DaqMonitorBEInterface * bei,
 	hist1_ref->SetTitle("reference");
 	histoME->SetLineColor(1); //black
 	histoME->Draw();
-	hist1_ref->DrawNormalized("same", histoME->GetEntries());
+	hist1_ref->Draw("same"); 
+	//hist1_ref->DrawNormalized("same", histoME->GetEntries()); // entries are just
+	//number of modules in the summary histos, so that won't work as normalization!
+	
+	//hist1_ref->DrawNormalized("same", histoME->GetMean(2));
+        //hist1_ref->SetLineColor(3); //blue
+	//hist1_ref->DrawNormalized("same", histoME->GetEntries()); 
+        //hist1_ref->SetLineColor(2); //blue
+	//hist1_ref->DrawNormalized("same", histoME->GetMean(2)*histoME->GetEntries()); 
+      
+	//hist1_ref->Draw();
       }
     }
     
@@ -938,6 +892,10 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface *
 	if(hname.find("ndigis")                !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
 	if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
         if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
+        if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
+        if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
+        if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
+        if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -2177,65 +2135,6 @@ void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei
 }
 //------------------------------------------------------------------------------
 //
-// -- Read Layout Group names
-//
-/*void SiPixelInformationExtractor::readLayoutNames(xgi::Output * out){
-  //  cout << "entering in SiPixelInformationExtractor::readLayoutNames" << endl;
-
-  if (layoutMap.size() > 0) {
-    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-    *out << "<?xml version=\"1.0\" ?>" << std::endl;
-    *out << "<LayoutList>" << endl;
-    cout << "<?xml version=\"1.0\" ?>" << endl;
-    cout << "<LayoutList>" << endl;
-
-   for (map<string, vector< string > >::iterator it =  layoutMap.begin();
-	                                         it != layoutMap.end(); 
-                                                 it++) {
-     *out << "<LName>" << it->first << "</LName>" << endl;  
-     cout << "<LName>" << it->first << "</LName>" << endl;  
-     for(vector<string>::iterator ivec =  it->second.begin();
-	                          ivec != it->second.end(); 
-                                  ivec++){
-       *out << "<LMEName>" << *ivec << "</LMEName>" << endl;  
-       cout << "<LMEName>" << *ivec << "</LMEName>" << endl;  
-     }
-   }
-   *out << "</LayoutList>" << endl;
-   cout << "</LayoutList>" << endl;
-  }  
-  //  cout << "leaving SiPixelInformationExtractor::readLayoutNames" << endl;
-}
-*/
-//------------------------------------------------------------------------------
-//
-// -- Plot Dummy Histograms from Layout
-//
-/*void SiPixelInformationExtractor::createDummiesFromLayout(){
-  //  cout << "entering in SiPixelInformationExtractor::createDummiesFromLayout" << endl;
-
-  if (layoutMap.size() == 0) return;
-
-  canvas_->SetWindowSize(600,600);
-  canvas_->Clear();
-
-  for (map<std::string, std::vector< std::string > >::iterator it =  layoutMap.begin(); 
-                                                               it != layoutMap.end(); 
-                                                               it++) {
-    for(vector<string>::iterator ivec =  it->second.begin();
-                               	 ivec != it->second.end(); 
-	                         ivec++){
-      string fname  = "images/" + *ivec + ".png";
-      setCanvasMessage("Plot not ready yet!!");
-      canvas_->Print(fname.c_str(),"png");
-      canvas_->Clear();
-
-    }
-  }
-  //  cout << "leaving in SiPixelInformationExtractor::createDummiesFromLayout" << endl;
-}*/
-//------------------------------------------------------------------------------
-//
 // -- Set Axis Drawing Option for slide show plots
 //
 void SiPixelInformationExtractor::setSubDetAxisDrawing(string detector, TH1F * histo) {
@@ -2347,7 +2246,7 @@ void SiPixelInformationExtractor::setLines(MonitorElement * me,
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface * bei,
                                                            int allMods,
 							   int errorMods){
-cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
+//cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //   cout << ACRed << ACBold
 //        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
 //        << ACPlain
@@ -2356,7 +2255,7 @@ cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  cout<<"currDir="<<currDir<<" , dname="<<dname<<endl;
+  //cout<<"currDir="<<currDir<<" , dname="<<dname<<endl;
   
   QRegExp rx("Module_");
  
@@ -2384,7 +2283,7 @@ cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
   
   float qflag=0.;
   if(allMods>0) qflag = (float(allMods)-float(errorMods))/float(allMods);
-  cout<<"allMods="<<allMods<<" , errorMods="<<errorMods<<" , qflag="<<qflag<<endl;
+  //cout<<"allMods="<<allMods<<" , errorMods="<<errorMods<<" , qflag="<<qflag<<endl;
   
   vector<string> subDirVec = bei->getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
@@ -2398,5 +2297,5 @@ cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //        << ACPlain
 //        << " Done" 
 //        << endl ;
-cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
+//cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 }

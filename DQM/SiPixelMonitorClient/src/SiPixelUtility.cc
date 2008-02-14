@@ -320,27 +320,6 @@ map<string,string> SiPixelUtility::sourceCodeMap(){
   
 }
 
-
-//void SiPixelUtility::createSourceLegendMessages(map<string,pair<int,double> > & messages){
-//
-//  string code;
-//  string type;
-//  pair<int,double> color_size;
-//  int color = 1;
-//  double size  = 0.03;
-//  color_size.first  = color;
-//  color_size.second = size;
-//  
-//  string messageString;
-//  map<string,string> sourceCodeMap = sourceCodeMap();  
-//  for(map<string,string>::iterator sourceCodeItr =  sourceCodeMap.begin();
-//                                   sourceCodeItr != sourceCodeMap.end();
-//                                   sourceCodeItr++){
-//    messageString = sourceCodeItr->first + ": " + sourceCodeItr->second;
-//    messages[messageString] = color_size;
-//  }
-//}
-
 void SiPixelUtility::createStatusLegendMessages(map<string,pair<int,double> > & messages){
   for(int iStatus=1; iStatus<5;iStatus++){
     pair<int,double> color_size;

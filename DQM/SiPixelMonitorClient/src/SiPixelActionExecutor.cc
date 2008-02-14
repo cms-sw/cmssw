@@ -179,11 +179,12 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
   else if (source_type_==2) prefix="SUMCLU";
   else if (source_type_==3) prefix="SUMRES";
   else if (source_type_==4) prefix="SUMHIT";
+  else if (source_type_>=7) prefix="SUMCAL";
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
-      if(source_type_>4){
+      if(source_type_==5||source_type_==6){
         if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
@@ -197,10 +198,16 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
-	else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	else if((*iv)=="ClusX"||(*iv)=="ClusY")
 	  prefix="SUMHIT";
+	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
+	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
+	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary")
+	  prefix="SUMCAL"; 
       }
-      if((*iv).find("residual")!=string::npos){ // track residuals
+      if((*iv).find("residual")!=string::npos ||        // track residuals
+         prefix == "SUMCAL"){                           // calibrations
         string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
@@ -237,22 +244,20 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
-	  //cout<<"sname="<<sname<<" , tname="<<tname<<endl;
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
 
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
-	    //cout<<"sname="<<sname<<endl;
-	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
               }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
 	      string title = " ";
-	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
@@ -269,7 +274,6 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      //if(bei->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
       if((bei->pwd()).find("Endcap")!=string::npos ||
          (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
       bei->cd(*it);
@@ -300,12 +304,13 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
   else if (source_type_==2) prefix="SUMCLU";
   else if (source_type_==3) prefix="SUMRES";
   else if (source_type_==4) prefix="SUMHIT";
+  else if (source_type_>=7) prefix="SUMCAL";
   
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
-      if(source_type_>4){
+      if(source_type_==5||source_type_==6){
         if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
@@ -319,10 +324,16 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
-	else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	else if((*iv)=="ClusX"||(*iv)=="ClusY")
 	  prefix="SUMHIT";
+	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
+	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
+	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary")
+	  prefix="SUMCAL"; 
       }
-      if((*iv).find("residual")!=string::npos){ // track residuals
+      if((*iv).find("residual")!=string::npos ||            // track residuals
+         prefix == "SUMCAL"){                               // calibrations
         string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
@@ -334,7 +345,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
       }else{
         string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(bei, tag);
+	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }
     }
@@ -365,14 +376,14 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
-	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
               }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
 	      string title = " ";
-	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
@@ -405,7 +416,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
     }
     fillGrandEndcapSummaryHistos(bei, grandendcap_me_names);
   }
-  //cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
+ // cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
 }
 
 
@@ -414,16 +425,13 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DaqMonitorBEInterface* bei,
 						vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
   string currDir = bei->pwd();
-  //cout<<"currDir="<<currDir<<endl;
-  
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
-  //cout<<"currDir="<<currDir<<" , dir_name="<<dir_name<<endl;
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
-      if(source_type_>4){
+      if(source_type_==5||source_type_==6){
         if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
@@ -455,15 +463,12 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DaqMonitorBEInterface* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
-	  //cout<<"sname="<<sname<<" , tname="<<tname<<" , (*im)="<<(*im)<<endl;
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
 
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
-	    //cout<<"we have the ME in "<<fullpathname<<endl;
-	    //cout<"ME: "<<me->getRMS()<<" , "<<me->getMean()<<endl;
 	      (*isum)->Fill(ndet, me->getMean());
               (*isum)->setAxisTitle("FED #",1);
 	      string title = " ";
@@ -529,12 +534,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
     else if (source_type_==2) prefix="SUMCLU";
     else if (source_type_==3) prefix="SUMRES";
     else if (source_type_==4) prefix="SUMHIT";
+    else if (source_type_>=7) prefix="SUMCAL";
   
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-        if(source_type_>4){
+        if(source_type_==5||source_type_==6){
           if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
@@ -546,10 +552,20 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	    prefix="SUMCLU";
-	  else if((*iv)=="residualX"||(*iv)=="residualY")
+	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
+	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
             prefix="SUMRES";
-	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	  else if((*iv)=="ClusX"||(*iv)=="ClusY")
 	    prefix="SUMHIT";
+	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
+	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
+	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
+	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
+	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS")
+	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
@@ -647,12 +663,13 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
     else if (source_type_==2) prefix="SUMCLU";
     else if (source_type_==3) prefix="SUMRES";
     else if (source_type_==4) prefix="SUMHIT";
+    else if (source_type_>=7) prefix="SUMCAL";
   
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-        if(source_type_>4){
+        if(source_type_==5||source_type_==6){
           if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
 	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
@@ -664,10 +681,20 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	    prefix="SUMCLU";
-	  else if((*iv)=="residualX"||(*iv)=="residualY")
+	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
+	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
             prefix="SUMRES";
-	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	  else if((*iv)=="ClusX"||(*iv)=="ClusY")
 	    prefix="SUMHIT";
+	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
+	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
+	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
+	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
+	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS")
+	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
@@ -835,9 +862,6 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
 //cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
 
   bei->cd();
-  //cout<<"COLLATION: "<<collationDone<<" in dir: "<<bei->pwd()<<endl;
-  //if (collationDone) bei->cd("Collector/Collated/Pixel");
-  //else
   bei->cd("Pixel");
   
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
@@ -845,7 +869,6 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
     qtHandler_ = new QTestHandle();
   }
   if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
-    //cout << " Setting up quality tests " << endl;
     qtHandler_->attachTests(bei);
     bei->cd();
   }else{
@@ -863,29 +886,22 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
   int messageCounter=0;
   string currDir = bei->pwd();
   vector<string> contentVec;
-  //cout<<"currDir="<<currDir<<endl;
-  
   bei->getContents(contentVec);
   
   configParser_->getMessageLimitForQTests(message_limit_);
-  //cout<<"message_limit_= "<<message_limit_<<endl; 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     vector<string> contents;
     int nval = SiPixelUtility::getMEList((*it), contents);
-    //cout<<"ME list length: "<<nval<<endl;
     if (nval == 0) continue;
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
 
       MonitorElement * me = bei->get((*im));
-      //cout<<"ME: "<<(*im)<<endl;
       if (me) {
-      //cout<<"Mean= "<<me->getMean()<<endl;
         me->runQTests();
 	// get all warnings associated with me
 	vector<QReport*> warnings = me->getQWarnings();
-	//cout<<"number of warnings: "<<warnings.size()<<endl;
 	for(vector<QReport *>::const_iterator wi = warnings.begin();
 	    wi != warnings.end(); ++wi) {
 	  messageCounter++;
@@ -903,7 +919,6 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 	warnings=vector<QReport*>();
 	// get all errors associated with me
 	vector<QReport *> errors = me->getQErrors();
-	//cout<<"number of errors: "<<errors.size()<<endl;
 	for(vector<QReport *>::const_iterator ei = errors.begin();
 	    ei != errors.end(); ++ei) {
 	  messageCounter++;

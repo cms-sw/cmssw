@@ -1,0 +1,25 @@
+<MonElementConfiguration> 
+<TkMap name="Summary Map" update_frequency="200">
+</TkMap>
+<SummaryPlot>
+<SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
+</SubStructureBarrelLevel> 
+<SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
+</SubStructureGrandBarrelLevel> 
+<SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
+</SubStructureEndcapLevel> 
+<SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
+</SubStructureGrandEndcapLevel> 
+</SummaryPlot>
+
+<QTests>
+<QTestMessageLimit name="limit" value="100">
+</QTestMessageLimit>
+</QTests>
+
+<Source>
+<SourceType name="source" code="7">
+</SourceType>
+</Source>
+
+</MonElementConfiguration> 
