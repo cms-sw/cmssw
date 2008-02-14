@@ -69,10 +69,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     edm::LogWarning("EcalRawToDigiDevTowerId")
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
-      <<"\n => Skipping to next tower block... - mapper_->getActiveSM() is : " << mapper_->getActiveSM()
-      << " and TCCID_SMID_SHIFT_EB is: " <<TCCID_SMID_SHIFT_EB ;
+      <<"\n => Skipping to next tower block...";
 
-    
     // in case of EB, FE is one-to-one with TT
     // use those EcalElectronicsId for simplicity
     if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
