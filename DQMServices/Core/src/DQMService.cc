@@ -123,7 +123,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
 	    std::cerr
 	      << "ERROR: The DQM object '" << o.name
 	      << "' is neither a ROOT object nor a recognised simple object.\n";
-	    return;
+	    buffer.WriteObjectAny(0, 0);
 	  }
 
 	  // Get the reference object.
@@ -173,12 +173,12 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       for (rmi = ri->second.begin(), rme = ri->second.end(); rmi != rme; ++rmi, updated = true)
 	net_->removeLocalObject(ri->first + '/' + *rmi);
 
+    // Unlock the network layer.
+    net_->unlock();
+
     // Tell network to flush if we updated something.
     if (updated)
       net_->sendLocalChanges();
-
-    // Unlock the network layer.
-    net_->unlock();
   }
 }
 

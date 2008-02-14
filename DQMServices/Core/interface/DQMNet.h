@@ -42,11 +42,10 @@ public:
   struct Peer;
   struct QValue;
 
-  typedef std::vector<unsigned char>            DataBlob;
-  typedef std::vector<uint32_t>                 TagList;
-  typedef std::map<std::string, struct QValue>  QReports;
-  typedef std::list<Peer *>			WaitList;
-  typedef std::map<lat::Socket *, Peer>		PeerMap;
+  typedef std::vector<unsigned char>    DataBlob;
+  typedef std::vector<uint32_t>         TagList;
+  typedef std::map<std::string, QValue>	QReports;
+  typedef std::list<Peer *>		WaitList;
 
   struct QValue
   {
@@ -83,8 +82,11 @@ public:
     size_t		sendpos;
 
     unsigned		mask;
+    bool		source;
     bool		update;
     bool		updated;
+    bool		updatefull;
+    size_t		updates;
 
     lat::Time		waitreq;
     std::string		waitobj;
@@ -108,6 +110,7 @@ public:
   void			debug(bool doit);
   void			delay(int delay);
   void			sendScalarAsText(bool doit);
+  void			requestFullUpdates(bool doit);
   void			startLocalServer(int port);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
@@ -126,23 +129,32 @@ public:
 protected:
   std::ostream &	logme(void);
   static void		copydata(Bucket *b, const void *data, size_t len);
+  void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
 
   virtual bool		shouldStop(void);
   virtual void		releaseFromWait(Bucket *msg, Peer &p, Object *o);
-  virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool senddata, bool sendtext);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
   bool			reconstructObject(Object &o);
   bool			reinstateObject(DaqMonitorBEInterface *bei, Object &o);
-  virtual Object *	findObject(const std::string &name) = 0;
-  virtual Object *	makeObject(const std::string &name) = 0;
-  virtual void		sendObjectListToPeer(Bucket *msg, bool allObjects) = 0;
-  virtual void		markAllObjectsOld(void) = 0;
-  virtual void		markAllObjectsDead(void) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name) = 0;
+  virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
+  virtual void		markAllObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj) = 0;
+
+  virtual Peer *	getPeer(lat::Socket *s) = 0;
+  virtual Peer *	createPeer(lat::Socket *s) = 0;
+  virtual void		removePeer(Peer *p, lat::Socket *s) = 0;
+  virtual void		sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear) = 0;
+  virtual void		sendObjectListToPeers(bool all) = 0;
+  virtual void		requestFullUpdatesFromPeers(void) = 0;
+
+  void			updateMask(Peer *p);
+  virtual void		updatePeerMasks(void) = 0;
 
   bool			debug_;
   bool			sendScalarAsText_;
+  bool			requestFullUpdates_;
 
 private:
   static void		discard(Bucket *&b);
@@ -158,7 +170,6 @@ private:
   bool			onPeerData(lat::IOSelectEvent *ev, Peer *p);
   bool			onPeerConnect(lat::IOSelectEvent *ev);
   bool			onLocalNotify(lat::IOSelectEvent *ev);
-  void			updateMask(Peer *p);
 
   std::string		appname_;
   int			pid_;
@@ -166,10 +177,8 @@ private:
   lat::IOSelector	sel_;
   lat::InetServerSocket	*server_;
   lat::Pipe		wakeup_;
-  bool			flush_;
   lat::Time		version_;
 
-  PeerMap		peers_;
   AutoPeer		upstream_;
   AutoPeer		downstream_;
   WaitList		waiting_;
@@ -179,6 +188,7 @@ private:
   sig_atomic_t		shutdown_;
 
   int			delay_;
+  bool			flush_;
 
   // copying is not available
   DQMNet(const DQMNet &);
@@ -188,6 +198,16 @@ private:
 class DQMBasicNet : public DQMNet
 {
 public:
+  struct BasicPeer;
+  typedef std::map<std::string, Object> ObjectMap;
+  typedef std::map<lat::Socket *, BasicPeer> PeerMap;
+
+  struct BasicPeer : Peer
+  {
+    ObjectMap		objs;
+  };
+
+
   DQMBasicNet(const std::string &appname = "");
   ~DQMBasicNet(void);
 
@@ -196,16 +216,23 @@ public:
 protected:
   virtual void		updateLocalObject(Object &o);
   virtual void		removeLocalObject(const std::string &name);
-  virtual Object *	findObject(const std::string &name);
-  virtual Object *	makeObject(const std::string &name);
-  virtual void		sendObjectListToPeer(Bucket *msg, bool allObjects);
-  virtual void		markAllObjectsOld(void);
-  virtual void		markAllObjectsDead(void);
+  virtual Object *	findObject(Peer *p, const std::string &name);
+  virtual Object *	makeObject(Peer *p, const std::string &name);
+  virtual void		markAllObjectsDead(Peer *p);
   virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj);
 
+  virtual Peer *	getPeer(lat::Socket *s);
+  virtual Peer *	createPeer(lat::Socket *s);
+  virtual void		removePeer(Peer *p, lat::Socket *s);
+  virtual void		sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear);
+  virtual void		sendObjectListToPeers(bool all);
+  virtual void		requestFullUpdatesFromPeers(void);
+  virtual void		updatePeerMasks(void);
+
 private:
-  typedef std::map<std::string, Object>  ObjectMap;
-  ObjectMap		objs_;
+
+  PeerMap		peers_;
+  BasicPeer		*local_;
 };
 
 

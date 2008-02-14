@@ -9,8 +9,11 @@ MonitorUserInterface::MonitorUserInterface(const std::string &hostname, int port
 					   int unusedReconnectDelaySecs,
 					   bool unusedActAsServer)
   : bei_ (DaqMonitorBEInterface::instance()),
-    net_ (new DQMBasicNet (clientName))
-{}
+    net_ (new DQMBasicNet (clientName)),
+    numUpdates_ (0)
+{
+  net_->requestFullUpdates(true);
+}
 
 /* Use the default constructor for running in standalone mode (ie. without
    sources or collectors); if flag=true, client will accept downstream connections
@@ -58,6 +61,6 @@ MonitorUserInterface::doMonitoring(void)
   // initialization needed at beginning of monitoring cycle
   bei_->resetMonitorableDiff();
   bei_->resetMonitoringDiff();
-  numUpdates_ += net_->receive(bei_);
+  numUpdates_ += (net_ ? net_->receive(bei_) : 0);
   return true;
 }
