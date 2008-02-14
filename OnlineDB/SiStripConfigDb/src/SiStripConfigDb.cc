@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.44 2007/12/19 18:05:26 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.45 2008/02/06 17:13:12 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -375,7 +375,7 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
   ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl
      << " ConfDb                    : " << confdb_ << endl
-     << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
+    //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << endl
      << " Partition                 : " << partition_ << endl
      << " Run number                : " << runNumber_ << endl
      << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << endl
@@ -720,6 +720,16 @@ void SiStripConfigDb::usingDatabase() {
 	}
 #endif
 
+#ifdef USING_NEW_DATABASE_MODEL
+	//@@ dbParams_.psuMajor_ = run->getDcuPsuMapVersionMajorId();
+	//@@ dbParams_.psuMinor_ = run->getDcuPsuMapVersionMinorId();
+#endif
+
+#ifdef USING_NEW_DATABASE_MODEL
+	//@@ dbParams_.calMajor_ = run->getAnalysisVersionMajorId();
+	//@@ dbParams_.calMinor_ = run->getAnalysisVersionMinorId();
+#endif
+
 	std::stringstream ss;
 	LogTrace(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
@@ -749,6 +759,7 @@ void SiStripConfigDb::usingDatabase() {
       else if ( type == 14 ) { dbParams_.runType_ = sistrip::VPSP_SCAN; }
       else if ( type == 15 ) { dbParams_.runType_ = sistrip::DAQ_SCOPE_MODE; }
       else if ( type == 16 ) { dbParams_.runType_ = sistrip::QUITE_FAST_CABLING; }
+      else if ( type == 21 ) { dbParams_.runType_ = sistrip::FAST_CABLING; }
       else if ( type ==  0 ) { 
 	dbParams_.runType_ = sistrip::UNDEFINED_RUN_TYPE;
 	edm::LogWarning(mlConfigDb_)
@@ -757,11 +768,13 @@ void SiStripConfigDb::usingDatabase() {
       } else { dbParams_.runType_ = sistrip::UNKNOWN_RUN_TYPE; }
       
     } else {
-      edm::LogWarning(mlConfigDb_)
+      edm::LogError(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
 	<< " NULL pointer to TkRun object!"
 	<< " Unable to retrieve versions for run number "
-	<< dbParams_.runNumber_;
+	<< dbParams_.runNumber_
+	<< ". Run number may not be consistent with partition \"" 
+	<< dbParams_.partition_ << "\"!";
     }
   }
   
