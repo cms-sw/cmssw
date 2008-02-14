@@ -36,9 +36,8 @@ void popcon::ExPedestalSource::getNewObjects() {
             << " last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
   if (tagInfo().size>0) {
-    Ref payload = lastPayload();
     std::cerr<<"size of last payload  "<< 
-      payload->m_pedestals.size()<<std::endl;
+      lastPayload().m_pedestals.size()<<std::endl;
   }
 
   

@@ -43,7 +43,7 @@ namespace popcon {
     // return last paylod of the tag
     value_type const & lastPayload() const {
       const_cast<self*>(this)->loadPayload();
-      return *m_lastPayload();
+      return *m_lastPayload;
     }
 
     // return last successful log entry for the tag in question
@@ -88,7 +88,7 @@ namespace popcon {
     }
 
 
-    private
+  private:
 
     void loadPayload() {
       if (m_lastPayload.ptr()) return;
