@@ -4,6 +4,8 @@
 #include <string.h>
 #include <fstream>
 
+#include <sys/time.h>
+
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -691,12 +693,26 @@ int testDB( string _tag, string _filename )
   //vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
 
   HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
   vector<unsigned int> _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
+  _lut = db -> getOnlineLUT( _tag, _hcaldetid2 . rawId() );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
   cout << "LUT length = " << _lut . size() << endl;
-  for ( vector<unsigned int>::const_iterator i = _lut . begin(); i != _lut . end(); i++ )
+  for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
     {
       cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
+      break;
     }
 
   db -> disconnect();

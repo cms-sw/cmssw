@@ -170,6 +170,18 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
   return result;
 }
 
+
+
+oracle::occi::Connection * HCALConfigDB::getConnection( void ){
+  return database -> getConnection();
+}
+
+oracle::occi::Environment * HCALConfigDB::getEnvironment( void ){
+  return database -> getEnvironment();
+}
+
+
+
 /*
 hcal::ConfigurationDatabase::LUTId HCALConfigDB::getLUTId( uint32_t _rawid )
 {
