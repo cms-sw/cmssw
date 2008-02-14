@@ -247,14 +247,6 @@ ALTER TABLE ECAL_CCS_CYCLE ADD CONSTRAINT ecal_ccs_cycle_pk PRIMARY KEY (CYCLE_I
 ALTER TABLE ECAL_CCS_CYCLE ADD CONSTRAINT ecal_ccs_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_CCS_CYCLE ADD CONSTRAINT ecal_ccs_cycle_fk2 FOREIGN KEY (ccs_configuration_id) REFERENCES ECAL_CCS_CONFIGURATION (ccs_configuration_id);
 
-CREATE SEQUENCE ecal_ccs_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_ccs_cycle_trg
-before insert on ECAL_CCS_CYCLE
-for each row
-begin
-select ecal_ccs_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_DCC
 
@@ -275,23 +267,14 @@ end;
 
 
 CREATE TABLE ECAL_DCC_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , DCC_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_pk PRIMARY KEY (cycle_id,dcc_configuration_id);
 ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk2 FOREIGN KEY (dcc_configuration_id) REFERENCES ECAL_DCC_CONFIGURATION (dcc_configuration_id);
 
-CREATE SEQUENCE ecal_DCC_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_DCC_cycle_trg
-before insert on ECAL_DCC_CYCLE
-for each row
-begin
-select ecal_DCC_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_LASER
 
@@ -315,23 +298,14 @@ end;
 
 
 CREATE TABLE ECAL_LASER_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , LASER_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_LASER_CYCLE ADD CONSTRAINT ecal_LASER_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_LASER_CYCLE ADD CONSTRAINT ecal_LASER_cycle_pk PRIMARY KEY (cycle_id, laser_configuration_id);
 ALTER TABLE ECAL_LASER_CYCLE ADD CONSTRAINT ecal_LASER_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_LASER_CYCLE ADD CONSTRAINT ecal_LASER_cycle_fk2 FOREIGN KEY (laser_configuration_id) REFERENCES ECAL_LASER_CONFIGURATION (LASER_configuration_id);
 
-CREATE SEQUENCE ecal_LASER_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LASER_cycle_trg
-before insert on ECAL_LASER_CYCLE
-for each row
-begin
-select ecal_LASER_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_TCC
 
@@ -352,23 +326,14 @@ end;
 
 
 CREATE TABLE ECAL_TCC_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+ CYCLE_ID NUMBER NOT NULL
 	 , TCC_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_pk PRIMARY KEY (cycle_id, tcc_configuration_id);
 ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_fk2 FOREIGN KEY (tcc_configuration_id) REFERENCES ECAL_TCC_CONFIGURATION (TCC_configuration_id);
 
-CREATE SEQUENCE ecal_TCC_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_TCC_cycle_trg
-before insert on ECAL_TCC_CYCLE
-for each row
-begin
-select ecal_TCC_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_TCCci
 
@@ -389,23 +354,14 @@ end;
 
 
 CREATE TABLE ECAL_TTCCI_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+           CYCLE_ID NUMBER NOT NULL
 	 , TTCCI_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_pk PRIMARY KEY (cycle_id, TTCCI_CONFIGURATION_ID);
 ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_fk2 FOREIGN KEY (ttcci_configuration_id) REFERENCES ECAL_TTCCI_CONFIGURATION (TTCCI_configuration_id);
 
-CREATE SEQUENCE ecal_TTCCI_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_TTCCI_cycle_trg
-before insert on ECAL_TTCCI_CYCLE
-for each row
-begin
-select ecal_TTCCI_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_MATACQ
 
@@ -439,23 +395,13 @@ end;
 
 
 CREATE TABLE ECAL_MATACQ_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , MATACQ_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_pk PRIMARY KEY (cycle_id,MATACQ_CONFIGURATION_ID);
 ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_fk2 FOREIGN KEY (matacq_configuration_id) REFERENCES ECAL_MATACQ_CONFIGURATION (MATACQ_configuration_id);
-
-CREATE SEQUENCE ecal_MATACQ_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_MATACQ_cycle_trg
-before insert on ECAL_MATACQ_CYCLE
-for each row
-begin
-select ecal_MATACQ_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_LTC
 
@@ -476,23 +422,13 @@ end;
 
 
 CREATE TABLE ECAL_LTC_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , LTC_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_LTC_CYCLE ADD CONSTRAINT ecal_LTC_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_LTC_CYCLE ADD CONSTRAINT ecal_LTC_cycle_pk PRIMARY KEY (cycle_id,LTC_CONFIGURATION_ID);
 ALTER TABLE ECAL_LTC_CYCLE ADD CONSTRAINT ecal_LTC_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_LTC_CYCLE ADD CONSTRAINT ecal_LTC_cycle_fk2 FOREIGN KEY (ltc_configuration_id) REFERENCES ECAL_LTC_CONFIGURATION (LTC_configuration_id);
-
-CREATE SEQUENCE ecal_LTC_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LTC_cycle_trg
-before insert on ECAL_LTC_CYCLE
-for each row
-begin
-select ecal_LTC_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_LTS
 
@@ -516,23 +452,13 @@ end;
 
 
 CREATE TABLE ECAL_LTS_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , LTS_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_LTS_CYCLE ADD CONSTRAINT ecal_LTS_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_LTS_CYCLE ADD CONSTRAINT ecal_LTS_cycle_pk PRIMARY KEY (cycle_id,LTS_CONFIGURATION_ID);
 ALTER TABLE ECAL_LTS_CYCLE ADD CONSTRAINT ecal_LTS_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_LTS_CYCLE ADD CONSTRAINT ecal_LTS_cycle_fk2 FOREIGN KEY (lts_configuration_id) REFERENCES ECAL_LTS_CONFIGURATION (LTS_configuration_id);
-
-CREATE SEQUENCE ecal_LTS_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LTS_cycle_trg
-before insert on ECAL_LTS_CYCLE
-for each row
-begin
-select ecal_LTS_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** ECAL_JBH4
 
@@ -559,23 +485,13 @@ end;
 /
 
 CREATE TABLE ECAL_JBH4_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , JBH4_CONFIGURATION_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_JBH4_CYCLE ADD CONSTRAINT ecal_JBH4_cycle_pk PRIMARY KEY (id);
+ALTER TABLE ECAL_JBH4_CYCLE ADD CONSTRAINT ecal_JBH4_cycle_pk PRIMARY KEY (cycle_id,JBH4_CONFIGURATION_ID);
 ALTER TABLE ECAL_JBH4_CYCLE ADD CONSTRAINT ecal_JBH4_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_JBH4_CYCLE ADD CONSTRAINT ecal_JBH4_cycle_fk2 FOREIGN KEY (jbh4_configuration_id) REFERENCES ECAL_JBH4_CONFIGURATION (JBH4_configuration_id);
-
-CREATE SEQUENCE ecal_JBH4_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_JBH4_cycle_trg
-before insert on ECAL_JBH4_CYCLE
-for each row
-begin
-select ecal_JBH4_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 
 -- ********** ECAL_SCAN
@@ -608,23 +524,13 @@ ALTER TABLE ECAL_SCAN_DAT ADD CONSTRAINT ecal_scan_dat_pk  PRIMARY KEY (scan_id)
 ALTER TABLE ECAL_SCAN_DAT ADD CONSTRAINT ecal_scan_dat_fk1 FOREIGN KEY (scan_def_id) REFERENCES ECAL_scan_DEF (def_id);
 
 CREATE TABLE ECAL_SCAN_CYCLE (
-	   ID NUMBER NOT NULL
-	 , CYCLE_ID NUMBER NOT NULL
+	  CYCLE_ID NUMBER NOT NULL
 	 , SCAN_ID NUMBER NOT NULL
          );    
 
-ALTER TABLE ECAL_SCAN_CYCLE ADD CONSTRAINT ecal_SCAN_cycle_pk  PRIMARY KEY (id);
+ALTER TABLE ECAL_SCAN_CYCLE ADD CONSTRAINT ecal_SCAN_cycle_pk  PRIMARY KEY (cycle_id,SCAN_ID);
 ALTER TABLE ECAL_SCAN_CYCLE ADD CONSTRAINT ecal_SCAN_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
 ALTER TABLE ECAL_SCAN_CYCLE ADD CONSTRAINT ecal_SCAN_cycle_fk2 FOREIGN KEY (scan_id)  REFERENCES ECAL_SCAN_DAT  (SCAN_id);
-
-CREATE SEQUENCE ecal_SCAN_cycle_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_SCAN_cycle_trg
-before insert on ECAL_SCAN_CYCLE
-for each row
-begin
-select ecal_SCAN_cycle_sq.NextVal into :new.ID from dual;
-end;
-/
 
 -- ********** VIEWS
 
