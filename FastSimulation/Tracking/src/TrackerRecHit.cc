@@ -1,7 +1,9 @@
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 
-TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+//TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+//		     const TrackerGeometry* theGeometry) :
+TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
 			     const TrackerGeometry* theGeometry) :
   theHit(theHit),
   theSubDetId(0),

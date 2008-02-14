@@ -6,11 +6,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include <cfloat>
 
-SiTrackerGSRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
+SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
 					      const SiTrackerGSRecHit2D *stereoRH,
 					      const GluedGeomDet* gluedDet,
 					            LocalVector& trackdirection) const
 {
+
+
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
@@ -96,11 +98,9 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
 //     std::cout<<" ERROR not ok " << std::endl;
 //   }
   
-  return new SiTrackerGSRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
-				 monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY() );
-    
-  
-  
+  return new SiTrackerGSMatchedRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
+				 monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY(), 
+				 true, monoRH, stereoRH);
 }
 
 
@@ -130,7 +130,7 @@ GSRecHitMatcher::project(const GeomDetUnit *det,
 
 
 
-SiTrackerGSRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *monoRH,
+SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *monoRH,
 						    const GeomDet * monoDet,
 						    const GluedGeomDet* gluedDet,
 					            LocalVector& ldir) const
@@ -153,6 +153,7 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *m
   }
   LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
  
-  return new SiTrackerGSRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY() );
+  return new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), 
+				 monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY());
 }
 

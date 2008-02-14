@@ -10,6 +10,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
@@ -136,7 +137,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // Get the GS RecHits
-  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByLabel(hitProducer, theGSRecHits);
 
   // The input track collection + extra's
@@ -205,8 +207,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   /* */
     // Find the first hit of the Seed
     TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-    const SiTrackerGSRecHit2D * theFirstSeedingRecHit = 
-      (const SiTrackerGSRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+    //    const SiTrackerGSRecHit2D * theFirstSeedingRecHit = 
+    //      (const SiTrackerGSRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+    const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = 
+      (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
 
     TrackerRecHit theFirstSeedingTrackerRecHit(theFirstSeedingRecHit,theGeometry);
     // SiTrackerGSRecHit2DCollection::const_iterator theSeedingRecHitEnd = theSeedingRecHitRange.second;
@@ -258,10 +262,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::cout << "Track " << simTrackId << " will return a track candidate" << std::endl;
 #endif
       // Get all the rechits associated to this track
-      SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
-      SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-      SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-      SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
+      SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
       
       bool firstRecHit = true;
       // 
@@ -434,6 +438,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     recoTrackExtras->push_back(aTrackExtra);
   }
   
+
   // Save the track extras
   edm::OrphanHandle<reco::TrackExtraCollection> theRecoTrackExtras = e.put(recoTrackExtras);
 
@@ -468,7 +473,8 @@ TrackCandidateProducer::findId(const reco::Track& aTrack) const {
   trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
   for ( ; aHit!=lastHit; ++aHit ) {
     if ( !aHit->get()->isValid() ) continue;
-    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    //    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (aHit->get());
     trackId = rechit->simtrackId();
     break;
   }

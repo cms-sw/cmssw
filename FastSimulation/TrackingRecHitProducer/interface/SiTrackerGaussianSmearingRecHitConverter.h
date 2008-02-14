@@ -18,6 +18,7 @@
 // Data Formats
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 
@@ -57,11 +58,14 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
-		  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& matchedMap,
+		  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap,
 		  MixCollection<PSimHit>& simhits);
 
   void loadRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
+
+  void loadMatchedRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& theRecHits, 
+		   SiTrackerGSMatchedRecHit2DCollection& theRecHitCollection) const;
 
  private:
   //

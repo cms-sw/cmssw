@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -261,7 +262,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
 #endif
   
-  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByLabel(hitProducer, theGSRecHits);
   
   // No tracking attempted if no hits (but put an empty collection in the event)!
@@ -321,13 +323,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	             0.,0.,4.);
     theParticle.setCharge((*theSimTracks)[simTrackId].charge());
 
-    SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
-    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit1;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit2;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit3;
+    SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit1;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit3;
 
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
