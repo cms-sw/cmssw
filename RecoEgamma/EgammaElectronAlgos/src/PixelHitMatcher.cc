@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.8 2007/05/09 11:59:21 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.9 2007/10/15 13:29:35 uberthon Exp $
 //
 //
 
@@ -172,7 +172,8 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
        
     double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
       (xmeas.perp()-pxHit1r);
-    GlobalPoint vertexPred(0.,0.,zVertexPred);
+
+    GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
 
     vertex = zVertexPred;
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
