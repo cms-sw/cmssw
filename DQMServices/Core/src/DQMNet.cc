@@ -117,9 +117,14 @@ DQMNet::losePeer(const char *reason,
 
 /// Queue an object request to the data server.
 void
-DQMNet::requestObject(const char *name, size_t len)
+DQMNet::requestObject(Peer *p, const char *name, size_t len)
 {
-  Bucket **msg = &upstream_.peer->sendq;
+  // FIXME: Should we automatically record which exact peer the waiter
+  // is expecting to deliver data so we know to release the waiter if
+  // the other peer vanishes?  The current implementation stands a
+  // chance for the waiter to wait indefinitely -- although we do
+  // force terminate the wait after a while.
+  Bucket **msg = &p->sendq;
   while (*msg)
     msg = &(*msg)->next;
   *msg = new Bucket;
@@ -136,7 +141,7 @@ DQMNet::requestObject(const char *name, size_t len)
 /// Queue a request for an object and put a peer into the mode of
 /// waiting for object data to appear.
 void
-DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info)
+DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner)
 {
   assert (p->waitobj.empty());
   assert (p->waitinfo.empty());
@@ -147,7 +152,7 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info)
   p->waitinfo = info;
   p->waitreq = Time::current();
 
-  requestObject(name.size() ? &name[0] : 0, name.size());
+  requestObject(owner, name.size() ? &name[0] : 0, name.size());
   waiting_.push_back(p);
 }
 
@@ -368,7 +373,7 @@ DQMNet::shouldStop(void)
 }
 
 // Once an object has been updated, this is invoked for all waiting
-// peers.  Send the requested object back to the peer.
+// peers.  Send the requested object to the waiting peer.
 void
 DQMNet::releaseFromWait(Bucket *msg, Peer &p, Object *o)
 {
@@ -533,11 +538,12 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 
       lock();
       std::string name ((char *) data + 3*sizeof(uint32_t), namelen);
-      Object *o = findObject(0, name);
+      Peer *owner = 0;
+      Object *o = findObject(0, name, &owner);
       if (o)
       {
 	if (o->rawdata.empty())
-	  waitForData(p, name, "");
+	  waitForData(p, name, "", owner);
 	else
 	  sendObjectToPeer(msg, *o, true, sendScalarAsText_);
       }
@@ -685,7 +691,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       // If we had an object for this one already and this is a list
       // update without data, issue an immediate data get request.
       if (hadobject && ! datalen)
-	requestObject((namelen ? &name[0] : 0), namelen);
+	requestObject(p, (namelen ? &name[0] : 0), namelen);
 
       // If we have the object data, release from wait.
       if (datalen)
@@ -852,10 +858,10 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 			p, ev, &e);
     }
 
-    // Process fully received messages.
+    // Process fully received messages as long as we can.
     size_t consumed = 0;
     DataBlob &data = p->incoming;
-    while (data.size()-consumed >= sizeof(uint32_t))
+    while (data.size()-consumed >= sizeof(uint32_t) && !p->waitreq)
     {
       uint32_t msglen;
       memcpy (&msglen, &data[0]+consumed, sizeof(msglen));
@@ -1446,13 +1452,21 @@ DQMBasicNet::receive(DaqMonitorBEInterface *bei)
 }
 
 DQMNet::Object *
-DQMBasicNet::findObject(Peer *p, const std::string &name)
+DQMBasicNet::findObject(Peer *p, const std::string &name, Peer **owner /* = 0 */)
 {
+  if (owner)
+    *owner = 0;
   if (p)
   {
     BasicPeer *bp = static_cast<BasicPeer *>(p);
     ObjectMap::iterator pos = bp->objs.find(name);
-    return pos == bp->objs.end() ? 0 : &pos->second;
+    if (pos == bp->objs.end())
+      return 0;
+    else
+    {
+      if (owner) *owner = p;
+      return &pos->second;
+    }
   }
   else
   {
@@ -1460,7 +1474,10 @@ DQMBasicNet::findObject(Peer *p, const std::string &name)
     {
       ObjectMap::iterator pos = i->second.objs.find(name);
       if (pos != i->second.objs.end())
+      {
+	if (owner) *owner = &i->second;
 	return &pos->second;
+      }
     }
     return 0;
   }

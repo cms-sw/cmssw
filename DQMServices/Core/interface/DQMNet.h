@@ -136,13 +136,13 @@ protected:
   void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
 
   virtual bool		shouldStop(void);
-  void			waitForData(Peer *p, const std::string &name, const std::string &info);
+  void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
   virtual void		releaseFromWait(Bucket *msg, Peer &p, Object *o);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
   bool			reconstructObject(Object &o);
   bool			reinstateObject(DaqMonitorBEInterface *bei, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markAllObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj) = 0;
@@ -167,7 +167,7 @@ private:
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
 				 lat::Error *err = 0);
-  void			requestObject(const char *name, size_t len);
+  void			requestObject(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(Object *o);
 
@@ -220,7 +220,7 @@ public:
 protected:
   virtual void		updateLocalObject(Object &o);
   virtual void		removeLocalObject(const std::string &name);
-  virtual Object *	findObject(Peer *p, const std::string &name);
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0);
   virtual Object *	makeObject(Peer *p, const std::string &name);
   virtual void		markAllObjectsDead(Peer *p);
   virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj);
