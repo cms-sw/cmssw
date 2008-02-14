@@ -23,7 +23,7 @@ int main() {
   function::BreitWigner bw(mass, gamma);
   function::Constant c(yield);
   typedef function::Product<function::Constant, function::BreitWigner> FitFunction;
-  FitFunction f(c, bw);
+  FitFunction f = c * bw;
   TF1 fun = root::tf1("fun", f, 0, 200, yield, mass, gamma);
   TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
   histo.FillRandom("fun", yield);

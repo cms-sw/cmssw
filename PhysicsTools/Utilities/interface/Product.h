@@ -17,5 +17,9 @@ namespace function {
   };
 }
 
+template<typename A, typename B>
+function::Product<A, B> operator*(const A& a, const B& b) {
+  return function::Product<A, B>(a, b);
+}
 
 #endif
