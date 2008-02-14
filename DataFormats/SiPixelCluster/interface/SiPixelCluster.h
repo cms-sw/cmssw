@@ -15,6 +15,8 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include "boost/cstdint.hpp"
+
 class PixelDigi;
 
 class SiPixelCluster {
@@ -117,10 +119,10 @@ class SiPixelCluster {
   float theSumX;  // Sum of charge weighted pixel positions.
   float theSumY;
   float theCharge;  // Total charge
-  int theMinPixelRow; // Minimum pixel index in the x direction (low edge).
-  int theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
-  int theMinPixelCol; // Minimum pixel index in the y direction (left edge).
-  int theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
+  uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
+  uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
+  uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
+  uint16_t theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
   
 };
 
