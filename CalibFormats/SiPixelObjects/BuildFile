@@ -1,4 +1,3 @@
-<flags GENREFLEX_ARGS="--">
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>

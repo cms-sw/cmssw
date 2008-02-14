@@ -11,6 +11,7 @@ namespace pos{
   {
     public:
 
+    PixelTBMChannel(){;}
     PixelTBMChannel(std::string TBMChannel);
 
     std::string string() const;

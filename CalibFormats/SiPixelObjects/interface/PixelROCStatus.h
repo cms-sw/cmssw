@@ -15,10 +15,15 @@ namespace pos{
 
   class PixelROCStatus {
 
-    //Insert new status before nStatus
-    enum ROCstatus {off=0, noHits, nStatus};
+
+  private:
+
+    uint32_t bits_;
 
   public:
+
+    //Insert new status before nStatus
+    enum ROCstatus {off=0, noHits, nStatus};
 
     PixelROCStatus();
     PixelROCStatus(const std::set<ROCstatus>& stat);
@@ -33,10 +38,6 @@ namespace pos{
     void set(const std::string& statName);
     bool get(ROCstatus stat) const ;
     
-
-  private:
-
-    uint32_t bits_;
  
   };
 }

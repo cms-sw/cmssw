@@ -13,6 +13,7 @@ namespace pos{
   {
     public:
 
+    PixelChannel(){;}
     PixelChannel(PixelModuleName module, std::string TBMChannel);
     PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel);
 
