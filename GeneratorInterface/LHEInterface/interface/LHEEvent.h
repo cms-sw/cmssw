@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 
@@ -19,14 +20,23 @@ class LHEEvent {
 	         std::istream &in);
 	~LHEEvent();
 
+	struct PDF {
+		std::pair<int, int>		id;
+		std::pair<double, double>	x;
+		std::pair<double, double>	xPDF;
+		double				scalePDF;
+	};
+
 	const boost::shared_ptr<LHECommon> &getCommon() const { return common; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
 	const HEPRUP *getHEPRUP() const { return common->getHEPRUP(); }
+	const PDF *getPDF() const { return pdf.get(); }
 
     private:
 	const boost::shared_ptr<LHECommon>	common;
 
 	HEPEUP					hepeup;
+	std::auto_ptr<PDF>			pdf;
 };
 
 } // namespace lhef

@@ -87,6 +87,13 @@ bool LHAevntLesHouches::set()
 		         hepeup.PUP[i][3], hepeup.PUP[i][4], hepeup.VTIMUP[i],
 		         hepeup.SPINUP[i]);
 
+	const LHEEvent::PDF *pdf = event->getPDF();
+	if (pdf)
+		this->pdf(pdf->id.first, pdf->id.second,
+		          pdf->x.first, pdf->x.second,
+		          pdf->scalePDF,
+		          pdf->xPDF.first, pdf->xPDF.second);
+
 	event.reset();
 	return true;
 }
@@ -115,7 +122,7 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 		for(std::vector<std::string>::const_iterator line = lines.begin();
 		    line != lines.end(); ++line ) {
-			if (line->substr(0, 11) == "Random:seed")
+			if (line->substr(0, 11) == "Pythia:seed")
 				throw cms::Exception("PythiaError")
 					<< "Attempted to set random number"
 					   " using Pythia command 'MRPY(1)'."
@@ -131,7 +138,7 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 	edm::Service<edm::RandomNumberGenerator> rng;
 	std::ostringstream ss;
-	ss << "Random:seed = " << rng->mySeed();
+	ss << "Pythia:seed = " << rng->mySeed();
 	pythia->readString(ss.str());
 }
 

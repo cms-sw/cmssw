@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,6 +9,17 @@
 #include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
+static int skipWhitespace(std::istream &in)
+{
+	int ch;
+	do {
+		ch = in.get();
+	} while(std::isspace(ch));
+	if (ch != std::istream::traits_type::eof())
+		in.putback(ch);
+	return ch;
+}
 
 namespace lhef {
 
@@ -40,10 +53,27 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
 				<< "." << std::endl;
 	}
 
-	int ch;
-	do {
-		ch = in.get();
-	} while(std::isspace(ch));
+	while(skipWhitespace(in) == '#') {
+		std::string line;
+		std::getline(in, line);
+		std::istringstream ss(line);
+		std::string tag;
+		ss >> tag;
+		if (tag == "#pdf") {
+			pdf.reset(new PDF);
+			ss >> pdf->id.first >> pdf->id.second
+			   >> pdf->x.first >> pdf->x.second
+			   >> pdf->scalePDF
+			   >> pdf->xPDF.first >> pdf->xPDF.second;
+			if (ss.bad()) {
+				edm::LogWarning("Generator|LHEInterface")
+					<< "Les Houches event contained"
+					   " unparseable PDF information."
+					<< std::endl;
+				pdf.reset();
+			}
+		}
+	}
 
 	if (!in.eof())
 		edm::LogWarning("Generator|LHEInterface")

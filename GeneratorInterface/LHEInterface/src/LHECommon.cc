@@ -8,6 +8,17 @@
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 
+static int skipWhitespace(std::istream &in)
+{
+	int ch;
+	do {
+		ch = in.get();
+	} while(std::isspace(ch));
+	if (ch != std::istream::traits_type::eof())
+		in.putback(ch);
+	return ch;
+}
+
 namespace lhef {
 
 LHECommon::LHECommon(std::istream &in, const std::string &comment)
@@ -34,11 +45,7 @@ LHECommon::LHECommon(std::istream &in, const std::string &comment)
 				<< "." << std::endl;
 	}
 
-	int ch;
-	do {
-		ch = in.get();
-	} while(std::isspace(ch));
-
+	skipWhitespace(in);
 	if (!in.eof())
 		edm::LogWarning("Generator|LHEInterface")
 			<< "Les Houches file contained spurious"
