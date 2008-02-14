@@ -1716,6 +1716,7 @@ namespace edm {
     changeState(mRunCount);
     StatusCode returnCode = epSuccess;
     shouldWeStop_ = false;
+    stateMachineWasInErrorState_ = false;
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1776,6 +1777,13 @@ namespace edm {
 
     changeState(mFinished);
     toerror.succeeded();
+
+    if (stateMachineWasInErrorState_) {
+      throw cms::Exception("BadState")
+	<< "The boost state machine in the EventProcessor exited after\n"
+	<< "entering the Error state.\n";
+    }
+
     return returnCode;
   }
 
@@ -1866,8 +1874,14 @@ namespace edm {
   }
 
   void EventProcessor::doErrorStuff() {
-    // IMPLEMENTATION: NOT KNOWN
     FDEBUG(1) << "\tdoErrorStuff\n";
+    edm::LogError("StateMachine")
+      << "The EventProcessor state machine encountered an unexpected event\n"
+      << "and went to the error state\n"
+      << "Will attempt to terminate processing normally\n"
+      << "(IF using the looper the next loop will be attempted)\n"
+      << "This likely indicates a bug in an input module or corrupted input or both\n";
+    stateMachineWasInErrorState_ = true;
   }
 
   void EventProcessor::smBeginRun(int run) {
