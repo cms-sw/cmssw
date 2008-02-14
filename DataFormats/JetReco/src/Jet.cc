@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.18 2008/02/12 23:46:32 fedor Exp $
+// $Id: Jet.cc,v 1.19 2008/02/14 00:06:31 fedor Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -17,8 +17,8 @@ namespace {
   public:
     CaloPoint (double fZ, double fEta) {
       const double depth = 0.1; // one for all relative depth of the reference point between ECAL begin and HCAL end
-      const double R_BARREL = depth*143.+(1.-depth)*407.;
-      const double Z_ENDCAP = depth*320.+(1.-depth)*568.; // 1/2(EEz+HEz)
+      const double R_BARREL = (1.-depth)*143.+depth*407.;
+      const double Z_ENDCAP = (1.-depth)*320.+depth*568.; // 1/2(EEz+HEz)
       const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.) -1.); // eta=3
       const double Z_FORWARD = 1100.+depth*165.;
       const double ETA_MAX = 5.2;
