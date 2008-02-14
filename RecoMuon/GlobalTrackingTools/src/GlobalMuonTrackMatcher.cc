@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2007/11/21 05:54:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/05 22:21:20 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -173,6 +173,7 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
 			    const TrackCand& tkCand) const {
   
   const string category = "GlobalMuonTrackMatcher";
+  TrajectoryStateOnSurface empty; 
   
   TransientTrack muTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
   TrajectoryStateOnSurface impactMuTSOS = muTT.impactPointState();
@@ -191,7 +192,7 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
     }
   }
   
-  if ( !impactMuTSOS.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(impactMuTSOS,outerTkTsos);
+  if ( !impactMuTSOS.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
   
   // define StateOnTrackerBound objects  
   StateOnTrackerBound fromInside(&*theService->propagator(theOutPropagatorName));
@@ -217,7 +218,7 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
     else if(same2) tkTsosFromMu = newTkTsosFromMu;
     else  {
       LogDebug(category) << "Could not propagate Muon and Tracker track to the same tracker bound!";
-      return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(impactMuTSOS, outerTkTsos);
+      return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty, empty);
     }
   }
   
@@ -230,7 +231,8 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
 			       const TrackCand& tkCand) const {
   
   const string category = "GlobalMuonTrackMatcher";
-  
+  TrajectoryStateOnSurface empty; 
+
   TransientTrack muTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
   TrajectoryStateOnSurface innerMuTSOS = muTT.innermostMeasurementState();
 
@@ -250,7 +252,7 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
 
   if ( !innerMuTSOS.isValid() || !outerTkTsos.isValid() ) {
     LogDebug(category) << "A TSOS Validity problem! MuTSOS " << innerMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
-    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTSOS,outerTkTsos);
+    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
   }
   
   const Surface & refSurface = innerMuTSOS.surface();
@@ -258,9 +260,9 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
   TrajectoryStateOnSurface tkAtMu = theService->propagator(theOutPropagatorName)->propagate(*outerTkTsos.freeState(),refSurface);
   
   
-  if( !tkAtMu.isValid() ) {
+  if( !samePlane(tkAtMu,innerMuTSOS) ) {
     LogDebug(category) << "Could not propagate Muon and Tracker track to the same muon hit surface!";
-    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTSOS, outerTkTsos);    
+    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);    
   }
   
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTSOS, tkAtMu);
@@ -273,7 +275,8 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
 			       const TrackCand& tkCand) const {
   
   const string category = "GlobalMuonTrackMatcher";
-  
+  TrajectoryStateOnSurface empty; 
+
   TransientTrack muTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
   TrajectoryStateOnSurface impactMuTSOS = muTT.impactPointState();
 
@@ -293,7 +296,7 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
 
   if ( !impactMuTSOS.isValid() || !outerTkTsos.isValid() ) {
     LogDebug(category) << "A TSOS Validity problem! MuTSOS " << impactMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
-    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(impactMuTSOS,outerTkTsos);
+    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
   }
   
   const Surface & refSurface = outerTkTsos.surface();
@@ -301,9 +304,9 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
   TrajectoryStateOnSurface muAtTk = theService->propagator(theOutPropagatorName)->propagate(*impactMuTSOS.freeState(),refSurface);
   
   
-  if( !muAtTk.isValid() ) {
+  if( !samePlane(muAtTk,outerTkTsos) ) {
     LogDebug(category) << "Could not propagate Muon and Tracker track to the same tracker hit surface!";
-    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(impactMuTSOS, outerTkTsos);    
+    return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);    
   }
   
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(muAtTk, outerTkTsos);
@@ -317,6 +320,8 @@ GlobalMuonTrackMatcher::samePlane(const TrajectoryStateOnSurface& tsos1,
 {
   if( !tsos1.isValid() || !tsos2.isValid()) return false;
   const string category = "GlobalMuonTrackMatcher";
+
+  if(abs(match_D(tsos1,tsos2)-match_d(tsos1,tsos2))>0.1) return false;
 
   const float maxtilt = 0.999;
   const float maxdist = 0.01; // in cm
@@ -389,4 +394,10 @@ double
 GlobalMuonTrackMatcher::match_D(const TrajectoryStateOnSurface& sta, const TrajectoryStateOnSurface& tk) const {
   if( !sta.isValid() || !tk.isValid() ) return -1;
   return (sta.globalPosition() - tk.globalPosition()).mag();
+}
+
+double
+GlobalMuonTrackMatcher::match_d(const TrajectoryStateOnSurface& sta, const TrajectoryStateOnSurface& tk) const {
+  if( !sta.isValid() || !tk.isValid() ) return -1;
+  return (sta.localPosition() - tk.localPosition()).mag();
 }

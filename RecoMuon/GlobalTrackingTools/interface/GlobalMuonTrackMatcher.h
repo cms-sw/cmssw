@@ -15,8 +15,8 @@
  * tracker track that is closest in eta-phi space.
  *
  *
- *  $Date: 2007/11/21 05:54:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/05 22:21:20 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University
@@ -62,6 +62,7 @@ class GlobalMuonTrackMatcher {
 
   double match_R_IP(const TrackCand&, const TrackCand&) const;
   double match_D(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  double match_d(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
   double match_Rmom(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
   double match_Rpos(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
   double match_ChiAtSurface(const TrajectoryStateOnSurface& , const TrajectoryStateOnSurface& ) const;

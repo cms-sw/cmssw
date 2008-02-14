@@ -7,6 +7,7 @@
  *  $Date: 2007/08/15 15:15:28 $
  *  $Revision: 1.1 $
  *  \author A. Everett - Purdue University
+ *  \author A. Grelli -  Purdue University, Pavia University 
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,15 +37,16 @@ class MuonTrackingRegionBuilder {
   RectangularEtaPhiTrackingRegion* region(const reco::Track&) const;
 
  private:
-
-  const MuonServiceProxy * theService;
-
   bool theFixedFlag;
-
+  
+  const MuonServiceProxy * theService;
+  
   double HalfZRegion_size; 
   double Delta_R_Region;
   double TkEscapePt;
-  double Nsigma;
+  double Nsigma_eta;
+  double Nsigma_phi;
+  
   double Eta_Region_parameter1; 
   double Eta_Region_parameter2;
   double Phi_Region_parameter1;
@@ -54,6 +56,7 @@ class MuonTrackingRegionBuilder {
   double Eta_minimum;
   double Phi_fixed;
   double Eta_fixed;
+
   GlobalPoint theVertexPos;
   GlobalError theVertexErr;
 
