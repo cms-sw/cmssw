@@ -20,7 +20,7 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
 
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
-	swapME1strips = conf.getParameter<int>("swapME1strips");
+	swapME1strips = conf.getParameter<bool>("swapME1strips");
 
 	file = 0;
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )

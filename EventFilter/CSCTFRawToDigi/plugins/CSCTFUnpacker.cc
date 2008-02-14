@@ -41,7 +41,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	m_maxBX = pset.getUntrackedParameter<int>("MaxBX");
 
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
-	swapME1strips = pset.getParameter<int>("swapME1strips");
+	swapME1strips = pset.getParameter<bool>("swapME1strips");
 
 	// Initialize slot<->sector assignment
 	slot2sector = pset.getParameter< std::vector<int> >("slot2sector");
