@@ -14,83 +14,61 @@
 
 // system include files
 #include <sstream>
-#include <string>
-#include <TTree.h>
-#include <TFile.h>
-#include <TRotMatrix.h>
+#include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"	 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
-//
+static const int kLEAD_WIDTH = 40; // First field width
+
 //
 // class declaration
 //
-
 class TestMuonHierarchy : public edm::EDAnalyzer {
 public:
-  explicit TestMuonHierarchy( const edm::ParameterSet& );
-  ~TestMuonHierarchy();
-  
+  explicit TestMuonHierarchy( const edm::ParameterSet& ) {}
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void dumpAlignable( Alignable* alignable);
+  void dumpAlignable( const Alignable*, unsigned int, unsigned int );
+  void printInfo( const Alignable*, unsigned int );
+
+  std::string leaders_, blank_, filled_;
 
 };
 
-//
-// constructors and destructor
-//
-TestMuonHierarchy::TestMuonHierarchy( const edm::ParameterSet& iConfig ) 
-{ 
-
-}
-
-
-TestMuonHierarchy::~TestMuonHierarchy()
-{ 
-  
-  
-}
-
 
 void
-TestMuonHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+TestMuonHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 {
 
-   
   edm::LogInfo("MuonHierarchy") << "Starting!";
-
-  //
-  // Retrieve ideal geometry from event setup
-  //
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get( dtGeometry );
-  iSetup.get<MuonGeometryRecord>().get( cscGeometry );
+  setup.get<MuonGeometryRecord>().get( dtGeometry );
+  setup.get<MuonGeometryRecord>().get( cscGeometry );
+  
+  std::auto_ptr<AlignableMuon> 
+    theAlignableMuon( new AlignableMuon(&(*dtGeometry),&(*cscGeometry)) );
 
-  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry), &(*cscGeometry) );
+  leaders_ = "";
+  blank_ = "   ";  // These two...
+  filled_ = "|  "; // ... must have the same length
 
   // Now dump mother of each alignable
-  dumpAlignable( theAlignableMuon );
+  //const Alignable* alignable = (&(*theAlignableMuon))->pixelHalfBarrels()[0];
+  dumpAlignable( &(*theAlignableMuon), 1, 1 );
   
   
   edm::LogInfo("MuonAlignment") << "Done!";
@@ -99,32 +77,57 @@ TestMuonHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 //__________________________________________________________________________________________________
-void TestMuonHierarchy::dumpAlignable( Alignable* alignable )
+// Recursive loop on alignable hierarchy
+void TestMuonHierarchy::dumpAlignable( const Alignable* alignable,
+                                          unsigned int idau, unsigned int ndau )
 {
 
-  AlignableObjectId converter;
+  printInfo( alignable, idau );
 
+  if ( ndau != idau ) leaders_ += filled_;
+  else leaders_ += blank_;
 
-  std::ostringstream message;
-  
-  message << "I am a " << converter.typeToName( alignable->alignableObjectId() );
+  const align::Alignables& comps = alignable->components();
+  if ( unsigned int ndau = comps.size() ) {
+    unsigned int idau = 0;
+    for ( align::Alignables::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
+      dumpAlignable( *iter, ++idau, ndau );
+  }
 
-  if ( alignable->mother() )
-	message << " and my mother is a "
-			<< converter.typeToName( alignable->mother()->alignableObjectId() );
-  else
-	message << " and I have no mother :-/";
-
-  edm::LogInfo("DumpAlignable") << message.str();
-
-  if ( alignable->components().size() )
-	{
-	  std::vector<Alignable*> comp = alignable->components();
-	  for ( std::vector<Alignable*>::iterator iter = comp.begin(); iter != comp.end(); iter++ )
-		dumpAlignable( *iter );
-	}
+  leaders_ = leaders_.substr( 0, leaders_.length()-blank_.length() );
 
 }
 
+
+//__________________________________________________________________________________________________
+// Do the actual printout
+void TestMuonHierarchy::printInfo( const Alignable* alignable,
+                                      unsigned int idau )
+{
+  
+  static AlignableObjectId converter;
+  int width = kLEAD_WIDTH-leaders_.length();
+
+  std::ostringstream name,pos,rot;
+
+  name << converter.typeToName( alignable->alignableObjectId() ) << idau;
+
+  // Position
+  pos.setf(std::ios::fixed);
+  pos << "(" << std::right 
+      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().x() << ","
+      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().y() << ","
+      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().z() << ")";
+
+  edm::LogVerbatim("DumpAlignable") 
+    << leaders_ << "+-> "
+    << std::setw(width) << std::left << name.str()
+    << " | " << std::setw(3)  << std::left << alignable->components().size()
+    << " | " << std::setw(11) << std::left << alignable->id()
+    << " | " << pos.str();
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestMuonHierarchy);
+
+

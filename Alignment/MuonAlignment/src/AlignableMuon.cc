@@ -12,6 +12,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h" 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h" 
+#include <Geometry/DTGeometry/interface/DTLayer.h> 
 #include "CondFormats/Alignment/interface/Alignments.h" 
 #include "CondFormats/Alignment/interface/AlignmentErrors.h" 
 #include "CondFormats/Alignment/interface/AlignmentSorter.h" 

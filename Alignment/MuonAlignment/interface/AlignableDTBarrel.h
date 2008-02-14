@@ -4,25 +4,19 @@
 /** \class AlignableDTBarrel
  *  The alignable muon DT barrel.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/06 01:30:56 $
+ *  $Revision: 1.6.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -64,7 +58,7 @@ class AlignableDTBarrel : public AlignableComposite
   AlignableDTWheel &wheel(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTBarrel; }
+  virtual StructureType alignableObjectId() const { return align::AlignableDTBarrel; }
 
   /// Printout muon Barrel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );

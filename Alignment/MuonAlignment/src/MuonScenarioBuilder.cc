@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/07 08:42:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/06 01:32:37 $
+ *  $Revision: 1.2.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -17,6 +17,9 @@
 // Alignment
 
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h" 
 
 //__________________________________________________________________________________________________
 MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable )
@@ -66,7 +69,7 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 
 std::vector<float> MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, char *blockId) {
   
-  double scale_ = 1, scaleError_ = 1, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
+  double scale_ = 0, scaleError_ = 0, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
   double dX_ = 0, dY_ = 0, dZ_ = 0;
   
   std::ostringstream error;
