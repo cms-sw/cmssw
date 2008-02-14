@@ -1,0 +1,18 @@
+#!/bin/bash
+### simple script to add information to the database. takes two arguments: the name of the .cfg file (full path pls) and the desired tag name.
+
+filename=$1
+tagname=$2
+oldtag=PIXELTAG  # these should be identical to definition in inputfile
+oldname=PIXELFILENAME  #these should be identical to definition in inputfile
+inputfile=${CMSSW_BASE}/src/CondTools/SiPixel/test/calibconfiguration_write_template.cfg
+outputfile=`echo "dbinput_"$tagname"_scripted.cfg"`
+rm -rf $outputfile
+more $inputfile | replace $oldname $filename $oldtag $tagname >$outputfile
+echo "****** THIS IS THE INPUT FILE:"
+echo ""
+more $outputfile
+echo "****** starting DB fill:"
+cmsRun $outputfile
+echo "removing temporary files..."
+
