@@ -21,7 +21,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg)
+  : theConfig(cfg), theTkSeedGenerator(0)
 {
   produces<L3MuonTrajectorySeedCollection>();
 

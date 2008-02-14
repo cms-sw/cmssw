@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/05 22:45:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/14 16:26:33 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -86,6 +86,8 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
   theTkBuilderName = par.getParameter<std::string>("TkTrackBuilder");
 
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
+
+  theSeedName = par.getParameter<edm::InputTag>("l3SeedLabel");
 }
 
 
@@ -117,6 +119,8 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   theTkBuilder->setEvent(event);
     
   theTkSeedGenerator->setEvent(event);
+
+  theSeedsAvailable = event.getByLabel(theSeedName,theSeedCollection);
   
 }
 
@@ -198,18 +202,25 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
   vector<TrackCand> tkCandColl;  
 
   // Tracks not available, make seeds and trajectories
-
-  LogTrace(category) << "Making Seeds";
-  
-  std::vector<TrajectorySeed> tkSeeds; 
-  TC allTkTrajs;
-  
-  RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
-  theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);
-  
-  LogTrace(category) << "Found " << tkSeeds.size() << " tracker seeds";
+  // std::vector<L3MuonTrajectorySeed> useSeeds;
+  std::vector<TrajectorySeed> tkSeeds;
+  if( theSeedsAvailable ) {
+    L3MuonTrajectorySeedCollection::const_iterator l3Seed;
+    for(l3Seed=theSeedCollection->begin(); l3Seed != theSeedCollection->end(); ++l3Seed) {
+      const reco::TrackRef & l2FromSeed = l3Seed->l2Track();
+      if(staCand.second == l2FromSeed) tkSeeds.push_back(*l3Seed);
+    }    
+  } else {
     
-  allTkTrajs = makeTrajsFromSeeds(tkSeeds);
+    LogTrace(category) << "Making Seeds";
+    
+    RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
+    theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);    
+  }
+
+  LogTrace(category) << "Found " << tkSeeds.size() << " tracker seeds";
+
+  TC allTkTrajs = makeTrajsFromSeeds(tkSeeds);
   
   for (TC::const_iterator tt=allTkTrajs.begin();tt!=allTkTrajs.end();++tt){
     tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));

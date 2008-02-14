@@ -4,13 +4,15 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/11/05 19:11:58 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/14 16:26:32 $
+ *  $Revision: 1.4 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
  */
+
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
@@ -47,16 +49,22 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
     /// build a tracker Trajectory from a seed
     TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
+    //    TC makeTrajsFromSeeds(const std::vector<L3MuonTrajectorySeed>&) const;
 
   private:
   
     bool theFirstEvent;
-    
+    bool theSeedsAvailable;    
+
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
-
+    
     std::string theTkBuilderName;
     edm::ESHandle<TrajectoryBuilder> theTkBuilder;
+    
+    edm::InputTag theSeedName;
+    edm::Handle<L3MuonTrajectorySeedCollection> theSeedCollection;
+    
 
 };
 #endif
