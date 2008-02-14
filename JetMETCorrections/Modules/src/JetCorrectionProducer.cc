@@ -53,13 +53,12 @@ namespace cms {
     
     CaloJetCollection::const_iterator jet = jets->begin ();
     for (; jet != jets->end (); jet++) {
-      double scale = 1.;
+      CaloJet correctedJet = *jet; 
       for (unsigned i = 0; i < mCorrectors.size(); i++) {
-	scale *= mCorrectors[i]->correction (*jet, fEvent, fSetup);
+	double scale = mCorrectors[i]->correction (correctedJet, fEvent, fSetup);
+	correctedJet.scaleEnergy (scale);
       }
-      Jet::LorentzVector common (jet->px()*scale, jet->py()*scale,
-                           jet->pz()*scale, jet->energy()*scale);
-      result->push_back (CaloJet (common, jet->getSpecific (), jet->getJetConstituents()));
+      result->push_back (correctedJet);
     }
     NumericSafeGreaterByPt<CaloJet> compJets;
     std::sort (result->begin (), result->end (), compJets); // reorder corrected jets
