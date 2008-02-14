@@ -10,6 +10,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "DataFormats/Common/interface/DetSetVector.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -36,13 +37,15 @@ namespace {
     SiStripMatchedRecHit2D a2;
     SiPixelRecHit b1;
     SiTrackerGSRecHit2D c1;
-    SiTrackerGSRecHit2D d1;
+    SiTrackerGSMatchedRecHit2D d1;
+    SiTrackerGSRecHit2D e1;
 
     edm::ClonePolicy<SiStripRecHit2D>  a4;
     edm::ClonePolicy<SiStripMatchedRecHit2D > a5;
     edm::ClonePolicy<SiPixelRecHit> b2;
     edm::ClonePolicy<SiTrackerGSRecHit2D>  c2;
-    edm::ClonePolicy<SiTrackerMultiRecHit>  d2;
+    edm::ClonePolicy<SiTrackerGSMatchedRecHit2D>  d2;
+    edm::ClonePolicy<SiTrackerMultiRecHit>  e2;
 
     edm::OwnVector<SiStripRecHit2D,
       edm::ClonePolicy<SiStripRecHit2D> > a6;
@@ -60,10 +63,14 @@ namespace {
       edm::ClonePolicy<SiTrackerGSRecHit2D> > c3;
     edm::OwnVector<SiTrackerGSRecHit2D,
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::const_iterator it8;
+    edm::OwnVector<SiTrackerGSMatchedRecHit2D,
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> > d3;
+    edm::OwnVector<SiTrackerGSMatchedRecHit2D,
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >::const_iterator it9;
     edm::OwnVector<SiTrackerMultiRecHit,
-      edm::ClonePolicy<SiTrackerMultiRecHit> > d3;
+      edm::ClonePolicy<SiTrackerMultiRecHit> > e3;
     edm::OwnVector<SiTrackerMultiRecHit,
-      edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator it9;
+      edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator it10;
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2D,
@@ -109,7 +116,18 @@ namespace {
       edm::OwnVector<SiTrackerGSRecHit2D,
       edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::id_iterator    itgs2d;
-    
+ 
+
+   edm::Wrapper< edm::RangeMap<unsigned,
+      edm::OwnVector<SiTrackerGSMatchedRecHit2D,
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >, 
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> > >  siStripGaussianSmearingRecHit2DLocalPosMatchedCollectionWrapper;
+    edm::RangeMap<unsigned,
+      edm::OwnVector<SiTrackerGSMatchedRecHit2D,
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >, 
+      edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >::id_iterator  itgsmatched2d;
+ 
+   
     edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refRangeMapDetIdOwnVectorSiStripRecHit2D;
     edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refVectorRangeMapDetIdOwnVectorSiStripRecHit2D;
   }

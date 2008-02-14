@@ -167,6 +167,11 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     {
       simtrackid = associateGSRecHit(rechit);
     }
+  //check if these are GSRecHits (from FastSim)
+  else if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
+    {
+      simtrackid = associateGSMatchedRecHit(rechit);
+    }
   
   
   //now get the SimHit from the trackid
@@ -279,6 +284,10 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
   else if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
     {
       simtrackid = associateGSRecHit(rechit);
+    }  
+  else if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
+    {
+      simtrackid = associateGSMatchedRecHit(rechit);
     }
   
  
@@ -500,6 +509,18 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTracker
   vector<SimHitIdpr> simtrackid;
   simtrackid.clear();
   SimHitIdpr currentId(gsrechit->simtrackId(), EncodedEventId(gsrechit->eeId()));
+  simtrackid.push_back(currentId);
+  return simtrackid;
+}
+
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
+{
+  //GSRecHit is the FastSimulation RecHit that contains the TrackId already
+
+  vector<SimHitIdpr> simtrackid;
+  simtrackid.clear();
+  SimHitIdpr currentId(gsmrechit->simtrackId(), EncodedEventId(gsmrechit->eeId()));
+  std::cout << "Hit ID " << gsmrechit->simtrackId() << std::endl;
   simtrackid.push_back(currentId);
   return simtrackid;
 }
