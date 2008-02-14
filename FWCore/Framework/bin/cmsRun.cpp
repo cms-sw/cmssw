@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.50 2008/01/30 00:32:00 wmtan Exp $
+$Id: cmsRun.cpp,v 1.51 2008/01/30 19:23:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -146,6 +146,10 @@ int main(int argc, char* argv[])
   boost::program_options::positional_options_description p;
   p.add(kParameterSetOpt, -1);
 
+  // This --fwk option is not used anymore, but I'm leaving it around as
+  // it might be useful again in the future for code development
+  // purposes.  We originally used it when implementing the boost
+  // state machine code.
   boost::program_options::options_description hidden("hidden options");
   hidden.add_options()("fwk", "For use only by Framework Developers");
   
@@ -264,16 +268,7 @@ int main(int argc, char* argv[])
     proc = procTmp;
     proc->beginJob();
     proc.on();
-    // If the command line option "fwk" is set, then run the event processor
-    // using the new statemachine code.  This is a mode that should only be
-    // used by Framework developers at the moment.
-    if (vm.count("fwk")) {
-      proc->runToCompletion();
-    }
-    // This is the default that has been in use for a long time.
-    else {
-      proc->run();
-    }
+    proc->runToCompletion();
     proc.off();
     proc->endJob();
     rc = 0;
