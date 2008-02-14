@@ -4,6 +4,20 @@
 
 #include<iostream>
 
+
+namespace {
+
+  void fill(Pedestal & p, int nc) {
+    p.reserve(nc);
+    for(int ichannel=1; ichannel<=nc; ++ichannel){
+      Pedestals::Item item;
+      item.m_mean=1.11*ichannel;
+      item.m_variance=1.12*ichannel;
+      p.m_pedestals.push_back(item);
+    }
+  }
+}
+
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")){
 }
@@ -20,6 +34,11 @@ void popcon::ExPedestalSource::getNewObjects() {
   std::cerr<<"got offlineInfo"<<std::endl;
   std::cerr << tagInfo().name << " , last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
+  if (tagInfo().size>0) {
+    Ref payload = lastPayload();
+    std::cerr<<"size of last payload  "<< 
+      payload->m_pedestals.size()<<std::endl;
+  }
 
   
   
@@ -33,8 +52,11 @@ void popcon::ExPedestalSource::getNewObjects() {
 
   
   Pedestals * p0 = new Pedestals;
+  fill(p0,3);
   Pedestals * p1 = new Pedestals;
+  fill(p1,5);
   Pedestals * p2 = new Pedestals;
+  fill(p2,7);
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,snc));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));

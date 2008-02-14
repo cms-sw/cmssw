@@ -1,6 +1,8 @@
 #ifndef  PopConSourceHandler_H
 #define  PopConSourceHandler_H
 
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBOutputService/interface/TagInfo.h"
@@ -28,7 +30,7 @@ namespace popcon {
     typedef PopConSourceHandler<T> self;
     typedef std::vector<std::pair<T*, cond::Time_t> > Container;
     typedef cond::Time_t Time_t;
-
+    typedef cond::TypedRef<value_type> Ref; 
 
     PopConSourceHandler(){}
     
@@ -38,11 +40,21 @@ namespace popcon {
 
     cond::TagInfo const & tagInfo() const { return  *m_tagInfo; }
 
+    // return last paylod of the tag
+    Ref lastPayload() {
+      m_pooldb->start(true);
+      Ref myinstance(pooldb,taginfo().lastPayloadToken);
+      m_pooldb->commit();
+      return Ref;
+    }
+
     // return last successful log entry for the tag in question
     cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
 
 
-    void initialize (cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry)  {
+    void initialize (cond::PoolTransaction& pooldb,
+		     cond::TagInfo const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
+      m_pooldb = &pooldb;
       m_tagInfo = &tagInfo;
       m_logDBEntry = &logDBEntry;
     }
@@ -78,6 +90,8 @@ namespace popcon {
     
   private:
     
+    cond::PoolTransaction * m_pooldb;
+
     cond::TagInfo const * m_tagInfo;
     
     cond::LogDBEntry const * m_logDBEntry;

@@ -111,7 +111,8 @@ namespace popcon {
       initialize();
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"something clever");
 
-      Container const & payloads = source(m_tagInfo,m_logDBEntry);
+      Container const & payloads = source(m_dbService->connection().poolTransaction(),
+					  m_tagInfo,m_logDBEntry);
       displayHelper(payloads,m_since);
       std::for_each(payloads.begin(),payloads.end(),
 		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,
