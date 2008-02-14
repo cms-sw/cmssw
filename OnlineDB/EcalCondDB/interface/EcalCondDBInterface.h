@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.10 2007/11/14 16:38:48 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.11 2007/11/19 11:08:43 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -142,12 +142,17 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  string mapsTo:    channel type name these ids map to
    */  
   std::vector<EcalLogicID> getEcalLogicIDSet( std::string name,
-					      int fromId1, int toId1,
+					      int fromId1 = EcalLogicID::NULLID, int toId1 = EcalLogicID::NULLID,
 					      int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
 					      int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
 					      std::string mapsTo = "" )
     throw(std::runtime_error);
 
+  std::vector<EcalLogicID> getEcalLogicIDSetOrdered( std::string name,
+						     int fromId1, int toId1,
+						     int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
+						     int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
+						     std::string mapsTo = "", int orderedBy= EcalLogicID::NULLID ) throw(std::runtime_error);
 
 
   /**
