@@ -5,7 +5,7 @@
 namespace cond{
   class TagInfo{
   public:
-    TagInfo(){}
+    TagInfo(): lastInterval(0,0), size(0){}
     std::string name;
     std::string token;
     cond::ValidityInterval lastInterval;
