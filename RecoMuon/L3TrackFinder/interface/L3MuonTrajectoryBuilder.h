@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/09/27 00:48:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/05 19:11:58 $
+ *  $Revision: 1.3 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -50,7 +50,6 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
   private:
   
-    bool theTkTrajsAvailableFlag;
     bool theFirstEvent;
     
     TrackerSeedGenerator* theTkSeedGenerator;

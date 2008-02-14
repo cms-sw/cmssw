@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/11/05 19:11:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/05 22:45:06 $
+ *  $Revision: 1.3 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -71,7 +71,6 @@ using namespace edm;
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service), theTkSeedGenerator(0) {
 
-  theTkTrajsAvailableFlag = par.getParameter<bool>("TkTrajectoryAvailable");  
   theFirstEvent = true;
   
   //
@@ -181,12 +180,10 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   }
   tkTrajs.clear();  
 
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
+  for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+    delete (*is).first;   
   }
-
+  
   return result;
   
 }

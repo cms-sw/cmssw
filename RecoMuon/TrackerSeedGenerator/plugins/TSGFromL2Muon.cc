@@ -43,7 +43,7 @@ void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
   theService->update(es);
   
   //region builder
-  edm::ParameterSet regionBuilderPSet = theConfig.getParameter<edm::ParameterSet>("RegionBuilderParameters");
+  edm::ParameterSet regionBuilderPSet = theConfig.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   //ability to no define a region
   if (regionBuilderPSet.empty()){
     theRegionBuilder = 0;}
