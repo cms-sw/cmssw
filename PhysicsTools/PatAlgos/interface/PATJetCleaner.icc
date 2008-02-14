@@ -1,18 +1,24 @@
 #include "PhysicsTools/PatAlgos/interface/PATJetCleaner.h"
 
 template<typename JetIn, typename JetOut>
-pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig) :
-  jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" )),
-  helper_(jetSrc_)
+pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig)
 {
   // produces vector of electrons
   produces<std::vector<JetOut> >();
   // producers also backmatch to the electrons
   produces<reco::CandRefValueMap>();
 
+  selectionCfg_ = iConfig.getParameter<edm::ParameterSet>("selection");
+  jetSrc_       = iConfig.getParameter<edm::InputTag>( "jetSource" );
+  helper_       = jetSrc_;
+
   if (iConfig.exists("removeOverlaps")) {
     overlapHelper_ = pat::helper::OverlapHelper(iConfig.getParameter< std::vector<edm::ParameterSet> >("removeOverlaps"));
   } 
+  
+  selector_ = std::auto_ptr<JetSelectorType >( 
+                            new JetSelectorType(selectionCfg_) 
+  			                     );
 }
 
 
@@ -33,8 +39,12 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
 
     // clone the jet and convert it to the new type
     JetOut ourJet = static_cast<JetOut>(srcJet);
+ 
+    // perform the selection
+    // if no custom jet selection -> pass nec. info to jetselector here
+    if ( selector_->filter(idx,helper_.source()) ) continue;
 
-    // write the muon
+    // write the jet
     helper_.addItem(idx, ourJet);
   }
 
