@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.2 2008/02/04 21:54:58 drell Exp $
+// $Id: V0Analyzer.cc,v 1.3 2008/02/05 21:22:18 drell Exp $
 //
 //
 
@@ -57,6 +57,15 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -106,12 +115,25 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* step1massHisto;
   TH1D* step2massHisto;
   TH1D* step3massHisto;
+  TH1D* step4massHisto;
 
   TH1D* vertexChi2Histo;
   TH1D* rVtxHisto1;
   TH1D* vtxSigHisto1;
   TH1D* rVtxHisto2;
   TH1D* vtxSigHisto2;
+
+  TH1D* rErrorHisto;
+  TH1D* tkPtHisto;
+  TH1D* tkChi2Histo;
+  TH1D* sqrtTkChi2Histo;
+  TH1D* tkEtaHisto;
+  TH1D* kShortEtaHisto;
+  TH1D* numHitsHisto;
+
+  int numDiff1, numDiff2;
+
+  std::ofstream hitsOut;
 
 
 
@@ -147,6 +169,8 @@ V0Analyzer::V0Analyzer(const edm::ParameterSet& iConfig):
 
    //now do what ever initialization is needed
   theHistoFile = 0;
+
+  numDiff1 = numDiff2 = 0;
 }
 
 
@@ -172,7 +196,7 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
 
   string algo(algoLabel);
-  string vernum("160");
+  string vernum("175");
   algo += vernum;
   string refit("Refitted");
   string native("Native");
@@ -235,8 +259,12 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string s2massHistoLabelShort(vernum + string("mPiPiS2"));
 
   string s3massHistoLabelLong(algo+
-			      string(" m_{#pi #pi}, all cuts implemented"));
+			      string(" m_{#pi #pi}, most cuts implemented"));
   string s3massHistoLabelShort(vernum + string("mPiPiS3"));
+
+  string s4massHistoLabelLong(algo+
+			      string(" m_{#pi #pi}, all cuts implemented"));
+  string s4massHistoLabelShort(vernum + string("mPiPiS4"));
 
   string vertexChi2HistoLabelLong(algo+
 				  string(" vertex #chi^{2}"));
@@ -251,12 +279,42 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string vtxSigHistoLabelShort(vernum + string("#sigma rVtxRadial"));
 
   string rVtxHistoLabel2Long(algo+
-			    string(" r_{vtx} of V^{0} decay"));
-  string rVtxHistoLabel2Short(vernum + string("rVtxSpherical"));
+			    string(" r_{vtx} of V^{0} decay after hit cut"));
+  string rVtxHistoLabel2Short(vernum + string("rVtxAfterHitCut"));
 
   string vtxSigHistoLabel2Long(algo+
 			      string(" V^{0} vertex significance"));
   string vtxSigHistoLabel2Short(vernum + string("#sigma rVtxSpherical"));
+
+  string rErrorHistoLabelLong(algo+
+			      string(" Error in r_{vtx}"));
+  string rErrorHistoLabelShort(vernum + string("#sigma R"));
+
+  string tkPtHistoLabelLong(algo+
+			    string(" Track P_{t}"));
+  string tkPtHistoLabelShort(vernum + string("tkPt"));
+
+  string tkChi2HistoLabelLong(algo+
+			      string(" Track #Chi^{2}"));
+  string tkChi2HistoLabelShort(vernum + string("tkChi2"));
+
+  string sqrtTkChi2HistoLabelLong(algo+
+			      string(" sqrt of Track #Chi^{2}"));
+  string sqrtTkChi2HistoLabelShort(vernum + string("sqrtTkChi2"));
+
+  string tkEtaHistoLabelLong(algo+
+			     string(" Track #eta"));
+  string tkEtaHistoLabelShort(vernum + string("tkEta"));
+
+  string kShortEtaHistoLabelLong(algo+
+				 string(" K^{0}_{s} #eta"));
+  string kShortEtaHistoLabelShort(vernum + string("k0sEta"));
+
+  string numHitsHistoLabelLong(algo+
+			       string(" Number Of Hits Per Track"));
+  string numHitsHistoLabelShort(vernum + string("numHits"));
+
+
 
   step1massHisto = new TH1D(s1massHistoLabelShort.c_str(),
 			    s1massHistoLabelLong.c_str(),
@@ -267,22 +325,47 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   step3massHisto = new TH1D(s3massHistoLabelShort.c_str(),
 			    s3massHistoLabelLong.c_str(),
 			    100, 0., 2.);
+  step4massHisto = new TH1D(s4massHistoLabelShort.c_str(),
+			    s4massHistoLabelLong.c_str(),
+			    100, 0., 2.);
 
   vertexChi2Histo = new TH1D(vertexChi2HistoLabelShort.c_str(),
 			     vertexChi2HistoLabelLong.c_str(),
 			     100, 0., 20.);
   rVtxHisto1 = new TH1D(rVtxHistoLabelShort.c_str(),
 		       rVtxHistoLabelLong.c_str(),
-		       100, 0., 1.);
+		       100, 0., 50.);
   vtxSigHisto1 = new TH1D(vtxSigHistoLabelShort.c_str(),
 			 vtxSigHistoLabelLong.c_str(),
 			 100, 0., 100.);
   rVtxHisto2 = new TH1D(rVtxHistoLabel2Short.c_str(),
 		       rVtxHistoLabel2Long.c_str(),
-		       100, 0., 1.);
+		       100, 0., 50.);
   vtxSigHisto2 = new TH1D(vtxSigHistoLabel2Short.c_str(),
 			 vtxSigHistoLabel2Long.c_str(),
 			 100, 0., 100.);
+
+  rErrorHisto = new TH1D(rErrorHistoLabelShort.c_str(),
+			 rErrorHistoLabelLong.c_str(),
+			 1000, 0., 1.);
+  tkPtHisto = new TH1D(tkPtHistoLabelShort.c_str(),
+		       tkPtHistoLabelLong.c_str(),
+		       100, 0., 20.);
+  tkChi2Histo = new TH1D(tkChi2HistoLabelShort.c_str(),
+			 tkChi2HistoLabelLong.c_str(),
+			 100, 0., 20.);
+  sqrtTkChi2Histo = new TH1D(sqrtTkChi2HistoLabelShort.c_str(),
+			 sqrtTkChi2HistoLabelLong.c_str(),
+			 100, 0., 20.);
+  tkEtaHisto = new TH1D(tkEtaHistoLabelShort.c_str(),
+			tkEtaHistoLabelLong.c_str(),
+			100, -2.5, 2.5);
+  kShortEtaHisto = new TH1D(kShortEtaHistoLabelShort.c_str(),
+			    kShortEtaHistoLabelLong.c_str(),
+			    100, -2.5, 2.5);
+  numHitsHisto = new TH1D(numHitsHistoLabelShort.c_str(),
+			  numHitsHistoLabelLong.c_str(),
+			  20, 0., 20.);
 
 
   myKshortMassHisto = new TH1D(massHistoLabelShort.c_str(), 
@@ -337,6 +420,8 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   myRhoEfficiencyHisto->Sumw2();
   mySimRhoHisto->Sumw2();
 
+  hitsOut.open("hitsOut.txt");
+
 }
 
 // ------------ method called to for each event  ------------
@@ -354,6 +439,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
   ESHandle<MagneticField> bFieldHandle;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+
+  ESHandle<TrackerGeometry> trackerGeomHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
+
+  const TrackerGeometry* trackerGeom;
+  trackerGeom = trackerGeomHandle.product();
   
   std::cout << "Getting by label..." << std::endl;
   iEvent.getByLabel(algoLabel, V0CollectionName, theCandHand);
@@ -419,6 +510,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
       theDaughterTracks.push_back(v0daughters[j].track());
     }
 
+
     reco::TrackBase::Point beamSpot(0,0,0);
 
     for(unsigned int k = 0; k < theDaughterTracks.size(); k++) {
@@ -446,6 +538,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     std::cout << "$#@#$: " << hasKshort << " " << hasLambda << " "
 	      << hasLambdaBar << " size: " << theKshorts.size() << std::endl;
     std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
+
+    kShortEtaHisto->Fill(theKshorts[ksndx].eta(), 1.);
 
     //std::cout << "tracksSize()=" << k0s.tracksSize() << std::endl;
     //std::cout << "hasRefittedTracks()="<< k0s.hasRefittedTracks() << std::endl;
@@ -480,22 +574,130 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     double vtxSigSph = vtxRSph / vtxErrorSph;
     double vtxSig = vtxR / vtxError;
 
+    rErrorHisto->Fill(vtxError, 1.);
+
+    using namespace reco;
+    std::vector<reco::TrackRef> theVtxTrax;
+    for( unsigned int i = 0; i < v0daughters.size(); i++ ) {
+      theVtxTrax.push_back( v0daughters[i].track() );
+    }
+
+    bool hitsOkay2 = true;
+    bool tkChi2Cut = true;
+    if( theVtxTrax.size() == 2 ) {
+
+      //Histos
+      //tkPtHisto->Fill(theVtxTrax[0]->pt(), 1.);
+      //tkPtHisto->Fill(theVtxTrax[1]->pt(), 1.);
+      //tkChi2Histo->Fill(theVtxTrax[0]->normalizedChi2(), 1.);
+      //tkChi2Histo->Fill(theVtxTrax[1]->normalizedChi2(), 1.);
+      //sqrtTkChi2Histo->Fill(sqrt(theVtxTrax[0]->normalizedChi2()), 1.);
+      //sqrtTkChi2Histo->Fill(sqrt(theVtxTrax[1]->normalizedChi2()), 1.);
+      if(theVtxTrax[0]->normalizedChi2() > 5. ||
+	 theVtxTrax[1]->normalizedChi2() > 5.) {
+	tkChi2Cut = false;
+      }
+      //tkEtaHisto->Fill(theVtxTrax[0]->eta(), 1.);
+      //tkEtaHisto->Fill(theVtxTrax[1]->eta(), 1.);
+
+      GlobalPoint tk1hitPos(theVtxTrax[0]->innerPosition().x(),
+			    theVtxTrax[0]->innerPosition().y(),
+			    theVtxTrax[0]->innerPosition().z());
+      GlobalPoint tk2hitPos(theVtxTrax[1]->innerPosition().x(),
+			    theVtxTrax[1]->innerPosition().y(),
+			    theVtxTrax[1]->innerPosition().z());
+      if( tk1hitPos.perp() < (vtxR - 3.*vtxError)
+	  && theVtxTrax[0]->innerOk() ) {
+	hitsOkay2 = false;
+      }
+      if( tk2hitPos.perp() < (vtxR - 3.*vtxError) 
+	  && theVtxTrax[1]->innerOk() ) {
+	hitsOkay2 = false;
+      }
+    }
+
+    bool hitsOkay = true;
+    bool nHitsCut = true;
+    std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
+
+    //hitsOut << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
+    if( theVtxTrax.size() == 2 ) {
+      if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
+	trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
+	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
+
+	double nHits1 = 0.;
+	double nHits2 = 0.;
+	for( ; tk1HitIt < theVtxTrax[0]->recHitsEnd(); tk1HitIt++) {
+	  const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
+	  if( (*tk1HitIt)->isValid() ) nHits1 += 1.;
+	  if( (*tk1HitIt)->isValid() && hitsOkay) {
+	    GlobalPoint tk1HitPosition
+	      = trackerGeom->idToDet(tk1HitPtr->
+				     geographicalId())->
+	      surface().toGlobal(tk1HitPtr->localPosition());
+	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
+	    //                               we can access the hit type.
+
+	    if( tk1HitPosition.perp() < (vtxR - 3.*vtxError) ) {
+	      hitsOkay = false;
+	    }
+	  }
+	}
+
+	for( ; tk2HitIt < theVtxTrax[1]->recHitsEnd(); tk2HitIt++) {
+	  const TrackingRecHit* tk2HitPtr = (*tk2HitIt).get();
+	  if( (*tk2HitIt)->isValid() ) nHits2 += 1.;
+	  if( (*tk2HitIt)->isValid() && hitsOkay) {
+	    GlobalPoint tk2HitPosition
+	      = trackerGeom->idToDet(tk2HitPtr->
+				     geographicalId())->
+	      surface().toGlobal(tk2HitPtr->localPosition());
+
+	    if( tk2HitPosition.perp() < (vtxR - 3.*vtxError) ) {
+	      hitsOkay = false;
+	    }
+	  }
+	}
+	numHitsHisto->Fill(nHits1, 1.);
+	numHitsHisto->Fill(nHits2, 1.);
+	if(nHits1 < 6. || nHits2 < 6.) {
+	  nHitsCut = false;
+	}
+      }
+    }
+  
+    std::cout << "hitsOkay=" << hitsOkay << ", hitsOkay2=" << hitsOkay2
+	      << std::endl;
+    hitsOut << "hitsOkay=" << hitsOkay << ", hitsOkay2=" << hitsOkay2
+	    << std::endl;
+    if(!hitsOkay) ++numDiff1;
+    if(!hitsOkay2) ++numDiff2;
+    for(unsigned int ndx3 = 0; ndx3 < theRecoTracks.size(); ndx3++) {
+      tkEtaHisto->Fill(theRecoTracks[ndx3].eta(), 1.);
+      tkChi2Histo->Fill(theRecoTracks[ndx3].normalizedChi2(), 1.);
+    }
+
     vertexChi2Histo->Fill(vtxChi2, 1.);
 
     step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
-    if(vtxChi2 < 1.) {
+    if(vtxChi2 < 3. && nHitsCut && tkChi2Cut) {
       rVtxHisto1->Fill(vtxR, 1.);
       if(vtxR > 0.1) {
 	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
 	vtxSigHisto1->Fill(vtxSig, 1.);
 	if(vtxSig > 22.) {
 	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	  if(hitsOkay) {
+	    step4massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	    rVtxHisto2->Fill(vtxR, 1.);
+	  }
 	}
       }
     }
 
     if(vtxChi2 < 1.) {
-      rVtxHisto2->Fill(vtxRSph, 1.);
+      //rVtxHisto2->Fill(vtxRSph, 1.);
       if(vtxRSph > 0.1) {
 	vtxSigHisto2->Fill(vtxSigSph, 1.);
       }
@@ -622,6 +824,14 @@ void V0Analyzer::endJob() {
   theHistoFile->Write();
   delete theHistoFile;
   theHistoFile=0;
+
+  std::cout << "numDiff1 = " << numDiff1 << ", numDiff2 = "
+	    << numDiff2 << std::endl;
+
+  hitsOut << "numDiff1 = " << numDiff1 << ", numDiff2 = "
+	    << numDiff2 << std::endl;
+
+  hitsOut.close();
 
 }
 

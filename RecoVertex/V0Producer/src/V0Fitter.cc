@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.15 2008/02/05 21:22:18 drell Exp $
+// $Id: V0Fitter.cc,v 1.16 2008/02/05 23:13:34 drell Exp $
 //
 //
 
@@ -105,6 +105,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
 
   trackerGeom = trackerGeomHandle.product();
+  magField = bFieldHandle.product();
 
   // Create a vector of TrackRef objects to store in reco::Vertex later
   for(unsigned int indx = 0; indx < theTrackHandle->size(); indx++) {
@@ -226,73 +227,9 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       theRecoVertex = theFitter.vertex(transTracks);
 
       bool continue_ = true;
-      
-      // Loop over RecHits on both tracks to see if the position
-      //  is inside that of the reconstructed vertex.  If it is, chuck the Vee.
-      //  NOTE: No cut functionality implemented yet.  This is purely for
-      //  testing at this point.
-
-      bool yesorno = false;
-      
-      if( posTransTkPtr->recHitsSize()
-	  && negTransTkPtr->recHitsSize() ) {
-	trackingRecHit_iterator posTrackHitIt
-	  = posTransTkPtr->recHitsBegin();
-	trackingRecHit_iterator negTrackHitIt
-	  = negTransTkPtr->recHitsBegin();
-	
-	for( ; posTrackHitIt < posTransTkPtr->recHitsEnd();
-	     posTrackHitIt++) {
-	  const TrackingRecHit* posHitPtr = (*posTrackHitIt).get();
-	  if( (*posTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
-	    GlobalPoint posHitPosition 
-	      = trackerGeomHandle->idToDet(posHitPtr->
-					   geographicalId())->
-	      surface().toGlobal(posHitPtr->localPosition());
-
-	    //std::cout << "@@POS: " << posHitPosition.perp() << std::endl;
-	  
-	    if( posHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      //std::cout << typeid(*posHitPtr).name()
-	      //<< "+" << theRecoVertex.position().perp() -
-	      //posHitPosition.perp() 
-	      //<< std::endl;
-	      yesorno = true;
-	    }
-	  }
-	}
-	
-	for( ; negTrackHitIt < negTransTkPtr->recHitsEnd();
-	     negTrackHitIt++) {
-	  const TrackingRecHit* negHitPtr = (*negTrackHitIt).get();
-	  if( (*negTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
-	    GlobalPoint negHitPosition 
-	      = trackerGeomHandle->idToDet(negHitPtr->
-					   geographicalId())->
-	      surface().toGlobal(negHitPtr->localPosition());
-	    
-	    //std::cout << "@@NEG: " << negHitPosition.perp() << std::endl;
-	    
-	    if( negHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      /*std::cout << typeid(*negHitPtr).name()
-		<< "-" << theRecoVertex.position().perp() -
-		negHitPosition.perp()
-		<< std::endl;*/
-	      yesorno = true;
-	    }
-	  }
-	}
-	}
-
-      // Here's where cut functionality would be, but now it's blank.
-      if(yesorno) {
-	//std::cout << "End of track pair hits." << std::endl;
-      }
-
-      
+    
       // If the vertex is valid, make a V0Candidate with it
-      //  to be stored in the Event
-      //  Also implementing a chi2 cut of 20.
+      //  to be stored in the Event if the vertex Chi2 < 20
 
       if( !theRecoVertex.isValid() ) {
 	continue_ = false;
@@ -303,9 +240,6 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   || theRecoVertex.totalChiSquared() < 0.) {
 	  continue_ = false;
 	}
-	//if(!doPostFitCuts) {
-	//  continue_ = true;
-	//}
       }
 
 
@@ -533,27 +467,88 @@ void V0Fitter::applyPostFitCuts() {
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
     double rVtxMag = sqrt( theIt->vertex().x()*theIt->vertex().x() +
-			   theIt->vertex().y()*theIt->vertex().y() +
-			   theIt->vertex().z()*theIt->vertex().z() );
+			   theIt->vertex().y()*theIt->vertex().y() );
+			   //theIt->vertex().z()*theIt->vertex().z() );
 
     double x_ = theIt->vertex().x();
     double y_ = theIt->vertex().y();
-    double z_ = theIt->vertex().z();
+    //double z_ = theIt->vertex().z();
     double sig00 = theIt->vertex().covariance(0,0);
     double sig11 = theIt->vertex().covariance(1,1);
-    double sig22 = theIt->vertex().covariance(2,2);
+    //double sig22 = theIt->vertex().covariance(2,2);
     double sig01 = theIt->vertex().covariance(0,1);
-    double sig02 = theIt->vertex().covariance(0,2);
-    double sig12 = theIt->vertex().covariance(1,2);
+    //double sig02 = theIt->vertex().covariance(0,2);
+    //double sig12 = theIt->vertex().covariance(1,2);
 
-    double sigmaRvtxMag =
+    /*double sigmaRvtxMag =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
 	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
-      / rVtxMag;
+	    / rVtxMag;*/
+    double sigmaRvtxMag =
+      sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
+
+    // Get the tracks from the vertex.
+    std::vector<reco::Track> theVtxTrax;
+    if(theIt->vertex().hasRefittedTracks()) {
+      theVtxTrax = theIt->vertex().refittedTracks();
+    }
+    else {
+      reco::Vertex::trackRef_iterator theTkIt = theIt->vertex().tracks_begin();
+      for( ; theTkIt < theIt->vertex().tracks_end(); theTkIt++) {
+	reco::TrackRef theRef1 = theTkIt->castTo<reco::TrackRef>();
+	theVtxTrax.push_back(*theRef1);
+      }
+    }
+
+    using namespace reco;
+
+    // If the position of the innermost hit on either of the daughter
+    //   tracks is less than the radial vertex position (minus 3 sigmaRvtx)
+    //   then don't keep the vee.
+    bool hitsOkay = true;
+    std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
+    if( theVtxTrax.size() == 2 && doPostFitCuts) {
+      if( theVtxTrax[0].recHitsSize() && theVtxTrax[1].recHitsSize() ) {
+	trackingRecHit_iterator tk1HitIt = theVtxTrax[0].recHitsBegin();
+	trackingRecHit_iterator tk2HitIt = theVtxTrax[1].recHitsBegin();
+
+	for( ; tk1HitIt < theVtxTrax[0].recHitsEnd(); tk1HitIt++) {
+	  const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
+	  if( (*tk1HitIt)->isValid() && hitsOkay) {
+	    GlobalPoint tk1HitPosition
+	      = trackerGeom->idToDet(tk1HitPtr->
+				     geographicalId())->
+	      surface().toGlobal(tk1HitPtr->localPosition());
+	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
+	    //                               we can access the hit type.
+
+	    if( tk1HitPosition.perp() < (rVtxMag - 3.*sigmaRvtxMag) ) {
+	      hitsOkay = false;
+	    }
+	  }
+	}
+
+	for( ; tk2HitIt < theVtxTrax[1].recHitsEnd(); tk2HitIt++) {
+	  const TrackingRecHit* tk2HitPtr = (*tk2HitIt).get();
+	  if( (*tk2HitIt)->isValid() && hitsOkay) {
+	    GlobalPoint tk2HitPosition
+	      = trackerGeom->idToDet(tk2HitPtr->
+				     geographicalId())->
+	      surface().toGlobal(tk2HitPtr->localPosition());
+
+	    if( tk2HitPosition.perp() < (rVtxMag - 3.*sigmaRvtxMag) ) {
+	      hitsOkay = false;
+	    }
+	  }
+	}
+      }
+    }
+
 
     if( theIt->vertex().chi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
-	rVtxMag/sigmaRvtxMag > vtxSigCut ) {
+	rVtxMag/sigmaRvtxMag > vtxSigCut &&
+	hitsOkay) {
       writeVee = true;
     }
     const double kShortMass = 0.49767;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.6 2008/02/04 21:54:57 drell Exp $
+// $Id: V0Fitter.h,v 1.7 2008/02/05 23:13:32 drell Exp $
 //
 //
 
@@ -79,6 +79,8 @@ class V0Fitter {
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
+
+  const MagneticField* magField;
 
   std::string recoAlg;
   bool useRefTrax;
