@@ -35,6 +35,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -50,7 +51,6 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   float iephimin1, float iephimax1,
   float ipphimin1, float ipphimax1,
   float iphimin2, float iphimax2,
-  float izmin1, float izmax1,
   float izmin2, float izmax2,
   bool idynamicphiroad,
   double SCEtCut,
@@ -59,7 +59,6 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   ephimin1(iephimin1), ephimax1(iephimax1), 
   pphimin1(ipphimin1), pphimax1(ipphimax1), 
   phimin2(iphimin2), phimax2(iphimax2),
-  zmin1(izmin1), zmax1(izmax1),
   zmin2(izmin2), zmax2(izmax2),
   dynamicphiroad(idynamicphiroad),
   SCEtCut_(SCEtCut),
@@ -107,7 +106,6 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   setup.get<MagneticFieldMapRecord>().get(fieldMap);
   theMagneticFieldMap = &(*fieldMap);
 
-  theUpdator = new KFUpdator();
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
   //  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
 
@@ -129,6 +127,17 @@ void  ElectronGSPixelSeedGenerator::run(
   edm::Event& e, 
   const edm::Handle<reco::SuperClusterCollection> &clusters, 
   reco::ElectronPixelSeedCollection & out) {
+
+  // Get the beam spot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByType(recoBeamSpotHandle);
+  BSPosition_ = recoBeamSpotHandle->position();
+  double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+  double zmin1 = BSPosition_.z()-3*sq;
+  double zmax1 = BSPosition_.z()+3*sq;
+  myGSPixelMatcher->set1stLayerZRange(zmin1,zmax1);
 
   // A map of vector of pixel seeds, for each clusters
   std::map<unsigned,std::vector<reco::ElectronPixelSeed> > myPixelSeeds;
@@ -267,7 +276,7 @@ void ElectronGSPixelSeedGenerator::setup(bool off)
 			       ephimin1, ephimax1, 
 			       pphimin1, pphimax1,
 			       phimin2,  phimax2,
-			       zmin1, zmax1, zmin2, zmax2);
+			       zmin2, zmax2);
       //      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, 
       //					zmin1, zmax1, zmin2, zmax2);
       if(off) theMode_=offline; else theMode_ = HLT;
@@ -284,7 +293,7 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 
 			 seedCluster->position().z());
-  const GlobalPoint vertexPos(0.,0.,0.);
+  const GlobalPoint vertexPos(BSPosition_.x(),BSPosition_.y(),BSPosition_.z());
 
   LogDebug("") << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
 	       << "new supercluster with energy: " << clusterEnergy;
@@ -344,7 +353,7 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
 
   // The corresponding origin vertex
   float vertexZ = myGSPixelMatcher->getVertex();
-  GlobalPoint theVertex(0.,0.,vertexZ); 
+  GlobalPoint theVertex(BSPosition_.x(),BSPosition_.y(),vertexZ); 
  
   // Create the Electron pixel seed.
   if (!compatPixelHits.empty() ) {

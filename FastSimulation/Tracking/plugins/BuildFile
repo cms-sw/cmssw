@@ -7,6 +7,7 @@
  <use name=DataFormats/TrackerRecHit2D>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/TrajectorySeed>
+ <use name=DataFormats/BeamSpot>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FastSimulation/BaseParticlePropagator>

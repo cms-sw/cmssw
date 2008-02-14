@@ -50,8 +50,6 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
 				      pset.getParameter<double>("pPhiMax1"),
 				      pset.getParameter<double>("pPhiMin2"),
 				      pset.getParameter<double>("pPhiMax2"),
-				      pset.getParameter<double>("ZMin1"),
-				      pset.getParameter<double>("ZMax1"),
 				      pset.getParameter<double>("ZMin2"),
 				      pset.getParameter<double>("ZMax2"),
 				      pset.getParameter<bool>("dynamicPhiRoad"),

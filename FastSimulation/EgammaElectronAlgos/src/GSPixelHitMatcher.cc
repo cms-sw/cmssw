@@ -29,13 +29,11 @@
 GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max, 
 				     float pphi1min, float pphi1max, 
 				     float phi2min, float phi2max, 
-				     float z1min, float z1max, 
 				     float z2min, float z2max) 
     :
     ephi1min(ephi1min), ephi1max(ephi1max), 
     pphi1min(pphi1min), pphi1max(pphi1max), 
     phi2min(phi2min), phi2max(phi2max), 
-    z1min(z1min), z1max(z1max), 
     z2min(z2min), z2max(z2max), 
     theTrackerGeometry(0),
     theMagneticField(0),
@@ -97,8 +95,8 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   
   // The corresponding RawParticles (to be propagated for e- and e+
   ParticlePropagator myElec(theMom,theVert,-1.,theFieldMap);
-  ParticlePropagator myPosi(theMom,theVert,+1.,theFieldMap);
-  
+  ParticlePropagator myPosi(theMom,theVert,+1.,theFieldMap); 
+ 
   // Propagate the e- and the e+ hypothesis to the nominal vertex
   // by modifying the pT direction in an appropriate manner.
   myElec.propagateToNominalVertex(theNominalVertex);
@@ -112,7 +110,7 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
     for ( unsigned secondHit=firstHit+1; secondHit<nHits; ++secondHit ) {      
 
       // Is there a seed associated to this pair of Pixel hits?
-      thereIsASeed = isASeed(myElec,myPosi,
+      thereIsASeed = isASeed(myElec,myPosi,theVertex,
 			     rCluster,zCluster,
 			     thePixelRecHits[firstHit],
 			     thePixelRecHits[secondHit]);
@@ -131,6 +129,7 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 
 bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
 				const ParticlePropagator& myPosi,
+				const GlobalPoint& theVertex,
 				double rCluster,
 				double zCluster,
 				ConstRecHitPointer hit1,
@@ -189,9 +188,9 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   // to the nominal vertex with the hit constraint
   ParticlePropagator elec(myElec);
   ParticlePropagator posi(myPosi);
-  bool elec1 = propagateToLayer(elec,firstHit,zVertexPred,
+  bool elec1 = propagateToLayer(elec,theVertex,firstHit,zVertexPred,
 				ephi1min,ephi1max,firstHitLayer);
-  bool posi1 = propagateToLayer(posi,firstHit,zVertexPred,
+  bool posi1 = propagateToLayer(posi,theVertex,firstHit,zVertexPred,
 				pphi1min,pphi1max,firstHitLayer);
   
   // Neither the electron not the positron hypothesis work...
@@ -200,10 +199,10 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   // Otherwise, propagate to the second layer, check the compatibility
   // with the second hit and propagate back to the nominal vertex with 
   // the hit constraint
-  bool elec2 = elec1 && propagateToLayer(elec,secondHit,zVertexPred2,
+  bool elec2 = elec1 && propagateToLayer(elec,theVertex,secondHit,zVertexPred2,
 					 phi2min,phi2max,secondHitLayer);
   
-  bool posi2 = posi1 && propagateToLayer(posi,secondHit,zVertexPred2,
+  bool posi2 = posi1 && propagateToLayer(posi,theVertex,secondHit,zVertexPred2,
 					 phi2min,phi2max,secondHitLayer);
   
   if ( !elec2 && !posi2 ) return false;
@@ -214,13 +213,15 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   
 bool 
 GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
+				    const GlobalPoint& theVertex,
 				    GlobalPoint& theHit,
 				    double zVertex,
 				    double phimin, double phimax,
 				    unsigned layer) {
 
   // Set the z position of the particle to the predicted one
-  myPart.setVertex( XYZTLorentzVector(0.,0.,zVertex,0.) );
+  XYZTLorentzVector theNominalVertex(theVertex.x(), theVertex.y(), zVertex, 0.);
+  myPart.setVertex(theNominalVertex);
 
   // Propagate the inferred electron (positron) to the first layer
   myPart.setPropagationConditions(*(thePixelLayers[layer]));
@@ -241,7 +242,7 @@ GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
   // the nominal vertex
   if ( success ) {
     myPart.setVertex( XYZTLorentzVector(theHit.x(), theHit.y(), theHit.z(), 0.) );
-    myPart.propagateToNominalVertex();
+    myPart.propagateToNominalVertex(theNominalVertex);
   }
 
   return success;
