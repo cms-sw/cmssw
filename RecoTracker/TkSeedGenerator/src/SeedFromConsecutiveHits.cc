@@ -43,6 +43,9 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
   float sinTheta = sin( kine.momentum().theta() );
   FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta));
 
+  //std::cout << "1st seed hit at " << tth1->globalPosition() << std::endl;
+  //std::cout << "2nd seed hit at " << tth2->globalPosition() << std::endl;
+
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -65,11 +68,22 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
     if (!state.isValid()) return;
 
     const TransientTrackingRecHit::ConstRecHitPointer& tth = hits[iHit]; 
+<<<<<<< SeedFromConsecutiveHits.cc
+    
+    TransientTrackingRecHit::RecHitPointer newtth = tth->clone(state);
+    //std::cout << "new seed hit " << iHit << " at " << newtth->globalPosition() << std::endl;
+    //std::cout << "old state = " << state << std::endl;
+    updatedState =  theUpdator.update(state, *newtth);
+    // std::cout << "new state = " << updatedState << std::endl;
+    _hits.push_back(newtth->hit()->clone());
+      
+=======
     
     TransientTrackingRecHit::RecHitPointer newtth = tth->clone(state);
     updatedState =  theUpdator.update(state, *newtth);
 
     _hits.push_back(newtth->hit()->clone());
+>>>>>>> 1.21
   } 
   PTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
     transformer.persistentState(updatedState, hit->geographicalId().rawId()) );
