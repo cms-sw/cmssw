@@ -32,7 +32,8 @@ void popcon::ExPedestalSource::getNewObjects() {
 	     << " - > getNewObjects" << std::endl;
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;
-  std::cerr << tagInfo().name << " , last object valid since " 
+  std::cerr << tagInfo().name << ", size " << tagInfo().size 
+            << " last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
