@@ -6,8 +6,8 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      Freya Blekman
-// Created:     Mon Sep 17 17:00:35 CEST 2007
+// Author:      
+// Created:     Thu Feb 14 20:27:08 CET 2008
 // $Id$
 
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
