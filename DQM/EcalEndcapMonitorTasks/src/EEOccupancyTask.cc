@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/27 20:38:31 $
- * $Revision: 1.37 $
+ * $Date: 2008/01/27 21:02:09 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,7 +18,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"

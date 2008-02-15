@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/01/22 19:47:15 $
- * $Revision: 1.27 $
+ * $Date: 2008/02/14 06:41:55 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
  */
@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 

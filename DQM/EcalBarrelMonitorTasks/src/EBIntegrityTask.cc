@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/01/22 19:47:11 $
- * $Revision: 1.60 $
+ * $Date: 2008/01/26 20:13:54 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
  */
@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
