@@ -10,8 +10,8 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref, Type type_ ) : 
-  PFBlockElement( type_ ),
+PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref, TrackType tracktype ) : 
+  PFBlockElement( TRACK, tracktype ),
   trackRefPF_( ref ), 
   trackRef_( ref->trackRef() ) {}
 
