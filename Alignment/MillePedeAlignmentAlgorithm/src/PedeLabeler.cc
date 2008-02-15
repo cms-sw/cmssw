@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.14 $
- *  $Date: 2007/07/12 17:32:39 $
+ *  $Revision: 1.1 $
+ *  $Date: 2007/08/31 17:24:28 $
  *  (last update by $Author: flucke $)
  */
 
@@ -52,10 +52,12 @@ unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
   if (position != myAlignableToIdMap.end()) {
     return position->second;
   } else {
+    const DetId detId(alignable->geomDetId());
     //throw cms::Exception("LogicError") 
-    edm::LogWarning("LogicError")
+    edm::LogError("LogicError")
       << "@SUB=PedeLabeler::alignableLabel" << "Alignable "
-      << typeid(*alignable).name() << " not in map";
+      << typeid(*alignable).name() << " not in map, det/subdet/alignableStructureType = "
+      << detId().det() << "/" << detId().subdetId() << "/" << alignable->alignableObjectId();
     return 0;
   }
 
