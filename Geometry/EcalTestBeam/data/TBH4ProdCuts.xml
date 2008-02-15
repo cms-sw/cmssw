@@ -11,7 +11,7 @@
   </SpecPar>
   <SpecPar name="Scintillator">
     <PartSelector path="//FIBR"/> 
-    <PartSelector path="//TRG*"/> 
+    <PartSelector path="//TRG.*"/> 
     <Parameter name="CMSCutsRegion"  value="Scintillator" eval="false"/> 
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
