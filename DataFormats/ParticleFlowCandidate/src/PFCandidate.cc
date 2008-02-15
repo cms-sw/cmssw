@@ -34,7 +34,7 @@ PFCandidate::PFCandidate( Charge charge,
                           const LorentzVector & p4, 
                           ParticleType particleId ) : 
   
-  LeafCandidate(charge, p4), 
+  CompositeCandidate(charge, p4), 
   particleId_(particleId), 
 //   blockRef_(blockRef), 
   ecalEnergy_(0),
@@ -145,6 +145,29 @@ void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
   muonRef_ = ref;
 }
 
+void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
+
+  if( particleId_ != h ) {
+    string err;
+    err += "PFCandidate::setNuclearRef: this is not a hadron! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+  else if(  !flag( T_FROM_NUCLINT ) && !flag( T_TO_NUCLINT ) ) {
+    string err;
+    err += "PFCandidate::setNuclearRef: particule flag is neither T_FROM_NUCLINT nor T_TO_NUCLINT";
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+
+  nuclearRef_ = ref;
+}
+
 
 void PFCandidate::rescaleMomentum( double rescaleFactor ) {
   LorentzVector rescaledp4 = p4();
@@ -184,7 +207,9 @@ ostream& reco::operator<<(ostream& out,
      <<c.energy()<<"/"
      <<c.pt()<<"/"
      <<c.eta()<<"/"
-     <<c.phi()<<endl;
+     <<c.phi();
+  if( c.flag( PFCandidate::T_FROM_NUCLINT ) ) out<<", T_FROM_NUCL" << endl;
+  else if( c.flag( PFCandidate::T_TO_NUCLINT ) ) out<<", T_TO_NUCL" << endl;
 //   PFBlockRef blockRef = c.block(); 
 //   int blockid = blockRef.key(); 
 //   const edm::OwnVector< reco::PFBlockElement >& elements = c.elements();
