@@ -7,13 +7,15 @@
 #include <HepMC/GenEvent.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
-#include "Pythia6Hadronisation.h"
-#include "Pythia8Hadronisation.h"
+EDM_REGISTER_PLUGINFACTORY(lhef::Hadronisation::Factory,
+                           "GeneratorInterfaceLHEHadronisation");
 
 namespace lhef {
 
@@ -38,19 +40,21 @@ void Hadronisation::clear()
 {
 }
 
-Hadronisation *Hadronisation::create(const edm::ParameterSet &params)
+std::auto_ptr<Hadronisation> Hadronisation::create(
+					const edm::ParameterSet &params)
 {
 	std::string name = params.getParameter<std::string>("generator");
 
-	if (name == "Pythia6")
-		return new Pythia6Hadronisation(params);
-	if (name == "Pythia8")
-		return new Pythia8Hadronisation(params);
-	else
+	std::auto_ptr<Hadronisation> plugin(
+		Factory::get()->create(name + "Hadronisation", params));
+
+	if (!plugin.get())
 		throw cms::Exception("InvalidGenerator")
 			<< "Unknown MC generator \"" << name << "\""
 			   " specified for hadronisation in LHESource."
 			<< std::endl;
+
+	return plugin;
 }
 
 void Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)

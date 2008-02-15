@@ -18,9 +18,33 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
-#include "Pythia6Hadronisation.h"
+namespace lhef {
 
-struct lhef::Pythia6Hadronisation::FortranCallback {
+class Pythia6Hadronisation : public Hadronisation {
+    public:
+	Pythia6Hadronisation(const edm::ParameterSet &params);
+	~Pythia6Hadronisation();
+
+	struct FortranCallback;
+
+    protected:
+	friend struct FortranCallback;
+
+	void fillHeader();
+	void fillEvent();
+	bool veto();
+
+    private:
+	std::auto_ptr<HepMC::GenEvent> hadronize();
+	void newCommon(const boost::shared_ptr<LHECommon> &common);
+
+	const int		pythiaPylistVerbosity;
+	int			maxEventsToPrint;
+
+	HepMC::IO_HEPEVT	conv;
+};
+
+struct Pythia6Hadronisation::FortranCallback {
 	FortranCallback() : instance(0) {}
 
 	void upinit() { instance->fillHeader(); }
@@ -78,8 +102,6 @@ extern "C" {
 	void upevnt_() { fortranCallback.upevnt(); }
 	void upveto_(int *veto) { *veto = fortranCallback.upveto(); }
 } // extern "C"
-
-namespace lhef {
 
 Pythia6Hadronisation::Pythia6Hadronisation(const edm::ParameterSet &params) :
 	Hadronisation(params),
@@ -203,5 +225,7 @@ bool Pythia6Hadronisation::veto()
 {
 	return false;
 }
+
+DEFINE_LHE_HADRONISATION_PLUGIN(Pythia6Hadronisation);
 
 } // namespace lhef

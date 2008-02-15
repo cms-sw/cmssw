@@ -8,6 +8,7 @@
 #include <HepMC/GenEvent.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace lhef {
 
@@ -24,7 +25,11 @@ class Hadronisation {
 
 	virtual std::auto_ptr<HepMC::GenEvent> hadronize() = 0;
 
-	static Hadronisation *create(const edm::ParameterSet &params);
+	static std::auto_ptr<Hadronisation> create(
+					const edm::ParameterSet &params);
+
+	typedef edmplugin::PluginFactory<Hadronisation*(
+					const edm::ParameterSet &)> Factory;
 
     protected:
 	virtual void newCommon(const boost::shared_ptr<LHECommon> &common);
@@ -37,5 +42,8 @@ class Hadronisation {
 };
 
 } // namespace lhef
+
+#define DEFINE_LHE_HADRONISATION_PLUGIN(T) \
+	DEFINE_EDM_PLUGIN(lhef::Hadronisation::Factory, T, #T)
 
 #endif // GeneratorCommon_LHEInterface_Hadronisation_h

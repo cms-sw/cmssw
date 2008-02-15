@@ -22,13 +22,32 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
-#include "Pythia8Hadronisation.h"
-
 using namespace Pythia8;
 
 namespace lhef {
 
-class LHAinitLesHouches : public LHAinit {
+class Pythia8Hadronisation : public Hadronisation {
+    public:
+	Pythia8Hadronisation(const edm::ParameterSet &params);
+	~Pythia8Hadronisation();
+
+    private:
+	std::auto_ptr<HepMC::GenEvent> hadronize();
+	void newCommon(const boost::shared_ptr<LHECommon> &common);
+
+	const int				pythiaPylistVerbosity;
+	int					maxEventsToPrint;
+
+	class LHAinitLesHouches;
+	class LHAevntLesHouches;
+
+	std::auto_ptr<Pythia>			pythia;
+	std::auto_ptr<LHAinitLesHouches>	lhaInit;
+	std::auto_ptr<LHAevntLesHouches>	lhaEvent;
+	std::auto_ptr<HepMC::I_Pythia8>		conv;
+};
+
+class Pythia8Hadronisation::LHAinitLesHouches : public LHAinit {
     public:
 	void load(const boost::shared_ptr<LHECommon> &common)
 	{ this->common = common; }
@@ -39,7 +58,7 @@ class LHAinitLesHouches : public LHAinit {
 	boost::shared_ptr<LHECommon>	common;
 };
 
-class LHAevntLesHouches : public LHAevnt {
+class Pythia8Hadronisation::LHAevntLesHouches : public LHAevnt {
     public:
 	void load(const boost::shared_ptr<LHEEvent> &event)
 	{ this->event = event; }
@@ -50,7 +69,7 @@ class LHAevntLesHouches : public LHAevnt {
 	boost::shared_ptr<LHEEvent>	event;
 };
 
-bool LHAinitLesHouches::set()
+bool Pythia8Hadronisation::LHAinitLesHouches::set()
 {
 	if (!common)
 		return false;
@@ -70,7 +89,7 @@ bool LHAinitLesHouches::set()
 	return true;
 }
 
-bool LHAevntLesHouches::set()
+bool Pythia8Hadronisation::LHAevntLesHouches::set()
 {
 	if (!event)
 		return false;
@@ -174,5 +193,7 @@ void Pythia8Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
 	lhaInit->load(common);
 	pythia->init(lhaInit.get(), lhaEvent.get());
 }
+
+DEFINE_LHE_HADRONISATION_PLUGIN(Pythia8Hadronisation);
 
 } // namespace lhef

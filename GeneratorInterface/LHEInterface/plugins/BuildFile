@@ -1,7 +1,21 @@
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=GeneratorInterface/LHEInterface>
+<use name=boost>
+<use name=hepmc>
 <library name="GeneratorInterfaceLHESource" file="LHESource.cc">
 	<use name=FWCore/Framework>
-	<use name=Foundation/PluginManager>
-	<use name=GeneratorInterface/LHEInterface>
-	<use name=boost>
+	<use name=SimDataFormats/HepMCProduct>
+	<flags EDM_PLUGIN=1>
+</library>
+<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
+	<use name=pythia6>
+	<flags EDM_PLUGIN=1>
+</library>
+<library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
+	<use name=pythia8>
+	<lib name=hepmcinterface>
 	<flags EDM_PLUGIN=1>
 </library>
