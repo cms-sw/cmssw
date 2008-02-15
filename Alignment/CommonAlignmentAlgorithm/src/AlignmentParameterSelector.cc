@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2008/02/12 19:15:36 $
- *  $Revision: 1.13 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2008/02/14 12:54:44 $
+ *  $Revision: 1.14 $
+ *  (last update by $Author: pivarski $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -234,34 +234,6 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
     else if (name == "MuonCSCStations") 	 add(theMuon->CSCStations(), paramSel);
     else if (name == "MuonEndcaps")     	 add(theMuon->CSCEndcaps(), paramSel);
 
-    else if (name == "AllMuonChambers") {
-       add(theMuon->DTChambers(), paramSel);
-       add(theMuon->CSCChambers(), paramSel);
-    }
-    else if (name == "MuonWheelsAndDisks") {
-       add(theMuon->DTWheels(), paramSel);
-       add(theMuon->CSCStations(), paramSel);
-    }
-    else if (name == "MuonWheelsAndRings") {
-       add(theMuon->DTWheels(), paramSel);
-       add(theMuon->CSCRings(), paramSel);
-    }
-    else if (name == "AllMuonStations") {
-       add(theMuon->DTStations(), paramSel);
-       add(theMuon->CSCStations(), paramSel);
-    }
-    else if (name == "AllMuonComponents") {
-       add(theMuon->components(), paramSel);
-    }
-
-    ////////////////////////////////////
-    // ALL tracker dets + muon chambers (as subsection of muon part...
-    ////////////////////////////////////
-    else if (name == "AllTrackerAndMuon") {
-      addAllDets(paramSel);
-      add(theMuon->DTChambers(), paramSel);
-      add(theMuon->CSCChambers(), paramSel);
-    }
     ////////////////////////////////////
     // not found, but Muon
     ////////////////////////////////////
