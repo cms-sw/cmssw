@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.1 2008/02/11 20:19:33 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.2 2008/02/15 18:11:16 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -161,6 +162,15 @@ m_code(0)
       browser->SetTabTitle("Fireworks",0);
    }
    {
+      //pickup our other icons
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      
+      
+      
       browser->StartEmbedding(TRootBrowser::kRight);
       {
          m_mainFrame = new TGMainFrame(gClient->GetRoot(),600,450);
@@ -171,17 +181,33 @@ m_code(0)
          // then split each part again (this will make four parts)
          m_splitFrame->GetSecond()->VSplit(400);
 
+         TGSplitFrame* sf = m_splitFrame->GetFirst();
+         m_viewFrames.push_back(sf);
+
+         sf = m_splitFrame->GetSecond()->GetFirst();
+         TGCompositeFrame* hf = new FWGUISubviewArea(sf,m_splitFrame);
+         m_viewFrames.push_back(hf);
+         (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
+                                             kLHintsExpandY) );
+
+         
+         sf=m_splitFrame->GetSecond()->GetSecond();
+         hf = new FWGUISubviewArea(sf,m_splitFrame);
+         m_viewFrames.push_back(hf);
+         (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
+                                             kLHintsExpandY) );
+         m_nextFrame = m_viewFrames.begin();
+
          m_mainFrame->MapSubwindows();
          m_mainFrame->Resize();
          m_mainFrame->MapWindow();
-         m_viewFrames.push_back(m_splitFrame->GetFirst());
-         m_viewFrames.push_back(m_splitFrame->GetSecond()->GetFirst());
-         m_viewFrames.push_back(m_splitFrame->GetSecond()->GetSecond());
-         m_nextFrame = m_viewFrames.begin();
+         
       }
       browser->StopEmbedding();
       browser->SetTabTitle("Views",1);
    }
+   
+   
 }
 
 // FWGUIManager::FWGUIManager(const FWGUIManager& rhs)

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.1 2008/02/11 20:19:33 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.2 2008/02/15 18:11:32 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class FWSelectionManager;
 class TGFrame;
 class TGSplitFrame;
 class TGMainFrame;
+class TGCompositeFrame;
 
 class FWEventItemsManager;
 class FWEventItem;
@@ -101,8 +102,8 @@ class FWGUIManager
    
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
-      std::vector<TGSplitFrame*> m_viewFrames;
-      std::vector<TGSplitFrame*>::iterator m_nextFrame;
+      std::vector<TGCompositeFrame*> m_viewFrames;
+      std::vector<TGCompositeFrame*>::iterator m_nextFrame;
 };
 
 

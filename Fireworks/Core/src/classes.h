@@ -13,6 +13,7 @@
 #include "Fireworks/Core/interface/TracksProxy3DBuilder.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 namespace {
    struct Fireworks_Core {
