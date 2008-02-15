@@ -15,6 +15,7 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/TrackAssociator>
+<use name=CommonTools/Statistics>
 <export>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
@@ -24,6 +25,7 @@
   <use name=TrackingTools/TransientTrack>
   <use name=TrackingTools/TrackAssociator>
   <use name=FWCore/PluginManager>
+  <use name=CommonTools/Statistics>
   <lib name=RecoMuonMuonIsolationPlugins>
 </export>
 <library file="*.cc" name=RecoMuonMuonIsolationPlugins>

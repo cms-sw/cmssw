@@ -22,11 +22,12 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
-  //will make it configurable in 20X (or later 18X?)
-  //   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  //   theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel"))
-  theBeamlineOption("BeamSpotFromEvent"),
-  theBeamSpotLabel("offlineBeamSpot")  
+  theBeamlineOption(par.getParameter<string>("BeamlineOption")),
+  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+  theNHits_Min(par.getParameter<uint>("NHits_Min")),
+  theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
+  theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
+  thePt_Min(par.getParameter<double>("Pt_Min"))
 {
 }
 
@@ -78,8 +79,15 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
 
   LogTrace(metname)<<"Using beam point at "<<beamPoint<<std::endl;
 
-  TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
-       theDiff_r, muonDir, theDR_Max, beamPoint);
+  TrackSelector::Parameters pars(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
+				 theDiff_r, muonDir, theDR_Max, beamPoint);
+
+  pars.nHitsMin = theNHits_Min;
+  pars.chi2NdofMax = theChi2Ndof_Max;
+  pars.chi2ProbMin = theChi2Prob_Min;
+  pars.ptMin = thePt_Min;
+
+  TrackSelector selection(pars);
   TrackSelector::result_type sel_tracks = selection(*tracksH);
   LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
 
