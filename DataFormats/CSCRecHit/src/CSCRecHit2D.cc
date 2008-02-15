@@ -8,19 +8,21 @@ CSCRecHit2D::CSCRecHit2D() :
   theADCs( ADCContainer() ),
   theWireGroups( ChannelContainer() ),
   theTpeak( -999. ),  
-  theChi2( -1. ), 
-  theProb( 0. )
+  thePositionWithinStrip(-999.),
+  theErrorWithinStrip(-999.),
+  theQuality( 0 )
 {}
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
                           const LocalPoint& pos, 
                           const LocalError& err, 
-	                  const ChannelContainer& channels, 
+	                        const ChannelContainer& channels, 
                           const ADCContainer& adcs,
                           const ChannelContainer& wgroups,
-                          const float tpeak, 
-	                  float chi2, 
-                          float prob ) :
+                          float tpeak, 
+													float posInStrip, 
+                          float errInStrip,
+			                    int quality ):
   RecHit2DLocalPos( id ), 
   theLocalPosition( pos ), 
   theLocalError( err ),
@@ -28,8 +30,9 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   theADCs( adcs ),
   theWireGroups( wgroups ),
   theTpeak( tpeak ),
-  theChi2( chi2 ), 
-  theProb( prob )
+  thePositionWithinStrip( posInStrip ),
+  theErrorWithinStrip( errInStrip ),
+  theQuality( quality )
 {}
 
 CSCRecHit2D::~CSCRecHit2D() {}
@@ -53,6 +56,6 @@ CSCRecHit2D::~CSCRecHit2D() {}
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
   os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<
     " y = " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
-    " chi2 = " << rh.chi2() << " prob = " << rh.prob();
+    " in strip X = " << rh.positionWithinStrip() << " +/-  = " << rh.errorWithinStrip()<<" quality = "<<rh.quality();
   return os;
 }

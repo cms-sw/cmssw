@@ -5,7 +5,7 @@
  * \class CSCRecHit2D
  * Describes a 2-dim reconstructed hit in one layer of an Endcap Muon CSC.
  *
- * \author Tim Cox
+ * \author Tim Cox et al.
  *
  */
 #include "DataFormats/Common/interface/RangeMap.h"
@@ -23,32 +23,25 @@ public:
   typedef edm::RangeMap<int, std::vector<float> > ADCContainer;
 
   CSCRecHit2D();
-  //  CSCRecHit2D( const DetId& id, const GeomDet* det, 
+
   CSCRecHit2D( const CSCDetId& id, 
-               const LocalPoint& pos, const LocalError& err, 
+         const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
 	       const ADCContainer& adcs,
 	       const ChannelContainer& wgroups,
-               const float tpeak, 
-               float chi2, 
-               float prob );
+         float tpeak,
+         float posInStrip,
+         float errInStrip,
+	       int quality ); 
+	
   ~CSCRecHit2D();
 
   /// RecHit2DLocalPos base class interface
   CSCRecHit2D* clone() const { return new CSCRecHit2D( *this ); }
   LocalPoint localPosition() const { return theLocalPosition; }
   LocalError localPositionError() const { return theLocalError; }
-
   CSCDetId cscDetId() const { return geographicalId(); }
 
-  /// Probability from fit during rechit build
-  float prob() const { return theProb; }
-
-  /// Chi-squared from fit during rechit build
-  float chi2() const { return theChi2; }
-
-  /// Fitted peaking time
-  float tpeak() const { return theTpeak; }
 
   /// Container of strip channel numbers comprising the rechit
   const ChannelContainer& channels() const {
@@ -65,6 +58,17 @@ public:
     return theWireGroups;
   }
 
+  /// Fitted peaking time
+  float tpeak() const { return theTpeak; }
+
+  /// The estimated position within the strip
+  float positionWithinStrip() const { return thePositionWithinStrip; };
+
+  /// The uncertainty of the estimated position within the strip
+  float errorWithinStrip() const { return theErrorWithinStrip;} ;
+
+  /// quality flag of the reconstruction
+  int quality() const { return theQuality;}
 
   // To handle global values must use DetId to identify Det, hence Surface, which can transform from local
   // GlobalPoint globalPosition() const;
@@ -74,16 +78,17 @@ public:
   //  bool nearby(float otherX, float maxDeltaRPhi);
 
 private:
-
-  //  const GeomDet* theDet;
+	
   LocalPoint theLocalPosition;
   LocalError theLocalError;
   ChannelContainer theChaCo;
   ADCContainer theADCs;
   ChannelContainer theWireGroups;
   float theTpeak;
-  float theChi2;
-  float theProb;
+  float thePositionWithinStrip; 
+  float theErrorWithinStrip;
+  int theQuality;
+ 
 };
 
 /// Output operator for CSCRecHit2D
