@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/11 19:09:18 jmuelmen Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/02/13 22:45:50 jmuelmen Exp $
 //
 
 // system include files
@@ -184,7 +184,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      using std::string;
      string name = "superclusters";
      TEveGeoShapeExtract* container = new TEveGeoShapeExtract(name.c_str());
-     char index[2] = "0";
+     char index[3] = "00";
      for (PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
 	  i != electrons->end(); ++i, ++index[0]) {
 	  assert(i->superCluster().isNonnull());
@@ -193,6 +193,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	  if (id.subdetId() != EcalBarrel) 
 	       // skip these for now
 	       continue;
+#if 0
 	  double size = 1;
 	  TGeoBBox *sc_box = new TGeoBBox(1, size, 15, 0);
 	  double r = 122;
@@ -225,17 +226,48 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	  extract->SetRnrElements(true);
 	  extract->SetShape(sc_box);
 	  container->AddElement(extract);
-#if 1
+#else
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
-	       k != detids.end(); ++k) {
+	       k != detids.end(); ++k, ++index[1]) {
 // 	       const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( k->rawId() );
 	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( k->rawId() );
 	       if(0!=extract) {
-		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-		    shape->SetMainTransparency(50);
-		    shape->SetMainColor(tList->GetMainColor());
+ 		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+//  		    shape->SetMainTransparency(100);
+//  		    shape->SetMainColor(0);
 // 		    tList->AddElement(shape);
+		    double size = 1;
+		    TGeoBBox *sc_box = new TGeoBBox(1, size, 1.1, 0);
+		    double r_draw = 122;
+		    double r_crystal = 
+			 sqrt(extract->GetTrans()[12] * extract->GetTrans()[12] +
+			      extract->GetTrans()[13] * extract->GetTrans()[13]);
+		    double z = extract->GetTrans()[14] * r_draw / r_crystal;
+		    TEveTrans t;
+		    t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
+		    t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
+		    t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
+		    t(1,4) = 0; 
+		    t(2,4) = (r_draw + size) * 
+			 (i->superCluster()->position().y() > 0 ? 1 : -1); 
+		    t(3,4) = z;
+		    TEveGeoShapeExtract *extract2 = new 
+			 TEveGeoShapeExtract((name + index).c_str());
+		    extract2->SetTrans(t.Array());
+		    TColor* c = gROOT->GetColor(tList->GetMainColor());
+		    Float_t rgba[4] = { 1, 0, 0, 1 };
+		    if (c) {
+			 rgba[0] = c->GetRed();
+			 rgba[1] = c->GetGreen();
+			 rgba[2] = c->GetBlue();
+		    }
+		    extract2->SetRGBA(rgba);
+		    extract2->SetRnrSelf(true);
+		    extract2->SetRnrElements(true);
+		    extract2->SetShape(sc_box);
+		    container->AddElement(extract2);
+// 		    delete extract;
 	       }
 	  }
 #endif
