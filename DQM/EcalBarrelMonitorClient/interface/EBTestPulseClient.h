@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.62 $
+ * $Date: 2008/01/18 18:04:05 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -67,6 +67,9 @@ void htmlOutput(int run, std::string htmlDir, std::string htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+
+/// Find the first non empty crystal
+int getFirstNonEmptyChannel( TProfile2D *shapeMap );
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

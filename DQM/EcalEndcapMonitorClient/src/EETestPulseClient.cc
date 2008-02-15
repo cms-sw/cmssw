@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/02/09 19:50:13 $
- * $Revision: 1.68 $
+ * $Date: 2008/02/14 11:15:44 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1036,18 +1036,21 @@ void EETestPulseClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+	int ic = getFirstNonEmptyChannel( hs01_[ism-1] );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs02_[ism-1] ) {
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+	int ic = getFirstNonEmptyChannel( hs02_[ism-1] );
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs03_[ism-1] ) {
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+	int ic = getFirstNonEmptyChannel( hs03_[ism-1] );
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
       }
 
     }
@@ -1055,6 +1058,20 @@ void EETestPulseClient::analyze(void){
   }
 
 }
+
+int EETestPulseClient::getFirstNonEmptyChannel( TProfile2D *shapeMap ) {
+  
+  int ichannel=1;
+  while ( ichannel <= 1700 ) {
+    double counts = shapeMap->GetBinContent(ichannel, 1);
+    if ( counts > 0 ) return ichannel;
+    ichannel++;
+  }
+
+  return 1;
+
+}
+
 
 void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
