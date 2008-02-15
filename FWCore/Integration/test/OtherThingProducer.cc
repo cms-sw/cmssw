@@ -6,13 +6,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmtest {
-  OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), thingLabel_() {
+  OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
     produces<OtherThingCollection, edm::InLumi>("beginLumi");
     produces<OtherThingCollection, edm::InLumi>("endLumi");
     produces<OtherThingCollection, edm::InRun>("beginRun");
     produces<OtherThingCollection, edm::InRun>("endRun");
     thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
+    refsAreTransient_ = pset.getUntrackedParameter<bool>("transient", false);
   }
 
   // Virtual destructor needed.
@@ -26,7 +27,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(e.me(), *result, thingLabel_);
+    alg_.run(e.me(), *result, thingLabel_, std::string(), refsAreTransient_);
 
     // Step D: Put outputs into event
     e.put(result, std::string("testUserTag"));
@@ -39,7 +40,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(lb.me(), *result, thingLabel_, std::string("beginLumi"));
+    alg_.run(lb.me(), *result, thingLabel_, std::string("beginLumi"), refsAreTransient_);
 
     // Step D: Put outputs into lumi block
     lb.put(result, "beginLumi");
@@ -52,7 +53,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(lb.me(), *result, thingLabel_, std::string("endLumi"));
+    alg_.run(lb.me(), *result, thingLabel_, std::string("endLumi"), refsAreTransient_);
 
     // Step D: Put outputs into lumi block
     lb.put(result, "endLumi");
@@ -66,7 +67,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(r.me(), *result, thingLabel_, std::string("beginRun"));
+    alg_.run(r.me(), *result, thingLabel_, std::string("beginRun"), refsAreTransient_);
 
     // Step D: Put outputs into event
     r.put(result, "beginRun");
@@ -79,7 +80,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(r.me(), *result, thingLabel_, std::string("endRun"));
+    alg_.run(r.me(), *result, thingLabel_, std::string("endRun"), refsAreTransient_);
 
     // Step D: Put outputs into event
     r.put(result, "endRun");

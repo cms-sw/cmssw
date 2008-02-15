@@ -16,7 +16,7 @@ namespace edmtest {
     void run(edm::DataViewImpl const& dv, 
 	     OtherThingCollection& otherThingCollection, 
 	     std::string const& thingLabel = std::string("Thing"),
-	     std::string const& instance = std::string());
+	     std::string const& instance = std::string(), bool refsAreTransient = false);
   
   private:
     int    theDebugLevel;

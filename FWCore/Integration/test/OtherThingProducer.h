@@ -30,6 +30,7 @@ namespace edmtest {
   private:
     OtherThingAlgorithm alg_;
     std::string thingLabel_;
+    bool refsAreTransient_;
   };
 }
 
