@@ -1,20 +1,19 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2008/01/22 19:54:04 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/24 12:44:26 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
 
 #include <unistd.h>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include <iostream>
 #include <cmath>
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
@@ -33,17 +32,6 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
 
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
-
-  if ( enableMonitorDaemon_ ) {
-    std::cout << " enableMonitorDaemon switch is ON" << std::endl;
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  } else {
-    std::cout << " enableMonitorDaemon switch is OFF" << std::endl;
-  }
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {
