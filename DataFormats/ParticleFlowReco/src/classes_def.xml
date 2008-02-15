@@ -44,6 +44,10 @@
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
+  <class name="reco::PFBrem"/>
+  <class name="std::vector<reco::PFBrem>"/>
+
+
   <class name="reco::PFSimParticle"/>
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>

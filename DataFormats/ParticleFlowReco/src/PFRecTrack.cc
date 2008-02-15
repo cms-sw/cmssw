@@ -8,7 +8,9 @@ using namespace reco;
 
 PFRecTrack::PFRecTrack() :
   PFTrack(),
-  algoType_(PFRecTrack::Unknown) {}
+  algoType_(PFRecTrack::Unknown),
+  pfBremVec_(0)
+{}
 
 
 
@@ -19,16 +21,22 @@ PFRecTrack::PFRecTrack(double charge,
   PFTrack(charge), 
   algoType_(algoType),
   trackId_(trackId), 
-  trackRef_(trackRef) {}
+  trackRef_(trackRef),
+  pfBremVec_(0)
+{}
 
 
 
 PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) : 
   PFTrack(charge), 
   algoType_(algoType),
-  trackId_(-1) {}
+  trackId_(-1),
+  pfBremVec_(0)
+{}
   
-
+void PFRecTrack::addBrem(const reco::PFBrem& brem){
+  pfBremVec_.push_back(brem);
+}
 
 std::ostream& reco::operator<<(std::ostream& out, 
                                const PFRecTrack& track) {  
