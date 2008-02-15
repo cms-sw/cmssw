@@ -513,11 +513,8 @@ bool HDShower::compute() {
 	
 	if(!setHDdepth) 
 	  {
-	    std::cout << " Special case " << currentDepthL0 << " " << lamstep[i] << " " ;
 	    currentDepthL0 -= lamstep[i];
-	    std::cout << currentDepthL0 << std::endl;
 	    setHDdepth =  theHcalHitMaker->setDepth(currentDepthL0);
-	    std::cout << " Success " << setHDdepth << std::endl;
 	  }
 	if(!setHDdepth) continue;
 	
