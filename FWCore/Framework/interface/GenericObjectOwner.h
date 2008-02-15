@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb  3 19:43:16 EST 2008
-// $Id$
+// $Id: GenericObjectOwner.h,v 1.1 2008/02/12 21:48:33 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ class GenericObjectOwner
 
    public:
       GenericObjectOwner(): m_ownData(false){}
-      explicit GenericObjectOwner(const ROOT::Reflex::Object& iObject,
+      explicit GenericObjectOwner(ROOT::Reflex::Object const& iObject,
                                   bool iOwnData=true):
          m_object(iObject), m_ownData(iOwnData) {}
       ~GenericObjectOwner();
@@ -49,9 +49,9 @@ class GenericObjectOwner
       void release();
    
    private:
-      GenericObjectOwner(const GenericObjectOwner&); // stop default
+      GenericObjectOwner(GenericObjectOwner const&); // stop default
 
-      const GenericObjectOwner& operator=(const GenericObjectOwner&); // stop default
+      GenericObjectOwner const& operator=(GenericObjectOwner const&); // stop default
 
       // ---------- member data --------------------------------
       ROOT::Reflex::Object m_object;
@@ -65,7 +65,7 @@ class GenericObjectOwner
       // Default constructed handles are invalid.
       OrphanHandle() {}
       
-      OrphanHandle(const OrphanHandle<GenericObjectOwner>& h):
+      OrphanHandle(OrphanHandle<GenericObjectOwner> const& h):
       prod_(h.prod_.object(),false), id_(h.id_) {}
       
       OrphanHandle(ROOT::Reflex::Object const& prod, ProductID const& id):
@@ -79,10 +79,11 @@ class GenericObjectOwner
       }
       
       
-      OrphanHandle<GenericObjectOwner>& operator=(const OrphanHandle<GenericObjectOwner>& rhs)
+      OrphanHandle<GenericObjectOwner>& operator=(OrphanHandle<GenericObjectOwner> const& rhs)
       {
          OrphanHandle<GenericObjectOwner> temp(rhs);
          swap(temp);
+	 return *this;
       }
       
       bool isValid() const {return 0 !=prod_.object().Address();}
@@ -121,7 +122,7 @@ class GenericObjectOwner
       ConstBranchDescription const& desc =
       getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
       
-      const ROOT::Reflex::Type wrapperType=ROOT::Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
+      ROOT::Reflex::Type const wrapperType=ROOT::Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
       if(wrapperType == ROOT::Reflex::Type() ) {
          throw cms::Exception("NoWrapperDictionary")
          <<"DataViewImpl::put: the class type '"<<desc.fullClassName()
