@@ -35,7 +35,11 @@ SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfil
 {
   //Read config file
   outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
-  src_ = ps.getUntrackedParameter<std::string>( "src", "ctfWithMaterialTracks" );
+  
+  // Replace  "ctfWithMaterialTracks" with "generalTracks"
+  //src_ = ps.getUntrackedParameter<std::string>( "src", "ctfWithMaterialTracks" );
+  src_ = ps.getUntrackedParameter<std::string>( "src", "generalTracks" );
+
   checkType_ = ps.getParameter<bool>( "checkType" );
   genType_ = ps.getParameter<int>( "genType" );
   include_trk_hits_ = ps.getParameter<bool>( "include_trk_hits" );
