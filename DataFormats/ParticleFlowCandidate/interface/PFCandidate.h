@@ -8,11 +8,13 @@
 
 #include <iostream>
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/NuclearInteraction.h"
+#include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 
 namespace reco {
   /**\class PFCandidate
@@ -21,7 +23,7 @@ namespace reco {
      \author Colin Bernet
      \date   February 2007
   */
-  class PFCandidate : public LeafCandidate {
+  class PFCandidate : public CompositeCandidate {
 
   public:
     
@@ -64,6 +66,9 @@ namespace reco {
 
     /// set muon reference
     void    setMuonRef(const reco::MuonRef& ref);
+
+    /// set nuclear interaction reference
+    void    setNuclearRef(const reco::NuclearInteractionRef& ref);
 
     /// set corrected Ecal energy 
     void    setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
@@ -168,6 +173,10 @@ namespace reco {
     /// otherwise, return a null reference
     reco::MuonRef muonRef() const { return muonRef_; }    
 
+    /// return a reference to the corresponding nuclear interaction,
+    /// otherwise, return a null reference
+    reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
+
     
     /// return indices of elements used in the block
     /*     const std::vector<unsigned>& elementIndices() const {  */
@@ -215,6 +224,8 @@ namespace reco {
     reco::TrackRef trackRef_;
     
     reco::MuonRef  muonRef_;
+
+    reco::NuclearInteractionRef nuclearRef_;
     
     /// corrected ECAL energy
     float        ecalEnergy_;
