@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.5 2008/01/23 10:44:11 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.6 2008/02/12 12:02:18 fblekman Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
