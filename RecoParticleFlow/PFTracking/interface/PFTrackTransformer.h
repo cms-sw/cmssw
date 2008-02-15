@@ -9,10 +9,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -42,11 +42,19 @@ class PFTrackTransformer{
 		 const reco::Track& track,
 		 const Trajectory& traj) const; 
 
+  bool addPointsAndBrems(reco::PFRecTrack& pftrack, 
+			 const reco::Track& track,
+			 const Trajectory& traj,
+			 const bool& GetMode) const; 
+  
+
   void OnlyProp(){
     onlyprop_=true;
   }
   bool  onlyprop_;
   
+ private:
+
 };
 
 #endif

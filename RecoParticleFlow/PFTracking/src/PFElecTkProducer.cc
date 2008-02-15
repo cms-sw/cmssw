@@ -37,7 +37,7 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   produces<reco::PFRecTrackCollection>();
 
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
-
+  modemomentum_ = iConfig.getParameter<bool>("ModeMomentum");
 }
 
 
@@ -77,7 +77,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     iEvent.getByLabel(gsfTrackModule_,TrajectoryCollection); 
     reco::GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
-
+   
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
       
       reco::TrackRef dummyRef;
@@ -86,11 +86,19 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				reco::PFRecTrack::GSF, 
 				igsf, dummyRef );
       
-      bool valid = pfTransformer_->addPoints( pftrack, 
-					      gsftracks[igsf] , 
-					      tjvec[igsf] );
-      if(valid)
-	gsfPFRecTrackCollection->push_back(pftrack);		
+//       bool valid = pfTransformer_->addPoints( pftrack, 
+// 					      gsftracks[igsf] , 
+// 					      tjvec[igsf] );
+      
+      bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack, 
+					gsftracks[igsf], 
+					tjvec[igsf],
+					modemomentum_);
+      
+    //   if(valid)
+// 	gsfPFRecTrackCollection->push_back(pftrack);
+      if(validgsfbrem)
+	gsfPFRecTrackCollection->push_back(pftrack);
     }
     iEvent.put(gsfPFRecTrackCollection);
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";

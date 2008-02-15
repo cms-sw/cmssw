@@ -49,5 +49,6 @@ class PFElecTkProducer : public edm::EDProducer {
 
       ///Trajectory of GSfTracks in the event?
       bool trajinev_;
+      bool modemomentum_;
 };
 #endif
