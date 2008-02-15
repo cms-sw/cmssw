@@ -16,7 +16,7 @@ CSCRecHit2D::CSCRecHit2D() :
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
                           const LocalPoint& pos, 
                           const LocalError& err, 
-	                        const ChannelContainer& channels, 
+	                  const ChannelContainer& channels, 
                           const ADCContainer& adcs,
                           const ChannelContainer& wgroups,
                           float tpeak, 

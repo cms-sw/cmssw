@@ -25,13 +25,13 @@ public:
   CSCRecHit2D();
 
   CSCRecHit2D( const CSCDetId& id, 
-         const LocalPoint& pos, const LocalError& err, 
+               const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
 	       const ADCContainer& adcs,
 	       const ChannelContainer& wgroups,
-         float tpeak,
-         float posInStrip,
-         float errInStrip,
+               float tpeak,
+               float posInStrip,
+               float errInStrip,
 	       int quality ); 
 	
   ~CSCRecHit2D();
@@ -42,21 +42,14 @@ public:
   LocalError localPositionError() const { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
-
   /// Container of strip channel numbers comprising the rechit
-  const ChannelContainer& channels() const {
-    return theChaCo;
-  }
+  const ChannelContainer& channels() const { return theChaCo; }
 
   /// Map of strip ADCs for strips comprising the rechit
-  const ADCContainer& adcs() const {
-    return theADCs;
-  }
+  const ADCContainer& adcs() const { return theADCs; }
 
   /// Container of wire groups comprising the rechit
-  const ChannelContainer& wgroups() const {
-    return theWireGroups;
-  }
+  const ChannelContainer& wgroups() const { return theWireGroups; }
 
   /// Fitted peaking time
   float tpeak() const { return theTpeak; }
