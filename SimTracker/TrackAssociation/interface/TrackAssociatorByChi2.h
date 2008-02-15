@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2007/12/18 16:15:32 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/01/31 15:08:42 $
+ *  $Revision: 1.22 $
  *  \author cerati, magni
  */
 
@@ -19,6 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include<map>
 
@@ -35,7 +37,8 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   /// Constructor with PSet
   TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, edm::ParameterSet conf):
     chi2cut(conf.getParameter<double>("chi2cut")),
-    onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")){
+    onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")),
+    bsSrc(conf.getParameter<edm::InputTag>("beamSpot")) {
     theMF=mF;  
     if (onlyDiagonal)
       edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
@@ -43,11 +46,12 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
       edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
   }
 
-  /// Constructor with double and bool
-  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, double chi2Cut, bool onlyDiag){
+  /// Constructor with magnetic field, double, bool and InputTag
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, double chi2Cut, bool onlyDiag, edm::InputTag beamspotSrc){
     chi2cut=chi2Cut;
     onlyDiagonal=onlyDiag;
     theMF=mF;  
+    bsSrc = beamspotSrc;
   }
 
   /// Destructor
@@ -58,21 +62,25 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 			    edm::SimTrackContainer::const_iterator, 
 			    const math::XYZTLorentzVectorD, 
 			    GlobalVector,
-			    reco::TrackBase::CovarianceMatrix) const;
+			    reco::TrackBase::CovarianceMatrix,
+			    const reco::BeamSpot&) const;
 
   /// compare collections reco to sim
   RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
 					      const edm::SimTrackContainer&, 
-					      const edm::SimVertexContainer&) const;
+					      const edm::SimVertexContainer&,
+					      const reco::BeamSpot&) const;
 
   /// compare reco::TrackCollection and TrackingParticleCollection iterators: returns the chi2
   double associateRecoToSim(reco::TrackCollection::const_iterator,
-			    TrackingParticleCollection::const_iterator) const;
+			    TrackingParticleCollection::const_iterator,
+			    const reco::BeamSpot&) const;
 
   /// propagate the track parameters of TrackinParticle from production vertex to the point of closest approach to the beam line. 
   std::pair<bool,reco::TrackBase::ParameterVector> parametersAtClosestApproach(Basic3DVector<double>,// vertex
 									       Basic3DVector<double>,// momAtVtx
-									       float) const;// charge
+									       float,// charge
+									       const reco::BeamSpot&) const;//beam spot
   /// Association Reco To Sim with Collections
   reco::RecoToSimCollection associateRecoToSim(edm::RefToBaseVector<reco::Track>&,
 					       edm::RefVector<TrackingParticleCollection>&,
@@ -86,6 +94,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   edm::ESHandle<MagneticField> theMF;
   double chi2cut;
   bool onlyDiagonal;
+  edm::InputTag bsSrc;
 };
 
 #endif

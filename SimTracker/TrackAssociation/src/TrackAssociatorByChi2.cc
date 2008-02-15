@@ -4,7 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 using namespace edm;
 using namespace reco;
@@ -14,17 +14,19 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
 						   SimTrackContainer::const_iterator st, 
 						   const math::XYZTLorentzVectorD vertexPosition, 
 						   GlobalVector magField,
-						   TrackBase::CovarianceMatrix  
-						   invertedCovariance  ) const{
+						   TrackBase::CovarianceMatrix invertedCovariance,
+						   const reco::BeamSpot& bs) const{
   
   Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
   Basic3DVector<double> vert = (Basic3DVector<double>) vertexPosition;
 
-  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge());
+  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge(), bs);
   if (params.first){
-    TrackBase::ParameterVector sParameters =params.second;
+    TrackBase::ParameterVector sParameters = params.second;
     TrackBase::ParameterVector rParameters = rt->parameters();
-    
+    rParameters[3] = rt->dxy(bs.position());
+    rParameters[4] = rt->dsz(bs.position());
+
     TrackBase::ParameterVector diffParameters = rParameters - sParameters;
     double chi2 = ROOT::Math::Dot(diffParameters * invertedCovariance, diffParameters);
     
@@ -38,7 +40,8 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
 TrackAssociatorByChi2::RecoToSimPairAssociation 
 TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 					  const SimTrackContainer& stColl,
-					  const SimVertexContainer& svColl) const{
+					  const SimVertexContainer& svColl,
+					  const reco::BeamSpot& bs) const{
   
   RecoToSimPairAssociation outputVec;
 
@@ -46,6 +49,8 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
      Chi2SimMap outMap;
 
     TrackBase::ParameterVector rParameters = track->parameters();
+    rParameters[3] = track->dxy(bs.position());
+    rParameters[4] = track->dsz(bs.position());
     TrackBase::CovarianceMatrix recoTrackCovMatrix = track->covariance();
     if (onlyDiagonal){
       for (unsigned int i=0;i<5;i++){
@@ -61,7 +66,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
       Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
       Basic3DVector<double> vert = (Basic3DVector<double>)  svColl[st->vertIndex()].position();
 
-      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge());
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge(), bs);
       if (params.first){
 	TrackBase::ParameterVector sParameters = params.second;
       
@@ -78,11 +83,15 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
 
 double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterator rt, 
-						  TrackingParticleCollection::const_iterator tp ) const{
+						  TrackingParticleCollection::const_iterator tp, 
+						  const reco::BeamSpot& bs) const{
   
   double chi2;
   
   TrackBase::ParameterVector rParameters = rt->parameters();
+  rParameters[3] = rt->dxy(bs.position());
+  rParameters[4] = rt->dsz(bs.position());
+
   TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
       if (onlyDiagonal) {
 	for (unsigned int i=0;i<5;i++){
@@ -96,7 +105,7 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
   Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
   Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
 
-  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge(), bs);
   if (params.first){
     TrackBase::ParameterVector sParameters=params.second;
     
@@ -114,8 +123,8 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
 				<< "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
 				<< "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
 				<< "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-				<< "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-				<< "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				<< "dxy    rec: " << rt->dxy(bs.position())/*rParameters[3]*/ << "\n" 
+				<< "dsz    rec: " << rt->dsz(bs.position())/*rParameters[4]*/ << "\n" 
 				<< ": " /*<< */ << "\n" 
 				<< "chi2: " << chi2 << "\n";
     
@@ -128,7 +137,8 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
 pair<bool,TrackBase::ParameterVector> 
 TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 						   Basic3DVector<double> momAtVtx,
-						   float charge) const{
+						   float charge,
+						   const BeamSpot& bs) const{
   
   TrackBase::ParameterVector sParameters;
   try {
@@ -136,13 +146,12 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 					GlobalVector(momAtVtx.x(),momAtVtx.y(),momAtVtx.z()),
 					TrackCharge(charge),
 					theMF.product());
-    TSCPBuilderNoMaterial tscpBuilder;
-    TrajectoryStateClosestToPoint tsAtClosestApproach 
-      = tscpBuilder(ftsAtProduction,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
-    GlobalPoint v = tsAtClosestApproach.theState().position();
-    GlobalVector p = tsAtClosestApproach.theState().momentum();
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
+    GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
+    GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
     
-    sParameters[0] = tsAtClosestApproach.charge()/p.mag();
+    sParameters[0] = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
     sParameters[1] = Geom::halfPi() - p.theta();
     sParameters[2] = p.phi();
     sParameters[3] = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
@@ -157,6 +166,9 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC, 
 							      edm::RefVector<TrackingParticleCollection>& tPCH,
 							      const edm::Event * e ) const{
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e->getByLabel(bsSrc,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;      
 
   RecoToSimCollection  outputCollection;
   double chi2;
@@ -171,6 +183,9 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 				<< "===========================================" << "\n";
  
     TrackBase::ParameterVector rParameters = (*rt)->parameters();
+    rParameters[3] = (*rt)->dxy(bs.position());
+    rParameters[4] = (*rt)->dsz(bs.position());
+
     TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
     if (onlyDiagonal){
       for (unsigned int i=0;i<5;i++){
@@ -186,12 +201,12 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
     for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
 	
       //skip tps with a very small pt
-      if (sqrt(tp->momentum().perp2())<0.5) continue;
+      //if (sqrt(tp->momentum().perp2())<0.5) continue;
 	
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
 
-      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge(), bs);
       if (params.first){
 	TrackBase::ParameterVector sParameters=params.second;
 	
@@ -210,8 +225,8 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
 				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
 				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << (*rt)->dxy()/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << (*rt)->dsz()/*rParameters[4]*/ << "\n" 
+				    << "dxy    rec: " << (*rt)->dxy(bs.position())/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << (*rt)->dsz(bs.position())/*rParameters[4]*/ << "\n" 
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 	
@@ -232,6 +247,10 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC, 
 							      edm::RefVector<TrackingParticleCollection>& tPCH,
 							      const edm::Event * e ) const {
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e->getByLabel(bsSrc,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;      
+
   SimToRecoCollection  outputCollection;
   double chi2;
 
@@ -241,7 +260,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
   for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
     
     //skip tps with a very small pt
-    if (sqrt(tp->momentum().perp2())<0.5) continue;
+    //if (sqrt(tp->momentum().perp2())<0.5) continue;
     
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
 				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
@@ -250,7 +269,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
     Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
     Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
     
-    std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+    std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge(), bs);
     if (params.first){
       TrackBase::ParameterVector sParameters=params.second;
       
@@ -258,6 +277,9 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
       for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
 	
 	TrackBase::ParameterVector rParameters = (*rt)->parameters();
+	rParameters[3] = (*rt)->dxy(bs.position());
+	rParameters[4] = (*rt)->dsz(bs.position());
+
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
 	if (onlyDiagonal) {
 	  for (unsigned int i=0;i<5;i++){
@@ -284,8 +306,8 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
 				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
 				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
 				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << (*rt)->dxy()/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << (*rt)->dsz()/*rParameters[4]*/ << "\n" 
+				    << "dxy    rec: " << (*rt)->dxy(bs.position())/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << (*rt)->dsz(bs.position())/*rParameters[4]*/ << "\n" 
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 	
