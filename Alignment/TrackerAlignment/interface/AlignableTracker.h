@@ -114,8 +114,7 @@ public:
 
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
 
-  AlignSetup<Alignables> alignableLists_; //< Lists of alignables
-  AlignSetup<Alignable*> alignables_;     //< Hierarchy
+  AlignSetup<Alignables> alignableLists_; //< kind of map of lists of alignables
 
   TrackerCounters tkCounters_;
   

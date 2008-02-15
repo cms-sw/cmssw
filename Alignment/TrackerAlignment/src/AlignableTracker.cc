@@ -105,16 +105,13 @@ void AlignableTracker::buildBarrel(const std::string& subDet)
 
   align::Alignables& halfBarrels = alignableLists_.find(subDet + "HalfBarrel");
 
-  std::string barrelName = subDet + "Barrel";
-
-  Alignable*& barrel = alignables_.get(barrelName);
-
-  barrel = new AlignableComposite( halfBarrels[0]->id(),
-                                   objId.nameToType(barrelName),
-                                   RotationType() );
-
-  barrel->addComponent(halfBarrels[0]);
-  barrel->addComponent(halfBarrels[1]);
+  const std::string barrelName(subDet + "Barrel");
+  align::Alignables &barrel = alignableLists_.get(barrelName);
+  barrel.reserve(1);
+  barrel.push_back(new AlignableComposite(halfBarrels[0]->id(), objId.nameToType(barrelName),
+					  RotationType()));
+  barrel[0]->addComponent(halfBarrels[0]);
+  barrel[0]->addComponent(halfBarrels[1]);
 }
 
 //__________________________________________________________________________________________________
@@ -199,35 +196,40 @@ void AlignableTracker::buildTEC()
 //__________________________________________________________________________________________________
 void AlignableTracker::buildTRK()
 {
-  Alignable*& pixel = alignables_.get("Pixel");
-  Alignable*& strip = alignables_.get("Strip");
+  // Build pixel, strip and full tracker 'by hand':
+  
+  // First create pixel:
+  const align::Alignables &pixelBarrel = alignableLists_.find("TPBBarrel");
+  const align::Alignables &pixelEndcap = alignableLists_.find("TPEEndcap");
+  align::Alignables &pixel = alignableLists_.get("Pixel");
+  pixel.reserve(1);
+  pixel.push_back(new AlignableComposite(pixelBarrel[0]->id(), align::Pixel, RotationType()));
+  pixel[0]->addComponent(pixelBarrel[0]);
+  pixel[0]->addComponent(pixelEndcap[0]);
+  pixel[0]->addComponent(pixelEndcap[1]);
 
-  Alignable* const& innerBarrel = alignables_.find("TIBBarrel");
-  Alignable* const& outerBarrel = alignables_.find("TOBBarrel");
-  Alignable* const& pixelBarrel = alignables_.find("TPBBarrel");
-  const align::Alignables& innerEndcap = alignableLists_.find("TIDEndcap");
-  const align::Alignables& outerEndcap = alignableLists_.find("TECEndcap");
-  const align::Alignables& pixelEndcap = alignableLists_.find("TPEEndcap");
+  // Now create strip:
+  const align::Alignables &innerBarrel = alignableLists_.find("TIBBarrel");
+  const align::Alignables &outerBarrel = alignableLists_.find("TOBBarrel");
+  const align::Alignables &innerEndcap = alignableLists_.find("TIDEndcap");
+  const align::Alignables &outerEndcap = alignableLists_.find("TECEndcap");
+  align::Alignables &strip = alignableLists_.get("Strip");
+  strip.reserve(1);
+  strip.push_back(new AlignableComposite(innerBarrel[0]->id(), align::Strip, RotationType()));
+  strip[0]->addComponent(innerBarrel[0]);
+  strip[0]->addComponent(innerEndcap[0]);
+  strip[0]->addComponent(innerEndcap[1]);
+  strip[0]->addComponent(outerBarrel[0]);
+  strip[0]->addComponent(outerEndcap[0]);
+  strip[0]->addComponent(outerEndcap[1]);
 
-  pixel = new AlignableComposite( pixelBarrel->id(), align::Pixel, RotationType() );
-  strip = new AlignableComposite( innerBarrel->id(), align::Strip, RotationType() );
+  // Finally add strip and pixel to tracker - that of course already exists:
+  align::Alignables &tracker = alignableLists_.get("Tracker");
+  tracker.reserve(1);
+  tracker.push_back(this);
+  this->addComponent(pixel[0]); // add to tracker
+  this->addComponent(strip[0]); // add to tracker
 
-  pixel->addComponent(pixelBarrel);
-  pixel->addComponent(pixelEndcap[0]);
-  pixel->addComponent(pixelEndcap[1]);
-
-  strip->addComponent(innerBarrel);
-  strip->addComponent(innerEndcap[0]);
-  strip->addComponent(innerEndcap[1]);
-
-  strip->addComponent(outerBarrel);
-  strip->addComponent(outerEndcap[0]);
-  strip->addComponent(outerEndcap[1]);
-
-  addComponent(pixel); // add to tracker
-  addComponent(strip); // add to tracker
-
-  alignables_.get("Tracker") = this;
 }
 
 
