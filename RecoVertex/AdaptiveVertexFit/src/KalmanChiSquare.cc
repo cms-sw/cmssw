@@ -34,6 +34,7 @@ float KalmanChiSquare::estimate(
   AlgebraicVector5 rtp = ( residual +  a * vtxposV + b * newTrackMomentumP);
 
   AlgebraicVector5 parameterResiduals = trackParameters - rtp;
+  lt->checkParameters(parameterResiduals);
 
   return ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
 }
