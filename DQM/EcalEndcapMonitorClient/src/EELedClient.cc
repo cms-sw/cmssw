@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/14 11:15:44 $
- * $Revision: 1.61 $
+ * $Date: 2008/02/15 15:17:43 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1198,13 +1198,13 @@ void EELedClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-	int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
         me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
         me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs05_[ism-1] ) {
-	int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
         me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
         me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
       }

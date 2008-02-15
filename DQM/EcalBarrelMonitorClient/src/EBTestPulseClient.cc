@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/15 13:56:00 $
- * $Revision: 1.185 $
+ * $Date: 2008/02/15 14:28:50 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -988,19 +988,19 @@ void EBTestPulseClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-	int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
         me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
         me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs02_[ism-1] ) {
-	int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
         me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
         me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs03_[ism-1] ) {
-	int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
         me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
         me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
       }
