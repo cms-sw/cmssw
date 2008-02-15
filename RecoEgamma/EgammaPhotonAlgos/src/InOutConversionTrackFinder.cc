@@ -1,14 +1,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
+
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
-
+#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -22,46 +21,27 @@
 #include <sstream>
 
 
-InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
+InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, 
+						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
+{ 
 
-
-  smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
-
-  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
-
+ theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
  
-  std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
-
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  trackerGeom= trackerHandle.product();
-
-
-
-  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
-
-
-  // get the seed cleaner
-  std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
-  if (cleaner == "SeedCleanerByHitPosition") {
-    theSeedCleaner_ = new SeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-    
-    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
-  } else if (cleaner == "none") {
-    theSeedCleaner_ = 0;
-  } else {
-    throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
-  }
-
-
-
+ 
+ // get the seed cleaner
+ std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
+ if (cleaner == "SeedCleanerByHitPosition") {
+   theSeedCleaner_ = new SeedCleanerByHitPosition();
+ } else if (cleaner == "CachingSeedCleanerByHitPosition") {
+   theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
+ } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+   
+   theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
+ } else if (cleaner == "none") {
+   theSeedCleaner_ = 0;
+ } else {
+   throw cms::Exception("InOutRedundantSeedCleaner not found", cleaner);
+ }
 
 }
 
@@ -69,7 +49,6 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
 InOutConversionTrackFinder::~InOutConversionTrackFinder() {
 
   delete theTrajectoryCleaner_;
-  delete theInitialState_;
   if (theSeedCleaner_) delete theSeedCleaner_;
 }
 
@@ -81,7 +60,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
 
 
-  LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << "\n"; 
+  //  std::cout << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << "\n"; 
    
   std::vector<Trajectory> tmpO;
   tmpO.erase(tmpO.begin(), tmpO.end() ) ;

@@ -4,13 +4,13 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.5 2007/03/14 20:34:30 nancy Exp $ 
- **  $Date: 2007/03/14 20:34:30 $ 
- **  $Revision: 1.5 $
+ **  $Id: OutInConversionSeedFinder.h,v 1.6 2007/05/23 17:38:17 nancy Exp $ 
+ **  $Date: 2007/05/23 17:38:17 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
@@ -43,23 +43,22 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   public :
     
   
-    OutInConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker );
-  
+    OutInConversionSeedFinder( const edm::ParameterSet& config );
   
   virtual ~OutInConversionSeedFinder();
   
   
   
   virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const  ;
-
-
+  
+  
  private:
   
-
+  edm::ParameterSet conf_;
   std::pair<FreeTrajectoryState,bool> makeTrackState(int charge) const ;
-
+  
   void fillClusterSeeds(const reco::BasicCluster* bc) const ;
-
+  
   void startSeed(const FreeTrajectoryState &) const;
   void completeSeed(const TrajectoryMeasurement & m1,
 			    FreeTrajectoryState & fts, 
@@ -83,8 +82,6 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   mutable int nSeedsPerBC_;
   int maxNumberOfOutInSeedsPerBC_;
 
-  const LayerMeasurements*      theLayerMeasurements_;
-  
 
 };
 

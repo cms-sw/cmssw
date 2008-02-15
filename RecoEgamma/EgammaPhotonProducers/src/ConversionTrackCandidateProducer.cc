@@ -39,9 +39,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   theOutInSeedFinder_(0), 
   theOutInTrackFinder_(0), 
   theInOutSeedFinder_(0),
-  theInOutTrackFinder_(0),
-  isInitialized(0)
-
+  theInOutTrackFinder_(0)
 {
 
 
@@ -90,48 +88,45 @@ ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {
 
 }
 
+void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & theEventSetup) {
+
+
+  theOutInSeedFinder_->setEventSetup(theEventSetup);
+  theInOutSeedFinder_->setEventSetup(theEventSetup);
+  theOutInTrackFinder_->setEventSetup(theEventSetup);
+  theInOutTrackFinder_->setEventSetup(theEventSetup);
+
+}
+
+
 
 void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEventSetup) {
   nEvt_=0;
   //get magnetic field
   edm::LogInfo("ConversionTrackCandidateProducer") << " get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-
-
-  theEventSetup .get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker_ );
-
-
-  // get the measurement tracker   
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  theEventSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-  theMeasurementTracker_ = measurementTrackerHandle.product();
-  
   
   edm::ESHandle<NavigationSchool> nav;
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool_ = nav.product();
   
-
-
   
   // get the Out In Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInSeedFinder" << "\n";
-  theOutInSeedFinder_ = new OutInConversionSeedFinder (   &(*theMF_) ,  theMeasurementTracker_ );
+  theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
   
   // get the Out In Track Finder
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInTrackFinder" << "\n";
-  theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
+  theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_  );
   
   
   // get the In Out Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutSeedFinder" << "\n";
-  theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_ );
-  
+  theInOutSeedFinder_ = new InOutConversionSeedFinder ( conf_ );
   
   
   // get the In Out Track Finder
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutTrackFinder" << "\n";
-  theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
+  theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
   
   
 }
@@ -145,12 +140,17 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   edm::LogInfo("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
   LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() <<  " Global Counter " << nEvt_ << "\n";
   
+
   
-  // Update MeasurementTracker
-  theMeasurementTracker_->update(theEvent);
-  // Set the navigation school  
+  setEventSetup( theEventSetup );
+  theOutInSeedFinder_->setEvent(theEvent);
+  theInOutSeedFinder_->setEvent(theEvent);
+  theOutInTrackFinder_->setEvent(theEvent);
+  theInOutTrackFinder_->setEvent(theEvent);
+
+// Set the navigation school  
   NavigationSetter setter(*theNavigationSchool_);  
-  
+
   //
   // create empty output collections
   //

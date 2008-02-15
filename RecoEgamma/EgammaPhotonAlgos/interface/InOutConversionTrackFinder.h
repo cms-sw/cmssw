@@ -3,13 +3,13 @@
 /** \class InOutConversionTrackFinder
  **  
  **
- **  $Id: InOutConversionTrackFinder.h,v 1.6 2007/06/25 16:39:36 nancy Exp $ 
- **  $Date: 2007/06/25 16:39:36 $ 
- **  $Revision: 1.6 $
+ **  $Id: InOutConversionTrackFinder.h,v 1.7 2007/09/27 18:06:45 nancy Exp $ 
+ **  $Date: 2007/09/27 18:06:45 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 //
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -26,16 +26,15 @@
 //
 
 class MagneticField;
-class TrajectoryBuilder;
 class TrajectoryCleanerBySharedHits;
-class TransientInitialStateEstimator;
-
 
 
 class InOutConversionTrackFinder : public ConversionTrackFinder {
  public :
    
-   InOutConversionTrackFinder(  const edm::EventSetup& es,const edm::ParameterSet& config, const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+  InOutConversionTrackFinder(  const edm::EventSetup& es,
+                               const edm::ParameterSet& config );
+
  
  virtual ~InOutConversionTrackFinder();
  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidate ) const ;
@@ -43,15 +42,7 @@ class InOutConversionTrackFinder : public ConversionTrackFinder {
  
  private:
  
- edm::ParameterSet conf_;
- void initComponents();
- const TrajectoryBuilder*  theCkfTrajectoryBuilder_;
  TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
- 
- TransientInitialStateEstimator* theInitialState_; 
-
- const TrackerGeometry* trackerGeom;
-
  RedundantSeedCleaner*  theSeedCleaner_;
 
 

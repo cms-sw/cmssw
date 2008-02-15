@@ -4,13 +4,13 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.8 2007/05/23 17:38:05 nancy Exp $ 
- **  $Date: 2007/05/23 17:38:05 $ 
- **  $Revision: 1.8 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.9 2007/09/27 18:07:08 nancy Exp $ 
+ **  $Date: 2007/09/27 18:07:08 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -35,40 +35,40 @@ class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
 
 class InOutConversionSeedFinder : public ConversionSeedFinder {
-
-
+  
+  
  private:
- 
+  
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryStateOnSurface TSOS;
-
-
+  
+  
   public :
     
-  
-  
-  InOutConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
-
     
-     
+    
+    InOutConversionSeedFinder( const edm::ParameterSet& config );
+  
+  
+  
   virtual ~InOutConversionSeedFinder();
-    
-
+  
+  
   virtual void  makeSeeds( const reco::BasicClusterCollection& allBc) const;
- 
-
-
+  
+  
+  
   void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
- 
-
+  
+  
   private :
 
-
+  edm::ParameterSet conf_;
   virtual void fillClusterSeeds(  ) const ;
   void startSeed(FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
   virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
 			 float signedpt, unsigned int startingLayer) const ;
-   
+  
   std::vector<const reco::BasicCluster*> getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const;
   void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
   void createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const ;
@@ -83,14 +83,13 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   mutable int nSeedsPerInputTrack_;
   int maxNumberOfInOutSeedsPerInputTrack_;
      
-  const TrackingGeometry* theTrackerGeom_;
+
 
   
   std::vector<Trajectory> inputTracks_;
   std::vector<Trajectory> theOutInTracks_;
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
-  
-  const LayerMeasurements*      theLayerMeasurements_;
+
   mutable reco::BasicCluster theSecondBC_;
   mutable reco::BasicClusterCollection  bcCollection_;
   

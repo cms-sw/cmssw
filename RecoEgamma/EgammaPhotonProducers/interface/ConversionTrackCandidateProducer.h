@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.3 2007/03/26 22:30:12 nancy Exp $ 
- **  $Date: 2007/03/26 22:30:12 $ 
- **  $Revision: 1.3 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.4 2008/02/12 14:12:51 nancy Exp $ 
+ **  $Date: 2008/02/12 14:12:51 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -49,6 +49,8 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   int nEvt_;
   
+ /// Initialize EventSetup objects at each event
+  void setEventSetup( const edm::EventSetup& es ) ;
 
   std::string OutInTrackCandidateCollection_;
   std::string InOutTrackCandidateCollection_;
@@ -66,21 +68,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
 
-
-  edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
- 
-  const MeasurementTracker*     theMeasurementTracker_;
+  
   const NavigationSchool*       theNavigationSchool_;
   OutInConversionSeedFinder*  theOutInSeedFinder_;
   OutInConversionTrackFinder* theOutInTrackFinder_;
   InOutConversionSeedFinder*  theInOutSeedFinder_;
   InOutConversionTrackFinder* theInOutTrackFinder_;
-
-  const LayerMeasurements*      theLayerMeasurements_;
- 
-  
-  bool isInitialized;
 
 
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForOutIn;  

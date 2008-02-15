@@ -3,14 +3,14 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.6 2007/06/25 16:39:42 nancy Exp $ 
- **  $Date: 2007/06/25 16:39:42 $ 
- **  $Revision: 1.6 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.7 2007/09/27 18:06:38 nancy Exp $ 
+ **  $Date: 2007/09/27 18:06:38 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -29,10 +29,7 @@
 //
 
 class MagneticField;
-class TrajectoryBuilder;
-class KFUpdator;
 class TrajectoryCleanerBySharedHits;
-class TransientInitialStateEstimator;
 
 class OutInConversionTrackFinder : public ConversionTrackFinder {
  
@@ -40,7 +37,8 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
 
   public :
     
-    OutInConversionTrackFinder( const edm::EventSetup& es,  const edm::ParameterSet& config, const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+    OutInConversionTrackFinder( const edm::EventSetup& es,  
+				const edm::ParameterSet& config );
   
   
   virtual ~OutInConversionTrackFinder();
@@ -50,14 +48,8 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
  private: 
 
 
-  edm::ParameterSet                         conf_;
-  const TrajectoryBuilder*  theCkfTrajectoryBuilder_;
-  KFUpdator*                          theUpdator_;
+ 
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
- 
- 
-  TransientInitialStateEstimator* theInitialState_;  
-
   RedundantSeedCleaner*  theSeedCleaner_;
 
 

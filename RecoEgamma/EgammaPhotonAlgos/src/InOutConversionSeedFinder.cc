@@ -26,12 +26,13 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Geometry/Point3D.h"
 
-InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker ) :  ConversionSeedFinder( field, theInputMeasurementTracker )  {
+InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):
+  ConversionSeedFinder( conf ), conf_(conf)  
+{
   
   
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder CTOR " << "\n";      
-  theLayerMeasurements_ =  new LayerMeasurements(this->getMeasurementTracker() );
-  theTrackerGeom_= this->getMeasurementTracker()->geomTracker();
+    
   
   //the2ndHitdphi_ = 0.008; 
   the2ndHitdphi_ = 0.01; 
@@ -45,7 +46,6 @@ InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* fiel
 
 InOutConversionSeedFinder::~InOutConversionSeedFinder() {
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder DTOR " << "\n";
-  delete theLayerMeasurements_;
 }
 
 
@@ -211,7 +211,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
       return;
     }
     
-    PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, theMF_);
+    PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
     FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
     
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";
@@ -328,7 +328,7 @@ void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const Traj
     
     back1mm -= dir.unit()*0.1;
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder:::startSeed going to make the helix using back1mm " << back1mm <<"\n";
-    ConversionFastHelix helix(bcPos, stateAtPreviousLayer.globalPosition(), back1mm, theMF_);
+    ConversionFastHelix helix(bcPos, stateAtPreviousLayer.globalPosition(), back1mm, &(*theMF_));
     helix.stateAtVertex();    
     
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder:::startSeed helix status " <<helix.isValid() << std::endl; 
@@ -402,14 +402,14 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
   // Make an FTS consistent with the start point, start direction and curvature
   FreeTrajectoryState fts(GlobalTrajectoryParameters(startingState.globalPosition(), 
 						     startingState.globalDirection(),
-						     double(transverseCurvature), 0, theMF_),
+						     double(transverseCurvature), 0, &(*theMF_) ),
 			  CurvilinearTrajectoryError(m));
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::findSeeds startingState R "<< startingState.globalPosition().perp() << " Z " << startingState.globalPosition().z() << " phi " <<  startingState.globalPosition().phi() <<  " position " << startingState.globalPosition() << "\n";
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::findSeeds Initial FTS charge " << fts.charge() << " curvature " <<  transverseCurvature << "\n";  
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::findSeeds Initial FTS parameters " << fts <<  "\n"; 
     
-  
-  thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
+  PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );  
+  //thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
   
   //float dphi = 0.01;
   float dphi = 0.03;
@@ -447,7 +447,9 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
     LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";               
     /// Rememeber that this alwyas give back at least one dummy-innvalid it which prevents from everything getting stopped
-    theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
+    LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+
+    theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
     
     delete newEstimator;
     LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::findSeeds  Found " << theFirstMeasurements_.size() << " first hits" << "\n";
@@ -468,7 +470,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
 	back1mm -= dir.unit()*0.1;
 	LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder:::findSeeds going to make the helix using back1mm " << back1mm << "\n";
-	ConversionFastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, theMF_);
+	ConversionFastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, &(*theMF_));
 	
         helix.stateAtVertex();
 	LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder:::findSeeds helix status " <<helix.isValid() << std::endl; 
@@ -484,7 +486,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	// Make a new FTS
 	FreeTrajectoryState newfts(GlobalTrajectoryParameters(
 							      tmItr->recHit()->globalPosition(), startingState.globalDirection(),
-							      helix.stateAtVertex().transverseCurvature(), 0, theMF_), 
+							      helix.stateAtVertex().transverseCurvature(), 0, &(*theMF_)), 
 				   CurvilinearTrajectoryError(m));
 	
 	LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::findSeeds  new FTS charge " << newfts.charge() << "\n";
@@ -572,7 +574,8 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed TSOS " << tsos << "\n";   
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
-  std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
+  LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+  std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_.measurements( *layer, tsos, *propagator, *newEstimator);
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " <<  "\n"; 
   delete newEstimator;
   
@@ -595,9 +598,11 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
   
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed " << "\n";
   
-  GlobalTrajectoryParameters newgtp(  m1.recHit()->globalPosition(), track2InitialMomentum_, track2Charge_, theMF_ );
+  GlobalTrajectoryParameters newgtp(  m1.recHit()->globalPosition(), track2InitialMomentum_, track2Charge_, &(*theMF_) );
   CurvilinearTrajectoryError errors = m1.predictedState().curvilinearError();
   FreeTrajectoryState fts(newgtp, errors);
+
+  PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );
   TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
   
   /*

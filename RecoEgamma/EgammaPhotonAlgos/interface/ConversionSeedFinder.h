@@ -3,14 +3,14 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.6 2007/03/06 12:05:43 nancy Exp $ 
- **  $Date: 2007/03/06 12:05:43 $ 
- **  $Revision: 1.6 $
+ **  $Id: ConversionSeedFinder.h,v 1.7 2007/03/07 16:49:30 nancy Exp $ 
+ **  $Date: 2007/03/07 16:49:30 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -51,10 +51,7 @@ class ConversionSeedFinder {
   
 
   ConversionSeedFinder();
-  ConversionSeedFinder(  const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
-
-  
-
+  ConversionSeedFinder( const edm::ParameterSet& config );
   
   virtual ~ConversionSeedFinder(){}
 
@@ -71,9 +68,16 @@ class ConversionSeedFinder {
   void setMeasurementTracker(const MeasurementTracker* tracker) const { ; }
   const MeasurementTracker* getMeasurementTracker() const  {return  theMeasurementTracker_;}
 
+  /// Initialize EventSetup objects at each event
+  void setEventSetup( const edm::EventSetup& es ) ; 
+  void setEvent( const edm::Event& e ) ; 
+
+
+
  protected:
 
 
+  edm::ParameterSet conf_;
   void findLayers() const ;
   void findLayers(const FreeTrajectoryState & fts) const  ; 
 
@@ -89,12 +93,15 @@ class ConversionSeedFinder {
   mutable TrajectorySeedCollection theSeeds_;
   mutable GlobalPoint theSCPosition_;
     
-  const MagneticField* theMF_;
-  const  GeometricSearchTracker*  theTracker_;
+
   const MeasurementTracker*     theMeasurementTracker_;
-  
-  StraightLinePropagator     theOutwardStraightPropagator_;		       
-  mutable PropagatorWithMaterial     thePropagatorWithMaterial_; 
+  const TrackingGeometry* theTrackerGeom_;
+
+ 
+  edm::ESHandle<MagneticField> theMF_;
+  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
+
+
   KFUpdator                  theUpdator_;
   PropagationDirection       dir_; 
   mutable reco::SuperCluster*  theSC_;

@@ -47,10 +47,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   conf_(config), 
   theTrackPairFinder_(0), 
   theVertexFinder_(0), 
-  theLayerMeasurements_(0), 
-  theNavigationSchool_(0), 
-  theEcalImpactPositionFinder_(0), 
-  isInitialized(0)
+  theEcalImpactPositionFinder_(0)
 
 {
 
@@ -99,8 +96,6 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
   
   delete theTrackPairFinder_;
   delete theVertexFinder_;
-  delete theLayerMeasurements_;
-  delete theNavigationSchool_;
   delete theEcalImpactPositionFinder_; 
 
 }
@@ -114,19 +109,6 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-  
-  
-  theEventSetup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker_ );
-  
-  
-  // get the measurement tracker   
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  theEventSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-  theMeasurementTracker_ = measurementTrackerHandle.product();
-  
-  theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
-  //  theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
-  // NavigationSetter setter( *theNavigationSchool_);
 
   // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
   theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );

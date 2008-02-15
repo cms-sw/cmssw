@@ -11,20 +11,40 @@
 #include "RecoTracker/TkNavigation/interface/LayerCollector.h"
 //
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
-
-ConversionSeedFinder::ConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker) :
-  theMF_(field), theMeasurementTracker_(theInputMeasurementTracker ), 
-  theOutwardStraightPropagator_(theMF_, dir_ = alongMomentum ),
-  thePropagatorWithMaterial_(dir_ = alongMomentum, 0.000511, theMF_ ), theUpdator_()
-
- 
+ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config ): 
+  conf_(config),
+  theUpdator_()
 {
 
   LogDebug("ConversionSeedFinder")  << " CTOR " << "\n";
-  
+
+
 }
 
+
+
+void ConversionSeedFinder::setEvent(const edm::Event& evt  )  {
+ 
+  theMeasurementTracker_->update(evt);
+  theTrackerGeom_= this->getMeasurementTracker()->geomTracker();
+
+}
+
+void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
+  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker_);
+  es.get<IdealMagneticFieldRecord>().get( theMF_ );
+
+
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  theMeasurementTracker_ = measurementTrackerHandle.product();
+  
+
+}
 
 
 void ConversionSeedFinder::findLayers() const {
@@ -56,9 +76,9 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
   
   GlobalTrajectoryParameters gtp;
   if(dir == alongMomentum) {
-    gtp = GlobalTrajectoryParameters(theOrigin, momentumWithoutCurvature, charge, theMF_) ;
+    gtp = GlobalTrajectoryParameters(theOrigin, momentumWithoutCurvature, charge, &(*theMF_) ) ;
   } else {
-    gtp = GlobalTrajectoryParameters(theSCPosition_, momentumWithoutCurvature, charge, theMF_) ;
+    gtp = GlobalTrajectoryParameters(theSCPosition_, momentumWithoutCurvature, charge, &(*theMF_) ) ;
   }
 
 
@@ -89,11 +109,15 @@ void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
 
   theLayerList_.clear();
 
-  StartingLayerFinder starter(&theOutwardStraightPropagator_, this->getMeasurementTracker() );
+
+  StraightLinePropagator prop( &(*theMF_), alongMomentum);
+
+  StartingLayerFinder starter(&prop, this->getMeasurementTracker() );
  
-  LayerCollector collector(&theOutwardStraightPropagator_, &starter, 5., 5.);
+  LayerCollector collector(&prop, &starter, 5., 5.);
 
   theLayerList_ = collector.allLayers(traj);
+
   
   for(unsigned int i = 0; i < theLayerList_.size(); ++i) {
     printLayer(i);
@@ -108,12 +132,12 @@ void ConversionSeedFinder::printLayer(int i) const {
   if (layer->location() == GeomDetEnumerators::barrel ) {
     const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
     float r = barrelLayer->specificSurface().radius();
-    LogDebug("ConversionSeedFinder")  <<  " barrel layer radius " << r << " " << barrelLayer->specificSurface().bounds().length()/2. << "\n";
+    //    std::cout   <<  " barrel layer radius " << r << " " << barrelLayer->specificSurface().bounds().length()/2. << "\n";
 
   } else {
     const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
     float z =  fabs(forwardLayer->surface().position().z());
-    LogDebug("ConversionSeedFinder")  << " forward layer position " << z << " " << forwardLayer->specificSurface().innerRadius() << " " << forwardLayer->specificSurface().outerRadius() << "\n";
+    //    std::cout   << " forward layer position " << z << " " << forwardLayer->specificSurface().innerRadius() << " " << forwardLayer->specificSurface().outerRadius() << "\n";
   }
 }
 

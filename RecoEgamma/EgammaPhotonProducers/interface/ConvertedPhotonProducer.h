@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.14 2008/02/10 16:55:55 nancy Exp $ 
- **  $Date: 2008/02/10 16:55:55 $ 
- **  $Revision: 1.14 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.15 2008/02/12 14:19:10 nancy Exp $ 
+ **  $Date: 2008/02/12 14:19:10 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -68,23 +68,12 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
- 
-  const MeasurementTracker*     theMeasurementTracker_;
-  
-
 
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;
-  const LayerMeasurements*      theLayerMeasurements_;
-  const NavigationSchool*       theNavigationSchool_;
-
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
 
- 
-  
-  bool isInitialized;
   int nEvt_;
 
 
