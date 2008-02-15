@@ -1,7 +1,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
 TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
 {

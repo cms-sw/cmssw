@@ -4,12 +4,12 @@
 
 #ifndef TopObjects_StGenEvent_h
 #define TopObjects_StGenEvent_h
+
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
 class StGenEvent: public TopGenEvent {
 
  public:
-  
   StGenEvent();
   StGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   virtual ~StGenEvent();
@@ -18,11 +18,10 @@ class StGenEvent: public TopGenEvent {
   const reco::GenParticle* singleTop() const;
   const reco::GenParticle* decayB() const;
   const reco::GenParticle* associatedB() const;
-  //  const reco::Candidate* recoilQuark() const;
+  //const reco::Candidate* recoilQuark() const;
   
  private:
   
 };
-
 
 #endif

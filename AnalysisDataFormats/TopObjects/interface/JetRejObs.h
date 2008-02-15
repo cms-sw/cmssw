@@ -3,25 +3,17 @@
 
 #include <vector>
 
-
-using namespace std;
-
 class JetRejObs{
-   
-   public:
-      JetRejObs();
-      virtual ~JetRejObs();
-            
-      void 		setJetRejObs(vector<pair<int,double> >);
-      
-      unsigned int 	        getSize() const;
-      pair<int, double>  	getPair(unsigned int) const;
-      
-   protected:
-      vector<pair<int,double> >  obs;
-    
-      
+ public:
+  JetRejObs(){};
+  virtual ~JetRejObs(){};
+  
+  void setJetRejObs(std::vector<std::pair<int,double> > obs){ obs_ = obs; };
+  unsigned int getSize() const { return obs_.size(); };
+  std::pair<int, double> getPair(unsigned int i) const { return obs_[i]; };
+  
+ protected:
+  std::vector<std::pair<int,double> > obs_;
 };
-
 
 #endif

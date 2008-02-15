@@ -1,6 +1,7 @@
 //
-// $Id: TtGenEvent.cc,v 1.18 2007/10/31 11:35:59 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.19 2008/01/25 13:34:29 vadler Exp $
 //
+
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
