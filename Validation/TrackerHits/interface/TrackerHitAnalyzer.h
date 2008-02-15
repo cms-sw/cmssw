@@ -4,8 +4,8 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2006/10/26 08:30:31 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/05 17:42:49 $
+ * $Revision: 1.1 $
  * \author F. Cossutti
  *
 */
@@ -28,7 +28,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <fstream>
