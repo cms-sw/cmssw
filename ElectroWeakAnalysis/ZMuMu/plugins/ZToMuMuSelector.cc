@@ -28,9 +28,9 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 using namespace edm;
 using namespace std;
