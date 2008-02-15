@@ -47,9 +47,6 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 
    theNavigationSchool  = nav.product();
 
-   // set the correct navigation
-   NavigationSetter setter( *theNavigationSchool);
-
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
                                         << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
@@ -64,6 +61,9 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
 {
+   // set the correct navigation
+   NavigationSetter setter( *theNavigationSchool);
+
    theMeasurementTracker->update(event);
 }
 
