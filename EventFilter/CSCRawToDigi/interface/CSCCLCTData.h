@@ -30,7 +30,7 @@ public:
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
 
   /// layers count from one
-  std::vector<CSCComparatorDigi> comparatorDigis(int layer, unsigned icfeb);
+  std::vector<CSCComparatorDigi> comparatorDigis(uint32_t idlayer, unsigned icfeb);
 
 
   unsigned short * data() {return theData;}

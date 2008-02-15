@@ -1,4 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <stdio.h>
@@ -37,8 +38,13 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
   
 }
 
-std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer, unsigned cfeb) 
+std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, unsigned cfeb) 
 {
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1); 
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+  unsigned layer = CSCDetId::layer(idlayer);
+  
   //looking for comp output on layer
   std::vector<CSCComparatorDigi> result;
   assert(layer>0 && layer<= 6);
@@ -98,6 +104,14 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer, unsigned
 	}//end of loop over time bins
       //we do not have to check over the last couple of time bins if there are no hits since
       //comparators take 3 time bins
+
+      if ( me1a ){ 
+	
+	distrip = distrip%32;
+      std::cout<<"me1a comp distrip before="
+      } // reset 32-39 to 0-7
+      if ( me1a && zplus ) { distrip = 7-distrip; } // 0-7 -> 7-0
+      if ( me1b && !zplus) { distrip = 31-distrip;} // 0-31 -> 31-0 ...
 
       ///Store digis each of possible four halfstrips for given distrip:
       if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(16*cfeb+1+distrip*2, 0 , tbinbitsS0HS0));

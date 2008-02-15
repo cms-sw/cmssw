@@ -2,6 +2,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <math.h>
 #include <string.h> // memcpy
 
@@ -55,8 +56,12 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
 }	
     
 
-std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
+std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCLCTDigi> result;
+
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1); 
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
   
   switch (firmwareVersion) {
   case 2006: {
@@ -72,9 +77,14 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
       shape = ( header2006.clct0_strip_type<<3)+header2006.clct0_shape;
       type = 1;
     }
+    int strip = header2006.clct0_key;
+    int cfeb = (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1);
+    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+
     CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape, type, header2006.clct0_bend, 
-		      header2006.clct0_key, (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1), 
-		      header2006.clct0_bxn, 1);
+		      strip, cfeb, header2006.clct0_bxn, 1);
     digi0.setFullBX(header2006.bxnPreTrigger);
     result.push_back(digi0);
     
@@ -86,24 +96,38 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
       shape = (header2006.clct1_strip_type<<3)+header2006.clct1_shape;
       type = 1;
     }
+
+    strip = header2006.clct1_key;
+    cfeb = (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1);
+    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+
     CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape, type, header2006.clct1_bend,
-		      header2006.clct1_key, (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1),
-		      header2006.clct1_bxn, 2);
+		      strip, cfeb, header2006.clct1_bxn, 2);
     digi1.setFullBX(header2006.bxnPreTrigger);
     result.push_back(digi1);
     break;
   }
   case 2007: {
+    int strip = header2007.clct0_key;
+    int cfeb = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
+    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
-		      header2007.clct0_bend, header2007.clct0_key, 
-		      (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1),
-                      header2007.clct0_bxn, 1);
+		      header2007.clct0_bend, strip, cfeb, header2007.clct0_bxn, 1);
     digi0.setFullBX(header2007.bxnPreTrigger);
     result.push_back(digi0);
+
+    strip = header2007.clct1_key;
+    cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
+    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
     CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality, header2007.clct1_shape, 1,
-                      header2007.clct1_bend, header2007.clct1_key,
-                      (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1),
-                      header2007.clct1_bxn, 2);
+                      header2007.clct1_bend, strip, cfeb, header2007.clct1_bxn, 2);
     digi1.setFullBX(header2007.bxnPreTrigger);
     result.push_back(digi1);
     break;
@@ -116,11 +140,19 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   return result;
 }
 
-std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
+std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCorrelatedLCTDigi> result;  
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1);
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+
   switch (firmwareVersion) {
   case 2006: {
     /// for the zeroth MPC word:
+
+
+
+
     CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
 			      header2006.MPC_Muon0_wire_, header2006.MPC_Muon0_halfstrip_clct_pattern, 
 			      header2006.MPC_Muon0_clct_pattern_, header2006.MPC_Muon0_bend_, 

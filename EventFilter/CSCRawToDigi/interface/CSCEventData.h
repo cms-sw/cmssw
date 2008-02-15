@@ -50,6 +50,16 @@ class CSCEventData {
   /** turns on/off debug flag for this class */
   static void setDebug(const bool value) {debug = value;}
 
+
+  ///if dealing with ALCT data
+  bool isALCT(const short unsigned int * buf) {return 1;}
+
+  ///if dealing with TMB data
+  bool isTMB(const short unsigned int * buf) {return 1;}
+
+
+  
+
   /// unpacked in long mode: has overflow and error bits decoded
   CSCCFEBData * cfebData(unsigned icfeb) const;
 

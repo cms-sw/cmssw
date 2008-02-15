@@ -61,26 +61,33 @@ CSCEventData::CSCEventData(unsigned short * buf){
   pos += theDMBHeader.sizeInWords();
 
   if (nalct() ==1)  {
-    theALCTHeader = new CSCALCTHeader( pos );
-    if(!theALCTHeader->check()){  
-      edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
-    } 
-    else {
-      pos += theALCTHeader->sizeInWords(); //size of the header
-      //fill ALCT Digis
-      theALCTHeader->ALCTDigis();    
-      theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
-      pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
-      theALCTTrailer = new CSCALCTTrailer( pos );
-      pos += theALCTTrailer->sizeInWords();
-    }
+    if (isALCT(pos)) {//checking for ALCTData
+      theALCTHeader = new CSCALCTHeader( pos );
+      if(!theALCTHeader->check()){  
+	edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
+      } 
+      else {
+	pos += theALCTHeader->sizeInWords(); //size of the header
+	//fill ALCT Digis
+	theALCTHeader->ALCTDigis();    
+	theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
+	pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
+	theALCTTrailer = new CSCALCTTrailer( pos );
+	pos += theALCTTrailer->sizeInWords();
+      }
+    }else  edm::LogError ("CSCEventData") <<"Error:nalct reported but no ALCT data found!!!";
   }
-  
+
   if (nclct() ==1)  {
-    theTMBData = new CSCTMBData(pos);  //fill all TMB data
-    pos += theTMBData->size();
+    if (isTMB(pos)) {
+      theTMBData = new CSCTMBData(pos);  //fill all TMB data
+      pos += theTMBData->size();
+    }
+    else  edm::LogError ("CSCEventData") <<"Error:nclct reported but no TMB data found!!!";
   }
-  
+
+
+
   for(int icfeb = 0; icfeb < 5; ++icfeb)  {
     theCFEBData[icfeb] = 0;
     int cfeb_available = theDMBHeader.cfebAvailable(icfeb);

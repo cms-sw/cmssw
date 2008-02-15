@@ -325,9 +325,9 @@ class CSCTMBHeader {
 
 
   ///returns CLCT digis
-  std::vector<CSCCLCTDigi> CLCTDigis() const;
+  std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) const;
   ///returns CorrelatedLCT digis
-  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis() const;
+  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const;
  
   
   /// in 16-bit words.  Add olne because we include beginning(b0c) and

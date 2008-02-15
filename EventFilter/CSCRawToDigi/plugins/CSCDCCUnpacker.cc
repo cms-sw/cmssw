@@ -344,7 +344,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		      if (goodTMB) 
 			{ 
 			  std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
-			    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
+			    cscData[iCSC].tmbHeader().CorrelatedLCTDigis(layer.rawId());
 		      
 			  ///ugly kludge to fix wiregroup numbering in MTCC data
 			  if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
@@ -373,7 +373,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 		      
 			  std::vector <CSCCLCTDigi>  clctDigis =
-			    cscData[iCSC].tmbHeader().CLCTDigis();
+			    cscData[iCSC].tmbHeader().CLCTDigis(layer.rawId());
 			  clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
 		      
 			  /// fill cscRpc digi
@@ -454,7 +454,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			      if (goodTMB) 
 				{
 				  std::vector <CSCComparatorDigi>  comparatorDigis =
-				    cscData[iCSC].clctData().comparatorDigis(ilayer, icfeb);
+				    cscData[iCSC].clctData().comparatorDigis(layer.rawId(), icfeb);
 				  comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
 									comparatorDigis.end()),layer);
 				}
