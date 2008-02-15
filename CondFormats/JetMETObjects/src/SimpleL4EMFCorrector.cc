@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleL4EMFCorrector.cc,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleL4EMFCorrector.cc,v 1.1.2.2 2008/02/15 22:35:39 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -19,6 +19,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVec
 
 namespace {
   const unsigned nParameters = 32;
+  const double PT_CUTOFF = 30.;
 }
 
 SimpleL4EMFCorrector::SimpleL4EMFCorrector () 
@@ -88,8 +89,9 @@ double SimpleL4EMFCorrector::correctionBandPtEtaEmfraction (unsigned fBand, doub
     p[22]*aeta3 + p[23]*aeta2*emf + p[24]*aeta*emf2 + p[25]*emf3 +
     p[26]*aeta4 + p[27]*aeta3*emf + p[28]*aeta2*emf2 + p[29]*aeta*emf3 + p[30]*emf4 +
     p[31]*aeta3*emf2;
-  double logPt = log (fPt);
-  double deltaPt = p0*logPt + p1*logPt*logPt*logPt*sqrt(fPt);
-  return fPt > 0 ? 1+deltaPt/fPt : 1.;
+  double effectivePt = fPt > PT_CUTOFF ? fPt : PT_CUTOFF;
+  double logPt = log (effectivePt);
+  double deltaPt = p0*logPt + p1*logPt*logPt*logPt*sqrt(effectivePt);
+  return 1+deltaPt/effectivePt;
 }
 
