@@ -44,6 +44,7 @@ class PFNuclearInteraction {
     /// \return the initial nuclear interaction
     const NuclearInteractionRef& nuclInterRef() const { return nuclInterRef_; }
     
+    int secondaryTracksSize() const { return nuclInterRef_->secondaryTracksSize(); }
   private :
     // Reference to the initial NuclearInteraction
     NuclearInteractionRef nuclInterRef_;
