@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.7 2007/03/06 19:56:39 goitom Exp $
+// $Id: MonitorTrackGlobal.h,v 1.8 2007/05/19 10:35:57 dkcira Exp $
 
 #include <memory>
 #include <fstream>
@@ -21,7 +21,6 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class MonitorTrackGlobal : public edm::EDAnalyzer {
