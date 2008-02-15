@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.19 2007/11/10 05:39:46 wmtan Exp $
+$Id: RefCore.h,v 1.20 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -34,7 +34,7 @@ namespace edm {
     bool isNull() const {return !isNonnull(); }
 
     // Checks for non-null
-    bool isNonnull() const {return isTransient() ? prodPtr_ != 0 : id_.isValid();}
+    bool isNonnull() const {return isTransient() ? productPtr() != 0 : id_.isValid();}
 
     // Checks for null
     bool operator!() const {return isNull();}
@@ -57,7 +57,13 @@ namespace edm {
     
     bool isTransient() const {return transient_;}
 
+    int isTransientInt() const {return transient_ ? 1 : 0;}
+
+    void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
+
  private:
+    void setId(ProductID const& iId) {id_ = iId;}
+    void setTransient() {transient_ = true;}
 
     ProductID id_;
     mutable void const* prodPtr_;               // transient
@@ -68,7 +74,7 @@ namespace edm {
   inline
   bool
   operator==(RefCore const& lhs, RefCore const& rhs) {
-    return lhs.id() == rhs.id();
+    return lhs.isTransient() == rhs.isTransient() && (lhs.isTransient() ? lhs.productPtr() == rhs.productPtr() : lhs.id() == rhs.id());
   }
 
   inline
@@ -80,7 +86,7 @@ namespace edm {
   inline
   bool
   operator<(RefCore const& lhs, RefCore const& rhs) {
-    return lhs.id() < rhs.id();
+    return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false ) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
   inline 
@@ -91,8 +97,6 @@ namespace edm {
     std::swap(prodGetter_, other.prodGetter_);
     std::swap(transient_, other.transient_);
   }
-
-  void updateProduct(RefCore const& productToBeInserted, RefCore & commonProduct, bool doCollectionCheck);
 
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
     lhs.swap(rhs);

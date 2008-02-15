@@ -61,45 +61,46 @@ namespace edm {
 //   }
 
   void
-  updateProduct(RefCore const& productToBeInserted, RefCore & commonProduct, bool doCollectionCheck) {
-    if (commonProduct.isTransient()) {
-      if (!productToBeInserted.isTransient()) {
-	throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	  << "RefCore::updateProduct: persistable Ref or Ptr cannot be added to transient RefVector (PtrVector). "
-	  << "id is (" << productToBeInserted.id() << ")\n";
-      } else if (doCollectionCheck &&
-		 productToBeInserted.isNonnull() &&
-		 commonProduct.isNonnull() &&
-		 productToBeInserted.productPtr() != commonProduct.productPtr()) {
-	throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	  << "RefCore::updateProduct: transient Ref cannot be added to transient RefVector "
-	  << "because the Ref points into a different collection.\n";
-      }
-    } else if (productToBeInserted.isTransient()) {
-      if (commonProduct.isNonnull()) {
-	throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	  << "RefCore::updateProduct: Transient Ref or Ptr cannot be added to persistable RefVector (PtrVector). "
-	  << "id should be (" << commonProduct.id() << ")\n";
-      }
-      commonProduct = productToBeInserted; 
-    } else if (productToBeInserted.isNull()) {
-      if (doCollectionCheck) {
-	throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	  << "RefCore::updateProduct: Ref has invalid (zero) product ID, so it cannot be added to RefVector. "
-	  << "id should be (" << commonProduct.id() << ")\n";
-      }
-    } else if (commonProduct.isNull()) {
-      commonProduct = productToBeInserted; 
-    } else if (commonProduct != productToBeInserted) {
+  RefCore::pushBackItem(RefCore const& productToBeInserted, bool checkPointer) {
+    if (productToBeInserted.isNull() && !productToBeInserted.isTransient()) {
       throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	<< "RefCore::updateProduct: Ref or Ptr is inconsistent. "
-	<< "id = (" << productToBeInserted.id() << ") should be (" << commonProduct.id() << ")\n";
+	<< "RefCore::pushBackItem: Ref or Ptr has invalid (zero) product ID, so it cannot be added to RefVector (PtrVector). "
+	<< "id should be (" << id() << ")\n";
     }
-    if (commonProduct.productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      commonProduct.setProductGetter(productToBeInserted.productGetter());
+    if (isNonnull()) {
+      if (isTransient() != productToBeInserted.isTransient()) {
+        if (productToBeInserted.isTransient()) {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackItem: Transient Ref or Ptr cannot be added to persistable RefVector (PtrVector). "
+	    << "id should be (" << id() << ")\n";
+        } else {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackItem: Persistable Ref or Ptr cannot be added to transient RefVector (PtrVector). "
+	    << "id is (" << productToBeInserted.id() << ")\n";
+        }
+      }
+      if (!productToBeInserted.isTransient() && id() != productToBeInserted.id()) {
+        throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	  << "RefCore::pushBackItem: Ref or Ptr is inconsistent with RefVector (PtrVector)"
+	  << "id = (" << productToBeInserted.id() << ") should be (" << id() << ")\n";
+      }
+      if (productToBeInserted.isTransient() && checkPointer && productToBeInserted.isNonnull() && productToBeInserted != *this) {
+        throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	   << "RefCore::pushBackItem: Ref points into different collection than the RefVector.\n";
+      }
+    } else {
+      if (productToBeInserted.isTransient()) {
+        setTransient();
+      }
+      if (productToBeInserted.isNonnull()) {
+        setId(productToBeInserted.id());
+      }
     }
-    if (commonProduct.productPtr() == 0 && productToBeInserted.productPtr() != 0) {
-      commonProduct.setProductPtr(productToBeInserted.productPtr());
+    if (productGetter() == 0 && productToBeInserted.productGetter() != 0) {
+      setProductGetter(productToBeInserted.productGetter());
+    }
+    if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+      setProductPtr(productToBeInserted.productPtr());
     }
   }
 }

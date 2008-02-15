@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.3 2007/11/10 05:39:46 wmtan Exp $
+// $Id: Ptr.h,v 1.4 2008/02/15 05:57:03 wmtan Exp $
 //
 
 // system include files
@@ -24,7 +24,6 @@
 #include "boost/type_traits/is_base_of.hpp"
 
 // user include files
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/GetProduct.h"
@@ -56,11 +55,6 @@ namespace edm {
     Ptr(C const* product, key_type itemKey, bool setNow=true):
     core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),
 	 key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
-
-    /** Constructor for extracting a transient Ptr from a transient PtrVector. */
-    Ptr(T const* item, key_type itemKey):
-    core_(ProductID(), item, 0, true),
-	 key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).
@@ -134,8 +128,7 @@ namespace edm {
     
     /// Checks for non-null
     //bool isNonnull() const {return id().isValid(); }
-    bool isNonnull() const { return core_.isNonnull(); }
-    
+    bool isNonnull() const {return key_traits<key_type>::value != key_;}
     /// Checks for null
     bool operator!() const {return isNull();}
     
@@ -213,8 +206,7 @@ namespace edm {
   inline
   bool
   operator==(Ptr<T> const& lhs, Ptr<T> const& rhs) {
-    return lhs.id() == rhs.id() && 
-    lhs.key() == rhs.key();
+    return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
   }
   
   template <typename T>
@@ -228,14 +220,9 @@ namespace edm {
   inline
   bool
   operator<(Ptr<T> const& lhs, Ptr<T> const& rhs) {
-#if ! GCC_PREREQUISITE(3,4,4)
-    // needed for gcc 3_2_3 compiler bug workaround
-    using GCC_3_2_3_WORKAROUND_1::compare_key;
-    using GCC_3_2_3_WORKAROUND_2::compare_key;
-#endif
-    /// the definition and use of compare_key<> guarantees that the ordering of Ptrs within
+    /// The ordering of integer keys guarantees that the ordering of Ptrs within
     /// a collection will be identical to the ordering of the referenced objects in the collection.
-    return (lhs.id() == rhs.id() ? lhs.key()< rhs.key() : lhs.id() < rhs.id());
+    return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
   
 }

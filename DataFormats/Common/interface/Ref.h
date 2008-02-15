@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.33 2007/11/10 05:39:46 wmtan Exp $
+$Id: Ref.h,v 1.34 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -397,7 +397,7 @@ namespace edm {
 #endif
     /// the definition and use of compare_key<> guarantees that the ordering of Refs within
       /// a collection will be identical to the ordering of the referenced objects in the collection.
-      return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
+      return (lhs.ref().refCore() == rhs.ref().refCore() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.ref().refCore() < rhs.ref().refCore());
   }
 
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:49:27 EDT 2007
-// $Id: PtrVectorBase.cc,v 1.2 2007/12/21 22:47:18 wmtan Exp $
+// $Id: PtrVectorBase.cc,v 1.3 2008/02/15 05:57:04 wmtan Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ namespace edm {
 
   void 
   PtrVectorBase::push_back_base(RefCore const& core, key_type iKey, void const* iData) {
-    updateProduct(core, core_, false);
+    core_.pushBackItem(core, false);
     //Did we already push a 'non-cached' Ptr into the container or is this a 'non-cached' Ptr?
     if(indicies_.size() == cachedItems_.size()) {
       if(iData) {
