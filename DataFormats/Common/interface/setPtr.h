@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id$
+// $Id: setPtr.h,v 1.1 2007/10/22 19:45:01 chrjones Exp $
 //
 
 // system include files
@@ -68,8 +68,8 @@ namespace edm {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
         } else {
           throw cms::Exception("TypeConversionError")
-          <<"edm::Ptr<> : unable to convert type "<<typeid(element_type).name()
-          <<" to "<<iToType.name();
+          << "edm::Ptr<> : unable to convert type " << typeid(element_type).name()
+          << " to " << iToType.name() << "\n";
         }
       }
     }

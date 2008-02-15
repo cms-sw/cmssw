@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.2 2007/11/10 05:39:46 wmtan Exp $
+// $Id: PtrVectorBase.h,v 1.3 2007/12/21 22:46:50 wmtan Exp $
 //
 
 // system include files
@@ -53,8 +53,7 @@ namespace edm {
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {return core_.productGetter();}
     
-    /// True if the data has already be obtained from the Event
-    bool hasCache() const { return 0!=core_.productPtr(); }
+    bool hasCache() const { return !cachedItems_.empty(); }
     
     /// True if the data is in memory or is available in the Event
     /// No type checking is done.
@@ -69,7 +68,7 @@ namespace edm {
     /// Capacity of the RefVector
     size_type capacity() const {return indicies_.capacity();}
     
-    bool operator==(const PtrVectorBase& iRHS) const;
+    bool operator==(PtrVectorBase const& iRHS) const;
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
@@ -84,44 +83,50 @@ namespace edm {
     /// swap
     void swap(PtrVectorBase& other);
 
-    void push_back_base(key_type iKey, 
-                        const void* iData,
-                        const ProductID& iID,
-                        const EDProductGetter* iGetter);
+    void push_back_base(RefCore const& core, key_type iKey, void const* iData);
     
-    std::vector<const void*>::const_iterator void_begin() const {
+    std::vector<void const*>::const_iterator void_begin() const {
       getProduct_();
       return cachedItems_.begin();
     }
-    std::vector<const void*>::const_iterator void_end() const {
+    std::vector<void const*>::const_iterator void_end() const {
       getProduct_();
       return cachedItems_.end();
     }
     
     template<typename TPtr>
     TPtr makePtr(unsigned long iIndex) const {
-      getProduct_();
-      return TPtr(this->id(),
-                  reinterpret_cast<const typename TPtr::value_type*>(cachedItems_[iIndex]),
-                  iIndex);
+      if (core_.isTransient()) {
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]), indicies_[iIndex]);
+      }
+      if (hasCache()) {
+        return TPtr(this->id(),
+                  reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]),
+                  indicies_[iIndex]);
+      }
+      return TPtr(this->id(), indicies_[iIndex], productGetter());
     }
     
     template<typename TPtr>
-    TPtr makePtr(const std::vector<const void*>::const_iterator iIt) const {
-      getProduct_();
-      return TPtr(this->id(),
-                  reinterpret_cast<const typename TPtr::value_type*>(*iIt),
-                  iIt - cachedItems_.begin());
+    TPtr makePtr(std::vector<void const*>::const_iterator const iIt) const {
+      if (core_.isTransient()) {
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(*iIt), indicies_[iIt - cachedItems_.begin()]);
+      }
+      if (hasCache()) {
+        return TPtr(this->id(),
+                  reinterpret_cast<typename TPtr::value_type const*>(*iIt),
+                  indicies_[iIt - cachedItems_.begin()]);
+      }
+      return TPtr(this->id(), indicies_[iIt - cachedItems_.begin()], productGetter());
     }
     
   private:
     void getProduct_() const;
-    virtual const std::type_info& typeInfo() const=0;
+    virtual std::type_info const& typeInfo() const=0;
     // ---------- member data --------------------------------
-    //NOTE: the productPtr of the RefCore is used to determine if the data has yet been retrieved
     RefCore core_;
     std::vector<key_type> indicies_;
-    mutable std::vector<const void*> cachedItems_;
+    mutable std::vector<void const*> cachedItems_; //! transient
   };
 }
 

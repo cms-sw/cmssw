@@ -52,11 +52,11 @@ namespace edm {
 	const typename REFV::const_iterator & dc( const const_iterator_imp * o ) const {
 	  if ( o == 0 )
 	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In RefVectorHolder trying to dereference a null pointer";
+	      << "In RefVectorHolder trying to dereference a null pointer\n";
 	  const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
 	  if ( oo == 0 ) 
 	    throw edm::Exception( edm::errors::InvalidReference ) 
-	      << "In RefVectorHolder trying to cast iterator to wrong type ";
+	      << "In RefVectorHolder trying to cast iterator to wrong type\n";
 	  return oo->i;
 	} 
 	typename REFV::const_iterator i;

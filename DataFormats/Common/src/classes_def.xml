@@ -4,6 +4,7 @@
  <class name="edm::RefCore">
    <field name="prodGetter_" transient="true"/>
    <field name="prodPtr_" transient="true"/>
+   <field name="transient_" transient="true"/>
  </class>
  <class name="edm::RefItem<unsigned int>" />
  <class name="edm::RefItem<int>" />

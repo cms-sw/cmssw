@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.18 2007/10/31 19:06:01 chrjones Exp $
+$Id: RefCore.h,v 1.19 2007/11/10 05:39:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -16,12 +16,13 @@ namespace edm {
   class EDProduct;
   class RefCore {
   public:
-    RefCore() : id_(), prodPtr_(0), prodGetter_(0) {}
+    RefCore() : id_(), prodPtr_(0), prodGetter_(0), transient_(false) {}
 
-    RefCore(ProductID const& theId, void const *prodPtr, EDProductGetter const* prodGetter) :
+    RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
       id_(theId), 
       prodPtr_(prodPtr), 
-      prodGetter_(prodGetter) { }
+      prodGetter_(prodGetter),
+      transient_(transient) { }
 
     ProductID id() const {return id_;}
 
@@ -33,7 +34,7 @@ namespace edm {
     bool isNull() const {return !isNonnull(); }
 
     // Checks for non-null
-    bool isNonnull() const {return id_.isValid(); }
+    bool isNonnull() const {return isTransient() ? prodPtr_ != 0 : id_.isValid();}
 
     // Checks for null
     bool operator!() const {return isNull();}
@@ -48,19 +49,20 @@ namespace edm {
       return prodGetter_;
     }
 
-    void setProductGetter(EDProductGetter const* prodGetter) const {prodGetter_ = prodGetter;}
+    void setProductGetter(EDProductGetter const* prodGetter) const;
 
     EDProduct const* getProductPtr() const;
 
-    void swap( RefCore & );
+    void swap(RefCore &);
     
-    void setId(const ProductID& iId) { id_ = iId;}
+    bool isTransient() const {return transient_;}
 
  private:
 
     ProductID id_;
-    mutable void const *prodPtr_;               // transient
+    mutable void const* prodPtr_;               // transient
     mutable EDProductGetter const* prodGetter_; // transient
+    bool transient_;				// transient
   };
 
   inline
@@ -84,15 +86,16 @@ namespace edm {
   inline 
   void
   RefCore::swap( RefCore & other ) {
-    std::swap( id_, other.id_ );
-    std::swap( prodPtr_, other.prodPtr_ );
-    std::swap( prodGetter_, other.prodGetter_ );
+    std::swap(id_, other.id_);
+    std::swap(prodPtr_, other.prodPtr_);
+    std::swap(prodGetter_, other.prodGetter_);
+    std::swap(transient_, other.transient_);
   }
 
-  void checkProduct(RefCore const& productToBeInserted, RefCore & commonProduct);
+  void updateProduct(RefCore const& productToBeInserted, RefCore & commonProduct, bool doCollectionCheck);
 
-  inline void swap( edm::RefCore & lhs, edm::RefCore & rhs ) {
-    lhs.swap( rhs );
+  inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
+    lhs.swap(rhs);
   }
 }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: fillPtrVector.h,v 1.1 2007/10/22 19:45:01 chrjones Exp $
+// $Id: fillPtrVector.h,v 1.1 2007/11/06 20:16:54 chrjones Exp $
 //
 
 // system include files
@@ -78,8 +78,8 @@ namespace edm {
             oPtr.push_back(cast.Address());// returns void*, after pointer adjustment
           } else {
             throw cms::Exception("TypeConversionError")
-            <<"edm::PtrVector<> : unable to convert type "<<typeid(element_type).name()
-            <<" to "<<iToType.name();
+            << "edm::PtrVector<> : unable to convert type " << typeid(element_type).name()
+            << " to " << iToType.name() << "\n";
           }
           
         }

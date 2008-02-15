@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:49:27 EDT 2007
-// $Id: PtrVectorBase.cc,v 1.1 2007/11/06 20:17:47 chrjones Exp $
+// $Id: PtrVectorBase.cc,v 1.2 2007/12/21 22:47:18 wmtan Exp $
 //
 
 // system include files
@@ -56,28 +56,14 @@ namespace edm {
   }
 
   void 
-  PtrVectorBase::push_back_base(key_type iKey, 
-                                const void* iData,
-                                const ProductID& iID,
-                                const EDProductGetter* iGetter) {
-    //Test that the item belongs in our collection
-    if(id() != ProductID()) {
-      if(iID !=id()) {
-        throw cms::Exception("ProductMissmatch")<<"attempted to put an edm::Ptr from a collection with id "
-        <<iID<< " into a PtrVector associated with a collection with id "<<id();
-      }
-    } else {
-      core_.setId(iID);
-    }
-    if( !productGetter() ) {
-      core_.setProductGetter(iGetter);
-    }
+  PtrVectorBase::push_back_base(RefCore const& core, key_type iKey, void const* iData) {
+    updateProduct(core, core_, false);
     //Did we already push a 'non-cached' Ptr into the container or is this a 'non-cached' Ptr?
-    if(indicies_.size() == cachedItems_.size()
-       && key_traits<key_type>::value != iKey)
-    {
+    if(indicies_.size() == cachedItems_.size()) {
       if(iData) {
         cachedItems_.push_back(iData);
+      } else if(key_traits<key_type>::value == iKey) {
+        cachedItems_.push_back(0);
       } else {
         cachedItems_.clear();
       }
@@ -89,21 +75,20 @@ namespace edm {
 // const member functions
 //
   void 
-  PtrVectorBase::getProduct_() const
-  {
-    if(cachedItems_.size()) {
+  PtrVectorBase::getProduct_() const {
+    if(hasCache()) {
       return;
     }
     if(indicies_.size() == 0) {
       return;
     }
     if(0 == productGetter()) {
-      throw edm::Exception(edm::errors::LogicError) <<"Tried to get data for a PtrVector which has no EDProductGetter";  
+      throw edm::Exception(edm::errors::LogicError) << "Tried to get data for a PtrVector which has no EDProductGetter\n";
     }
-    const EDProduct* product = productGetter()->getIt(id());
+    EDProduct const* product = productGetter()->getIt(id());
 
     if(0==product) {
-      throw edm::Exception(edm::errors::InvalidReference) <<"Asked for data from a PtrVector which refers to a non-existent product which id "<<id();
+      throw edm::Exception(edm::errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product which id " << id() << "\n";
     }
     product->fillPtrVector(typeInfo(),
                               indicies_,
@@ -111,7 +96,7 @@ namespace edm {
   }
   
   bool 
-  PtrVectorBase::operator==(const PtrVectorBase& iRHS) const {
+  PtrVectorBase::operator==(PtrVectorBase const& iRHS) const {
     if (core_ != iRHS.core_) {
       return false;
     }

@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.14 2007/10/09 13:05:18 chrjones Exp $
+ * $Id: RefToBaseProd.h,v 1.15 2007/10/09 17:42:47 chrjones Exp $
  *
  */
   
@@ -126,7 +126,7 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle->id(), 0, handle->productGetter() ),
+    product_(handle->id(), 0, handle->productGetter(), false ),
     viewCache_( new View<T>( * handle ) ) {
     assert( handle->productGetter() == 0 );
   }
@@ -134,7 +134,7 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd( const View<T> & view ) :
-    product_( view.id(), 0, view.productGetter() ),
+    product_( view.id(), 0, view.productGetter(), false ),
     viewCache_( new View<T>( view ) ) {
   }
 
@@ -167,7 +167,7 @@ namespace edm {
     if ( viewCache_.ptr_ == 0 ) {
       if ( product_.isNull() )
 	throw edm::Exception(errors::InvalidReference)
-	  << "attempting get view from a null RefToBaseProd.";
+	  << "attempting get view from a null RefToBaseProd.\n";
       ProductID id = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
@@ -231,7 +231,7 @@ namespace edm {
   template <class HandleC>
   inline
   RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
-    product_(handle.id(), handle.product(), 0) { 
+    product_(handle.id(), handle.product(), 0, false) { 
     std::vector<void const*> pointers;
     typedef typename refhelper::RefToBaseProdTrait<typename HandleC::element_type>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
@@ -246,9 +246,9 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(Ref<C, T, F> const& ref) :
       product_(ref.id(), 
-	       ref.hasProductCache() ? 
-	       ref.product() : 
-	       0, ref.productGetter()) {
+	       ref.hasProductCache() ?  ref.product() : 0,
+	       ref.productGetter(),
+	       false) {
     std::vector<void const*> pointers;
     typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
@@ -262,9 +262,9 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(RefToBase<T> const& ref) :
     product_(ref.id(), 
-	     ref.hasProductCache() ? 
-	     ref.product() : 
-	     0, ref.productGetter()) {
+	     ref.hasProductCache() ?  ref.product() : 0,
+	     ref.productGetter(),
+	     false) {
     std::vector<void const*> pointers;
     helper_vector_ptr helpers( ref.holder_->makeVectorBaseHolder().release() );
     helpers->reallyFillView( ref.product(), ref.id(), pointers );

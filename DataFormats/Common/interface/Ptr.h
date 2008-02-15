@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.2 2007/10/31 18:51:02 chrjones Exp $
+// $Id: Ptr.h,v 1.3 2007/11/10 05:39:46 wmtan Exp $
 //
 
 // system include files
@@ -39,29 +39,45 @@ namespace edm {
     
     typedef unsigned long key_type;
     typedef T   value_type;
+
     /** General purpose constructor from handle like object.
      id(), returning a ProductID
      product(), returning a C*. */
-    
     template <typename HandleC>
     Ptr(HandleC const& handle, key_type itemKey, bool setNow=true):
-    core_(handle.id(),getItem_(handle,itemKey),0),key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
     
+    /** Constructor for ref to object that is not in an event.
+        An exception will be thrown if an attempt is made to persistify
+        any object containing this Ptr.  Also, in the future work will
+        be done to throw an exception if an attempt is made to put any object
+        containing this Ptr into an event(or run or lumi). */
+    template <typename C>
+    Ptr(C const* product, key_type itemKey, bool setNow=true):
+    core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),
+	 key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
+
+    /** Constructor for extracting a transient Ptr from a transient PtrVector. */
+    Ptr(T const* item, key_type itemKey):
+    core_(ProductID(), item, 0, true),
+	 key_(itemKey) {}
+
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).
      prodGetter will ususally be a pointer to the event principal. */
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-    core_(productID, 0, prodGetter), key_(itemKey) {
+    core_(productID, 0, prodGetter, false), key_(itemKey) {
     }
     
-    /** Constructor for use in the various X::fillView(...) functions.
+    /** Constructor for use in the various X::fillView(...) functions
+     or for extracting a Ptr from a PtrVector.
      It is an error (not diagnosable at compile- or run-time) to call
      this constructor with a pointer to a T unless the pointed-to T
      object is already in a collection of type C stored in the
-     Event. The given ProductID must be the id of the collection in
-     the Event. */
+     Event. The given ProductID must be the id of the collection
+     in the Event. */
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
-    core_(productID, item, 0),
+    core_(productID, item, 0, productID == ProductID()),
     key_(item_key)
     { 
     }
@@ -71,7 +87,7 @@ namespace edm {
      ProductID). */
     
     explicit Ptr(ProductID const& id) :
-    core_(id, 0, 0),
+    core_(id, 0, 0, false),
     key_(key_traits<key_type>::value)
     { }
     
@@ -80,16 +96,17 @@ namespace edm {
     key_(key_traits<key_type>::value)
     {}
     
-    Ptr(const Ptr<T>& iOther):
+    Ptr(Ptr<T> const& iOther):
     core_(iOther.core_),
     key_(iOther.key_)
     {}
 
     template< typename U>
-    Ptr(const Ptr<U>& iOther):
+    Ptr(Ptr<U> const& iOther):
     core_(iOther.id(), 
-          (iOther.hasCache()? static_cast<const T*>(iOther.get()): static_cast<const T*>(0)),
-          iOther.productGetter()),
+          (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
+          iOther.productGetter(),
+	  false),
     key_(iOther.key())
     {
       //check that types are assignable
@@ -126,6 +143,9 @@ namespace edm {
     /// in the event. No type checking is done.
     bool isAvailable() const {return core_.isAvailable();}
 
+    /// Checks if this Ptr is transient (i.e. not persistable).
+    bool isTransient() const {return core_.isTransient();}
+
     /// Accessor for product ID.
     ProductID id() const {return core_.id();}
     
@@ -135,18 +155,20 @@ namespace edm {
     key_type key() const {return key_;}
     
     bool hasCache() const { return 0!=core_.productPtr(); }
+
+    RefCore const& refCore() const {return core_;}
     // ---------- member functions ---------------------------
     
   private:
-    //Ptr(const Ptr&); // stop default
+    //Ptr(Ptr const&); // stop default
     
-    //const Ptr& operator=(const Ptr&); // stop default
-    template<typename HandleC>
-    const T* getItem_(const HandleC& iHandle, key_type iKey);
+    //Ptr const& operator=(Ptr const&); // stop default
+    template<typename C>
+    T const* getItem_(C const* product, key_type iKey);
     
     void getData_() const { 
       if( !hasCache() && 0 != productGetter() ) {
-        const void* ad = 0;
+        void const* ad = 0;
         productGetter()->getIt(core_.id())->setPtr(typeid(T),
                                                    key_,
                                                    ad);
@@ -159,24 +181,23 @@ namespace edm {
   };
   
   template<typename T>
-  template<typename HandleC>
-  const T* Ptr<T>::getItem_(const HandleC& iHandle, key_type iKey)
+  template<typename C>
+  T const* Ptr<T>::getItem_(C const* product, key_type iKey)
   {
-    typedef typename HandleC::element_type container_type;
-    typename container_type::const_iterator it = iHandle.product()->begin();
+    assert (product != 0);
+    typename C::const_iterator it = product->begin();
     advance(it,iKey);
-    T const* address = detail::GetProduct<container_type>::address( it );
+    T const* address = detail::GetProduct<C>::address( it );
     return address;
-    
   }
-  
+
   /// Dereference operator
   template <typename T>
   inline
   T const&
   Ptr<T>::operator*() const {
     getData_();
-    return *reinterpret_cast<const T*>(core_.productPtr());
+    return *reinterpret_cast<T const*>(core_.productPtr());
   }
   
   /// Member dereference operator
@@ -185,7 +206,7 @@ namespace edm {
   T const*
   Ptr<T>::operator->() const {
     getData_();
-    return reinterpret_cast<const T*>(core_.productPtr());
+    return reinterpret_cast<T const*>(core_.productPtr());
   }
   
   template <typename T>

@@ -5,7 +5,7 @@
   
 RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.3 2007/08/15 04:26:28 wmtan Exp $
+$Id: RefCoreGet.h,v 1.4 2007/11/10 05:39:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ namespace edm {
     T const* 
     getProductPtr_(RefCore const& ref) {
       //if (isNull()) throwInvalidReference();
+      assert (!ref.isTransient());
       EDProduct const* product = ref.getProductPtr();
       if (product == 0) {
 	throw edm::Exception(errors::ProductNotFound)
@@ -48,7 +49,14 @@ namespace edm {
   T const*
   getProduct(RefCore const & ref) {
     T const* p = static_cast<T const *>(ref.productPtr());
-    return (p != 0) ? p : refcore::getProductPtr_<T>(ref);
+    if (p != 0) return p;
+    if (ref.isTransient()) {
+	throw edm::Exception(errors::ProductNotFound)
+	  << "RefCore: A request to resolve a transient reference to a product of type: "
+	  << typeid(T).name()
+	  << "\ncan not be satisfied because the pointer to the product is null.\n";
+    }
+    return refcore::getProductPtr_<T>(ref);
   }
 }
 #endif

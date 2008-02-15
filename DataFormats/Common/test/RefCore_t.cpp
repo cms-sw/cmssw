@@ -59,7 +59,7 @@ void TestRefCore::nondefault_ctor()
   edm::ProductID id(201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  edm::RefCore  refcore(id, 0, &getter);
+  edm::RefCore  refcore(id, 0, &getter, false);
   CPPUNIT_ASSERT(refcore.isNull()==false);
   CPPUNIT_ASSERT(refcore.isNonnull());
   CPPUNIT_ASSERT(!!refcore);

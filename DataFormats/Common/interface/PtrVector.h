@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:50 EDT 2007
-// $Id: PtrVector.h,v 1.1 2007/11/06 20:17:45 chrjones Exp $
+// $Id: PtrVector.h,v 1.2 2007/12/21 22:46:50 wmtan Exp $
 //
 
 // system include files
@@ -36,12 +36,12 @@ namespace edm {
   template <typename T>
   class PtrHolder {
   public:
-    PtrHolder( const Ptr<T>& iPtr) :ptr_(iPtr) {}
+    PtrHolder(Ptr<T> const& iPtr) :ptr_(iPtr) {}
     
-    const Ptr<T>& operator*() const {
+    Ptr<T> const& operator*() const {
       return ptr_;
     }
-    const Ptr<T>* operator->() const {
+    Ptr<T> const* operator->() const {
       return &ptr_;
     }
   private:
@@ -54,8 +54,8 @@ namespace edm {
     typedef PtrVectorItr<T> iterator;
     typedef typename std::iterator <std::random_access_iterator_tag, Ptr<T> >::difference_type difference_type;
     
-    PtrVectorItr(const std::vector<const void*>::const_iterator& iItr,
-                 const PtrVector<T>* iBase):
+    PtrVectorItr(std::vector<void const*>::const_iterator const& iItr,
+                 PtrVector<T> const* iBase):
     iter_(iItr),
     base_(iBase) {}
     
@@ -87,8 +87,8 @@ namespace edm {
     bool operator>=(iterator const& rhs) const {return this->iter_ >= rhs.iter_;}
     
   private:
-    std::vector<const void*>::const_iterator iter_;
-    const PtrVector<T>* base_;
+    std::vector<void const*>::const_iterator iter_;
+    PtrVector<T> const* base_;
   };
   
   template <typename T>
@@ -101,16 +101,16 @@ namespace edm {
     
     friend class PtrVectorItr<T>;
     PtrVector() {}
-    PtrVector(const PtrVector<T>& iOther): PtrVectorBase(iOther) {}
+    PtrVector(PtrVector<T> const& iOther): PtrVectorBase(iOther) {}
     
     template <typename U>
-    PtrVector(const PtrVector<U>& iOther): PtrVectorBase(iOther) {
+    PtrVector(PtrVector<U> const& iOther): PtrVectorBase(iOther) {
       BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
     }
     
     // ---------- const member functions ---------------------
     
-    Ptr<T> operator[](const unsigned long iIndex ) const {
+    Ptr<T> operator[](unsigned long const iIndex ) const {
       return this->makePtr<Ptr<T> >(iIndex);
     }
     
@@ -125,21 +125,19 @@ namespace edm {
     }
     // ---------- member functions ---------------------------
     
-    void push_back(const Ptr<T>& iPtr) {
-      this->push_back_base(iPtr.key(),
-                           iPtr.hasCache()? iPtr.operator->() : static_cast<const void*>(0),
-                           iPtr.id(),
-                           iPtr.productGetter());
+    void push_back(Ptr<T> const& iPtr) {
+      this->push_back_base(iPtr.refCore(),
+			   iPtr.key(),
+			   iPtr.hasCache() ? iPtr.operator->() : static_cast<void const*>(0));
     }
 
     template<typename U>
-    void push_back(const Ptr<U>& iPtr) {
+    void push_back(Ptr<U> const& iPtr) {
       //check that types are assignable
       BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
-      this->push_back_base(iPtr.key(),
-                           iPtr.hasCache()? iPtr.operator->() : static_cast<const void*>(0),
-                           iPtr.id(),
-                           iPtr.productGetter());
+      this->push_back_base(iPtr.refCore(),
+			   iPtr.key(),
+			   iPtr.hasCache() ? iPtr.operator->() : static_cast<void const*>(0));
     }
 
     void swap(PtrVector& other) {
@@ -154,11 +152,11 @@ namespace edm {
 
   private:
     
-    //const PtrVector& operator=(const PtrVector&); // stop default
-    const std::type_info& typeInfo() const {return typeid(T);}
+    //PtrVector const& operator=(PtrVector const&); // stop default
+    std::type_info const& typeInfo() const {return typeid(T);}
 
     // ---------- member data --------------------------------
-    Ptr<T> fromItr(const std::vector<const void*>::const_iterator& iItr) const {
+    Ptr<T> fromItr(std::vector<void const*>::const_iterator const& iItr) const {
       return this->makePtr<Ptr<T> >(iItr);
     }
     

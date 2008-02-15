@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.16 2007/12/21 22:42:30 wmtan Exp $
+ * $Id: RefToBaseVector.h,v 1.17 2008/01/17 20:26:23 wmtan Exp $
  *
  */
 
@@ -156,7 +156,7 @@ namespace edm {
   {
     if ( holder_ == 0 )
       throw edm::Exception( edm::errors::InvalidReference ) 
-	<< "Trying to dereference null RefToBaseVector<T> in method: at(" << idx  <<")";
+	<< "Trying to dereference null RefToBaseVector<T> in method: at(" << idx  <<")\n";
     return holder_->at( idx );
   }
 
