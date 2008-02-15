@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2006/10/26 08:33:10 $
+ * $Date: 2008/02/15 10:35:34 $
  * \author C. Rovelli
  *
 */
@@ -64,6 +64,14 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 void endJob(void);
 
+ uint32_t getUnitWithMaxEnergy(MapType& themap);
+ void     findBarrelMatrix(int nCellInEta, int nCellInPhi,
+                           int CentralEta, int CentralPhi,int CentralZ,
+                           MapType& themap); 
+ void     findEndcapMatrix(int nCellInX, int nCellInY,
+                           int CentralX, int CentralY,int CentralZ,
+                           MapType&  themap);
+
 private:
 
  std::string HepMCLabel;
@@ -92,6 +100,15 @@ private:
  MonitorElement* meEEUnRecHitSimHitRatio_;
  MonitorElement* meEBUnRecHitSimHitRatioGt35_;
  MonitorElement* meEEUnRecHitSimHitRatioGt35_;
+ MonitorElement* meEBe5x5_;
+ MonitorElement* meEBe5x5OverSimHits_;
+ MonitorElement* meEBe5x5OverGun_;
+ MonitorElement* meEEe5x5_;
+ MonitorElement* meEEe5x5OverSimHits_;
+ MonitorElement* meEEe5x5OverGun_;
+
+ std::vector<uint32_t> crystalMatrix;
+
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2007/12/18 18:43:48 $
+ * $Date: 2008/02/15 10:35:34 $
  * \author C. Rovelli
  *
 */
@@ -75,6 +75,12 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEEUnRecHitSimHitRatio_     = 0;
   meEBUnRecHitSimHitRatioGt35_ = 0;
   meEEUnRecHitSimHitRatioGt35_ = 0;
+  meEBe5x5_                    = 0;
+  meEBe5x5OverSimHits_         = 0;
+  meEBe5x5OverGun_             = 0;
+  meEEe5x5_                    = 0;
+  meEEe5x5OverSimHits_         = 0;
+  meEEe5x5OverGun_             = 0;
   
   // ---------------------- 
   Char_t histo[20];
@@ -117,6 +123,25 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 
     sprintf (histo, "EcalRecHitsTask, Endcap Unc RecSimHit Ratio gt 3.5 GeV"); 
     meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
+    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5");
+    meEBe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5 over Sim E5x5");
+    meEBe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
+    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5 over gun energy");
+    meEBe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
+    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5");
+    meEEe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5 over Sim E5x5");
+    meEEe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
+    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5 over gun energy");
+    meEEe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
   }
 }
 
@@ -202,6 +227,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // ---------------------- 
   // gun
+  double eGun = 0.;
   if ( ! skipMC ) {
     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin(); p != MCEvt->GetEvent()->particles_end(); ++p ) 
       {      
@@ -215,6 +241,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
                               << "\n" << "Energy = "<< (*p)->momentum().e() 
                               << "\n" << "Eta = "   << heta 
                               << "\n" << "Phi = "   << hphi;
+
+        if ( (*p)->momentum().e() > eGun ) eGun = (*p)->momentum().e();
 
         if (meGunEnergy_) meGunEnergy_->Fill((*p)->momentum().e());
         if (meGunEta_)    meGunEta_   ->Fill(heta);
@@ -234,6 +262,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
   MapType ebSimMap;
+  MapType ebRecMap;
   
   for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr) 
     {   
@@ -257,6 +286,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
+      ebRecMap[EBid.rawId()] += myRecHit->energy();
       
       // comparison Rec/Sim hit
 	  if ( ebSimMap[EBid.rawId()] != 0. )
@@ -278,6 +308,24 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	continue;
     }  // loop over the UncalibratedRecHitCollection
 
+  // RecHits matrix
+  uint32_t  ebcenterid = getUnitWithMaxEnergy(ebRecMap);
+  EBDetId myEBid(ebcenterid);
+  int bx = myEBid.ietaAbs();
+  int by = myEBid.iphi();
+  int bz = myEBid.zside();
+  findBarrelMatrix(5,5,bx,by,bz,ebRecMap);
+  double e5x5rec = 0.;
+  double e5x5sim = 0.;
+  for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
+    e5x5rec += ebRecMap[crystalMatrix[i]];
+    e5x5sim += ebSimMap[crystalMatrix[i]];
+  }
+  
+  meEBe5x5_->Fill(e5x5rec);
+  if ( e5x5sim > 0. ) meEBe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
+  if ( eGun > 0. ) meEBe5x5OverGun_->Fill(e5x5rec/eGun);
+  
   }
 
 
@@ -293,7 +341,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
   MapType eeSimMap;
-  
+  MapType eeRecMap;
+ 
   for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) 
     {   
       EEDetId eeid = EEDetId(hitItr->id()) ;
@@ -316,6 +365,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+      eeRecMap[EEid.rawId()] += myRecHit->energy();
 
       // comparison Rec/Sim hit
 	  if ( eeSimMap[EEid.rawId()] != 0. )
@@ -336,6 +386,24 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       else
 	continue;
     }  // loop over the UncalibratedechitCollection
+  
+  // RecHits matrix
+  uint32_t  eecenterid = getUnitWithMaxEnergy(eeRecMap);
+  EEDetId myEEid(eecenterid);
+  int bx = myEEid.ix();
+  int by = myEEid.iy();
+  int bz = myEEid.zside();
+  findEndcapMatrix(5,5,bx,by,bz,eeRecMap);
+  double e5x5rec = 0.;
+  double e5x5sim = 0.;
+  for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
+    e5x5rec += eeRecMap[crystalMatrix[i]];
+    e5x5sim += eeSimMap[crystalMatrix[i]];
+  }
+  
+  meEEe5x5_->Fill(e5x5rec);
+  if ( e5x5sim > 0. ) meEEe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
+  if ( eGun > 0. ) meEEe5x5OverGun_->Fill(e5x5rec/eGun);
 
   }
 
@@ -377,4 +445,75 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   }
 
+}
+
+  
+uint32_t EcalRecHitsValidation::getUnitWithMaxEnergy(MapType& themap) {
+  
+  //look for max
+  uint32_t unitWithMaxEnergy = 0;
+  float    maxEnergy = 0.;
+  
+  MapType::iterator iter;
+  for (iter = themap.begin(); iter != themap.end(); iter++) {
+    
+    if (maxEnergy < (*iter).second) {
+      maxEnergy = (*iter).second;       
+      unitWithMaxEnergy = (*iter).first;
+    }                           
+  }
+  
+  return unitWithMaxEnergy;
+}
+
+void EcalRecHitsValidation::findBarrelMatrix(int nCellInEta, int nCellInPhi,
+                                             int CentralEta, int CentralPhi,int CentralZ,
+                                             MapType& themap) {
+  
+  int goBackInEta = nCellInEta/2;
+  int goBackInPhi = nCellInPhi/2;
+  int matrixSize = nCellInEta*nCellInPhi; 
+  crystalMatrix.clear();
+  crystalMatrix.resize(matrixSize);
+
+  int startEta  =  CentralZ*CentralEta - goBackInEta;
+  int startPhi  =  CentralPhi - goBackInPhi;
+  
+  int i = 0 ;
+  for ( int ieta = startEta; ieta < startEta+nCellInEta; ieta ++ ) {
+    for( int iphi = startPhi; iphi < startPhi + nCellInPhi; iphi++ ) {
+      uint32_t  index;
+      if (abs(ieta) > 85 || abs(ieta)<1 ) { continue; }
+      if (iphi< 1)      { index = EBDetId(ieta,iphi+360).rawId(); }
+      else if(iphi>360) { index = EBDetId(ieta,iphi-360).rawId(); }
+      else              { index = EBDetId(ieta,iphi).rawId();     }
+      crystalMatrix[i++] = index;
+    }
+  }
+  
+}
+ 
+void EcalRecHitsValidation::findEndcapMatrix(int nCellInX, int nCellInY,
+                                             int CentralX, int CentralY,int CentralZ,
+                                             MapType&  themap) {
+  int goBackInX = nCellInX/2;
+  int goBackInY = nCellInY/2;
+  crystalMatrix.clear();
+
+   int startX  =  CentralX - goBackInX;
+   int startY  =  CentralY - goBackInY;
+
+   for ( int ix = startX; ix < startX+nCellInX; ix ++ ) {
+
+      for( int iy = startY; iy < startY + nCellInY; iy++ ) {
+
+        uint32_t index ;
+
+	if(EEDetId::validDetId(ix,iy,CentralZ)) {
+          index = EEDetId(ix,iy,CentralZ).rawId();
+	}
+	else { continue; }
+        crystalMatrix.push_back(index);
+      }
+   }
 }
