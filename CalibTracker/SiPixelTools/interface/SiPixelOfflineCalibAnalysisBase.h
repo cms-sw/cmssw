@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.7 2008/02/01 14:18:18 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.8 2008/02/12 12:35:32 fblekman Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
