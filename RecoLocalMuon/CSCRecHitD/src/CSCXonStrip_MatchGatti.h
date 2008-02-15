@@ -40,7 +40,7 @@ class CSCXonStrip_MatchGatti
   /// Returns fitted local x position and its estimated error.
   void findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit,
                      int centralStrip, float& xCentroid, float& stripWidth,
-                     double& xGatti, float& tpeak, double& sigma, float& chisq, float & Charge );
+                     double& xGatti, float& tpeak, double& sigma, float& chisq );
 
   /// Use specs to setup Gatti parameters
   void initChamberSpecs();                       
@@ -61,8 +61,8 @@ class CSCXonStrip_MatchGatti
   }
 
   // "Match Gatti" calculations
-  double calculateXonStripError(double QsumL, double QsumC, double QsumR, float StripWidth);
-  double calculateXonStripPosition(double QsumL, double QsumC, double QsumR, float StripWidth);
+  double calculateXonStripError(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1);
+  double calculateXonStripPosition(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1);
   
  private:
 
@@ -124,16 +124,18 @@ class CSCXonStrip_MatchGatti
   double XF_error_noise(double L, double C, double R, double noise);
   double XF_error_XTasym(double L, double C, double R, double XTasym);
 
-  double Estimated2Gatti(double Xcentroid, float StripWidth);
-  double Estimated2GattiCorrection(double Xcentroid, float StripWidth);
+  double Estimated2Gatti(double Xcentroid, float StripWidth, bool isME1_1);
+  double Estimated2GattiCorrection(double Xcentroid, float StripWidth, bool isME1_1);
 
   void getCorrectionValues(std::string Estimator);
   void HardCodedCorrectionInitialization();
 
-  static const int N_SW = 14;
+  static const int N_SW_noME1_1 = 11;
+  static const int N_SW_ME1_1 = 6;
   static const int N_val = 501;
   //std::vector <std::vector <float> > Xcorrection(N_SW, std::vector <float> (N_val));
-  float Xcorrection[N_SW][N_val];
+  float Xcorrection_noME1_1[N_SW_noME1_1][N_val];
+  float Xcorrection_ME1_1[N_SW_ME1_1][N_val];
   float XcentrVal[N_val];
   float NoiseLevel;
   float XTasymmetry;
