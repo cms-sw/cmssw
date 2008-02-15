@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.11 2007/12/27 13:40:51 dellaric Exp $
+// $Id: UtilsClient.h,v 1.12 2008/02/15 14:28:50 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2007/12/27 13:40:51 $
+  \version $Revision: 1.12 $
+  \date $Date: 2008/02/15 14:28:50 $
 */
 
 #ifndef UtilsClient_H
@@ -167,7 +167,7 @@ class UtilsClient {
   static int getFirstNonEmptyChannel( TProfile2D* histo ) {
     if ( histo ) {
       int ichannel = 1;
-      while ( ichannel <= 1700 ) {
+      while ( ichannel <= histo->GetNbinsX() ) {
         double counts = histo->GetBinContent(ichannel, 1);
         if ( counts > 0 ) return( ichannel );
         ichannel++;
