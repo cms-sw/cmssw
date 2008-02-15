@@ -16,7 +16,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 02:26:08 CEST 2007
-// $Id$
+// $Id: EcalRawToRecHitFacility.h,v 1.1 2007/12/06 20:01:11 vlimant Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRecHit/interface/LazyGetter.h"
-#include "DataFormats/EcalRecHit/interface/RefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRawToRecHitLazyUnpacker.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"

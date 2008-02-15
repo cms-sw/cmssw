@@ -3,7 +3,7 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "DataFormats/EcalRecHit/interface/LazyGetter.h"
-#include "DataFormats/EcalRecHit/interface/RefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
