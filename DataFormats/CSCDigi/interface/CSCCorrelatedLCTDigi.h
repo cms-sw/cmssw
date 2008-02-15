@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2007/06/06 15:19:00 $
- * $Revision: 1.11 $
+ * $Date: 2007/09/24 10:14:47 $
+ * $Revision: 1.12 $
  *
  * \author L. Gray, UF
  */
@@ -39,7 +39,7 @@ class CSCCorrelatedLCTDigi
   /// return the key wire group
   int getKeyWG()   const { return keywire; }
 
-  /// return the strip
+  /// return the key halfstrip from 0,159
   int getStrip()   const { return strip; }
 
   /// return pattern

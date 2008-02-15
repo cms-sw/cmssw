@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/21 15:50:52 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
@@ -42,7 +42,7 @@ class CSCCLCTDigi {
   /// return bend
   int getBend()      const {return bend_ ;}
 
-  /// return strip
+  /// return halfstrip that goes from 0 to 31 
   int getStrip()     const {return strip_ ;}
 
   /// return Key CFEB ID
