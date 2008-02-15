@@ -157,8 +157,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     double PositionWithinTheStrip;
     double SigmaWithinTheStrip;
     float chisq_fit;//---- meaningless here
-    float Charge;    
-    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, x_to_gatti, stripWidth, PositionWithinTheStrip, tpeak, SigmaWithinTheStrip, chisq_fit, Charge );
+    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, x_to_gatti, stripWidth, PositionWithinTheStrip, tpeak, SigmaWithinTheStrip, chisq_fit);
     
     x     = PositionWithinTheStrip;
     sigma = SigmaWithinTheStrip;
