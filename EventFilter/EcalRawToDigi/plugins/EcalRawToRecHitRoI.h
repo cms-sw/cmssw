@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/EcalRecHit/interface/LazyGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 

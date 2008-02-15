@@ -2,7 +2,7 @@
 #define EcalRegionCabling_H
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "DataFormats/EcalRecHit/interface/LazyGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

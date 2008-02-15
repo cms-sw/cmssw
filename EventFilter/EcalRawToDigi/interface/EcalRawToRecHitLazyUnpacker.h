@@ -1,7 +1,7 @@
 #ifndef EcalRawToRecHitLazyUnpacker_H
 #define EcalRawToRecHitLazyUnpacker_H
 
-#include "DataFormats/EcalRecHit/interface/LazyGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorker.h"
