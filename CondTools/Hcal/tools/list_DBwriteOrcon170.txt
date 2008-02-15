@@ -12,6 +12,7 @@
 # fixme - new pedestals
 # fixme - new pedestalwidths
 
+# orcon Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hb12percUp.txt      hcal_gains_v2_gren_reprocessing         since  0
 
 # orcon  Gains CondFormats/HcalObjects/data/hcal_gains_v1.txt                                          hcal_gains_v1                           since  0
 # orcon  Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100_hbmscaled.txt        hcal_gains_v2_physics_100_hbmscaled     since  0
