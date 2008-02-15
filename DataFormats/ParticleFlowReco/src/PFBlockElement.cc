@@ -32,15 +32,12 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
-        if( element.isSecondary()==true ) out<<" is secondary";
-        break;
-      }
-    case PFBlockElement::TRACKNUCL:
-      {
-        const reco::PFBlockElementTrackNuclear& et =
-          dynamic_cast<const reco::PFBlockElementTrackNuclear &>( element );
-        et.Dump(out);
-        out<<" nuclear";
+        switch(element.tracktype_) {
+          case PFBlockElement::T_FROM_NUCL : out<<" from nucl"; break;
+          case PFBlockElement::T_TO_NUCL : out<<" to nucl"; break;
+          case PFBlockElement::T_FROM_GAMMACONV : out<<" from gammaconv"; break; 
+          default : break;
+        }
         break;
       }
     case PFBlockElement::ECAL:
