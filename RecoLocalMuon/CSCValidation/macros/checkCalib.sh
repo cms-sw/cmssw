@@ -82,7 +82,7 @@ cat > ${MACRO}<<EOF
       float vo = hCo[k]->GetBinContent(i+1);
       float vn = hCn[k]->GetBinContent(i+1);
       diff = (vn - vo)/vo;
-      if (diff > 0.01){ ndiff[k] = ndiff[k] + 1; vdiff.push_back(diff); }
+      if (fabs(diff) > 0.01){ ndiff[k] = ndiff[k] + 1; vdiff.push_back(diff); }
     }
   }
 
