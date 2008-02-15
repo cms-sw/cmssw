@@ -101,6 +101,17 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meTitle,"PredictedImpactPoint_for_%s",layerLabel);
   meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
 
+  sprintf(meId,"ClusterSize_%s",detUnitLabel);
+  sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
+  meMap[meId] = dbe->book1D(meId, meTitle,10,0.5,10.5);
+
+  sprintf(meId,"BunchX_%s",detUnitLabel);
+  sprintf(meTitle,"BunchX_for_%s",layerLabel);
+  meMap[meId] = dbe->book1D(meId, meTitle,13,-6.5,6.5);
+
+  sprintf(meId,"Residuals_VS_CLsize_%s",detUnitLabel);
+  sprintf(meTitle,"Residuals_CLsize_for_%s",layerLabel);
+  meMap[meId] = dbe->book2D(meId, meTitle, 10, 0.5, 10.5,100,-49.5,49.5);
 
   return meMap;
 }

@@ -48,7 +48,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -66,10 +66,10 @@
 //
 // class decleration
 //
+
 using namespace edm;
 using namespace reco;
 using namespace std;
-
 
 
 RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig){
@@ -175,10 +175,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  reg=rpcId.region();
 	  whe=rpcId.ring();
 	  sec=rpcId.sector();
+	  break;
 	}
 
 	//Barrel
-	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0 && whe==0/* && (sec==10 || sec==11)*/){
+	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0 && whe==0 && sec==10){
  	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
 	    RPCDetId rollId=(*itRoll)->id();
@@ -353,7 +354,16 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    LocalError RecError = (*recIt).localPositionError();
 	    double sigmaRec = RecError.xx();
 	    res = (double)(xextrap - rhitpos);
+
+	    sprintf(meIdRPC,"ClusterSize_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill((*recIt).clusterSize());
 	    
+	    sprintf(meIdRPC,"BunchX_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill((*recIt).BunchX());
+
+	    sprintf(meIdRPC,"Residuals_VS_CLsize_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill((*recIt).clusterSize(),res);
+
 	    ResVec.push_back(res);		
 	    RecErr.push_back(sigmaRec);
 	    extrVec.push_back(xextrap);	
