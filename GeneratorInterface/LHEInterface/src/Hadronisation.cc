@@ -7,6 +7,7 @@
 #include <HepMC/GenEvent.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -53,6 +54,9 @@ std::auto_ptr<Hadronisation> Hadronisation::create(
 			<< "Unknown MC generator \"" << name << "\""
 			   " specified for hadronisation in LHESource."
 			<< std::endl;
+
+	edm::LogInfo("Generator|LHEInterface")
+		<< "Using name to hadronize LHE input." << std::endl;
 
 	return plugin;
 }

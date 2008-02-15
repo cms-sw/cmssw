@@ -166,6 +166,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 
 LHEReader::LHEReader(const edm::ParameterSet &params) :
 	fileURLs(params.getParameter< std::vector<std::string> >("inputFiles")),
+	firstEvent(params.getUntrackedParameter<unsigned int>("firstEvent", 0)),
 	curIndex(0), handler(new XMLHandler())
 {
 }
@@ -212,6 +213,12 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 				throw cms::Exception("InvalidState")
 					<< "Got LHE event without"
 					   " initialization." << std::endl;
+
+			if (firstEvent > 0) {
+				firstEvent--;
+				continue;
+			}
+
 			return boost::shared_ptr<LHEEvent>(
 					new LHEEvent(curCommon, data));
 		}

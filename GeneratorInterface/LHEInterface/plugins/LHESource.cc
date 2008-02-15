@@ -33,6 +33,7 @@ class LHESource : public edm::GeneratedInputSource {
 	virtual bool produce(edm::Event &event);
 
 	LHEReader			reader;
+	unsigned int			skipEvents;
 	std::auto_ptr<Hadronisation>	hadronisation;
 };
 
@@ -40,6 +41,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	GeneratedInputSource(params, desc),
 	reader(params),
+	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
 	hadronisation(Hadronisation::create(
 		params.getParameter<edm::ParameterSet>("hadronisation")))
 {
@@ -52,17 +54,30 @@ LHESource::~LHESource()
 
 bool LHESource::produce(edm::Event &event)
 {
-	boost::shared_ptr<LHEEvent> partonLevel = reader.next();
-	if (!partonLevel.get())
-		return false;
+	std::auto_ptr<HepMC::GenEvent> hadronLevel;
 
-	hadronisation->setEvent(partonLevel);
+	bool skipEvent;
+	do {
+		skipEvent = true;
 
-	std::auto_ptr<HepMC::GenEvent> hadronLevel =
-					hadronisation->hadronize();
+	 	boost::shared_ptr<LHEEvent> partonLevel = reader.next();
+		if (!partonLevel.get())
+			return false;
 
-	hadronLevel->set_event_number(numberEventsInRun() -
-	                              remainingEvents() - 1);
+		hadronisation->setEvent(partonLevel);
+
+		hadronLevel = hadronisation->hadronize();
+
+		hadronLevel->set_event_number(numberEventsInRun() -
+		                              remainingEvents() - 1);
+
+		if (skipEvents > 0) {
+			skipEvents--;
+			continue;
+		}
+
+		skipEvent = false;
+	} while(skipEvent);
 
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct());
 	result->addHepMCData(hadronLevel.release());

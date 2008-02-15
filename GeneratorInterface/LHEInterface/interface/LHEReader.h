@@ -28,8 +28,9 @@ class LHEReader {
 	class XMLHandler;
 
 	const std::vector<std::string>	fileURLs;
-
+	unsigned int			firstEvent;
 	unsigned int			curIndex;
+
 	std::auto_ptr<Source>		curSource;
 	std::auto_ptr<XMLDocument>	curDoc;
 	boost::shared_ptr<LHECommon>	curCommon;
