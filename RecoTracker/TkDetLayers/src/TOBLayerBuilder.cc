@@ -17,7 +17,7 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRods.begin();
       it!=theGeometricDetRods.end(); it++){
     if( (*it)->positionBounds().z() < 0) negativeZrods.push_back(*it);
-    if( (*it)->positionBounds().z() > 0) positiveZrods.push_back(*it);
+    if( (*it)->positionBounds().z() >= 0) positiveZrods.push_back(*it);
   }
 
   TOBRodBuilder myTOBRodBuilder;
@@ -58,7 +58,7 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 	theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
 						     positiveZrods[index],
 						     theGeomDetGeometry)    );       
-      if(positiveZrods[index]->positionBounds().perp() > positiveMeanR)
+      if(positiveZrods[index]->positionBounds().perp() >= positiveMeanR)
 	theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
 						     positiveZrods[index],
 						     theGeomDetGeometry)    );
@@ -70,7 +70,7 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 	  theInnerRods.push_back(myTOBRodBuilder.build(0,
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
-	if(positiveZrods[index]->positionBounds().perp() > positiveMeanR)
+	if(positiveZrods[index]->positionBounds().perp() >= positiveMeanR)
 	  theOuterRods.push_back(myTOBRodBuilder.build(0,
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
@@ -82,7 +82,7 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
 						       0,
 						       theGeomDetGeometry)    );       
-	if(negativeZrods[index]->positionBounds().perp() > negativeMeanR)
+	if(negativeZrods[index]->positionBounds().perp() >= negativeMeanR)
 	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
 						       0,
 						       theGeomDetGeometry)    );
