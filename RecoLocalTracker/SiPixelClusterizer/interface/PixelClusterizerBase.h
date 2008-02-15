@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
 #include <vector>
 
 class PixelGeomDetUnit;
@@ -27,12 +27,12 @@ public:
 				  edm::DetSet<SiPixelCluster>& output) = 0;
 
   // Configure gain calibration service
-  void setSiPixelGainCalibrationService( SiPixelGainCalibrationService* in){ 
+  void setSiPixelGainCalibrationService( SiPixelGainCalibrationServiceBase* in){ 
     theSiPixelGainCalibrationService_=in;
   }
 
  protected:
-  SiPixelGainCalibrationService* theSiPixelGainCalibrationService_;
+  SiPixelGainCalibrationServiceBase* theSiPixelGainCalibrationService_;
 
 };
 

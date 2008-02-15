@@ -24,6 +24,11 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+// Database payloads
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,7 +51,7 @@ namespace cms
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
     conf_(conf),
-    theSiPixelGainCalibration_(conf),
+    theSiPixelGainCalibration_(0), 
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
@@ -55,9 +60,19 @@ namespace cms
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollection>(); 
 
+    std::string payloadType = conf.getParameter<std::string>( "payloadType" );
+
+    if (strcmp(payloadType.c_str(), "HLT") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationForHLTService(conf);
+    else if (strcmp(payloadType.c_str(), "Offline") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationOfflineService(conf);
+    else if (strcmp(payloadType.c_str(), "Full") == 0)
+       theSiPixelGainCalibration_ = new SiPixelGainCalibrationService(conf);
+
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
     setupClusterizer();
+
   }
 
   // Destructor
@@ -67,7 +82,7 @@ namespace cms
 
   void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) {
     edm::LogInfo("SiPixelClusterizer") << "[SiPixelClusterizer::beginJob]";
-    clusterizer_->setSiPixelGainCalibrationService(& theSiPixelGainCalibration_);
+    clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
   }
 
   //---------------------------------------------------------------------------
@@ -77,7 +92,7 @@ namespace cms
   {
 
     //Setup gain calibration service
-    theSiPixelGainCalibration_.setESObjects( es );
+    theSiPixelGainCalibration_->setESObjects( es );
 
    // Step A.1: get input data
     //edm::Handle<PixelDigiCollection> pixDigis;

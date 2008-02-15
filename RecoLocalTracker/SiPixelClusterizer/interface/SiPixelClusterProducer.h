@@ -50,8 +50,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 
+
 namespace cms
 {
+
   class SiPixelClusterProducer : public edm::EDProducer {
   public:
     //--- Constructor, virtual destructor (just in case)
@@ -73,7 +75,7 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?
-    SiPixelGainCalibrationService theSiPixelGainCalibration_;
+    SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
     std::string clusterMode_;               // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
