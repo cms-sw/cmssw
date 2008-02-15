@@ -12,7 +12,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
