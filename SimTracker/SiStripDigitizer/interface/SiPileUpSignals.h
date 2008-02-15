@@ -19,16 +19,21 @@ class SiPileUpSignals{
   //
   typedef std::map< int, Amplitude, std::less<int> >  signal_map_type;
   typedef std::map< int , std::vector < std::pair < const PSimHit*, Amplitude > >, std::less<int> >  HitToDigisMapType;
+  typedef std::map< int , std::vector < std::pair < const PSimHit*, int > >, std::less<int> >  HitCounterToDigisMapType;
   
   virtual ~SiPileUpSignals(){}
   
  
   SiPileUpSignals(){reset();}
-  virtual void add(const signal_map_type &map, const PSimHit& hit);
+  virtual void add(const signal_map_type &map, const PSimHit& hit); 
+  virtual void addCounter(const signal_map_type &map, const PSimHit& hit,const int& counter);
   void reset(){resetLink(); }
-  HitToDigisMapType dumpLink() {return theMapLink;}
+  const HitToDigisMapType& dumpLink() const {return theMapLink;}
+  const HitCounterToDigisMapType& dumpCounterLink() const {return theCounterMapLink;}
+
  private:
   void resetLink();
   HitToDigisMapType theMapLink;
+  HitCounterToDigisMapType theCounterMapLink;
 };
 #endif

@@ -10,3 +10,9 @@ void SiPileUpSignals::add(const signal_map_type &in, const PSimHit& hit){
     theMapLink[(*im).first].push_back(std::pair < const PSimHit*, Amplitude >(&hit,Amplitude((*im).second)));
   }
 }
+ 
+void SiPileUpSignals::addCounter(const signal_map_type &in, const PSimHit& hit, const int& counter){
+  for (signal_map_type::const_iterator im = in.begin(); im!=in.end(); im++ ){
+    theCounterMapLink[(*im).first].push_back(std::make_pair(&hit, counter));
+  }
+}

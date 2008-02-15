@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.7 2007/11/28 14:35:38 azzi Exp $
+// $Id: SiStripDigitizer.cc,v 1.8 2008/01/17 13:09:04 fambrogl Exp $
 //
 //
 
@@ -135,13 +135,18 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //Loop on PSimHit
   SimHitMap.clear();
   
-  std::vector<PSimHit> trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
-
-  std::vector<PSimHit>::iterator isim;
-  for (isim=trackerHits.begin(); isim!= trackerHits.end();isim++) {
-    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+  //  std::vector<PSimHit> trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
+  //inside SimHitSelectorFromDb add the counter information from the original allhits collection 
+  std::vector<std::pair<PSimHit,int> > trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
+  
+  std::vector<std::pair<PSimHit,int> >::iterator isim;
+  for (isim=trackerHits.begin() ; isim!= trackerHits.end();isim++) {
+    //    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+    //make a pair = <*isim, counter> and save also position in the vector for DigiSimLink
+    SimHitMap[((*isim).first).detUnitId()].push_back(*isim);
+    //    std::cout << "Hit in the final MAP  " << (*isim).second << std::endl; 
   }
-
+  
   edm::ESHandle<TrackerGeometry> pDD;
   
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);

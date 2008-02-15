@@ -44,6 +44,9 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   
   theSiHitDigitizer = new SiHitDigitizer(conf_,rndEngine);
   theSiPileUpSignals = new SiPileUpSignals();
+
+  //  std::cout << "Created new SiPileUpSignals" << std::endl;
+
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold,rndEngine);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
@@ -64,14 +67,15 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 
 void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    edm::DetSet<SiStripRawDigi>& outrawdigi,
-				    const std::vector<PSimHit> &input,
+				    //const std::vector<PSimHit> &input,
+				    const std::vector<std::pair<PSimHit, int > > &input,
 				    StripGeomDetUnit *det,
 				    GlobalVector bfield,float langle, 
 				    edm::ESHandle<SiStripGain> & gainHandle,
 				    edm::ESHandle<SiStripPedestals> & pedestalsHandle,
 				    edm::ESHandle<SiStripNoises> & noiseHandle){
   
-  theSiPileUpSignals->reset();
+ theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
   // We will work on ONE copy of the map only,
@@ -82,21 +86,28 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   //
   // First: loop on the SimHits
   //
-  std::vector<PSimHit>::const_iterator simHitIter = input.begin();
-  std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+  //  std::vector<PSimHit>::const_iterator simHitIter = input.begin();
+  //  std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+  std::vector<std::pair<PSimHit, int > >::const_iterator simHitIter = input.begin();
+  std::vector<std::pair<PSimHit, int > >::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
-    const PSimHit & ihit = *simHitIter;
+    //    const PSimHit & ihit = *simHitIter;
+    const PSimHit & ihit = (*simHitIter).first;
     float dist = det->surface().toGlobal(ihit.localPosition()).mag();
     float t0 = dist/30.;  // light velocity = 30 cm/ns      
+
 
     if ( std::fabs( ihit.tof() - cosmicShift - t0) < tofCut && ihit.energyLoss()>0) {
       theSiHitDigitizer->processHit(ihit,*det,bfield,langle, theSignal,theSignal_forLink);
       theSiPileUpSignals->add(theSignal_forLink, ihit);
+      theSiPileUpSignals->addCounter(theSignal_forLink, ihit, (*simHitIter).second);
     }
     theSignal_forLink.clear();
   }
   
-  SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
+  const SiPileUpSignals::HitToDigisMapType& theLink = theSiPileUpSignals->dumpLink();  
+  //added
+  const SiPileUpSignals::HitCounterToDigisMapType& theCounterLink = theSiPileUpSignals->dumpCounterLink();  
   
   numStrips = (det->specificTopology()).nstrips();
   strip = int(numStrips/2.);
@@ -107,7 +118,8 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       theSiNoiseAdder->addNoise(theSignal,numStrips,noiseRMS*theElectronPerADC);
     digis.clear();
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(theSignal, gainHandle, detID), digis, detID,noiseHandle,pedestalsHandle);
-    push_link(digis, theLink, theSignal,detID);
+    //    push_link(digis, theLink, theSignal,detID);
+    push_link(digis, theLink, theCounterLink, theSignal,detID);
     outdigi.data = digis;
   }
   
@@ -119,13 +131,15 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
     }
     rawdigis.clear();
     rawdigis = theSiDigitalConverter->convertRaw(theSignal, gainHandle, detID);
-    push_link_raw(rawdigis, theLink, theSignal,detID);
+    //    push_link_raw(rawdigis, theLink, theSignal,detID);
+    push_link_raw(rawdigis, theLink, theCounterLink, theSignal,detID);
     outrawdigi.data = rawdigis;
   }
 }
 
 void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
 					  const HitToDigisMapType& htd,
+					  const HitCounterToDigisMapType& hctd,
 					  const SiPileUpSignals::signal_map_type& afterNoise,
 					  unsigned int detID){
   link_coll.clear();  
@@ -135,6 +149,7 @@ void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
     //  let's loop over digis and push the corresponding link
     HitToDigisMapType::const_iterator mi(htd.find(i->strip()));  
     if (mi == htd.end()) continue;
+    HitCounterToDigisMapType::const_iterator cmi(hctd.find(i->strip()));  
     std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
     for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
 	   (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
@@ -148,6 +163,7 @@ void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
     
     //--- digisimlink
     
+    int sim_counter=0; 
     for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
 	 iter != totalAmplitudePerSimHit.end(); iter++){
       
@@ -157,9 +173,21 @@ void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
 	
 	//Noise fluctuation could make fraction>1. Unphysical, set it by hand.
 	if(fraction >1.) fraction = 1.;
+
+	for (std::vector < std::pair < const PSimHit*, int > >::const_iterator 
+	       simcount = (*cmi).second.begin() ; simcount != (*cmi).second.end(); simcount ++){
+	  if((*iter).first == (*simcount).first) sim_counter = (*simcount).second;
+	}
 	
+	/*
+	std::cout << "Make simlink:(channel, id, counter) " 
+		  <<   (*mi).first << ", " 
+		  << ((*iter).first)->trackId() << ", " 
+		  << sim_counter << std::endl;
+	*/
 	link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
 					      ((*iter).first)->trackId(), //simhit trackId
+					      sim_counter, //simhit counter
 					      ((*iter).first)->eventId(), //simhit eventId
 					      fraction)); //fraction
       }
@@ -169,6 +197,7 @@ void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
 
 void SiStripDigitizerAlgorithm::push_link_raw(const DigitalRawVecType &digis,
 					  const HitToDigisMapType& htd,
+					  const HitCounterToDigisMapType& hctd,
 					  const SiPileUpSignals::signal_map_type& afterNoise,
 					  unsigned int detID){
   link_coll.clear();  
@@ -179,6 +208,7 @@ void SiStripDigitizerAlgorithm::push_link_raw(const DigitalRawVecType &digis,
     // Instead of checking the validity of the links against the digis,
     //  let's loop over digis and push the corresponding link
     HitToDigisMapType::const_iterator mi(htd.find(nstrip));  
+    HitCounterToDigisMapType::const_iterator cmi(hctd.find(nstrip));  
     if (mi == htd.end()) continue;
     std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
     for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
@@ -192,23 +222,32 @@ void SiStripDigitizerAlgorithm::push_link_raw(const DigitalRawVecType &digis,
     float totalAmplitude1 = temp1[(*mi).first];
     
     //--- digisimlink
-    
+    int sim_counter_raw=0;
     for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
 	 iter != totalAmplitudePerSimHit.end(); iter++){
       
       float threshold = 0.;
       if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
 
-
-
-
 	float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
 	
 	//Noise fluctuation could make fraction>1. Unphysical, set it by hand.
 	if(fraction >1.) fraction = 1.;
-	
+
+	//add counter information
+	for (std::vector < std::pair < const PSimHit*, int > >::const_iterator 
+	       simcount = (*cmi).second.begin() ; simcount != (*cmi).second.end(); simcount ++){
+	  if((*iter).first == (*simcount).first) sim_counter_raw = (*simcount).second;
+	}
+		
+	/*	std::cout << "Make simlink:(channel, id, counter) " 
+		  <<   (*mi).first << ", " 
+		  << ((*iter).first)->trackId() << ", " 
+		  << sim_counter_raw << std::endl;
+	*/
 	link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
 					      ((*iter).first)->trackId(), //simhit trackId
+					      sim_counter_raw, //simhit counter
 					      ((*iter).first)->eventId(), //simhit eventId
 					      fraction)); //fraction
       }

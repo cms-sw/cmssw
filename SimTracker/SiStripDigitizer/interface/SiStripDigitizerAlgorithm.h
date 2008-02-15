@@ -47,6 +47,7 @@ class SiStripDigitizerAlgorithm
   typedef SiDigitalConverter::DigitalRawVecType DigitalRawVecType;
   typedef SiPileUpSignals::signal_map_type signal_map_type;
   typedef SiPileUpSignals::HitToDigisMapType HitToDigisMapType;
+  typedef SiPileUpSignals::HitCounterToDigisMapType HitCounterToDigisMapType;
   typedef std::map< int, float, std::less<int> > hit_map_type;
   typedef float Amplitude;
 
@@ -60,7 +61,9 @@ class SiStripDigitizerAlgorithm
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
-  void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<PSimHit> &, StripGeomDetUnit *,GlobalVector,
+  //  void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<PSimHit> &, StripGeomDetUnit *,GlobalVector,
+  //	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
+  void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<std::pair<PSimHit, int > >  &, StripGeomDetUnit *,GlobalVector,
 	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
@@ -92,11 +95,13 @@ class SiStripDigitizerAlgorithm
 
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,
+		 const HitCounterToDigisMapType&,
 		 const SiPileUpSignals::signal_map_type&,
 		 unsigned int);
  
   void push_link_raw(const DigitalRawVecType&,
 		     const HitToDigisMapType&,
+		     const HitCounterToDigisMapType&,
 		     const SiPileUpSignals::signal_map_type&,
 		     unsigned int);
  
