@@ -36,6 +36,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 /*
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 //#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
@@ -86,13 +87,13 @@ public:
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle);
-  
+  void process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle, Global3DPoint & bs);  
 
 
   // input configuration
   std::string trackLabel_;
   std::string trackInstanceName_;
+  edm::InputTag BSProducer_; 
 
   //  const TrajectoryBuilder*  theCkfTrajectoryBuilder;
   //TrajectoryCleaner*               theTrajectoryCleaner;
