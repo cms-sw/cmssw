@@ -115,12 +115,10 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
     if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
     if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
     if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
-
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
 		      header2007.clct0_bend, strip, cfeb, header2007.clct0_bxn, 1);
     digi0.setFullBX(header2007.bxnPreTrigger);
     result.push_back(digi0);
-
     strip = header2007.clct1_key;
     cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
     if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
@@ -149,41 +147,52 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   switch (firmwareVersion) {
   case 2006: {
     /// for the zeroth MPC word:
-
-
-
-
+    int strip = header2006.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
+    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31 
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
     CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
-			      header2006.MPC_Muon0_wire_, header2006.MPC_Muon0_halfstrip_clct_pattern, 
-			      header2006.MPC_Muon0_clct_pattern_, header2006.MPC_Muon0_bend_, 
-			      header2006.MPC_Muon0_bx_, 0, header2006.MPC_Muon0_bc0_, header2006.MPC_Muon0_SyncErr_, 
+			      header2006.MPC_Muon0_wire_, strip, header2006.MPC_Muon0_clct_pattern_,
+			      header2006.MPC_Muon0_bend_, header2006.MPC_Muon0_bx_, 0, 
+			      header2006.MPC_Muon0_bc0_, header2006.MPC_Muon0_SyncErr_, 
 			      header2006.MPC_Muon0_cscid_low | (header2006.MPC_Muon0_cscid_bit4<<3) );
     result.push_back(digi);  
     /// for the first MPC word:
+    strip = header2006.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
+    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
     digi = CSCCorrelatedLCTDigi(2, header2006.MPC_Muon1_vpf_, header2006.MPC_Muon1_quality_, 
-				header2006.MPC_Muon1_wire_, header2006.MPC_Muon1_halfstrip_clct_pattern,
-				header2006.MPC_Muon1_clct_pattern_, header2006.MPC_Muon1_bend_, 
-				header2006.MPC_Muon1_bx_, 0, header2006.MPC_Muon1_bc0_, header2006.MPC_Muon1_SyncErr_,
+				header2006.MPC_Muon1_wire_, strip, header2006.MPC_Muon1_clct_pattern_,
+				header2006.MPC_Muon1_bend_, header2006.MPC_Muon1_bx_, 0, 
+				header2006.MPC_Muon1_bc0_, header2006.MPC_Muon1_SyncErr_,
 				header2006.MPC_Muon1_cscid_low | (header2006.MPC_Muon1_cscid_bit4<<3) ); 
     result.push_back(digi);
     break;
   }
   case 2007: {
     /// for the zeroth MPC word:
+    int strip = header2007.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
+    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
     CSCCorrelatedLCTDigi digi(1, header2007.MPC_Muon0_vpf_, header2007.MPC_Muon0_quality_,
-                              header2007.MPC_Muon0_wire_, header2007.MPC_Muon0_halfstrip_clct_pattern,
-                              header2007.MPC_Muon0_clct_pattern_, header2007.MPC_Muon0_bend_,
-                              header2007.MPC_Muon0_bx_, 0, header2007.MPC_Muon0_bc0_, header2007.MPC_Muon0_SyncErr_,
+                              header2007.MPC_Muon0_wire_, strip, header2007.MPC_Muon0_clct_pattern_, 
+			      header2007.MPC_Muon0_bend_, header2007.MPC_Muon0_bx_, 0, 
+			      header2007.MPC_Muon0_bc0_, header2007.MPC_Muon0_SyncErr_,
                               header2007.MPC_Muon0_cscid_low | (header2007.MPC_Muon0_cscid_bit4<<3));
     result.push_back(digi);
     /// for the first MPC word:
+    strip = header2007.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
+    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
+    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
     digi = CSCCorrelatedLCTDigi(2, header2007.MPC_Muon1_vpf_, header2007.MPC_Muon1_quality_,
-                                header2007.MPC_Muon1_wire_, header2007.MPC_Muon1_halfstrip_clct_pattern,
-                                header2007.MPC_Muon1_clct_pattern_, header2007.MPC_Muon1_bend_,
-                                header2007.MPC_Muon1_bx_, 0, header2007.MPC_Muon1_bc0_, header2007.MPC_Muon1_SyncErr_,
+                                header2007.MPC_Muon1_wire_, strip, header2007.MPC_Muon1_clct_pattern_, 
+				header2007.MPC_Muon1_bend_, header2007.MPC_Muon1_bx_, 0, 
+				header2007.MPC_Muon1_bc0_, header2007.MPC_Muon1_SyncErr_,
                                 header2007.MPC_Muon1_cscid_low | (header2007.MPC_Muon1_cscid_bit4<<3));
     result.push_back(digi);
-
     break;
   }
   default:
@@ -191,7 +200,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
       <<"Empty CorrDigis: TMB firmware version is bad/not defined!";
     break;
   }
-
   return result;
 }
 
