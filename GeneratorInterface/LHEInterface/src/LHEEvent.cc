@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <memory>
@@ -83,6 +84,189 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
 
 LHEEvent::~LHEEvent()
 {
+}
+
+std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
+{
+	std::auto_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
+
+	hepmc->set_signal_process_id(hepeup.IDPRUP);
+	hepmc->set_event_scale(hepeup.SCALUP);
+	hepmc->set_alphaQED(hepeup.AQEDUP);
+	hepmc->set_alphaQCD(hepeup.AQCDUP);
+
+	unsigned int nup = hepeup.NUP; // particles in event
+
+	// any particles in HEPEUP block?
+	if (!nup) {
+		edm::LogWarning("GeneratorWarning|LHEInterface")
+			<< "Les Houches Event does not contain any partons. "
+			<< "Not much to convert." ;
+		return hepmc;
+	}
+
+	// stores (pointers to) converted particles
+	std::vector<HepMC::GenParticle*> genParticles;
+
+	// I. convert particles
+	for(unsigned int i = 0; i < nup; i++)
+		genParticles.push_back(makeHepMCParticle(i));
+
+	// II. loop again to build vertices
+	for(unsigned int i = 0; i < nup; i++) {
+		unsigned int mother1 = hepeup.MOTHUP.at(i).first;
+		unsigned int mother2 = hepeup.MOTHUP.at(i).second;
+		double cTau = hepeup.VTIMUP.at(i);	// decay time
+	
+		// current particle has a mother? --- Sorry, parent! We're PC.
+		if (mother1) {
+			mother1--;      // FORTRAN notation!
+		if (mother2)
+			mother2--;
+		else
+			mother2 = mother1;
+
+		HepMC::GenParticle *in_par = genParticles.at(mother1);
+		HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
+
+		if (!current_vtx) {
+			current_vtx = new HepMC::GenVertex(
+					HepMC::FourVector( 0, 0, 0, cTau));
+
+			// add vertex to event
+			hepmc->add_vertex(current_vtx);
+
+			if (!hepmc->signal_process_vertex()) 	// remember first vertex
+				hepmc->set_signal_process_vertex(current_vtx);
+		}
+
+		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
+			if (!genParticles.at(j)->end_vertex())
+				current_vtx->add_particle_in(genParticles.at(j));
+
+			// connect THIS outgoing particle to current vertex
+			current_vtx->add_particle_out(genParticles.at(i));
+		}
+	}
+
+	checkHepMCTree(hepmc.get());
+
+	// III. restore color flow
+	// ok, nobody knows how to do it so far...
+
+	// IV. fill run information
+	const HEPRUP *heprup = getHEPRUP();
+
+	// set beam particles
+	HepMC::GenParticle *b1 = new HepMC::GenParticle(
+			HepMC::FourVector(0.0, 0.0, +heprup->EBMUP.first,
+			                             heprup->EBMUP.first),
+			heprup->IDBMUP.first);
+	HepMC::GenParticle *b2 = new HepMC::GenParticle(
+			HepMC::FourVector(0.0, 0.0, -heprup->EBMUP.second,
+			                             heprup->EBMUP.second),
+			heprup->IDBMUP.second);
+	b1->set_status(-1);
+	b2->set_status(-1);
+
+	HepMC::GenVertex *v1 = new HepMC::GenVertex();
+	HepMC::GenVertex *v2 = new HepMC::GenVertex();
+	v1->add_particle_in(b1);
+	v2->add_particle_in(b2);
+
+	hepmc->add_vertex(v1);
+	hepmc->add_vertex(v2);
+	hepmc->set_beam_particles(b1, b2);
+
+	// first two particles have to be the hard partons going into the interaction
+	if (genParticles.size() >= 2) {
+		if (!genParticles.at(0)->production_vertex() &&
+		    !genParticles.at(1)->production_vertex()) {
+			v1->add_particle_out(genParticles.at(0));
+			v2->add_particle_out(genParticles.at(1));
+		} else
+			edm::LogWarning("GeneratorWarning|LHEInterface")
+				<< "Initial partons do already have a"
+				   " production vertex. " << std::endl
+				<< "Beam particles not connected.";
+	} else
+		edm::LogWarning("GeneratorWarning|LHEInterface")
+			<< "Can't find any initial partons to be"
+			   " connected to the beam particles.";
+
+	// do some more consistency checks
+	for(unsigned int i = 0; i < nup; i++) {
+		if (!genParticles.at(i)->parent_event()) {
+			edm::LogWarning("GeneratorWarning|LHEInterface")
+				<< "Not all LHE particles could be stored"
+				   "  stored in the HepMC event. "
+				<< std::endl
+				<< "Check the mother-daughter relations"
+				   " in the given LHE input file.";
+			break;
+		}
+	}
+
+	return hepmc;
+}
+
+HepMC::GenParticle *LHEEvent::makeHepMCParticle(unsigned int i) const
+{
+	HepMC::GenParticle *particle = new HepMC::GenParticle(
+			HepMC::FourVector(hepeup.PUP.at(i)[0],
+			                  hepeup.PUP.at(i)[1],
+			                  hepeup.PUP.at(i)[2],
+			                  hepeup.PUP.at(i)[3]),
+			hepeup.IDUP.at(i));
+
+	particle->set_generated_mass(hepeup.PUP.at(i)[4]);
+	particle->set_status(hepeup.ISTUP.at(i));
+
+	return particle;
+}
+
+bool LHEEvent::checkHepMCTree(const HepMC::GenEvent *event)
+{
+	double px = 0, py = 0, pz = 0, E = 0;
+
+	for(HepMC::GenEvent::particle_const_iterator iter = event->particles_begin();
+	    iter != event->particles_end(); iter++ ) {
+		int status = (*iter)->status();
+		HepMC::FourVector fv = (*iter)->momentum();
+
+		// incoming particles
+		if (status == -1) {
+			px -= fv.px();
+			py -= fv.py();
+			pz -= fv.pz();
+			E  -= fv.e();
+		}
+
+		// outgoing particles
+		if (status == 1) {
+			px += fv.px();
+			py += fv.py();
+			pz += fv.pz();
+			E  += fv.e();
+		}
+	}
+
+	HepMC::FourVector sum_pt(px, py, pz, E);
+
+	if (sum_pt.m2() > 0.1) {
+		edm::LogWarning("GeneratorWarning|LHEInterface")
+			<< "Energy-momentum badly conserved. "
+			<< std::setprecision(3)
+			<< "sum p_i  = ["
+			<< std::setw(7) << sum_pt.px() << ", "
+			<< std::setw(7) << sum_pt.py() << ", "
+			<< std::setw(7) << sum_pt.pz() << ", "
+			<< std::setw(7) << sum_pt.e() << "]";
+
+		return false;
+	}
+
+	return true;
 }
 
 } // namespace lhef

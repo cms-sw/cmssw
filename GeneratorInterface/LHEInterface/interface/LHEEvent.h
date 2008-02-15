@@ -7,6 +7,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <HepMC/GenEvent.h>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
@@ -32,7 +34,12 @@ class LHEEvent {
 	const HEPRUP *getHEPRUP() const { return common->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
 
+	std::auto_ptr<HepMC::GenEvent> getHepMCEvent() const;
+
     private:
+	static bool checkHepMCTree(const HepMC::GenEvent *event);
+	HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;
+
 	const boost::shared_ptr<LHECommon>	common;
 
 	HEPEUP					hepeup;
