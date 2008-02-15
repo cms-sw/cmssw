@@ -1,12 +1,7 @@
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 // Alignment
 #include "Alignment/CommonAlignment/interface/AlignableBuilder.h"
@@ -17,13 +12,15 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
+
 //__________________________________________________________________________________________________
 AlignableTracker::AlignableTracker( const TrackerGeometry* tkGeom ):
   AlignableComposite( 0, align::Tracker, RotationType() )
 {
 
   // Get levels from geometry
-  // for strip we create also <TIB/TID/TOB/TEC>ModuleUnit list for 1D components of 2D layers
   detsToAlignables(tkGeom->detsPXB(), "TPBModule");
   detsToAlignables(tkGeom->detsPXF(), "TPEModule");
   detsToAlignables(tkGeom->detsTIB(), "TIBModule");
@@ -39,6 +36,7 @@ AlignableTracker::AlignableTracker( const TrackerGeometry* tkGeom ):
   buildTEC();
   buildTRK();
 
+  theId = this->components()[0]->id(); // as all composites: id of first component
 }
 
 
@@ -50,50 +48,15 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 
   align::Alignables& alis = alignableLists_.get(moduleName);
   alis.reserve(nDet);
-  align::Alignables *aliUnits = 0;// If we need also units, they will be at moduleName + "Unit".
 
-  for (unsigned int i = 0; i < nDet; ++i) {
-   
-    const unsigned int subdetId = dets[i]->geographicalId().subdetId();//don't check det()==Tracker
-    if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) {
-      // Treat all pixel dets in same way with one AlignableDet(Unit???).
-      alis.push_back(new AlignableDet(dets[i])); // Change to AlignableDetUnit? Cf. below.
-    } else if (subdetId == SiStripDetId::TIB || subdetId == SiStripDetId::TID
-	       || subdetId == SiStripDetId::TOB || subdetId == SiStripDetId::TEC) {
-      // In strip we have:
-      // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDet(Unit???)
-      // 2) Composite 2D-modules like TOB layers 1&2 (not glued): AlignableDet
-      // 3) The two 1D-components of case 2 (glued): AlignableDetUnit that is constructed
-      //      inside AlignableDet-constructor of 'mother', only need to add to alignableLists_
-      const SiStripDetId detId(dets[i]->geographicalId());
-      if (!detId.glued()) {
-	// GF: Instantiate AlignableDetUnit in case of no components? Less 'new' and uglyness.
-	//     But: Interference with names in misalignment scenarios!
-	alis.push_back(new AlignableDet(dets[i]));
-	const align::Alignables detUnits(alis.back()->components());
-	if (detUnits.size() > 1) {// FIXME if direct AlignableDetUnit for 1D strip layers?
-	  // Ensure pointer existence and make list available via moduleName appended with "Unit"
-	  if (!aliUnits) {
-	    aliUnits = &alignableLists_.get(moduleName + "Unit");
-	    aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
-	  }
-	  aliUnits->insert(aliUnits->end(), detUnits.begin(), detUnits.end()); // only 2...
-	}
-      }
-    } else {
-      throw cms::Exception("LogicError") 
-	<< "[AlignableTracker] GeomDet of unknown subdetector.";
-    }
+  for (unsigned int i = 0; i < nDet; ++i)
+  {
+    // skip components of glued det
+    SiStripDetId detId = dets[i]->geographicalId();
+    if ( detId.subdetId() < SiStripDetId::TIB || !detId.glued() )
+      alis.push_back( new AlignableDet(dets[i]) );
   }
 
-  LogDebug("Alignment") << "@SUB=AlignableTracker"
-			<< alis.size() << " AlignableDet(Unit)s for " << moduleName;
-  if (aliUnits) {
-    LogDebug("Alignment") << "@SUB=AlignableTracker"
-			  << aliUnits->size() << " AlignableDetUnits for " 
-			  << moduleName + "Unit (capacity = " << aliUnits->capacity() << ").";
-  }
-  
 }
 
 
