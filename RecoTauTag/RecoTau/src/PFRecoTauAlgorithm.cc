@@ -156,13 +156,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setisolationPFCands(myIsolPFCands);
      
     float mymaximumHCALPFClusterEt=0.;
-    for(int i=0;i<(int)myPFCands.size();i++){ 
+    /*
+        for(int i=0;i<(int)myPFCands.size();i++){ 
       if (myPFCands[i]->blockRef()->elements().size()!=0){
 	for (OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
 	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()))>mymaximumHCALPFClusterEt) mymaximumHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()));
 	}
       }
-    }    
+    }
+    */    
     myPFTau.setmaximumHCALPFClusterEt(mymaximumHCALPFClusterEt);    
   }
 
