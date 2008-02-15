@@ -31,14 +31,13 @@ if(allCSCSegments->size()>0){
       std::cout<<"\t \t Number of Segments in"<<CSCId<<" are "<<CSCSegmentsCounter[CSCId]<<std::endl;
       
       if(CSCSegmentsCounter[CSCId]==1){
-	
 	int cscEndCap = CSCId.endcap();
 	int cscStation = CSCId.station();
 	int cscRing = CSCId.ring();
 	int cscChamber = CSCId.chamber();
 	int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
 	int rpcRing = cscRing;
-	if(rpcRing==4)rpcRing =1;
+	if(cscRing==4)rpcRing =1;
 	int rpcStation = cscStation;
 	int rpcSegment = 0;
 	
@@ -72,7 +71,8 @@ if(allCSCSegments->size()>0){
 	std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
 
 	std::cout<<"\t \t Number of rolls for this CSC = "<<rollsForThisCSC.size()<<std::endl;
-        assert(rollsForThisCSC.size()>=1);
+	
+	if(cscRing=!1) assert(rollsForThisCSC.size()>=1);
 
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
 	  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);

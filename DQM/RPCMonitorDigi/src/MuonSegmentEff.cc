@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.15 2008/01/22 19:11:44 muzaffar Exp $
+// $Id: MuonSegmentEff.cc,v 1.16 2008/02/11 14:16:08 carrillo Exp $
 //
 //
 
@@ -26,13 +26,9 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
-
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
@@ -46,8 +42,6 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
-
-
 
 #include <cmath>
 
@@ -248,6 +242,7 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+  
 
   if(incldt){
 #include "dtpart.inl"
