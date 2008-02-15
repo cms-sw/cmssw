@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.10 2008/01/22 19:13:31 muzaffar Exp $
+// $Id: MonitorElementsDb.cc,v 1.11 2008/01/22 19:54:03 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2008/01/22 19:13:31 $
+  \version $Revision: 1.11 $
+  \date $Date: 2008/01/22 19:54:03 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -14,7 +14,10 @@
 #include <fstream>
 #include <cmath>
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/MonitorElementT.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
@@ -26,6 +29,10 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
+
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 

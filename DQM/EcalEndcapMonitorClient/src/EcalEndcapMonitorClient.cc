@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/09 10:33:28 $
- * $Revision: 1.131 $
+ * $Date: 2008/02/09 19:50:13 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,8 +19,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
