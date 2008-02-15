@@ -21,7 +21,7 @@
 
 //DWM histogram services
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Simhit stuff

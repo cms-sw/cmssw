@@ -25,7 +25,7 @@
 
 //DQM services for histogram
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //--- for SimHit association
