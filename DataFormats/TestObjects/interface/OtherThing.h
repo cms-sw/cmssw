@@ -23,6 +23,7 @@ namespace edmtest {
     edm::RefToBaseProd<Thing>       refToBaseProd;
     edm::Ptr<Thing>                 ptr;
     edm::PtrVector<Thing>           ptrVec;
+    edm::PtrVector<Thing>           ptrOneNullOneNot;
   };
 }
 
