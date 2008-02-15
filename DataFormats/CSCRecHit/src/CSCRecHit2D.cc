@@ -20,9 +20,9 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
                           const ADCContainer& adcs,
                           const ChannelContainer& wgroups,
                           float tpeak, 
-													float posInStrip, 
+			  float posInStrip, 
                           float errInStrip,
-			                    int quality ):
+			  int quality ):
   RecHit2DLocalPos( id ), 
   theLocalPosition( pos ), 
   theLocalError( err ),
@@ -36,22 +36,6 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
 {}
 
 CSCRecHit2D::~CSCRecHit2D() {}
-
-//GlobalPoint CSCRecHit2D::globalPosition() const {
-//  return det().toGlobal(localPosition());
-//}
-
-//bool CSCRecHit2D::nearby(const CSCRecHit2D& other, float maxDeltaRPhi) {
-//  //  float dphi = deltaPhi(phi(), other.phi());
-//  float dy = abs(localPosition().x() - other.localPosition().x());
-//  return dy < maxDeltaRPhi;
-//}
-
-//bool CSCRecHit2D::nearby(float otherX, float maxDeltaRPhi) {
-//  //  float dphi = deltaPhi(phi(), otherPhi);
-//  float dy = abs(localPosition().x() - otherX);
-//  return dy < maxDeltaRPhi;
-//}
 
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
   os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<

@@ -70,13 +70,6 @@ public:
   /// quality flag of the reconstruction
   int quality() const { return theQuality;}
 
-  // To handle global values must use DetId to identify Det, hence Surface, which can transform from local
-  // GlobalPoint globalPosition() const;
-
-  //  Useful when building segments...
-  //  bool nearby(const CSCRecHit2D& other, float maxDeltaRPhi);
-  //  bool nearby(float otherX, float maxDeltaRPhi);
-
 private:
 	
   LocalPoint theLocalPosition;
