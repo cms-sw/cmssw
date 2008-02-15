@@ -159,43 +159,32 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 
     if( fUseBeamConstraint &&((*iclus).size()>0) ){
       if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-      try { // the vertex fitter may throw an exception, don't remove this try/catch (yet)
-	TransientVertex v = theFitter->vertex(*iclus, beamSpot);
-	if (v.isValid()) pvCand.push_back(v);
+      TransientVertex v = theFitter->vertex(*iclus, beamSpot);
+      if (v.isValid()) pvCand.push_back(v);
 
-	if (fVerbose){
-	  cout << "beamspot   x="<< beamVertexState.position().x() 
-	       << " y=" << beamVertexState.position().y()
-	       << " z=" << beamVertexState.position().z()
-	       << " dx=" << sqrt(beamVertexState.error().cxx())
-	       << " dy=" << sqrt(beamVertexState.error().cyy())
-	       << " dz=" << sqrt(beamVertexState.error().czz())
-	       << std::endl;
-	  if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
-	  else cout <<"Invalid fitted vertex\n";
-	}
-      }  catch (std::exception & err) {
-	edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-	  << "Exception while fitting vertex: " 
-	  << "\n" << err.what() << "\n";
+      if (fVerbose){
+	cout << "beamspot   x="<< beamVertexState.position().x() 
+	     << " y=" << beamVertexState.position().y()
+	     << " z=" << beamVertexState.position().z()
+	     << " dx=" << sqrt(beamVertexState.error().cxx())
+	     << " dy=" << sqrt(beamVertexState.error().cyy())
+	     << " dz=" << sqrt(beamVertexState.error().czz())
+	     << std::endl;
+	if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	else cout <<"Invalid fitted vertex\n";
       }
 
     }else if((*iclus).size()>1){
       if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-      try { // the vertex fitter may throw an exception, don't remove this try/catch (yet)
 
-	TransientVertex v = theFitter->vertex(*iclus); 
-	if (v.isValid()) pvCand.push_back(v);
+      TransientVertex v = theFitter->vertex(*iclus); 
+      if (v.isValid()) pvCand.push_back(v);
 
-	if (fVerbose){
-	  if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
-	  else cout <<"Invalid fitted vertex\n";
-	}
-      }  catch (std::exception & err) {
-	edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-	  << "Exception while fitting vertex: " 
-	  << "\n" << err.what() << "\n";
+      if (fVerbose){
+	if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	else cout <<"Invalid fitted vertex\n";
       }
+
     }else if (fVerbose){
       cout <<  "cluster dropped" << endl;
     }
