@@ -49,8 +49,10 @@ void AlignableComposite::recursiveComponents(Alignables &result) const
 {
 
   Alignables components = this->components();
-  if (components.size() <= 1) return; // Non-glued AlignableDets contain themselves
-
+  if (this->alignableObjectId() == align::AlignableDet 
+      && components.size() <= 1) { // Non-glued AlignableDets (still) contain themselves
+    return; // (would be better to implement AlignableDet::recursiveComponents!)
+  }
   for (Alignables::const_iterator iter = components.begin();
        iter != components.end(); ++iter) {
     result.push_back(*iter); // could use std::copy(..), but here we build a real hierarchy
