@@ -5,5 +5,7 @@
   <class name="reco::PFCandidateRef"/>
   <class name="reco::PFCandidateRefProd"/>
   <class name="reco::PFCandidateRefVector"/>
+  <class name="reco::PFCandidate::ElementsInBlocks"/>
+  <class name="reco::PFCandidate::ElementInBlock"/>
 </lcgdict>
  

@@ -31,13 +31,12 @@ PFCandidate::PFCandidate() :
 
 
 PFCandidate::PFCandidate( Charge charge, 
-			  const LorentzVector & p4, 
-			  ParticleType particleId, 
-			  reco::PFBlockRef blockRef ) : 
+                          const LorentzVector & p4, 
+                          ParticleType particleId ) : 
   
   LeafCandidate(charge, p4), 
   particleId_(particleId), 
-  blockRef_(blockRef), 
+//   blockRef_(blockRef), 
   ecalEnergy_(0),
   hcalEnergy_(0),
   ps1Energy_(-1),
@@ -65,7 +64,7 @@ PFCandidate::PFCandidate( Charge charge,
       string err;
       err+="Attempt to construct a charged PFCandidate with a zero charge";
       throw cms::Exception("InconsistentValue",
-			   err.c_str() );
+                           err.c_str() );
     } 
   }
   else {
@@ -74,7 +73,7 @@ PFCandidate::PFCandidate( Charge charge,
       err += "Attempt to construct a neutral PFCandidate ";
       err += "with a non-zero charge";
       throw cms::Exception("InconsistentValue",
-			   err.c_str() );
+                           err.c_str() );
     } 
   }
 }
@@ -85,9 +84,16 @@ PFCandidate * PFCandidate::clone() const {
 }
 
 
-void PFCandidate::addElement(const  PFBlockElement* element ) {
-    elements_.push_back( element->clone() ); 
+// void PFCandidate::addElement(const  PFBlockElement* element ) {
+//   elements_.push_back( element->clone() ); 
+// }
+
+
+void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
+                                     unsigned elementIndex ) {
+  elementsInBlocks_.push_back( make_pair(blockref, elementIndex) );
 }
+
 
 void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   if(!charge()) {
@@ -99,7 +105,7 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
     err += num;
     
     throw cms::Exception("InconsistentReference",
-			 err.c_str() );
+                         err.c_str() );
   }
 
   if( particleId_ == mu ) {
@@ -109,7 +115,7 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
       err += "PFCandidate::setTrackRef: inconsistent track references!";
       
       throw cms::Exception("InconsistentReference",
-			   err.c_str() );
+                           err.c_str() );
     }    
   }
   trackRef_ = ref;
@@ -126,14 +132,14 @@ void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
     err += num;
 
     throw cms::Exception("InconsistentReference",
-			 err.c_str() );
+                         err.c_str() );
   }
   else if(  trackRef_ != muonRef_->track() ) {
     string err;
     err += "PFCandidate::setMuonRef: inconsistent track references!";
     
     throw cms::Exception("InconsistentReference",
-			 err.c_str() );
+                         err.c_str() );
   }
     
   muonRef_ = ref;
@@ -166,7 +172,7 @@ bool PFCandidate::flag(Flags theFlag) const {
 
 
 ostream& reco::operator<<(ostream& out, 
-			  const PFCandidate& c ) {
+                          const PFCandidate& c ) {
   
   if(!out) return out;
   
@@ -175,21 +181,21 @@ ostream& reco::operator<<(ostream& out,
   out<<setiosflags(ios::fixed);
   out<<setprecision(3);
   out<<" E/pT/eta/phi " 
-      <<c.energy()<<"/"
-      <<c.pt()<<"/"
-	  <<c.eta()<<"/"
-	  <<c.phi()<<endl;
-  PFBlockRef blockRef = c.block(); 
-  int blockid = blockRef.key(); 
-  const edm::OwnVector< reco::PFBlockElement >& elements = c.elements();
-  out<< "\t# of elements " << elements.size() 
-     <<" from block " << blockid << endl;
+     <<c.energy()<<"/"
+     <<c.pt()<<"/"
+     <<c.eta()<<"/"
+     <<c.phi()<<endl;
+//   PFBlockRef blockRef = c.block(); 
+//   int blockid = blockRef.key(); 
+//   const edm::OwnVector< reco::PFBlockElement >& elements = c.elements();
+//   out<< "\t# of elements " << elements.size() 
+//      <<" from block " << blockid << endl;
 
-// print each element in turn
+//   // print each element in turn
   
-  for(unsigned ie=0; ie<elements.size(); ie++) {
-  out<<"\t"<< elements[ie] <<endl;
-  }
+//   for(unsigned ie=0; ie<elements.size(); ie++) {
+//     out<<"\t"<< elements[ie] <<endl;
+//   }
   
   out<<resetiosflags(ios::right|ios::fixed);
   return out;

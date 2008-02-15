@@ -38,20 +38,27 @@ namespace reco {
     /// default constructor
     PFCandidate();
     
+/*     PFCandidate( Charge q,  */
+/*                  const LorentzVector & p4,  */
+/*                  ParticleType particleId,  */
+/*                  reco::PFBlockRef blockRef ); */
     PFCandidate( Charge q, 
-		 const LorentzVector & p4, 
-		 ParticleType particleId, 
-		 reco::PFBlockRef blockRef );
+                 const LorentzVector & p4, 
+                 ParticleType particleId );
 
     /// destructor
     virtual ~PFCandidate() {}
 
     /// return a clone
     virtual PFCandidate * clone() const;
-	
-	/// add an element to the current PFCandidate
-    void addElement( const reco::PFBlockElement* element );
     
+    /// add an element to the current PFCandidate
+/*     void addElement( const reco::PFBlockElement* element ); */
+    
+    /// add element in block
+    void addElementInBlock( const reco::PFBlockRef& blockref,
+                            unsigned elementIndex );
+
     /// set track reference
     void    setTrackRef(const reco::TrackRef& ref);
 
@@ -151,7 +158,7 @@ namespace reco {
     virtual int particleId() const { return particleId_;}
     
     /// return reference to the block
-    const reco::PFBlockRef& blockRef() const { return blockRef_; } 
+/*     const reco::PFBlockRef& blockRef() const { return blockRef_; }  */
 
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
@@ -166,19 +173,25 @@ namespace reco {
     /*     const std::vector<unsigned>& elementIndices() const {  */
     /*       return elementIndices_; */
     /*     } */
-	/// return elements
-    const edm::OwnVector< reco::PFBlockElement >& elements() const 
-      {return elements_;}
+    /// return elements
+/*     const edm::OwnVector< reco::PFBlockElement >& elements() const  */
+/*       {return elements_;} */
 
+    /// return elements in blocks
+    typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
+    typedef std::vector< ElementInBlock > ElementsInBlocks;
+    const ElementsInBlocks& elementsInBlocks() const { 
+      return elementsInBlocks_;
+    }
     
-    /// return reference to the block
-    PFBlockRef block() const { return blockRef_; } 
+/*     /// return reference to the block */
+/*     PFBlockRef block() const { return blockRef_; }  */
   
 
     static const float bigMva_;
 
     friend std::ostream& operator<<( std::ostream& out, 
-				     const PFCandidate& c );
+                                     const PFCandidate& c );
   
   private:
     void setFlag(unsigned shift, unsigned flag, bool value);
@@ -189,13 +202,15 @@ namespace reco {
     ParticleType            particleId_; 
     
     /// reference to the corresponding PFBlock
-    reco::PFBlockRef        blockRef_;
+/*     reco::PFBlockRef        blockRef_; */
 
     /// indices of the elements used in the PFBlock
     /*     std::vector<unsigned>   elementIndices_; */
-	
-	/// all elements used in the PFBlock 
-    edm::OwnVector< reco::PFBlockElement >          elements_;
+        
+    /// all elements used in the PFBlock 
+/*     edm::OwnVector< reco::PFBlockElement >          elements_; */
+
+    ElementsInBlocks elementsInBlocks_;
 
     reco::TrackRef trackRef_;
     
@@ -243,7 +258,7 @@ namespace reco {
 
   /// get default PFBlockRef component
   /// as: pfcand->get<PFBlockRef>();
-  GET_DEFAULT_CANDIDATE_COMPONENT( PFCandidate, PFBlockRef, block );
+/*   GET_DEFAULT_CANDIDATE_COMPONENT( PFCandidate, PFBlockRef, block ); */
 
   /// get int component
   /// as: pfcand->get<int, PFParticleIdTag>();
