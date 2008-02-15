@@ -102,6 +102,20 @@ namespace edmtest {
       assert(otherThing.ref.isAvailable() != thingWasDropped_);
       assert(otherThing.refVec.isAvailable() != thingWasDropped_);
 
+      if (otherThing.ptrOneNullOneNot.size() != 2) {
+	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") 
+	  << " ptrOneNullOneNot has wrong length: " << otherThing.ptrOneNullOneNot.size()
+	  << " should be 2\n";
+      }
+      if (otherThing.ptrOneNullOneNot[0].isNonnull()) {
+	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
+	  << " expected null Ptr is not null\n";
+      }
+      if (otherThing.ptrOneNullOneNot[1].isNull()) {
+	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
+	  << " expected non-null Ptr is null\n";
+      }
+
       shouldBeTrue = otherThing.ptrVec[0] != otherThing.ptrVec[1];
       if (!shouldBeTrue) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "Inequality has incorrect value\n";

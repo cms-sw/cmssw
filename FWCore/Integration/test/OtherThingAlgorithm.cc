@@ -35,6 +35,9 @@ namespace edmtest {
 	element.ptr = edm::Ptr<Thing>(parent, i);
 	element.ptrVec.push_back(element.ptr);
 	element.ptrVec.push_back(edm::Ptr<Thing>(parent, 19-i));
+	element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(null, 0));
+	element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(parent, 0));
+	assert(element.ptrOneNullOneNot.size() == 2); // we'll check this in our tests
 	edm::RefProd<ThingCollection> refProd = edm::RefProd<ThingCollection>(parentHandle);
 	edm::Ref<ThingCollection> ref = edm::Ref<ThingCollection>(refProd, i);
 	element.refToBaseProd = edm::RefToBaseProd<Thing>(refProd);
@@ -53,6 +56,9 @@ namespace edmtest {
 	element.ptr = edm::Ptr<Thing>(parentHandle, i);
 	element.ptrVec.push_back(element.ptr);
 	element.ptrVec.push_back(edm::Ptr<Thing>(parentHandle, 19-i));
+	element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(parentHandle.id()));
+	element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(parentHandle, 0));
+	assert(element.ptrOneNullOneNot.size() == 2); // we'll check this in our tests
 	edm::RefProd<ThingCollection> refProd = edm::RefProd<ThingCollection>(parentHandle);
 	edm::Ref<ThingCollection> ref = edm::Ref<ThingCollection>(refProd, i);
 	element.refToBaseProd = edm::RefToBaseProd<Thing>(element.refProd);
