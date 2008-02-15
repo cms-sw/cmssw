@@ -13,6 +13,8 @@ PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig):
 
   nuclearContainers_ = 
     iConfig.getParameter< vector < InputTag > >("nuclearColList");
+  likelihoodCut_
+     = iConfig.getParameter<double>("likelihoodCut");
 }
 
 PFNuclearProducer::~PFNuclearProducer()
@@ -43,6 +45,9 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     // loop on all NuclearInteraction 
     for( uint icoll=0; icoll < nuclColl.size(); icoll++) {
+
+      if( nuclColl[icoll].likelihood() < likelihoodCut_) continue;
+
       reco::PFRecTrackRefVector pfRecTkcoll;
 
       // convert the secondary tracks

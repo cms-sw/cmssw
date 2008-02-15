@@ -26,6 +26,7 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
+  double likelihoodCut_;
   std::vector<edm::InputTag> nuclearContainers_;
 };
 #endif
