@@ -49,8 +49,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-						 const ConstTrajTrackPairCollection& tracks,
-						 const ExternalPredictionCollection& external ) const
+					       const ConstTrajTrackPairCollection& tracks,
+					       const ExternalPredictionCollection& external ) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -74,7 +74,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   {
     TrajectoryInput input = innermostStateAndRecHits( *itTracks  );
 
-    if ( (*itExternal).isValid() )
+    if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,

@@ -67,9 +67,9 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   while ( itTracks != tracks.end() )
   {
-    TrajectoryInput input = innermostStateAndRecHits( *itTracks  );
+    TrajectoryInput input = innermostStateAndRecHits( *itTracks );
 
-    if ( (*itExternal).isValid() )
+    if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,

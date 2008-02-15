@@ -1,7 +1,12 @@
 // Do not include .h from plugin directory, but locally:
 #include "TwoBodyDecayTrajectoryFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/Math/interface/Vector.h" 
+#include "DataFormats/Math/interface/Error.h" 
+#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -77,7 +82,7 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
 
-  if ( tracks.size() == 2 )
+  if ( tracks.size() == 2 && external.size() == 2 )
   {
     if ( external[0].isValid() && external[1].isValid() ) // Include external estimates
     {

@@ -6,6 +6,7 @@
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -26,6 +27,8 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
+//FIXME
+#include <iostream>
 
 //__________________________________________________________________________________
 
@@ -97,7 +100,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
 
-    if ( !useRecHit( hitPtr ) ) continue;
+    if ( !useRecHit( hitPtr ) ) { std::cout << "hitPtr->isValid() = " << hitPtr->isValid() << "\tiRow = " << iRow << std::endl; continue; }
 
     theRecHits.push_back(hitPtr);
 
