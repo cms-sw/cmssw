@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.19 $
- *  $Date: 2007/12/04 23:55:27 $
- *  (last update by $Author: ratnik $)
+ *  $Revision: 1.20 $
+ *  $Date: 2007/12/17 18:59:52 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "PedeSteerer.h"
@@ -66,61 +66,22 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   }
 
   const std::vector<Alignable*> &alis = myParameterStore->alignables();
+  if (!this->checkParameterChoices(alis)) {} // anyway thrown exception
 
-  // Coordinate system selection and correction before fixing, at least for fixing at truth:
+  // Coordinate system selection and correction before everything
   theCoordDefiners = this->selectCoordinateAlis(alis);
   if (!theCoordDefiners.empty()) { // Create steering with constraints to define coordinate system:
-    const std::string nameCoordFile(this->fileName("Coord"));
     theCoordMaster = aliTracker; // Both tracker and muon have global coordinates, though...
     if (!theCoordMaster) theCoordMaster = aliMuon; // ...which coordinates should not really matter anyway.
     // FIXME: With both tracker and muon, only tracker will be shifted in correctToReferenceSystem!
     // Could be fixed by introducing AlignableComposite with both, but must prevent double deletion.
     // If this has 'global frame', correctToReferenceSystem can use globalParameters (as it does)
     this->correctToReferenceSystem(); // really before 'defineCoordinates'?
-    this->defineCoordinates(theCoordDefiners, theCoordMaster, nameCoordFile);
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
-                              << theCoordDefiners.size() << " highest level objects define the "
-			      << "coordinate system, steering file " << nameCoordFile << ".";
   } 
 
-  // Fixing parameters also checks for invalid parameter choices (should that be done first?):
-  const std::string nameFixFile(this->fileName("FixPara"));
-  const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
-  if (nFixFixCor.first != 0 || nFixFixCor.second != 0) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
-                              << nFixFixCor.first << " parameters fixed at 0. and "
-                              << nFixFixCor.second << " at 'original' position, "
-                              << "steering file " << nameFixFile << ".";
-  } 
-
-  if (this->buildNoHierarchyCollection(alis)) { // before hierarchyConstraints(..)
-    edm::LogInfo("Alignment")
-      << "@SUB=PedeSteerer" << myNoHieraCollection.size() << " alignables taken out of hierarchy.";
-  }
-
-  const std::string nameHierarchyFile(this->fileName("Hierarchy"));
-  unsigned int nConstraint = this->hierarchyConstraints(alis, nameHierarchyFile);
-  if (nConstraint) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
-                              << "Hierarchy constraints for " << nConstraint << " alignables, "
-                              << "steering file " << nameHierarchyFile << ".";
-  }
-
-  const std::string namePresigmaFile(this->fileName("Presigma"));
-  unsigned int nPresigma = 
-    this->presigmas(myConfig.getParameter<std::vector<edm::ParameterSet> >("Presigmas"),
-                    namePresigmaFile, alis, aliTracker, aliMuon);
-  if (nPresigma) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
-                              << "Presigma values set for " << nPresigma << " parameters, "
-                              << "steering file " << namePresigmaFile << ".";
-  }
-
-  // Delete all SelectionUserVariables now? They will anyway be overwritten by MillePedeVariables...
 }
 
 //___________________________________________________________________________
-
 PedeSteerer::~PedeSteerer()
 {
 }
@@ -193,6 +154,31 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable
   return myNoHieraCollection.size();
 }
 
+//_________________________________________________________________________
+bool PedeSteerer::checkParameterChoices(const std::vector<Alignable*> &alis) const
+{
+  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+    AlignmentParameters *paras = (*iAli)->alignmentParameters();
+    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(paras->userVariables());
+    if (!selVar) continue;
+    for (unsigned int iParam = 0; static_cast<int>(iParam) < paras->size(); ++iParam) {
+      const char sel = selVar->fullSelection()[iParam];
+      if (sel != 'f' && sel != 'F' && sel != 'c' && sel != 'C' &&
+	  sel != '0' && sel != '1' && sel != 'H' && sel != 'r') {
+	throw cms::Exception("BadConfig")
+	  << "[PedeSteerer::unknownParameterChoices] " 
+	  << "Unexpected parameter selector '" << sel
+	  << "', use \n'f/F' (fix),\n'c/C' (fix at correct pos.),\n'1/H' (free),\n"
+	  << "'r' (free, but defining reference system) or \n'0' (ignore).\n"
+	  << "Capital letters mean that the Alignable is taken out of a possible hierarchy,\n"
+	  << "but must be used consistently for all its parameters.";
+	return false; // unreached
+      }
+    }
+  }
+
+  return true;
+}
 
 //_________________________________________________________________________
 std::pair<unsigned int, unsigned int>
@@ -235,13 +221,6 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     result = -1;
   } else if (selector == 'f' || selector == 'F') {
     result = 1;
-  } else if (selector != '1' && selector != '0' && selector != 'r' && selector != 'H') {
-    throw cms::Exception("BadConfig")
-      << "[PedeSteerer::fixParameter] " << "Unexpected parameter selector '" << selector
-      << "', use \n'f/F' (fix),\n'c/C' (fix at correct pos.),\n'1/H' (free),\n"
-      << "'r' (free, but defining reference system) or \n'0' (ignore).\n"
-      << "Capital letters mean that the Alignable is taken out of a possible hierarchy,\n"
-      << "but must be used consistently for all its parameters.";
   }
 
   if (result) {
@@ -348,6 +327,7 @@ void PedeSteerer::correctToReferenceSystem()
     meanPars /= definerDets.size();
     const align::Scalar squareSum = meanPars.normsq();
 
+    if (squareSum < 1.e-20) break; // sqrt(1.e-20)=1.e-10: close enough to stop iterating
     if (iLoop == 0) {
       edm::LogInfo("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
 				<< "Loop " << iLoop << " "
@@ -355,7 +335,6 @@ void PedeSteerer::correctToReferenceSystem()
 				<< (squareSum < 1.e-20 ? ":" :
 				    " (will be iteratively corrected to < 1.e-10):") << meanPars;
     }
-    if (squareSum < 1.e-20) break; // sqrt(1.e-20)=1.e-10: close enough to stop iterating
     if (iLoop >=5) { // 3 iterations should be safe, use 5 for 'more' safety...
 	edm::LogError("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
 				   << "No convergence in " << iLoop << " iterations, " 
@@ -387,10 +366,10 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
     aliDaughts.clear();
     if (!(*iA)->firstCompsWithParams(aliDaughts)) {
       static AlignableObjectId objId; // static since costly constructor FIXME?
-      edm::LogError("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
-                                 << "Some but not all daughters of "
-				 << objId. typeToName((*iA)->alignableObjectId())
-				 << " with params!";
+      edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+				   << "Some but not all daughters of "
+				   << objId. typeToName((*iA)->alignableObjectId())
+				   << " with params!";
     }
 //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 // 			      << aliDaughts.size() << " ali param components";
@@ -455,6 +434,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       aConstr << paramLabel << "    " << factors[iParam];
       if (true) { // debug
 	const TrackerAlignableId aliId;
+
 	aConstr << "   ! for param " << compParNum << " of a " 
 // 		<< aliId.alignableTypeName(aliSubComp) 
 		<< objId.typeToName(aliSubComp->alignableObjectId())
@@ -598,6 +578,54 @@ std::string PedeSteerer::fileName(const std::string &addendum) const
   name += ".txt";
 
   return name;
+}
+
+//___________________________________________________________________________
+void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon)
+{
+  const std::vector<Alignable*> &alis = myParameterStore->alignables();
+
+  if (theCoordMaster && !theCoordDefiners.empty()) {
+    const std::string nameCoordFile(this->fileName("Coord"));
+    this->defineCoordinates(theCoordDefiners, theCoordMaster, nameCoordFile);
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
+                              << theCoordDefiners.size() << " highest level objects define the "
+			      << "coordinate system, steering file " << nameCoordFile << ".";
+  }
+
+  const std::string nameFixFile(this->fileName("FixPara"));
+  const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
+  if (nFixFixCor.first != 0 || nFixFixCor.second != 0) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
+                              << nFixFixCor.first << " parameters fixed at 0. and "
+                              << nFixFixCor.second << " at 'original' position, "
+                              << "steering file " << nameFixFile << ".";
+  } 
+
+  if (this->buildNoHierarchyCollection(alis)) { // before hierarchyConstraints(..)
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer"
+			      << myNoHieraCollection.size()<<" alignables taken out of hierarchy.";
+  }
+
+  const std::string nameHierarchyFile(this->fileName("Hierarchy"));
+  unsigned int nConstraint = this->hierarchyConstraints(alis, nameHierarchyFile);
+  if (nConstraint) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
+                              << "Hierarchy constraints for " << nConstraint << " alignables, "
+                              << "steering file " << nameHierarchyFile << ".";
+  }
+
+  const std::string namePresigmaFile(this->fileName("Presigma"));
+  unsigned int nPresigma = 
+    this->presigmas(myConfig.getParameter<std::vector<edm::ParameterSet> >("Presigmas"),
+                    namePresigmaFile, alis, aliTracker, aliMuon);
+  if (nPresigma) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
+                              << "Presigma values set for " << nPresigma << " parameters, "
+                              << "steering file " << namePresigmaFile << ".";
+  }
+
+  // Delete all SelectionUserVariables now? They will anyway be overwritten by MillePedeVariables...
 }
 
 //_________________________________________________________________________

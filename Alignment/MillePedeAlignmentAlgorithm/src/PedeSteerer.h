@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/08/31 18:03:19 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/17 18:59:52 $
+ * $Revision: 1.14 $
  * (last update by $Author: flucke $)
  */
 
@@ -44,6 +44,8 @@ class PedeSteerer
   /// True if 'ali' was deselected from hierarchy and any ancestor (e.g. mother) has parameters.
   bool isNoHiera(const Alignable* ali) const;
 
+  /// construct steering files about hierarchy, fixing etc. an keep track of their names
+  void buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon);
   /// construct (and return name of) master steering file from config, binaryFiles etc.
   std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
   /// run pede, masterSteer should be as returned from buildMasterSteer(...)
@@ -61,6 +63,9 @@ class PedeSteerer
  private:
   typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
 
+  /// Checks whether SelectionUserVariables that might be attached to alis' AlignmentParameters
+  /// (these must exist) are all known.
+  bool checkParameterChoices(const std::vector<Alignable*> &alis) const;
   /// Store Alignables that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate removal from hierarchy, i.e. make it 'top level'.
   unsigned int buildNoHierarchyCollection(const std::vector<Alignable*> &alis);

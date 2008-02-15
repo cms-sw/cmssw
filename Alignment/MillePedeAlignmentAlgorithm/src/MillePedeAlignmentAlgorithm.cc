@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.27 $
- *  $Date: 2007/12/04 23:55:26 $
- *  (last update by $Author: ratnik $)
+ *  $Revision: 1.28 $
+ *  $Date: 2007/12/17 18:59:52 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -99,7 +99,13 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   theAlignables = theAlignmentParameterStore->alignables();
   thePedeLabels = new PedeLabeler(tracker, muon);
 
-  // If requested, directly read in and apply result of previous pede run:
+  // 1) Create PedeSteerer: correct alignable positions for coordinate system selection
+  edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
+  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, thePedeLabels,
+				 pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
+
+  // 2) If requested, directly read in and apply result of previous pede run,
+  //    assuming that correction from 1) was also applied to create the result:
   if (theConfig.getParameter<bool>("readPedeInput")) {
     edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
                               << "Apply MillePede constants defined by PSet 'pedeReaderInput'.";
@@ -109,10 +115,10 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     // theAlignmentParameterStore->resetParameters();  FIXME
   }
 
-  edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, thePedeLabels,
-				 pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
-  // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
+  // 3) Now create steerings with 'final' start position:
+  thePedeSteer->buildSubSteer(tracker, muon);
+
+  // After (!) 1-3 of PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
   if (this->isMode(myMilleBit)) {
