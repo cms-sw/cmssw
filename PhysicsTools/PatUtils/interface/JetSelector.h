@@ -21,7 +21,7 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: JetSelector.h,v 1.0 2008/02/12 15:51:01 auterman Exp $
+    \version $Id: JetSelector.h,v 1.1 2008/02/14 12:38:10 auterman Exp $
 **/
 
 #include <string>
@@ -29,11 +29,10 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "PhysicsTools/PatUtils/interface/CaloJetSelector.h"
 
 
 namespace pat {
-
-  enum JetType { GOOD = 0, BAD, ELSE };
 
   template<typename Jet>
   class JetSelector {
@@ -62,31 +61,12 @@ namespace pat {
     //            ) const;
 
   private:
-
-    edm::ParameterSet selectionCfg_; 
-    std::string       selectionType_;
-
-    double value_; // Cut value for btag or tau //@@ copied from ElectronSel.
-
-
-    /// Full-fledged selection based on SusyAnalyser
-    const unsigned int  
-    customSelection_( const unsigned int&        index,
-                      const edm::View<Jet>& Jets ) const;
-    
-    // Custom selection cuts
-    double EMFmin_;              
-    double EMFmax_;
-    double EoverPmax_;
-    double Etamax_;
-    double PTrackoverPJetmin_;
-    int    NTracksmin_;
+   
+    std::auto_ptr<CaloJetSelector> CaloJetSelector_;///Selects CaloJets
+    //std::auto_ptr<CaloJetSelector> PFSelector_;///Selects PFJets
 
   }; // class
-  
-  typedef JetSelector<reco::Jet>     BaseJetSelector;
-  typedef JetSelector<reco::PFJet>   PFJetSelector;
-  typedef JetSelector<reco::CaloJet> CaloJetSelector;
+
 } // namespace
 
 #endif

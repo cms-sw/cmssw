@@ -5,27 +5,12 @@ using pat::JetSelector;
 
 //______________________________________________________________________________
 template<typename Jet>
-JetSelector<Jet>::JetSelector( const edm::ParameterSet& config ) :
-  selectionCfg_(config),
-  selectionType_( config.getParameter<std::string>("type"))
+JetSelector<Jet>::JetSelector( const edm::ParameterSet& config ) 
 {
-
-  // Retrieve configuration config.ters only once
-  if ( selectionType_ == "btag" || selectionType_ == "tau" )
-    {
-      //@@ copied from ElectronSelector -> Needs further adjustment
-      value_ = selectionCfg_.getParameter<double>("value");
-    }
-  else if ( selectionType_ == "custom" )
-    {
-     EMFmin_		 = config.getParameter<double>("EMFmin");
-     EMFmax_             = config.getParameter<double>("EMFmax");
-     EoverPmax_          = config.getParameter<double>("EoverPmax");
-     Etamax_             = config.getParameter<double>("Etamax");
-     PTrackoverPJetmin_  = config.getParameter<double>("PTrackoverPJetmin");
-     NTracksmin_         = config.getParameter<int>   ("NTracksmin");
-
-    }
+  CaloJetSelector_ = std::auto_ptr<CaloJetSelector>( 
+                            new CaloJetSelector(config) );
+  //PFJetSelector_ = std::auto_ptr<PFJetSelector>( 
+  //                          new PFJetSelector(config) );
 }
 
 
@@ -37,28 +22,19 @@ JetSelector<JetType>::filter( const unsigned int&        index,
                           //const JetIDmap&       JetIDs
                           ) const
 {
-  bool result = BAD;
+  bool result = true;
 
-  // List of possible selections
-  if      ( selectionType_ == "none"       ) {
-      result = GOOD;
-  }
-  else if ( selectionType_ == "cut"        ) {
-        //if ( JetID(index,Jets,JetIDs)->cutBasedDecision() ) result = GOOD;
-  }
-  else if ( selectionType_ == "btag" )       {
-      //if ( JetID(index,Jets,JetIDs)->likelihood() > value_ ) result = GOOD;
-  }
-  else if ( selectionType_ == "tau" )        {
-      //if ( JetID(index,Jets,JetIDs)->neuralNetOutput() > value_ ) result = GOOD;
-  }
-  else if ( selectionType_ == "custom"     ) {
-      result = customSelection_( index, Jets );
-  }
-  else
-    // Throw! unknown configuration
-    throw edm::Exception(edm::errors::Configuration) 
-          << "Unknown Jet ID selection " << selectionType_;
+  const JetType& Jet = Jets[index];
+  const reco::CaloJet * caloJet = 0;
+  const reco::PFJet   * pfJet   = 0;
+  caloJet = dynamic_cast<const reco::CaloJet*>(&Jet);
+  pfJet   = dynamic_cast<const reco::PFJet*>(  &Jet);
+  
+  ///specific selection for CaloJets
+  if (caloJet) result = CaloJetSelector_->filter( *caloJet );
+
+  ///specific selection for PFJets
+  //if (pfJet) result = PFJetSelector_->filter(  *pfJet);
 
   return result;
 }
@@ -80,58 +56,3 @@ JetSelector::JetID( const unsigned int& index,
   return JetID->val;
 }
 */
-
-//______________________________________________________________________________
-template<typename JetType>
-const unsigned int 
-JetSelector<JetType>::customSelection_( const unsigned int& index,
-                                        const edm::View<JetType>& Jets
-                                      ) const
-{ 
-  bool result = GOOD;
-  const JetType& Jet = Jets[index];
-
-  //This is currently necessary, since CaloJet and PFJet (and Jet) 
-  //have different access methods, eg. for EM-fraction:
-  const reco::CaloJet * caloJet = 0;
-  const reco::PFJet   * pfJet   = 0;
-  caloJet = dynamic_cast<const reco::CaloJet*>(&Jet);
-  pfJet   = dynamic_cast<const reco::PFJet*>(  &Jet);
-
-  // Retrieve information
-  //eta region
-  double eta = fabs(Jet.p4().Eta());
-  if (eta>Etamax_) result = BAD;
-
-  //electromagnetic fraction
-  double EMF = 0.;
-  if (caloJet!=0) EMF = caloJet->emEnergyFraction();              
-  if (pfJet!=0)   EMF = pfJet->neutralEmEnergyFraction()+
-                        pfJet->chargedEmEnergyFraction();              
-  if (EMF<EMFmin_ ||
-      EMF>EMFmax_    ) result = BAD;
-
-  // ratio Energy over Momentum (both from calorimeter)
-  double EoverP = 0.;
-  if (Jet.p4().P()!=0.) EoverP = Jet.energy() / Jet.p4().P();
-  if (EoverP > EoverPmax_) result = BAD;
-  
-  // ratio Momentum in calorimeter over Momentum in tracker
-  if (pfJet!=0) {
-    //int    NTracks=0;
-    //double sumTrackP=0.;    
-    //for(std::vector <const reco::PFCandidate*>::const_iterator
-    //      itTrack = pfjet->getConstituents().begin(),
-    //      lastTrack  = pfjet->getConstituents().end();
-    //	itTrack!=lastTrack; ++itTrack) {
-    //   if ( (*itTrack)->trackRef()!= )
-    //}	
-    //double PTrackoverPJet=10000.;
-    //if (PTrackoverPJet < PTrackoverPJetmin_) result = BAD;
-
-    //Number of associated tracks
-    //if (NTracks < NTracksmin_) result = BAD;
-  }
-
-  return result;
-}
