@@ -130,6 +130,13 @@ class HEPEUP {
 	//@}
 
     public:
+	struct FiveVector {
+		double operator [] (unsigned int i) const { return x[i]; }
+		double &operator [] (unsigned int i) { return x[i]; }
+
+		double	x[5];
+	};
+
 	/**
 	 * Set the NUP variable, corresponding to the number of particles in
 	 * the current event, to \a nup, and resize all relevant vectors
@@ -152,7 +159,7 @@ class HEPEUP {
 		ISTUP.resize(NUP);
 		MOTHUP.resize(NUP);
 		ICOLUP.resize(NUP);
-		PUP.resize(NUP, std::vector<double>(5));
+		PUP.resize(NUP);
 		VTIMUP.resize(NUP);
 		SPINUP.resize(NUP);
 	}
@@ -222,7 +229,7 @@ class HEPEUP {
 	 * Lab frame momentum (Px, Py, Pz, E and M in GeV) for the particle
 	 * entries in this event.
 	 */
-	std::vector< std::vector<double> > PUP;
+	std::vector<FiveVector> PUP;
 
 	/**
 	 * Invariant lifetime (c*tau, distance from production to decay im
