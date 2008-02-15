@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/12/17 12:12:29 $
+//  last update: $Date: 2008/02/15 15:35:59 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -26,9 +26,6 @@
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
-
-//FIXME
-#include <iostream>
 
 //__________________________________________________________________________________
 
@@ -100,7 +97,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
 
-    if ( !useRecHit( hitPtr ) ) { std::cout << "hitPtr->isValid() = " << hitPtr->isValid() << "\tiRow = " << iRow << std::endl; continue; }
+    if ( !useRecHit( hitPtr ) ) continue;
 
     theRecHits.push_back(hitPtr);
 
