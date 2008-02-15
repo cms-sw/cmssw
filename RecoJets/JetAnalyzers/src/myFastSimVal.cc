@@ -158,12 +158,15 @@ void myFastSimVal::beginJob( const EventSetup & ) {
   ZpMassResPRL402     =  TH1F("ZpMassResPRL402","Zp Mass Res. P Ratio Leading Jets 2",100,0,2);
   ZpMassResPRL403     =  TH1F("ZpMassResPRL403","Zp Mass Res. P Ratio Leading Jets 3",100,0,2);
 
-  dijetMass1 =  TH1F("dijetMass1","DiJet Mass 1",100,0,6000);
-  dijetMass12 =  TH1F("dijetMass12","DiJet Mass 1 2",100,0,12000);
-  dijetMass2 =  TH1F("dijetMass2","DiJet Mass 2",100,0,6000);
-  dijetMass22 =  TH1F("dijetMass22","DiJet Mass 2 2",100,0,12000);
-  dijetMass3 =  TH1F("dijetMass3","DiJet Mass 3",100,0,6000);
-  dijetMass32 =  TH1F("dijetMass32","DiJet Mass 3 2",100,0,12000);
+  dijetMass1 =  TH1F("dijetMass1","DiJet Mass 1",100,0,4000);
+  dijetMass12 =  TH1F("dijetMass12","DiJet Mass 1 2",100,0,6000);
+  dijetMass13 =  TH1F("dijetMass13","DiJet Mass 1 3",100,0,12000);
+  dijetMass2 =  TH1F("dijetMass2","DiJet Mass 2",100,0,4000);
+  dijetMass22 =  TH1F("dijetMass22","DiJet Mass 2 2",100,0,6000);
+  dijetMass23 =  TH1F("dijetMass23","DiJet Mass 2 3",100,0,12000);
+  dijetMass3 =  TH1F("dijetMass3","DiJet Mass 3",100,0,4000);
+  dijetMass32 =  TH1F("dijetMass32","DiJet Mass 3 2",100,0,6000);
+  dijetMass33 =  TH1F("dijetMass33","DiJet Mass 3 3",100,0,12000);
 
   dijetMass101 =  TH1F("dijetMass101","DiJet Mass 1",100,0,6000);
   dijetMass131 =  TH1F("dijetMass131","DiJet Mass 1",100,0,6000);
@@ -231,6 +234,20 @@ void myFastSimVal::beginJob( const EventSetup & ) {
   dijetMassP_5000_131 =  TH1F("dijetMassP_5000_131","DiJet Mass P 1",150,4000,5500);
   dijetMassP_5000_401 =  TH1F("dijetMassP_5000_401","DiJet Mass P 1",150,4000,5500);
 
+  hadEneLeadJetEta1_1 = TH1F("hadEneLeadJetEta1_1","Hadronic Energy Lead Jet Eta1 1",100,0,1500);
+  hadEneLeadJetEta2_1 = TH1F("hadEneLeadJetEta2_1","Hadronic Energy Lead Jet Eta2 1",100,0,1500);
+  hadEneLeadJetEta3_1 = TH1F("hadEneLeadJetEta3_1","Hadronic Energy Lead Jet Eta3 1",100,0,1500);
+  emEneLeadJetEta1_1 = TH1F("emEneLeadJetEta1_1","EM Energy Lead Jet Eta1 1",100,0,1500);
+  emEneLeadJetEta2_1 = TH1F("emEneLeadJetEta2_1","EM Energy Lead Jet Eta2 1",100,0,1500);
+  emEneLeadJetEta3_1 = TH1F("emEneLeadJetEta3_1","EM Energy Lead Jet Eta3 1",100,0,1500);
+
+  hadEneLeadJetEta1_2 = TH1F("hadEneLeadJetEta1_2","Hadronic Energy Lead Jet Eta1 2",100,0,6000);
+  hadEneLeadJetEta2_2 = TH1F("hadEneLeadJetEta2_2","Hadronic Energy Lead Jet Eta2 2",100,0,6000);
+  hadEneLeadJetEta3_2 = TH1F("hadEneLeadJetEta3_2","Hadronic Energy Lead Jet Eta3 2",100,0,6000);
+  emEneLeadJetEta1_2 = TH1F("emEneLeadJetEta1_2","EM Energy Lead Jet Eta1 2",100,0,5000);
+  emEneLeadJetEta2_2 = TH1F("emEneLeadJetEta2_2","EM Energy Lead Jet Eta2 2",100,0,5000);
+  emEneLeadJetEta3_2 = TH1F("emEneLeadJetEta3_2","EM Energy Lead Jet Eta3 2",100,0,5000);
+
   hadEneLeadJet1 = TH1F("hadEneLeadJet1","Hadronic Energy Lead Jet 1",100,0,3000);
   hadEneLeadJet12 = TH1F("hadEneLeadJet12","Hadronic Energy Lead Jet 1 2",100,0,4000);
   hadEneLeadJet13 = TH1F("hadEneLeadJet13","Hadronic Energy Lead Jet 1 3",100,0,6000);
@@ -267,6 +284,10 @@ void myFastSimVal::beginJob( const EventSetup & ) {
   nTowersLeadJet2  = TH1F("nTowersLeadJet2","Number of Towers Lead Jet 2",100,0,100);
   nTowersLeadJet3  = TH1F("nTowersLeadJet3","Number of Towers Lead Jet 3",100,0,100);
 
+  hf_PtResponse1   = TProfile("PtResponse1","Pt Response 1", 100, -5, 5, 0, 10);
+  hf_PtResponse2   = TProfile("PtResponse2","Pt Response 2", 100, -5, 5, 0, 10);
+  hf_PtResponse3   = TProfile("PtResponse3","Pt Response 3", 100, -5, 5, 0, 10);
+
   hf_TowerDelR1   = TProfile("hf_TowerDelR1","Tower Del R 1", 100, 0, 2, 0, 10);
   hf_TowerDelR12   = TProfile("hf_TowerDelR12","Tower Del R 1", 80, 0, 0.8, 0, 10);
   hf_TowerDelR2   = TProfile("hf_TowerDelR2","Tower Del R 2", 100, 0, 2, 0, 10);
@@ -296,9 +317,13 @@ void myFastSimVal::beginJob( const EventSetup & ) {
   hf_nJet2 = TProfile("hf_nJet2", "Num Jets 2", 100, 0, 5000, 0, 50);
   hf_nJet3 = TProfile("hf_nJet3", "Num Jets 3", 100, 0, 5000, 0, 50);
 
-  hf_nJet1s = TProfile("hf_nJet1s", "Num Jets 1", 100, 0, 150, 0, 50);
-  hf_nJet2s = TProfile("hf_nJet2s", "Num Jets 2", 100, 0, 150, 0, 50);
-  hf_nJet3s = TProfile("hf_nJet3s", "Num Jets 3", 100, 0, 150, 0, 50);
+  hf_nJet1s = TProfile("hf_nJet1s", "Num Jets 1", 100, 0, 200, 0, 50);
+  hf_nJet2s = TProfile("hf_nJet2s", "Num Jets 2", 100, 0, 200, 0, 50);
+  hf_nJet3s = TProfile("hf_nJet3s", "Num Jets 3", 100, 0, 200, 0, 50);
+
+  hf_nJet11 = TProfile("hf_nJet11", "Num Jets 1 1", 100, 0, 3000, 0, 50);
+  hf_nJet21 = TProfile("hf_nJet21", "Num Jets 2 1", 100, 0, 3000, 0, 50);
+  hf_nJet31 = TProfile("hf_nJet31", "Num Jets 3 1", 100, 0, 3000, 0, 50);
 
   dRPar1   = TH1F("dRPar1","Parton dR with matched CaloJet1",100,0,0.5);
   dPhiPar1 = TH1F("dPhiPar1","Parton dPhi with matched CaloJet1",200,-0.5,0.5);
@@ -515,7 +540,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   // Count Jets above Pt cut
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (10000./100.));
+    float ptStep = (istep * (5000./100.));
     for ( CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++ cal ) {          
       if ( cal->pt() > ptStep ) njet++;      
     }
@@ -526,12 +551,23 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   // Count Jets above Pt cut
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (150./100.));
+    float ptStep = (istep * (200./100.));
     for ( CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++ cal ) {          
       if ( cal->pt() > ptStep ) njet++;      
     }
 
     hf_nJet1s.Fill( ptStep, njet );
+  }
+
+  // Count Jets above Pt cut
+  for (int istep = 0; istep < 100; ++istep) {
+    int     njet = 0;
+    float ptStep = (istep * (3000./100.));
+    for ( CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++ cal ) {          
+      if ( cal->pt() > ptStep ) njet++;      
+    }
+
+    hf_nJet11.Fill( ptStep, njet );
   }
 
 
@@ -569,6 +605,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       nextPt      = corPt;
       p4cortmp[1] = scale*cal->p4();
     }
+
     /***
     std::cout << ">>> Corr Jet: corPt = " 
 	      << corPt << ", scale = " << scale 
@@ -630,6 +667,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     LeadMass1 = (p4tmp[0]+p4tmp[1]).mass();
     dijetMass1.Fill( LeadMass1 );    
     dijetMass12.Fill( LeadMass1 );    
+    dijetMass13.Fill( LeadMass1 );    
     if (EtaOk10 == 2) {
       dijetMass101.Fill( LeadMass1 );        
       dijetMass102.Fill( LeadMass1 );  
@@ -711,7 +749,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   // Count Jets above Pt cut
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (10000./100.));
+    float ptStep = (istep * (5000./100.));
 
     for ( CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++ cal )
       if ( cal->pt() > ptStep ) njet++;      
@@ -721,12 +759,23 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (150./100.));
+    float ptStep = (istep * (200./100.));
 
     for ( CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++ cal )
       if ( cal->pt() > ptStep ) njet++;      
     
     hf_nJet2s.Fill( ptStep, njet );
+  }
+
+
+  for (int istep = 0; istep < 100; ++istep) {
+    int     njet = 0;
+    float ptStep = (istep * (3000./100.));
+
+    for ( CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++ cal )
+      if ( cal->pt() > ptStep ) njet++;      
+    
+    hf_nJet21.Fill( ptStep, njet );
   }
 
 
@@ -780,6 +829,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     LeadMass2 = (p4tmp[0]+p4tmp[1]).mass();
     dijetMass2.Fill( LeadMass2 );
     dijetMass22.Fill( LeadMass2 );
+    dijetMass23.Fill( LeadMass2 );
 
 
     dijetMassCor1.Fill( LeadMass2 );    
@@ -824,7 +874,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   // Count Jets above Pt cut
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (10000./100.));
+    float ptStep = (istep * (5000./100.));
 
     for ( CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++ cal )
       if ( cal->pt() > ptStep ) njet++;      
@@ -835,12 +885,22 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   for (int istep = 0; istep < 100; ++istep) {
     int     njet = 0;
-    float ptStep = (istep * (150./100.));
+    float ptStep = (istep * (200./100.));
 
     for ( CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++ cal )
       if ( cal->pt() > ptStep ) njet++;          
 
     hf_nJet3s.Fill( ptStep, njet );
+  }
+
+  for (int istep = 0; istep < 100; ++istep) {
+    int     njet = 0;
+    float ptStep = (istep * (3000./100.));
+
+    for ( CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++ cal )
+      if ( cal->pt() > ptStep ) njet++;          
+
+    hf_nJet31.Fill( ptStep, njet );
   }
 
 
@@ -889,6 +949,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     LeadMass3 = (p4tmp[0]+p4tmp[1]).mass();
     dijetMass3.Fill( LeadMass3 );
     dijetMass32.Fill( LeadMass3 );
+    dijetMass33.Fill( LeadMass3 );
   }
 
 
@@ -1099,6 +1160,9 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
       used[usedInd] = 1;
 
+      if (p4gen[jetInd].pt() > minJetPt10)
+	hf_PtResponse1.Fill(p4cal[jetInd].eta(), p4cal[jetInd].pt()/p4gen[jetInd].pt());
+
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) ) {
 
 	dR1.Fill(dRmin[jetInd]);
@@ -1107,10 +1171,10 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
 	dEta1.Fill(deta);
 	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
-	dPt1.Fill(dpt);
+	dPt1.Fill(dpt);       	
 	dPtFrac1.Fill(dpt/p4gen[jetInd].pt());
 
-	if ( (dpt/p4gen[jetInd].pt()) < -0.5 ) {
+	if ( ( (dpt/p4gen[jetInd].pt()) < -0.5 ) &&  ( fabs(dpt) > 90. ) ) {
 
 	  cout << " deltaR min = "     << dRmin[jetInd]
 	       << " Ind = " << jetInd  << " / " << usedInd << " / " << used[nj]
@@ -1175,6 +1239,10 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
       used[usedInd] = 1;
 
+
+      if (p4gen[jetInd].pt() > minJetPt10)
+	hf_PtResponse2.Fill(p4cal[jetInd].eta(), p4cal[jetInd].pt()/p4gen[jetInd].pt());
+
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) )  {
 
 	dR2.Fill(dRmin[jetInd]);
@@ -1184,7 +1252,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	dEta2.Fill(deta);
 	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt2.Fill(dpt);
-	dPtFrac2.Fill(dpt/p4gen[jetInd].pt());
+	dPtFrac2.Fill(dpt/p4gen[jetInd].pt());       
 
       }      
 
@@ -1232,6 +1300,9 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     if (usedInd != -1) {
       used[usedInd] = 1;
 
+      if (p4gen[jetInd].pt() > minJetPt10)
+	hf_PtResponse3.Fill(p4cal[jetInd].eta(), p4cal[jetInd].pt()/p4gen[jetInd].pt());
+
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) ) {
 	dR3.Fill(dRmin[jetInd]);
 	double dphi = deltaPhi(p4cal[jetInd].phi(), p4gen[jetInd].phi());
@@ -1241,6 +1312,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt3.Fill(dpt);
 	dPtFrac3.Fill(dpt/p4gen[jetInd].pt());
+
+
       }
       
       jetInd++;    
@@ -1934,6 +2007,25 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     float had     = ijet->energyFractionHadronic();    
 
     float j_et = ijet->et();
+
+    if (fabs(ijet->eta()) < 1.3) {
+      hadEneLeadJetEta1_1.Fill(hadEne); 
+      emEneLeadJetEta1_1.Fill(emEne);       
+      hadEneLeadJetEta1_2.Fill(hadEne); 
+      emEneLeadJetEta1_2.Fill(emEne);       
+    }
+    if ((fabs(ijet->eta()) > 1.3) && (fabs(ijet->eta()) < 3.) ) {
+      hadEneLeadJetEta2_1.Fill(hadEne); 
+      emEneLeadJetEta2_1.Fill(emEne);       
+      hadEneLeadJetEta2_2.Fill(hadEne); 
+      emEneLeadJetEta2_2.Fill(emEne);       
+    }
+    if (fabs(ijet->eta()) > 3.) {
+      hadEneLeadJetEta3_1.Fill(hadEne); 
+      emEneLeadJetEta3_1.Fill(emEne); 
+      hadEneLeadJetEta3_2.Fill(hadEne); 
+      emEneLeadJetEta3_2.Fill(emEne); 
+    }
 
     if (jjet == 1) {
       hadFracLeadJet1.Fill(had);

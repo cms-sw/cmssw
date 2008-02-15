@@ -27,13 +27,20 @@ private:
   TProfile hf_TowerDelR12, hf_TowerDelR22, hf_TowerDelR32;
   TProfile hf_nJet1, hf_nJet2, hf_nJet3;
   TProfile hf_nJet1s, hf_nJet2s, hf_nJet3s;
-
+  TProfile hf_nJet11, hf_nJet21, hf_nJet31;
+  TProfile hf_PtResponse1, hf_PtResponse2,  hf_PtResponse3;
+  
   TH1F hf_sumTowerAllEx, hf_sumTowerAllEy;
   TH1F SumEt1, MET1;
   TH1F SumEt12, MET12;
   TH1F SumEt13, MET13;
 
   TH1F nTowers1, nTowers2, nTowers3, nTowers4;
+  TH1F hadEneLeadJetEta1_1, hadEneLeadJetEta2_1, hadEneLeadJetEta3_1;
+  TH1F emEneLeadJetEta1_1,  emEneLeadJetEta2_1,  emEneLeadJetEta3_1;
+  TH1F hadEneLeadJetEta1_2, hadEneLeadJetEta2_2, hadEneLeadJetEta3_2;
+  TH1F emEneLeadJetEta1_2,  emEneLeadJetEta2_2,  emEneLeadJetEta3_2;
+
   TH1F hadEneLeadJet1, hadEneLeadJet2, hadEneLeadJet3;
   TH1F hadEneLeadJet12, hadEneLeadJet22, hadEneLeadJet32;
   TH1F hadEneLeadJet13, hadEneLeadJet23, hadEneLeadJet33;
@@ -80,6 +87,7 @@ private:
   TH1F ZpMassMatched1, ZpMassMatched2, ZpMassMatched3;
   TH1F dijetMass1,     dijetMass2,     dijetMass3;
   TH1F dijetMass12,     dijetMass22,     dijetMass32;
+  TH1F dijetMass13,     dijetMass23,     dijetMass33;
   TH1F dijetMass101, dijetMass131, dijetMass401;
   TH1F dijetMass102, dijetMass132, dijetMass402;
   TH1F dijetMass103, dijetMass133, dijetMass403;
