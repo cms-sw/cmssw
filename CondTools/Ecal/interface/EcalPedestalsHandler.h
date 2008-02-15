@@ -1,8 +1,17 @@
 #ifndef ECAL_PEDESTALS_HANDLER_H
 #define ECAL_PEDESTALS_HANDLER_H
 
-
+#include <vector>
 #include <typeinfo>
+#include <string>
+#include <map>
+#include <iostream>
+#include <time.h>
+
+#include "CondCore/PopCon/interface/PopConSourceHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -15,9 +24,15 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 
-#include "CondCore/PopCon/interface/PopConSourceHandler.h"
+
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -29,11 +44,7 @@
 
 
 
-#include <string>
-#include <map>
-#include <iostream>
-#include <vector>
-#include <time.h>
+
 
 using namespace std;
 using namespace oracle::occi;
@@ -46,25 +57,20 @@ namespace edm {
 
 namespace popcon
 {
+
+
 	class EcalPedestalsHandler : public popcon::PopConSourceHandler<EcalPedestals>
 	{
 
 		public:
-			void getNewObjects();
+                        EcalPedestalsHandler(edm::ParameterSet const & );
 			~EcalPedestalsHandler(); 
-			EcalPedestalsHandler(const std::string&,
-					     const std::string&,
-					     const edm::Event& evt, 
-					     const edm::EventSetup& est,
-					     unsigned int firstRun,
-					     unsigned int lastRun, 
-					     const std::string& sid,
-					     const std::string& user, 
-					     const std::string& pass, 
-					     const std::string& tag, 
-					     const std::string& loca); 
-
+			void getNewObjects();
+			void getNewObjectsP5();
+			void getNewObjectsH2();
+			std::string id() const { return m_name;}
 			EcalCondDBInterface* econn;
+
 		private:
 			const EcalPedestals * mypedestals;
 
@@ -76,7 +82,12 @@ namespace popcon
 			std::string m_sid;
 			std::string m_user;
 			std::string m_pass;
+                        std::string m_locationsource;
+                        std::string m_name;
+
+
 
 	};
 }
 #endif
+
