@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2006/10/17 09:56:12 $
+ * $Date: 2006/10/26 08:33:10 $
  * \author C. Rovelli
  *
 */
@@ -88,6 +88,10 @@ private:
  MonitorElement* meESRecHitSimHitRatio_;
  MonitorElement* meEBRecHitSimHitRatioGt35_;
  MonitorElement* meEERecHitSimHitRatioGt35_;
+ MonitorElement* meEBUnRecHitSimHitRatio_;
+ MonitorElement* meEEUnRecHitSimHitRatio_;
+ MonitorElement* meEBUnRecHitSimHitRatioGt35_;
+ MonitorElement* meEEUnRecHitSimHitRatioGt35_;
 };
 
 #endif

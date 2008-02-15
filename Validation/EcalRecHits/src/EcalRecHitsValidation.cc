@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2007/11/02 09:14:54 $
+ * $Date: 2007/12/18 18:43:48 $
  * \author C. Rovelli
  *
 */
@@ -10,6 +10,7 @@
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 using namespace cms;
 using namespace edm;
@@ -70,6 +71,10 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meESRecHitSimHitRatio_     = 0;
   meEBRecHitSimHitRatioGt35_ = 0;
   meEERecHitSimHitRatioGt35_ = 0;
+  meEBUnRecHitSimHitRatio_     = 0;
+  meEEUnRecHitSimHitRatio_     = 0;
+  meEBUnRecHitSimHitRatioGt35_ = 0;
+  meEEUnRecHitSimHitRatioGt35_ = 0;
   
   // ---------------------- 
   Char_t histo[20];
@@ -100,6 +105,18 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 
     sprintf (histo, "EcalRecHitsTask, Endcap RecSimHit Ratio gt 3.5 GeV"); 
     meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+
+    sprintf (histo, "EcalRecHitsTask, Barrel Unc RecSimHit Ratio");  
+    meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);   
+
+    sprintf (histo, "EcalRecHitsTask, Endcap Unc RecSimHit Ratio"); 
+    meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
+
+    sprintf (histo, "EcalRecHitsTask, Barrel Unc RecSimHit Ratio gt 3.5 GeV");  
+    meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);   
+
+    sprintf (histo, "EcalRecHitsTask, Endcap Unc RecSimHit Ratio gt 3.5 GeV"); 
+    meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
   }
 }
 
@@ -119,6 +136,13 @@ void EcalRecHitsValidation::endJob(){
 void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   LogInfo("EcalRecHitsTask, EventInfo: ") << " Run = " << e.id().run() << " Event = " << e.id().event();
+
+  // ADC -> GeV Scale
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  c.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  const double barrelADCtoGeV_  = agc->getEBValue();
+  const double endcapADCtoGeV_ = agc->getEEValue();
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
@@ -127,49 +151,52 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit;
+  bool skipBarrel = false;
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit =0;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
   if (EcalUncalibRecHitEB.isValid()){
     EBUncalibRecHit = EcalUncalibRecHitEB.product() ;    
   } else {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
+    skipBarrel = true;
   }
 
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit;
+  bool skipEndcap = false;
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()){ 
     EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
   } else {
-    edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+    skipEndcap = true;
   }
 
-  const EBRecHitCollection *EBRecHit;
+  const EBRecHitCollection *EBRecHit = 0;
   Handle<EBRecHitCollection> EcalRecHitEB;
   e.getByLabel( EBrechitCollection_, EcalRecHitEB);
   if (EcalRecHitEB.isValid()){ 
     EBRecHit = EcalRecHitEB.product();
   } else {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
+    skipBarrel = true;
   }
 
-  const EERecHitCollection *EERecHit;
+  const EERecHitCollection *EERecHit = 0;
   Handle<EERecHitCollection> EcalRecHitEE;
   e.getByLabel( EErechitCollection_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){
     EERecHit = EcalRecHitEE.product ();
   } else {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+    skipEndcap = true;
   }
 
-  const ESRecHitCollection *ESRecHit;
+  bool skipPreshower = false;
+  const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByLabel( ESrechitCollection_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
     ESRecHit = EcalRecHitES.product ();      
   } else {
-    edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+    skipPreshower = true;
   }
 
 
@@ -197,6 +224,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // -------------------------------------------------------------------
   // BARREL
+
+  if ( ! skipBarrel) {
 
   // 1) loop over simHits  
   const std::string barrelHitsName ("EcalHitsEB");
@@ -230,6 +259,13 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
       
       // comparison Rec/Sim hit
+	  if ( ebSimMap[EBid.rawId()] != 0. )
+	    {
+          double uncEnergy = uncalibRecHit->amplitude()*barrelADCtoGeV_;
+	      if (meEBUnRecHitSimHitRatio_)                                {meEBUnRecHitSimHitRatio_    ->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
+	      if (meEBUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEBUnRecHitSimHitRatioGt35_->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
+	    }
+
       if (myRecHit != EBRecHit->end())
 	{
 	  if ( ebSimMap[EBid.rawId()] != 0. )
@@ -242,11 +278,13 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	continue;
     }  // loop over the UncalibratedRecHitCollection
 
-
+  }
 
 
   // -------------------------------------------------------------------
   // ENDCAP
+
+  if ( ! skipEndcap ) {
 
   // 1) loop over simHits
   const std::string endcapHitsName ("EcalHitsEE") ;
@@ -280,6 +318,13 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
 
       // comparison Rec/Sim hit
+	  if ( eeSimMap[EEid.rawId()] != 0. )
+	    {
+          double uncEnergy = uncalibRecHit->amplitude()*endcapADCtoGeV_;
+	      if (meEEUnRecHitSimHitRatio_)                                {meEEUnRecHitSimHitRatio_    ->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
+	      if (meEEUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEEUnRecHitSimHitRatioGt35_->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
+	    }
+
       if (myRecHit != EERecHit->end())
 	{
 	  if ( eeSimMap[EEid.rawId()] != 0. )
@@ -292,10 +337,12 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	continue;
     }  // loop over the UncalibratedechitCollection
 
-
+  }
 
   // -------------------------------------------------------------------
   // PRESHOWER
+
+  if ( ! skipPreshower ) {
 
   // 1) loop over simHits
   const std::string preshowerHitsName ("EcalHitsES") ;
@@ -327,5 +374,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       else
 	continue;
     }  // loop over the RechitCollection
+
+  }
 
 }

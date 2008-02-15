@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2007/11/02 09:14:54 $
+ * $Date: 2007/12/18 18:43:48 $
  * \author C. Rovelli
  *
  */
@@ -147,31 +147,32 @@ void EcalPreshowerRecHitsValidation::endJob(){
 
 void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
-  const ESRecHitCollection *ESRecHit;
+  const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByLabel( ESrechitCollection_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
     ESRecHit = EcalRecHitES.product ();
   } else {
-    edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+    return;
   }
 
-  const EERecHitCollection *EERecHit;
+  bool skipEE = false;
+  const EERecHitCollection *EERecHit = 0;
   Handle<EERecHitCollection> EcalRecHitEE;
   e.getByLabel( EErechitCollection_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){   
     EERecHit = EcalRecHitEE.product ();  
   } else {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+    skipEE = true;
   }
 
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit;
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()) {
     EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
   } else {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+    skipEE = true;
   }
 
 
@@ -253,21 +254,23 @@ void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c
   // EE
   double zpEE = 0.;
   double zmEE = 0.;
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
-    {
-      EEDetId EEid = EEDetId(uncalibRecHit->id());
-      int mySide = EEid.zside();
-      
-      // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
-      
-      if (myRecHit != EERecHit->end() )
-	{
-	  if (mySide > 0) { zpEE = zpEE + myRecHit->energy(); }
-	  if (mySide < 0) { zmEE = zmEE + myRecHit->energy(); }
-	}
-    } 
-  
+  if ( ! skipEE ) {
+    
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
+      {
+        EEDetId EEid = EEDetId(uncalibRecHit->id());
+        int mySide = EEid.zside();
+        
+        // Find corresponding recHit
+        EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+        
+        if (myRecHit != EERecHit->end() )
+          {
+            if (mySide > 0) { zpEE = zpEE + myRecHit->energy(); }
+            if (mySide < 0) { zmEE = zmEE + myRecHit->energy(); }
+          }
+      } 
+  }
   
 
   // filling histos
