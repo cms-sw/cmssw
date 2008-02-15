@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.15 $
  * \author F. Cossutti
  *
 */
@@ -148,6 +148,9 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<EBDigiCollection> EcalDigiEB;
 
   e.getByLabel( EBdigiCollection_ , EcalDigiEB );
+
+  //Return if no Barrel data 
+  if( !EcalDigiEB.isValid() ) return;
 
   // BARREL
 

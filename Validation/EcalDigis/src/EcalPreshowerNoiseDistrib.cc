@@ -78,6 +78,9 @@ void EcalPreshowerNoiseDistrib::analyze(const Event& e, const EventSetup& c){
   Handle<ESDigiCollection> EcalDigiES;
   
   e.getByLabel( ESdigiCollection_ , EcalDigiES );
+
+  // retrun if no data
+  if( !EcalDigiES.isValid() ) return;
   
   // loop over Digis
   const ESDigiCollection * preshowerDigi = EcalDigiES.product () ;

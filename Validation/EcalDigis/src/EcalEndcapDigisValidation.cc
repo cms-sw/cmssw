@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.16 $
  * \author F. Cossutti
  *
 */
@@ -155,6 +155,9 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<EEDigiCollection> EcalDigiEE;
 
   e.getByLabel( EEdigiCollection_ , EcalDigiEE );
+
+  // Return if no Endcap data available
+  if( !EcalDigiEE.isValid() ) return;
 
   // ENDCAP
 

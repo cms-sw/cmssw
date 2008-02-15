@@ -142,6 +142,9 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   edm::Handle<edm::PCaloHitContainer> EcalHitsEB;
   e.getByLabel(g4InfoLabel,EBHitsCollection,EcalHitsEB);
 
+  // Do nothing if no Barrel data available
+  if( ! EcalHitsEB.isValid() ) return;
+
   edm::Handle<PEcalValidInfo> MyPEcalValidInfo;
   e.getByLabel(g4InfoLabel,ValidationCollection,MyPEcalValidInfo);
 
@@ -224,9 +227,11 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     
   }
   
-  if ( MyPEcalValidInfo->eb1x1() > 0. ) {
-    std::vector<float>  BX0 = MyPEcalValidInfo->bX0();
-    for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += BX0[myStep]; }
+  if( MyPEcalValidInfo.isValid() ) {
+    if ( MyPEcalValidInfo->eb1x1() > 0. ) {
+      std::vector<float>  BX0 = MyPEcalValidInfo->bX0();
+      for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += BX0[myStep]; }
+    }
   }
 }
 

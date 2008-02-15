@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -86,6 +86,9 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<ESDigiCollection> EcalDigiES;
 
   e.getByLabel( ESdigiCollection_ , EcalDigiES );
+
+  // Return if no preshower data
+  if( !EcalDigiES.isValid() ) return;
 
   // PRESHOWER
   

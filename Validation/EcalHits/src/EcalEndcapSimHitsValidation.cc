@@ -160,6 +160,9 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
   e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
 
+  // Do nothing if no EndCap data available
+  if( ! EcalHitsEE.isValid() ) return;
+
   edm::Handle<PEcalValidInfo> MyPEcalValidInfo;
   e.getByLabel(g4InfoLabel,ValidationCollection,MyPEcalValidInfo);
 
@@ -260,9 +263,11 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     
   }
     
-  if ( MyPEcalValidInfo->ee1x1() > 0. ) {
-    std::vector<float>  EX0 = MyPEcalValidInfo->eX0();
-    for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += EX0[myStep]; }
+  if( MyPEcalValidInfo.isValid() ) {
+    if ( MyPEcalValidInfo->ee1x1() > 0. ) {
+      std::vector<float>  EX0 = MyPEcalValidInfo->eX0();
+      for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += EX0[myStep]; }
+    }
   }
 }
 

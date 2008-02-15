@@ -137,14 +137,17 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   e.getByLabel(g4InfoLabel,ESHitsCollection,EcalHitsES);
 
   std::vector<PCaloHit> theEECaloHits;  
-  theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
+  if( EcalHitsEE.isValid() ) {
+    theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
+  }
 
   std::vector<PCaloHit> theESCaloHits;
-  theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
+  if( EcalHitsES.isValid() ) {
+    theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
+  }
 
   double ESEnergy_ = 0.;
   std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
-
 
   // endcap
   double EEetzp_ = 0.;
