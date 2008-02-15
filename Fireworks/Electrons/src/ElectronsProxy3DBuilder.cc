@@ -11,6 +11,8 @@
 #include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 
+const reco::PixelMatchGsfElectronCollection *ElectronsProxy3DBuilder::electrons = 0;
+
 ElectronsProxy3DBuilder::ElectronsProxy3DBuilder()
 {
 }
@@ -39,6 +41,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      printf("getting electrons\n");
      iItem->get(electrons);
      printf("got electrons\n");
+     ElectronsProxy3DBuilder::electrons = electrons;
    
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
@@ -72,7 +75,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 	  //   <<it->pz()<<endl;
 	  //cout <<" *";
 	  assert(i->superCluster().isNonnull());
-#if 1
+#if 0
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
