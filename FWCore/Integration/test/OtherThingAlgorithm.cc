@@ -29,9 +29,9 @@ namespace edmtest {
 	element.refVec.push_back(edm::Ref<ThingCollection>(parent, 19-i));
 	edm::RefVector<ThingCollection>::iterator ri = element.refVec.begin();
 	element.refVec.erase(ri);
-	element.refOneNullOneNot.push_back(edm::Ref<ThingCollection>(null, 0));
-	element.refOneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
-	assert(element.refOneNullOneNot.size() == 2); // we'll check this in our tests
+	element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(null, 0));
+	element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
+	assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
 	element.ptr = edm::Ptr<Thing>(parent, i);
 	element.ptrVec.push_back(element.ptr);
 	element.ptrVec.push_back(edm::Ptr<Thing>(parent, 19-i));
@@ -47,9 +47,9 @@ namespace edmtest {
 	element.refVec.push_back(edm::Ref<ThingCollection>(parentHandle, 19-i));
 	edm::RefVector<ThingCollection>::iterator ri = element.refVec.begin();
 	element.refVec.erase(ri);
-	element.refOneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle.id()));
-	element.refOneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle, 0));
-	assert(element.refOneNullOneNot.size() == 2); // we'll check this in our tests
+	element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle.id()));
+	element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle, 0));
+	assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
 	element.ptr = edm::Ptr<Thing>(parentHandle, i);
 	element.ptrVec.push_back(element.ptr);
 	element.ptrVec.push_back(edm::Ptr<Thing>(parentHandle, 19-i));

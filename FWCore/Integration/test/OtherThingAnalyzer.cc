@@ -44,16 +44,16 @@ namespace edmtest {
         it != itEnd; ++it, ++i) {
       OtherThing const& otherThing = *it;
 
-      if (otherThing.refOneNullOneNot.size() != 2) {
+      if (otherThing.oneNullOneNot.size() != 2) {
 	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") 
-	  << " refOneNullOneNot has wrong length: " << otherThing.refOneNullOneNot.size()
+	  << " oneNullOneNot has wrong length: " << otherThing.oneNullOneNot.size()
 	  << " should be 2\n";
       }
-      if (otherThing.refOneNullOneNot[0].isNonnull()) {
+      if (otherThing.oneNullOneNot[0].isNonnull()) {
 	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
 	  << " expected null Ref is not null\n";
       }
-      if (otherThing.refOneNullOneNot[1].isNull()) {
+      if (otherThing.oneNullOneNot[1].isNull()) {
 	throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
 	  << " expected non-null Ref is null\n";
       }
