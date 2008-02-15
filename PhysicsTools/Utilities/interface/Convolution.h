@@ -5,7 +5,7 @@
 namespace function {
   template<typename A, typename B>
   class Convolution {
-  public:
+   public:
     enum { arguments = 1 };
     enum { parameters = A::parameters + B::parameters };
     // min and max are defined in the domain of b
@@ -18,7 +18,7 @@ namespace function {
 	  << "Convolution: min must be smaller than max\n"; 
     }
     double operator()(double x) const;  
-  private:
+   private:
     A a_;
     B b_;
     double min_, max_, delta_;
@@ -26,7 +26,7 @@ namespace function {
   };
 
   template<typename A, typename B>
-    double Convolution<A, B>::operator()(double x) const {
+  double Convolution<A, B>::operator()(double x) const {
     double f = 0; 
     // x - max < y < x - min
     double y0 = x - max_;

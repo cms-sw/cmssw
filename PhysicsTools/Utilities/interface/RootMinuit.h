@@ -43,8 +43,18 @@ namespace fit {
       minuit_.GetParameter(i, val, err);
       return val;
     }
+    double getParameter(int i) const {
+      double val, err;
+      minuit_.GetParameter(i, val, err);
+      return val;
+    }
     double getParameterError(int i, double & val) const {
       double err;
+      minuit_.GetParameter(i, val, err);
+      return err;
+    }
+    double getParameterError(int i) const {
+      double val, err;
       minuit_.GetParameter(i, val, err);
       return err;
     }

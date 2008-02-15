@@ -62,7 +62,7 @@ namespace root {
     private:
       static double fun_(const double * x, const double * par) {
         adapter_.setParameters(par);
-        return adapter_(x);
+	return adapter_(x);
       }
       static RootFunctionAdapter<F> adapter_;
     };
@@ -81,16 +81,19 @@ namespace root {
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
 	   boost::shared_ptr<double> p0) {
-    typename helper::RootFunctionHelper<F>::root_function fun = helper::RootFunctionHelper<F>::fun(f);
+    typename helper::RootFunctionHelper<F>::root_function 
+      fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
     return fun;
   }
 
   template<typename F>
-  typename helper::RootFunctionHelper<F>::root_function function(F& f, 
-								 boost::shared_ptr<double> p0,
-								 boost::shared_ptr<double> p1) {
-    typename helper::RootFunctionHelper<F>::root_function fun = helper::RootFunctionHelper<F>::fun(f);
+  typename helper::RootFunctionHelper<F>::root_function 
+    function(F& f, 
+	     boost::shared_ptr<double> p0,
+	     boost::shared_ptr<double> p1) {
+    typename helper::RootFunctionHelper<F>::root_function 
+      fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
     helper::RootFunctionHelper<F>::addParameter(p1);
     return fun;
@@ -102,7 +105,8 @@ namespace root {
 	   boost::shared_ptr<double> p0,
 	   boost::shared_ptr<double> p1,
 	   boost::shared_ptr<double> p2) {
-    typename helper::RootFunctionHelper<F>::root_function fun = helper::RootFunctionHelper<F>::fun(f);
+    typename helper::RootFunctionHelper<F>::root_function 
+      fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
     helper::RootFunctionHelper<F>::addParameter(p1);
     helper::RootFunctionHelper<F>::addParameter(p2);
@@ -113,8 +117,10 @@ namespace root {
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
 	   const std::vector<boost::shared_ptr<double> > & pars) {
-    typename helper::RootFunctionHelper<F>::root_function fun = helper::RootFunctionHelper<F>::fun(f);
-    std::vector<boost::shared_ptr<double> >::const_iterator i, b = pars.begin(), e = pars.end();
+    typename helper::RootFunctionHelper<F>::root_function 
+      fun = helper::RootFunctionHelper<F>::fun(f);
+    std::vector<boost::shared_ptr<double> >::const_iterator i, 
+      b = pars.begin(), e = pars.end();
     for(i = b; i != e; ++i)
       helper::RootFunctionHelper<F>::addParameter(*i);
     return fun;
@@ -166,11 +172,6 @@ namespace root {
     return fun;
   }
   
-}
-
-#include "TF1.h"
-
-namespace root {
   namespace helper {
 
     template<typename F>
@@ -196,7 +197,8 @@ namespace root {
     };
 
     template <typename F>
-    typename RootGradientHelper<F>::root_function RootGradientHelper<F>::fun_ = 0;
+    typename RootGradientHelper<F>::root_function 
+      RootGradientHelper<F>::fun_ = 0;
 
     template <typename F>
     unsigned int RootGradientHelper<F>::index_ = 0;
@@ -206,7 +208,8 @@ namespace root {
   }
 
   template<typename F>
-  double gradient(F& f, unsigned int index, double min, double max, unsigned int pars) {
+  double gradient(F& f, unsigned int index, double min, double max, 
+		  unsigned int pars) {
     return helper::RootGradientHelper<F>::gradient(f, index, min, max, pars);
   }
 

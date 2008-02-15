@@ -24,7 +24,7 @@ namespace function {
 #include <iostream>
 
 inline std::ostream & operator<<(std::ostream&cout, const function::Parameter & p) {
-  return cout << p.name() <<"=" << p.value();
+  return cout << p.name() <<" = " << p.value();
 }
 
 #endif

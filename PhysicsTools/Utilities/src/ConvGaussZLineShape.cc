@@ -20,3 +20,4 @@ double ConvGaussZLineShape::operator()(double x) const {
   }   
   return f * deltax/bins;
 }
+

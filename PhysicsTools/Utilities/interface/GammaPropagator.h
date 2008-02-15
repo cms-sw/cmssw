@@ -8,8 +8,8 @@ namespace function {
     enum { parameters = 0 };
     GammaPropagator() {}
     double operator()(double mass) const { 
-      double s = mass*mass;
-      return 1./s;
+      if(mass <= 0) return 0;
+      return 1./(mass*mass);
     }
   };
 
