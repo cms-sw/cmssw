@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2007/08/31 17:24:28 $
+ *  $Revision: 1.2 $
+ *  $Date: 2008/02/15 14:37:34 $
  *  (last update by $Author: flucke $)
  */
 
@@ -57,7 +57,7 @@ unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
     edm::LogError("LogicError")
       << "@SUB=PedeLabeler::alignableLabel" << "Alignable "
       << typeid(*alignable).name() << " not in map, det/subdet/alignableStructureType = "
-      << detId().det() << "/" << detId().subdetId() << "/" << alignable->alignableObjectId();
+      << detId.det() << "/" << detId.subdetId() << "/" << alignable->alignableObjectId();
     return 0;
   }
 
