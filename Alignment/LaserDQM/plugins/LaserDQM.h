@@ -4,8 +4,8 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:02:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 23:54:44 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 // DQM
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <iostream>
 

@@ -1,8 +1,8 @@
 /** \file LaserDQM.cc
  *  DQM Monitors for Laser Alignment System
  *
- *  $Date: 2007/03/20 12:02:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/04 23:54:44 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -53,9 +53,6 @@ void LaserDQM::beginJob(const edm::EventSetup& theSetup)
 {
   // get hold of DQM Backend interface
   theDaqMonitorBEI = edm::Service<DaqMonitorBEInterface>().operator->();
-      
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
       
   // initialize the Monitor Elements
   initMonitors();
