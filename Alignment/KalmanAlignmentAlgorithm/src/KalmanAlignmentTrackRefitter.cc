@@ -1,6 +1,10 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
+
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
@@ -22,8 +26,6 @@
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-//#include "FWCore/Utilities/interface/Exception.h"
-
 #include <iostream>
 
 using namespace std;
@@ -38,6 +40,7 @@ KalmanAlignmentTrackRefitter::KalmanAlignmentTrackRefitter( const edm::Parameter
   theDebugFlag( config.getUntrackedParameter< bool >( "debug", false ) )
 {
   TrackProducerBase< reco::Track >::setConf( config );
+  TrackProducerBase< reco::Track >::setSrc( config.getParameter< string >( "src" ) );
 }
 
 
@@ -63,13 +66,11 @@ void KalmanAlignmentTrackRefitter::initialize( const edm::EventSetup& setup, Ali
     vector<int> trackingIDs = confTrackingSetup.getParameter< vector<int> >( "Tracking" );
     unsigned int minTrackingHits = confTrackingSetup.getUntrackedParameter<unsigned int>( "MinTrackingHits", 0 );
     bool insideOut = confTrackingSetup.getUntrackedParameter<bool>( "SortInsideOut", true );
-    bool reuseMomentumEstimate = confTrackingSetup.getUntrackedParameter<bool>( "ReuseMomentumEstimate", true );
 
     string strExternalPropDir = confTrackingSetup.getUntrackedParameter< string >( "ExternalPropagationDirection", "alongMomentum" );
     vector<int> externalIDs = confTrackingSetup.getParameter< vector<int> >( "External" );
     unsigned int minExternalHits = confTrackingSetup.getUntrackedParameter<unsigned int>( "MinExternalHits", 0 );
     bool externalInsideOut = confTrackingSetup.getUntrackedParameter<bool>( "SortExternalInsideOut", true );
-    bool externalReuseMomentumEstimate = confTrackingSetup.getUntrackedParameter<bool>( "ExternalReuseMomentumEstimate", true );
 
     edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
     string fitterName = theConfiguration.getParameter< std::string >( "Fitter" );
@@ -122,12 +123,29 @@ void KalmanAlignmentTrackRefitter::initialize( const edm::EventSetup& setup, Ali
       {
 	KFFittingSmoother* fittingSmoother = new KFFittingSmoother( *fitter, *smoother, outlierEstimateCut );
 	KFFittingSmoother* externalFittingSmoother = new KFFittingSmoother( *externalFitter, *externalSmoother );
+	///KFFittingSmoother* fittingSmoother = aFittingSmoother->clone();
+	///KFFittingSmoother* externalFittingSmoother = aFittingSmoother->clone();
 
-	TrackingSetup aTrackingSetup( *itSel,
-				      fittingSmoother, fitter->propagator(), trackingIDs,
-				      minTrackingHits, insideOut, reuseMomentumEstimate,
-				      externalFittingSmoother, externalFitter->propagator(), externalIDs,
-				      minExternalHits, externalInsideOut, externalReuseMomentumEstimate );
+	string identifier;
+	edm::ParameterSet config;
+
+	config = confTrackingSetup.getParameter< edm::ParameterSet >( "TrajectoryFactory" );
+	identifier = config.getParameter< string >( "TrajectoryFactoryName" );
+	TrajectoryFactoryBase* trajectoryFactory = TrajectoryFactoryPlugin::get()->create( identifier, config );
+
+	config = confTrackingSetup.getParameter< edm::ParameterSet >( "AlignmentUpdator" );
+	identifier = config.getParameter< string >( "AlignmentUpdatorName" );
+	KalmanAlignmentUpdator* alignmentUpdator = KalmanAlignmentUpdatorPlugin::get()->create( identifier, config );
+
+	config = confTrackingSetup.getParameter< edm::ParameterSet >( "MetricsUpdator" );
+	identifier = config.getParameter< string >( "MetricsUpdatorName" );
+	KalmanAlignmentMetricsUpdator* metricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::get()->create( identifier, config );
+
+	TrackingSetup* aTrackingSetup
+	  = new TrackingSetup( *itSel,
+			       fittingSmoother, fitter->propagator(), trackingIDs, minTrackingHits, insideOut,
+			       externalFittingSmoother, externalFitter->propagator(), externalIDs, minExternalHits, externalInsideOut,
+			       trajectoryFactory, alignmentUpdator, metricsUpdator );
 
 	theTrackingSetup.push_back( aTrackingSetup );
 
@@ -155,6 +173,7 @@ void KalmanAlignmentTrackRefitter::initialize( const edm::EventSetup& setup, Ali
   }
 
   cout << "[KalmanAlignmentTrackRefitter] I'm using " << theTrackingSetup.size() << " TrackingSetup(s)." << endl;
+
 }
 
 
@@ -195,13 +214,17 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
       {
 	if ( !(*itHits)->isValid() ) continue;
 
- 	//try { theNavigator->alignableFromDetId( (*itHits)->geographicalId() ); } catch( cms::Exception& e ) { continue; }
+ 	try
+	{
+	  //if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
+	  theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
+	} catch(...) { continue; }
 
-	if ( (*itSetup).useForTracking( *itHits ) )
+	if ( (*itSetup)->useForTracking( *itHits ) )
 	{
 	  trackingRecHits.push_back( (*itHits)->hit()->clone() );
 	}
-	else if ( (*itSetup).useForExternalTracking( *itHits ) )
+	else if ( (*itSetup)->useForExternalTracking( *itHits ) )
 	{
 	  externalTrackingRecHits.push_back( (*itHits)->hit()->clone() );
 	}
@@ -213,46 +236,45 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 
       if ( externalTrackingRecHits.empty() )
       {
-	if ( ( (*itSetup).getExternalTrackingSubDetIds().size() == 0 ) && // O.K., no external hits expected,
-	     ( trackingRecHits.size() >= (*itSetup).minTrackingHits() ) )
+	if ( ( (*itSetup)->getExternalTrackingSubDetIds().size() == 0 ) && // O.K., no external hits expected,
+	     ( trackingRecHits.size() >= (*itSetup)->minTrackingHits() ) )
 	{
 	  TrajTrackPairCollection refitted = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
-								  (*itSetup).fitter(), (*itSetup).propagator(), 
-								  aRecHitBuilder.product(), fullTrack, trackingRecHits,
-								  (*itSetup).reuseMomentumEstimate(), (*itSetup).sortInsideOut() );
+								  (*itSetup)->fitter(), (*itSetup)->propagator(), 
+								  aRecHitBuilder.product(), fullTrack,
+								  trackingRecHits, false, true, (*itSetup)->sortInsideOut() );
 
 	  if ( refitted.empty() ) continue; // The refitting did not work ... Try next!
 
-	if ( theDebugFlag )
-	{
-	  debugTrackData( (*itSetup).id(), refitted.front().second );
-	  debugTrackData( "OrigFullTrack", (*itTrack).second );
-	}
+	  if ( theDebugFlag )
+	  {
+	    debugTrackData( (*itSetup)->id(), refitted.front().first, refitted.front().second );
+	    debugTrackData( "OrigFullTrack", (*itTrack).first, (*itTrack).second );
+	  }
 
 
-	  TrackletPtr trackletPtr( new KalmanAlignmentTracklet( refitted.front() ) );
+	  TrackletPtr trackletPtr( new KalmanAlignmentTracklet( refitted.front(), *itSetup ) );
 	  result.push_back( trackletPtr );
 	}
 	else { continue; } // Expected external hits but found none or not enough hits.
       }
-      else if ( ( trackingRecHits.size() >= (*itSetup).minTrackingHits() ) &&
-		( externalTrackingRecHits.size() >= (*itSetup).minExternalHits() ) ) 
+      else if ( ( trackingRecHits.size() >= (*itSetup)->minTrackingHits() ) &&
+		( externalTrackingRecHits.size() >= (*itSetup)->minExternalHits() ) ) 
       {
 	// Create an instance of KalmanAlignmentTracklet with an external prediction.
 
 	TrajTrackPairCollection external = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
-								(*itSetup).externalFitter(), (*itSetup).externalPropagator(),
-								aRecHitBuilder.product(), fullTrack, externalTrackingRecHits,
-								(*itSetup).externalReuseMomentumEstimate(), (*itSetup).externalSortInsideOut() );
-
+								(*itSetup)->externalFitter(), (*itSetup)->externalPropagator(),
+								aRecHitBuilder.product(), fullTrack,
+								externalTrackingRecHits, false, true, (*itSetup)->externalSortInsideOut() );
 	if ( external.empty() ) { continue; }
 
 	TransientTrack externalTrack( *external.front().second, aMagneticField.product() );
 
 	TrajTrackPairCollection refitted = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
-								(*itSetup).fitter(), (*itSetup).propagator(),
-								aRecHitBuilder.product(), externalTrack, trackingRecHits,
-								(*itSetup).reuseMomentumEstimate(), (*itSetup).sortInsideOut() );
+								(*itSetup)->fitter(), (*itSetup)->propagator(),
+								aRecHitBuilder.product(), externalTrack,
+								trackingRecHits, false, true, (*itSetup)->sortInsideOut() );
 	if ( refitted.empty() ) continue;
 
  	//const Surface& surface = refitted.front().first->firstMeasurement().updatedState().surface();
@@ -263,12 +285,12 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 
 	if ( theDebugFlag )
 	{
-	  debugTrackData( string("External") + (*itSetup).id(), external.front().second );
-	  debugTrackData( (*itSetup).id(), refitted.front().second );
-	  debugTrackData( "OrigFullTrack", (*itTrack).second );
+	  debugTrackData( string("External") + (*itSetup)->id(), external.front().first, external.front().second );
+	  debugTrackData( (*itSetup)->id(), refitted.front().first, refitted.front().second );
+	  debugTrackData( "OrigFullTrack", (*itTrack).first, (*itTrack).second );
 	}
 
- 	TrackletPtr trackletPtr( new KalmanAlignmentTracklet( refitted.front(), externalPrediction ) );
+ 	TrackletPtr trackletPtr( new KalmanAlignmentTracklet( refitted.front(), externalPrediction, *itSetup ) );
 	result.push_back( trackletPtr );
 
 	delete external.front().first;
@@ -289,6 +311,7 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
 						   const TransientTrackingRecHitBuilder* recHitBuilder,
 						   const TransientTrack& fullTrack,
 						   RecHitContainer& recHits,
+						   bool useExternalEstimate,
 						   bool reuseMomentumEstimate,
 						   bool sortInsideOut )
 {
@@ -311,19 +334,24 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
 
   LocalTrajectoryError startError;
 
-  if ( reuseMomentumEstimate )
-  {
-    AlgebraicSymMatrix firstStateError( asHepMatrix( firstState.localError().matrix() ) );
-    AlgebraicSymMatrix startErrorMatrix( nTrajParam, 0 );
-    startErrorMatrix[0][0] = firstStateError[0][0];
-    startErrorMatrix[1][1] = firstStateError[1][1];
-    startErrorMatrix[2][2] = firstStateError[2][2];
-    startErrorMatrix[3][3] = startErrorValue;
-    startErrorMatrix[4][4] = startErrorValue;
-    startError = LocalTrajectoryError( startErrorMatrix );
+  if ( useExternalEstimate ) {
+    startError = firstState.localError();
   } else {
-    AlgebraicSymMatrix startErrorMatrix( startErrorValue*AlgebraicSymMatrix( nTrajParam, 1 ) );
-    startError = LocalTrajectoryError( startErrorMatrix );
+    if ( reuseMomentumEstimate )
+    {
+      AlgebraicSymMatrix firstStateError( asHepMatrix( firstState.localError().matrix() ) );
+      AlgebraicSymMatrix startErrorMatrix( nTrajParam, 0 );
+      startErrorMatrix[0][0] = firstStateError[0][0];
+      startErrorMatrix[1][1] = startErrorValue;//firstStateError[1][1];
+      startErrorMatrix[2][2] = startErrorValue;//firstStateError[2][2];
+      startErrorMatrix[3][3] = startErrorValue;
+      startErrorMatrix[4][4] = startErrorValue;
+      startError = LocalTrajectoryError( startErrorMatrix );
+    } else {
+      AlgebraicSymMatrix startErrorMatrix( startErrorValue*AlgebraicSymMatrix( nTrajParam, 1 ) );
+      startError = LocalTrajectoryError( startErrorMatrix );
+    }
+
   }
 
 //   // MOMENTUM ESTIMATE FOR COSMICS. P = 1.5 GeV
@@ -388,14 +416,14 @@ void KalmanAlignmentTrackRefitter::sortRecHits( RecHitContainer& hits,
 }
 
 
-void KalmanAlignmentTrackRefitter::debugTrackData( const string identifier, const Track* track )
+void KalmanAlignmentTrackRefitter::debugTrackData( const string identifier, const Trajectory* traj, const Track* track )
 {
+  GENFUNCTION cumulativeChi2 = CumulativeChiSquare( static_cast<unsigned int>( track->ndof() ) );
+  KalmanAlignmentDataCollector::fillHistogram( identifier + string("_CumChi2"), 1. - cumulativeChi2( track->chi2() ) );
+  KalmanAlignmentDataCollector::fillHistogram( identifier + string("_NHits"), traj->foundHits() );
   KalmanAlignmentDataCollector::fillHistogram( identifier + string("_Pt"), 1e-2*track->pt() );
   KalmanAlignmentDataCollector::fillHistogram( identifier + string("_Eta"), track->eta() );
   KalmanAlignmentDataCollector::fillHistogram( identifier + string("_Phi"), track->phi() );
   KalmanAlignmentDataCollector::fillHistogram( identifier + string("_NormChi2"), track->normalizedChi2() );
   KalmanAlignmentDataCollector::fillHistogram( identifier + string("_DZ"), track->dz() );
-
-  GENFUNCTION cumulativeChi2 = CumulativeChiSquare( static_cast<unsigned int>( track->ndof() ) );
-  KalmanAlignmentDataCollector::fillHistogram( identifier + string("_CumChi2"), 1. - cumulativeChi2( track->chi2() ) );
 }

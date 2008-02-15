@@ -5,7 +5,8 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackingSetup.h"
 
 /// Smart container for purely transient trajectory/track-pairs and, if available, an
 /// external measurement (stored as TrajectoryStateOnSurface).
@@ -25,9 +26,11 @@ public:
 
   /// Contructor. NOTE: The container gains the ownership of the trajectory/track at construction time.
   KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
-			   const TrajectoryStateOnSurface& external );
+			   const TrajectoryStateOnSurface& external,
+			   KalmanAlignmentTrackingSetup* setup );
 
-  KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair );
+  KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
+			   KalmanAlignmentTrackingSetup* setup );
 
   /// Destructor.
   ~KalmanAlignmentTracklet( void );
@@ -37,14 +40,18 @@ public:
   inline const ConstTrajTrackPair trajTrackPair( void ) const { return theTrajTrackPair; }
 
   inline const TrajectoryStateOnSurface externalPrediction( void ) const { return theExternalPrediction; }
-
   inline bool externalPredictionAvailable( void ) const { return theExternalPredictionFlag; }
+
+  inline KalmanAlignmentTrackingSetup* trackingSetup( void ) const { return theTrackingSetup; }
 
 private:
 
   ConstTrajTrackPair theTrajTrackPair;
+
   TrajectoryStateOnSurface theExternalPrediction;
   bool theExternalPredictionFlag;
+
+  KalmanAlignmentTrackingSetup* theTrackingSetup;
 };
 
 #endif

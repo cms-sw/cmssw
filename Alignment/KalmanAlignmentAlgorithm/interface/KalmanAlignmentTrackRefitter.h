@@ -17,11 +17,13 @@ class TrajectoryFitter;
 
 /// This class serves the very specific needs of the KalmanAlignmentAlgorithm.
 /// Tracks are partially refitted to 'tracklets' using the current estimate on
-/// the alignment (see class CurrentAlignmentKFUpdator). These tracklets are
+/// the alignment (see class CurrentAlignmentKFUpdator. These tracklets are
 /// either used to compute an exteranal estimate for other tracklets or are
 /// handed to the alignment algorithm for further processing. If a tracklet is
 /// used as an external prediction or for further processing is defined via
 /// the configuration file.
+/// NOTE: The trajectory measurements of the tracklets are always ordered along
+/// the direction of the momentum!
 
 
 class KalmanAlignmentTrackRefitter : public TrackProducerBase<reco::Track>
@@ -30,7 +32,7 @@ class KalmanAlignmentTrackRefitter : public TrackProducerBase<reco::Track>
 public:
 
   typedef KalmanAlignmentTrackingSetup TrackingSetup;
-  typedef std::vector< TrackingSetup > TrackingSetupCollection;
+  typedef std::vector< TrackingSetup* > TrackingSetupCollection;
 
   typedef edm::OwnVector< TrackingRecHit > RecHitContainer;
 
@@ -52,6 +54,8 @@ public:
   TrackletCollection refitTracks( const edm::EventSetup& setup,
 				  const ConstTrajTrackPairCollection& tracks );
 
+  const TrackingSetupCollection& getTrackingSetups( void ) const { return theTrackingSetup; }
+
   /// Dummy implementation, due to inheritance from TrackProducerBase.
   virtual void produce( edm::Event&, const edm::EventSetup& ) {}
 
@@ -64,6 +68,7 @@ private:
 					       const TransientTrackingRecHitBuilder* recHitBuilder,
 					       const reco::TransientTrack& originalTrack,
 					       RecHitContainer& recHits,
+					       bool useExternalEstimate,
 					       bool reuseMomentumEstimate,
 					       bool sortInsideOut );
 
@@ -71,7 +76,7 @@ private:
 		    const TransientTrackingRecHitBuilder* builder,
 		    bool sortInsideOut ) const;
 
-  void debugTrackData( const std::string identifier, const reco::Track* track );
+  void debugTrackData( const std::string identifier, const Trajectory* traj, const reco::Track* track );
 
   inline const PropagationDirection getDirection( const std::string& dir )
     { return ( dir == "alongMomentum" ) ? alongMomentum : oppositeToMomentum; }
