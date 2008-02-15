@@ -2,6 +2,7 @@
 #define __PFBlockElement__
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -32,24 +33,22 @@ namespace reco {
       PS2, 
       ECAL, 
       HCAL, 
-      MUON,
-      TRACKNUCL
+      MUON
     };
-    
 
-    /// default constructor 
-    PFBlockElement() :  
-      type_( NONE ), 
-      locked_(false), 
-      index_( static_cast<unsigned>(-1) ) {
-    }
+    enum TrackType {
+      DEFAULT=0,
+      T_FROM_NUCL,
+      T_TO_NUCL,
+      T_FROM_GAMMACONV
+    };
 
     /// standard constructor
-    PFBlockElement(Type type) :  
+    PFBlockElement(Type type=NONE, TrackType tracktype=DEFAULT) :  
       type_(type), 
+      tracktype_(tracktype), 
       locked_(false),
-      index_( static_cast<unsigned>(-1) ),
-      isSecondary_(false) {
+      index_( static_cast<unsigned>(-1) ) {
     }
 
 
@@ -72,6 +71,9 @@ namespace reco {
     /// \return type
     Type type() const { return type_; }
 
+    /// \return tracktype
+    TrackType trackType() const { return tracktype_; }
+
     /// locked ? 
     bool    locked() const {return locked_;}
     
@@ -84,9 +86,9 @@ namespace reco {
     virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
     virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
+    virtual PFNuclearInteractionRef nuclearRef() const { return PFNuclearInteractionRef(); }
 
-    void setIsSecondary(bool val) { isSecondary_ = val; }
-    bool isSecondary() const { return isSecondary_; }
+    bool isSecondary() const { return tracktype_==T_FROM_NUCL || tracktype_==T_FROM_GAMMACONV; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
@@ -95,6 +97,8 @@ namespace reco {
   
     /// type, see PFBlockElementType
     Type     type_;
+
+    TrackType     tracktype_;
   
     /// locked flag. 
     /// \todo can probably be transient. Could be replaced by a 
@@ -103,9 +107,6 @@ namespace reco {
     
     /// index in block vector 
     unsigned   index_;
-
-    /// flag to say if the element is secondary or not
-    bool isSecondary_;
 
   };
 }

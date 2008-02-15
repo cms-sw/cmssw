@@ -2,7 +2,6 @@
 #define __PFBlockElementTrackNuclear__
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 
 namespace reco {
   
@@ -13,19 +12,17 @@ namespace reco {
   public:
     PFBlockElementTrackNuclear() {} 
 
-    PFBlockElementTrackNuclear(const PFRecTrackRef& ref, const PFNuclearInteractionRef& niRef_ ) : 
-           PFBlockElementTrack( ref , TRACKNUCL), pfNuclInterRef_( niRef_ ),
-           nuclInterRef_(niRef_->nuclInterRef()) {}
+    PFBlockElementTrackNuclear(const PFRecTrackRef& ref, const PFNuclearInteractionRef& niRef_ , TrackType tracktype) : 
+           PFBlockElementTrack( ref , tracktype), pfNuclInterRef_( niRef_ ){}
 
     PFBlockElement* clone() const { return new PFBlockElementTrackNuclear(*this); }
+
+    PFNuclearInteractionRef nuclearRef() const { return pfNuclInterRef_; }
     
   private:
 
     /// reference to the corresponding pf nuclear interaction
     PFNuclearInteractionRef  pfNuclInterRef_;
-
-    /// reference to the corresponding nuclear interaction
-    NuclearInteractionRef    nuclInterRef_;
   };
 }
 
