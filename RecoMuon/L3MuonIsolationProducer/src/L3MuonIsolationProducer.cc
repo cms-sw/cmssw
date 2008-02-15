@@ -37,7 +37,8 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  theExtractor(0)
+  theExtractor(0),
+  theTrackPt_Min(-1)
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
@@ -58,6 +59,8 @@ void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
   // Extractor
   //
   edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
+  //! get min pt for the track to go into sumPt
+  theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
   theExtractor = MuIsoExtractorFactory::get()->create( extractorName, extractorPSet);
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
@@ -129,7 +132,8 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     const MuIsoDeposit & deposit = imd->second;
     LogTrace(metname)<< deposit.print();
     const Cuts::CutSpec & cut = theCuts( mu->eta());
-    double value = deposit.depositWithin(cut.conesize, vetos);
+    std::pair<double, int> sumAndCount = deposit.depositAndCountWithin(cut.conesize, vetos, theTrackPt_Min);
+    double value = sumAndCount.first;
     bool result = (value < cut.threshold); 
     LogTrace(metname)<<"deposit in cone: "<<value<<" is isolated: "<<result;
     if (optOutputIsoDeposits) depMap->insert(mu, deposit);

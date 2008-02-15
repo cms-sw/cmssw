@@ -47,6 +47,10 @@ private:
   // MuIsoExtractor
   muonisolation::MuIsoExtractor * theExtractor;
 
+  //! pt cut to consider track in sumPt after extracting iso deposit
+  //! better split this off into a filter
+  double theTrackPt_Min;
+
 };
 
 #endif
