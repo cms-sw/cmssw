@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 18:02:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/14 22:00:58 $
+ *  $Revision: 1.6 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -193,7 +193,7 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
 //
 // make a TrackCand collection using tracker Track, Trajectory information
 //
-vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
+vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
 
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTkCandCollection";
 

@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2008/02/14 16:26:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/14 18:02:32 $
+ *  $Revision: 1.5 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -45,7 +45,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
   
     /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) const;
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
 
     /// build a tracker Trajectory from a seed
     TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
