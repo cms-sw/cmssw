@@ -81,7 +81,7 @@ cat > ${MACRO}<<EOF
     for (int i = 0; i < 217728; i++){
       float vo = hCo[k]->GetBinContent(i+1);
       float vn = hCn[k]->GetBinContent(i+1);
-      diff = (vn - vo);
+      diff = (vn - vo)/vo;
       if (diff > 0.01){ ndiff[k] = ndiff[k] + 1; vdiff.push_back(diff); }
     }
   }
