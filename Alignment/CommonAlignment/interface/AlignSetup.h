@@ -6,17 +6,18 @@
  *  A helper class to hold objects used by modules in alignment.
  *
  *  AlignSetup has a template parameter to specify the type of objects it
- *  holds. Objects are stored in a map<string, Type*>. Users put/get an
+ *  holds. Objects are stored in a map<string, Type>. Users put/get an
  *  object by passing its name through the static methods put()/get().
  *  It returns 0 if the name is not found on get().
  *  It throws an exception if an object of the same name exists on put().
  *
- *  $Date: 2007/10/18 09:41:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/12 18:06:49 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
 #include <map>
+#include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -58,10 +59,14 @@ Type& AlignSetup<Type>::find(const std::string& name)
 {
   typename Container::iterator o = theStore.find(name);
 
-  if (theStore.end() == o)
-    {
+  if (theStore.end() == o) {
+      std::ostringstream knownKeys;
+      for (typename Container::const_iterator it = theStore.begin(); it != theStore.end(); ++it) {
+	knownKeys << (it != theStore.begin() ? ", " : "") << it->first;
+      }
       throw cms::Exception("AlignSetupError")
-        << "Cannot find an object of name " << name << " in AlignSetup.";
+        << "Cannot find an object of name " << name << " in AlignSetup, know only "
+	<< knownKeys.str() << ".";
     }
   
   return o->second;
@@ -72,8 +77,9 @@ void AlignSetup<Type>::dump( void ) const
 {
   edm::LogInfo("AlignSetup") << "Printing out AlignSetup: ";
   for ( typename Container::const_iterator it = theStore.begin();
-        it != theStore.end(); ++it )
+        it != theStore.end(); ++it ) {
     edm::LogVerbatim("AlignSetup") << it->first << std::endl;
+  }
 }
 
 #endif
