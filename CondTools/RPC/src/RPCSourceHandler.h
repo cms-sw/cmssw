@@ -1,6 +1,15 @@
 #ifndef POPCON_RPC_DATA_SRC_H
 #define POPCON_RPC_DATA_SRC_H
 
+/*
+ * \class RpcData
+ *  Core of RPC PopCon Appication
+ *
+ *  $Date: 2008/02/15 12:36:21 $
+ *  $Revision: 1.1 $
+ *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
+ */
+
 #include <vector>
 #include <string>
 #include <iostream>
