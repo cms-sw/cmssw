@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.23 2008/01/28 14:02:36 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.24 2008/02/11 20:19:33 chrjones Exp $
 //
 
 // system include files
@@ -88,10 +88,10 @@ FWDisplayEvent::FWDisplayEvent() :
   m_detIdToGeo.loadGeometry( geomtryFile );
   m_detIdToGeo.loadMap( geomtryFile );
    
-  boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager() );
+  boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
-  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager()));
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
    
   m_guiManager->processGUIEvents();
 }

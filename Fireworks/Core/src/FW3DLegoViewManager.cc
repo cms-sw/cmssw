@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.6 2008/02/03 02:43:55 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.7 2008/02/03 07:20:09 dmytro Exp $
 //
 
 // system include files
@@ -22,11 +22,13 @@
 #include "TEveManager.h"
 #include "TClass.h"
 #include "TColor.h"
+#include "TRootEmbeddedCanvas.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 
 //
@@ -40,12 +42,15 @@
 //
 // constructors and destructor
 //
-FW3DLegoViewManager::FW3DLegoViewManager():
+FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase("Proxy3DLegoBuilder"),
   m_legoCanvas(0),
   m_legoRebinFactor(1)
 {
-  m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
+  TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", iGUIMgr->parentForNextView());
+  iGUIMgr->addFrameHoldingAView(eCanvas);
+  m_legoCanvas = eCanvas->GetCanvas(); 
+  //m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
    
    m_legoCanvas->SetFillColor(Color_t(kBlack));
      

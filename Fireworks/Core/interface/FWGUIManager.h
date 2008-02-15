@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id$
+// $Id: FWGUIManager.h,v 1.1 2008/02/11 20:19:33 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,8 @@ class TGTextButton;
 class TGTextEntry;
 class FWSelectionManager;
 class TGFrame;
+class TGSplitFrame;
+class TGMainFrame;
 
 class FWEventItemsManager;
 class FWEventItem;
@@ -49,7 +51,8 @@ class FWGUIManager
 
       // ---------- member functions ---------------------------
       void addFrameHoldingAView(TGFrame*);
-
+      TGFrame* parentForNextView();
+   
       void goForward();
       void goBack();
       void goHome();
@@ -85,6 +88,7 @@ class FWGUIManager
       // -2 - start over
       // -3 - stop event loop 
    
+
       TGPictureButton* m_homeButton;
       TGPictureButton* m_advanceButton;
       TGPictureButton* m_backwardButton;
@@ -95,6 +99,10 @@ class FWGUIManager
       TGTextButton* m_selectionRunExpressionButton;
       TGTextButton* m_unselectAllButton;
    
+      TGMainFrame* m_mainFrame;
+      TGSplitFrame* m_splitFrame;
+      std::vector<TGSplitFrame*> m_viewFrames;
+      std::vector<TGSplitFrame*>::iterator m_nextFrame;
 };
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.7 2008/01/28 14:04:12 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.8 2008/01/29 12:18:45 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,8 @@ class TEveElementList;
 class TEveProjectionManager;
 class FWRPZDataProxyBuilder;
 class FWRPZ2DDataProxyBuilder;
+class TGLEmbeddedViewer;
+class TEvePad;
 
 class FWRPZModelProxyBase
 {
@@ -94,12 +96,13 @@ private:
 class TGeoHMatrix;
 class TGeoShape;
 class TEveGeoShapeExtract;
+class FWGUIManager;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
 
    public:
-      FWRhoPhiZViewManager();
+      FWRhoPhiZViewManager(FWGUIManager*);
       //virtual ~FWRhoPhiZViewManager();
 
       // ---------- const member functions ---------------------
@@ -146,6 +149,9 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       std::vector<TEveElement*> m_rhoPhiGeom;
       std::vector<TEveElement*> m_rhoZGeom;
    
+      TEvePad* m_pad;
+      std::vector<TEveViewer*> m_viewers;
+      std::vector<TGLEmbeddedViewer*> m_embeddedViewers;
       bool m_itemChanged;
 };
 

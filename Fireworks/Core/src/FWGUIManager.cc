@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id$
+// $Id: FWGUIManager.cc,v 1.1 2008/02/11 20:19:33 chrjones Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TROOT.h"
 #include "TEveBrowser.h"
 #include "TSystem.h"
+#include "TGSplitFrame.h"
 
 
 // user include files
@@ -159,6 +160,28 @@ m_code(0)
       browser->StopEmbedding();
       browser->SetTabTitle("Fireworks",0);
    }
+   {
+      browser->StartEmbedding(TRootBrowser::kRight);
+      {
+         m_mainFrame = new TGMainFrame(gClient->GetRoot(),600,450);
+         m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
+         m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+         // split it once
+         m_splitFrame->HSplit(434);
+         // then split each part again (this will make four parts)
+         m_splitFrame->GetSecond()->VSplit(400);
+
+         m_mainFrame->MapSubwindows();
+         m_mainFrame->Resize();
+         m_mainFrame->MapWindow();
+         m_viewFrames.push_back(m_splitFrame->GetFirst());
+         m_viewFrames.push_back(m_splitFrame->GetSecond()->GetFirst());
+         m_viewFrames.push_back(m_splitFrame->GetSecond()->GetSecond());
+         m_nextFrame = m_viewFrames.begin();
+      }
+      browser->StopEmbedding();
+      browser->SetTabTitle("Views",1);
+   }
 }
 
 // FWGUIManager::FWGUIManager(const FWGUIManager& rhs)
@@ -185,6 +208,28 @@ FWGUIManager::~FWGUIManager()
 //
 // member functions
 //
+void 
+FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
+{
+   (*m_nextFrame)->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX | 
+                                                     kLHintsExpandY) );
+   
+   m_mainFrame->MapSubwindows();
+   //m_mainFrame->Resize();
+   //m_mainFrame->MapWindow();
+   
+   ++m_nextFrame;
+}
+
+TGFrame* 
+FWGUIManager::parentForNextView()
+{
+   assert(m_nextFrame != m_viewFrames.end());
+   return *m_nextFrame;
+}
+
+
+
 void
 FWGUIManager::goForward()
 {
@@ -265,11 +310,6 @@ bool
 FWGUIManager::waitingForUserAction() const
 {
    return m_waitForUserAction;
-}
-
-void 
-FWGUIManager::addFrameHoldingAView(TGFrame*)
-{
 }
 
 //

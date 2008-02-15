@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.13 2008/01/29 12:18:46 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.14 2008/02/03 02:49:40 dmytro Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "RVersion.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
+#include "TGLEmbeddedViewer.h"
 
 #include <iostream>
 #include <exception>
@@ -37,6 +38,7 @@
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -62,28 +64,56 @@ const char* const kBuilderPrefixes[] = {
 //
 // constructors and destructor
 //
-FWRhoPhiZViewManager::FWRhoPhiZViewManager():
+FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase(kBuilderPrefixes,
                     kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
   m_geom(0),
   m_rhoPhiProjMgr(0),
   m_rhoZProjMgr(0),
+  m_pad(new TEvePad() ),
   m_itemChanged(false)
 {
    //setup projection
+   /*
    TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
    nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
    nv->AddScene(ns);
+    */
+   //Need to use an 'embedded' viewer so we can put it into the GUI
+   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iGUIMgr->parentForNextView(), m_pad);
+   m_embeddedViewers.push_back(ev);
+   TEveViewer* nv = new TEveViewer("Rho Phi");
+   nv->SetGLViewer(ev);
+   nv->IncDenyDestroy();
+   iGUIMgr->addFrameHoldingAView(ev->GetFrame());
+   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
+   nv->AddScene(ns);
+   m_viewers.push_back(nv);
+   //this is needed so if a TEveElement changes this view will be informed
+   gEve->AddElement(nv, gEve->GetViewers());
    
    m_rhoPhiProjMgr = new TEveProjectionManager;
    gEve->AddToListTree(m_rhoPhiProjMgr,kTRUE);
    gEve->AddElement(m_rhoPhiProjMgr,ns);
    
+   /*
    nv = gEve->SpawnNewViewer("Rho Z");
    nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ns = gEve->SpawnNewScene("Rho Z");
    nv->AddScene(ns);
+   */
+   ev = new TGLEmbeddedViewer(iGUIMgr->parentForNextView(), m_pad);
+   m_embeddedViewers.push_back(ev);
+   nv = new TEveViewer("Rho Z");
+   nv->SetGLViewer(ev);
+   nv->IncDenyDestroy();
+   iGUIMgr->addFrameHoldingAView(ev->GetFrame());
+   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   ns = gEve->SpawnNewScene("Rho Z");
+   nv->AddScene(ns);
+   gEve->AddElement(nv, gEve->GetViewers());
    
    m_rhoZProjMgr = new TEveProjectionManager;
    m_rhoZProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
