@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:55 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:47 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -31,16 +31,10 @@
 //----------------
 // Constructors --
 //----------------
-DTRangeT0Handler::DTRangeT0Handler( std::string name,
-                                    std::string connect_string,
-                                    const edm::Event& evt,
-                                    const edm::EventSetup& est,
-                                    const std::string& tag,
-                                    const std::string& file ):
- popcon::PopConSourceHandler<DTRangeT0>( name, connect_string,
-                                         evt, est ),
- dataTag( tag ),
- fileName( file ) {
+DTRangeT0Handler::DTRangeT0Handler( const edm::ParameterSet& ps ):
+ dataTag(   ps.getParameter<std::string>  (  "tag" ) ),
+ fileName(  ps.getParameter<std::string>  ( "file" ) ),
+ runNumber( ps.getParameter<unsigned int> (  "run" ) ) {
 }
 
 //--------------
@@ -54,6 +48,17 @@ DTRangeT0Handler::~DTRangeT0Handler() {
 //--------------
 void DTRangeT0Handler::getNewObjects() {
 
+  //to access the information on the tag inside the offline database:
+  cond::TagInfo const & ti = tagInfo();
+  unsigned int last = ti.lastInterval.first;
+
+  //to access the information on last successful log entry for this tag:
+//  cond::LogDBEntry const & lde = logDBEntry();     
+
+  //to access the lastest payload (Ref is a smart pointer)
+//  Ref payload = lastPayload();
+
+/*
   int irun = event.id().run();
   int ievt = event.id().event();
   std::cout << "================ "
@@ -74,6 +79,7 @@ void DTRangeT0Handler::getNewObjects() {
   std::cout << "look for tag " << dataTag << std::endl;
   std::map<std::string, popcon::PayloadIOV>::iterator itag =
     mp.find( dataTag );
+*/
 
   DTRangeT0* t0Range = new DTRangeT0( dataTag );
 
@@ -101,15 +107,29 @@ void DTRangeT0Handler::getNewObjects() {
     std::cout << "insert status: " << status << std::endl;
   }
 
+/*
   unsigned int runf = irun;
   unsigned int runl = 0xffffffff;
   popcon::IOVPair iop = { runf, runl };
   std::cout << "APPEND NEW OBJECT: "
             << runf << " " << runl << " " << t0Range << std::endl;
   m_to_transfer->push_back( std::make_pair( t0Range, iop ) );
+*/
+
+  //for each payload provide IOV information (say in this case we use since)
+  cond::Time_t snc = runNumber;
+  if ( runNumber > last )
+       m_to_transfer.push_back( std::make_pair( t0Range, snc ) );
+  else
+       std::cout << "More recent data already present - skipped" << std::endl;
 
   return;
 
+}
+
+
+std::string DTRangeT0Handler::id() const {
+  return dataTag;
 }
 
 

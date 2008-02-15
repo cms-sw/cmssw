@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:51 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:13 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,10 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTCCBConfig;
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include <string>
+
 namespace coral {
   class ISessionProxy;
 }
@@ -39,16 +42,7 @@ class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
   /** Constructor
    */
-  DTCCBConfigHandler( std::string name,
-                      std::string connect_string,
-                      const edm::Event& evt,
-                      const edm::EventSetup& est,
-                      const std::string& tag,
-                      const std::string& onlineDB,
-                      const std::string& onlineAuthPath,
-                      const std::string& offlineAuthPath,
-                      const std::string& token );
-  void getNewObjects();
+  DTCCBConfigHandler( const edm::ParameterSet& ps );
 
   /** Destructor
    */
@@ -57,6 +51,8 @@ class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   /** Operations
    */
   /// 
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

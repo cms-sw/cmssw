@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:52 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:25 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,11 +19,13 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTReadOutMapping;
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 //---------------
 // C++ Headers --
 //---------------
+#include <string>
 
 
 //              ---------------------
@@ -36,13 +38,7 @@ class DTReadOutMappingHandler: public popcon::PopConSourceHandler<DTReadOutMappi
 
   /** Constructor
    */
-  DTReadOutMappingHandler( std::string name,
-                  std::string connect_string,
-                  const edm::Event& evt,
-                  const edm::EventSetup& est,
-                  const std::string& tag,
-                  const std::string& file );
-  void getNewObjects();
+  DTReadOutMappingHandler( const edm::ParameterSet& ps );
 
   /** Destructor
    */
@@ -51,11 +47,14 @@ class DTReadOutMappingHandler: public popcon::PopConSourceHandler<DTReadOutMappi
   /** Operations
    */
   /// 
+  void getNewObjects();
+  std::string id() const;
 
  private:
 
   std::string dataTag;
   std::string fileName;
+  unsigned int runNumber;
 
 };
 

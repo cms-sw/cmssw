@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:05:46 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/28 13:44:36 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -24,7 +24,6 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-//#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -47,24 +46,18 @@
 //----------------
 // Constructors --
 //----------------
-DTCCBConfigHandler::DTCCBConfigHandler( std::string name,
-                                        std::string connect_string,
-                                        const edm::Event& evt,
-                                        const edm::EventSetup& est,
-                                        const std::string& tag,
-                                        const std::string& onlineDB,
-                                        const std::string& onlineAuthPath,
-                                        const std::string& offlineAuthPath,
-                                        const std::string& token ):
- popcon::PopConSourceHandler<DTCCBConfig>( name, connect_string,
-                                           evt, est ),
- dataTag( tag ),
- onlineConnect( onlineDB ),
- onlineAuthentication( onlineAuthPath ),
- offlineAuthentication( offlineAuthPath ),
- offlineConnect( connect_string ),
- offlineCatalog( " " ),
- listToken( token ) {
+DTCCBConfigHandler::DTCCBConfigHandler( const edm::ParameterSet& ps ):
+ dataTag(               ps.getParameter<std::string> ( "tag" ) ),
+ onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
+ onlineAuthentication(  ps.getParameter<std::string> ( 
+                        "onlineAuthentication" ) ),
+ offlineAuthentication( ps.getParameter<edm::ParameterSet>( "DBParameters" )
+                          .getUntrackedParameter<std::string> (
+                        "authenticationPath" ) ),
+// catalog(               ps.getParameter<std::string> ( "catalog" ) ),
+ listToken(             ps.getParameter<std::string> ( "token" ) ) {
+  std::cout <<  onlineAuthentication << " "
+            << offlineAuthentication << std::endl;
 }
 
 //--------------
@@ -109,6 +102,18 @@ void DTCCBConfigHandler::getNewObjects() {
   chkConfigList();
   std::cout << "get run config..." << std::endl;
 
+  //to access the information on the tag inside the offline database:
+  cond::TagInfo const & ti = tagInfo();
+  unsigned int last = ti.lastInterval.first;
+  std::cout << "last: " << last << std::endl;
+
+  //to access the information on last successful log entry for this tag:
+//  cond::LogDBEntry const & lde = logDBEntry();     
+
+  //to access the lastest payload (Ref is a smart pointer)
+//  Ref payload = lastPayload();
+
+/*
   std::map<std::string, popcon::PayloadIOV> mp = getOfflineInfo();
   std::cout << "tag map got..." << std::endl;
   std::map<std::string, popcon::PayloadIOV>::iterator iter = mp.begin();
@@ -121,10 +126,12 @@ void DTCCBConfigHandler::getNewObjects() {
     iter++;
   }
   std::cout << "loop over tags done..." << std::endl;
+*/
 
   coral::AttributeList emptyBindVariableList;
 
-  unsigned lastRun = 0;
+  unsigned lastRun = last;
+/*
   std::map<std::string, popcon::PayloadIOV>::iterator itag =
     mp.find( dataTag );
   if ( itag != mp.end() ) lastRun = itag->second.last_since;
@@ -132,6 +139,7 @@ void DTCCBConfigHandler::getNewObjects() {
                                     << " not found" << std::endl;
 
   std::cout << "last run found..." << std::endl;
+*/
 
     std::cout << "LAST RUN: " << lastRun << std::endl;
     std::map<int,int> cfgMap;
@@ -227,10 +235,14 @@ void DTCCBConfigHandler::getNewObjects() {
         }
         fullConf->setConfigKey( wheel, station, sector, ccbConf );
       }
+/*
       popcon::IOVPair iop = { runEntry.first, 0xffffffff };
       std::cout << "APPEND NEW OBJECT: "
                 << runEntry.first << " " << fullConf << std::endl;
       m_to_transfer->push_back( std::make_pair( fullConf, iop ) );
+*/
+      cond::Time_t snc = runEntry.first;
+      m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
     }
 
   delete m_connection;
@@ -353,6 +365,11 @@ void DTCCBConfigHandler::chkConfigList() {
 
   return;
 
+}
+
+
+std::string DTCCBConfigHandler::id() const {
+  return dataTag;
 }
 
 
