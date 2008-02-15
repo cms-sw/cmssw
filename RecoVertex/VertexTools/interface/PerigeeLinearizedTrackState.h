@@ -128,7 +128,12 @@ public:
 	const AlgebraicSymMatrix66 & covarianceMatrix) const;
 
 
+  virtual AlgebraicVector5 refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const;
+
   virtual double weightInMixture() const {return theTSOS.weight();}
+
+  virtual void inline checkParameters(AlgebraicVector5 & parameters) const;
 
   virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components()
   									const;

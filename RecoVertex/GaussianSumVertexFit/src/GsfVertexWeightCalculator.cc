@@ -35,6 +35,7 @@ double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
 
   AlgebraicVectorN diff = trackParameters - track->constantTerm() -
     a*oldVertexCoord -b*priorMomentum;
+  track->checkParameters(diff);
   AlgebraicSymMatrixNN sigmaM = trackParametersError +
 	ROOT::Math::Similarity(a,oldVertexError) +
 	ROOT::Math::Similarity(b,priorMomentumCov);

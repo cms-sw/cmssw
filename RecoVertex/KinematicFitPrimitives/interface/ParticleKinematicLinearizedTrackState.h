@@ -100,6 +100,13 @@ public:
 		     const AlgebraicVectorM & vectorParameters,
 		     const AlgebraicSymMatrix77 & covarianceMatrix) const;
 		     
+  /** Method returning the parameters of the Taylor expansion evaluated with the
+   *  refitted state.
+   */
+  virtual AlgebraicVectorN refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const;
+
+  virtual inline void checkParameters(AlgebraicVectorN & parameters) const;
 		     
  double weightInMixture() const;
 

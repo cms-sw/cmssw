@@ -110,6 +110,10 @@ public:
 	const AlgebraicVectorM & vectorParameters,
 	const AlgebraicSymMatrixOO & covarianceMatrix) const;
 
+  virtual AlgebraicVector5 refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const;
+
+  virtual void inline checkParameters(AlgebraicVector5 & parameters) const;
   /**
    * The weight of this state. It will be the sum of the weights of the
    * individual components in the mixture.

@@ -128,17 +128,10 @@ public:
    *  refitted state.
    */
   virtual AlgebraicVectorN refittedParamFromEquation(
-	const RefCountedRefittedTrackState & theRefittedState) const
-{
-  AlgebraicVector3 vertexPosition;
-  vertexPosition(0) = theRefittedState->position().x();
-  vertexPosition(1) = theRefittedState->position().y();
-  vertexPosition(2) = theRefittedState->position().z();
+	const RefCountedRefittedTrackState & theRefittedState) const = 0;
 
-  return ( constantTerm() + 
-		       positionJacobian() * vertexPosition +
-		       momentumJacobian() * theRefittedState->momentumVector());
-}
+  virtual inline void checkParameters(AlgebraicVectorN & parameters) const
+	{}
 
   virtual double weightInMixture() const = 0;
 

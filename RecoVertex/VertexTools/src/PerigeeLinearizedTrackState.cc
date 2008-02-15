@@ -218,6 +218,29 @@ PerigeeLinearizedTrackState::components() const
 }
 
 
+AlgebraicVector5 PerigeeLinearizedTrackState::refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const
+{
+  AlgebraicVector3 vertexPosition;
+  vertexPosition(0) = theRefittedState->position().x();
+  vertexPosition(1) = theRefittedState->position().y();
+  vertexPosition(2) = theRefittedState->position().z();
+  AlgebraicVectorN param = constantTerm() + 
+		       positionJacobian() * vertexPosition +
+		       momentumJacobian() * theRefittedState->momentumVector();
+  if (param(2) >  M_PI) param(2)-= 2*M_PI;
+  if (param(2) < -M_PI) param(2)+= 2*M_PI;
+
+  return param;
+}
+
+
+void PerigeeLinearizedTrackState::checkParameters(AlgebraicVector5 & parameters) const
+{
+  if (parameters(2) >  M_PI) parameters(2)-= 2*M_PI;
+  if (parameters(2) < -M_PI) parameters(2)+= 2*M_PI;
+}
+
 void PerigeeLinearizedTrackState::computeChargedJacobians() const
 {
   GlobalPoint paramPt(theLinPoint);

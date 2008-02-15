@@ -141,7 +141,8 @@ double  ParticleKinematicLinearizedTrackState::weightInMixture() const
 {return 1.;}
 
 
-std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > >  ParticleKinematicLinearizedTrackState::components()const
+std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > >
+ParticleKinematicLinearizedTrackState::components()const
 {
  std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > > res;
  res.reserve(1);
@@ -149,6 +150,31 @@ std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > >  ParticleKinema
   			const_cast< ParticleKinematicLinearizedTrackState*>(this)));
  return res;
 }
+
+
+AlgebraicVector6 ParticleKinematicLinearizedTrackState::refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const
+{
+  AlgebraicVector3 vertexPosition;
+  vertexPosition(0) = theRefittedState->position().x();
+  vertexPosition(1) = theRefittedState->position().y();
+  vertexPosition(2) = theRefittedState->position().z();
+  AlgebraicVector6 param = constantTerm() + 
+		       positionJacobian() * vertexPosition +
+		       momentumJacobian() * theRefittedState->momentumVector();
+  if (param(2) >  M_PI) param(2)-= 2*M_PI;
+  if (param(2) < -M_PI) param(2)+= 2*M_PI;
+
+  return param;
+}
+
+
+void ParticleKinematicLinearizedTrackState::checkParameters(AlgebraicVector6 & parameters) const
+{
+  if (parameters(2) >  M_PI) parameters(2)-= 2*M_PI;
+  if (parameters(2) < -M_PI) parameters(2)+= 2*M_PI;
+}
+
 
 void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const
 {
