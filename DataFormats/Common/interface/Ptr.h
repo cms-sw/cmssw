@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.4 2008/02/15 05:57:03 wmtan Exp $
+// $Id: Ptr.h,v 1.5 2008/02/15 20:06:16 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 namespace edm {
   template <typename T>
   class Ptr {
-      
+     friend class PtrVectorBase;      
   public:
     
     typedef unsigned long key_type;
@@ -64,18 +64,17 @@ namespace edm {
     }
     
     /** Constructor for use in the various X::fillView(...) functions
-     or for extracting a Ptr from a PtrVector.
+     or for extracting a persistent Ptr from a PtrVector.
      It is an error (not diagnosable at compile- or run-time) to call
      this constructor with a pointer to a T unless the pointed-to T
      object is already in a collection of type C stored in the
      Event. The given ProductID must be the id of the collection
      in the Event. */
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
-    core_(productID, item, 0, productID == ProductID()),
-    key_(item_key)
-    { 
+    core_(productID, item, 0, false),
+    key_(item_key) { 
     }
-  
+
     /** Constructor that creates an invalid ("null") Ptr that is
      associated with a given product (denoted by that product's
      ProductID). */
@@ -154,6 +153,12 @@ namespace edm {
     
   private:
     //Ptr(Ptr const&); // stop default
+
+    /** Constructor for extracting a transient Ptr from a PtrVector. */
+    Ptr(T const* item, key_type item_key) :
+    core_(ProductID(), item, 0, true),
+    key_(item_key) { 
+    }
     
     //Ptr const& operator=(Ptr const&); // stop default
     template<typename C>

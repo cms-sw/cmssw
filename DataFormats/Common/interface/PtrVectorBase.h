@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.4 2008/02/15 05:57:03 wmtan Exp $
+// $Id: PtrVectorBase.h,v 1.5 2008/02/15 20:06:17 wmtan Exp $
 //
 
 // system include files
@@ -77,6 +77,8 @@ namespace edm {
     
     void setProductGetter(EDProductGetter* iGetter) const { core_.setProductGetter(iGetter); }
 
+    bool isTransient() const {return core_.isTransient();}
+
   protected:
     PtrVectorBase();
 
@@ -96,6 +98,10 @@ namespace edm {
     
     template<typename TPtr>
     TPtr makePtr(unsigned long iIndex) const {
+      if (isTransient()) {
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]),
+                  indicies_[iIndex]);
+      }
       if (hasCache()) {
         return TPtr(this->id(),
                   reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]),
@@ -106,6 +112,10 @@ namespace edm {
     
     template<typename TPtr>
     TPtr makePtr(std::vector<void const*>::const_iterator const iIt) const {
+      if (isTransient()) {
+        return TPtr(reinterpret_cast<typename TPtr::value_type const*>(*iIt),
+                  indicies_[iIt - cachedItems_.begin()]);
+      }
       if (hasCache()) {
         return TPtr(this->id(),
                   reinterpret_cast<typename TPtr::value_type const*>(*iIt),
