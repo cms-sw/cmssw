@@ -14,14 +14,14 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.cc,v 1.1 2007/06/04 23:11:24 dwjang Exp $
+// $Id: TauAna.cc,v 1.2 2007/07/30 17:54:54 fwyzard Exp $
 //
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0Fwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Tau3D.h"
@@ -97,9 +97,9 @@ TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("TauAna") << "size of PFCandidate collection : " << pFCandidateHandle->size() << endl;
 
 
-  edm::Handle<reco::IsolatedTauTagInfoCollection> tauTagInfoHandle;
+  edm::Handle<reco::CaloTauTagInfoCollection> tauTagInfoHandle;
   iEvent.getByLabel(tauCollectionName_, tauTagInfoHandle);
-  if(!tauTagInfoHandle.isValid()) cout << "IsolatedTauTagInfoCollection is not valid" << endl;
+  if(!tauTagInfoHandle.isValid()) cout << "CaloTauTagInfoCollection is not valid" << endl;
   LogDebug("TauAna") << "size of tauTag collection : " << tauTagInfoHandle->size() << endl;
 
 

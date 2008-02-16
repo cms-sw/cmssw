@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id: TauVariables.h,v 1.3 2007/06/01 22:00:53 dwjang Exp $
+// $Id: TauVariables.h,v 1.4 2007/07/30 17:54:53 fwyzard Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0Fwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Tau3D.h"
@@ -44,7 +44,7 @@ class TauVariables {
 
   TauVariables() { this->init(); }
 
-  TauVariables(const reco::Tau3D* tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle);
+  TauVariables(const reco::Tau3D* tau, const edm::Handle<reco::CaloTauTagInfoCollection> *tauTagInfoHandle);
 
   ~TauVariables();
 
@@ -108,8 +108,8 @@ class TauVariables {
   // \return collection of pi0s in isolation cone
   reco::Pi0Collection const &isolationPi0s() const { return isolationPi0s_; }
 
-  // \return a reference to IsolatedTauTagInfoRef
-  reco::IsolatedTauTagInfoRef tauTagRef() const { return tauTagRef_; }
+  // \return a reference to CaloTauTagInfoRef
+  reco::CaloTauTagInfoRef tauTagRef() const { return tauTagRef_; }
 
   // \return a reference of Tau3D
   reco::Tau3D const &tau3D() { return *tau3D_; }
@@ -223,14 +223,14 @@ class TauVariables {
   // collection of pi0s in isolation cone
   reco::Pi0Collection isolationPi0s_;
 
-  // a reference to IsolatedTauTagInfoRef
-  reco::IsolatedTauTagInfoRef tauTagRef_;
+  // a reference to CaloTauTagInfoRef
+  reco::CaloTauTagInfoRef tauTagRef_;
 
   // a reference to Tau3D
   const reco::Tau3D *tau3D_;
 
-  // a reference to IsolatedTauTagInfoCollection
-  const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle_;
+  // a reference to CaloTauTagInfoCollection
+  const edm::Handle<reco::CaloTauTagInfoCollection> *tauTagInfoHandle_;
 
 };
 #endif

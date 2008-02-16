@@ -13,7 +13,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id: TauVariables.cc,v 1.2 2007/04/05 19:27:50 dwjang Exp $
+// $Id: TauVariables.cc,v 1.3 2007/06/01 22:00:53 dwjang Exp $
 //
 //
 
@@ -30,7 +30,7 @@ using namespace reco;
 // constructors and destructor
 //
 
-TauVariables::TauVariables(const reco::Tau3D *tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle)
+TauVariables::TauVariables(const reco::Tau3D *tau, const edm::Handle<reco::CaloTauTagInfoCollection> *tauTagInfoHandle)
 {
 
   this->init();
@@ -82,7 +82,7 @@ void TauVariables::init(){
   signalPi0s_.clear();
   isolationTracks_.clear();
   isolationPi0s_.clear();
-  tauTagRef_ = IsolatedTauTagInfoRef();
+  tauTagRef_ = CaloTauTagInfoRef();
   tau3D_ = 0;
   tauTagInfoHandle_ = 0;
 
@@ -94,19 +94,17 @@ void TauVariables::makeVariables(){
   seedTrack_ = tau3D().seedTrack();
   if(seedTrack_.isNull()) return;
 
-  const IsolatedTauTagInfoCollection &tauTagColl = *(tauTagInfoHandle_->product());
-  IsolatedTauTagInfoCollection::const_iterator endIter = tauTagColl.end();
-  IsolatedTauTagInfoCollection::const_iterator tauIter = tauTagColl.begin();
+  const CaloTauTagInfoCollection &tauTagColl = *(tauTagInfoHandle_->product());
+  CaloTauTagInfoCollection::const_iterator endIter = tauTagColl.end();
+  CaloTauTagInfoCollection::const_iterator tauIter = tauTagColl.begin();
   int itau=0;
   double minAlpha = 999.0;
   for(; tauIter != endIter; tauIter++){
-    const IsolatedTauTagInfoRef tauTagRef(*tauTagInfoHandle_,itau);
+    const CaloTauTagInfoRef tauTagRef(*tauTagInfoHandle_,itau);
     itau++;
-    const TrackRef seed = tauIter->leadingSignalTrack(isolationConeSize_,seedTrackThreshold_);
-    if(seed.isNull()) continue;
 
-    double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),seed->momentum()) :
-      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),seed->momentum());
+    double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),tauTagRef->calojetRef()->momentum()) :
+      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),tauTagRef->calojetRef()->momentum());
 
     if(dist < minAlpha){
       minAlpha = dist;
@@ -116,10 +114,10 @@ void TauVariables::makeVariables(){
 
 
   if(useVariableSignalCone_){
-    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->jet()->energy(),0.05));
+    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->calojetRef()->energy(),0.05));
   }
   if(useVariableIsolationCone_){
-    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->jet()->energy(),0.05));
+    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->calojetRef()->energy(),0.05));
   }
 
 
