@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -36,15 +36,15 @@ float GenJet::detectorEta (float fZVertex) const {
   return Jet::detectorEta (fZVertex, eta());
 }
 
-const GenParticleCandidate* GenJet::genParticle (const Candidate* fConstituent) {
+const GenParticle* GenJet::genParticle (const Candidate* fConstituent) {
   const Candidate* base = fConstituent;
   if (fConstituent->hasMasterClone ()) base = fConstituent->masterClone().get ();
-  const GenParticleCandidate* result = dynamic_cast<const GenParticleCandidate*> (base);
-  if (!result) throw cms::Exception("Invalid Constituent") << "GenJet constituent is not of GenParticleCandidate type";
+  const GenParticle* result = dynamic_cast<const GenParticle*> (base);
+  if (!result) throw cms::Exception("Invalid Constituent") << "GenJet constituent is not of the type GenParticle";
   return result;
 }
 
-const GenParticleCandidate* GenJet::getConstituent (unsigned fIndex) const {
+const GenParticle* GenJet::getConstituent (unsigned fIndex) const {
   // no direct access, have to iterate for now
   int index (fIndex);
   Candidate::const_iterator daugh = begin ();
@@ -56,8 +56,8 @@ const GenParticleCandidate* GenJet::getConstituent (unsigned fIndex) const {
   return 0;
 }
 
-std::vector <const GenParticleCandidate*> GenJet::getConstituents () const {
-  std::vector <const GenParticleCandidate*> result;
+std::vector <const GenParticle*> GenJet::getConstituents () const {
+  std::vector <const GenParticle*> result;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
   return result;
 }
@@ -77,9 +77,9 @@ std::string GenJet::print () const {
       << "      em/had/invisible/aux  energies: " 
       << emEnergy() << '/' << hadEnergy()  << '/' << invisibleEnergy() << '/' << auxiliaryEnergy() << std::endl;
   out << "      MC particles:" << std::endl;
-  std::vector <const GenParticleCandidate*> mcparts = getConstituents ();
+  std::vector <const GenParticle*> mcparts = getConstituents ();
   for (unsigned i = 0; i < mcparts.size (); i++) {
-    const GenParticleCandidate* mcpart = mcparts[i];
+    const GenParticle* mcpart = mcparts[i];
     if (mcpart) {
       out << "      #" << i << "  PDG code:" << mcpart->pdgId() 
 	  << ", p/pt/eta/phi: " << mcpart->p() << '/' << mcpart->pt() << '/' << mcpart->eta() << '/' << mcpart->phi() << std::endl;

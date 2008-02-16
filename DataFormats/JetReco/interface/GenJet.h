@@ -20,7 +20,7 @@
 
 
 namespace reco {
-  class GenParticleCandidate;
+  class GenParticle;
 
 class GenJet : public Jet {
 public:
@@ -67,11 +67,11 @@ public:
   float detectorEta (float fZVertex) const;
 
   /// convert generic constituent to specific type
-  static const GenParticleCandidate* genParticle (const reco::Candidate* fConstituent);
+  static const GenParticle* genParticle (const reco::Candidate* fConstituent);
   /// get specific constituent
-  const GenParticleCandidate* getConstituent (unsigned fIndex) const;
+  const GenParticle* getConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <const GenParticleCandidate*> getConstituents () const;
+  std::vector <const GenParticle*> getConstituents () const;
   
   // block accessors
 
