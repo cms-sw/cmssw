@@ -16,8 +16,7 @@ CaloSlaveSD::CaloSlaveSD(std::string n) : name_(n) {
 
 }
 
-CaloSlaveSD::~CaloSlaveSD() { 
-}
+CaloSlaveSD::~CaloSlaveSD() {}
 
 void CaloSlaveSD::Initialize() {
 
@@ -27,15 +26,16 @@ void CaloSlaveSD::Initialize() {
 
 bool CaloSlaveSD::format() {
 
-  LogDebug("HitBuildInfo") << " CaloSlaveSD " << name_ << "formatting " << hits_.size() << " hits." << "\n";
+  LogDebug("HitBuildInfo") << " CaloSlaveSD " << name_ << "formatting " 
+			   << hits_.size() << " hits.";
   return true;
 }
 
-bool CaloSlaveSD::processHits(unsigned int unitID, double eDepEM, 
-			      double eDepHad, double tSlice, int tkID) {
+bool CaloSlaveSD::processHits(uint32_t unitID, double eDepEM, double eDepHad, 
+			      double tSlice, int tkID, uint16_t depth) {
   
-  PCaloHit aCal = PCaloHit (unitID, eDepEM, eDepHad, tSlice, tkID);
-  LogDebug("HitBuildInfo") <<" Sent Hit " << aCal << " to ROU " << name_ << "\n";
+  PCaloHit aCal = PCaloHit (unitID, eDepEM, eDepHad, tSlice, tkID, depth);
+  LogDebug("HitBuildInfo") <<" Sent Hit " << aCal << " to ROU " << name_;
   hits_.push_back(aCal);
   return true;
 } 

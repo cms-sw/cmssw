@@ -24,10 +24,10 @@ public:
   virtual ~CaloSlaveSD();
   virtual void Initialize();
   std::string name() const { return name_; } 
-  virtual bool processHits(unsigned int, double, double, double, int);
+  virtual bool processHits(uint32_t, double, double, double, int, uint16_t depth=0);
   virtual bool format();
-  Collection& hits(){return hits_;}
-  std::string type(){return "calo";}
+  Collection& hits()             { return hits_; }
+  std::string type()             { return "calo"; }
   virtual const_iterator begin() { return hits_.begin();}
   virtual const_iterator end()   { return hits_.end();}
 
