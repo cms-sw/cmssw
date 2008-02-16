@@ -89,16 +89,23 @@ HcalHitMaker::setDepth(double depth)
     segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inL0Segment(currentDepth_));
   if(segiterator==myGrid.getSegments().end()) 
     {
-      // Special trick - As advised by Salavat, no leakage foreseen 
-      if(myGrid.getFSimTrack()->onVFcal()&&depth>myGrid.getSegments().back().sL0Exit())
+      // Special trick  - As advised by Salavat, no leakage should be simulated
+      if(depth > myGrid.getSegments().back().sL0Exit())
 	{
 	  segiterator= find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inL0Segment(myGrid.getSegments().back().sL0Exit()-1.));
 	  depth=segiterator->sL0Exit()-1.;
 	  if(segiterator==myGrid.getSegments().end())
 	    {
-	      std::cout << " Cout not go at such depth " << EMSHOWER << "  " << currentDepth_ << std::endl;
+	      std::cout << " Could not go at such depth " << EMSHOWER << "  " << currentDepth_ << std::endl;
+	      std::cout << " Track " << *(myGrid.getFSimTrack()) << std::endl;
 	      return false;
 	    }
+	}
+      else
+	{
+	  std::cout << " Could not go at such depth " << EMSHOWER << "  " << currentDepth_ << " " << myGrid.getSegments().back().sL0Exit() << std::endl; 
+	  std::cout << " Track " << *(myGrid.getFSimTrack()) << std::endl; 
+	  return false; 
 	}
     }
   XYZPoint origin;
