@@ -86,7 +86,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Tue Feb 12 14:42:17 CST 2008
-// $Id: HardEventHypothesis.h,v 1.1 Tue Feb 12 14:42:17 CST 2008 rappocc$
+// $Id: HardEventHypothesis.h,v 1.1 2008/02/15 21:22:20 srappocc Exp $
 //
 // Revision History:
 //
@@ -121,7 +121,9 @@ namespace pat {
     inline float          getQuality() const { return quality_; }
 
     // This will return static event-wide definitions of the candidate roles.
-    virtual const char ** getCandidateRoles  () const = 0;
+    virtual const char *  getCandidateRole ( int i = 0 ) const = 0;
+    // This will return static event-wide boolean to see if the role is a vector or not
+    virtual bool          getIsVector(int i = 0) const = 0;
 
   protected:
 
