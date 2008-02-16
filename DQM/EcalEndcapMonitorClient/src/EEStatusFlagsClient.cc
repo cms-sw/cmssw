@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/07 13:39:02 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -37,7 +37,7 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

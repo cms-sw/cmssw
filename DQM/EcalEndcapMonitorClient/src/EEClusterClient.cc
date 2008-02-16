@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/27 09:37:57 $
- * $Revision: 1.39 $
+ * $Date: 2008/01/27 09:41:13 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -38,7 +38,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/15 15:17:43 $
- * $Revision: 1.62 $
+ * $Date: 2008/02/15 15:26:39 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,7 +52,7 @@ EELedClient::EELedClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

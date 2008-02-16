@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/15 15:17:38 $
- * $Revision: 1.80 $
+ * $Date: 2008/02/15 15:26:39 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -56,7 +56,7 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

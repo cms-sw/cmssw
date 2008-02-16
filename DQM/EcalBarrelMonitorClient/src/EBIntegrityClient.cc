@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/09 10:18:32 $
- * $Revision: 1.186 $
+ * $Date: 2008/02/09 19:49:56 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -59,7 +59,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

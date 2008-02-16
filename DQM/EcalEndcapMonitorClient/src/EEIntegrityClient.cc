@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/09 19:50:12 $
- * $Revision: 1.60 $
+ * $Date: 2008/02/14 11:15:43 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -63,7 +63,7 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

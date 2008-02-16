@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/09 19:50:13 $
- * $Revision: 1.132 $
+ * $Date: 2008/02/15 07:11:54 $
+ * $Revision: 1.133 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -190,7 +190,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // enableMonitorDaemon switch
 
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   if ( enableMonitorDaemon_ ) {
     cout << " enableMonitorDaemon switch is ON" << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/01/22 19:47:10 $
- * $Revision: 1.87 $
+ * $Date: 2008/01/27 19:26:02 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,7 +36,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

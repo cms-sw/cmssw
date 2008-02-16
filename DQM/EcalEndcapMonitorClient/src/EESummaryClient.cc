@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/02/03 10:46:07 $
- * $Revision: 1.85 $
+ * $Date: 2008/02/03 10:50:33 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -59,7 +59,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

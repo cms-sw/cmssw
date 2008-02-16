@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/02/09 10:18:35 $
- * $Revision: 1.39 $
+ * $Date: 2008/02/09 19:50:12 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -42,7 +42,7 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

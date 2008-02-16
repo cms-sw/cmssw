@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/27 18:46:45 $
- * $Revision: 1.110 $
+ * $Date: 2008/02/03 10:45:22 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -55,7 +55,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

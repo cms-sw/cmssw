@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/09 19:50:04 $
- * $Revision: 1.373 $
+ * $Date: 2008/02/15 07:11:53 $
+ * $Revision: 1.374 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -189,7 +189,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // enableMonitorDaemon switch
 
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   if ( enableMonitorDaemon_ ) {
     cout << " enableMonitorDaemon switch is ON" << endl;

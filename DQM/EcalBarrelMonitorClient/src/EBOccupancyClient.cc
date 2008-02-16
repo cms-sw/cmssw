@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/01/27 11:34:21 $
- * $Revision: 1.13 $
+ * $Date: 2008/01/27 20:22:05 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,7 +42,7 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/15 14:28:50 $
- * $Revision: 1.186 $
+ * $Date: 2008/02/15 15:26:37 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,7 +49,7 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/02/15 14:28:51 $
- * $Revision: 1.71 $
+ * $Date: 2008/02/15 15:26:39 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,7 +51,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

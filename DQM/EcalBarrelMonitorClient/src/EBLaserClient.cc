@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/02/15 15:15:59 $
- * $Revision: 1.215 $
+ * $Date: 2008/02/15 15:26:37 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -54,7 +54,7 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

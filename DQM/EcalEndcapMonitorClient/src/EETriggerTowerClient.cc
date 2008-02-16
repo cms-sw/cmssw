@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/22 19:47:13 $
- * $Revision: 1.54 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

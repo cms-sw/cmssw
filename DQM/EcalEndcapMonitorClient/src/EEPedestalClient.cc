@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/02/09 19:50:12 $
- * $Revision: 1.61 $
+ * $Date: 2008/02/14 11:15:44 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -50,7 +50,7 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

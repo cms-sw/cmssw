@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/01/27 11:34:22 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/27 20:22:06 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,7 +46,7 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

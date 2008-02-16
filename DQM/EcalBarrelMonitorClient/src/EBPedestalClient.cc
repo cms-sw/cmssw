@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/02/09 10:18:32 $
- * $Revision: 1.179 $
+ * $Date: 2008/02/09 19:49:57 $
+ * $Revision: 1.180 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,7 +48,7 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);

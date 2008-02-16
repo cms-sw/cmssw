@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/01/22 18:48:08 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/22 19:47:09 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
