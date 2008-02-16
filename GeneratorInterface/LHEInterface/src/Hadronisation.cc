@@ -18,6 +18,20 @@
 EDM_REGISTER_PLUGINFACTORY(lhef::Hadronisation::Factory,
                            "GeneratorInterfaceLHEHadronisation");
 
+namespace {
+	class NoHadronisation : public lhef::Hadronisation {
+	    public:
+		NoHadronisation(const edm::ParameterSet &params) :
+			Hadronisation(params) {}
+		~NoHadronisation() {}
+
+	    private:
+		std::auto_ptr<HepMC::GenEvent> hadronize()
+		{ return getRawEvent()->asHepMCEvent(); }
+};
+
+} // anonymous namespae
+
 namespace lhef {
 
 Hadronisation::Hadronisation(const edm::ParameterSet &params)
@@ -45,6 +59,10 @@ std::auto_ptr<Hadronisation> Hadronisation::create(
 					const edm::ParameterSet &params)
 {
 	std::string name = params.getParameter<std::string>("generator");
+
+	if (name == "None")
+		return std::auto_ptr<Hadronisation>(
+					new NoHadronisation(params));
 
 	std::auto_ptr<Hadronisation> plugin(
 		Factory::get()->create(name + "Hadronisation", params));

@@ -4,6 +4,10 @@
 #include <string>
 #include <memory>
 
+#include <HepMC/GenEvent.h>
+#include <HepMC/GenVertex.h>
+#include <HepMC/GenParticle.h>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
@@ -86,7 +90,7 @@ LHEEvent::~LHEEvent()
 {
 }
 
-std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
+std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 {
 	std::auto_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
 
@@ -107,6 +111,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
 
 	// stores (pointers to) converted particles
 	std::vector<HepMC::GenParticle*> genParticles;
+	std::vector<HepMC::GenVertex*> genVertices;
 
 	// I. convert particles
 	for(unsigned int i = 0; i < nup; i++)
@@ -131,13 +136,10 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
 
 		if (!current_vtx) {
 			current_vtx = new HepMC::GenVertex(
-					HepMC::FourVector( 0, 0, 0, cTau));
+					HepMC::FourVector(0, 0, 0, cTau));
 
 			// add vertex to event
-			hepmc->add_vertex(current_vtx);
-
-			if (!hepmc->signal_process_vertex()) 	// remember first vertex
-				hepmc->set_signal_process_vertex(current_vtx);
+			genVertices.push_back(current_vtx);
 		}
 
 		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
@@ -166,8 +168,8 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
 			HepMC::FourVector(0.0, 0.0, -heprup->EBMUP.second,
 			                             heprup->EBMUP.second),
 			heprup->IDBMUP.second);
-	b1->set_status(-1);
-	b2->set_status(-1);
+	b1->set_status(3);
+	b2->set_status(3);
 
 	HepMC::GenVertex *v1 = new HepMC::GenVertex();
 	HepMC::GenVertex *v2 = new HepMC::GenVertex();
@@ -194,6 +196,13 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::getHepMCEvent() const
 			<< "Can't find any initial partons to be"
 			   " connected to the beam particles.";
 
+	for(std::vector<HepMC::GenVertex*>::const_iterator iter = genVertices.begin();
+	    iter != genVertices.end(); ++iter) {
+		hepmc->add_vertex(*iter);
+		if (!hepmc->signal_process_vertex())
+			hepmc->set_signal_process_vertex(*iter);
+	}
+
 	// do some more consistency checks
 	for(unsigned int i = 0; i < nup; i++) {
 		if (!genParticles.at(i)->parent_event()) {
@@ -219,8 +228,10 @@ HepMC::GenParticle *LHEEvent::makeHepMCParticle(unsigned int i) const
 			                  hepeup.PUP.at(i)[3]),
 			hepeup.IDUP.at(i));
 
+	int status = hepeup.ISTUP.at(i);
+
 	particle->set_generated_mass(hepeup.PUP.at(i)[4]);
-	particle->set_status(hepeup.ISTUP.at(i));
+	particle->set_status(status > 0 ? status : 3);
 
 	return particle;
 }
@@ -230,12 +241,14 @@ bool LHEEvent::checkHepMCTree(const HepMC::GenEvent *event)
 	double px = 0, py = 0, pz = 0, E = 0;
 
 	for(HepMC::GenEvent::particle_const_iterator iter = event->particles_begin();
-	    iter != event->particles_end(); iter++ ) {
+	    iter != event->particles_end(); iter++) {
 		int status = (*iter)->status();
 		HepMC::FourVector fv = (*iter)->momentum();
 
 		// incoming particles
-		if (status == -1) {
+		if (status == 3 &&
+		    *iter != event->beam_particles().first &&
+		    *iter != event->beam_particles().second) {
 			px -= fv.px();
 			py -= fv.py();
 			pz -= fv.pz();
@@ -251,17 +264,15 @@ bool LHEEvent::checkHepMCTree(const HepMC::GenEvent *event)
 		}
 	}
 
-	HepMC::FourVector sum_pt(px, py, pz, E);
-
-	if (sum_pt.m2() > 0.1) {
+	if (px*px + py*py + pz*pz + E*E > 0.1) {
 		edm::LogWarning("GeneratorWarning|LHEInterface")
 			<< "Energy-momentum badly conserved. "
 			<< std::setprecision(3)
 			<< "sum p_i  = ["
-			<< std::setw(7) << sum_pt.px() << ", "
-			<< std::setw(7) << sum_pt.py() << ", "
-			<< std::setw(7) << sum_pt.pz() << ", "
-			<< std::setw(7) << sum_pt.e() << "]";
+			<< std::setw(7) << E << ", "
+			<< std::setw(7) << px << ", "
+			<< std::setw(7) << py << ", "
+			<< std::setw(7) << pz << "]";
 
 		return false;
 	}

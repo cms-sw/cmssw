@@ -7,6 +7,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/GenParticle.h>
 
 #include <Pythia.h>
 #include <LesHouches.h>
@@ -165,6 +166,20 @@ Pythia8Hadronisation::~Pythia8Hadronisation()
 {
 }
 
+// naive Pythia8 HepMC status fixup
+static int getStatus(const HepMC::GenParticle *p)
+{
+	int status = p->status();
+	if (status > 0)
+		return status;
+	else if (status > -30 && status < 0)
+		return 3;
+	else if (status < -80)
+		return 1;
+	else
+		return 2;
+}
+
 std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::hadronize()
 {
 	lhaEvent->load(getRawEvent());
@@ -175,6 +190,10 @@ std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::hadronize()
 
 	std::auto_ptr<HepMC::GenEvent> event(new HepMC::GenEvent);
 	conv->fill_next_event(pythia->event, event.get());
+
+	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
+	    iter != event->particles_end(); iter++)
+		(*iter)->set_status(getStatus(*iter));
 
 	event->set_signal_process_id(pythia->info.code());
 	event->set_event_scale(pythia->info.pTHat());

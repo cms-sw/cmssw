@@ -34,7 +34,7 @@ class LHEEvent {
 	const HEPRUP *getHEPRUP() const { return common->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
 
-	std::auto_ptr<HepMC::GenEvent> getHepMCEvent() const;
+	std::auto_ptr<HepMC::GenEvent> asHepMCEvent() const;
 
     private:
 	static bool checkHepMCTree(const HepMC::GenEvent *event);
