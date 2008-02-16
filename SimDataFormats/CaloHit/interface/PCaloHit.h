@@ -9,14 +9,16 @@ class PCaloHit {
 
 public: 
 
-  PCaloHit(float e = 0., float t = 0., int i = 0, float emFraction = 1.) :
-    myEnergy(e), myEMFraction(emFraction), myTime(t), myItra(i) { }
+  PCaloHit(float e = 0., float t = 0., int i = 0, float emFraction = 1.,
+	   uint16_t d = 0) : myEnergy(e), myEMFraction(emFraction), myTime(t),
+    myItra(i), myDepth(d) { }
 
   PCaloHit(unsigned int id, float e = 0., float t = 0., int i = 0, 
-	   float emFraction = 1.) : myEnergy (e), myEMFraction(emFraction), 
-    myTime (t), myItra (i), detId(id) { }
-  PCaloHit(float eEM, float eHad, float t, int i = 0);
-  PCaloHit(unsigned int id, float eEM, float eHad, float t, int i = 0);
+	   float emFraction = 1., uint16_t d = 0) : myEnergy (e), 
+    myEMFraction(emFraction), myTime (t), myItra (i), detId(id), myDepth(d) { }
+  PCaloHit(float eEM, float eHad, float t, int i = 0, uint16_t d = 0);
+  PCaloHit(unsigned int id, float eEM, float eHad, float t, int i = 0, 
+	   uint16_t d = 0);
   
   //Names
   static const char *name() { return "Hit"; }
@@ -36,6 +38,11 @@ public:
 
   //DetId where the Hit is recorded
   unsigned int  id() const { return detId; }
+
+  //Encoded depth in the detector 
+  //for ECAL: # radiation length, 30 == APD
+  //for HCAL:
+  uint16_t depth() const { return myDepth; } 
 
   //Event Id (for signal/pileup discrimination)
 
@@ -59,6 +66,7 @@ protected:
   float myTime; 
   int   myItra; 
   unsigned int detId; 
+  uint16_t myDepth;
   EncodedEventId  theEventId;
 }; 
 
