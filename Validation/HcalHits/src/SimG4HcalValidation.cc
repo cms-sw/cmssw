@@ -208,8 +208,8 @@ void SimG4HcalValidation::update(const BeginOfEvent * evt) {
   clear();
 
   int iev = (*evt)()->GetEventID();
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation: =====> Begin of event = "
-			    << iev;
+  LogDebug("ValidHcal") << "SimG4HcalValidation: =====> Begin of event = "
+			<< iev;
 }
 
 //=================================================================== each STEP
@@ -277,7 +277,7 @@ void SimG4HcalValidation::update(const EndOfEvent * evt) {
 
   // Fill hits cache for jetfinding etc.
   fill(evt);
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: ---  after Fill ";
+  LogDebug("ValidHcal") << "SimG4HcalValidation:: ---  after Fill ";
 }
 
 //---------------------------------------------------
@@ -319,6 +319,8 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       std::string det =  "HB";
       if (subdet == static_cast<int>(HcalForward)) {
 	det = "HF";
+	uint16_t depth = aHit->getDepth();
+	if (depth != 0) { layer += 2; lay += 2; }
 	if      (layer == 1) vhithc += e;
 	else if (layer == 0) vhitec += e;
 	else
@@ -355,7 +357,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       }    
     }
   }
-  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: HCAL hits : " << nhc;
+  LogDebug("ValidHcal") << "SimG4HcalValidation:: HCAL hits : " << nhc;
 
   if (!hcalOnly) { //--------------------------  ECAL hits --------------------
     int ndets = names.size();
@@ -662,8 +664,8 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 //---------------------------------------------------
 void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
 
-  edm::LogInfo("ValidHcal") << "Enter SimG4HcalValidation::fetchHits with "
-			    << hitcache.size() << " hits";
+  LogDebug("ValidHcal") << "Enter SimG4HcalValidation::fetchHits with "
+			<< hitcache.size() << " hits";
   int nHit = hitcache.size();
   int hit  = 0;
   int i;

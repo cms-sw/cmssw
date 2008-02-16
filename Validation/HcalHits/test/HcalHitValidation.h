@@ -60,6 +60,8 @@ private:
   MonitorElement *meHBPhiHit_, *meHEPhiHit_, *meHOPhiHit_, *meHFPhiHit_;
   MonitorElement *meHBEneHit_, *meHEEneHit_, *meHOEneHit_, *meHFEneHit_;
   MonitorElement *meHBTimHit_, *meHETimHit_, *meHOTimHit_, *meHFTimHit_;
+  MonitorElement *mePMTHit_,   *mePMTDepHit_,*mePMTEtaHit_,*mePMTPhiHit_;
+  MonitorElement *mePMTEn1Hit_,*mePMTEn2Hit_,*mePMTTimHit_;
 
   static const int nLayersMAX=20, nDepthsMAX=5;
   MonitorElement *meLayerLay_, *meEtaHLay_, *mePhiHLay_, *meEneHLay_;

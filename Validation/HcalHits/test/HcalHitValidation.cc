@@ -88,6 +88,13 @@ void HcalHitValidation::beginJob(const edm::EventSetup& ) {
       meHETimHit_ = dbe_->book1D("Hit34","Time in HE",           100,0.,400.);
       meHOTimHit_ = dbe_->book1D("Hit35","Time in HO",           100,0.,400.);
       meHFTimHit_ = dbe_->book1D("Hit36","Time in HF",           100,0.,400.);
+      mePMTHit_   = dbe_->book1D("Hit37","Number of Hit in PMT",1000,0.,1000.);
+      mePMTDepHit_= dbe_->book1D("Hit38","Depths in HF PMT",      20,0.,20.);
+      mePMTEtaHit_= dbe_->book1D("Hit39","Eta in HF PMT",        100,-50.,50.);
+      mePMTPhiHit_= dbe_->book1D("Hit40","Phi in HF PMT",        100,0.,100.);
+      mePMTEn1Hit_= dbe_->book1D("Hit41","Energy (Ceren) in PMT",100,0.,100.);
+      mePMTEn2Hit_= dbe_->book1D("Hit42","Energy (dE/dx) in PMT",100,0.,100.);
+      mePMTTimHit_= dbe_->book1D("Hit43","Time in HF PMT",       100,0.,400.);
     }
 
     //Histograms for Layers
@@ -218,7 +225,7 @@ void HcalHitValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
 void HcalHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 
   int nHit = hits.size();
-  int nHB=0, nHE=0, nHO=0, nHF=0, nBad1=0, nBad2=0, nBad=0;
+  int nHB=0, nHE=0, nHO=0, nHF=0, nPMT=0, nBad1=0, nBad2=0, nBad=0;
   for (int i=0; i<nHit; i++) {
     double energy    = hits[i].energy();
     double time      = hits[i].time();
@@ -239,21 +246,32 @@ void HcalHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       eta            = id.ieta();
       phi            = id.iphi();
     }
+    uint16_t depth_  = hits[i].depth();
+    double energyEM  = hits[i].energyEM();
+    double energyHad = hits[i].energyHad();
     LogDebug("HcalHitValid") << "Hit[" << i << "] ID " << std::hex << id_ 
 			     << std::dec << " Det " << det << " Sub " 
-			     << subdet << " depth " << depth << " Eta " << eta
-			     << " Phi " << phi << " E " << energy << " time " 
-			     << time;
+			     << subdet << " depth " << depth << " " << depth_
+			     << " Eta " << eta << " Phi " << phi << " E " 
+			     << energy << "(EM " << energyEM << ", Had "
+			     << energyHad << ") time " << time;
     if (det ==  4) { // Check DetId.h
-      if      (subdet == static_cast<int>(HcalBarrel))  nHB++;
-      else if (subdet == static_cast<int>(HcalEndcap))  nHE++;
-      else if (subdet == static_cast<int>(HcalOuter))   nHO++;
-      else if (subdet == static_cast<int>(HcalForward)) nHF++;
-      else    { nBad++;  nBad2++;}
+      if        (subdet == static_cast<int>(HcalBarrel)) {
+	nHB++;
+      } else if (subdet == static_cast<int>(HcalEndcap)) {
+	nHE++;
+      } else if (subdet == static_cast<int>(HcalOuter))  {
+	nHO++;
+      } else if (subdet == static_cast<int>(HcalForward)) {
+	if (depth_ == 0) nHF++;
+	else             nPMT++;
+      }  else { 
+	nBad++;  nBad2++;
+      }
     } else    { nBad++;  nBad1++;}
     if (dbe_) {
       meDetectHit_->Fill(double(det));
-      if (det ==  4) {
+      if (det ==  4 && depth_ == 0) {
 	meSubdetHit_->Fill(double(subdet));
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
@@ -286,6 +304,13 @@ void HcalHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHFEneHit_->Fill(energy);
 	  meHFTimHit_->Fill(time);
 	}
+      } else if (det == 0 && subdet == static_cast<int>(HcalForward)) {
+	mePMTDepHit_->Fill(double(depth));
+	mePMTEtaHit_->Fill(double(eta));
+	mePMTPhiHit_->Fill(double(phi));
+	mePMTEn1Hit_->Fill(energyEM);
+	mePMTEn2Hit_->Fill(energyHad);
+	mePMTTimHit_->Fill(time);
       }
     }
   }
@@ -298,10 +323,12 @@ void HcalHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     meHENHit_->Fill(double(nHE));
     meHONHit_->Fill(double(nHO));
     meHFNHit_->Fill(double(nHF));
+    mePMTHit_->Fill(double(nPMT));
   }
   LogDebug("HcalHitValid") << "HcalHitValidation::analyzeHits: HB " << nHB 
 			   << " HE " << nHE << " HO " << nHO << " HF " << nHF 
-			   << " Bad " << nBad << " All " << nHit;
+			   << " PMT " << nPMT << " Bad " << nBad << " All " 
+			   << nHit;
 
 }
 
