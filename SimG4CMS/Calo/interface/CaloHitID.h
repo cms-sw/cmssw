@@ -12,7 +12,7 @@ class CaloHitID {
 
 public:
 
-  CaloHitID(uint32_t unitID, double timeSlice, int trackID);
+  CaloHitID(uint32_t unitID, double timeSlice, int trackID, uint16_t depth=0);
   CaloHitID();
   CaloHitID(const CaloHitID&);
   const CaloHitID& operator=(const CaloHitID&);
@@ -22,7 +22,9 @@ public:
   int          timeSliceID() const {return theTimeSliceID;}
   double       timeSlice()   const {return theTimeSlice;}
   int          trackID()     const {return theTrackID;}
-  void         setID(unsigned int unitID, double timeSlice, int trackID);
+  uint16_t     depth()       const {return theDepth;}
+  void         setID(uint32_t unitID, double timeSlice, int trackID,
+		     uint16_t depth=0);
   void         reset();
 
   bool operator==(const CaloHitID& ) const;
@@ -35,6 +37,7 @@ private:
   double       theTimeSlice;
   int          theTrackID;
   int          theTimeSliceID;
+  uint16_t     theDepth;
 
 };
 

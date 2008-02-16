@@ -154,7 +154,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
         primaryID = theTrack->GetTrackID();
       }
       if (unitID > 0) {
-	currentID.setID(unitID, time, primaryID);
+	currentID.setID(unitID, time, primaryID, 0);
 	LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
 			    << " Unit 0x" << std::hex << currentID.unitID() 
 			    << std::dec << " Edeposit = " << edepositEM << " " 
@@ -272,7 +272,7 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   bool flag = (unitID > 0);
   G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
   if (flag) {
-    currentID.setID(unitID, time, primaryID);
+    currentID.setID(unitID, time, primaryID, 0);
 
     LogDebug("CaloSim") << "CaloSD:: GetStepInfo for"
 			<< " PV "     << touch->GetVolume(0)->GetName()
@@ -360,6 +360,7 @@ CaloG4Hit* CaloSD::createNewHit() {
 
   LogDebug("CaloSim") << "CaloSD::CreateNewHit for"
 		      << " Unit " << currentID.unitID() 
+		      << " " << currentID.depth()
 		      << " Edeposit = " << edepositEM << " " << edepositHAD;
   LogDebug("CaloSim") << " primary "    << currentID.trackID()
 		      << " time slice " << currentID.timeSliceID()
@@ -594,9 +595,10 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
   slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, aHit->getHadr()/GeV,
-		     time, tkID);
+		     time, tkID, aHit->getDepth());
   LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
-		      << aHit->getUnitID() << std::dec << " due to " << tkID 
+		      << aHit->getUnitID() << std::dec << " " 
+		      << aHit->getDepth() << " due to " << tkID 
 		      << " in time " << time << " of energy " 
 		      << aHit->getEM()/GeV << " GeV (EM) and " 
 		      << aHit->getHadr()/GeV << " GeV (Hadr)";

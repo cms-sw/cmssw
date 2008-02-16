@@ -6,8 +6,9 @@
 
 #include <iomanip>
 
-CaloHitID::CaloHitID(uint32_t unitID, double timeSlice, int trackID) {
-  setID(unitID, timeSlice, trackID);
+CaloHitID::CaloHitID(uint32_t unitID, double timeSlice, int trackID,
+		     uint16_t depth) {
+  setID(unitID, timeSlice, trackID, depth);
 }
 
 CaloHitID::CaloHitID() {
@@ -19,6 +20,7 @@ CaloHitID::CaloHitID(const CaloHitID & id) {
   theTimeSlice   = id.theTimeSlice;
   theTrackID     = id.theTrackID;
   theTimeSliceID = id.theTimeSliceID;
+  theDepth       = id.theDepth;
 }
 
 const CaloHitID& CaloHitID::operator=(const CaloHitID & id) {
@@ -26,17 +28,20 @@ const CaloHitID& CaloHitID::operator=(const CaloHitID & id) {
   theTimeSlice   = id.theTimeSlice;
   theTrackID     = id.theTrackID;
   theTimeSliceID = id.theTimeSliceID;
+  theDepth       = id.theDepth;
 
   return *this;
 }
 
 CaloHitID::~CaloHitID() {}
 
-void CaloHitID::setID(uint32_t unitID, double timeSlice, int trackID) {
+void CaloHitID::setID(uint32_t unitID, double timeSlice, int trackID,
+		      uint16_t depth) {
   theUnitID    = unitID;
   theTimeSlice = timeSlice;
   theTrackID   = trackID;
   theTimeSliceID = (int)theTimeSlice;
+  theDepth     = depth;
 }
 
 void CaloHitID::reset() {
@@ -44,11 +49,12 @@ void CaloHitID::reset() {
   theTimeSlice =-2;
   theTrackID   =-2;
   theTimeSliceID = (int)theTimeSlice;
+  theDepth     = 0;
 }
 
 bool CaloHitID::operator==(const CaloHitID& id) const {
   return (theUnitID == id.unitID() && theTrackID == id.trackID() &&
-	  theTimeSliceID == id.timeSliceID()) ? true : false;
+	  theTimeSliceID == id.timeSliceID() && theDepth == id.depth()) ? true : false;
 }
 
 bool CaloHitID::operator<(const CaloHitID& id) const {
@@ -56,6 +62,8 @@ bool CaloHitID::operator<(const CaloHitID& id) const {
     return (theTrackID > id.trackID());
   } else if  (theUnitID != id.unitID()) {
     return (theUnitID > id.unitID());
+  } else if  (theDepth != id.depth()) {
+    return (theDepth > id.depth());
   } else {
     return (theTimeSliceID > id.timeSliceID());
   }
@@ -66,14 +74,16 @@ bool CaloHitID::operator>(const CaloHitID& id) const {
     return (theTrackID < id.trackID());
   } else if  (theUnitID != id.unitID()) {
     return (theUnitID < id.unitID());
+  } else if  (theDepth != id.depth()) {
+    return (theDepth < id.depth());
   } else {
     return (theTimeSliceID < id.timeSliceID());
   }
 }
 
 std::ostream& operator<<(std::ostream& os, const CaloHitID& id) {
-  os << "UnitID 0x" << std::hex << id.unitID() << std::dec << " Time " 
-     << std::setw(6) << id.timeSlice() << " TrackID " << std::setw(8)
-     << id.trackID();
+  os << "UnitID 0x" << std::hex << id.unitID() << std::dec << " Depth "
+     << std::setw(6) << id.depth() << " Time " << std::setw(6) 
+     << id.timeSlice() << " TrackID " << std::setw(8) << id.trackID();
   return os;
 }

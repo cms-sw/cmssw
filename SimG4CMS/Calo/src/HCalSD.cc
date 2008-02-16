@@ -501,7 +501,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     int depth              = showerLibrary->getDepth(i);
     double time            = showerLibrary->getTSlice(i);
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
-    currentID.setID(unitID, time, primaryID);
+    currentID.setID(unitID, time, primaryID, 0);
    
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {
@@ -548,7 +548,7 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
     for (int i=0; i<nHit; i++) {
       double time            = hfshower->getTSlice(i);
-      currentID.setID(unitID, time, primaryID);
+      currentID.setID(unitID, time, primaryID, 0);
 
       // check if it is in the same unit and timeslice as the previosus one
       if (currentID == previousID) {
@@ -586,7 +586,7 @@ void HCalSD::getFromParam (G4Step* aStep) {
       int depth              = showerParam->getDepth(i);
       double time            = showerParam->getTSlice(i);
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID);
+      currentID.setID(unitID, time, primaryID, 0);
 
       // check if it is in the same unit and timeslice as the previosus one
       if (currentID == previousID) {
@@ -624,9 +624,9 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
     double etaR     = showerPMT->getRadius();
-    int depth       = 3;
+    int depth       = 1;
     if (etaR < 0) {
-      depth         = 4;
+      depth         = 2;
       etaR          =-etaR;
     }
     if (hitPoint.z() < 0) etaR =-etaR;
@@ -640,7 +640,7 @@ void HCalSD::getHitPMT (G4Step* aStep) {
 								  depth,1);
       if (numberingScheme) unitID = numberingScheme->getUnitID(tmp);
     }
-    currentID.setID(unitID, time, primaryID);
+    currentID.setID(unitID, time, primaryID, 1);
 
     double beta = preStepPoint->GetBeta();
     if (beta > betaThr) {

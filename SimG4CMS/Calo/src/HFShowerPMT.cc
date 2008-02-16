@@ -128,7 +128,7 @@ double HFShowerPMT::getRadius() {
   else
     LogDebug("HFShower") << "HFShowerPMT::getRadius: R " << indexR
 			 << " F " << indexF;
-  if (indexF > 3)  r =-r;
+  if (indexF == 2)  r =-r;
   LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;
   return r;
