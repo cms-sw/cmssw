@@ -1,13 +1,13 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.31 2007/08/20 17:53:33 fedor Exp $
+/// $Id: JetMaker.cc,v 1.32 2007/09/20 21:05:03 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -196,13 +196,14 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fPFCandidates,
   return true;
 }
 
+
 bool JetMaker::makeSpecific (const JetReco::InputCollection& fMcParticles, 
 		   GenJet::Specific* fJetSpecific) {
   for (JetReco::InputCollection::const_iterator genCand = fMcParticles.begin(); genCand != fMcParticles.end(); ++genCand) {
     const Candidate* candidate = genCand->get ();
     if (candidate->hasMasterClone ()) candidate = candidate->masterClone().get ();
     if (candidate) {
-      const GenParticleCandidate* genParticle = GenJet::genParticle (candidate);
+      const GenParticle* genParticle = GenJet::genParticle (candidate);
       if (genParticle) {
 	double e = genParticle->energy();
 	switch (abs (genParticle->pdgId ())) {

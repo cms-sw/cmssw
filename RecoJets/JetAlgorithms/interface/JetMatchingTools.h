@@ -8,7 +8,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 namespace edm {
   class Event;
@@ -42,11 +42,11 @@ class JetMatchingTools {
   /// Generator ID
   int generatorId (unsigned fSimTrackId) ;
   /// GenParticle
-  const reco::GenParticleCandidate* getGenParticle (int fGeneratorId);
+  const reco::GenParticle* getGenParticle (int fGeneratorId);
   /// GenParticles for CaloJet
-  std::vector <const reco::GenParticleCandidate*> getGenParticles (const reco::CaloJet& fJet, bool fVerbose = true);
+  std::vector <const reco::GenParticle*> getGenParticles (const reco::CaloJet& fJet, bool fVerbose = true);
   /// GenParticles for GenJet
-  std::vector <const reco::GenParticleCandidate*> getGenParticles (const reco::GenJet& fJet);
+  std::vector <const reco::GenParticle*> getGenParticles (const reco::GenJet& fJet);
 
   // reverse propagation
   /// CaloSimHits
@@ -60,8 +60,8 @@ class JetMatchingTools {
   double lostEnergyFraction (const reco::CaloJet& fJet );
 
   /// energy overlap
-  double overlapEnergyFraction (const std::vector <const reco::GenParticleCandidate*>& fObject, 
-				const std::vector <const reco::GenParticleCandidate*>& fReference) const;
+  double overlapEnergyFraction (const std::vector <const reco::GenParticle*>& fObject, 
+				const std::vector <const reco::GenParticle*>& fReference) const;
 
 
   const EBRecHitCollection* getEBRecHitCollection ();

@@ -13,7 +13,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace edm;
 
@@ -237,7 +237,7 @@ int JetMatchingTools::generatorId (unsigned fSimTrackId) {
 }
 
   /// GenParticle
-const reco::GenParticleCandidate* JetMatchingTools::getGenParticle (int fGeneratorId) {
+const reco::GenParticle* JetMatchingTools::getGenParticle (int fGeneratorId) {
   if (fGeneratorId > int (getGenParticlesCollection ()->size())) {
     std::cerr << "JetMatchingTools::getGenParticle-> requested index " << fGeneratorId << " is grater then container size " << getGenParticlesCollection ()->size() << std::endl;
     return 0;
@@ -246,8 +246,8 @@ const reco::GenParticleCandidate* JetMatchingTools::getGenParticle (int fGenerat
 }
 
 /// GenParticles for CaloJet
-std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticles (const reco::CaloJet& fJet, bool fVerbose) {
-  std::set <const reco::GenParticleCandidate*> result;
+std::vector <const reco::GenParticle*> JetMatchingTools::getGenParticles (const reco::CaloJet& fJet, bool fVerbose) {
+  std::set <const reco::GenParticle*> result;
   // follow the chain
   std::vector <const CaloTower*> towers = getConstituents (fJet) ;
   for (unsigned itower = 0; itower < towers.size (); ++itower) {
@@ -259,7 +259,7 @@ std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticle
 	if (trackId >= 0) {
 	  int genId = generatorId (trackId);
 	  if (genId >= 0) {
-	    const reco::GenParticleCandidate* genPart = getGenParticle (genId);
+	    const reco::GenParticle* genPart = getGenParticle (genId);
 	    if (genPart) {
 	      result.insert (genPart);
 	    }
@@ -277,11 +277,11 @@ std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticle
       }
     }
   }
-  return std::vector <const reco::GenParticleCandidate*> (result.begin (), result.end());
+  return std::vector <const reco::GenParticle*> (result.begin (), result.end());
 }
 
 /// GenParticles for GenJet
-std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticles (const reco::GenJet& fJet) {
+std::vector <const reco::GenParticle*> JetMatchingTools::getGenParticles (const reco::GenJet& fJet) {
   return fJet.getConstituents ();
 }
 
@@ -313,8 +313,8 @@ double JetMatchingTools::lostEnergyFraction (const reco::CaloJet& fJet ) {
 }
 
   /// energy overlap
-double JetMatchingTools::overlapEnergyFraction (const std::vector <const reco::GenParticleCandidate*>& fObject, 
-						const std::vector <const reco::GenParticleCandidate*>& fReference) const {
+double JetMatchingTools::overlapEnergyFraction (const std::vector <const reco::GenParticle*>& fObject, 
+						const std::vector <const reco::GenParticle*>& fReference) const {
   if (fObject.empty()) return 0;
   double totalEnergy = 0;
   double overlapEnergy = 0;
