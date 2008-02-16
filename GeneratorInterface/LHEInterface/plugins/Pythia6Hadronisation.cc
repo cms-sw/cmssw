@@ -56,7 +56,6 @@ struct Pythia6Hadronisation::FortranCallback {
 
 extern "C" {
 	void pygive_(const char *line, int length);
-	void eventtree_();
 
 	extern struct HEPRUP_ {
 		int idbmup[2];

@@ -56,10 +56,7 @@ bool LHESource::produce(edm::Event &event)
 {
 	std::auto_ptr<HepMC::GenEvent> hadronLevel;
 
-	bool skipEvent;
-	do {
-		skipEvent = true;
-
+	while(true) {
 	 	boost::shared_ptr<LHEEvent> partonLevel = reader.next();
 		if (!partonLevel.get())
 			return false;
@@ -68,16 +65,19 @@ bool LHESource::produce(edm::Event &event)
 
 		hadronLevel = hadronisation->hadronize();
 
-		hadronLevel->set_event_number(numberEventsInRun() -
-		                              remainingEvents() - 1);
+		if (!hadronLevel.get())
+			continue;
 
 		if (skipEvents > 0) {
 			skipEvents--;
 			continue;
 		}
 
-		skipEvent = false;
-	} while(skipEvent);
+		break;
+	}
+
+	hadronLevel->set_event_number(numberEventsInRun()
+	                              - remainingEvents() - 1);
 
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct());
 	result->addHepMCData(hadronLevel.release());
