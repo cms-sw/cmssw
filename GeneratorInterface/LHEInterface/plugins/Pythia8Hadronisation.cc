@@ -174,8 +174,6 @@ static int getStatus(const HepMC::GenParticle *p)
 		return status;
 	else if (status > -30 && status < 0)
 		return 3;
-	else if (status < -80)
-		return 1;
 	else
 		return 2;
 }
