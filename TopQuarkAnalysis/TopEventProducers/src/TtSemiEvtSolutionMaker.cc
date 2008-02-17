@@ -1,12 +1,9 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.30 2008/01/17 10:30:48 ghammad Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.31 2008/01/25 13:49:08 vadler Exp $
 //
 
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
@@ -17,11 +14,12 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
 
+#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
+
 #include <memory>
 
-
-/// constructor
-TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig) {
+TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig) 
+{
   // configurables
   electronSrc_     = iConfig.getParameter<edm::InputTag>    ("electronSource");
   muonSrc_         = iConfig.getParameter<edm::InputTag>    ("muonSource");
@@ -45,26 +43,25 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   metParam_        = iConfig.getParameter<int>              ("metParametrisation");
   constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
-
+  
   // define kinfitter
   if(doKinFit_)        myKinFitter       = new TtSemiKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
-
+  
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
   myLRSignalSelObservables               = new TtSemiLRSignalSelObservables();
   myLRJetCombObservables                 = new TtSemiLRJetCombObservables();
   if (addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(edm::FileInPath(lrJetCombFile_).fullPath(), lrJetCombObs_);
-
+  
   // instantiate signal selection calculator
   if (addLRSignalSel_) myLRSignalSelCalc = new TtSemiLRSignalSelCalc(edm::FileInPath(lrSignalSelFile_).fullPath(), lrSignalSelObs_);
-
+  
   // define what will be produced
   produces<std::vector<TtSemiEvtSolution> >();
 }
 
-
-/// destructor
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() 
+{
   if (doKinFit_)      delete myKinFitter;
   delete mySimpleBestJetComb;
   delete myLRSignalSelObservables;
@@ -73,21 +70,20 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
   if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
-
-void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-
+void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   //
   //  TopObject Selection
   //
 
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   bool leptonFound = false;
-  edm::Handle<std::vector<TopMuon> > muons;
+  edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
     iEvent.getByLabel(muonSrc_, muons);
     if (muons->size() > 0) leptonFound = true;
   }
-  edm::Handle<std::vector<TopElectron> > electrons;
+  edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
     iEvent.getByLabel(electronSrc_, electrons);
     if (electrons->size() > 0) leptonFound = true;
@@ -95,13 +91,13 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
-  edm::Handle<std::vector<TopMET> > mets;
+  edm::Handle<std::vector<pat::MET> > mets;
   iEvent.getByLabel(metSrc_, mets);
   if (mets->size() > 0) metFound = true;
 
   // select Jets
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
   if (jets->size() >= 4) jetsFound = true;
 

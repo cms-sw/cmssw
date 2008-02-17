@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.7 2007/11/24 11:14:22 lowette Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.8 2008/01/25 13:49:08 vadler Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,9 +14,8 @@
 
 #include <memory>
 
-
-/// constructor
-TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) {
+TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
+{
   // configurables
   jetSrc_          = iConfig.getParameter<edm::InputTag>    ("jetSource");
   jetCorrScheme_   = iConfig.getParameter<int>              ("jetCorrectionScheme");
@@ -33,12 +32,11 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
   jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
   constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
-
+  
   // define kinfitter
   if(doKinFit_){
     myKinFitter = new TtHadKinFitter(jetParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
   }
-  
   
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtHadSimpleBestJetComb();
@@ -48,14 +46,12 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
   
   // instantiate signal selection calculator
   if (addLRSignalSel_) myLRSignalSelCalc = new TtHadLRSignalSelCalc(lrSignalSelFile_, lrSignalSelObs_);
- 
+  
   // define what will be produced
   produces<std::vector<TtHadEvtSolution> >();
   
 }
 
-
-/// destructor
 TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
 {
   if (doKinFit_) {
@@ -68,15 +64,15 @@ TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
   if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
-
-void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   // TopObject Selection
   // Select Jets
-
+  
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
-
+  
   if (jets->size() >= 6) jetsFound = true;
   
   // Build Event solutions according to the ambiguity in the jet combination

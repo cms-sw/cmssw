@@ -1,15 +1,19 @@
 //
-// $Id: TtSemiSimpleBestJetComb.cc,v 1.2 2007/06/09 01:17:40 lowette Exp $
+// $Id: TtSemiSimpleBestJetComb.cc,v 1.3 2007/09/20 18:03:20 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 
-TtSemiSimpleBestJetComb::TtSemiSimpleBestJetComb() {}
-TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() {}
+TtSemiSimpleBestJetComb::TtSemiSimpleBestJetComb() 
+{
+}
 
+TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() 
+{
+}
 
-int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols){
- 
+int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols)
+{ 
   // search the highest probChi^2 value in the among the different jet combination solutions   
   double maxProbChi2 = 0;
   for(unsigned int s=0; s<sols.size(); s++)  maxProbChi2 = std::max(maxProbChi2,sols[s].getProbChi2());
@@ -20,8 +24,7 @@ int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols){
   for(unsigned int s=0; s<sols.size(); s++){
     if(fabs(sols[s].getProbChi2()-maxProbChi2) < 0.0001) indices.push_back(s);
   }
-  
-    
+     
   int bestSol = -999;
   if(maxProbChi2 > 0.){
     if(indices.size() == 1) bestSol = indices[0];

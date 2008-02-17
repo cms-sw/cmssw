@@ -11,11 +11,13 @@
 
 class TtDecaySelection : public edm::EDFilter {
  public:
+
   explicit TtDecaySelection(const edm::ParameterSet&);
   ~TtDecaySelection();
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
+
   edm::InputTag src_;    
   TtDecayChannelSelector sel_;
 };

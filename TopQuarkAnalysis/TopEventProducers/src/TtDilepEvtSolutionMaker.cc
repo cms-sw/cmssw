@@ -1,23 +1,22 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.15 2008/01/17 10:48:55 speer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.16 2008/01/18 16:38:55 delaer Exp $
 //
 
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
-
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
-
-#include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
+
+#include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
 
 #include <memory>
 #include <vector>
 
 
-/// constructor
-TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig) {
+TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig) 
+{
   // configurables
   electronSource_ = iConfig.getParameter<edm::InputTag>("electronSource");
   muonSource_     = iConfig.getParameter<edm::InputTag>("muonSource");
@@ -42,29 +41,29 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   
   // define what will be produced
   produces<std::vector<TtDilepEvtSolution> >();
-
+  
   myLRSignalSelObservables = new TtDilepLRSignalSelObservables();
   myLRSignalSelObservables->jetSource(jetSource_);
 }
 
-/// destructor
-TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() {
+TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() 
+{
 }
 
-void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-
+void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   using namespace edm;
-  Handle<std::vector<TopTau> > taus;
+  Handle<std::vector<pat::Tau> > taus;
   iEvent.getByLabel(tauSource_, taus);
-  Handle<std::vector<TopMuon> > muons;
+  Handle<std::vector<pat::Muon> > muons;
   iEvent.getByLabel(muonSource_, muons);
-  Handle<std::vector<TopElectron> > electrons;
+  Handle<std::vector<pat::Electron> > electrons;
   iEvent.getByLabel(electronSource_, electrons);
-  Handle<std::vector<TopMET> > mets;
+  Handle<std::vector<pat::MET> > mets;
   iEvent.getByLabel(metSource_, mets);
-  Handle<std::vector<TopJet> > jets;
+  Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSource_, jets);
-
+  
   int selMuonp = -1, selMuonm = -1;
   int selElectronp = -1, selElectronm = -1;
   int selTaup = -1, selTaum = -1;
@@ -90,7 +89,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   
   //select MET (TopMET vector is sorted on ET)
   if(mets->size()>=1) { METFound = true; }
-
+  
   // If we have electrons and muons available, 
   // build a solutions with electrons and muons.
   if (muons->size() + electrons->size() >=2) {
@@ -172,8 +171,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
       // loop over the vector of taus to find the ones
       // that have the charge opposite to the muon one, and do not match in eta-phi
-      std::vector<std::vector<TopTau>::const_iterator> subset1;
-      for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
+      std::vector<std::vector<pat::Tau>::const_iterator> subset1;
+      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
         if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(muons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
           leptonFound = true;
@@ -182,20 +181,21 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
       // if there are more than one tau selected, use the most isolated one
       float bestIsol = 10.;
-      std::vector<std::vector<TopTau>::const_iterator> subset2;
-      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-        if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
-	else if((*tau)->getEcalIsolation()<bestIsol) {
-	  *tauIdx = *tau - taus->begin();
-	  bestIsol = (*tau)->getEcalIsolation();
-	}
+      std::vector<std::vector<pat::Tau>::const_iterator> subset2;
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
+	//FIXME: ecalIsolation missing in pat::Tau
+//         if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
+// 	else if((*tau)->getEcalIsolation()<bestIsol) {
+// 	  *tauIdx = *tau - taus->begin();
+// 	  bestIsol = (*tau)->getEcalIsolation();
+// 	}
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float bestEP = 100.;
-      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
-        if((*tau)->getEoverP()<bestEP) {
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+        if((*tau)->eOverP()<bestEP) {
 	  *tauIdx = *tau - taus->begin();
-	  bestEP = (*tau)->getEoverP();
+	  bestEP = (*tau)->eOverP();
 	}
       }
       
@@ -203,7 +203,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; } 
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
-        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
+        for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
             JetVetoByTaus.push_back(jet-jets->begin());
           }
@@ -226,8 +226,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
       // loop over the vector of taus to find the ones
       // that have the charge opposite to the muon one, and do not match in eta-phi
-      std::vector<std::vector<TopTau>::const_iterator> subset1;
-      for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
+      std::vector<std::vector<pat::Tau>::const_iterator> subset1;
+      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
         if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(electrons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
 	  leptonFound = true; 
@@ -236,20 +236,21 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
       // if there are more than one tau selected, use the most isolated one
       float bestIsol = 10.;
-      std::vector<std::vector<TopTau>::const_iterator> subset2;
-      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-        if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
-	else if((*tau)->getEcalIsolation()<bestIsol) {
-	  *tauIdx = *tau - taus->begin();
-	  bestIsol = (*tau)->getEcalIsolation();
-	}
+      std::vector<std::vector<pat::Tau>::const_iterator> subset2;
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
+	//FIXME: ecalIsolation missing in pat::Tau
+//         if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
+// 	else if((*tau)->getEcalIsolation()<bestIsol) {
+// 	  *tauIdx = *tau - taus->begin();
+// 	  bestIsol = (*tau)->getEcalIsolation();
+// 	}
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float bestEP = 100.;
-      for(std::vector<std::vector<TopTau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
-        if((*tau)->getEoverP()<bestEP) {
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+        if((*tau)->eOverP()<bestEP) {
 	  *tauIdx = *tau - taus->begin();
-	  bestEP = (*tau)->getEoverP();
+	  bestEP = (*tau)->eOverP();
 	}
       }
 
@@ -257,7 +258,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; } 
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
-        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
+        for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
             JetVetoByTaus.push_back(jet-jets->begin());
           }
@@ -280,7 +281,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	selTaum = 0;
       }
     }
-    for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
+    for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
       if(DeltaR<reco::Particle>()((*taus)[0],*jet)<0.1 || DeltaR<reco::Particle>()((*taus)[1],*jet)<0.1) {
         JetVetoByTaus.push_back(jet-jets->begin());
       }

@@ -1,7 +1,7 @@
 #ifndef TtHadEvtSolutionMaker_h
 #define TtHadEvtSolutionMaker_h
 //
-// $Id: TtHadEvtSolutionMaker.h,v 1.2 2007/10/07 15:26:27 mfhansen Exp $
+// $Id: TtHadEvtSolutionMaker.h,v 1.3 2007/11/24 11:14:21 lowette Exp $
 // adapted TtSemiEvtSolutionMaker.h, v1.13 2007/07/06 02:49:42 lowette Exp $
 // for fully hadronic channel.
 
@@ -15,7 +15,6 @@
 
 #include <vector>
 #include <string>
-
 
 class TtHadKinFitter;
 class TtHadSimpleBestJetComb;
@@ -35,7 +34,6 @@ class TtHadEvtSolutionMaker : public edm::EDProducer {
 
   private:
     // configurables
-
     edm::InputTag jetSrc_;
     int jetCorrScheme_;
     std::string lrSignalSelFile_, lrJetCombFile_;
@@ -52,6 +50,5 @@ class TtHadEvtSolutionMaker : public edm::EDProducer {
     TtHadLRSignalSelObservables * myLRSignalSelObservables;
     TtHadLRSignalSelCalc        * myLRSignalSelCalc;
 };
-
 
 #endif

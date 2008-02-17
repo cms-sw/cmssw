@@ -1,5 +1,5 @@
 //
-// $Id: TtHadLRSignalSelCalc.h,v 1.1 2007/09/23 16:19:00 mfhansen Exp $
+// $Id: TtHadLRSignalSelCalc.h,v 1.1 2007/10/07 15:28:05 mfhansen Exp $
 // Adapted TtHadLRSignalSelCalc.h,v 1.1 2007/06/15 08:49:19 heyninck Exp 
 // for fully hadronic channel
 
@@ -12,7 +12,6 @@
 
   \author   Jan Heyninck - adapted hadronic version mfhansen
 */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,20 +26,19 @@
 #include "TKey.h"
 #include "TString.h"
 
-
 class TtHadLRSignalSelCalc {
 
-  public:
-    TtHadLRSignalSelCalc();
-    TtHadLRSignalSelCalc(TString,std::vector<int>);
-    ~TtHadLRSignalSelCalc();	
+ public:
+  
+  TtHadLRSignalSelCalc();
+  TtHadLRSignalSelCalc(TString,std::vector<int>);
+  ~TtHadLRSignalSelCalc();	
+  void  operator()(TtHadEvtSolution&);
+  
+ private:
 
-    void  operator()(TtHadEvtSolution&);
-
-  private:
-    LRHelpFunctions  * myLR;
-    bool addPurity;
-
+  LRHelpFunctions  * myLR;
+  bool addPurity;
 };
 
 #endif

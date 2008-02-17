@@ -18,7 +18,9 @@ namespace TopInitID{
 }
 
 class TopInitSubset : public edm::EDProducer {
+
  public:
+
   explicit TopInitSubset(const edm::ParameterSet&);
   ~TopInitSubset();
   
@@ -26,5 +28,6 @@ class TopInitSubset : public edm::EDProducer {
   void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
 
  private:
+
   edm::InputTag src_;  
 };

@@ -1,27 +1,27 @@
-// $Id: TtSemiLRSignalSelCalc.cc,v 1.0 2007/09/23 16:20:00 mfhansen Exp $
+// $Id: TtHadLRSignalSelCalc.cc,v 1.1 2007/10/07 15:29:05 mfhansen Exp $
 // copied TtSemiLRSignalSelCalc.cc,v 1.2 2007/06/18 14:12:18 heyninck Exp 
 // for fully hadronic channel
 
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtHadLRSignalSelCalc.h"
 
 // constructor with path; default should not be used
-TtHadLRSignalSelCalc::TtHadLRSignalSelCalc(TString fitInputPath, std::vector<int> observables) {
+TtHadLRSignalSelCalc::TtHadLRSignalSelCalc(TString fitInputPath, std::vector<int> observables) 
+{
   std::cout << "=== Constructing a TtHadLRSignalSelCalc... " << std::endl; 
   myLR = new LRHelpFunctions();
   addPurity = false;
   if(observables[0] == -1) addPurity = true;
   myLR -> readObsHistsAndFits(fitInputPath, observables, addPurity);
   std::cout << "=== done." << std::endl;
-
 }
 
-
-// destructor
-TtHadLRSignalSelCalc::~TtHadLRSignalSelCalc() {
+TtHadLRSignalSelCalc::~TtHadLRSignalSelCalc() 
+{
   delete myLR;
 }
 
-void  TtHadLRSignalSelCalc::operator()(TtHadEvtSolution & sol){
+void  TtHadLRSignalSelCalc::operator()(TtHadEvtSolution & sol)
+{
   // find the used observables
   std::vector<double> obsVals;
   for(unsigned int o = 0; o<100; o++){

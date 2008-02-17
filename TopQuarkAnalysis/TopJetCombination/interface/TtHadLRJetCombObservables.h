@@ -1,7 +1,7 @@
 #ifndef TtHadLRJetCombObservables_h
 #define TtHadLRJetCombObservables_h
 
-// $Id: TtHadLRJetCombObservables.h,v 1.0 2007/10/07 12:12:00 mfhansen Exp $
+// $Id: TtHadLRJetCombObservables.h,v 1.1 2007/10/07 15:33:37 mfhansen Exp $
 // copied TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 by heyninck 
 /**
   \class    TtHadLRJetCombObservables is based on TtSemiLRJetCombObservables.h 
@@ -17,9 +17,8 @@
   // obs7 : b-tagging information
   // obs8 : chi2 value of kinematical fit with W-mass constraint
   \author   Jan Heyninck
-  \version  $Id: TtHadLRJetCombObservables.h,v 1.0 2007/10/07 12:15:00 mfhansen Exp $
+  \version  $Id: TtHadLRJetCombObservables.h,v 1.1 2007/10/07 15:33:37 mfhansen Exp $
 */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,16 +31,15 @@
 
 class TtHadLRJetCombObservables {
 
-  public:
-    TtHadLRJetCombObservables();
-    ~TtHadLRJetCombObservables();	
-
-    void  operator()(TtHadEvtSolution&);
-
-  private:
-    std::vector<std::pair<unsigned int,double> > jetCombVarVal;
-
-
+ public:
+  
+  TtHadLRJetCombObservables();
+  ~TtHadLRJetCombObservables();	
+  
+  void  operator()(TtHadEvtSolution&);
+  
+ private:
+  std::vector<std::pair<unsigned int,double> > jetCombVarVal;  
 };
 
 #endif

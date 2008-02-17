@@ -13,14 +13,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TtGenEventReco : public edm::EDProducer {
+
  public:
+
   explicit TtGenEventReco(const edm::ParameterSet&);
   ~TtGenEventReco();
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
+
   void fillInitialPartons(const reco::GenParticle*, std::vector<const reco::GenParticle*>&);
 
  private:
+
   edm::InputTag src_, init_; 
 };

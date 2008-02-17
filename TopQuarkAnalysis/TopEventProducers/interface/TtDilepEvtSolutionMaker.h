@@ -40,18 +40,20 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_, tautauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
    TtDilepLRSignalSelObservables        * myLRSignalSelObservables;
-
 };
 
-inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const {
+inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const 
+{
   return (l1->pt() > l2->pt());
 }
 
-inline bool TtDilepEvtSolutionMaker::LepDiffCharge(const reco::Candidate* l1, const reco::Candidate* l2) const {
+inline bool TtDilepEvtSolutionMaker::LepDiffCharge(const reco::Candidate* l1, const reco::Candidate* l2) const 
+{
   return (l1->charge() != l2->charge());
 }
 
-inline bool TtDilepEvtSolutionMaker::HasPositiveCharge(const reco::Candidate* l) const {
+inline bool TtDilepEvtSolutionMaker::HasPositiveCharge(const reco::Candidate* l) const 
+{
   return (l->charge() > 0);
 }
 

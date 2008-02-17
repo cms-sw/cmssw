@@ -14,13 +14,16 @@
 
 class StGenEventReco : public edm::EDProducer {
  public:
+
   explicit StGenEventReco(const edm::ParameterSet&);
   ~StGenEventReco();
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
+  
   void fillInitialPartons(const reco::GenParticle*, std::vector<const reco::GenParticle*>&);
-
+  
  private:
+  
   edm::InputTag src_, init_; 
 };

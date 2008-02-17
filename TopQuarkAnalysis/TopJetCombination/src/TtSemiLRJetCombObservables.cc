@@ -2,20 +2,20 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.5 2007/06/16 06:49:15 lowette Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.6 2007/06/16 13:42:10 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 
-// constructor with path; default should not be used
-TtSemiLRJetCombObservables::TtSemiLRJetCombObservables() {}
+TtSemiLRJetCombObservables::TtSemiLRJetCombObservables() 
+{
+}
 
+TtSemiLRJetCombObservables::~TtSemiLRJetCombObservables() 
+{
+}
 
-// destructor
-TtSemiLRJetCombObservables::~TtSemiLRJetCombObservables() {}
-
-
-// member function to add observables to the event
-void  TtSemiLRJetCombObservables::operator()(TtSemiEvtSolution& sol){
+void  TtSemiLRJetCombObservables::operator()(TtSemiEvtSolution& sol)
+{
   jetCombVarVal.clear();
 
   //obs1 : pt(had top) 
@@ -43,10 +43,10 @@ void  TtSemiLRJetCombObservables::operator()(TtSemiEvtSolution& sol){
   
   //obs6 : b-tagging information
   double Obs6 = 0;
-  if ( fabs(sol.getHadb().getBDiscriminator("trackCountingJetTags") +10) < 0.0001 || fabs(sol.getLepb().getBDiscriminator("trackCountingJetTags") +10)< 0.0001 ){
+  if ( fabs(sol.getHadb().bDiscriminator("trackCountingJetTags") +10) < 0.0001 || fabs(sol.getLepb().bDiscriminator("trackCountingJetTags") +10)< 0.0001 ){
     Obs6 = -10.;
   } else {
-    Obs6 = (sol.getHadb().getBDiscriminator("trackCountingJetTags")+sol.getLepb().getBDiscriminator("trackCountingJetTags"));
+    Obs6 = (sol.getHadb().bDiscriminator("trackCountingJetTags")+sol.getLepb().bDiscriminator("trackCountingJetTags"));
   }
   jetCombVarVal.push_back(std::pair<unsigned int,double>(6,Obs6)); 
    

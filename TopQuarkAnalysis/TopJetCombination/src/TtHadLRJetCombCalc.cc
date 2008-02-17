@@ -1,10 +1,11 @@
-// $Id: TtHadLRJetCombCalc.cc,v 1.0 2007/10/07 12:10:00 mfhansen Exp $
+// $Id: TtHadLRJetCombCalc.cc,v 1.1 2007/10/07 15:34:16 mfhansen Exp $
 // copied TtSemiLRJetCombCalc.cc,v 1.4 2007/06/18 14:08:16 by heyninck 
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadLRJetCombCalc.h"
 
 // constructor with path; default should not be used
-TtHadLRJetCombCalc::TtHadLRJetCombCalc(TString fitInputPath, std::vector<int> observables) {
+TtHadLRJetCombCalc::TtHadLRJetCombCalc(TString fitInputPath, std::vector<int> observables) 
+{
   std::cout << "=== Constructing a TtHadLRJetCombCalc... " << std::endl; 
   myLR = new LRHelpFunctions();
   addPurity = false;
@@ -13,15 +14,13 @@ TtHadLRJetCombCalc::TtHadLRJetCombCalc(TString fitInputPath, std::vector<int> ob
   std::cout << "=== done." << std::endl;
 }
 
-
-// destructor
-TtHadLRJetCombCalc::~TtHadLRJetCombCalc() {
+TtHadLRJetCombCalc::~TtHadLRJetCombCalc() 
+{
   delete myLR;
 }
 
-
-void  TtHadLRJetCombCalc::operator()(TtHadEvtSolution & sol){
-  
+void  TtHadLRJetCombCalc::operator()(TtHadEvtSolution & sol)
+{  
   // find the used observables
   std::vector<double> obsVals;
   for(unsigned int o = 0; o<100; o++){

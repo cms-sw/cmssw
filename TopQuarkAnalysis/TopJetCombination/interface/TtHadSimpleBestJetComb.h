@@ -1,11 +1,10 @@
 //
-// $Id: TtHadSimpleBestJetComb.h,v 1.0 2007/09/20 13:13:13  mfhansen Exp $
+// $Id: TtHadSimpleBestJetComb.h,v 1.1 2007/10/06 15:14:50 mfhansen Exp $
 // adapted from TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp 
 // for fully hadronic channel
 
 #ifndef TtHadSimpleBestJetComb_h
 #define TtHadSimpleBestJetComb_h
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,16 +19,16 @@
 #include "TString.h"
 #include <Math/VectorUtil.h>
 
-
 class TtHadSimpleBestJetComb {
 
   public:
-    TtHadSimpleBestJetComb();
-    ~TtHadSimpleBestJetComb();	
-
-    int  operator()(std::vector<TtHadEvtSolution> &);
-
-  private:
+  
+  TtHadSimpleBestJetComb();
+  ~TtHadSimpleBestJetComb();	
+  
+  int  operator()(std::vector<TtHadEvtSolution> &);
+  
+ private:
 
 };
 

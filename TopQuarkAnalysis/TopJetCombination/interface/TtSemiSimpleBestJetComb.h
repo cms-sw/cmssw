@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp $
+// $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
 //
 
 #ifndef TtSemiSimpleBestJetComb_h
@@ -14,9 +14,8 @@
    smallest DR angle wrt the Whadr direction. 
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp $
+  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
 */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,17 +30,17 @@
 #include "TString.h"
 #include <Math/VectorUtil.h>
 
-
 class TtSemiSimpleBestJetComb {
 
-  public:
-    TtSemiSimpleBestJetComb();
-    ~TtSemiSimpleBestJetComb();	
-
-    int  operator()(std::vector<TtSemiEvtSolution> &);
-
-  private:
-
+ public:
+  
+  TtSemiSimpleBestJetComb();
+  ~TtSemiSimpleBestJetComb();	
+  
+  int  operator()(std::vector<TtSemiEvtSolution> &);
+  
+ private:
+  
 };
 
 #endif
