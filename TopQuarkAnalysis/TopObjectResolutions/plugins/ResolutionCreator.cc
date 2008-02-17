@@ -1,18 +1,5 @@
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/ResolutionCreator.h"
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-    
-
-//
-// constructors and destructor
-//
 ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
 {
   // input parameters
@@ -97,7 +84,6 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
 
 }
 
-
 ResolutionCreator::~ResolutionCreator()
 {
   outfile->cd();
@@ -162,12 +148,6 @@ ResolutionCreator::~ResolutionCreator()
   std::cout<<"nr. of "<<objectType_<<" filled: "<<nrFilled<<std::endl;
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // Get the gen and cal object fourvector
@@ -179,73 +159,73 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
    if(genEvt->particles().size()<10) return;
    
       if(objectType_ == "electron"){ 
-     edm::Handle<std::vector<TopElectron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
+     edm::Handle<std::vector<pat::Electron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
      iEvent.getByLabel(labelName_,electrons);
      for(size_t e=0; e<electrons->size(); e++) { 
        for(size_t p=0; p<genEvt->particles().size(); p++){
          if( (abs(genEvt->particles()[p].pdgId()) == 11) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*electrons)[e].p4()) < minDR_) ) {
            p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
-	   p4rec.push_back(new reco::Particle((TopElectron)((*electrons)[e])));
+	   p4rec.push_back(new reco::Particle((res::electronType)((*electrons)[e])));
 	 }
        }
      }
    }
    else if(objectType_ == "muon"){
-     edm::Handle<std::vector<TopMuon> >  muons;
+     edm::Handle<std::vector<pat::Muon> >  muons;
      iEvent.getByLabel(labelName_,muons);
      for(size_t m=0; m<muons->size(); m++) {      
        for(size_t p=0; p<genEvt->particles().size(); p++){
          if( (abs(genEvt->particles()[p].pdgId()) == 13) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*muons)[m].p4()) < minDR_) ) {
            p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
-           p4rec.push_back(new reco::Particle((muonType)((*muons)[m])));
+           p4rec.push_back(new reco::Particle((res::muonType)((*muons)[m])));
 	 }
        }
      }
    }
    else if(objectType_ == "lJets"){
-     edm::Handle<std::vector<jetType> >  ljets;
+     edm::Handle<std::vector<res::jetType> >  ljets;
      iEvent.getByLabel(labelName_,ljets);
      if(ljets->size()>=4) { 
        for(unsigned int j = 0; j<4; j++){      
          for(size_t p=0; p<genEvt->particles().size(); p++){
            if( (abs(genEvt->particles()[p].pdgId()) < 5) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*ljets)[j].p4())< minDR_) ){
 	     p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
-	     p4rec.push_back(new reco::Particle((jetType)(*ljets)[j]));
+	     p4rec.push_back(new reco::Particle((res::jetType)(*ljets)[j]));
 	   }
 	 }
        }
      }
    }
    else if(objectType_ == "bJets"){
-     edm::Handle<std::vector<jetType> >  bjets;
+     edm::Handle<std::vector<res::jetType> >  bjets;
      iEvent.getByLabel(labelName_,bjets);
      if(bjets->size()>=4) { 
        for(unsigned int j = 0; j<4; j++){     
          for(size_t p=0; p<genEvt->particles().size(); p++){
            if( (abs(genEvt->particles()[p].pdgId()) == 5) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*bjets)[j].p4())< minDR_) ) {
 	     p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
-	     p4rec.push_back(new reco::Particle((jetType)(*bjets)[j]));
+	     p4rec.push_back(new reco::Particle((res::jetType)(*bjets)[j]));
 	   }
 	 }
        }
      }
    }
    else if(objectType_ == "met"){
-     edm::Handle<std::vector<metType> >  mets;
+     edm::Handle<std::vector<res::metType> >  mets;
      iEvent.getByLabel(labelName_,mets);
      if(mets->size()>=1) { 
        if( genEvt->isSemiLeptonic() && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
          p4gen.push_back(new reco::Particle(0,genEvt->singleNeutrino()->p4(),math::XYZPoint()));
-         p4rec.push_back(new reco::Particle((metType)((*mets)[0])));
+         p4rec.push_back(new reco::Particle((res::metType)((*mets)[0])));
        }
      }
    } 
    else if(objectType_ == "tau"){
-     edm::Handle<std::vector<TopTau> > taus; 
+     edm::Handle<std::vector<pat::Tau> > taus; 
      iEvent.getByLabel(labelName_,taus);
-     for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
+     for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
        // find the tau (if any) that matches a MC tau from W
-       reco::GenParticle genLepton = tau->getGenLepton();
+       reco::GenParticle genLepton = *(tau->genLepton());
        if( abs(genLepton.pdgId())==15 && genLepton.status()==2 &&
            genLepton.numberOfMothers()>0 &&
            abs(genLepton.mother(0)->pdgId())==15 &&
@@ -329,7 +309,5 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
        delete p4gen[m];
        delete p4rec[m];
-     } 
-    
-    
+     }     
 }

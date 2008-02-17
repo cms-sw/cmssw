@@ -1,14 +1,18 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=DataFormats/PatCandidates>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=root>
+
 <flags LDFLAGS="-lMLP">
+
 <export>
-  <lib name=TopQuarkAnalysisTopObjectResolutions>
+  <use name=root>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
+  <use name=DataFormats/PatCandidates>
   <use name=AnalysisDataFormats/TopObjects>
-  <use name=root>
+  <lib name=TopQuarkAnalysisTopObjectResolutions>
 </export>
