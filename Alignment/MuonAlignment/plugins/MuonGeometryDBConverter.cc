@@ -35,6 +35,7 @@
 
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h" 
 #include "Alignment/CommonAlignment/interface/SurveyDet.h" 
 #include "CondFormats/Alignment/interface/AlignmentErrors.h" 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -93,10 +94,12 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       bool m_CSCInputSurvey;
       std::string m_CSCAlignmentsLabel, m_CSCErrorsLabel;
       edm::ParameterSet m_CSCInput;
+      bool m_CSCInputLocal;
 
       std::string m_CSCOutputMode;
       bool m_CSCOutputSurvey;
       std::string m_CSCOutputFileName;
+      bool m_CSCOutputLocal;
       std::string m_CSCOutputBlockName;
 
       AlignableMuon *m_alignableMuon;
@@ -129,6 +132,7 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
    }
    else if (m_CSCInputMode == std::string("cff")) {
       m_CSCInput = iConfig.getParameter<edm::ParameterSet>("CSCInput");
+      m_CSCInputLocal = iConfig.getParameter<bool>("CSCInputLocal");
    }
    else {
       throw cms::Exception("BadConfig") << "CSCInputMode must be one of \"ideal\", \"db\", \"cfg\"." << std::endl;
@@ -144,6 +148,7 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
    }
    else if (m_CSCOutputMode == std::string("cff")) {
       m_CSCOutputFileName = iConfig.getParameter<std::string>("CSCOutputFileName");
+      m_CSCOutputLocal = iConfig.getParameter<bool>("CSCOutputLocal");
       m_CSCOutputBlockName = iConfig.getParameter<std::string>("CSCOutputBlockName");
    }
    else {
@@ -322,6 +327,10 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 					      << " but CSCInput.eulerAngles = " << (m_CSCInput.getParameter<bool>("eulerAngles") ? "true" : "false")
 					      << " (you probably loaded the wrong .cff)" << std::endl;
       }
+      if (m_CSCInput.getParameter<bool>("local") != m_CSCInputLocal)
+	 throw cms::Exception("BadConfig") << "CSCInputLocal = " << (m_CSCInputLocal ? "true" : "false")
+					   << " but CSCInput.local = " << (m_CSCInput.getParameter<bool>("local") ? "true" : "false")
+					   << " (you probably loaded the wrong .cff)" << std::endl;
 
       m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);      
 
@@ -409,6 +418,7 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
       output << "        bool survey = " << (m_CSCOutputSurvey ? "true" : "false") << std::endl;
       if (m_CSCOutputSurvey  ||  m_alwaysEulerAngles) output << "        bool eulerAngles = true" << std::endl;
       else output << "        bool eulerAngles = false" << std::endl;
+      output << "        bool local = " << (m_CSCOutputLocal ? "true" : "false") << std::endl;
 
       recursivePrintOut(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 2, false, m_CSCOutputSurvey);
 
@@ -426,6 +436,8 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
    int i = 0;
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       i++;
+
+      // construct the name to extract (e.g. CSCChamber11)
       std::string name = converter.typeToName((*alignable)->alignableObjectId());
       if (DT) {
 	 if ((*alignable)->alignableObjectId() == align::AlignableDet) name = std::string("DTSuperLayer");
@@ -435,7 +447,6 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	 if ((*alignable)->alignableObjectId() == align::AlignableDet) name = std::string("CSCLayer");
 	 if ((*alignable)->alignableObjectId() == align::AlignableDetUnit) return;
       }
-
       std::stringstream fullnameSS;
       fullnameSS << name << i;
       std::string fullname;
@@ -443,37 +454,63 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
       edm::ParameterSet alipset = pset.getParameter<edm::ParameterSet>(fullname);
 
       if (survey) {
+	 // read in position
 	 align::PositionType pos(alipset.getParameter<double>("x"), alipset.getParameter<double>("y"), alipset.getParameter<double>("z"));
 
+	 // Survey records always use standard Euler angles (and express the correlation matrix in terms of Euler angles)
 	 align::EulerAngles eulerAngles(3);
 	 eulerAngles(1) = alipset.getParameter<double>("a");
 	 eulerAngles(2) = alipset.getParameter<double>("b");
 	 eulerAngles(3) = alipset.getParameter<double>("c");
 	 align::RotationType rot(align::toMatrix(eulerAngles));
 
+	 // if we wrote/read local numbers, convert back to global!
+	 if (m_CSCInputLocal) {
+	    pos = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
+	    rot = globalRotation * rot;
+	 }
+
+	 // read the error matrix and convert it into a convenient form
 	 std::vector<double> errors1 = alipset.getParameter<std::vector<double> >("errors");
 	 ROOT::Math::SVector<double, 21> errors2;
 	 for (int j = 0;  j < 21;  j++) errors2(j) = errors1[j];
-	 align::ErrorMatrix errors3(errors2);
 
-	 std::cout << "hey " << pos << " " << rot << " " << errors2 << std::endl;
+	 // copy postion corner of full 6x6 matrix error matrix for Alignment Position Error
+	 align::ErrorMatrix matrix6by6(errors2);     // start from 0,0
+	 CLHEP::HepSymMatrix matrix3by3(3);          // start from 1,1
+	 for (int i = 0;  i < 3;  i++) {
+	    for (int j = 0;  j < 3;  j++) {
+	       matrix3by3(i+1, j+1) = matrix6by6(i, j);
+	    }
+	 }
 
-	 align::PositionType position = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
-	 align::RotationType rotation = globalRotation * rot;
+	 // put the alignable in the right position by resetting to zero, then moving
+	 align::PositionType oldpos = (*alignable)->globalPosition();
+	 align::RotationType oldrot = (*alignable)->globalRotation();
+	 (*alignable)->move(GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
+	 (*alignable)->rotateInGlobalFrame(oldrot.transposed());
+	 (*alignable)->rotateInGlobalFrame(rot);
+	 (*alignable)->move(GlobalVector(pos.x(), pos.y(), pos.z()));
 
-	 // do with them what thou wilt
+	 // set the errors
+	 (*alignable)->setAlignmentPositionError(AlignmentPositionError(matrix3by3));
+	 (*alignable)->setSurvey(new SurveyDet((*alignable)->surface(), matrix6by6));
 
-	 recursiveReadIn((*alignable)->components(), position, rotation, alipset, DT, survey);
+	 // recurse!
+	 recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey);
       }
       else {
+	 // if not reading survey data, only read postions/orientations for the chamber-level down
 	 if ((*alignable)->alignableObjectId() == align::AlignableDTChamber   ||
 	     (*alignable)->alignableObjectId() == align::AlignableCSCChamber  ||
 	     (*alignable)->alignableObjectId() == align::AlignableDet         ||
 	     (*alignable)->alignableObjectId() == align::AlignableDetUnit) {
 
+	    // read in position
 	    align::PositionType pos(alipset.getParameter<double>("x"), alipset.getParameter<double>("y"), alipset.getParameter<double>("z")); 
 	    align::RotationType rot;
 	    if (m_alwaysEulerAngles) {
+	       // standard Euler angles (introduced by survey data)
 	       align::EulerAngles eulerAngles(3);
 	       eulerAngles(1) = alipset.getParameter<double>("a");
 	       eulerAngles(2) = alipset.getParameter<double>("b");
@@ -481,10 +518,12 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	       align::RotationType rot(align::toMatrix(eulerAngles));
 	    }
 	    else {
+	       // the angle convention originally used in alignment: non-standard Euler angles with Z-Y-X convention
 	       double phix = alipset.getParameter<double>("phix");
 	       double phiy = alipset.getParameter<double>("phiy");
 	       double phiz = alipset.getParameter<double>("phiz");
 	    
+	       // with this sign convention
 	       align::RotationType rotX( 1.,         0.,         0.,
 					 0.,         cos(phix),  sin(phix),
 					 0.,        -sin(phix),  cos(phix));
@@ -498,24 +537,48 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	       rot = rotX * rotY * rotZ;
 	    }
 
+	    // if we wrote/read local numbers, convert back to global!
+	    if (m_CSCInputLocal) {
+	       pos = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
+	       rot = globalRotation * rot;
+	    }
+
+	    // read the error matrix and convert it into a convenient form
 	    std::vector<double> errors1 = alipset.getParameter<std::vector<double> >("errors");
 	    ROOT::Math::SVector<double, 21> errors2;
 	    for (int j = 0;  j < 6;  j++) errors2(j) = errors1[j];
 	    errors2(6) = 0.; errors2(7) = 0.; errors2(8) = 0.; errors2(9) = m_missingErrorAngle;
 	    errors2(10) = 0.; errors2(11) = 0.; errors2(12) = 0.; errors2(13) = 0.; errors2(14) = m_missingErrorAngle;
 	    errors2(15) = 0.; errors2(16) = 0.; errors2(17) = 0.; errors2(18) = 0.; errors2(19) = 0.; errors2(20) = m_missingErrorAngle;
-	    align::ErrorMatrix errors3(errors2);
 
-	    std::cout << "you " << pos << " " << rot << " " << errors3 << std::endl;
+	    // copy postion corner of full 6x6 matrix error matrix for Alignment Position Error
+	    align::ErrorMatrix matrix6by6(errors2);     // start from 0,0
+	    CLHEP::HepSymMatrix matrix3by3(3);          // start from 1,1
+	    for (int i = 0;  i < 3;  i++) {
+	       for (int j = 0;  j < 3;  j++) {
+		  matrix3by3(i+1, j+1) = matrix6by6(i, j);
+	       }
+	    }
 
-	    align::PositionType position = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
-	    align::RotationType rotation = globalRotation * rot;
+	    // put the alignable in the right position by resetting to zero, then moving
+	    align::PositionType oldpos = (*alignable)->globalPosition();
+	    align::RotationType oldrot = (*alignable)->globalRotation();
+	    (*alignable)->move(GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
+	    (*alignable)->rotateInGlobalFrame(oldrot.transposed());
+	    (*alignable)->rotateInGlobalFrame(rot);
+	    (*alignable)->move(GlobalVector(pos.x(), pos.y(), pos.z()));
 
-	    // do with them what thou wilt
+	    // set the errors
+	    (*alignable)->setAlignmentPositionError(AlignmentPositionError(matrix3by3));
+	    (*alignable)->setSurvey(new SurveyDet((*alignable)->surface(), matrix6by6));
 
-	    recursiveReadIn((*alignable)->components(), position, rotation, alipset, DT, survey);
+	    // recurse!
+	    // note that we pass the chamber coordinate system to superlayers and the superlayer coordinate system to layers
+	    recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey);
 	 }
 	 else {
+	    // not a chamber or layer: recurse without asking for position data
+	    // note that we pass the global coordinate system all the way down to chambers
 	    recursiveReadIn((*alignable)->components(), globalPosition, globalRotation, alipset, DT, survey);
 	 }
       }
@@ -544,8 +607,13 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
       output << "PSet " << name << i << " = {" << std::endl;
 
       if (survey) {
-	 align::PositionType pos = align::PositionType(globalRotation.multiplyInverse((*alignable)->globalPosition().basicVector() - globalPosition.basicVector()));
-	 align::RotationType rot = globalRotation.multiplyInverse((*alignable)->globalRotation());
+	 align::PositionType pos = (*alignable)->globalPosition();
+	 align::RotationType rot = (*alignable)->globalRotation();
+
+	 if (m_CSCOutputLocal) {
+	    pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
+	    rot = globalRotation.multiplyInverse(rot);
+	 }
 
 	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	 output << "double x = " << pos.x() << " double y = " << pos.y() << " double z = " << pos.z() << std::endl;
@@ -577,8 +645,13 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 	     (*alignable)->alignableObjectId() == align::AlignableDet         ||
 	     (*alignable)->alignableObjectId() == align::AlignableDetUnit) {
 
-	    align::PositionType pos = align::PositionType(globalRotation.multiplyInverse((*alignable)->globalPosition().basicVector() - globalPosition.basicVector()));
-	    align::RotationType rot = globalRotation.multiplyInverse((*alignable)->globalRotation());
+	    align::PositionType pos = (*alignable)->globalPosition();
+	    align::RotationType rot = (*alignable)->globalRotation();
+
+	    if (m_CSCOutputLocal) {
+	       pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
+	       rot = globalRotation.multiplyInverse(rot);
+	    }
 
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	    output << "double x = " << pos.x() << " double y = " << pos.y() << " double z = " << pos.z() << std::endl;
@@ -600,11 +673,7 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 
 	    align::ErrorMatrix errors = (*alignable)->survey()->errors();
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
-	    output << "vdouble errors = {" << errors(0,0) << ", " << std::endl;
-	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
-	    output << "                  " << errors(1,0) << ", " << errors(1,1) << ", " << std::endl;
-	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
-	    output << "                  " << errors(2,0) << ", " << errors(2,1) << ", " << errors(2,2) << "}" << std::endl;
+	    output << "vdouble errors = {" << errors(0,0) << ", " << errors(1,0) << ", " << errors(1,1) << ", " << errors(2,0) << ", " << errors(2,1) << ", " << errors(2,2) << "}" << std::endl;
 
 	    recursivePrintOut((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
 	 }
