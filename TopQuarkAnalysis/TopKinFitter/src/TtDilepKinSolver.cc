@@ -2,7 +2,8 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
 #include "TF2.h"
 
-TtDilepKinSolver::TtDilepKinSolver() {
+TtDilepKinSolver::TtDilepKinSolver() 
+{
   // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
   // It is normalized to 1.
   EventShape_ = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
@@ -10,7 +11,8 @@ TtDilepKinSolver::TtDilepKinSolver() {
 }
 
 TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
-                               double xx, double yy) {
+				   double xx, double yy) 
+{
   topmass_begin = b;
   topmass_end = e;
   topmass_step = s;
@@ -29,12 +31,13 @@ TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
 //
 // destructor
 //
-TtDilepKinSolver::~TtDilepKinSolver() {
+TtDilepKinSolver::~TtDilepKinSolver() 
+{
   delete EventShape_;
 }
 
-
-TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
+TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
+{
   TtDilepEvtSolution fitsol(*asol);
   
   //antilepton and lepton

@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.4 2007/08/30 22:15:36 heyninck Exp $
+// $Id: TtSemiKinFitter.cc,v 1.5 2007/09/19 23:08:10 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -17,47 +17,53 @@
 #include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"*/
 
-
-/// default constructor
 TtSemiKinFitter::TtSemiKinFitter() :
-    jetParam_(EMom), lepParam_(EMom), metParam_(EMom),
-    maxNrIter_(200), maxDeltaS_(5e-5), maxF_(1e-4) {
+  jetParam_(EMom), 
+  lepParam_(EMom), 
+  metParam_(EMom),
+  maxNrIter_(200), 
+  maxDeltaS_(5e-5), 
+  maxF_(1e-4) 
+{
   setupFitter();
 }
 
-
-/// constructor from configurables
 TtSemiKinFitter::TtSemiKinFitter(int jetParam, int lepParam, int metParam,
                                  int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
-    jetParam_((Parametrization) jetParam), lepParam_((Parametrization) lepParam), metParam_((Parametrization) metParam),
-    maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
-    constraints_(constraints) {
+  jetParam_((Parametrization) jetParam), 
+  lepParam_((Parametrization) lepParam), 
+  metParam_((Parametrization) metParam),
+  maxNrIter_(maxNrIter), 
+  maxDeltaS_(maxDeltaS), 
+  maxF_(maxF),
+  constraints_(constraints) 
+{
   setupFitter();
 }
 
-
-/// constructor from configurables
 TtSemiKinFitter::TtSemiKinFitter(Parametrization jetParam, Parametrization lepParam, Parametrization metParam,
                                  int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
-    jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam),
-    maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
-    constraints_(constraints) {
+    jetParam_(jetParam), 
+    lepParam_(lepParam), 
+    metParam_(metParam),
+    maxNrIter_(maxNrIter), 
+    maxDeltaS_(maxDeltaS), 
+    maxF_(maxF),
+    constraints_(constraints) 
+{
   setupFitter();
 }
 
-
-/// destructor
-TtSemiKinFitter::~TtSemiKinFitter() {
+TtSemiKinFitter::~TtSemiKinFitter() 
+{
   delete cons1_; delete cons2_; delete cons3_; delete cons4_; delete cons5_;
   delete fitHadb_; delete fitHadp_; delete fitHadq_;
   delete fitLepb_; delete fitLepl_; delete fitLepn_;
   delete theFitter_;
 }
 
-
-/// runs the fitter, and adds the altered kinematics to the event solution
-TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
-
+TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) 
+{
   TtSemiEvtSolution fitsol(*asol);
 
   TMatrixD m1(3,3),  m2(3,3),  m3(3,3),  m4(3,3);
@@ -86,97 +92,97 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 
   // jet resolutions
   if (jetParam_ == EMom) {
-    m1b(0,0) = pow(fitsol.getCalHadp().getResA(), 2);
-    m1b(1,1) = pow(fitsol.getCalHadp().getResB(), 2);
-    m1b(2,2) = pow(fitsol.getCalHadp().getResC(), 2);
-    m1b(3,3) = pow(fitsol.getCalHadp().getResD(), 2);
-    m2b(0,0) = pow(fitsol.getCalHadq().getResA(), 2); 
-    m2b(1,1) = pow(fitsol.getCalHadq().getResB(), 2); 
-    m2b(2,2) = pow(fitsol.getCalHadq().getResC(), 2);
-    m2b(3,3) = pow(fitsol.getCalHadq().getResD(), 2);
-    m3b(0,0) = pow(fitsol.getCalHadb().getResA(), 2); 
-    m3b(1,1) = pow(fitsol.getCalHadb().getResB(), 2); 
-    m3b(2,2) = pow(fitsol.getCalHadb().getResC(), 2);
-    m3b(3,3) = pow(fitsol.getCalHadb().getResD(), 2);
-    m4b(0,0) = pow(fitsol.getCalLepb().getResA(), 2); 
-    m4b(1,1) = pow(fitsol.getCalLepb().getResB(), 2); 
-    m4b(2,2) = pow(fitsol.getCalLepb().getResC(), 2);
-    m4b(3,3) = pow(fitsol.getCalLepb().getResD(), 2);
+    m1b(0,0) = pow(fitsol.getCalHadp().resolutionA(), 2);
+    m1b(1,1) = pow(fitsol.getCalHadp().resolutionB(), 2);
+    m1b(2,2) = pow(fitsol.getCalHadp().resolutionC(), 2);
+    m1b(3,3) = pow(fitsol.getCalHadp().resolutionD(), 2);
+    m2b(0,0) = pow(fitsol.getCalHadq().resolutionA(), 2); 
+    m2b(1,1) = pow(fitsol.getCalHadq().resolutionB(), 2); 
+    m2b(2,2) = pow(fitsol.getCalHadq().resolutionC(), 2);
+    m2b(3,3) = pow(fitsol.getCalHadq().resolutionD(), 2);
+    m3b(0,0) = pow(fitsol.getCalHadb().resolutionA(), 2); 
+    m3b(1,1) = pow(fitsol.getCalHadb().resolutionB(), 2); 
+    m3b(2,2) = pow(fitsol.getCalHadb().resolutionC(), 2);
+    m3b(3,3) = pow(fitsol.getCalHadb().resolutionD(), 2);
+    m4b(0,0) = pow(fitsol.getCalLepb().resolutionA(), 2); 
+    m4b(1,1) = pow(fitsol.getCalLepb().resolutionB(), 2); 
+    m4b(2,2) = pow(fitsol.getCalLepb().resolutionC(), 2);
+    m4b(3,3) = pow(fitsol.getCalLepb().resolutionD(), 2);
   } else if (jetParam_ == EtEtaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().getResET(), 2);
-    m1(1,1) = pow(fitsol.getCalHadp().getResEta(), 2);
-    m1(2,2) = pow(fitsol.getCalHadp().getResPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().getResET(), 2); 
-    m2(1,1) = pow(fitsol.getCalHadq().getResEta(), 2); 
-    m2(2,2) = pow(fitsol.getCalHadq().getResPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().getResET(), 2); 
-    m3(1,1) = pow(fitsol.getCalHadb().getResEta(), 2); 
-    m3(2,2) = pow(fitsol.getCalHadb().getResPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalLepb().getResET(), 2); 
-    m4(1,1) = pow(fitsol.getCalLepb().getResEta(), 2); 
-    m4(2,2) = pow(fitsol.getCalLepb().getResPhi(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(1,1) = pow(fitsol.getCalHadp().resolutionEta(), 2);
+    m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(1,1) = pow(fitsol.getCalHadq().resolutionEta(), 2); 
+    m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(1,1) = pow(fitsol.getCalHadb().resolutionEta(), 2); 
+    m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
+    m4(0,0) = pow(fitsol.getCalLepb().resolutionET(), 2); 
+    m4(1,1) = pow(fitsol.getCalLepb().resolutionEta(), 2); 
+    m4(2,2) = pow(fitsol.getCalLepb().resolutionPhi(), 2);
   } else if (jetParam_ == EtThetaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().getResET(), 2);
-    m1(1,1) = pow(fitsol.getCalHadp().getResTheta(), 2);
-    m1(2,2) = pow(fitsol.getCalHadp().getResPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().getResET(), 2); 
-    m2(1,1) = pow(fitsol.getCalHadq().getResTheta(), 2); 
-    m2(2,2) = pow(fitsol.getCalHadq().getResPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().getResET(), 2); 
-    m3(1,1) = pow(fitsol.getCalHadb().getResTheta(), 2); 
-    m3(2,2) = pow(fitsol.getCalHadb().getResPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalLepb().getResET(), 2); 
-    m4(1,1) = pow(fitsol.getCalLepb().getResTheta(), 2); 
-    m4(2,2) = pow(fitsol.getCalLepb().getResPhi(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(1,1) = pow(fitsol.getCalHadp().resolutionTheta(), 2);
+    m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(1,1) = pow(fitsol.getCalHadq().resolutionTheta(), 2); 
+    m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(1,1) = pow(fitsol.getCalHadb().resolutionTheta(), 2); 
+    m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
+    m4(0,0) = pow(fitsol.getCalLepb().resolutionET(), 2); 
+    m4(1,1) = pow(fitsol.getCalLepb().resolutionTheta(), 2); 
+    m4(2,2) = pow(fitsol.getCalLepb().resolutionPhi(), 2);
   }
   // lepton resolutions
   if (lepParam_ == EMom) {
     if(fitsol.getDecay()== "electron"){
-      m5(0,0) = pow(fitsol.getCalLepe().getResA(), 2);
-      m5(1,1) = pow(fitsol.getCalLepe().getResB(), 2); 
-      m5(2,2) = pow(fitsol.getCalLepe().getResC(), 2);
+      m5(0,0) = pow(fitsol.getCalLepe().resolutionA(), 2);
+      m5(1,1) = pow(fitsol.getCalLepe().resolutionB(), 2); 
+      m5(2,2) = pow(fitsol.getCalLepe().resolutionC(), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m5(0,0) = pow(fitsol.getCalLepm().getResA(), 2);
-      m5(1,1) = pow(fitsol.getCalLepm().getResB(), 2); 
-      m5(2,2) = pow(fitsol.getCalLepm().getResC(), 2);
+      m5(0,0) = pow(fitsol.getCalLepm().resolutionA(), 2);
+      m5(1,1) = pow(fitsol.getCalLepm().resolutionB(), 2); 
+      m5(2,2) = pow(fitsol.getCalLepm().resolutionC(), 2);
     }
   } else if (lepParam_ == EtEtaPhi) {
     if(fitsol.getDecay()== "electron"){
-      m5(0,0) = pow(fitsol.getRecLepe().getResET(), 2);
-      m5(1,1) = pow(fitsol.getRecLepe().getResEta(), 2); 
-      m5(2,2) = pow(fitsol.getRecLepe().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getRecLepe().resolutionET(), 2);
+      m5(1,1) = pow(fitsol.getRecLepe().resolutionEta(), 2); 
+      m5(2,2) = pow(fitsol.getRecLepe().resolutionPhi(), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m5(0,0) = pow(fitsol.getRecLepm().getResET(), 2);
-      m5(1,1) = pow(fitsol.getRecLepm().getResEta(), 2); 
-      m5(2,2) = pow(fitsol.getRecLepm().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getRecLepm().resolutionET(), 2);
+      m5(1,1) = pow(fitsol.getRecLepm().resolutionEta(), 2); 
+      m5(2,2) = pow(fitsol.getRecLepm().resolutionPhi(), 2);
     }
   } else if (lepParam_ == EtThetaPhi) {
     if(fitsol.getDecay()== "electron") {
-      m5(0,0) = pow(fitsol.getRecLepe().getResET(), 2);
-      m5(1,1) = pow(fitsol.getRecLepe().getResTheta(), 2); 
-      m5(2,2) = pow(fitsol.getRecLepe().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getRecLepe().resolutionET(), 2);
+      m5(1,1) = pow(fitsol.getRecLepe().resolutionTheta(), 2); 
+      m5(2,2) = pow(fitsol.getRecLepe().resolutionPhi(), 2);
     }
     if(fitsol.getDecay()== "muon") {
-      m5(0,0) = pow(fitsol.getRecLepm().getResET(), 2);
-      m5(1,1) = pow(fitsol.getRecLepm().getResTheta(), 2); 
-      m5(2,2) = pow(fitsol.getRecLepm().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getRecLepm().resolutionET(), 2);
+      m5(1,1) = pow(fitsol.getRecLepm().resolutionTheta(), 2); 
+      m5(2,2) = pow(fitsol.getRecLepm().resolutionPhi(), 2);
     }
   }
   // neutrino resolutions
   if (metParam_ == EMom) {
-    m6(0,0) = pow(fitsol.getCalLepn().getResA(), 2);
-    m6(1,1) = pow(fitsol.getCalLepn().getResB(), 2);
-    m6(2,2) = pow(fitsol.getCalLepn().getResC(), 2);
+    m6(0,0) = pow(fitsol.getCalLepn().resolutionA(), 2);
+    m6(1,1) = pow(fitsol.getCalLepn().resolutionB(), 2);
+    m6(2,2) = pow(fitsol.getCalLepn().resolutionC(), 2);
   } else if (metParam_ == EtEtaPhi) {
-    m6(0,0) = pow(fitsol.getRecLepn().getResET(), 2);
-    m6(1,1) = pow(fitsol.getRecLepn().getResEta(), 2);
-    m6(2,2) = pow(fitsol.getRecLepn().getResPhi(), 2);
+    m6(0,0) = pow(fitsol.getRecLepn().resolutionET(), 2);
+    m6(1,1) = pow(fitsol.getRecLepn().resolutionEta(), 2);
+    m6(2,2) = pow(fitsol.getRecLepn().resolutionPhi(), 2);
   } else if (metParam_ == EtThetaPhi) {
-    m6(0,0) = pow(fitsol.getRecLepn().getResET(), 2);
-    m6(1,1) = pow(fitsol.getRecLepn().getResTheta(), 2);
-    m6(2,2) = pow(fitsol.getRecLepn().getResPhi(), 2);
+    m6(0,0) = pow(fitsol.getRecLepn().resolutionET(), 2);
+    m6(1,1) = pow(fitsol.getRecLepn().resolutionTheta(), 2);
+    m6(2,2) = pow(fitsol.getRecLepn().resolutionPhi(), 2);
   }
 
   // set the kinematics of the objects to be fitted
@@ -206,111 +212,111 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
   // add fitted information to the solution
   if (theFitter_->getStatus() == 0) {
     // read back the jet kinematics and resolutions
-    TopParticle aFitHadp(reco::Particle(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
-    TopParticle aFitHadq(reco::Particle(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
-    TopParticle aFitHadb(reco::Particle(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
-    TopParticle aFitLepb(reco::Particle(0, math::XYZTLorentzVector(fitLepb_->getCurr4Vec()->X(), fitLepb_->getCurr4Vec()->Y(), fitLepb_->getCurr4Vec()->Z(), fitLepb_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadp(reco::Particle(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadq(reco::Particle(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadb(reco::Particle(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitLepb(reco::Particle(0, math::XYZTLorentzVector(fitLepb_->getCurr4Vec()->X(), fitLepb_->getCurr4Vec()->Y(), fitLepb_->getCurr4Vec()->Z(), fitLepb_->getCurr4Vec()->E()), math::XYZPoint()));
     if (jetParam_ == EMom) {
       TMatrixD Vp(4,4);  Vp  = (*fitHadp_->getCovMatrixFit()); 
       TMatrixD Vq(4,4);  Vq  = (*fitHadq_->getCovMatrixFit()); 
       TMatrixD Vbh(4,4); Vbh = (*fitHadb_->getCovMatrixFit()); 
       TMatrixD Vbl(4,4); Vbl = (*fitLepb_->getCovMatrixFit());
-      aFitHadp.setCovM(this->translateCovM(Vp));
-      aFitHadq.setCovM(this->translateCovM(Vq));
-      aFitHadb.setCovM(this->translateCovM(Vbh));
-      aFitLepb.setCovM(this->translateCovM(Vbl));
-      aFitHadp.setResA(sqrt(Vp(0,0)));  
-      aFitHadp.setResB(sqrt(Vp(1,1)));
-      aFitHadp.setResC(sqrt(Vp(2,2))); 
-      aFitHadp.setResD(sqrt(Vp(3,3))); 
-      aFitHadq.setResA(sqrt(Vq(0,0)));  
-      aFitHadq.setResB(sqrt(Vq(1,1)));
-      aFitHadq.setResC(sqrt(Vq(2,2)));
-      aFitHadq.setResD(sqrt(Vq(3,3)));
-      aFitHadb.setResA(sqrt(Vbh(0,0)));  
-      aFitHadb.setResB(sqrt(Vbh(1,1)));
-      aFitHadb.setResC(sqrt(Vbh(2,2)));
-      aFitHadb.setResD(sqrt(Vbh(3,3)));
-      aFitLepb.setResA(sqrt(Vbl(0,0)));  
-      aFitLepb.setResB(sqrt(Vbl(1,1)));
-      aFitLepb.setResC(sqrt(Vbl(2,2)));
-      aFitLepb.setResD(sqrt(Vbl(3,3)));
+      aFitHadp.setCovMatrix(this->translateCovM(Vp));
+      aFitHadq.setCovMatrix(this->translateCovM(Vq));
+      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+      aFitLepb.setCovMatrix(this->translateCovM(Vbl));
+      aFitHadp.setResolutionA(sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionB(sqrt(Vp(1,1)));
+      aFitHadp.setResolutionC(sqrt(Vp(2,2))); 
+      aFitHadp.setResolutionD(sqrt(Vp(3,3))); 
+      aFitHadq.setResolutionA(sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionB(sqrt(Vq(1,1)));
+      aFitHadq.setResolutionC(sqrt(Vq(2,2)));
+      aFitHadq.setResolutionD(sqrt(Vq(3,3)));
+      aFitHadb.setResolutionA(sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionB(sqrt(Vbh(1,1)));
+      aFitHadb.setResolutionC(sqrt(Vbh(2,2)));
+      aFitHadb.setResolutionD(sqrt(Vbh(3,3)));
+      aFitLepb.setResolutionA(sqrt(Vbl(0,0)));  
+      aFitLepb.setResolutionB(sqrt(Vbl(1,1)));
+      aFitLepb.setResolutionC(sqrt(Vbl(2,2)));
+      aFitLepb.setResolutionD(sqrt(Vbl(3,3)));
     } else if (jetParam_ == EtEtaPhi) {
       TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
       TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
       TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
       TMatrixD Vbl(3,3); Vbl = (*fitLepb_->getCovMatrixFit());
-      aFitHadp.setCovM(this->translateCovM(Vp));
-      aFitHadq.setCovM(this->translateCovM(Vq));
-      aFitHadb.setCovM(this->translateCovM(Vbh));
-      aFitLepb.setCovM(this->translateCovM(Vbl));
-      aFitHadp.setResET (sqrt(Vp(0,0)));  
-      aFitHadp.setResEta(sqrt(Vp(1,1)));
-      aFitHadp.setResPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResET (sqrt(Vq(0,0)));  
-      aFitHadq.setResEta(sqrt(Vq(1,1)));
-      aFitHadq.setResPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResET (sqrt(Vbh(0,0)));  
-      aFitHadb.setResEta(sqrt(Vbh(1,1)));
-      aFitHadb.setResPhi(sqrt(Vbh(2,2)));
-      aFitLepb.setResET (sqrt(Vbl(0,0)));  
-      aFitLepb.setResEta(sqrt(Vbl(1,1)));
-      aFitLepb.setResPhi(sqrt(Vbl(2,2)));
+      aFitHadp.setCovMatrix(this->translateCovM(Vp));
+      aFitHadq.setCovMatrix(this->translateCovM(Vq));
+      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+      aFitLepb.setCovMatrix(this->translateCovM(Vbl));
+      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionEta(sqrt(Vp(1,1)));
+      aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
+      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionEta(sqrt(Vq(1,1)));
+      aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
+      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionEta(sqrt(Vbh(1,1)));
+      aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
+      aFitLepb.setResolutionET (sqrt(Vbl(0,0)));  
+      aFitLepb.setResolutionEta(sqrt(Vbl(1,1)));
+      aFitLepb.setResolutionPhi(sqrt(Vbl(2,2)));
     } else if (jetParam_ == EtThetaPhi) {
       TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
       TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
       TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
       TMatrixD Vbl(3,3); Vbl = (*fitLepb_->getCovMatrixFit());
-      aFitHadp.setCovM(this->translateCovM(Vp));
-      aFitHadq.setCovM(this->translateCovM(Vq));
-      aFitHadb.setCovM(this->translateCovM(Vbh));
-      aFitLepb.setCovM(this->translateCovM(Vbl));
-      aFitHadp.setResET (sqrt(Vp(0,0)));  
-      aFitHadp.setResTheta(sqrt(Vp(1,1)));
-      aFitHadp.setResPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResET (sqrt(Vq(0,0)));  
-      aFitHadq.setResTheta(sqrt(Vq(1,1)));
-      aFitHadq.setResPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResET (sqrt(Vbh(0,0)));  
-      aFitHadb.setResTheta(sqrt(Vbh(1,1)));
-      aFitHadb.setResPhi(sqrt(Vbh(2,2)));
-      aFitLepb.setResET (sqrt(Vbl(0,0)));  
-      aFitLepb.setResTheta(sqrt(Vbl(1,1)));
-      aFitLepb.setResPhi(sqrt(Vbl(2,2)));
+      aFitHadp.setCovMatrix(this->translateCovM(Vp));
+      aFitHadq.setCovMatrix(this->translateCovM(Vq));
+      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+      aFitLepb.setCovMatrix(this->translateCovM(Vbl));
+      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionTheta(sqrt(Vp(1,1)));
+      aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
+      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionTheta(sqrt(Vq(1,1)));
+      aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
+      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionTheta(sqrt(Vbh(1,1)));
+      aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
+      aFitLepb.setResolutionET (sqrt(Vbl(0,0)));  
+      aFitLepb.setResolutionTheta(sqrt(Vbl(1,1)));
+      aFitLepb.setResolutionPhi(sqrt(Vbl(2,2)));
     }
     // read back the lepton kinematics and resolutions
-    TopParticle aFitLepl(reco::Particle(0, math::XYZTLorentzVector(fitLepl_->getCurr4Vec()->X(), fitLepl_->getCurr4Vec()->Y(), fitLepl_->getCurr4Vec()->Z(), fitLepl_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitLepl(reco::Particle(0, math::XYZTLorentzVector(fitLepl_->getCurr4Vec()->X(), fitLepl_->getCurr4Vec()->Y(), fitLepl_->getCurr4Vec()->Z(), fitLepl_->getCurr4Vec()->E()), math::XYZPoint()));
     TMatrixD Vl(3,3); Vl = (*fitLepl_->getCovMatrixFit()); 
-    aFitLepl.setCovM(this->translateCovM(Vl));
+    aFitLepl.setCovMatrix(this->translateCovM(Vl));
     if (lepParam_ == EMom) {
-      aFitLepl.setResA(Vl(0,0));
-      aFitLepl.setResB(Vl(1,1));
-      aFitLepl.setResC(Vl(2,2));
+      aFitLepl.setResolutionA(Vl(0,0));
+      aFitLepl.setResolutionB(Vl(1,1));
+      aFitLepl.setResolutionC(Vl(2,2));
     } else if (lepParam_ == EtEtaPhi) {
-      aFitLepl.setResET (sqrt(Vl(0,0)));  
-      aFitLepl.setResTheta(sqrt(Vl(1,1)));
-      aFitLepl.setResPhi(sqrt(Vl(2,2)));
+      aFitLepl.setResolutionET (sqrt(Vl(0,0)));  
+      aFitLepl.setResolutionTheta(sqrt(Vl(1,1)));
+      aFitLepl.setResolutionPhi(sqrt(Vl(2,2)));
     } else if (lepParam_ == EtThetaPhi) {
-      aFitLepl.setResET (sqrt(Vl(0,0)));  
-      aFitLepl.setResTheta(sqrt(Vl(1,1)));
-      aFitLepl.setResPhi(sqrt(Vl(2,2)));
+      aFitLepl.setResolutionET (sqrt(Vl(0,0)));  
+      aFitLepl.setResolutionTheta(sqrt(Vl(1,1)));
+      aFitLepl.setResolutionPhi(sqrt(Vl(2,2)));
     }
     // read back the MET kinematics and resolutions
-    TopParticle aFitLepn(reco::Particle(0, math::XYZTLorentzVector(fitLepn_->getCurr4Vec()->X(), fitLepn_->getCurr4Vec()->Y(), fitLepn_->getCurr4Vec()->Z(), fitLepn_->getCurr4Vec()->E()), math::XYZPoint()));   
+    pat::Particle aFitLepn(reco::Particle(0, math::XYZTLorentzVector(fitLepn_->getCurr4Vec()->X(), fitLepn_->getCurr4Vec()->Y(), fitLepn_->getCurr4Vec()->Z(), fitLepn_->getCurr4Vec()->E()), math::XYZPoint()));   
     TMatrixD Vn(3,3); Vn = (*fitLepn_->getCovMatrixFit()); 
-    aFitLepn.setCovM(this->translateCovM(Vn));
+    aFitLepn.setCovMatrix(this->translateCovM(Vn));
     if (metParam_ == EMom) {
-      aFitLepn.setResA(Vn(0,0));
-      aFitLepn.setResB(Vn(1,1));
-      aFitLepn.setResC(Vn(2,2));
+      aFitLepn.setResolutionA(Vn(0,0));
+      aFitLepn.setResolutionB(Vn(1,1));
+      aFitLepn.setResolutionC(Vn(2,2));
     } else if (metParam_ == EtEtaPhi) {
-      aFitLepn.setResET (sqrt(Vn(0,0)));  
-      aFitLepn.setResEta(sqrt(Vn(1,1)));
-      aFitLepn.setResPhi(sqrt(Vn(2,2)));
+      aFitLepn.setResolutionET (sqrt(Vn(0,0)));  
+      aFitLepn.setResolutionEta(sqrt(Vn(1,1)));
+      aFitLepn.setResolutionPhi(sqrt(Vn(2,2)));
     } else if (metParam_ == EtThetaPhi) {
-      aFitLepn.setResET (sqrt(Vn(0,0)));  
-      aFitLepn.setResTheta(sqrt(Vn(1,1)));
-      aFitLepn.setResPhi(sqrt(Vn(2,2)));
+      aFitLepn.setResolutionET (sqrt(Vn(0,0)));  
+      aFitLepn.setResolutionTheta(sqrt(Vn(1,1)));
+      aFitLepn.setResolutionPhi(sqrt(Vn(2,2)));
     }
 
     // finally fill the fitted particles
@@ -329,10 +335,8 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 
 }
 
-
-/// Method to setup the fitter
-void TtSemiKinFitter::setupFitter() {
-  
+void TtSemiKinFitter::setupFitter() 
+{  
   // FIXME: replace by messagelogger!!!
 
   cout<<endl<<endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<endl;
@@ -427,9 +431,8 @@ void TtSemiKinFitter::setupFitter() {
 
 }
 
-
-vector<double> TtSemiKinFitter::translateCovM(TMatrixD &V){
-  vector<double> covM; 
+vector<float> TtSemiKinFitter::translateCovM(TMatrixD &V){
+  vector<float> covM; 
   for(int ii=0; ii<V.GetNrows(); ii++){
     for(int jj=0; jj<V.GetNcols(); jj++) covM.push_back(V(ii,jj));
   }

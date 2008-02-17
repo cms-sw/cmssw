@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: StKinFitter.h,v 1.1 2007/09/19 23:05:31 lowette Exp $
 //
 
 #ifndef TopKinFitter_StKinFitter_h
@@ -13,11 +13,9 @@
 
 #include <vector>
 
-
 class TKinFitter;
 class TAbsFitParticle;
 class TFitConstraintM;
-
 
 class StKinFitter {
 
@@ -37,7 +35,7 @@ class StKinFitter {
   private:
 
     void setupFitter();
-    std::vector<double> translateCovM(TMatrixD &);
+    std::vector<float> translateCovM(TMatrixD &);
 
   private:
 
@@ -59,7 +57,6 @@ class StKinFitter {
     double maxDeltaS_;
     double maxF_;
     std::vector<int> constraints_;
-
 };
 
 
