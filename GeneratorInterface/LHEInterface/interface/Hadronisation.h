@@ -20,10 +20,12 @@ class Hadronisation {
 	Hadronisation(const edm::ParameterSet &params);
 	virtual ~Hadronisation();
 
-	void setEvent(const boost::shared_ptr<LHEEvent> &event);
+	bool setEvent(const boost::shared_ptr<LHEEvent> &event);
 	void clear();
 
 	virtual std::auto_ptr<HepMC::GenEvent> hadronize() = 0;
+
+	virtual double getCrossSection() const;
 
 	static std::auto_ptr<Hadronisation> create(
 					const edm::ParameterSet &params);

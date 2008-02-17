@@ -17,6 +17,10 @@ class LHECommon {
 
 	const HEPRUP *getHEPRUP() const { return &heprup; } 
 
+	bool operator == (const LHECommon &other) const;
+	inline bool operator != (const LHECommon &other) const
+	{ return !(*this == other); }
+
     private:
 	HEPRUP	heprup;
 };

@@ -34,6 +34,7 @@ class Pythia8Hadronisation : public Hadronisation {
 
     private:
 	std::auto_ptr<HepMC::GenEvent> hadronize();
+	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	const int				pythiaPylistVerbosity;
@@ -203,6 +204,11 @@ std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::hadronize()
 	}
 
 	return event;
+}
+
+double Pythia8Hadronisation::getCrossSection() const
+{
+	return pythia->info.sigmaGen();
 }
 
 void Pythia8Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)

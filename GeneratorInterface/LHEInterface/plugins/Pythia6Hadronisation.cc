@@ -36,6 +36,7 @@ class Pythia6Hadronisation : public Hadronisation {
 
     private:
 	std::auto_ptr<HepMC::GenEvent> hadronize();
+	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	const int		pythiaPylistVerbosity;
@@ -164,6 +165,11 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::hadronize()
 	}
 
 	return event;
+}
+
+double Pythia6Hadronisation::getCrossSection() const
+{
+	return pypars.pari[0];
 }
 
 void Pythia6Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)

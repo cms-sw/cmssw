@@ -165,7 +165,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 }
 
 LHEReader::LHEReader(const edm::ParameterSet &params) :
-	fileURLs(params.getParameter< std::vector<std::string> >("inputFiles")),
+	fileURLs(params.getUntrackedParameter< std::vector<std::string> >("fileNames")),
 	firstEvent(params.getUntrackedParameter<unsigned int>("firstEvent", 0)),
 	curIndex(0), handler(new XMLHandler())
 {

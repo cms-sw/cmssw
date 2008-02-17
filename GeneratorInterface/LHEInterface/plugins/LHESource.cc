@@ -10,12 +10,14 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
@@ -30,26 +32,54 @@ class LHESource : public edm::GeneratedInputSource {
 	virtual ~LHESource();
 
     private:
+	virtual void endJob();
+	virtual void endRun(edm::Run &run);
 	virtual bool produce(edm::Event &event);
 
-	LHEReader			reader;
+	std::auto_ptr<LHEReader>	reader;
 	unsigned int			skipEvents;
+	unsigned int			eventsToPrint;
 	std::auto_ptr<Hadronisation>	hadronisation;
+	const double			extCrossSect;
+	const double			extFilterEff;
 };
 
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	GeneratedInputSource(params, desc),
-	reader(params),
+	reader(new LHEReader(params)),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
+	eventsToPrint(params.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
 	hadronisation(Hadronisation::create(
-		params.getParameter<edm::ParameterSet>("hadronisation")))
+		params.getParameter<edm::ParameterSet>("hadronisation"))),
+	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
+	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0))
 {
 	produces<edm::HepMCProduct>();
+	produces<edm::GenInfoProduct, edm::InRun>();
 }
 
 LHESource::~LHESource()
 {
+}
+
+void LHESource::endJob()
+{
+	hadronisation.reset();
+	reader.reset();
+}
+
+void LHESource::endRun(edm::Run &run)
+{
+	double crossSection = hadronisation->getCrossSection();
+
+	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
+
+	genInfoProd->set_cross_section(crossSection);
+	genInfoProd->set_external_cross_section(extCrossSect);
+	genInfoProd->set_filter_efficiency(extFilterEff);
+
+	run.put(genInfoProd);
 }
 
 bool LHESource::produce(edm::Event &event)
@@ -57,7 +87,7 @@ bool LHESource::produce(edm::Event &event)
 	std::auto_ptr<HepMC::GenEvent> hadronLevel;
 
 	while(true) {
-	 	boost::shared_ptr<LHEEvent> partonLevel = reader.next();
+	 	boost::shared_ptr<LHEEvent> partonLevel = reader->next();
 		if (!partonLevel.get())
 			return false;
 
@@ -79,7 +109,12 @@ bool LHESource::produce(edm::Event &event)
 	hadronLevel->set_event_number(numberEventsInRun()
 	                              - remainingEvents() - 1);
 
-	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct());
+	if (eventsToPrint) {
+		eventsToPrint--;
+		hadronLevel->print();
+	}
+
+	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
 

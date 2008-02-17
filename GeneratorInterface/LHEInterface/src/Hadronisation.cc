@@ -42,17 +42,26 @@ Hadronisation::~Hadronisation()
 {
 }
 
-void Hadronisation::setEvent(const boost::shared_ptr<LHEEvent> &event)
+bool Hadronisation::setEvent(const boost::shared_ptr<LHEEvent> &event)
 {
 	bool newCommon = !rawEvent ||
-	                 rawEvent->getCommon() != event->getCommon();
+	                 (rawEvent->getCommon() != event->getCommon() &&
+	                  *rawEvent->getCommon() != *event->getCommon());
 	rawEvent = event;
-	if (newCommon)
+	if (newCommon) {
 		this->newCommon(event->getCommon());
+		return true;
+	} else
+		return false;
 }
 
 void Hadronisation::clear()
 {
+}
+
+double Hadronisation::getCrossSection() const
+{
+	return -1.0;
 }
 
 std::auto_ptr<Hadronisation> Hadronisation::create(

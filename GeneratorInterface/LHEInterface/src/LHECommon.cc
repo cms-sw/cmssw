@@ -56,4 +56,9 @@ LHECommon::~LHECommon()
 {
 }
 
+bool LHECommon::operator == (const LHECommon &other) const
+{
+	return heprup == other.heprup;
+}
+
 } // namespace lhef

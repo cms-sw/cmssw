@@ -28,6 +28,20 @@ class HEPRUP {
 	//@}
 
     public:
+	bool operator == (const HEPRUP &other) const
+	{
+		return IDBMUP == other.IDBMUP &&
+		       EBMUP == other.EBMUP &&
+		       PDFGUP == other.PDFGUP &&
+		       PDFSUP == other.PDFSUP &&
+		       IDWTUP == other.IDWTUP &&
+		       NPRUP == other.NPRUP &&
+		       XSECUP == other.XSECUP &&
+		       XERRUP == other.XERRUP &&
+		       XMAXUP == other.XMAXUP &&
+		       LPRUP == other.LPRUP;
+	}
+
 	/**
 	 * Set the NPRUP variable, corresponding to the number of
 	 * sub-processes, to \a nrup, and resize all relevant vectors

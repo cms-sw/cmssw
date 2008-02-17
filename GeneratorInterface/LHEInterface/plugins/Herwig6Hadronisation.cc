@@ -40,6 +40,7 @@ class Herwig6Hadronisation : public Hadronisation {
     private:
 	void clear();
 	std::auto_ptr<HepMC::GenEvent> hadronize();
+	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	int			herwigVerbosity;
@@ -290,6 +291,14 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::hadronize()
 	event->set_signal_process_id(hwproc.IPROC);	//FIXME
 
 	return event;
+}
+
+double Herwig6Hadronisation::getCrossSection() const
+{
+	double RNWGT = 1.0 / hwevnt.NWGTS;
+	double AVWGT = hwevnt.WGTSUM * RNWGT;
+
+	return 1000.0 * AVWGT;
 }
 
 void Herwig6Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
