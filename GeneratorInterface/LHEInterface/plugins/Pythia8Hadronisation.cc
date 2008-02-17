@@ -9,9 +9,15 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
 
+#define PYTHIA_VERSION	8070
+
 #include <Pythia.h>
 #include <LesHouches.h>
-#include <I_Pythia8.h>
+#if PYTHIA_VERSION >= 8100
+#	include <HepMCInterface.h>
+#else
+#	include <I_Pythia8.h>
+#endif
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -66,7 +72,11 @@ class Pythia8Hadronisation::LHAevntLesHouches : public LHAevnt {
 	{ this->event = event; }
 
     private:
+#if PYTHIA_VERSION >= 8100
+	bool set(int dummy);
+#else
 	bool set();
+#endif
 
 	boost::shared_ptr<LHEEvent>	event;
 };
@@ -91,7 +101,11 @@ bool Pythia8Hadronisation::LHAinitLesHouches::set()
 	return true;
 }
 
+#if PYTHIA_VERSION >= 8100
+bool Pythia8Hadronisation::LHAevntLesHouches::set(int dummy)
+#else
 bool Pythia8Hadronisation::LHAevntLesHouches::set()
+#endif
 {
 	if (!event)
 		return false;
@@ -143,7 +157,12 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 		for(std::vector<std::string>::const_iterator line = lines.begin();
 		    line != lines.end(); ++line ) {
+#if PYTHIA_VERSION >= 8100
+			if (line->substr(0, 14) == "Random:setSeed" ||
+			    line->substr(0, 11) == "Random:seed")
+#else
 			if (line->substr(0, 11) == "Pythia:seed")
+#endif
 				throw cms::Exception("PythiaError")
 					<< "Attempted to set random number"
 					   " using Pythia command 'MRPY(1)'."
@@ -159,8 +178,14 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 	edm::Service<edm::RandomNumberGenerator> rng;
 	std::ostringstream ss;
+#if PYTHIA_VERSION >= 8100
+	ss << "Random:seed = " << rng->mySeed();
+	pythia->readString(ss.str());
+	pythia->readString("Random:setSeed = on");
+#else
 	ss << "Pythia:seed = " << rng->mySeed();
 	pythia->readString(ss.str());
+#endif
 }
 
 Pythia8Hadronisation::~Pythia8Hadronisation()
