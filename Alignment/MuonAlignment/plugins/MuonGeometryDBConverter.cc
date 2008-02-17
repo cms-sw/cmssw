@@ -85,6 +85,9 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       void recursivePrintOut(std::vector<Alignable*> alignables,
 			     align::PositionType globalPosition, align::RotationType globalRotation,
 			     std::ofstream &output, int depth, bool DT, bool survey);
+      void recursivePrintOutXML(std::vector<Alignable*> alignables,
+				align::PositionType globalPosition, align::RotationType globalRotation,
+				std::ofstream &output, int depth, bool DT, bool survey);
 
       // ----------member data ---------------------------
       double m_missingErrorTranslation, m_missingErrorAngle;
@@ -151,8 +154,12 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
       m_CSCOutputLocal = iConfig.getParameter<bool>("CSCOutputLocal");
       m_CSCOutputBlockName = iConfig.getParameter<std::string>("CSCOutputBlockName");
    }
+   else if (m_CSCOutputMode == std::string("xml")) {
+      m_CSCOutputFileName = iConfig.getParameter<std::string>("CSCOutputFileName");
+      m_CSCOutputLocal = iConfig.getParameter<bool>("CSCOutputLocal");
+   }
    else {
-      throw cms::Exception("BadConfig") << "CSCOutputMode must be one of \"none\", \"db\", \"cfg\"." << std::endl;
+      throw cms::Exception("BadConfig") << "CSCOutputMode must be one of \"none\", \"db\", \"cfg\", \"xml\"." << std::endl;
    }
 }
 
@@ -416,13 +423,23 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
       output << "block " << m_CSCOutputBlockName << " = {" << std::endl;
       output << "    PSet CSCInput = {" << std::endl;
       output << "        bool survey = " << (m_CSCOutputSurvey ? "true" : "false") << std::endl;
-      if (m_CSCOutputSurvey  ||  m_alwaysEulerAngles) output << "        bool eulerAngles = true" << std::endl;
-      else output << "        bool eulerAngles = false" << std::endl;
+      output << "        bool eulerAngles = " << (m_CSCOutputSurvey || m_alwaysEulerAngles ? "true" : "false") << std::endl;
       output << "        bool local = " << (m_CSCOutputLocal ? "true" : "false") << std::endl;
 
       recursivePrintOut(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 2, false, m_CSCOutputSurvey);
 
       output << "    }" << std::endl << "}" << std::endl;
+   }
+   else if (m_CSCOutputMode == std::string("xml")) {
+      // write to XML
+      std::ofstream output(m_CSCOutputFileName.c_str());
+      output << "<?xml version=\"1.0\"?>" << std::endl;
+      // DDDefintion???
+      output << "<Format survey=\"" << (m_CSCOutputSurvey ? "true" : "false") << "\" ";
+      output << "eulerAngles=\"" << (m_CSCOutputSurvey || m_alwaysEulerAngles ? "true" : "false") << "\" ";
+      output << "local=\"" << (m_CSCOutputLocal ? "true" : "false") << "\" />" << std::endl;
+
+      recursivePrintOutXML(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 0, false, m_CSCOutputSurvey);
    }
    else assert(false);  // constructor should have caught this
 }
@@ -684,6 +701,109 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 
       for (int d = 0;  d < depth * 4;  d++) output << " ";
       output << "}" << std::endl;
+   }
+}
+
+void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> alignables,
+						   align::PositionType globalPosition, align::RotationType globalRotation,
+						   std::ofstream &output, int depth, bool DT, bool survey) {
+   static AlignableObjectId converter;
+
+   int i = 0;
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+      i++;
+      std::string name = converter.typeToName((*alignable)->alignableObjectId());
+      if (DT) {
+	 if ((*alignable)->alignableObjectId() == align::AlignableDet) name = std::string("DTSuperLayer");
+	 if ((*alignable)->alignableObjectId() == align::AlignableDetUnit) name = std::string("DTLayer");
+      }
+      else {
+	 if ((*alignable)->alignableObjectId() == align::AlignableDet) name = std::string("CSCLayer");
+	 if ((*alignable)->alignableObjectId() == align::AlignableDetUnit) return;
+      }
+
+      for (int d = 0;  d < depth * 4;  d++) output << " ";
+      output << "<" << name << " id=\"" << i << "\">" << std::endl;
+
+      if (survey) {
+	 align::PositionType pos = (*alignable)->globalPosition();
+	 align::RotationType rot = (*alignable)->globalRotation();
+
+	 if (m_CSCOutputLocal) {
+	    pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
+	    rot = globalRotation.multiplyInverse(rot);
+	 }
+
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "<Position x=\"" << pos.x() << "\" y=\"" << pos.y() << "\" z=\"" << pos.z() << "\" />" << std::endl;
+
+	 // standard Euler angles
+	 align::EulerAngles eulerAngles = align::toAngles(rot);
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "<Angle a=\"" << eulerAngles(1) << "\" b=\"" << eulerAngles(2) << "\" c=\"" << eulerAngles(3) << "\" />" << std::endl;
+
+	 align::ErrorMatrix errors = (*alignable)->survey()->errors();
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "<ErrorMatrix xx=\"" << errors(0,0) << "\"" << std::endl;
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "             yx=\"" << errors(1,0) << "\" yy=\"" << errors(1,1) << "\"" << std::endl;
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "             zx=\"" << errors(2,0) << "\" zy=\"" << errors(2,1) << "\" zz=\"" << errors(2,2) << "\"" << std::endl;
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "             ax=\"" << errors(3,0) << "\" ay=\"" << errors(3,1) << "\" az=\"" << errors(3,2) << "\" aa=\"" << errors(3,3) << "\"" << std::endl;
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "             bx=\"" << errors(4,0) << "\" by=\"" << errors(4,1) << "\" bz=\"" << errors(4,2) << "\" ba=\"" << errors(4,3) << "\" bb=\"" << errors(4,4) << "\"" << std::endl;
+	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	 output << "             cx=\"" << errors(5,0) << "\" cy=\"" << errors(5,1) << "\" cz=\"" << errors(5,2) << "\" ca=\"" << errors(5,3) << "\" cb=\"" << errors(5,4) << "\" cc=\"" << errors(5,5) << "\" />" << std::endl;
+
+	 recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+      }
+      else {
+	 if ((*alignable)->alignableObjectId() == align::AlignableDTChamber   ||
+	     (*alignable)->alignableObjectId() == align::AlignableCSCChamber  ||
+	     (*alignable)->alignableObjectId() == align::AlignableDet         ||
+	     (*alignable)->alignableObjectId() == align::AlignableDetUnit) {
+
+	    align::PositionType pos = (*alignable)->globalPosition();
+	    align::RotationType rot = (*alignable)->globalRotation();
+
+	    if (m_CSCOutputLocal) {
+	       pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
+	       rot = globalRotation.multiplyInverse(rot);
+	    }
+
+	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	    output << "<Position x=\"" << pos.x() << "\" y=\"" << pos.y() << "\" z=\"" << pos.z() << "\" />" << std::endl;
+
+	    if (m_alwaysEulerAngles) {
+	       // standard Euler angles
+	       align::EulerAngles eulerAngles = align::toAngles(rot);
+	       for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	       output << "<Angle a=\"" << eulerAngles(1) << "\" b=\"" << eulerAngles(2) << "\" c=\"" << eulerAngles(3) << "\" />" << std::endl;
+	    }
+	    else {
+	       // alignment angles are non-standard Euler angles (the Z-Y-X convention)
+	       double phix = atan2(rot.yz(), rot.zz());
+	       double phiy = asin(-rot.xz());
+	       double phiz = atan2(rot.xy(), rot.xx());
+
+	       for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	       output << "<Angle phix=\"" << phix << "\" phiy=\"" << phiy << "\" phiz=\"" << phiz << "\" />" << std::endl;
+	    }
+
+	    align::ErrorMatrix errors = (*alignable)->survey()->errors();
+	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+	    output << "<ErrorMatrix xx=\"" << errors(0,0) << "\" yx=\"" << errors(1,0) << "\" yy=\"" << errors(1,1) << "\" zx=\"" << errors(2,0) << "\" zy=\"" << errors(2,1) << "\" zz=\"" << errors(2,2) << "\" />" << std::endl;
+
+	    recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+	 }
+	 else {
+	    recursivePrintOutXML((*alignable)->components(), globalPosition, globalRotation, output, depth+1, DT, survey);
+	 }
+      }
+
+      for (int d = 0;  d < depth * 4;  d++) output << " ";
+      output << "</" << name << ">" << std::endl;
    }
 }
 
