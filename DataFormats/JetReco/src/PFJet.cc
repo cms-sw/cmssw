@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.7 2008/01/04 21:03:01 fedor Exp $
+// $Id: PFJet.cc,v 1.9 2008/01/25 05:06:06 fedor Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -77,13 +77,6 @@ std::string PFJet::print () const {
   for (unsigned i = 0; i < constituents.size (); ++i) {
     if (constituents[i]) {
       out << "      #" << i << " " << *(constituents[i]) << std::endl;
-      reco::PFBlockRef block = constituents[i]->blockRef();
-      if (block.isNonnull()) {
-	out << "            " << *block << std::endl;
-      }
-      else {
-	out << "            PFBlock is not available in the event" << std::endl;
-      }
     }
     else {
       out << "      #" << i << " PFCandidate is not available in the event"  << std::endl;
