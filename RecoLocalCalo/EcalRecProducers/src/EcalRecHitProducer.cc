@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.14 2007/09/27 10:14:21 ferriff Exp $
- *  $Date: 2007/09/27 10:14:21 $
- *  $Revision: 1.14 $
+ *  $Id: EcalRecHitProducer.cc,v 1.15 2007/12/21 15:35:40 ferriff Exp $
+ *  $Date: 2007/12/21 15:35:40 $
+ *  $Revision: 1.15 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -13,6 +13,8 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
@@ -121,13 +123,32 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    edm::ESHandle<EcalLaserDbService> pLaser;
    es.get<EcalLaserDbRecord>().get( pLaser );
 
+   // channel status map
+   std::cout << "going to take channel status map" << std::endl;
+   edm::ESHandle<EcalChannelStatus> pChStatus;
+   es.get<EcalChannelStatusRcd>().get( pChStatus );
+   const EcalChannelStatus* chStatus = pChStatus.product();
+
    if (EBuncalibRecHits)
      {
        
        // loop over uncalibrated rechits to make calibrated ones
-       for(EBUncalibratedRecHitCollection::const_iterator it  = EBuncalibRecHits->begin();
-	   it != EBuncalibRecHits->end(); ++it) {
+       for(EBUncalibratedRecHitCollection::const_iterator it  = EBuncalibRecHits->begin(); it != EBuncalibRecHits->end(); ++it) {
 	 
+         // check if status flag is valid -- FIXME: specialize flags
+	 EcalChannelStatusMap::const_iterator chit = chStatus->find(it->id());
+         EcalChannelStatusCode chStatusCode = 1;
+         if ( chit != chStatus->end() ) {
+                 chStatusCode = *chit;
+                 std::cout << "Preso codice" << chStatusCode.getStatusCode() << std::endl;
+         } else {
+                 edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
+         }
+         if ( chStatusCode.getStatusCode() != 1 ) {
+                 std::cout << "Continuo" << std::endl;
+                 continue;
+         }
+
 	 // find intercalib constant for this xtal
 	 EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
          EcalIntercalibConstant icalconst = 1;
@@ -135,8 +156,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   icalconst = (*icalit);
 	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
 	 } else {
-	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
-	     ;
+	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? " ;
 	 }
          // get laser coefficient
          float lasercalib = pLaser->getLaserCorrection( EBDetId(it->id()), evt.time() );
@@ -159,12 +179,25 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
        }
      }
 
+   std::cout << "between EB and EE" << std::endl;
+
    if (EEuncalibRecHits)
      {
        // loop over uncalibrated rechits to make calibrated ones
-       for(EEUncalibratedRecHitCollection::const_iterator it  = EEuncalibRecHits->begin();
-	   it != EEuncalibRecHits->end(); ++it) {
+       for(EEUncalibratedRecHitCollection::const_iterator it  = EEuncalibRecHits->begin(); it != EEuncalibRecHits->end(); ++it) {
 	 
+         // check if status flag is valid -- FIXME: specialize flags
+	 EcalChannelStatusMap::const_iterator chit = chStatus->find(it->id());
+         EcalChannelStatusCode chStatusCode = 1;
+         if ( chit != chStatus->end() ) {
+                 chStatusCode = *chit;
+         } else {
+                 edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
+         }
+         if ( chStatusCode.getStatusCode() != 1 ) {
+                 continue;
+         }
+
 	 // find intercalib constant for this xtal
 	 EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
 	 EcalIntercalibConstant icalconst = 1;
