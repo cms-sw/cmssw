@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.16 2008/02/18 11:16:13 ferriff Exp $
- *  $Date: 2008/02/18 11:16:13 $
- *  $Revision: 1.16 $
+ *  $Id: EcalRecHitProducer.cc,v 1.17 2008/02/18 11:38:49 ferriff Exp $
+ *  $Date: 2008/02/18 11:38:49 $
+ *  $Revision: 1.17 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -51,6 +51,7 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
    produces< EBRecHitCollection >(EBrechitCollection_);
    produces< EERecHitCollection >(EErechitCollection_);
 
+   v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
    //   nEvt_ = 0; // reset local event counter
 }
 
@@ -142,8 +143,11 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          } else {
                  edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
          }
-         if ( chStatusCode.getStatusCode() != 0 ) {
-                 continue;
+         if ( v_chstatus_.size() > 0) {
+                 std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
+                 if ( *res ) {
+                         continue;
+                 }
          }
 
 	 // find intercalib constant for this xtal
@@ -189,8 +193,11 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          } else {
                  edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
          }
-         if ( chStatusCode.getStatusCode() != 0 ) {
-                 continue;
+         if ( v_chstatus_.size() > 0) {
+                 std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
+                 if ( *res ) {
+                         continue;
+                 }
          }
 
 	 // find intercalib constant for this xtal
