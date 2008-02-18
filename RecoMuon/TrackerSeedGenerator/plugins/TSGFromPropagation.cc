@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/02/06 17:07:33 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/13 18:44:38 $
+ *  $Revision: 1.19 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -57,7 +57,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   LogTrace(category) << " begin of trackerSeed ";
 
-  TrajectoryStateOnSurface staState = innerState(staMuon);
+  TrajectoryStateOnSurface staState = outerTkState(staMuon);
 
   if ( !staState.isValid() ) { 
     LogTrace(category) << " initial state invalid, fail";
