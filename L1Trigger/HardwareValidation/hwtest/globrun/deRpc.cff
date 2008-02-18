@@ -1,7 +1,8 @@
 /* RPC */
 
 include "Geometry/RPCGeometry/data/rpcGeometry.cfi"
-include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
+include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+#include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
 include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
 
 ### unpacking

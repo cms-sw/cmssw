@@ -3,7 +3,8 @@
 ### emulator
 
 include "L1TriggerConfig/L1CSCTPConfigProducers/data/L1CSCTriggerPrimitivesConfig.cff"
-include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
+include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+#include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
 include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
 include "Geometry/CSCGeometry/data/cscGeometry.cfi"
 include "L1Trigger/CSCCommonTrigger/data/CSCCommonTrigger.cfi"

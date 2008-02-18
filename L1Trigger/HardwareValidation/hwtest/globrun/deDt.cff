@@ -3,7 +3,8 @@
 //include "Configuration/GlobalRuns/data/gren_conditions.cff"
 
 include "Geometry/DTGeometry/data/dtGeometry.cfi"
-include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
+include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+#include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
 
 ### emulator
 
