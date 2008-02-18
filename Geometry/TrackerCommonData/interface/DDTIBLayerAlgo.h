@@ -54,6 +54,9 @@ private:
   std::vector<double>      centRing1par;   //Central rings parameters
   std::vector<double>      centRing2par;   //Central rings parameters
 
+  std::string              fillerMat;      //Filler material
+  double                   fillerDz;       //Filler Half Length
+
   std::string              ribMat;         //Rib material
   std::vector<double>      ribW;           //Rib width
   std::vector<double>      ribPhi;         //Rib Phi position

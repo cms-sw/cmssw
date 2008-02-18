@@ -62,14 +62,17 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   MFRingOutR   = nArgs["MFRingOuterRadius"]; 
   MFRingT      = nArgs["MFRingThickness"];   
   MFRingDz     = nArgs["MFRingDeltaz"];      
-  MFIntRingMat    = sArgs["MFIntRingMaterial"];      
-  MFExtRingMat    = sArgs["MFExtRingMaterial"];      
+  MFIntRingMat = sArgs["MFIntRingMaterial"];      
+  MFExtRingMat = sArgs["MFExtRingMaterial"];      
 
   supportT     = nArgs["SupportThickness"];
 
   centMat      = sArgs["CentRingMaterial"];
   centRing1par = vArgs["CentRing1"];
   centRing2par = vArgs["CentRing2"];
+
+  fillerMat    = sArgs["FillerMaterial"];
+  fillerDz     = nArgs["FillerDeltaz"];
 
   ribMat       = sArgs["RibMaterial"];
   ribW         = vArgs["RibWidth"];
@@ -78,6 +81,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "thickness " << cylinderMat << " " << cylinderT 
 		      << " Rib Material " << ribMat << " at "
 		      << ribW.size() << " positions with width/phi";
+
   for (unsigned int i = 0; i < ribW.size(); i++)
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
 			<< "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
@@ -286,7 +290,10 @@ void DDTIBLayerAlgo::execute() {
 			<< rotation;
   }
 
-  //Inner cylinder, support wall and ribs
+  //
+  // Inner cylinder, support wall and ribs
+  //
+  // External skins
   rin  = cylinderInR;
   rout = cylinderInR+cylinderT;
   name = idName + "Cylinder";
@@ -304,6 +311,9 @@ void DDTIBLayerAlgo::execute() {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinder.name() 
 		      << " number 1 positioned in " << layer.name()
 		      << " at (0,0,0) with no rotation";
+  //
+  // inner part of the cylinder
+  //
   rin  += supportT;
   rout -= supportT;
   name  = idName + "CylinderIn";
@@ -319,20 +329,44 @@ void DDTIBLayerAlgo::execute() {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderIn.name() 
 		      << " number 1 positioned in " << cylinder.name() 
 		      << " at (0,0,0) with no rotation";
+  //
+  // Filler Rings
+  //
+  matname = DDName(DDSplit(fillerMat).first, DDSplit(fillerMat).second);
+  DDMaterial matfiller(matname);
+  name = idName + "Filler";
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), fillerDz, rin, rout, 
+			       0., twopi);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << fillerMat << " from " << 0. << " to "
+		      << twopi/deg << " with Rin " << rin << " Rout "
+		      << rout << " ZHalf "  << fillerDz;
+  DDLogicalPart cylinderFiller(solid.ddname(), matfiller, solid);
+  DDpos (cylinderFiller, cylinderIn, 1, DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz), DDRotation());
+  DDpos (cylinderFiller, cylinderIn, 2, DDTranslation(0.0, 0.0,-0.5*layerL+fillerDz), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderFiller.name()
+		      << " number 1" << " positioned in " 
+		      << cylinderIn.name() << " at " << DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz)
+		      << " number 2" << " positioned in " 
+		      << cylinderIn.name() << " at " << DDTranslation(0.0, 0.0,-0.5*layerL+fillerDz);
 
+  //
+  // Ribs
+  //
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (int i = 0; i < (int)(ribW.size()); i++) {
     name = idName + "Rib" + dbl_to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
-    double dz    = 0.5*layerL;
-    solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, rout, 
+    double dz    = 0.5*layerL-2.*fillerDz;
+    solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin+0.5*mm, rout-0.5*mm, 
 				 -0.5*width, width);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
 			<< ribMat << " from " << -0.5*width/deg << " to "
-			<< 0.5*width/deg << " with Rin " << rin << " Rout "
-			<< rout << " ZHalf "  << dz;
+			<< 0.5*width/deg << " with Rin " << rin+0.5*mm << " Rout "
+			<< rout-0.5*mm << " ZHalf "  << dz;
     DDLogicalPart cylinderRib(solid.ddname(), matrib, solid);
     double phix   = ribPhi[i];
     double phideg = phix/deg;
