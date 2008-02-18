@@ -37,7 +37,13 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     logconnect=iConfig.getUntrackedParameter<std::string>("logconnect");
   }  
   m_session=new cond::DBSession;  
-  m_timetype=iConfig.getParameter< std::string >("timetype");
+  m_timetypestr=iConfig.getParameter< std::string >("timetype");
+  if(m_timetypestr!="runnumber"&&m_timetypestr!="timestamp"){
+    throw cond::Exception(std::string("Unrecognised time type ")+m_timetypestr);
+  }else{
+    if(m_timetypestr=="runnumber") m_timetype=cond::runnumber;
+    if(m_timetypestr=="timestamp") m_timetype=cond::timestamp;
+  }
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
@@ -136,7 +142,7 @@ cond::service::PoolDBOutputService::postEndJob()
 void 
 cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime)
 {
-  if( m_timetype == "runnumber" ){
+  if( m_timetype == cond::runnumber ){
     m_currentTime=iEvtid.run();
   }else{ //timestamp
     m_currentTime=iTime.value();
@@ -189,7 +195,8 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::CoralTransaction& coraldb=m_connection->coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
-    metadata.addMapping(myrecord.m_tag,iovToken);
+    
+    metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
     coraldb.commit();
     m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
     myrecord.m_iovtoken=iovToken;
@@ -198,13 +205,13 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,result.first);
+      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first);
     }
   }catch(const std::exception& er){ 
     if(withlogging){
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,result.first,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception("PoolDBOutputService::createNewIOV "+std::string(er.what()));
@@ -231,13 +238,13 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,result.first);
+      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first);
     }
   }catch(const std::exception& er){
     if(withlogging){
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,result.first,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception("PoolDBOutputService::appendTillTime "+std::string(er.what()));
@@ -264,13 +271,13 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadT
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,payloadIdx);
+      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,payloadIdx);
     }
   }catch(const std::exception& er){
     if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
     std::string destconnect=m_connection->connectStr();
     cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-    m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetype,payloadIdx,std::string(er.what()));
+    m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
     m_logdb->releaseWriteLock();
     throw cond::Exception("PoolDBOutputService::appendSinceTime "+std::string(er.what()));
   }
