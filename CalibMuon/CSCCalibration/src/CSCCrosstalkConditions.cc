@@ -266,7 +266,7 @@ CSCCrosstalkConditions::~CSCCrosstalkConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cncrosstalk;
+  delete cnCrosstalk;
 }
 
 
@@ -279,7 +279,7 @@ CSCCrosstalkConditions::ReturnType
 CSCCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  CSCcrosstalk* mydata=new CSCcrosstalk( *cncrosstalk );
+  CSCcrosstalk* mydata=new CSCcrosstalk( *cnCrosstalk );
   
   return mydata;
   
