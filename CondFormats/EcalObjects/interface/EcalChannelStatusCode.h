@@ -3,7 +3,7 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 Nov 2006
- * $Id: $
+ * $Id: EcalChannelStatusCode.h,v 1.1 2006/11/16 18:18:24 meridian Exp $
  **/
 
 
@@ -22,6 +22,7 @@ class EcalChannelStatusCode {
     void print(std::ostream& s) const { s << "status is: " << status_; }
 
     EcalChannelStatusCode& operator=(const EcalChannelStatusCode& rhs);
+    uint16_t getStatusCode() const { return status_; }
 
   private:
     uint16_t status_;
