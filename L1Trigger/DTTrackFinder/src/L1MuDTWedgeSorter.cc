@@ -6,8 +6,8 @@
 //                find the 2 highest rank candidates per wedge
 //
 //
-//   $Date: 2006/07/26 10:31:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -87,9 +87,9 @@ void L1MuDTWedgeSorter::run() {
       const L1MuDTTrack* cand = m_tf.sp(tmpspid)->track(number);
       if ( cand && !cand->empty() ) {
         // remove tracks which where found in wheel 0 and 
-        // which didn't cross wheel boundaries (SP +1)
+        // which didn't cross wheel boundaries (SP -1)
         bool reject = false;
-        if ( wheel == 1 ) {
+        if ( wheel == -1 ) {
           reject = true;
           for ( int stat = 2; stat <= 4; stat++ ) {
             int adr = cand->address(stat);
@@ -213,7 +213,7 @@ void L1MuDTWedgeSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
       int qual2 = (*iter2)->quality();
       if ( sp1 == sp2 ) continue;
       if ( !neighbour(sp1,sp2) ) continue;
-      int adr_shift = ( sp2.wheel() == 1 ) ? 0 : 2;
+      int adr_shift = ( sp2.wheel() == -1 ) ? 0 : 2;
       int countTS = 0;
       for ( int stat = 2; stat <= 4; stat++ ) {
         int adr1 = (*iter1)->address(stat);
@@ -250,8 +250,8 @@ bool L1MuDTWedgeSorter::neighbour(const L1MuDTSecProcId& spid1,
                                   const L1MuDTSecProcId& spid2) {
 
   // neighbour definition:
-  // wheel 1 :  -2,  -1,  -1,  +1,  +2
-  // wheel 2 :  -3,  -2,  +1,  +2,  +3
+  // wheel 1 :  -2,  -1,  +1,  +1,  +2
+  // wheel 2 :  -3,  -2,  -1,  +2,  +3
   
   bool neigh = false;
   
@@ -265,7 +265,7 @@ bool L1MuDTWedgeSorter::neighbour(const L1MuDTSecProcId& spid1,
   
     if ( ( wheel1 == -2 && wheel2 == -3 ) ||
          ( wheel1 == -1 && wheel2 == -2 ) ||
-         ( wheel1 == -1 && wheel2 == +1 ) ||
+         ( wheel1 == +1 && wheel2 == -1 ) ||
          ( wheel1 == +1 && wheel2 == +2 ) ||
          ( wheel1 == +2 && wheel2 == +3 ) ) neigh = true;
        

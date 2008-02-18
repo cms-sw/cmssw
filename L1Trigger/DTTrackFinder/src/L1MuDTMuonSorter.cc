@@ -5,8 +5,8 @@
 //   Description: DT Muon Sorter
 //
 //
-//   $Date: 2006/07/26 10:31:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -332,7 +332,7 @@ int L1MuDTMuonSorter::neighbour(const L1MuDTSecProcId& spid1,
   if ( abs(sectordiff) == 1 ) {
 
     if ( wheel1 == wheel2 ) topology = (sectordiff > 0) ? 1 : 2;
-    if ( wheel1 == -1 && wheel2 == +1 )  topology = (sectordiff > 0) ? 5 : 6; 
+    if ( wheel1 == +1 && wheel2 == -1 )  topology = (sectordiff > 0) ? 5 : 6; 
     if ( ( wheel1 == -2 && wheel2 == -3 ) ||
          ( wheel1 == -1 && wheel2 == -2 ) ||
          ( wheel1 == +1 && wheel2 == +2 ) ||

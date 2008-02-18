@@ -2,10 +2,10 @@
 //
 /**  \class L1AbstractProcessor
  *
- *   Abstract Base Class for L1 Trigger Devices
+ *   Abstract Base Class for L1 Trigger Devices with EventSetup
 */
 //
-//   $Date: 2006/06/26 15:52:12 $
+//   $Date: 2007/03/30 08:51:21 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -27,6 +27,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <FWCore/Framework/interface/EventSetup.h>
 
 //              ---------------------
 //              -- Class Interface --
@@ -40,7 +41,9 @@ class L1AbstractProcessor {
     virtual ~L1AbstractProcessor() {}
 
     /// run processor logic
-    virtual void run() = 0;
+    virtual void run() {};
+
+    virtual void run(const edm::EventSetup& c) {};
 
     /// clear event memory of processor
     virtual void reset() = 0;

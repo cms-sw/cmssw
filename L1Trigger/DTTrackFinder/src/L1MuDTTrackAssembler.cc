@@ -5,8 +5,8 @@
 //   Description: Track Assembler
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -403,9 +403,27 @@ void L1MuDTTrackAssembler::run() {
   unsigned int s3_2 = m_theAddresses[1].station(3);
   unsigned int s4_2 = m_theAddresses[1].station(4);
   
-  if ( s2_2 == m_theAddresses[0].station(2) ) { s2_2 = 15; m_theBitMaps[1].reset(1); }
-  if ( s3_2 == m_theAddresses[0].station(3) ) { s3_2 = 15; m_theBitMaps[1].reset(2); }
-  if ( s4_2 == m_theAddresses[0].station(4) ) { s4_2 = 15; m_theBitMaps[1].reset(3); }
+  if ( s2_2 == m_theAddresses[0].station(2) ) {
+    s2_2 = 15; m_theBitMaps[1].reset(1); m_theAddresses[1].setStation(2,15);
+    if ( m_theTCs[1] == T1234 ) m_theTCs[1] = T134;
+    if ( m_theTCs[1] == T123  ) m_theTCs[1] = T13;
+    if ( m_theTCs[1] == T124  ) m_theTCs[1] = T14;
+    if ( m_theTCs[1] == T234  ) m_theTCs[1] = T34;
+  }
+  if ( s3_2 == m_theAddresses[0].station(3) ) {
+    s3_2 = 15; m_theBitMaps[1].reset(2); m_theAddresses[1].setStation(3,15);
+    if ( m_theTCs[1] == T1234 ) m_theTCs[1] = T124;
+    if ( m_theTCs[1] == T123  ) m_theTCs[1] = T12;
+    if ( m_theTCs[1] == T134  ) m_theTCs[1] = T14;
+    if ( m_theTCs[1] == T234  ) m_theTCs[1] = T24;
+  }
+  if ( s4_2 == m_theAddresses[0].station(4) ) {
+    s4_2 = 15; m_theBitMaps[1].reset(3); m_theAddresses[1].setStation(4,15);
+    if ( m_theTCs[1] == T1234 ) m_theTCs[1] = T123;
+    if ( m_theTCs[1] == T124  ) m_theTCs[1] = T12;
+    if ( m_theTCs[1] == T134  ) m_theTCs[1] = T13;
+    if ( m_theTCs[1] == T234  ) m_theTCs[1] = T23;
+  }
   
   if ( ( s2_2 == 15 && s3_2 == 15 && s4_2 == 15 ) ||
        ( s1_2 == 15 && s3_2 == 15 && s4_2 == 15 ) ||
@@ -421,6 +439,7 @@ void L1MuDTTrackAssembler::run() {
     
   }
   
+/*
   if ( m_theBitMaps[1].to_ulong() != tc2bitmap(m_theTCs[1]) ) {
     if ( L1MuDTTFConfig::Debug(5) ) cout << "L1MuDTTrackAssembler: second track has been cancelled" << endl;
     if ( L1MuDTTFConfig::Debug(5) ) print();
@@ -429,6 +448,7 @@ void L1MuDTTrackAssembler::run() {
     m_theAddresses[1].reset();
     m_theBitMaps[1].reset();
   }
+*/
 
 }
 

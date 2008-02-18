@@ -92,7 +92,7 @@ void L1MuDTTFConfig::setDefaults() {
   m_NbitsPtaPhib = m_ps->getUntrackedParameter<int>("PT_Assignment_nbits_PhiB",10);
 
   // set precision for phi-assignment look-up tables
-  m_NbitsPhiPhi  = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_Phi", 12);
+  m_NbitsPhiPhi  = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_Phi", 10);
   m_NbitsPhiPhib = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_PhiB",10);
 
   if ( Debug(1) ) cout << endl;
@@ -163,5 +163,5 @@ int L1MuDTTFConfig::m_NbitsExtPhi  = 8;
 int L1MuDTTFConfig::m_NbitsExtPhib = 8;
 int L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
 int L1MuDTTFConfig::m_NbitsPtaPhib = 10;
-int L1MuDTTFConfig::m_NbitsPhiPhi  = 12; 
+int L1MuDTTFConfig::m_NbitsPhiPhi  = 10; 
 int L1MuDTTFConfig::m_NbitsPhiPhib = 10;

@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.5 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -395,7 +395,7 @@ void L1MuDTEtaProcessor::assign() {
         m_TrackCand[i]->setEta(m_eta[i]);
       }
       else {  
-        if ( i/3 != 2 ) cerr << "L1MuDTEtaProcessor: assign invalid eta" << " " << m_address[i] << endl;
+        if ( i/2 != 2 ) cerr << "L1MuDTEtaProcessor: assign invalid eta" << " " << m_address[i] << endl;
       }
       if ( m_fine[i] ) {
         m_TrackCand[i]->setFineEtaBit();

@@ -33,6 +33,7 @@
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackCand.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcMap.h"
@@ -41,7 +42,6 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTWedgeSorter.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTMuonSorter.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 using namespace std;
 
@@ -69,6 +69,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps) {
   m_ms = 0;
 
   _cache.reserve(4*17);
+  _cache0.reserve(144*17);
 
 }
 
@@ -193,6 +194,20 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       it_ep++;
     }
 
+    // read sector processors
+    it_sp = m_spmap->begin();
+    while ( it_sp != m_spmap->end() ) {
+      if ( L1MuDTTFConfig::Debug(2) ) cout << "reading " 
+                                           << (*it_sp).second->id() << endl;
+      for ( int number = 0; number < 2; number++ ) {
+        const L1MuDTTrack* cand = (*it_sp).second->track(number);
+        if ( cand && !cand->empty() ) _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),cand->bx(),
+                                              cand->spid().wheel(),cand->spid().sector(),number,cand->address(1),
+                                              cand->address(2),cand->address(3),cand->address(4),cand->tc()));
+      }
+      it_sp++;
+    } 
+
     // run wedge sorters
     vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
     while ( it_ws != m_wsvec.end() ) {
@@ -287,6 +302,7 @@ L1MuDTTrackFinder::TFtracks_const_iter L1MuDTTrackFinder::end() {
 void L1MuDTTrackFinder::clear() {
 
   _cache.clear();
+  _cache0.clear();
 
 }
 

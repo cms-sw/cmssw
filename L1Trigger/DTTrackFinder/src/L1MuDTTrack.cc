@@ -282,14 +282,14 @@ void L1MuDTTrack::print() const {
     cout.setf(ios::right,ios::adjustfield);  
     cout << setiosflags(ios::showpoint | ios::fixed);
     cout << "MUON : "
-         << "pt = "  << setw(5) << setprecision(1) << ptValue() << " GeV  "
-         << "charge = " << setw(2) << charge() << " "
-         << "eta = " << setw(8) << setprecision(5) << etaValue()
-         << " (" << setw(1) << fineEtaBit() << ")  "  
-         << "phi = " << setw(6) << setprecision(2) << phiValue()*180./M_PI << " deg  "
-         << "quality = " << setw(1) << quality() << '\t'
-         << "class = " << tc() << " "
-         << "bx = " << setw(3) << bx() << endl;
+         << "pt = "      << setw(2) << pt_packed() << "  "
+         << "charge = "  << setw(2) << charge_packed() << "  "
+         << "eta = "     << setw(2) << eta_packed()
+         << " ("         << setw(1) << finehalo_packed() << ")  "  
+         << "phi = "     << setw(3) << phi_packed() << "  "
+         << "quality = " << setw(1) << quality_packed() << '\t'
+         << "class = "   << tc() << "  "
+         << "bx = "      << setw(2) << bx() << endl;
     cout << "       found in " << m_spid << " with phi track segments :" << endl;
     vector<L1MuDTTrackSegPhi>::const_iterator iter;
     for ( iter = m_tsphiList.begin(); iter != m_tsphiList.end(); iter++ ) {
@@ -307,11 +307,13 @@ ostream& operator<<(ostream& s, const L1MuDTTrack& id) {
 
   if ( !id.empty() ) {
     s << setiosflags(ios::showpoint | ios::fixed) 
-      << "pt = "  << setw(5) << setprecision(1) << id.ptValue() << " GeV\t"
-      << "charge = " << setw(2) << id.charge() << "  " 
-      << "eta = " << setw(8) << setprecision(5) << id.etaValue() << "  " 
-      << "phi = " << setw(6) << setprecision(2) << id.phiValue()*180./M_PI << " deg  "
-      << "quality = " << setw(1) << id.quality();
+      << "pt = "      << setw(2) << id.pt_packed() << "  "
+      << "charge = "  << setw(2) << id.charge_packed() << "  "
+      << "eta = "     << setw(2) << id.eta_packed()
+      << " ("         << setw(1) << id.finehalo_packed() << ")  "  
+      << "phi = "     << setw(3) << id.phi_packed() << "  "
+      << "quality = " << setw(1) << id.quality_packed() << '\t'
+      << "bx = "      << setw(2) << id.bx();
   }
   return s;
 

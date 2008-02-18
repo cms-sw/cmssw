@@ -46,6 +46,7 @@ class L1MuDTSectorProcessor;
 class L1MuDTEtaProcessor;
 class L1MuDTWedgeSorter;
 class L1MuDTMuonSorter;
+class L1MuDTTrackCand;
 class L1MuRegionalCand;
 
 //              ---------------------
@@ -103,6 +104,8 @@ class L1MuDTTrackFinder {
     /// return configuration
     static L1MuDTTFConfig* config() { return m_config; }
 
+    std::vector<L1MuDTTrackCand>& getcache0() { return _cache0; }
+
     std::vector<L1MuRegionalCand>& getcache() { return _cache; }
 
   private:
@@ -112,6 +115,7 @@ class L1MuDTTrackFinder {
 
   private:
 
+    std::vector<L1MuDTTrackCand>     _cache0;
     std::vector<L1MuRegionalCand>    _cache;
     L1MuDTSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuDTEtaProcessor*> m_epvec;        ///< Eta Processors

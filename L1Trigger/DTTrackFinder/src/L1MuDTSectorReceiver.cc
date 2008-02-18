@@ -131,6 +131,8 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
         // 
         bool skipTS = false;
 
+        if (ts->phi() < -2032) skipTS = true; 
+
         if ( L1MuDTTFConfig::getTSOutOfTimeFilter() ) {
  
           int sh_phi = 12 - L1MuDTTFConfig::getNbitsExtPhi();

@@ -9,8 +9,8 @@
  *   to all possible target track segments (12 or 6)
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 09:05:32 $
+ *   $Revision: 1.3 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -31,7 +31,7 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -47,7 +47,7 @@ class L1MuDTERS;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTSEU : public L1AbstractProcessorc {
+class L1MuDTSEU : public L1AbstractProcessor {
 
   public:
 

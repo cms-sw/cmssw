@@ -142,8 +142,8 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 
   c.get< L1MuDTPhiLutRcd >().get( thePhiLUTs );
 
-  int sh_phi  = 12 - thePhiLUTs->getPrecision().first;
-  int sh_phib = 10 - thePhiLUTs->getPrecision().second;
+  int sh_phi  = 12 - L1MuDTTFConfig::getNbitsPhiPhi();
+  int sh_phib = 10 - L1MuDTTFConfig::getNbitsPhiPhib();
 
   const L1MuDTTrackSegPhi* second = getTSphi(2);  // track segment at station 2
   const L1MuDTTrackSegPhi* first  = getTSphi(1);  // track segment at station 1
@@ -157,13 +157,11 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     sector = second->sector();
   }
   else if ( second == 0 && first ) {
-    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
-    phi2 = ( first->phi() >> sh_phi ) + (thePhiLUTs->getDeltaPhi(0,bend_angle) >> sh_phi);
+    phi2 = first->phi() >> sh_phi;
     sector = first->sector();
   }
   else if ( second == 0 && forth ) {
-    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
-    phi2 = ( forth->phi() >> sh_phi ) + (thePhiLUTs->getDeltaPhi(1,bend_angle) >> sh_phi);
+    phi2 = forth->phi() >> sh_phi;
     sector = forth->sector();
   }
 
@@ -172,9 +170,18 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 
   // convert phi to 2.5 degree precision
   int phi_precision = 4096 >> sh_phi;
-  const double k = (180.0/(2.5*M_PI*static_cast<float>(phi_precision)));
+  const double k = 57.2958/2.5/static_cast<float>(phi_precision);
   double phi_f = static_cast<double>(phi2);
   int phi_8 = static_cast<int>(floor(phi_f*k));     
+
+  if ( second == 0 && first ) {
+    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
+    phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0,bend_angle);
+  }
+  else if ( second == 0 && forth ) {
+    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
+    phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
+  }
 
   int phi = (sector_8 + phi_8 + 144)%144;
 
@@ -195,6 +202,7 @@ void L1MuDTAssignmentUnit::PtAU(const edm::EventSetup& c) {
 
   // get input address for look-up table
   int bend_angle = getPtAddress(m_ptAssMethod);
+  int bend_carga = getPtAddress(m_ptAssMethod, 1);
 
   // retrieve pt value from look-up table
   int lut_idx = m_ptAssMethod;
@@ -204,7 +212,7 @@ void L1MuDTAssignmentUnit::PtAU(const edm::EventSetup& c) {
 
   // assign charge
   int chsign = getCharge(m_ptAssMethod);
-  int charge = ( bend_angle >= 0 ) ? chsign : -1 * chsign;
+  int charge = ( bend_carga >= 0 ) ? chsign : -1 * chsign;
   m_sp.track(m_id)->setCharge(charge);
 
 }
@@ -381,20 +389,20 @@ PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
   PtAssMethod pam = NODEF;
   
   switch ( method ) {
-    case 0 :  { pam = ( abs(phib1) <= threshold ) ? PT12H  : PT12L;  break; }
-    case 1 :  { pam = ( abs(phib1) <= threshold ) ? PT13H  : PT13L;  break; }
-    case 2 :  { pam = ( abs(phib1) <= threshold ) ? PT14H  : PT14L;  break; }
-    case 3 :  { pam = ( abs(phib2) <= threshold ) ? PT23H  : PT23L;  break; }
-    case 4 :  { pam = ( abs(phib2) <= threshold ) ? PT24H  : PT24L;  break; }
-    case 5 :  { pam = ( abs(phib4) <= threshold ) ? PT34H  : PT34L;  break; }
-    case 6 :  { pam = ( abs(phib1) <= threshold ) ? PT12HO : PT12LO; break; }
-    case 7 :  { pam = ( abs(phib1) <= threshold ) ? PT13HO : PT13LO; break; }
-    case 8 :  { pam = ( abs(phib1) <= threshold ) ? PT14HO : PT14LO; break; }
-    case 9 :  { pam = ( abs(phib2) <= threshold ) ? PT23HO : PT23LO; break; }
-    case 10 : { pam = ( abs(phib2) <= threshold ) ? PT24HO : PT24LO; break; }
-    case 11 : { pam = ( abs(phib4) <= threshold ) ? PT34HO : PT34LO; break; }
-    case 12 : { pam = ( abs(phib4) <= threshold ) ? PT15HO : PT15LO; break; }
-    case 13 : { pam = ( abs(phib4) <= threshold ) ? PT25HO : PT25LO; break; }
+    case 0 :  { pam = ( abs(phib1) < threshold ) ? PT12H  : PT12L;  break; }
+    case 1 :  { pam = ( abs(phib1) < threshold ) ? PT13H  : PT13L;  break; }
+    case 2 :  { pam = ( abs(phib1) < threshold ) ? PT14H  : PT14L;  break; }
+    case 3 :  { pam = ( abs(phib2) < threshold ) ? PT23H  : PT23L;  break; }
+    case 4 :  { pam = ( abs(phib2) < threshold ) ? PT24H  : PT24L;  break; }
+    case 5 :  { pam = ( abs(phib4) < threshold ) ? PT34H  : PT34L;  break; }
+    case 6 :  { pam = ( abs(phib1) < threshold ) ? PT12HO : PT12LO; break; }
+    case 7 :  { pam = ( abs(phib1) < threshold ) ? PT13HO : PT13LO; break; }
+    case 8 :  { pam = ( abs(phib1) < threshold ) ? PT14HO : PT14LO; break; }
+    case 9 :  { pam = ( abs(phib2) < threshold ) ? PT23HO : PT23LO; break; }
+    case 10 : { pam = ( abs(phib2) < threshold ) ? PT24HO : PT24LO; break; }
+    case 11 : { pam = ( abs(phib4) < threshold ) ? PT34HO : PT34LO; break; }
+    case 12 : { pam = ( abs(phib4) < threshold ) ? PT15HO : PT15LO; break; }
+    case 13 : { pam = ( abs(phib4) < threshold ) ? PT25HO : PT25LO; break; }
     default : cout << "L1MuDTAssignmentUnit : Error in PT ass method evaluation" << endl;
   }
               
@@ -406,7 +414,7 @@ PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
 //
 // calculate bend angle
 //
-int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method) const {
+int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method, int bendcharge) const {
 
   // calculate bend angle as difference of two azimuthal positions 
 
@@ -450,8 +458,10 @@ int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method) const {
   if (bendangle < 0) signo=-1;
   bendangle = signo*bendangle;
   bendangle = bendangle%1024;
-  if (bendangle > 511) bendangle=1023-bendangle;
+  if (bendangle > 511) bendangle=1024-bendangle;
   bendangle = signo*bendangle;
+
+  if (bendcharge) return signo;
 
   return bendangle;
 
