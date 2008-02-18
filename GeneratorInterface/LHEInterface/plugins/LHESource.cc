@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/SimpleVector.h>
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -22,6 +23,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
+#include "GeneratorInterface/LHEInterface/interface/JetClustering.h"
 
 using namespace lhef;
 
@@ -40,6 +42,8 @@ class LHESource : public edm::GeneratedInputSource {
 	unsigned int			skipEvents;
 	unsigned int			eventsToPrint;
 	std::auto_ptr<Hadronisation>	hadronisation;
+	std::auto_ptr<JetClustering>	jetClustering;
+
 	const double			extCrossSect;
 	const double			extFilterEff;
 };
@@ -55,6 +59,10 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
 	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0))
 {
+	if (params.exists("jetClustering"))
+		jetClustering.reset(new JetClustering(
+			params.getUntrackedParameter<edm::ParameterSet>("jetClustering")));
+
 	produces<edm::HepMCProduct>();
 	produces<edm::GenInfoProduct, edm::InRun>();
 }
@@ -112,6 +120,19 @@ bool LHESource::produce(edm::Event &event)
 	if (eventsToPrint) {
 		eventsToPrint--;
 		hadronLevel->print();
+	}
+
+	if (jetClustering.get()) {
+		std::vector<HepMC::FourVector> jets =
+				jetClustering->run(hadronLevel.get());
+
+		std::cout << "===== " << jets.size() << " jets:" << std::endl;
+		for(std::vector<HepMC::FourVector>::const_iterator iter = jets.begin();
+		    iter != jets.end(); ++iter)
+			std::cout << "pt = " << iter->perp()
+			          << ", eta = " << iter->eta()
+			          << ", phi = " << iter->phi()
+			          << std::endl;
 	}
 
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);

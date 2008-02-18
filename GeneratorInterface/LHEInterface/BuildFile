@@ -7,6 +7,7 @@
 <use name=boost>
 <use name=xerces-c>
 <use name=hepmc>
+<use name=fastjet>
 <export>
 	<use name=FWCore/ParameterSet>
 	<use name=FWCore/PluginManager>
