@@ -8,8 +8,7 @@ namespace function {
   const double oneOverSqrtTwoPi = 1/sqrt(2*M_PI);
   
   struct Gaussian {
-    enum { arguments = 1 };
-    enum { parameters = 2 };
+    static const unsigned int arguments = 1;
     Gaussian(const Parameter & m, const Parameter & s) : 
       mean(m.ptr()), sigma(s.ptr()) { }
     Gaussian(boost::shared_ptr<double> m, boost::shared_ptr<double> s): 

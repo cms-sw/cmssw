@@ -6,8 +6,7 @@
 namespace function {
 
   struct Exponential {
-    enum { arguments = 1 };
-    enum { parameters = 1 };
+    static const unsigned int arguments = 1;
     Exponential(boost::shared_ptr<double> l) : lambda(l) { }
     Exponential(double l) : lambda(new double(l)) { }
     double operator()(double x) const { return exp((*lambda)*x); }

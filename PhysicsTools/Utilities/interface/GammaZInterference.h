@@ -6,8 +6,7 @@
 namespace function {
 
   struct GammaZInterference {
-    enum { arguments = 1 };
-    enum { parameters = 2 };
+    static const unsigned int arguments = 1;
     GammaZInterference(const Parameter& m, const Parameter& g): 
       mass(m.ptr()), width(g.ptr()) { }
     GammaZInterference(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 

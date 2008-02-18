@@ -6,8 +6,7 @@ namespace function {
   template<typename A, typename B>
   class Convolution {
    public:
-    enum { arguments = 1 };
-    enum { parameters = A::parameters + B::parameters };
+    static const unsigned int arguments = 1;
     // min and max are defined in the domain of b
     Convolution(const A& a, const B& b, 
 		double min, double max, size_t steps) : 

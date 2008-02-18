@@ -4,8 +4,7 @@
 namespace function {
 
   struct GammaPropagator {
-    enum { arguments = 1 };
-    enum { parameters = 0 };
+    static const unsigned int arguments = 1;
     GammaPropagator() {}
     double operator()(double mass) const { 
       if(mass <= 0) return 0;
