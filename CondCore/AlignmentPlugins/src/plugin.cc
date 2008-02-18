@@ -10,6 +10,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
@@ -23,6 +24,7 @@
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
 
+REGISTER_PLUGIN(GlobalPositionRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
