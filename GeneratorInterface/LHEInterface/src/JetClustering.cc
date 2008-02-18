@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <cmath>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
@@ -113,10 +112,21 @@ std::vector<HepMC::FourVector> JetClustering::run(
 	return (*jetAlgo)(input);
 }
 
+static bool isIgnored(int pdgId, const std::vector<unsigned int> &ignore)
+{
+	pdgId = pdgId > 0 ? pdgId : -pdgId;
+	std::vector<unsigned int>::const_iterator pos =
+			std::lower_bound(ignore.begin(),
+			                 ignore.end(), (unsigned int)pdgId);
+	return pos != ignore.end() && *pos == (unsigned int)pdgId;
+}
+
 static bool isParton(int pdgId)
 {
 	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-	return (pdgId > 0 && pdgId < 10) || pdgId == 21;
+	return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
+	       pdgId == 9 || pdgId == 21;
+	// tops are not considered "regular" partons
 }
 
 static bool isHadron(int pdgId)
@@ -125,6 +135,13 @@ static bool isHadron(int pdgId)
 	return (pdgId % 10) > 0 &&
 	       ((pdgId > 100 && pdgId < 900) ||
 	        (pdgId > 1000 && pdgId < 9000));
+}
+
+static bool isResonance(int pdgId)
+{
+	// gauge bosons and tops
+	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
+	return (pdgId > 21 && pdgId <= 29) || pdgId == 6 || pdgId == 8;
 }
 
 static unsigned int partIdx(const std::vector<const HepMC::GenParticle*> &p,
@@ -217,7 +234,8 @@ static bool fromSignalVertex(std::vector<bool> &invalid,
 static bool fromResonance(std::vector<bool> &invalid,
                           const std::vector<const HepMC::GenParticle*> &p,
                           const HepMC::GenVertex *v,
-                          const HepMC::GenVertex *sig)
+                          const HepMC::GenVertex *sig,
+                          const std::vector<unsigned int> &ignore)
 {
 	if (v == sig)
 		return true;
@@ -226,16 +244,21 @@ static bool fromResonance(std::vector<bool> &invalid,
 					v->particles_in_const_begin();
 	    iter != v->particles_in_const_end(); ++iter) {
 		unsigned int idx = partIdx(p, *iter);
+		int id = (*iter)->pdg_id();
 
-		if (invalid[idx] || isParton((*iter)->pdg_id())
-		                 || isHadron((*iter)->pdg_id()))
+		if (invalid[idx] ||
+		    (isResonance(id) && (*iter)->status() == 3))
+			return true;
+
+		if (!isIgnored(id, ignore) &&
+		    (isParton(id) || isHadron(id)))
 			return false;
 
 		const HepMC::GenVertex *v = (*iter)->production_vertex();
 		if (!v)
 			continue;
 
-		if (fromSignalVertex(invalid, p, v, sig))
+		if (fromResonance(invalid, p, v, sig, ignore))
 			return true;
 	}
 
@@ -290,17 +313,16 @@ std::vector<HepMC::FourVector> JetClustering::cluster(
 		if (excludeResonances &&
 		    fromResonance(invalid, particles,
 		                  particle->production_vertex(),
-		                  event->signal_process_vertex())) {
+		                  event->signal_process_vertex(),
+		                  ignoreParticleIDs)) {
 			invalid[i] = true;
 			continue;
 		}
 
-		unsigned int id = std::abs(particle->pdg_id());
-		std::vector<unsigned int>::const_iterator pos =
-			std::lower_bound(ignoreParticleIDs.begin(),
-			                 ignoreParticleIDs.end(), id);
-		if (pos == ignoreParticleIDs.end() || *pos != id)
-			result.push_back(particle->momentum());
+		if (isIgnored(particle->pdg_id(), ignoreParticleIDs))
+			continue;
+
+		result.push_back(particle->momentum());
 	}
 
 	return result;
