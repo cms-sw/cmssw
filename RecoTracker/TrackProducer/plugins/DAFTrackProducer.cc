@@ -22,8 +22,7 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<std::string>( "src" ));
-  setProducer( iConfig.getParameter<std::string>( "producer" ));
+  setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
@@ -66,14 +65,15 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   AlgoProductCollection algoResults;
   try{  
     edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
+    reco::BeamSpot bs;
+    getFromEvt(theEvent,theTCCollection,bs);
     measurementCollectorHandle->updateEvent(theEvent); 	
     //
     //run the algorithm  
     //
     LogDebug("DAFTrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),algoResults);
+			     theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
   } catch (cms::Exception &e){ edm::LogInfo("DAFTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event

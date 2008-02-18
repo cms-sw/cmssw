@@ -16,7 +16,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
@@ -29,6 +30,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         const TransientTrackingRecHitBuilder* builder,
 						 const MultiRecHitCollector* measurementCollector,
 						 const SiTrackerMultiRecHitUpdator* updator,
+						 const reco::BeamSpot& bs,
 					         AlgoProductCollection& algoResults) const
 {
   edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
@@ -94,7 +96,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	std::vector<Trajectory> filtered;
 	filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered);				
 	ndof = calculateNdof(filtered);	
-        bool ok = buildTrack(filtered, algoResults, ndof);
+        bool ok = buildTrack(filtered, algoResults, ndof, bs);
         if(ok) cont++;
 
       }
@@ -144,7 +146,8 @@ void DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHit::Rec
 
 bool DAFTrackProducerAlgorithm::buildTrack (const std::vector<Trajectory>& vtraj,
 					    AlgoProductCollection& algoResults,
-					    float ndof) const{
+					    float ndof,
+					    const reco::BeamSpot& bs) const{
   //variable declarations
   reco::Track * theTrack;
   Trajectory * theTraj; 
@@ -169,21 +172,19 @@ bool DAFTrackProducerAlgorithm::buildTrack (const std::vector<Trajectory>& vtraj
     }
     
     
-    TSCPBuilderNoMaterial tscpBuilder;
-
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );//FIXME Correct?
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
     
-    GlobalPoint v = tscp.theState().position();
+    GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    GlobalVector p = tscp.theState().momentum();
+    GlobalVector p = tscbl.trackStateAtPCA().momentum();
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
     LogDebug("TrackProducer") <<v<<p<<std::endl;
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       ndof, //in the DAF the ndof is not-integer
-			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
+			       pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());
 
 
     LogDebug("TrackProducer") <<"track done\n";

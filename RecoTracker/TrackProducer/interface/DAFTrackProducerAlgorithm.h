@@ -5,6 +5,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class MagneticField;
 class TrackingGeometry;
@@ -39,13 +40,15 @@ class DAFTrackProducerAlgorithm {
 			const TransientTrackingRecHitBuilder*,
 			const MultiRecHitCollector* measurementTracker,
 			const SiTrackerMultiRecHitUpdator*,
+			const reco::BeamSpot&,
 			AlgoProductCollection &) const;
 
  private:
   /// Construct Tracks to be put in the event
   bool buildTrack(const std::vector<Trajectory>&,
 		  AlgoProductCollection& algoResults,
-		  float) const;
+		  float,
+		  const reco::BeamSpot&) const;
 
   /// accomplishes the fitting-smoothing step for each annealing value
   void fit(const std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>& hits,
