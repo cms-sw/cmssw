@@ -42,9 +42,10 @@
   <class name="SiPixelPerformanceSummary::DetSummary"/>
   <class name="std::vector<SiPixelPerformanceSummary::DetSummary>"/>
 
+  <class name="SiPixelCalibConfiguration"/>
+
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
 
-  <class name="SiPixelCalibConfiguration"/>
 </lcgdict>   
