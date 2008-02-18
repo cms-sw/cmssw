@@ -15,6 +15,7 @@
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
@@ -56,15 +57,8 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   sparameterfile =outpath+sparameterfile;
 
   // parameters for APE
-  apeparam=cfg.getParameter<string>("apeParam");
-  vector<double> vapesp = cfg.getParameter< vector<double> >("apeSPar");
-  apesp[0]=vapesp[0];
-  apesp[1]=vapesp[1];
-  apesp[2]=vapesp[2];
-  vector<double> vaperp = cfg.getParameter< vector<double> >("apeRPar");
-  aperp[0]=vaperp[0];
-  aperp[1]=vaperp[1];
-  aperp[2]=vaperp[2];
+  theApplyAPE = cfg.getParameter<bool>("applyAPE");
+  theAPEParameterSet = cfg.getParameter<std::vector<edm::ParameterSet> >("apeParam");
 
   theMaxAllowedHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theMinimumNumberOfHits = cfg.getParameter<int>("minimumNumberOfHits");
@@ -114,6 +108,37 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 
   // get alignables
   theAlignables = theAlignmentParameterStore->alignables();
+
+  // get APE parameters
+  AlignmentParameterSelector selector(tracker, muon);
+  for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
+     selector.clear();
+     selector.addSelections(setiter->getParameter<edm::ParameterSet>("Selector"));
+     std::vector<Alignable*> alignables = selector.selectedAlignables();
+
+     std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
+     std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
+     std::string function = setiter->getParameter<std::string>("function");
+
+     if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
+	throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
+
+     for (std::vector<double>::const_iterator i = apeRPar.begin();  i != apeRPar.end();  ++i) {
+	apeSPar.push_back(*i);
+     }
+
+     if (function == std::string("linear")) {
+	apeSPar.push_back(0.);
+     }
+     else if (function == std::string("exponential")) {
+	apeSPar.push_back(1.);
+     }
+     else {
+	throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
+     }
+
+     theAPEParameters[alignables] = apeSPar;
+  }
 }
 
 // Call at new loop -------------------------------------------------------------
@@ -530,7 +555,7 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
 
 
   // Check if user wants to override APE
-  if ( apeparam == "none" )
+  if ( !theApplyAPE )
     {
       edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] No APE applied";
       return; // NO APE APPLIED
@@ -539,20 +564,38 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
   
   edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] Apply APE!";
 
-  // Printout for debug
-  for ( int i=0; i<21; ++i ) {
-    double apelinstest=calcAPE(apesp,i,"linear");
-    double apeexpstest=calcAPE(apesp,i,"exponential");
-    double apelinrtest=calcAPE(aperp,i,"linear");
-    double apeexprtest=calcAPE(aperp,i,"exponential");
-    printf("APE: iter slin sexp rlin rexp: %5d %12.5f %12.5f %12.5f %12.5f\n",
-      i,apelinstest,apeexpstest,apelinrtest,apeexprtest);
-  }
+  double apeSPar[3], apeRPar[3];
+  for (std::map<std::vector<Alignable*>, std::vector<double> >::const_iterator alipars = theAPEParameters.begin();
+       alipars != theAPEParameters.end();
+       ++alipars) {
+     std::vector<Alignable*> alignables = alipars->first;
+     std::vector<double> pars = alipars->second;
 
-  // set APE
-  double apeshift=calcAPE(apesp,theIteration,apeparam);
-  double aperot  =calcAPE(aperp,theIteration,apeparam);
-  theAlignmentParameterStore->setAlignmentPositionError( theAlignables, apeshift, aperot );
+     apeSPar[0] = pars[0];
+     apeSPar[1] = pars[1];
+     apeSPar[2] = pars[2];
+     apeRPar[0] = pars[3];
+     apeRPar[1] = pars[4];
+     apeRPar[2] = pars[5];
+
+     double function = pars[6];
+
+     // Printout for debug
+     printf("APE: %d alignables\n", alignables.size());
+     for ( int i=0; i<21; ++i ) {
+	double apelinstest=calcAPE(apeSPar,i,0.);
+	double apeexpstest=calcAPE(apeSPar,i,1.);
+	double apelinrtest=calcAPE(apeRPar,i,0.);
+	double apeexprtest=calcAPE(apeRPar,i,1.);
+	printf("APE: iter slin sexp rlin rexp: %5d %12.5f %12.5f %12.5f %12.5f\n",
+	       i,apelinstest,apeexpstest,apelinrtest,apeexprtest);
+     }
+
+     // set APE
+     double apeshift=calcAPE(apeSPar,theIteration,function);
+     double aperot  =calcAPE(apeRPar,theIteration,function);
+     theAlignmentParameterStore->setAlignmentPositionError( alignables, apeshift, aperot );
+  }
 
 }
 
@@ -560,21 +603,17 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
 // calculate APE
 
 double 
-HIPAlignmentAlgorithm::calcAPE(double* par, int iter,std::string param)
+HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
 {
   double diter=(double)iter;
 
-  if (param == "linear") {
+  if (function == 0.) {
     return max(0.,par[0]+((par[1]-par[0])/par[2])*diter);
   }
-  else if (param == "exponential") {
+  else if (function == 1.) {
     return max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
   }
-  else { 
-     edm::LogInfo("Alignment") << "Unknown param: " << param;
-    return 0.;
-  }
-
+  else assert(false);  // should have been caught in the constructor
 }
 
 

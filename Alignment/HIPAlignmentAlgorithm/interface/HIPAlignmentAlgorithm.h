@@ -3,6 +3,7 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class AlignableNavigator;
 class TFile;
@@ -40,7 +41,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   int readIterationFile(std::string filename);
   void writeIterationFile(std::string filename,int iter);
   void setAlignmentPositionError(void);
-  double calcAPE(double* par, int iter,std::string param);
+  double calcAPE(double* par, int iter, double function);
   void bookRoot(void);
   void fillRoot(void);
   bool calcParameters(Alignable* ali);
@@ -64,8 +65,9 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::string outfile,outfile2,outpath,suvarfile,sparameterfile;
   std::string struefile,smisalignedfile,salignedfile,siterationfile;
   // alignment position error parameters
-  double apesp[3],aperp[3];
-  std::string apeparam;
+  bool theApplyAPE;
+  std::vector<edm::ParameterSet> theAPEParameterSet;
+  std::map<std::vector<Alignable*>, std::vector<double> > theAPEParameters;
   // max allowed pull (residual / uncertainty) on a hit used in alignment
   double theMaxAllowedHitPull;
   // min number of hits on alignable to calc parameters
