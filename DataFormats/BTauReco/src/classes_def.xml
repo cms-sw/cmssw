@@ -40,13 +40,7 @@
   <class name="reco::CombinedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CombinedTauTagInfoCollection>"/>
 
-  <class name="reco::PFCombinedTauTagInfo"/>
-  <class name="reco::PFCombinedTauTagInfoCollection"/>
-  <class name="reco::PFCombinedTauTagInfoRef"/>
-  <class name="reco::PFCombinedTauTagInfoRefProd"/>
-  <class name="reco::PFCombinedTauTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::PFCombinedTauTagInfoCollection>"/>
-
+  
   <class name="reco::EMIsolatedTauTagInfo"/>
   <class name="reco::EMIsolatedTauTagInfoCollection"/>
   <class name="reco::EMIsolatedTauTagInfoRef"/>
@@ -61,13 +55,7 @@
   <class name="reco::IsolatedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
-  <class name="reco::PFIsolatedTauTagInfo"/>
-  <class name="reco::PFIsolatedTauTagInfoCollection"/>
-  <class name="reco::PFIsolatedTauTagInfoRef"/>
-  <class name="reco::PFIsolatedTauTagInfoRefProd"/>
-  <class name="reco::PFIsolatedTauTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::PFIsolatedTauTagInfoCollection>"/>
-
+  
   <class name="reco::SoftLeptonProperties"/>
   <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
   <class name="reco::SoftLeptonTagInfo::LeptonMap"/>
@@ -175,12 +163,8 @@
   <class name="edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::PFCombinedTauTagInfoRef>" />
-  <class name="edm::reftobase::RefHolder<reco::PFCombinedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::PFIsolatedTauTagInfoRef>" />
-  <class name="edm::reftobase::RefHolder<reco::PFIsolatedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>" />
