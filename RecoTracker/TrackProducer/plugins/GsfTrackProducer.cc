@@ -19,7 +19,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<std::string>( "src" ));
+  setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 //   string a = alias_;
 //   a.erase(a.size()-6,a.size());
@@ -60,14 +60,15 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
     AlgoProductCollection algoResults;
   try{  
     edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
+    reco::BeamSpot bs;
+    getFromEvt(theEvent,theTCCollection,bs);
     
     //
     //run the algorithm  
     //
     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw; }
   //
   //put everything in the event
