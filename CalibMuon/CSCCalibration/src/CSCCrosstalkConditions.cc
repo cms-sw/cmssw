@@ -2,10 +2,36 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 
-void CSCCrosstalkConditions::prefillCrosstalk(){
+CSCcrosstalk * CSCCrosstalkConditions::prefillCrosstalk() {
+
+  float mean,min,minchi;
+  int seed;long int M;
+  int old_chamber_id,old_strip,new_chamber_id,new_strip;
+  float old_slope_right,old_slope_left,old_intercept_right;
+  float old_intercept_left, old_chi2_right,old_chi2_left;
+  std::vector<int> old_cham_id;
+  std::vector<int> old_strips;
+  std::vector<float> old_slope_r;
+  std::vector<float> old_intercept_r;
+  std::vector<float> old_chi2_r;
+  std::vector<float> old_slope_l;
+  std::vector<float> old_intercept_l;
+  std::vector<float> old_chi2_l;
+  float new_slope_right,new_slope_left,new_intercept_right;
+  float new_intercept_left, new_chi2_right,new_chi2_left;
+  std::vector<int> new_cham_id;
+  std::vector<int> new_strips;
+  std::vector<float> new_slope_r;
+  std::vector<float> new_intercept_r;
+  std::vector<float> new_chi2_r;
+  std::vector<float> new_slope_l;
+  std::vector<float> new_intercept_l;
+  std::vector<float> new_chi2_l;
   
+
+
   const CSCDetId& detId = CSCDetId();
-  cncrosstalk = new CSCcrosstalk();
+  CSCcrosstalk * cncrosstalk = new CSCcrosstalk();
   
   int max_istrip,id_layer,max_ring,max_cham;
   unsigned int old_nrlines=0;
@@ -217,6 +243,9 @@ void CSCCrosstalkConditions::prefillCrosstalk(){
       }
     } 
   }
+
+  return  cncrosstalk;
+
 }
 
 
@@ -224,7 +253,7 @@ CSCCrosstalkConditions::CSCCrosstalkConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillCrosstalk();
+  cnCrosstalk = prefillCrosstalk();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCCrosstalkConditions::produceCrosstalk);
   findingRecord<CSCcrosstalkRcd>();
