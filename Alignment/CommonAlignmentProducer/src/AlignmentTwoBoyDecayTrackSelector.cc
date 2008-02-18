@@ -8,7 +8,6 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 #include <DataFormats/METReco/interface/CaloMET.h>
 #include <DataFormats/METReco/interface/CaloMETFwd.h>
-
 #include <DataFormats/Math/interface/deltaPhi.h>
 
 //STL
@@ -26,13 +25,13 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   theCfg(cfg),
   theMissingETSource("met")
 {
- LogInfo("Alignment")   << "> applying two body decay Trackfilter ...";
+ LogDebug("Alignment")   << "> applying two body decay Trackfilter ...";
   theMassrangeSwitch = cfg.getParameter<bool>( "applyMassrangeFilter" );
   if (theMassrangeSwitch){
     theMinMass = cfg.getParameter<double>( "minXMass" );
     theMaxMass = cfg.getParameter<double>( "maxXMass" );
     theDaughterMass = cfg.getParameter<double>( "daughterMass" );
-    LogInfo("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
+    LogDebug("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
 			 << "\n>  Mass of daughter Particle :   " << theDaughterMass;
 
   }else{
@@ -46,7 +45,7 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
     theUnsignedSwitch = cfg.getParameter<bool>( "useUnsignedCharge" );
     if(theUnsignedSwitch) 
       theCharge=abs(theCharge);
-    LogInfo("Alignment") << ">  Desired Charge, unsigned: "<<theCharge<<" , "<<theUnsignedSwitch;
+    LogDebug("Alignment") << ">  Desired Charge, unsigned: "<<theCharge<<" , "<<theUnsignedSwitch;
   }else{
     theCharge =0;
     theUnsignedSwitch = true;
@@ -54,12 +53,12 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   theMissingETSwitch = cfg.getParameter<bool>( "applyMissingETFilter" );
   if(theMissingETSwitch){
     theMissingETSource = cfg.getParameter<InputTag>( "missingETSource" );
-    LogInfo("Alignment") << ">  missing Et Source: "<< theMissingETSource;
+    LogDebug("Alignment") << ">  missing Et Source: "<< theMissingETSource;
   }
   theAcoplanarityFilterSwitch = cfg.getParameter<bool>( "applyAcoplanarityFilter" );
   if(theAcoplanarityFilterSwitch){
     theAcoplanarDistance = cfg.getParameter<double>( "acoplanarDistance" );
-    LogInfo("Alignment") << ">  Acoplanar Distance: "<<theAcoplanarDistance;
+    LogDebug("Alignment") << ">  Acoplanar Distance: "<<theAcoplanarDistance;
   }
   
 }
@@ -97,8 +96,8 @@ AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Even
     else
       result = checkAcoplanarity(result);
   }
-  LogInfo("Alignment") << ">  TwoBodyDecay tracks all,kept: " << tracks.size() << "," << result.size();
-  //  LogInfo("AlignmentTwoBodyDecayTrackSelector")<<">  o kept:";
+  LogDebug("Alignment") << ">  TwoBodyDecay tracks all,kept: " << tracks.size() << "," << result.size();
+  //  LogDebug("AlignmentTwoBodyDecayTrackSelector")<<">  o kept:";
   //printTracks(result);
   return result;
 
@@ -119,7 +118,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
     TLorentzVector mother = track0+track1;
     if(mother.M() > theMinMass && mother.M() < theMaxMass)
       result = cands;
-    LogInfo("Alignment") <<">  mass of mother: "<<mother.M()<<"GeV";
+    LogDebug("Alignment") <<">  mass of mother: "<<mother.M()<<"GeV";
   }
   return result;
 }
@@ -144,7 +143,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
       TLorentzVector motherSystem = track + met;
       if(motherSystem.M() > theMinMass && motherSystem.M() < theMaxMass)
 	result = cands;
-      LogInfo("Alignment") <<">  mass of motherSystem: "<<motherSystem.M()<<"GeV";
+      LogDebug("Alignment") <<">  mass of motherSystem: "<<motherSystem.M()<<"GeV";
      }else  
       LogError("Alignment")<<"@SUB=AlignmentTwoBodyDecayTrackSelector::checkMETMass"
 			   <<">  could not optain missingET Collection!";
@@ -175,7 +174,7 @@ AlignmentTwoBodyDecayTrackSelector::checkAcoplanarity(const Tracks& cands) const
   Tracks result;  result.clear();  
   //TODO return the biggest set of acoplanar tracks or two tracks with smallest distance?
   if(cands.size() == 2){
-    LogInfo("Alignment") <<">  Acoplanarity: "<<fabs(fabs(deltaPhi(cands.at(0)->phi(),cands.at(1)->phi()))-M_PI)<<endl;
+    LogDebug("Alignment") <<">  Acoplanarity: "<<fabs(fabs(deltaPhi(cands.at(0)->phi(),cands.at(1)->phi()))-M_PI)<<endl;
     if(fabs(fabs(deltaPhi(cands.at(0)->phi(),cands.at(1)->phi()))-M_PI)<theAcoplanarDistance) 
       result = cands;
   }  
@@ -191,7 +190,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETAcoplanarity(const Tracks& cands,con
     iEvent.getByLabel(theMissingETSource ,missingET);
     if(missingET.isValid()){     
       //TODO return the biggest set of acoplanar tracks or the one with smallest distance?
-      LogInfo("Alignment") <<">  METAcoplanarity: "<<fabs(fabs(deltaPhi(cands.at(0)->phi(),(*missingET).at(0).phi()))-M_PI)<<endl;
+      LogDebug("Alignment") <<">  METAcoplanarity: "<<fabs(fabs(deltaPhi(cands.at(0)->phi(),(*missingET).at(0).phi()))-M_PI)<<endl;
       if(fabs(fabs(deltaPhi(cands.at(0)->phi(),(*missingET).at(0).phi()))-M_PI)<theAcoplanarDistance)
 	result = cands;
 
@@ -208,13 +207,13 @@ AlignmentTwoBodyDecayTrackSelector::checkMETAcoplanarity(const Tracks& cands,con
 void AlignmentTwoBodyDecayTrackSelector::printTracks(const Tracks& col) const
 {
   int count = 0;
-  LogInfo("Alignment") << ">......................................";
+  LogDebug("Alignment") << ">......................................";
   for(Tracks::const_iterator it = col.begin();it < col.end();++it,++count){
-    LogInfo("Alignment") 
+    LogDebug("Alignment") 
       <<">  Track No. "<< count <<": p = ("<<(*it)->px()<<","<<(*it)->py()<<","<<(*it)->pz()<<")\n"
       <<">                        pT = "<<(*it)->pt()<<" eta = "<<(*it)->eta()<<" charge = "<<(*it)->charge();    
   }
-  LogInfo("Alignment") << ">......................................";
+  LogDebug("Alignment") << ">......................................";
 }
 
 

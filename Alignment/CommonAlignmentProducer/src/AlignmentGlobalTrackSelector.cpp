@@ -36,13 +36,13 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
   theGMFilterSwitch = cfg.getParameter<bool>( "applyGlobalMuonFilter" );
   theJetCountFilterSwitch = cfg.getParameter<bool>( "applyJetCountFilter" );
   if (theIsoFilterSwitch ||  theGMFilterSwitch || theJetCountFilterSwitch)
-    LogInfo("Alignment") << "> applying global Trackfilter ...";
+    LogDebug("Alignment") << "> applying global Trackfilter ...";
  
   if (theGMFilterSwitch){
     theMuonSource = cfg.getParameter<InputTag>( "muonSource" );
     theMaxTrackDeltaR =cfg.getParameter<double>("maxTrackDeltaR");
     theMinIsolatedCount = cfg.getParameter<int>("minIsolatedCount");
-    LogInfo("Alignment") << ">  GlobalMuonFilter : source, maxTrackDeltaR, min. Count       : " << theMuonSource<<" , "<<theMaxTrackDeltaR<<" , "<<theMinIsolatedCount;
+    LogDebug("Alignment") << ">  GlobalMuonFilter : source, maxTrackDeltaR, min. Count       : " << theMuonSource<<" , "<<theMaxTrackDeltaR<<" , "<<theMinIsolatedCount;
   }else{
     theMaxTrackDeltaR = 0;
     theMinIsolatedCount = 0;
@@ -53,7 +53,7 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
     theMaxJetPt = cfg.getParameter<double>( "maxJetPt" );
     theMinJetDeltaR = cfg.getParameter<double>( "minJetDeltaR" );
     theMinGlobalMuonCount = cfg.getParameter<int>( "minGlobalMuonCount" );
-    LogInfo("Alignment") << ">  Isolationtest    : source, maxJetPt, minJetDeltaR, min. Count: " << theJetIsoSource   << " , " << theMaxJetPt<<" ," <<theMinJetDeltaR<<" ," <<theMinGlobalMuonCount;
+    LogDebug("Alignment") << ">  Isolationtest    : source, maxJetPt, minJetDeltaR, min. Count: " << theJetIsoSource   << " , " << theMaxJetPt<<" ," <<theMinJetDeltaR<<" ," <<theMinGlobalMuonCount;
   }else{
     theMaxJetPt = 0;
     theMinJetDeltaR = 0;
@@ -64,7 +64,7 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
     theJetCountSource = cfg.getParameter<InputTag>( "jetCountSource" );
     theMinJetPt = cfg.getParameter<double>( "minJetPt" );
     theMaxJetCount = cfg.getParameter<int>( "maxJetCount" );
-    LogInfo("Alignment") << ">  JetCountFilter   : source, minJetPt, maxJetCount             : " << theJetCountSource   << " , " << theMinJetPt<<" ," <<theMaxJetCount;  
+    LogDebug("Alignment") << ">  JetCountFilter   : source, minJetPt, maxJetCount             : " << theJetCountSource   << " , " << theMinJetPt<<" ," <<theMaxJetCount;  
   }
 
   
@@ -92,8 +92,8 @@ AlignmentGlobalTrackSelector::select(const Tracks& tracks, const edm::Event& iEv
   if(theGMFilterSwitch)  result = findMuons(result,iEvent);
   if(theIsoFilterSwitch)  result = checkIsolation(result,iEvent);
   if(theJetCountFilterSwitch)  result = checkJetCount(result,iEvent);
-  LogInfo("Alignment") << ">  Global: tracks all,kept: " << tracks.size() << "," << result.size();
-//  LogInfo("Alignment")<<">  o kept:";
+  LogDebug("Alignment") << ">  Global: tracks all,kept: " << tracks.size() << "," << result.size();
+//  LogDebug("Alignment")<<">  o kept:";
 //  printTracks(result);
   
   return result;
@@ -116,7 +116,7 @@ AlignmentGlobalTrackSelector::checkIsolation(const Tracks& cands,const edm::Even
       if(isolated)
 	result.push_back(*it);
     }
-    //    LogInfo("Alignment") << "D  Found "<<result.size()<<" isolated of "<< cands.size()<<" Tracks!";   
+    //    LogDebug("Alignment") << "D  Found "<<result.size()<<" isolated of "<< cands.size()<<" Tracks!";   
     
   }else  LogError("Alignment")<<"@SUB=AlignmentGlobalTrackSelector::checkIsolation"
 						 <<">  could not optain jetCollection!";
@@ -140,7 +140,7 @@ AlignmentGlobalTrackSelector::checkJetCount(const Tracks& tracks, const edm::Eve
     }
     if(jetCount <= theMaxJetCount)
       result = tracks;
-    LogInfo("Alignment")<<">  found "<<jetCount<<" Jets";
+    LogDebug("Alignment")<<">  found "<<jetCount<<" Jets";
   }else  LogError("Alignment")<<"@SUB=AlignmentGlobalTrackSelector::checkJetCount"
 			      <<">  could not optain jetCollection!";
   return result;
@@ -162,7 +162,7 @@ AlignmentGlobalTrackSelector::findMuons(const Tracks& tracks, const edm::Event& 
     }
   }else  LogError("Alignment")<<"@SUB=AlignmentGlobalTrackSelector::findMuons"
 						 <<">  could not optain mounCollection!";
-  //  LogInfo("Alignment")<<">  globalMuons";  printTracks(globalMuons);
+  //  LogDebug("Alignment")<<">  globalMuons";  printTracks(globalMuons);
   result = matchTracks(tracks,globalMuons);
   
   if((int)result.size() < theMinGlobalMuonCount) result.clear();
@@ -181,7 +181,7 @@ AlignmentGlobalTrackSelector::matchTracks(const Tracks& src, const Tracks& comp)
       int match = -1;
       double min = theMaxTrackDeltaR;
       for(unsigned int i =0; i < src.size();i++){
-	//	LogInfo("Alignment") << "> Trackmatch dist: "<<deltaR(src.at(i),*itComp);
+	//	LogDebug("Alignment") << "> Trackmatch dist: "<<deltaR(src.at(i),*itComp);
 	if(min > deltaR(*(src.at(i)),*(*itComp))){
 	  min = deltaR(*(src.at(i)),*(*itComp));
 	  match = (int)i;
@@ -197,11 +197,11 @@ AlignmentGlobalTrackSelector::matchTracks(const Tracks& src, const Tracks& comp)
 void AlignmentGlobalTrackSelector::printTracks(const Tracks& col) const
 {
   int count = 0;
-  LogInfo("Alignment") << ">......................................";
+  LogDebug("Alignment") << ">......................................";
   for(Tracks::const_iterator it = col.begin();it < col.end();++it,++count){
-    LogInfo("Alignment") 
+    LogDebug("Alignment") 
       <<">  Track No. "<< count <<": p = ("<<(*it)->px()<<","<<(*it)->py()<<","<<(*it)->pz()<<")\n"
       <<">                        pT = "<<(*it)->pt()<<" eta = "<<(*it)->eta()<<" charge = "<<(*it)->charge();    
   }
-  LogInfo("Alignment") << ">......................................";
+  LogDebug("Alignment") << ">......................................";
 }
