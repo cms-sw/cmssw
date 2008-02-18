@@ -14,7 +14,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.3 2007/12/04 23:39:24 ratnik Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.4 2008/02/18 19:00:32 flucke Exp $
 //
 //
 
@@ -38,7 +38,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
-
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 class FakeAlignmentProducer : public edm::ESProducer {
 public:
@@ -51,7 +51,8 @@ public:
   produceDTAli(const DTAlignmentRcd&) { return std::auto_ptr<Alignments>(new Alignments);}
   std::auto_ptr<Alignments>
   produceCSCAli(const CSCAlignmentRcd&)  { return std::auto_ptr<Alignments>(new Alignments);}
-
+  std::auto_ptr<Alignments>
+  produceGlobals(const GlobalPositionRcd&) {return std::auto_ptr<Alignments>(new Alignments);}
 
   std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
     return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
@@ -76,6 +77,7 @@ FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig)
   setWhatProduced( this, &FakeAlignmentProducer::produceDTAliErr );
   setWhatProduced( this, &FakeAlignmentProducer::produceCSCAli );
   setWhatProduced( this, &FakeAlignmentProducer::produceCSCAliErr );
+  setWhatProduced( this, &FakeAlignmentProducer::produceGlobals );
 
 }
 
