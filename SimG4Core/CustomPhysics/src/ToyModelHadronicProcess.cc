@@ -3,6 +3,7 @@
 #include "G4ParticleTable.hh"
 #include "G4Track.hh"
 #include "G4InelasticInteraction.hh"
+#include "Randomize.hh"
 //Our includes
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
@@ -186,8 +187,8 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 				    << "     4P Targ = " << target4Momentum  / GeV<< std::endl;
 
   //Choosing random direction
-  const G4double phi_p = 2*pi*RandFlat::shoot()-pi ;
-  const G4double theta_p = pi*RandFlat::shoot() ;
+  const G4double phi_p = 2*pi*G4UniformRand()-pi ;
+  const G4double theta_p = pi*G4UniformRand() ;
   const G4ThreeVector randomDirection(sin(theta_p)*cos(phi_p),
 				      sin(theta_p)*sin(phi_p),
 				      cos(theta_p));
@@ -245,7 +246,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     KinCalc.doDecay(cm4Momentum, fourMomenta[0], fourMomenta[1], fourMomenta[2] );
     
     //Rotating the plane to a random orientation, and boosting home
-    HepRotation rotation(randomDirection,RandFlat::shoot()*2*pi);
+    HepRotation rotation(randomDirection,G4UniformRand()*2*pi);
     for (std::vector<G4LorentzVector>::iterator it = fourMomenta.begin();
 	 it!=fourMomenta.end();
 	 it++)

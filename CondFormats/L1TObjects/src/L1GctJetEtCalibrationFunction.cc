@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <iomanip>
-
+#include <assert.h>
 #include <math.h>
 
 //DEFINE STATICS

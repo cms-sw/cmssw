@@ -16,7 +16,8 @@ class Samples;
 #include <vector>
 #include <utility>
 #include <algorithm>
-#include<ostream>
+#include <ostream>
+#include <cassert>
 
 namespace noiseMath {
 

@@ -99,7 +99,7 @@ void popcon::Logger::payloadIDMap()
 	if (m_debug)
 		std::cerr << "PayloadIDMap\n";
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_PAYLOAD_STATE");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("NAME");
 		query->addToOutputList("OBJ_ID");
@@ -124,7 +124,7 @@ void popcon::Logger::lock()
 	if (!m_established)
 		throw popcon::Exception("Logger::lock exception ");
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_LOCK");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_LOCK");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<int>("id");
@@ -156,7 +156,7 @@ void popcon::Logger::updateExecID()
 {
 
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("max(EXEC_ID)");
 		query->setMemoryCacheSize( 100 );
@@ -177,7 +177,7 @@ void popcon::Logger::updatePayloadID()
 	if (m_debug)
 		std::cerr << "Logger::updatePayloadID\n";
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("max(PL_ID)");
 		query->setMemoryCacheSize( 100 );
@@ -202,7 +202,7 @@ void popcon::Logger::newExecution()
 	if (!m_established)
 		throw popcon::Exception("Logger::newExecution log exception ");
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
 		coral::AttributeList rowBuffer;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		dataEditor.rowBuffer( rowBuffer );
@@ -227,7 +227,7 @@ void popcon::Logger::newPayload()
 		return;
 	if (m_debug)
 		std::cerr << "Logger::newPayload\n";
-	coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
+	coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
 	coral::AttributeList rowBuffer;
 	coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 	dataEditor.rowBuffer( rowBuffer );
@@ -251,7 +251,7 @@ void popcon::Logger::finalizeExecution(std::string ok)
 	}
 	updateExecID();
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<coral::TimeStamp>("newEnd");
@@ -276,7 +276,7 @@ void popcon::Logger::finalizePayload(std::string ok)
 		std::cerr << "Logger::finalizePayload\n";
 	updatePayloadID();
 	try{
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<coral::TimeStamp>("newEnd");

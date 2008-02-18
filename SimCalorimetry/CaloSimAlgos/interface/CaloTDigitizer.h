@@ -10,7 +10,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseHitGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-
+#include <cassert>
 
 template<class Traits>
 class CaloTDigitizer

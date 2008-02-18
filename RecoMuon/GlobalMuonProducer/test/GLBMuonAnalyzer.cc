@@ -1,8 +1,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: $
- *  $Revision:  $
+ *  $Date: 2007/03/09 21:50:32 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -129,7 +129,7 @@ void GLBMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	//LogTrace("Analyzer")<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
-	simPt=(*simTrack).momentum().perp();
+	simPt=(*simTrack).momentum().pt();
 	//LogTrace("Analyzer")<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
 	numberOfSimTracks++;
       }    
@@ -163,8 +163,8 @@ void GLBMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     //LogTrace("Analyzer")<<"RecHits:"<<endl;
     for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
-      double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
+//      double r = geomDet->surface().position().perp();
+//      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
       //LogTrace("Analyzer")<<"r: "<< r <<" z: "<<z <<endl;
     }
     

@@ -36,7 +36,8 @@ OptoScanAnalysis::OptoScanAnalysis( const uint32_t& key )
     liftOff_(4,sistrip::invalid_), 
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
-    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    baseSlope_(4,sistrip::invalid_),
+    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -51,7 +52,8 @@ OptoScanAnalysis::OptoScanAnalysis()
     liftOff_(4,sistrip::invalid_), 
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
-    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    baseSlope_(4,sistrip::invalid_),
+    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -65,8 +67,9 @@ void OptoScanAnalysis::reset() {
   liftOff_    = VFloat(4,sistrip::invalid_); 
   threshold_  = VFloat(4,sistrip::invalid_); 
   tickHeight_ = VFloat(4,sistrip::invalid_);
+  baseSlope_  = VFloat(4,sistrip::invalid_);
   histos_.clear();
-  histos_.resize( 4, std::vector<Histo>( 2, Histo(0,"") ) );
+  histos_.resize( 4, std::vector<Histo>( 3, Histo(0,"") ) );
 }
   
 // ----------------------------------------------------------------------------
@@ -74,7 +77,7 @@ void OptoScanAnalysis::reset() {
 void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check number of histograms
-  if ( histos.size() != 8 ) {
+  if ( histos.size() != 12 ) {
     addErrorCode(sistrip::numberOfHistos_);
   }
   
@@ -108,10 +111,21 @@ void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) {
       ss << title.extraInfo().substr( title.extraInfo().find(sistrip::digital_) + sistrip::digital_.size(), 1 );
       ss >> std::dec >> digital;
     }
-
-    if ( gain <= 3 && digital <= 1 ) {
-      histos_[gain][digital].first = *ihis; 
-      histos_[gain][digital].second = (*ihis)->GetName();
+    bool baseline_rms = false;
+    if ( title.extraInfo().find(sistrip::baselineRms_) != std::string::npos ) {
+      baseline_rms = true;
+    }
+    
+    if ( gain <= 3 ) { 
+      if ( digital <= 1 ) {
+	histos_[gain][digital].first = *ihis; 
+	histos_[gain][digital].second = (*ihis)->GetName();
+      } else if ( baseline_rms ) {
+	histos_[gain][2].first = *ihis; 
+	histos_[gain][2].second = (*ihis)->GetName();
+      } else {
+	addErrorCode(sistrip::unexpectedExtraInfo_);
+      }
     } else {
       addErrorCode(sistrip::unexpectedExtraInfo_);
     }
@@ -136,6 +150,7 @@ void OptoScanAnalysis::analyse() {
     // Select histos appropriate for gain setting
     TH1* base_his = histos_[igain][0].first; 
     TH1* peak_his = histos_[igain][1].first;
+    TH1* noise_his = histos_[igain][2].first;
 
     if ( !base_his ) {
       addErrorCode(sistrip::nullPtr_);
@@ -143,6 +158,11 @@ void OptoScanAnalysis::analyse() {
     }
     
     if ( !peak_his ) {
+      addErrorCode(sistrip::nullPtr_);
+      return;
+    }
+
+    if ( !noise_his ) {
       addErrorCode(sistrip::nullPtr_);
       return;
     }
@@ -155,6 +175,12 @@ void OptoScanAnalysis::analyse() {
     
     TProfile* peak_histo = dynamic_cast<TProfile*>(peak_his);
     if ( !peak_histo ) {
+      addErrorCode(sistrip::nullPtr_);
+      return;
+    }
+    
+    TProfile* noise_histo = dynamic_cast<TProfile*>(noise_his);
+    if ( !noise_histo ) {
       addErrorCode(sistrip::nullPtr_);
       return;
     }
@@ -175,10 +201,15 @@ void OptoScanAnalysis::analyse() {
     std::vector<float> base_contents(0);
     std::vector<float> base_errors(0);
     std::vector<float> base_entries(0);
+    std::vector<float> noise_contents(0);
+    std::vector<float> noise_errors(0);
+    std::vector<float> noise_entries(0);
     float peak_max = -1.*sistrip::invalid_;
     float peak_min =  1.*sistrip::invalid_;
     float base_max = -1.*sistrip::invalid_;
     float base_min =  1.*sistrip::invalid_;
+    float noise_max = -1.*sistrip::invalid_;
+    float noise_min =  1.*sistrip::invalid_;
 
     // Transfer histogram contents/errors/stats to containers
     for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
@@ -201,6 +232,15 @@ void OptoScanAnalysis::analyse() {
 	if ( base_contents[ibin] < base_min && ibin ) { base_min = base_contents[ibin]; }
       }
 
+      // Noise histogram
+      noise_contents.push_back( noise_histo->GetBinContent(ibin+1) );
+      noise_errors.push_back( noise_histo->GetBinError(ibin+1) );
+      noise_entries.push_back( noise_histo->GetBinEntries(ibin+1) );
+      if ( noise_entries[ibin] ) { 
+	if ( noise_contents[ibin] > noise_max ) { noise_max = noise_contents[ibin]; }
+	if ( noise_contents[ibin] < noise_min && ibin ) { noise_min = noise_contents[ibin]; }
+      }
+
     }
     
     // Find "zero light" level and error
@@ -221,13 +261,12 @@ void OptoScanAnalysis::analyse() {
 	 zero_light_error <= sistrip::maximum_ ) { 
       zero_light_thres = zero_light_level + 5. * zero_light_error;
     } else {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unable to find zero_light level."
-	<< " No entries in histogram.";
-      return;
+      std::stringstream ss;
+      ss << sistrip::invalidZeroLightLevel_ << "ForGain" << igain;
+      addErrorCode( ss.str() );
+      continue;
     }
-
+    
     // Find range of base histogram
     float base_range = base_max - base_min;
 
@@ -307,6 +346,9 @@ void OptoScanAnalysis::analyse() {
     
     // ---------- Set all parameters ----------
 
+    // Slope of baseline
+    baseSlope_[igain] = low_params.b_;
+
     // Check "lift off" value and set bias setting accordingly
     if ( lift_off <= sistrip::maximum_ ) {
       bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
@@ -318,12 +360,14 @@ void OptoScanAnalysis::analyse() {
 
     // Set "zero light" level and link noise
     zeroLight_[igain] = zero_light_level;
-    linkNoise_[igain] = zero_light_error; 
-    //@@ WRONG!!!! should be error at threshold or "minimum noise" level from new histo?!?
-    //uint32_t bin_number = static_cast<uint32_t>( threshold_[igain] / 0.45 ); 
-    //if ( bin_number < base_errors.size() ) { linkNoise_[igain] = base_errors[bin_number]; }
-    //else { linkNoise_[igain] == sistrip::invalid_; }
-
+    uint16_t bin_number = static_cast<uint16_t>( threshold_[igain] / 0.45 ); 
+    if ( bin_number < noise_contents.size() ) { linkNoise_[igain] = noise_contents[bin_number]; }
+    else { 
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected bin number for noise histogram.";
+    }
+    
     // Calculate tick mark height
     if ( low_params.b_ <= sistrip::maximum_ &&
 	 width <= sistrip::maximum_ ) {
@@ -341,13 +385,13 @@ void OptoScanAnalysis::analyse() {
   const float target_gain = 0.8;
   float diff_in_gain = sistrip::invalid_;
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
-
+    
     // Check for sensible gain value
     if ( measGain_[igain] > sistrip::maximum_ ) { continue; }
-
+    
     // Find optimum gain setting
     if ( fabs( measGain_[igain] - target_gain ) < diff_in_gain ) {
-      gain_ = static_cast<uint16_t>( igain );
+      gain_ = igain;
       diff_in_gain = fabs( measGain_[igain] - target_gain );
     }
     
@@ -355,7 +399,7 @@ void OptoScanAnalysis::analyse() {
 
   // Check optimum gain setting
   if ( gain_ > sistrip::maximum_ ) { gain_ = defaultGainSetting_; }
-
+  
 }
 
 // ----------------------------------------------------------------------------
@@ -370,13 +414,23 @@ CommissioningAnalysis::Histo OptoScanAnalysis::histo( const uint16_t& gain,
 // 
 bool OptoScanAnalysis::isValid() const {
   return ( gain_ < sistrip::maximum_ &&
-	   bias_[gain_] < sistrip::maximum_ );
+	   bias_[gain_] < sistrip::maximum_ &&
+	   getErrorCodes().empty() );
 }
 
 // ----------------------------------------------------------------------------
 // 
 void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) { 
+
   if ( gain >= 4 ) { gain = gain_; }
+
+  if ( gain > bias_.size() ) {
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected gain setting: " << gain_;
+    return;
+  }
+
   header( ss );
   if ( gain_ > sistrip::maximum_ ) { 
     ss << " Warning: invalid gain setting!" << std::endl;
@@ -391,6 +445,7 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
      << " Baseline 'lift off' [mA] : " << liftOff_[gain] << std::endl
      << " Laser threshold     [mA] : " << threshold_[gain] << std::endl
      << " Tick mark height   [ADC] : " << tickHeight_[gain] << std::endl
+     << " Baseline slope [ADC/I2C] : " << baseSlope_[gain] << std::endl
      << std::boolalpha 
      << " isValid                  : " << isValid()  << std::endl
      << std::noboolalpha
@@ -404,6 +459,7 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
     for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
   }
   ss << std::endl;
+
 }
 
 

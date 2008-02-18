@@ -1,6 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
  
 #include "FWCore/Utilities/interface/Exception.h"  
+#include <cassert>
 
 //DEFINE STATICS
 const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctHardwareJetFinder::N_COLS;

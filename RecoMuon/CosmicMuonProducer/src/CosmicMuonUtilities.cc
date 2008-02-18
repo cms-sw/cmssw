@@ -1,8 +1,8 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: 2007/03/08 20:25:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/27 20:48:30 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -95,7 +95,8 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
   GlobalVector StepVector = dest - start;
   GlobalVector UnitStepVector = StepVector.unit();
   GlobalPoint GP =start;
-  TrajectoryStateOnSurface result(tsos);
+  TrajectoryStateOnSurface currTsos(tsos);
+  TrajectoryStateOnSurface predTsos;
   float totalDis = StepVector.mag();
   LogDebug(metname)<<"stepPropagate: propagate from: "<<start<<" to "<<dest;
   LogDebug(metname)<<"stepPropagate: their distance: "<<totalDis;
@@ -110,17 +111,16 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
         LogDebug(metname)<<"stepPropagate: a middle plane: "<<pos<<endl;
         Surface::RotationType rot( Basic3DV , float(0));
         PlaneBuilder::ReturnType SteppingPlane = PlaneBuilder().plane(pos,rot);
-        TrajectoryStateOnSurface predTsos = prop.propagate( result, *SteppingPlane);
+        TrajectoryStateOnSurface predTsos = prop.propagate(currTsos, *SteppingPlane);
         if (predTsos.isValid()) {
-            result=predTsos;
-            LogDebug(metname)<<"result "<< result.globalPosition()<<endl;
-          }
+            currTsos=predTsos;
+            LogDebug(metname)<<"stepPropagate: middle state "<< currTsos.globalPosition()<<endl;
+        }
  }
 
-  TrajectoryStateOnSurface predTsos = prop.propagate( result, hit->det()->surface());
-  if (predTsos.isValid()) result=predTsos;
+  predTsos = prop.propagate(currTsos, hit->det()->surface());
 
-  return result;
+  return predTsos;
 }
 
 

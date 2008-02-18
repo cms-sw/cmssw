@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2007/03/20 13:07:22 $
+ * $Date: 2007/09/06 14:18:46 $
  * \author C. Rovelli
  *
 */
@@ -122,46 +122,46 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
-  try {
-    e.getByLabel(HepMCLabel, MCEvt);  
-  } catch ( cms::Exception &e ) { skipMC = true; }
+  // try {
+  e.getByLabel(HepMCLabel, MCEvt);  
+  // } catch ( cms::Exception &e ) { skipMC = true; }
 
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
-  //try { 
-  //  e.getByType(crossingFrame);
-  //} catch ( cms::Exception &e ) { return; }
 
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
+  // try {
+  e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  // } catch ( cms::Exception& ex ) {
+  // edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
+  //}
+
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  try {
-    e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
-  }
-  try {
-    e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
-  }
+  // try {
+  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  //} catch ( cms::Exception& ex ) {
+  // edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  //}
 
   Handle<EBRecHitCollection> EcalRecHitEB;
+  //  try {
+  e.getByLabel( EBrechitCollection_, EcalRecHitEB);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
+  //}
+
   Handle<EERecHitCollection> EcalRecHitEE;
+  //try {
+  e.getByLabel( EErechitCollection_, EcalRecHitEE);
+  //} catch ( cms::Exception& ex ) {
+  // edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+  //}
+
   Handle<ESRecHitCollection> EcalRecHitES;
-  try {
-    e.getByLabel( EBrechitCollection_, EcalRecHitEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
-  }
-  try {
-    e.getByLabel( EErechitCollection_, EcalRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
-  }
-  try {
-    e.getByLabel( ESrechitCollection_, EcalRecHitES);
-   } catch ( cms::Exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
-   }
+  //  try {
+  e.getByLabel( ESrechitCollection_, EcalRecHitES);
+  //} catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+  //}
 
 
   // ---------------------- 

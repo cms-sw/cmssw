@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/20 07:19:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/09 14:39:17 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -52,10 +52,6 @@ DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTEfficiencyTask");
 
-  // set the name of the outputfile
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName","DTEfficiencyTask.root");
-  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
-
   parameters = pset;
 }
 
@@ -96,9 +92,7 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 void DTEfficiencyTask::endJob(){
  if(debug)
     cout<<"[DTEfficiencyTask] endjob called!"<<endl;
-  // Write the histos
-  if ( writeHisto ) 
-    theDbe->save(theRootFileName);
+
   theDbe->rmdir("DT/DTEfficiencyTask");
 }
   

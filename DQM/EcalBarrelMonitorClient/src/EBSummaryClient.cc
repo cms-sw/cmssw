@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/09/08 15:01:15 $
- * $Revision: 1.56 $
+ * $Date: 2007/11/15 14:32:17 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -19,8 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -51,9 +49,6 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -65,7 +60,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   meIntegrity_      = 0;
@@ -80,20 +75,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meGlobalSummary_  = 0;
 
   meCosmic_         = 0;
-
-  qtg01_ = 0;
-  qtg02_ = 0;
-  qtg03_ = 0;
-  qtg04_ = 0;
-  qtg04PN_ = 0;
-  qtg05_ = 0;
-  qtg05PN_ = 0;
-  qtg06_ = 0;
-  qtg06PN_ = 0;
-
-  qtg07_ = 0;
-
-  qtg99_  = 0;
+  meTiming_         = 0;
+  meTriggerTowerEt_        = 0;
+  meTriggerTowerEmulError_ = 0;
 
 }
 
@@ -110,73 +94,6 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    sprintf(qtname, "EBIT summary quality test");
-    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBOT summary quality test");
-    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPOT summary quality test");
-    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBLT summary quality test L1");
-    qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBLT PN summary quality test L1");
-    qtg04PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPT summary quality test");
-    qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPT PN summary quality test");
-    qtg05PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTPT summary quality test");
-    qtg06_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTPT PN summary quality test");
-    qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBCT summary quality test");
-    qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EB global summary quality test");
-    qtg99_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    qtg01_->setMeanRange(1., 6.);
-//    qtg02_->setMeanRange(1., 6.);
-    qtg03_->setMeanRange(1., 6.);
-    qtg04_->setMeanRange(1., 6.);
-    qtg04PN_->setMeanRange(1., 6.);
-    qtg05_->setMeanRange(1., 6.);
-    qtg05PN_->setMeanRange(1., 6.);
-    qtg06_->setMeanRange(1., 6.);
-    qtg06PN_->setMeanRange(1., 6.);
-
-//    qtg07_->setMeanRange(1., 6.);
-
-    qtg99_->setMeanRange(1., 6.);
-
-    qtg01_->setErrorProb(1.00);
-//    qtg02_->setErrorProb(1.00);
-    qtg03_->setErrorProb(1.00);
-    qtg04_->setErrorProb(1.00);
-    qtg04PN_->setErrorProb(1.00);
-    qtg05_->setErrorProb(1.00);
-    qtg05PN_->setErrorProb(1.00);
-    qtg06_->setErrorProb(1.00);
-    qtg06PN_->setErrorProb(1.00);
-
-//    qtg07_->setErrorProb(1.00);
-
-    qtg99_->setErrorProb(1.00);
-
-  }
 
 }
 
@@ -207,7 +124,7 @@ void EBSummaryClient::endRun(void) {
   if ( verbose_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
-  
+
   this->cleanup();
 
 }
@@ -221,46 +138,86 @@ void EBSummaryClient::setup(void) {
   if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
   meIntegrity_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_->setAxisTitle("jphi", 1);
+  meIntegrity_->setAxisTitle("jeta", 2);
 
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT occupancy summary");
   meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meOccupancy_->setAxisTitle("jphi", 1);
+  meOccupancy_->setAxisTitle("jeta", 2);
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
   mePedestalOnline_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_->setAxisTitle("jphi", 1);
+  mePedestalOnline_->setAxisTitle("jeta", 2);
 
   if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
   meLaserL1_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meLaserL1_->setAxisTitle("jphi", 1);
+  meLaserL1_->setAxisTitle("jeta", 2);
 
   if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
   meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_->setAxisTitle("jphi", 1);
+  meLaserL1PN_->setAxisTitle("jeta", 2);
 
   if( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
   mePedestal_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestal_->setAxisTitle("jphi", 1);
+  mePedestal_->setAxisTitle("jeta", 2);
 
   if( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
   mePedestalPN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_->setAxisTitle("jphi", 1);
+  mePedestalPN_->setAxisTitle("jeta", 2);
 
   if( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
   meTestPulse_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulse_->setAxisTitle("jphi", 1);
+  meTestPulse_->setAxisTitle("jeta", 2);
 
   if( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
   meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_->setAxisTitle("jphi", 1);
+  meTestPulsePN_->setAxisTitle("jeta", 2);
 
   if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
-  sprintf(histo, "EBCT cosmic quality summary");
+  sprintf(histo, "EBCT cosmic summary");
   meCosmic_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meCosmic_->setAxisTitle("jphi", 1);
+  meCosmic_->setAxisTitle("jeta", 2);
+
+  if( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
+  sprintf(histo, "EBTMT timing quality summary");
+  meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTiming_->setAxisTitle("jphi", 1);
+  meTiming_->setAxisTitle("jeta", 2);
+
+  if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
+  sprintf(histo, "EBTTT Et trigger tower summary");
+  meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEt_->setAxisTitle("jphi", 1);
+  meTriggerTowerEt_->setAxisTitle("jeta", 2);
+
+  if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
+  sprintf(histo, "EBTTT emulator error quality summary");
+  meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEmulError_->setAxisTitle("jphi", 1);
+  meTriggerTowerEmulError_->setAxisTitle("jeta", 2);
 
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
   meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meGlobalSummary_->setAxisTitle("jphi", 1);
+  meGlobalSummary_->setAxisTitle("jeta", 2);
 
 }
 
@@ -298,6 +255,15 @@ void EBSummaryClient::cleanup(void) {
   if ( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
   meCosmic_ = 0;
 
+  if ( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
+  meTiming_ = 0;
+
+  if ( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
+  meTriggerTowerEt_ = 0;
+
+  if ( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
+  meTriggerTowerEmulError_ = 0;
+
   if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
@@ -307,20 +273,6 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
   bool status = true;
 
-//  UtilsClient::printBadChannels(qtg01_);
-//  UtilsClient::printBadChannels(qtg02_);
-//  UtilsClient::printBadChannels(qtg03_);
-//  UtilsClient::printBadChannels(qtg04_);
-//  UtilsClient::printBadChannels(qtg04PN_);
-//  UtilsClient::printBadChannels(qtg05_);
-//  UtilsClient::printBadChannels(qtg05PN_);
-//  UtilsClient::printBadChannels(qtg06_);
-//  UtilsClient::printBadChannels(qtg06PN_);
-
-//  UtilsClient::printBadChannels(qtg07_);
-
-//  UtilsClient::printBadChannels(qtg99_);
-
   return status;
 
 }
@@ -328,33 +280,6 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 void EBSummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBSummaryClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBIT integrity quality summary");
-  if ( qtg01_ ) dbe_->useQTest(histo, qtg01_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBOT occupancy summary");
-//  if ( qtg02_ ) dbe_->useQTest(histo, qtg02_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12");
-  if ( qtg03_ ) dbe_->useQTest(histo, qtg03_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
-  if ( qtg04_ ) dbe_->useQTest(histo, qtg04_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1");
-  if ( qtg04PN_ ) dbe_->useQTest(histo, qtg04PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
-  if ( qtg05_ ) dbe_->useQTest(histo, qtg05_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
-  if ( qtg05PN_ ) dbe_->useQTest(histo, qtg05PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT test pulse quality summary");
-  if ( qtg06_ ) dbe_->useQTest(histo, qtg06_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary");
-  if ( qtg06PN_ ) dbe_->useQTest(histo, qtg06PN_->getName());
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBCT cosmic quality summary");
-  if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
-  if ( qtg99_ ) dbe_->useQTest(histo, qtg99_->getName());
 
 }
 
@@ -384,29 +309,41 @@ void EBSummaryClient::analyze(void){
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
       meIntegrity_->setBinContent( ipx, iex, -1. );
-      meOccupancy_->setBinContent( ipx, iex, -1. );
+      meOccupancy_->setBinContent( ipx, iex, 0. );
       mePedestalOnline_->setBinContent( ipx, iex, -1. );
 
       meLaserL1_->setBinContent( ipx, iex, -1. );
       mePedestal_->setBinContent( ipx, iex, -1. );
       meTestPulse_->setBinContent( ipx, iex, -1. );
 
-      meCosmic_->setBinContent( ipx, iex, -1. );
+      meCosmic_->setBinContent( ipx, iex, 0. );
+      meTiming_->setBinContent( ipx, iex, -1. );
 
       meGlobalSummary_->setBinContent( ipx, iex, -1. );
 
     }
   }
 
-  for (int iex = 1; iex <= 20; iex++ ) {
-    for(int ipx = 1; ipx <= 90; ipx++ ) {
-      
+  for ( int iex = 1; iex <= 20; iex++ ) {
+    for ( int ipx = 1; ipx <= 90; ipx++ ) {
+
       meLaserL1PN_->setBinContent( ipx, iex, -1. );
       mePedestalPN_->setBinContent( ipx, iex, -1. );
       meTestPulsePN_->setBinContent( ipx, iex, -1. );
 
     }
   }
+
+  for ( int iex = 1; iex <= 34; iex++ ) {
+    for ( int ipx = 1; ipx <= 72; ipx++ ) {
+      meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
+      meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. );
+    }
+  }
+
+  meIntegrity_->setEntries( 0 );
+  meOccupancy_->setEntries( 0 );
+  mePedestalOnline_->setEntries( 0 );
 
   meLaserL1_->setEntries( 0 );
   meLaserL1PN_->setEntries( 0 );
@@ -416,6 +353,11 @@ void EBSummaryClient::analyze(void){
   meTestPulsePN_->setEntries( 0 );
 
   meCosmic_->setEntries( 0 );
+  meTiming_->setEntries( 0 );
+  meTriggerTowerEt_->setEntries( 0 );
+  meTriggerTowerEmulError_->setEntries( 0 );
+
+  meGlobalSummary_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -427,6 +369,8 @@ void EBSummaryClient::analyze(void){
     EBTestPulseClient* ebtpc = dynamic_cast<EBTestPulseClient*>(clients_[i]);
 
     EBCosmicClient* ebcc = dynamic_cast<EBCosmicClient*>(clients_[i]);
+    EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
+    EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
@@ -442,7 +386,7 @@ void EBSummaryClient::analyze(void){
     priority.insert( make_pair(3,2) );
     priority.insert( make_pair(4,3) );
     priority.insert( make_pair(5,1) );
-	  
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -462,7 +406,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -483,7 +427,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -508,7 +452,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -533,7 +477,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -548,108 +492,111 @@ void EBSummaryClient::analyze(void){
 
           }
 
-	  if ( ebpc ) {
-	    
-	    me_01 = ebpc->meg01_[ism-1];
-	    me_02 = ebpc->meg02_[ism-1];
-	    me_03 = ebpc->meg03_[ism-1];
-	    
-	    if (me_01 && me_02 && me_03 ) {
-	      float xval=2;
-	      float val_01=me_01->getBinContent(ie,ip);
-	      float val_02=me_02->getBinContent(ie,ip);
-	      float val_03=me_03->getBinContent(ie,ip);
+          if ( ebpc ) {
 
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==3)  xval = brightColor;
-	      else if(maskedVal.size()==3)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
+            me_01 = ebpc->meg01_[ism-1];
+            me_02 = ebpc->meg02_[ism-1];
+            me_03 = ebpc->meg03_[ism-1];
+
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ie,ip);
+              float val_02=me_02->getBinContent(ie,ip);
+              float val_03=me_03->getBinContent(ie,ip);
+
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3)  xval = brightColor;
+              else if(maskedVal.size()==3)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
 
               int iex;
               int ipx;
-	      
+
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-	      if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-		mePedestal_->setBinContent( ipx, iex, xval );
-	      }
-	    }
 
+              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                mePedestal_->setBinContent( ipx, iex, xval );
+              }
 
-	  }
+            }
 
-	  if ( ebtpc ) {
-	    
-	    me_01 = ebtpc->meg01_[ism-1];
-	    me_02 = ebtpc->meg02_[ism-1];
-	    me_03 = ebtpc->meg03_[ism-1];
-	    
-	    if (me_01 && me_02 && me_03 ) {
-	      float xval=2;
-	      float val_01=me_01->getBinContent(ie,ip);
-	      float val_02=me_02->getBinContent(ie,ip);
-	      float val_03=me_03->getBinContent(ie,ip);
+          }
 
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+          if ( ebtpc ) {
 
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==3) xval = brightColor;
-	      else if(maskedVal.size()==3) xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
+            me_01 = ebtpc->meg01_[ism-1];
+            me_02 = ebtpc->meg02_[ism-1];
+            me_03 = ebtpc->meg03_[ism-1];
+
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ie,ip);
+              float val_02=me_02->getBinContent(ie,ip);
+              float val_03=me_03->getBinContent(ie,ip);
+
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+
               int iex;
               int ipx;
-	      
+
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-	      if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-		meTestPulse_->setBinContent( ipx, iex, xval );
-	      }
-	    }
-	    
-	  }
+
+              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                meTestPulse_->setBinContent( ipx, iex, xval );
+              }
+
+            }
+
+          }
 
           if ( ebcc ) {
 
@@ -676,143 +623,235 @@ void EBSummaryClient::analyze(void){
 
           }
 
+          if ( ebtmc ) {
+
+            me = ebtmc->meg01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              int iex;
+              int ipx;
+
+              if ( ism <= 18 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
+              } else {
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
+              }
+
+              meTiming_->setBinContent( ipx, iex, xval );
+
+            }
+
+          }
+
+        }
+      }
+
+      for (int ie = 1; ie <= 17; ie++ ) {
+        for (int ip = 1; ip <= 4; ip++ ) {
+
+          if ( ebtttc ) {
+
+            me = ebtttc->me_h01_[ism-1];
+
+            bool hasRealDigi = false;
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              if(xval!=0) hasRealDigi = true;
+
+              int iex;
+              int ipx;
+
+              if ( ism <= 18 ) {
+                iex = 1+(17-ie);
+                ipx = ip+4*(ism-1);
+              } else {
+                iex = 17+ie;
+                ipx = 1+(4-ip)+4*(ism-19);
+              }
+
+              meTriggerTowerEt_->setBinContent( ipx, iex, xval );
+
+            }
+
+            h2 = ebtttc->l01_[ism-1];
+
+            if ( h2 ) {
+
+              float xval = -1;
+              float emulErrorVal = h2->GetBinContent( ie, ip );
+
+              if(!hasRealDigi) xval = 2;
+              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
+              else xval = 1;
+
+              int iex;
+              int ipx;
+
+              if ( ism <= 18 ) {
+                iex = 1+(17-ie);
+                ipx = ip+4*(ism-1);
+              } else {
+                iex = 17+ie;
+                ipx = 1+(4-ip)+4*(ism-19);
+              }
+
+              meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+
+            }
+
+          }
         }
       }
 
       // PN's summaries
       for( int i = 1; i <= 10; i++ ) {
-	for( int j = 1; j <= 5; j++ ) { 
+        for( int j = 1; j <= 5; j++ ) {
 
-	  if ( ebpc ) {
+          if ( ebpc ) {
 
-	    me_04 = ebpc->meg04_[ism-1];
-	    me_05 = ebpc->meg05_[ism-1];
-	    
-	    if( me_04 && me_05) {
-	      float xval=2;
-	      float val_04=me_04->getBinContent(i,1);
-	      float val_05=me_05->getBinContent(i,1);
-	      
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-	      (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==2)  xval = brightColor;
-	      else if(maskedVal.size()==2)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-		mePedestalPN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
+            me_04 = ebpc->meg04_[ism-1];
+            me_05 = ebpc->meg05_[ism-1];
 
-	  }
+            if( me_04 && me_05) {
+              float xval=2;
+              float val_04=me_04->getBinContent(i,1);
+              float val_05=me_05->getBinContent(i,1);
 
-	  if ( ebtpc ) {
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
+              (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
-	    me_04 = ebtpc->meg04_[ism-1];
-	    me_05 = ebtpc->meg05_[ism-1];
-	    
-	    if( me_04 && me_05) {
-	      float xval=2;
-	      float val_04=me_04->getBinContent(i,1);
-	      float val_05=me_05->getBinContent(i,1);
-	      
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-	      (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==2)  xval = brightColor;
-	      else if(maskedVal.size()==2)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-		meTestPulsePN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
-	  }
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
 
-	  if ( eblc ) {
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==2)  xval = brightColor;
+              else if(maskedVal.size()==2)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
 
-	    me = eblc->meg09_[ism-1];
+              int iex;
+              int ipx;
 
-	    if( me ) {
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
 
-	      float xval = me->getBinContent(i,1);
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-		meLaserL1PN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
+              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
+                mePedestalPN_->setBinContent( ipx, iex, xval );
+              }
 
-	  }
-	  
-	}
+            }
+
+          }
+
+          if ( ebtpc ) {
+
+            me_04 = ebtpc->meg04_[ism-1];
+            me_05 = ebtpc->meg05_[ism-1];
+
+            if( me_04 && me_05) {
+              float xval=2;
+              float val_04=me_04->getBinContent(i,1);
+              float val_05=me_05->getBinContent(i,1);
+
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
+              (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==2)  xval = brightColor;
+              else if(maskedVal.size()==2)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+
+              int iex;
+              int ipx;
+
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
+
+              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
+                meTestPulsePN_->setBinContent( ipx, iex, xval );
+              }
+
+            }
+          }
+
+          if ( eblc ) {
+
+            me = eblc->meg09_[ism-1];
+
+            if( me ) {
+
+              float xval = me->getBinContent(i,1);
+
+              int iex;
+              int ipx;
+
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
+
+              if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                meLaserL1PN_->setBinContent( ipx, iex, xval );
+              }
+
+            }
+
+          }
+
+        }
       }
-    }
 
-  }
+    } // loop on SM
+
+  } // loop on clients
 
   // The global-summary
   // right now a summary of Integrity and PO
@@ -821,19 +860,27 @@ void EBSummaryClient::analyze(void){
 
       if(meIntegrity_ && mePedestalOnline_) {
 
-	float xval = 2;
-	float val_in = meIntegrity_->getBinContent(ipx,iex);
-	float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-	
-	// turn each dark color to bright green
-	if(val_in>2) val_in=1;
-	if(val_po>2) val_po=1;
+        float xval = -1;
+        float val_in = meIntegrity_->getBinContent(ipx,iex);
+        float val_po = mePedestalOnline_->getBinContent(ipx,iex);
 
-	if(val_in==0) xval=0;
-	else if(val_in==2) xval=2;
-	else xval=val_po;
+        // turn each dark color (masked channel) to bright green
+        if(val_in>2) val_in=1;
+        if(val_po>2) val_po=1;
 
-	meGlobalSummary_->setBinContent( ipx, iex, xval );
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
+        else if(val_po==0) xval=0;
+        else if(val_in==2) xval=2;
+        else if(val_po==2) xval=2;
+        else xval=1;
+
+        meGlobalSummary_->setBinContent( ipx, iex, xval );
 
       }
 
@@ -902,12 +949,24 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMarkerSize(4);
   labelGridPN.SetMinimum(-18.01);
 
+  TH2C labelGridTT("labelGridTT","label grid for SM", 18, 0., 72., 2, -17., 17.);
+  for ( short sm=0; sm<36; sm++ ) {
+    int x = 1 + sm%18;
+    int y = 1 + sm/18;
+    labelGridTT.SetBinContent(x, y, Numbers::iEB(sm+1));
+  }
+  labelGridTT.SetMarkerSize(2);
+  labelGridTT.SetMinimum(-18.01);
+
   string imgNameMapI, imgNameMapO;
   string imgNameMapPO;
   string imgNameMapLL1, imgNameMapLL1_PN;
   string imgNameMapP, imgNameMapP_PN;
   string imgNameMapTP, imgNameMapTP_PN;
   string imgNameMapC;
+  string imgNameMapTM;
+  string imgNameMapTTEt;
+  string imgNameMapTTEmulError;
   string imgName, meName;
   string imgNameMapGS;
 
@@ -999,7 +1058,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1248,7 +1307,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meCosmic_ );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1273,6 +1332,111 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetZaxis()->SetLabelSize(0.03);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTM = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTiming_ );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTM = meName + ".png";
+    imgName = htmlDir + imgNameMapTM;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTTEmulError = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_ );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEmulError = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEmulError;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGridTT.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTTEt = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_ );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEt = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEt;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
+    labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
@@ -1416,6 +1580,36 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
+  if ( imgNameMapTM.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTM << "\" usemap=\"#Timing\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
+  if ( imgNameMapTTEmulError.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
+  if ( imgNameMapTTEt.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEt << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
   delete cMap;
   delete cMapPN;
 
@@ -1429,6 +1623,9 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   if ( imgNameMapTP.size() != 0 ) this->writeMap( htmlFile, "TestPulse" );
 
   if ( imgNameMapC.size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
+  if ( imgNameMapTM.size() != 0 ) this->writeMap( htmlFile, "Timing" );
+  if ( imgNameMapTTEt.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
+  if ( imgNameMapTTEmulError.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -1452,6 +1649,8 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   refhtml["TestPulse"] = "EBTestPulseClient.html";
 
   refhtml["Cosmic"] = "EBCosmicClient.html";
+  refhtml["Timing"] = "EBTimingClient.html";
+  refhtml["TriggerTower"] = "EBTriggerTowerClient.html";
 
   const int A0 =  85;
   const int A1 = 759;

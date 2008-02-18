@@ -4,7 +4,7 @@
 
 CSCDMBHeader::CSCDMBHeader() 
 {
-  bzero(this, 16);
+  bzero(this, sizeInWords()*2);
   ddu_code_1 = ddu_code_2 = ddu_code_3 = ddu_code_4 = 0xA;
   newddu_code_1 = newddu_code_2 = newddu_code_3 = newddu_code_4 = 0x9;
 }

@@ -154,7 +154,6 @@ std::string make_name(Dl_info const& info, void* where,
   return oss.str();
 }
 
-
 void writeProfileData(int fd, const std::string& prefix)
 {
   std::string output_tree(prefix+"_paths");
@@ -177,6 +176,8 @@ void writeProfileData(int fd, const std::string& prefix)
   VoidVec v;
   int len=0;
   int total=0;
+  int total_failed=0;
+  int total_missing=0;
   //  int failure_count=0;
   Sym last_none_entry;
   Sym last_good_entry;
@@ -214,10 +215,12 @@ void writeProfileData(int fd, const std::string& prefix)
 
 	      entry = &last_good_entry;
 	  } else { // dladdr has failed
-	      std::cerr << "sample " << total
+	      /*
+                std::cerr << "sample " << total
 		   << ": dladdr failed for address: " << *c
 		   << std::endl;
-
+	      */
+              ++total_failed;
 	      std::ostringstream oss;
 	      oss << "lookup_failure_" << addr;
 	      last_none_entry.name_    = oss.str();
@@ -287,8 +290,11 @@ void writeProfileData(int fd, const std::string& prefix)
 	  Viter::iterator sym_iter = upper_bound(vsyms.begin(),vsyms.end(),
 						 *cop_beg,idComp);
 	  if(sym_iter==vsyms.begin()) {
+              ++total_missing;
+              /*
 	      std::cerr << "found a missing sym entry for address " << *cop_beg
 		   << std::endl;
+              */
 	  } else {
 	      --sym_iter;
 	      //cout << " symiter " << *(*sym_iter) << std::endl;
@@ -341,7 +347,18 @@ void writeProfileData(int fd, const std::string& prefix)
   sost << "total_samples " << total << "\n"
        << "total_functions " << setsize << "\n"
        << "total_paths " << pathsize << "\n"
-       << "total_edges " << edgesize << std::endl;
+       << "total_edges " << edgesize << std::endl
+       << "total_failed_lookups " << total_failed << std::endl
+       << "total_missing_sym_entries " << total_missing << std::endl;
 
 }
+
+extern "C" {
+  void writeProfileDataC(int fd, const std::string& prefix)
+  {
+    writeProfileData(fd,prefix);
+  }
+}
+
+
 

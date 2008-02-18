@@ -1,9 +1,6 @@
 <library file="*.cc" name=EventFilterPlaybackPlugins>
   <flags EDM_PLUGIN=1>
   <use name=EventFilter/Playback>
-  <use name=DataFormats/FEDRawData>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>
 </library>
 

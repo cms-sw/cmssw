@@ -85,7 +85,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.0"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="0.0"/>
+<Parameter name="upar" value="1.0"/>
 
 <!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
 
@@ -161,7 +161,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.0"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="0.0"/>
+<Parameter name="upar" value="1.0"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -271,7 +271,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="-1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -393,7 +393,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="-1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -511,7 +511,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="-1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -629,7 +629,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -745,7 +745,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -860,7 +860,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="-1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -990,7 +990,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="-1.75"/>
+<Parameter name="upar" value="1.71"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 

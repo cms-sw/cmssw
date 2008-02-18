@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.21 2007/06/19 10:17:32 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.22 2007/06/19 17:52:55 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -201,7 +201,8 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
           const GenParticle * mother = * motherIt;
 	  size_t m = barcodes.find( mother->barcode() )->second;
           candVector[ m ]->addDaughter( CandidateRef( ref, d ) );  
-        }
+	  candVector[ d ]->addMother( CandidateRef( ref, m ) );
+	}
       }
     }
   }

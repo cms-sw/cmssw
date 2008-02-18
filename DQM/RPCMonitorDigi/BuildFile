@@ -1,39 +1,44 @@
 <flags EDM_PLUGIN=1>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/StandAloneTrackFinder>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/RPCRecHit>
 <use name=DQMServices/CoreROOT>
 <use name=DQMServices/Daemon>
 <use name=DQMServices/NodeROOT>
 <use name=EventFilter/RPCRawToDigi>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
 <use name=RecoMuon/DetLayers>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
-<use name=root>
+<use name=TrackingTools/PatternTools>
 <use name=boost>
-
-
+<use name=CLHEP>
+<use name=root>
 <export>
   <lib name=DQMRPCMonitorDigi>
-<use name=DataFormats/RPCDigi>
-<use name=DataFormats/RPCRecHit>
-<use name=DQMServices/CoreROOT>
-<use name=DQMServices/Daemon>
-<use name=DQMServices/NodeROOT>
-<use name=EventFilter/RPCRawToDigi>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-<use name=Geometry/RPCGeometry>
-<use name=RecoMuon/DetLayers>
-<use name=TrackingTools/TrajectoryParametrization>
-<use name=TrackingTools/TrajectoryState>
-<use name=root>
-<use name=boost>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/RPCDigi>
+   <use name=DataFormats/RPCRecHit>
+   <use name=DQMServices/CoreROOT>
+   <use name=DQMServices/Daemon>
+   <use name=DQMServices/NodeROOT>
+   <use name=EventFilter/RPCRawToDigi>
+   <use name=FWCore/MessageLogger>
+   <use name=FWCore/ServiceRegistry>
+   <use name=Geometry/RPCGeometry>
+   <use name=RecoMuon/DetLayers>
+   <use name=TrackingTools/TrajectoryParametrization>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackingTools/PatternTools>
+   <use name=root>
+   <use name=boost>
 </export>
 

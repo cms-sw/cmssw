@@ -42,7 +42,8 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
     edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
     edm::Handle<reco::TrackCollection> tkCollection;
     event.getByLabel(TkTag,tkCollection);
-
+    edm::LogInfo("TrackInfoAnalyzerExample")<<"track info collection size "<<TItkassociatorCollection->size();
+    edm::LogInfo("TrackInfoAnalyzerExample")<<"track collection size "<<tkCollection->size();
 
     // loop on the tracks
     for (unsigned int track=0;track<tkCollection->size();++track){

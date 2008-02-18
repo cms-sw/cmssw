@@ -4,6 +4,7 @@
  <use name=Framework/SealKernel>
  <use name=FWCore/MessageLogger>
  <use name=SimG4Core/Physics>
+ <use name=SimG4Core/PhysicsLists>
  <lib name=SimG4CoreCustomPhysics>
 </export>
  
@@ -11,6 +12,7 @@
 <use name=Framework/SealKernel>
 <use name=FWCore/MessageLogger>
 <use name=SimG4Core/Physics>
+<use name=SimG4Core/PhysicsLists>
 <use name=geant4>
 <use name=clhep>
 <use name=boost>

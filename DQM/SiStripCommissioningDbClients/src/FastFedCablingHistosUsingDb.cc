@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.1 2007/06/19 12:31:11 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.5 2007/11/28 19:24:42 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -64,13 +64,10 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
   }
 
   // Retrieve descriptions for DCU id and DetId 
-  SiStripConfigDb::DeviceDescriptions dcus; 
-  db_->getDeviceDescriptions( dcus, DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids;
-  detids = db_->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptions dcus = db_->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdMap detids = db_->getDcuDetIdMap(); 
   
   // Update FED connection descriptions
-  db_->resetFedConnections();
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns), dcus, detids );
   if ( !test_ ) { 
@@ -81,7 +78,7 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << conns.size() 
-      << " FedChannelConnectionDescriptions!";
+      << " ConnectionDescriptions!";
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -89,14 +86,13 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with enabled/disabled channels
-  db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   if ( !test_ ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(false); 
+    db_->uploadFedDescriptions(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size()
@@ -115,16 +111,14 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 					  const SiStripConfigDb::DeviceDescriptions& dcus, 
 					  const SiStripConfigDb::DcuDetIdMap& detids ) {
 
-  // Check no connections already exist in database
+  // Clear any connections retrieved from database
   if ( !conns.empty() ) {
     edm::LogWarning(mlDqmClient_)
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Found existing FED channel connections!"
-      << " No upload to DB will be performed!";
-    test_ = true; // Inhibit DB upload
+      << " Clearing existing FED channel connections!";
     conns.clear();
   }
-    
+  
   // Counter for unconnected channels
   uint16_t unconnected = 0;
 
@@ -152,28 +146,47 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 	    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
 	
 	    // Create connection object and set member data 
+#ifdef USING_NEW_DATABASE_MODEL	
+	    ConnectionDescription* conn = new ConnectionDescription();
+	    conn->setFedId( ianal->second->fedKey().fedId() );
+	    conn->setFedChannel( ianal->second->fedKey().fedChannel() );
+	    conn->setFecHardwareId( "" ); //@@
+	    conn->setCrateSlot( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
+	    conn->setFecSlot( addr.fecSlot_ );
+	    conn->setRingSlot( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
+	    conn->setCcuAddress( addr.ccuAddr_ );
+	    conn->setI2cChannel( addr.ccuChan_ );
+	    conn->setApvAddress( SiStripFecKey::i2cAddr(ianal->second->lldCh(),true) );
+	    conn->setDcuHardId( dcu->getDcuHardId() );
+	    //@@ conn->setDetId( sistrip::invalid32_ );
+	    //@@ conn->setApvPairs( sistrip::invalid_ );
+	    //@@ conn->setFiberLength( sistrip::invalid_ );
+#else
 	    FedChannelConnectionDescription* conn = new FedChannelConnectionDescription(); 
 	    conn->setFedId( ianal->second->fedKey().fedId() );
 	    conn->setFedChannel( ianal->second->fedKey().fedChannel() );
-	    conn->setFecSupervisor("");
-	    conn->setFecSupervisorIP("");
+	    conn->setFecSupervisor( "" );
+	    conn->setFecSupervisorIP( "" );
 	    conn->setFecInstance( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
 	    conn->setSlot( addr.fecSlot_ );
 	    conn->setRing( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
 	    conn->setCcu( addr.ccuAddr_ );
 	    conn->setI2c( addr.ccuChan_ );
-	    conn->setApv( SiStripFecKey::i2cAddr(ianal->second->lldCh(),true)  );
+	    conn->setApv( SiStripFecKey::i2cAddr(ianal->second->lldCh(),true) );
 	    conn->setDcuHardId( dcu->getDcuHardId() );
-	    conn->setDetId( sistrip::invalid_ );
+	    conn->setDetId( sistrip::invalid32_ );
+	    conn->setApvPairs( sistrip::invalid_ ); 
 	    conn->setFiberLength( sistrip::invalid_ );
-	    conn->setApvPairs( sistrip::invalid_ );
-	
+#endif
+
 	    // Retrieve DetId from DB and set member data 
 	    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( conn->getDcuHardId() );
 	    if ( idet != detids.end() ) { 
+#ifndef USING_NEW_DATABASE_MODEL
 	      conn->setDetId( idet->second->getDetId() );
 	      conn->setApvPairs( idet->second->getApvNumber()/2 );
 	      conn->setFiberLength( static_cast<uint32_t>( idet->second->getFibreLength() ) );
+#endif
 	    }
 	
 	    // Add FedChannelConnectionDescription to vector
@@ -187,15 +200,21 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
     if ( !found ) { unconnected++; }
   }
   
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Found " << conns.size() 
-    << " connections and "
-    << unconnected 
-    << " unconnected LLD channels ("
-    << 100 * conns.size() / ( conns.size() + unconnected ) 
-    << "% of total)";
+  // Some debug 
+  std::stringstream sss;
+  sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+      << " Found " << conns.size() 
+      << " connections and "
+      << unconnected 
+      << " unconnected LLD channels";
+  if ( !conns.empty() ) {
+    sss << " ("
+	<< 100 * conns.size() / ( conns.size() + unconnected ) 
+	<< "% of total)";
+  }
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
   
+#ifndef USING_NEW_DATABASE_MODEL	
   // Some debug
   std::stringstream ss; 
   ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -205,6 +224,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
   SiStripConfigDb::FedConnections::iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->toXML(ss); }
   LogTrace(mlTest_) << ss.str();
+#endif
   
 }
 
@@ -267,12 +287,18 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
   }
       
   // Some debug 
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Enabled a total of " << connected 
-    << " FED channels and disabled " << feds.size() * 96 - connected 
-    << " FED channels (" << 100 * connected / ( feds.size() * 96 )
-    << "% of total)";
+  std::stringstream sss;
+  if ( !feds.empty() ) {
+    sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Enabled a total of " << connected 
+	<< " FED channels and disabled " << feds.size() * 96 - connected 
+	<< " FED channels (" << 100 * connected / ( feds.size() * 96 )
+	<< "% of total)";
+  } else {
+    sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Found no FEDs! (and therefore no connected channels)";
+  }
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
   
   // Some debug 
   std::stringstream ss;

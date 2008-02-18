@@ -27,7 +27,7 @@ class SiStripFedCabling {
   SiStripFedCabling( const std::vector<FedChannelConnection>& );
 
   /** Copy constructor. */
-  SiStripFedCabling( const SiStripFedCabling& ); //@@ TO BE IMPLEMENTED
+  SiStripFedCabling( const SiStripFedCabling& ); 
 
   /** Public default constructor. */
   SiStripFedCabling();

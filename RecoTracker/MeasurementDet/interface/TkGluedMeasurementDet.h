@@ -44,6 +44,11 @@ private:
   void checkHitProjection(const TransientTrackingRecHit& hit,
 			  const TrajectoryStateOnSurface& ts, 
 			  const GeomDet& det) const;
+
+  /** \brief Test the strips on one of the two dets with projection */
+  bool testStrips(const TrajectoryStateOnSurface& tsos,
+                  const BoundPlane &gluedPlane,
+                  const TkStripMeasurementDet &mdet) const ;
 };
 
 #endif

@@ -90,19 +90,16 @@ class Selection:
   def Draw(self, *args):
     self.merged.Draw(*args)
       
-  def update3d(self):
-    if viewer3d == None:
-      raise RuntimeError, "muonHIP.viewer3d hasn't been created yet.  Run muonHIP.view3d()."
-
+  def update3d(self, viewer3d=viewer3d):
     if self.granularity == Disk: superset = disks
     elif self.granularity == Chamber: superset = chambers
     elif self.granularity == Layer: superset = layers
-    for c in chambers.values():
-      if self.granularity == Disk:
+    for c in chambers:
+      if granularity == Disk:
         test = (c.Disk in self.histograms)
-      elif self.granularity == Chamber:
+      elif granularity == Chamber:
         test = (c in self.histograms)
-      elif self.granularity == Layer:
+      elif granularity == Layer:
         test = False
         for l in c.Layer:
           if l in self.histograms:
@@ -163,8 +160,7 @@ class Convergence(Selection):
 last = None
 lastprofile = None
 empty = ROOT.TH1F("empty", "No matches.", 10, 0, 1)
-def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=None, tf=None, iteration=1):
-  if tf == None: tf = tfile
+def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=None, tfile=tfile, iteration=1):
   if superset == None:
     if granularity == Disk: superset = disks
     elif granularity == Chamber: superset = chambers
@@ -179,7 +175,7 @@ def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=
   for rawid, c in superset.items():
     if (func.func_code.co_argcount == 1 and func(c)) or (func.func_code.co_argcount == 2):
 
-      th1 = tf.Get("iter%d/%s_%s/%s_%s_%d" % (iteration, hist, dirname, hist, dirname, rawid))
+      th1 = tfile.Get("iter%d/%s_%s/%s_%s_%d" % (iteration, hist, dirname, hist, dirname, rawid))
 
       if (func.func_code.co_argcount == 1) or (func.func_code.co_argcount == 2 and th1 != None and func(c, th1)):
         if th1 != None:
@@ -197,11 +193,10 @@ def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=
     merged = empty
 
   global last
-  last = Selection(func, hist, granularity, superset, tf, iteration, merged, histograms, selected)
+  last = Selection(func, hist, granularity, superset, tfile, iteration, merged, histograms, selected)
   return last
   
-def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tf=None):
-  if tf == None: tf = tfile
+def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tfile=tfile):
   if superset == None:
     if granularity == Disk: superset = disks
     elif granularity == Chamber: superset = chambers
@@ -217,7 +212,7 @@ def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tf
   for rawid, c in superset.items():
     if (func.func_code.co_argcount == 1 and func(c)) or (func.func_code.co_argcount == 2):
 
-      th1 = tf.Get("conv_%s_%s/conv_%s_%s_%d" % (hist, dirname, hist, dirname, rawid))
+      th1 = tfile.Get("conv_%s_%s/conv_%s_%s_%d" % (hist, dirname, hist, dirname, rawid))
 
       if (func.func_code.co_argcount == 1) or (func.func_code.co_argcount == 2 and th1 != None and func(c, th1)):
         if th1 != None:
@@ -231,7 +226,7 @@ def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tf
   merged.SetAxisRange(-1., 1., "Y")
   
   global last
-  last = Convergence(func, hist, granularity, superset, tf, None, merged, histograms, selected)
+  last = Convergence(func, hist, granularity, superset, tfile, None, merged, histograms, selected)
   return last
 
 textToFunc = {"All": (lambda c: True), \

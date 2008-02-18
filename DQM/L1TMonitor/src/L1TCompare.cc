@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.4 2007/07/19 18:05:06 berryhil Exp $
+ * $Id: L1TCompare.cc,v 1.5 2007/09/27 22:58:15 ratnik Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.5  2007/09/27 22:58:15  ratnik
+ * QA campaign: fixes to compensate includes cleanup in  DataFormats/L1Trigger
+ *
  * Revision 1.4  2007/07/19 18:05:06  berryhil
  *
  *
@@ -123,7 +126,7 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
 
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRCT");
+    dbe->setCurrentFolder("L1T/Compare");
   }
 
 
@@ -143,13 +146,13 @@ void L1TCompare::beginJob(const EventSetup & c)
   dbe = Service < DaqMonitorBEInterface > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/Compare");
-    dbe->rmdir("L1TMonitor/Compare");
+    dbe->setCurrentFolder("L1T/Compare");
+    dbe->rmdir("L1T/Compare");
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/Compare");
+    dbe->setCurrentFolder("L1T/Compare");
     
     // -------------------------------------------
     // RCT-GCT

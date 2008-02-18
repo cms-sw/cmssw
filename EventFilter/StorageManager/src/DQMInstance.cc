@@ -18,6 +18,7 @@
 #include "TString.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "sys/stat.h"
 
 using edm::debugit;
 using namespace std;
@@ -178,7 +179,7 @@ int DQMInstance::writeFile(std::string filePrefix)
   {
     std::string groupName = i0->first;
     DQMGroup * group = i0->second;
-    sprintf(fileName,"%s_%s_%d_%d_%d.root", 
+    sprintf(fileName,"%s_%s_%8.8d_%4.4d_%d.root", 
 	    filePrefix.c_str(), 
 	    groupName.c_str(), 
 	    runNumber_, 
@@ -239,6 +240,7 @@ int DQMInstance::writeFile(std::string filePrefix)
       }
       file->Close();
       delete(file);
+      chmod(fileName,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
       FDEBUG(1) << "Wrote file " << fileName << " " << ctr << " objects"
 		<< std::endl; 
     }

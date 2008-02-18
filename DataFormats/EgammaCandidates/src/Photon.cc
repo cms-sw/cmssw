@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.7 2007/07/31 15:20:03 ratnik Exp $
+// $Id: Photon.cc,v 1.8 2007/10/06 20:06:04 futyand Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
@@ -46,7 +46,8 @@ void Photon::setVertex(const Point & vertex) {
   math::XYZVector direction = caloPosition() - vertex;
   double energy = this->energy();
   math::XYZVector momentum = direction.unit() * energy;
-  p4_.SetXYZT(momentum.x(), momentum.y(), momentum.z(), energy );
+  math::XYZTLorentzVector lv(momentum.x(), momentum.y(), momentum.z(), energy );
+  setP4(lv);
   vertex_ = vertex;
 }
 

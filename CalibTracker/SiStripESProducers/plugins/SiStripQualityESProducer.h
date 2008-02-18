@@ -17,11 +17,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripBadModuleRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripBadFiberRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripBadChannelRcd.h"
-
 
 class SiStripQualityESProducer : public edm::ESProducer {
  public:
@@ -32,19 +27,14 @@ class SiStripQualityESProducer : public edm::ESProducer {
    
  private:
 
-  /*
-  void SiStripBadChannelCallback(const SiStripBadFiberRcd&  iRec);
-  void SiStripBadFiberCallback  (const SiStripBadFiberRcd&  iRec);
-  void SiStripBadModuleCallback (const SiStripBadModuleRcd& iRec);
-  */
-  
   edm::ParameterSet pset_; 
   edm::FileInPath fp_;
   bool MergeList_; 
 
-   typedef std::vector< edm::ParameterSet > Parameters;
+  typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
+  boost::shared_ptr<SiStripQuality>  quality;
 };
 
 #endif

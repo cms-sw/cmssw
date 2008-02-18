@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.14 2007/04/30 20:37:57 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.15 2007/05/10 17:40:34 slava77 Exp $
 //
 //
 
@@ -154,6 +154,9 @@ private:
   bool testPCAPropagation_;
 
   bool ntupleTkHits_;
+
+  bool startFromPrevHit_;
+
   std::string g4SimName_;
 };
 
@@ -193,6 +196,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 
   ntupleTkHits_ = iConfig.getParameter<bool>("ntupleTkHits");
+
+  startFromPrevHit_ = iConfig.getParameter<bool>("startFromPrevHit");
 
   g4SimName_ = iConfig.getParameter<std::string>("g4SimName");
 }
@@ -298,7 +303,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       }
       continue;
     }
-    Hep3Vector p3T = tracksCI->momentum().vect();
+    Hep3Vector p3T(tracksCI->momentum().x(), tracksCI->momentum().y(), tracksCI->momentum().z());
     if (p3T.mag()< 2.) continue;
 
     int vtxInd = tracksCI->vertIndex();
@@ -307,8 +312,10 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
     } else {
-      r3T = (*simVertices)[vtxInd].position().vect()*0.1; 
-      //seems to be stored in mm --> convert to cm
+      r3T = Hep3Vector((*simVertices)[vtxInd].position().x(),
+		       (*simVertices)[vtxInd].position().y(),
+		       (*simVertices)[vtxInd].position().z());
+
     }
     AlgebraicSymMatrix66 covT = AlgebraicMatrixID(); 
     covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
@@ -379,6 +386,16 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			   <<" "<<igHit->surf->rotation()<<std::endl;
 	}
 	pStatus = 0;
+	if (startFromPrevHit_){
+	  if (simHitsCI != simHitsByDistance.begin()){
+	    std::map<double, const GlobalSimHit*>::const_iterator simHitPrevCI = simHitsCI;
+	    simHitPrevCI--;
+	    const GlobalSimHit* gpHit = simHitPrevCI->second;
+	    ftsStart = getFromCLHEP(gpHit->p3, gpHit->r3, charge, covT, &*bField);
+	    siStart = SteppingHelixStateInfo(ftsTrack);
+	  }
+	}
+	
 	if (radX0CorrectionMode_ ){
 	  const SteppingHelixPropagator* shPropCPtr = 
 	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
@@ -517,7 +534,9 @@ void SteppingHelixPropagatorAnalyzer
     gHit.surf = &layer->surface();
     gHit.id = wId;
 
-    GlobalPoint r3Hit = gHit.surf->toGlobal(gHit.hit->localPosition());
+    //place the hit onto the surface
+    float dzFrac = gHit.hit->entryPoint().z()/(gHit.hit->exitPoint().z()-gHit.hit->entryPoint().z());
+    GlobalPoint r3Hit = gHit.surf->toGlobal(gHit.hit->entryPoint()-dzFrac*(gHit.hit->exitPoint()-gHit.hit->entryPoint()));
     gHit.r3.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
     GlobalVector p3Hit = gHit.surf->toGlobal(gHit.hit->momentumAtEntry());
     gHit.p3.set(p3Hit.x(), p3Hit.y(), p3Hit.z());

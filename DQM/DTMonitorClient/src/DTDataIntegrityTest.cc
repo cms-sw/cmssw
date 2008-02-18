@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/09/20 10:31:43 $
- * $Revision: 1.11 $
+ * $Date: 2007/10/10 08:54:08 $
+ * $Revision: 1.12 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -241,22 +241,6 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
      }
   }
   
-  //Save MEs in a root file
-  //if ((nupdates%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
-  //  (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-  //dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DataIntegrityTest.root"));  
-}
-
-
-
-void DTDataIntegrityTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTDataIntegrityTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
 }
 
 
@@ -265,9 +249,6 @@ void DTDataIntegrityTest::endJob(){
 
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest] endjob called!";
 
-  //if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
-  
   dbe->rmdir("DT/Tests/DTDataIntegrity");
 }
 

@@ -10,7 +10,7 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
   ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
   ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
   ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
-  ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 78.47);
+  ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 81.08);
   ESNoiseSigma = ps.getUntrackedParameter<double>("ESNoiseSigma", 3);
 
   if (ESGain == 0)
@@ -38,23 +38,23 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
 
   edm::Handle<ESDigiCollection> ESDigis;
 
-  bool fullESDigis = true;
-
-  try {
-    event.getByLabel(digiProducer_, ESDigis);
-  } catch ( std::exception& ex ) {
-    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << ESdigiCollection_.c_str() ;
-    fullESDigis = false;
-  }  
+  // bool fullESDigis = true;
+  
+  // try {
+  event.getByLabel(digiProducer_, ESDigis);
+  // } catch ( std::exception& ex ) {
+  // edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << ESdigiCollection_.c_str() ;
+  // fullESDigis = false;
+  // }  
 
   std::auto_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
-
-  if (fullESDigis) {
-    ESDigiCollection::const_iterator i;
-    for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {            
-      if (algo_->EvalAmplitude(*i, false) > ESThreshold) (*ESZSDigis).push_back(*i);
-    }
-  }     
+  
+  // if (fullESDigis) {
+  ESDigiCollection::const_iterator i;
+  for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {            
+    if (algo_->EvalAmplitude(*i, false) > ESThreshold) (*ESZSDigis).push_back(*i);
+  }
+  // }     
 
   event.put(ESZSDigis, ESZSdigiCollection_);  
 }

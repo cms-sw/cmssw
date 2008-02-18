@@ -24,6 +24,7 @@ public:
   void useRPhiHits(    const edm::InputTag & m) { hasRPhiHits    = true; theRPhiHits = m; }
   void useStereoHits(  const edm::InputTag & m) { hasStereoHits = true; theStereoHits = m; }
   void useRingSelector(int minRing, int maxRing);
+  void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
 private:
   bool ringRange(int ring) const;
@@ -35,6 +36,7 @@ private:
   bool hasRPhiHits;    edm::InputTag theRPhiHits;
   bool hasStereoHits;  edm::InputTag theStereoHits;
   bool hasRingSelector; int theMinRing, theMaxRing; 
+  bool hasSimpleRphiHitsCleaner;
 };
 
 }

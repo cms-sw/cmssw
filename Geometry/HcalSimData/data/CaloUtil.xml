@@ -38,9 +38,11 @@
    <Parameter name="InsideLevel" value="4"          eval="true"/>
   </SpecPar>  
   <SpecPar name="hf">
-   <PartSelector path="//HVQF" />
    <PartSelector path="//HVQX" />
-   <Parameter name="Volume" value="HF" eval="false"/>
+   <PartSelector path="//HVQF" />
+   <Parameter name="Volume"   value="HF" eval="false"/>
+   <Parameter name="Levels"   value="4"/>
+   <Parameter name="Levels"   value="5"/>
    <Parameter name="attl"     value="0.8096535E-03/cm"/>
    <Parameter name="attl"     value="0.7130018E-03/cm"/>
    <Parameter name="attl"     value="0.6549183E-03/cm"/>

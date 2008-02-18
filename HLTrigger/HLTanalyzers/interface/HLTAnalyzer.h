@@ -43,7 +43,7 @@ private:
   HLTMuon muon_analysis_;
   HLTInfo hlt_analysis_;
 
-  std::string recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltobj_,hltresults_;
+  std::string recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltobj_,hltresults_,genEventScale_;
   std::string Electron_,Photon_,muon_;
   std::string l1extramc_,particleMapSource_,mctruth_; 
   std::string ecalDigisLabel_,hcalDigisLabel_;

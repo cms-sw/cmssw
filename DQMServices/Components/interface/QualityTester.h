@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2007/09/06 13:21:30 $
- * $Revision: 1.2 $
+ * $Date: 2007/09/06 15:40:01 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -54,14 +54,12 @@ private:
 
   int prescaleFactor;
   bool getQualityTestsFromFile;
-
-  edm::ParameterSet parameters;
+  std::string reportThreshold;
 
   MonitorUserInterface * mui;
   DaqMonitorBEInterface * bei;
 
   QTestHandle * qtHandler;
-
 
 };
 

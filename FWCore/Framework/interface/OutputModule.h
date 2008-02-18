@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.56 2007/09/28 16:37:07 wmtan Exp $
+$Id: OutputModule.h,v 1.57 2007/10/03 22:18:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -90,6 +90,8 @@ namespace edm {
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
     CurrentProcessingContext const* currentContext() const;
+
+    ModuleDescription const& description() const;
 
   private:
 

@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.28 2007/05/08 21:37:16 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.29 2007/06/08 14:42:42 dkcira Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -30,18 +30,20 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 SiStripMonitorCluster::~SiStripMonitorCluster() { }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorCluster::beginRun(const edm::Run&, const edm::EventSetup&){
-  if(reset_each_run){ // reset histograms at beginning of each new run
-    for(std::map<uint32_t, ModMEs>::const_iterator idet = ClusterMEs.begin(); idet!= ClusterMEs.end(); idet++ ){
-     ResetME( (idet->second). NumberOfClusters );
-     ResetME( (idet->second). ClusterPosition );
-     ResetME( (idet->second). ClusterWidth );
-     ResetME( (idet->second). ClusterCharge );
-     ResetME( (idet->second). ClusterSignal );
-     ResetME( (idet->second). ClusterNoise );
-     ResetME( (idet->second). ClusterSignalOverNoise );
-     ResetME( (idet->second). ModuleLocalOccupancy );
-     ResetME( (idet->second). NrOfClusterizedStrips ); // can be used at client level for occupancy calculations
+void SiStripMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup& es){
+  if (show_mechanical_structure_view) {
+    unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
+    if (m_cacheID_ != cacheID) {
+      m_cacheID_ = cacheID;       
+      edm::LogInfo("SiStripMonitorCluster") <<"SiStripMonitorCluster::beginRun: " 
+					 << " Creating MEs for new Cabling ";     
+      createMEs(es);
+    } 
+  } else if (reset_each_run) {
+    edm::LogInfo("SiStripMonitorCluster") <<"SiStripMonitorCluster::beginRun: " 
+				       << " Resetting MEs ";        
+    for (std::map<uint32_t, ModMEs >::const_iterator idet = ClusterMEs.begin() ; idet!=ClusterMEs.end() ; idet++) {
+      ResetModuleMEs(idet->first);
     }
   }
 }
@@ -64,16 +66,19 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowControlView = "<<show_control_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ResetMEsEachRun = "<<reset_each_run;
+}
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     edm::ESHandle<SiStripDetCabling> tkmechstruct;
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
-
+    
     // get list of active detectors from SiStripDetCabling - this will change and be taken from a SiStripDetControl object
     std::vector<uint32_t> activeDets;
     activeDets.clear(); // just in case
     tkmechstruct->addActiveDetectorsRawIds(activeDets);
-
+    
     std::vector<uint32_t> SelectedDetIds;
     if(select_all_detectors){
       // select all detectors if appropriate flag is set,  for example for the mtcc
@@ -81,23 +86,23 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     }else{
       // use SiStripSubStructure for selecting certain regions
       SiStripSubStructure substructure;
-//      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
-        substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-//      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
-//      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-//      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
+      substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
     }
-
-     // remove any eventual zero elements - there should be none, but just in case
-     for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
-       if(*idets == 0) SelectedDetIds.erase(idets);
-     }
-
+    
+    // remove any eventual zero elements - there should be none, but just in case
+    for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
+      if(*idets == 0) SelectedDetIds.erase(idets);
+    }
+    
     // use SistripHistoId for producing histogram id (and title)
     SiStripHistoId hidmanager;
     // create SiStripFolderOrganizer
     SiStripFolderOrganizer folder_organizer;
-
+    
     folder_organizer.setSiStripFolder();
     charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",500,-0.5,500.5);
 
@@ -108,6 +113,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
+      if (reset_each_run) ResetModuleMEs(*detid_iterator);
       //nr. of clusters per module
       hid = hidmanager.createHistoId("NumberOfClusters","det",*detid_iterator);
       modSingle.NumberOfClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5); dbe_->tag(modSingle.NumberOfClusters, *detid_iterator);
@@ -287,4 +293,19 @@ void SiStripMonitorCluster::ResetME(MonitorElement* me){
     TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
     if(root_ob)root_ob->Reset();
   } 
+}
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
+  std::map<uint32_t, ModMEs >::iterator pos = ClusterMEs.find(idet);
+  ModMEs mod_me = pos->second;
+
+  ResetME( mod_me.NumberOfClusters );
+  ResetME( mod_me.ClusterPosition );
+  ResetME( mod_me.ClusterWidth );
+  ResetME( mod_me.ClusterCharge );
+  ResetME( mod_me.ClusterSignal );
+  ResetME( mod_me.ClusterNoise );
+  ResetME( mod_me.ClusterSignalOverNoise );
+  ResetME( mod_me.ModuleLocalOccupancy );
+  ResetME( mod_me.NrOfClusterizedStrips ); // can be used at client level for occupancy calculations
 }

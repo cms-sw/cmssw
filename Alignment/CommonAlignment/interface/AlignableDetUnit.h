@@ -3,18 +3,21 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
-/// A concrete class that allows to (mis)align a DetUnit.
+/// A concrete class that allows to (mis)align a GeomDetUnit.
 ///
 /// Typically all AlignableComposites have (directly or
 /// indirectly) this one as the ultimate component.
+/// Allows for de-/reactivation of the misalignment.
+
+class GeomDet;
 
 class AlignableDetUnit : public Alignable 
 {
 
 public:
   
-  /// Constructor from id and surface
-  AlignableDetUnit( align::ID, const AlignableSurface& );
+  /// Constructor from GeomDet
+  AlignableDetUnit( const GeomDet* );
   
   /// Destructor
   virtual ~AlignableDetUnit();
@@ -49,7 +52,7 @@ public:
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Return the alignable type identifier
-  virtual StructureType alignableObjectId () const { return align::AlignableDetUnit; }
+  virtual int alignableObjectId () const { return static_cast<int>(AlignableObjectId::AlignableDetUnit); }
 
   /// Printout information about GeomDet
   virtual void dump() const;

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/09 15:24:09 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -79,6 +79,8 @@ void EEPedestalOnlineTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ix", 1);
+      mePedMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePedMapG12_[i], i+1);
     }
 
@@ -121,10 +123,9 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << need;
@@ -166,7 +167,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EEPedestalOnlineTask") << EEDigiCollection_ << " not available";
 

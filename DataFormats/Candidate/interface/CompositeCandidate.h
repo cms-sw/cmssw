@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.18 2007/09/14 09:53:42 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.19 2007/09/21 14:12:58 llista Exp $
  *
  */
 
@@ -55,9 +55,9 @@ namespace reco {
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual unsigned int numberOfMothers() const;
+    virtual size_type numberOfMothers() const;
     /// return pointer to mother
-    virtual const Candidate * mother( size_t i = 0 ) const;
+    virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
     // const iterator implementation

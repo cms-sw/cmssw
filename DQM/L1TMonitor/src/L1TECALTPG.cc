@@ -1,13 +1,16 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/29 14:02:47 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.6  2007/08/29 14:02:47  wittich
+ * split into barrel and endcap
+ *
  * Revision 1.5  2007/05/25 15:45:48  berryhil
  *
  *
@@ -98,7 +101,7 @@ L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
 
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1TMonitor/L1TECALTPG");
+    dbe->setCurrentFolder("L1T/L1TECALTPG");
   }
 
 
@@ -118,13 +121,13 @@ void L1TECALTPG::beginJob(const EventSetup & c)
   dbe = Service < DaqMonitorBEInterface > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TECALTPG");
-    dbe->rmdir("L1TMonitor/L1TECALTPG");
+    dbe->setCurrentFolder("L1T/L1TECALTPG");
+    dbe->rmdir("L1T/L1TECALTPG");
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TECALTPG");
+    dbe->setCurrentFolder("L1T/L1TECALTPG");
     ecalTpEtEtaPhiB_ = 
       dbe->book2D("EcalTpEtEtaPhiB", "ECAL TP E_{T} Barrel", TPPHIBINS, 
 		  TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);

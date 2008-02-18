@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------
 
 Toy EDProducers and EDProducts for testing purposes only.
@@ -65,5 +66,3 @@ namespace edmtest
   }
   DEFINE_FWK_MODULE(PedestalsByLabelAnalyzer);
 }
-
-

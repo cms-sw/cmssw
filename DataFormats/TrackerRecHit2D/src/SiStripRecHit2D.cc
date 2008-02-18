@@ -28,7 +28,6 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
   if (geographicalId() != other->geographicalId()) return false;
 
   const SiStripRecHit2D* otherCast = static_cast<const SiStripRecHit2D*>(other);
-
-  return cluster_ == otherCast->cluster();
+  return ( (cluster_ == otherCast->cluster()) || (clusterRegional_ == otherCast->cluster_regional()) ); 
 }
 

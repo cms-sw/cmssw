@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.5 2007/06/19 12:30:37 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.6 2007/07/13 14:18:43 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -65,7 +65,6 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with new peds/noise values
-  db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   if ( !test_ ) { 

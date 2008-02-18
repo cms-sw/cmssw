@@ -159,7 +159,7 @@ int PixelROCDACSettings::readBinary(std::ifstream& in, const PixelROCName& rocid
 
 }
 
-void PixelROCDACSettings::writeASCII(std::ofstream& out) const{
+void PixelROCDACSettings::writeASCII(std::ostream& out) const{
 
     out << "ROC:           "<<rocid_.rocname()<<std::endl;
 

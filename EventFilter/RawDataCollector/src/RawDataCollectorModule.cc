@@ -10,6 +10,7 @@
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "DataFormats/Provenance/interface/ProcessHistory.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -21,6 +22,8 @@ using namespace edm;
 
 RawDataCollectorModule::RawDataCollectorModule(const edm::ParameterSet& pset) {
 
+  useCurrentProcessOnly_ = pset.getParameter<bool>("currentProcessOnly") ; 
+    
   produces<FEDRawDataCollection>();
 }
 
@@ -30,7 +33,7 @@ RawDataCollectorModule::~RawDataCollectorModule(){
 
 
 void RawDataCollectorModule::produce(Event & e, const EventSetup& c){
- 
+
  /// Get Data from all FEDs
  std::vector< Handle<FEDRawDataCollection> > rawData;
  e.getManyByType(rawData);
@@ -40,6 +43,10 @@ void RawDataCollectorModule::produce(Event & e, const EventSetup& c){
  for (unsigned int i=0; i< rawData.size(); ++i ) { 
 
    const FEDRawDataCollection *rdc=rawData[i].product();
+
+   if ( useCurrentProcessOnly_ &&
+        ( rawData[i].provenance()->processName() != e.processHistory().rbegin()->processName() ) )
+       continue ; // skip all raw collections not produced by the current process
 
    for ( int j=0; j< FEDNumbering::lastFEDId(); ++j ) {
      const FEDRawData & fedData = rdc->FEDData(j);

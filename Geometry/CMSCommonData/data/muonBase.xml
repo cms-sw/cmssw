@@ -13,12 +13,16 @@
   <ZSection z="-[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]" />
   <ZSection z="-[cms:MuonBeamZ1]"  rMin="[cms:MuonBeamR2]"  rMax="[cms:CMSR1]" />
   <ZSection z="-[cms:MuonBeamZ1]"  rMin="[cms:MuonBeamR1]"  rMax="[cms:CMSR1]" />
+  <ZSection z="-[cms:MEndcapZ1]"   rMin="[cms:MERmin2]"     rMax="[cms:CMSR1]" />
+  <ZSection z="-[cms:MEndcapZ0]"   rMin="[cms:MERmin1]"     rMax="[cms:CMSR1]" />
   <ZSection z="-[cms:MuonBeamZ0]"  rMin="[cms:MuonBeamR0]"  rMax="[cms:CMSR1]" />
   <ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CMSR1]" />
   <ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorMuonR]"  rMax="[cms:CMSR1]" />
   <ZSection z="[cms:CalorBeamZ2]"  rMin="[cms:CalorMuonR]"  rMax="[cms:CMSR1]" />
   <ZSection z="[cms:CalorBeamZ2]"  rMin="[cms:CalorBeamR2]" rMax="[cms:CMSR1]" />
   <ZSection z="[cms:MuonBeamZ0]"   rMin="[cms:MuonBeamR0]"  rMax="[cms:CMSR1]" />
+  <ZSection z="[cms:MEndcapZ0]"    rMin="[cms:MERmin1]"     rMax="[cms:CMSR1]" />
+  <ZSection z="[cms:MEndcapZ1]"    rMin="[cms:MERmin2]"     rMax="[cms:CMSR1]" />
   <ZSection z="[cms:MuonBeamZ1]"   rMin="[cms:MuonBeamR1]"  rMax="[cms:CMSR1]" />
   <ZSection z="[cms:MuonBeamZ1]"   rMin="[cms:MuonBeamR2]"  rMax="[cms:CMSR1]" />
   <ZSection z="[cms:TotemMuonZ1]"  rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]" />

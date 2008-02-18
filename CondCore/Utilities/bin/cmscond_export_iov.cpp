@@ -1,10 +1,8 @@
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
+#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -12,6 +10,9 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
 #include <boost/program_options.hpp>
@@ -33,7 +34,7 @@ int main( int argc, char** argv ){
     ("payloadName,n",boost::program_options::value<std::string>(),"payload object name(required)")
     ("authPath,p",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
-    ("withBlob","with blob streaming capability")
+    ("blobStreamer,b",boost::program_options::value<std::string>(),"non-default blob streaming service name to use(optional)")
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -46,7 +47,7 @@ int main( int argc, char** argv ){
   std::string authPath(".");
   std::string configuration_filename;
   bool debug=false;
-  bool withBlob=false;
+  std::string blobStreamerName("COND/Services/DefaultBlobStreamingService");
   boost::program_options::variables_map vm;
   try{
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
@@ -77,21 +78,6 @@ int main( int argc, char** argv ){
     }else{
       destConnect=vm["destConnect"].as<std::string>();
     }
-    /*if(!vm.count("inputCatalog")){
-      std::cerr <<"[Error] no inputCatalog[i] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
-      inputCatalog=vm["inputCatalog"].as<std::string>();
-    }
-    if(!vm.count("outputCatalog")){
-      std::cerr <<"[Error] no outputCatalog[o] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
-      outputCatalog=vm["outputCatalog"].as<std::string>();
-    }
-    */
     if(!vm.count("dictionary")){
       std::cerr <<"[Error] no dictionary[D] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -119,8 +105,8 @@ int main( int argc, char** argv ){
     if(vm.count("debug")){
       debug=true;
     }
-    if(vm.count("withBlob")){
-      withBlob=true;
+    if(vm.count("blobStreamer")){
+      blobStreamerName=vm["blobStreamer"].as<std::string>();
     }
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
@@ -137,7 +123,7 @@ int main( int argc, char** argv ){
     std::cout<<"payloadName:\t"<<payloadName<<'\n';
     std::cout<<"tag:\t"<<tag<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
-    if(withBlob) std::cout<<"with Blob streamer"<<authPath<<'\n';
+    std::cout<<"Blob streamer in use\t"<<blobStreamerName<<'\n';
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
@@ -146,59 +132,72 @@ int main( int argc, char** argv ){
   }catch ( seal::SharedLibraryError *error) {
     throw std::runtime_error( error->explainSelf().c_str() );
   }
-  cond::DBSession* session=new cond::DBSession;
+  cond::DBSession* session=new cond::DBSession(true);
   if(!debug){
-    session->configuration().setMessageLevel(cond::Error);
+    session->sessionConfiguration().setMessageLevel(cond::Error);
   }else{
-    session->configuration().setMessageLevel(cond::Debug);
+    session->sessionConfiguration().setMessageLevel(cond::Debug);
   }
-  session->configuration().setAuthenticationMethod(cond::XML);
-  session->configuration().setBlobStreamer("");
+  session->sessionConfiguration().setAuthenticationMethod(cond::XML);
+  session->sessionConfiguration().setBlobStreamer(blobStreamerName);
   std::string pathval("CORAL_AUTH_PATH=");
   pathval+=authPath;
   ::putenv(const_cast<char*>(pathval.c_str()));
-   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mysourcedb",sourceConnect,0);
-  conHandler.registerConnection("mydestdb",destConnect,0);
+  session->open();
   try{
-    session->open();
     std::string sourceiovtoken;
     std::string destiovtoken;
     if( sourceConnect.find("sqlite_fip:") != std::string::npos ){
       cond::FipProtocolParser p;
       sourceConnect=p.getRealConnect(sourceConnect);
     }
-    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction(true);
-    sourceCoralDB.start();
-    cond::MetaData* sourceMetadata=new cond::MetaData(sourceCoralDB);
+    cond::RelationalStorageManager* sourceCoralDB=new cond::RelationalStorageManager(sourceConnect,session);
+    sourceCoralDB->connect(cond::ReadOnly);
+    sourceCoralDB->startTransaction(true);
+    cond::MetaData* sourceMetadata=new cond::MetaData(*sourceCoralDB);
     if( !sourceMetadata->hasTag(tag) ){
       throw std::runtime_error(std::string("tag ")+tag+std::string(" not found") );
     }
     sourceiovtoken=sourceMetadata->getToken(tag);
-    sourceCoralDB.commit();
+    sourceCoralDB->commit();
+    sourceCoralDB->disconnect();
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
     delete sourceMetadata;
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(true);
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction(false);
+    delete sourceCoralDB;
+    std::string inputCatalog("pfncatalog_memory://POOL_RDBMS?");
+    inputCatalog.append(sourceConnect);
+    std::string outputCatalog("pfncatalog_memory://POOL_RDBMS?");
+    outputCatalog.append(destConnect);
+    cond::PoolStorageManager sourcedb(sourceConnect,inputCatalog,session);
+    sourcedb.connect();
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    sourcedb.start();
-    destdb.start();
+    cond::PoolStorageManager destdb(destConnect,outputCatalog,session);
+    destdb.connect();
+    sourcedb.startTransaction(true);
+    destdb.startTransaction(false);
     destiovtoken=iovmanager.exportIOVWithPayload( destdb,
 						  sourceiovtoken,
 						  payloadName );
     sourcedb.commit();
     destdb.commit();
-    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction(false);
-    cond::MetaData destMetadata(destCoralDB);
-    destCoralDB.start();
-    destMetadata.addMapping(tag,destiovtoken);
+    sourcedb.disconnect();
+    destdb.disconnect();
+    cond::RelationalStorageManager* destCoralDB=new cond::RelationalStorageManager(destConnect,session);
+    cond::MetaData* destMetadata=new cond::MetaData(*destCoralDB);
+    destCoralDB->connect(cond::ReadWriteCreate);
+    destCoralDB->startTransaction(false);
+    destMetadata->addMapping(tag,destiovtoken);
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
-    destCoralDB.commit();
+    destCoralDB->commit();
+    destCoralDB->disconnect();
+    delete destMetadata;
+    delete destCoralDB;
+    session->close();
     delete editor;
     delete session;
   }catch(const cond::Exception& er){

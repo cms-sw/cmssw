@@ -14,6 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class SiStripQuality;
 
 class testSiStripQualityESProducer : public edm::EDAnalyzer {
 
@@ -24,7 +25,13 @@ class testSiStripQualityESProducer : public edm::EDAnalyzer {
   void analyze( const edm::Event&, const edm::EventSetup& );
     
  private:
+  void printObject(const SiStripQuality*);
   bool printdebug_;
   unsigned long long m_cacheID_;
+  bool firstIOV;
+  bool twoRecordComparison_;
+  std::string dataLabel_;
+  std::string dataLabelTwo_;
+  SiStripQuality* m_Quality_;
 };
 #endif

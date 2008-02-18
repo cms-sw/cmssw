@@ -19,8 +19,8 @@ L1GctEmCand::L1GctEmCand() :
 }
 
 // construct from raw data, no source - used in GT
-L1GctEmCand::L1GctEmCand(uint16_t data, bool iso) :
-  m_data(data),
+L1GctEmCand::L1GctEmCand(uint16_t rawData, bool iso) :
+  m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_iso(iso),
   m_source(0),
   m_bx(0)
@@ -29,8 +29,8 @@ L1GctEmCand::L1GctEmCand(uint16_t data, bool iso) :
  }
 
 // construct from raw data with source - used in GCT unpacker
- L1GctEmCand::L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx) :
-   m_data(data),
+ L1GctEmCand::L1GctEmCand(uint16_t rawData, bool iso, uint16_t block, uint16_t index, int16_t bx) :
+   m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
    m_iso(iso),
    m_source( ((block&0xff)<<8) | (index&0xff) ),
    m_bx(bx)

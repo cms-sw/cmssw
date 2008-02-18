@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
   }
 
 
@@ -72,14 +72,14 @@ void L1TCSCTPG::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
-    dbe->rmdir("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
+    dbe->rmdir("L1T/L1TCSCTPG");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TCSCTPG");
+    dbe->setCurrentFolder("L1T/L1TCSCTPG");
     
     csctpgpattern = dbe->book1D("CSC TPG hit pattern", 
        "CSC TPG hit pattern", 8, -0.5, 7.5 ) ;

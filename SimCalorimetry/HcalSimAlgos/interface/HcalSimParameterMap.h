@@ -3,6 +3,7 @@
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HFSimParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -19,11 +20,11 @@ public:
   virtual const CaloSimParameters & simParameters(const DetId & id) const;
 
   /// accessors
-  HcalSimParameters hbParameters() const {return theHBParameters;}
-  HcalSimParameters heParameters() const {return theHEParameters;}
-  HcalSimParameters hoParameters() const  {return theHOParameters;}
-  CaloSimParameters hfParameters1() const  {return theHFParameters1;}
-  CaloSimParameters hfParameters2() const  {return theHFParameters2;}
+  const HcalSimParameters & hbParameters() const {return theHBParameters;}
+  const HcalSimParameters & heParameters() const {return theHEParameters;}
+  const HcalSimParameters & hoParameters() const  {return theHOParameters;}
+  const HFSimParameters & hfParameters1() const  {return theHFParameters1;}
+  const HFSimParameters & hfParameters2() const  {return theHFParameters2;}
   CaloSimParameters zdcParameters() const  {return theZDCParameters;}
 
   void setDbService(const HcalDbService * service);
@@ -32,8 +33,8 @@ private:
   HcalSimParameters theHBParameters;
   HcalSimParameters theHEParameters;
   HcalSimParameters theHOParameters;
-  CaloSimParameters theHFParameters1;
-  CaloSimParameters theHFParameters2;
+  HFSimParameters theHFParameters1;
+  HFSimParameters theHFParameters2;
   CaloSimParameters theZDCParameters;
 };
 

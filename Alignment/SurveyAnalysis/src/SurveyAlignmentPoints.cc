@@ -5,8 +5,8 @@
 
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentPoints.h"
 
-SurveyAlignmentPoints::SurveyAlignmentPoints(const align::Alignables& sensors,
-					     const std::vector<align::StructureType>& levels):
+SurveyAlignmentPoints::SurveyAlignmentPoints(const std::vector<Alignable*>& sensors,
+					     const std::vector<StructureType>& levels):
   SurveyAlignment(sensors, levels)
 {
 }

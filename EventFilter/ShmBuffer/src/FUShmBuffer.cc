@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
 
 #define SHM_KEYPATH          "/dev/null" /* Path used on ftok for shmget key  */

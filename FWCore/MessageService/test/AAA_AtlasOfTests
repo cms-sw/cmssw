@@ -24,6 +24,21 @@ u5	Tests reset versus no reset behavior when multiple statistics
 	then the next time statistics are triggered, they start from having
 	been cleared the last time the sumary was sent out.)
 
+u11	reportEvery, and some overall defaults
+	overall defaults regarding reportEvery
+	overall defaults for all destinations, for unnamed categories 
+	overall defaults for all destinations, specific category     
+	default reportEvery for a destination superceding overall default                    
+	default reportEvery for a destination not superceding 
+		specific category overall default 
+	reportEvery for specific category superceding both defaults                            
+	reportEvery and limits interacting with each other
+	---------- UnitTestClient_F
+	
+u14	Message suppression by severity and by module.  For example,
+	suppressInfo = { "sendSomeMessages", "source" }
+	Does not test suppressInfo = "*" or any excludeModule or such.
+
 	
 <This Atlas is not yet complete; will add to it.>
 	

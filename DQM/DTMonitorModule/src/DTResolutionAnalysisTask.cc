@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/20 07:20:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/09 14:50:53 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -48,10 +48,6 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask");
 
-  // set the name of the outputfile
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTResolutionAnalysisTask.root");
-  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
-
   parameters = pset;
 }
 
@@ -93,9 +89,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiS
 void DTResolutionAnalysisTask::endJob(){
  if(debug)
     cout<<"[DTResolutionAnalysisTask] endjob called!"<<endl;
-  // Write the histos
-  if ( writeHisto ) 
-    theDbe->save(theRootFileName);
+
   theDbe->rmdir("DT/DTResolutionAnalysisTask");
 }
   

@@ -9,23 +9,10 @@ HcalLEDMonitor::HcalLEDMonitor() {
 
 HcalLEDMonitor::~HcalLEDMonitor() {}
 
-void HcalLEDMonitor::clearME(){
-     if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HB");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HE");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
-    m_dbe->removeContents();
-  }
-}
-
 void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
+
+  baseFolder_ = rootFolder_+"LEDMonitor";
 
   if ( ps.getUntrackedParameter<bool>("LEDPerChannel", false) ) {
     doPerChannel_ = true;
@@ -65,7 +52,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
   if ( m_dbe ) {
 
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("LED Task Event Number");    
     meEVT_->Fill(ievt_);
 
@@ -130,7 +117,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     RMS_MAP_ENERGY_L4= m_dbe->book2D("LED RMS Energy Depth 4","LED RMS Energy Depth 4",etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_);
 
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HB");
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     hbHists.shapePED =  m_dbe->book1D("HB Ped Subtracted Pulse Shape","HB Ped Subtracted Pulse Shape",10,-0.5,9.5);
     hbHists.shapeALL =  m_dbe->book1D("HB Average Pulse Shape","HB Average Pulse Shape",10,-0.5,9.5);
     hbHists.rms_shape =  m_dbe->book1D("HB LED Shape RMS Values","HB LED Shape RMS Values",100,0,5);
@@ -147,7 +134,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hbHists.err_map_geo =  m_dbe->book2D("HB LED Geo Error Map","HB LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.err_map_elec =  m_dbe->book2D("HB LED Elec Error Map","HB LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HE");
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.shapePED =  m_dbe->book1D("HE Ped Subtracted Pulse Shape","HE Ped Subtracted Pulse Shape",10,-0.5,9.5);
     heHists.shapeALL =  m_dbe->book1D("HE Average Pulse Shape","HE Average Pulse Shape",10,-0.5,9.5);
     heHists.timeALL =  m_dbe->book1D("HE Average Pulse Time","HE Average Pulse Time",200,-1,10);
@@ -161,7 +148,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     heHists.err_map_geo =  m_dbe->book2D("HE LED Geo Error Map","HE LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     heHists.err_map_elec =  m_dbe->book2D("HE LED Elec Error Map","HE LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.shapePED =  m_dbe->book1D("HF Ped Subtracted Pulse Shape","HF Ped Subtracted Pulse Shape",10,-0.5,9.5);
     hfHists.shapeALL =  m_dbe->book1D("HF Average Pulse Shape","HF Average Pulse Shape",10,-0.5,9.5);
     hfHists.timeALL =  m_dbe->book1D("HF Average Pulse Time","HF Average Pulse Time",200,-0.5,9.5);
@@ -171,14 +158,25 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hfHists.rms_time =  m_dbe->book1D("HF LED Time RMS Values","HF LED Time RMS Values",100,0,5);
     hfHists.mean_time =  m_dbe->book1D("HF LED Time Mean Values","HF LED Time Mean Values",100,-0.5,9.5);
 
-    hfHists.energyALL =  m_dbe->book1D("HF Average Pulse Energy","HF Average Pulse Energy",250,-50,450);
+    hfHists.energyALL =  m_dbe->book1D("HF Average Pulse Energy","HF Average Pulse Energy",1000,-50,5000);
     hfHists.rms_energy =  m_dbe->book1D("HF LED Energy RMS Values","HF LED Energy RMS Values",100,0,300);
     hfHists.mean_energy =  m_dbe->book1D("HF LED Energy Mean Values","HF LED Energy Mean Values",100,0,500);
 
     hfHists.err_map_geo =  m_dbe->book2D("HF LED Geo Error Map","HF LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.err_map_elec =  m_dbe->book2D("HF LED Elec Error Map","HF LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
+
+    //HFlumi plots
+    HFlumi_ETsum_perwedge =  m_dbe->book1D("HF lumi ET-sum per wedge","HF lumi ET-sum per wedge",36,1,37);
+
+    HFlumi_Occupancy_above_thr_r1 =  m_dbe->book1D("HF lumi Occupancy above threshold ring1","HF lumi Occupancy above threshold ring1",36,1,37);
+    HFlumi_Occupancy_between_thrs_r1 = m_dbe->book1D("HF lumi Occupancy between thresholds ring1","HF lumi Occupancy between thresholds ring1",36,1,37);
+    HFlumi_Occupancy_below_thr_r1 = m_dbe->book1D("HF lumi Occupancy below threshold ring1","HF lumi Occupancy below threshold ring1",36,1,37);
+    HFlumi_Occupancy_above_thr_r2 = m_dbe->book1D("HF lumi Occupancy above threshold ring2","HF lumi Occupancy above threshold ring2",36,1,37);
+    HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2",36,1,37);
+    HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2",36,1,37);
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.shapePED =  m_dbe->book1D("HO Ped Subtracted Pulse Shape","HO Ped Subtracted Pulse Shape",10,-0.5,9.5);
     hoHists.shapeALL =  m_dbe->book1D("HO Average Pulse Shape","HO Average Pulse Shape",10,-0.5,9.5);
     hoHists.timeALL =  m_dbe->book1D("HO Average Pulse Time","HO Average Pulse Time",200,-1,10);
@@ -200,7 +198,7 @@ void HcalLEDMonitor::createFEDmap(unsigned int fed){
   _fedIter = MEAN_MAP_SHAPE_DCC.find(fed);
   
   if(_fedIter==MEAN_MAP_SHAPE_DCC.end()){
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
     char name[256];
 
     sprintf(name,"DCC %d Mean Shape Map",fed);
@@ -229,16 +227,13 @@ void HcalLEDMonitor::createFEDmap(unsigned int fed){
 
 void HcalLEDMonitor::reset(){
   
-  MonitorElement* unpackedFEDS = m_dbe->get("HcalMonitor/FEDs Unpacked");
+  MonitorElement* unpackedFEDS = m_dbe->get("Hcal/FEDs Unpacked");
   if(unpackedFEDS){
     for(int b=1; b<=unpackedFEDS->getNbinsX(); b++){
       if(unpackedFEDS->getBinContent(b)>0){
 	createFEDmap(700+(b-1));  
       }
     }
-  }
-  else{
-    printf("BARF!!\n");
   }
 }
 
@@ -250,7 +245,9 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
 
-  if(!m_dbe) { printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
+  if(!m_dbe) { 
+    if(fVerbosity) printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    return; }
   float vals[10];
 
   try{
@@ -286,7 +283,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hbHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	  vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
 	}
-	if(doPerChannel_) perChanHists(0,digi.id(),vals,hbHists.shape, hbHists.time, hbHists.energy);
+	if(doPerChannel_) perChanHists(0,digi.id(),vals,hbHists.shape, hbHists.time, hbHists.energy, baseFolder_);
       }
       else if(digi.id().subdet()==HcalEndcap){
 	heHists.energyALL->Fill(en);
@@ -299,11 +296,11 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  heHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	  vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
 	}
-	if(doPerChannel_) perChanHists(1,digi.id(),vals,heHists.shape, heHists.time, heHists.energy);
+	if(doPerChannel_) perChanHists(1,digi.id(),vals,heHists.shape, heHists.time, heHists.energy, baseFolder_);
       }
     }
   } catch (...) {
-    printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
+    if(fVerbosity) printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
   }
   
   try{
@@ -337,10 +334,10 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
         hoHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
       }
-      if(doPerChannel_) perChanHists(2,digi.id(),vals,hoHists.shape, hoHists.time, hoHists.energy);
+      if(doPerChannel_) perChanHists(2,digi.id(),vals,hoHists.shape, hoHists.time, hoHists.energy, baseFolder_);
     }        
   } catch (...) {
-    cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
+    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
   }
   
   try{
@@ -363,6 +360,95 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  bs += tmp1-calibs_.pedestal(digi.sample(i).capid());
 	}
       }
+
+      //---HFlumiplots
+      int theTStobeused = 6;
+      // will have masking later:
+      int mask=1; 
+      if(mask!=1) continue;
+      //if we want to sum the 10 TS instead of just taking one:
+      for (int i=0; i<digi.size(); i++) {
+	if (i==theTStobeused) {
+	  float tmpET =0;
+	  int jadc=digi.sample(i).adc();
+	  //NOW LUT used in HLX are only identy LUTs, so Et filled
+	  //with unlinearised adc, ie tmpET = jadc
+	  //	  tmpET = (adc2fc[jadc]+0.5);
+	  tmpET = jadc;
+
+	  //-find which wedge we are in
+	  //  ETsum and Occupancy will be summed for both L and S
+	  if(digi.id().ieta()>28){
+	    if((digi.id().iphi()==1)||(digi.id().iphi()==71)){
+	      HFlumi_ETsum_perwedge->Fill(1,tmpET);
+              if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+		if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(1,1);
+		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(1,1);
+		if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(1,1);
+	      }
+	      else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+		if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(1,1);
+		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(1,1);
+		if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(1,1);
+	      }
+	    }
+	    else {
+	      for (int iwedge=2; iwedge<19; iwedge++) {
+		int itmp=4*(iwedge-1);
+		if( (digi.id().iphi()==(itmp+1)) || (digi.id().iphi()==(itmp-1))) {
+                  HFlumi_ETsum_perwedge->Fill(iwedge,tmpET);
+		  if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+		    if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(iwedge,1);
+		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(iwedge,1);
+		    if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(iwedge,1);
+		  }
+		  else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+		    if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(iwedge,1);
+		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(iwedge,1);
+		    if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(iwedge,1);
+		  }
+                  iwedge=99;
+		}
+	      }
+	    }
+	  }  //--endif ieta in HF+
+	  else if(digi.id().ieta()<-28){
+	    if((digi.id().iphi()==1)||(digi.id().iphi()==71)){
+	      HFlumi_ETsum_perwedge->Fill(19,tmpET);
+              if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+		if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(19,1);
+		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(19,1);
+		if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(19,1);
+	      }
+	      else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+		if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(19,1);
+		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(19,1);
+		if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(19,1);
+	      }
+	    }
+	    else {
+	      for (int iw=2; iw<19; iw++) {
+		int itemp=4*(iw-1);
+		if( (digi.id().iphi()==(itemp+1)) || (digi.id().iphi()==(itemp-1))) {
+                  HFlumi_ETsum_perwedge->Fill(iw+18,tmpET);
+		  if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+		    if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(iw+18,1);
+		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(iw+18,1);
+		    if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(iw+18,1);
+		  }
+		  else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+		    if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(iw+18,1);
+		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(iw+18,1);
+		    if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(iw+18,1);
+		  }
+                  iw=99;
+		}
+	      }
+	    }
+	  }//---endif ieta inHF-
+	}//---endif TS=nr6
+      } //------end loop over TS for lumi
+ 
       if(en<adcThresh_) continue;
       hfHists.energyALL->Fill(en);
       if(bs!=0) hfHists.timeALL->Fill(ts/bs);
@@ -374,10 +460,10 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
         hfHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
       }
-      if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time, hfHists.energy);
+      if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time, hfHists.energy, baseFolder_);
     }
   } catch (...) {
-    cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
+    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
   }
 
   return;
@@ -391,31 +477,25 @@ void HcalLEDMonitor::done(){
 void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals, 
 				  map<HcalDetId, MonitorElement*> &tShape, 
 				  map<HcalDetId, MonitorElement*> &tTime,
-				  map<HcalDetId, MonitorElement*> &tEnergy){
+				  map<HcalDetId, MonitorElement*> &tEnergy,
+				  string baseFolder){
   
   MonitorElement* _me;
   if(m_dbe==NULL) return;
-
   _meIter=tShape.begin();
+
   string type = "HB";
-  m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HB");
-  if(id==1){
-    type = "HE";
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HE");
-  }
-  else if(id==2){
-    type = "HO";
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
-  }
-  else if(id==3){
-    type = "HF";
-    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
-  }
+  if(id==1) type = "HE"; 
+  else if(id==2) type = "HF"; 
+  else if(id==3) type = "HO"; 
+  
+  if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
+
   
   _meIter = tShape.find(detid);
   if (_meIter!=tShape.end()){
     _me= _meIter->second;
-    if(_me==NULL) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
+    if(_me==NULL && fVerbosity) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
     else{
       float en=0;
       float ts =0; float bs=0;

@@ -4,7 +4,6 @@
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DTObjects/interface/DTRangeT0.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTPerformance.h"
 
 namespace {
@@ -13,7 +12,6 @@ namespace {
   std::map<DTMtimeId,DTMtimeData,DTMtimeCompare> mTimeMap;
   std::map<DTRangeT0Id,DTRangeT0Data,DTRangeT0Compare> rangeT0Map;
   std::map<DTStatusFlagId,DTStatusFlagData,DTStatusFlagCompare> statusFlagMap;
-  std::map<DTDeadFlagId,DTDeadFlagData,DTDeadFlagCompare> deadFlagMap;
   std::map<DTPerformanceId,DTPerformanceData,DTPerformanceCompare> performanceMap;
 }
 
@@ -43,10 +41,6 @@ template std::map<DTStatusFlagId,DTStatusFlagData,
                   DTStatusFlagCompare>::iterator;
 template std::map<DTStatusFlagId,DTStatusFlagData,
                   DTStatusFlagCompare>::const_iterator;
-template std::map<DTDeadFlagId,DTDeadFlagData,
-                  DTDeadFlagCompare>::iterator;
-template std::map<DTDeadFlagId,DTDeadFlagData,
-                  DTDeadFlagCompare>::const_iterator;
 template std::map<DTPerformanceId,DTPerformanceData,DTPerformanceCompare>::iterator;
 template std::map<DTPerformanceId,DTPerformanceData,DTPerformanceCompare>::const_iterator;
 */

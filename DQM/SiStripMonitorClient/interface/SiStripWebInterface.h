@@ -30,6 +30,7 @@ class SiStripWebInterface : public WebInterface
 
   void performAction();
   void readConfiguration(int& freq_sum);
+  bool readConfiguration();
   void setupQTests();
 
   SiStripActionType getActionFlag() {return theActionFlag;}

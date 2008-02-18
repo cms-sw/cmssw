@@ -30,3 +30,10 @@ void SiStripClusterInfo::print(std::stringstream &ss){
   for (size_t i=0;i<StripNoises.size();i++)
     ss << StripNoises[i] << " \t ";
 }
+
+float SiStripClusterInfo::getGainForStripNb(uint16_t istrip) const{
+
+  short apv_of_istrip = (int) ((FirstStrip+istrip)/128);  
+  short apv_of_firstStrip = (int) (FirstStrip/128);  
+  return ApvGains[apv_of_istrip-apv_of_istrip];
+}

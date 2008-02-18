@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.48 2007/08/28 01:40:37 ratnik Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.49 2007/10/06 20:28:20 futyand Exp $
 //
 //
 
@@ -172,7 +172,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   const BasicClusterShapeAssociationCollection *shpAss=&(*barrelShapeAssocH);
   process(tracksBarrelH,sclAss,barrelTSAssocH.product(),shpAss,mhbhe,outEle);
   sclAss=&(*endcapH);
-  shpAss=&(*barrelShapeAssocH);
+  shpAss=&(*endcapShapeAssocH);
   process(tracksEndcapH,sclAss,endcapTSAssocH.product(),shpAss,mhbhe,outEle);
   delete mhbhe;
   std::ostringstream str;

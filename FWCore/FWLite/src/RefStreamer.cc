@@ -1,6 +1,7 @@
 #include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "TROOT.h"
+#include <assert.h>
 
 class TBuffer;
 

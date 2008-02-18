@@ -229,13 +229,33 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		      ///first process chamber-wide digis such as LCT
 		      int vmecrate = cscData[iCSC].dmbHeader().crateID();
 		      int dmb = cscData[iCSC].dmbHeader().dmbID();
+
+		      ///adjust crate numbers for MTCC data
+		      if (unpackMTCCData)
+			switch (vmecrate) {
+			case 0:
+			  vmecrate=23;
+			  break;
+			case 1:
+			  vmecrate=17;
+			  break;
+			case 2:
+			  vmecrate=11;
+			  break;
+			case 3:
+			  vmecrate=10;
+			  break;
+			default:
+			  break;
+			}
+		      
 		      int icfeb = 0; ///default value for all digis not related to cfebs
 		      int ilayer = 0; /// zeroth layer indicates whole chamber
 
 		      if (debug)
 			edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
 
-		      if ( (vmecrate>=0)&&(vmecrate<=200) && (dmb>=0)&&(dmb<=10) ) 
+		      if ((vmecrate>=1)&&(vmecrate<=60) && (dmb>=1)&&(dmb<=10)&&(dmb!=6)) 
 			{
 			  layer = pcrate->detId(vmecrate, dmb,icfeb,ilayer );
 			} 
@@ -243,6 +263,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			{
 			  edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 			  edm::LogError ("CSCDCCUnpacker") << " skipping this chamber! ";
+			  edm::LogError ("CSCDCCUnpacker") << "vme="<<vmecrate <<"  dmb="<<dmb;
 			  continue;
 			}
 
@@ -285,7 +306,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				      int wiregroup = alctDigis[i].getKeyWG();
 				      if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
 					<< "ALCT digi: wire group " << wiregroup
-					<< " is out of range!";
+					<< " is out of range!" << "vme ="
+					<< vmecrate <<"  dmb=" <<dmb <<" "<<layer;
 				      else 
 					{
 					  wiregroup -= 16; /// adjust by 16
@@ -336,7 +358,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				      int wiregroup = correlatedlctDigis[i].getKeyWG();
 				      if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
 					<< "CorrelatedLCT digi: wire group " << wiregroup
-					<< " is out of range!";
+					<< " is out of range!  vme ="<<vmecrate <<"  dmb=" <<dmb
+					<<"  "<<layer;
 				      else 
 					{
 					  wiregroup -= 16; /// adjust by 16
@@ -391,7 +414,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		      ///this loop stores wire, strip and comparator digis:
 		      for (int ilayer = 1; ilayer <= 6; ++ilayer) 
 			{
-			  /// set layer (dmb and vme are valid because already checked in line 205
+			  /// set layer, dmb and vme are valid because already checked in line 240
 			  layer = pcrate->detId( vmecrate, dmb,icfeb,ilayer );
 
 			  std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
@@ -406,7 +429,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				  int wiregroup = wireDigis[i].getWireGroup();
 				  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker")
 				    << "Wire digi: wire group " << wiregroup
-				    << " is out of range!";
+				    << " is out of range!  vme ="<<vmecrate 
+				    <<"  dmb=" <<dmb <<"  "<<layer;
 				  else 
 				    {
 				      wiregroup -= 16; /// adjust by 16

@@ -655,7 +655,8 @@ int
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) { 
   
   // Check that the particle is in the Famos "acceptance"
-  if ( !myFilter->accept(p) ) return -1;
+  // Keep all primaries of pile-up events, though
+  if ( !myFilter->accept(p) && ig >= -1 ) return -1;
 
   // The new track index
   int trackId = nSimTracks++;

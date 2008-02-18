@@ -75,7 +75,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if ( unfilteredTowerBlockLength_ != blockLength_ ){    
    
     // chosing channel 1 as representative of a dummy...
-    EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , expTowerID_,1, 1);
+    EcalElectronicsId id( mapper_->getActiveSM() , expTowerID_,1, 1);
     (*invalidMemBlockSizes_)->push_back(id);
  
    edm::LogWarning("EcalRawToDigiDevMemBlock")
@@ -91,8 +91,9 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     edm::LogWarning("EcalRawToDigiDevMemBlock")
       <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
-    //Note : add to error collection 
-    //could this be the same collection as previous case, i.e. invalidMemBlockSizes_  ?
+    // chosing channel 1 as representative of a dummy...
+    EcalElectronicsId id( mapper_->getActiveSM() , expTowerID_,1, 1);
+    (*invalidMemBlockSizes_)->push_back(id);
     return STOP_EVENT_UNPACKING;
   }
   
@@ -124,7 +125,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if( expTowerID_ != towerId_){
     
     // chosing channel 1 as representative as a dummy...
-    EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , expTowerID_, 1,1);
+    EcalElectronicsId id( mapper_->getActiveSM() , expTowerID_, 1,1);
     (*invalidMemTtIds_)->push_back(id);
     
     edm::LogWarning("EcalRawToDigiDevMemTowerId")
@@ -186,7 +187,7 @@ void DCCMemBlock::unpackMemTowerData(){
       if(expStripId != stripId || expXtalId != xtalId){ 
 
         // chosing channel and strip as EcalElectronicsId
-        EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , towerId_, expStripId, expXtalId);
+        EcalElectronicsId id( mapper_->getActiveSM() , towerId_, expStripId, expXtalId);
        (*invalidMemChIds_)->push_back(id);
 
         edm::LogWarning("EcalRawToDigiDevMemChId")
@@ -241,8 +242,8 @@ void DCCMemBlock::unpackMemTowerData(){
         uint gain =  sample>>12;
 			
         if( gain >= 2 ){
-		  
-          EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , towerId_, stripId,xtalId);
+
+          EcalElectronicsId id(mapper_->getActiveSM() , towerId_, stripId,xtalId);
           (*invalidMemGains_)->push_back(id);
 
 	      edm::LogWarning("EcalRawToDigiDevMemGain")
@@ -263,19 +264,6 @@ void DCCMemBlock::unpackMemTowerData(){
 
 }
 
-int  DCCMemBlock::getIsmForMem(int activeSM_){
-
-    if        (9< activeSM_ && activeSM_ < 28){
-      return activeSM_-9+18;}
-    
-    else if (27 < activeSM_ && activeSM_< 46){
-      return activeSM_-9-18;}
-    
-    else
-      {return -999;}
-
-}
-
 void DCCMemBlock::fillPnDiodeDigisCollection(){
  
   //todo change pnId max
@@ -288,22 +276,19 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
     // Note : we are assuming always 5 VFE channels enabled 
     // This means we all have 5 pns per tower 
 
-
     // solution before sending creation of PnDigi's in mapper as done with crystals
-    //     mapper_->getActiveSM()  : this is the 'dccid', number ranging internally in ECAL from 1 to 54
-    //     mapper_->getActiveDCC() : this is the FED_id
+    //     mapper_->getActiveSM()  : this is the 'dccid'
+    //     number ranging internally in ECAL from 1 to 54, according convention specified here:
+    //     http://indico.cern.ch/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=11621
 
-    int ism = getIsmForMem( mapper_->getActiveSM() );
+    //     mapper_->getActiveDCC() : this is the FED_id (601 - 654 for ECAL at CMS)
 
-    // using ism insead of DCCId, to locate pn in the same place as the crystals that receive same laser pulses
-    EcalPnDiodeDetId PnId(EcalBarrel, ism , realPnId );
-    
-
+    EcalPnDiodeDetId PnId(EcalBarrel,  mapper_->getActiveSM(), realPnId );
 
     EcalPnDiodeDigi thePnDigi(PnId );
     thePnDigi.setSize(kSamplesPerPn_);
-	 
-	
+    
+    
     for (uint ts =0; ts <kSamplesPerPn_; ts++){
       
       short pnDiodeData = pn_[(towerId_-lastTowerBeforeMem_)*250 + (pnId-1)*kSamplesPerPn_ + ts];

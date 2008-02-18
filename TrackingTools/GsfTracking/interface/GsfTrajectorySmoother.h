@@ -52,7 +52,7 @@ public:
   virtual GsfTrajectorySmoother* clone() const
   {
     return new GsfTrajectorySmoother(*thePropagator,*theUpdator,*theEstimator,
-				     *theMerger,theMatBeforeUpdate,theErrorRescaling);
+				     *theMerger,theErrorRescaling,theMatBeforeUpdate);
   }
 
 private:

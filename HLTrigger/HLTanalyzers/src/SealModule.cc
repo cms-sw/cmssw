@@ -3,6 +3,7 @@
 //
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 
 #include "HLTrigger/HLTanalyzers/interface/L1TrigReport.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"

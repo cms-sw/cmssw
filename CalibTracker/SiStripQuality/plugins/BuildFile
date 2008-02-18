@@ -11,6 +11,14 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/SiStripConnectivity>
 <use name=DataFormats/SiStripDetId>
+<use name=CalibTracker/Records>
+<use name=CalibTracker/SiStripQuality>
+
+<use name=DataFormats/SiStripCluster>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackerRecHit2D>
+
+<use name=CommonTools/TrackerMap>
 
 <library file="*.cc" name=CalibTrackerSiStripQualityPlugins>
 	<flags EDM_PLUGIN=1>	

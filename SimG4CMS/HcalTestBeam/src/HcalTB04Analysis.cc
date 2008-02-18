@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.5 2006/11/13 10:32:15 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.6 2007/03/08 00:19:50 sunanda Exp $
 //
   
 // system include files
@@ -37,6 +37,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
@@ -708,6 +713,16 @@ void HcalTB04Analysis::qieAnalysis() {
 
 void HcalTB04Analysis::xtalAnalysis() {
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "HcalTB04Analysis requires the RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+
   // Crystal Data
   std::vector<int> iok(nCrystal,0);
   LogDebug("HcalTBSim") << "HcalTB04Analysis::xtalAnalysis: Size " <<iok.size()
@@ -725,7 +740,7 @@ void HcalTB04Analysis::xtalAnalysis() {
     }
     k1 += nhit;
     nhit++;
-    double eq = esim + RandGauss::shoot(0., ecalNoise);
+    double eq = esim + randGauss.fire(0., ecalNoise);
 #ifdef ddebug
     LogDebug("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id 
 			  << std::dec << " registers " << esim << " energy "
@@ -745,7 +760,7 @@ void HcalTB04Analysis::xtalAnalysis() {
   for (int k2 = 0; k2 < nCrystal; k2++) {
     if (iok[k2] == 0) {
       esime[k2] = 0;
-      enois[k2] = RandGauss::shoot(0., ecalNoise);
+      enois[k2] = randGauss.fire(0., ecalNoise);
 #ifdef ddebug
       LogDebug("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex 
 			    << idEcal[k2] << std::dec << " registers " 

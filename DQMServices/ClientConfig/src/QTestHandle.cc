@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2007/07/08 21:03:54 $
- *  $Revision: 1.3.4.1 $
+ *  $Date: 2007/09/06 13:21:57 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 
@@ -43,7 +43,7 @@ bei){
 	if(! qtParser->parseQTestsConfiguration() ){
 	      std::map<std::string, std::map<std::string, std::string> > testsONList=qtParser->testsList();
 	      std::vector<std::string> testsOFFList=qtParser->testsOff();
-	      qtConfigurer->desableTests(testsOFFList,bei);
+	      qtConfigurer->disableTests(testsOFFList,bei);
 	      if(qtConfigurer->enableTests(testsONList,bei)) return true;
 	
 	}else{

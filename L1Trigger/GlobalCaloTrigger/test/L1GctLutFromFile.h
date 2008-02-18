@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <fstream>
+#include <cassert>
 
 template <int NAddressBits, int NDataBits>
 class L1GctLutFromFile : public L1GctLut<NAddressBits, NDataBits>
@@ -36,7 +37,7 @@ L1GctLutFromFile<NAddressBits, NDataBits>* L1GctLutFromFile<NAddressBits, NDataB
 }
 
 template <int NAddressBits, int NDataBits>
-L1GctLutFromFile<NAddressBits, NDataBits>::L1GctLutFromFile<NAddressBits, NDataBits>() :
+L1GctLutFromFile<NAddressBits, NDataBits>::L1GctLutFromFile() :
   L1GctLut<NAddressBits,NDataBits>(),
   m_lutContents(1<<NAddressBits)
 {

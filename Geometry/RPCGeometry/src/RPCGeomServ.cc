@@ -15,6 +15,7 @@ RPCGeomServ::~RPCGeomServ()
 std::string 
 RPCGeomServ::name()
 {
+
   if (_n.size()<1){
     std::string buf;
 
@@ -95,10 +96,25 @@ RPCGeomServ::name()
       {
 	std::stringstream os;
 	os <<"RE"<<_id->station()<<"/"<<_id->ring();
+	os <<"S"<<std::setw(2)<<std::setfill('0')<<this->segment();
+	  
+	buf += os.str();
+      } 
+
+      {
+	buf += "_";
+	std::stringstream os;
+	if (_id->roll()==1)
+	  os<<"A";
+	else if (_id->roll() == 2)
+	  os<<"B";
+	else if (_id->roll() == 3)
+	  os <<"C";
+	else if (_id->roll() == 4)
+	  os <<"D";
 	buf += os.str();
       }
     }
-
     _n=buf;
   }
   return _n;
@@ -121,6 +137,14 @@ RPCGeomServ::eta_partition()
   return _t;
 } 
 
+int 
+RPCGeomServ::segment(){
+  int nsub=6;
+  if ( _id->ring()==1 &&  _id->station() > 1) 
+    nsub=3;
+  return _id->subsector()+nsub*(_id->sector()-1);
+      
+}
 
 bool
 RPCGeomServ::inverted()

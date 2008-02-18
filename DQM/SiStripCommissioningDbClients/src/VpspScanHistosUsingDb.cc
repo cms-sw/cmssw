@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.6 2007/06/19 12:30:37 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.7 2007/07/13 14:22:41 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -64,7 +64,6 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update all APV device descriptions with new VPSP settings
-  db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions();
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   if ( !test_ ) { 

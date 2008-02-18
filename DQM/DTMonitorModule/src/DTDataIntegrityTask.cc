@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/09/25 17:24:57 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/10 08:31:09 $
+ * $Revision: 1.31 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -117,9 +117,6 @@ void DTDataIntegrityTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 void DTDataIntegrityTask::postEndJob(){
   if(debug)
     cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
-  
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true))
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
 
   dbe->rmdir("DT/DataIntegrity");
 

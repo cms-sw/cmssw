@@ -3,6 +3,8 @@
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
+#include <assert.h>
+
 class TBuffer;
 
 namespace edm {

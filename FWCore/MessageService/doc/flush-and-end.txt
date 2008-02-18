@@ -1,0 +1,85 @@
+	Actions and Circumstances Relevant to Incomplete Log Problem
+	------------------------------------------------------------
+	
+The Problem: 
+------------
+(Document in progress)
+
+
+In about 10% of the production jobs, some of the LogInfo messages issued at the
+end involving branch information are failing to emerge.  This necessitates
+re-running the job, for a net loss of up to 10% of the work done.
+
+The problem "can't be happening" based on what the logger does, but it is.  Dave
+Evans worte a stand-along program to issue huge bunches of messages to try to 
+provoke a repeatable version of the bad behavior, which we could hope to debug,
+but could not get it to happen.
+
+ 
+What the Current Code Does:
+---------------------------
+
+(This is as of 10/1/07)
+
+All the various flushes (stream and queue), thread joins, and end-sequence
+actions are described here:
+
+Very early in main() of cmsRun, theMessageServicePresence is instantiated.
+The ctor of MessageServicePresence instantiates scribe, which is a 
+boost::thread, instructing it to execute runMessageLoggerScribe.
+
+Just after that, the jobReport is created on the heap and an auto_ptr to 
+JobReport is given to ServiceRegistry, retaining jobReportToken.
+
+Next, the services are pushed onto defaultServices, with MessageLogger first.
+Then the forcedServises are created; JobReport is the first of those.
+
+Then black magic happens leading to the CFG command to the logger.  It
+happens in the statement 
+std::auto_ptr<edm::EventProcessor> 
+         procP(new 
+               edm::EventProcessor(processDesc, jobReportToken, 
+                              edm::serviceregistry::kTokenOverrides));
+which instantiates a new edm::EventProcessor:			      
+The ctor of EventProcessor calls init().
+EventPrecessor::init() calls ServiceRegistry::createSet to create the services.
+ServiceRegistry::createSet instantiates a new ServicesManager, passing in
+(among other things) a vector of ParameterSet.
+ServicesManager has filled a list of "makers", done some complicated
+bookkeeping, and called CreateServices().
+In CreateServices, itmaker invokes add on its second part.  The loop this is in
+is controlled by requestedCreationOrder, which has typeinfo for 
+edm::service::MessageLogger first (InitRootHandlers is second).
+ServicesManager::MakerHolder::add calls maker_-> make
+  ServiceMaker<T> with T = edm::service::MessageLogger calls pService
+  passsing in maker.make(iPS, iAR), which directly calls AllArgsMaker<T>::make
+  AllArgsMaker<T>::make(const edm::ParameterSet& iPS,edm::ActivityRegistry& iAR)
+  with T = edm::service::MessageLogger creates a new MessageLogger 
+    ctor of MessageLogger in main thread issues the following commands on the
+    MessageLoggerQ:  MLqJOB, MLqMOD, MLqCFG
+
+Now the job is going in earnest.  When the dtor of any of the various
+Log objects happens, a MLqLOG command is issued.  The processing goes
+through the log() method, which is encased in a try/catch.  The first of 
+such messages will print to cerr, including the words "will no longer be 
+processing." ( After the first, it will be in purge mode, and others will not
+emerge.)
+
+
+
+
+
+
+
+
+
+
+
+
+JobReport service terminates before MessageServicePresence goes away - evidence
+is the fact that the <END> message from the framework job report does come out.
+
+
+
+
+would freeze if queue is full

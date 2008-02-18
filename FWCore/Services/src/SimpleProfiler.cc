@@ -27,6 +27,10 @@
 #error "SimpleProfile requires the definition of __USE_POSIX199309"
 #endif
 
+using namespace std;
+
+
+
 namespace INSTR
 {
   typedef unsigned char byte;
@@ -36,10 +40,10 @@ namespace INSTR
 namespace
 {
 
-  std::string makeFileName()
+  string makeFileName()
   {
     pid_t p = getpid();
-    std::ostringstream ost;
+    ostringstream ost;
     ost << "profdata_" << p;
     return ost.str();
   }
@@ -54,9 +58,9 @@ namespace
 #define getSP(X)  asm ( "movl %%esp,%0" : "=m" (X) )
 
 #if 0
-#define DODEBUG if(1) std::cerr
+#define DODEBUG if(1) cerr
 #else
-#define DODEBUG if(0) std::cerr
+#define DODEBUG if(0) cerr
 #endif
 
 
@@ -90,15 +94,13 @@ namespace
   void write_maps()
   {
     pid_t pid = getpid();
-    std::ostringstream number;
-    number << pid;
-    std::string inputname("/proc/");
-    inputname += number.str();
-    inputname += "/maps";
-    std::ifstream input(inputname.c_str());
-    std::ofstream output("map.dump");
-    std::string line;
-    while (std::getline(input, line)) output << line << '\n';
+    ostringstream strinput,stroutput;
+    strinput << "/proc/" << pid << "/maps";
+    stroutput << "profdata_" << pid << "_maps";
+    ifstream input(strinput.str().c_str());
+    ofstream output(stroutput.str().c_str());
+    string line;
+    while (getline(input, line)) output << line << '\n';
     input.close();
     output.close();
   }
@@ -107,13 +109,13 @@ namespace
 
   void openCondFile()
   {
-    std::string filename(makeFileName());
+    string filename(makeFileName());
     filename += "_condfile";
     frame_cond = fopen(filename.c_str(),"w");
     if(frame_cond==0)
       {
-	std::cerr << "bad open of profdata_condfile\n";
-	throw std::runtime_error("bad open");
+	cerr << "bad open of profdata_condfile\n";
+	throw runtime_error("bad open");
       }
   }
 
@@ -128,27 +130,50 @@ namespace
   }
 
   void dumpStack(const char* msg,
-		 unsigned int* esp, unsigned int* ebp, unsigned char* eip)
+		 unsigned int* esp, unsigned int* ebp, unsigned char* eip,
+		 ucontext_t* ucp)
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     throw logic_error("Cannot dumpStack on 64 bit build");
 #else
     fprintf(frame_cond, msg);
     fflush(frame_cond);
+    return;
     fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
 	    (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
     fflush(frame_cond);
 
 
+#if 0
     unsigned int* spp = esp;
-
     for(int i=15;i>-5;--i)
       {
 	fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
 	fflush(frame_cond);
       }
+#else
+    while(ucp->uc_link)
+      {
+	fprintf(frame_cond, "   %8.8x\n",ucp->uc_link);
+	ucp = ucp->uc_link;
+      }
+#endif
 #endif
   }
+}
+
+namespace {
+  // counters
+  int samples_total=0;
+  int samples_uninterpretable=0;
+  int samples_ebp_less_esp=0;
+  int samples_bad_ebp=0;
+  int samples_after_push=0;
+  int samples_before_push=0;
+  int samples_between_leave_ret=0;
+  int samples_skipped=0;
+  int samples_outside_range=0;
+  int samples_popped=0;
 }
 
 // ---------------------------------------------------------------------
@@ -175,9 +200,10 @@ extern "C"
     unsigned char* eip=(unsigned char*)ucp->uc_mcontext.gregs[REG_EIP];
     void* stacktop = prof->stackTop();
     void** arr = prof->tempStack();
+    ++samples_total;
 
 #if 0
-    std::cerr << "siginfo=" << (void*)info
+    cerr << "siginfo=" << (void*)info
 	 << " context=" << context
 	 << " stack=" << (void*)ucp->uc_stack.ss_sp
 	 << "\n";
@@ -198,14 +224,18 @@ extern "C"
 	  {
 	    *cur++ = ((unsigned int)eip);
 	    *cur++ = 0U;
-	    std::cerr << "early completion for eip = " << (unsigned int)eip << '\n';
+	    //cerr << "early completion for eip = " << (unsigned int)eip << '\n';
+	    fprintf(frame_cond," early completion for eip %8.8x\n",(unsigned int)eip);
+
+	    ++samples_uninterpretable;
 	    stack_uninterpretable=true;
 	  }
 	else
 	  {
-	    std::cerr << "ebp < esp (but not early completion)\n";
+	    fprintf(frame_cond,"ebp < esp (but not early completion)\n");
 	    ebp=(unsigned int*)(*ebp);
 	    ebp=(unsigned int*)(*ebp);
+	    ++samples_ebp_less_esp;
 	  } 
       }
   
@@ -225,7 +255,8 @@ extern "C"
 
 	if(eip[0]==INSTR::RET)
 	  {
-	    //std::cerr << "after the leave and immediately before the ret\n";
+	    ++samples_between_leave_ret;
+	    //cerr << "after the leave and immediately before the ret\n";
 	    condition += 1;
 	    //*cur++ = ((unsigned int)*esp);
 	    *cur++ = *esp;
@@ -241,76 +272,89 @@ extern "C"
 	// have been done, then EBP and ESP aren't yet set for the new
 	// function... so set them.
 
-	    if(
-	       (esp)<(unsigned int*)0x0000ffff||
-	       (esp+1)<(unsigned int*)0x0000ffff||
-	       (esp+2)<(unsigned int*)0x0000ffff
-	       )
-	      {
-		dumpStack("bad ebp data ****************\n",esp,ebp,eip); 
-	      }
+	if(
+	   (esp)<(unsigned int*)0x0000ffff||
+	   (esp+1)<(unsigned int*)0x0000ffff||
+	   (esp+2)<(unsigned int*)0x0000ffff
+	   )
+	  {
+	    dumpStack("bad ebp data ****************\n",esp,ebp,eip,ucp); 
+	  }
 	if( *esp==(unsigned int)ebp )
 	  {
+	    ++samples_after_push;
 	    condition += 4;	    
-	    //std::cerr << "after the push, before the mov\n";
+	    //cerr << "after the push, before the mov\n";
 	    ebp = esp;
 	  }
 	else if(eip[0]==0x55 && eip[1]==0x89 && eip[2]==0xe5)
 	  {
+	    ++samples_before_push;
 	    condition += 8;
-	    //std::cerr << "after the call, before the push\n";
+	    //cerr << "after the call, before the push\n";
 	    *cur++ = *esp;
 	  }
 	// if value at stacktop and stacktop-1 are outside stack range
-	else if(
-		(*(esp-2)==0xadb8 && *(esp-1)==0x80cd00) &&
-		(unsigned int)eip!=*(esp-1) &&
-		*eip!=0xc3 && *eip!=0xe8
-		 )
-	  {
-	    dumpStack("---------------------\n", esp,ebp,eip);
+	else if((*(esp-2)==0xadb8 && *(esp-1)==0x80cd00))
+	  if( (unsigned int)eip!=*(esp-1) && *eip!=0xc3 && *eip!=0xe8 )
+	    {
+	      ++samples_outside_range;
+	      dumpStack("stacktop and stacktop-1 outside range\n",
+			esp,ebp,eip,ucp);
+	      
+	      if ( (void*)eip > stacktop)
+		{
+		  // The current function had no stack frame.
+		  ++samples_bad_ebp;
+		  condition += 16;
+		  if( (ebp+0)<(unsigned int*)0x0000ffff )
+		    {
+		      dumpStack("bad ebp data ****************\n",
+				esp,ebp,eip,ucp);
+		    }
+		  ebp = (unsigned int*)esp[0];
+                  ebp=0; // we will skip these types of frames for now!!!! (jbk)
 
-	    if ( (void*)eip > stacktop)
-	      {
-		// The current function had no stack frame.
-		condition += 16;
-	    if( (ebp+0)<(unsigned int*)0x0000ffff )
-	      {
-		dumpStack("bad ebp data ****************\n",
-			  esp,ebp,eip); 
-	      }
-		ebp = (unsigned int*)esp[0];
-// 		frame* f = (frame*)(esp[0]);
-// 		while ( f != 0 )
-// 		  {
-// 		    f->print(frame_cond);
-// 		    f = f->next;
-// 		  }
-
-	      }
-	    else
-	      {
-		// The stack frame for the current function has
-		// already been popped.
-		condition += 2;
-		//std::cerr << "after the leave but before the ret\n";
-		*cur++ = *esp;
-	      }
-	  }
-      
+		  // 		frame* f = (frame*)(esp[0]);
+		  // 		while ( f != 0 )
+		  // 		  {
+		  // 		    f->print(frame_cond);
+		  // 		    f = f->next;
+		  // 		  }
+		  
+		}
+	      else
+		{
+		  // The stack frame for the current function has
+		  // already been popped.
+		  ++samples_popped;
+		  condition += 2;
+		  //cerr << "after the leave but before the ret\n";
+		  *cur++ = *esp;
+		}
+	    }
+	  else
+	    {
+	      //cerr << "skip stack trace\n";
+	      ++samples_skipped;
+	      ebp=0;
+	    }
+	
 	if (ebp<reinterpret_cast<unsigned int*>(stacktop) == false) 
 	  fprintf(stderr, "--- not going through the loop this time\n");
 
 	//if (condition!=0) fprintf(stderr, "bad condition: %d\n", condition);
 	//while(ebp<stacktop)
+
 	int counter = 0;
-	while (ebp)
+	while (ebp && ebp<stacktop)
 	  {
 	    //*cur++   = *(ebp+1);
 	    if( (ebp+1)<(unsigned int*)0x0000ffff )
 	      {
-		dumpStack("bad ebp+1 data ****************\n",
-			  esp,ebp,eip); 
+		fprintf(frame_cond,"bad ebp+1 data %8.8x\n",(ebp+1));
+		//dumpStack("bad ebp+1 data ****************\n",
+		//	  esp,ebp,eip,ucp); 
 		break;
 	      }
 	    unsigned int ival = ebp[1];
@@ -320,8 +364,9 @@ extern "C"
 	    //ebp=(unsigned int*)(*ebp);
 	    if( (ebp)<(unsigned int*)0x0000ffff )
 	      {
-		dumpStack("bad ebp data ****************\n",
-			  esp,ebp,eip); 
+		fprintf(frame_cond,"bad ebp data\n");
+		//dumpStack("bad ebp data ****************\n",
+		//	  esp,ebp,eip,ucp); 
 		break;
 	      }
 	    unsigned int val = ebp[0];
@@ -329,7 +374,7 @@ extern "C"
 
 	    if (++counter > 1000)
 	      {
-		std::cerr << "BAD COUNT!!!!!!\n";
+		cerr << "BAD COUNT!!!!!!\n";
 		break;
 	      }
 	  }
@@ -350,10 +395,10 @@ namespace
   void* setStacktop()
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-    throw std::logic_error("setStacktop not callable on 64 bit platform");
+    throw logic_error("setStacktop not callable on 64 bit platform");
     return 0;
 #else
-    const std::string target_name("__libc_start_main");
+    const string target_name("__libc_start_main");
     unsigned int* ebp_reg;
     getBP(ebp_reg);
     unsigned int* ebp = (unsigned int*)(ebp_reg);
@@ -374,12 +419,12 @@ namespace
 	if(dladdr(sta[i],&look)!=0)
 	  {
 #if 0
-	    std::cerr << "sta[" << i << "]=" << sta[i] << ":  " << (look.dli_saddr ? look.dli_sname : "?") << ":" << look.dli_saddr << "\n"; 
+	    cerr << "sta[" << i << "]=" << sta[i] << ":  " << (look.dli_saddr ? look.dli_sname : "?") << ":" << look.dli_saddr << "\n"; 
 #endif
 	    if (look.dli_saddr && target_name==look.dli_sname)
 	      {
 		address_of_target = sta[i];
-		// std::cerr << "found " << target_name << "\n";
+		// cerr << "found " << target_name << "\n";
 	      }
 	  }
 	else
@@ -388,14 +433,14 @@ namespace
 	    // was not found by the dynamic loader. The function might
 	    // be one that is declared 'static', and is thus not
 	    // visible outside of its compilation unit.
-	    std::cerr << "setStacktop: no function information for " 
+	    cerr << "setStacktop: no function information for " 
 		 << sta[i] 
 		 << "\n";
 	  }
       }
 
     if (address_of_target == 0)
-      throw std::runtime_error("no main function found in stack");
+      throw runtime_error("no main function found in stack");
 
     //fprintf(stderr,"depth=%d top=%8.8x\n",depth,top);
 
@@ -414,7 +459,7 @@ namespace
     };
 
     if (depth==0) 
-      throw std::runtime_error("setStacktop: could not find stack bottom");
+      throw runtime_error("setStacktop: could not find stack bottom");
 
     // Now we have to move one frame more, to the frame of the target
     // function. We want the location in memory of this frame (not any
@@ -429,7 +474,7 @@ namespace
   void setupTimer()
   {
 #if USE_SIGALTSTACK
-    static std::vector<char> charbuffer(SIGSTKSZ);
+    static vector<char> charbuffer(SIGSTKSZ);
     //ss_area.ss_sp = new char[SIGSTKSZ];
     ss_area.ss_sp = &charbuffer[0];
     ss_area.ss_flags = 0;
@@ -496,8 +541,8 @@ namespace
 	perror("getrlimit failed");
 	abort();
       }
-    std::cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
-    std::cerr << "core size limit (hard): " << limits.rlim_max << '\n';
+    cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
+    cerr << "core size limit (hard): " << limits.rlim_max << '\n';
 
     struct itimerval newval;
     struct itimerval oldval;
@@ -584,9 +629,9 @@ SimpleProfiler::SimpleProfiler():
   stacktop_(setStacktop())
 {
   if (fd_ < 0) {
-      std::ostringstream ost;
+      ostringstream ost;
       ost << "failed to open profiler output file " << filename_;
-      throw std::runtime_error(ost.str().c_str());
+      throw runtime_error(ost.str().c_str());
   }
   
   openCondFile();
@@ -595,7 +640,7 @@ SimpleProfiler::SimpleProfiler():
 SimpleProfiler::~SimpleProfiler()
 {
   if (running_)
-    std::cerr << "Warning: the profile timer was not stopped,\n"
+    cerr << "Warning: the profile timer was not stopped,\n"
 	 << "profiling data in " << filename_
 	 << " is probably incomplete and will not be processed\n";
 
@@ -605,9 +650,9 @@ SimpleProfiler::~SimpleProfiler()
 void SimpleProfiler::commitFrame(void** first, void** last)
 {
   void** cnt_ptr = curr_; 
-  *cnt_ptr = reinterpret_cast<void*>(std::distance(first,last));
+  *cnt_ptr = reinterpret_cast<void*>(distance(first,last));
   ++curr_;
-  curr_ = std::copy(first,last,curr_);
+  curr_ = copy(first,last,curr_);
   if(curr_ > high_water_) doWrite();
 }
 
@@ -615,12 +660,12 @@ void SimpleProfiler::doWrite()
 {
   void** start = &frame_data_[0];
   if(curr_ == start) return;
-  unsigned int cnt = std::distance(start,curr_) * sizeof(void*);
+  unsigned int cnt = distance(start,curr_) * sizeof(void*);
   unsigned int totwr=0;
 
   while (cnt>0 && (totwr=write(fd_,start,cnt)) != cnt) {
       if(totwr==0) 
-	throw std::runtime_error("SimpleProfiler::doWrite wrote zero bytes");
+	throw runtime_error("SimpleProfiler::doWrite wrote zero bytes");
       start+=(totwr/sizeof(void*));
       cnt-=totwr;
   }
@@ -631,13 +676,13 @@ void SimpleProfiler::doWrite()
 void SimpleProfiler::start()
 {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-  throw std::logic_error("SimpleProfiler not available on 64 bit platform");
+  throw logic_error("SimpleProfiler not available on 64 bit platform");
 #endif
   {
     boost::mutex::scoped_lock sl(lock_);
 
     if (installed_) {
-	std::cerr << "Warning: second thread " << pthread_self()
+	cerr << "Warning: second thread " << pthread_self()
 	     << " requested the profiler timer and another thread\n"
 	     << owner_ << "has already started it.\n"
 	     << "Only one thread can do profiling at a time.\n"
@@ -657,19 +702,19 @@ void SimpleProfiler::stop()
 {
   if(!installed_)
     {
-      std::cerr << "SimpleProfiler::stop - no timer installed to stop\n";
+      cerr << "SimpleProfiler::stop - no timer installed to stop\n";
       return;
     }
 
   if(owner_ != pthread_self())
     {
-      std::cerr << "SimpleProfiler::stop - only owning thread can stop the timer\n";
+      cerr << "SimpleProfiler::stop - only owning thread can stop the timer\n";
       return;
     }
 
   if(!running_)
     {
-      std::cerr << "SimpleProfiler::stop - no timer is running\n";
+      cerr << "SimpleProfiler::stop - no timer is running\n";
       return;
     }
 
@@ -697,13 +742,29 @@ void SimpleProfiler::complete()
 
   if(lseek(fd_,0,SEEK_SET)<0)
     {
-      std::cerr << "SimpleProfiler: could not seek to the start of the profile\n"
+      cerr << "SimpleProfiler: could not seek to the start of the profile\n"
 	   << " data file during completion.  Data will be lost.\n";
       return;
     }
 
   writeProfileData(fd_,filename_);
   write_maps();
+
+  string totsname = makeFileName();
+  totsname += "_sample_info";
+  ofstream ost(totsname.c_str());
+  
+  ost << "samples_total " << samples_total << "\n"
+      << "samples_uninterpretable " << samples_uninterpretable << "\n"
+      << "samples_ebp_less_esp " << samples_ebp_less_esp << "\n"
+      << "samples_bad_ebp " << samples_bad_ebp << "\n"
+      << "samples_after_push " << samples_after_push << "\n"
+      << "samples_before_push " << samples_before_push << "\n"
+      << "samples_between_leave_ret " << samples_between_leave_ret << "\n"
+      << "samples_skipped " << samples_skipped << "\n"
+      << "samples_outside_range " << samples_outside_range << "\n"
+      << "samples_popped " << samples_popped << "\n"
+    ;
 }
 
 

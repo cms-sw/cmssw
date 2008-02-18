@@ -199,7 +199,7 @@ inline const uint32_t SiStripRegionCabling::region(const uint32_t index) {
 
 template <class T>
 void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const uint32_t index) const {
-  refgetter.push_back(lazygetter,index);
+  if (!refgetter.find(index)) refgetter.push_back(lazygetter,index);
 }
 
 template <class T>
@@ -219,7 +219,7 @@ void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refg
   for (uint32_t i=0;i<mineta+plueta+1;i++) {
     for (uint32_t j=0;j<minphi+pluphi+1;j++) {
       const uint32_t k=elementIndex(increment(index,i-mineta,j-minphi),sub,layer);
-      if (!refgetter.find(k)) updateSiStripRefGetter<T>(refgetter,lazygetter,k);
+      updateSiStripRefGetter<T>(refgetter,lazygetter,k);
     }
   } 
 }

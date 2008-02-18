@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.157 $
+ * $Date: 2007/11/09 14:02:29 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -21,8 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -36,12 +34,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 
@@ -54,9 +56,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -68,7 +67,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   h00_ = 0;
@@ -101,20 +100,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-    qth06_[ism-1] = 0;
-    qth07_[ism-1] = 0;
-    qth08_[ism-1] = 0;
-    qth09_[ism-1] = 0;
-    qth10_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-
   }
 
   threshCry_ = 0.;
@@ -134,93 +119,6 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBIT data integrity quality gain %s", Numbers::sEB(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality ChId %s", Numbers::sEB(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality gain switch %s", Numbers::sEB(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality gain switch stay %s", Numbers::sEB(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality TTId %s", Numbers::sEB(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality TTBlockSize %s", Numbers::sEB(ism).c_str());
-      qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality MemChId %s", Numbers::sEB(ism).c_str());
-      qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality MemGain %s", Numbers::sEB(ism).c_str());
-      qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality MemTTId %s", Numbers::sEB(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT data integrity quality MemSize %s", Numbers::sEB(ism).c_str());
-      qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth02_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth03_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth04_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth05_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth06_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth07_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
-
-      qth01_[ism-1]->setMinimumEntries(0);
-      qth02_[ism-1]->setMinimumEntries(0);
-      qth03_[ism-1]->setMinimumEntries(0);
-      qth04_[ism-1]->setMinimumEntries(0);
-      qth05_[ism-1]->setMinimumEntries(0);
-      qth06_[ism-1]->setMinimumEntries(0);
-      qth07_[ism-1]->setMinimumEntries(0);
-      qth08_[ism-1]->setMinimumEntries(0);
-      qth09_[ism-1]->setMinimumEntries(0);
-      qth10_[ism-1]->setMinimumEntries(0);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-      qth06_[ism-1]->setErrorProb(1.00);
-      qth07_[ism-1]->setErrorProb(1.00);
-      qth08_[ism-1]->setErrorProb(1.00);
-      qth09_[ism-1]->setErrorProb(1.00);
-      qth10_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBIT quality test %s", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBIT quality test MEM %s", Numbers::sEB(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -269,10 +167,14 @@ void EBIntegrityClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg02_[ism-1]->setAxisTitle("channel", 2);
 
   }
 
@@ -280,8 +182,8 @@ void EBIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -290,7 +192,6 @@ void EBIntegrityClient::setup(void) {
 
       }
     }
-
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
@@ -384,21 +285,24 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
-    UtilsClient::printBadChannels(qth02_[ism-1]);
-    UtilsClient::printBadChannels(qth03_[ism-1]);
-    UtilsClient::printBadChannels(qth04_[ism-1]);
-    UtilsClient::printBadChannels(qth05_[ism-1]);
-    UtilsClient::printBadChannels(qth06_[ism-1]);
+    if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
+      cout << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
+      cout << endl;
+    }
 
-    UtilsClient::printBadChannels(qth07_[ism-1]);
-    UtilsClient::printBadChannels(qth08_[ism-1]);
-    UtilsClient::printBadChannels(qth09_[ism-1]);
-    UtilsClient::printBadChannels(qth10_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h06_[ism-1], true);
 
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-//    UtilsClient::printBadChannels(qtg02_[ism-1]);
+    UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h10_[ism-1], true);
 
     float num00;
 
@@ -480,7 +384,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c1.setTaskStatus(val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -565,7 +469,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = (ipt-1) + 4*(iet-1) + 1;
+          int itt = Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
 
           if ( econn ) {
             try {
@@ -802,62 +706,6 @@ void EBIntegrityClient::subscribe(void){
 
   }
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-
-  }
-
 }
 
 void EBIntegrityClient::subscribeNew(void){
@@ -1045,8 +893,8 @@ void EBIntegrityClient::analyze(void){
     float num00;
 
     // integrity summary histograms
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     num00 = 0.;
 
@@ -1146,7 +994,7 @@ void EBIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
@@ -1166,9 +1014,7 @@ void EBIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int iet = 1 + ((ie-1)/5);
-            int ipt = 1 + ((ip-1)/5);
-            int itt = (ipt-1) + 4*(iet-1) + 1;
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
@@ -1184,20 +1030,6 @@ void EBIntegrityClient::analyze(void){
 
       }
     }// end of loop on crystals to fill summary plot
-
-    vector<dqm::me_util::Channel> badChannels01;
-    vector<dqm::me_util::Channel> badChannels02;
-    vector<dqm::me_util::Channel> badChannels03;
-    vector<dqm::me_util::Channel> badChannels04;
-    vector<dqm::me_util::Channel> badChannels05;
-    vector<dqm::me_util::Channel> badChannels06;
-
-    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
-    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
-    if ( qth06_[ism-1] ) badChannels06 = qth06_[ism-1]->getBadChannels();
 
     // summaries for mem channels
     float num07, num08, num09, num10;
@@ -1311,16 +1143,6 @@ void EBIntegrityClient::analyze(void){
       }
     }  // end loop on mem channels
 
-    vector<dqm::me_util::Channel> badChannels07;
-    vector<dqm::me_util::Channel> badChannels08;
-    vector<dqm::me_util::Channel> badChannels09;
-    vector<dqm::me_util::Channel> badChannels10;
-
-    if ( qth07_[ism-1] ) badChannels01 = qth07_[ism-1]->getBadChannels();
-    if ( qth08_[ism-1] ) badChannels02 = qth08_[ism-1]->getBadChannels();
-    if ( qth09_[ism-1] ) badChannels03 = qth09_[ism-1]->getBadChannels();
-    if ( qth10_[ism-1] ) badChannels04 = qth10_[ism-1]->getBadChannels();
-
   }// end loop on supermodules
 
 }
@@ -1358,8 +1180,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
   htmlFile << "<hr>" << std::endl;
@@ -1729,8 +1551,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
-	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;

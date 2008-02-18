@@ -27,7 +27,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 /// data in edm::event
-#include "SimDataFormats/MuonValidation/interface/PMuonSimHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

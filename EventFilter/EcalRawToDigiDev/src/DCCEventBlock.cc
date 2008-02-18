@@ -188,14 +188,16 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     return;
   }
   
-
+  // note: there is no a-priori check that number_active_channels_from_header
+  //          equals number_channels_found_in_data.
+  //          The checks are doing f.e. by f.e. only.
   
   if( feUnpacking_ || memUnpacking_ ){ 	     					
     it = feChStatus_.begin();
     
     // looping over FE channels, i.e. tower blocks
-    for( uint i=1; i<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; i++, it++ ){			
-      //for( uint i=1; i<= numbChannels; i++, it++ ){			
+    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){			
+      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){			
 
       short  chStatus(*it);
       
@@ -204,10 +206,10 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_
 	 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
-	 && i<=68){
+	 && chNumber<=68){
 	
-        if ( srpBlock_->srFlag(i) != SRP_NREAD ){
-	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
+        if ( srpBlock_->srFlag(chNumber) != SRP_NREAD ){
+	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
         }
       }
 
@@ -216,20 +218,20 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
       else if (feUnpacking_ 
 	       && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
-	       && i<=68){
+	       && chNumber<=68){
 	
 	// if tzs_ data are not really suppressed, even though zs flags are calculated
 	if(tzs_){ zs_ = false;}
-	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
+	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
       }		 
   
 
 
       // Unpack Mem blocks
       if(memUnpacking_
-	 && i>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
+	 && chNumber>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
 
-        STATUS = memBlock_->unpack(&data_,&dwToEnd_,i);
+        STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
       }
       
     }

@@ -52,7 +52,8 @@ using namespace edm;
 
 SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) )
+  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) )
 {
    theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -80,9 +81,13 @@ void SiPixelRawDataErrorSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelRawDataErrorSource::endJob(void){
-  LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::endJob - Saving Root File " << std::endl;
-  std::string outputFile = conf_.getParameter<std::string>("outputFile");
-  theDMBE->save( outputFile.c_str() );
+
+  if(saveFile) {
+    LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::endJob - Saving Root File " << std::endl;
+    std::string outputFile = conf_.getParameter<std::string>("outputFile");
+    theDMBE->save( outputFile.c_str() );
+  }
+
 }
 
 //------------------------------------------------------------------

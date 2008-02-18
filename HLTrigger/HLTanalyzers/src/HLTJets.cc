@@ -86,7 +86,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoHTCal",&htcalet,"recoHTCal/F");
   HltTree->Branch("recoHTCalPhi",&htcalphi,"recoHTCalPhi/F");
   HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
-
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
 
 }
@@ -98,10 +97,9 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 		      const GenMETCollection& genmets,
 		      const METCollection& ht,
 		      const CaloTowerCollection& caloTowers,
-		      const CaloGeometry& geom,
 		      TTree* HltTree) {
 
-  //std::cout << " Beginning HLTJets " << std::endl;
+  if (_Debug) std::cout << " Beginning HLTJets " << std::endl;
 
   //initialize branch variables
   njetcal=0; njetgen=0;ntowcal=0;

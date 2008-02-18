@@ -4,8 +4,8 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2007/09/20 07:19:09 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/06 11:35:11 $
+ * $Revision: 1.3 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -74,8 +74,6 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
-
-  std::string outputFile;
 
   std::map< DTLayerId, MonitorElement* > digiHistos;
 

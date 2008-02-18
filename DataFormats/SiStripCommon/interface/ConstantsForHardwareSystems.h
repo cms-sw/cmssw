@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.4 2007/07/02 11:38:42 bainbrid Exp $
+// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.5 2007/07/31 15:20:24 ratnik Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
@@ -56,8 +56,8 @@ namespace sistrip {
 
   // -------------------- Control system --------------------
 
-  static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
-  static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
+  //static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
+  //static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
   
   static const uint16_t FEC_RING_MIN    =   1;
   static const uint16_t FEC_RING_MAX    =   8;

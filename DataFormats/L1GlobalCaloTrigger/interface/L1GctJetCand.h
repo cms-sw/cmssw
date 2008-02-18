@@ -21,10 +21,10 @@ public:
   L1GctJetCand();
 
   /// construct from raw data - used in GT
-  L1GctJetCand(uint16_t data, bool isTau, bool isFor);
+  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor);
 
   /// construct from raw data with source - uesd in GCT unpacker
-  L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from rank, eta, phi, isolation - used in GCT emulator
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
@@ -85,9 +85,7 @@ public:
                                                  || (this->empty() && c.empty())); }
 
    /// inequality operator
-  int operator!=(const L1GctJetCand& c) const { return ((m_data!=c.raw() || 
-                                                m_isTau!=c.isTau() || m_isFor!=c.isForward())
-                                                && (!this->empty() || !c.empty())); }
+  int operator!=(const L1GctJetCand& c) const { return !(*this == c); }
 
 private:
 

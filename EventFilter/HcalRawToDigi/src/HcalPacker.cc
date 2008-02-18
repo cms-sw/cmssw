@@ -103,7 +103,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
     for (int fiber=1; fiber<=8; fiber++) 
       for (int fiberchan=0; fiberchan<3; fiberchan++) {
 	int linear=(fiber-1)*3+fiberchan;
-	unsigned short chanid=(((fiber-1)&0x7)<<13)|((fiberchan&0x3)<<11);
+	HcalQIESample chanSample(0,0,fiber,fiberchan,false,false);
+	unsigned short chanid=chanSample.raw()&0xF800;
 	preclen[linear]=0;
 
 	HcalElectronicsId partialEid(fiberchan,fiber,spigot,dccnumber);
@@ -140,7 +141,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
     for (int slb=1; slb<=6; slb++) 
       for (int slbchan=0; slbchan<=3; slbchan++) {
 	int linear=(slb-1)*4+slbchan;
-	unsigned short chanid=(((slb-1)&0x7)<<13)|((slbchan&0x3)<<11);
+	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
+	unsigned short chanid=idCvt.raw()&0xF800;
 	triglen[linear]=0;
 	
 	HcalElectronicsId partialEid(dccnumber,spigot,slb,slbchan,0,0,0);
@@ -155,7 +157,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase,samples,presamples);
 	  if (samples<0 && triglen[linear]>0) samples=triglen[linear];
 	  for (unsigned char q=0; q<triglen[linear]; q++)
-	    trigbase[q]=(trigbase[q]&0x7FF)|(chanid&0x1F);
+	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
 	}
       }
     /// pack into HcalHTRData

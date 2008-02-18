@@ -41,7 +41,7 @@
 <use name=Alignment/MuonAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
-<use name=CondFormats/AlignmentRecord>
+<use name=CondFormats/DataRecord>
 <use name=DataFormats/Math>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/SiStripDetId>

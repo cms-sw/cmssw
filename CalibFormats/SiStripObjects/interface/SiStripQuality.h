@@ -17,55 +17,78 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id$
+// $Id: SiStripQuality.h,v 1.6 2007/11/04 22:29:15 giordano Exp $
 //
 
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include <vector>
-
 
 class SiStripQuality: public SiStripBadStrip {
 
  public:
 
-  SiStripQuality();
-  SiStripQuality(edm::FileInPath&);
-  SiStripQuality(const SiStripBadStrip* );
-  SiStripQuality(const SiStripBadStrip*, edm::FileInPath&);
-
-
-  ~SiStripQuality(){
-    delete reader;
+  struct BadComponent{
+    uint32_t detid;
+    unsigned short BadApvs : 6;
+    unsigned short BadFibers :3;
+    bool BadModule :1;
   };
+
+  class BadComponentStrictWeakOrdering{
+  public:
+    bool operator() (const BadComponent& p,const uint32_t i) const {return p.detid < i;}
+  };
+  
+  SiStripQuality(); //takes default file for SiStripDetInfoFileReader
+  SiStripQuality(edm::FileInPath&);
+  SiStripQuality(const SiStripQuality&); //copy constructor
+
+  ~SiStripQuality(){ 
+    LogTrace("SiStripQuality") << "SiStripQuality destructor" << std::endl; 
+    delete reader;
+  }
 
   void clear(){
     v_badstrips.clear();
     indexes.clear();
+    BadComponentVect.clear();
+    toCleanUp=false;
   }
- 
+
+  void add(const uint32_t&,const SiStripBadStrip::Range&);
   void add(const SiStripBadStrip*);
-
-  inline std::pair<unsigned short,unsigned short> decode (const unsigned int& value) const {
-    return std::make_pair( ((value >> 16)  & 0xFFFF) , (value & 0xFFFF) );
-  }
-
-  inline unsigned int encode (const unsigned short& first, const unsigned short& NconsecutiveBadStrips) {
-    return   ((first & 0xFFFF) << 16) | ( NconsecutiveBadStrips & 0xFFFF ) ;
-  }
+  void add(const SiStripDetCabling*);
+  void addInvalidConnectionFromCabling();
 
   bool cleanUp();
 
-  /*
-  bool IsModuleBad(const uint32_t& detid);
-  bool IsFiberBad(const uint32_t& detid, const short& fiberNb);
-  bool IsApvBad(const uint32_t& detid, const short& apvNb);
-  */
-  bool IsStripBad(const uint32_t& detid, const short& strip);
-  /*
-  short getBadApvs(const uint32_t& detid); 
+  void fillBadComponents();
+
+  SiStripQuality& operator +=(const SiStripQuality&); 
+  SiStripQuality& operator -=(const SiStripQuality&);
+  const SiStripQuality operator -(const SiStripQuality&) const ;
+  bool operator ==(const SiStripQuality&) const;
+  bool operator !=(const SiStripQuality&) const;
+  
+  edm::FileInPath getFileInPath() const {return FileInPath_;}
+
+  //------- Interface for the user ----------//
+  bool IsModuleUsable(const uint32_t& detid) const;
+
+  bool IsModuleBad(const uint32_t& detid) const;
+  bool IsFiberBad(const uint32_t& detid, const short& fiberNb) const;
+  bool IsApvBad(const uint32_t& detid, const short& apvNb) const;
+  bool IsStripBad(const uint32_t& detid, const short& strip) const;
+  bool IsStripBad(const Range& range, const short& strip) const;
+  int  nBadStripsOnTheLeft(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the left of strip (including strip)
+  int  nBadStripsOnTheRight(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the right of strip (including strip)
+  
+  short getBadApvs(const uint32_t& detid) const; 
   //each bad apv correspond to a bit to 1: num=
   //0 <-> all good apvs
   //1 <-> only apv 0 bad
@@ -73,7 +96,7 @@ class SiStripQuality: public SiStripBadStrip {
   //3<->  apv 0 and 1 bad
   // 4 <-> only apv 2 bad
   //...
-  short getBadFibers(const uint32_t& detid); 
+  short getBadFibers(const uint32_t& detid) const; 
   //each bad fiber correspond to a bit to 1: num=
   //0 <-> all good fibers
   //1 <-> only fiber 0 bad
@@ -81,21 +104,25 @@ class SiStripQuality: public SiStripBadStrip {
   //3<->  fiber 0 and 1 bad
   // 4 <-> only fiber 2 bad
   //...
+  
+  const std::vector<BadComponent>& getBadComponentList() const { return BadComponentVect; }   
 
-  void getBadModuleList(std::vector<uint32_t>&);
-  void getBadFiberList(std::vector< std::pair<uint32_t,short> >&);
-  void getBadApvList(std::vector< std::pair<uint32_t,short> >&);
-  */
+  void compact(unsigned int&,std::vector<unsigned int>&);
 
  private:
 
   void compact(std::vector<unsigned int>&,std::vector<unsigned int>&,unsigned short&);
+  void subtract(std::vector<unsigned int>&,const std::vector<unsigned int>&);
+  void subtraction(std::vector<unsigned int>&,const unsigned int&);
   bool put_replace(const uint32_t& DetId, Range input);
 
-  SiStripDetInfoFileReader* reader;
-  edm::FileInPath fileInpath;
-
   bool toCleanUp;
+  edm::FileInPath FileInPath_;
+  SiStripDetInfoFileReader* reader;
+
+  std::vector<BadComponent> BadComponentVect;
+
+  const SiStripDetCabling *SiStripDetCabling_;  
 };
 
 #endif

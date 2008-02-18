@@ -1,0 +1,84 @@
+<FrameworkJobReport>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_1.root</PFN>
+<Catalog></Catalog>
+<ModuleLabel>EdmFastMerge</ModuleLabel>
+<GUID></GUID>
+<Runs>
+</Runs>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputSourceClass>FastMerge</InputSourceClass>
+<EventsRead>10</EventsRead>
+</InputFile>
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_2.root</PFN>
+<Catalog></Catalog>
+<ModuleLabel>EdmFastMerge</ModuleLabel>
+<GUID></GUID>
+<Runs>
+</Runs>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<InputSourceClass>FastMerge</InputSourceClass>
+<EventsRead>15</EventsRead>
+</InputFile>
+<File>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMerge_out.root</PFN>
+<Catalog></Catalog>
+<ModuleLabel>EdmFastMerge</ModuleLabel>
+<GUID>80C2A0D3-8788-DC11-A767-00C09F38C95A</GUID>
+<Runs>
+</Runs>
+<Branches>
+  <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
+  <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
+  <Branch>edmtestThings_Thing__TESTPROD.</Branch>
+</Branches>
+<OutputModuleClass>FastMerge</OutputModuleClass>
+<TotalEvents>25</TotalEvents>
+
+<DataType></DataType>
+
+<BranchHash>NO_BRANCH_HASH</BranchHash>
+
+<LumiSections>
+<LumiSection>
+<LumiSectionNumber Value="1"/>
+<RunNumber Value="100"/>
+</LumiSection>
+
+<LumiSection>
+<LumiSectionNumber Value="1"/>
+<RunNumber Value="200"/>
+</LumiSection>
+
+</LumiSections>
+
+<Inputs>
+<Input>
+  <LFN></LFN>
+  <PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_1.root</PFN>
+</Input>
+<Input>
+  <LFN></LFN>
+  <PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_2.root</PFN>
+</Input>
+</Inputs>
+</File>
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

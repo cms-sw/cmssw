@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>	
@@ -30,6 +31,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/PluginManager>
   <use name=FWCore/ParameterSet>
+  <use name=CondFormats/DataRecord>
   <use name=root>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/Records>

@@ -6,6 +6,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
@@ -40,7 +41,7 @@ public:
         typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
         typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
         typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
-        typedef L1GctTwosComplement< L1GctEtMiss::kEtMissNBits  > etComponentType;
+        typedef L1GctJetLeafCard::etComponentType etComponentType;
 
         /// Number of jet counter per wheel
         static const unsigned int N_JET_COUNTERS;

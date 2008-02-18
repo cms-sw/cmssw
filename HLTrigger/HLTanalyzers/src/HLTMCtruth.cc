@@ -49,7 +49,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCpt",mcpt,"MCpt[NMCpart]/F");
   HltTree->Branch("MCeta",mceta,"MCeta[NMCpart]/F");
   HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
-  HltTree->Branch("MCPtHat",&pthat,"MCPtHat/F");
+  HltTree->Branch("MCPtHat",&pthatf,"MCPtHat/F");
   HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
   HltTree->Branch("MCbb",&nbb,"MCbb/I");
   HltTree->Branch("MCab",&nab,"MCab/I");
@@ -58,7 +58,8 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const CandidateCollection& mctruth,
-			 const HepMC::GenEvent hepmc,
+			 //const HepMC::GenEvent hepmc,
+			 const double pthat,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -69,11 +70,11 @@ void HLTMCtruth::analyze(const CandidateCollection& mctruth,
     int mab = 0;
     int mbb = 0;
 
-    if (&hepmc){
-      pthat = hepmc.event_scale(); // Pt-hat of the event
-    }
-
-     if (&mctruth){
+    pthatf=pthat;
+    //if (&hepmc){
+    //  pthat = hepmc.event_scale(); // Pt-hat of the event
+    //}
+    if (&mctruth){
 
       for (size_t i = 0; i < mctruth.size(); ++ i) {
 	const Candidate & p = (mctruth)[i];
