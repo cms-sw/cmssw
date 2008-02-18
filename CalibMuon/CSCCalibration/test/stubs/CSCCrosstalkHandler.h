@@ -29,11 +29,11 @@ namespace popcon
       CSCDBCrosstalkImpl(const edm::ParameterSet& pset);
   
     private:
-      std::string m_pop_connect; //connect string to popcon metaschema
+      //std::string m_pop_connect; //connect string to popcon metaschema
       std::string m_name;
-      std::string m_cs;
-      const CSCDBCrosstalk * mycrosstalk;
-      LogReader* lgrdr;
+      //std::string m_cs;
+      //const CSCDBCrosstalk * mycrosstalk;
+      //LogReader* lgrdr;
     };
 }
 #endif
