@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2007/09/25 15:17:45 $
- * $Revision: 1.5 $
+ * $Date: 2008/01/07 16:06:32 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -26,7 +26,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 

@@ -4,7 +4,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.h
  *
- * $Date: 2006/10/17 09:56:12 $
+ * $Date: 2006/10/26 08:33:10 $
  * \author C. Rovelli
  *
  */
@@ -20,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"

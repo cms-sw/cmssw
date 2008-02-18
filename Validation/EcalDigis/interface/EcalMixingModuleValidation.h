@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2006/10/20 16:39:16 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/26 08:30:31 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -22,7 +22,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"

@@ -4,8 +4,8 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/26 08:30:31 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -22,7 +22,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
