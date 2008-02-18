@@ -23,9 +23,12 @@
 #include "CondCore/DBOutputService/interface/UserLogInfo.h"
 //#include <iostream>
 #include <vector>
+
 static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+
+
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
-  m_currentTime( 0 ),
+  //m_currentTime( 0 ),
   m_session( 0 ),
   m_dbstarted( false ),
   m_logdb( 0 ),
@@ -36,14 +39,14 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   if( iConfig.exists("logconnect") ){
     logconnect=iConfig.getUntrackedParameter<std::string>("logconnect");
   }  
-  m_session=new cond::DBSession;  
-  m_timetypestr=iConfig.getParameter< std::string >("timetype");
-  if(m_timetypestr!="runnumber"&&m_timetypestr!="timestamp"){
+  m_timetypestr=iConfig.getUntrackedParameter< std::string >("timetype","runnumber");
+  if((m_timetypestr!=std::string("runnumber"))&&(m_timetypestr!=std::string("timestamp"))){
     throw cond::Exception(std::string("Unrecognised time type ")+m_timetypestr);
   }else{
-    if(m_timetypestr=="runnumber") m_timetype=cond::runnumber;
-    if(m_timetypestr=="timestamp") m_timetype=cond::timestamp;
+    if(m_timetypestr==std::string("runnumber")) m_timetype=cond::runnumber;
+    if(m_timetypestr==std::string("timestamp")) m_timetype=cond::timestamp;
   }
+  m_session=new cond::DBSession;  
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");

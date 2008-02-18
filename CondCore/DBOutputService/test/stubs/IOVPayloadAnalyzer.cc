@@ -20,6 +20,7 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
     return;
   }
   unsigned int irun=evt.id().run();
+  
   std::string tag=mydbservice->tag(m_record);
   std::cout<<"tag "<<tag<<std::endl;
   std::cout<<"run "<<irun<<std::endl;
