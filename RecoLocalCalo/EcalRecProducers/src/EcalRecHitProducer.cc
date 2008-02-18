@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.15 2007/12/21 15:35:40 ferriff Exp $
- *  $Date: 2007/12/21 15:35:40 $
- *  $Revision: 1.15 $
+ *  $Id: EcalRecHitProducer.cc,v 1.16 2008/02/18 11:16:13 ferriff Exp $
+ *  $Date: 2008/02/18 11:16:13 $
+ *  $Revision: 1.16 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -124,7 +124,6 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    es.get<EcalLaserDbRecord>().get( pLaser );
 
    // channel status map
-   std::cout << "going to take channel status map" << std::endl;
    edm::ESHandle<EcalChannelStatus> pChStatus;
    es.get<EcalChannelStatusRcd>().get( pChStatus );
    const EcalChannelStatus* chStatus = pChStatus.product();
@@ -140,12 +139,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          EcalChannelStatusCode chStatusCode = 1;
          if ( chit != chStatus->end() ) {
                  chStatusCode = *chit;
-                 std::cout << "Preso codice" << chStatusCode.getStatusCode() << std::endl;
          } else {
                  edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
          }
-         if ( chStatusCode.getStatusCode() != 1 ) {
-                 std::cout << "Continuo" << std::endl;
+         if ( chStatusCode.getStatusCode() != 0 ) {
                  continue;
          }
 
@@ -179,8 +176,6 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
        }
      }
 
-   std::cout << "between EB and EE" << std::endl;
-
    if (EEuncalibRecHits)
      {
        // loop over uncalibrated rechits to make calibrated ones
@@ -194,7 +189,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          } else {
                  edm::LogError("EcalRecHitError") << "No channel status found for xtal " << EBDetId(it->id()) << "! something wrong with EcalChannelStatus in your DB? ";
          }
-         if ( chStatusCode.getStatusCode() != 1 ) {
+         if ( chStatusCode.getStatusCode() != 0 ) {
                  continue;
          }
 
