@@ -58,6 +58,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	enum Object {
 		kNone = 0,
 		kHeader,
+		kInit,
 		kComment,
 		kEvent
 	};
@@ -79,6 +80,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
     private:
 	friend class LHEReader;
 
+	int		depth;
 	std::string	buffer;
 	std::string	comments;
 	Object		gotObject;
@@ -101,12 +103,18 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 		return;
 	}
 
-	if (mode != kNone)
+	if (mode == kHeader) {
+		depth++;
+		return;
+	} else if (mode != kNone)
 		throw cms::Exception("InvalidFormat")
 			<< "LHE file has invalid format" << std::endl;
 
-	if (name == "init")
+	if (name == "header") {
 		mode = kHeader;
+		depth = 1;
+	} if (name == "init")
+		mode = kInit;
 	else if (name == "event")
 		mode = kEvent;
 
@@ -122,6 +130,9 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
                                        const XMLCh *const qname)
 {
 	if (mode) {
+		if (mode == kHeader && --depth > 0)
+			return;
+
 		if (gotObject != kNone)
 			throw cms::Exception("InvalidState")
 				<< "Unexpected pileup in"
@@ -200,6 +211,9 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 			break;
 
 		    case XMLHandler::kHeader:
+			break;
+
+		    case XMLHandler::kInit:
 			curCommon.reset(
 				new LHECommon(data, handler->comments));
 			handler->comments.clear();
