@@ -19,7 +19,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "Utilities/General/interface/CMSexception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
@@ -36,6 +37,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 TrajectoryStateOnSurface& theTSOS,
 						 const TrajectorySeed& seed,
 						 float ndof,
+						 const reco::BeamSpot& bs,
 						 SeedRef seedRef)
 {
   //variable declarations
@@ -69,24 +71,20 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
       ndof = ndof + ((*h)->dimension())*((*h)->weight());
     ndof = ndof - 5;
     
-    TSCPBuilderNoMaterial tscpBuilder;
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
 
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );//FIXME Correct?   
-    GlobalPoint v = tscp.theState().position();
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+    GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    GlobalVector p = tscp.theState().momentum();
+    GlobalVector p = tscbl.trackStateAtPCA().momentum();
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
     LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
-			       //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
-			       //			       0, //FIXME no corresponding method in trajectory.h
-			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
+			       pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());
     
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
 
@@ -108,6 +106,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    TrajectoryStateOnSurface& theTSOS,
 						    const TrajectorySeed& seed,
 						    float ndof,
+						    const reco::BeamSpot& bs,
 						    SeedRef seedRef)
 {
   //variable declarations
@@ -159,27 +158,23 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
       ndof = ndof + ((*h)->dimension())*((*h)->weight());
     ndof = ndof - 5;
    
-    TSCPBuilderNoMaterial tscpBuilder;
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    LogDebug("TrackProducer") << "innertsos=" << innertsos ;
 
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );//FIXME Correct?
-    
-//      PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
-//  
-//      PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
-
-    GlobalPoint v = tscp.theState().position();
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+    GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    GlobalVector p = tscp.theState().momentum();
+    GlobalVector p = tscbl.trackStateAtPCA().momentum();
     math::XYZVector mom( p.x(), p.y(), p.z() );
+
+    LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
 
     theTrack = new reco::GsfTrack(theTraj->chiSquared(),
 				  int(ndof),//FIXME fix weight() in TrackingRecHit
 				  //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 				  //			       0, //FIXME no corresponding method in trajectory.h
 				  //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-				  pos, mom, tscp.charge(), tscp.theState().curvilinearError().matrix());
-
+				  pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());    
 
     LogDebug("GsfTrackProducer") <<"track done\n";
 

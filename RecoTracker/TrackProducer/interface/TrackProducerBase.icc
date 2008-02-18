@@ -66,32 +66,34 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
 }
 
 template <class T> void
-TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidateCollection>& theTCCollection)
+TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidateCollection>& theTCCollection, reco::BeamSpot& bs)
 {
-  //
+  //		
   //get the TrackCandidateCollection from the event
   //
   LogDebug("TrackProducer") << 
     "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
-  if (pro_=="") {
     theEvent.getByLabel(src_,theTCCollection );  
-  } else {
-    theEvent.getByLabel(pro_,src_,theTCCollection );
-  }
+
+  //get the BeamSpot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  bs = *recoBeamSpotHandle;
 }
 
 template <class T> void
-TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollection>& theTCollection)
+TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollection>& theTCollection, reco::BeamSpot& bs)
 {
   //
   //get the TrackCollection from the event
   //
   LogDebug("TrackProducer") << 
     "get the TrackCollection from the event, source is " << src_<<"\n";
-  if (pro_=="") {
     theEvent.getByLabel(src_,theTCollection );  
-  } else {
-    theEvent.getByLabel(pro_,src_,theTCollection );
-  }
+
+  //get the BeamSpot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  bs = *recoBeamSpotHandle;
 }
 

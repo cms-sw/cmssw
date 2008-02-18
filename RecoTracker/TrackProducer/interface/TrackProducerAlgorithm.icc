@@ -39,6 +39,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 					    const TrajectoryFitter * theFitter,
 					    const Propagator * thePropagator,
 					    const TransientTrackingRecHitBuilder* builder,
+			   		    const reco::BeamSpot& bs,
 					    AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
@@ -74,7 +75,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof,theTC->seedRef());
+      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
@@ -88,6 +89,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 					const TrajectoryFitter * theFitter,
 					const Propagator * thePropagator,
 					const TransientTrackingRecHitBuilder* builder,
+			   		const reco::BeamSpot& bs,
 					AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
@@ -120,7 +122,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof, bs, theT->seedRef());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -138,6 +140,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 					   const TrajectoryFitter * theFitter,
 					   const Propagator * thePropagator,
 					   const TransientTrackingRecHitBuilder* builder,
+			   		   const reco::BeamSpot& bs,
 					   AlgoProductCollection& algoResults){
   
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
@@ -182,7 +185,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof, bs, theT->seedRef());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -200,6 +203,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 					 const TrajectoryFitter * theFitter,
 					 const Propagator * thePropagator,
 					 const TransientTrackingRecHitBuilder* builder,
+			   		 const reco::BeamSpot& bs,
 					 AlgoProductCollection& algoResults){
 
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
@@ -254,7 +258,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof, bs, theT->seedRef());
 	if(ok) cont++;
       } catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      

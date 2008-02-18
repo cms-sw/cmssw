@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2007/12/06 09:31:45 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/01/26 10:45:59 $
+ *  $Revision: 1.18 $
  *  \author cerati
  */
 
@@ -17,6 +17,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class MagneticField;
 class TrackingGeometry;
@@ -52,6 +53,7 @@ public:
 			const TrajectoryFitter *,
 			const Propagator *,
 			const TransientTrackingRecHitBuilder*,
+			const reco::BeamSpot&,
 			AlgoProductCollection &);
 
   /// Run the Final Fit taking Tracks as input (for Refitter)
@@ -61,6 +63,7 @@ public:
 		    const TrajectoryFitter *,
 		    const Propagator *,
 		    const TransientTrackingRecHitBuilder*,
+		    const reco::BeamSpot&,
 		    AlgoProductCollection &);
 
   /// Run the Final Fit taking TrackMomConstraintAssociation as input (Refitter with momentum constraint)
@@ -70,6 +73,7 @@ public:
 		       const TrajectoryFitter *,
 		       const Propagator *,
 		       const TransientTrackingRecHitBuilder*,
+		       const reco::BeamSpot&,
 		       AlgoProductCollection &);
 
   /// Run the Final Fit taking TrackVtxConstraintAssociation as input (Refitter with vertex constraint)
@@ -79,6 +83,7 @@ public:
 		     const TrajectoryFitter *,
 		     const Propagator *,
 		     const TransientTrackingRecHitBuilder*,
+		     const reco::BeamSpot&,
 		     AlgoProductCollection &);
 
   /// Construct Tracks to be put in the event
@@ -89,6 +94,7 @@ public:
 		  TrajectoryStateOnSurface& ,
 		  const TrajectorySeed&,		  
 		  float,
+		  const reco::BeamSpot&,
 		  SeedRef seedRef = SeedRef());
 
  private:
@@ -111,6 +117,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
 						TrajectoryStateOnSurface& ,
 						const TrajectorySeed&,
 						float,
+						const reco::BeamSpot&,
 						SeedRef seedRef);
 
 template <> bool
@@ -121,6 +128,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
 						   TrajectoryStateOnSurface& ,
 						   const TrajectorySeed&,
 						   float,
+						   const reco::BeamSpot&,
 						   SeedRef seedRef);
 
 #endif
