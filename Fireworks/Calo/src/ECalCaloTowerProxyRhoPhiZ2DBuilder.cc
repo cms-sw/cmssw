@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/01/21 01:15:38 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/03 02:57:10 dmytro Exp $
 //
 
 // system include files
@@ -187,7 +187,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements(const char* name,
       t(2,1) = 1; t(2,2) = 0; t(2,3) = 0;
       t(3,1) = 0; t(3,2) = 1; t(3,3) = 0;
       t(1,4) = r+size; t(2,4) = 0; t(3,4) = 0;
-      t.RotatePF(1,2,offset+i*M_PI/36);
+      t.RotatePF(1,2,offset+(i+0.5)*M_PI/36);
       std::ostringstream s;
       s << "Phi" << i;
       TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(s.str().c_str());
