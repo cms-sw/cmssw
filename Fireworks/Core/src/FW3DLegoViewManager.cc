@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.7 2008/02/03 07:20:09 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.8 2008/02/15 18:11:09 chrjones Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@ FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
 
   m_stack = new THStack("LegoStack", "Calo tower lego plot");
   m_stack->SetMaximum(100);
+  m_stack->SetBit(TH1::kNoTitle);
 
   m_background = new TH2F("bkgLego","Background distribution",
 			  82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
@@ -145,6 +146,7 @@ FW3DLegoViewManager::newEventAvailable()
   m_stack->GetHistogram()->GetZaxis()->SetLabelSize(0.03);
   m_stack->GetHistogram()->GetZaxis()->SetTickLength(0.02); 
    
+  m_stack->GetHistogram()->SetBit(TH1::kNoTitle);
   m_stack->Draw("lego1 fb bb");
   m_legoCanvas->Modified();
   m_legoCanvas->Update();
