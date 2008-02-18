@@ -247,7 +247,8 @@ class PFRootEventManager {
 
 
   /// print information
-  void   print(  std::ostream& out = std::cout ) const;
+  void   print(  std::ostream& out = std::cout,
+                 int maxNLines = -1 ) const;
 
 
   /// get tree
@@ -270,8 +271,8 @@ class PFRootEventManager {
   
 
   /// print the HepMC truth
-  void printMCTruth(std::ostream& out = std::cout,
-                    int maxNLines = -1) const;
+  void printGenParticles(std::ostream& out = std::cout,
+                         int maxNLines = -1) const;
   
   /*   /// is inside cut G?  */
   /*   bool   insideGCut(double eta, double phi) const; */
@@ -433,6 +434,9 @@ class PFRootEventManager {
 
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
+  
+  /// has to be global to print out pfjets constituents
+  reco::CandidateCollection basePFCandidates_;
 
   /// gen particle base candidates (input for gen jets)
   reco::CandidateCollection genParticleBaseCandidates_;
@@ -442,9 +446,6 @@ class PFRootEventManager {
 
   /// PF Jets
   reco::PFJetCollection pfJets_;
-  
-  /// baseCandidates constituents of PFJets (suggestion of Fedor)
-  reco::CandidateCollection basePFCandidates_;
 
   /// gen Jets
   reco::GenJetCollection genJets_;

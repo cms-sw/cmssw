@@ -25,9 +25,6 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,DisplayManager *dm,const TGWi
 {
   
   mainFrame_= new TGCompositeFrame(this,200,300,kVerticalFrame);
-  //char *action="win->modifyAttr()";
-  //accept_ = new TButton("accept",action,0.2,0.2,0.8,0.3);
-  //maxEvents_=evMan_->tree_->GetEntries();
   createCmdFrame();
   AddFrame(mainFrame_, new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
   
@@ -85,8 +82,6 @@ void DialogFrame::createCanvasAttr()
  tt2->SetTextSize(.08);
  tt2->Draw();
  
- //TButton *accept_ = new TButton("modify",action1,0.2,0.2,0.8,0.3);
- //TButton *cancel_ = new TButton("cancel",action2,0.84,0.2,0.99,0.3);
  accept_->Draw();
  cancel_->Draw();
  attrView_->Update();
@@ -163,25 +158,51 @@ void DialogFrame::createCmdFrame()
   //add options frame
   TGVerticalFrame *optionFrame = new TGVerticalFrame(h1Frame1,10,10,kSunkenFrame);
   
-  //print stuff
+  //print space
+  TGLabel *lab1,*lab2;
   TGHorizontalFrame *h2 = new TGHorizontalFrame(optionFrame,10,10);
-  TGGroupFrame *printGroup = new TGGroupFrame(h2, "Print", kVerticalFrame);
-  printGroup->SetLayoutManager(new TGMatrixLayout(printGroup, 4,1,4));
-  printButton_[0] = new TGCheckButton(printGroup,"clusters");
-  printButton_[0]->SetState(evMan_->printClusters_ ? kButtonDown :kButtonUp); 
+  TGGroupFrame *printGroup = new TGGroupFrame(h2, " Print", kVerticalFrame);
+  lab1 = new TGLabel(printGroup," ");
+  lab2 = new TGLabel(printGroup," ");
+  //TGLabel *lab3 = new TGLabel(printGroup," ");
+  printGroup->SetLayoutManager(new TGMatrixLayout(printGroup, 7,3,3));
+  printButton_[0] = new TGCheckButton(printGroup,"RecHits ");
+  printButton_[0]->SetState(evMan_->printRecHits_ ? kButtonDown :kButtonUp); 
   printButton_[0]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=0)");
-  printButton_[1] = new TGCheckButton(printGroup,"recHits ");
-  printButton_[1]->SetState(evMan_->printRecHits_ ? kButtonDown :kButtonUp); 
+  printButton_[1] = new TGCheckButton(printGroup,"Clusters");
+  printButton_[1]->SetState(evMan_->printClusters_ ? kButtonDown :kButtonUp); 
   printButton_[1]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=1)");
-  printButton_[2] = new TGCheckButton(printGroup,"SimParticles ");
-  printButton_[2]->SetState(evMan_->printSimParticles_ ? kButtonDown :kButtonUp); 
+  printButton_[2] = new TGCheckButton(printGroup,"PFBlocks");
+  printButton_[2]->SetState(evMan_->printPFBlocks_ ? kButtonDown :kButtonUp); 
   printButton_[2]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=2)");
-  printButton_[3] = new TGCheckButton(printGroup,"PFBlocks");
-  printButton_[3]->SetState(evMan_->printPFBlocks_ ? kButtonDown :kButtonUp); 
+  printButton_[3] = new TGCheckButton(printGroup,"PFCandidates ");
+  printButton_[3]->SetState(evMan_->printPFCandidates_ ? kButtonDown :kButtonUp); 
   printButton_[3]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=3)");
-  for(UInt_t i = 0 ;i<4 ; ++i){
+  printButton_[4] = new TGCheckButton(printGroup,"PFJets ");
+  printButton_[4]->SetState(evMan_->printPFJets_ ? kButtonDown :kButtonUp); 
+  printButton_[4]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=4)");
+  printButton_[5] = new TGCheckButton(printGroup,"SimParticles ");
+  printButton_[5]->SetState(evMan_->printSimParticles_ ? kButtonDown :kButtonUp); 
+  printButton_[5]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=5)");
+  printButton_[6] = new TGCheckButton(printGroup,"GenParticles");
+  TGLabel *maxl = new TGLabel(printGroup,"max lines:");
+  maxLineEntry_= new TGNumberEntryField(printGroup,MAXL,30);
+  maxLineEntry_->Associate(this);
+  maxLineEntry_->SetFormat((TGNumberFormat::EStyle)0);
+  maxLineEntry_->Resize(charw*3,maxLineEntry_->GetDefaultHeight());
+  printButton_[6]->SetState(evMan_->printGenParticles_ ? kButtonDown :kButtonUp); 
+  printButton_[6]->Connect("Clicked()","DialogFrame",this,"selectPrintOption(=6)");
+  
+    
+  for(UInt_t i = 0 ;i<6 ; ++i){
     printGroup->AddFrame(printButton_[i],lo1);
+    printGroup->AddFrame(lab1,lo1);
+    printGroup->AddFrame(lab2,lo1);
   }
+  printGroup->AddFrame(printButton_[6],lo1);
+  printGroup->AddFrame(maxl,lo1);
+  printGroup->AddFrame(maxLineEntry_,lo1);
+  
   
   TGTextButton *sendPrintButton = new TGTextButton(h2,"Print");
   sendPrintButton->Connect("Clicked()","DialogFrame",this,"doPrint()");
@@ -189,54 +210,36 @@ void DialogFrame::createCmdFrame()
   h2->AddFrame(printGroup,lo1);
   h2->AddFrame(sendPrintButton,new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2));
   
-  //printMCTruth stuff
- // TGHorizontalFrame *h3 = new TGHorizontalFrame(optionFrame,10,10);
- // printTrueButton_= new TGCheckButton(h3,"True");
- // printTrueButton_->SetState(kButtonUp);
- // maxLineEntry_= new TGNumberEntryField(h3,MAXL,30);
- // maxLineEntry_->Associate(this);
-//  maxLineEntry_->SetFormat((TGNumberFormat::EStyle)0);
- // maxLineEntry_->Resize(charw*3,maxLineEntry_->GetDefaultHeight());
+  TGGroupFrame *viewGroup = new TGGroupFrame(optionFrame,"View",kHorizontalFrame);
+  lab1 = new TGLabel(viewGroup," ");
+  lab2 = new TGLabel(viewGroup," ");
+  viewGroup->SetLayoutManager(new TGMatrixLayout(viewGroup, 3,3,3));
   
- // TGTextButton *printMCTruthButton = new TGTextButton(h3,"PrintGenParticles");
- // printMCTruthButton->Connect("Clicked()","DialogFrame",this,"doPrintGenParticles()");
-//----
-  //printMCTruth stuff
-  TGGroupFrame *printGroup2 = new TGGroupFrame(optionFrame,"GenParticles",kHorizontalFrame);
-  printGroup2->SetLayoutManager(new TGMatrixLayout(printGroup2, 2,3,3));
-  TGTextButton *printGenPartButton = new TGTextButton(printGroup2,"  Print  ");
-  printGenPartButton->Connect("Clicked()","DialogFrame",this,"doPrintGenParticles()");
-  TGLabel *maxl = new TGLabel(printGroup2,"max lines:");
-  maxLineEntry_= new TGNumberEntryField(printGroup2,MAXL,30);
-  maxLineEntry_->Associate(this);
-  maxLineEntry_->SetFormat((TGNumberFormat::EStyle)0);
-  maxLineEntry_->Resize(charw*3,maxLineEntry_->GetDefaultHeight());
-  
-  TGTextButton *lookFor = new TGTextButton(printGroup2,"Look for");
+  TGTextButton *lookFor = new TGTextButton(viewGroup,"Look for");
   lookFor->Connect("Clicked()","DialogFrame",this,"doLookForGenParticle()");
-  TGLabel *genPartNb = new TGLabel(printGroup2,"Gen Particle Nb:");
-  particleTypeEntry_ = new TGNumberEntryField(printGroup2,PARTTYPE,1);
+  TGLabel *genPartNb = new TGLabel(viewGroup,"Gen Particle Nb:");
+  particleTypeEntry_ = new TGNumberEntryField(viewGroup,PARTTYPE,1);
   particleTypeEntry_->Associate(this);
   particleTypeEntry_->SetFormat((TGNumberFormat::EStyle)0);
   particleTypeEntry_->Resize(charw*3,particleTypeEntry_->GetDefaultHeight());
-  //TGTextButton *printEventButton = new TGTextButton(printGroup2,"DisplayGenParticle");
-  //printEventButton->Connect("Clicked()","DialogFrame",this,"doDisplayGenParticle()");
+ 
+  TGTextButton *unZoomButton = new TGTextButton(viewGroup,"Unzoom");
+  unZoomButton->Connect("Clicked()","DialogFrame",this,"unZoom()");
+
+  TGTextButton *newAttrBis = new TGTextButton(viewGroup,"Modify Graphic Attr");
+  newAttrBis->Connect("Clicked()","DialogFrame",this,"createCanvasAttr()");
   
-  printGroup2->AddFrame(printGenPartButton,lo1);
-  printGroup2->AddFrame(maxl,lo1),
-  printGroup2->AddFrame(maxLineEntry_,lo1);
-  printGroup2->AddFrame(lookFor,lo1);
-  printGroup2->AddFrame(genPartNb,lo1),
-  printGroup2->AddFrame(particleTypeEntry_,lo1);
-  //printGroup2->AddFrame(printEventButton,lo1);
+  viewGroup->AddFrame(lookFor,lo1);
+  viewGroup->AddFrame(genPartNb,lo1),
+  viewGroup->AddFrame(particleTypeEntry_,lo1);
+  viewGroup->AddFrame(unZoomButton,lo1);
+  viewGroup->AddFrame(lab1,lo1);
+  viewGroup->AddFrame(lab2,lo1);
+  viewGroup->AddFrame(newAttrBis,lo1); 
   
 //
   optionFrame->AddFrame(h2,lo);
-  optionFrame->AddFrame(printGroup2,lo1);
- //h3->AddFrame(printTrueButton_,lo1);
-  //h3->AddFrame(maxLineEntry_,lo1);
-  // h3->AddFrame(printMCTruthButton,lo1);
-  // optionFrame->AddFrame(h3,lo);
+  optionFrame->AddFrame(viewGroup,lo1);
   h1Frame1->AddFrame(optionFrame,lo);
 
   
@@ -253,9 +256,6 @@ void DialogFrame::createCmdFrame()
   previousButton->Connect("Clicked()","DialogFrame",this,"doPreviousEvent()");
   h1->AddFrame(previousButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
   
-  TGTextButton *unZoomButton = new TGTextButton(h1,"Unzoom");
-  unZoomButton->Connect("Clicked()","DialogFrame",this,"unZoom()");
-  h1->AddFrame(unZoomButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
   
   reProcessButton = new TGTextButton(h1,"Re-Process");
   reProcessButton->Connect("Clicked()","DialogFrame",this,"doReProcessEvent()");
@@ -266,10 +266,6 @@ void DialogFrame::createCmdFrame()
 //  newAttr->Connect("Clicked()","DialogFrame",this,"modifyGraphicAttributes()");
 //  h1->AddFrame(newAttr,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
 
-// Modify graphic attributes online without modify the option file  
-  TGTextButton *newAttrBis = new TGTextButton(h1,"Modify Graphic Attr");
-  newAttrBis->Connect("Clicked()","DialogFrame",this,"createCanvasAttr()");
-  h1->AddFrame(newAttrBis,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
     
   exitButton = new TGTextButton(h1,"&Exit","gApplication->Terminate(0)");
   h1->AddFrame(exitButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
@@ -290,7 +286,6 @@ void DialogFrame::doDisplayGenParticle()
 void DialogFrame::doLookForGenParticle()
 {
  int num = particleTypeEntry_->GetIntNumber();
- std::cout<<"display GPFGenParticle nb "<<num<<std::flush<<std::endl;
  display_->lookForGenParticle((unsigned)num);
 }
 
@@ -344,6 +339,7 @@ void DialogFrame::doModifyPtThreshold(unsigned objNb,long pt)
 void DialogFrame::doNextEvent()
 {
   display_->displayNext();
+  doLookForGenParticle();  
   //   int eventNumber = evMan_->eventNumber();
   //TODOLIST:display new value of eventNumber in the futur reserve field
 } 
@@ -351,25 +347,23 @@ void DialogFrame::doNextEvent()
 void DialogFrame::doPreviousEvent()
 {
   display_->displayPrevious();
+  doLookForGenParticle();  
   //   int eventNumber = evMan_->eventNumber();
   //TODOLIST:display new value of eventNumber in the futur reserve field
 }
 //_________________________________________________________________________________
 void DialogFrame::doPrint()
 {
-  std::cout<<"click on Print Button"<<std::endl;
-  evMan_->print();
+  evMan_->print(std::cout,maxLineEntry_->GetIntNumber());
 }
-//_________________________________________________________________________________
+//________________________________________________________________________________
 void DialogFrame::doPrintGenParticles()
 {
-  std::cout<<"appel a printMCTruth"<<std::flush<<std::endl; 
-  evMan_->printMCTruth(std::cout,maxLineEntry_->GetIntNumber());
+  evMan_->printGenParticles(std::cout,maxLineEntry_->GetIntNumber());
 }
-//__________________________________________________________________________________
+//_________________________________________________________________________________
 void DialogFrame::doReProcessEvent()
 {
-  // TODOLIST:evMan_->connect() + nouveau nom de fichier s'il y a lieu ??
   int eventNumber = evMan_->eventNumber();
   display_->display(eventNumber);
 }
@@ -383,16 +377,25 @@ void DialogFrame::selectPrintOption(int opt)
 {
   switch (opt) {
   case 0:
-    evMan_->printClusters_ = (printButton_[0]->IsDown()) ?true :false;
+    evMan_->printRecHits_ = (printButton_[0]->IsDown()) ?true :false;
     break;
   case 1:
-    evMan_->printRecHits_ = (printButton_[1]->IsDown()) ?true :false;
+    evMan_->printClusters_ = (printButton_[1]->IsDown()) ?true :false;
     break;
   case 2:
-    evMan_->printSimParticles_ = (printButton_[2]->IsDown()) ?true :false;
+    evMan_->printPFBlocks_ = (printButton_[2]->IsDown()) ?true :false;
     break;
   case 3:
-    evMan_->printPFBlocks_ = (printButton_[3]->IsDown()) ?true :false;
+    evMan_->printPFCandidates_ = (printButton_[3]->IsDown()) ?true :false;
+    break;
+  case 4:
+    evMan_->printPFJets_ = (printButton_[4]->IsDown()) ?true :false;
+    break;
+  case 5:
+    evMan_->printSimParticles_ = (printButton_[5]->IsDown()) ?true :false;
+    break;
+  case 6:
+    evMan_->printGenParticles_ = (printButton_[6]->IsDown()) ?true :false;
     break;
   default: break;  
     
@@ -449,6 +452,8 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
           break;
         }
       case MAXL:  // print genPart max lines
+        evMan_->printGenParticles_ = true;
+	printButton_[6]->SetState(kButtonDown);
         doPrintGenParticles();
 	break;
       case PARTTYPE:

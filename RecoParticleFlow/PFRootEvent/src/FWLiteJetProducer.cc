@@ -84,6 +84,7 @@ void FWLiteJetProducer::print() {
 void FWLiteJetProducer::applyCuts(const reco::CandidateCollection& Candidates, JetReco::InputCollection* input){
   //!!!!
 //edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(20001) );
+
   input->reserve ( Candidates.size());  
   //cout<<" Candidate " << CandidateHandle->size()<<Candidates.size() << endl;
   for (unsigned i = 0; i <Candidates.size() ; i++) {

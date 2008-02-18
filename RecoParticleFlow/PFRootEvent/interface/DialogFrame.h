@@ -40,7 +40,7 @@ class DialogFrame  : public TGMainFrame {
     
 
   TGCheckButton       *selectObject_[5];
-  TGCheckButton       *printButton_[4];
+  TGCheckButton       *printButton_[7];
   TGHSlider           *thresholdS_[5];
   TGNumberEntryField  *threshEntry_[5];
   TGNumberEntryField  *maxLineEntry_; 

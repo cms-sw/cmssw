@@ -17,9 +17,9 @@ class GPFBase {
   DisplayManager  *display_;
   int              viewId_;
   int              origId_;
-  int              color_;
   TAttMarker      *markerAttr_;
   TAttLine        *lineAttr_;
+  int              color_;
   
  public:
   GPFBase(DisplayManager *display,int viewType,int ident,TAttMarker *attm,TAttLine *attl);
