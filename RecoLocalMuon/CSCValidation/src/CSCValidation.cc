@@ -1336,23 +1336,16 @@ void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
   std::vector<float> bins(Nbins);
   std::vector<float> Efficiency(Nbins);
   std::vector<float> EffError(Nbins);
-  float Norm = 1;
-  for (int i=0;i<20;i++){
-    bins[i] = readHisto->GetBinContent(i+1);
-    //getEfficiency(bins[i], Norm, eff);
-    //Efficiency[i] = eff[0];
-    //EffError[i] = eff[1];
-    //writeHisto->SetBinContent(i+1, Efficiency[i]);
-    //writeHisto->SetBinError(i+1, EffError[i]);
-    if(i>Ninfo_bins){
-      Norm = bins[i];
-      getEfficiency(bins[i-Ninfo_bins], Norm, eff);
-      Efficiency[i] = eff[0];
-      EffError[i] = eff[1];
-      writeHisto->SetBinContent(i-Ninfo_bins, Efficiency[i]);
-      writeHisto->SetBinError(i-Ninfo_bins, EffError[i]);
-
-    }
+  float Num = 1;
+  float Den = 1;
+  for (int i=0;i<10;i++){
+    Num = readHisto->GetBinContent(i+1);
+    Den = readHisto->GetBinContent(i+11);
+    getEfficiency(Num, Den, eff);
+    Efficiency[i] = eff[0];
+    EffError[i] = eff[1];
+    writeHisto->SetBinContent(i+1, Efficiency[i]);
+    writeHisto->SetBinError(i+1, EffError[i]);
   }  
 }
 DEFINE_FWK_MODULE(CSCValidation);
