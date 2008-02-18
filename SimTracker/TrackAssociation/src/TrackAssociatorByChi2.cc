@@ -114,11 +114,11 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
     chi2 /= 5;
     
     LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				<< "qoverp simG: " << sParameters[0] << "\n" 
-				<< "lambda simG: " << sParameters[1] << "\n" 
-				<< "phi    simG: " << sParameters[2] << "\n" 
-				<< "dxy    simG: " << sParameters[3] << "\n" 
-				<< "dsz    simG: " << sParameters[4] << "\n" 
+				<< "qoverp sim: " << sParameters[0] << "\n" 
+				<< "lambda sim: " << sParameters[1] << "\n" 
+				<< "phi    sim: " << sParameters[2] << "\n" 
+				<< "dxy    sim: " << sParameters[3] << "\n" 
+				<< "dsz    sim: " << sParameters[4] << "\n" 
 				<< ": " /*<< */ << "\n" 
 				<< "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
 				<< "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
@@ -148,9 +148,11 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 					theMF.product());
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
-    GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
-    GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
     
+    GlobalPoint bsp(bs.x0(),bs.y0(),bs.z0());
+    GlobalPoint tsp = tsAtClosestApproach.trackStateAtPCA().position();
+    GlobalPoint v(tsp.x()-bsp.x(),tsp.y()-bsp.y(),tsp.z()-bsp.z());
+    GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
     sParameters[0] = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
     sParameters[1] = Geom::halfPi() - p.theta();
     sParameters[2] = p.phi();
@@ -202,7 +204,6 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 	
       //skip tps with a very small pt
       //if (sqrt(tp->momentum().perp2())<0.5) continue;
-	
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
 
@@ -215,18 +216,18 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
 	
-	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << (*rt)->pt() << "====\n" 
-				    << "qoverp simG: " << sParameters[0] << "\n" 
-				    << "lambda simG: " << sParameters[1] << "\n" 
-				    << "phi    simG: " << sParameters[2] << "\n" 
-				    << "dxy    simG: " << sParameters[3] << "\n" 
-				    << "dsz    simG: " << sParameters[4] << "\n" 
+	LogTrace("TrackAssociator") << "====TP index=" << tpindex << "  RECO TRACK index="<<tindex<<" WITH PT=" << (*rt)->pt() << "====\n" 
+				    << "qoverp sim: " << sParameters[0] << "\n" 
+				    << "lambda sim: " << sParameters[1] << "\n" 
+				    << "phi    sim: " << sParameters[2] << "\n" 
+				    << "dxy    sim: " << sParameters[3] << "\n" 
+				    << "dsz    sim: " << sParameters[4] << "\n" 
 				    << ": " /*<< */ << "\n" 
-				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
-				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
-				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << (*rt)->dxy(bs.position())/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << (*rt)->dsz(bs.position())/*rParameters[4]*/ << "\n" 
+				    << "qoverp rec: " << (*rt)->qoverp() << " err: " << (*rt)->error(0) << "\n"
+				    << "lambda rec: " << (*rt)->lambda() << " err: " << (*rt)->error(1) << "\n"
+				    << "phi    rec: " << (*rt)->phi() << " err: " << (*rt)->error(2) << "\n"
+				    << "dxy    rec: " << (*rt)->dxy(bs.position()) << " err: " << (*rt)->error(3) << "\n"
+				    << "dsz    rec: " << (*rt)->dsz(bs.position()) << " err: " << (*rt)->error(4) << "\n"
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 	
@@ -296,18 +297,18 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
 	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
 	chi2 /= 5;
 	
-	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << (*rt)->pt() << "====\n" 
-				    << "qoverp simG: " << sParameters[0] << "\n" 
-				    << "lambda simG: " << sParameters[1] << "\n" 
-				    << "phi    simG: " << sParameters[2] << "\n" 
-				    << "dxy    simG: " << sParameters[3] << "\n" 
-				    << "dsz    simG: " << sParameters[4] << "\n" 
+	LogTrace("TrackAssociator") << "====TP index=" << tpindex << "  RECO TRACK index="<<tindex<<" WITH PT=" << (*rt)->pt() << "====\n" 
+				    << "qoverp sim: " << sParameters[0] << "\n" 
+				    << "lambda sim: " << sParameters[1] << "\n" 
+				    << "phi    sim: " << sParameters[2] << "\n" 
+				    << "dxy    sim: " << sParameters[3] << "\n" 
+				    << "dsz    sim: " << sParameters[4] << "\n" 
 				    << ": " /*<< */ << "\n" 
-				    << "qoverp rec: " << (*rt)->qoverp()/*rParameters[0]*/ << "\n" 
-				    << "lambda rec: " << (*rt)->lambda()/*rParameters[1]*/ << "\n" 
-				    << "phi    rec: " << (*rt)->phi()/*rParameters[2]*/ << "\n" 
-				    << "dxy    rec: " << (*rt)->dxy(bs.position())/*rParameters[3]*/ << "\n" 
-				    << "dsz    rec: " << (*rt)->dsz(bs.position())/*rParameters[4]*/ << "\n" 
+				    << "qoverp rec: " << (*rt)->qoverp() << " err: " << (*rt)->error(0) << "\n"
+				    << "lambda rec: " << (*rt)->lambda() << " err: " << (*rt)->error(1) << "\n"
+				    << "phi    rec: " << (*rt)->phi() << " err: " << (*rt)->error(2) << "\n"
+				    << "dxy    rec: " << (*rt)->dxy(bs.position()) << " err: " << (*rt)->error(3) << "\n"
+				    << "dsz    rec: " << (*rt)->dsz(bs.position()) << " err: " << (*rt)->error(4) << "\n"
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 	
