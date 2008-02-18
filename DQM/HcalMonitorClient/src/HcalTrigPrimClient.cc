@@ -29,6 +29,14 @@ void HcalTrigPrimClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe
   EN_ELEC_DCC_ = NULL;
   EN_MAP_GEO_ = NULL;
 
+ TPTiming_ = NULL;
+ TPTimingTop_ = NULL;
+ TPTimingBot_ = NULL; 
+ TPOcc_ = NULL;
+ TP_ADC_ = NULL;
+ TPvsDigi_ = NULL;
+
+
 }
 
 HcalTrigPrimClient::~HcalTrigPrimClient(){
@@ -94,6 +102,12 @@ void HcalTrigPrimClient::cleanup(void) {
     if(EN_ELEC_DCC_) delete EN_ELEC_DCC_;
     if(EN_MAP_GEO_) delete EN_MAP_GEO_;
 
+    if(TPTiming_) delete TPTiming_ ;
+    if(TPTimingTop_) delete  TPTimingTop_;
+    if(TPTimingBot_) delete  TPTimingBot_;
+    if(TPOcc_) delete TPOcc_;
+    if(TP_ADC_) delete  TP_ADC_;
+    if(TPvsDigi_) delete TPvsDigi_;
   }  
 
   for(int i=0; i<10; i++) tpSpectrum_[i] = NULL;
@@ -116,6 +130,12 @@ void HcalTrigPrimClient::cleanup(void) {
   EN_ELEC_VME_ = NULL;
   EN_ELEC_DCC_ = NULL;
   EN_MAP_GEO_ = NULL;
+  TPTiming_ = NULL;
+  TPTimingTop_ = NULL;
+  TPTimingBot_ = NULL; 
+  TPOcc_ = NULL;
+  TP_ADC_ = NULL;
+  TPvsDigi_ = NULL;
 
   return;
 }
@@ -162,6 +182,14 @@ void HcalTrigPrimClient::getHistograms(){
   EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
+
+   TPTiming_ = getHisto("TrigPrimMonitor/TP Timing",process_, dbe_, debug_,cloneME_);  
+   TPTimingTop_ = getHisto("TrigPrimMonitor/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
+   TPTimingBot_ = getHisto("TrigPrimMonitor/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
+   TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum TP>0",process_, dbe_, debug_,cloneME_);  
+    TPOcc_ = getHisto2("TrigPrimMonitor/TP Occupancy",process_, dbe_, debug_,cloneME_);  
+  TPvsDigi_ = getHisto2("TrigPrimMonitor/TP vs Digi",process_, dbe_, debug_,cloneME_);  
+
 
   return;
 }
@@ -231,6 +259,20 @@ void HcalTrigPrimClient::resetAllME(){
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Energy Map",process_.c_str());
   resetME(name,dbe_);  
+
+  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Top wedges)",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Bottom Wedges)",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/ADC spectrum TP>0",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/TP Occupancy",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/TP vs Digi",process_.c_str());
+  resetME(name,dbe_);  
+
   return;
 }
 
@@ -315,10 +357,28 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML2(runNo,EN_ELEC_DCC_,"Spigot","DCC Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,TPTiming_,"","time", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TP_ADC_,"","raw ADC", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+ htmlFile << "<tr align=\"left\">" << endl;
+ histoHTML2(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
+ histoHTML2(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,OCC_MAP_SLB_,"SLB","SLB Chan", 100, htmlFile,htmlDir);
   histoHTML2(runNo,OCC_MAP_THR_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
+
+
 
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;   

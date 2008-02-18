@@ -90,6 +90,14 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
 				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   
     meEVT_->Fill(ievt_);
+
+    TPTiming_       = m_dbe->book1D("TP Timing","TP Timing",10,0,10);
+    TPTimingTop_    = m_dbe->book1D("TP Timing (Top wedges)","TP Timing (Top wedges)",10,0,10);
+    TPTimingBot_    = m_dbe->book1D("TP Timing (Bottom wedges)","TP Timing (Bottom wedges)",10,0,10);
+    TP_ADC_         = m_dbe->book1D("ADC spectrum TP>0","ADC spectrum TP>0",200,-0.5,199.5);
+    TPOcc_          = m_dbe->book2D("TP Occupancy","TP Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    TPvsDigi_       = m_dbe->book2D("TP vs Digi","TP vs Digi",128,0,128,200,0,200);
+
   }
 
   return;
@@ -114,23 +122,19 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   tpCount_->Fill(tpDigis.size()*1.0);  // number of TPGs collected per event
   
-
+ float data[10];
+  ClearEvent();
   try{
     int TPGsOverThreshold = 0;
     for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); j++){
       const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
-
       // find corresponding rechit and digis
       HcalTrigTowerDetId tpid=digi.id();	
       HcalDetId did(HcalBarrel,tpid.ieta(),tpid.iphi(),1);
-      HcalElectronicsId eid(did.rawId());
-      
-      tpSOI_ET_->Fill(digi.SOI_compressedEt());
-      
-      if(digi.SOI_compressedEt()>0 || true){
-	
-	tpSize_->Fill(digi.size());
-	
+      HcalElectronicsId eid(did.rawId());      
+      tpSOI_ET_->Fill(digi.SOI_compressedEt());      
+      if(digi.SOI_compressedEt()>0 || true){	
+	tpSize_->Fill(digi.size());	
 	OCC_ETA->Fill(tpid.ieta());
 	OCC_PHI->Fill(tpid.iphi());
 	OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
@@ -145,7 +149,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
 	EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
 	EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
-
 	double etSum = 0;
 	bool threshCond = false;
 	//	printf("\nSampling\n");
@@ -165,29 +168,48 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  
 	  TPGsOverThreshold++;
 	}
-	
-	/*
-	std::cout << "size  " <<  digi.size() << std::endl;
-	std::cout << "iphi  " <<  tpid.iphi() << std::endl;
-	std::cout << "ieta  " <<  tpid.ieta() << std::endl;
-	std::cout << "subdet  " <<  tpid.subdet() << std::endl;
-	std::cout << "zside  " <<  tpid.zside() << std::endl;
-	std::cout << "compressed Et  " <<  digi.SOI_compressedEt() << std::endl;
-	std::cout << "FG bit  " <<  digi.SOI_fineGrain() << std::endl;
-	std::cout << "raw  " <<  digi.t0().raw() << std::endl;
-	std::cout << "raw Et " <<  digi.t0().compressedEt() << std::endl;
-	std::cout << "raw FG " <<  digi.t0().fineGrain() << std::endl;
-	std::cout << "raw slb " <<  digi.t0().slb() << std::endl;
-	std::cout << "raw slbChan " <<  digi.t0().slbChan() << std::endl;
-	std::cout << "raw slbAndChan " <<  digi.t0().slbAndChan() << std::endl;
-	*/
       }
+  ///////
+   for (int i=0; i<digi.size(); i++) {
+        data[i]=digi.sample(i).compressedEt();
+	if(digi.sample(i).compressedEt()>0){
+	    tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
+	    tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
+	    TPTiming_->Fill(i);
+	    if(digi.id().iphi()>1  && digi.id().iphi()<36)  TPTimingTop_->Fill(i);
+	    if(digi.id().iphi()>37 && digi.id().iphi()<72)  TPTimingBot_->Fill(i);
+	    TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
+	}
+      }
+    set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
+    /////////
     }
     tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
   } catch (...) {    
     printf("HcalTrigPrimMonitor:  no tp digis\n");
   }
-  
+ try{
+    for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++){
+       HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+       for(int i=0; i<digi.size(); i++) data[i]=digi.sample(i).adc();
+       set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
+    }
+  } catch (...) {    
+    printf("HcalTrigPrimMonitor:  no hcal digis\n");
+  }
+    // Correlation plots...
+  int eta,phi;
+  for(eta=-42;eta<=42;eta++) for(phi=1;phi<=72;phi++){
+       for(int i=1;i<10;i++){
+           if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
+	      if(get_tp(eta,phi,1)[i]>0){ 
+	        TPvsDigi_->Fill(get_adc(eta,phi,1)[i]+get_adc(eta,phi,1)[i-1],get_tp(eta,phi,1)[i]);
+		float Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
+		TP_ADC_->Fill(Energy);	       	       
+	      }
+	   }
+       }	   
+   }
 
   return;
 }

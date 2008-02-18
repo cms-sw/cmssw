@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2007/11/28 11:48:44 $
-  * $Revision: 1.4 $
+  * $Date: 2007/11/29 11:47:43 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalTrigPrimMonitor: public HcalBaseMonitor {
@@ -44,6 +44,13 @@ private:  ///Monitoring elements
   MonitorElement* tpETSumAll_;
   MonitorElement* tpSOI_ET_;
 
+  MonitorElement* TPTiming_; 
+  MonitorElement* TPTimingTop_; 
+  MonitorElement* TPTimingBot_; 
+  MonitorElement* TPOcc_;
+  MonitorElement* TP_ADC_;
+  MonitorElement* TPvsDigi_;
+
   MonitorElement* OCC_MAP_SLB;
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
@@ -56,7 +63,42 @@ private:  ///Monitoring elements
   MonitorElement* EN_MAP_GEO;
   MonitorElement* EN_ELEC_VME;
   MonitorElement* EN_ELEC_DCC;
-
+// not so nice , but very useful for correlation plots...
+  void   ClearEvent(){
+             memset(adc_data,  0,(sizeof(float)*100*72*5*10));
+             memset(tp_data,   0,(sizeof(float)*100*72*5*10));
+             memset(Is_adc_Data,0,(sizeof(char)*100*72*5));	  
+             memset(Is_tp_Data, 0,(sizeof(char)*100*72*5));	  
+	  }
+  float *get_adc(int eta,int phi,int depth=1){
+             return &adc_data[eta+50][phi][depth][0];}
+  void   set_adc(int eta,int phi,int depth,float *val){ 
+             if(eta<-42 || eta>42 || eta==0) return;
+	     if(phi<1 || phi>72)             return;
+	     if(depth<1 || depth>4)          return;
+             for(int i=0;i<10;i++) adc_data[eta+50][phi][depth][i]=val[i];
+             Is_adc_Data[eta+50][phi][depth]=1;
+          }
+  float *get_tp(int eta,int phi,int depth=1){
+             return &tp_data[eta+50][phi][depth][0];}
+  void   set_tp(int eta,int phi,int depth=1,float *val){ 
+             if(eta<-42 || eta>42 || eta==0) return;
+	     if(phi<1 || phi>72)             return;
+	     if(depth<1 || depth>4)          return;
+             for(int i=0;i<10;i++) tp_data[eta+50][phi][depth][i]=val[i];
+             Is_tp_Data[eta+50][phi][depth]=1;
+          }	
+  char   IsSet_adc(int eta,int phi,int depth){ 
+             return Is_adc_Data[eta+50][phi][depth];
+	  }
+  char   IsSet_tp(int eta,int phi,int depth){ 
+             return Is_tp_Data[eta+50][phi][depth];
+	  }
+	    
+  float adc_data   [100][73][5][10];
+  float tp_data    [100][73][5][10];
+  char  Is_adc_Data[100][73][5];
+  char  Is_tp_Data [100][73][5];
 };
 
 #endif

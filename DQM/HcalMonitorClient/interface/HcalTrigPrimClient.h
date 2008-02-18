@@ -67,6 +67,13 @@ class HcalTrigPrimClient : public HcalBaseClient {
   TH2F* EN_ELEC_VME_;
   TH2F* EN_ELEC_DCC_;
   TH2F* EN_MAP_GEO_;
+  TH1F* TPTiming_;
+  TH1F* TPTimingTop_;
+  TH1F* TPTimingBot_;
+  TH1F* TP_ADC_;
+  TH2F* TPOcc_;
+  TH2F* TPvsDigi_;
+
 
 };
 
