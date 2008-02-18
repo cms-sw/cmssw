@@ -73,7 +73,6 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
-
   //get the ID of the recotrack  by hits 
   int tindex=0;
   for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++){
@@ -109,10 +108,10 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	  outputCollection.insert(tC[tindex],
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 						 quality));
-	  LogTrace("TrackAssociator") << "reco::Track number " << tindex  
-				      << "associated to TP (pdgId, nb segments, p) = " 
+	  LogTrace("TrackAssociator") << "reco::Track number " << tindex  <<" with pt=" << (*track)->pt() 
+				      << " associated to TP (pdgId, nb segments, p) = " 
 				      << (*t).pdgId() << " " << (*t).g4Tracks().size() 
-				      << " " << (*t).momentum() << " with quality =" << quality;
+				      << " " << (*t).momentum() << " TP index=" << tpindex<< " with quality =" << quality;
 	} else {
 	  LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with quality =" << quality;
 	}
@@ -268,7 +267,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				  std::make_pair(tC[tindex],quality));
 	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
-				      << " associated to track with pt=" << (*track)->pt() 
+				      << " associated to track number " << tindex << " with pt=" << (*track)->pt() 
 				      << " with hit quality =" << quality ;
 	}
 	//if a track has just 3 hits we require that all 3 hits are shared
@@ -284,7 +283,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	    outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				    std::make_pair(tC[tindex],quality));
 	    LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
-					<< " associated to track with pt=" << (*track)->pt() 
+					<< " associated to track number " << tindex << " with pt=" << (*track)->pt() 
 					<< " with hit quality =" << quality ;
 	  }
 	}
