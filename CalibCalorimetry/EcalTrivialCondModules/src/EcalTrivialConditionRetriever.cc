@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.24 2008/01/15 18:26:37 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.25 2008/01/22 19:00:43 muzaffar Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -149,6 +149,18 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     findingRecord<EcalLaserAPDPNRatiosRcd> () ;
   }
 
+  // channel status
+  producedEcalChannelStatus_ = ps.getUntrackedParameter<bool>("producedEcalChannelStatus",true);
+  channelStatusFile_ = ps.getUntrackedParameter<std::string>("channelStatusFile","");
+
+  if ( producedEcalChannelStatus_ ) {
+          if ( channelStatusFile_ != "" ) { // if file provided read channel map
+                  setWhatProduced( this, &EcalTrivialConditionRetriever::getChannelStatusFromConfiguration );
+          } else { // set all channels to working -- FIXME might be changed
+                  setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalChannelStatus );
+          }
+          findingRecord<EcalChannelStatusRcd>();
+  }
 
   //Tell Finder what records we find
   if (producedEcalPedestals_)  findingRecord<EcalPedestalsRcd>();
@@ -1175,6 +1187,60 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
    //      }
 
 }
+
+
+// --------------------------------------------------------------------------------
+
+std::auto_ptr<EcalChannelStatus>
+EcalTrivialConditionRetriever::getChannelStatusFromConfiguration (const EcalChannelStatusRcd&)
+{
+        std::auto_ptr<EcalChannelStatus> status = std::auto_ptr<EcalChannelStatus>( new EcalChannelStatus() );
+        edm::LogInfo("EcalTrivialConditionRetriever") << "Reading channel status from file " << edm::FileInPath(channelStatusFile_).fullPath().c_str() ;
+        FILE *ifile = fopen( channelStatusFile_.c_str(), "r" );
+        if ( !ifile ) {
+                edm::LogError ("EcalTrivialConditionRetriever") 
+                        << "*** Can not open file: " << channelStatusFile_ ;
+                throw cms::Exception ("Cannot open ECAL channel status file") ;
+        }
+        // the file is supposed to be in the form  -- FIXME
+        fclose(ifile);
+        return status;
+}
+
+
+
+std::auto_ptr<EcalChannelStatus>
+EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatusRcd& )
+{
+
+        std::auto_ptr<EcalChannelStatus>  ical = std::auto_ptr<EcalChannelStatus>( new EcalChannelStatus() );
+        // barrel
+        for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+                if(ieta==0) continue;
+                for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+                        if (EBDetId::validDetId(ieta,iphi)) {
+                                EBDetId ebid(ieta,iphi);
+                                ical->setValue( ebid, 1 );
+                        }
+                }
+        }
+        // endcap
+        for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+                for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+                        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+                        if (EEDetId::validDetId(iX,iY,1)) {
+                                EEDetId eedetidpos(iX,iY,1);
+                                ical->setValue( eedetidpos, 1 );
+                        }
+                        if (EEDetId::validDetId(iX,iY,-1)) {
+                                EEDetId eedetidneg(iX,iY,-1);
+                                ical->setValue( eedetidneg, 1 );
+                        }
+                }
+        }
+        return ical;
+}
+
 
 
 // --------------------------------------------------------------------------------

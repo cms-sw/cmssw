@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.14 2007/09/27 12:48:01 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.15 2008/01/22 19:00:43 muzaffar Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -44,6 +44,9 @@
  
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 
@@ -255,6 +258,24 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
              << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
    }
    std::cout << "Tests finihed." << std::endl;
+
+   // channel status
+   edm::ESHandle<EcalChannelStatus> pChannelStatus;
+   context.get<EcalChannelStatusRcd>().get(pChannelStatus);
+   const EcalChannelStatus *ch_status = pChannelStatus.product();
+
+   EcalChannelStatusMap::const_iterator chit;
+   chit = ch_status->getMap().find(ebid.rawId());
+   if( chit != ch_status->getMap().end() ){
+           EcalChannelStatusCode ch_code = (*chit);
+           std::cout << "EcalChannelStatus: "
+                   <<std::setprecision(6)
+                   << ch_code.getStatusCode()
+                   << std::endl;
+   } else {
+           std::cout << "No channel status found for this xtal! something wrong with EcalChannelStatus in your DB? "
+                   << std::endl;
+   }
 
 
    // laser transparency correction

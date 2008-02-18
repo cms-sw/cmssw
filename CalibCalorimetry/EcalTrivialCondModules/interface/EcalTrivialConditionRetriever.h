@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.13 2007/04/05 14:39:33 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.14 2007/07/31 19:05:12 torimoto Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -44,6 +44,9 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -73,6 +76,9 @@ public:
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatios> produceEcalLaserAPDPNRatios( const EcalLaserAPDPNRatiosRcd& );
+
+  virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
+  virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -140,6 +146,7 @@ private:
   std::string chi2MatrixFile_;
   std::string chi2MatrixAftFile_;
   std::string intercalibConstantsFile_ ;
+  std::string channelStatusFile_ ;
 
   int nTDCbins_;
 
@@ -151,6 +158,7 @@ private:
   bool producedEcalGainRatios_;
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
+  bool producedEcalChannelStatus_;
 
   int    verbose_; // verbosity
 
