@@ -8,12 +8,13 @@
 Description: Producer of fake alignment data for all geometries (currently: Tracker, DT and CSC)
 
 Implementation: 
-The alignement objects are filled with dummy data (not useable by the reconstruction Geometry!)
+The alignment objects are filled with dummy/empty data, 
+reconstruction Geometry should notice that and not pass to GeometryAligner.
 */
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.2 2007/10/03 08:54:12 fronga Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.3 2007/12/04 23:39:24 ratnik Exp $
 //
 //
 
@@ -38,33 +39,36 @@ The alignement objects are filled with dummy data (not useable by the reconstruc
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 
+
 class FakeAlignmentProducer : public edm::ESProducer {
 public:
   FakeAlignmentProducer(const edm::ParameterSet&);
   ~FakeAlignmentProducer() {}
 
-  std::auto_ptr<Alignments> 
-  produceTkAli(const TrackerAlignmentRcd&) { return std::auto_ptr<Alignments>(); }
-  std::auto_ptr<Alignments> 
-  produceDTAli(const DTAlignmentRcd&) { return std::auto_ptr<Alignments>(); }
   std::auto_ptr<Alignments>
-  produceCSCAli(const CSCAlignmentRcd&)  { return std::auto_ptr<Alignments>(); }
+  produceTkAli(const TrackerAlignmentRcd&) { return std::auto_ptr<Alignments>(new Alignments);}
+  std::auto_ptr<Alignments> 
+  produceDTAli(const DTAlignmentRcd&) { return std::auto_ptr<Alignments>(new Alignments);}
+  std::auto_ptr<Alignments>
+  produceCSCAli(const CSCAlignmentRcd&)  { return std::auto_ptr<Alignments>(new Alignments);}
 
 
-  std::auto_ptr<AlignmentErrors> 
-  produceTkAliErr(const TrackerAlignmentErrorRcd&) { return std::auto_ptr<AlignmentErrors>(); }
-  std::auto_ptr<AlignmentErrors>
-  produceDTAliErr(const DTAlignmentErrorRcd&) { return std::auto_ptr<AlignmentErrors>(); }
-  std::auto_ptr<AlignmentErrors>
-  produceCSCAliErr(const CSCAlignmentErrorRcd&) { return std::auto_ptr<AlignmentErrors>(); }
-
+  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  }
+  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  }
+  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  }
 
 };
 
-FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig)
+FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) 
 {
 
-  edm::LogInfo("Alignments") << "This is a fake alignment producer";
+  edm::LogInfo("Alignments") << "This is a fake alignment producer.";
 
   setWhatProduced( this, &FakeAlignmentProducer::produceTkAli );
   setWhatProduced( this, &FakeAlignmentProducer::produceTkAliErr );
@@ -72,6 +76,7 @@ FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig)
   setWhatProduced( this, &FakeAlignmentProducer::produceDTAliErr );
   setWhatProduced( this, &FakeAlignmentProducer::produceCSCAli );
   setWhatProduced( this, &FakeAlignmentProducer::produceCSCAliErr );
+
 }
 
 
