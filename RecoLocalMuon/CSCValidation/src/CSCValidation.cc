@@ -45,29 +45,29 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   printf("\n\n\n==book my histograms====\n\n\n");
 
   // calib
-  hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",217728,0,217728);
-  hCalibGainsI = new TH1F("hCalibGainsI","Gains Intercept",217728,0,217728);
-  hCalibGainsChi2 = new TH1F("hCalibGainsChi2","Gains Chi2",217728,0,217728);
-  hCalibXtalkSL = new TH1F("hCalibXtalkSL","Xtalk Slope Left",217728,0,217728);
-  hCalibXtalkSR = new TH1F("hCalibXtalkSR","Xtalk Slope Right",217728,0,217728);
-  hCalibXtalkIL = new TH1F("hCalibXtalkIL","Xtalk Intercept Left",217728,0,217728);
-  hCalibXtalkIR = new TH1F("hCalibXtalkIR","Xtalk Intercept Right",217728,0,217728);
-  hCalibXtalkChi2L = new TH1F("hCalibXtalkChi2L","Xtalk Chi2 Left",217728,0,217728);
-  hCalibXtalkChi2R = new TH1F("hCalibXtalkChi2R","Xtalk Chi2 Right",217728,0,217728);
-  hCalibPedsP = new TH1F("hCalibPedsP","Peds",217728,0,217728);
-  hCalibPedsR = new TH1F("hCalibPedsR","Peds RMS",217728,0,217728);
-  hCalibNoise33 = new TH1F("hCalibNoise33","Noise Matrix 33",217728,0,217728);
-  hCalibNoise34 = new TH1F("hCalibNoise34","Noise Matrix 34",217728,0,217728);
-  hCalibNoise35 = new TH1F("hCalibNoise35","Noise Matrix 35",217728,0,217728);
-  hCalibNoise44 = new TH1F("hCalibNoise44","Noise Matrix 44",217728,0,217728);
-  hCalibNoise45 = new TH1F("hCalibNoise45","Noise Matrix 45",217728,0,217728);
-  hCalibNoise46 = new TH1F("hCalibNoise46","Noise Matrix 46",217728,0,217728);
-  hCalibNoise55 = new TH1F("hCalibNoise55","Noise Matrix 55",217728,0,217728);
-  hCalibNoise56 = new TH1F("hCalibNoise56","Noise Matrix 56",217728,0,217728);
-  hCalibNoise57 = new TH1F("hCalibNoise57","Noise Matrix 57",217728,0,217728);
-  hCalibNoise66 = new TH1F("hCalibNoise66","Noise Matrix 66",217728,0,217728);
-  hCalibNoise67 = new TH1F("hCalibNoise67","Noise Matrix 67",217728,0,217728);
-  hCalibNoise77 = new TH1F("hCalibNoise77","Noise Matrix 77",217728,0,217728);
+  hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",400,0,400);
+  hCalibGainsI = new TH1F("hCalibGainsI","Gains Intercept",400,0,400);
+  hCalibGainsChi2 = new TH1F("hCalibGainsChi2","Gains Chi2",400,0,400);
+  hCalibXtalkSL = new TH1F("hCalibXtalkSL","Xtalk Slope Left",400,0,400);
+  hCalibXtalkSR = new TH1F("hCalibXtalkSR","Xtalk Slope Right",400,0,400);
+  hCalibXtalkIL = new TH1F("hCalibXtalkIL","Xtalk Intercept Left",400,0,400);
+  hCalibXtalkIR = new TH1F("hCalibXtalkIR","Xtalk Intercept Right",400,0,400);
+  hCalibXtalkChi2L = new TH1F("hCalibXtalkChi2L","Xtalk Chi2 Left",400,0,400);
+  hCalibXtalkChi2R = new TH1F("hCalibXtalkChi2R","Xtalk Chi2 Right",400,0,400);
+  hCalibPedsP = new TH1F("hCalibPedsP","Peds",400,0,400);
+  hCalibPedsR = new TH1F("hCalibPedsR","Peds RMS",400,0,400);
+  hCalibNoise33 = new TH1F("hCalibNoise33","Noise Matrix 33",400,0,400);
+  hCalibNoise34 = new TH1F("hCalibNoise34","Noise Matrix 34",400,0,400);
+  hCalibNoise35 = new TH1F("hCalibNoise35","Noise Matrix 35",400,0,400);
+  hCalibNoise44 = new TH1F("hCalibNoise44","Noise Matrix 44",400,0,400);
+  hCalibNoise45 = new TH1F("hCalibNoise45","Noise Matrix 45",400,0,400);
+  hCalibNoise46 = new TH1F("hCalibNoise46","Noise Matrix 46",400,0,400);
+  hCalibNoise55 = new TH1F("hCalibNoise55","Noise Matrix 55",400,0,400);
+  hCalibNoise56 = new TH1F("hCalibNoise56","Noise Matrix 56",400,0,400);
+  hCalibNoise57 = new TH1F("hCalibNoise57","Noise Matrix 57",400,0,400);
+  hCalibNoise66 = new TH1F("hCalibNoise66","Noise Matrix 66",400,0,400);
+  hCalibNoise67 = new TH1F("hCalibNoise67","Noise Matrix 67",400,0,400);
+  hCalibNoise77 = new TH1F("hCalibNoise77","Noise Matrix 77",400,0,400);
 
 
 
@@ -108,6 +108,12 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hStripStrip3  = new TH1F("hStripStrip3","strip number station 3",81,-0.5,80.5);
   hStripStrip4  = new TH1F("hStripStrip4","strip number station 4",81,-0.5,80.5);
 
+  // tmp efficiency histos
+  hSSTE = new TH1F("hSSTE","hSSTE",20,0,20);
+  hRHSTE = new TH1F("hRHSTE","hRHSTE",20,0,20);
+  hSEff = new TH1F("hSEff","Segment Efficiency",10,0.5,10.5);
+  hRHEff = new TH1F("hRHEff","recHit Efficiency",10,0.5,10.5);
+
   // recHits
   hRHCodeBroad = new TH1F("hRHCodeBroad","broad scope code for recHits",33,-16.5,16.5);
   hRHCodeNarrow1 = new TH1F("hRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5);
@@ -140,6 +146,37 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hRHResid32 = new TH1F("hRHResid32","SimHitX - Reconstructed X (ME32)",100,-1.0,1.0);
   hRHResid41 = new TH1F("hRHResid41","SimHitX - Reconstructed X (ME41)",100,-1.0,1.0);
   hRHResid42 = new TH1F("hRHResid42","SimHitX - Reconstructed X (ME42)",100,-1.0,1.0);
+  hRHSumQ11b = new TH1F("hRHSumQ11b","Sum 3x3 recHit Charge (ME11b)",250,0,2000);
+  hRHSumQ12 = new TH1F("hRHSumQ12","Sum 3x3 recHit Charge (ME12)",250,0,2000);
+  hRHSumQ13 = new TH1F("hRHSumQ13","Sum 3x3 recHit Charge (ME13)",250,0,2000);
+  hRHSumQ11a = new TH1F("hRHSumQ11a","Sum 3x3 recHit Charge (ME11a)",250,0,2000);
+  hRHSumQ21 = new TH1F("hRHSumQ21","Sum 3x3 recHit Charge (ME21)",250,0,2000);
+  hRHSumQ22 = new TH1F("hRHSumQ22","Sum 3x3 recHit Charge (ME22)",250,0,2000);
+  hRHSumQ31 = new TH1F("hRHSumQ31","Sum 3x3 recHit Charge (ME31)",250,0,2000);
+  hRHSumQ32 = new TH1F("hRHSumQ32","Sum 3x3 recHit Charge (ME32)",250,0,2000);
+  hRHSumQ41 = new TH1F("hRHSumQ41","Sum 3x3 recHit Charge (ME41)",250,0,2000);
+  hRHSumQ42 = new TH1F("hRHSumQ42","Sum 3x3 recHit Charge (ME42)",250,0,2000);
+  hRHRatioQ11b = new TH1F("hRHRatioQ11b","Ratio (Ql+Qr)/Qc (ME11b)",120,-0.1,1.1);
+  hRHRatioQ12 = new TH1F("hRHRatioQ12","Ratio (Ql+Qr)/Qc (ME12)",120,-0.1,1.1);
+  hRHRatioQ13 = new TH1F("hRHRatioQ13","Ratio (Ql+Qr)/Qc (ME13)",120,-0.1,1.1);
+  hRHRatioQ11a = new TH1F("hRHRatioQ11a","Ratio (Ql+Qr)/Qc (ME11a)",120,-0.1,1.1);
+  hRHRatioQ21 = new TH1F("hRHRatioQ21","Ratio (Ql+Qr)/Qc (ME21)",120,-0.1,1.1);
+  hRHRatioQ22 = new TH1F("hRHRatioQ22","Ratio (Ql+Qr)/Qc (ME22)",120,-0.1,1.1);
+  hRHRatioQ31 = new TH1F("hRHRatioQ31","Ratio (Ql+Qr)/Qc (ME31)",120,-0.1,1.1);
+  hRHRatioQ32 = new TH1F("hRHRatioQ32","Ratio (Ql+Qr)/Qc (ME32)",120,-0.1,1.1);
+  hRHRatioQ41 = new TH1F("hRHRatioQ41","Ratio (Ql+Qr)/Qc (ME41)",120,-0.1,1.1);
+  hRHRatioQ42 = new TH1F("hRHRatioQ42","Ratio (Ql+Qr)/Qc (ME42)",120,-0.1,1.1);
+  hRHTiming11a = new TH1F("hRHTiming11b","recHit Timing (ME11b)",100,0,10);
+  hRHTiming12 = new TH1F("hRHTiming12","recHit Timing (ME12)",100,0,10);
+  hRHTiming13 = new TH1F("hRHTiming13","recHit Timing (ME13)",100,0,10);
+  hRHTiming11b = new TH1F("hRHTiming11a","recHit Timing (ME11a)",100,0,10);
+  hRHTiming21 = new TH1F("hRHTiming21","recHit Timing (ME21)",100,0,10);
+  hRHTiming22 = new TH1F("hRHTiming22","recHit Timing (ME22)",100,0,10);
+  hRHTiming31 = new TH1F("hRHTiming31","recHit Timing (ME31)",100,0,10);
+  hRHTiming32 = new TH1F("hRHTiming32","recHit Timing (ME32)",100,0,10);
+  hRHTiming41 = new TH1F("hRHTiming41","recHit Timing (ME41)",100,0,10);
+  hRHTiming42 = new TH1F("hRHTiming42","recHit Timing (ME42)",100,0,10);
+
 
 
   // segments
@@ -300,6 +337,38 @@ CSCValidation::~CSCValidation(){
   hSResid32->Write();
   hSResid41->Write();
   hSResid42->Write();
+  hRHSumQ11b->Write();
+  hRHSumQ12->Write();
+  hRHSumQ13->Write();
+  hRHSumQ11a->Write();
+  hRHSumQ21->Write();
+  hRHSumQ22->Write();
+  hRHSumQ31->Write();
+  hRHSumQ32->Write();
+  hRHSumQ41->Write();
+  hRHSumQ42->Write();
+  hRHRatioQ11b->Write();
+  hRHRatioQ12->Write();
+  hRHRatioQ13->Write();
+  hRHRatioQ11a->Write();
+  hRHRatioQ21->Write();
+  hRHRatioQ22->Write();
+  hRHRatioQ31->Write();
+  hRHRatioQ32->Write();
+  hRHRatioQ41->Write();
+  hRHRatioQ42->Write();
+  hRHTiming11a->Write();
+  hRHTiming12->Write();
+  hRHTiming13->Write();
+  hRHTiming11b->Write();
+  hRHTiming21->Write();
+  hRHTiming22->Write();
+  hRHTiming31->Write();
+  hRHTiming32->Write();
+  hRHTiming41->Write();
+  hRHTiming42->Write();
+  histoEfficiency(hRHSTE,hRHEff);
+  hRHEff->Write();
   rHTree->Write();
   theFile->cd();
 
@@ -327,6 +396,8 @@ CSCValidation::~CSCValidation(){
   hSGlobalTheta->Write();
   hSGlobalPhi->Write();
   hSnSegments->Write();
+  histoEfficiency(hSSTE,hSEff);
+  hSEff->Write();
   segTree->Write();
   theFile->cd();
 
@@ -403,12 +474,14 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     const CSCDBPedestals* pPedestals = hPedestals.product();
 
     // testing
-    for (int i = 0; i < pGains->gains.size(); i++){
+//    for (int i = 0; i < pGains->gains.size(); i++){
+    for (int i = 0; i < 400; i++){
       hCalibGainsS->SetBinContent(i+1,pGains->gains[i].gain_slope);
       hCalibGainsI->SetBinContent(i+1,pGains->gains[i].gain_intercept);
       hCalibGainsChi2->SetBinContent(i+1,pGains->gains[i].gain_chi2);
     }
-    for (int i = 0; i < pCrosstalk->crosstalk.size(); i++){
+//    for (int i = 0; i < pCrosstalk->crosstalk.size(); i++){
+    for (int i = 0; i < 400; i++){
       hCalibXtalkSL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_left);
       hCalibXtalkSR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_right);
       hCalibXtalkIL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_left);
@@ -416,11 +489,13 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hCalibXtalkChi2L->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_left);
       hCalibXtalkChi2R->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_right);
     }
-    for (int i = 0; i < pPedestals->pedestals.size(); i++){
+//    for (int i = 0; i < pPedestals->pedestals.size(); i++){
+    for (int i = 0; i < 400; i++){
       hCalibPedsP->SetBinContent(i+1,pPedestals->pedestals[i].ped);
       hCalibPedsR->SetBinContent(i+1,pPedestals->pedestals[i].rms);
     }
-    for (int i = 0; i < pNoiseMatrix->matrix.size() ; i++){
+//    for (int i = 0; i < pNoiseMatrix->matrix.size() ; i++){
+    for (int i = 0; i < 400 ; i++){
       hCalibNoise33->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem33);
       hCalibNoise34->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem34);
       hCalibNoise35->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem35);
@@ -612,13 +687,15 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int centerid    =  nStrips/2 + 1;
     int centerStrip =  hitstrips[centerid - 1];
     HepMatrix rHcharge = GetCharge3x3(*strips, idrec, centerStrip);    
-    float rHsumQ = rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3) +
+    float rHSumQ = rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3) +
                    rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3) +
                    rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3);
-    float rHratioQl = (rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3)) /
-                      (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
-    float rHratioQr = (rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3)) /
-                      (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
+    float rHratioQ = (rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3)  +
+                      rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3)) /
+                     (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
+
+    // Get the signal timing of this hit
+    float rHtime = GetTiming(*strips, idrec, centerStrip);
 
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
@@ -685,15 +762,27 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHGlobal1->Fill(grecx,grecy);
       if (kRing == 1){
         if (isSimulation) hRHResid11b->Fill(simHitXres);
+        hRHSumQ11b->Fill(rHSumQ);
+        hRHRatioQ11b->Fill(rHratioQ);
+        hRHTiming11b->Fill(rHtime);
       }
       if (kRing == 2){
         if (isSimulation) hRHResid12->Fill(simHitXres);
+        hRHSumQ12->Fill(rHSumQ);
+        hRHRatioQ12->Fill(rHratioQ);
+        hRHTiming12->Fill(rHtime);
       }
       if (kRing == 3){
         if (isSimulation) hRHResid13->Fill(simHitXres);
+        hRHSumQ13->Fill(rHSumQ);
+        hRHRatioQ13->Fill(rHratioQ);
+        hRHTiming13->Fill(rHtime);
       }
       if (kRing == 4){
         if (isSimulation) hRHResid11a->Fill(simHitXres);
+        hRHSumQ11a->Fill(rHSumQ);
+        hRHRatioQ11a->Fill(rHratioQ);
+        hRHTiming11a->Fill(rHtime);
       }
     }
     if (kStation == 2) {
@@ -704,9 +793,15 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHGlobal2->Fill(grecx,grecy);
       if (kRing == 1){
         if (isSimulation) hRHResid21->Fill(simHitXres);
+        hRHSumQ21->Fill(rHSumQ);
+        hRHRatioQ21->Fill(rHratioQ);
+        hRHTiming21->Fill(rHtime);
       }
       if (kRing == 2){
         if (isSimulation) hRHResid22->Fill(simHitXres);
+        hRHSumQ22->Fill(rHSumQ);
+        hRHRatioQ22->Fill(rHratioQ);
+        hRHTiming22->Fill(rHtime);
       }
     }
     if (kStation == 3) {
@@ -717,9 +812,15 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHGlobal3->Fill(grecx,grecy);
       if (kRing == 1){
         if (isSimulation) hRHResid31->Fill(simHitXres);
+        hRHSumQ31->Fill(rHSumQ);
+        hRHRatioQ31->Fill(rHratioQ);
+        hRHTiming31->Fill(rHtime);
       }
       if (kRing == 2){
         if (isSimulation) hRHResid32->Fill(simHitXres);
+        hRHSumQ32->Fill(rHSumQ);
+        hRHRatioQ32->Fill(rHratioQ);
+        hRHTiming32->Fill(rHtime);
       }
     }
     if (kStation == 4) {
@@ -730,9 +831,15 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHGlobal4->Fill(grecx,grecy);
       if (kRing == 1){
         if (isSimulation) hRHResid41->Fill(simHitXres);
+        hRHSumQ41->Fill(rHSumQ);
+        hRHRatioQ41->Fill(rHratioQ);
+        hRHTiming41->Fill(rHtime);
       }
       if (kRing == 2){
         if (isSimulation) hRHResid42->Fill(simHitXres);
+        hRHSumQ42->Fill(rHSumQ);
+        hRHRatioQ42->Fill(rHratioQ);
+        hRHTiming42->Fill(rHtime);
       }
     }
     
@@ -940,6 +1047,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   hSnSegments->Fill(nSegments);
 
 
+  // do Efficiency
+  Efficiencies(recHits, cscSegments);
+
 
   // exit
   if (printalot) printf("==exit===CSCValidation===== run %i\tevent %i\n\n",iRun,iEvent);
@@ -986,6 +1096,53 @@ float CSCValidation::FitX(HepMatrix points, HepMatrix errors){
   return (intercept + slope*3);
 
 }
+
+//---------------------------------------------------------------------------------------
+// Find the signal timing based on a weighted mean of the pulse.
+// Function is meant to take the DetId and center strip number of a recHit and return
+// the timing in units of time buckets (50ns)
+//---------------------------------------------------------------------------------------
+
+float CSCValidation::GetTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+
+  float ADC[8];
+  float timing = 0;
+
+  // Loop over strip digis responsible for this recHit and sum charge
+  CSCStripDigiCollection::DigiRangeIterator sIt;
+
+  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+    CSCDetId id = (CSCDetId)(*sIt).first;
+    if (id == idRH){
+      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      for ( ; digiItr != last; ++digiItr ) {
+        int thisStrip = digiItr->getStrip();
+        if (thisStrip == (centerStrip)){
+          float diff = 0;
+          float peakADC = -1;
+          vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+            if (diff > peakADC){
+              peakADC = diff;
+            }
+          }
+        }
+      }
+
+    }
+
+  }
+
+  timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
+  return timing;
+
+
+}
+
 
 //---------------------------------------------------------------------------------------
 // Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
@@ -1078,6 +1235,125 @@ HepMatrix CSCValidation::GetCharge3x3(const CSCStripDigiCollection& stripdigis, 
   return bcharge;
 }
 
+//----------------------------------------------------------------------------
+// Calculate basic efficiencies for recHits and Segments
+// Author: S. Stoynev
+//----------------------------------------------------------------------------
 
+void CSCValidation::Efficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
+
+  bool result = false;
+  bool AllRecHits[2][4][4][36][6];
+  bool AllSegments[2][4][4][36];
+  //bool MultiSegments[2][4][4][36];
+  for(int iE = 0;iE<2;iE++){
+    for(int iS = 0;iS<4;iS++){
+      for(int iR = 0; iR<4;iR++){
+        for(int iC =0;iC<36;iC++){
+          AllSegments[iE][iS][iR][iC] = false;
+          //MultiSegments[iE][iS][iR][iC] = false;
+          for(int iL=0;iL<6;iL++){
+            AllRecHits[iE][iS][iR][iC][iL] = false;
+          }
+        }
+      }
+    }
+  }
+  
+  for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+    //CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+    CSCDetId  idrec = (CSCDetId)(*recIt).cscDetId();
+    AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()][idrec.layer() -1] = true;
+
+  }
+   
+
+  for(CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt != cscSegments->end(); segIt++) {
+    CSCDetId idseg  = (CSCDetId)(*segIt).cscDetId();
+    //if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
+    //MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;
+    //}
+    AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber()] = true;
+  }
+
+  
+  for(int iE = 0;iE<2;iE++){
+    for(int iS = 0;iS<4;iS++){
+      for(int iR = 0; iR<4;iR++){
+        for(int iC =0;iC<36;iC++){
+          int NumberOfLayers = 0;
+          for(int iL=0;iL<6;iL++){
+            if(AllRecHits[iE][iS][iR][iC][iL]){
+              NumberOfLayers++;
+            }
+          }
+          int bin = 0;
+          if (iS==0) bin = iR+1;
+          else bin = (iS+1)*2 + (iR+1);
+          if(NumberOfLayers>1){
+            //if(!(MultiSegments[iE][iS][iR][iC])){
+            if(AllSegments[iE][iS][iR][iC]){
+              //---- Efficient segment evenents
+              hSSTE->AddBinContent(bin);
+            }
+            //---- All segment events (normalization)
+            hSSTE->AddBinContent(10+bin);
+            //}
+          }
+          if(AllSegments[iE][iS][iR][iC]){
+            if(NumberOfLayers==6){
+              //---- Efficient rechit events
+              hRHSTE->AddBinContent(bin);
+            }
+            //---- All rechit events (normalization)
+            hRHSTE->AddBinContent(10+bin);
+          }
+        }
+      }
+    }
+  }
+
+}
+
+void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){
+  //---- Efficiency with binomial error
+  float Efficiency = 0.;
+  float EffError = 0.;
+  if(fabs(Norm)>0.000000001){
+    Efficiency = bin/Norm;
+    if(bin<Norm){
+      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
+    }
+  }
+  eff[0] = Efficiency;
+  eff[1] = EffError;
+}
+//
+void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
+  int Ninfo_bins = 10;
+  std::vector<float> eff(2);
+  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
+  std::vector<float> bins(Nbins);
+  std::vector<float> Efficiency(Nbins);
+  std::vector<float> EffError(Nbins);
+  float Norm = 1;
+  for (int i=0;i<20;i++){
+    bins[i] = readHisto->GetBinContent(i+1);
+    //getEfficiency(bins[i], Norm, eff);
+    //Efficiency[i] = eff[0];
+    //EffError[i] = eff[1];
+    //writeHisto->SetBinContent(i+1, Efficiency[i]);
+    //writeHisto->SetBinError(i+1, EffError[i]);
+    if(i>Ninfo_bins){
+      Norm = bins[i];
+      getEfficiency(bins[i-Ninfo_bins], Norm, eff);
+      Efficiency[i] = eff[0];
+      EffError[i] = eff[1];
+      writeHisto->SetBinContent(i-Ninfo_bins, Efficiency[i]);
+      writeHisto->SetBinError(i-Ninfo_bins, EffError[i]);
+
+    }
+  }  
+}
 DEFINE_FWK_MODULE(CSCValidation);
 

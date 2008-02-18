@@ -1,10 +1,26 @@
+#!/bin/bash
+
+# to run this script, do
+# ./makeComparisonPlots.sh <filepath_new> <filepath_ref> <data_type>
+# where <filepath_new> and <filepath_ref> are the paths to the output root files from CSCValiation
+# data_type is an int (1 = data ; 2 = MC)
+
+# example:  ./makeComparisonPlots.sh CMSSW_1_8_0_pre8/src/RecoLocalMuon/CSCValidation/test/ CMSSW_1_7_4/src/RecoLocalMuon/CSCValidation/test/ 2
+
+ARG1=$1
+ARG2=$2
+ARG3=$3
+
+MACRO=makePlots.C
+cat > ${MACRO}<<EOF
+
 {
   gROOT->Reset();
   gROOT->ProcessLine(".L myFunctions.C");
 
-  std::string newReleasePath = "/uscms/home/akub19/work/DEV/CMSSW_1_8_0_pre7/src/RecoLocalMuon/CSCValidation/test/";
-  std::string refReleasePath = "/uscms/home/akub19/work/DEV/CMSSW_1_8_0_pre7/src/RecoLocalMuon/CSCValidation/test/";
-  int datatype = 2;              // 1 = data, 2 = mc
+  std::string newReleasePath = "${ARG1}";
+  std::string refReleasePath = "${ARG2}";
+  int datatype = ${ARG3};              // 1 = data, 2 = mc
 
   TFile *f1;
   TFile *f2;
@@ -99,4 +115,10 @@
 
 
 }
+
+EOF
+
+root -l -q ${MACRO}
+
+rm makePlots.C
 

@@ -13,7 +13,7 @@ cat > ${MACRO}<<EOF
 
 {
   std::string newReleaseFile = "${ARG1}";
-  std::string refReleaseFile = "~akub19/public/fakeCalibReference.root";
+  std::string refReleaseFile = "fakeCalibReference.root";
 
   ofstream out;
   out.open("calib_compare_results.txt");
@@ -78,7 +78,7 @@ cat > ${MACRO}<<EOF
 
   for (int k = 0; k < 23; k++){
     ndiff.push_back(0);
-    for (int i = 0; i < 217728; i++){
+    for (int i = 0; i < 400; i++){
       float vo = hCo[k]->GetBinContent(i+1);
       float vn = hCn[k]->GetBinContent(i+1);
       diff = (vn - vo)/vo;
@@ -87,7 +87,7 @@ cat > ${MACRO}<<EOF
   }
 
   out << "Results: " << endl;
-  out << "Number of channels with diff > 0.01 for... " << endl;
+  out << "Number of channels with diff from reference > 1% for... " << endl;
   out << "Gain Slopes: " << ndiff[0] << endl;
   out << "Gain Intercepts: " << ndiff[1] << endl;
   out << "Gain Chi2: " << ndiff[2] << endl;

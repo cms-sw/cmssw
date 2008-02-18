@@ -118,8 +118,12 @@ protected:
 private: 
 
   // some useful functions
-  float FitX(HepMatrix sp, HepMatrix ep);
-  HepMatrix GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float      FitX(HepMatrix sp, HepMatrix ep);
+  HepMatrix  GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float      GetTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  void       Efficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  void       getEfficiency(float bin, float Norm, std::vector<float> &eff);
+  void       histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
 
   // counter
   int nEventsAnalyzed;
@@ -205,6 +209,7 @@ private:
   TH2F *hRHGlobal2;
   TH2F *hRHGlobal3;
   TH2F *hRHGlobal4;
+  TH1F *hRHEff;
   TH1F *hRHResid11b;
   TH1F *hRHResid12;
   TH1F *hRHResid13;
@@ -225,6 +230,36 @@ private:
   TH1F *hSResid32;
   TH1F *hSResid41;
   TH1F *hSResid42;
+  TH1F *hRHSumQ11b;
+  TH1F *hRHSumQ12;
+  TH1F *hRHSumQ13;
+  TH1F *hRHSumQ11a;
+  TH1F *hRHSumQ21;
+  TH1F *hRHSumQ22;
+  TH1F *hRHSumQ31;
+  TH1F *hRHSumQ32;
+  TH1F *hRHSumQ41;
+  TH1F *hRHSumQ42;
+  TH1F *hRHRatioQ11b;
+  TH1F *hRHRatioQ12;
+  TH1F *hRHRatioQ13;
+  TH1F *hRHRatioQ11a;
+  TH1F *hRHRatioQ21;
+  TH1F *hRHRatioQ22;
+  TH1F *hRHRatioQ31;
+  TH1F *hRHRatioQ32;
+  TH1F *hRHRatioQ41;
+  TH1F *hRHRatioQ42;
+  TH1F *hRHTiming11a;
+  TH1F *hRHTiming12;
+  TH1F *hRHTiming13;
+  TH1F *hRHTiming11b;
+  TH1F *hRHTiming21;
+  TH1F *hRHTiming22;
+  TH1F *hRHTiming31;
+  TH1F *hRHTiming32;
+  TH1F *hRHTiming41;
+  TH1F *hRHTiming42;
 
 
   TH1F *hSCodeBroad;
@@ -245,10 +280,15 @@ private:
   TH2F *hSGlobal3;
   TH2F *hSGlobal4;
   TH1F *hSnhits;
+  TH1F *hSEff;
   TH1F *hSChiSqProb;
   TH1F *hSGlobalTheta;
   TH1F *hSGlobalPhi;
   TH1F *hSnSegments;
+
+  // tmp histos for Efficiency
+  TH1F *hSSTE;
+  TH1F *hRHSTE;
 
   //
   //
