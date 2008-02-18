@@ -83,3 +83,33 @@ int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
 
   return(size);
 }
+
+L1MuDTTrackCand* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, int step) const {
+
+  L1MuDTTrackCand* rT=0;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step == i->bx() && wheel == i->whNum() && sect == i->scNum()
+      && i->TrkTag() == 0)
+      rT = const_cast<L1MuDTTrackCand*>(&(*i));
+  }
+
+  return(rT);
+}
+
+L1MuDTTrackCand* L1MuDTTrackContainer::dtTrackCand2(int wheel, int sect, int step) const {
+
+  L1MuDTTrackCand* rT=0;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step == i->bx() && wheel == i->whNum() && sect == i->scNum()
+      && i->TrkTag() == 1)
+      rT = const_cast<L1MuDTTrackCand*>(&(*i));
+  }
+
+  return(rT);
+}

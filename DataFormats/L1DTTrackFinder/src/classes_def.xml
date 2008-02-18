@@ -3,9 +3,11 @@
 
  <class name="L1MuDTChambPhDigi"/>
  <class name="L1MuDTChambThDigi"/>
+ <class name="L1MuDTTrackCand"/>
 
  <class name="std::vector<L1MuDTChambPhDigi>"/>
  <class name="std::vector<L1MuDTChambThDigi>"/>
+ <class name="std::vector<L1MuDTTrackCand>"/>
 
  <class name="L1MuDTChambPhContainer"/>
  <class name="L1MuDTChambThContainer"/>

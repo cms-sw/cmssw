@@ -1,6 +1,6 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h>
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackCand.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
@@ -10,9 +10,11 @@ namespace{
   namespace {
     L1MuDTChambPhDigi ph_S;
     L1MuDTChambThDigi th_S;
+    L1MuDTTrackCand   tr_S;
 
     std::vector<L1MuDTChambPhDigi> ph_V;
     std::vector<L1MuDTChambThDigi> th_V;
+    std::vector<L1MuDTTrackCand>   tr_V;
 
     L1MuDTChambPhContainer ph_K;
     L1MuDTChambThContainer th_K;
