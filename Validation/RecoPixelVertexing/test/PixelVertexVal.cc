@@ -136,8 +136,10 @@ void PixelVertexVal::analyze(
     float dz =  pv.position().z() - z_PV;
     h["h_ResZ"]->Fill( dz ); 
     h["h_PullZ"]->Fill( dz/pv.zError() );
+
+    for (reco::Vertex::trackRef_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
 //    for (reco::Vertex::track_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
-    for (reco::TrackRefVector::iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
+//    for (reco::TrackRefVector::iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
       //h["h_TrkRes"]->Fill((*it)->dz());
       h["h_TrkRes"]->Fill((*it)->vertex().z() - pv.position().z());
     }
