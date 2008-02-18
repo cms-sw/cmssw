@@ -29,15 +29,19 @@ class GeometryAligner : public DetPositioner {
 
 public:
   template<class C> 
-  void applyAlignments( C* geometry, const Alignments* alignments, 
-						const AlignmentErrors* alignmentErrors );
+  void applyAlignments( C* geometry,
+			const Alignments* alignments,
+			const AlignmentErrors* alignmentErrors,
+			const AlignTransform globalCoordinates );
 
 };
 
 
 template<class C>
-void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments,
-									   const AlignmentErrors* alignmentErrors )
+void GeometryAligner::applyAlignments( C* geometry,
+				       const Alignments* alignments,
+				       const AlignmentErrors* alignmentErrors,
+				       const AlignTransform globalCoordinates )
 {
 
   edm::LogInfo("Starting") << "Starting to apply alignments";
@@ -51,6 +55,9 @@ void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments
 	throw cms::Exception("GeometryMismatch") 
 	  << "Size mismatch between geometry (size=" << geometry->theMap.size() 
 	  << ") and alignment errors (size=" << alignmentErrors->m_alignError.size() << ")";
+
+  AlignTransform::Translation globalShift = globalCoordinates.translation();
+  AlignTransform::Rotation globalRotation = globalCoordinates.rotation();
 
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
@@ -73,15 +80,17 @@ void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments
 	      << "DetId mismatch between geometry (rawId=" << (*iPair).first
 	      << ") and alignment errors (rawId=" << (*iAlignError).rawId();
 
-	  // Define new quantities from alignments
-	  Surface::PositionType position( (*iAlign).translation().x(), 
-					  (*iAlign).translation().y(), 
-					  (*iAlign).translation().z() );
-	  Surface::RotationType 
-	    rotation( (*iAlign).rotation().xx(), (*iAlign).rotation().xy(), (*iAlign).rotation().xz(),
-		      (*iAlign).rotation().yx(), (*iAlign).rotation().yy(), (*iAlign).rotation().yz(),
-		      (*iAlign).rotation().zx(), (*iAlign).rotation().zy(), (*iAlign).rotation().zz() );
+	  // Apply global correction
+	  CLHEP::Hep3Vector positionHep = globalRotation * CLHEP::Hep3Vector( (*iAlign).translation() ) + globalShift;
+	  CLHEP::HepRotation rotationHep = globalRotation * CLHEP::HepRotation( (*iAlign).rotation() );
 
+	  // Define new quantities
+	  Surface::PositionType position( positionHep.x(), positionHep.y(), positionHep.z() );
+	  Surface::RotationType rotation( rotationHep.xx(), rotationHep.xy(), rotationHep.xz(), 
+					  rotationHep.yx(), rotationHep.yy(), rotationHep.yz(), 
+					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
+
+	  // Alignment Position Error
 	  GlobalError error( (*iAlignError).matrix() );
 	  AlignmentPositionError ape( error );
 
@@ -89,7 +98,6 @@ void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments
 	  GeomDet* iGeomDet = (*iPair).second;
 	  DetPositioner::setGeomDetPosition( *iGeomDet, position, rotation );
 	  DetPositioner::setAlignmentPositionError( *iGeomDet, ape );
-
 	}
 
   edm::LogInfo("Done") << "Finished to apply alignments";
