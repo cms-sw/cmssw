@@ -4,7 +4,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/BTauReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=RecoTauTag/Pi0Tau>
 <use name=root>
