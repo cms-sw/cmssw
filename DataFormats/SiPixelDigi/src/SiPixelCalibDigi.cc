@@ -6,7 +6,7 @@
 // the actual data container is a simply a collection of SiPixelCalibDigi objects
 
 // init method, sets array sizes to npoints, fixes number of points 
-void SiPixelCalibDigi::init( short row, short col, short npoints) {
+void SiPixelCalibDigi::init( uint16_t row, uint16_t col, uint16_t npoints) {
   setrowcol(row,col);
   reset();
   // expand if size of arrays has changed.... not implemented yet...
@@ -29,13 +29,13 @@ void SiPixelCalibDigi::fill(uint32_t ipoint, uint32_t adcval) {
   return;
 }
 // set method to rol row and column number
-void SiPixelCalibDigi::setrowcol(short row, short col){
+void SiPixelCalibDigi::setrowcol(uint16_t row, uint16_t col){
   m_row_and_column.first=row;
   m_row_and_column.second=col;
 }
 // possibility to retrieve vector of entry objects
-std::vector<short> SiPixelCalibDigi::getnentries() const{
-  std::vector<short> result(0);
+std::vector<uint8_t> SiPixelCalibDigi::getnentries() const{
+  std::vector<uint8_t> result(0);
   for(uint32_t ii=0; ii<m_data.size();++ii)
     result.push_back(m_data[ii].nentries);
   return result;

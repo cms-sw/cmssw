@@ -4,19 +4,20 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include "boost/cstdint.hpp"
 
 class SiPixelCalibDigi {
  public:
 
-  SiPixelCalibDigi(int packed_value,short row, short col):m_data(packed_value),m_row_and_column(row,col) {reset();}
-    SiPixelCalibDigi(int packed_value):m_data(packed_value),m_row_and_column(-1,-1){reset();}
-    SiPixelCalibDigi():m_data(0),m_row_and_column(-1,-1){;}
+  SiPixelCalibDigi(int packed_value,uint16_t row, uint16_t col):m_data(packed_value),m_row_and_column(row,col) {reset();}
+    SiPixelCalibDigi(int packed_value):m_data(packed_value),m_row_and_column(0,0){reset();}
+    SiPixelCalibDigi():m_data(0),m_row_and_column(0,0){;}
     virtual ~SiPixelCalibDigi(){;}
 
-  void init( short row, short col, short npoints);
+  void init( uint16_t row, uint16_t col, uint16_t npoints);
   void reset();
   void fill(uint32_t ipoint, uint32_t adcval);
-  void setrowcol(short row, short col);
+  void setrowcol(uint16_t row, uint16_t col);
 
   // analysis methods:
   uint32_t getnpoints() const {return m_data.size();} // returns the number of calibration points
@@ -25,14 +26,14 @@ class SiPixelCalibDigi {
   uint32_t getnentries(uint32_t ipoint) const { return m_data[ipoint].nentries;}// returns the number of entries made for calibration point ipoint
   std::vector<uint32_t> getsum() const;// returns the sum of adc counts for the collected events for all points
   std::vector<uint32_t> getsumsquares() const;// returns the sum of the squares of adc counts 
-  std::vector<short> getnentries() const  ;// returns the number of entries made 
-  short row() const {return m_row_and_column.first;}
-  short col() const {return m_row_and_column.second;}
-  std::pair<short,short> row_and_col() const {return m_row_and_column;}
+  std::vector<uint8_t> getnentries() const  ;// returns the number of entries made 
+  uint16_t row() const {return m_row_and_column.first;}
+  uint16_t col() const {return m_row_and_column.second;}
+  std::pair<uint16_t,uint16_t> row_and_col() const {return m_row_and_column;}
   
  struct datacontainer{
    datacontainer():nentries(0),adccountsum(0),adccountsumsq(0) { }
-   short nentries;// the number of entries per VCAL point
+   uint8_t nentries;// the number of entries per VCAL point
    uint32_t adccountsum;// the sum of the ADC counts
    uint32_t adccountsumsq;// the sum of the square value of the ADC counts
   };
@@ -41,7 +42,7 @@ class SiPixelCalibDigi {
 
   // this is were the data is stored
   std::vector<datacontainer> m_data;
-  std::pair<short,short>  m_row_and_column;//the row and column number of this particular pixel
+  std::pair<uint16_t,uint16_t>  m_row_and_column;//the row and column number of this particular pixel
 }; 
  
 inline bool operator <( const SiPixelCalibDigi & one, const SiPixelCalibDigi & other){
