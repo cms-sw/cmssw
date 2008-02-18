@@ -21,15 +21,15 @@ public:
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
-  explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
-    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), geom_(geom) {}
+  explicit TransientTrackingRecHit(const GeomDet * geom=0, float weight=1., float annealing=1.) : 
+    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), geom_(geom), weight_(weight), annealing_(annealing) {}
 
-  explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid ) : 
-    TrackingRecHit(id, type), geom_(geom) {}
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid ) : 
-    TrackingRecHit(id, type), geom_(geom) {}
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh ) : 
-    TrackingRecHit(rh.geographicalId(), rh.type()), geom_(geom) {}
+  explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid, float weight=1., float annealing=1. ) : 
+    TrackingRecHit(id, type), geom_(geom), weight_(weight), annealing_(annealing) {}
+  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid, float weight=1., float annealing=1. ) : 
+    TrackingRecHit(id, type), geom_(geom),  weight_(weight), annealing_(annealing) {}
+  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh, float weight=1., float annealing=1. ) : 
+    TrackingRecHit(rh.geographicalId(), rh.type()), geom_(geom), weight_(weight), annealing_(annealing) {}
 
 
   //RC virtual TransientTrackingRecHit * clone() const = 0;
@@ -65,9 +65,25 @@ public:
   /// Composite interface: returns the component hits, if any
   virtual ConstRecHitContainer transientHits() const;
 
+  /// interface needed to set the transient hit weight and to read it back
+  void setWeight(float weight){weight_ = weight;}
+
+  float weight() const {return weight_;}
+  
+  /// interface needed to set and read back an annealing value that has been applied to the current hit error matrix when
+  /// using it as a component for a composite rec hit (useful for the DAF)
+
+  void setAnnealingFactor(float annealing) {annealing_ = annealing;} 
+
+  float getAnnealingFactor() const {return annealing_;} 
+
 private:
 
   const GeomDet * geom_ ;
+
+  float weight_;
+
+  float annealing_;
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
