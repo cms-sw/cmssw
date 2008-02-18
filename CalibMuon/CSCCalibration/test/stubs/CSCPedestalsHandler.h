@@ -7,7 +7,7 @@
 #include <typeinfo>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/PopCon/interface/LogReader.h"
+//#include "CondCore/PopCon/interface/LogReader.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,7 +32,7 @@ namespace popcon
       std::string m_name;
       std::string m_cs;
       const CSCDBPedestals * mypedestals;
-      LogReader* lgrdr;
+      //LogReader* lgrdr;
     };
 }
 #endif
