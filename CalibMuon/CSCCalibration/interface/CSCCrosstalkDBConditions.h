@@ -21,31 +21,8 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
   CSCCrosstalkDBConditions(const edm::ParameterSet&);
   ~CSCCrosstalkDBConditions();
   
-  float mean,min,minchi;
-  int seed;long int M;
-  int db_index,new_chamber_id,new_strip,new_index;
-  float db_slope_right,db_slope_left,db_intercept_right;
-  float db_intercept_left, db_chi2_right,db_chi2_left;
-  std::vector<int> db_index_id;
-  std::vector<float> db_slope_r;
-  std::vector<float> db_intercept_r;
-  std::vector<float> db_chi2_r;
-  std::vector<float> db_slope_l;
-  std::vector<float> db_intercept_l;
-  std::vector<float> db_chi2_l;
-  float new_slope_right,new_slope_left,new_intercept_right;
-  float new_intercept_left, new_chi2_right,new_chi2_left;
-  std::vector<int> new_cham_id;
-  std::vector<int> new_index_id;
-  std::vector<int> new_strips;
-  std::vector<float> new_slope_r;
-  std::vector<float> new_intercept_r;
-  std::vector<float> new_chi2_r;
-  std::vector<float> new_slope_l;
-  std::vector<float> new_intercept_l;
-  std::vector<float> new_chi2_l;
 
-  void prefillDBCrosstalk();
+  static CSCDBCrosstalk * prefillDBCrosstalk();
 
   typedef const  CSCDBCrosstalk * ReturnType;
   
@@ -54,7 +31,9 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCDBCrosstalk *cndbcrosstalk ;
+
+
+  CSCDBCrosstalk *cndbCrosstalk ;
 
 };
 

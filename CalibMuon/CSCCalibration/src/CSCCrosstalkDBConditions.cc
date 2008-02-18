@@ -6,10 +6,37 @@
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkDBConditions.h"
 
-void CSCCrosstalkDBConditions::prefillDBCrosstalk()
+CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 {
-  cndbcrosstalk = new CSCDBCrosstalk();
+  CSCDBCrosstalk * cndbcrosstalk = new CSCDBCrosstalk();
   //const CSCDetId& detId = CSCDetId();
+
+
+  float mean,min,minchi;
+  int seed;long int M;
+  int db_index,new_chamber_id,new_strip,new_index;
+  float db_slope_right,db_slope_left,db_intercept_right;
+  float db_intercept_left, db_chi2_right,db_chi2_left;
+  std::vector<int> db_index_id;
+  std::vector<float> db_slope_r;
+  std::vector<float> db_intercept_r;
+  std::vector<float> db_chi2_r;
+  std::vector<float> db_slope_l;
+  std::vector<float> db_intercept_l;
+  std::vector<float> db_chi2_l;
+  float new_slope_right,new_slope_left,new_intercept_right;
+  float new_intercept_left, new_chi2_right,new_chi2_left;
+  std::vector<int> new_cham_id;
+  std::vector<int> new_index_id;
+  std::vector<int> new_strips;
+  std::vector<float> new_slope_r;
+  std::vector<float> new_intercept_r;
+  std::vector<float> new_chi2_r;
+  std::vector<float> new_slope_l;
+  std::vector<float> new_intercept_l;
+  std::vector<float> new_chi2_l;
+
+
       
   int counter;
   int db_nrlines=0;
@@ -60,7 +87,7 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   newdata.close();
   
-  std::vector<CSCDBCrosstalk::Item> itemvector;
+  std::vector<CSCDBCrosstalk::Item> itemvector = *cndbcrosstalk;
   itemvector.resize(252288);
   //itemvector.resize(217728);
   for(int i=0; i<252288;++i){
@@ -90,7 +117,9 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
     }
   }
   
-  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbcrosstalk->crosstalk));
+
+  return cndbcrosstalk;
+
 }
   
 
@@ -98,7 +127,7 @@ CSCCrosstalkDBConditions::CSCCrosstalkDBConditions(const edm::ParameterSet& iCon
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillDBCrosstalk();
+  cndbCrosstalk = prefillDBCrosstalk();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCCrosstalkDBConditions::produceDBCrosstalk);
   findingRecord<CSCDBCrosstalkRcd>();
@@ -111,7 +140,7 @@ CSCCrosstalkDBConditions::~CSCCrosstalkDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbcrosstalk;
+  delete cndbCrosstalk;
 }
 
 
@@ -124,7 +153,7 @@ CSCCrosstalkDBConditions::ReturnType
 CSCCrosstalkDBConditions::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBCrosstalk* mydata=new CSCDBCrosstalk( *cndbcrosstalk );
+  CSCDBCrosstalk* mydata=new CSCDBCrosstalk( *cndbCrosstalk );
   return mydata;
   
 }

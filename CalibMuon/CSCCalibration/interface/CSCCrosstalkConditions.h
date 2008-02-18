@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
