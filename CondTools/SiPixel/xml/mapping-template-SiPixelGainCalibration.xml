@@ -7,4 +7,14 @@
 </Class >
 <Class name="SiPixelGainCalibrationOffline" >
 </Class >
+<Class name="SiPixelFedCablingMap" >
+</Class >
+<Class name="SiPixelCPEParmErrors" >
+</Class >
+<Class name="SiPixelCalibConfiguration" >
+</Class >
+<Class name="SiPixelPerformanceSummary" >
+</Class >
+<Class name="SiPixelLorentzAngle" >
+</Class >
 </Mapping >
