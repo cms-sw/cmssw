@@ -78,6 +78,8 @@ process Sim = {
       untracked vstring fileNames = {'file:gen_minbias.root'}
    }
 
+   include "Configuration/StandardSequences/data/Geometry.cff"
+   include "Configuration/StandardSequences/data/MagneticField.cff"
 
    # event vertex smearing - applies only once (internal check)
    # Note : all internal generators will always do (0,0,0) vertex
