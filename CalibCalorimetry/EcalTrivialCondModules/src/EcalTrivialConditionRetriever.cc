@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.25 2008/01/22 19:00:43 muzaffar Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.26 2008/02/18 10:39:23 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -1220,7 +1220,7 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
                 for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
                         if (EBDetId::validDetId(ieta,iphi)) {
                                 EBDetId ebid(ieta,iphi);
-                                ical->setValue( ebid, 1 );
+                                ical->setValue( ebid, 0 );
                         }
                 }
         }
@@ -1230,11 +1230,11 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
                         // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
                         if (EEDetId::validDetId(iX,iY,1)) {
                                 EEDetId eedetidpos(iX,iY,1);
-                                ical->setValue( eedetidpos, 1 );
+                                ical->setValue( eedetidpos, 0 );
                         }
                         if (EEDetId::validDetId(iX,iY,-1)) {
                                 EEDetId eedetidneg(iX,iY,-1);
-                                ical->setValue( eedetidneg, 1 );
+                                ical->setValue( eedetidneg, 0 );
                         }
                 }
         }
