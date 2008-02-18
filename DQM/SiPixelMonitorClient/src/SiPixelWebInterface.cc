@@ -35,6 +35,7 @@ SiPixelWebInterface::SiPixelWebInterface(std::string	      theContextURL,
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
+  qflag_=0.;
   createAll();
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
@@ -211,8 +212,8 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
    periodicTkMapUpdate(out) ;
 
   } else if  (requestID == "globalQFlag") {
-    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleEDARequest]  " 
-         << ACPlain << "Compute global Pixel quality flag" << endl;
+    //cout << ACYellow << ACBold << "[SiPixelWebInterface::handleEDARequest]  " 
+    //     << ACPlain << "Compute global Pixel quality flag" << endl;
     theActionFlag = ComputeGlobalQualityFlag;
   }
     
@@ -350,7 +351,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::ComputeGlobalQualityFlag  :
     {
-      infoExtractor_->computeGlobalQualityFlag(bei,allMods_,errorMods_);
+      qflag_ = infoExtractor_->computeGlobalQualityFlag(bei);
       break;
     }
   case SiPixelWebInterface::NoAction :

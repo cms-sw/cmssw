@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -47,7 +48,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   parameters = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  bei_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   tkMapFrequency_   = -1;
   summaryFrequency_ = -1;
@@ -55,7 +56,8 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
   mui_ = new MonitorUIRoot();
-
+  // get back-end interface
+  bei_ = Service<DaqMonitorBEInterface>().operator->();
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface("dummy", "dummy", &mui_);
   defaultPageCreated_ = false;
@@ -91,7 +93,7 @@ void SiPixelEDAClient::endJob(){
 // -- Begin Job
 //
 void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
-  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
 
   nLumiBlock = 0;
 
@@ -107,7 +109,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
 //  if (trackerMapCreator_->readConfiguration()) {
 //    tkMapFrequency_ = trackerMapCreator_->getFrequency();
  // }
-  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
 //
 //  -- Analyze 
@@ -130,7 +132,7 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 // -- End Luminosity Block
 //
 void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
 
   edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
@@ -144,7 +146,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 
   // -- Create summary monitor elements according to the frequency
 //  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
-    cout << " Creating Summary " << endl;
+    //cout << " Creating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
 //  }
@@ -153,20 +155,24 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
     sipixelWebInterface_->performAction();
   }
-    //cout << " Checking QTest results " << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
-    sipixelWebInterface_->performAction();
+  //cout << " Checking QTest results " << endl;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+  sipixelWebInterface_->performAction();
   
-    //cout  << " Checking global Pixel quality flag " << endl;;
-    qflag_=0.; allMods_=0; errorMods_=0; 
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-    sipixelWebInterface_->performAction();
-    //cout<<"EDAClient: allMods_,errorMods_,qflag_: "<<allMods_<<" "<<errorMods_<<" "<<qflag_<<endl;
-      
+  //cout  << " Checking global Pixel quality flag " << endl;;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+  sipixelWebInterface_->performAction();
+  float GQF = sipixelWebInterface_->returnQFlag();
+  bei_->cd();
+  MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
+  if(errorSummaryME) errorSummaryME->Fill(GQF); 
+    
+    
+         
   // -- Create TrackerMap  according to the frequency
 //  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
 //    cout << " Creating Tracker Map " << endl;
-//    trackerMapCreator_->create(dbe);
+//    trackerMapCreator_->create(bei_);
 //    //sipixelWebInterface_->setTkMapFlag(true);
 //
 //  }
@@ -178,28 +184,32 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
 
 
-  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run
 //
 void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
+//  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
 
   //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   //int iRun = run.run();
   
-  cout << " Updating Summary " << endl;
+  //cout << " Updating Summary " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
   sipixelWebInterface_->performAction();
   //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
-  
-  
-  //saveAll(iRun, -1);
+  //cout  << " Checking global Pixel quality flag " << endl;;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+  sipixelWebInterface_->performAction();
+  float GQF = sipixelWebInterface_->returnQFlag();
+  bei_->cd();
+  MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
+  if(errorSummaryME) errorSummaryME->Fill(GQF); 
 
-  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
+//  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 
 //

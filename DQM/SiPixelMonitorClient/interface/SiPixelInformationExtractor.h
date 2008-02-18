@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 class SiPixelEDAClient;
+class SiPixelWebInterface;
 
 class SiPixelInformationExtractor {
 
@@ -98,10 +99,10 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  void computeGlobalQualityFlag(DaqMonitorBEInterface                   * bei,
-                                int                                       allMods,
-				int                                       errorMods);
-
+  float computeGlobalQualityFlag(DaqMonitorBEInterface                   * bei);
+  float qflag_;
+  int allMods_;
+  int errorMods_;
 
  private:
 

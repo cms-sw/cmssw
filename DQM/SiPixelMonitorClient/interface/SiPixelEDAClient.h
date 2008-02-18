@@ -59,7 +59,7 @@ private:
 
   int nLumiBlock;
 
-  DaqMonitorBEInterface* dbe;
+  DaqMonitorBEInterface* bei_;  
   MonitorUserInterface* mui_;
 
   edm::ParameterSet parameters;

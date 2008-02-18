@@ -53,6 +53,9 @@ SiPixelInformationExtractor::SiPixelInformationExtractor() {
   
   canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
   readReference_ = false;
+  allMods_=0;
+  errorMods_=0;
+  qflag_=1.;
 }
 
 //------------------------------------------------------------------------------
@@ -2243,9 +2246,8 @@ void SiPixelInformationExtractor::setLines(MonitorElement * me,
 
 
 
-void SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface * bei,
-                                                           int allMods,
-							   int errorMods){
+float SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface * bei)
+{
 //cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //   cout << ACRed << ACBold
 //        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
@@ -2255,12 +2257,11 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface
 
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //cout<<"currDir="<<currDir<<" , dname="<<dname<<endl;
   
   QRegExp rx("Module_");
  
   if(rx.search(dname)!=-1){
-    allMods++;
+    allMods_++;
   
     vector<string> meVec = bei->getMEs();
    
@@ -2275,27 +2276,27 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DaqMonitorBEInterface
         string image_name;
         selectImage(image_name,my_map);
         if(image_name!="images/LI_green.gif") {
-          errorMods++;
+          errorMods_++;
         }	
       }
     }
   }
   
-  float qflag=0.;
-  if(allMods>0) qflag = (float(allMods)-float(errorMods))/float(allMods);
-  //cout<<"allMods="<<allMods<<" , errorMods="<<errorMods<<" , qflag="<<qflag<<endl;
+  if(allMods_>0) qflag_ = (float(allMods_)-float(errorMods_))/float(allMods_);
   
   vector<string> subDirVec = bei->getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
-    computeGlobalQualityFlag(bei,allMods,errorMods);
+    computeGlobalQualityFlag(bei);
     bei->goUp();
   }
+  
 //   cout << ACGreen << ACBold
 //        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
 //        << ACPlain
 //        << " Done" 
 //        << endl ;
-//cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
+//cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag with "<<qflag_<<endl;
+  return qflag_;
 }

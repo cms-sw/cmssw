@@ -56,6 +56,9 @@ public:
   bool createTkMap();
   void periodicTkMapUpdate( xgi::Output * out);
    
+  float qflag_;
+  float returnQFlag() {return qflag_;}
+  
 private:
 
   SiPixelActionType theActionFlag;
