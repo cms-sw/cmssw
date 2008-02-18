@@ -6,24 +6,12 @@
 /// return the entry corresponding to this detector id
 ///
 
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "DataFormats/DetId/interface/DetId.h"
+class Alignments;
+class AlignTransform;
+class DetId;
 
 namespace align {
-  const AlignTransform &DetectorGlobalPosition(const edm::ESHandle<Alignments> &allGlobals, const DetId &id) {
-    for (std::vector<AlignTransform>::const_iterator iter = allGlobals->m_align.begin();
-	 iter != allGlobals->m_align.end();
-	 ++iter) {
-      if (iter->rawId() == id.rawId()) {
-	return *iter;
-      }
-    }
-
-    throw cms::Exception("RecordNotFound")
-      << "DetId(" << id.rawId() << ") not found in GlobalPositionRcd" << std::endl;
-  }
+  const AlignTransform &DetectorGlobalPosition(const Alignments &allGlobals, const DetId &id);
 }
 
 #endif
