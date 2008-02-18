@@ -24,6 +24,7 @@ class JetClustering::Algorithm {
 	virtual ~Algorithm() {}
 
 	virtual std::vector<HepMC::FourVector> operator () (
+		std::vector< std::vector<unsigned int > >&constituents,
 		const std::vector<HepMC::FourVector> &input) const = 0;
 };
 
@@ -34,8 +35,14 @@ namespace {
 		~KtAlgorithm() {}
 
 	    private:
+#if 1
+		std::vector<HepMC::FourVector> operator () (
+			std::vector< std::vector<unsigned int> > &constituents,
+			const std::vector<HepMC::FourVector> &input) const;
+#else
 		std::vector<HepMC::FourVector> operator () (
 			const std::vector<HepMC::FourVector> &input) const;
+#endif
 
 		fastjet::JetDefinition	jetDefinition;
 		double			jetPtMin;
@@ -52,14 +59,17 @@ KtAlgorithm::KtAlgorithm(const edm::ParameterSet &params) :
 }
 
 std::vector<HepMC::FourVector> KtAlgorithm::operator () (
+			std::vector< std::vector<unsigned int > >&constituents,
 			const std::vector<HepMC::FourVector> &input) const
 {
 	std::vector<fastjet::PseudoJet> jfInput;
 	jfInput.reserve(input.size());
 	for(std::vector<HepMC::FourVector>::const_iterator iter = input.begin();
 	    iter != input.end(); ++iter)
-		jfInput.push_back(fastjet::PseudoJet(
+{		jfInput.push_back(fastjet::PseudoJet(
 			iter->px(), iter->py(), iter->pz(), iter->e()));
+jfInput.back().set_user_index(iter - input.begin());
+}
 
 	fastjet::ClusterSequence sequence(jfInput, jetDefinition);
 	std::vector<fastjet::PseudoJet> jets =
@@ -69,8 +79,15 @@ std::vector<HepMC::FourVector> KtAlgorithm::operator () (
 	result.reserve(jets.size());
 	for(std::vector<fastjet::PseudoJet>::const_iterator iter = jets.begin();
 	    iter != jets.end(); ++iter)
+{
 		result.push_back(HepMC::FourVector(
 			iter->px(), iter->py(), iter->pz(), iter->E()));
+std::vector<fastjet::PseudoJet> c = sequence.constituents(*iter);
+std::vector<unsigned int> cc;
+for(std::vector<fastjet::PseudoJet>::const_iterator iter2 = c.begin(); iter2 != c.end(); ++iter2)
+    cc.push_back(iter2->user_index());
+constituents.push_back(cc);
+}
 
 	return result;
 }
@@ -109,7 +126,29 @@ std::vector<HepMC::FourVector> JetClustering::run(
 {
 	std::vector<HepMC::FourVector> input = cluster(event);
 
-	return (*jetAlgo)(input);
+//	return (*jetAlgo)(input);
+std::vector< std::vector<unsigned int> > constituents;
+std::vector<HepMC::FourVector> jets = (*jetAlgo)(constituents, input);
+std::cout << "===== " << jets.size() << " jets:" << std::endl;
+for(unsigned int i = 0; i < jets.size(); i++) {
+	std::cout << "* pt = " << jets[i].perp()
+	          << ", eta = " << jets[i].eta()
+	          << ", phi = " << jets[i].phi()
+	          << std::endl;
+	for(std::vector<unsigned int>::const_iterator iter = constituents[i].begin();
+	    iter != constituents[i].end(); ++iter) {
+		const HepMC::FourVector &fv = input[*iter];
+		for(HepMC::GenEvent::particle_const_iterator iter2 = event->particles_begin();
+		    iter2 != event->particles_end(); ++iter2)
+			if ((*iter2)->momentum() == fv)
+				std::cout << "\t" << (*iter2)->pdg_id()
+					<< ", pt = " << fv.perp()
+					<< ", eta = " << fv.eta()
+					<< ", phi = " << fv.phi()
+					<< std::endl;
+	}
+}
+	return jets;
 }
 
 static bool isIgnored(int pdgId, const std::vector<unsigned int> &ignore)
@@ -125,8 +164,9 @@ static bool isParton(int pdgId)
 {
 	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
 	return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
-	       pdgId == 9 || pdgId == 21;
+	       pdgId == 9 || pdgId == 15 || pdgId == 21;
 	// tops are not considered "regular" partons
+	// but taus are (since they may hadronize later)
 }
 
 static bool isHadron(int pdgId)
