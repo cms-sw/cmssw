@@ -16,6 +16,9 @@
 #include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
 
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+
 class CSCTFConfigProducer : public edm::ESProducer {
 private:
 	std::string ptLUT_path;
@@ -38,6 +41,8 @@ public:
 	std::auto_ptr<L1MuCSCDTLut>       produceL1MuCSCDTLutRcd      (const L1MuCSCDTLutRcd& iRecord);
 	std::auto_ptr<L1MuCSCLocalPhiLut> produceL1MuCSCLocalPhiLutRcd(const L1MuCSCLocalPhiLutRcd& iRecord);
 	std::auto_ptr<L1MuCSCGlobalLuts>  produceL1MuCSCGlobalLutsRcd (const L1MuCSCGlobalLutsRcd&  iRecord);
+
+	std::auto_ptr<L1MuCSCTFConfiguration> produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord);
 
 	void readLUT(std::string path, unsigned short* lut, unsigned long length);
 
