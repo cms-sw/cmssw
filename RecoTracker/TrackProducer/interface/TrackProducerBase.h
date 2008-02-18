@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2007/03/27 07:12:05 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/06 08:04:11 $
+ *  $Revision: 1.12 $
  *  \author cerati
  */
 
@@ -72,6 +72,8 @@ public:
     alias.erase(alias.size()-6,alias.size());
     alias_=alias;
   }
+
+  const edm::ParameterSet& getConf() const {return conf_;}
  private:
   edm::ParameterSet conf_;
   std::string src_;
