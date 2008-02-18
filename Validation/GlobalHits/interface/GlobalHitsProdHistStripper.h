@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/11/06 22:21:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/20 23:53:44 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,7 +26,7 @@
 //DQM services
 //#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // helper files
