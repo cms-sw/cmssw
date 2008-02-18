@@ -77,8 +77,8 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
     std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
     fitter_.set(*clone);
-    fitHelper::add(fitted, clone);
     if(setLongLived_) clone->setLongLived();
+    fitHelper::add(fitted, clone);
   }
   evt.put(fitted);
 }
