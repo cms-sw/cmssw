@@ -2,10 +2,26 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
 
-void CSCGainsConditions::prefillGains()
-{
-  cngains = new CSCGains();
+CSCGains * CSCGainsConditions::prefillGains(){
+
+  float mean,min,minchi;
+  int seed;long int M;
+  int old_chamber_id,old_strip,new_chamber_id,new_strip;
+  float old_gainslope,old_intercpt, old_chisq;
+  std::vector<int> old_cham_id;
+  std::vector<int> old_strips;
+  std::vector<float> old_slope;
+  std::vector<float> old_intercept;
+  std::vector<float> old_chi2;
+  float new_gainslope,new_intercpt, new_chisq;
+  std::vector<int> new_cham_id;
+  std::vector<int> new_strips;
+  std::vector<float> new_slope;
+  std::vector<float> new_intercept;
+  std::vector<float> new_chi2;
+
   const CSCDetId& detId = CSCDetId();
+  CSCGains * cngains = new CSCGains();
       
   int max_istrip,id_layer,max_ring,max_cham;
   unsigned int old_nrlines=0;
@@ -168,14 +184,15 @@ void CSCGainsConditions::prefillGains()
       istrip++;
     }
   } 
+  return cngains;
 }
-  
+
 
 CSCGainsConditions::CSCGainsConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillGains();
+  cnGains = prefillGains();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCGainsConditions::produceGains);
   findingRecord<CSCGainsRcd>();
@@ -188,7 +205,7 @@ CSCGainsConditions::~CSCGainsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cngains;
+  delete cnGains;
 }
 
 
@@ -201,7 +218,7 @@ CSCGainsConditions::ReturnType
 CSCGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  CSCGains* mydata=new CSCGains( *cngains );
+  CSCGains* mydata=new CSCGains( *cnGains );
   
   return mydata;
   

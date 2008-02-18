@@ -26,13 +26,9 @@ namespace popcon
       std::string id() const { return m_name;}
       ~CSCDBPedestalsImpl(); 
       CSCDBPedestalsImpl(const edm::ParameterSet& pset);
-		
+      
     private:
-      std::string m_pop_connect; //connect string to popcon metaschema
       std::string m_name;
-      std::string m_cs;
-      const CSCDBPedestals * mypedestals;
-      //LogReader* lgrdr;
     };
 }
 #endif

@@ -2,10 +2,46 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 
-void CSCNoiseMatrixConditions::prefillNoiseMatrix(){
+CSCNoiseMatrix * CSCNoiseMatrixConditions::prefillNoiseMatrix(){
   
+  int old_chamber_id,old_strip,new_chamber_id,new_strip;
+  float old_elm33,old_elm34, old_elm44, old_elm35, old_elm45, old_elm55;
+  float old_elm46, old_elm56, old_elm66, old_elm57, old_elm67, old_elm77;
+  std::vector<int> old_cham_id;
+  std::vector<int> old_strips;
+  std::vector<float> old_elem33;
+  std::vector<float> old_elem34;
+  std::vector<float> old_elem44;
+  std::vector<float> old_elem45;
+  std::vector<float> old_elem35;
+  std::vector<float> old_elem55;
+  std::vector<float> old_elem46;
+  std::vector<float> old_elem56;
+  std::vector<float> old_elem66;
+  std::vector<float> old_elem57;
+  std::vector<float> old_elem67;
+  std::vector<float> old_elem77;
+
+
+  float new_elm33,new_elm34, new_elm44, new_elm35, new_elm45, new_elm55;
+  float  new_elm46, new_elm56, new_elm66, new_elm57, new_elm67, new_elm77;
+  std::vector<int> new_cham_id;
+  std::vector<int> new_strips;
+  std::vector<float> new_elem33;
+  std::vector<float> new_elem34;
+  std::vector<float> new_elem44;
+  std::vector<float> new_elem45;
+  std::vector<float> new_elem35;
+  std::vector<float> new_elem55;
+  std::vector<float> new_elem46;
+  std::vector<float> new_elem56;
+  std::vector<float> new_elem66;
+  std::vector<float> new_elem57;
+  std::vector<float> new_elem67;
+  std::vector<float> new_elem77;
+
   const CSCDetId& detId = CSCDetId();
-  cnmatrix = new CSCNoiseMatrix();
+  CSCNoiseMatrix * cnmatrix = new CSCNoiseMatrix();
   
   int max_istrip,id_layer,max_ring,max_cham;
   unsigned int old_nrlines=0;
@@ -364,7 +400,7 @@ void CSCNoiseMatrixConditions::prefillNoiseMatrix(){
       istrip++;
     }
   } 
-
+  return cnmatrix;
   
 }
 
@@ -372,7 +408,7 @@ CSCNoiseMatrixConditions::CSCNoiseMatrixConditions(const edm::ParameterSet& iCon
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillNoiseMatrix();
+  cnMatrix = prefillNoiseMatrix();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCNoiseMatrixConditions::produceNoiseMatrix);
   findingRecord<CSCNoiseMatrixRcd>();
@@ -385,7 +421,7 @@ CSCNoiseMatrixConditions::~CSCNoiseMatrixConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cnmatrix;
+  delete cnMatrix;
 }
 
 
@@ -398,7 +434,7 @@ CSCNoiseMatrixConditions::ReturnType
 CSCNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
     // Added by Zhen, need a new object so to not be deleted at exit
-    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
+    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnMatrix );
     
     return mydata;
 
