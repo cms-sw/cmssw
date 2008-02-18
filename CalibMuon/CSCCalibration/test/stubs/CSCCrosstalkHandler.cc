@@ -11,6 +11,8 @@ popcon::CSCDBCrosstalkImpl::~CSCDBCrosstalkImpl()
 
 
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
+#include "CalibMuon/CSCCalibration/interface/CSCCrosstalkDBConditions.h"
+
 
 
 void popcon::CSCDBCrosstalkImpl::getNewObjects() {
@@ -19,8 +21,8 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 	
 
   // fill object from file
-  CSCDBcrosstalk * cncrosstalk = CSCCrosstalkDBConditions::prefillDBCrosstalk();
-  std::cout << "crosstalk size " << crosstalk->crosstalk.size() << std::endl;
+  CSCDBCrosstalk * cncrosstalk = CSCCrosstalkDBConditions::prefillDBCrosstalk();
+  std::cout << "crosstalk size " << cncrosstalk->crosstalk.size() << std::endl;
  
 
   //check whats already inside of database
