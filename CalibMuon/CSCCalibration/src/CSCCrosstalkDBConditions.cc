@@ -87,7 +87,7 @@ CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   newdata.close();
   
-  std::vector<CSCDBCrosstalk::Item> itemvector = *cndbcrosstalk;
+  CSCDBCrosstalk::CrosstalkContainer & itemvector = cndbcrosstalk->crosstalk;
   itemvector.resize(252288);
   //itemvector.resize(217728);
   for(int i=0; i<252288;++i){

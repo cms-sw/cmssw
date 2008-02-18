@@ -1,5 +1,5 @@
 #include "CalibMuon/CSCCalibration/test/stubs/CSCCrosstalkHandler.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include<iostream>
 
 popcon::CSCDBCrosstalkImpl::CSCDBCrosstalkImpl(const edm::ParameterSet& pset): m_name(pset.getUntrackedParameter<std::string>("name","CSCDBCrosstalkImpl"))
@@ -9,7 +9,8 @@ popcon::CSCDBCrosstalkImpl::~CSCDBCrosstalkImpl()
 {
 }
 
-#include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
+
+#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 
 
 void popcon::CSCDBCrosstalkImpl::getNewObjects() {
@@ -18,7 +19,7 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 	
 
   // fill object from file
-  CSCcrosstalk * cncrosstalk = CSCCrosstalkConditions::prefillCrosstalk()
+  CSCDBcrosstalk * cncrosstalk = CSCCrosstalkDBConditions::prefillDBCrosstalk();
   std::cout << "crosstalk size " << crosstalk->crosstalk.size() << std::endl;
  
 
