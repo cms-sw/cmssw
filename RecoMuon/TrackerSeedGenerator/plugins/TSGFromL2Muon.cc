@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
@@ -24,6 +25,7 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theTkSeedGenerator(0)
 {
   produces<L3MuonTrajectorySeedCollection>();
+  produces<TrajectorySeedCollection>();
 
   edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
@@ -63,6 +65,7 @@ void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
 void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
+  std::auto_ptr<TrajectorySeedCollection> result2(new TrajectorySeedCollection());
 
   //intialize tools
   theService->update(es);
@@ -119,6 +122,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     edm::LogWarning("TSGFromL2Muon")<<isMax<<" seeds for this l2.";
     for (;is!=isMax;++is){
       result->push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
+      result2->push_back( TrajectorySeed(tkSeeds[is]));
     }//tkseed loop
     
   }//l2muon loop
@@ -130,5 +134,6 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //put in the event
   ev.put(result);
+  ev.put(result2);
 }
 
