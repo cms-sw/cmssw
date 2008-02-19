@@ -18,7 +18,7 @@ public:
 
   typedef FreeTrajectoryState		FTS;
 
-  TrajectoryStateClosestToBeamLine() {}
+  TrajectoryStateClosestToBeamLine() : valid(false) {}
 
   TrajectoryStateClosestToBeamLine
     (const FTS& stateAtPCA, const GlobalPoint & pointOnBeamLine,
@@ -30,12 +30,20 @@ public:
    * State of the track at the PCA to the beamline
    */
 
-  FTS trackStateAtPCA() const {return theFTS;}
+  FTS trackStateAtPCA() const {
+    if (!isValid()) throw TrajectoryStateException(
+      "TrajectoryStateClosestToBeamLine is invalid.");
+    return theFTS;
+  }
 
   /**
    * Point on the beamline which is the closest to the track
    */
-  GlobalPoint beamLinePCA() const {return thePointOnBeamLine;}
+  GlobalPoint beamLinePCA() const {
+    if (!isValid()) throw TrajectoryStateException(
+      "TrajectoryStateClosestToBeamLine is invalid.");
+    return thePointOnBeamLine;
+  }
 
   /**
    * Transverse impact parameter of the track to the beamline.
@@ -46,10 +54,17 @@ public:
   /**
    * The beamline
    */
-  reco::BeamSpot beamSpot() {return theBeamSpot;}
+  reco::BeamSpot beamSpot() {
+    if (!isValid()) throw TrajectoryStateException(
+      "TrajectoryStateClosestToBeamLine is invalid.");
+    return theBeamSpot;
+  }
+
+  inline bool isValid() const {return valid;}
 
 private:
 
+  bool valid;
   FTS theFTS;
   GlobalPoint thePointOnBeamLine;
   reco::BeamSpot theBeamSpot;

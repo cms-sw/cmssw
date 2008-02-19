@@ -3,13 +3,14 @@
 TrajectoryStateClosestToBeamLine::TrajectoryStateClosestToBeamLine
 	(const FreeTrajectoryState& stateAtPCA, const GlobalPoint & pointOnBeamLine,
 	 const reco::BeamSpot& beamSpot) :
-	theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine), theBeamSpot(beamSpot)
+	theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
+	theBeamSpot(beamSpot), valid(true)
 {}
 
 Measurement1D TrajectoryStateClosestToBeamLine::transverseImpactParameter() const
 {
-
-
+  if (!isValid()) throw TrajectoryStateException(
+    "TrajectoryStateClosestToBeamLine is invalid.");
   AlgebraicSymMatrix33 error = theBeamSpot.covariance3D() +
 	theFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0,0);
 
