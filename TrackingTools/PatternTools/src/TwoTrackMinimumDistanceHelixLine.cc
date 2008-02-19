@@ -1,6 +1,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
 
@@ -15,10 +16,10 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
     theH= firstGTP;
     theL= secondGTP;
   } else {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error in track charge: " <<endl
-         << "  One of the tracks has to be charged, and the other not." << endl;
-    cout << "  Track Charges: "<<firstGTP->charge() << " and "
-         <<secondGTP->charge()<<endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Error in track charge: "
+      << "One of the tracks has to be charged, and the other not." << endl
+      << "Track Charges: "<<firstGTP->charge() << " and " <<secondGTP->charge();
     return true;
   }
 
@@ -27,8 +28,8 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Hn == 0. || Ln == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error: "
-         << "momentum of input trajectory is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Momentum of input trajectory is zero.";
     return true;
   };
 
@@ -48,8 +49,8 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Bc2kH == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixLine] Error: "
-         << "magnetic field at point " << hOrig << " is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      << "Magnetic field at point " << hOrig << " is zero.";
     return true;
   };
 
@@ -129,12 +130,14 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
     dPhiH=fctVal/derVal;
     thePhiH -= dPhiH;
     if ((x1-thePhiH)*(thePhiH-x2) < 0.0) {
-      cout << "Jumped out of brackets in TwoTrackMinimumDistanceHelixLine root finding\n";
-      return true;
+      edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+        << "Jumped out of brackets in root finding. Will be moved closer.";
+      thePhiH += (dPhiH*0.8);
     }
     if (fabs(dPhiH) < qual) {return false;}
   }
-  cout <<"Number of steps exceeded in TwoTrackMinimumDistanceHelixLine\n";
+  edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+    <<"Number of steps exceeded.";
   return true;
 }
 
