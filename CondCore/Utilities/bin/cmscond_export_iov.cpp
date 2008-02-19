@@ -137,30 +137,38 @@ int main( int argc, char** argv ){
   pathval+=authPath;
   ::putenv(const_cast<char*>(pathval.c_str()));
    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mysourcedb",sourceConnect,0);
-  conHandler.registerConnection("mydestdb",destConnect,0);
+  conHandler.registerConnection("mysourcedb",sourceConnect,-1);
+  conHandler.registerConnection("mydestdb",destConnect,-1);
   try{
     session->open();
+    conHandler.connect(session);
     std::string sourceiovtoken;
     std::string destiovtoken;
+    cond::TimeType sourceiovtype;
     if( sourceConnect.find("sqlite_fip:") != std::string::npos ){
       cond::FipProtocolParser p;
       sourceConnect=p.getRealConnect(sourceConnect);
     }
-    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction();
+    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysourcedb")->coralTransaction();
     sourceCoralDB.start(true);
     cond::MetaData* sourceMetadata=new cond::MetaData(sourceCoralDB);
     if( !sourceMetadata->hasTag(tag) ){
       throw std::runtime_error(std::string("tag ")+tag+std::string(" not found") );
     }
-    sourceiovtoken=sourceMetadata->getToken(tag);
+    //sourceiovtoken=sourceMetadata->getToken(tag);
+    cond::MetaDataEntry entry;
+    sourceMetadata->getEntryByTag(tag,entry);
+    sourceiovtoken=entry.iovtoken;
+    sourceiovtype=entry.timetype;
+
     sourceCoralDB.commit();
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+      std::cout<<"source iov type "<<sourceiovtype<<std::endl;
     }
     delete sourceMetadata;
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
+    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysourcedb")->poolTransaction();
+    cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
@@ -170,12 +178,13 @@ int main( int argc, char** argv ){
 						  payloadName );
     sourcedb.commit();
     destdb.commit();
-    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction();
+    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydestdb")->coralTransaction();
     cond::MetaData destMetadata(destCoralDB);
     destCoralDB.start(false);
-    destMetadata.addMapping(tag,destiovtoken);
+    destMetadata.addMapping(tag,destiovtoken,sourceiovtype);
     if(debug){
-      std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+      std::cout<<"dest iov token "<<destiovtoken<<std::endl;
+      std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
     }
     destCoralDB.commit();
     delete editor;
