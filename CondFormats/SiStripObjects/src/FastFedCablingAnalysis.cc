@@ -22,6 +22,10 @@ const float FastFedCablingAnalysis::dirtyThreshold_ = 800; // [ADC]
 
 // ----------------------------------------------------------------------------
 // 
+const float FastFedCablingAnalysis::trimDacThreshold_ = 10; // [ADC]
+
+// ----------------------------------------------------------------------------
+// 
 const uint16_t FastFedCablingAnalysis::nBitsForDcuId_ = 32;
 
 // ----------------------------------------------------------------------------
@@ -164,7 +168,7 @@ void FastFedCablingAnalysis::analyse() {
       if ( contents[ibin] < min_ ) { min_ = contents[ibin]; }
     } else { zero_entries++; }
   }
-  if ( max_ < 0. ) { max_ = sistrip::invalid_; }
+  if ( max_ < -1. * sistrip::valid_ ) { max_ = sistrip::invalid_; }
   
   // Check number of bins
   if ( contents.size() != nBitsForDcuId_ + nBitsForLldCh_ ) { 
@@ -212,6 +216,14 @@ void FastFedCablingAnalysis::analyse() {
   sort( low.begin(), low.end() );
   if ( !high.empty() ) { highMedian_ = high[ high.size()%2 ? high.size()/2 : high.size()/2 ]; }
   if ( !low.empty() ) { lowMedian_ = low[ low.size()%2 ? low.size()/2 : low.size()/2 ]; }
+
+  // Check if light levels above thresholds
+  if ( highMedian_ < dirtyThreshold_ ) {
+    addErrorCode(sistrip::invalidLightLevel_); 
+  }
+  if ( lowMedian_ < trimDacThreshold_ ) {
+    addErrorCode(sistrip::invalidTrimDacLevel_); 
+  }
   
   // Find mean and rms in "low" samples
   lowMean_ = 0.;
@@ -255,6 +267,14 @@ void FastFedCablingAnalysis::analyse() {
     highRms_ = 1. * sistrip::invalid_;
   }
 
+  // Check if light levels above thresholds
+  if ( highMean_ < dirtyThreshold_ ) {
+    addErrorCode(sistrip::invalidLightLevel_); 
+  }
+  if ( lowMean_ < trimDacThreshold_ ) {
+    addErrorCode(sistrip::invalidTrimDacLevel_); 
+  }
+
   // Recalculate range
   if ( highMean_ < 1. * sistrip::valid_ &&
        lowMean_  < 1. * sistrip::valid_ ) { 
@@ -294,7 +314,7 @@ void FastFedCablingAnalysis::analyse() {
   }
   lldCh_++; // starts from 1
   if ( !lldCh_ ) { lldCh_ = sistrip::invalid_; }
-  
+
 }
 
 // ----------------------------------------------------------------------------
@@ -318,8 +338,73 @@ bool FastFedCablingAnalysis::isValid() const {
 // ----------------------------------------------------------------------------
 // 
 bool FastFedCablingAnalysis::isDirty() const {
-  return ( isValid() && highMean_ < dirtyThreshold_ );
+  return ( highMean_ < dirtyThreshold_ );
 } 
+
+// ----------------------------------------------------------------------------
+// 
+bool FastFedCablingAnalysis::badTrimDac() const {
+  return ( lowMean_ < trimDacThreshold_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
+void FastFedCablingAnalysis::header( std::stringstream& ss ) const { 
+  ss << "[" << myName() << "] Monitorables (65535 means \"invalid\"):" << std::endl;
+
+  //summary(ss);
+
+  SiStripFecKey fec_key( fecKey() );
+  if ( fec_key.isValid() ) {
+    ss << " Crate/FEC/Ring/CCU/Mod/LLD     : " 
+       << fec_key.fecCrate() << "/" 
+       << fec_key.fecSlot() << "/" 
+       << fec_key.fecRing() << "/" 
+       << fec_key.ccuAddr() << "/" 
+       << fec_key.ccuChan() << "/" 
+       << fec_key.lldChan() 
+       << std::endl;
+  } else {
+    ss << " Crate/FEC/Ring/CCU/Mod/LLD     : (invalid)" 
+       << std::endl;
+  }
+
+  SiStripFedKey fed_key( fedKey() );
+  ss << " FedId/FeUnit/FeChan/FedChannel : " 
+     << fed_key.fedId() << "/" 
+     << fed_key.feUnit() << "/" 
+     << fed_key.feChan() << "/"
+     << fed_key.fedChannel()
+     << std::endl;
+  // if ( fed_key.fedChannel() != sistrip::invalid_ ) { ss << fed_key.fedChannel(); }
+  // else { ss << "(invalid)"; }
+  // ss << std::endl;
+  
+  ss << " FecKey/Fedkey (hex)            : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << fecKey()
+     << " / 0x" 
+     << std::setw(8) << std::setfill('0') << fedKey()
+     << std::dec
+     << std::endl;
+  
+  ss << " DcuId (hex/dec)                : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << dcuId() 
+     << " / "
+     << std::dec
+     << std::setw(10) << std::setfill(' ') << dcuId() 
+     << std::endl;
+
+  ss << " DetId (hex/dec)                : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << detId() 
+     << " / "
+     << std::dec
+     << std::setw(10) << std::setfill(' ') << detId() 
+     << std::endl;
+  
+}
 
 // ----------------------------------------------------------------------------
 // 

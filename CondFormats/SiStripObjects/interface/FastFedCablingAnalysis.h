@@ -35,11 +35,11 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Identifies if analysis is valid or not. */
   bool isValid() const;
 
-  /** Identifies if connection is missing. */
-  //bool isMissing() const;
-
   /** Identifies if fibre is dirty or not. */
   bool isDirty() const;
+
+  /** Identifies if TrimDAQ setting is valid or not. */
+  bool badTrimDac() const;
   
   /** DCU hardware id (32-bits). */
   inline const uint32_t& dcuHardId() const;
@@ -73,6 +73,9 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
   
+  /** Header information for analysis print(). */
+  void header( std::stringstream& ) const;
+  
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
   
@@ -96,8 +99,11 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Threshold to identify digital high from digital low. */
   static const float threshold_;
 
-  /** Defines level [ADC] below which fibre is defined as "dirty". */
+  /** Level [ADC] below which fibre is defined as "dirty". */
   static const float dirtyThreshold_;
+
+  /** Level [ADC] below which TrimDAC setting is defined as "bad". */
+  static const float trimDacThreshold_;
 
   // ---------- private member data ----------
 
