@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.6 2008/02/12 12:02:18 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.7 2008/02/15 13:32:19 fblekman Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
@@ -96,7 +97,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
 
       // worker variables
       std::map<pixelstruct,SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
-      std::map<pixelstruct,SiPixelRawDataError> error_data_;
+      std::map<pixelstruct,SiPixelCalibDigiError> error_data_;
       //      std::vector<SiPixelCalibDigi> intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
       std::vector<pixelstruct> detPixelMap_;// map to keep track of which pixels are filled where in intermediate_data_
       uint32_t pattern_repeat_; // keeps track of when the pattern should change

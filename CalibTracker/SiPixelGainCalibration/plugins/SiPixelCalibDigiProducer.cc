@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.10 2008/02/12 12:02:14 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.11 2008/02/12 12:45:42 fblekman Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -57,7 +57,7 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
   control_pattern_size_(iConfig.getParameter<bool>("checkPatternEachEvent")),
   includeErrors_(iConfig.getUntrackedParameter<bool>("includeErrors",false)),
-  errorType(iConfig.getUntrackedParameter<int>("errorTypeNumber",31)),// see definition in SiPixelRawDataErrors::errorMessage for detauls. 31 is defined as 'event number mismatch'...
+  errorType(iConfig.getUntrackedParameter<int>("errorTypeNumber",1)),
   conf_(iConfig),
   number_of_pixels_per_pattern_(0)
 
@@ -65,7 +65,7 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
    //register your products
   produces< edm::DetSetVector<SiPixelCalibDigi> >();
   if(includeErrors_)
-    produces< edm::DetSetVector<SiPixelRawDataError> > ();
+    produces< edm::DetSetVector<SiPixelCalibDigiError> > ();
 
 }
 
@@ -287,7 +287,7 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   fill(iEvent,iSetup); // fill method where the actual looping over the digis is done.
 
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigi> > pOut(new edm::DetSetVector<SiPixelCalibDigi>);
-  std::auto_ptr<edm::DetSetVector<SiPixelRawDataError> > pErr (new edm::DetSetVector<SiPixelRawDataError> );
+  std::auto_ptr<edm::DetSetVector<SiPixelCalibDigiError> > pErr (new edm::DetSetVector<SiPixelCalibDigiError> );
   
   // copy things over into pOut if necessary (this is only once per pattern)
   if(store()){
@@ -305,10 +305,10 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       detSet.data.push_back(tempdigi);
     }
     if(includeErrors_){
-      for(std::map<pixelstruct,SiPixelRawDataError>::const_iterator ierr=error_data_.begin(); ierr!=error_data_.end();++ierr){
+      for(std::map<pixelstruct,SiPixelCalibDigiError>::const_iterator ierr=error_data_.begin(); ierr!=error_data_.end();++ierr){
 	uint32_t detid=ierr->first.first;
-	SiPixelRawDataError temperror = ierr->second;
-	edm::DetSet<SiPixelRawDataError> & errSet = pErr->find_or_insert(detid);
+	SiPixelCalibDigiError temperror = ierr->second;
+	edm::DetSet<SiPixelCalibDigiError> & errSet = pErr->find_or_insert(detid);
 	errSet.data.push_back(temperror);
       }
     }
@@ -373,15 +373,12 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
     temppixelworker.first=detid;
     temppixelworker.second.first=row;
     temppixelworker.second.second=col;
-    std::map<pixelstruct,SiPixelRawDataError>::const_iterator ierr = error_data_.find(temppixelworker);
+    std::map<pixelstruct,SiPixelCalibDigiError>::const_iterator ierr = error_data_.find(temppixelworker);
     if(ierr== error_data_.end()){
       const unsigned int errorword32=1;
-      SiPixelRawDataError temperr(errorword32,errorType,fedid);
+      SiPixelCalibDigiError temperr(row,col,1);
       error_data_[temppixelworker]=temperr;
-      error_data_[temppixelworker].setMessage();
     }
-    else
-      error_data_[temppixelworker].setWord32(error_data_[temppixelworker].getWord32()+1);
   }
     
   return false;
