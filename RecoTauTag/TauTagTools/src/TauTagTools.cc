@@ -1,6 +1,16 @@
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 namespace TauTagTools{
+
+  TrackRefVector filteredTracksByNumTrkHits(TrackRefVector theInitialTracks, int tkminTrackerHitsn){
+    TrackRefVector filteredTracks;
+    for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
+      if ( (**iTk).numberOfValidHits() >= tkminTrackerHitsn )
+	filteredTracks.push_back(*iTk);
+    }
+    return filteredTracks;
+  }
+
   TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, Vertex pv){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
@@ -27,6 +37,22 @@ namespace TauTagTools{
     }
     return filteredTracks;
   }
+
+  PFCandidateRefVector filteredPFChargedHadrCandsByNumTrkHits(PFCandidateRefVector theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn){
+    PFCandidateRefVector filteredPFChargedHadrCands;
+    for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
+      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
+	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
+	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
+
+	if (!PFChargedHadrCand_rectk)continue;
+	if ( (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn )
+	  filteredPFChargedHadrCands.push_back(*iPFCand);
+      }
+    }
+    return filteredPFChargedHadrCands;
+  }
+
   PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, Vertex pv){
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
