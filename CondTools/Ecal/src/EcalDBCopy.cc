@@ -15,6 +15,8 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -87,6 +89,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalADCToGeVConstantRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibConstants") {
     cacheID = evtSetup.get<EcalIntercalibConstantsRcd>().cacheIdentifier();
+  } else if (container == "EcalIntercalibErrors") {
+    cacheID = evtSetup.get<EcalIntercalibErrorsRcd>().cacheIdentifier();
   } else if (container == "EcalGainRatios") {
     cacheID = evtSetup.get<EcalGainRatiosRcd>().cacheIdentifier();
   } else if (container == "EcalWeightXtalGroups") {
@@ -147,6 +151,13 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     const EcalIntercalibConstants* obj = handle.product();
     cout << "inter pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalIntercalibErrors") {
+    edm::ESHandle<EcalIntercalibErrors> handle;
+    evtSetup.get<EcalIntercalibErrorsRcd>().get(handle);
+    const EcalIntercalibErrors* obj = handle.product();
+    cout << "inter pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalIntercalibErrors>( new EcalIntercalibErrors(*obj), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalGainRatios") {
     edm::ESHandle<EcalGainRatios> handle;
