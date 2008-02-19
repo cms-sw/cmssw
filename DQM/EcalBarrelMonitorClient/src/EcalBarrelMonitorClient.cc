@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/19 18:49:48 $
- * $Revision: 1.377 $
+ * $Date: 2008/02/19 18:55:35 $
+ * $Revision: 1.378 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -447,6 +447,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
@@ -464,6 +465,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clients_.push_back( new EBPedestalClient(ps) );
     clientsNames_.push_back( "Pedestal" );
 
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
