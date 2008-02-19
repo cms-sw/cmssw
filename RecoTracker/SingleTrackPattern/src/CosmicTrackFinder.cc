@@ -27,6 +27,7 @@ namespace cms
 
   CosmicTrackFinder::CosmicTrackFinder(edm::ParameterSet const& conf) : 
     cosmicTrajectoryBuilder_(conf) ,
+    crackTrajectoryBuilder_(conf) ,
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
@@ -60,7 +61,7 @@ namespace cms
 
   //retrieve PixelRecHits
     edm::Handle<SiPixelRecHitCollection> pixelHits;
-    if (geometry!="MTCC")   e.getByLabel(pixelRecHitsTag, pixelHits); //e.getByType(pixelHits);
+    if (geometry!="MTCC" && (geometry!="CRACK" ))   e.getByLabel(pixelRecHitsTag, pixelHits); //e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
     e.getByLabel( matchedrecHitsTag ,matchedrecHits);
@@ -83,15 +84,26 @@ namespace cms
 
       std::vector<Trajectory> trajoutput;
       
-      cosmicTrajectoryBuilder_.run(*seed,
-				   *stereorecHits,
-				   *rphirecHits,
-				   *matchedrecHits,
-				   *pixelHits,
-				   es,
-				   e,
-				   trajoutput);
-   
+      if(geometry!="CRACK" ) {
+        cosmicTrajectoryBuilder_.run(*seed,
+                                   *stereorecHits,
+                                   *rphirecHits,
+                                   *matchedrecHits,
+                                   *pixelHits,
+                                   es,
+                                   e,
+                                   trajoutput);
+      } else {
+        crackTrajectoryBuilder_.run(*seed,
+                                   *stereorecHits,
+                                   *rphirecHits,
+                                   *matchedrecHits,
+                                   *pixelHits,
+                                   es,
+                                   e,
+                                   trajoutput);
+      }
+
       edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
       edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
       if(trajoutput.size()>0){
@@ -143,6 +155,7 @@ namespace cms
 
 	//Track construction
 	int ndof =theTraj.foundHits()-5;
+        if(geometry=="CRACK") ndof++;
 	if (ndof<0) ndof=0;
 
 	TSCPBuilderNoMaterial tscpBuilder;

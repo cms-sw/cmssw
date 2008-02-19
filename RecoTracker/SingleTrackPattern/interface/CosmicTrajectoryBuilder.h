@@ -37,7 +37,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
- class CompareHitY {
+#ifndef TrajectoryBuilder_CompareHitY
+#define TrajectoryBuilder_CompareHitY
+
+class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
    bool operator()( const TrackingRecHit *rh1,
@@ -49,8 +52,9 @@
  private:
    //   edm::ESHandle<TrackerGeometry> _tracker;
    const TrackerGeometry& _tracker;
- };
- class CompareHitY_plus {
+};
+ 
+class CompareHitY_plus {
  public:
    CompareHitY_plus(const TrackerGeometry& tracker):_tracker(tracker){}
    bool operator()( const TrackingRecHit *rh1,
@@ -62,7 +66,10 @@
  private:
    //   edm::ESHandle<TrackerGeometry> _tracker;
    const TrackerGeometry& _tracker;
- };
+};
+ 
+#endif
+
 class CosmicTrajectoryBuilder 
 {
 
