@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <iostream>
 #include <string>
@@ -25,6 +26,7 @@ class testTrackAssociator : public edm::EDAnalyzer {
  private:
   TrackAssociatorBase * associatorByChi2;
   TrackAssociatorBase * associatorByHits;
+  edm::InputTag tracksTag, tpTag, simtracksTag, simvtxTag;
 };
 
 #endif

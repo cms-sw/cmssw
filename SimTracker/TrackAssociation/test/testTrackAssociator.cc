@@ -22,6 +22,10 @@ using namespace std;
 using namespace edm;
 
 testTrackAssociator::testTrackAssociator(edm::ParameterSet const& conf) {
+  tracksTag = conf.getParameter< edm::InputTag >("tracksTag");
+  tpTag = conf.getParameter< edm::InputTag >("tpTag");
+  simtracksTag = conf.getParameter< edm::InputTag >("simtracksTag");
+  simvtxTag = conf.getParameter< edm::InputTag >("simvtxTag");
 }
 
 testTrackAssociator::~testTrackAssociator() {
@@ -44,21 +48,19 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 {
   
   Handle<View<Track> > trackCollectionH;
-  event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
+  event.getByLabel(tracksTag,trackCollectionH);
   const View<Track>  tC = *(trackCollectionH.product()); 
   
   Handle<SimTrackContainer> simTrackCollection;
-  event.getByLabel("g4SimHits", simTrackCollection);
-//  event.getByLabel("SimG4Object", simTrackCollection);
+  event.getByLabel(simtracksTag, simTrackCollection);
   const SimTrackContainer simTC = *(simTrackCollection.product());
   
   Handle<SimVertexContainer> simVertexCollection;
-  event.getByLabel("g4SimHits", simVertexCollection);
-//  event.getByLabel("SimG4Object", simVertexCollection);
+  event.getByLabel(simvtxTag, simVertexCollection);
   const SimVertexContainer simVC = *(simVertexCollection.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  event.getByLabel("trackingParticles",TPCollectionH);
+  event.getByLabel(tpTag,TPCollectionH);
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
   cout << "\nEvent ID = "<< event.id() << endl ;
