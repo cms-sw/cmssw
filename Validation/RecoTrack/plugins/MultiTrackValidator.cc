@@ -22,7 +22,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include <TF1.h>
 
 using namespace std;
@@ -80,6 +80,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintpT,minpT,maxpT) );
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
       h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintpT,minpT,maxpT) );
+      h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
+      h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
+ 
       h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
       h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
       h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nint,min,max) );
@@ -92,9 +95,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
       h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
-      h_pullPhi0.push_back( dbe_->book1D("pullPhi0","pull of #phi0 parameter",250,-25,25) );
-      h_pullD0.push_back( dbe_->book1D("pullD0","pull of d0 parameter",250,-25,25) );
-      h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
+      h_pullPhi.push_back( dbe_->book1D("pullPhi","pull of #phi parameter",250,-25,25) );
+      h_pullDxy.push_back( dbe_->book1D("pullDxy","pull of dxy parameter",250,-25,25) );
+      h_pullDsz.push_back( dbe_->book1D("pullDsz","pull of dsz parameter",250,-25,25) );
       h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
       if (associators[ww]=="TrackAssociatorByChi2"){
@@ -142,27 +145,27 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       phires_vs_pt.push_back(dbe_->book2D("phires_vs_pt","phires_vs_pt",nintpT,minpT,maxpT, 100, -0.003, 0.003));
       h_phirmshPt.push_back( dbe_->book1D("sigmaphiPt","#sigma(#delta#phi) vs pT",nintpT,minpT,maxpT) );
 
-      d0res_vs_eta.push_back(dbe_->book2D("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
-      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigma(#deltad_{0}) vs #eta",nint,min,max) );
+      dxyres_vs_eta.push_back(dbe_->book2D("dxyres_vs_eta","dxyres_vs_eta",nint,min,max, 100, -0.01, 0.01));
+      h_dxyrmsh.push_back( dbe_->book1D("sigmadxy","#sigma(#deltadxy) vs #eta",nint,min,max) );
 
-      d0res_vs_pt.push_back( dbe_->book2D("d0res_vs_pt","d0res_vs_pt",nintpT,minpT,maxpT, 100, -0.01, 0.01));
-      h_d0rmshPt.push_back( dbe_->book1D("sigmad0Pt","#sigmad0 vs pT",nintpT,minpT,maxpT) );
+      dxyres_vs_pt.push_back( dbe_->book2D("dxyres_vs_pt","dxyres_vs_pt",nintpT,minpT,maxpT, 100, -0.01, 0.01));
+      h_dxyrmshPt.push_back( dbe_->book1D("sigmadxyPt","#sigmadxy vs pT",nintpT,minpT,maxpT) );
 
-      z0res_vs_eta.push_back(dbe_->book2D("z0res_vs_eta","z0res_vs_eta",nint,min,max, 150, -0.05, 0.05));
-      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigma(#deltaz_{0}) vs #eta",nint,min,max) );
+      dszres_vs_eta.push_back(dbe_->book2D("dszres_vs_eta","dszres_vs_eta",nint,min,max, 150, -0.05, 0.05));
+      h_dszrmsh.push_back( dbe_->book1D("sigmadsz","#sigma(#deltadsz) vs #eta",nint,min,max) );
 
-      z0res_vs_pt.push_back(dbe_->book2D("z0res_vs_pt","z0res_vs_pt",nintpT,minpT,maxpT, 150, -0.05, 0.05));
-      h_z0rmshPt.push_back( dbe_->book1D("sigmaz0Pt","#sigma(#deltaz_{0}) vs pT",nintpT,minpT,maxpT) );
+      dszres_vs_pt.push_back(dbe_->book2D("dszres_vs_pt","dszres_vs_pt",nintpT,minpT,maxpT, 150, -0.05, 0.05));
+      h_dszrmshPt.push_back( dbe_->book1D("sigmadszPt","#sigma(#deltadsz vs pT",nintpT,minpT,maxpT) );
 
       //pulls of track params vs eta: to be used with fitslicesytool
-      d0pull_vs_eta.push_back(dbe_->book2D("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10));
+      dxypull_vs_eta.push_back(dbe_->book2D("dxypull_vs_eta","dxypull_vs_eta",nint,min,max,100,-10,10));
       ptpull_vs_eta.push_back(dbe_->book2D("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10)); 
-      z0pull_vs_eta.push_back(dbe_->book2D("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10)); 
+      dszpull_vs_eta.push_back(dbe_->book2D("dszpull_vs_eta","dszpull_vs_eta",nint,min,max,100,-10,10)); 
       phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10)); 
       thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10));
-      h_d0pulleta.push_back( dbe_->book1D("h_d0pulleta","#sigma of d0 pull vs #eta",nint,min,max) ); 
+      h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta","#sigma of dxy pull vs #eta",nint,min,max) ); 
       h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta","#sigma of p_{t} pull vs #eta",nint,min,max) ); 
-      h_z0pulleta.push_back( dbe_->book1D("h_z0pulleta","#sigma of z0 pull vs #eta",nint,min,max) ); 
+      h_dszpulleta.push_back( dbe_->book1D("h_dszpulleta","#sigma of dsz pull vs #eta",nint,min,max) ); 
       h_phipulleta.push_back( dbe_->book1D("h_phipulleta","#sigma of #phi pull vs #eta",nint,min,max) ); 
       h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta","#sigma of #theta pull vs #eta",nint,min,max) );
       h_ptshifteta.push_back( dbe_->book1D("h_ptshifteta","<#deltapT/pT>[%] vs #eta",nint,min,max) ); 
@@ -191,6 +194,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByLabel(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
+
+  if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
+  if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
+
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;      
   
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
@@ -205,6 +215,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       edm::Handle<View<Track> >  trackCollection;
       event.getByLabel(label[www], trackCollection);
+      if (trackCollection->size()==0) {
+	edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
+	continue;
+      }
       
       //associate tracks
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
@@ -265,6 +279,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
+	totSIM_hit[w][tp->matchedHit()]++;//FIXME
+	if (rt.size()!=0) totASS_hit[w][tp->matchedHit()]++;
       }
       if (st!=0) h_tracksSIM[w]->Fill(st);
       
@@ -316,7 +332,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }	      
 	  }
 	}
-	
+ 	totREC_hit[w][track->found()]++;
+	if (tp.size()!=0) totASS2_hit[w][track->found()]++;
+
 	//Fill other histos
  	try{
 	  if (tp.size()==0) continue;
@@ -350,74 +368,78 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  FreeTrajectoryState 
 	    ftsAtProduction(GlobalPoint(tpr->vertex().x(),tpr->vertex().y(),tpr->vertex().z()),
 			    GlobalVector(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z()),
-			    TrackCharge(track->charge()),
+			    TrackCharge(tpr->charge()),
 			    theMF.product());
-	  TSCPBuilderNoMaterial tscpBuilder;
-	  TrajectoryStateClosestToPoint tsAtClosestApproach 
-	    = tscpBuilder(ftsAtProduction,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
-	  GlobalPoint v = tsAtClosestApproach.theState().position();
-	  GlobalVector p = tsAtClosestApproach.theState().momentum();
+	  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
+	  GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
+	  GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
 
-	  double qoverpSim = tsAtClosestApproach.charge()/p.mag();
+	  double qoverpSim = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
 	  double lambdaSim = M_PI/2-p.theta();
 	  double phiSim    = p.phi();
 	  double dxySim    = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
 	  double dszSim    = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
-	  double d0Sim     = -dxySim;
-	  double dzSim     = dszSim*p.mag()/p.perp();
 
-	  // eta residue; pt, k, theta, phi0, d0, dz pulls
-	  double qoverpPull=(track->qoverp()-qoverpSim)/track->qoverpError();
-	  double thetaPull=(track->lambda()-lambdaSim)/track->thetaError();
-	  double phi0Pull=(track->phi()-phiSim)/track->phiError();
-	  double d0Pull=(track->d0()-d0Sim)/track->d0Error();
-	  double dzPull=(track->dz()-dzSim)/track->dzError();
+	  TrackBase::ParameterVector rParameters = track->parameters();	  
+	  double qoverpRec = rParameters[0];
+	  double lambdaRec = rParameters[1];
+	  double phiRec    = rParameters[2];
+	  double dxyRec    = track->dxy(bs.position());
+	  double dszRec    = track->dsz(bs.position());
 
-	  double contrib_Qoverp = ((track->qoverp()-qoverpSim)/track->qoverpError())*
-	    ((track->qoverp()-qoverpSim)/track->qoverpError())/5;
-	  double contrib_d0 = ((track->d0()-d0Sim)/track->d0Error())*((track->d0()-d0Sim)/track->d0Error())/5;
-	  double contrib_dz = ((track->dz()-dzSim)/track->dzError())*((track->dz()-dzSim)/track->dzError())/5;
-	  double contrib_theta = ((track->lambda()-lambdaSim)/track->thetaError())*
-	    ((track->lambda()-lambdaSim)/track->thetaError())/5;
-	  double contrib_phi = ((track->phi()-phiSim)/track->phiError())*
-	    ((track->phi()-phiSim)/track->phiError())/5;
+	  // eta residue; pt, k, theta, phi, dxy, dsz pulls
+	  double qoverpPull=(qoverpRec-qoverpSim)/track->qoverpError();
+	  double thetaPull=(lambdaRec-lambdaSim)/track->thetaError();
+	  double phiPull=(phiRec-phiSim)/track->phiError();
+	  double dxyPull=(dxyRec-dxySim)/track->dxyError();
+	  double dszPull=(dszRec-dszSim)/track->dszError();
+
+	  double contrib_Qoverp = ((qoverpRec-qoverpSim)/track->qoverpError())*
+	    ((qoverpRec-qoverpSim)/track->qoverpError())/5;
+	  double contrib_dxy = ((dxyRec-dxySim)/track->dxyError())*((dxyRec-dxySim)/track->dxyError())/5;
+	  double contrib_dsz = ((dszRec-dszSim)/track->dszError())*((dszRec-dszSim)/track->dszError())/5;
+	  double contrib_theta = ((lambdaRec-lambdaSim)/track->thetaError())*
+	    ((lambdaRec-lambdaSim)/track->thetaError())/5;
+	  double contrib_phi = ((phiRec-phiSim)/track->phiError())*
+	    ((phiRec-phiSim)/track->phiError())/5;
 	  LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 					 << "" <<  "\n"
 					 << "ptREC=" << track->pt() << "\n"
 					 << "etaREC=" << track->eta() << "\n"
-					 << "qoverpREC=" << track->qoverp() << "\n"
-					 << "d0REC=" << track->d0() << "\n"
-					 << "dzREC=" << track->dz() << "\n"
+					 << "qoverpREC=" << qoverpRec << "\n"
+					 << "dxyREC=" << dxyRec << "\n"
+					 << "dszREC=" << dszRec << "\n"
 					 << "thetaREC=" << track->theta() << "\n"
-					 << "phiREC=" << track->phi() << "\n"
+					 << "phiREC=" << phiRec << "\n"
 					 << "" <<  "\n"
 					 << "qoverpError()=" << track->qoverpError() << "\n"
-					 << "d0Error()=" << track->d0Error() << "\n"
-					 << "dzError()=" << track->dzError() << "\n"
+					 << "dxyError()=" << track->dxyError() << "\n"
+					 << "dszError()=" << track->dszError() << "\n"
 					 << "thetaError()=" << track->thetaError() << "\n"
 					 << "phiError()=" << track->phiError() << "\n"
 					 << "" <<  "\n"
 					 << "ptSIM=" << sqrt(assocTrack->momentum().perp2()) << "\n"
 					 << "etaSIM=" << assocTrack->momentum().Eta() << "\n"    
 					 << "qoverpSIM=" << qoverpSim << "\n"
-					 << "d0SIM=" << d0Sim << "\n"
-					 << "dzSIM=" << dzSim << "\n"
+					 << "dxySIM=" << dxySim << "\n"
+					 << "dszSIM=" << dszSim << "\n"
 					 << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
 					 << "phiSIM=" << phiSim << "\n"
 					 << "" << "\n"
 					 << "contrib_Qoverp=" << contrib_Qoverp << "\n"
-					 << "contrib_d0=" << contrib_d0 << "\n"
-					 << "contrib_dz=" << contrib_dz << "\n"
+					 << "contrib_dxy=" << contrib_dxy << "\n"
+					 << "contrib_dsz=" << contrib_dsz << "\n"
 					 << "contrib_theta=" << contrib_theta << "\n"
 					 << "contrib_phi=" << contrib_phi << "\n"
 					 << "" << "\n"
-					 <<"chi2PULL="<<contrib_Qoverp+contrib_d0+contrib_dz+contrib_theta+contrib_phi<<"\n";
+					 <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dsz+contrib_theta+contrib_phi<<"\n";
 	  
 	  h_pullQoverp[w]->Fill(qoverpPull);
 	  h_pullTheta[w]->Fill(thetaPull);
-	  h_pullPhi0[w]->Fill(phi0Pull);
-	  h_pullD0[w]->Fill(d0Pull);
-	  h_pullDz[w]->Fill(dzPull);
+	  h_pullPhi[w]->Fill(phiPull);
+	  h_pullDxy[w]->Fill(dxyPull);
+	  h_pullDsz[w]->Fill(dszPull);
 
 	  double ptres=track->pt()-sqrt(assocTrack->momentum().perp2()); 
 	  //	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
@@ -435,25 +457,25 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  //resolution of track params: fill 2D histos
 
-	  d0res_vs_eta[w]->Fill(getEta(track->eta()),track->d0()-d0Sim);
+	  dxyres_vs_eta[w]->Fill(getEta(track->eta()),dxyRec-dxySim);
 	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
-	  z0res_vs_eta[w]->Fill(getEta(track->eta()),track->dz()-dzSim);
-	  phires_vs_eta[w]->Fill(getEta(track->eta()),track->phi()-phiSim);
-	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));         
+	  dszres_vs_eta[w]->Fill(getEta(track->eta()),dszRec-dszSim);
+	  phires_vs_eta[w]->Fill(getEta(track->eta()),phiRec-phiSim);
+	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));         
 
 	  //same as before but vs pT
-	  d0res_vs_pt[w]->Fill(track->pt(),track->d0()-d0Sim);
+	  dxyres_vs_pt[w]->Fill(track->pt(),dxyRec-dxySim);
 	  ptres_vs_pt[w]->Fill(track->pt(),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
-	  z0res_vs_pt[w]->Fill(track->pt(),track->dz()-dzSim);
-	  phires_vs_pt[w]->Fill(track->pt(),track->phi()-phiSim);
-	  cotThetares_vs_pt[w]->Fill(track->pt(),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));
+	  dszres_vs_pt[w]->Fill(track->pt(),dszRec-dszSim);
+	  phires_vs_pt[w]->Fill(track->pt(),phiRec-phiSim);
+	  cotThetares_vs_pt[w]->Fill(track->pt(),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));
   	 
   	 
 	  //pulls of track params vs eta: fill 2D histos
-	  d0pull_vs_eta[w]->Fill(getEta(track->eta()),d0Pull);
+	  dxypull_vs_eta[w]->Fill(getEta(track->eta()),dxyPull);
 	  ptpull_vs_eta[w]->Fill(getEta(track->eta()),ptres/ptError);
-	  z0pull_vs_eta[w]->Fill(getEta(track->eta()),dzPull);
-	  phipull_vs_eta[w]->Fill(getEta(track->eta()),phi0Pull);
+	  dszpull_vs_eta[w]->Fill(getEta(track->eta()),dszPull);
+	  phipull_vs_eta[w]->Fill(getEta(track->eta()),phiPull);
 	  thetapull_vs_eta[w]->Fill(getEta(track->eta()),thetaPull);
 
 	} catch (cms::Exception e){
@@ -478,22 +500,22 @@ void MultiTrackValidator::endJob() {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
-      TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)d0res_vs_eta[w])));
+      TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)dxyres_vs_eta[w])));
       h->FitSlicesY();
 
       //resolution of track params: get sigma from 2D histos
-      FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
-      fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
-      FitSlicesYTool fsyt_d0Pt(d0res_vs_pt[w]);
-      fsyt_d0Pt.getFittedSigmaWithError(h_d0rmshPt[w]);
+      FitSlicesYTool fsyt_dxy(dxyres_vs_eta[w]);
+      fsyt_dxy.getFittedSigmaWithError(h_dxyrmsh[w]);
+      FitSlicesYTool fsyt_dxyPt(dxyres_vs_pt[w]);
+      fsyt_dxyPt.getFittedSigmaWithError(h_dxyrmshPt[w]);
       FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
       fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
       FitSlicesYTool fsyt_ptPt(ptres_vs_pt[w]);
       fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[w]);
-      FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
-      fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
-      FitSlicesYTool fsyt_z0Pt(z0res_vs_pt[w]);
-      fsyt_z0Pt.getFittedSigmaWithError(h_z0rmshPt[w]);
+      FitSlicesYTool fsyt_dsz(dszres_vs_eta[w]);
+      fsyt_dsz.getFittedSigmaWithError(h_dszrmsh[w]);
+      FitSlicesYTool fsyt_dszPt(dszres_vs_pt[w]);
+      fsyt_dszPt.getFittedSigmaWithError(h_dszrmshPt[w]);
       FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
       fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
       FitSlicesYTool fsyt_phiPt(phires_vs_pt[w]);
@@ -508,25 +530,25 @@ void MultiTrackValidator::endJob() {
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
    
       //pulls of track params vs eta: get sigma from 2D histos
-      FitSlicesYTool fsyt_d0p(d0pull_vs_eta[w]);
-      fsyt_d0p.getFittedSigmaWithError(h_d0pulleta[w]);
+      FitSlicesYTool fsyt_dxyp(dxypull_vs_eta[w]);
+      fsyt_dxyp.getFittedSigmaWithError(h_dxypulleta[w]);
       FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
       fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
       fsyt_ptp.getFittedMeanWithError(h_ptshifteta[w]);      
-      FitSlicesYTool fsyt_z0p(z0pull_vs_eta[w]);
-      fsyt_z0p.getFittedSigmaWithError(h_z0pulleta[w]);
+      FitSlicesYTool fsyt_dszp(dszpull_vs_eta[w]);
+      fsyt_dszp.getFittedSigmaWithError(h_dszpulleta[w]);
       FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
       fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
       FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
       fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
       
-      //fill efficiency plot vs eta
+      //effic&fake
       fillPlotFromVectors(h_effic[w],totASSeta[w],totSIMeta[w],"effic");
-      //fill efficiency plot vs pt
-      fillPlotFromVectors(h_efficPt[w],totASSpT[w],totSIMpT[w],"effic");
-      //fill fakerate plot
       fillPlotFromVectors(h_fakerate[w],totASS2eta[w],totRECeta[w],"fakerate");
+      fillPlotFromVectors(h_efficPt[w],totASSpT[w],totSIMpT[w],"effic");
       fillPlotFromVectors(h_fakeratePt[w],totASS2pT[w],totRECpT[w],"fakerate");
+      fillPlotFromVectors(h_effic_vs_hit[w],totASS_hit[w],totSIM_hit[w],"effic");
+      fillPlotFromVectors(h_fake_vs_hit[w],totASS2_hit[w],totREC_hit[w],"fakerate");
 
       fillPlotFromVector(h_recoeta[w],totRECeta[w]);
       fillPlotFromVector(h_simuleta[w],totSIMeta[w]);

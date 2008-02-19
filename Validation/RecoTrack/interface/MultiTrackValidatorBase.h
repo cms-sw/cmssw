@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/11/13 10:46:45 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/02/11 15:02:11 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
@@ -40,6 +40,7 @@ class MultiTrackValidatorBase {
     dbe_(0),
     sim(pset.getParameter<std::string>("sim")),
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
+    bsSrc(pset.getParameter< edm::InputTag >("beamSpot")),
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
@@ -50,7 +51,10 @@ class MultiTrackValidatorBase {
     useFabs(pset.getParameter<bool>("useFabsEta")),
     minpT(pset.getParameter<double>("minpT")),
     maxpT(pset.getParameter<double>("maxpT")),
-    nintpT(pset.getParameter<int>("nintpT"))
+    nintpT(pset.getParameter<int>("nintpT")),
+    minHit(pset.getParameter<double>("minHit")),
+    maxHit(pset.getParameter<double>("maxHit")),
+    nintHit(pset.getParameter<int>("nintHit"))
     {
       dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
     }
@@ -113,7 +117,8 @@ class MultiTrackValidatorBase {
     std::vector<double> pTintervalsv;
     std::vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
     std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
-    
+    std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
+
     double step=(max-min)/nint;
     std::ostringstream title,name;
     etaintervalsv.push_back(min);
@@ -124,8 +129,7 @@ class MultiTrackValidatorBase {
       totASSveta.push_back(0);
       totASS2veta.push_back(0);
       totRECveta.push_back(0);
-    }
-    
+    }   
     etaintervals.push_back(etaintervalsv);
     totSIMeta.push_back(totSIMveta);
     totASSeta.push_back(totASSveta);
@@ -147,6 +151,17 @@ class MultiTrackValidatorBase {
     totASSpT.push_back(totASSvpT);
     totASS2pT.push_back(totASS2vpT);
     totRECpT.push_back(totRECvpT);
+
+    for (int k=1;k<nintHit+1;k++) {
+      totSIMv_hit.push_back(0);
+      totASSv_hit.push_back(0);
+      totASS2v_hit.push_back(0);
+      totRECv_hit.push_back(0);
+    }
+    totSIM_hit.push_back(totSIMv_hit);
+    totASS_hit.push_back(totASSv_hit);
+    totASS2_hit.push_back(totASS2v_hit);
+    totREC_hit.push_back(totRECv_hit);
   }
 
  protected:
@@ -155,6 +170,7 @@ class MultiTrackValidatorBase {
 
   std::string sim;
   std::vector<edm::InputTag> label;
+  edm::InputTag bsSrc;
   edm::InputTag label_tp_effic;
   edm::InputTag label_tp_fake;
   std::vector<std::string> associators;
@@ -164,6 +180,8 @@ class MultiTrackValidatorBase {
   bool useFabs;
   double minpT, maxpT;
   int nintpT;
+  double minHit, maxHit;
+  int nintHit;
   
   edm::ESHandle<MagneticField> theMF;
 
@@ -175,8 +193,9 @@ class MultiTrackValidatorBase {
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_charge;
   std::vector<MonitorElement*> h_effic, h_efficPt, h_fakerate, h_fakeratePt, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  std::vector<MonitorElement*>  h_effic_vs_hit, h_fake_vs_hit;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
-  std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;
+  std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDsz,h_pullQoverp;
 
   //2D  
   std::vector<MonitorElement*> etares_vs_eta, nrec_vs_nsim;
@@ -192,6 +211,7 @@ class MultiTrackValidatorBase {
   std::vector< std::vector<double> > pTintervals;
   std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
+  std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
 };
 
 

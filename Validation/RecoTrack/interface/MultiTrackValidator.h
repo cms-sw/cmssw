@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/11/13 10:46:45 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/02/11 15:02:11 $
+ *  $Revision: 1.38 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,13 +43,13 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   std::vector<MonitorElement*> h_chi2meanh, h_losthits_eta;
 
   //resolution of track params: to be used with fitslicesytool
-  std::vector<MonitorElement*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
-  std::vector<MonitorElement*> d0res_vs_pt, ptres_vs_pt, z0res_vs_pt, phires_vs_pt, cotThetares_vs_pt;
-  std::vector<MonitorElement*> h_d0rmsh, h_ptrmsh, h_z0rmsh, h_phirmsh, h_cotThetarmsh;
-  std::vector<MonitorElement*> h_d0rmshPt, h_ptrmshPt, h_z0rmshPt, h_phirmshPt, h_cotThetarmshPt;
+  std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dszres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
+  std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, dszres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
+  std::vector<MonitorElement*> h_dxyrmsh, h_ptrmsh, h_dszrmsh, h_phirmsh, h_cotThetarmsh;
+  std::vector<MonitorElement*> h_dxyrmshPt, h_ptrmshPt, h_dszrmshPt, h_phirmshPt, h_cotThetarmshPt;
   //pulls of track params vs eta: to be used with fitslicesytool
-  std::vector<MonitorElement*> d0pull_vs_eta, ptpull_vs_eta, z0pull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
-  std::vector<MonitorElement*> h_d0pulleta, h_ptpulleta, h_z0pulleta, h_phipulleta, h_thetapulleta;
+  std::vector<MonitorElement*> dxypull_vs_eta, ptpull_vs_eta, dszpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  std::vector<MonitorElement*> h_dxypulleta, h_ptpulleta, h_dszpulleta, h_phipulleta, h_thetapulleta;
 };
 
 

@@ -8,8 +8,8 @@ void TracksCompare()
  // gROOT->ProcessLine(".L HistoCompare_Tracks.C");
  // gROOT->ProcessLine(".L TracksCompare.C");
 
- char*  rfilename = "validationPlots.root";//new release is in red
- char*  sfilename = "../data/validationPlots_REF.root";//reference is in blue
+ char*  rfilename = "file05.root";//new release is in red
+ char*  sfilename = "file15.root";//reference is in blue
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -131,10 +131,10 @@ void TracksCompare()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullQoverp",sh2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullQoverp",rc2);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullQoverp",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi0",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi0",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi0",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi0",sc3);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi",rh3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi",sh3);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi",rc3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi",sc3);
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
@@ -156,21 +156,21 @@ void TracksCompare()
    canvas->Print("ctf_pullPt_Qoverp_Phi.eps");
    canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
-   //pull D0, Z0, Theta
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullD0",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullD0",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullD0",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullD0",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",sc2);
+   //pull Dxy, Dsz, Theta
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",rh1);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",sh1);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",rc1);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",sc1);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDsz",rh2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDsz",sh2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDsz",rc2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDsz",sc2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",sc3);
 
-   canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
+   canvas = new TCanvas("Tracks5","Tracks: pull of Dxy, Dsz, Theta",1000,1000);
 
    if (hit) { 
      NormalizeHistograms(rh1,sh1);
@@ -187,8 +187,8 @@ void TracksCompare()
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
  
-   canvas->Print("ctf_pullD0_Z0_Theta.eps");
-   canvas->Print("ctf_pullD0_Z0_Theta.gif");
+   canvas->Print("ctf_pullDxy_Dsz_Theta.eps");
+   canvas->Print("ctf_pullDxy_Dsz_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmapt",rh1);
@@ -209,28 +209,28 @@ void TracksCompare()
    canvas->Print("ctf_resolPt_Phi.eps");
    canvas->Print("ctf_resolPt_Phi.gif");
 
-   //resolution D0, Z0, Theta
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmad0",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmad0",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmad0",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmad0",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmaz0",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmaz0",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmaz0",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmaz0",sc2);
+   //resolution Dxy, Dsz, Theta
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",rh1);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",sh1);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",rc1);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",sc1);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadsz",rh2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadsz",sh2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadsz",rc2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadsz",sc2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",sc3);
 
-   canvas = new TCanvas("Tracks7","Tracks: D0, Z0, Theta resolution",1000,1000);
+   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dsz, Theta resolution",1000,1000);
 
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UU",-1);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU",-1);
    else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU",-1);
  
-   canvas->Print("ctf_resolD0_Z0_Theta.eps");
-   canvas->Print("ctf_resolD0_Z0_Theta.gif");
+   canvas->Print("ctf_resolDxy_Dsz_Theta.eps");
+   canvas->Print("ctf_resolDxy_Dsz_Theta.gif");
  }
 
 
@@ -330,10 +330,10 @@ void TracksCompare()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullQoverp",sh2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullQoverp",rc2);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullQoverp",sc2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi0",rh3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi0",sh3);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi0",rc3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi0",sc3);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi",rh3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi",sh3);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi",rc3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi",sc3);
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
@@ -355,21 +355,21 @@ void TracksCompare()
    canvas->Print("rs_pullPt_Qoverp_Phi.eps");
    canvas->Print("rs_pullPt_Qoverp_Phi.gif");
 
-   //pull D0, Z0, Theta
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullD0",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullD0",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullD0",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullD0",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",sc2);
+   //pull Dxy, Dsz, Theta
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",rh1);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",sh1);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",rc1);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",sc1);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDsz",rh2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDsz",sh2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDsz",rc2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDsz",sc2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",sc3);
 
-   canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
+   canvas = new TCanvas("Tracks12","Tracks: pull of Dxy, Dsz, Theta",1000,1000);
 
    if (hit) { 
      NormalizeHistograms(rh1,sh1);
@@ -386,8 +386,8 @@ void TracksCompare()
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
  
-   canvas->Print("rs_pullD0_Z0_Theta.eps");
-   canvas->Print("rs_pullD0_Z0_Theta.gif");
+   canvas->Print("rs_pullDxy_Dsz_Theta.eps");
+   canvas->Print("rs_pullDxy_Dsz_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmapt",rh1);
@@ -408,28 +408,28 @@ void TracksCompare()
    canvas->Print("rs_resolPt_Phi.eps");
    canvas->Print("rs_resolPt_Phi.gif");
 
-   //resolution D0, Z0, Theta
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmad0",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmad0",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmad0",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmad0",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmaz0",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmaz0",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmaz0",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmaz0",sc2);
+   //resolution Dxy, Dsz, Theta
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",rh1);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",sh1);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",rc1);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",sc1);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadsz",rh2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadsz",sh2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadsz",rc2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadsz",sc2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
 
-   canvas = new TCanvas("Tracks14","Tracks: D0, Z0, Theta resolution",1000,1000);
+   canvas = new TCanvas("Tracks14","Tracks: Dxy, Dsz, Theta resolution",1000,1000);
 
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UU",-1);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU",-1);
    else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU",-1);
  
-   canvas->Print("rs_resolD0_Z0_Theta.eps");
-   canvas->Print("rs_resolD0_Z0_Theta.gif");
+   canvas->Print("rs_resolDxy_Dsz_Theta.eps");
+   canvas->Print("rs_resolDxy_Dsz_Theta.gif");
  }
 }
 
