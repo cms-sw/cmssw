@@ -53,6 +53,13 @@ namespace {
   }
 }
 
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+namespace {
+  namespace {
+    EcalIntercalibErrors intercalibErrors;
+  }
+}
+
 #include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
 namespace {
   namespace {

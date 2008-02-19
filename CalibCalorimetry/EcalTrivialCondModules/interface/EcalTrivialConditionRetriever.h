@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.14 2007/07/31 19:05:12 torimoto Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.15 2008/02/18 10:39:22 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -27,6 +27,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -68,10 +71,12 @@ public:
   virtual std::auto_ptr<EcalPedestals> produceEcalPedestals( const EcalPedestalsRcd& );
   virtual std::auto_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& );
+  virtual std::auto_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors( const EcalIntercalibErrorsRcd& );
   virtual std::auto_ptr<EcalGainRatios> produceEcalGainRatios( const EcalGainRatiosRcd& );
   virtual std::auto_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& );
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
+  virtual std::auto_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
 
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
@@ -99,6 +104,7 @@ private:
   double intercalibConstantSigma_; // sigma of intercalib constant
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
+  double intercalibErrorMean_;  // mean of intercalib constant error
 
   // laser
   double laserAlphaMean_;  
@@ -146,6 +152,7 @@ private:
   std::string chi2MatrixFile_;
   std::string chi2MatrixAftFile_;
   std::string intercalibConstantsFile_ ;
+  std::string intercalibErrorsFile_ ;
   std::string channelStatusFile_ ;
 
   int nTDCbins_;
@@ -155,6 +162,7 @@ private:
   bool producedEcalPedestals_;
   bool producedEcalWeights_;
   bool producedEcalIntercalibConstants_;
+  bool producedEcalIntercalibErrors_;
   bool producedEcalGainRatios_;
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;

@@ -14,6 +14,7 @@
 
  <class name="EcalMGPAGainRatio"/>
  <class name="EcalIntercalibConstants"/>
+ <class name="EcalIntercalibErrors"/>
 
  <class name="EcalDCUTemperatures"/>
  <class name="EcalPTMTemperatures"/>

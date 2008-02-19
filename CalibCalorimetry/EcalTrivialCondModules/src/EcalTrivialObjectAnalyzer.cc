@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.15 2008/01/22 19:00:43 muzaffar Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.16 2008/02/18 10:39:23 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -28,6 +28,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -139,6 +142,25 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
                 << std::endl;
     } else {
      std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
+               << std::endl;
+    }
+
+    // Intercalib errors
+    edm::ESHandle<EcalIntercalibErrors> pIcalErr;
+    context.get<EcalIntercalibErrorsRcd>().get(pIcalErr);
+    const EcalIntercalibErrors* icalErr = pIcalErr.product();
+
+    EcalIntercalibErrorMap::const_iterator icalitErr=icalErr->getMap().find(ebid.rawId());
+    EcalIntercalibError icalconstErr;
+    if( icalitErr!=icalErr->getMap().end() ){
+      icalconstErr = (*icalitErr);
+
+      std::cout << "EcalIntercalibError: "
+                <<std::setprecision(6)
+                << icalconstErr
+                << std::endl;
+    } else {
+     std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibErrors in your DB? "
                << std::endl;
     }
 
