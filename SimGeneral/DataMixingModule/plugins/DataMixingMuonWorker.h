@@ -58,6 +58,9 @@ namespace edm
 
       edm::InputTag DTdigi_collection_; // secondary name given to collection of DT digis
       edm::InputTag RPCdigi_collection_; // secondary name given to collection of RPC digis
+      edm::InputTag CSCDigiTag_; // primary? name given to collection of CSC digis
+      edm::InputTag DTDigiTag_; // primary? name given to collection of DT digis
+      edm::InputTag RPCDigiTag_; // primary? name given to collection of RPC digis
       edm::InputTag CSCstripdigi_collection_; // secondary name given to collection of CSC Strip digis
       edm::InputTag CSCwiredigi_collection_; // secondary name given to collection of CSC wire digis
 

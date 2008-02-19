@@ -46,6 +46,9 @@ namespace edm
 
       virtual void beginJob(edm::EventSetup const&iSetup);
 
+      virtual void setBcrOffset();
+      virtual void setSourceOffset(const unsigned int is);      
+
     private:
       // data specifiers
 
@@ -88,23 +91,23 @@ namespace edm
 
       // Submodules to handle the individual detectors
 
-      DataMixingEMWorker EMWorker_ ;
+      DataMixingEMWorker *EMWorker_ ;
 
       // Hcal 
       
-      DataMixingHcalWorker HcalWorker_ ;
+      DataMixingHcalWorker *HcalWorker_ ;
 
       // Muons
 
-      DataMixingMuonWorker MuonWorker_ ;
+      DataMixingMuonWorker *MuonWorker_ ;
 
       // Si-Strips
 
-      DataMixingSiStripWorker SiStripWorker_ ;
+      DataMixingSiStripWorker *SiStripWorker_ ;
 
       // Pixels
 
-      DataMixingSiPixelWorker SiPixelWorker_ ;
+      DataMixingSiPixelWorker *SiPixelWorker_ ;
 
 
       virtual void put(edm::Event &e) ;

@@ -47,14 +47,17 @@ namespace edm
 
     EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
     EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
+    ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
+    ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
     //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
 
     produces< EBRecHitCollection >(EBRecHitCollectionDM_);
     produces< EERecHitCollection >(EERecHitCollectionDM_);
+    produces< ESRecHitCollection >(ESRecHitCollectionDM_);
 
-    EMWorker_ = DataMixingEMWorker(ps);
+    EMWorker_ = new DataMixingEMWorker(ps);
 
     // Hcal next
 
@@ -68,54 +71,50 @@ namespace edm
     HFRecHitCollectionDM_   = ps.getParameter<std::string>("HFRecHitCollectionDM");
     ZDCRecHitCollectionDM_  = ps.getParameter<std::string>("ZDCRecHitCollectionDM");
 
-
     produces< HBHERecHitCollection >(HBHERecHitCollectionDM_);
     produces< HORecHitCollection >(HORecHitCollectionDM_);
     produces< HFRecHitCollection >(HFRecHitCollectionDM_);
     produces< ZDCRecHitCollection >(ZDCRecHitCollectionDM_);
 
-    HcalWorker_ = DataMixingHcalWorker(ps);
+    HcalWorker_ = new DataMixingHcalWorker(ps);
 
     // Muons
 
-    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigi_collection");
-    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigi_collection");
-    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigi_collection");
-    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigi_collection");
-
+    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigiCollection");
+    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigiCollection");
+    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollection");
+    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollection");
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
     RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
     CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
     CSCWireDigiCollectionDM_  = ps.getParameter<std::string>("CSCWireDigiCollectionDM");
-
 
     produces< DTDigiCollection >(DTDigiCollectionDM_);
     produces< RPCDigiCollection >(RPCDigiCollectionDM_);
     produces< CSCStripDigiCollection >(CSCStripDigiCollectionDM_);
     produces< CSCWireDigiCollection >(CSCWireDigiCollectionDM_);
 
-    MuonWorker_ = DataMixingMuonWorker(ps);
+    MuonWorker_ = new DataMixingMuonWorker(ps);
 
     // Si-Strips
 
-    Sistripdigi_collection_   = ps.getParameter<edm::InputTag>("Sistripdigi_collection");
+    Sistripdigi_collection_   = ps.getParameter<edm::InputTag>("SistripdigiCollection");
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
     produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
     
-    SiStripWorker_ = DataMixingSiStripWorker(ps);
+    SiStripWorker_ = new DataMixingSiStripWorker(ps);
 
     // Pixels
 
-    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigi_collection");
+    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigiCollection");
 
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
     produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
 
-    SiPixelWorker_ = DataMixingSiPixelWorker(ps);
-
+    SiPixelWorker_ = new DataMixingSiPixelWorker(ps);
 
   }
 
@@ -166,6 +165,11 @@ namespace edm
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
     delete sel_;
+    delete EMWorker_;
+    delete HcalWorker_;
+    delete MuonWorker_;
+    delete SiStripWorker_;
+    delete SiPixelWorker_;
   }  
 
   
@@ -176,19 +180,19 @@ namespace edm
     LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
 
     // Ecal
-    EMWorker_.addEMSignals(e);
+    EMWorker_->addEMSignals(e);
 
     // Hcal
-    HcalWorker_.addHcalSignals(e);
+    HcalWorker_->addHcalSignals(e);
     
     // Muon
-    MuonWorker_.addMuonSignals(e);
+    MuonWorker_->addMuonSignals(e);
 
     // SiStrips
-    SiStripWorker_.addSiStripSignals(e);
+    SiStripWorker_->addSiStripSignals(e);
 
     // SiPixels
-    SiPixelWorker_.addSiPixelSignals(e);
+    SiPixelWorker_->addSiPixelSignals(e);
     
   } // end of addSignals
 
@@ -196,25 +200,26 @@ namespace edm
 
   void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
   
+
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // Ecal
-    EMWorker_.addEMPileups(bcr, e, eventNr);
+    EMWorker_->addEMPileups(bcr, e, eventNr);
 
     // Hcal
-    HcalWorker_.addHcalPileups(bcr, e, eventNr);
+    HcalWorker_->addHcalPileups(bcr, e, eventNr);
 
     // Muon
-    MuonWorker_.addMuonPileups(bcr, e, eventNr);
+    MuonWorker_->addMuonPileups(bcr, e, eventNr);
 
     // SiStrips
-    SiStripWorker_.addSiStripPileups(bcr, e, eventNr);
+    SiStripWorker_->addSiStripPileups(bcr, e, eventNr);
 
     // SiPixels
-    SiPixelWorker_.addSiPixelPileups(bcr, e, eventNr);
- 
+    SiPixelWorker_->addSiPixelPileups(bcr, e, eventNr);
+
   }
  
 
@@ -224,20 +229,26 @@ namespace edm
     // individual workers...
 
     // Ecal
-    EMWorker_.putEM(e);
+    EMWorker_->putEM(e);
 
     // Hcal
-    HcalWorker_.putHcal(e);
+    HcalWorker_->putHcal(e);
 
     // Muon
-    MuonWorker_.putMuon(e);
+    MuonWorker_->putMuon(e);
 
     // SiStrips
-    SiStripWorker_.putSiStrip(e);
+    SiStripWorker_->putSiStrip(e);
 
     // SiPixels
-    SiPixelWorker_.putSiPixel(e);
+    SiPixelWorker_->putSiPixel(e);
 
+  }
+
+  void DataMixingModule::setBcrOffset() {
+  }
+
+  void DataMixingModule::setSourceOffset(const unsigned int is) {
   }
 
 } //edm

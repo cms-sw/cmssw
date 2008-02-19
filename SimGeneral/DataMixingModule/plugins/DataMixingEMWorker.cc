@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingEMWorker::DataMixingEMWorker() { }
+  DataMixingEMWorker::DataMixingEMWorker() { sel_=0;}
 
   // Constructor 
   DataMixingEMWorker::DataMixingEMWorker(const edm::ParameterSet& ps) : 
@@ -43,14 +43,17 @@ namespace edm
       sel_=new Selector( MatchAllSelector());
     }
 
-    // declare the products to produce
+    // declare the products to produce, retrieve
 
-   EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
-   EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
-   ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
-   EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
-   EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
-   ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
+    EBProducer_ = ps.getParameter<edm::InputTag>("EBProducer");
+    EEProducer_ = ps.getParameter<edm::InputTag>("EEProducer");
+    ESProducer_ = ps.getParameter<edm::InputTag>("ESProducer");
+    EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
+    EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
+    ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
+    EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
+    EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
+    ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
    //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
 
    //EBalgo_ = new EcalRecHitSimpleAlgo();
@@ -67,13 +70,13 @@ namespace edm
   // Virtual destructor needed.
   DataMixingEMWorker::~DataMixingEMWorker() { 
     delete sel_;
-
+    sel_=0;
   }  
 
   void DataMixingEMWorker::addEMSignals(const edm::Event &e) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingEMWorker")<<"===============> adding MC signals for "<<e.id();
+    LogInfo("DataMixingEMWorker")<<"===============> adding MC signals for "<<e.id();
 
     // EB first
 
@@ -81,12 +84,11 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   e.getByLabel( EBrechitCollection_, pEBRecHits);
-   if (pEBRecHits.isValid()) {
+   try {
+     e.getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits);
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
-#endif
+     LogInfo("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
+   } catch (...) {
    }
  
    if (EBRecHits)
@@ -97,11 +99,9 @@ namespace edm
 
 	 EBRecHitStorage_.insert(EBRecHitMap::value_type( ( it->id() ), *it ));
 	 
-#ifdef DEBUG	 
          LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: "
 				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
-#endif
 
        }
      }
@@ -112,12 +112,13 @@ namespace edm
 
    const EERecHitCollection*  EERecHits = 0;
 
-   e.getByLabel( EErechitCollection_, pEERecHits);
-   if (pEERecHits.isValid()) {
+   try {
+     e.getByLabel(EEProducer_.label(),EErechitCollection_.label(), pEERecHits);
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (EERecHits)
@@ -142,12 +143,13 @@ namespace edm
 
    const ESRecHitCollection*  ESRecHits = 0;
 
-   e.getByLabel( ESrechitCollection_, pESRecHits);
-   if (pESRecHits.isValid()) {
+   try {
+     e.getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits);
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (ESRecHits)
@@ -171,7 +173,7 @@ namespace edm
 
   void DataMixingEMWorker::addEMPileups(const int bcr, Event *e, unsigned int eventNr) {
   
-    LogDebug("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogInfo("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
@@ -180,12 +182,13 @@ namespace edm
    Handle< EBRecHitCollection > pEBRecHits;
    const EBRecHitCollection*  EBRecHits = 0;
 
-   e->getByLabel( EBrechitCollection_, pEBRecHits);
-   if (pEBRecHits.isValid()) {
+   try {
+     e->getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits);
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (EBRecHits)
@@ -208,12 +211,13 @@ namespace edm
    Handle< EERecHitCollection > pEERecHits;
    const EERecHitCollection*  EERecHits = 0;
 
-   e->getByLabel( EErechitCollection_, pEERecHits);
-   if (pEERecHits.isValid()) {
+   try {
+     e->getByLabel( EEProducer_.label(),EErechitCollection_.label(), pEERecHits);
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (EERecHits)
@@ -236,12 +240,13 @@ namespace edm
    Handle< ESRecHitCollection > pESRecHits;
    const ESRecHitCollection*  ESRecHits = 0;
 
-   e->getByLabel( ESrechitCollection_, pESRecHits);
-   if (pESRecHits.isValid()) {
+   try {
+     e->getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits);
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (ESRecHits)

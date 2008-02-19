@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingMuonWorker::DataMixingMuonWorker() { }
+  DataMixingMuonWorker::DataMixingMuonWorker() { sel_=0;} 
 
   // Constructor 
   DataMixingMuonWorker::DataMixingMuonWorker(const edm::ParameterSet& ps) : 
@@ -45,10 +45,14 @@ namespace edm
 
     // declare the products to produce
 
-    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigi_collection");
-    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigi_collection");
-    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigi_collection");
-    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigi_collection");
+    DTDigiTag_           = ps.getParameter<edm::InputTag>("DTDigiTag");
+    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigiCollection");
+    RPCDigiTag_          = ps.getParameter<edm::InputTag>("RPCDigiTag");
+    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigiCollection");
+
+    CSCDigiTag_                = ps.getParameter<edm::InputTag>("CSCDigiTag");
+    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollection");
+    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollection");
 
 
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
@@ -63,7 +67,7 @@ namespace edm
   // Virtual destructor needed.
   DataMixingMuonWorker::~DataMixingMuonWorker() { 
     delete sel_;
-
+    sel_=0;
   }  
 
   void DataMixingMuonWorker::addMuonSignals(const edm::Event &e) { 
@@ -75,23 +79,30 @@ namespace edm
     // 
 
     OurDTDigis_ = new DTDigiCollection();
+    Handle<DTDigiCollection> pDTdigis; 
 
     // Get the digis from the event
-    Handle<DTDigiCollection> DTdigis; 
-    e.getByLabel(DTdigi_collection_, DTdigis);
+    try{
+      e.getByLabel(DTDigiTag_.label(), pDTdigis);
+    } catch (...) {
+    }
+
+    //    LogInfo("DataMixingMuonWorker") << "total # DT Digis: " << DTdigis->size();
 
     // Loop over digis, copying them to our own local storage
+    if(pDTdigis.isValid() ) {
+      const DTDigiCollection* DTdigis = pDTdigis.product();
+      DTDigiCollection::DigiRangeIterator DLayerIt;
+      for (DLayerIt = DTdigis->begin(); DLayerIt != DTdigis->end(); ++DLayerIt) {
+	// The layerId
+	const DTLayerId& layerId = (*DLayerIt).first;
 
-    DTDigiCollection::DigiRangeIterator DLayerIt;
-    for (DLayerIt = DTdigis->begin(); DLayerIt != DTdigis->end(); ++DLayerIt) {
-      // The layerId
-      const DTLayerId& layerId = (*DLayerIt).first;
+	// Get the iterators over the digis associated with this LayerId
+	const DTDigiCollection::Range& range = (*DLayerIt).second;
 
-      // Get the iterators over the digis associated with this LayerId
-      const DTDigiCollection::Range& range = (*DLayerIt).second;
-
-      OurDTDigis_->put(range, layerId);
-      
+	OurDTDigis_->put(range, layerId);
+	
+      }
     }
     // RPC
     // 
@@ -99,21 +110,27 @@ namespace edm
     OurRPCDigis_ = new RPCDigiCollection();
 
     // Get the digis from the event
-    Handle<RPCDigiCollection> RPCdigis; 
-    e.getByLabel(RPCdigi_collection_, RPCdigis);
+    Handle<RPCDigiCollection> pRPCdigis; 
+
+    try {
+      e.getByLabel(RPCDigiTag_.label(), pRPCdigis);
+    } catch (...) { }
 
     // Loop over digis, copying them to our own local storage
 
-    RPCDigiCollection::DigiRangeIterator RLayerIt;
-    for (RLayerIt = RPCdigis->begin(); RLayerIt != RPCdigis->end(); ++RLayerIt) {
-      // The layerId
-      const RPCDetId& layerId = (*RLayerIt).first;
+    if(pRPCdigis.isValid() ) {
+      const RPCDigiCollection* RPCdigis = pRPCdigis.product();
+      RPCDigiCollection::DigiRangeIterator RLayerIt;
+      for (RLayerIt = RPCdigis->begin(); RLayerIt != RPCdigis->end(); ++RLayerIt) {
+	// The layerId
+	const RPCDetId& layerId = (*RLayerIt).first;
 
-      // Get the iterators over the digis associated with this LayerId
-      const RPCDigiCollection::Range& range = (*RLayerIt).second;
+	// Get the iterators over the digis associated with this LayerId
+	const RPCDigiCollection::Range& range = (*RLayerIt).second;
 
-      OurRPCDigis_->put(range, layerId);
+	OurRPCDigis_->put(range, layerId);
       
+      }
     }
     // CSCStrip
     // 
@@ -121,21 +138,30 @@ namespace edm
     OurCSCStripDigis_ = new CSCStripDigiCollection();
 
     // Get the digis from the event
-    Handle<CSCStripDigiCollection> CSCStripdigis; 
-    e.getByLabel(CSCstripdigi_collection_, CSCStripdigis);
+    Handle<CSCStripDigiCollection> pCSCStripdigis; 
+
+    try{
+      e.getByLabel(CSCDigiTag_.label(),CSCstripdigi_collection_.label(), pCSCStripdigis);
+    } catch (...) { }
+
+    //if(pCSCStripdigis.isValid() ) { cout << "Signal: have CSCStripDigis" << endl;}
+    //else { cout << "Signal: NO CSCStripDigis" << endl;}
+
 
     // Loop over digis, copying them to our own local storage
 
-    CSCStripDigiCollection::DigiRangeIterator CSLayerIt;
-    for (CSLayerIt = CSCStripdigis->begin(); CSLayerIt != CSCStripdigis->end(); ++CSLayerIt) {
-      // The layerId
-      const CSCDetId& layerId = (*CSLayerIt).first;
+    if(pCSCStripdigis.isValid() ) { 
+      const CSCStripDigiCollection* CSCStripdigis = pCSCStripdigis.product();
+      CSCStripDigiCollection::DigiRangeIterator CSLayerIt;
+      for (CSLayerIt = CSCStripdigis->begin(); CSLayerIt != CSCStripdigis->end(); ++CSLayerIt) {
+	// The layerId
+	const CSCDetId& layerId = (*CSLayerIt).first;
 
-      // Get the iterators over the digis associated with this LayerId
-      const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
+	// Get the iterators over the digis associated with this LayerId
+	const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
 
-      OurCSCStripDigis_->put(range, layerId);
-      
+	OurCSCStripDigis_->put(range, layerId);
+      }
     }
     // CSCWire
     // 
@@ -143,21 +169,29 @@ namespace edm
     OurCSCWireDigis_ = new CSCWireDigiCollection();
 
     // Get the digis from the event
-    Handle<CSCWireDigiCollection> CSCWiredigis; 
-    e.getByLabel(CSCwiredigi_collection_, CSCWiredigis);
+    Handle<CSCWireDigiCollection> pCSCWiredigis; 
 
+    try{
+      e.getByLabel(CSCDigiTag_.label(),CSCwiredigi_collection_.label(), pCSCWiredigis);
+    } catch (...) { }
+
+    //if(pCSCWiredigis.isValid() ) { cout << "Signal: have CSCWireDigis" << endl;}
+    //else { cout << "Signal: NO CSCWireDigis" << endl;}
+    
     // Loop over digis, copying them to our own local storage
+    if(pCSCWiredigis.isValid() ) { 
+      const CSCWireDigiCollection* CSCWiredigis = pCSCWiredigis.product();
+      CSCWireDigiCollection::DigiRangeIterator CWLayerIt;
+      for (CWLayerIt = CSCWiredigis->begin(); CWLayerIt != CSCWiredigis->end(); ++CWLayerIt) {
+	// The layerId
+	const CSCDetId& layerId = (*CWLayerIt).first;
 
-    CSCWireDigiCollection::DigiRangeIterator CWLayerIt;
-    for (CWLayerIt = CSCWiredigis->begin(); CWLayerIt != CSCWiredigis->end(); ++CWLayerIt) {
-      // The layerId
-      const CSCDetId& layerId = (*CWLayerIt).first;
+	// Get the iterators over the digis associated with this LayerId
+	const CSCWireDigiCollection::Range& range = (*CWLayerIt).second;
 
-      // Get the iterators over the digis associated with this LayerId
-      const CSCWireDigiCollection::Range& range = (*CWLayerIt).second;
-
-      OurCSCWireDigis_->put(range, layerId);
+	OurCSCWireDigis_->put(range, layerId);
       
+      }
     }
 
     
@@ -172,84 +206,114 @@ namespace edm
     // DT
     // 
 
+    Handle<DTDigiCollection> pDTdigis;
+
     // Get the digis from the event
-    Handle<DTDigiCollection> DTdigis; 
-    e->getByLabel(DTdigi_collection_, DTdigis);
+    try{
+      e->getByLabel(DTDigiTag_.label(), pDTdigis);
+    } catch (...) {
+    }
+
+    //if(pDTdigis.isValid() ) { cout << "Overlay: have DTDigis" << endl;}
+    //else { cout << "Overlay: no DTDigis" << endl;}
 
     // Loop over digis, copying them to our own local storage
+    if(pDTdigis.isValid() ){
+      const DTDigiCollection* DTdigis = pDTdigis.product();
+      DTDigiCollection::DigiRangeIterator DLayerIt;
+      for (DLayerIt = DTdigis->begin(); DLayerIt != DTdigis->end(); ++DLayerIt) {
+	// The layerId
+	const DTLayerId& layerId = (*DLayerIt).first;
 
-    DTDigiCollection::DigiRangeIterator DLayerIt;
-    for (DLayerIt = DTdigis->begin(); DLayerIt != DTdigis->end(); ++DLayerIt) {
-      // The layerId
-      const DTLayerId& layerId = (*DLayerIt).first;
+	// Get the iterators over the digis associated with this LayerId
+	const DTDigiCollection::Range& range = (*DLayerIt).second;
 
-      // Get the iterators over the digis associated with this LayerId
-      const DTDigiCollection::Range& range = (*DLayerIt).second;
-
-      OurDTDigis_->put(range, layerId);
+	OurDTDigis_->put(range, layerId);
       
+      }
     }
     // RPC
     // 
 
     // Get the digis from the event
-    Handle<RPCDigiCollection> RPCdigis; 
-    e->getByLabel(RPCdigi_collection_, RPCdigis);
+    Handle<RPCDigiCollection> pRPCdigis;
+
+    try {
+      e->getByLabel(RPCDigiTag_.label(), pRPCdigis);
+    } catch (...) { }
+
+    //if(pRPCdigis.isValid() ) { cout << "Overlay: have RPDCigis" << endl;}
+    //else { cout << "Overlay: no RPDCigis" << endl;}
 
     // Loop over digis, copying them to our own local storage
 
-    RPCDigiCollection::DigiRangeIterator RLayerIt;
-    for (RLayerIt = RPCdigis->begin(); RLayerIt != RPCdigis->end(); ++RLayerIt) {
-      // The layerId
-      const RPCDetId& layerId = (*RLayerIt).first;
+    if(pRPCdigis.isValid() ){
+      const RPCDigiCollection* RPCdigis = pRPCdigis.product();
+      RPCDigiCollection::DigiRangeIterator RLayerIt;
+      for (RLayerIt = RPCdigis->begin(); RLayerIt != RPCdigis->end(); ++RLayerIt) {
+	// The layerId
+	const RPCDetId& layerId = (*RLayerIt).first;
 
-      // Get the iterators over the digis associated with this LayerId
-      const RPCDigiCollection::Range& range = (*RLayerIt).second;
+	// Get the iterators over the digis associated with this LayerId
+	const RPCDigiCollection::Range& range = (*RLayerIt).second;
 
-      OurRPCDigis_->put(range, layerId);
+	OurRPCDigis_->put(range, layerId);
       
+      }
     }
     // CSCStrip
     // 
 
     // Get the digis from the event
-    Handle<CSCStripDigiCollection> CSCStripdigis; 
-    e->getByLabel(CSCstripdigi_collection_, CSCStripdigis);
+    Handle<CSCStripDigiCollection> pCSCStripdigis;
+    try{
+    e->getByLabel(CSCDigiTag_.label(),CSCstripdigi_collection_.label(), pCSCStripdigis);
+    } catch (...) { }
+
+    //if(pCSCStripdigis.isValid() ) { cout << "Overlay: have CSCStripDigis" << endl;}
+    //else {cout << "Overlay: no CSCStripDigis" << endl;}
 
     // Loop over digis, copying them to our own local storage
 
-    CSCStripDigiCollection::DigiRangeIterator CSLayerIt;
-    for (CSLayerIt = CSCStripdigis->begin(); CSLayerIt != CSCStripdigis->end(); ++CSLayerIt) {
-      // The layerId
-      const CSCDetId& layerId = (*CSLayerIt).first;
+    if(pCSCStripdigis.isValid() ) { 
+      const CSCStripDigiCollection* CSCStripdigis = pCSCStripdigis.product();
+      CSCStripDigiCollection::DigiRangeIterator CSLayerIt;
+      for (CSLayerIt = CSCStripdigis->begin(); CSLayerIt != CSCStripdigis->end(); ++CSLayerIt) {
+	// The layerId
+	const CSCDetId& layerId = (*CSLayerIt).first;
 
-      // Get the iterators over the digis associated with this LayerId
-      const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
+	// Get the iterators over the digis associated with this LayerId
+	const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
 
-      OurCSCStripDigis_->put(range, layerId);
+	OurCSCStripDigis_->put(range, layerId);
       
+      }
     }
     // CSCWire
     // 
 
     // Get the digis from the event
-    Handle<CSCWireDigiCollection> CSCWiredigis; 
-    e->getByLabel(CSCwiredigi_collection_, CSCWiredigis);
+    Handle<CSCWireDigiCollection> pCSCWiredigis;
+
+    try{
+    e->getByLabel(CSCDigiTag_.label(),CSCwiredigi_collection_.label(), pCSCWiredigis);
+    } catch (...) { }
 
     // Loop over digis, copying them to our own local storage
+    if(pCSCWiredigis.isValid() ) { 
+      const CSCWireDigiCollection* CSCWiredigis = pCSCWiredigis.product();
+      CSCWireDigiCollection::DigiRangeIterator CWLayerIt;
+      for (CWLayerIt = CSCWiredigis->begin(); CWLayerIt != CSCWiredigis->end(); ++CWLayerIt) {
+	// The layerId
+	const CSCDetId& layerId = (*CWLayerIt).first;
 
-    CSCWireDigiCollection::DigiRangeIterator CWLayerIt;
-    for (CWLayerIt = CSCWiredigis->begin(); CWLayerIt != CSCWiredigis->end(); ++CWLayerIt) {
-      // The layerId
-      const CSCDetId& layerId = (*CWLayerIt).first;
+	// Get the iterators over the digis associated with this LayerId
+	const CSCWireDigiCollection::Range& range = (*CWLayerIt).second;
 
-      // Get the iterators over the digis associated with this LayerId
-      const CSCWireDigiCollection::Range& range = (*CWLayerIt).second;
-
-      OurCSCWireDigis_->put(range, layerId);
+	OurCSCWireDigis_->put(range, layerId);
       
+      }
     }
-
   }
  
   void DataMixingMuonWorker::putMuon(edm::Event &e) {
@@ -316,7 +380,7 @@ namespace edm
 
 
     // put the collection of recunstructed hits in the event   
-    //    LogInfo("DataMixingMuonWorker") << "total # DT Merged Digis: " << DTDigiMerge->size() ;
+    //LogInfo("DataMixingMuonWorker") << "total # DT Merged Digis: " << DTDigiMerge->size() ;
     //LogInfo("DataMixingMuonWorker") << "total # RPC Merged Digis: " << RPCDigiMerge->size() ;
     //LogInfo("DataMixingMuonWorker") << "total # CSCStrip Merged Digis: " << CSCStripDigiMerge->size() ;
     //LogInfo("DataMixingMuonWorker") << "total # CSCWire Merged Digis: " << CSCWireDigiMerge->size() ;

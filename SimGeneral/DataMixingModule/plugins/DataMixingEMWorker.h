@@ -53,6 +53,10 @@ namespace edm
     private:
       // data specifiers
 
+      edm::InputTag EBProducer_; // primary? name given to collection of EB calib rechits
+      edm::InputTag EEProducer_; // primary? name given to collection of EE calib rechits
+      edm::InputTag ESProducer_; // primary? name given to collection of ES calib rechits
+
       edm::InputTag EBrechitCollection_; // secondary name given to collection of EB calib rechits
       edm::InputTag EErechitCollection_; // secondary name given to collection of EE calib rechits
       edm::InputTag ESrechitCollection_; // secondary name given to collection of ES calib rechits

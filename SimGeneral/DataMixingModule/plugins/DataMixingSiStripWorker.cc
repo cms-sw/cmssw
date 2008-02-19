@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingSiStripWorker::DataMixingSiStripWorker() { }
+  DataMixingSiStripWorker::DataMixingSiStripWorker() { sel_=0;}
 
   // Constructor 
   DataMixingSiStripWorker::DataMixingSiStripWorker(const edm::ParameterSet& ps) : 
@@ -45,7 +45,8 @@ namespace edm
 
     // declare the products to produce
 
-    Sistripdigi_collection_   = ps.getParameter<edm::InputTag>("Sistripdigi_collection");
+    Sistripdigi_collection_   = ps.getParameter<edm::InputTag>("SistripdigiCollection");
+    SistripLabel_   = ps.getParameter<edm::InputTag>("SistripLabel");
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
   }
@@ -54,7 +55,7 @@ namespace edm
   // Virtual destructor needed.
   DataMixingSiStripWorker::~DataMixingSiStripWorker() { 
     delete sel_;
-
+    sel_=0;
   }  
 
 
@@ -66,7 +67,7 @@ namespace edm
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    e.getByLabel(Sistripdigi_collection_,input);
+    e.getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input);
 
     //loop on all detsets (detectorIDs) inside the input collection
     edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
@@ -103,7 +104,7 @@ namespace edm
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    e->getByLabel(Sistripdigi_collection_,input);
+    e->getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input);
 
     //loop on all detsets (detectorIDs) inside the input collection
     edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();

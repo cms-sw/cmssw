@@ -1,14 +1,16 @@
 
-Mike Hildreth 8/10/2007
+Mike Hildreth 18/2/2008
 
 skeletal instructions - will update later
 
+step1: find two files you would like to overlay
 
 step2: execute the DataMixingModule
 - checkout SimGeneral/DataMixingModule and cd to it's test directory
 - in the test directory, change in data/mm.cfg the name of the input file to 
-  what was created in step 1 (at 2 places), assuming you have a file
-- execute by typing
-      cmsRun --parameter-set data/mm.cfg
+  your "signal" file.
+- in the plugins directory, change mixOne.cfi so that it contains the name of
+  the second "background" file.
+- do cmsRun mm.cfg - you should get a TestMix.root file.
 
 step3: verify the result (not ready yet)

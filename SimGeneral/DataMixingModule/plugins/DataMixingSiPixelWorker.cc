@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingSiPixelWorker::DataMixingSiPixelWorker() { }
+  DataMixingSiPixelWorker::DataMixingSiPixelWorker() { sel_=0;} 
 
   // Constructor 
   DataMixingSiPixelWorker::DataMixingSiPixelWorker(const edm::ParameterSet& ps) : 
@@ -45,7 +45,7 @@ namespace edm
 
     // declare the products to produce
 
-    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigi_collection");
+    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigiCollection");
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
   }
@@ -54,7 +54,7 @@ namespace edm
   // Virtual destructor needed.
   DataMixingSiPixelWorker::~DataMixingSiPixelWorker() { 
     delete sel_;
-
+    sel_=0;
   }  
 
 

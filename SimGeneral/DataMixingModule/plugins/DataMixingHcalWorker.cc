@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingHcalWorker::DataMixingHcalWorker() { }
+  DataMixingHcalWorker::DataMixingHcalWorker() {sel_=0;} 
 
   // Constructor 
   DataMixingHcalWorker::DataMixingHcalWorker(const edm::ParameterSet& ps) : 
@@ -47,9 +47,9 @@ namespace edm
 
     // Hcal 
 
-    HBHErechitCollection_  = ps.getParameter<edm::InputTag>("HBHErechitCollection");
-    HOrechitCollection_    = ps.getParameter<edm::InputTag>("HOrechitCollection");
-    HFrechitCollection_    = ps.getParameter<edm::InputTag>("HFrechitCollection");
+    HBHErechitCollection_  = ps.getParameter<edm::InputTag>("HBHEProducer");
+    HOrechitCollection_    = ps.getParameter<edm::InputTag>("HOProducer");
+    HFrechitCollection_    = ps.getParameter<edm::InputTag>("HFProducer");
     ZDCrechitCollection_   = ps.getParameter<edm::InputTag>("ZDCrechitCollection");
 
     HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
@@ -63,13 +63,13 @@ namespace edm
   // Virtual destructor needed.
   DataMixingHcalWorker::~DataMixingHcalWorker() { 
     delete sel_;
-
+    sel_=0;
   }  
 
   void DataMixingHcalWorker::addHcalSignals(const edm::Event &e) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingHcalWorker")<<"===============> adding MC signals for "<<e.id();
+    LogInfo("DataMixingHcalWorker")<<"===============> adding MC signals for "<<e.id();
 
     // HBHE first
 
@@ -77,12 +77,13 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   e.getByLabel( HBHErechitCollection_, pHBHERecHits);
-   if (pHBHERecHits.isValid()) {
+   try {
+     e.getByLabel( HBHErechitCollection_.label(), pHBHERecHits);
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
-#ifdef DEBUG
-     LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
-#endif
+
+     LogInfo("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
+
+   } catch (...) {
    }
  
    if (HBHERecHits)
@@ -108,12 +109,13 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   e.getByLabel( HOrechitCollection_, pHORecHits);
-   if (pHORecHits.isValid()) {
+   try {
+     e.getByLabel( HOrechitCollection_.label(), pHORecHits);
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (HORecHits)
@@ -139,12 +141,13 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   e.getByLabel( HFrechitCollection_, pHFRecHits);
-   if (pHFRecHits.isValid()) {
+   try {
+     e.getByLabel( HFrechitCollection_.label(), pHFRecHits);
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (HFRecHits)
@@ -170,12 +173,13 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   e.getByLabel( ZDCrechitCollection_, pZDCRecHits);
-   if (pZDCRecHits.isValid()) {
+   try {
+     e.getByLabel( ZDCrechitCollection_.label(), pZDCRecHits);
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (ZDCRecHits)
@@ -208,12 +212,13 @@ namespace edm
    Handle< HBHERecHitCollection > pHBHERecHits;
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   e->getByLabel( HBHErechitCollection_, pHBHERecHits);
-   if (pHBHERecHits.isValid()) {
+   try {
+     e->getByLabel( HBHErechitCollection_.label(), pHBHERecHits);
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (HBHERecHits)
@@ -236,12 +241,13 @@ namespace edm
    Handle< HORecHitCollection > pHORecHits;
    const HORecHitCollection*  HORecHits = 0;
 
-   e->getByLabel( HOrechitCollection_, pHORecHits);
-   if (pHORecHits.isValid()) {
+   try {
+     e->getByLabel( HOrechitCollection_.label(), pHORecHits);
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (HORecHits)
@@ -265,12 +271,13 @@ namespace edm
    Handle< HFRecHitCollection > pHFRecHits;
    const HFRecHitCollection*  HFRecHits = 0;
 
-   e->getByLabel( HFrechitCollection_, pHFRecHits);
-   if (pHFRecHits.isValid()) {
+   try {
+     e->getByLabel( HFrechitCollection_.label(), pHFRecHits);
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (HFRecHits)
@@ -294,12 +301,13 @@ namespace edm
    Handle< ZDCRecHitCollection > pZDCRecHits;
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   e->getByLabel( ZDCrechitCollection_, pZDCRecHits);
-   if (pZDCRecHits.isValid()) {
+   try {
+     e->getByLabel( ZDCrechitCollection_.label(), pZDCRecHits);
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
+   } catch (...) {
    }
  
    if (ZDCRecHits)
