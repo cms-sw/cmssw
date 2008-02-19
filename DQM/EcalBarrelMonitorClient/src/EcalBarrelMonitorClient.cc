@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/19 18:55:35 $
- * $Revision: 1.378 $
+ * $Date: 2008/02/19 19:19:38 $
+ * $Revision: 1.379 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -336,6 +336,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::BEAMH2]               = "BEAM";
   runTypes_[EcalDCCHeaderBlock::MTCC]                 = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_STD]              = "LED";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]       = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]         = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN] = "PEDESTAL-OFFSET";
@@ -345,6 +346,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]        = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]        = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_GAP]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_GAP]              = "LED";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]        = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]         = "PEDESTAL";
 
