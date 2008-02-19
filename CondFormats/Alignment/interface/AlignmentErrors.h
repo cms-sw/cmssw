@@ -9,6 +9,8 @@ class AlignmentErrors {
 public:
   AlignmentErrors(){}
   virtual ~AlignmentErrors(){}
+  /// Test of empty vector without having to look into internals:
+  inline bool empty() const { return m_alignError.empty();}
   std::vector<AlignTransformError> m_alignError;
 };
 #endif // AlignmentErrors_H
