@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/02/13 10:42:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/19 09:12:29 $
+ *  $Revision: 1.5 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -20,15 +20,14 @@ class RecoTrackSelector {
 
   /// Constructors
   RecoTrackSelector() {}
-  RecoTrackSelector ( const edm::ParameterSet & cfg ) {
-    RecoTrackSelector(cfg.getParameter<double>("ptMin"),
-		      cfg.getParameter<double>("minRapidity"),
-		      cfg.getParameter<double>("maxRapidity"),
-		      cfg.getParameter<double>("tip"),
-		      cfg.getParameter<double>("lip"),
-		      cfg.getParameter<int>("minHit"),
-		      cfg.getParameter<double>("maxChi2"));
-  }
+  RecoTrackSelector ( const edm::ParameterSet & cfg ) :
+    ptMin_(cfg.getParameter<double>("ptMin")),
+    minRapidity_(cfg.getParameter<double>("minRapidity")),
+    maxRapidity_(cfg.getParameter<double>("maxRapidity")),
+    tip_(cfg.getParameter<double>("tip")),
+    lip_(cfg.getParameter<double>("lip")),
+    minHit_(cfg.getParameter<int>("minHit")),
+    maxChi2_(cfg.getParameter<double>("maxChi2")) { }
 
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2 ) :
@@ -44,7 +43,9 @@ class RecoTrackSelector {
     event.getByLabel("offlineBeamSpot",beamSpot); 
     for( reco::TrackCollection::const_iterator trk = c->begin(); 
          trk != c->end(); ++ trk )
-      if ( operator()(*trk,beamSpot.product()) ) selected_.push_back( & * trk );
+      if ( operator()(*trk,beamSpot.product()) ) {
+	selected_.push_back( & * trk );
+      }
   }
 
   /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
@@ -54,7 +55,7 @@ class RecoTrackSelector {
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.dxy(bs->position())) <= tip_ &&
-       fabs(t.dz()) <= lip_  &&
+       fabs(t.dsz(bs->position())) <= lip_  &&
        t.normalizedChi2()<=maxChi2_);
   }
 
