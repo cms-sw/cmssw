@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
- * $Id: CandCombiner.h,v 1.16 2008/01/11 08:13:29 andreasp Exp $
+ * $Id: CandCombiner.h,v 1.17 2008/01/17 13:29:35 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -27,6 +27,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace edm {
   class ParameterSet;
@@ -38,30 +39,37 @@ namespace reco {
     struct CandCombinerBase : public edm::EDProducer {
       CandCombinerBase( const edm::ParameterSet & cfg ) {
         using namespace cand::parser;
-	std::string decay(cfg.getParameter<std::string>("decay"));
-	if( decayParser(decay, labels_))
-	  for( std::vector<ConjInfo>::iterator label = labels_.begin();
-	       label != labels_.end(); ++label )
-	if( label->mode_ == ConjInfo::kPlus )
+	using namespace std;
+	string decay(cfg.getParameter<string>("decay"));
+	if(decayParser(decay, labels_))
+	  for(vector<ConjInfo>::iterator label = labels_.begin();
+	       label != labels_.end(); ++label)
+	if(label->mode_ == ConjInfo::kPlus)
 	  dauCharge_.push_back( 1 );
-	else if ( label->mode_ == ConjInfo::kMinus )
-	  dauCharge_.push_back( -1 );
+	else if (label->mode_ == ConjInfo::kMinus)
+	  dauCharge_.push_back(-1);
 	else
-	  dauCharge_.push_back( 0 );
+	  dauCharge_.push_back(0);
 	else
-	  throw edm::Exception( edm::errors::Configuration,
-				"failed to parse \"" + decay + "\"" );
+	  throw edm::Exception(edm::errors::Configuration,
+			       "failed to parse \"" + decay + "\"");
 	
 	int lists = labels_.size();
-	if ( lists != 2 && lists != 3 ) {
-	  throw edm::Exception( edm::errors::LogicError,
-				"invalid number of collections" );
-	}
+	if(lists != 2 && lists != 3)
+	  throw edm::Exception(edm::errors::LogicError,
+			       "invalid number of collections");
+	const string setLongLived("setLongLived");
+	vector<string> vBoolParams = cfg.getParameterNamesForType<bool>();
+	bool found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
+	if(found) setLongLived_ = cfg.getParameter<bool>("setLongLived");
       }
+    protected:
       /// label vector
       std::vector<cand::parser::ConjInfo> labels_;
       /// daughter charges
       std::vector<int> dauCharge_;
+      /// set long lived flag
+      bool setLongLived_;
     };
     
     template<typename InputCollection, 
@@ -89,20 +97,24 @@ namespace reco {
 
     private:
       /// process an event
-      void produce( edm::Event& evt, const edm::EventSetup& es ) {
-	Init::init( combiner_.setup(), evt, es );
+      void produce(edm::Event& evt, const edm::EventSetup& es) {
+	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	std::vector<edm::Handle<InputCollection> > colls( n );
-	for( int i = 0; i < n; ++i )
-	  evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
+	std::vector<edm::Handle<InputCollection> > colls(n);
+	for(int i = 0; i < n; ++i)
+	  evt.getByLabel(labels_[i].tag_, colls[i]);
 	typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
 	std::vector<RefProd> cv;
-	for( typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
-	     c != colls.end(); ++ c ) {
-	  RefProd r( *c );
-	cv.push_back( r );
+	for(typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
+	    c != colls.end(); ++ c) {
+	  RefProd r(*c);
+	  cv.push_back(r);
 	}
 	std::auto_ptr<OutputCollection> out = combiner_.combine(cv);
+	if(setLongLived_) {
+	  typename OutputCollection::iterator i = out->begin(), e = out->end();
+	  for(; i != e; ++i) i->setLongLived();
+	}
 	evt.put(out);
       }
       /// combiner utility
