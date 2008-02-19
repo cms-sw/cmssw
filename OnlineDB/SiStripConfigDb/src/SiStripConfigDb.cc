@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.45 2008/02/06 17:13:12 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.46 2008/02/14 13:58:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -1170,7 +1170,7 @@ void SiStripConfigDb::handleException( const string& method_name,
 
   stringstream ss;
   try {
-    //throw; // rethrow caught exception to be dealt with below
+    throw; // rethrow caught exception to be dealt with below
   } 
 
   catch ( const cms::Exception& e ) { 
