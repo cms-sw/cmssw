@@ -45,7 +45,6 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::map<uint16_t, bool> foundFeds;
 
   // event counter
-  int eventCounter;
   vector<BinCounters*> bc; //indexes APV Error BinCounters with FedId #
 
   // percentage stuff
@@ -99,71 +98,30 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   int goodFe;	
   double prct;
 
-  // ME Cumulative number of address errors per FED 
-  MonitorElement * CumNumber;
-  MonitorElement * CumNumber1;
-  MonitorElement * CumNumber2; // Lock per fed
-  MonitorElement * CumNumber3; // Sych per fed
-  MonitorElement * CumNumber4; // Raw header error per fed
 	
   // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
   // (K. Hahn request)
 	
   int swapOn_;
 
-  int garb_;
-
   // Number for event info for plots - 23 indicates simulation
   int runNumber_;
 
-  // Histogram presentation variables	
-	
-  int percent_; // Gives us percent readout
-  int N; // the modulo parameter
-
-  // ApveError % 
-  float apveErrorPercent;
-	
-  // APVerrorB<APV0> for FE 8 %
-  float fe8apverrorBapv0Percent;
-
   // Name of output file
-  string fileName_;
-
-  // Nick's functioxb
-
-  MonitorElement * goodAPVsPerEvent_;
-  int APVProblemCounter_;
-
-  // for Steve
-  // for the Out of Synch Per Fed Per Event
-  vector<MonitorElement*> OosPerFed;
+  string outputFileName_;
 
   // vector of addresses to get median value for "golden address" which should match the apve address
+  // TODO: add median calculation in wrong apv addresses
   vector<uint16_t> feMedianAddr;
-  uint16_t medianAddr; 	
-
-  vector<vector<int> > WHError;
-  vector<vector<int> > LKError;
-  vector<vector<int> > SYError;
-  vector<vector<int> > RWHError;
-
+  uint16_t medianAddr;
   vector<vector<uint16_t> > feMajorAddress;
-  int feEnabledCount;
-  int feEnable;
 
-  int badApvCounter;
-  int goodApvCounter;
-
-  int fedCounter;
-
+  // Avaliable FEDid vector (updated for each event)
   std::vector<uint16_t> fedIds_;
   vector<vector<MonitorElement*> > errors;
 
-  bool firstEvent_;
-
+  // Functions to book histograms in the output
   void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
-
   void createRootFedHistograms( const int& runNumber );
   void createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber );
 
