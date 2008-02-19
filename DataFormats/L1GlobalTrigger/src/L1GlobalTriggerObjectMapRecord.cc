@@ -49,7 +49,7 @@ const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator 
         itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ((*itObj).algoName() == algoNameVal) {
+        if (itObj->algoName() == algoNameVal) {
 
             return &((*itObj));
         }
@@ -66,6 +66,29 @@ const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(
 
 }
     
+/// return the object map for the algorithm with bit number const int algoBitNumberVal
+const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(
+    const int algoBitNumberVal) const {
+ 
+    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator 
+        itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
+
+        if (itObj->algoBitNumber() == algoBitNumberVal) {
+
+            return &((*itObj));
+        }
+
+    }
+
+    // no algoBitNumberVal found, return zero pointer!
+    edm::LogError("L1GlobalTriggerObjectMapRecord")
+        << "\n\n  ERROR: The requested algorithm with bit number = " << algoBitNumberVal
+        << "\n  does not exists in the trigger menu."
+        << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
+
+    return 0;
+    
+}
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm algoNameVal
@@ -73,19 +96,13 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    bool checkExpression = false;
-
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoName() == algoNameVal ) {
+        if ( itObj->algoName() == algoNameVal ) {
 
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression(), 
-                                         checkExpression);
-            int conditionIndexVal = logicParser.operandIndex(condNameVal);
-
-            return &((*itObj).combinationVector().at(conditionIndexVal));
+            return itObj->getCombinationsInCond(condNameVal);
+            
         }
     }
 
@@ -107,18 +124,11 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
-    bool checkExpression = false;
-
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression(),
-                                         checkExpression);
-            int conditionIndexVal = logicParser.operandIndex(condNameVal);
-
-            return &((*itObj).combinationVector().at(conditionIndexVal));
+        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
+            return itObj->getCombinationsInCond(condNameVal);
         }
     }
 
@@ -140,17 +150,11 @@ const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    bool checkExpression = false;
-
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoName() == algoNameVal ) {
-
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression(),
-                                         checkExpression);
-            return logicParser.operandResult(condNameVal);
+        if ( itObj->algoName() == algoNameVal ) {
+            return itObj->getConditionResult(condNameVal);
         }
     }
 
@@ -171,17 +175,12 @@ const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
 const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
-    bool checkExpression = false;
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
 
-        if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
-            L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
-                                         (*itObj).algoNumericalExpression(),
-                                         checkExpression);
-
-            return logicParser.operandResult(condNameVal);
+        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
+            return itObj->getConditionResult(condNameVal);
         }
     }
 

@@ -45,4 +45,7 @@
   <class name="std::vector<L1GtObject> "/>
   <class name="std::vector<std::vector<L1GtObject> >"/>
 
+  <class name="L1GtLogicParser::OperandToken"/>
+  <class name="std::vector<L1GtLogicParser::OperandToken> "/>
+
 </lcgdict>

@@ -9,6 +9,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -68,6 +69,9 @@ namespace { namespace {
     
     std::vector<L1GtObject> dummy100;
     std::vector<std::vector<L1GtObject> > dummy101; 
-    
+
+    L1GtLogicParser::OperandToken dummy110;
+    std::vector<L1GtLogicParser::OperandToken> dummy111;
+
 } }
 

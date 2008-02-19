@@ -27,6 +27,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+
 // forward declarations
 
 // class declaration
@@ -49,7 +51,7 @@ public:
         return m_algoName;
     }
 
-    void setAlgoName(std::string algoNameValue)
+    void setAlgoName(const std::string& algoNameValue)
     {
         m_algoName = algoNameValue;
     }
@@ -60,7 +62,7 @@ public:
         return m_algoBitNumber;
     }
 
-    void setAlgoBitNumber(int algoBitNumberValue)
+    void setAlgoBitNumber(const int algoBitNumberValue)
     {
         m_algoBitNumber = algoBitNumberValue;
     }
@@ -72,59 +74,41 @@ public:
         return m_algoGtlResult;
     }
 
-    void setAlgoGtlResult(bool algoGtlResultValue)
+    void setAlgoGtlResult(const bool algoGtlResultValue)
     {
         m_algoGtlResult = algoGtlResultValue;
     }
 
-    /// get / set logical expression for algorithm in the object map
-    inline const std::string algoLogicalExpression() const
-    {
-        return m_algoLogicalExpression;
-    }
-
-    void setAlgoLogicalExpression(std::string algoLogicalExpressionValue)
-    {
-        m_algoLogicalExpression = algoLogicalExpressionValue;
-    }
-
-    /// get / set numerical expression for algorithm in the object map
-    inline const std::string algoNumericalExpression() const
-    {
-        return m_algoNumericalExpression;
-    }
-
-    void setAlgoNumericalExpression(std::string algoNumericalExpressionValue)
-    {
-        m_algoNumericalExpression = algoNumericalExpressionValue;
-    }
-
     /// get / set the vector of combinations for the algorithm
+    /// return a constant reference to the vector of combinations for the algorithm
     inline const std::vector<CombinationsInCond>& combinationVector() const
     {
         return m_combinationVector;
     }
 
-    void setCombinationVector(std::vector<CombinationsInCond> combinationVectorValue)
+    void setCombinationVector(const std::vector<CombinationsInCond>& combinationVectorValue)
     {
         m_combinationVector = combinationVectorValue;
     }
 
-    /// get / set the vector of object types for the algorithm
-    inline const std::vector<ObjectTypeInCond>& objectTypeVector() const
-    {
-        return m_objectTypeVector;
+    /// get / set the vector of operand tokens
+    /// return a constant reference to the vector of operand tokens
+    inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const {
+        return m_operandTokenVector;
     }
-
-    void setObjectTypeVector(std::vector<ObjectTypeInCond> objectTypeVectorValue)
+    
+    void setOperandTokenVector(const std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue)
     {
-        m_objectTypeVector = objectTypeVectorValue;
+        m_operandTokenVector = operandTokenVectorValue;
     }
-
+    
 public:
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
     const CombinationsInCond* getCombinationsInCond(const std::string& condNameVal) const;
+
+    /// return all the combinations passing the requirements imposed in condition condNumberVal
+    const CombinationsInCond* getCombinationsInCond(const int condNumberVal) const;
 
     /// return the result for the condition condNameVal
     const bool getConditionResult(const std::string& condNameVal) const;
@@ -148,18 +132,12 @@ private:
     // GTL result of the algorithm
     bool m_algoGtlResult;
 
-    // logical expression for the algorithm
-    std::string m_algoLogicalExpression;
-
-    // numerical expression for the algorithm
-    // (logical expression with conditions replaced with the actual values)
-    std::string m_algoNumericalExpression;
-
+    /// vector of operand tokens for an algorithm 
+    /// (condition name, condition index, condition result)
+    std::vector<L1GtLogicParser::OperandToken> m_operandTokenVector;
+    
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;
-
-    // vector of object types for all conditions in an algorithm
-    std::vector<ObjectTypeInCond> m_objectTypeVector;
 
 };
 
