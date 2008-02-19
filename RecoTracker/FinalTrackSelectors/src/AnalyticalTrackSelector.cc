@@ -14,10 +14,11 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
     chi2n_par_( cfg.getParameter<double>("chi2n_par") ),
-	d0_par1_(cfg.getParameter< std::vector<double> >("d0_par1")),
-	dz_par1_(cfg.getParameter< std::vector<double> >("dz_par1")),
-	d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
-	dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2"))
+    d0_par1_(cfg.getParameter< std::vector<double> >("d0_par1")),
+    dz_par1_(cfg.getParameter< std::vector<double> >("dz_par1")),
+    d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
+    dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2")),
+    min_hit_(cfg.getParameter<uint32_t>("minNumberHits") )
 {
  
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
@@ -78,11 +79,12 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
         bool ok = select(vertexBeamSpot, trk, points); 
+      
         if (!ok) {
             if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
             continue;
         }
-		selTracks_->push_back( Track( trk ) ); // clone and store
+	selTracks_->push_back( Track( trk ) ); // clone and store
         if (!copyExtras_) continue;
 
         // TrackExtras
@@ -142,6 +144,9 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk, const std::vector<Point> &points) {
    using namespace std; 
    uint32_t nhits = tk.numberOfValidHits();
+   // cut on the minimum number of hits
+   if (nhits<min_hit_) return false;
+
    double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
    double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),dz = tk.dz(), dzE =  tk.dzError();
    // nominal d0 resolution for the track pt
