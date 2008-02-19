@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.15 2008/02/06 14:32:53 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.16 2008/02/14 13:29:55 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -122,13 +122,13 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
 SiStripFecKey::SiStripFecKey( const SiStripKey& input,
 			      const sistrip::Granularity& gran ) :
   SiStripKey(),
-  fecCrate_(sistrip::invalid_), 
-  fecSlot_(sistrip::invalid_),
-  fecRing_(sistrip::invalid_), 
-  ccuAddr_(sistrip::invalid_),
-  ccuChan_(sistrip::invalid_), 
-  lldChan_(sistrip::invalid_),
-  i2cAddr_(sistrip::invalid_)
+  fecCrate_(0), 
+  fecSlot_(0),
+  fecRing_(0), 
+  ccuAddr_(0),
+  ccuChan_(0), 
+  lldChan_(0),
+  i2cAddr_(0)
 {
   SiStripKey& temp = const_cast<SiStripKey&>(input);
   SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
