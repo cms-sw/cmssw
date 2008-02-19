@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/23 14:59:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/01/24 16:01:30 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -24,6 +24,8 @@
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
@@ -40,7 +42,7 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" 
-     && dbToDump != "NoiseDB" && dbToDump != "ChannelsDB")
+     && dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
     cout << "[DumpDBToFile] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 }
 
@@ -68,6 +70,10 @@ void DumpDBToFile::beginJob(const EventSetup& setup) {
     ESHandle<DTStatusFlag> status;
     setup.get<DTStatusFlagRcd>().get(status);
     statusMap = &*status;
+  } else if(dbToDump == "DeadDB") {
+    ESHandle<DTDeadFlag> dead;
+    setup.get<DTDeadFlagRcd>().get(dead);
+    deadMap = &*dead;
   } else if (dbToDump == "ChannelsDB") {
     ESHandle<DTReadOutMapping> channels;
     setup.get<DTReadOutMappingRcd>().get(channels);
@@ -168,9 +174,33 @@ void DumpDBToFile::endJob() {
 
 	theCalibFile->addCell(wireId, consts);
       }
+    }  else if(dbToDump == "DeadDB") {
+      for(DTDeadFlag::const_iterator deadFlag = deadMap->begin();
+	  deadFlag != deadMap->end(); deadFlag++) {
+	DTWireId wireId((*deadFlag).first.wheelId,
+			(*deadFlag).first.stationId,
+			(*deadFlag).first.sectorId,
+			(*deadFlag).first.slId,
+			(*deadFlag).first.layerId,
+			(*deadFlag).first.cellId);
+	cout << wireId
+	     << " Dead Flag: " << (*deadFlag).second.dead_TP << endl;
+	vector<float> consts;
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-9999999);      
+	consts.push_back(-9999999);
+	consts.push_back((*deadFlag).second.dead_TP);
+
+	theCalibFile->addCell(wireId, consts);
+      }
     } 
+    //Write constants into file
     theCalibFile->writeConsts(theOutputFileName);
   }
+
   else if (dbToDump == "ChannelsDB"){
     ofstream out(theOutputFileName.c_str());
     for(DTReadOutMapping::const_iterator roLink = channelsMap->begin();

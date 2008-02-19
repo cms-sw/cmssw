@@ -6,8 +6,8 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2006/07/05 09:14:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/24 16:02:14 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,6 +20,7 @@ class DTMtime;
 class DTTtrig;
 class DTT0;
 class DTStatusFlag;
+class DTDeadFlag;
 class DTCalibrationMap;
 class DTReadOutMapping;
 
@@ -46,6 +47,7 @@ private:
   const DTTtrig *tTrigMap;
   const DTT0 *tZeroMap;
   const DTStatusFlag *statusMap;
+  const DTDeadFlag *deadMap;
   const DTReadOutMapping *channelsMap;
 
   DTCalibrationMap *theCalibFile;
