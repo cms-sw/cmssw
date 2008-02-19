@@ -70,39 +70,14 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    //    b. Take the source  otherwise
    // 2. Otherwise go for the CandidateCollection
    Handle<HepMCProduct> theHepMCProduct;
-   bool genPart = false;
-   bool source = false;
-   bool vtxSmeared = false;
-   std::vector< Handle<reco::CandidateCollection> > genEvts;
-   const reco::CandidateCollection* myGenParticles = 0;
+
    const HepMC::GenEvent* myGenEvent = 0;
    FSimEvent* fevt = famosManager_->simEvent();
    PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
 
-   // Look for the GenEvent
-   std::vector< Handle<HepMCProduct> > evts; 
-   iEvent.getManyByType(evts);
-   for ( unsigned i=0; i<evts.size(); ++i ) {
-     if (!vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared") {
-       vtxSmeared = true;      
-       theHepMCProduct = evts[i];
-       break;
-     } else if (!source &&  evts[i].provenance()->moduleLabel()=="source") {
-       source = true;
-       theHepMCProduct = evts[i];
-     }
-   }
-   
-   // Take the VtxSmeared if it exists, the source otherwise
-   // (The vertex smearing is done in Famos only in the latter case)
-   /*
-   if ( vtxSmeared ) {
-     myGenEvent = evtVtxSmeared->GetEvent();
-   } else if ( source ) {
-     myGenEvent = evtSource->GetEvent();
-   }
-   */
-   if ( vtxSmeared || source ) { 
+   // Get the generated signal event
+   bool source = iEvent.getByLabel("source",theHepMCProduct);
+   if ( source ) { 
      myGenEvent = theHepMCProduct->GetEvent();
      // First rotate in case of beam crossing angle (except if done already)
      if ( theVertexGenerator ) { 
@@ -110,24 +85,20 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
        if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
      }          
      myGenEvent = theHepMCProduct->GetEvent();
-   }
+   } 
 
+   // In case there is no HepMCProduct, seek a genParticle Candidate Collection
+   const reco::CandidateCollection* myGenParticles = 0;
    if ( !myGenEvent ) { 
      // Look for the particle CandidateCollection
-     iEvent.getManyByType(genEvts);
-     if ( genEvts.size() ) { 
-       for ( unsigned i=0; i<genEvts.size(); ++i ) {
-	 if ( genEvts[i].provenance()->moduleLabel()=="genParticleCandidates" )
-	   {
-	     genPart= true;
-	     myGenParticles = &(*genEvts[i]);
-	   }
-       }
-     }
+     Handle<reco::CandidateCollection> genEvt;
+     bool genPart = iEvent.getByLabel("genParticleCandidates",genEvt);
+     if ( genPart ) myGenParticles = &(*genEvt);
    }
 
    // Get the pile-up events from the pile-up producer
    // There might be no pile-up events, by the way, in that case, just continue
+   
    Handle<HepMCProduct> thePileUpEvents;
    bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
    const HepMC::GenEvent* thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
@@ -143,7 +114,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 				   theVertexGenerator->Y()*10.,
 				   theVertexGenerator->Z()*10.,
 				   0.);
-       if ( theVertexGenerator->Z() > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
+       if ( fabs(theVertexGenerator->Z()) > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
      }
    }
    
