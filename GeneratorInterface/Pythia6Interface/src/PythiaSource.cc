@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/02/04 23:20:42 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/08 00:09:05 $
+ *  $Revision: 1.19 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 
 #include <iostream>
 #include "time.h"
@@ -216,7 +215,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   if(particleID) 
     {
-      call_pyinit( "NONE", "p", "p", comenergy );
+      call_pyinit( "NONE", " ", " ", comenergy );
     } else {
       call_pyinit( "CMS", "p", "p", comenergy );
     }
@@ -373,6 +372,10 @@ bool PythiaSource::produce(Event & e) {
     //
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
+
+    // (tmp ?) fix for pgun mode ("non-beam")
+    if (particleID) evt->set_beam_particles(0,0);
+
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_scale(pypars.pari[16]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
@@ -393,21 +396,23 @@ bool PythiaSource::produce(Event & e) {
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
     evt->weights().push_back( pyint1.vint[96] );
-
+    
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
 
       // Prints PYLIST info
+      //
       if(pythiaPylistVerbosity_) {
 	call_pylist(pythiaPylistVerbosity_);
       }
       
       // Prints HepMC event
+      //
       if(pythiaHepMCVerbosity_) {
 	cout << "Event process = " << pypars.msti[0] << endl 
-	<< "----------------------" << endl;
+	<< "----------------------" << endl;	
 	evt->print();
       }
     }

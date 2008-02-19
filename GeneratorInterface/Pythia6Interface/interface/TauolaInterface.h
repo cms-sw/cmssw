@@ -61,6 +61,8 @@ namespace edm
     // (1 = angular distribution of decay products takes polarization of tau lepton into account
     //  0 = assume all tau leptons are unpolarization)
     int keypol_;
+    
+    // int switch_photos_ ;
 
     // maximum number of entries in PYJETS common block
     // (current CMS default = 4000,
