@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.41 2007/12/19 18:09:27 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.42 2008/02/06 17:21:23 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -88,11 +88,11 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::make( const SiStripFedCabling
       writeFedCablingToCondDb( *fed_cabling );
       
       // Prints FED cabling
-      stringstream ss;
-      ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" 
-	 << " Printing cabling map..." << endl 
-	 << *fed_cabling;
-      LogTrace(mlCabling_) << ss.str();
+      //stringstream ss;
+      //ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" 
+      //<< " Printing cabling map..." << endl 
+      //<< *fed_cabling;
+      //LogTrace(mlCabling_) << ss.str();
       
     } else {
       edm::LogError(mlCabling_)
