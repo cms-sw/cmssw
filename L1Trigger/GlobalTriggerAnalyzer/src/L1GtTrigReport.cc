@@ -188,7 +188,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
         m_globalNrErrors++;
 
         LogDebug("L1GtTrigReport") << "L1GlobalTriggerReadoutRecord with input tag "
-            << m_l1GtDaqInputTag.label() << "not found.\n\n" << std::endl;
+            << m_l1GtDaqInputTag.label() << " not found.\n\n" << std::endl;
 
         // loop over algorithms and increase the error counters
         for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
