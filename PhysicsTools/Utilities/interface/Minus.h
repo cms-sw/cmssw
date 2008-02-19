@@ -44,9 +44,8 @@ namespace function {
     A a_; 
   };
 }
-
 template<typename A>
-function::Minus<A, B> operator-(const A& a) {
+function::Minus<A> operator-(const A& a) {
   return function::Minus<A>(a);
 }
 
