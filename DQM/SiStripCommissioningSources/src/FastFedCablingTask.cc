@@ -48,9 +48,6 @@ void FastFedCablingTask::book() {
 //
 void FastFedCablingTask::fill( const SiStripEventSummary& summary,
 			       const edm::DetSet<SiStripRawDigi>& digis ) {
-//   LogTrace(mlDqmSource_)
-//     << "[FastFedCablingTask::" << __func__ << "]"
-//     " key: " << fedKey(); 
 
   if ( digis.data.empty() ) {
     edm::LogWarning(mlDqmSource_)

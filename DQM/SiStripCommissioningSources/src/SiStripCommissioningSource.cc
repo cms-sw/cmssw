@@ -103,7 +103,7 @@ DaqMonitorBEInterface* const SiStripCommissioningSource::dqm( std::string method
 // class, create histogram directory structure and generate "reverse"
 // control cabling.
 void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
-  LogTrace(mlDqmSource_) 
+  LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Configuring..." << std::endl;
   
@@ -162,11 +162,10 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
 // -----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::endJob() {
-  
-  LogTrace(mlDqmSource_) 
+  LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Halting..." << std::endl;
-
+  
   // ---------- Update histograms ----------
   
   // Cabling task
@@ -249,13 +248,11 @@ void SiStripCommissioningSource::endJob() {
   if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = 0; }
   
 }
-//#include <unistd.h>
+
 // ----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::analyze( const edm::Event& event, 
 					  const edm::EventSetup& setup ) {
-
-  //sleep(1);
 
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
