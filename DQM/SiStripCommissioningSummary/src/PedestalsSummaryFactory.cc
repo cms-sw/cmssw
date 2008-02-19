@@ -14,63 +14,62 @@ void PedestalsSummaryFactory::extract( Iterator iter ) {
   PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
   if ( !anal ) { return; }
     
-  std::vector<float> value( 2, 1. * sistrip::invalid_ );
-  std::vector<float> error( 2, 1. * sistrip::invalid_ );
-  std::vector<float> temp(0);
-  std::vector< std::vector<float> > peds(2,temp);
-  std::vector< std::vector<float> > noise(2,temp);
+  std::vector<float> temp(128, 1. * sistrip::invalid_ );
+  std::vector< std::vector<float> > value( 2, temp );
+  std::vector< std::vector<float> > peds( 2, temp );
+  std::vector< std::vector<float> > noise( 2, temp );
   peds[0] = anal->peds()[0];
   peds[1] = anal->peds()[1];
   noise[0] = anal->noise()[0];
   noise[1] = anal->noise()[1];
+
+  bool all_strips = false;
   if ( mon_ == sistrip::PEDESTALS_ALL_STRIPS ) {
+    all_strips = true;
     uint16_t bins = peds[0].size();
     if ( peds[0].size() < peds[1].size() ) { bins = peds[1].size(); }
     for ( uint16_t iped = 0; iped < bins; iped++ ) {
-      value[0] = peds[0][iped]; 
-      value[1] = peds[1][iped];  
+      value[0][iped] = peds[0][iped]; 
+      value[1][iped] = peds[1][iped];  
     }
   } else if ( mon_ == sistrip::PEDESTALS_MEAN ) {
-    value[0] = anal->pedsMean()[0];
-    error[1] = anal->pedsSpread()[0]; 
-    value[0] = anal->pedsMean()[1];
-    error[1] = anal->pedsSpread()[1];
+    value[0][0] = anal->pedsMean()[0];
+    value[0][0] = anal->pedsMean()[1];
   } else if ( mon_ == sistrip::PEDESTALS_SPREAD ) { 
-    value[0] = anal->pedsSpread()[0]; 
-    value[1] = anal->pedsSpread()[1]; 
+    value[0][0] = anal->pedsSpread()[0]; 
+    value[1][0] = anal->pedsSpread()[1]; 
   } else if ( mon_ == sistrip::PEDESTALS_MAX ) { 
-    value[0] = anal->pedsMax()[0]; 
-    value[1] = anal->pedsMax()[1];
+    value[0][0] = anal->pedsMax()[0]; 
+    value[1][0] = anal->pedsMax()[1];
   } else if ( mon_ == sistrip::PEDESTALS_MIN ) { 
-    value[0] = anal->pedsMin()[0]; 
-    value[1] = anal->pedsMin()[1]; 
+    value[0][0] = anal->pedsMin()[0]; 
+    value[1][0] = anal->pedsMin()[1]; 
   } else if ( mon_ == sistrip::NOISE_ALL_STRIPS ) {
+    all_strips = true;
     uint16_t bins = noise[0].size();
     if ( noise[0].size() < noise[1].size() ) { bins = noise[1].size(); }
     for ( uint16_t inoise = 0; inoise < bins; inoise++ ) {
-      value[0] = noise[0][inoise]; 
-      value[1] = noise[1][inoise]; 
+      value[0][inoise] = noise[0][inoise]; 
+      value[1][inoise] = noise[1][inoise]; 
     }
   } else if ( mon_ == sistrip::NOISE_MEAN ) {
-    value[0] = anal->noiseMean()[0];
-    error[0] = anal->noiseSpread()[0]; 
-    value[1] = anal->noiseMean()[1];
-    error[1] = anal->noiseSpread()[1]; 
+    value[0][0] = anal->noiseMean()[0];
+    value[1][0] = anal->noiseMean()[1];
   } else if ( mon_ == sistrip::NOISE_SPREAD ) { 
-    value[0] = anal->noiseSpread()[0]; 
-    value[1] = anal->noiseSpread()[1]; 
+    value[0][0] = anal->noiseSpread()[0]; 
+    value[1][0] = anal->noiseSpread()[1]; 
   } else if ( mon_ == sistrip::NOISE_MAX ) { 
-    value[0] = anal->noiseMax()[0]; 
-    value[1] = anal->noiseMax()[1]; 
+    value[0][0] = anal->noiseMax()[0]; 
+    value[1][0] = anal->noiseMax()[1]; 
   } else if ( mon_ == sistrip::NOISE_MIN ) { 
-    value[0] = anal->noiseMin()[0]; 
-    value[1] = anal->noiseMin()[1]; 
+    value[0][0] = anal->noiseMin()[0]; 
+    value[1][0] = anal->noiseMin()[1]; 
   } else if ( mon_ == sistrip::NUM_OF_DEAD ) { 
-    value[0] = 1. * anal->dead()[0].size(); 
-    value[1] = 1. * anal->dead()[1].size();
+    value[0][0] = 1. * anal->dead()[0].size(); 
+    value[1][0] = 1. * anal->dead()[1].size();
   } else if ( mon_ == sistrip::NUM_OF_NOISY ) { 
-    value[0] = 1. * anal->noisy()[0].size(); 
-    value[1] = 1. * anal->noisy()[1].size();
+    value[0][0] = 1. * anal->noisy()[0].size(); 
+    value[1][0] = 1. * anal->noisy()[1].size();
   } else { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryPlotFactory::" << __func__ << "]" 
@@ -78,19 +77,37 @@ void PedestalsSummaryFactory::extract( Iterator iter ) {
       << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
     return; 
   }
-    
-  SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
-					       SummaryPlotFactoryBase::gran_, 
-					       iter->first, 
-					       value[0],
-					       error[0] );
 
-  SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
-					       SummaryPlotFactoryBase::gran_, 
-					       iter->first, 
-					       value[1],
-					       error[1] );
-  
+  if ( !all_strips ) {
+
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value[0][0] );
+    
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value[1][0] );
+
+  } else {
+
+    for ( uint16_t istr = 0; istr < value[0].size(); istr++ ) {
+      SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						   SummaryPlotFactoryBase::gran_, 
+						   iter->first, 
+						   value[0][istr] );
+    }
+    
+    for ( uint16_t istr = 0; istr < value[1].size(); istr++ ) {
+      SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						   SummaryPlotFactoryBase::gran_, 
+						   iter->first, 
+						   value[1][istr] );
+    }
+
+  }
+
 }
 
 // -----------------------------------------------------------------------------
