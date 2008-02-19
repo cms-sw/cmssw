@@ -11,7 +11,7 @@ private:
 	friend class CSCTFConfigProducer;
 
 public:
-	const std::string& parameters(unsigned long addr) const throw() {
+	const std::string& parameters(void) const throw() {
 		return parametersAsText;
 	}
 
