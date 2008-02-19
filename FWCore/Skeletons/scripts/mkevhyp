@@ -178,6 +178,18 @@ if ( ! $do_list )
     &modify_file("$name/src/classes.h",
 		 "<$name",
 		 "<pat::$name" );
+    &modify_file("$name/src/classes.h",
+		 "\\\*\/",
+		 "\n" );
+    &modify_file("$name/src/classes.h",
+		 "uncomment_h_here",
+		 "\*\/" );
+    &modify_file("$name/src/classes_def.xml",
+		 "-->",
+		 "\n" );
+    &modify_file("$name/src/classes_def.xml",
+		 "uncomment_xml_here",
+		 "  -->" );
     &modify_file("$name/BuildFile",
 		 "<use name=rootrflx>",
 		 "<use name=rootrflx>\n" . "$buildfile_includes" );
