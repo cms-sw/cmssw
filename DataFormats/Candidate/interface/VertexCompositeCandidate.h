@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: VertexCompositeCandidate.h,v 1.4 2007/12/10 12:16:40 llista Exp $
+ * \version $Id: VertexCompositeCandidate.h,v 1.5 2008/01/24 13:17:30 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
@@ -67,7 +67,7 @@ namespace reco {
     static const unsigned int longLivedTag;
 
     void setLongLived() {
-      status_ &= longLivedTag;
+      status_ |= longLivedTag;
     }
 
     bool longLived() const {
