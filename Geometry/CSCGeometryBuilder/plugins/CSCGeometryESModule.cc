@@ -1,3 +1,4 @@
+
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
@@ -5,7 +6,9 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
 // Alignments
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -64,13 +67,16 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
   // Called whenever the alignments or alignment errors change
 
   if ( applyAlignment_ ) {
+    edm::ESHandle<Alignments> globalPositionRcd;
+    record.getRecord<GlobalPositionRcd>().get( globalPositionRcd );
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get( alignments );
     edm::ESHandle<AlignmentErrors> alignmentErrors;
     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
     GeometryAligner aligner;
     aligner.applyAlignments<CSCGeometry>( &(*cscGeometry),
-                                         &(*alignments), &(*alignmentErrors) );
+					  &(*alignments), &(*alignmentErrors),
+	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
   }
 
   return cscGeometry;
