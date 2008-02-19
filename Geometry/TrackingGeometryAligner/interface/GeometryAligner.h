@@ -32,7 +32,7 @@ public:
   void applyAlignments( C* geometry,
 			const Alignments* alignments,
 			const AlignmentErrors* alignmentErrors,
-			const AlignTransform globalCoordinates );
+			const AlignTransform& globalCoordinates );
 
 };
 
@@ -41,7 +41,7 @@ template<class C>
 void GeometryAligner::applyAlignments( C* geometry,
 				       const Alignments* alignments,
 				       const AlignmentErrors* alignmentErrors,
-				       const AlignTransform globalCoordinates )
+				       const AlignTransform& globalCoordinates )
 {
 
   edm::LogInfo("Starting") << "Starting to apply alignments";
@@ -56,8 +56,8 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  << "Size mismatch between geometry (size=" << geometry->theMap.size() 
 	  << ") and alignment errors (size=" << alignmentErrors->m_alignError.size() << ")";
 
-  AlignTransform::Translation globalShift = globalCoordinates.translation();
-  AlignTransform::Rotation globalRotation = globalCoordinates.rotation();
+  const AlignTransform::Translation &globalShift = globalCoordinates.translation();
+  const AlignTransform::Rotation globalRotation = globalCoordinates.rotation(); // by value!
 
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
@@ -67,7 +67,7 @@ void GeometryAligner::applyAlignments( C* geometry,
   std::map<unsigned int, GeomDet*> theMap;
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap,theMap.begin()));
   for ( std::map<unsigned int, GeomDet*>::const_iterator iPair = theMap.begin(); 
-		iPair != theMap.end(); iPair++, iAlign++, iAlignError++ )
+		iPair != theMap.end(); ++iPair, ++iAlign, ++iAlignError )
 	{
 	  // Check DetIds
 	  if ( (*iPair).first != (*iAlign).rawId() )
