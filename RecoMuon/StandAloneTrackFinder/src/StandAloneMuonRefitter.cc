@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/12/13 15:16:09 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/12/19 15:44:58 $
+ *  $Revision: 1.38 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -188,79 +188,78 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   double eta0 = initialTSOS.freeTrajectoryState()->momentum().eta();
   vector<const DetLayer*> detLayers = compatibleLayers(initialLayer,*initialTSOS.freeTrajectoryState(),
 						       propagationDirection());  
+
+  const DetLayer* lastLayer=initialLayer;
   
-  LogTrace(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
-  
-  vector<const DetLayer*>::const_iterator layer;
+  while(!detLayers.empty()){
+    LogTrace(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
 
-  // the layers are ordered in agreement with the fit/propagation direction 
-  for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
-    
-    //    bool firstTime = true;
+    // the layers are ordered in agreement with the fit/propagation direction 
+    for (vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
+	 layer!= detLayers.end(); ++layer ) {
+      
+      //    bool firstTime = true;
+      LogTrace(metname) << debug.dumpLayer(*layer);
+      LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
+      
+      // pick the best measurement from each group
+      std::vector<TrajectoryMeasurement> bestMeasurements = findBestMeasurements(*layer, lastTSOS);
+      
+      // RB: Different ways can be choosen if no bestMeasurement is available:
+      // 1- check on lastTSOS-initialTSOS eta difference
+      // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
+      // After this choice:
+      // A- extract the measurements compatible with the initialTSOS (seed)
+      // B- extract the measurements compatible with the lastButOneUpdatedTSOS
+      // In ORCA the choice was 1A. Here I will try 1B and if it fail I'll try 1A
+      // another possibility could be 2B and then 1A.
 
-    LogTrace(metname) << debug.dumpLayer(*layer);
-    
-    LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
-    
-    // pick the best measurement from each group
-    std::vector<TrajectoryMeasurement> bestMeasurements = findBestMeasurements(*layer, lastTSOS);
-
-    // RB: Different ways can be choosen if no bestMeasurement is available:
-    // 1- check on lastTSOS-initialTSOS eta difference
-    // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
-    // After this choice:
-    // A- extract the measurements compatible with the initialTSOS (seed)
-    // B- extract the measurements compatible with the lastButOneUpdatedTSOS
-    // In ORCA the choice was 1A. Here I will try 1B and if it fail I'll try 1A
-    // another possibility could be 2B and then 1A.
-
-    // if no measurement found and the current TSOS has an eta very different
-    // wrt the initial one (i.e. seed), then try to find the measurements
-    // according to the lastButOne FTS. (1B)
-    double lastdEta = fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - eta0);
-    if( bestMeasurements.empty() && lastdEta > 0.1) {
-      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
-			<< "trying with lastButOneUpdatedTSOS";
-      bestMeasurements = findBestMeasurements(*layer, theLastButOneUpdatedTSOS);
-    }
-    
-    //if no measurement found and the current FTS has an eta very different
-    //wrt the initial one (i.e. seed), then try to find the measurements
-    //according to the initial FTS. (1A)
-    if( bestMeasurements.empty() && lastdEta > 0.1) {
-      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
-			<< "tryng with seed TSOS";
-      bestMeasurements = findBestMeasurements(*layer, initialTSOS);
-    }
-    
-    // FIXME: uncomment this line!!
-    // if(!bestMeasurement && firstTime) break;
-
-    if(!bestMeasurements.empty()) {
-      bool added = false;
-      for(std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
-          tmItr != bestMeasurements.end(); ++tmItr){
-        added |= update(*layer, &(*tmItr), trajectory);
-        lastTSOS = theLastUpdatedTSOS;
+      // if no measurement found and the current TSOS has an eta very different
+      // wrt the initial one (i.e. seed), then try to find the measurements
+      // according to the lastButOne FTS. (1B)
+      double lastdEta = fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - eta0);
+      if( bestMeasurements.empty() && lastdEta > 0.1) {
+	LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
+			  << "trying with lastButOneUpdatedTSOS";
+	bestMeasurements = findBestMeasurements(*layer, theLastButOneUpdatedTSOS);
       }
-      if(added) {
-        incrementChamberCounters(*layer);
-        theDetLayers.push_back(*layer);
+    
+      //if no measurement found and the current FTS has an eta very different
+      //wrt the initial one (i.e. seed), then try to find the measurements
+      //according to the initial FTS. (1A)
+      if( bestMeasurements.empty() && lastdEta > 0.1) {
+	LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
+			  << "tryng with seed TSOS";
+	bestMeasurements = findBestMeasurements(*layer, initialTSOS);
       }
-    }
-    // SL in case no valid mesurement is found, still I want to use the predicted
-    // state for the following measurement serches. I take the first in the
-    // container. FIXME!!! I want to carefully check this!!!!!
-    else{
-      LogTrace(metname)<<"No best measurement found"<<endl;
-      //       if (!theMeasurementCache.empty()){
-      // 	LogTrace(metname)<<"but the #of measurement is "<<theMeasurementCache.size()<<endl;
-      //         lastTSOS = theMeasurementCache.front().predictedState();
-      //       }
-    }
-  } // loop over layers
+    
+      // FIXME: uncomment this line!!
+      // if(!bestMeasurement && firstTime) break;
+
+      if(!bestMeasurements.empty()) {
+	bool added = false;
+	for(std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
+	    tmItr != bestMeasurements.end(); ++tmItr){
+	  added |= update(*layer, &(*tmItr), trajectory);
+	}
+	if(added) {
+	  lastTSOS = theLastUpdatedTSOS;
+	  incrementChamberCounters(*layer);
+	  theDetLayers.push_back(*layer);
+	  lastLayer = (*layer);
+	  //   detLayers = (*layer)->compatibleLayers(*theLastUpdatedTSOS.freeTrajectoryState(),
+	  // 						 propagationDirection());  
+	  break;
+	}
+      }
+      else LogTrace(metname)<<"No best measurement found"<<endl;
+      lastLayer = *layer;
+    } // loop over layers
+    detLayers = lastLayer->compatibleLayers(*theLastUpdatedTSOS.freeTrajectoryState(),
+					    propagationDirection());  
+    
+  }
 }
-
 
 std::vector<TrajectoryMeasurement>
 StandAloneMuonRefitter::findBestMeasurements(const DetLayer* layer,
