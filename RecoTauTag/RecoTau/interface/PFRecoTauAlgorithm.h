@@ -10,6 +10,7 @@
 
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
+#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -67,6 +68,9 @@ class  PFRecoTauAlgorithm  {
   double HCALIsolConeSize_min_;
   double HCALIsolConeSize_max_;
   double AreaMetric_recoElements_maxabsEta_;
+
+  uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
+  uint32_t Track_IsolAnnulus_minNhits_;
 };
 #endif 
 
