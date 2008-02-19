@@ -126,10 +126,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
 
  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
- MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false,
-                                           theDTSegmentLabel.label(),theCSCSegmentLabel.label());
-
-
+  MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),
+					    enableDTMeasurement,enableCSCMeasurement,false);
+  
+  
   // 1) Get the various stations and store segments in containers for each station (layers)
  
   // 1a. get the DT segments by stations (layers):

@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/02/06 03:42:16 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/02/11 16:49:34 $
+ *  $Revision: 1.32 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
@@ -49,21 +50,21 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
 
 //  if(enableDTMeasurement)
-    string DTRecSegmentLabel = par.getUntrackedParameter<string>("DTRecSegmentLabel", "dt4DSegments");
+  InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
 
 //  if(enableCSCMeasurement)
-    string CSCRecSegmentLabel = par.getUntrackedParameter<string>("CSCRecSegmentLabel","cscSegments");
+  InputTag CSCRecSegmentLabel = par.getParameter<InputTag>("CSCRecSegmentLabel");
 
 //  if(enableRPCMeasurement)
-    string RPCRecSegmentLabel = par.getUntrackedParameter<string>("CSCRecSegmentLabel","rpcRecHits");
+  InputTag RPCRecSegmentLabel = par.getParameter<InputTag>("RPCRecSegmentLabel");
 
 
-  theLayerMeasurements= new MuonDetLayerMeasurements(enableDTMeasurement,
-						     enableCSCMeasurement,
-						     enableRPCMeasurement,
-                                                     DTRecSegmentLabel,
+  theLayerMeasurements= new MuonDetLayerMeasurements(DTRecSegmentLabel,
                                                      CSCRecSegmentLabel,
-                                                     RPCRecSegmentLabel);
+                                                     RPCRecSegmentLabel,
+						     enableDTMeasurement,
+						     enableCSCMeasurement,
+						     enableRPCMeasurement);
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   

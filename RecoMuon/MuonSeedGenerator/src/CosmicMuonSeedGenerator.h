@@ -4,13 +4,15 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2007/03/10 20:36:01 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/30 16:00:21 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu - Purdue University 
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
@@ -79,10 +81,10 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   bool theEnableCSCFlag;
 
   /// the name of the DT rec hits collection
-  std::string theDTRecSegmentLabel;
+  edm::InputTag theDTRecSegmentLabel;
 
   /// the name of the CSC rec hits collection
-  std::string theCSCRecSegmentLabel;
+  edm::InputTag theCSCRecSegmentLabel;
 
   /// the maximum number of Seeds
   unsigned int theMaxSeeds;

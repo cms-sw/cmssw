@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/12/19 15:44:58 $
- *  $Revision: 1.38 $
+ *  $Date: 2008/02/19 08:46:56 $
+ *  $Revision: 1.39 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -87,10 +87,13 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
 
-  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,
+  theMeasurementExtractor = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
+							 par.getParameter<InputTag>("CSCRecSegmentLabel"),
+							 par.getParameter<InputTag>("RPCRecSegmentLabel"),
+							 enableDTMeasurement,
 							 enableCSCMeasurement,
 							 enableRPCMeasurement);
-
+  
   theRPCLoneliness = (!(enableDTMeasurement && enableCSCMeasurement)) ? enableRPCMeasurement : false;
 }
 
