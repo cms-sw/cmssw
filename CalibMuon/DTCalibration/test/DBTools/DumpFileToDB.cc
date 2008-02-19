@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 17:01:49 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/18 17:46:34 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,6 +20,7 @@
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
@@ -34,7 +35,7 @@ DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && 
-     dbToDump != "NoiseDB" && dbToDump != "ChannelsDB")
+     dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
     cout << "[DumpFileToDB] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 }
  
@@ -126,6 +127,23 @@ void DumpFileToDB::endJob() {
     cout << "[DumpFileToDB]Writing Noise Map object to DB!" << endl;
     string record = "DTStatusFlagRcd";
     DTCalibDBUtils::writeToDB<DTStatusFlag>(record, statusMap);
+  
+  }else if(dbToDump == "DeadDB") { // Write the tp-dead
+    DTDeadFlag *deadMap = new DTDeadFlag();
+    
+    // Loop over file entries
+    for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+	keyAndCalibs != theCalibFile->keyAndConsts_end();
+	++keyAndCalibs) {
+      cout << "key: " << (*keyAndCalibs).first
+	   << " dead flag: " << (*keyAndCalibs).second[6] << endl;
+      deadMap->setCellDead_TP((*keyAndCalibs).first,
+			      (*keyAndCalibs).second[6]);
+    }
+
+    cout << "[DumpFileToDB]Writing Noise Map object to DB!" << endl;
+    string record = "DTDeadFlagRcd";
+    DTCalibDBUtils::writeToDB<DTDeadFlag>(record, deadMap);
   
   } else if (dbToDump == "ChannelsDB") { //Write channels map
     
