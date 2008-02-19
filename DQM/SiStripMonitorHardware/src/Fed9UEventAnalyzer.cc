@@ -1,15 +1,11 @@
 #include <iostream>
-#include <iomanip>
 
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"  
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
 
-#define DEBUGWORDS 20
-
-Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
-				       bool doSwap) {
+Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap) {
   // First of all we instantiate the Fed9U object of the event
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
   fedIdBoundaries_ = newFedBoundaries;
@@ -64,9 +60,9 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
   // Adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
   // additonally preforms "flipping" of the bytes in the buffer
   if(swapOn_){
-    
+
     Fed9U::u32 temp1,temp2;
-    
+		
     //32 bit word swapping for the real FED buffers	
     for(unsigned int i = 0; i < (size_u32 - 1); i+=2){	
       temp1 = *(data_u32+i);
@@ -75,20 +71,7 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
       *(data_u32+i+1) = temp1;
     }
   }
-  
-  // DEBUG Fed output
-  // std::cerr << "BUFFERD FED NUMBER " << std::dec << thisFedId_ << std::endl;
-  // for(int i = 0; i<DEBUGWORDS; i++) { // prints out the specified number of 32 bit words 
-  //   std::setiosflags(std::ios::left);
-  //   std::cerr << std::setw(2);
-  //   std::cerr << "64 Bit Word # " << " " << std::dec << std::setfill(' ') << std::setw(2) << i <<" "
-  // 	         << std::setfill('0') << std::setw(8) <<std::hex << (data_u32[2*i] & 0xFFFFFFFF) << " "
-  // 	         << std::setfill('0') << std::setw(8) << (data_u32[(2*i + 1)] & 0xFFFFFFFF) << " "
-  // 	         << std::endl << std::setw(0);
-  // }
-  
-  
-  
+    
   // The actual event initialization, catching its possible exceptions
   try{
     // Initialize the fedEvent with offset for slink
@@ -156,8 +139,6 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
     return result;
   }
 
-
-
   result.apveAddress = fedEvent_->getSpecialApvEmulatorAddress();
 
   // **********************************
@@ -198,6 +179,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
 
 	  // Local index to access the result channel vector
 	  unsigned channelIndex=12*fpga+fi;
+
 
 	  bool APV1Error       = fedEvent_->getAPV1Error(fpga,fi);
 	  bool APV2Error       = fedEvent_->getAPV2Error(fpga,fi);
