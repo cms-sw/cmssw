@@ -10,6 +10,7 @@
   </class>
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate"/>
+  <class name="reco::VertexCompositeCandidate"/>
   <class name="reco::CompositeRefCandidate" />
   <class name="reco::CompositePtrCandidate" />
   <class name="reco::CompositeRefBaseCandidate" />
