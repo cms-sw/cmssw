@@ -8,8 +8,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,11 +46,11 @@ namespace edmtest
     context.get<CSCDBGainsRcd>().get(pGains);
 
     const CSCDBGains* mygains=pGains.product();
-    std::vector<CSCDBGains::Item>::const_iterator it;
     
-    for( it=mygains->gains.begin();it!=mygains->gains.end(); ++it ){
+    int i;
+     for( i=0; i<CSCDBGains::ArraySize; ++i ){
       counter++;
-      DBGainsFile<<counter<<"  "<<it->gain_slope<<"  "<<it->gain_intercept<<"  "<<it->gain_chi2<<std::endl;
+      DBGainsFile<<counter<<"  "<<mygains->gains[i].gain_slope<<std::endl;
 
     }
   }

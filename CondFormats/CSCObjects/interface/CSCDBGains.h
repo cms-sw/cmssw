@@ -3,8 +3,6 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <iosfwd>
-#include <vector>
-#include <map>
 
 class CSCDBGains{
  public:
@@ -12,16 +10,14 @@ class CSCDBGains{
   ~CSCDBGains();
   
   struct Item{
-    float gain_slope;
-    float gain_intercept;
-    float gain_chi2;
+    short int gain_slope;
   };
+  enum size{ArraySize=217728};
 
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  //typedef std::map< int,std::vector<Item> > GainsMap;
-  typedef std::vector<Item> GainsContainer;
-  GainsContainer gains;
+  typedef Item GainContainer;
+  GainContainer gains[ArraySize];
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains);

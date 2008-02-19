@@ -8,9 +8,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <map>
 
-#include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,12 +48,11 @@ namespace edmtest
     context.get<CSCDBCrosstalkRcd>().get(pcrosstalk);
 
     const CSCDBCrosstalk* mycrosstalk=pcrosstalk.product();
-    std::vector<CSCDBCrosstalk::Item>::const_iterator it;
-    for( it=mycrosstalk->crosstalk.begin();it!=mycrosstalk->crosstalk.end(); ++it ){
+    int i;
+    for( i=0; i<CSCDBCrosstalk::ArraySize; ++i ){
       counter++;
-      DBXtalkFile<<counter<<"  "<<it->xtalk_slope_right<<"  "<<it->xtalk_intercept_right<<"  "<<it->xtalk_chi2_right<<"  "<<it->xtalk_slope_left<<"  "<<it->xtalk_intercept_left<<"  "<<it->xtalk_chi2_left<<std::endl;
+      DBXtalkFile<<counter<<"  "<<mycrosstalk->crosstalk[i].xtalk_slope_right<<"  "<<mycrosstalk->crosstalk[i].xtalk_intercept_right<<"  "<<mycrosstalk->crosstalk[i].xtalk_slope_left<<"  "<<mycrosstalk->crosstalk[i].xtalk_intercept_left<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCCrossTalkDBReadAnalyzer);
 }
-

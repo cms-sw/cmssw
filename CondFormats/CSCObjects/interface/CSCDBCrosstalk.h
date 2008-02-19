@@ -2,8 +2,6 @@
 #define CSCObjects_CSCDBCrosstalk_h
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include <vector>
-#include <map>
 
 class CSCDBCrosstalk
 {
@@ -12,18 +10,17 @@ class CSCDBCrosstalk
   ~CSCDBCrosstalk() {}
   
   struct Item{
-    float xtalk_slope_right;
-    float xtalk_intercept_right;
-    float xtalk_chi2_right;
-    float xtalk_slope_left;
-    float xtalk_intercept_left;
-    float xtalk_chi2_left;
+    short int xtalk_slope_right;
+    short int xtalk_intercept_right;
+    short int xtalk_slope_left;
+    short int xtalk_intercept_left;
   };
+  enum size{ArraySize=217728};
 
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  typedef std::vector<Item> CrosstalkContainer;
-  CrosstalkContainer crosstalk;
+  typedef Item CrosstalkContainer;
+  CrosstalkContainer crosstalk[ArraySize];
 };
 
 #endif

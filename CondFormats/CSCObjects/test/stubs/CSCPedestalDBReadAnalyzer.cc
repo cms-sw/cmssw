@@ -8,8 +8,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,11 +48,11 @@ namespace edmtest
     context.get<CSCDBPedestalsRcd>().get(pPeds);
     
     const CSCDBPedestals* myped=pPeds.product();
-    std::vector<CSCDBPedestals::Item>::const_iterator it;
     
-    for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
+    int i;
+    for( i=0; i<CSCDBPedestals::ArraySize; ++i ){
       counter++;
-      DBPedestalFile<<counter<<"  "<<it->ped<<"  "<<it->rms<<std::endl;
+      DBPedestalFile<<counter<<"  "<<myped->pedestals[i].ped<<"  "<<myped->pedestals[i].rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);

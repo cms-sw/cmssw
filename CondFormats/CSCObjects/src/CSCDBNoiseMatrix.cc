@@ -8,7 +8,7 @@ CSCDBNoiseMatrix::~CSCDBNoiseMatrix(){}
 const CSCDBNoiseMatrix::Item & CSCDBNoiseMatrix::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return matrix.at( indexer.stripChannelIndex(cscId, strip)-1 );
+  return matrix[ indexer.stripChannelIndex(cscId, strip)-1 ];
 }
 
 
