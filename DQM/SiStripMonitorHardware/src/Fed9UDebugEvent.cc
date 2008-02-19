@@ -80,17 +80,15 @@ bool Fed9U::Fed9UDebugEvent::getFeOverflow(unsigned int fpga) {
 }
 
 Fed9U::u16 Fed9U::Fed9UDebugEvent::getFeMajorAddress(unsigned int fpga) {
-  std::cerr << std::dec << "getFeMajorAddress("<<fpga<<"): " << std::setfill('0') << std::setw(2) << std::hex << ((getFSOP(2,fpga)>>8)&0xFF)<< " "; // debug: TODO: remove this later
+  // std::cerr << std::dec << "getFeMajorAddress("<<fpga<<"): " << std::setfill('0') << std::setw(2) << std::hex << ((getFSOP(2,fpga)>>8)&0xFF)<< " "; // debug: TODO: remove this later
   return ((getFSOP(2,fpga)>>8)&0xFF);
 }
 
 bool Fed9U::Fed9UDebugEvent::getInternalFreeze() {
-  //std::cerr << std::dec << "getInternalFreeze: " << std::setfill('0') << std::setw(1) << std::hex << (((getBESR()>>1)&0x1)==0x1)<< " ";
   return (((getBESR()>>1)&0x1)==0x1); // TODO: test this
 }
 
 bool Fed9U::Fed9UDebugEvent::getBXError() {
-  //std::cerr << std::dec << "getBXError: " << std::setfill('0') << std::setw(8) << std::hex << (((getBESR()>>5)&0x1)==0x1)<< " ";
   return (((getBESR()>>5)&0x1)==0x1); // TODO: test this
 }
  

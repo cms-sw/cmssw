@@ -13,8 +13,6 @@
 // If the number of FEDs exceeds this limit we have a crash
 //#define N_MAX_FEDS  (1024)
 //#define N_MAX_FEDUS (N_MAX_FEDS * 8)
-// FeMajApvErr(N_MAX_FEDS),      // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
-// FeMajApvErrCount(N_MAX_FEDS), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
 // feMajorAddress( N_MAX_FEDS,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
 // feMedianAddr(N_MAX_FEDUS),
 
@@ -170,7 +168,7 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 }
 
-// The following method should be called in place of histoNaming.
+// The following method should be called
 // at the job initialization by beginJob()
 void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
 
@@ -217,7 +215,7 @@ void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
 
 void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber ) {
 
-  std::map<int, bool>::iterator itFeds;
+  std::map<uint16_t, bool>::iterator itFeds;
 
   itFeds=foundFeds_.find(fed_id);
 

@@ -42,69 +42,26 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
   // A data structure to record
   // the found FEDs
-  std::map<uint16_t, bool> foundFeds;
+  // It is set to true as soon as its plots are created
+  std::map<uint16_t, bool> foundFeds_;
 
-  // event counter
-  vector<BinCounters*> bc; //indexes APV Error BinCounters with FedId #
-
-  // percentage stuff
-  vector<double> apvPrct;
-  vector<double>::iterator pi;
-
-  // Nick Plot 1 - 2D - FED vs. Evt No. filling on every OOS
-  MonitorElement * oosFedEvent;
-       	
   // back-end interface
-  DaqMonitorBEInterface * dbe;
-
-  // vector for APV error and accomanying binCounters
-  vector<MonitorElement*> ApveErr;   // Indexes APV Error Histograms with FedId #
-  vector<BinCounters*> ApveErrCount; // Indexes APV Error BinCounters with FedId #
-
-  // vector for fe majority apv error checking
-  vector<MonitorElement*> FeMajApvErr;   // Indexes APV Error Histograms with FedId #
-  vector<BinCounters*> FeMajApvErrCount; // Indexes APV Error BinCounters with FedId #
-
-  // vector to hold the FE Synch Out Packet Values
-  vector<vector<unsigned long> > FsopLong;
-  vector<uint16_t> FsopShort; 
-	
-  // vectors for FEFPGA APVErrorB<APV0> status bits
-  vector<vector<vector<MonitorElement*> > > FiberStatusBits;  // Indexes Histograms with FedId # per FE FPGA
-  vector<vector<vector<BinCounters*> > > FiberStatusBitCount; // Indexes BinCounters with FedId # per FEFPGA
-
-  // fiber wrong header error histograms
-  vector<vector<MonitorElement*> > FiberWHApv; // Indexes Histograms with FedId # per Fiber
-  vector<MonitorElement*> FeWHApv;  // Indexes APV Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeLKErr;  // Indexes LK Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeSYErr;  // Indexes SY Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeRWHErr; // Indexes RAW wrong header Error Histograms with FedId # per FPGA
-
-  // ME for the preliminary check of APV address accross feds (Mersi Plot 1)
-  // for now write addreses to the histo and check to see that its a flat line 
-  MonitorElement *  AddCheck0;
+  DaqMonitorBEInterface* dbe;
 
   // ME for % of FEs in synch globally over event number (Mersi Plot 2)
-  MonitorElement * AddConstPerEvent;
-  MonitorElement * ApvAddConstPerEvent;
-  MonitorElement * ApvAddConstPerEvent1;
-  MonitorElement * ApvAddConstPerEvent2;
-  MonitorElement * NoLock;
-  MonitorElement * BadHead;
-  MonitorElement * NoSynch;
+  MonitorElement* AddConstPerEvent;
+  MonitorElement* ApvAddConstPerEvent;
+  MonitorElement* ApvAddConstPerEvent1;
+  MonitorElement* ApvAddConstPerEvent2;
+  MonitorElement* NoLock;
+  MonitorElement* BadHead;
+  MonitorElement* NoSynch;
 
-  int oos;
-  int nolock;
-  int goodFe;	
-  double prct;
-
-	
   // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
   // (K. Hahn request)
-	
   int swapOn_;
 
-  // Number for event info for plots - 23 indicates simulation
+  // Number for event info for plots
   int runNumber_;
 
   // Name of output file
@@ -112,16 +69,14 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
   // vector of addresses to get median value for "golden address" which should match the apve address
   // TODO: add median calculation in wrong apv addresses
-  vector<uint16_t> feMedianAddr;
-  uint16_t medianAddr;
-  vector<vector<uint16_t> > feMajorAddress;
+  // vector<uint16_t> feMedianAddr;
+  // uint16_t medianAddr;
+  // vector<vector<uint16_t> > feMajorAddress;
 
   // Avaliable FEDid vector (updated for each event)
   std::vector<uint16_t> fedIds_;
-  vector<vector<MonitorElement*> > errors;
 
   // Functions to book histograms in the output
-  void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
   void createRootFedHistograms( const int& runNumber );
   void createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber );
 
@@ -145,6 +100,4 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::map<int, MonitorElement* > chanErrOOS_;
   std::map<int, MonitorElement* > badApv_;
 
-  std::map<int, bool> foundFeds_;
-  
 };
