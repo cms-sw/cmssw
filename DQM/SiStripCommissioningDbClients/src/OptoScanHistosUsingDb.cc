@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.9 2008/02/07 17:02:58 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.10 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -56,7 +56,9 @@ OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void OptoScanHistosUsingDb::uploadConfigurations() {
-  
+  LogTrace(mlDqmClient_) 
+    << "[OptoScanHistosUsingDb::" << __func__ << "]";
+
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -65,9 +67,13 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
     return;
   }
 
+  // Retrieve DetInfo
+  std::map<uint32_t,DetInfo> info;
+  detInfo( info );
+  
   // Update LLD descriptions with new bias/gain settings
   const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions( LASERDRIVER ); 
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices), info );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -86,20 +92,16 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
+void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
+				    const DetInfoMap& info ) {
 
-  // Retrieve DetInfo
-  std::map<uint32_t,DetInfo> info;
-  detInfo( info );
-  
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
-    // Check device type
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) { continue; }
-    
+
     // Cast to retrieve appropriate description object
     laserdriverDescription* desc = dynamic_cast<laserdriverDescription*>( *idevice );
     if ( !desc ) { continue; }
@@ -127,12 +129,17 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	if ( !iter->second->isValid() ) { continue; }
 
 	OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( iter->second );
-	if ( !anal ) { continue; }
+	if ( !anal ) { 
+	  edm::LogError(mlDqmClient_)
+	    << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	    << " NULL pointer to analysis object!";	
+	  continue; 
+	}
 	
 	uint16_t gain = anal->gain();
 	std::stringstream ss;
 	ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	   << " Updating gain/bias LLD settings for crate/FEC/slot/ring/CCU/LLD "
+	   << " Updating LLD gain/bias settings for crate/FEC/slot/ring/CCU/LLD "
 	   << fec_path.fecCrate() << "/"
 	   << fec_path.fecSlot() << "/"
 	   << fec_path.fecRing() << "/"
@@ -184,7 +191,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 
   edm::LogVerbatim(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
-    << " Updated PLL settings for " 
+    << " Updated LLD bias/gain settings for " 
     << updated << " modules";
   
 

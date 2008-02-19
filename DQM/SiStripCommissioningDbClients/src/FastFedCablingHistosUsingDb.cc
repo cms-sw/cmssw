@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.9 2008/02/07 17:02:57 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.10 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -56,6 +56,8 @@ FastFedCablingHistosUsingDb::~FastFedCablingHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void FastFedCablingHistosUsingDb::uploadConfigurations() {
+  LogTrace(mlDqmClient_) 
+    << "[FastFedCablingHistosUsingDb::" << __func__ << "]";
   
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
@@ -130,7 +132,12 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
   for ( ; ianal != janal; ++ianal ) {
     
     FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
-    if ( !anal ) { continue; }
+    if ( !anal ) { 
+      edm::LogError(mlDqmClient_)
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " NULL pointer to analysis object!";
+      continue; 
+    }
 
     if ( !anal->isValid() ) { continue; }
     
@@ -233,7 +240,12 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
       if ( !iter->second->isValid() ) { continue; }
       
       FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( iter->second );
-      if ( !anal ) { continue; }
+      if ( !anal ) { 
+	edm::LogError(mlDqmClient_)
+	  << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	  << " NULL pointer to OptoScanAnalysis object!";
+	continue; 
+      }
       
       // Retrieve FED id and channel 
       SiStripFedKey key( anal->fedKey() );

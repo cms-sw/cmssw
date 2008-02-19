@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.5 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.6 2008/02/07 17:02:56 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
@@ -25,7 +25,7 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
   
  private:
   
-  void update( SiStripConfigDb::DeviceDescriptions& );
+  void update( SiStripConfigDb::DeviceDescriptions&, const DetInfoMap& );
 
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
   

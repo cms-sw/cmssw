@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.10 2008/02/07 17:02:58 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.11 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -57,6 +57,8 @@ PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void PedestalsHistosUsingDb::uploadConfigurations() {
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]";
 
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
@@ -121,9 +123,14 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 	// Check if analysis is valid
 	if ( !iter->second->isValid() ) { continue; }
-
+	
 	PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
-	if ( !anal ) { continue; }
+	if ( !anal ) { 
+	  edm::LogError(mlDqmClient_)
+	    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	    << " NULL pointer to analysis object!";
+	  continue; 
+	}
 	
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {

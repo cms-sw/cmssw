@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.13 2008/02/07 17:02:57 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.14 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -63,6 +63,8 @@ ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void ApvTimingHistosUsingDb::uploadConfigurations() {
+  LogTrace(mlDqmClient_) 
+    << "[ApvTimingHistosUsingDb::" << __func__ << "]";
   
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
@@ -181,7 +183,12 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	if ( !iter->second->isValid() ) { continue; }
 
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
-	if ( !anal ) { continue; }
+	if ( !anal ) { 
+	  edm::LogError(mlDqmClient_)
+	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	    << " NULL pointer to analysis object!";
+	  continue; 
+	}
 	
 	// Calculate coarse and fine delays
 	uint32_t delay = static_cast<uint32_t>( rint( anal->delay() * 24. / 25. ) ); 
@@ -309,7 +316,12 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       if ( iter != data().end() ) { 
 	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
-	if ( !anal ) { continue; }
+	if ( !anal ) { 
+	  edm::LogError(mlDqmClient_)
+	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	    << " NULL pointer to analysis object!";
+	  continue; 
+	}
 	
 	Fed9U::Fed9UAddress addr( ichan );
 	std::stringstream ss;

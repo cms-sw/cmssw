@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.10 2008/02/07 17:02:58 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.11 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -56,6 +56,8 @@ VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void VpspScanHistosUsingDb::uploadConfigurations() {
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistosUsingDb::" << __func__ << "]";
   
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
@@ -126,7 +128,12 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       if ( !iter->second->isValid() ) { continue; }
 
       VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( iter->second );
-      if ( !anal ) { continue; }
+      if ( !anal ) { 
+	edm::LogError(mlDqmClient_)
+	  << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	  << " NULL pointer to analysis object!";
+	continue; 
+      }
       
       std::stringstream ss;
       ss << "[VpspScanHistosUsingDb::" << __func__ << "]"

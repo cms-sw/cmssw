@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.7 2008/02/07 17:02:57 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.8 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -394,7 +394,6 @@ void CommissioningHistosUsingDb::detInfo( DetInfoMap& det_info ) {
   SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
   
   // Iterate through DCUs
-  bool found = false;
   SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
   SiStripConfigDb::DeviceDescriptions::const_iterator jdcu = dcus.end();
   for ( ; idcu != jdcu; ++idcu ) {
