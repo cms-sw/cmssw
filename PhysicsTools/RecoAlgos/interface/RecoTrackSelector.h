@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/02/13 10:39:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/13 10:42:23 $
+ *  $Revision: 1.4 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -38,7 +38,7 @@ class RecoTrackSelector {
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   
-  void select( const edm::Handle<collection>& c, const edm::Event & event) {
+  void select( const edm::Handle<collection>& c, const edm::Event & event, const edm::EventSetup&) {
     selected_.clear();
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByLabel("offlineBeamSpot",beamSpot); 
