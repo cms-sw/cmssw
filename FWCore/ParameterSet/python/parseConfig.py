@@ -603,14 +603,25 @@ vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
 PSetParameter = pp.Forward()
 VPSetParameter = pp.Forward()
 secsourceParameter = pp.Forward()
-parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter|secsourceParameter
+block = pp.Forward()
+# need to tolerate internal blocks?
+def _makeLabeledBlock(s,loc,toks):
+    """create an untracked PSet parameter from the tokens"""
+    p=_makePSet(s,loc,[toks[0][2]])
+    p=cms.untracked(p)
+    return (toks[0][1],p)
 
 using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
 
-scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
+# blocks and includes need to be included in case they're in fragments
+parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
 
+scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
 #now we can actually say what PSet and VPSet are
+block <<  pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
+                ).setParseAction(_makeLabeledBlock)
+
 PSetParameter << pp.Group(untracked+pp.Keyword("PSet")+label+_equalTo+scopedParameters
                           ).setParseAction(_makeLabeledPSet)
 VPSetParameter << pp.Group(untracked+pp.Keyword("VPSet")+label+_equalTo
@@ -927,14 +938,6 @@ schedule = pp.Group(pp.Keyword('schedule').suppress()+_equalTo+
 #==================================================================
 # Other top level items
 #==================================================================
-def _makeLabeledBlock(s,loc,toks):
-    """create an untracked PSet parameter from the tokens"""
-    p=_makePSet(s,loc,[toks[0][2]])
-    p=cms.untracked(p)
-    return (toks[0][1],p)
-
-block = pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
-                ).setParseAction(_makeLabeledBlock)
 
 class _ReplaceNode(object):
     """Handles the 'replace' command"""
