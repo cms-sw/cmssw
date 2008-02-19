@@ -1,6 +1,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateClosestToBeamLine
 TrajectoryStateClosestToBeamLineBuilder::operator()
@@ -11,10 +12,16 @@ TrajectoryStateClosestToBeamLineBuilder::operator()
   bool status = ttmd.calculate( originalFTS.parameters(), 
   	GlobalTrajectoryParameters(
 	   	GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()), 
+// 	   	GlobalPoint(0., 0., 0.), 
 		GlobalVector(beamSpot.dxdz(), beamSpot.dydz(), 1.), 
+// 		GlobalVector(0., 0., 1.), 
 		0, &(originalFTS.parameters().magneticField()) ) );
-  if (!status)
-    throw cms::Exception("TrackingTools/PatternTools","TrajectoryStateClosestToBeamLine: Failure in TTMD when searching for PCA of track to beamline.");
+  if (!status) {
+    edm::LogWarning  ("TrackingTools/PatternTools")
+      << "TrajectoryStateClosestToBeamLine: Failure in TTMD when searching for PCA of track to beamline.\n"
+      << "TrajectoryStateClosestToBeamLine is now invalid.";
+    return TrajectoryStateClosestToBeamLine();
+  }
 
   pair<GlobalPoint, GlobalPoint> points = ttmd.points();
 
