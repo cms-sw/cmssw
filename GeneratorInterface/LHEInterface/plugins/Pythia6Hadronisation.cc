@@ -35,7 +35,7 @@ class Pythia6Hadronisation : public Hadronisation {
 	bool veto();
 
     private:
-	std::auto_ptr<HepMC::GenEvent> hadronize();
+	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
@@ -146,7 +146,7 @@ Pythia6Hadronisation::~Pythia6Hadronisation()
 {
 }
 
-std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::hadronize()
+std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 {
 	assert(!fortranCallback.instance);
 	fortranCallback.instance = this;

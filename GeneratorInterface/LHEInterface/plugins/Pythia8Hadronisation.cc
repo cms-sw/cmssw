@@ -39,7 +39,7 @@ class Pythia8Hadronisation : public Hadronisation {
 	~Pythia8Hadronisation();
 
     private:
-	std::auto_ptr<HepMC::GenEvent> hadronize();
+	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
@@ -204,7 +204,7 @@ static int getStatus(const HepMC::GenParticle *p)
 		return 2;
 }
 
-std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::hadronize()
+std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::doHadronisation()
 {
 	lhaEvent->load(getRawEvent());
 	if (!pythia->next())

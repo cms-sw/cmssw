@@ -42,6 +42,7 @@ class LHESource : public edm::GeneratedInputSource {
 	unsigned int			skipEvents;
 	unsigned int			eventsToPrint;
 	std::auto_ptr<Hadronisation>	hadronisation;
+	std::auto_ptr<JetInput>		jetInput;
 	std::auto_ptr<JetClustering>	jetClustering;
 
 	const double			extCrossSect;
@@ -59,9 +60,11 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
 	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0))
 {
-	if (params.exists("jetClustering"))
-		jetClustering.reset(new JetClustering(
-			params.getUntrackedParameter<edm::ParameterSet>("jetClustering")));
+	if (params.exists("jetClustering")) {
+		edm::ParameterSet jetParams = params.getUntrackedParameter<edm::ParameterSet>("jetClustering");
+		jetInput.reset(new JetInput(jetParams));
+		jetClustering.reset(new JetClustering(jetParams));
+	}
 
 	produces<edm::HepMCProduct>();
 	produces<edm::GenInfoProduct, edm::InRun>();
@@ -123,16 +126,26 @@ bool LHESource::produce(edm::Event &event)
 	}
 
 	if (jetClustering.get()) {
-		std::vector<HepMC::FourVector> jets =
-				jetClustering->run(hadronLevel.get());
+		JetClustering::ParticleVector input =
+					(*jetInput)(hadronLevel.get());
+		std::vector<JetClustering::Jet> jets =
+					(*jetClustering)(input);
 
 		std::cout << "===== " << jets.size() << " jets:" << std::endl;
-		for(std::vector<HepMC::FourVector>::const_iterator iter = jets.begin();
-		    iter != jets.end(); ++iter)
-			std::cout << "pt = " << iter->perp()
+		for(std::vector<JetClustering::Jet>::const_iterator iter = jets.begin();
+		    iter != jets.end(); ++iter) {
+			std::cout << "* pt = " << iter->pt()
 			          << ", eta = " << iter->eta()
 			          << ", phi = " << iter->phi()
 			          << std::endl;
+			for(JetClustering::ParticleVector::const_iterator c = iter->constituents().begin();
+			    c != iter->constituents().end(); c++)
+				std::cout << "\tpid = " << (*c)->pdg_id()
+				          << ", pt = " << (*c)->momentum().perp()
+				          << ", eta = " << (*c)->momentum().eta()
+				          << ", phi = " << (*c)->momentum().phi()
+				          << std::endl;
+		}
 	}
 
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);

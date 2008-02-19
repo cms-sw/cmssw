@@ -23,7 +23,7 @@ class Hadronisation {
 	bool setEvent(const boost::shared_ptr<LHEEvent> &event);
 	void clear();
 
-	virtual std::auto_ptr<HepMC::GenEvent> hadronize() = 0;
+	std::auto_ptr<HepMC::GenEvent> hadronize();
 
 	virtual double getCrossSection() const;
 
@@ -34,10 +34,15 @@ class Hadronisation {
 					const edm::ParameterSet &)> Factory;
 
     protected:
+	virtual std::auto_ptr<HepMC::GenEvent> doHadronisation() = 0;
+
 	virtual void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	inline const boost::shared_ptr<LHEEvent> &getRawEvent() const
 	{ return rawEvent; }
+
+	static const HepMC::GenVertex *findSignalVertex(
+						const HepMC::GenEvent *event);
 
     private:
 	boost::shared_ptr<LHEEvent>		rawEvent;

@@ -39,7 +39,7 @@ class Herwig6Hadronisation : public Hadronisation {
 
     private:
 	void clear();
-	std::auto_ptr<HepMC::GenEvent> hadronize();
+	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
@@ -228,7 +228,7 @@ static int getStatus(const HepMC::GenParticle *p)
 		return 2;
 }
 
-std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::hadronize()
+std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 {
 	std::auto_ptr<HepMC::GenEvent> event;
 
