@@ -115,7 +115,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     usetagDB=true;
   }
   std::string connect=iConfig.getParameter<std::string>("connect"); 
-  std::string timetype=iConfig.getParameter<std::string>("timetype");
+  //ignore "timetype" parameter
+  //std::string timetype=iConfig.getParameter<std::string>("timetype");
   //std::cout<<"connect "<<connect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
@@ -151,11 +152,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }else{
 	m.pfn=connect;
       }
-      if( itToGet->exists("timetype") ){
-	m.timetype=itToGet->getUntrackedParameter<std::string>("timetype");
-      }else{
-	m.timetype=timetype;
-      }
+      //if( itToGet->exists("timetype") ){
+      //m.timetype=itToGet->getUntrackedParameter<std::string>("timetype");
+      //}else{
+      //m.timetype=timetype;
+      //}
       if( itToGet->exists("label") ){
 	m.labelname=itToGet->getUntrackedParameter<std::string>("label");
       }else{
@@ -274,11 +275,11 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string leadingTag=pos->second.front().tag;
   std::string leadingToken=pos->second.front().token;
   std::string leadingLable=pos->second.front().label;
-  std::string timetype=pos->second.front().timetype;
+  cond::TimeType timetype=pos->second.front().timetype;
   //std::cout<<"leading tag "<<leadingTag<<std::endl;
   //std::cout<<"leading token "<<leadingToken<<std::endl;
   cond::Time_t abtime;
-  if( timetype == "timestamp" ){
+  if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
   }else{
     abtime=(cond::Time_t)iTime.eventID().run();
@@ -295,7 +296,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }
   std::pair<cond::Time_t, cond::Time_t> validity=iovservice.validity(leadingToken,abtime);
   edm::IOVSyncValue start,stop;
-  if( timetype == "timestamp" ){
+  if( timetype == cond::timestamp ){
     start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
     stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
   }else{
@@ -392,15 +393,18 @@ PoolDBESSource::fillRecordToIOVInfo(){
     iovInfo.tag=it->first;
     iovInfo.pfn=it->second.pfn;
     iovInfo.label=it->second.labelname;
-    iovInfo.timetype=it->second.timetype;
+    //iovInfo.timetype=it->second.timetype;
     cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
     cond::CoralTransaction& coraldb=connection->coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(true);
-    iovInfo.token=metadata.getToken(iovInfo.tag);
+    cond::MetaDataEntry result;
+    metadata.getEntryByTag(iovInfo.tag,result);
+    iovInfo.token=result.iovtoken;
+    iovInfo.timetype=result.timetype;
     coraldb.commit();
     if( iovInfo.token.empty() ){
-      throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token") );
+      throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token meaning data do not exist") );
     }
     
     std::map<std::string,std::vector<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);

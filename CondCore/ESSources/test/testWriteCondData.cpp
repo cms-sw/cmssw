@@ -93,9 +93,9 @@ int main(){
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
-    metadata.addMapping("mytest",iovtoken);
-    metadata.addMapping("pedtag",pediovtoken);
-    metadata.addMapping("anothermytest",anotheriovtoken);
+    metadata.addMapping("mytest",iovtoken,cond::runnumber);
+    metadata.addMapping("pedtag",pediovtoken,cond::runnumber);
+    metadata.addMapping("anothermytest",anotheriovtoken,cond::runnumber);
     coraldb.commit();
     myconnection.disconnect();
     delete session;

@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
+#include "CondCore/DBCommon/interface/Time.h"
 namespace edm{
   class ParameterSet;
 }
@@ -30,7 +31,7 @@ namespace cond{
     std::string token;
     std::string label;
     std::string pfn;
-    std::string timetype;
+    cond::TimeType timetype;
   };
 }
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
