@@ -4,8 +4,8 @@
 /** \class MuonGeometryRecord
  *  The Muon DetUnit geometry.
  *
- *  $Date: 2006/10/12 19:58:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/18 12:19:12 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,8 +18,9 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
-class MuonGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,boost::mpl::vector<IdealGeometryRecord, MuonNumberingRecord, DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd> > {};
+class MuonGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,boost::mpl::vector<IdealGeometryRecord, MuonNumberingRecord, DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd, GlobalPositionRcd> > {};
 
 #endif
 
