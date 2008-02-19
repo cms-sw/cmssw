@@ -5,23 +5,13 @@
 using pat::CaloJetSelector;
 
 //______________________________________________________________________________
-CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config ) :
-  selectionCfg_(config),
-  selectionType_( config.getParameter<std::string>("type"))
+CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config ) 
 {
 
   // Retrieve configuration config.ters only once
-  if ( selectionType_ == "JetMETLikelihood" ) {
-      //@@ copied from ElectronSelector -> Needs further adjustment
-      value_ = selectionCfg_.getParameter<double>("value");
-    }
-  else if ( selectionType_ == "custom" ) {
     EMFmin_		    = config.getParameter<double>("EMFmin");
     EMFmax_                 = config.getParameter<double>("EMFmax");
-    //EoverPmax_            = config.getParameter<double>("EoverPmax");
     Etamax_                 = config.getParameter<double>("Etamax");
-    //PTrackoverPJetmin_    = config.getParameter<double>("PTrackoverPJetmin");
-    //NTracksmin_           = config.getParameter<int>   ("NTracksmin");
     PTmin_		    = config.getParameter<double>("PTmin");
     EMvsHadFmin_ 	    = config.getParameter<double>("EMvsHadFmin");		
     EMvsHadFmax_ 	    = config.getParameter<double>("EMvsHadFmax");
@@ -39,8 +29,6 @@ CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config ) :
     PTjetOverArea_max_ 	    = config.getParameter<double>("PTjetOverAreamax");
     PTtowerOverArea_min_    = config.getParameter<double>("PTtowerOverAreamin");	 
     PTtowerOverArea_max_    = config.getParameter<double>("PTtowerOverAreamax");
-    }
-  //No need to read in anything is desired selection is "none"  
 }
 
 
@@ -48,52 +36,9 @@ CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config ) :
 const unsigned int 
 CaloJetSelector::filter( //const unsigned int&        index, 
                          // const edm::View<reco::CaloJet>& Jets
-                         //const JetIDmap&       JetIDs
 			  const reco::CaloJet& Jet
                           ) const
 {
-  bool result = BAD;
-
-  // List of possible selections
-  if      ( selectionType_ == "none"       ) {
-      result = GOOD;
-  }
-  else if ( selectionType_ == "JetMETLikelihood" ) {
-      //if ( JetID(index,Jets,JetIDs)->neuralNetOutput() > value_ ) result = GOOD;
-  }
-  else if ( selectionType_ == "custom"     ) {
-      result = customSelection_( Jet );
-  }
-  else
-    // Throw! unknown configuration
-    throw edm::Exception(edm::errors::Configuration) 
-          << "Unknown Jet ID selection " << selectionType_;
-
-  return result;
-}
-
-
-//______________________________________________________________________________
-/*
-const reco::JetIDRef& 
-CaloJetSelector::JetID( const unsigned int& index,
-                              const edm::View<Jet>& Jets,
-                              const JetIDmap& JetIDs
-                              ) const
-{
-  // Find Jet ID for Jet with index 'index'
-  edm::Ref<std::vector<Jet> > jetsRef = Jets.refAt(index).castTo<edm::Ref<std::vector<Jet> > >();
-  JetIDmap::const_iterator JetID = JetIDs.find( jetsRef );
-
-  // Return corresponding elecID
-  return JetID->val;
-}
-*/
-
-//______________________________________________________________________________
-const unsigned int 
-CaloJetSelector::customSelection_( const reco::CaloJet& Jet ) const
-{ 
   bool result = GOOD;
 
   ///Retrieve information

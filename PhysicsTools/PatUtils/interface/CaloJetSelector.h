@@ -21,18 +21,17 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: CaloJetSelector.h,v 1.1 2008/02/14 12:38:10 auterman Exp $
+    \version $Id: CaloJetSelector.h,v 1.1 2008/02/15 15:54:26 auterman Exp $
 **/
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
-
 namespace pat {
 
   enum JetType { GOOD = 0, BAD = 1, ELSE = 2}; //bool would be propably enough
-
+  
   class CaloJetSelector {
 
 
@@ -42,31 +41,11 @@ namespace pat {
 
     /// Returns 0 if Jet matches criteria, a flag otherwise.
     /// Criteria depend on the selector's configuration.
-    /// Jet IDs only need to be provided if selection is based
-    /// on it (cut, neural net or likelihood). Cluster shapes are for
-    /// custom selection only.
     const unsigned int 
-    filter( const reco::CaloJet&   Jet ) const;
-    
-    /// Returns the Jet ID object based of the given Jet.
-    /// The latter is defined by an index in the vector of Jets.
-    /// The ID is found in the association map.
-    //const reco::JetIDRef& 
-    //JetID( const unsigned int&        index,
-    //            const edm::View<Jet>& Jets
-    //            ) const;
+    filter( const reco::CaloJet& Jet ) const;
 
   private:
 
-    edm::ParameterSet selectionCfg_; 
-    std::string       selectionType_;
-
-    double value_; // Cut value for e.g. JetMET likelihood
-
-    /// Full-fledged selection based on SusyAnalyser, ...
-    const unsigned int  
-    customSelection_( const reco::CaloJet& Jet ) const;
-    
     /// Custom selection cuts
     ///SUSY-Analyzer:
     double EMFmin_;                    double EMFmax_;

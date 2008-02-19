@@ -21,7 +21,7 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: JetSelector.h,v 1.1 2008/02/14 12:38:10 auterman Exp $
+    \version $Id: JetSelector.h,v 1.2 2008/02/15 15:54:26 auterman Exp $
 **/
 
 #include <string>
@@ -30,9 +30,12 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "PhysicsTools/PatUtils/interface/CaloJetSelector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 
 namespace pat {
+
+  typedef edm::ValueMap<double> JetValueMap;
 
   template<typename Jet>
   class JetSelector {
@@ -49,19 +52,17 @@ namespace pat {
     /// custom selection only.
     const unsigned int 
     filter( const unsigned int&     index,
-            const edm::View<Jet>&   Jets
+            const edm::View<Jet>&   Jets,
+	    const JetValueMap * JetMap
            ) const;
     
-    /// Returns the Jet ID object based of the given Jet.
-    /// The latter is defined by an index in the vector of Jets.
-    /// The ID is found in the association map.
-    //const reco::JetIDRef& 
-    //JetID( const unsigned int&        index,
-    //            const edm::View<Jet>& Jets
-    //            ) const;
 
   private:
    
+    std::string       selectionType_;
+    ///The selection w.r.t. i.e. the JetRejector-likelihood
+    double value_;
+
     std::auto_ptr<CaloJetSelector> CaloJetSelector_;///Selects CaloJets
     //std::auto_ptr<CaloJetSelector> PFSelector_;///Selects PFJets
 
