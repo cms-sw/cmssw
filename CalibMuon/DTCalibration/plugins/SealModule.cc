@@ -7,6 +7,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigWriter.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
+#include "CalibMuon/DTCalibration/plugins/DTTPDeadWriter.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftWriter.h"
 #include "CalibMuon/DTCalibration/plugins/DTNoiseComputation.h"
@@ -14,12 +15,12 @@
 #include "CalibMuon/DTCalibration/plugins/DTFakeTTrigESProducer.h"
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
 
-
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTMapGenerator);
 DEFINE_ANOTHER_FWK_MODULE(DTTTrigCalibration);
 DEFINE_ANOTHER_FWK_MODULE(DTTTrigWriter);
 DEFINE_ANOTHER_FWK_MODULE(DTT0Calibration);
+DEFINE_ANOTHER_FWK_MODULE(DTTPDeadWriter);
 DEFINE_ANOTHER_FWK_MODULE(DTVDriftCalibration);
 DEFINE_ANOTHER_FWK_MODULE(DTVDriftWriter);
 DEFINE_ANOTHER_FWK_MODULE(DTNoiseComputation);
