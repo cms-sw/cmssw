@@ -1,6 +1,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 bool TwoTrackMinimumDistanceLineLine::calculate(
@@ -9,8 +10,8 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 {
   if ( theH.charge() != 0. || theG.charge() != 0. )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "charge of input track is not zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "charge of input track is not zero.";
     return true;
   };
 
@@ -21,8 +22,8 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 
   if ( gMag == 0. || hMag == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "momentum of input trajectory is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "momentum of input trajectory is zero.";
     return true;
   };
 
@@ -34,8 +35,8 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 
   if ( norm == 0 )
   {
-    cout << "[TwoTrackMinimumDistanceImplementation] Error: "
-         << "Tracks are parallel." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
+      << "Tracks are parallel.";
     return true;
   }
 

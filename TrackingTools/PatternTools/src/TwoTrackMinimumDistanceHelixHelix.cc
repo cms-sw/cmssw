@@ -2,8 +2,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-// #include <iostream>
-// #include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   inline GlobalPoint operator - ( const GlobalPoint & a, const GlobalPoint & b ){
@@ -48,29 +47,29 @@ bool TwoTrackMinimumDistanceHelixHelix::updateCoeffs(
 
   if ( Hn == 0. || Gn == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixHelix] Error: "
-         << "momentum of input trajectory is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixHelix")
+      << "momentum of input trajectory is zero.";
     return true;
   };
 
   if ( theH->charge() == 0. || theG->charge() == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixHelix] Error: "
-         << "charge of input track is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixHelix")
+      << "charge of input track is zero.";
     return true;
   };
 
   if ( Bc2kG == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixHelix] Error: "
-         << "magnetic field at point " << gpG << " is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixHelix")
+      << "magnetic field at point " << gpG << " is zero.";
     return true;
   };
 
   if ( Bc2kH == 0. )
   {
-    cout << "[TwoTrackMinimumDistanceHelixHelix] Error: "
-         << "magnetic field at point " << gpH << " is zero." << endl;
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixHelix")
+      << "magnetic field at point " << gpH << " is zero.";
     return true;
   };
 
