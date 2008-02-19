@@ -35,14 +35,20 @@ private:
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include <algorithm>
 
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
   src_(cfg.template getParameter<edm::InputTag>("src")),
-  setLongLived_(cfg.template getParameter<bool>("setLongLived")),
+  setLongLived_(false),
   fitter_(reco::modules::make<Fitter>(cfg)) {
+  using namespace std;
   produces<OutputCollection>();
-  std::string alias( cfg.getParameter<std::string>("@module_label"));
+  string alias( cfg.getParameter<std::string>("@module_label"));
+  const string setLongLived("setLongLived");
+  vector<string> vBoolParams = cfg.template getParameterNamesForType<bool>();
+  bool found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
+  if(found) setLongLived_ = cfg.template getParameter<bool>("setLongLived");
 }
 
 namespace reco {
