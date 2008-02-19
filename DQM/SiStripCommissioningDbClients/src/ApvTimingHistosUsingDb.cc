@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.14 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.15 2008/02/19 11:29:30 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -429,16 +429,6 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
     
     // Store description
     desc.push_back( tmp );
-    
-//     std::stringstream sss;
-//     if ( tmp ) { 
-//       anal->print(sss); 
-//       sss << std::endl;
-//       sss << tmp->toString() << std::endl;
-//     }
-//     LogTrace(mlDqmClient_) 
-//       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-//       << " Analysis descriptions:" << std::endl << sss.str(); 
     
   }
   

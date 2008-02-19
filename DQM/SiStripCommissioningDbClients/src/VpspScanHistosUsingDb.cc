@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.11 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.12 2008/02/19 11:29:30 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -153,7 +153,7 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       LogTrace(mlDqmClient_) << ss.str();
       
     } else {
-      LogTrace(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
 	<< " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
 	<< fec_path.fecCrate() << "/"

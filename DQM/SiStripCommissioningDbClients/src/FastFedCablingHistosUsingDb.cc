@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.10 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.11 2008/02/19 11:29:30 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -452,6 +452,7 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
   // strings
   std::vector<std::string> valid;
   std::vector<std::string> dirty;
+  std::vector<std::string> trimdac;
   std::vector<std::string> missing;
   std::vector<std::string> devices;
   uint32_t missing_pairs = 0;
@@ -474,6 +475,7 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     ss << "DetId=" << std::hex << std::setw(8) << std::setfill('0') << anal->detId() << std::dec;
     if ( anal->isValid() ) { valid.push_back( ss.str() ); }
     if ( anal->isDirty() ) { dirty.push_back( ss.str() ); }
+    if ( anal->badTrimDac() ) { trimdac.push_back( ss.str() ); }
     
     // record "found" dcus
     found_dcus.push_back( anal->dcuHardId() );
@@ -656,11 +658,12 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " Summary of connections: " << std::endl
-       << " \"Good\" connections    : " << valid.size() << std::endl
-       << " \"Dirty\" connections   : " << dirty.size() << std::endl
-       << " \"Missing\" connections : " << missing.size() << std::endl
-       << " \"Missing\" APV pairs   : " << missing_pairs << std::endl
-       << " \"Missing\" APVs        : " << devices.size() << std::endl;
+       << " \"Good\" connections     : " << valid.size() << std::endl
+       << " \"Dirty\" connections    : " << dirty.size() << std::endl
+       << " \"Bad\" TrimDAQ settings : " << trimdac.size() << std::endl
+       << " \"Missing\" connections  : " << missing.size() << std::endl
+       << " \"Missing\" APV pairs    : " << missing_pairs << std::endl
+       << " \"Missing\" APVs         : " << devices.size() << std::endl;
     edm::LogVerbatim(mlCabling_) << ss.str();
   }
 
@@ -682,6 +685,17 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
        << " List of \"dirty\" connections: " << std::endl;
     std::vector<std::string>::const_iterator istr = dirty.begin();
     std::vector<std::string>::const_iterator jstr = dirty.end();
+    for ( ; istr != jstr; ++istr ) { ss << *istr << std::endl; }
+    edm::LogWarning(mlCabling_) << ss.str();
+  }
+
+  // TrimDAC connections
+  if ( !trimdac.empty() ) { 
+    std::stringstream ss;
+    ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+       << " List of \"bad\" TrimDAC settings: " << std::endl;
+    std::vector<std::string>::const_iterator istr = trimdac.begin();
+    std::vector<std::string>::const_iterator jstr = trimdac.end();
     for ( ; istr != jstr; ++istr ) { ss << *istr << std::endl; }
     edm::LogWarning(mlCabling_) << ss.str();
   }
@@ -709,103 +723,3 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
   }
 
 }
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-//   // Update FED-FEC mapping in base class, based on analysis results
-//   Analyses::iterator ianal = data().begin();
-//   Analyses::iterator janal = data().end();
-//   for ( ; ianal != janal; ++ianal ) {
-    
-//     // Retrieve DCU id matching id from histogram
-//     bool found = false;
-//     SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
-//     while ( !found && idcu != dcus.end() ) {
-      
-//       // Check if DCU hard id matches that provided by analysis
-//       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
-//       if ( dcu ) { 
-// 	if ( dcu->getDcuType() == "FEH" ) { 
-// 	  if ( dcu->getDcuHardId() == anal->dcuHardId() ) {
-	    
-// 	    // Label as "found"
-// 	    found = true; 
-	    
-// 	    // Retrieve I2C addresses
-// 	    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*dcu);
-	
-// 	    // Create connection object and set member data 
-// #ifdef USING_NEW_DATABASE_MODEL	
-// 	    ConnectionDescription* conn = new ConnectionDescription();
-// 	    conn->setFedId( anal->fedKey().fedId() );
-// 	    conn->setFedChannel( anal->fedKey().fedChannel() );
-// 	    conn->setFecHardwareId( "" ); //@@
-// 	    conn->setFecCrateSlot( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
-// 	    conn->setFecSlot( addr.fecSlot_ );
-// 	    conn->setRingSlot( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
-// 	    conn->setCcuAddress( addr.ccuAddr_ );
-// 	    conn->setI2cChannel( addr.ccuChan_ );
-// 	    conn->setApvAddress( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
-// 	    conn->setDcuHardId( dcu->getDcuHardId() );
-// 	    //@@ conn->setDetId( sistrip::invalid32_ );
-// 	    //@@ conn->setApvPairs( sistrip::invalid_ );
-// 	    //@@ conn->setFiberLength( sistrip::invalid_ );
-// #else
-// 	    FedChannelConnectionDescription* conn = new FedChannelConnectionDescription(); 
-// 	    conn->setFedId( anal->fedKey().fedId() );
-// 	    conn->setFedChannel( anal->fedKey().fedChannel() );
-// 	    conn->setFecSupervisor( "" );
-// 	    conn->setFecSupervisorIP( "" );
-// 	    conn->setFecInstance( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
-// 	    conn->setSlot( addr.fecSlot_ );
-// 	    conn->setRing( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
-// 	    conn->setCcu( addr.ccuAddr_ );
-// 	    conn->setI2c( addr.ccuChan_ );
-// 	    conn->setApv( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
-// 	    conn->setDcuHardId( dcu->getDcuHardId() );
-// 	    conn->setDetId( sistrip::invalid32_ );
-// 	    conn->setApvPairs( sistrip::invalid_ ); 
-// 	    conn->setFiberLength( sistrip::invalid_ );
-// #endif
-
-// 	    // Retrieve DetId from DB and set member data 
-// 	    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( conn->getDcuHardId() );
-// 	    if ( idet != detids.end() ) { 
-// #ifndef USING_NEW_DATABASE_MODEL
-// 	      conn->setDetId( idet->second->getDetId() );
-// 	      conn->setApvPairs( idet->second->getApvNumber()/2 );
-// 	      conn->setFiberLength( static_cast<uint32_t>( idet->second->getFibreLength() ) );
-// #endif
-// 	    }
-	
-// 	    // Add FedChannelConnectionDescription to vector
-// 	    conns.push_back(conn);
-	
-// 	  }
-// 	}
-//       }
-//       idcu++;
-//     }
-//     if ( !found ) { unconnected++; }
-
-//   }
-
-
-
