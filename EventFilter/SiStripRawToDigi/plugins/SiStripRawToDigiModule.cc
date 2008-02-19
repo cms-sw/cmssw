@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.3 2007/12/19 17:59:32 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.4 2008/01/21 16:50:23 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -65,6 +65,19 @@ void SiStripRawToDigiModule::beginJob( const edm::EventSetup& setup ) {
   edm::ESHandle<SiStripFedCabling> cabling;
   setup.get<SiStripFedCablingRcd>().get( cabling );
   cabling_ = new SiStripFedCabling( *cabling );
+
+  std::stringstream ss;
+  ss << "[SiStripRawToDigiModule::" << __func__ << "]"
+     << " Terse print out of FED cabling:" << std::endl;
+  cabling_->terse(ss);
+  LogTrace(mlRawToDigi_) << ss.str();
+  
+  std::stringstream sss;
+  sss << "[SiStripRawToDigiModule::" << __func__ << "]"
+      << " Summary of FED cabling:" << std::endl;
+  cabling_->summary(sss);
+  edm::LogVerbatim(mlRawToDigi_) << sss.str();
+  
 }
 
 // -----------------------------------------------------------------------------
