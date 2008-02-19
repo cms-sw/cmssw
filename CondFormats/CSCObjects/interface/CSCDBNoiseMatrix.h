@@ -16,8 +16,7 @@ class CSCDBNoiseMatrix{
 
   const Item & item(const CSCDetId & cscId, int strip) const;
   
-  typedef Item NoiseMatrixContainer;
-  NoiseMatrixContainer matrix[ArraySize];
+  Item matrix[ArraySize];
 };
 
 #endif

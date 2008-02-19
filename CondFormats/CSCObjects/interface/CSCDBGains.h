@@ -16,8 +16,7 @@ class CSCDBGains{
 
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  typedef Item GainContainer;
-  GainContainer gains[ArraySize];
+  Item gains[ArraySize];
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains);

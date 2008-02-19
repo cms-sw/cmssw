@@ -19,8 +19,7 @@ class CSCDBCrosstalk
 
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  typedef Item CrosstalkContainer;
-  CrosstalkContainer crosstalk[ArraySize];
+  Item crosstalk[ArraySize];
 };
 
 #endif

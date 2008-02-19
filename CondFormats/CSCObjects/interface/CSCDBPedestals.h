@@ -16,8 +16,7 @@ class CSCDBPedestals{
 
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  typedef Item PedestalContainer;
-  PedestalContainer pedestals[ArraySize];
+  Item pedestals[ArraySize];
 };
 
 #endif
