@@ -18,11 +18,6 @@ class VpspScanHistograms : public virtual CommissioningHistograms {
 
   void printAnalyses(); // override
 
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
-
 };
 
 #endif // DQM_SiStripCommissioningClients_VpspScanHistograms_H

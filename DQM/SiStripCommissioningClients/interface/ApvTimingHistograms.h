@@ -15,11 +15,6 @@ class ApvTimingHistograms : public virtual CommissioningHistograms {
   virtual ~ApvTimingHistograms();
   
   void histoAnalysis( bool debug );
-
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
   
 };
 

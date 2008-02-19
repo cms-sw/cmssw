@@ -15,11 +15,6 @@ class OptoScanHistograms : public virtual CommissioningHistograms {
   virtual ~OptoScanHistograms();
   
   void histoAnalysis( bool debug );
-
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
   
 };
 

@@ -740,13 +740,39 @@ void CommissioningHistograms::clearHistosMap() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
-						  const sistrip::Presentation& type, 
-						  const std::string& directory,
+void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
+						  const sistrip::Presentation& pres, 
+						  const std::string& dir,
 						  const sistrip::Granularity& gran ) {
   LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come...";
+    << "[CommissioningHistograms::" << __func__ << "]";
+  
+  // Check view 
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
+  
+  // Analyze histograms
+  if ( data().empty() ) { histoAnalysis( false ); }
+
+  // Check
+  if ( data().empty() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " No analyses generated!";
+    return;
+  }
+  
+  // Extract data to be histogrammed
+  uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
+  
+  // Create summary histogram (if it doesn't already exist)
+  TH1* summary = 0;
+  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
+  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
+  
+  // Fill histogram with data
+  factory()->fill( *summary );
+  
 }
 
 // -----------------------------------------------------------------------------

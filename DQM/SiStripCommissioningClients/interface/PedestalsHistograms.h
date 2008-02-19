@@ -16,12 +16,7 @@ class PedestalsHistograms : public virtual CommissioningHistograms {
   
   void histoAnalysis( bool debug );
 
-  void printAnalyses();
-  
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
+  void printAnalyses(); // override
 
 };
 

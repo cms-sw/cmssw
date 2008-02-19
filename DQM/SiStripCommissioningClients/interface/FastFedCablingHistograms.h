@@ -16,11 +16,6 @@ class FastFedCablingHistograms : public virtual CommissioningHistograms {
   
   void histoAnalysis( bool debug );
   
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
-  
 };
 
 #endif // DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
