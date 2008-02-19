@@ -29,12 +29,17 @@
 //   base class
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
+class L1GtTriggerMenu;
+
 
 // class declaration
 class HLTLevel1GTSeed : public HLTFilter
@@ -53,13 +58,44 @@ public:
 
 private:
 
-    L1GtObject objectType(const std::string& cndName, const int& indexObj,
-        const std::vector<ConditionMap>& conditionMap);
+    /// get the vector of object types for a condition cndName on the GTL chip chipNumber
+    const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName);
 
-    /// get map of (algorithm names, algorithm bits)
-    std::map<std::string, int> mapAlgNameToBit(const AlgorithmMap&);
+    /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser 
+    /// for a new L1 Trigger menu
+    void updateAlgoLogicParser(const L1GtTriggerMenu*);
+
+    /// update the tokenResult members from m_l1AlgoLogicParserin 
+    /// for a new event
+    void updateAlgoLogicParser(const DecisionWord&);
+    
+    /// debug print grouped in a single function
+    /// can be called for a new menu (bool "true") or for a new event
+    void debugPrint(bool);
+        
 
 private:
+    
+    // cached stuff
+
+    // trigger menu
+    const L1GtTriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
+
+    /// logic parser for m_l1SeedsLogicalExpression
+    L1GtLogicParser m_l1AlgoLogicParser;
+
+    /// list of required algorithms for seeding 
+    std::vector<L1GtLogicParser::OperandToken> m_l1AlgoSeeds;
+    
+    /// vector of Rpn vectors for the required algorithms for seeding 
+    std::vector< const std::vector<L1GtLogicParser::TokenRPN>* > m_l1AlgoSeedsRpn;
+
+    /// vector of object-type vectors for each condition in the required algorithms for seeding 
+    std::vector< std::vector< const std::vector<L1GtObject>* > > m_l1AlgoSeedsObjType;
+
+private:
+
     /// logical expression for the required L1 algorithms;
     /// the algorithms can be given by name or by bit number
     std::string m_l1SeedsLogicalExpression;
@@ -70,8 +106,10 @@ private:
     /// InputTag for L1 Global Trigger object maps
     edm::InputTag m_l1GtObjectMapTag;
 
-    /// InputTag for L1 particle collections
+    /// InputTag for L1 particle collections (except muon)    
     edm::InputTag m_l1CollectionsTag;
+
+    /// InputTag for L1 muon collection
     edm::InputTag m_l1MuonCollectionTag;
 
 };
