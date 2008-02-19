@@ -57,6 +57,11 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 #include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
@@ -141,16 +146,46 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 
 
     // create new PSBs
-    m_gtPSB = new L1GlobalTriggerPSB(*this);
+    m_gtPSB = new L1GlobalTriggerPSB();
 
     // create new GTL
-    m_gtGTL = new L1GlobalTriggerGTL(*this);
+    m_gtGTL = new L1GlobalTriggerGTL();
 
     // create new FDL
-    m_gtFDL = new L1GlobalTriggerFDL(*this);
+    m_gtFDL = new L1GlobalTriggerFDL();
 
 
+    // initialize cached IDs
+    
+    //
+    m_l1GtStableParCacheID = 0ULL;
 
+    m_numberPhysTriggers = 0;
+    
+    m_nrL1Mu = 0;
+
+    m_nrL1NoIsoEG = 0;
+    m_nrL1IsoEG = 0;
+
+    m_nrL1CenJet = 0;
+    m_nrL1ForJet = 0;
+    m_nrL1TauJet = 0;
+    
+    //
+    m_l1GtParCacheID = 0ULL;
+
+    m_totalBxInEvent = 0;
+
+    m_activeBoardsGtDaq = 0;
+    m_activeBoardsGtEvm = 0;
+
+    //
+    m_l1GtBMCacheID = 0ULL;
+    
+    //
+    m_l1GtPfCacheID = 0ULL;
+    m_l1GtTmCacheID = 0ULL;
+ 
 }
 
 // destructor
@@ -170,44 +205,128 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // process event iEvent
 
-    // get parameters
+	// get / update the stable parameters from the EventSetup 
+    // local cache & check on cacheIdentifier
 
-    edm::ESHandle< L1GtStableParameters > l1GtStablePar;
-    evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );
+    unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
-    // number of physics triggers
-    unsigned int numberPhysTriggers = l1GtStablePar->gtNumberPhysTriggers();
+    if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
+        
+        edm::ESHandle< L1GtStableParameters > l1GtStablePar;
+        evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );        
+        m_l1GtStablePar = l1GtStablePar.product();
+        
+        // number of physics triggers
+        m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
 
-    edm::ESHandle< L1GtParameters > l1GtPar;
-    evSetup.get< L1GtParametersRcd >().get( l1GtPar );
+        // number of objects of each type
+        //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+        m_nrL1Mu = m_l1GtStablePar->gtNumberL1Mu();
 
-    //    total number of Bx's in the event
-    int totalBxInEvent = l1GtPar->gtTotalBxInEvent();
+        m_nrL1NoIsoEG = m_l1GtStablePar->gtNumberL1NoIsoEG();
+        m_nrL1IsoEG = m_l1GtStablePar->gtNumberL1IsoEG();
 
-    int minBxInEvent = (totalBxInEvent + 1)/2 - totalBxInEvent;
-    int maxBxInEvent = (totalBxInEvent + 1)/2 - 1;
+        m_nrL1CenJet = m_l1GtStablePar->gtNumberL1CenJet();
+        m_nrL1ForJet = m_l1GtStablePar->gtNumberL1ForJet();
+        m_nrL1TauJet = m_l1GtStablePar->gtNumberL1TauJet();
 
-    //    active boards in L1 GT DAQ record and in L1 GT EVM record
-    boost::uint16_t activeBoardsGtDaq = l1GtPar->gtDaqActiveBoards();
-    boost::uint16_t activeBoardsGtEvm = l1GtPar->gtEvmActiveBoards();
+        // ... the rest of the objects are global
+
+        m_l1GtStableParCacheID = l1GtStableParCacheID;
+
+    }
+
+    // get / update the parameters from the EventSetup 
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
+
+    if (m_l1GtParCacheID != l1GtParCacheID) {
+        
+        edm::ESHandle< L1GtParameters > l1GtPar;
+        evSetup.get< L1GtParametersRcd >().get( l1GtPar );        
+        m_l1GtPar = l1GtPar.product();
+        
+        //    total number of Bx's in the event
+        m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
+
+        //    active boards in L1 GT DAQ record and in L1 GT EVM record
+        m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
+        m_activeBoardsGtEvm = m_l1GtPar->gtEvmActiveBoards();
+
+
+        m_l1GtParCacheID = l1GtParCacheID;
+
+    }
+
+    int minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
+    int maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
 
     LogDebug("L1GlobalTrigger")
     << "\nTotal number of bunch crosses to put in the GT readout record: "
-    << totalBxInEvent << " = " << "["
+    << m_totalBxInEvent << " = " << "["
     << minBxInEvent << ", " << maxBxInEvent << "] BX\n"
     << "\n  Active boards in L1 GT DAQ record (hex format) = "
-    << std::hex << std::setw(sizeof(activeBoardsGtDaq)*2) << std::setfill('0')
-    << activeBoardsGtDaq
+    << std::hex << std::setw(sizeof(m_activeBoardsGtDaq)*2) << std::setfill('0')
+    << m_activeBoardsGtDaq
     << std::dec << std::setfill(' ')
     << std::endl;
 
-    // get board maps
-    edm::ESHandle< L1GtBoardMaps > l1GtBM;
-    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+    // get / update the board maps from the EventSetup 
+    // local cache & check on cacheIdentifier
 
-    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
+    unsigned long long l1GtBMCacheID = evSetup.get<L1GtBoardMapsRcd>().cacheIdentifier();
+
+    if (m_l1GtBMCacheID != l1GtBMCacheID) {
+        
+        edm::ESHandle< L1GtBoardMaps > l1GtBM;
+        evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );        
+        m_l1GtBM = l1GtBM.product();
+        
+        m_l1GtBMCacheID = l1GtBMCacheID;
+
+    }
+
+    // TODO need changes in CondFormats to cache the maps
+    const std::vector<L1GtBoard>& boardMaps = m_l1GtBM->gtBoardMaps();
+
+    // get / update the prescale factors from the EventSetup 
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtPfCacheID = evSetup.get<L1GtPrescaleFactorsRcd>().cacheIdentifier();
+
+    if (m_l1GtPfCacheID != l1GtPfCacheID) {
+        
+        edm::ESHandle< L1GtPrescaleFactors > l1GtPf;
+        evSetup.get< L1GtPrescaleFactorsRcd >().get( l1GtPf );        
+        m_l1GtPf = l1GtPf.product();
+        
+        m_prescaleFactors = m_l1GtPf->gtPrescaleFactors();
+        
+        m_l1GtPfCacheID = l1GtPfCacheID;
+
+    }
+
+    
+    // get / update the trigger mask from the EventSetup 
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtTmCacheID = evSetup.get<L1GtTriggerMaskRcd>().cacheIdentifier();
+
+    if (m_l1GtTmCacheID != l1GtTmCacheID) {
+        
+        edm::ESHandle< L1GtTriggerMask > l1GtTm;
+        evSetup.get< L1GtTriggerMaskRcd >().get( l1GtTm );        
+        m_l1GtTm = l1GtTm.product();
+        
+        m_triggerMask = m_l1GtTm->gtTriggerMask();
+        
+        m_l1GtTmCacheID = l1GtTmCacheID;
+
+    }
+    
     // loop over blocks in the GT DAQ record receiving data, count them if they are active
     // all board type are defined in CondFormats/L1TObjects/L1GtFwd
     // enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM };
@@ -251,7 +370,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             bool activeBoard = false;
 
             if (iActiveBit >= 0) {
-                activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+                activeBoard = m_activeBoardsGtDaq & (1 << iActiveBit);
             }
 
             // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
@@ -363,29 +482,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     }
 
-    // number of objects of each type
-    //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
-    unsigned int nrL1Mu = l1GtStablePar->gtNumberL1Mu();
-
-    unsigned int nrL1NoIsoEG = l1GtStablePar->gtNumberL1NoIsoEG();
-    unsigned int nrL1IsoEG = l1GtStablePar->gtNumberL1IsoEG();
-
-    unsigned int nrL1CenJet = l1GtStablePar->gtNumberL1CenJet();
-    unsigned int nrL1ForJet = l1GtStablePar->gtNumberL1ForJet();
-    unsigned int nrL1TauJet = l1GtStablePar->gtNumberL1TauJet();
-
-    // ... the rest of the objects are global
 
     // produce the L1GlobalTriggerReadoutRecord now, after we found how many
     // BxInEvent the record has and how many boards are active
     std::auto_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
         new L1GlobalTriggerReadoutRecord(
-            totalBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
+            m_totalBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 
     // * produce the L1GlobalTriggerEvmReadoutRecord
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
-        new L1GlobalTriggerEvmReadoutRecord(totalBxInEvent, daqNrFdlBoards) );
+        new L1GlobalTriggerEvmReadoutRecord(m_totalBxInEvent, daqNrFdlBoards) );
     // daqNrFdlBoards OK, just reserve memory at this point
 
     // * produce the L1GlobalTriggerObjectMapRecord
@@ -409,7 +516,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 bool activeBoard = false;
 
                 if (iActiveBit >= 0) {
-                    activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+                    activeBoard = m_activeBoardsGtDaq & (1 << iActiveBit);
                 }
 
                 // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
@@ -426,10 +533,10 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
                                 gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(totalBxInEvent));
+                                    static_cast<boost::uint16_t>(m_totalBxInEvent));
 
                                 // set the list of active boards
-                                gtfeWordValue.setActiveBoards(activeBoardsGtDaq);
+                                gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
 
                                 // set the TOTAL_TRIGNR as read from iEvent
                                 // TODO check again - PTC stuff
@@ -483,7 +590,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 bool activeBoard = false;
 
                 if (iActiveBit >= 0) {
-                    activeBoard = activeBoardsGtEvm & (1 << iActiveBit);
+                    activeBoard = m_activeBoardsGtEvm & (1 << iActiveBit);
                 }
 
                 // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
@@ -500,10 +607,10 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
                                 gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(totalBxInEvent));
+                                    static_cast<boost::uint16_t>(m_totalBxInEvent));
 
                                 // set the list of active boards
-                                gtfeWordValue.setActiveBoards(activeBoardsGtEvm);
+                                gtfeWordValue.setActiveBoards(m_activeBoardsGtEvm);
 
                                 // set the TOTAL_TRIGNR as read from iEvent
                                 // TODO check again - PTC stuff
@@ -573,16 +680,18 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_gtPSB->receiveGctObjectData(
             iEvent,
             m_caloGctInputTag, iBxInEvent,
-            receiveNoIsoEG, nrL1NoIsoEG,
-            receiveIsoEG, nrL1IsoEG,
-            receiveCenJet, nrL1CenJet,
-            receiveForJet, nrL1ForJet,
-            receiveTauJet, nrL1TauJet,
+            receiveNoIsoEG, m_nrL1NoIsoEG,
+            receiveIsoEG, m_nrL1IsoEG,
+            receiveCenJet, m_nrL1CenJet,
+            receiveForJet, m_nrL1ForJet,
+            receiveTauJet, m_nrL1TauJet,
             receiveETM, receiveETT, receiveHTT,
             receiveJetCounts);
 
         if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
-            m_gtPSB->fillPsbBlock(iEvent, evSetup, iBxInEvent, gtDaqReadoutRecord);
+            m_gtPSB->fillPsbBlock(iEvent, 
+                    m_activeBoardsGtDaq, boardMaps,
+                    iBxInEvent, gtDaqReadoutRecord);
         }
 
         // * receive GMT object data via GTL
@@ -593,7 +702,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_gtGTL->receiveGmtObjectData(
             iEvent,
             m_muGmtInputTag, iBxInEvent,
-            receiveMu, nrL1Mu);
+            receiveMu, m_nrL1Mu);
 
         // * run GTL
         //LogDebug("L1GlobalTrigger")
@@ -602,43 +711,30 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         m_gtGTL->run(iEvent, evSetup, m_gtPSB, 
             m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord, 
-            numberPhysTriggers);
+            m_numberPhysTriggers);
 
         //LogDebug("L1GlobalTrigger")
         //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"
         //<< std::endl;
-
-        ////maps only for BX = 0
-        //if (m_produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
-        //
-        //    const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap();
-        //
-        //    gtObjectMapRecord->setGtObjectMap(*objMapVec);
-        //    delete objMapVec;
-        //
-        //}
-
 
         // * run FDL
         //LogDebug("L1GlobalTrigger")
         //<< "\nL1GlobalTrigger : running FDL for bx = " << iBxInEvent << "\n"
         //<< std::endl;
 
-        m_gtFDL->run(iEvent, evSetup,
-                     boardMaps,
-                     totalBxInEvent,
-                     iBxInEvent);
+        m_gtFDL->run(iEvent, m_prescaleFactors, m_triggerMask, boardMaps,
+                m_totalBxInEvent, iBxInEvent, m_gtGTL);
 
         if (m_produceL1GtDaqRecord && (daqNrFdlBoards > 0)) {
             m_gtFDL->fillDaqFdlBlock(
-                activeBoardsGtDaq, boardMaps,
+                m_activeBoardsGtDaq, boardMaps,
                 gtDaqReadoutRecord);
         }
 
 
         if (m_produceL1GtEvmRecord && (evmNrFdlBoards > 0)) {
             m_gtFDL->fillEvmFdlBlock(
-                activeBoardsGtEvm, boardMaps,
+                m_activeBoardsGtEvm, boardMaps,
                 gtEvmReadoutRecord);
         }
 
@@ -672,29 +768,25 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
 
     if ( edm::isDebugEnabled() ) {
-        std::ostringstream myCoutStream;
+
+    	std::ostringstream myCoutStream;
         gtDaqReadoutRecord->print(myCoutStream);
         LogTrace("L1GlobalTrigger")
         << "\n The following L1 GT DAQ readout record was produced:\n"
         << myCoutStream.str() << "\n"
         << std::endl;
-    }
 
+        myCoutStream.str("");
+        myCoutStream.clear();
 
-
-    if ( edm::isDebugEnabled() ) {
-        std::ostringstream myCoutStream;
         gtEvmReadoutRecord->print(myCoutStream);
         LogTrace("L1GlobalTrigger")
         << "\n The following L1 GT EVM readout record was produced:\n"
         << myCoutStream.str() << "\n"
         << std::endl;
-    }
 
-
-    if ( edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
+        myCoutStream.str("");
+        myCoutStream.clear();
 
         const std::vector<L1GlobalTriggerObjectMap> objMapVec =
             gtObjectMapRecord->gtObjectMap();
@@ -710,6 +802,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         LogDebug("L1GlobalTrigger")
         << "Test gtObjectMapRecord in L1GlobalTrigger \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
+
         myCoutStream.str("");
         myCoutStream.clear();
 

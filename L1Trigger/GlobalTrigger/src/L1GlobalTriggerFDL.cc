@@ -29,37 +29,22 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 
 // forward declarations
 
 
 // constructor
-L1GlobalTriggerFDL::L1GlobalTriggerFDL(
-    L1GlobalTrigger& gt)
-        : m_GT(gt)
+L1GlobalTriggerFDL::L1GlobalTriggerFDL()
 {
 
     // create empty FDL word
@@ -91,26 +76,20 @@ L1GlobalTriggerFDL::~L1GlobalTriggerFDL()
 // run FDL
 void L1GlobalTriggerFDL::run(
     edm::Event& iEvent,
-    const edm::EventSetup& evSetup,
+    const std::vector<int>& prescaleFactors,
+    const std::vector<unsigned int>& triggerMaskV,   
     const std::vector<L1GtBoard>& boardMaps,
     const int totalBxInEvent,
-    const int iBxInEvent)
+    const int iBxInEvent,
+    const L1GlobalTriggerGTL* ptrGTL)
 {
 
     const unsigned int numberPhysTriggers =
         L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
 
     // get gtlDecisionWord from GTL
-    std::bitset<numberPhysTriggers> gtlDecisionWord = m_GT.gtGTL()->getAlgorithmOR();
+    std::bitset<numberPhysTriggers> gtlDecisionWord = ptrGTL->getAlgorithmOR();
     std::bitset<numberPhysTriggers> fdlDecisionWord = gtlDecisionWord;
-
-    // get from EventSetup: prescale factors
-    edm::ESHandle< L1GtPrescaleFactors > l1GtPF ;
-    evSetup.get< L1GtPrescaleFactorsRcd >().get( l1GtPF ) ;
-
-    std::vector<int> prescaleFactors = l1GtPF->gtPrescaleFactors();
-
-    // TODO FIXME check with firmware to see where and if the prescale counters are reset
 
     // prescale counters are reset at the beginning of the luminosity segment
 
@@ -182,11 +161,6 @@ void L1GlobalTriggerFDL::run(
 
     // set the trigger mask: block the corresponding algorithm if bit value is 1
     // one converts from vector in EventSetup as there there is no "bitset" parameter type
-
-    edm::ESHandle< L1GtTriggerMask > l1GtTM ;
-    evSetup.get< L1GtTriggerMaskRcd >().get( l1GtTM ) ;
-
-    std::vector<unsigned int> triggerMaskV = l1GtTM->gtTriggerMask();
 
     std::bitset<numberPhysTriggers> triggerMask;
     for (unsigned int i = 0; i < numberPhysTriggers; ++i) {

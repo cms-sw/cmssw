@@ -39,8 +39,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
-class L1GlobalTrigger;
 class L1GlobalTriggerPSB;
+class L1GtTriggerMenu;
 
 // class declaration
 class L1GlobalTriggerGTL
@@ -51,7 +51,7 @@ public:
     // constructors
     //L1GlobalTriggerGTL();
 
-    L1GlobalTriggerGTL(const L1GlobalTrigger&);
+    L1GlobalTriggerGTL();
 
     // destructor
     virtual ~L1GlobalTriggerGTL();
@@ -59,8 +59,6 @@ public:
 public:
 
     typedef unsigned int MuonDataWord;
-
-    typedef std::vector<L1MuGMTCand*> L1GmtCandVector;
 
 public:
 
@@ -93,16 +91,22 @@ public:
     }
 
     /// return global muon trigger candidate
-    inline const L1GmtCandVector* getCandL1Mu() const
+    inline const std::vector<L1MuGMTCand*>* getCandL1Mu() const
     {
         return m_candL1Mu;
     }
 
 private:
+    
+    // cached stuff
 
-    const L1GlobalTrigger& m_GT;
+    // trigger menu
+    const L1GtTriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
 
-    L1GmtCandVector* m_candL1Mu;
+private:
+
+    std::vector<L1MuGMTCand*>* m_candL1Mu;
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;

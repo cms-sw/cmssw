@@ -23,10 +23,14 @@
 
 // system include files
 #include <string>
+#include <vector>
 
 #include <boost/cstdint.hpp>
 
 // user include files
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -42,6 +46,12 @@ class L1GlobalTriggerPSB;
 class L1GlobalTriggerGTL;
 class L1GlobalTriggerFDL;
 
+class L1GtStableParameters;
+class L1GtParameters;
+class L1GtBoardMaps;
+
+class L1GtPrescaleFactors;
+class L1GtTriggerMask;
 
 // class declaration
 class L1GlobalTrigger : public edm::EDProducer
@@ -71,6 +81,59 @@ public:
     {
         return m_gtFDL;
     }
+
+private:
+    
+    /// cached stuff
+
+    /// stable parameters
+    const L1GtStableParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtStableParCacheID;
+
+    /// number of physics triggers
+    unsigned int m_numberPhysTriggers;
+    
+    /// number of objects of each type
+    ///    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+    unsigned int m_nrL1Mu;
+
+    unsigned int m_nrL1NoIsoEG;
+    unsigned int m_nrL1IsoEG;
+
+    unsigned int m_nrL1CenJet;
+    unsigned int m_nrL1ForJet;
+    unsigned int m_nrL1TauJet;
+
+    // ... the rest of the objects are global
+    
+    
+
+    /// parameters
+    const L1GtParameters* m_l1GtPar;
+    unsigned long long m_l1GtParCacheID;
+    
+    ///    total number of Bx's in the event
+    int m_totalBxInEvent;
+
+    ///    active boards in L1 GT DAQ record and in L1 GT EVM record
+    boost::uint16_t m_activeBoardsGtDaq;
+    boost::uint16_t m_activeBoardsGtEvm;
+
+    /// board maps - cache only the record
+    const L1GtBoardMaps* m_l1GtBM;
+    unsigned long long m_l1GtBMCacheID;
+    
+    
+    ///prescale factors & trigger masks
+    const L1GtPrescaleFactors* m_l1GtPf;
+    unsigned long long m_l1GtPfCacheID;
+    
+    std::vector<int> m_prescaleFactors;
+
+    const L1GtTriggerMask* m_l1GtTm;
+    unsigned long long m_l1GtTmCacheID;
+ 
+    std::vector<unsigned int> m_triggerMask;
 
 private:
 

@@ -22,6 +22,7 @@
 
 // system include files
 #include <vector>
+#include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -30,11 +31,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 
 // forward declarations
-class L1GlobalTrigger;
-
 class L1GctCand;
 
 class L1GctEmCand;
@@ -55,7 +56,7 @@ class L1GlobalTriggerPSB
 public:
 
     // constructor
-    L1GlobalTriggerPSB(L1GlobalTrigger& gt);
+    L1GlobalTriggerPSB();
 
     // destructor
     virtual ~L1GlobalTriggerPSB();
@@ -81,7 +82,8 @@ public:
     /// fill the content of active PSB boards
     void fillPsbBlock(
         edm::Event& iEvent,
-        const edm::EventSetup& evSetup,
+        const boost::uint16_t& activeBoardsGtDaq,
+        const std::vector<L1GtBoard>& boardMaps,
         const int iBxInEvent,
         std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);
 
@@ -146,8 +148,6 @@ public:
     }
 
 private:
-
-    const L1GlobalTrigger& m_GT;
 
     L1GctCandVector* m_candL1NoIsoEG;
     L1GctCandVector* m_candL1IsoEG;

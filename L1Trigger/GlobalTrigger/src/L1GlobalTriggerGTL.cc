@@ -56,7 +56,6 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GtMuonCondition.h"
@@ -81,8 +80,8 @@
 // forward declarations
 
 // constructor
-L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt) :
-    m_GT(gt), m_candL1Mu(new L1GmtCandVector(L1GlobalTriggerReadoutSetup::NumberL1Muons)) {
+L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
+    m_candL1Mu(new std::vector<L1MuGMTCand*>(L1GlobalTriggerReadoutSetup::NumberL1Muons)) {
 
     m_gtlAlgorithmOR.reset();
     m_gtlDecisionWord.reset();
@@ -171,13 +170,23 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const unsigned int numberPhysTriggers) {
 
 
-    // get the trigger menu from the EventSetup
+	// get / update the trigger menu from the EventSetup 
+    // local cache & check on cacheIdentifier
 
-    edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
-    evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
-    const std::vector<ConditionMap>& conditionMap = l1GtMenu->gtConditionMap();
-    const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+        
+        edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
+        evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
+        m_l1GtMenu =  l1GtMenu.product();
+        
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+        
+    }
+
+    const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
+    const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
@@ -187,8 +196,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
     conditionResultMaps.reserve(conditionMap.size());
     
-    for (std::vector<ConditionMap>::const_iterator itCondOnChip = conditionMap.begin(); itCondOnChip
-        != conditionMap.end(); itCondOnChip++) {
+    for (std::vector<ConditionMap>::const_iterator 
+    		itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
 
         //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
         L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
@@ -317,7 +326,6 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
             objMap.setAlgoName(itAlgo->first);
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
-            objMap.setAlgoLogicalExpression(gtAlg.logicalExpression());
             objMap.setOperandTokenVector(gtAlg.operandTokenVector());
             objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
 
@@ -374,7 +382,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 // clear GTL
 void L1GlobalTriggerGTL::reset() {
 
-    L1GmtCandVector::iterator iter;
+    std::vector<L1MuGMTCand*>::iterator iter;
     for (iter = m_candL1Mu->begin(); iter < m_candL1Mu->end(); iter++) {
         if (*iter) {
             delete (*iter);
@@ -394,7 +402,7 @@ void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
     LogTrace("L1GlobalTriggerGTL") << "\nMuon data received by GTL for BxInEvent = " << iBxInEvent
         << std::endl;
 
-    for (L1GmtCandVector::iterator iter = m_candL1Mu->begin(); iter < m_candL1Mu->end(); iter++) {
+    for (std::vector<L1MuGMTCand*>::iterator iter = m_candL1Mu->begin(); iter < m_candL1Mu->end(); iter++) {
 
         LogTrace("L1GlobalTriggerGTL") << std::endl;
 

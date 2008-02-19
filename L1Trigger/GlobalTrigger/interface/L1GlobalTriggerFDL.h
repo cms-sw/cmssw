@@ -27,7 +27,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
@@ -36,8 +35,8 @@
 class L1GlobalTriggerReadoutRecord;
 class L1GlobalTriggerEvmReadoutRecord;
 
-class L1GlobalTrigger;
 class L1GtFdlWord;
+class L1GlobalTriggerGTL;
 
 // class declaration
 class L1GlobalTriggerFDL
@@ -46,7 +45,7 @@ class L1GlobalTriggerFDL
 public:
 
     /// constructor
-    L1GlobalTriggerFDL(L1GlobalTrigger& gt);
+    L1GlobalTriggerFDL();
 
     /// destructor
     virtual ~L1GlobalTriggerFDL();
@@ -54,10 +53,12 @@ public:
     /// run the FDL
     void run(
         edm::Event& iEvent,
-        const edm::EventSetup& evSetup,
+        const std::vector<int>& prescaleFactors,
+        const std::vector<unsigned int>& triggerMaskV,   
         const std::vector<L1GtBoard>& boardMaps,
         const int totalBxInEvent,
-        const int iBxInEvent);
+        const int iBxInEvent,
+        const L1GlobalTriggerGTL* ptrGTL);
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
     void fillDaqFdlBlock(
@@ -83,8 +84,6 @@ public:
 
 
 private:
-
-    const L1GlobalTrigger& m_GT;
 
     L1GtFdlWord* m_gtFdlWord;
 

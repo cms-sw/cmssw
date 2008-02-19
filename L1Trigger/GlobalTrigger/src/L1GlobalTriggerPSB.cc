@@ -20,6 +20,8 @@
 
 // system include files
 #include <bitset>
+#include <iostream>
+#include <iomanip>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -35,30 +37,17 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
-
 // forward declarations
 
 // constructor
-L1GlobalTriggerPSB::L1GlobalTriggerPSB(L1GlobalTrigger& gt)
-        : m_GT(gt),
+L1GlobalTriggerPSB::L1GlobalTriggerPSB()
+        :
         m_candL1NoIsoEG        ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1Electrons) ),
         m_candL1IsoEG( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons) ),
         m_candL1CenJet      ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1CentralJets) ),
@@ -429,23 +418,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 // fill the content of active PSB boards
 void L1GlobalTriggerPSB::fillPsbBlock(
     edm::Event& iEvent,
-    const edm::EventSetup& evSetup,
+    const boost::uint16_t& activeBoardsGtDaq,
+    const std::vector<L1GtBoard>& boardMaps,
     const int iBxInEvent,
     std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
 {
 
-    // get parameters
-    edm::ESHandle< L1GtParameters > l1GtPar ;
-    evSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
-
-    //    active boards in L1 GT DAQ record
-    boost::uint16_t activeBoardsGtDaq = l1GtPar->gtDaqActiveBoards();
-
-    // get board maps
-    edm::ESHandle< L1GtBoardMaps > l1GtBM;
-    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
-
-    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
     // loop over PSB blocks in the GT DAQ record and fill them
@@ -635,7 +613,7 @@ void L1GlobalTriggerPSB::printGctObjectData() const
 {
 
     LogTrace("L1GlobalTriggerPSB")
-    << "\n L1GlobalTrigger Calorimeter input data\n" << std::endl;
+    << "\n L1GlobalTrigger Calorimeter input data [hex] \n" << std::endl;
 
     L1GctCandVector::const_iterator iter;
 
@@ -643,62 +621,89 @@ void L1GlobalTriggerPSB::printGctObjectData() const
     for ( iter = m_candL1NoIsoEG->begin(); iter < m_candL1NoIsoEG->end(); iter++ ) {
 
         LogTrace("L1GlobalTriggerPSB")
+        << std::hex
         << "Rank = " << (*iter)->rank()
         << " Eta index = " << (*iter)->etaIndex()
         << " Phi index = " << (*iter)->phiIndex()
+        << std::dec
         << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT IsoEG " << std::endl;
     for ( iter = m_candL1IsoEG->begin(); iter < m_candL1IsoEG->end(); iter++ ) {
         LogTrace("L1GlobalTriggerPSB")
+        << std::hex
         << "Rank = " << (*iter)->rank()
         << " Eta index = " << (*iter)->etaIndex()
         << " Phi index = " << (*iter)->phiIndex()
+        << std::dec
         << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT CenJet " << std::endl;
     for ( iter = m_candL1CenJet->begin(); iter < m_candL1CenJet->end(); iter++ ) {
         LogTrace("L1GlobalTriggerPSB")
+        << std::hex
         << "Rank = " << (*iter)->rank()
         << " Eta index = " << (*iter)->etaIndex()
         << " Phi index = " << (*iter)->phiIndex()
+        << std::dec
         << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT ForJet " << std::endl;
     for ( iter = m_candL1ForJet->begin(); iter < m_candL1ForJet->end(); iter++ ) {
         LogTrace("L1GlobalTriggerPSB")
+        << std::hex
         << "Rank = " << (*iter)->rank()
         << " Eta index = " << (*iter)->etaIndex()
         << " Phi index = " << (*iter)->phiIndex()
+        << std::dec
         << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT TauJet " << std::endl;
     for ( iter = m_candL1TauJet->begin(); iter < m_candL1TauJet->end(); iter++ ) {
         LogTrace("L1GlobalTriggerPSB")
+        << std::hex
         << "Rank = " << (*iter)->rank()
         << " Eta index = " << (*iter)->etaIndex()
         << " Phi index = " << (*iter)->phiIndex()
+        << std::dec
         << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT ETM " << std::endl;
     if ( m_candETM ) {
-        LogTrace("L1GlobalTriggerPSB") << "ET  = " << m_candETM->et() << std::endl;
-        LogTrace("L1GlobalTriggerPSB") << "phi = " << m_candETM->phi() << std::endl;
+        LogTrace("L1GlobalTriggerPSB")         
+        << std::hex
+        << "ET  = " << m_candETM->et() 
+        << std::dec
+        << std::endl;
+        
+        LogTrace("L1GlobalTriggerPSB") 
+        << std::hex
+        << "phi = " << m_candETM->phi() 
+        << std::dec
+        << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT ETT " << std::endl;
     if ( m_candETT )   {
-        LogTrace("L1GlobalTriggerPSB") <<  "ET  = " << m_candETT->et() << std::endl;
+        LogTrace("L1GlobalTriggerPSB") 
+        << std::hex
+        <<  "ET  = " << m_candETT->et() 
+        << std::dec
+        << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT HTT " << std::endl;
     if ( m_candHTT )   {
-        LogTrace("L1GlobalTriggerPSB") <<  "ET  = " << m_candHTT->et() << std::endl;
+        LogTrace("L1GlobalTriggerPSB") 
+        << std::hex
+        <<  "ET  = " << m_candHTT->et() 
+        << std::dec
+        << std::endl;
     }
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT JetCounts " << std::endl;
