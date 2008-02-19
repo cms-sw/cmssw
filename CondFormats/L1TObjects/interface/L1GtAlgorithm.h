@@ -22,7 +22,7 @@
 #include <iostream>
 
 // user include files
-//   base class
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // forward declarations
 
@@ -72,6 +72,11 @@ public:
         m_algoLogicalExpression = logicalExpression;
     }
 
+    /// return the RPN vector
+    inline const std::vector<L1GtLogicParser::TokenRPN>& algoRpnVector() const {
+        return m_algoRpnVector;
+    }
+
     /// get / set algorithm bit number
     inline const int algoBitNumber() const
     {
@@ -117,6 +122,9 @@ private:
 
     /// algorithm logical expresssion
     std::string m_algoLogicalExpression;
+
+    /// algorithm RPN vector
+    std::vector<L1GtLogicParser::TokenRPN> m_algoRpnVector;
 
     /// bit number (determined by output pin, chip number, chip order)
     /// the result for the algorithm is found at m_algoBitNumber position in

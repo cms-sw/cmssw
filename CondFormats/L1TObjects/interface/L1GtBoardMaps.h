@@ -42,7 +42,7 @@ public:
 public:
 
     /// get / set / print the L1 GT board map
-    const std::vector<L1GtBoard> gtBoardMaps() const
+    const std::vector<L1GtBoard>& gtBoardMaps() const
     {
         return m_gtBoardMaps;
     }

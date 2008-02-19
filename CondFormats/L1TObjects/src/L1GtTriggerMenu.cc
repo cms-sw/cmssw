@@ -137,14 +137,50 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
         case 2: {
 
-            // more more verbose
+            // header for printing algorithms
+
+            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
+            << "L1 Trigger Menu Name: " << m_triggerMenuName << "\n\n"
+            << std::endl;
+
+            for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
+                (itBit->second)->print(myCout);
+            }
         }
             break;
 
         default: {
-            // write some informative message
+            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
+            << "Verbosity level: " << printVerbosity << " not implemented.\n\n"
+            << std::endl;
         }
             break;
     }
 
 }
+
+// get the result for algorithm with name algName
+// use directly the format of decisionWord (no typedef) 
+bool L1GtTriggerMenu::gtAlgorithmResult(const std::string& algName, const std::vector<bool>& decWord) {
+    
+    bool algResult = false;
+    
+    for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
+
+        int bitNumber = (itAlgo->second)->algoBitNumber();
+        algResult = decWord.at(bitNumber);
+        
+        return algResult;
+        
+    }
+    
+    // return false if the algorithm name is not found in the menu
+    // TODO throw exception will be better - but the class is used in 
+    // XDAQ Trigger Supervisor (outside CMSSW) hence no CMSSW dependence
+    // is allowed here
+   
+    return false;
+    
+}
+
+
