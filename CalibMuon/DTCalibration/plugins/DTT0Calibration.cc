@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/18 15:40:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -70,8 +70,6 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
       wireIdWithHistos.push_back(DTWireId(wheel,station,sector,sl,layer,wire));
     }
   }
-
-  t0s = new DTT0();
 
   hT0SectorHisto=0;
 
@@ -270,6 +268,10 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 
 
 void DTT0Calibration::endJob() {
+
+  DTT0* t0s = new DTT0();
+  DTT0* t0sWRTChamber = new DTT0();
+
   if(debug) 
     cout << "[DTT0CalibrationPerLayer]Writing histos to file!" << endl;
 
@@ -404,13 +406,53 @@ void DTT0Calibration::endJob() {
       }
     }
   }
+  
+  ///Change t0 absolute reference -> from sector peak to chamber average
+  if(debug) 
+    cout << "[DTT0Calibration]Computing relative t0 wrt to chamber average" << endl;
+  //Compute the reference for each chamber
+  map<DTChamberId,double> sumT0ByChamber;
+  map<DTChamberId,int> countT0ByChamber;
+  for(DTT0::const_iterator tzero = t0s->begin();
+      tzero != t0s->end(); tzero++) {
+    DTChamberId chamberId((*tzero).first.wheelId,
+			  (*tzero).first.stationId,
+			  (*tzero).first.sectorId);
+    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + (*tzero).second.t0mean;
+    countT0ByChamber[chamberId]++;
+  }
 
+  //Change reference for each wire and store the new t0s in the new map
+  for(DTT0::const_iterator tzero = t0s->begin();
+      tzero != t0s->end(); tzero++) {
+    DTChamberId chamberId((*tzero).first.wheelId,
+			  (*tzero).first.stationId,
+			  (*tzero).first.sectorId);
+    double t0mean = ((*tzero).second.t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    double t0rms = (*tzero).second.t0rms;
+    DTWireId wireId((*tzero).first.wheelId,
+		    (*tzero).first.stationId,
+		    (*tzero).first.sectorId,
+		    (*tzero).first.slId,
+		    (*tzero).first.layerId,
+		    (*tzero).first.cellId);
+    t0sWRTChamber->set(wireId,
+		       t0mean,
+		       t0rms,
+		       DTTimeUnits::counts);
+    if(debug){
+      //cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+      cout<<"Changing t0 of wire "<<wireId<<" from "<<(*tzero).second.t0mean<<" to "<<t0mean<<endl;
+    }
+  }
+
+  ///Write the t0 map into DB
   if(debug) 
    cout << "[DTT0Calibration]Writing values in DB!" << endl;
   // FIXME: to be read from cfg?
   string t0Record = "DTT0Rcd";
   // Write the t0 map to DB
-  DTCalibDBUtils::writeToDB(t0Record, t0s);
+  DTCalibDBUtils::writeToDB(t0Record, t0sWRTChamber);
 }
 
 string DTT0Calibration::getHistoName(const DTWireId& wId) const {

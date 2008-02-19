@@ -8,8 +8,8 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
- *  $Date: 2007/07/26 07:31:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/18 15:40:15 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -104,9 +104,6 @@ private:
 
   //DTGeometry used to loop on the SL in the endJob
   edm::ESHandle<DTGeometry> dtGeom;
-
-  // The object to be written to DB
-  DTT0* t0s; 
 };
 #endif
 
