@@ -42,7 +42,7 @@ class CSCNoiseMatrixDBConditions: public edm::ESProducer, public edm::EventSetup
 // to workaround plugin library
 inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 {
-  int db_chamber_id,db_strip,new_chamber_id,new_strip,new_index, db_index;
+  int new_index, db_index;
   float db_elm33,db_elm34, db_elm44, db_elm35, db_elm45, db_elm55;
   float db_elm46, db_elm56, db_elm66, db_elm57, db_elm67, db_elm77;
   std::vector<int> db_index_id;
@@ -79,7 +79,7 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 
   CSCDBNoiseMatrix * cndbmatrix = new CSCDBNoiseMatrix();
 
- int counter;
+  int counter;
   int db_nrlines=0;
   int new_nrlines=0;
     
@@ -118,7 +118,6 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   
   while (!newdata.eof() ) { 
     newdata >> new_index>> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >> new_elm45 >> new_elm55 >> new_elm46 >> new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77 ; 
-    //new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
     new_elem33.push_back(new_elm33);
     new_elem34.push_back(new_elm34);
@@ -136,51 +135,49 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   }
   newdata.close();
   
-  std::vector<CSCDBNoiseMatrix::Item> itemvector;
-  itemvector.resize(252288);
-  //itemvector.resize(217728);
-  
-  for(int i=0; i<252288;++i){
-  //for(int i=0; i<217728;++i){
-    itemvector[i].elem33 = db_elem33[i];
-    itemvector[i].elem34 = db_elem34[i]; 
-    itemvector[i].elem44 = db_elem44[i];
-    itemvector[i].elem35 = db_elem35[i];
-    itemvector[i].elem45 = db_elem45[i];
-    itemvector[i].elem55 = db_elem55[i];
-    itemvector[i].elem46 = db_elem46[i];
-    itemvector[i].elem56 = db_elem56[i];
-    itemvector[i].elem66 = db_elem66[i];
-    itemvector[i].elem57 = db_elem57[i];
-    itemvector[i].elem67 = db_elem67[i];
-    itemvector[i].elem77 = db_elem77[i];
+  CSCDBNoiseMatrix * itemarray[217728];
+  //std::vector<CSCDBNoiseMatrix::Item> itemvector;
+ 
+   
+  for(int i=0; i<CSCDBNoiseMatrix::ArraySize;++i){
+    itemarray[i]->matrix[i].elem33 = (short int) db_elem33[i];
+    itemarray[i]->matrix[i].elem34 = (short int) db_elem34[i]; 
+    itemarray[i]->matrix[i].elem44 = (short int) db_elem44[i];
+    itemarray[i]->matrix[i].elem35 = (short int) db_elem35[i];
+    itemarray[i]->matrix[i].elem45 = (short int) db_elem45[i];
+    itemarray[i]->matrix[i].elem55 = (short int) db_elem55[i];
+    itemarray[i]->matrix[i].elem46 = (short int) db_elem46[i];
+    itemarray[i]->matrix[i].elem56 = (short int) db_elem56[i];
+    itemarray[i]->matrix[i].elem66 = (short int) db_elem66[i];
+    itemarray[i]->matrix[i].elem57 = (short int) db_elem57[i];
+    itemarray[i]->matrix[i].elem67 = (short int) db_elem67[i];
+    itemarray[i]->matrix[i].elem77 = (short int) db_elem77[i];
   }
 
   
-  for(int i=0; i<252288;++i){
-    //for(int i=0; i<217728;++i){
+  for(int i=0; i<CSCDBNoiseMatrix::ArraySize;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemvector[counter].elem33 = new_elem33[k];
-	itemvector[counter].elem34 = new_elem34[k]; 
-	itemvector[counter].elem44 = new_elem44[k];
-	itemvector[counter].elem35 = new_elem35[k];
-	itemvector[counter].elem45 = new_elem45[k];
-	itemvector[counter].elem55 = new_elem55[k];
-	itemvector[counter].elem46 = new_elem46[k];
-	itemvector[counter].elem56 = new_elem56[k];
-	itemvector[counter].elem66 = new_elem66[k];
-	itemvector[counter].elem57 = new_elem57[k];
-	itemvector[counter].elem67 = new_elem67[k];
-	itemvector[counter].elem77 = new_elem77[k];
-	itemvector[i] = itemvector[counter];
+	itemarray[counter]->matrix[i].elem33 = (short int) new_elem33[k];
+	itemarray[counter]->matrix[i].elem34 = (short int) new_elem34[k]; 
+	itemarray[counter]->matrix[i].elem44 = (short int) new_elem44[k];
+	itemarray[counter]->matrix[i].elem35 = (short int) new_elem35[k];
+	itemarray[counter]->matrix[i].elem45 = (short int) new_elem45[k];
+	itemarray[counter]->matrix[i].elem55 = (short int) new_elem55[k];
+	itemarray[counter]->matrix[i].elem46 = (short int) new_elem46[k];
+	itemarray[counter]->matrix[i].elem56 = (short int) new_elem56[k];
+	itemarray[counter]->matrix[i].elem66 = (short int) new_elem66[k];
+	itemarray[counter]->matrix[i].elem57 = (short int) new_elem57[k];
+	itemarray[counter]->matrix[i].elem67 = (short int) new_elem67[k];
+	itemarray[counter]->matrix[i].elem77 = (short int) new_elem77[k];
+	itemarray[i] = itemarray[counter];
       }  
     }
   }
   
   return cndbmatrix;
-  //std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbmatrix->matrix));
+  //std::copy(itemarray.begin(), itemarray.end(), std::back_inserter(cndbmatrix->matrix));
 }
 
 #endif

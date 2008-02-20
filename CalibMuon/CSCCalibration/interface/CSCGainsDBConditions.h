@@ -44,9 +44,7 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 {
   CSCDBGains * cndbgains = new CSCDBGains();
 
-  float mean,min,minchi;
-  int seed;long int M;
-  int new_chamber_id,db_index,new_strip;
+  int db_index;
   float db_gainslope,db_intercpt, db_chisq;
   std::vector<int> db_index_id;
   std::vector<float> db_slope;
@@ -64,9 +62,6 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   int counter;
   int db_nrlines=0;
   int new_nrlines=0;
-  seed = 10000;	
-  srand(seed);
-  mean=6.8, min=-10.0, minchi=1.0, M=1000;
   
   std::ifstream dbdata; 
   dbdata.open("dbgains.dat",std::ios::in); 
@@ -94,9 +89,7 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   
   while (!newdata.eof() ) { 
     newdata >> new_index >> new_gainslope >> new_intercpt >> new_chisq ; 
-    //new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
-    //new_strips.push_back(new_strip);
     new_slope.push_back(new_gainslope);
     new_intercept.push_back(new_intercpt);
     new_chi2.push_back(new_chisq);
@@ -104,32 +97,24 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   }
   newdata.close();
   
-  std::vector<CSCDBGains::Item> itemvector;
-   itemvector.resize(252288);
+  CSCDBGains * itemarray[217728];
 
-   for(int i=0; i<252288;++i){
-     // for(int i=0; i<217728;++i){
-    itemvector[i].gain_slope= db_slope[i];
-    itemvector[i].gain_intercept= db_intercept[i];
-    itemvector[i].gain_chi2= db_chi2[i];
+   for(int i=0; i<CSCDBGains::ArraySize;++i){
+    itemarray[i]->gains[i].gain_slope= (short int) db_slope[i];
   }
 
-   for(int i=0; i<252288;++i){
-     //for(int i=0; i<217728;++i){
+   for(int i=0; i<CSCDBGains::ArraySize;++i){
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemvector[counter].gain_slope= new_slope[k];
-	 itemvector[counter].gain_intercept= new_intercept[k];
-	 itemvector[counter].gain_chi2= new_chi2[k];
-	 itemvector[i] = itemvector[counter];
+	 itemarray[counter]->gains[i].gain_slope= (short int) new_slope[k];
+	 itemarray[i] = itemarray[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }
    }
    
    return cndbgains;
-   //   std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
 }
 
 

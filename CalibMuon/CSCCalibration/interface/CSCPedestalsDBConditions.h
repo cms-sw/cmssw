@@ -47,9 +47,7 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
 {
  CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
 
-  float mean,min,minchi;
-  int seed;long int M;
-  int new_chamber_id,db_index;
+  int db_index;
   float db_ped, db_rms;
   std::vector<int> db_index_id;
   std::vector<float> db_peds;
@@ -63,9 +61,6 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   int counter;
   int db_nrlines=0;
   int new_nrlines=0;
-  seed = 10000;	
-  srand(seed);
-  mean=6.8, min=-10.0, minchi=1.0, M=1000;
   
   std::ifstream dbdata; 
   dbdata.open("dbpeds.dat",std::ios::in); 
@@ -99,30 +94,26 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   }
   newdata.close();
   
-  std::vector<CSCDBPedestals::Item> itemvector;
-  itemvector.resize(252288);
-  // itemvector.resize(217728);
+  CSCDBPedestals * itemarray[217728];
+  //std::vector<CSCDBPedestals::Item> itemvector;
 
-  //for(int i=0; i<217728;++i){
-  for(int i=0; i<252288;++i){
-    itemvector[i].ped= db_peds[i];
-    itemvector[i].rms= db_pedrms[i];
+  for(int i=0; i<CSCDBPedestals::ArraySize;++i){
+    itemarray[i]->pedestals[i].ped= (short int) db_peds[i];
+    itemarray[i]->pedestals[i].rms= (short int) db_pedrms[i];
   }
 
-  //for(int i=0; i<217728;++i){
-  for(int i=0; i<252288;++i){
-     counter=db_index_id[i];  
+  for(int i=0; i<CSCDBPedestals::ArraySize;++i){
+    counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemvector[counter].ped= new_peds[k];
-	 itemvector[counter].rms= new_pedrms[k];
-	 itemvector[i] = itemvector[counter];
+	 itemarray[counter]->pedestals[i].ped= (short int) new_peds[k];
+	 itemarray[counter]->pedestals[i].rms= (short int) new_pedrms[k];
+	 itemarray[i] = itemarray[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }
    }
    return cndbpedestals;
-  //std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbpedestals->pedestals));
 }
 
 #endif
