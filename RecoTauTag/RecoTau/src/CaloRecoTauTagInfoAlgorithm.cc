@@ -31,7 +31,7 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   
   resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
 
-  BasicClusterRefVector theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
+  vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
   resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
   
   return resultExtended; 
@@ -86,45 +86,41 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   return thePositionAndEnergyEcalRecHits;
 }
 
-BasicClusterRefVector CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){
+vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){
   vector<math::XYZPoint> thepropagTracksECALSurfContactPoints;
   ESHandle<MagneticField> theMF;
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF);
   const MagneticField* theMagField=theMF.product();
   for(TrackRefVector::const_iterator i_Track=theTracks.begin();i_Track!=theTracks.end();i_Track++){
     math::XYZPoint thepropagTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(theMagField,*i_Track);
-    if(thepropagTrackECALSurfContactPoint.z()!=0.) thepropagTracksECALSurfContactPoints.push_back(thepropagTrackECALSurfContactPoint);
+    if(thepropagTrackECALSurfContactPoint.R()!=0.) thepropagTracksECALSurfContactPoints.push_back(thepropagTrackECALSurfContactPoint);
   }
   
   math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
     
-  BasicClusterRefVector theBasicClusters; 
+  vector<BasicClusterRef> theBasicClusters; 
   
-  double ECALcorner_tantheta=ECALBounds::barrel_innerradius()/ECALBounds::barrel_halfLength();
-  if (fabs((*theCaloJet).pt()/(*theCaloJet).pz())>ECALcorner_tantheta){ 
-    Handle<BasicClusterCollection> theBarrelBCCollection;
-    theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
-    for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
-      BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
-      if (theBasicClusterRef.isNull()) continue;  
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
-    }  
-  }else{    
-    Handle<BasicClusterCollection> theEndcapBCCollection;
-    theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
-    for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
-      BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC); 
-      if (theBasicClusterRef.isNull()) continue;  
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
-    }  
+  Handle<BasicClusterCollection> theBarrelBCCollection;
+  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
+  for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
+    BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
+    if (theBasicClusterRef.isNull()) continue;  
+    if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
   }
+  Handle<BasicClusterCollection> theEndcapBCCollection;
+  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
+  for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
+    BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC); 
+    if (theBasicClusterRef.isNull()) continue;  
+    if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
+  }  
   
-  BasicClusterRefVector theNeutralBasicClusters=theBasicClusters;  
-  BasicClusterRefVector::iterator kmatchedBasicCluster;
+  vector<BasicClusterRef> theNeutralBasicClusters=theBasicClusters;  
+  vector<BasicClusterRef>::iterator kmatchedBasicCluster;
   for (vector<math::XYZPoint>::iterator ipropagTrackECALSurfContactPoint=thepropagTracksECALSurfContactPoints.begin();ipropagTrackECALSurfContactPoint!=thepropagTracksECALSurfContactPoints.end();ipropagTrackECALSurfContactPoint++) {
     double theMatchedEcalBasicClusterpropagTrack_minDR=theECALBasicClusterpropagTrack_matchingDRConeSize;
     bool Track_matchedwithEcalBasicCluster=false;
-    for (BasicClusterRefVector::iterator jBasicCluster=theNeutralBasicClusters.begin();jBasicCluster!=theNeutralBasicClusters.end();jBasicCluster++) {
+    for (vector<BasicClusterRef>::iterator jBasicCluster=theNeutralBasicClusters.begin();jBasicCluster!=theNeutralBasicClusters.end();jBasicCluster++) {
       if(ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position())<theMatchedEcalBasicClusterpropagTrack_minDR){
       	Track_matchedwithEcalBasicCluster=true;
 	theMatchedEcalBasicClusterpropagTrack_minDR=ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position());
