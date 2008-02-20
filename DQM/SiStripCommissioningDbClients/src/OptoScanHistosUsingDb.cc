@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.10 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.11 2008/02/19 11:29:30 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -202,6 +202,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 				    Analysis analysis ) {
   
+#ifdef USING_NEW_DATABASE_MODEL
+
   OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -267,6 +269,8 @@ void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
     desc.push_back( tmp );
     
   }
+
+#endif
 
 }
 

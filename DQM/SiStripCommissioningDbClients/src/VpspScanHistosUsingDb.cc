@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.12 2008/02/19 11:29:30 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.13 2008/02/19 21:17:18 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -174,6 +174,8 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 /** */
 void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 				    Analysis analysis ) {
+
+#ifdef USING_NEW_DATABASE_MODEL
   
   VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( analysis->second );
   if ( !anal ) { return; }
@@ -218,6 +220,8 @@ void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
     desc.push_back( tmp );
       
   }
+
+#endif
 
 }
 

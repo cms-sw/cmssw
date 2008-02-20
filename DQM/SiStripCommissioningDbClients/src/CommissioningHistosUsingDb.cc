@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.8 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.9 2008/02/19 11:29:30 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -220,6 +220,8 @@ CommissioningHistosUsingDb::DbParams::DbParams() :
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistosUsingDb::uploadAnalyses() {
+
+#ifdef USING_NEW_DATABASE_MODEL
   
   if ( !db_ ) {
     edm::LogError(mlDqmClient_) 
@@ -261,6 +263,8 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " TEST only! No analysis descriptions will be uploaded to DB...";
   }
+
+#endif
 
 }
 

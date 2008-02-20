@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.11 2008/02/19 11:29:30 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.12 2008/02/19 21:17:18 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -391,6 +391,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 /** */
 void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					  Analysis analysis ) {
+
+#ifdef USING_NEW_DATABASE_MODEL
   
   FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
@@ -441,6 +443,8 @@ void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions&
     desc.push_back( tmp );
       
   }
+
+#endif
   
 }
 

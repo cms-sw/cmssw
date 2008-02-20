@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.3 2008/02/07 17:02:57 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -134,6 +134,8 @@ void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices 
 /** */
 void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 				     Analysis analysis ) {
+
+#ifdef USING_NEW_DATABASE_MODEL
   
   LatencyAnalysis* anal = dynamic_cast<LatencyAnalysis*>( analysis->second );
   if ( !anal ) { return; }
@@ -173,6 +175,8 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
     desc.push_back( tmp );
     
   }
+
+#endif
   
 }
 

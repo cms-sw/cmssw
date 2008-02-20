@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.3 2008/02/07 17:02:57 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -354,7 +354,9 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 /** */
 void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 				     Analysis analysis ) {
-  
+
+#ifdef USING_NEW_DATABASE_MODEL
+
   FineDelayAnalysis* anal = dynamic_cast<FineDelayAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -392,5 +394,7 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
     desc.push_back( tmp );
     
   }
+
+#endif
   
 }
