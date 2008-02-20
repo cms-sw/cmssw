@@ -6,6 +6,7 @@
 <use name=Utilities/StorageFactory>
 <use name=boost>
 <use name=xerces-c>
+<use name=rootmath>
 <use name=hepmc>
 <use name=fastjet>
 <export>

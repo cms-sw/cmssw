@@ -24,11 +24,19 @@ class JetMatching {
 					const edm::ParameterSet &params);
 
     private:
+	enum MatchMode {
+		kExclusive = 0,
+		kInclusive
+	};
+
 	JetMatching();
 	JetMatching(const edm::ParameterSet &params);
 
 	std::auto_ptr<JetInput>		jetInput;
 	std::auto_ptr<JetClustering>	jetClustering;
+
+	double				maxDeltaR;
+	MatchMode			matchMode;
 };
 
 } // namespace lhef
