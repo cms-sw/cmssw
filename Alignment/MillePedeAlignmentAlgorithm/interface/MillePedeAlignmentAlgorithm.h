@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.14 $
-///  $Date: 2007/10/11 16:11:28 $
+///  $Revision: 1.15 $
+///  $Date: 2007/12/17 18:59:52 $
 ///  (last update by $Author: flucke $)
 
 
@@ -24,6 +24,10 @@
 
 #include <vector>
 #include <string>
+
+#include <TMatrixDSym.h>
+#include <TMatrixD.h>
+#include <TMatrixF.h>
 
 class Alignable;
 class AlignableTracker;
@@ -67,9 +71,14 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
-  int addGlobalDerivatives(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+  int addMeasurementData(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			   unsigned int iHit, const TrajectoryStateOnSurface &trackTsos,
 			   AlignmentParameters *&params);
+
+ // adds data from reference trajectory from a specific Hit
+  void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
+
+
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
 				  Alignable *ali, const AlignableDetOrUnitPtr &alidet, bool hit2D,
@@ -77,6 +86,16 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 				  std::vector<float> &globalDerivativesY,
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;
+
+ // calls Mille and diagonalises the covariance matrx of a Hit if neccesary
+  int callMille2D ( const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+ unsigned int iTrajHit, const std::vector<int> &globalLabels, bool twoDHit,const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy);
+  void  diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,TMatrixF &aHitResidualsM,TMatrixF &theGlobalDerivativesM);
+  // deals with the non matrix format of theFloatBufferX ...
+  void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy,TMatrixF &aGlobalDerivativesM);
+
+
+
   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
 		 unsigned int iTrajHit, MeasurementDirection xOrY,
 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
