@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.17 2008/02/18 11:38:49 ferriff Exp $
- *  $Date: 2008/02/18 11:38:49 $
- *  $Revision: 1.17 $
+ *  $Id: EcalRecHitProducer.cc,v 1.18 2008/02/18 15:53:01 ferriff Exp $
+ *  $Date: 2008/02/18 15:53:01 $
+ *  $Revision: 1.18 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -145,7 +145,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          }
          if ( v_chstatus_.size() > 0) {
                  std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
-                 if ( *res ) {
+                 if ( res != v_chstatus_.end() ) {
                          continue;
                  }
          }
@@ -195,7 +195,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
          }
          if ( v_chstatus_.size() > 0) {
                  std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
-                 if ( *res ) {
+                 if ( res != v_chstatus_.end() ) {
                          continue;
                  }
          }
