@@ -4,7 +4,8 @@
 template<typename JetIn, typename JetOut>
 pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig):
   jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" )),
-  helper_(jetSrc_)
+  helper_(jetSrc_),
+  selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection"))
 {
   // produces vector of electrons
   produces<std::vector<JetOut> >();
@@ -23,7 +24,7 @@ pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfi
   } 
   
   selector_ = std::auto_ptr<JetSelectorType >( 
-                            new JetSelectorType(iConfig) 
+                            new JetSelectorType(selectionCfg_) 
   			                     );
 }
 

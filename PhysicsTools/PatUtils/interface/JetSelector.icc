@@ -7,14 +7,21 @@ using pat::JetSelector;
 //______________________________________________________________________________
 template<typename Jet>
 JetSelector<Jet>::JetSelector( const edm::ParameterSet& config ) :
-  selectionType_( config.getParameter<std::string>("type")),
-  value_(config.getParameter<double>("value"))
+  selectionType_( config.getParameter<std::string>("type"))
 {
 
-  CaloJetSelector_ = std::auto_ptr<CaloJetSelector>( 
-                            new CaloJetSelector(config) );
-  //PFJetSelector_ = std::auto_ptr<PFJetSelector>( 
-  //                          new PFJetSelector(config) );
+  if (selectionType_=="JetMETLikelihood") 
+    value_ = config.getParameter<double>("value");
+  else 
+    value_ = -1;  
+
+
+  if (selectionType_=="custom") {
+    CaloJetSelector_ = std::auto_ptr<CaloJetSelector>( 
+                              new CaloJetSelector(config) );
+    //PFJetSelector_ = std::auto_ptr<PFJetSelector>( 
+    //                          new PFJetSelector(config) );
+  }
 }
 
 
