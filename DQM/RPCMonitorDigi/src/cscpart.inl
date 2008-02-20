@@ -34,13 +34,18 @@ if(allCSCSegments->size()>0){
 	int cscEndCap = CSCId.endcap();
 	int cscStation = CSCId.station();
 	int cscRing = CSCId.ring();
+	std::cout<<" CSCId.ring()="<<CSCId.ring()<<std::endl; //temporal
+	std::cout<<" cscRing="<<cscRing<<std::endl; //temporal	
 	int cscChamber = CSCId.chamber();
 	int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
 	int rpcRing = cscRing;
+	std::cout<<" rpcRing="<<rpcRing<<std::endl; //temporal	
 	if(cscRing==4)rpcRing =1;
 	int rpcStation = cscStation;
 	int rpcSegment = 0;
 	
+	std::cout<<"2 cscRing="<<cscRing<<std::endl; //temporal		
+
 	if(cscStation!=1&&cscRing==1){//las de 18 CSC
 	  rpcSegment = CSCId.chamber();
 	}
@@ -72,7 +77,9 @@ if(allCSCSegments->size()>0){
 
 	std::cout<<"\t \t Number of rolls for this CSC = "<<rollsForThisCSC.size()<<std::endl;
 	
-	if(cscRing=!1) assert(rollsForThisCSC.size()>=1);
+	if(cscRing!=1) assert(rollsForThisCSC.size()>=1);
+	
+	std::cout<<"3 cscRing="<<cscRing<<std::endl; //temporal			
 
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
 	  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -221,14 +228,19 @@ if(allCSCSegments->size()>0){
 		  buff=counter[2];
 		  buff[rollasociated->id()]++;
 		  counter[2]=buff;		
+	
+		  std::cout<<"4 cscRing="<<cscRing<<std::endl; //temporal			
+
 
 		  ofrej<<"cscEndCap "<<rpcRegion
 		       <<"\t cscStation "<<cscStation
 		       <<"\t cscRing "<<cscRing			   
 		       <<"\t cscChamber "<<cscChamber
 		       <<"\t Roll "<<rollasociated->id()
-		       <<"\t Event "
-		       <<iEvent.id().event()
+		       <<"\t Event "<<iEvent.id().event()
+		       <<"\t CSCId "<<CSCId
+			<<"\t CSCId.ring  "<<CSCId.ring()
+		       <<" \t cscRing "<<cscRing
 		       <<std::endl;
 		}
 	      
