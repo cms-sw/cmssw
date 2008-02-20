@@ -56,6 +56,7 @@ class L1MuDTTrackCand: public L1MuRegionalCand {
   int TrkTag()       const;
 
   void setTC();
+  void setAdd(int ust);
 
  private:
 

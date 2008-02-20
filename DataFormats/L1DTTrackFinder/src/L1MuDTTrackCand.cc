@@ -57,6 +57,11 @@ L1MuDTTrackCand::L1MuDTTrackCand( unsigned dataword, int bx, int uwh, int usc,
   TrkAdd[2]       = adr3;
   TrkAdd[3]       = adr4;
   TClassCode      = utc;
+
+  setAdd(1);
+  setAdd(2);
+  setAdd(3);
+  setAdd(4);
 }
 
 L1MuDTTrackCand::L1MuDTTrackCand( unsigned type_idx, unsigned phi, unsigned eta,
@@ -133,5 +138,35 @@ void L1MuDTTrackCand::setTC() {
                break; }
     case 1:  { TClassCode = 10; break; }
     default: { TClassCode = 11; break; }
+  }
+}
+
+void L1MuDTTrackCand::setAdd(int ust) {
+  unsigned int uadd = stNum(ust);
+
+  switch (uadd) {
+    case  0:  { TrkAdd[ust-1] =   8; break; }
+    case  1:  { TrkAdd[ust-1] =   9; break; }
+    case  2:  { TrkAdd[ust-1] =   0; break; }
+    case  3:  { TrkAdd[ust-1] =   1; break; }
+    case  4:  { TrkAdd[ust-1] =  10; break; }
+    case  5:  { TrkAdd[ust-1] =  11; break; }
+    case  6:  { TrkAdd[ust-1] =   2; break; }
+    case  7:  { TrkAdd[ust-1] =   3; break; }
+    case  8:  { TrkAdd[ust-1] =  12; break; }
+    case  9:  { TrkAdd[ust-1] =  13; break; }
+    case 10:  { TrkAdd[ust-1] =   4; break; }
+    case 11:  { TrkAdd[ust-1] =   5; break; }
+    case 15:  { TrkAdd[ust-1] =  15; break; }
+    default:  { TrkAdd[ust-1] =  15; break; }
+  }
+
+  if (ust!=1) return;
+    
+  switch (uadd) {
+    case  0:  { TrkAdd[0] =  2; break; }
+    case  1:  { TrkAdd[0] =  1; break; }
+    case 15:  { TrkAdd[0] =  3; break; }
+    default:  { TrkAdd[0] =  3; break; }
   }
 }
