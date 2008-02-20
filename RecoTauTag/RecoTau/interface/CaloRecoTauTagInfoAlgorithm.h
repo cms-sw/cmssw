@@ -39,7 +39,7 @@ class  CaloRecoTauTagInfoAlgorithm  {
   CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const CaloJetRef&,const TrackRefVector&,const Vertex&); 
  private:  
   vector<pair<math::XYZPoint,float> > getPositionAndEnergyEcalRecHits(Event&,const EventSetup&,const CaloJetRef&);
-  BasicClusterRefVector getNeutralEcalBasicClusters(Event&,const EventSetup& theEventSetup,const CaloJetRef&,const TrackRefVector&,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize);
+  vector<BasicClusterRef> getNeutralEcalBasicClusters(Event&,const EventSetup& theEventSetup,const CaloJetRef&,const TrackRefVector&,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize);
   //
   double tkminPt_;
   int tkminPixelHitsn_;
