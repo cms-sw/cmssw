@@ -24,6 +24,8 @@ public:
 private:
   edm::InputTag src_;
   bool setLongLived_;
+  bool setPdgId_;
+  int pdgId_;  
   Fitter fitter_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
@@ -40,7 +42,7 @@ private:
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
   src_(cfg.template getParameter<edm::InputTag>("src")),
-  setLongLived_(false),
+  setLongLived_(false), setPdgId_(false),
   fitter_(reco::modules::make<Fitter>(cfg)) {
   using namespace std;
   produces<OutputCollection>();
@@ -49,6 +51,10 @@ ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::Con
   vector<string> vBoolParams = cfg.template getParameterNamesForType<bool>();
   bool found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
   if(found) setLongLived_ = cfg.template getParameter<bool>("setLongLived");
+  const string setPdgId("setPdgId");
+  vector<string> vIntParams = cfg.getParameterNamesForType<int>();
+  found = find(vIntParams.begin(), vIntParams.end(), setLongLived) != vIntParams.end();
+  if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
 }
 
 namespace reco {
@@ -84,6 +90,7 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
     std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
     fitter_.set(*clone);
     if(setLongLived_) clone->setLongLived();
+    if(setPdgId_) clone->setPdgId(pdgId_);
     fitHelper::add(fitted, clone);
   }
   evt.put(fitted);

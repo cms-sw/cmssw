@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
- * $Id: CandCombiner.h,v 1.17 2008/01/17 13:29:35 llista Exp $
+ * $Id: CandCombiner.h,v 1.18 2008/02/19 13:17:25 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -37,7 +37,9 @@ namespace reco {
   namespace modules {
 
     struct CandCombinerBase : public edm::EDProducer {
-      CandCombinerBase( const edm::ParameterSet & cfg ) {
+      CandCombinerBase( const edm::ParameterSet & cfg ) :
+	setLongLived_(false), 
+	setPdgId_(false) {
         using namespace cand::parser;
 	using namespace std;
 	string decay(cfg.getParameter<string>("decay"));
@@ -58,10 +60,15 @@ namespace reco {
 	if(lists != 2 && lists != 3)
 	  throw edm::Exception(edm::errors::LogicError,
 			       "invalid number of collections");
+	bool found;
 	const string setLongLived("setLongLived");
 	vector<string> vBoolParams = cfg.getParameterNamesForType<bool>();
-	bool found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
+	found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
 	if(found) setLongLived_ = cfg.getParameter<bool>("setLongLived");
+	const string setPdgId("setPdgId");
+	vector<string> vIntParams = cfg.getParameterNamesForType<int>();
+	found = find(vIntParams.begin(), vIntParams.end(), setLongLived) != vIntParams.end();
+	if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
       }
     protected:
       /// label vector
@@ -70,6 +77,10 @@ namespace reco {
       std::vector<int> dauCharge_;
       /// set long lived flag
       bool setLongLived_;
+      /// set pdgId flag
+      bool setPdgId_;
+      /// which pdgId to set
+      int pdgId_;
     };
     
     template<typename InputCollection, 
@@ -111,9 +122,12 @@ namespace reco {
 	  cv.push_back(r);
 	}
 	std::auto_ptr<OutputCollection> out = combiner_.combine(cv);
-	if(setLongLived_) {
+	if(setLongLived_ || setPdgId_) {
 	  typename OutputCollection::iterator i = out->begin(), e = out->end();
-	  for(; i != e; ++i) i->setLongLived();
+	  for(; i != e; ++i) {
+	    if(setLongLived_) i->setLongLived();
+	    if(setPdgId_) i->setPdgId(pdgId_);
+	  }
 	}
 	evt.put(out);
       }
