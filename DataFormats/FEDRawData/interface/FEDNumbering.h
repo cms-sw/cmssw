@@ -29,6 +29,8 @@ class FEDNumbering {
   static std::pair<int,int> getEcalFEDIds();
   static std::pair<int,int> getHcalFEDIds();
 
+  static std::pair<int,int> getLumiScalersFEDIds();
+
   static std::pair<int,int> getCSCFEDIds();
   static std::pair<int,int> getCSCTFFEDIds();
 
@@ -105,6 +107,8 @@ class FEDNumbering {
   static const int MINHCALFEDID;
   static const int MAXHCALFEDID;
 
+  static const int MINLUMISCALERSFEDID;
+  static const int MAXLUMISCALERSFEDID;
   
   static const int MINTriggerGTPFEDID;
   static const int MAXTriggerGTPFEDID;
