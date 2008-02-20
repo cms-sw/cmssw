@@ -10,9 +10,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 /**
- * Class to re-estimate the parameters of the track at the vertex, 
- *  with the vertex constraint, using the Kalman filter algorithms.
- * This will only change the parameters of the track at the vertex, but NOT 
+ * Class to re-estimate the parameters of the track at the vertex,
+ *  with the vertex constraint or a BeamSpot, using the Kalman filter algorithms.
+ * This will only change the parameters of the track at the vertex, but NOT
  * at other points along the track.
  */
 
@@ -22,30 +22,39 @@ class SingleTrackVertexConstraint {
 public:
 
   typedef std::pair<reco::TransientTrack, float> TrackFloatPair;
-  /** 
-   *  The method which does the constaint, from a TransientTrack.
+  /**
+   *  Constaint of a TransientTrack with a position and error.
    *  The track must NOT have been used in the vertex fit.
    */
-  TrackFloatPair constrain(const reco::TransientTrack & track, 
+  TrackFloatPair constrain(const reco::TransientTrack & track,
 	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
-  /** 
-   *  The method which does the constaint, from a FreeTrajectoryState
+  /**
+   *  Constaint of a FreeTrajectoryState with a position and error.
    *  The track must NOT have been used in the vertex fit.
    */
   TrackFloatPair constrain(const FreeTrajectoryState & fts,
 	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
-
+  /**
+   *  The method which does the constaint.
+   *  The track must NOT have been used in the vertex fit.
+   */
   TrackFloatPair constrain(const reco::TransientTrack & track,
 	const VertexState priorVertex) const;
 
-  TrackFloatPair constrain(
-	const reco::TransientTrack & track, const reco::BeamSpot & spot ) const;
+  /**
+   *  Constaint of a TransientTrack with a BeamSpot.
+   */
+  TrackFloatPair constrain(const reco::TransientTrack & track,
+	const reco::BeamSpot & spot ) const;
 
 
-  TrackFloatPair constrain(
-	const FreeTrajectoryState & fts, const reco::BeamSpot & spot) const;
+  /**
+   *  Constaint of a FreeTrajectoryState with a BeamSpot.
+   */
+  TrackFloatPair constrain(const FreeTrajectoryState & fts,
+	const reco::BeamSpot & spot) const;
 
 
 
