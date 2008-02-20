@@ -114,15 +114,15 @@
    <Parameter name="depth1"   value="1"/>
    <Parameter name="depth1"   value="1"/>
    <Parameter name="depth1"   value="2"/>
-   <Parameter name="depth1"   value="19"/>
+   <Parameter name="depth1"   value="6"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
    <Parameter name="depth1"   value="5"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
+   <Parameter name="depth1"   value="5"/>
    <Parameter name="depth1"   value="6"/>
    <Parameter name="depth1"   value="4"/>
    <Parameter name="depth1"   value="4"/>
@@ -150,8 +150,8 @@
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="19"/>
-   <Parameter name="depth2"   value="19"/>
-   <Parameter name="depth2"   value="19"/>
+   <Parameter name="depth2"   value="7"/>
+   <Parameter name="depth2"   value="7"/>
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="6"/>
    <Parameter name="depth2"   value="6"/>

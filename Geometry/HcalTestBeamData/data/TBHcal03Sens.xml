@@ -32,7 +32,7 @@
    <Parameter name="phibin"   value="5.0*deg"/>
    <Parameter name="phibin"   value="5.0*deg"/>
    <Parameter name="phibin"   value="5.0*deg"/>
-   <Parameter name="phibin"   value="10.0*deg"/>
+   <Parameter name="phibin"   value="5.0*deg"/>
    <Parameter name="phibin"   value="10.0*deg"/>
    <Parameter name="phibin"   value="10.0*deg"/>
    <Parameter name="phibin"   value="10.0*deg"/>
@@ -70,19 +70,19 @@
    <Parameter name="etaTable" value="1.131"/>
    <Parameter name="etaTable" value="1.218"/>
    <Parameter name="etaTable" value="1.305"/>
-   <Parameter name="etaTable" value="1.392"/>
-   <Parameter name="etaTable" value="1.479"/>
-   <Parameter name="etaTable" value="1.566"/>
-   <Parameter name="etaTable" value="1.653"/>
-   <Parameter name="etaTable" value="1.740"/>
-   <Parameter name="etaTable" value="1.830"/>
-   <Parameter name="etaTable" value="1.930"/>
-   <Parameter name="etaTable" value="2.043"/>
-   <Parameter name="etaTable" value="2.172"/>
-   <Parameter name="etaTable" value="2.322"/>
-   <Parameter name="etaTable" value="2.500"/>
-   <Parameter name="etaTable" value="2.650"/>
-   <Parameter name="etaTable" value="2.868"/>
+   <Parameter name="etaTable" value="1.373"/>
+   <Parameter name="etaTable" value="1.444"/>
+   <Parameter name="etaTable" value="1.521"/>
+   <Parameter name="etaTable" value="1.603"/>
+   <Parameter name="etaTable" value="1.693"/>
+   <Parameter name="etaTable" value="1.790"/>
+   <Parameter name="etaTable" value="1.880"/>
+   <Parameter name="etaTable" value="1.980"/>
+   <Parameter name="etaTable" value="2.090"/>
+   <Parameter name="etaTable" value="2.210"/>
+   <Parameter name="etaTable" value="2.360"/>
+   <Parameter name="etaTable" value="2.520"/>
+   <Parameter name="etaTable" value="2.720"/>
    <Parameter name="etaTable" value="3.000"/>
    <Parameter name="rTable"   value="12.50*cm"/>
    <Parameter name="rTable"   value="16.90*cm"/>
@@ -114,16 +114,16 @@
    <Parameter name="depth1"   value="17"/>
    <Parameter name="depth1"   value="13"/>
    <Parameter name="depth1"   value="2"/>
-   <Parameter name="depth1"   value="19"/>
+   <Parameter name="depth1"   value="6"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="7"/>
+   <Parameter name="depth1"   value="5"/>
    <Parameter name="depth1"   value="5"/>
    <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
-   <Parameter name="depth1"   value="6"/>
    <Parameter name="depth1"   value="4"/>
    <Parameter name="depth1"   value="4"/>
    <Parameter name="depth1"   value="4"/>
@@ -150,8 +150,8 @@
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="19"/>
-   <Parameter name="depth2"   value="19"/>
-   <Parameter name="depth2"   value="19"/>
+   <Parameter name="depth2"   value="7"/>
+   <Parameter name="depth2"   value="7"/>
    <Parameter name="depth2"   value="19"/>
    <Parameter name="depth2"   value="6"/>
    <Parameter name="depth2"   value="6"/>
