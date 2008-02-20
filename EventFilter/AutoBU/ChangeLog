@@ -1,3 +1,11 @@
+2008-01-25  Marco Zanetti  <marco.zanetti@cern.ch>
+
+	* tag V00-06-08
+	* adjusted BU/RB properties to run in no-options mode.
+	The SM configuration is now such that it accepts events 
+	from all paths.
+
+
 2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-07
