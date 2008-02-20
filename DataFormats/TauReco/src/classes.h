@@ -6,11 +6,12 @@
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
+#include "DataFormats/TauReco/interface/HLTTau.h"
 
 #include <vector>
 #include <map>
@@ -67,8 +68,16 @@ namespace {
     reco::CaloTauDiscriminatorByIsolationRefProd                calotdi_rp;     
     reco::CaloTauDiscriminatorByIsolationRefVector              calotdi_rv;     
     edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_w;     
-    std::pair<reco::CaloTauRef, int>                            calotdi_p;
-    std::vector<std::pair<reco::CaloTauRef, int> >              calotdi_v;
+    
+    reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;         
+    reco::CaloTauDiscriminatorAgainstElectron                   calotde_o;     
+    reco::CaloTauDiscriminatorAgainstElectronRef                calotde_r;     
+    reco::CaloTauDiscriminatorAgainstElectronRefProd            calotde_rp;     
+    reco::CaloTauDiscriminatorAgainstElectronRefVector          calotde_rv;     
+    edm::Wrapper<reco::CaloTauDiscriminatorAgainstElectron>     calotde_w;     
+    
+    std::pair<reco::CaloTauRef, int>                            calotd_p;
+    std::vector<std::pair<reco::CaloTauRef, int> >              calotd_v;
   
     reco::PFTauDiscriminatorByIsolationBase                     pftdi_b;         
     reco::PFTauDiscriminatorByIsolation                         pftdi_o;     
@@ -76,9 +85,9 @@ namespace {
     reco::PFTauDiscriminatorByIsolationRefProd                  pftdi_rp;     
     reco::PFTauDiscriminatorByIsolationRefVector                pftdi_rv;     
     edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_w;     
-    std::pair<reco::PFTauRef, int>                              pftdi_p;
-    std::vector<std::pair<reco::PFTauRef, int> >                pftdi_v;    
-
+    
+    std::pair<reco::PFTauRef, int>                              pftd_p;
+    std::vector<std::pair<reco::PFTauRef, int> >                pftd_v;    
 
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;
