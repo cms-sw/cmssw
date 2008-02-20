@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.37 2007/12/19 18:05:25 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.38 2008/02/06 17:13:09 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -103,31 +103,28 @@ class SiStripConfigDb {
   // ---------- Typedefs ----------
 
 
-  /** */
   typedef std::vector<deviceDescription*> DeviceDescriptions;
 
-  /** */
   typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
 
 #ifdef USING_NEW_DATABASE_MODEL
 
-  /** */
   typedef std::vector<ConnectionDescription*> FedConnections;
 
-  /** */
-  typedef CommissioningAnalysisDescription AnalysisDescription;
-  
-  /** */
-  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
-
-  /** */
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
 
 #else
 
+  //@@ TO BE DEPRECATED
+  class CommissioningAnalysisDescription;
+  
   typedef std::vector<FedChannelConnectionDescription*> FedConnections;
 
 #endif
+
+  typedef CommissioningAnalysisDescription AnalysisDescription;
+
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
 
   /** Key is DCU id. */
   typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
