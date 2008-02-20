@@ -34,11 +34,11 @@ JetSelector<JetType>::filter( const unsigned int&        index,
                           ) const
 {
 
-  bool result = false;
+  bool result = BAD;
 
   if (selectionType_=="none")  {
 
-    result = true;
+    result = GOOD;
   }
   else if (selectionType_=="JetMETLikelihood" && JetMap!=0)  {
     ///Using the JetRejectorTool, for details see
