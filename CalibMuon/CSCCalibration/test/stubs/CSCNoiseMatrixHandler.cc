@@ -16,7 +16,7 @@ void popcon::CSCDBNoiseMatrixImpl::getNewObjects()
   
   // fill object from file
   CSCDBNoiseMatrix * cndbmatrix = CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix();
-  std::cout << "crosstalk size " << cndbmatrix->matrix.size() << std::endl;
+  //std::cout << "crosstalk size " << cndbmatrix->matrix.size() << std::endl;
   
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;

@@ -16,7 +16,7 @@ void popcon::CSCDBPedestalsImpl::getNewObjects()
   
   // fill object from file
   CSCDBPedestals * cnpedestals = CSCPedestalsDBConditions::prefillDBPedestals();
-  std::cout << "pedestals size " << cnpedestals->pedestals.size() << std::endl;
+  //std::cout << "pedestals size " << cnpedestals->pedestals.size() << std::endl;
 
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;

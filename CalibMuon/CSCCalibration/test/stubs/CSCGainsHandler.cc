@@ -19,7 +19,7 @@ void popcon::CSCDBGainsImpl::getNewObjects()
   
   // fill object from file
   CSCDBGains * cngains = CSCGainsDBConditions::prefillDBGains();
-  std::cout << "crosstalk size " << cngains->gains.size() << std::endl;
+  //std::cout << "crosstalk size " << cngains->gains.size() << std::endl;
   
   //check whats already inside of database
   

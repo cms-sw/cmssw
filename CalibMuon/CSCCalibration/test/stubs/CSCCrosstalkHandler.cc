@@ -22,7 +22,7 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 
   // fill object from file
   CSCDBCrosstalk * cncrosstalk = CSCCrosstalkDBConditions::prefillDBCrosstalk();
-  std::cout << "crosstalk size " << cncrosstalk->crosstalk.size() << std::endl;
+  //std::cout << "crosstalk size " << cncrosstalk->crosstalk.size() << std::endl;
  
 
   //check whats already inside of database
