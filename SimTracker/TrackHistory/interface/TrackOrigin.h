@@ -14,7 +14,7 @@
 
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
-//! This class implement trace the origin of a given track.
+//! This class implement trace the generated origins of a given track.
 class TrackOrigin : public TrackHistory {
 
 public:
@@ -39,12 +39,6 @@ public:
     return genParticleTrail_[genParticleTrail_.size()-1];
   }
 
-  //! Verify if the track comes from a TrackingVertex (displaced track).
-  bool isDisplaced() const
-  {
-    return !simVertexTrail_.empty();
-  }
-
   //! Verify if any of the given particles exist in the track history.
   /* The input is a set of ints with all the pdgid of the particle 
      to verified.
@@ -52,9 +46,6 @@ public:
      /param[in]: set with all pdgid of the particle to verify.
   */ 
   bool hasParticles(std::set<int> const & list) const;
-
-  //! Verify if there were any photon conversion in the particle history.
-  bool hasPhotonConversion() const;
 };
 
 #endif

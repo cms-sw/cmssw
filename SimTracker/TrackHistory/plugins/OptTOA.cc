@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.2 2008/01/14 11:57:22 fambrogl Exp $
+// $Id: OptTOA.cc,v 1.3 2008/01/17 16:05:17 fambrogl Exp $
 //
 //
 
@@ -37,15 +37,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoBTag/Analysis/interface/Tools.h"
 #include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
@@ -53,17 +47,9 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 //
 // class decleration
@@ -96,13 +82,8 @@ private:
   double minPt_, maxChi2_;
   std::size_t minNumberOfHits_;
 
-  bool associationByHits_;
-  TrackAssociatorBase * associator_;
-
   void 
   LoopOverJetTracksAssociation(
-    reco::RecoToSimCollection &,
-    const edm::ESHandle<MagneticField> &,
     const edm::ESHandle<TransientTrackBuilder> &,
     const edm::Handle<reco::VertexCollection> &,
     const edm::Handle<reco::JetTracksAssociationCollection> &
@@ -112,20 +93,22 @@ private:
 
   struct histogram_element_t
   {
-    double decayLength;
-    double distanceToAxis;
-    double TIP; // Transverse impact parameter
-    double LIP; // Longitudinal impact parameter
-    double pt;
-    double chi2;
-    std::size_t hits;
+    double sdl;  // Signed decay length
+    double dta;  // Distance to jet axis
+    double tip;  // Transverse impact parameter
+    double lip;  // Longitudinal impact parameter
+    double ips;  // Impact parameter significance. 
+    double pt;   // Transverse momentum
+    double chi2; // Chi^2
+    std::size_t hits; // Number of hits
    
-    histogram_element_t(double d, double a, double t, double l, double p, double c, std::size_t h)
+    histogram_element_t(double d, double a, double t, double l, double i, double p, double c, std::size_t h)
     {
-      decayLength = d;
-      distanceToAxis = a;
-      TIP = t;
-      LIP = l;
+      sdl = d;
+      dta = a;
+      tip = t;
+      lip = l;
+      ips = i;
       pt = p;
       chi2 = c;
       hits = h;
@@ -133,10 +116,11 @@ private:
 	
     histogram_element_t(const histogram_element_t & orig)
     {
-      decayLength = orig.decayLength;
-      distanceToAxis = orig.distanceToAxis;
-      TIP = orig.TIP;
-      LIP = orig.LIP;
+      sdl = orig.sdl;
+      dta = orig.dta;
+      tip = orig.tip;
+      lip = orig.lip;
+      ips = orig.ips;
       pt = orig.pt;
       chi2 = orig.chi2;
       hits = orig.hits;      
@@ -149,10 +133,11 @@ private:
   class histogram_t
   {
   
-    TH1F* decayLength;
-    TH1F* distanceToAxis;
-    TH1F* TIP; // Transverse impact parameter
-    TH1F* LIP; // Longitudinal impact parameter
+    TH1F* sdl;
+    TH1F* dta;
+    TH1F* tip;
+    TH1F* lip;
+    TH1F* ips;
     TH1F* pt;
     TH1F* pt_1gev;
     TH1F* chi2;
@@ -181,19 +166,21 @@ private:
       
       name = std::string("tip_") + particleType;
       title = std::string("Transverse impact parameter distribution for ") + particleType;
-      TIP = new TH1F(name.c_str(), title.c_str(), 100, -0.3, 0.3);
+      tip = new TH1F(name.c_str(), title.c_str(), 100, -0.3, 0.3);
 
       name = std::string("lip_") + particleType;
       title = std::string("Longitudinal impact parameter distribution for ") + particleType;
-      LIP = new TH1F(name.c_str(), title.c_str(), 100, -1., 1.);
+      lip = new TH1F(name.c_str(), title.c_str(), 100, -1., 1.);
 
-      name = std::string("decayLength_") + particleType;
+      name = std::string("ips_") + particleType;      title = std::string("IPS distribution for ") + particleType;      ips = new TH1F(name.c_str(), title.c_str(), 100, -25.0, 25.0);
+
+      name = std::string("sdl_") + particleType;
       title = std::string("Decay length distribution for ") + particleType;
-      decayLength = new TH1F(name.c_str(), title.c_str(), 100, -5., 5.);
+      sdl = new TH1F(name.c_str(), title.c_str(), 100, -5., 5.);
 
-      name = std::string("distanceToAxis_") + particleType;
+      name = std::string("dta_") + particleType;
       title = std::string("Distance to jet distribution for ") + particleType;
-      distanceToAxis = new TH1F(name.c_str(), title.c_str(), 100, 0.0, 0.2);
+      dta = new TH1F(name.c_str(), title.c_str(), 100, 0.0, 0.2);
     }
 	
     ~histogram_t()
@@ -202,10 +189,11 @@ private:
       delete chi2;
       delete pt;
       delete pt_1gev;    
-      delete TIP;
-      delete LIP;
-      delete decayLength;
-      delete distanceToAxis;
+      delete tip;
+      delete lip;
+      delete ips;
+      delete sdl;
+      delete dta;
     }
     
     void Fill(const histogram_element_t & data)
@@ -213,11 +201,12 @@ private:
       hits->Fill(data.hits);
       chi2->Fill(data.chi2);    
       pt->Fill(data.pt);
-      pt_1gev->Fill(data.pt);      
-      TIP->Fill(data.TIP);
-      LIP->Fill(data.LIP);
-      decayLength->Fill(data.decayLength);
-      distanceToAxis->Fill(data.distanceToAxis);
+      pt_1gev->Fill(data.pt);
+      ips->Fill(data.ips);      
+      tip->Fill(data.tip);
+      lip->Fill(data.lip);
+      sdl->Fill(data.sdl);
+      dta->Fill(data.dta);
     }
                     
     void Write()
@@ -225,23 +214,19 @@ private:
       hits->Write();
       chi2->Write();    
       pt->Write();
-      pt_1gev->Write();      
-      TIP->Write();
-      LIP->Write();
-      decayLength->Write();
-      distanceToAxis->Write();
+      pt_1gev->Write();
+      ips->Write();   
+      tip->Write();
+      lip->Write();
+      sdl->Write();
+      dta->Write();
     }
   };
   
   std::string primaryVertex_;
 
-
-  double d0Pull(
-    const edm::ESHandle<MagneticField> &,
-    const edm::RefToBase<reco::Track>,
-    reco::RecoToSimCollection &,
-    bool
-  );
+  // Track classification.
+  TrackCategories * classifier_;
 
 };
 
@@ -256,8 +241,6 @@ OptTOA::OptTOA(const edm::ParameterSet& iConfig)
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
-  associationByHits_ = iConfig.getParameter<bool> ( "associationByHits" );
-
   minPt_ = iConfig.getParameter<double> ( "minPt" );
   maxChi2_ = iConfig.getParameter<double> ( "maxChi2" );
   minNumberOfHits_ = iConfig.getParameter<int> ( "minNumberOfHits" );
@@ -265,9 +248,14 @@ OptTOA::OptTOA(const edm::ParameterSet& iConfig)
   edm::ParameterSet pset;
   
   primaryVertex_ = iConfig.getParameter<std::string> ( "primaryVertex" );
+
+  classifier_ = new TrackCategories(iConfig);
 }
 
-OptTOA::~OptTOA() { }
+OptTOA::~OptTOA() 
+{
+  delete classifier_;	
+}
 
 //
 // member functions
@@ -277,40 +265,23 @@ OptTOA::~OptTOA() { }
 void
 OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // Tracking particle information
-  edm::Handle<TrackingParticleCollection>  TPCollection;
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
+  iEvent.getByLabel(trackCollection_,trackCollection);
   // Primary vertex
   edm::Handle<reco::VertexCollection> primaryVertex;
+  iEvent.getByLabel(primaryVertex_, primaryVertex);  
   // Jet to tracks associator
   edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociator;
+  iEvent.getByLabel(jetTracksAssociator_, jetTracksAssociator);
   // Trasient track builder
-  edm::ESHandle<TransientTrackBuilder> TTbuilder;  
-  // Trasient track builder
-  edm::ESHandle<MagneticField> theMF;
-  
-  iEvent.getByType(TPCollection);
-
-  iEvent.getByLabel(trackCollection_,trackCollection);
-
-	iEvent.getByLabel(primaryVertex_, primaryVertex);
-	iEvent.getByLabel(jetTracksAssociator_, jetTracksAssociator);
-	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
-
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-   
-  reco::RecoToSimCollection association;
+  edm::ESHandle<TransientTrackBuilder> TTbuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
  
-  if ( !trackCollection_.empty() )
-    association = associator_->associateRecoToSim ( trackCollection, TPCollection, &iEvent ); 
-
-  std::cout << std::endl;
-  std::cout << "New event" << std::endl;
+  // Setting up event information for the track categories.
+  classifier_->event(iEvent, iSetup);
 
   LoopOverJetTracksAssociation(
-    association,
-    theMF,
     TTbuilder,
     primaryVertex,
     jetTracksAssociator
@@ -321,21 +292,7 @@ OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 void 
 OptTOA::beginJob(const edm::EventSetup& iSetup) 
-{
-  // Get the associator by hits
-  edm::ESHandle<TrackAssociatorBase> associator;
-
-  if(associationByHits_)
-  {  
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();
-  }
-  else  
-  {
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();  
-  }
-    
+{    
   histogram_data_.resize(5);
 }
 
@@ -374,8 +331,6 @@ OptTOA::endJob()
 
 void
 OptTOA::LoopOverJetTracksAssociation(
-  reco::RecoToSimCollection & association,
-  const edm::ESHandle<MagneticField> & theMF,
   const edm::ESHandle<TransientTrackBuilder> & TTbuilder,
   const edm::Handle<reco::VertexCollection> & primaryVertex,
   const edm::Handle<reco::JetTracksAssociationCollection> & jetTracksAssociation
@@ -391,7 +346,7 @@ OptTOA::LoopOverJetTracksAssociation(
   {
     PrimaryVertexSorter pvs;
   	std::vector<reco::Vertex> sortedList =
-	  pvs.sortedList(*(primaryVertex.product()));
+      pvs.sortedList(*(primaryVertex.product()));
     pv = (sortedList.front());
   }
   else 
@@ -407,20 +362,21 @@ OptTOA::LoopOverJetTracksAssociation(
   
   reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
   
-  TrackOrigin tracer(-2);
+  SignedImpactParameter3D sipc;
+    
+  int i=0;
   
-  int i=0; 
   for(; it != jetTracksAssociation->end(); it++, i++)
-    {
-      // get jetTracks object
-      reco::JetTracksAssociationRef jetTracks(jetTracksAssociation, i); 
+  {
+    // get jetTracks object
+    reco::JetTracksAssociationRef jetTracks(jetTracksAssociation, i); 
 
-      double pvZ = pv.z(); 
-      GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
+    double pvZ = pv.z(); 
+    GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
       
-      // get the tracks associated to the jet
-      reco::TrackRefVector tracks = jetTracks->second;
-      for(std::size_t index = 0; index < tracks.size(); index++)
+    // get the tracks associated to the jet
+    reco::TrackRefVector tracks = jetTracks->second;
+    for(std::size_t index = 0; index < tracks.size(); index++)
 	{
 	  edm::RefToBase<reco::Track> track(tracks[index]);
 	  double pt = tracks[index]->pt();
@@ -430,163 +386,28 @@ OptTOA::LoopOverJetTracksAssociation(
 	  if(hits < minNumberOfHits_ || chi2 > maxChi2_ || pt < minPt_ ) continue;
 	  
 	  const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
-	  double distanceToAxis = - SignedImpactParameter3D::distanceWithJetAxis(transientTrack, direction, pv).second.value();
-	  double decayLength = SignedDecayLength3D::apply(transientTrack, direction, pv).second.value();
-	  double d0pull = d0Pull(theMF, track, association, associationByHits_);
-	  double dz = tracks[index]->dz() - pvZ;
+	  double dta = - SignedImpactParameter3D::distanceWithJetAxis(transientTrack, direction, pv).second.value();
+	  double sdl = SignedDecayLength3D::apply(transientTrack, direction, pv).second.value();
+      double ips = sipc.apply(transientTrack, direction, pv).second.significance();
+      double dz = tracks[index]->dz() - pvZ;
 	  double d0 = tracks[index]->d0();
 	  
-	  // If the track is not fake then get the orginal particles
-	  if (tracer.evaluate(track, association, associationByHits_))
-	    {
-	      const HepMC::GenParticle * particle = tracer.particle();
-	      
-	      /*
-		
-	      if (particle) 
-	      { 
-	      if (fabs(d0pull) > 3.0)  // Badly reconstructed
-	      histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
-	      else if (tracer.isDisplaced()) // Displaced tracks
-	      histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      else if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
-	      histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));                  
-	      else // Anything else
-	      histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      }
-	      else // Particle without image in the generator
-	      histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      
-	      */
-	      
-	      if (particle) 
-		{ 
-		  if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
-		    histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));      
-		  else if (fabs(d0pull) > 3.0)  // Badly reconstructed
-		    histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
-		  else if (tracer.isDisplaced()) // Displaced tracks
-		    histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-		  else // Anything else
-		    histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-		}
-	      else // Particle without image in the generator
-		histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      
-	    }
-	  else
-	    {
-	      std::cout << "Fake +++ " << std::endl;
-	      histogram_data_[4].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	    }
+	  // Classify the reco track;
+	  if ( classifier_->evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
+	  {
+	    if ( classifier_->is(TrackCategories::Fake) )
+	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
+        else if ( classifier_->is(TrackCategories::Bottom) )
+		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));      
+        else if ( classifier_->is(TrackCategories::Bad) )
+          histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));          
+        else if ( classifier_->is(TrackCategories::Displaced) )
+          histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
+	    else
+	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));	    
+      }
 	}
-    }
+  }
 }
-
-
-double OptTOA::d0Pull(
-  const edm::ESHandle<MagneticField> & theMF,
-  const edm::RefToBase<reco::Track> track,
-  reco::RecoToSimCollection & association,  
-  bool associationByHits
-)
-{
-  std::vector<std::pair<TrackingParticleRef, double> > tp;
-  
-  try
-  {
-    tp = association[track];
-  }
-  catch (edm::Exception event)
-  {
-    return 0;
-  }
-
-  // get the track with maximum(minimum) match for associator by hit(chi2)
-  double match = 0;
-  TrackingParticleRef tpr;
-  
-  for (std::size_t i=0; i<tp.size(); i++) 
-  {
-    if (associationByHits) 
-    {
-      if (i && tp[i].second > match) 
-      {
-        tpr = tp[i].first;
-        match = tp[i].second;
-      }
-      else 
-      {
-        tpr = tp[i].first;
-        match = tp[i].second;
-      }
-    } 
-    else 
-    {
-      if (i && tp[i].second < match) 
-      {
-        tpr = tp[i].first;
-        match = tp[i].second;
-      }
-      else
-      {
-        tpr = tp[i].first;
-        match = tp[i].second;
-      }
-    }
-  }
-
-  //compute tracking particle parameters at point of closest approach to the beamline
-
-  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
- 
-  FreeTrajectoryState ftsAtProduction(
-    GlobalPoint(
-      tpr->vertex().x(),
-      tpr->vertex().y(),
-      tpr->vertex().z()
-    ),
-    GlobalVector(
-      assocTrack->momentum().x(),
-      assocTrack->momentum().y(),
-      assocTrack->momentum().z()
-    ), 
-    TrackCharge(track->charge()),
-    theMF.product()
-  );
-
-  /*  
-  GlobalTrajectoryParameters  theGlobalParameters(
-    GlobalPoint(
-      tpr->vertex().x(),
-      tpr->vertex().y(),
-      tpr->vertex().z()
-    ),
-    GlobalVector(
-      assocTrack->momentum().x(),
-      assocTrack->momentum().y(),
-      assocTrack->momentum().z()
-    ), 
-    TrackCharge(track->charge()),
-    theMF.product()
-  );
-  
-  FreeTrajectoryState ftsAtProduction(theGlobalParameters);
-  */
-      
-  TSCPBuilderNoMaterial tscpBuilder;
-  
-  TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-    ftsAtProduction,
-    GlobalPoint(0,0,0)
-  ); //as in TrackProducerAlgorithm
-  
-  GlobalPoint v = tsAtClosestApproach.theState().position();
-  GlobalVector p = tsAtClosestApproach.theState().momentum(); 
-  
-  double d0Sim = - (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
-
-  return (track->d0()-d0Sim)/track->d0Error();
-}  
 
 DEFINE_ANOTHER_FWK_MODULE(OptTOA);

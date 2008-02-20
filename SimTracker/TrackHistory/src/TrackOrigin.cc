@@ -30,21 +30,3 @@ bool TrackOrigin::hasParticles(std::set<int> const & list) const
   return false;
 }
 
-
-bool TrackOrigin::hasPhotonConversion() const
-{
-  SimVertexTrail::const_iterator tvr;
-  TrackingParticleRefVector sources, daughters;
-  for (tvr = simVertexTrail_.begin(); tvr != simVertexTrail_.end(); tvr++)
-  {
-    sources = (*tvr)->sourceTracks();
-    daughters = (*tvr)->daughterTracks();
-    if (sources.size() == 1              &&  // require one source 
-        daughters.size() == 2            &&  //    "    two daughters
-        sources[0]->pdgId() == 22        &&  //    "    a photon in the source
-        abs(daughters[0]->pdgId()) == 11 &&  //    "    two electrons
-        abs(daughters[1]->pdgId()) == 11
-    ) return true;
-  }
-  return false;
-}

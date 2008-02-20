@@ -2,8 +2,7 @@
 #define BTrackSelection_h
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackHistory/interface/TrackHistory.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 //#include "CLHEP/HepPDT/ParticleID.hh"
 
@@ -24,12 +23,11 @@ class BTrackingParticleSelector {
   // iterator over result collection type. 
   typedef container::const_iterator const_iterator;
 
-
   // default constructor
-  BTrackingParticleSelector(): tracer(-2){};
+  BTrackingParticleSelector() {};
 
   // constructor from parameter set configurability
-  BTrackingParticleSelector( const edm::ParameterSet & ): tracer(-2){};
+  BTrackingParticleSelector( const edm::ParameterSet & ) {};
 
   // select object from a collection and 
   // possibly event content
@@ -42,25 +40,12 @@ class BTrackingParticleSelector {
       
       TrackingParticleRef tp(TPCH, i);
 
-      if(tracer.evaluate(tp)){
-
-	  TrackHistory::GenParticleTrail genParticles(tracer.genParticleTrail());  
-	  // Looop over all genParticles
-	  bool bselected = false; 
-	  for(std::size_t hindex=0; hindex<genParticles.size(); hindex++){
-	    int pId = genParticles[hindex]->pdg_id();
-	    pId = abs(pId);
-	    if(!bselected && ((pId/100)%10 ==5 || (pId/1000)%10 == 5)){
-	    //if (!bselected && HepPDT::ParticleID(genParticles[hindex]->pdg_id()).hasBottom()){
-	      bselected = true;
-	      
-	      const TrackingParticle * trap = &(tpc[i]);
-	      selected_.push_back(trap);
-	    }
-	    
-	  }
-	
-	}	
+      if( classifier.evaluate(tp) )
+        if( classifier.is(TrackCategories::Bottom) )
+        {
+          const TrackingParticle * trap = &(tpc[i]);
+          selected_.push_back(trap);
+        }  	    	
     }
   }
 
@@ -76,7 +61,7 @@ class BTrackingParticleSelector {
   //private:
 
   container selected_;
-  TrackOrigin tracer;
+  TrackCategories classifier;
 
 };
 
