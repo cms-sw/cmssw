@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <TROOT.h>
 #include <TColor.h>
 #include <TStyle.h>
 #include <TCanvas.h>

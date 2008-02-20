@@ -8,6 +8,7 @@
 #include <iomanip>
 
 #include <TH2F.h>
+#include <TColor.h>
 
 #include "XHistogram.h"
 class MaterialAccountingStep;
