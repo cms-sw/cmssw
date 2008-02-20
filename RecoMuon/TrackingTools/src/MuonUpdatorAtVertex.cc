@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/09/24 08:41:32 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/12/13 15:15:48 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -19,6 +19,9 @@
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -179,7 +182,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
 
 // FIXME it is const. It will be when setPropagator() will be removed
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
+MuonUpdatorAtVertex::update(const reco::TransientTrack & track, edm::Event &event){
 
   const std::string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
     
@@ -191,7 +194,11 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
   SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
 
   try{
-    constrainedTransientTrack = theConstrictor.constrain(track,thePosition, thePositionErrors);
+    edm::Handle<reco::BeamSpot> beamSpot;
+    event.getByType(beamSpot);
+
+    GlobalPoint spotPos(beamSpot->x0(),beamSpot->y0(),beamSpot->z0());
+    constrainedTransientTrack = theConstrictor.constrain(track, spotPos, thePositionErrors);
   }
   catch ( cms::Exception& e ) {
     edm::LogWarning(metname) << "cms::Exception caught in MuonUpdatorAtVertex::update\n"
@@ -210,16 +217,17 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
 }
 
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx){
+MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx, edm::Event &event){
   
-  return update(theTransientTrackFactory.build(ftsAtVtx));
+  return update(theTransientTrackFactory.build(ftsAtVtx),event);
 }
 
 
 
 pair<bool,FreeTrajectoryState>
 MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
-					 const GlobalPoint &vtxPosition){
+					 const GlobalPoint &vtxPosition,
+					 edm::Event &event){
   
   pair<bool,FreeTrajectoryState>
     propagationResult = propagate(tsos,vtxPosition);
@@ -227,7 +235,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
   if(propagationResult.first){
     // FIXME!!!
     // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
-    return update(propagationResult.second);
+    return update(propagationResult.second,event);
   }
   else{
     edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
@@ -237,7 +245,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
 
 
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos){
+MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, edm::Event &event){
   
   pair<bool,FreeTrajectoryState>
     propagationResult = propagate(tsos);
@@ -245,7 +253,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos){
   if(propagationResult.first){
     // FIXME!!!
     // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
-    return update(propagationResult.second);
+    return update(propagationResult.second,event);
   }
   else{
     edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";

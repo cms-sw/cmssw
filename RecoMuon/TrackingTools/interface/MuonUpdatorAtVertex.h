@@ -21,8 +21,8 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2007/03/06 14:31:27 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/04/13 09:05:34 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -37,7 +37,7 @@ class MuonServiceProxy;
 
 #include <string>
 
-namespace edm {class ParameterSet;}
+namespace edm {class ParameterSet; class Event;}
 
 class MuonUpdatorAtVertex {
 public:
@@ -60,20 +60,22 @@ public:
 
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState> 
-    update(const reco::TransientTrack &track);
+    update(const reco::TransientTrack &track, edm::Event &event);
   
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState>
-    update(const FreeTrajectoryState& ftsAtVtx);
+    update(const FreeTrajectoryState& ftsAtVtx, edm::Event &event);
 
   /// Propagate to the 3D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
-			const GlobalPoint &vtxPosition);
+			const GlobalPoint &vtxPosition,
+			edm::Event &event);
   
   /// Propagate to the 2D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
-    propagateWithUpdate(const TrajectoryStateOnSurface &tsos);
+    propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
+			edm::Event &event);
 
 protected:
 
