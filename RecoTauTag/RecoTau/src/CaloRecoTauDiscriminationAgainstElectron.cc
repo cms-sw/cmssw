@@ -9,6 +9,10 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const Event
 
   for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
     CaloTauRef theCaloTauRef(theCaloTauCollection,iCaloTau);
+    if (!(*theCaloTauRef).leadTrack()){
+      theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
+      continue;
+    }
     if (ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_){
       // optional selection : ask for small |deta| between direction of propag. leading Track - ECAL inner surf. contact point and direction of highest Et hit among HCAL hits inside a 3x3 calo. tower matrix centered on direction of propag. leading Track - ECAL inner surf. contact point
       if (isnan((*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()) || (*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()>maxleadTrackHCAL3x3hottesthitDEta_){
@@ -32,7 +36,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const Event
 	continue;
       }     
     }
-    if (!(*theCaloTauRef).leadTrack() || isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum())){
+    if (isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum())){
       theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
     }else{
       if ((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum()/(*theCaloTauRef).leadTrack()->pt()<=leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_) theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
