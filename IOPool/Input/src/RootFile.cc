@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.114 2008/02/04 18:12:24 wmtan Exp $
+$Id: RootFile.cc,v 1.116 2008/02/06 00:06:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -413,9 +413,11 @@ namespace edm {
       EventAux *pEvAux = &eventAux;
       eventTree_.fillAux<EventAux>(pEvAux);
       conversion(eventAux, eventAux_);
-      if (eventAux_.luminosityBlock_ == 0 || fileFormatVersion_.value_ <= 1) {
-        eventAux_.luminosityBlock_ = 1;
-      }
+    }
+    if (eventAux_.luminosityBlock_ == 0 && fileFormatVersion_.value_ <= 3) {
+      eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
+    } else if (fileFormatVersion_.value_ <= 1) {
+      eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
     }
   }
 
@@ -446,6 +448,9 @@ namespace edm {
       LuminosityBlockAux *pLumiAux = &lumiAux;
       lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
+    }
+    if (lumiAux_.luminosityBlock() == 0 && fileFormatVersion_.value_ <= 3) {
+      lumiAux_.id_ = LuminosityBlockID(lumiAux_.run(), LuminosityBlockNumber_t(1));
     }
   }
 
