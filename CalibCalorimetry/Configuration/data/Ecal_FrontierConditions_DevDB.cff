@@ -11,10 +11,14 @@ replace ecalConditions.toGet = {
 	string tag = "EcalPedestals_trivial" },
     { string record = "EcalADCToGeVConstantRcd"
 	string tag = "EcalADCToGeVConstant_trivial" },
+    { string record = "EcalChannelStatusRcd"
+	string tag = "EcalChannelStatus_trivial" },
     { string record = "EcalGainRatiosRcd"
 	string tag = "EcalGainRatios_trivial" },
     { string record = "EcalIntercalibConstantsRcd"
 	string tag = "EcalIntercalibConstants_trivial" },
+    { string record = "EcalIntercalibErrorsRcd"
+	string tag = "EcalIntercalibErrors_trivial" },
     { string record = "EcalWeightXtalGroupsRcd"
 	string tag = "EcalWeightXtalGroups_trivial" },
     { string record = "EcalTBWeightsRcd"
@@ -26,6 +30,7 @@ replace ecalConditions.toGet = {
     { string record = "EcalLaserAPDPNRatiosRefRcd" 
 	string tag = "EcalLaserAPDPNRatiosRef_trivial" }
 }
+
 
 
 
