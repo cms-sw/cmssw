@@ -1,9 +1,11 @@
 #include "ExSourceHandler.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 #include<iostream>
-
+#include<vector>
 
 namespace {
 
@@ -19,7 +21,8 @@ namespace {
 }
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
-  m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")){
+  m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
+  m_since(pset.getUntrackedParameter<unsigned int >("firstSince")){
 }
 
 popcon::ExPedestalSource::~ExPedestalSource()
@@ -32,9 +35,12 @@ void popcon::ExPedestalSource::getNewObjects() {
 	     << " - > getNewObjects" << std::endl;
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;
+ 
   std::cerr << tagInfo().name << ", size " << tagInfo().size 
             << " last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
+  
+
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
     std::cerr<<"size of last payload  "<< 
@@ -42,15 +48,9 @@ void popcon::ExPedestalSource::getNewObjects() {
   }
 
   
+  std::cout<<"first since = "<< m_since <<std::endl;
   
-  
-  unsigned int snc;
-  
-  std::cerr << "Source implementation test ::getNewObjects : enter first since ? \n";
-  std::cin >> snc;
-
-
-
+ 
   
   Pedestals * p0 = new Pedestals;
   fill(*p0,3);
@@ -58,9 +58,9 @@ void popcon::ExPedestalSource::getNewObjects() {
   fill(*p1,5);
   Pedestals * p2 = new Pedestals;
   fill(*p2,7);
-  m_to_transfer.push_back(std::make_pair((Pedestals*)p0,snc));
-  m_to_transfer.push_back(std::make_pair((Pedestals*)p1,snc+20));
-  m_to_transfer.push_back(std::make_pair((Pedestals*)p2,snc+10));
+  m_to_transfer.push_back(std::make_pair((Pedestals*)p0,m_since));
+  m_to_transfer.push_back(std::make_pair((Pedestals*)p1,m_since+20));
+  m_to_transfer.push_back(std::make_pair((Pedestals*)p2,m_since+10));
 
   std::cerr << "------- " << m_name << " - > getNewObjects" << std::endl;
 }

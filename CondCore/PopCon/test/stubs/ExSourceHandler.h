@@ -26,6 +26,7 @@ namespace popcon{
     
   private:
     std::string m_name;
+    unsigned int m_since;
   };
 }
 #endif // POPCON_EX_PEDESTALS_SRC_H
