@@ -28,7 +28,7 @@ const float degsPerRad = 57.29578;
 //-----------------------------------------------------------------------------
 PixelCPEParmError::PixelCPEParmError(edm::ParameterSet const & conf, 
 				     const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle) 
-  : PixelCPEBase(conf,mag,0,lorentzAngle)
+  : PixelCPEBase(conf,mag,lorentzAngle)
 {
   pixelErrorParametrization_ = new PixelErrorParametrization(conf);
 }

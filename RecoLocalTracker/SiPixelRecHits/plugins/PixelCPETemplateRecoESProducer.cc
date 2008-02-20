@@ -35,7 +35,10 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product())  );
+	ESHandle<SiPixelLorentzAngle> lorentzAngle;
+	iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle );
+	
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngle.product() ));
   return cpe_;
 }
 

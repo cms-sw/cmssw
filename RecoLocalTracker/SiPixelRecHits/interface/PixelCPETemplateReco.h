@@ -35,7 +35,7 @@ class PixelCPETemplateReco : public PixelCPEBase
 {
  public:
   // PixelCPETemplateReco( const DetUnit& det );
-  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField*);
+  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField*, const SiPixelLorentzAngle *);
   ~PixelCPETemplateReco();
 
   // We only need to implement measurementPosition, since localPosition() from

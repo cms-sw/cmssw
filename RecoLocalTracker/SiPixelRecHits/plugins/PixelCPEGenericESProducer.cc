@@ -26,7 +26,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
-boost::shared_ptr<PixelClusterParameterEstimator> 
+boost::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -38,7 +38,12 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelCPEParmErrors> parmErrors;
   iRecord.getRecord<SiPixelCPEParmErrorsRcd>().get( parmErrors );
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),parmErrors.product())  );
+	ESHandle<SiPixelLorentzAngle> lorentzAngle;
+	iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle );
+
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),parmErrors.product(), lorentzAngle.product()) );
+	//ToDo? Replace blah.product() with ESHandle
+	
   return cpe_;
 }
 

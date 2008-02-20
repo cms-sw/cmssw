@@ -35,8 +35,8 @@ const float micronsToCm = 1.0e-4;
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
-					   const MagneticField *mag) 
-  : PixelCPEBase(conf, mag)
+					   const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle) 
+  : PixelCPEBase(conf, mag, lorentzAngle)
 {
   // &&& initialize the templates, etc.
   

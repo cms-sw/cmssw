@@ -1,4 +1,3 @@
-
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -19,8 +18,8 @@ const double HALF_PI = 1.57079632679489656;
 //!  The constructor.
 //-----------------------------------------------------------------------------
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-				       const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors) 
-  : PixelCPEBase(conf, mag, parmErrors)
+	const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors, const SiPixelLorentzAngle * lorentzAngle) 
+  : PixelCPEBase(conf, mag, lorentzAngle)
 {
   if (theVerboseLevel > 0) 
     LogDebug("PixelCPEGeneric") 

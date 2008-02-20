@@ -43,7 +43,7 @@ class SiPixelCPEParmErrors;
 class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelCPEParmErrors * parmErrors = 0, const SiPixelLorentzAngle * lorentzAngle = 0);
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelLorentzAngle * lorentzAngle = 0);// const SiPixelCPEParmErrors * parmErrors = 0, const SiPixelLorentzAngle * lorentzAngle = 0);
     
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.

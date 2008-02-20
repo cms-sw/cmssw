@@ -52,6 +52,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
 using namespace std;
 
@@ -81,7 +82,7 @@ namespace cms
   // Destructor
   SiPixelRecHitConverter::~SiPixelRecHitConverter() 
   { 
-    delete cpe_;
+		//  delete cpe_;
   }  
   
   //---------------------------------------------------------------------------
@@ -89,19 +90,29 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::beginJob(const edm::EventSetup& c) 
   {
-    edm::ESHandle<MagneticField> magfield;
+    /*
+			edm::ESHandle<MagneticField> magfield;
     c.get<IdealMagneticFieldRecord>().get(magfield);
 
 	edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
     c.get<SiPixelLorentzAngleRcd>().get(lorentzAngle);
 	
-    edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
+		 edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
 
     if(errorsFromDB_) {
       c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
     }
 	
-    setupCPE(magfield.product(),parmErrors.product(),lorentzAngle.product());
+		 setupCPE(magfield.product(),lorentzAngle.product());//parmErrors.product(),lorentzAngle.product());
+		*/
+
+		/*	edm::ESHandle<PixelClusterParameterEstimator> hCPE;
+		std::string cpeName_ = conf_.getParameter<std::string>("CPE");
+		c.get<TkPixelCPERecord>().get(cpeName_,hCPE);
+		const PixelClusterParameterEstimator &cpe(*hCPE);
+		cpe_ = &cpe;
+		
+		if(cpe_) ready_ = true;*/
 
   }
 
@@ -119,8 +130,18 @@ namespace cms
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
-    // Step B: create empty output collection
+		// Step B: create empty output collection
     std::auto_ptr<SiPixelRecHitCollectionNew> output(new SiPixelRecHitCollectionNew);
+
+		// Step B*: create CPE
+		edm::ESHandle<PixelClusterParameterEstimator> hCPE;
+		std::string cpeName_ = conf_.getParameter<std::string>("CPE");
+		es.get<TkPixelCPERecord>().get(cpeName_,hCPE);
+		const PixelClusterParameterEstimator &cpe(*hCPE);
+		cpe_ = &cpe;
+		
+		if(cpe_) ready_ = true;
+
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
@@ -143,9 +164,10 @@ namespace cms
   //---------------------------------------------------------------------------
   //!  Set up the specific algorithm we are going to use.  
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle* lorentzAngle) 
+	/*	 void SiPixelRecHitConverter::setupCPE(const MagneticField* mag, const SiPixelLorentzAngle * lorentzAngle) // const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle* lorentzAngle)
+		 //void SiPixelRecHitConverter::setupCPE()
   {
-    cpeName_ = conf_.getParameter<std::string>("CPE");
+		cpeName_ = conf_.getParameter<std::string>("CPE");
     if ( cpeName_ == "FromDetPosition" ) 
       {
 	cpe_ = new CPEFromDetPosition(conf_,mag);
@@ -168,7 +190,7 @@ namespace cms
       } 
     else if ( cpeName_ == "Generic" ) 
       {
-	cpe_ = new PixelCPEGeneric(conf_,mag,parmErrors);
+				cpe_ = new PixelCPEGeneric(conf_,mag);//,parmErrors);
 	ready_ = true;
       } 
     else 
@@ -182,9 +204,11 @@ namespace cms
 	  << "    - TemplateReco     (fits to templates based on PIXELAV)\n"
 	  << "    - Generic          (Initial rewritten for clarity and speed)\n";
 	ready_ = false;
-      }
+	}
     // &&& We should really throw a fatal error here!
-  }
+
+	}
+	*/
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
   //!  and make a RecHit to store the result.
@@ -201,7 +225,7 @@ namespace cms
 			assert(0);
 			return;   // clusterizer is invalid, bail out
 		}
-
+	
 		int numberOfDetUnits = 0;
 		int numberOfClusters = 0;
 		

@@ -56,10 +56,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+//#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 class MagneticField;
-class SiPixelCPEParmErrors;
+//class SiPixelCPEParmErrors;
 namespace cms
 {
   class SiPixelRecHitConverter : public edm::EDProducer
@@ -76,7 +76,7 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    void setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle * lorentzAngle);
+    //void setupCPE(const MagneticField* mag, const SiPixelLorentzAngle * lorentzAngle); //const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle * lorentzAngle);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
@@ -98,7 +98,7 @@ namespace cms
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?
     std::string cpeName_;                   // what the user said s/he wanted
-    PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
+    const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
     //&&& PixelCPEBase * cpe_;                    // what we got (for now, one ptr to base class)
     bool ready_;                            // needed CPE's valid => good to go!
     edm::InputTag src_;
