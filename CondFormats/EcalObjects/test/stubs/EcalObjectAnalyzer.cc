@@ -31,6 +31,8 @@ simple analyzer to dump information about ECAL cond objects
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -38,6 +40,9 @@ simple analyzer to dump information about ECAL cond objects
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
@@ -115,6 +120,24 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   }
   
   // Gain Ratios
+  edm::ESHandle<EcalChannelStatus> pStatus;
+  context.get<EcalChannelStatusRcd>().get(pStatus);
+  const EcalChannelStatusMap* ch = pStatus.product();
+  EcalChannelStatusMap::const_iterator chit;
+  // Barrel loop
+  for (chit = ch->barrelItems().begin(); chit != ch->barrelItems().end(); ++chit) {
+      EcalChannelStatusCode chst;
+      chst = (*chit);
+      std::cout << "Ecal channel status  " << chst.getStatusCode()  << std::endl;
+
+  } 
+  // Endcap loop
+  for (chit = ch->endcapItems().begin(); chit != ch->endcapItems().end(); ++chit) {
+      EcalChannelStatusCode chst;
+      chst = (*chit);
+      std::cout << "Ecal channel status  " << chst.getStatusCode()  << std::endl;
+  } 
+
   edm::ESHandle<EcalGainRatios> pRatio;
   context.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatios* gr = pRatio.product();
@@ -144,6 +167,19 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   // Endcap loop
   for(icalit = ical->endcapItems().begin(); icalit != ical->endcapItems().end(); ++icalit) {
       std::cout << "EcalIntercalibConstant:  icalconst: " << (*icalit) << std::endl;
+  } 
+
+  edm::ESHandle<EcalIntercalibErrors> pIcalError;
+  context.get<EcalIntercalibErrorsRcd>().get(pIcalError);
+  const EcalIntercalibErrors* icalerr = pIcalError.product();
+  EcalIntercalibErrorMap::const_iterator icalerrit;
+  // Barrel loop
+  for(icalerrit = icalerr->barrelItems().begin(); icalerrit != icalerr->barrelItems().end(); ++icalerrit) {
+      std::cout << "EcalIntercalibConstant:  error: " << (*icalerrit) << std::endl;
+  } 
+  // Endcap loop
+  for(icalerrit = icalerr->endcapItems().begin(); icalerrit != icalerr->endcapItems().end(); ++icalerrit) {
+      std::cout << "EcalIntercalibConstant:  error: " << (*icalerrit) << std::endl;
   } 
 
   // fetch TB weights
