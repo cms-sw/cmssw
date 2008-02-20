@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/01/29 10:36:03 $
- * $Revision: 1.52 $
+ * $Date: 2008/02/15 06:55:51 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,6 +47,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   for (int i = 0; i < 36; i++) {
     meOccupancy_[i]    = 0;
@@ -61,12 +62,24 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   meEBRecHitOccupancyProjEta_ = 0;
   meEBRecHitOccupancyProjPhi_ = 0;
 
+  meEBRecHitOccupancyThr_ = 0;
+  meEBRecHitOccupancyProjEtaThr_ = 0;
+  meEBRecHitOccupancyProjPhiThr_ = 0;
+
   meEBTrigPrimDigiOccupancy_ = 0;
   meEBTrigPrimDigiOccupancyProjEta_ = 0;
   meEBTrigPrimDigiOccupancyProjPhi_ = 0;
 
-  recHitEnergyMin_ = 1.;
-  trigPrimEtMin_ = 5.;
+  meEBTrigPrimDigiOccupancyThr_ = 0;
+  meEBTrigPrimDigiOccupancyProjEtaThr_ = 0;
+  meEBTrigPrimDigiOccupancyProjPhiThr_ = 0;
+
+  meEBTestPulseDigiOccupancy_ = 0;
+  meEBLaserDigiOccupancy_ = 0;
+  meEBPedestalDigiOccupancy_ = 0;
+
+  recHitEnergyMin_ = 1.; // GeV
+  trigPrimEtMin_ = 5.; // GeV
 }
 
 EBOccupancyTask::~EBOccupancyTask(){
@@ -175,6 +188,21 @@ void EBOccupancyTask::setup(void){
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("number of TP digis", 2);
 
+    sprintf(histo, "EBOT test pulse digi occupancy");
+    meEBTestPulseDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    meEBTestPulseDigiOccupancy_->setAxisTitle("jphi'", 1);
+    meEBTestPulseDigiOccupancy_->setAxisTitle("jeta'", 2);
+
+    sprintf(histo, "EBOT laser digi occupancy");
+    meEBLaserDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    meEBLaserDigiOccupancy_->setAxisTitle("jphi'", 1);
+    meEBLaserDigiOccupancy_->setAxisTitle("jeta'", 2);
+
+    sprintf(histo, "EBOT pedestal digi occupancy");
+    meEBPedestalDigiOccupancy_ = dbe_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
+    meEBPedestalDigiOccupancy_->setAxisTitle("jphi'", 1);
+    meEBPedestalDigiOccupancy_->setAxisTitle("jeta'", 2);
+
   }
 
 }
@@ -227,6 +255,15 @@ void EBOccupancyTask::cleanup(void){
     meEBTrigPrimDigiOccupancyProjEtaThr_ = 0;
     if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) dbe_->removeElement( meEBTrigPrimDigiOccupancyProjPhiThr_->getName() );
     meEBTrigPrimDigiOccupancyProjPhiThr_ = 0;
+
+    if ( meEBTestPulseDigiOccupancy_ ) dbe_->removeElement( meEBTestPulseDigiOccupancy_->getName() );
+    meEBTestPulseDigiOccupancy_ = 0;
+
+    if ( meEBLaserDigiOccupancy_ ) dbe_->removeElement( meEBLaserDigiOccupancy_->getName() );
+    meEBLaserDigiOccupancy_ = 0;
+
+    if ( meEBPedestalDigiOccupancy_ ) dbe_->removeElement( meEBPedestalDigiOccupancy_->getName() );
+    meEBPedestalDigiOccupancy_ = 0;
 
   }
 
@@ -289,6 +326,47 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
       if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
       if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
+
+
+      Handle<EcalRawDataCollection> dcchs;
+
+      if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+	
+	for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+	  
+	  EcalDCCHeaderBlock dcch = (*dcchItr);
+	  
+	  if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
+	       ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+	  
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+	    
+	    if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
+
+	  }
+
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+
+	    if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
+
+	  }
+
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+
+	    if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
+
+	  }
+
+	}
+
+      } else {
+	
+	LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+	
+      }
 
     }
 
