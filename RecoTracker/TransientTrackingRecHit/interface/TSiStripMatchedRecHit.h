@@ -19,14 +19,16 @@ public:
 
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh, 
 			      const SiStripRecHitMatcher *matcher,
-			      const StripClusterParameterEstimator* cpe=0) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe));
+			      const StripClusterParameterEstimator* cpe=0,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, weight, annealing));
   }
 
   static RecHitPointer build( const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh, 
 			      const SiStripRecHitMatcher *matcher,
-			      const StripClusterParameterEstimator* cpe=0) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe));
+			      const StripClusterParameterEstimator* cpe=0,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing));
   }
 
   virtual RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
@@ -37,13 +39,15 @@ private:
   const StripClusterParameterEstimator* theCPE;
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
 			 const SiStripRecHitMatcher *matcher,
-			 const StripClusterParameterEstimator* cpe) : 
-     GenericTransientTrackingRecHit(geom, *rh), theMatcher(matcher),theCPE(cpe) {}
+			 const StripClusterParameterEstimator* cpe,
+			 float weight, float annealing) : 
+     GenericTransientTrackingRecHit(geom, *rh, weight, annealing), theMatcher(matcher),theCPE(cpe) {}
 
   TSiStripMatchedRecHit (const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh,
 			 const SiStripRecHitMatcher *matcher,
-			 const StripClusterParameterEstimator* cpe) : 
-    GenericTransientTrackingRecHit(geom, rh.release()), theMatcher(matcher),theCPE(cpe) {}
+			 const StripClusterParameterEstimator* cpe,
+			 float weight, float annealing) : 
+    GenericTransientTrackingRecHit(geom, rh.release(), weight, annealing), theMatcher(matcher),theCPE(cpe) {}
 
   virtual TSiStripMatchedRecHit* clone() const {
     return new TSiStripMatchedRecHit(*this);

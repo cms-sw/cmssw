@@ -53,15 +53,17 @@ public:
   const PixelClusterParameterEstimator* cpe() const {return theCPE;}
 
   static RecHitPointer build( const GeomDet * geom, const SiPixelRecHit* rh, 
-			      const PixelClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe));
+			      const PixelClusterParameterEstimator* cpe,
+			      float weight=1., float annealing=1.) {
+  return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe,weight, annealing));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det, 
 			      clusterRef cluster,
-			      const PixelClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiPixelRecHit( pos, err, det, cluster, cpe));
+			      const PixelClusterParameterEstimator* cpe,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new TSiPixelRecHit( pos, err, det, cluster, cpe,weight, annealing));
   }
 
 
@@ -73,16 +75,18 @@ private:
   /// This constructor copy the TrackingRecHit, it should be used when the 
   /// TrackingRecHit exist already in some collection
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
-		 const PixelClusterParameterEstimator* cpe) : 
-    TransientTrackingRecHit(geom, *rh), theHitData(*rh), theCPE(cpe) {}
+		 const PixelClusterParameterEstimator* cpe,
+		 float weight, float annealing) : 
+    TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe) {}
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 				const GeomDet* det, 
 		  //				const SiPixelCluster& clust,
 		  clusterRef clust,
-		  const PixelClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), 
+		  const PixelClusterParameterEstimator* cpe,
+		  float weight, float annealing) :
+    TransientTrackingRecHit(det,weight, annealing), 
     theHitData( pos, err, det->geographicalId(), clust),
     theCPE(cpe)
   {}

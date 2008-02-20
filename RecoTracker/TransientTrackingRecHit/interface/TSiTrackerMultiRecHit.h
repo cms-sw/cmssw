@@ -49,7 +49,7 @@ class TSiTrackerMultiRecHit : public TransientTrackingRecHit {
         virtual ConstRecHitContainer transientHits() const {return theComponents;};
 
 	static RecHitPointer build( const GeomDet * geom, const SiTrackerMultiRecHit* rh, 
-				    const ConstRecHitContainer& components, double annealing=1.){
+				    const ConstRecHitContainer& components, float annealing=1.){
 		return RecHitPointer(new TSiTrackerMultiRecHit( geom, rh, components, annealing));
 	}
 	private:
@@ -58,7 +58,7 @@ class TSiTrackerMultiRecHit : public TransientTrackingRecHit {
    	ConstRecHitContainer theComponents;   
 	
 	TSiTrackerMultiRecHit(const GeomDet * geom, const SiTrackerMultiRecHit* rh,  
-			      const ConstRecHitContainer& components, double annealing):
+			      const ConstRecHitContainer& components, float annealing):
     		TransientTrackingRecHit(geom,1, annealing), theHitData(*rh), theComponents(components){}
       
 	virtual TSiTrackerMultiRecHit* clone() const {

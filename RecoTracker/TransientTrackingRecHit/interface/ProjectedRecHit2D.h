@@ -21,14 +21,16 @@ public:
   static RecHitPointer build( const GeomDet * geom,
 			      const GeomDet* originaldet,
 			      const ProjectedSiStripRecHit2D* rh,
-			      const StripClusterParameterEstimator* cpe) {
-    return RecHitPointer( new ProjectedRecHit2D( geom, originaldet, rh, cpe));
+			      const StripClusterParameterEstimator* cpe,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new ProjectedRecHit2D( geom, originaldet, rh, cpe, weight, annealing));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err, 
 			      const GeomDet* det, const GeomDet* originaldet,
-			      const TransientTrackingRecHit& originalHit) {
-    return RecHitPointer( new ProjectedRecHit2D( pos, err, det, originaldet, originalHit));
+			      const TransientTrackingRecHit& originalHit,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new ProjectedRecHit2D( pos, err, det, originaldet, originalHit, weight, annealing));
   }
 
   RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
@@ -41,12 +43,14 @@ private:
 
   ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
 		     const GeomDet* det, const GeomDet* originaldet, 
-		     const TransientTrackingRecHit& originalHit);
+		     const TransientTrackingRecHit& originalHit,
+		     float weight, float annealing);
 
   ProjectedRecHit2D( const GeomDet * geom, const GeomDet* originaldet,
 		     const ProjectedSiStripRecHit2D* rh,
-		     const StripClusterParameterEstimator* cpe) :
-    GenericTransientTrackingRecHit( geom, *rh), theCPE(cpe), theOriginalDet(originaldet) {}
+		     const StripClusterParameterEstimator* cpe,
+		     float weight=1., float annealing=1.) :
+    GenericTransientTrackingRecHit( geom, *rh,weight, annealing), theCPE(cpe), theOriginalDet(originaldet) {}
 
   virtual ProjectedRecHit2D* clone() const {
     return new ProjectedRecHit2D(*this);

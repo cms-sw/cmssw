@@ -6,9 +6,10 @@
 
 ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
 				      const GeomDet* det, const GeomDet* originalDet,
-				      const TransientTrackingRecHit& originalTransientHit) :
+				      const TransientTrackingRecHit& originalTransientHit,
+				      float weight, float annealing ) :
   GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), 
-								     static_cast<const SiStripRecHit2D*>(originalTransientHit.hit()))) 
+								     static_cast<const SiStripRecHit2D*>(originalTransientHit.hit())),weight, annealing) 
 {
   const TSiStripRecHit2DLocalPos* specificOriginalTransientHit = static_cast<const TSiStripRecHit2DLocalPos*>(&originalTransientHit);
   theCPE = specificOriginalTransientHit->cpe();
@@ -28,7 +29,7 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
       
       RecHitPointer updatedOriginalHit = 
 	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
-					 originalHit().cluster(), theCPE);
+					 originalHit().cluster(), theCPE, weight(), getAnnealingFactor());
       
       RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
       
@@ -41,7 +42,7 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
       
       RecHitPointer updatedOriginalHit = 
 	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
-					 originalHit().cluster_regional(), theCPE);
+					 originalHit().cluster_regional(), theCPE, weight(), getAnnealingFactor());
       
       RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
       
