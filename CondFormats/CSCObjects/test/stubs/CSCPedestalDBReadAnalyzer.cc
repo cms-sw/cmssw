@@ -19,8 +19,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 
-using namespace std;
-
 namespace edmtest
 {
   class CSCPedestalDBReadAnalyzer : public edm::EDAnalyzer
@@ -48,11 +46,11 @@ namespace edmtest
     context.get<CSCDBPedestalsRcd>().get(pPeds);
     
     const CSCDBPedestals* myped=pPeds.product();
-    
-    int i;
-    for( i=0; i<CSCDBPedestals::ArraySize; ++i ){
+    CSCDBPedestals::PedestalContainer::const_iterator it;
+
+    for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){    
       counter++;
-      DBPedestalFile<<counter<<"  "<<myped->pedestals[i].ped<<"  "<<myped->pedestals[i].rms<<std::endl;
+      DBPedestalFile<<counter<<"  "<<it->ped<<"  "<<it->rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);

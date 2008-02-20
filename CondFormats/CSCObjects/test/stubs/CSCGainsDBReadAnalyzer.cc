@@ -19,7 +19,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 
-using namespace std;
 namespace edmtest
 {
   class CSCGainsDBReadAnalyzer : public edm::EDAnalyzer
@@ -46,12 +45,11 @@ namespace edmtest
     context.get<CSCDBGainsRcd>().get(pGains);
 
     const CSCDBGains* mygains=pGains.product();
-    
-    int i;
-     for( i=0; i<CSCDBGains::ArraySize; ++i ){
-      counter++;
-      DBGainsFile<<counter<<"  "<<mygains->gains[i].gain_slope<<std::endl;
+    std::vector<CSCDBGains::Item>::const_iterator it;
 
+    for( it=mygains->gains.begin();it!=mygains->gains.end(); ++it ){    
+      counter++;
+      DBGainsFile<<counter<<"  "<<it->gain_slope<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCGainsDBReadAnalyzer);

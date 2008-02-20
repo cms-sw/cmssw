@@ -2,6 +2,7 @@
 #define CSCDBPedestals_h
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <vector>
 
 class CSCDBPedestals{
  public:
@@ -12,11 +13,13 @@ class CSCDBPedestals{
     short int ped;
     short int rms;
   };
-  enum size{ArraySize=217728};
 
+  // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;
 
-  Item pedestals[ArraySize];
+  typedef std::vector<Item> PedestalContainer;
+
+  PedestalContainer pedestals;
 };
 
 #endif

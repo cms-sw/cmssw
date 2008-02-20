@@ -7,14 +7,14 @@ CSCDBGains::~CSCDBGains(){}
 const CSCDBGains::Item & CSCDBGains::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return gains[ indexer.stripChannelIndex(cscId, strip)-1 ];
+  //  return gains.at( indexer.stripChannelIndex(cscId, strip)-1 ); // if we worry about range
+  return gains[ indexer.stripChannelIndex(cscId, strip)-1 ]; // no worries about range!
 }
 
 std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains)
 {
   CSCIndexer indexer;
-  int i;
-  for(i = 0; i < CSCDBGains::ArraySize; ++i)
+  for(size_t i = 0; i < cscDbGains.gains.size(); ++i)
   {
     std::pair<CSCDetId, CSCIndexer::IndexType> indexPair = indexer.detIdFromStripChannelIndex(i);
     os << indexPair.first << " strip:" << indexPair.second 

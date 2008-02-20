@@ -3,20 +3,25 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <iosfwd>
+#include <vector>
 
 class CSCDBGains{
  public:
+
+
   CSCDBGains();
   ~CSCDBGains();
   
   struct Item{
     short int gain_slope;
   };
-  enum size{ArraySize=217728};
 
+  // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;
+  
+  typedef std::vector<Item> GainContainer;
 
-  Item gains[ArraySize];
+  GainContainer gains;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains);

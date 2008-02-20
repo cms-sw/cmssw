@@ -19,8 +19,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 
-using namespace std;
-
 namespace edmtest
 {
   class CSCNoiseMatrixDBReadAnalyzer : public edm::EDAnalyzer
@@ -47,10 +45,13 @@ namespace edmtest
     context.get<CSCDBNoiseMatrixRcd>().get(pNoiseMatrix);
 
     const CSCDBNoiseMatrix* myNoiseMatrix=pNoiseMatrix.product();
-    int i;
-    for( i=0; i<CSCDBNoiseMatrix::ArraySize; ++i ){
+    std::vector<CSCDBNoiseMatrix::Item>::const_iterator it;
+
+    for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
       counter++;
-      DBNoiseMatrixFile<<counter<<"  "<<myNoiseMatrix->matrix[i].elem33<<" "<<myNoiseMatrix->matrix[i].elem34<<"  "<<myNoiseMatrix->matrix[i].elem44<<"  "<<myNoiseMatrix->matrix[i].elem35<<" "<<myNoiseMatrix->matrix[i].elem45<<"  "<<myNoiseMatrix->matrix[i].elem55<<"  "<<myNoiseMatrix->matrix[i].elem46<<"  "<<myNoiseMatrix->matrix[i].elem56<<"  "<<myNoiseMatrix->matrix[i].elem66<<"  "<<myNoiseMatrix->matrix[i].elem57<<"  "<<myNoiseMatrix->matrix[i].elem67<<"  "<<myNoiseMatrix->matrix[i].elem77<<std::endl;
+      DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<"  "<<it->elem34<<"  "<<it->elem44<<
+      "  "<<it->elem35<<"  "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<
+      "  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);

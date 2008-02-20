@@ -4,6 +4,7 @@
 const CSCDBCrosstalk::Item & CSCDBCrosstalk::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return crosstalk[ indexer.stripChannelIndex(cscId, strip)-1 ];
+  //  return crosstalk.at( indexer.stripChannelIndex(cscId, strip)-1 ); // if we worry about range
+  return crosstalk[ indexer.stripChannelIndex(cscId, strip)-1 ]; // no worries about range!
 }
 
