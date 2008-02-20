@@ -62,7 +62,8 @@ namespace {
     std::pair<edm::ProductID, unsigned int> ppui1;
     edm::Wrapper<edm::ValueMap<int> > wvm1;
     edm::Wrapper<edm::ValueMap<unsigned int> > wvm2;
-    edm::Wrapper<edm::ValueMap<float> > wvm3;
-    edm::Wrapper<edm::ValueMap<double> > wvm4;
+    edm::Wrapper<edm::ValueMap<bool> > wvm3;
+    edm::Wrapper<edm::ValueMap<float> > wvm4;
+    edm::Wrapper<edm::ValueMap<double> > wvm5;
   };
 }

@@ -73,9 +73,11 @@
  <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="edm::ValueMap<int>" />
  <class name="edm::ValueMap<unsigned int>" />
+ <class name="edm::ValueMap<bool>" />
  <class name="edm::ValueMap<float>" />
  <class name="edm::ValueMap<double>" />
  <class name="edm::Wrapper<edm::ValueMap<int> >" />
+ <class name="edm::Wrapper<edm::ValueMap<bool> >" />
  <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" />
  <class name="edm::Wrapper<edm::ValueMap<float> >" />
  <class name="edm::Wrapper<edm::ValueMap<double> >" />
