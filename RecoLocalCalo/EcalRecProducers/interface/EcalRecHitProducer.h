@@ -3,9 +3,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.2 2006/04/07 12:47:07 meridian Exp $
- *  $Date: 2006/04/07 12:47:07 $
- *  $Revision: 1.2 $
+ *  $Id: EcalRecHitProducer.h,v 1.3 2006/08/23 15:47:01 meridian Exp $
+ *  $Date: 2006/08/23 15:47:01 $
+ *  $Revision: 1.3 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -34,6 +34,8 @@ class EcalRecHitProducer : public edm::EDProducer {
 
     EcalRecHitAbsAlgo* EBalgo_;
     EcalRecHitAbsAlgo* EEalgo_;
+
+    std::vector<int> v_chstatus_; // list of channel status to be excluded
 
 /*     int nMaxPrintout_; // max # of printouts */
 /*     int nEvt_; // internal counter of events */
