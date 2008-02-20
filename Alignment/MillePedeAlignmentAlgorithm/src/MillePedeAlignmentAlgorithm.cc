@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.28 $
- *  $Date: 2007/12/17 18:59:52 $
+ *  $Revision: 1.29 $
+ *  $Date: 2008/02/15 14:42:26 $
  *  (last update by $Author: flucke $)
  */
 
@@ -49,7 +49,7 @@
 #include <sstream>
 
 #include <TMath.h>
-
+#include <TMatrixDSymEigen.h>
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
@@ -233,7 +233,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addGlobalDerivatives(refTrajPtr,iHit,trackTsos[iHit],parVec[iHit]);
+      const int flagXY = this->addMeasurementData(refTrajPtr,iHit,trackTsos[iHit],parVec[iHit]);
       if (flagXY < 0) { // problem
         nValidHitsX = -1;
         break;
@@ -268,7 +268,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 }
 
 //____________________________________________________
-int MillePedeAlignmentAlgorithm::addGlobalDerivatives
+int MillePedeAlignmentAlgorithm::addMeasurementData
 (const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iHit,
  const TrajectoryStateOnSurface &trackTsos, AlignmentParameters *&params)
 {
@@ -276,29 +276,26 @@ int MillePedeAlignmentAlgorithm::addGlobalDerivatives
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
-
+ 
   const TrajectoryStateOnSurface &tsos = 
     (theUseTrackTsos ? trackTsos : refTrajPtr->trajectoryStates()[iHit]);
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
   const bool is2DHit = this->is2D(recHitPtr);
-
   if (!this->globalDerivativesHierarchy(tsos, alidet, alidet, is2DHit,// 2x alidet, sic!
 					theFloatBufferX, theFloatBufferY, theIntBuffer,
 					params)) {
     return -1; // problem
   } else if (theFloatBufferX.empty()) {
     return 0; // empty for X: no alignable for hit
-  } else {
-    this->callMille(refTrajPtr, iHit, kLocalX, theFloatBufferX, theIntBuffer);
-    if (is2DHit) {
-      this->callMille(refTrajPtr, iHit, kLocalY, theFloatBufferY, theIntBuffer);
-      return 2; // 2D information used
-    } else { 
-      return 1; // 1D information used
+  } 
+
+  else 
+    { 
+      return this->callMille2D(refTrajPtr,iHit, theIntBuffer,is2DHit,theFloatBufferX,theFloatBufferY); 
+     
     }
-  }
 }
 
 //____________________________________________________
@@ -660,4 +657,105 @@ bool MillePedeAlignmentAlgorithm::orderedTsos(const Trajectory *traj,
   
 
   return true;
+}
+void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy,TMatrixF &aGlobalDerivativesM)
+
+{
+
+  for (unsigned int i = 0; i <globalDerivativesx.size(); ++i) {
+    aGlobalDerivativesM(0,i) = globalDerivativesx[i];
+    aGlobalDerivativesM(1,i) = globalDerivativesy[i]; 
+  }
+}
+
+void MillePedeAlignmentAlgorithm::diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,TMatrixF &aHitResidualsM,TMatrixF &aGlobalDerivativesM)
+{
+  TMatrixDSymEigen myDiag(aHitCovarianceM);
+  TMatrixD aTranfoToDiagonalSystem = myDiag.GetEigenVectors();
+  TMatrixD aTranfoToDiagonalSystemInv = myDiag.GetEigenVectors( );
+  TMatrixF aTranfoToDiagonalSystemInvF = myDiag.GetEigenVectors( );
+  TMatrixD aMatrix= aTranfoToDiagonalSystemInv.Invert()*aHitCovarianceM*aTranfoToDiagonalSystem;
+  aHitCovarianceM = TMatrixDSym(2,aMatrix.GetMatrixArray());
+  aTranfoToDiagonalSystemInvF.Invert();
+  //edm::LogInfo("Alignment") << "NEW HIT loca in matrix"<<aLocalDerivativesM(0,0);
+  aLocalDerivativesM = aTranfoToDiagonalSystemInvF*aLocalDerivativesM;
+ 
+  //edm::LogInfo("Alignment") << "NEW HIT loca in matrix after diag:"<<aLocalDerivativesM(0,0);
+  aHitResidualsM  = aTranfoToDiagonalSystemInvF*aHitResidualsM;
+  aGlobalDerivativesM = aTranfoToDiagonalSystemInvF*aGlobalDerivativesM;
+}
+
+void MillePedeAlignmentAlgorithm::addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
+{
+
+  // This Method is valid for 2D measurements only
+
+ const unsigned int xIndex = iTrajHit*2;
+ const unsigned int yIndex = iTrajHit*2+1;
+ // Covariance into a TMatrixDSym
+
+ //aHitCovarianceM = new TMatrixDSym(2);
+ aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
+ aHitCovarianceM(0,1)=refTrajPtr->measurementErrors()[xIndex][yIndex];
+ aHitCovarianceM(1,0)=refTrajPtr->measurementErrors()[yIndex][xIndex];
+ aHitCovarianceM(1,1)=refTrajPtr->measurementErrors()[yIndex][yIndex];
+ 
+ //theHitResidualsM= new TMatrixF(2,1);
+ aHitResidualsM(0,0)= refTrajPtr->measurements()[xIndex] - refTrajPtr->trajectoryPositions()[xIndex];
+ aHitResidualsM(1,0)= refTrajPtr->measurements()[yIndex] - refTrajPtr->trajectoryPositions()[yIndex];
+
+  // Local Derivatives into a TMatrixDSym (to use matrix operations)
+  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+  //  theLocalDerivativeNumber = locDerivMatrix.num_col();
+
+  //theLocalDerivativesM = new TMatrixF(2,locDerivMatrix.num_col());
+  for (int i = 0; i < locDerivMatrix.num_col(); ++i) {
+    
+    aLocalDerivativesM(0,i) = locDerivMatrix[xIndex][i];
+    aLocalDerivativesM(1,i) = locDerivMatrix[yIndex][i];
+  }
+}
+
+
+int MillePedeAlignmentAlgorithm::callMille2D
+(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit, const std::vector<int> &globalLabels, bool is2DHit, const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy)
+{
+  TMatrixDSym aHitCovarianceM(2);
+  TMatrixF aHitResidualsM(2,1);
+  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+  TMatrixF aLocalDerivativesM(2,locDerivMatrix.num_col());
+  // below method fills above matrices
+  this->addRefTrackData2D(refTrajPtr,iTrajHit,aHitCovarianceM,aHitResidualsM,aLocalDerivativesM);
+  TMatrixF aGlobalDerivativesM(2,globalDerivativesx.size());
+  makeGlobDerivMatrix(globalDerivativesx,globalDerivativesy,aGlobalDerivativesM);
+ 
+  // calculates correlation between Hit measurements
+  float correlation = fabs(aHitCovarianceM(0,1))/(sqrt(aHitCovarianceM(0,0))*sqrt(aHitCovarianceM(1,1)));
+  if (correlation>0.05)  {this->diagonalize(aHitCovarianceM,aLocalDerivativesM,aHitResidualsM,aGlobalDerivativesM);
+  } 
+ 
+  if (is2DHit) { // for 2d hit both measurements get to mille
+    theMille->mille(aLocalDerivativesM.GetNcols(), aLocalDerivativesM[0].GetPtr(), aGlobalDerivativesM.GetNcols(), aGlobalDerivativesM[0].GetPtr(),&(globalLabels[0]),aHitResidualsM(0,0), float(sqrt( aHitCovarianceM (0,0)  ) ) );
+ 
+    theMille->mille(aLocalDerivativesM.GetNcols(),aLocalDerivativesM[1].GetPtr(),aGlobalDerivativesM.GetNcols(),aGlobalDerivativesM[1].GetPtr(),&(globalLabels[0]),aHitResidualsM(1,0),float(sqrt(aHitCovarianceM(1,1))));
+
+  }
+  
+  else { //edm::LogInfo("Alignment") << "after diag2" ;
+    
+  if (sqrt(aHitCovarianceM(0,0))<sqrt(aHitCovarianceM(1,1))) // checks which measurement has smaller error
+    {// 0 measurement is more precise and get filled to mille
+       	theMille->mille(aLocalDerivativesM.GetNcols(),aLocalDerivativesM[0].GetPtr(),aGlobalDerivativesM.GetNcols(),aGlobalDerivativesM[0].GetPtr(),&(globalLabels[0]),aHitResidualsM(0,0),float(sqrt(aHitCovarianceM(0,0))));
+
+      }
+    else
+      {// 1 measurement is more precise and get filled to mille
+       	theMille->mille(aLocalDerivativesM.GetNcols(),aLocalDerivativesM[1].GetPtr(),aGlobalDerivativesM.GetNcols(),aGlobalDerivativesM[1].GetPtr(),&(globalLabels[0]),aHitResidualsM(1,0),float(sqrt(aHitCovarianceM(1,1))));
+
+   }
+   
+  }
+  if (is2DHit) return 2;
+  return 1;
+
 }
