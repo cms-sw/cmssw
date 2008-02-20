@@ -89,6 +89,10 @@ namespace pos{
     bool noHits() const {return (maxNumHitsPerROC()==0);} // returns true if no hits will be produced
     unsigned int maxNumHitsPerROC() const; // returns the maximum number of hits that will be produced in any pixel pattern
 
+    // Return all the pixels that are enabled for this state.
+    std::set< std::pair<unsigned int, unsigned int> > pixelsWithHits(unsigned int state) const;
+    //                  column #      row #
+
     //If in singleROC mode this returns the current ROC
     unsigned int scanROC(unsigned int state) const;
 
@@ -138,6 +142,12 @@ namespace pos{
 
 
   private:
+
+    // Which set of rows we're on.
+    unsigned int rowCounter(unsigned int state) const;
+    
+    // Which set of columns we're on.
+    unsigned int colCounter(unsigned int state) const;
 
     // Used in constructor or in buildROCAndModuleLists()
     void buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet);
