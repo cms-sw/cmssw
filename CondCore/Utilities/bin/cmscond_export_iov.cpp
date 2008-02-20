@@ -192,9 +192,9 @@ int main( int argc, char** argv ){
 	  if (sourceiovtype!=entry.timetype) {
 	    // throw...
 	  }
-	}
-      } catch(...){ // throw if no db available....}
-	coralDB.commit();
+        }
+        coralDB.commit();
+      } catch(...){ }// throw if no db available...
 	if(debug){
 	  std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
       }
