@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.27 2008/02/18 13:10:24 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.28 2008/02/19 11:33:52 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -29,7 +29,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
 
-  intercalibErrorMean_ = ps.getUntrackedParameter<double>("IntercalibErrorMean",0.01);
+  intercalibErrorMean_ = ps.getUntrackedParameter<double>("IntercalibErrorMean",0.0);
 
   laserAlphaMean_  = ps.getUntrackedParameter<double>("laserAlphaMean",1.55);
   laserAlphaSigma_ = ps.getUntrackedParameter<double>("laserAlphaSigma",0);
