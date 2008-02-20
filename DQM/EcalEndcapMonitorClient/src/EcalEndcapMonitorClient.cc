@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/19 19:19:40 $
- * $Revision: 1.139 $
+ * $Date: 2008/02/20 10:31:39 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -442,12 +442,18 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     clientsNames_.push_back( "Cosmic" );
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -480,8 +486,10 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
