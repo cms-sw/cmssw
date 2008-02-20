@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/01/27 21:02:09 $
- * $Revision: 1.38 $
+ * $Date: 2008/02/15 06:55:51 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,6 +47,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection"); 
 
   for (int i = 0; i < 18; i++) {
     meOccupancy_[i]    = 0;
@@ -87,6 +88,18 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   meEETrigPrimDigiOccupancyThr_[1] = 0;
   meEETrigPrimDigiOccupancyProRThr_[1] = 0;
   meEETrigPrimDigiOccupancyProPhiThr_[1] = 0;
+
+  meEETestPulseDigiOccupancy_[0] = 0;
+  meEETestPulseDigiOccupancy_[1] = 0;
+
+  meEELaserDigiOccupancy_[0] = 0;
+  meEELaserDigiOccupancy_[1] = 0;
+
+  meEELedDigiOccupancy_[0] = 0;
+  meEELedDigiOccupancy_[1] = 0;
+
+  meEEPedestalDigiOccupancy_[0] = 0;
+  meEEPedestalDigiOccupancy_[1] = 0;
 
   recHitEnergyMin_ = 1.;
   trigPrimEtMin_ = 5.;
@@ -264,6 +277,46 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("phi'", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("number of TP digis", 2);
 
+    sprintf(histo, "EEOT test pulse digi occupancy EE +");
+    meEETestPulseDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jx'", 1);
+    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT test pulse digi occupancy EE -");
+    meEETestPulseDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jx'", 1);
+    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT led digi occupancy EE +");
+    meEELedDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEELedDigiOccupancy_[0]->setAxisTitle("jx'", 1);
+    meEELedDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT led digi occupancy EE -");
+    meEELedDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEELedDigiOccupancy_[1]->setAxisTitle("jx'", 1);
+    meEELedDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT laser digi occupancy EE +");
+    meEELaserDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEELaserDigiOccupancy_[0]->setAxisTitle("jx'", 1);
+    meEELaserDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT laser digi occupancy EE -");
+    meEELaserDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEELaserDigiOccupancy_[1]->setAxisTitle("jx'", 1);
+    meEELaserDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT pedestal digi occupancy EE +");
+    meEEPedestalDigiOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jx'", 1);
+    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+
+    sprintf(histo, "EEOT pedestal digi occupancy EE -");
+    meEEPedestalDigiOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jx'", 1);
+    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+
   }
 
 }
@@ -352,6 +405,26 @@ void EEOccupancyTask::cleanup(void){
     if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) dbe_->removeElement( meEETrigPrimDigiOccupancyProPhiThr_[1]->getName() );
     meEETrigPrimDigiOccupancyProPhiThr_[1] = 0;
 
+    if ( meEETestPulseDigiOccupancy_[0] ) dbe_->removeElement( meEETestPulseDigiOccupancy_[0]->getName() );
+    meEETestPulseDigiOccupancy_[0] = 0;
+    if ( meEETestPulseDigiOccupancy_[1] ) dbe_->removeElement( meEETestPulseDigiOccupancy_[1]->getName() );
+    meEETestPulseDigiOccupancy_[1] = 0;
+
+    if ( meEELaserDigiOccupancy_[0] ) dbe_->removeElement( meEELaserDigiOccupancy_[0]->getName() );
+    meEELaserDigiOccupancy_[0] = 0;
+    if ( meEELaserDigiOccupancy_[1] ) dbe_->removeElement( meEELaserDigiOccupancy_[1]->getName() );
+    meEELaserDigiOccupancy_[1] = 0;
+
+    if ( meEELedDigiOccupancy_[0] ) dbe_->removeElement( meEELedDigiOccupancy_[0]->getName() );
+    meEELedDigiOccupancy_[0] = 0;
+    if ( meEELedDigiOccupancy_[1] ) dbe_->removeElement( meEELedDigiOccupancy_[1]->getName() );
+    meEELedDigiOccupancy_[1] = 0;
+
+    if ( meEEPedestalDigiOccupancy_[0] ) dbe_->removeElement( meEEPedestalDigiOccupancy_[0]->getName() );
+    meEEPedestalDigiOccupancy_[0] = 0;
+    if ( meEEPedestalDigiOccupancy_[1] ) dbe_->removeElement( meEEPedestalDigiOccupancy_[1]->getName() );
+    meEEPedestalDigiOccupancy_[1] = 0;
+
   }
 
   init_ = false;
@@ -421,6 +494,71 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( xeex, xeey );
         if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
         if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+      }
+
+
+      Handle<EcalRawDataCollection> dcchs;
+      
+      if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+	
+	for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+	  
+	  EcalDCCHeaderBlock dcch = (*dcchItr);
+	  
+	  if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
+	       ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+	
+	  
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+
+	    if ( ism >=1 && ism <= 9 ) {
+	      if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Fill( xeex, xeey );
+	    } else {
+	      if ( meEETestPulseDigiOccupancy_[1] ) meEETestPulseDigiOccupancy_[1]->Fill( xeex, xeey );
+	    }
+
+	  }
+
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+
+	    if ( ism >=1 && ism <= 9 ) {
+	      if ( meEELaserDigiOccupancy_[0] ) meEELaserDigiOccupancy_[0]->Fill( xeex, xeey );
+	    } else {
+	      if ( meEELaserDigiOccupancy_[1] ) meEELaserDigiOccupancy_[1]->Fill( xeex, xeey );
+	    }
+
+	  }
+
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+
+	    if ( ism >=1 && ism <= 9 ) {
+	      if ( meEELedDigiOccupancy_[0] ) meEELedDigiOccupancy_[0]->Fill( xeex, xeey );
+	    } else {
+	      if ( meEELedDigiOccupancy_[1] ) meEELedDigiOccupancy_[1]->Fill( xeex, xeey );
+	    }
+
+	  }
+
+	  if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+	       dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+
+	    if ( ism >=1 && ism <= 9 ) {
+	      if ( meEEPedestalDigiOccupancy_[0] ) meEEPedestalDigiOccupancy_[0]->Fill( xeex, xeey );
+	    } else {
+	      if ( meEEPedestalDigiOccupancy_[1] ) meEEPedestalDigiOccupancy_[1]->Fill( xeex, xeey );
+	    }
+
+	  }
+
+	}
+
+      } else {
+	
+	LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+	
       }
 
     }

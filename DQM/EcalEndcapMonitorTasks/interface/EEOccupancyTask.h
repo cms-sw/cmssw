@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/01/24 16:14:44 $
- * $Revision: 1.13 $
+ * $Date: 2008/01/27 09:10:28 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -56,6 +56,7 @@ edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
+edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
@@ -76,6 +77,10 @@ MonitorElement* meEETrigPrimDigiOccupancyProPhi_[2];
 MonitorElement* meEETrigPrimDigiOccupancyThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProRThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProPhiThr_[2];
+MonitorElement* meEETestPulseDigiOccupancy_[2];
+MonitorElement* meEELaserDigiOccupancy_[2];
+MonitorElement* meEELedDigiOccupancy_[2];
+MonitorElement* meEEPedestalDigiOccupancy_[2];
 
 float recHitEnergyMin_;
 float trigPrimEtMin_;
