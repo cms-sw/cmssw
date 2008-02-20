@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id$
+// $Id: MuonGeometryDBConverter.cc,v 1.3 2008/02/17 07:03:52 pivarski Exp $
 //
 //
 
@@ -33,6 +33,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h" 
@@ -266,7 +268,11 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 std::sort(cscAlignments.m_align.begin(), cscAlignments.m_align.end(), sortOrder_AlignTransform);
 	 std::sort(cscAlignmentErrors.m_alignError.begin(), cscAlignmentErrors.m_alignError.end(), sortOrder_AlignTransformError);
 
-	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &cscAlignments, &cscAlignmentErrors);
+	 edm::ESHandle<Alignments> globalPositionRcd;
+	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
+
+	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &cscAlignments, &cscAlignmentErrors,
+					      align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
@@ -282,7 +288,12 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
 	 iSetup.get<CSCAlignmentRcd>().get(m_CSCAlignmentsLabel, cscAlignments);
 	 iSetup.get<CSCAlignmentErrorRcd>().get(m_CSCErrorsLabel, cscAlignmentErrors);
-	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors));
+
+	 edm::ESHandle<Alignments> globalPositionRcd;
+	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
+
+	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors),
+					      align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
