@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.188 $
+ * $Date: 2008/02/20 17:01:59 $
+ * $Revision: 1.189 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -743,7 +743,7 @@ void EBTestPulseClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-	update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
         update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
         update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
@@ -990,25 +990,25 @@ void EBTestPulseClient::analyze(void){
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
         if ( me_hs01_[ism-1] ) { 
-	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
-	}
+          me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+          me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
         if ( me_hs02_[ism-1] ) { 
-	  me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
-	  me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
-	}
+          me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+          me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
         if ( me_hs03_[ism-1] ) { 
-	  me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
-	  me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
-	}
+          me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+          me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
     }
