@@ -37,17 +37,17 @@ public:
 protected:
 
   // private constructors enforce usage of builders
-  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
-    TransientTrackingRecHit(geom,rh) {
+  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh, float weight=1., float annealing=1.) :
+    TransientTrackingRecHit(geom,rh,weight,annealing) {
     trackingRecHit_ = rh.clone();
   }
 
   /// for derived classes convenience, does not clone!
-  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
-    TransientTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
+  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh, float weight=1., float annealing=1.) :
+    TransientTrackingRecHit(geom,*rh,weight,annealing), trackingRecHit_(rh) {}
 
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-    TransientTrackingRecHit( other.det(),other) {
+    TransientTrackingRecHit( other.det(),other,other.weight(),other.getAnnealingFactor()) {
     trackingRecHit_ = other.hit()->clone();
   }
 
