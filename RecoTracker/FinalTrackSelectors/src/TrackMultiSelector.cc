@@ -1,6 +1,7 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMultiSelector.h"
 
 #include <Math/DistFunc.h>
+#include "TMath.h"
 
 using reco::modules::TrackMultiSelector;
 //using reco::modules::TrackMultiSelector::Block;
@@ -221,11 +222,11 @@ short TrackMultiSelector::select(const reco::Track &tk, const std::vector<Point>
 }
 void TrackMultiSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
     using namespace reco;
-    using ROOT::Math::chisquared_prob;
+
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
         if ((it->tracksSize() >= vtxTracks_)  && 
-                ( (it->chi2() == 0.0) || (chisquared_prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
+                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
             points.push_back(it->position()); 
             toTake--; if (toTake == 0) break;
         }

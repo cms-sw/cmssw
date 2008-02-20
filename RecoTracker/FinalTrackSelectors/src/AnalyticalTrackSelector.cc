@@ -1,6 +1,7 @@
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
 
 #include <Math/DistFunc.h>
+#include "TMath.h"
 
 using reco::modules::AnalyticalTrackSelector;
 
@@ -159,7 +160,7 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 	   abs(d0) < pow(d0_par2_[0]*nhits,d0_par2_[1])*d0E ) {
 	 //no vertex, wide z cuts
 	 if (points.empty()) { 
-	   if ( abs(dz) < 15.9 ) return true;
+	   if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) return true;  
 	 }
 	 // z compatibility with a vertex
 	 for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
@@ -172,11 +173,10 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 }
 void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
     using namespace reco;
-    using ROOT::Math::chisquared_prob;
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
         if ((it->tracksSize() >= vtxTracks_)  && 
-                ( (it->chi2() == 0.0) || (chisquared_prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
+                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
             points.push_back(it->position()); 
             toTake--; if (toTake == 0) break;
         }
