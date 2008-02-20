@@ -1,6 +1,6 @@
 #ifndef RecoAlgos_ConstrainedFitCandProducer_h
 #define RecoAlgos_ConstrainedFitCandProducer_h
-/* \class ConstrainedFitProducer
+/* \class ConstrainedFitCandProducer
  *
  * \author Luca Lista, INFN
  *
@@ -53,7 +53,7 @@ ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::Con
   if(found) setLongLived_ = cfg.template getParameter<bool>("setLongLived");
   const string setPdgId("setPdgId");
   vector<string> vIntParams = cfg.getParameterNamesForType<int>();
-  found = find(vIntParams.begin(), vIntParams.end(), setLongLived) != vIntParams.end();
+  found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
   if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
 }
 

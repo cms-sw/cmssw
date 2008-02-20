@@ -67,7 +67,7 @@ namespace reco {
 	if(found) setLongLived_ = cfg.getParameter<bool>("setLongLived");
 	const string setPdgId("setPdgId");
 	vector<string> vIntParams = cfg.getParameterNamesForType<int>();
-	found = find(vIntParams.begin(), vIntParams.end(), setLongLived) != vIntParams.end();
+	found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
 	if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
       }
     protected:
