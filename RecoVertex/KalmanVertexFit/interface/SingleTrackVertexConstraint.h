@@ -37,6 +37,18 @@ public:
 	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
 
+  TrackFloatPair constrain(const reco::TransientTrack & track,
+	const VertexState priorVertex) const;
+
+  TrackFloatPair constrain(
+	const reco::TransientTrack & track, const reco::BeamSpot & spot ) const;
+
+
+  TrackFloatPair constrain(
+	const FreeTrajectoryState & fts, const reco::BeamSpot & spot) const;
+
+
+
   SingleTrackVertexConstraint * clone() const {
     return new SingleTrackVertexConstraint(* this);
   }

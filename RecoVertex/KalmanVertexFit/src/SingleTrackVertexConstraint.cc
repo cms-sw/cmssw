@@ -10,15 +10,21 @@ SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constra
 	const GlobalError & priorError) const
 { 
   VertexState priorVertexState(priorPos, priorError);
+  return constrain(track, priorVertexState);
+}
 
+
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
+	const TransientTrack & track,  const VertexState priorVertexState) const
+{
   // Linearize tracks
 
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   RefCountedLinearizedTrackState lTrData 
-      = theLTrackFactory.linearizedTrackState(priorPos, track);
-  RefCountedVertexTrack vertexTrack =  theVTrackFactory.vertexTrack(lTrData,priorVertexState);
+      = theLTrackFactory.linearizedTrackState(priorVertexState.position(), track);
+  RefCountedVertexTrack vertexTrack =  theVTrackFactory.vertexTrack(lTrData, priorVertexState);
 
   // Fit vertex
 
@@ -36,3 +42,18 @@ SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constra
 { 
   return constrain(ttFactory.build(fts), priorPos, priorError);
 }
+
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
+	const TransientTrack & track, const reco::BeamSpot & spot ) const
+{
+  VertexState priorVertexState(spot);
+  return constrain(track, priorVertexState);
+}
+
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
+	const FreeTrajectoryState & fts, const reco::BeamSpot & spot) const
+{ 
+  VertexState priorVertexState(spot);
+  return constrain(ttFactory.build(fts), priorVertexState);
+}
+
