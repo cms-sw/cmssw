@@ -121,6 +121,7 @@ namespace edm {
     // Read the PileUp 
     std::vector<EventPrincipalVector> pileup[maxNbSources_];
     bool doit[maxNbSources_];
+    for (unsigned int is=0;is< maxNbSources_;++is) doit[is]=false;
 
     if ( input_)  {  
       if (playback_) {
@@ -128,7 +129,7 @@ namespace edm {
 	input_->readPileUp(pileup[0],eventIDs_, fileSeqNrs_, nrEvents_);
       } else {
 	input_->readPileUp(pileup[0],eventIDs_, fileSeqNrs_, nrEvents_); 
-	setEventStartInfo(0);
+        setEventStartInfo(0);
       }
       if (input_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
@@ -144,7 +145,7 @@ namespace edm {
 // 	  }
 // 	}
 // 	// end testprint
-      } else doit[0]=false; 
+      } 
     }
     if (cosmics_) {
       if (playback_) {
@@ -157,7 +158,7 @@ namespace edm {
       if (cosmics_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
 	doit[1]=true;
-      }  else doit[1]=false;
+      } 
     }
 
     if (beamHalo_p_) {
@@ -171,7 +172,7 @@ namespace edm {
       if (beamHalo_p_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
 	doit[2]=true;
-      }  else doit[2]=false;
+      } 
     }
 
     if (beamHalo_m_) {
@@ -185,7 +186,7 @@ namespace edm {
       if (beamHalo_m_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
 	doit[3]=true;
-      }  else doit[3]=false;
+      }
     }
 
     if (fwdDet_) {
@@ -200,7 +201,7 @@ namespace edm {
       if (fwdDet_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding fwd detector source  to signal event "<<e.id();
 	doit[4]=true;
-      }  else doit[4]=false;
+      }  
     }
 
     // and merge it
