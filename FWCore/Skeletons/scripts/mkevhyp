@@ -9,7 +9,7 @@
 #  output:  packagename/
 #                         Buildfile
 #                         interface/packagename.h
-#                         src/packagename.cc
+#                         src/packagename.cc <also modifies:> classes.h classes_def.xml
 #                         doc/
 #                         test/
 #  required input:
@@ -22,11 +22,11 @@
 #  none
 # 
 #  example:
-#  mkdatapkg MyPackage 
+#  mkevhyp MyPackage zjets.txt
 #        --> write  MyPackage/
 #                               Buildfile
 #                               interface/MyPackage.h
-#                               src/MyPackage.cc
+#                               src/MyPackage.cc <also modifies:> classes.h classes_def.xml
 #                               doc/
 #                               test/
 #  
@@ -82,6 +82,10 @@ $skeletons{"$skel_dir/EventHypothesis/xxxEventHypothesis.h"} =
     "$name/interface/$name.h";
 $skeletons{"$skel_dir/EventHypothesis/xxxEventHypothesis.cc"} =
     "$name/src/$name.cc";
+$skeletons{"$skel_dir/EventHypothesis/xxxEventHypothesisProducer.h"} =
+    "$name/interface/$name"."Producer.h";
+$skeletons{"$skel_dir/EventHypothesis/xxxEventHypothesisProducer.cc"} =
+    "$name/src/$name"."Producer.cc";
 
 if ( ! $do_list )
 {
@@ -107,9 +111,9 @@ if ( ! $do_list )
       # Fill the declaration of types in the header
       $hyp_data_members_str = $hyp_data_members_str . sprintf("%30s %15s\_;\n", @hyptypes{$hypcount}, @hypnames{$hypcount});
       # Fill the accessors
-      my $tempname = ucfirst(@hypnames{$hypcount});
+      my $tempname =@hypnames{$hypcount};
       $hyp_interface_str = $hyp_interface_str . 
-	sprintf("@hyptypes{$hypcount} & get$tempname() { return @hypnames{$hypcount}\_; } \n", @hyptypes{$hypcount}, @hypnames{$hypcount} );
+	sprintf("@hyptypes{$hypcount} & $tempname() { return @hypnames{$hypcount}\_; } \n", @hyptypes{$hypcount}, @hypnames{$hypcount} );
       # Fill the candidate array of names
       $hyp_cand_roles_str = $hyp_cand_roles_str . sprintf("  \"@hypnames{$hypcount}\",  \n");
 
