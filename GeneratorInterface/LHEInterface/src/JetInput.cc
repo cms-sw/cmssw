@@ -55,9 +55,8 @@ bool JetInput::isParton(int pdgId)
 bool JetInput::isHadron(int pdgId)
 {
 	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-	return (pdgId % 10) > 0 &&
-	       ((pdgId > 100 && pdgId < 900) ||
-	        (pdgId > 1000 && pdgId < 9000));
+	return (pdgId > 100 && pdgId < 900) ||
+	       (pdgId > 1000 && pdgId < 9000);
 }
 
 bool JetInput::isResonance(int pdgId)
