@@ -9,6 +9,12 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h>
 
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include <sstream>
+#include <stdlib.h>
+
 void CSCTFTrackBuilder::initialize(const edm::EventSetup& c)
 {
  //my_dtrc->initialize(c);
@@ -19,6 +25,41 @@ void CSCTFTrackBuilder::initialize(const edm::EventSetup& c)
 			my_SPs[e-1][s-1]->initialize(c);
 		}
 	}
+
+  edm::ESHandle<L1MuCSCTFConfiguration> config;
+  c.get<L1MuCSCTFConfigurationRcd>().get(config);
+  std::stringstream conf(config.product()->parameters());
+  while( !conf.eof() ){
+    char buff[1024];
+    conf.getline(buff,1024);
+    std::stringstream line(buff);
+
+    std::string register_;     line>>register_;
+    std::string chip_;         line>>chip_;
+    std::string muon_;         line>>muon_;
+    std::string writeValue_;   line>>writeValue_;
+    std::string comments_;     std::getline(line,comments_);
+
+    if( register_=="CSR_REQ" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        run_core         = value&0x8000;
+        trigger_on_ME1a  = value&0x0001;
+        trigger_on_ME1b  = value&0x0002;
+        trigger_on_ME2   = value&0x0004;
+        trigger_on_ME3   = value&0x0008;
+        trigger_on_ME4   = value&0x0010;
+        trigger_on_MB1a  = value&0x0100;
+        trigger_on_MB1d  = value&0x0200;
+    }
+    if( register_=="DAT_FTR" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        singlesTrackPt = value;//&0x1F - rank; // value&0x60; - Q1,Q0 // value&0x80; - charge
+    }
+    if( register_=="CSR_SFC" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        singlesTrackOutput = (value&0x3000)>>12;
+    }
+  }
 }
 
 CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
@@ -34,21 +75,19 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
 	}
     }
   // All SPs work with the same configuration (impossible to make it more exclusive in this framework)
-  run_core         = pset.getUntrackedParameter<bool>("run_core");
-  trigger_on_ME1a  = pset.getUntrackedParameter<bool>("trigger_on_ME1a");
-  trigger_on_ME1b  = pset.getUntrackedParameter<bool>("trigger_on_ME1b");
-  trigger_on_ME2   = pset.getUntrackedParameter<bool>("trigger_on_ME2");
-  trigger_on_ME3   = pset.getUntrackedParameter<bool>("trigger_on_ME3");
-  trigger_on_ME4   = pset.getUntrackedParameter<bool>("trigger_on_ME4");
-  trigger_on_MB1a  = pset.getUntrackedParameter<bool>("trigger_on_MB1a");
-  trigger_on_MB1d  = pset.getUntrackedParameter<bool>("trigger_on_MB1d");
-  singlesTrackRank = pset.getUntrackedParameter<unsigned int>("singlesTrackRank");
-  singlesTrackOutput = pset.getUntrackedParameter<unsigned int>("singlesTrackOutput");
-  lctMinBX         = pset.getUntrackedParameter<int>("lctMinBX",3);
-  lctMaxBX         = pset.getUntrackedParameter<int>("lctMaxBX",9);
-  trackMinBX       = pset.getUntrackedParameter<int>("trackMinBX",-3);
-  trackMaxBX       = pset.getUntrackedParameter<int>("trackMaxBX",3);
-
+  run_core         = pset.getParameter<bool>("run_core");
+  trigger_on_ME1a  = pset.getParameter<bool>("trigger_on_ME1a");
+  trigger_on_ME1b  = pset.getParameter<bool>("trigger_on_ME1b");
+  trigger_on_ME2   = pset.getParameter<bool>("trigger_on_ME2");
+  trigger_on_ME3   = pset.getParameter<bool>("trigger_on_ME3");
+  trigger_on_ME4   = pset.getParameter<bool>("trigger_on_ME4");
+  trigger_on_MB1a  = pset.getParameter<bool>("trigger_on_MB1a");
+  trigger_on_MB1d  = pset.getParameter<bool>("trigger_on_MB1d");
+  singlesTrackPt   = pset.getParameter<unsigned int>("singlesTrackPt");
+  singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
+  m_minBX          = pset.getParameter<int>("MinBX");
+  m_maxBX          = pset.getParameter<int>("MaxBX");
+  if( m_maxBX-m_minBX >= 7 ) edm::LogWarning("CSCTFTrackBuilder::ctor")<<" BX window width >= 7BX. Resetting m_maxBX="<<(m_maxBX=m_minBX+6);
 }
 
 CSCTFTrackBuilder::~CSCTFTrackBuilder()
@@ -170,7 +209,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
     }
 
     // Add-on for singles:
-    CSCCorrelatedLCTDigiCollection myLCTcontainer[2][6][7/*lctMaxBX-lctMinBX*/]; //[endcap][sector][BX]
+    CSCCorrelatedLCTDigiCollection myLCTcontainer[2][6][7]; //[endcap][sector][BX]
 
     for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
         CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
@@ -187,8 +226,8 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
            if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
                (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
                (mpc==4&&trigger_on_ME4) ){
-               int bx = lct->getBX() - lctMinBX;
-               if( bx<0 || bx >= lctMaxBX-lctMinBX ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<lctMinBX<<","<<lctMaxBX<<") range: "<<lct->getBX();
+               int bx = lct->getBX() - m_minBX;
+               if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<lct->getBX();
                else
                  if( lct->isValid() ){
                      myLCTcontainer[endcap][sector][bx].put(range,(*csc).first);
@@ -197,13 +236,16 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
            }
         }
     }
+     // Core's input was loaded in a relative time window BX=[0-7)
+     // To relate it to time window of tracks (centred at BX=0) we introduce a shift:
+     int shift = (m_maxBX + m_minBX)/2 - m_minBX;
 
     // Now we put tracks from singles in a certain endcap/sector/bx only
     //   if there were no tracks from the core in this endcap/sector/bx
     L1CSCTrackCollection tracksFromSingles;
     for(unsigned int endcap=0; endcap<2; endcap++)
        for(unsigned int sector=0; sector<6; sector++)
-          for(int bx=0; bx<lctMaxBX-lctMinBX; bx++)
+          for(int bx=0; bx<7; bx++)
              if( myLCTcontainer[endcap][sector][bx].begin() !=
                  myLCTcontainer[endcap][sector][bx].end() ){ // VP was detected in endcap/sector/bx
                 bool coreTrackExists = false;
@@ -211,7 +253,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
                 for(L1CSCTrackCollection::iterator trk=trkcoll->begin(); trk<trkcoll->end(); trk++)
                    if( trk->first.endcap()-1 == endcap &&
                        trk->first.sector()-1 == sector &&
-                       trk->first.BX()-trackMinBX == bx && 
+                       trk->first.BX()       == bx-shift && 
                        trk->first.outputLink() == singlesTrackOutput ){
                        coreTrackExists = true;
                        break;
@@ -219,8 +261,11 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
                    if( coreTrackExists == false ){
                        csc::L1TrackId trackId(endcap+1,sector+1);
                        csc::L1Track   track(trackId);
-                       track.setRank(singlesTrackRank);
-                       track.setBx(bx+trackMinBX);
+                       track.setRank(singlesTrackPt&0x1F);
+                       track.setBx(bx-shift);
+                       //track.setPtPacked(singlesTrackPt);
+                       //track.setQualityPacked(singlesTrackPt);
+                       //track.setChargeValidPacked();
                        tracksFromSingles.push_back(L1CSCTrack(track,myLCTcontainer[endcap][sector][bx]));
                    } 
              }

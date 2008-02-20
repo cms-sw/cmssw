@@ -19,10 +19,12 @@ class CSCTFTrackProducer : public edm::EDProducer
   virtual ~CSCTFTrackProducer();
 
   void produce(edm::Event & e, const edm::EventSetup& c);
-///KK
+
   void beginJob(const edm::EventSetup& es);
-///
+
  private:
+
+  bool useDT;
   edm::InputTag input_module;
   CSCTFTrackBuilder* my_builder;
 };

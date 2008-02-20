@@ -434,6 +434,11 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       LUTAddressL.delta_phi_sign = (io->ptLp >> (BWPT-1)) & 0x1;
       LUTAddressL.track_fr       = io->FRLp & 0x1;
 
+     // Core's input was loaded in a relative time window starting from BX=1(CSC)/0(DT)
+     // If we account for latency related shift in the core's output (as we do in this loop)
+     //  then output tracks appear in the same BX as input stubs.
+     // To create new time window with perfectly timed-in tracks placed at BX=0 we introduce a shift:
+     int shift = (maxBX - minBX)/2;
 
       if(LUTAddressH.track_mode)
 	{
@@ -441,7 +446,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setChargePacked(~(io->signHp)&0x1);
 	  trkH.setLocalPhi(io->phiHp);
 	  trkH.setEtaPacked(io->etaPTHp);
-	  trkH.setBx((int)(bx)-minBX);
+	  trkH.setBx((int)(bx)-shift);
 	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
 	  trkH.m_output_link = 1;
 	  if( LUTAddressH.track_mode==MODE_ACC ) trkH.setFineHaloPacked(1);
@@ -453,7 +458,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setChargePacked(~(io->signMp)&0x1);
 	  trkM.setLocalPhi(io->phiMp);
 	  trkM.setEtaPacked(io->etaPTMp);
-	  trkM.setBx((int)(bx)-minBX);
+	  trkM.setBx((int)(bx)-shift);
 	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
 	  trkM.m_output_link = 2;
 	  if( LUTAddressM.track_mode==MODE_ACC ) trkM.setFineHaloPacked(1);
@@ -465,7 +470,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setChargePacked(~(io->signLp)&0x1);
 	  trkL.setLocalPhi(io->phiLp);
 	  trkL.setEtaPacked(io->etaPTLp);
-	  trkL.setBx((int)(bx)-minBX);
+	  trkL.setBx((int)(bx)-shift);
 	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
 	  trkL.m_output_link = 3;
 	  if( LUTAddressL.track_mode==MODE_ACC ) trkL.setFineHaloPacked(1);

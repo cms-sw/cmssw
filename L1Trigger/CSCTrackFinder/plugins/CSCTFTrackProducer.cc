@@ -22,6 +22,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 {
   input_module = pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput");
   edm::ParameterSet sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
+  useDT = pset.getParameter<bool>("useDT");
   my_builder = new CSCTFTrackBuilder(sp_pset);
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
@@ -51,9 +52,9 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
 
   e.getByLabel(input_module.label(),input_module.instance(), LCTs);
-  e.getByType(dttrig);
+  if(useDT)e.getByType(dttrig);
 
-  my_builder->buildTracks(LCTs.product(), dttrig.product(), track_product.get(), dt_stubs.get());
+  my_builder->buildTracks(LCTs.product(), (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
 
   e.put(track_product);
   e.put(dt_stubs);

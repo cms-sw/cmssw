@@ -4,63 +4,42 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include <stdlib.h>
+#include <sstream>
+
 const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1","F2","F3","F4","F5"};
 
-///KK
 CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 					   const unsigned& sector,
 					   const edm::ParameterSet& pset)
 {
   m_endcap = endcap;
   m_sector = sector;
-  m_bxa_on = pset.getUntrackedParameter<bool>("UseBXA",true);
-  m_extend_length = pset.getUntrackedParameter<unsigned>("BXAExtendLength",1);
-  m_latency = pset.getUntrackedParameter<unsigned>("CoreLatency",8);
-  m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
-  m_maxBX = pset.getUntrackedParameter<int>("MaxBX",3);
+  m_bxa_on = pset.getParameter<bool>("UseBXA");
+  m_extend_length = pset.getParameter<unsigned>("BXAExtendLength");
+  m_latency = pset.getParameter<unsigned>("CoreLatency");
+  m_minBX = pset.getParameter<int>("MinBX");
+  m_maxBX = pset.getParameter<int>("MaxBX");
 
-  int i = 0;
-  for(; i < 6; ++i)
-    m_etawin[i] = 2;
-
-  std::vector<unsigned> etawins = pset.getUntrackedParameter<std::vector<unsigned> >("EtaWindows");
+  std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
   std::vector<unsigned>::const_iterator iter = etawins.begin();
 
-  i = 0;
-  for(; iter != etawins.end(); iter++)
-    {
-      m_etawin[i] = *iter;
-      ++i;
-    }
+  int i=0; 
+  for(; iter!=etawins.end() && i<6; iter++,i++) m_etawin[i] = *iter;
 
-//KK
-  m_etamin[0] = 11*2;
-  m_etamin[1] = 11*2;
-  m_etamin[2] = 7*2;
-  m_etamin[3] = 7*2;
-  m_etamin[4] = 7*2;
-  m_etamin[5] = 5*2;
-  m_etamin[6] = 5*2;
-  m_etamin[7] = 5*2;
-  std::vector<unsigned> etamins = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMin",std::vector<unsigned>(0));
-  for(iter=etamins.begin(),i=0; iter!=etamins.end(); iter++,i++) m_etamin[i] = *iter;
+  std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
+  for(iter=etamins.begin(),i=0; iter!=etamins.end() && i<8; iter++,i++) m_etamin[i] = *iter;
 
-  m_etamax[0] = 127;
-  m_etamax[1] = 127;
-  m_etamax[2] = 127;
-  m_etamax[3] = 127;
-  m_etamax[4] = 127;
-  m_etamax[5] = 12*2;
-  m_etamax[6] = 12*2;
-  m_etamax[7] = 12*2;
-  std::vector<unsigned> etamaxs = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMax",std::vector<unsigned>(0));
-  for(iter=etamaxs.begin(),i=0; iter!=etamaxs.end(); iter++,i++) m_etamax[i] = *iter;
+  std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
+  for(iter=etamaxs.begin(),i=0; iter!=etamaxs.end() && i<8; iter++,i++) m_etamax[i] = *iter;
 
-  m_mindphip     = pset.getUntrackedParameter<unsigned>("mindphip",unsigned(70));
-  m_mindeta_accp = pset.getUntrackedParameter<unsigned>("mindeta_accp",unsigned(4));
-  m_maxdeta_accp = pset.getUntrackedParameter<unsigned>("maxdeta_accp",unsigned(16));
-  m_maxdphi_accp = pset.getUntrackedParameter<unsigned>("maxdphi_accp",unsigned(128));
-//KK end
+  m_mindphip     = pset.getParameter<unsigned>("mindphip");
+  m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
+  m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
+  m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
 
   try {
     edm::ParameterSet srLUTset = pset.getParameter<edm::ParameterSet>("SRLUT");
@@ -90,8 +69,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
     LogDebug("CSCTFSectorProcessor") << "Using PT LUT from EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 }
-///
-///KK
+
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   for(int i = 1; i <= 4; ++i)
     {
@@ -114,9 +92,45 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 	  LogDebug("CSCTFSectorProcessor") << "Initializing PT LUT from EventSetup";
 	  ptLUT_ = new CSCTFPtLUT(c);
   }
+
+  edm::ESHandle<L1MuCSCTFConfiguration> config;
+  c.get<L1MuCSCTFConfigurationRcd>().get(config);
+  std::stringstream conf(config.product()->parameters());
+  int eta_cnt=0;
+  while( !conf.eof() ){
+    char buff[1024];
+    conf.getline(buff,1024);
+    std::stringstream line(buff);
+
+    std::string register_;     line>>register_;
+    std::string chip_ ;        line>>chip_;
+    std::string muon_;         line>>muon_;
+    std::string writeValue_;   line>>writeValue_;
+    std::string comments_;     std::getline(line,comments_);
+
+    if( register_=="CNT_ETA" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        eta_cnt = value;
+    }
+    if( register_=="DAT_ETA" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        if( eta_cnt< 8                ) m_etamin[eta_cnt   ] = value;
+        if( eta_cnt>=8  && eta_cnt<16 ) m_etamax[eta_cnt-8 ] = value;
+		if( eta_cnt>=16 && eta_cnt<22 ) m_etawin[eta_cnt-16] = value;
+        eta_cnt++;
+    }
+    if( register_=="CSR_SCC" && chip_=="SP" ){
+        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
+        m_bxa_on = value&0x1;
+    }
+    //uint32 mindphip     = 70;
+    //uint32 mindeta_accp = 4;
+    //uint32 maxdeta_accp = 16;
+    //uint32 maxdphi_accp = 128;
+  }
+
 }
-///
-///KK
+
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
 {
   for(int i = 0; i < 5; ++i)
@@ -131,17 +145,16 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   if(ptLUT_) delete ptLUT_;
   ptLUT_ = NULL;
 }
-///
 
 bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs)
 {
-///KK
+
   if( !ptLUT_ )
     throw cms::Exception("Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?)")<<"CSCTFSectorProcessor::run";
   for(int i = 0; i < 5; ++i)
     if(!srLUTs_[FPGAs[i]])
 		throw cms::Exception("Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?)")<<"CSCTFSectorProcessor::run";
-///
+
 
   l1_tracks.clear();
   dt_stubs.clear();

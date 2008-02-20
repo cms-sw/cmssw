@@ -34,8 +34,8 @@ class CSCTFTrackBuilder
   bool run_core;
   bool trigger_on_ME1a, trigger_on_ME1b, trigger_on_ME2, trigger_on_ME3, trigger_on_ME4;
   bool trigger_on_MB1a, trigger_on_MB1d;
-  unsigned int singlesTrackRank, singlesTrackOutput;
-  int  lctMinBX, lctMaxBX, trackMinBX, trackMaxBX; 
+  unsigned int singlesTrackPt, singlesTrackOutput;
+  int  m_minBX, m_maxBX;
 
   CSCTFDTReceiver* my_dtrc;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
