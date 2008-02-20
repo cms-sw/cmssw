@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/19 19:19:38 $
- * $Revision: 1.379 $
+ * $Date: 2008/02/19 21:12:16 $
+ * $Revision: 1.380 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -450,6 +450,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
@@ -458,6 +459,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
@@ -503,8 +505,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clients_.push_back( new EBTestPulseClient(ps) );
     clientsNames_.push_back( "TestPulse" );
 
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
