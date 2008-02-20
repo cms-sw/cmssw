@@ -13,8 +13,6 @@
 // ************************************************************************
 // ************************************************************************
 
-
-
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,7 +21,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <utility>
 
-// Abstract base class provides common to different payload getters 
+// Abstract base class provides common interface to different payload getters 
 class SiPixelGainCalibrationServiceBase {
    public:
       SiPixelGainCalibrationServiceBase(){};
@@ -66,6 +64,13 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
 
   uint32_t old_detID;
   int      old_cols;
+  // Cache data for payloads that average over columns
+  int      oldColumnIndexGain_;
+  int      oldColumnIndexPed_;
+  float    oldColumnValueGain_;
+  float    oldColumnValuePed_;
+  
+
   typename thePayloadObject::Range old_range;
 };
 
@@ -76,7 +81,12 @@ SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::Si
 {
 
   edm::LogInfo("SiPixelGainCalibrationServicePayloadGetter")  << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]";
-  old_detID = 0;
+  // Initialize cache variables
+  old_detID             = 0;
+  oldColumnIndexGain_   = -1;
+  oldColumnIndexPed_    = -1;
+  oldColumnValueGain_   = 0.;
+  oldColumnValuePed_    = 0.; 
 
 }
 
@@ -146,9 +156,17 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
         std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
-      }
-      //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
-      return  ped->getPed(col, old_range, old_cols);
+      } 
+      else if (col == oldColumnIndexPed_) // same DetID, same column
+      {
+         return oldColumnValuePed_;
+      } 
+
+      oldColumnIndexPed_ = col;
+      oldColumnValuePed_ = ped->getPed(col, old_range, old_cols);
+
+      return oldColumnValuePed_;
+
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getPedestalByColumn] SiPixelGainCalibrationRcd not initialized ";
 }
@@ -167,7 +185,16 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
     }
-    return ped->getGain(col, old_range, old_cols);
+    else if (col == oldColumnIndexGain_) // same DetID, same column
+    {
+       return oldColumnValueGain_;
+    }
+
+    oldColumnIndexGain_ = col;
+    oldColumnValueGain_ = ped->getGain(col, old_range, old_cols);
+
+    return oldColumnValueGain_;
+
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getGainByColumn] SiPixelGainCalibrationRcd not initialized ";
 }
