@@ -181,20 +181,22 @@ int main( int argc, char** argv ){
 
     // find tag in destination
     {
-      cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
-      coralDB.start(true);
-      cond::MetaData  metadata(coralDB);
-      if( metadata.hasTag(tag) ){
-	cond::MetaDataEntry entry;
-	metadata.getEntryByTag(tag,entry);
-	destiovtoken=entry.iovtoken;
-	if (sourceiovtype!=entry.timetype) {
-	  // throw...
+      try {
+	cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
+	coralDB.start(true);
+	cond::MetaData  metadata(coralDB);
+	if( metadata.hasTag(tag) ){
+	  cond::MetaDataEntry entry;
+	  metadata.getEntryByTag(tag,entry);
+	  destiovtoken=entry.iovtoken;
+	  if (sourceiovtype!=entry.timetype) {
+	    // throw...
+	  }
 	}
-      }
-      coralDB.commit();
-      if(debug){
-	std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
+      } catch(...){ // throw if no db available....}
+	coralDB.commit();
+	if(debug){
+	  std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
       }
     }
 
