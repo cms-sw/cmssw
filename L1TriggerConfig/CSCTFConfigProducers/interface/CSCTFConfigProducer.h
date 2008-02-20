@@ -19,6 +19,9 @@
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 
+#include <string>
+#include <vector>
+
 class CSCTFConfigProducer : public edm::ESProducer {
 private:
 	std::string ptLUT_path;
@@ -35,6 +38,7 @@ private:
 	std::string globalEta3LUT_path;
 	std::string globalEta4LUT_path;
 	std::string globalEta5LUT_path;
+	std::vector<std::string> registers;
 
 public:
 	std::auto_ptr<L1MuCSCPtLut>       produceL1MuCSCPtLutRcd      (const L1MuCSCPtLutRcd& iRecord);

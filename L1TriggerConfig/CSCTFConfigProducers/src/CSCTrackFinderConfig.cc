@@ -22,10 +22,19 @@ CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
 	globalEta3LUT_path = pset.getUntrackedParameter<std::string>("globalEta3LUT_path","");
 	globalEta4LUT_path = pset.getUntrackedParameter<std::string>("globalEta4LUT_path","");
 	globalEta5LUT_path = pset.getUntrackedParameter<std::string>("globalEta5LUT_path","");
+	registers          = pset.getParameter<std::vector<std::string> >("registers");
+	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCPtLutRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCLocalPhiLutRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCGlobalLutsRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCDTLutRcd);
+}
+
+std::auto_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord){
+	std::auto_ptr<L1MuCSCTFConfiguration> config = std::auto_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration() );
+	for(std::vector<std::string>::const_iterator line=registers.begin(); line!=registers.end(); line++)
+		config->parametersAsText += *line + "\n";
+	return config;
 }
 
 std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
