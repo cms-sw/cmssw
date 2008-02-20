@@ -230,7 +230,6 @@ int main( int argc, char** argv ){
       destCoralDB.commit();
     }
     delete editor;
-    session.close();
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
