@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/15 15:26:37 $
- * $Revision: 1.187 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -706,23 +706,23 @@ void EBTestPulseClient::analyze(void){
     me = dbe_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
-    meg03_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
 
-    meg04_[ism-1]->Reset();
-    meg05_[ism-1]->Reset();
+    if ( meg04_[ism-1] ) meg04_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
 
-    mea01_[ism-1]->Reset();
-    mea02_[ism-1]->Reset();
-    mea03_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
+    if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
+    if ( mea03_[ism-1] ) mea03_[ism-1]->Reset();
 
-    mer04_[ism-1]->Reset();
-    mer05_[ism-1]->Reset();
+    if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
+    if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset();
-    me_hs02_[ism-1]->Reset();
-    me_hs03_[ism-1]->Reset();
+    if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
+    if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
+    if ( me_hs03_[ism-1] ) me_hs03_[ism-1]->Reset();
 
     float meanAmpl01, meanAmpl02, meanAmpl03;
 
@@ -743,7 +743,7 @@ void EBTestPulseClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+	update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
         update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
         update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
@@ -984,30 +984,37 @@ void EBTestPulseClient::analyze(void){
       }
 
     }
-  
+
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+        if ( me_hs01_[ism-1] ) { 
+	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+        if ( me_hs02_[ism-1] ) { 
+	  me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+	  me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+        if ( me_hs03_[ism-1] ) { 
+	  me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+	  me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
     }
 
   }
+
 
 }
 
