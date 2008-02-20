@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.18 $
-///  last update: $Date: 2007/12/04 23:39:24 $
-///  by         : $Author: ratnik $
+///  Revision   : $Revision: 1.19 $
+///  last update: $Date: 2008/02/04 19:30:42 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -48,11 +47,11 @@
 #include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
 // Tracking 	 
 
 // Alignment
-#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
@@ -165,6 +164,8 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Create the geometries from the ideal geometries (first time only)
   this->createGeometries_( iSetup );
   
+  iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd_);
+
   // Retrieve and apply alignments, if requested (requires DB setup)
   if ( applyDbAlignment_ ) {
     if ( doTracker_ ) {
@@ -172,20 +173,23 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       iSetup.get<TrackerAlignmentRcd>().get( alignments );
       edm::ESHandle<AlignmentErrors> alignmentErrors;
       iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
-      aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors) );
+      aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
+						align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)) );
     }
     if ( doMuon_ ) {
       edm::ESHandle<Alignments> dtAlignments;
       iSetup.get<DTAlignmentRcd>().get( dtAlignments );
       edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
       iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
-      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors) );
+      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
+					   align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
 
       edm::ESHandle<Alignments> cscAlignments;
       iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
       edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
       iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
-      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
+      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
+					    align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
     }
   }
 
@@ -404,7 +408,8 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   if ( doTracker_ ) {
     std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
     std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
-    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors));
+    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors),
+					      align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)) );
   }
   if ( doMuon_ ) {
     std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
@@ -412,8 +417,10 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
     std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
     std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
 
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors) );
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
+    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
+					  align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
+    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
+					  align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
   }
 }
 
