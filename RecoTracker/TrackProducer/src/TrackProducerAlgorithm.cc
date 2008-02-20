@@ -75,6 +75,9 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
 
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+
+    if (tscbl.isValid()==false) return false;
+
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = tscbl.trackStateAtPCA().momentum();
@@ -162,6 +165,9 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
 
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+
+    if (tscbl.isValid()==false) return false;
+
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = tscbl.trackStateAtPCA().momentum();

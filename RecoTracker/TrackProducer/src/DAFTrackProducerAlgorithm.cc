@@ -174,7 +174,9 @@ bool DAFTrackProducerAlgorithm::buildTrack (const std::vector<Trajectory>& vtraj
     
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
-    
+
+    if (tscbl.isValid()==false) return false;
+
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = tscbl.trackStateAtPCA().momentum();
