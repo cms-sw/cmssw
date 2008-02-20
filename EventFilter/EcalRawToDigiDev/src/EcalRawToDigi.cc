@@ -114,8 +114,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   produces<EESrFlagCollection>();
   produces<EcalRawDataCollection>();
   produces<EcalPnDiodeDigiCollection>();
-  produces<EcalTrigPrimDigiCollection>("EBTT"); //change name
-  produces<EcalTrigPrimDigiCollection>("EETT"); //change name
+  produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
   
   // Integrity for xtal data
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
@@ -244,15 +243,10 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // create the collection for EB srflags       
   std::auto_ptr<EESrFlagCollection> productEESrFlags(new EESrFlagCollection);
   theUnpacker_->setEESrFlagsCollection(&productEESrFlags);
-  
-  // create the collection for EB tpgs
-  std::auto_ptr<EcalTrigPrimDigiCollection> productEBTps(new EcalTrigPrimDigiCollection);
-  theUnpacker_->setEBTpsCollection(&productEBTps);
-  
-   // create the collection for EE tpgs
-  std::auto_ptr<EcalTrigPrimDigiCollection> productEETps(new EcalTrigPrimDigiCollection);
-  theUnpacker_->setEETpsCollection(&productEETps);
 
+  // create the collection for ecal trigger primitives
+  std::auto_ptr<EcalTrigPrimDigiCollection> productEcalTps(new EcalTrigPrimDigiCollection);
+  theUnpacker_->setEcalTpsCollection(&productEcalTps);
   /////////////////////// collections for problems pertaining towers are already EE+EB communal
 
   // create the collection for invalid TTIds
@@ -355,8 +349,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productEESrFlags);
     }
     if(tccUnpacking_){
-      e.put(productEBTps,"EBTT"); //note change the name
-      e.put(productEETps,"EETT"); //note change the name
+      e.put(productEcalTps,"EcalTriggerPrimitives");
     }
   }
   

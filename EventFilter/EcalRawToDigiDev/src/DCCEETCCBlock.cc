@@ -11,7 +11,7 @@ DCCTCCBlock(u,m,e,unpack)
 }
 
 void DCCEETCCBlock::updateCollectors(){
-  tps_ = unpacker_->eeTpsCollection();
+  tps_ = unpacker_->ecalTpsCollection();
 }
 
 

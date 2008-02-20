@@ -11,7 +11,7 @@ DCCEBTCCBlock::DCCEBTCCBlock ( DCCDataUnpacker  * u,  EcalElectronicsMapper * m,
 }
 
 void DCCEBTCCBlock::updateCollectors(){
-  tps_ = unpacker_->ebTpsCollection();
+  tps_ = unpacker_->ecalTpsCollection();
 }
 
 bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){

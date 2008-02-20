@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2008/01/19 18:20:14 $
- * $Revision: 1.10 $
+ * $Date: 2008/02/11 23:36:06 $
+ * $Revision: 1.11 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -77,12 +77,9 @@ public :
   void setEESrFlagsCollection( std::auto_ptr<EESrFlagCollection>                     * x )
   { eeSrFlags_              = x; }
  
-  void setEBTpsCollection( std::auto_ptr<EcalTrigPrimDigiCollection>                  * x )
-  { ebTps_                  = x; }
-  
-  void setEETpsCollection( std::auto_ptr<EcalTrigPrimDigiCollection>                  * x )
-  { eeTps_                  = x; }
- 
+  void setEcalTpsCollection( std::auto_ptr<EcalTrigPrimDigiCollection>                  * x )
+  { ecalTps_                  = x; }
+
   void setInvalidGainsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
   { invalidGains_           = x; }
  
@@ -135,12 +132,9 @@ public :
   std::auto_ptr<EEDigiCollection>             * eeDigisCollection()
   { return eeDigis_;               }
   
-  std::auto_ptr<EcalTrigPrimDigiCollection>   * ebTpsCollection()
-  { return ebTps_;                 } 
-  
-  std::auto_ptr<EcalTrigPrimDigiCollection>   * eeTpsCollection()
-  { return eeTps_;                 } 
-  
+  std::auto_ptr<EcalTrigPrimDigiCollection>   * ecalTpsCollection()
+  { return ecalTps_;                 } 
+
   std::auto_ptr<EBSrFlagCollection>           * ebSrFlagsCollection()
   { return ebSrFlags_;             }  
   
@@ -207,8 +201,7 @@ protected :
   // Data collections pointers
   std::auto_ptr<EBDigiCollection>            * ebDigis_;
   std::auto_ptr<EEDigiCollection>            * eeDigis_;
-  std::auto_ptr<EcalTrigPrimDigiCollection > * ebTps_;
-  std::auto_ptr<EcalTrigPrimDigiCollection > * eeTps_;
+  std::auto_ptr<EcalTrigPrimDigiCollection > * ecalTps_;
   std::auto_ptr<EcalRawDataCollection>       * dccHeaders_;
   std::auto_ptr<EBDetIdCollection>           * invalidGains_;
   std::auto_ptr<EBDetIdCollection>           * invalidGainsSwitch_;
