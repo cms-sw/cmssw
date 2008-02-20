@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/12/04 23:51:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/01/03 00:53:11 $
+ *  $Revision: 1.10 $
  *  \author Maarten Thomas
  */
 
@@ -25,10 +25,16 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
+// LAS container & tool objects
+#include "Alignment/LaserAlignment/src/LASGlobalData.cc" // (template)
+#include "Alignment/LaserAlignment/src/LASModuleProfile.h"
 
 
 // ROOT
@@ -66,8 +72,9 @@ class LaserAlignment : public edm::EDProducer, public TObject
   void closeRootFile();
   /// fill adc counts from the laser profiles into a histogram
   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
-		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
-		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd);
+		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
+		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
+		     LASModuleProfile& theProfile );
 	/// initialize the histograms
   void initHistograms();
 	/// search for dets which are hit by a laser beam and fill the profiles into a histogram
@@ -101,6 +108,11 @@ class LaserAlignment : public edm::EDProducer, public TObject
 
   // digi producer
   Parameters theDigiProducersList;
+
+  // for each of the 434 profiles for data:
+  // one for the current event and one for the collected data
+  LASGlobalData<LASModuleProfile> currentDataProfiles;
+  LASGlobalData<LASModuleProfile> collectedDataProfiles;
 
   // Tree stuff
   TFile * theFile;
@@ -144,12 +156,12 @@ class LaserAlignment : public edm::EDProducer, public TObject
 	bool theUseBSFrame;
 
   // the map to store digis for cluster creation
-  std::map<DetId, std::vector<SiStripDigi> > theDigiStore;
+  std::map<DetId, std::vector<SiStripRawDigi> > theDigiStore;
   // map to store temporary the LASBeamProfileFits
   std::map<std::string, std::vector<LASBeamProfileFit> > theBeamProfileFitStore;
 
   // the vector which contains the Digis
-  std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
+  std::vector<edm::DetSet<SiStripRawDigi> > theDigiVector;
 
   // tracker geometry;
   edm::ESHandle<GeometricDet> gD;

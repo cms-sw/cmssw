@@ -3,6 +3,8 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 
+
+
 <library name=LaserAlignmentPlugins file=LaserAlignment.cc,LaserAlignmentInitHistograms.cc,LaserAlignmentTrackerStatistics.cc,LaserAlignmentAlignmentAlgorithm.cc,LaserAlignmentFit.cc>
 	<lib name=AlignmentLaserAlignment>
 	<use name=Alignment/LaserAlignment>
@@ -47,5 +49,11 @@
 	<use name=TrackingTools/MaterialEffects>
 	<use name=TrackingTools/TrajectoryState>
 	<use name=TrackingTools/TransientTrackingRecHit>
+<flags EDM_PLUGIN=1>
+</library>
+
+
+<library file=LaserAlignmentT0Producer.cc>
+	<lib name=AlignmentLaserAlignment>
 <flags EDM_PLUGIN=1>
 </library>

@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/12/04 23:51:42 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/01/22 19:18:03 $
+ *  $Revision: 1.18 $
  *  \author Maarten Thomas
  */
 
@@ -319,10 +319,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
     theNumberOfIterations++;
 
     // put the digis of the beams into the StripDigiCollection
-    for (std::map<DetId, std::vector<SiStripDigi> >::const_iterator p = theDigiStore.begin();
+    for (std::map<DetId, std::vector<SiStripRawDigi> >::const_iterator p = theDigiStore.begin();
     p != theDigiStore.end(); ++p)
     {
-      edm::DetSet<SiStripDigi> collector((p->first).rawId());
+      edm::DetSet<SiStripRawDigi> collector((p->first).rawId());
 
       if ((p->second).size()>0)
       {
@@ -591,7 +591,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
     }
 
   // create the output collection for the DetSetVector
-    std::auto_ptr<edm::DetSetVector<SiStripDigi> > theDigiOutput(new edm::DetSetVector<SiStripDigi>(theDigiVector));
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > theDigiOutput(new edm::DetSetVector<SiStripRawDigi>(theDigiVector));
 
   // write output to file
     theEvent.put(theDigiOutput);
@@ -608,33 +608,85 @@ void LaserAlignment::closeRootFile()
   theFile->Write();
 }
 
-void LaserAlignment::fillAdcCounts(TH1D * theHistogram, DetId theDetId,
-				    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
-				    edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd)
-{
+
+
+
+
+// void LaserAlignment::fillAdcCounts(TH1D * theHistogram, DetId theDetId,
+// 				    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
+// 				    edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd)
+// {
+//   if (theDebugLevel > 4) std::cout << "<LaserAlignment::fillAdcCounts()>: DetUnit: " << theDetId.rawId() << std::endl;
+
+//   // loop over all the digis in this det
+//   for (; digiRangeIterator != digiRangeIteratorEnd; ++digiRangeIterator) 
+//     {
+//       const SiStripDigi *digi = &*digiRangeIterator;
+
+//       // store the digis from the laser beams. They are later on used to create
+//       // clusters and RecHits. In this way some sort of "Laser Tracks" can be
+//       // reconstructed, which are useable for Track Based Alignment      
+//       theDigiStore[theDetId].push_back((*digi));
+      
+//       if ( theDebugLevel > 5 ) 
+// 	{ std::cout << " Channel " << digi->channel() << " has " << digi->adc() << " adc counts " << std::endl; }
+
+//       // fill the number of adc counts in the histogram
+//       if (digi->channel() < 512)
+// 	{
+// 	  Double_t theBinContent = theHistogram->GetBinContent(digi->channel()) + digi->adc();
+// 	  theHistogram->SetBinContent(digi->channel(), theBinContent);
+// 	}
+//     }
+// }
+
+
+
+
+
+void LaserAlignment::fillAdcCounts( TH1D* theHistogram, DetId theDetId,
+				    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
+				    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
+				    LASModuleProfile& theProfile ) {
+
   if (theDebugLevel > 4) std::cout << "<LaserAlignment::fillAdcCounts()>: DetUnit: " << theDetId.rawId() << std::endl;
 
+  // save the first position to calculate the index (= channel/strip number)
+  int channel = 0;
+  edm::DetSet<SiStripRawDigi>::const_iterator theFirstPosition = digiRangeIterator;
+
   // loop over all the digis in this det
-  for (; digiRangeIterator != digiRangeIteratorEnd; ++digiRangeIterator) 
-    {
-      const SiStripDigi *digi = &*digiRangeIterator;
+  for (; digiRangeIterator != digiRangeIteratorEnd; ++digiRangeIterator) {
+    const SiStripRawDigi *digi = &*digiRangeIterator;
 
-      // store the digis from the laser beams. They are later on used to create
-      // clusters and RecHits. In this way some sort of "Laser Tracks" can be
-      // reconstructed, which are useable for Track Based Alignment      
-      theDigiStore[theDetId].push_back((*digi));
-      
-      if ( theDebugLevel > 5 ) 
-	{ std::cout << " Channel " << digi->channel() << " has " << digi->adc() << " adc counts " << std::endl; }
-
-      // fill the number of adc counts in the histogram
-      if (digi->channel() < 512)
-	{
-	  Double_t theBinContent = theHistogram->GetBinContent(digi->channel()) + digi->adc();
-	  theHistogram->SetBinContent(digi->channel(), theBinContent);
-	}
+    // store the digis from the laser beams. They are later on used to create
+    // clusters and RecHits. In this way some sort of "Laser Tracks" can be
+    // reconstructed, which are useable for Track Based Alignment      
+    theDigiStore[theDetId].push_back((*digi));
+    
+    //    if ( theDebugLevel > 5 ) { 
+    //      std::cout << " Channel " << digi->channel() << " has " << digi->adc() << " adc counts " << std::endl; 
+    //    }
+    
+    // fill the number of adc counts in the histogram & array
+    channel = distance( theFirstPosition, digiRangeIterator );
+    if ( channel < 512 ) {
+      Double_t theBinContent = theHistogram->GetBinContent( channel + 1 ) + digi->adc();
+      theHistogram->SetBinContent( channel + 1, theBinContent );
+      theProfile.SetValue( channel, digi->adc() );
     }
+    
+  }
 }
+
+
+
+
+
+
+
+
+
 // define the SEAL module
 #include "FWCore/Framework/interface/MakerMacros.h"
 
