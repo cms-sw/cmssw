@@ -39,8 +39,8 @@ class CSCXonStrip_MatchGatti
   
   /// Returns fitted local x position and its estimated error.
   void findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit,
-                     int centralStrip, float& xCentroid, float& stripWidth,
-                     double& xGatti, float& tpeak, double& sigma, float& chisq );
+                     int centralStrip, float& xWithinChamber, float& stripWidth,
+                     float& tpeak, float& xWithinStrip, float& sigma, int & quality_flag);
 
   /// Use specs to setup Gatti parameters
   void initChamberSpecs();                       
@@ -60,10 +60,6 @@ class CSCXonStrip_MatchGatti
     noise_ = noise;
   }
 
-  // "Match Gatti" calculations
-  double calculateXonStripError(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1);
-  double calculateXonStripPosition(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1);
-  
  private:
 
 
@@ -74,7 +70,7 @@ class CSCXonStrip_MatchGatti
   double k_1, k_2, k_3, sqrt_k_3, norm;         // See equation above for description
     
   // The charge (3x3); [1][1] is the maximum 
-  float ChargeSignal[3][3];                                // 3x3 data array for gatti fit
+  float chargeSignal[3][3];                                // 3x3 data array for gatti fit
 
   /// x-talks  0 = left, 1 = middle, 2 = right ; and then second [] is for time bin tmax-1, tmax, tmax+1
   float xt_l[3][3], xt_r[3][3];
@@ -87,24 +83,19 @@ class CSCXonStrip_MatchGatti
   float a11[3], a12[3], a13[3], a22[3], a23[3], a33[3];
 
 
-  // The corrected coordinate is supposed to match the Gatti coordinate in the ideal case
-  float x_gatti ;
-
   // Store chamber specs
   const CSCChamberSpecs* specs_;
 
   // Store XT-corrected charges - 3x3 sum; Left, Central, Right charges (3 time-bins summed) 
 
-  double Qsum, QsumL, QsumC, QsumR;
+  double q_sum, q_sumL, q_sumC, q_sumR;
 
   // Parameter settings from config file
   bool debug;
   bool useCalib;
   //bool isData;
   bool use3TimeBins;
-  double adcSystematics;
   float xtalksOffset;
-  float xtalksSystematics;
 
   /* Cache calibrations for current event
    *
@@ -120,26 +111,29 @@ class CSCXonStrip_MatchGatti
   CSCFindPeakTime*         peakTimeFinder_;  
 
   // some variables and funfctions to use
-  // L, C, R : left, central and right strip charges
-  double XF_error_noise(double L, double C, double R, double noise);
-  double XF_error_XTasym(double L, double C, double R, double XTasym);
 
-  double Estimated2Gatti(double Xcentroid, float StripWidth, bool isME1_1);
-  double Estimated2GattiCorrection(double Xcentroid, float StripWidth, bool isME1_1);
+ // "Match Gatti" calculations
+  double calculateXonStripError(float stripWidth, bool ME1_1);
+  double calculateXonStripPosition(float stripWidth, bool ME1_1);
+  double xfError_Noise(double noise);
+  double xfError_XTasym(double XTasym);
+
+  double estimated2Gatti(double Xestimated, float StripWidth, bool ME1_1);
+  double estimated2GattiCorrection(double Xestimated, float StripWidth, bool ME1_1);
 
   void getCorrectionValues(std::string Estimator);
-  void HardCodedCorrectionInitialization();
+  void hardcodedCorrectionInitialization();
 
-  static const int N_SW_noME1_1 = 11;
-  static const int N_SW_ME1_1 = 6;
-  static const int N_val = 501;
+  static const int n_SW_noME1_1 = 11;
+  static const int n_SW_ME1_1 = 6;
+  static const int n_val = 501;
   //std::vector <std::vector <float> > Xcorrection(N_SW, std::vector <float> (N_val));
-  float Xcorrection_noME1_1[N_SW_noME1_1][N_val];
-  float Xcorrection_ME1_1[N_SW_ME1_1][N_val];
-  float XcentrVal[N_val];
-  float NoiseLevel;
-  float XTasymmetry;
-  float ConstSyst;
+  float x_correction_noME1_1[n_SW_noME1_1][n_val];
+  float x_correction_ME1_1[n_SW_ME1_1][n_val];
+  float x_centralVal[n_val];
+  float noise_level;
+  float xt_asymmetry;
+  float const_syst;
 }; 
 
 #endif

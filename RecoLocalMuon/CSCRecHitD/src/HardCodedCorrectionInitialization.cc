@@ -8,7 +8,7 @@
 
 //#include <vector>
 
-void CSCXonStrip_MatchGatti::HardCodedCorrectionInitialization(){
+void CSCXonStrip_MatchGatti::hardcodedCorrectionInitialization(){
   //---- Corrections depend on strip width (SW), position within the strip (XFlorida is used) and type of chamber
 
   //---- Corrections for non-ME1_1 chambers (all have practically equal Gatti parameters):
@@ -16,7 +16,7 @@ void CSCXonStrip_MatchGatti::HardCodedCorrectionInitialization(){
   //---- min SW ~ 6.6 cm (ME1/2), max SW ~ 1.6 cm (ME234/2) 
   //---- Corrections are calculated for N_SW_noME1_1 strip widths (0.6 - 1.6 cm) 
   //---- and for 501 values in   
-  float Corrections_noME1_1[N_SW_noME1_1][N_val] = {
+  float corrections_noME1_1[n_SW_noME1_1][n_val] = {
     {0, 0.00019078, 0.000383855, 0.000579201, 0.000776796, 0.000976616, 0.00117891, 0.00138342, 0.00159008, 0.00179887, 0.00200977, 0.00222304, 0.00243835, 0.00265569, 0.00287502, 0.00309646, 0.00332001, 0.00354547, 0.00377282, 0.00400203, 
      0.00423336, 0.0044665, 0.00470141, 0.00493807, 0.00517666, 0.005417, 0.00565901, 0.00590266, 0.00614806, 0.00639514, 0.00664377, 0.00689391, 0.00714568, 0.00739901, 0.00765376, 0.0079099, 0.00816756, 0.00842663, 0.00868701, 0.00894865, 
      0.00921171, 0.00947602, 0.0097415, 0.0100081, 0.0102761, 0.0105451, 0.0108152, 0.0110863, 0.0113586, 0.0116318, 0.011906, 0.0121811, 0.0124572, 0.0127341, 0.0130118, 0.0132904, 0.0135697, 0.0138497, 0.0141305, 0.014412, 
@@ -320,7 +320,7 @@ void CSCXonStrip_MatchGatti::HardCodedCorrectionInitialization(){
   //---- min SW ~ 3.15 cm, max SW ~ 7.6 cm 
   //---- Corrections are calculated for N_SW_ME1_1 strip widths (0.3 - 0.8 cm) 
   //---- and for 501 values in  
-  float Corrections_ME1_1[N_SW_ME1_1][N_val] = {
+  float corrections_ME1_1[n_SW_ME1_1][n_val] = {
     {0, -0.000153178, -0.000304723, -0.000454635, -0.000602913, -0.000749555, -0.000894561, -0.00103785, -0.00117926, -0.00131904, -0.0014572, -0.00159372, -0.00172861, -0.00186188, -0.00199351, -0.00212325, -0.00225135, -0.00237783, -0.00250269, -0.00262593, 
      -0.00274755, -0.00286755, -0.00298594, -0.00310249, -0.00321741, -0.00333073, -0.00344243, -0.00355254, -0.00366104, -0.00376795, -0.00387325, -0.00397696, -0.00407892, -0.00417925, -0.004278, -0.00437517, -0.00447075, -0.00456477, -0.00465721, -0.00474808, 
      -0.00483738, -0.00492512, -0.00501128, -0.00509574, -0.00517866, -0.00526003, -0.00533986, -0.00541815, -0.0054949, -0.00557013, -0.00564383, -0.005716, -0.00578666, -0.0058558, -0.00592344, -0.00598956, -0.0060541, -0.00611712, -0.00617865, -0.00623871, 
@@ -484,12 +484,12 @@ void CSCXonStrip_MatchGatti::HardCodedCorrectionInitialization(){
      0}
   };
   
-  for(int i = 0; i<N_SW_noME1_1; i++){
-    for(int j = 0; j<N_val;j++){
+  for(int i = 0; i<n_SW_noME1_1; i++){
+    for(int j = 0; j<n_val;j++){
      //---- maybe a vector later... 
-      Xcorrection_noME1_1[i][j] = Corrections_noME1_1[i][j];
-      if(i<N_SW_ME1_1){
-	Xcorrection_ME1_1[i][j] = Corrections_ME1_1[i][j];
+      x_correction_noME1_1[i][j] = corrections_noME1_1[i][j];
+      if(i<n_SW_ME1_1){
+	x_correction_ME1_1[i][j] = corrections_ME1_1[i][j];
       }
     }
   }

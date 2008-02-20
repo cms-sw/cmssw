@@ -42,14 +42,12 @@ CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps){
 
   debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  adcSystematics             = ps.getUntrackedParameter<double>("CSCCalibrationSystematics");        
   xtalksOffset               = ps.getUntrackedParameter<double>("CSCStripxtalksOffset");
-  xtalksSystematics          = ps.getUntrackedParameter<double>("CSCStripxtalksSystematics");
   stripCrosstalk_            = new CSCStripCrosstalk( ps );
   stripNoiseMatrix_          = new CSCStripNoiseMatrix( ps );
-  NoiseLevel                 = ps.getUntrackedParameter<double>("NoiseLevel"); 
-  XTasymmetry                = ps.getUntrackedParameter<double>("XTasymmetry"); 
-  ConstSyst                   = ps.getUntrackedParameter<double>("ConstSyst"); 
+  noise_level                 = ps.getUntrackedParameter<double>("NoiseLevel"); 
+  xt_asymmetry                = ps.getUntrackedParameter<double>("XTasymmetry"); 
+  const_syst                   = ps.getUntrackedParameter<double>("ConstSyst"); 
   peakTimeFinder_            = new CSCFindPeakTime();
   getCorrectionValues("StringCurrentlyNotUsed");
 }
@@ -66,21 +64,21 @@ CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
  *
  */
 void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit, 
-                                            int centralStrip, float& xCenterStrip, float& sWidth, 
-                                            double& xGatti, float& tpeak, double& sigma, float& chisq) {
+                                            int centralStrip, float& xWithinChamber, float& sWidth, 
+                                            float& tpeak,  float& xWithinStrip, float& sigma, int & quality_flag) {
+  quality_flag = 0; 
   // Initialize Gatti parameters using chamberSpecs
   // Cache specs_ info for ease of access
   specs_ = layer->chamber()->specs();
   stripWidth = sWidth;
   //initChamberSpecs();
-
+  //std::cout<<" init xWithinChamber = "<<xWithinChamber<<std::endl;
   // Initialize output parameters  
-  xGatti = xCenterStrip;  
-  sigma = chisq = 9999.;
+  xWithinStrip = xWithinChamber;  
 
   CSCStripHit::ChannelContainer strips = stripHit.strips();
   int nStrips = strips.size();
-  int CenterStrip = nStrips/2 + 1;   
+  int centStrip = nStrips/2 + 1;   
   std::vector<float> adcs = stripHit.s_adc();
   int tmax = stripHit.tmax();
 
@@ -92,7 +90,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if ( useCalib ) {
     bool useFittedCharge = false;
     for ( int t = 0; t < 4; ++t ) {
-      int k  = t + 4 * (CenterStrip-1);
+      int k  = t + 4 * (centStrip-1);
       adc[t] = adcs[k];
     }
     useFittedCharge = peakTimeFinder_->FindPeakTime( tmax, adc, t_zero, t_peak );  // Clumsy...  can remove t_peak ?
@@ -102,12 +100,12 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   //---- fill the charge matrix (3x3)
   int j = 0;
   for ( int i = 1; i <= nStrips; ++i ) {
-    if ( i > (CenterStrip-2) && i < (CenterStrip+2) ) {
+    if ( i > (centStrip-2) && i < (centStrip+2) ) {
       std::vector<float> adcsFit;
       for ( int t = 0; t < 4; ++t ) {
         int k  = t + 4*(i-1);
         adc[t] = adcs[k];
-        if ( t < 3) ChargeSignal[j][t] = adc[t];
+        if ( t < 3) chargeSignal[j][t] = adc[t];
       }
       j++;
     }
@@ -133,6 +131,8 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       xt_lr0[t] = (1. - xt_l[0][t] - xt_r[0][t]);
       xt_lr1[t] = (1. - xt_l[1][t] - xt_r[1][t]);
       xt_lr2[t] = (1. - xt_l[2][t] - xt_r[2][t]);
+      //std::cout<<" xt_l[1][t] = "<<xt_l[1][t]<<" xt_r[1][t] = "<<xt_r[1][t]<<" xt_lr1[t] = "<<xt_lr1[t]<<std::endl;
+      //std::cout<<" xtalks[5] = "<<xtalks[5]<<" xtalksOffset = "<<xtalksOffset<<<" xtalks[4] = "<<xtalks[4]<<std::endl;
     }
   } else { 
     for ( int t = 0; t < 3; ++t ) {
@@ -188,15 +188,16 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   
   //---- Set up noise, XTalk matrices 
   setupMatrix();
-  //---- Calculate the coordinate within the strip and associate uncertainty 
-  bool isME1_1 = false;
+  //---- Calculate the coordinate within the strip and associate uncertainty
+  bool ME1_1 = false;
   if("ME1/a" == specs_->chamberTypeName() || "ME1/b" == specs_->chamberTypeName()){
-    isME1_1 = true; 
+    ME1_1 = true;
   } 
-  x_gatti = calculateXonStripPosition(QsumL, QsumC, QsumR, stripWidth, isME1_1);
-  xGatti = xCenterStrip + (x_gatti * stripWidth);
-  sigma =  calculateXonStripError(QsumL, QsumC, QsumR, stripWidth, isME1_1);
-  //chisq = x_gatti;  // chisq is meaningless here
+  xWithinStrip = float(calculateXonStripPosition(stripWidth, ME1_1));
+  xWithinChamber = xWithinChamber + (xWithinStrip * stripWidth);
+  sigma =  float(calculateXonStripError(stripWidth, ME1_1));
+  quality_flag = 1;
+  //std::cout<<" QsumL = "<<QsumL<<" QsumC = "<<QsumC<<" QsumR = "<<QsumR<<" xWithinStrip = "<<xWithinStrip<<std::endl;
 }
 
 /* setupMatrix
@@ -265,52 +266,50 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
 */
   //---- Find the inverted XTalk matrix and apply it to the charge (3x3)
   //---- Thus the charge before the XTalk is obtained
-  HepMatrix XTalks(3,3);
-  HepMatrix XTalksInv(3,3);
+  HepMatrix cross_talks(3,3);
+  HepMatrix cross_talks_inv(3,3);
   int err = 0;
-  //---- Qsum is 3 time bins summed; L, C, R - left, central, right strips
-  Qsum = QsumL = QsumC = QsumR = 0.;
-  double Charge = 0.;
+  //---- q_sum is 3 time bins summed; L, C, R - left, central, right strips
+  q_sum = q_sumL = q_sumC = q_sumR = 0.;
+  double charge = 0.;
   for(int iTime=0;iTime<3;iTime++){
-    XTalksInv(1,1) = XTalks(1,1) = xt_lr0[iTime];
-    XTalksInv(1,2) = XTalks(1,2) = xt_l[1][iTime];
-    XTalksInv(1,3) = XTalks(1,3) = 0.;
-    XTalksInv(2,1) = XTalks(2,1) =  xt_r[0][iTime];
-    XTalksInv(2,2) = XTalks(2,2) = xt_lr1[iTime];
-    XTalksInv(2,3) = XTalks(2,3) = xt_l[2][iTime];
-    XTalksInv(3,1) = XTalks(3,1) = 0.;
-    XTalksInv(3,2) = XTalks(3,2) = xt_r[1][iTime];
-    XTalksInv(3,3) = XTalks(3,3) = xt_lr2[iTime];
-    XTalksInv.invert(err);
+    cross_talks_inv(1,1) = cross_talks(1,1) = xt_lr0[iTime];
+    cross_talks_inv(1,2) = cross_talks(1,2) = xt_l[1][iTime];
+    cross_talks_inv(1,3) = cross_talks(1,3) = 0.;
+    cross_talks_inv(2,1) = cross_talks(2,1) =  xt_r[0][iTime];
+    cross_talks_inv(2,2) = cross_talks(2,2) = xt_lr1[iTime];
+    cross_talks_inv(2,3) = cross_talks(2,3) = xt_l[2][iTime];
+    cross_talks_inv(3,1) = cross_talks(3,1) = 0.;
+    cross_talks_inv(3,2) = cross_talks(3,2) = xt_r[1][iTime];
+    cross_talks_inv(3,3) = cross_talks(3,3) = xt_lr2[iTime];
+    cross_talks_inv.invert(err);
     if (err != 0) {
       std::cout<<" Failed to invert XTalks matrix. Bad..."<<std::endl;
     }
-    //---- "Charge" is XT-corrected charge
-    Charge = ChargeSignal[0][iTime]*XTalksInv(1,1) + ChargeSignal[1][iTime]*XTalksInv(1,2)+ ChargeSignal[2][iTime]*XTalksInv(1,3);
-    //---- Negative charge? According to studies - better use 0 charge
-    if(Charge<0.){
-      Charge = 0.;
+    //---- "charge" is XT-corrected charge
+    charge = chargeSignal[0][iTime]*cross_talks_inv(1,1) + chargeSignal[1][iTime]*cross_talks_inv(1,2) + 
+      chargeSignal[2][iTime]*cross_talks_inv(1,3);
+    //---- Negative charge? According to studies (and logic) - better use 0 charge
+    if(charge<0.){
+      charge = 0.;
     }
-    Qsum+=Charge;
-    QsumL+=Charge;
-    Charge = ChargeSignal[0][iTime]*XTalksInv(2,1) + ChargeSignal[1][iTime] *XTalksInv(2,2)+ ChargeSignal[2][iTime]*XTalksInv(2,3);
-    //---- Negative charge? According to studies - better use 0 charge
-    if(Charge<0.){
-      Charge = 0.;
+    q_sum+=charge;
+    q_sumL+=charge;
+    charge = chargeSignal[0][iTime]*cross_talks_inv(2,1) + chargeSignal[1][iTime]*cross_talks_inv(2,2) + 
+      chargeSignal[2][iTime]* cross_talks_inv(2,3);
+    if(charge<0.){
+      charge = 0.;
     }
-    Qsum+=Charge;
-    QsumC+=Charge;
-    Charge = ChargeSignal[0][iTime]*XTalksInv(3,1)  +  ChargeSignal[1][iTime]*XTalksInv(3,2)  + ChargeSignal[2][iTime]*XTalksInv(3,3);
-    if(Charge<0.){
-      Charge = 0.;
+    q_sum+=charge;
+    q_sumC+=charge;
+    charge = chargeSignal[0][iTime]*cross_talks_inv(3,1) + chargeSignal[1][iTime]*cross_talks_inv(3,2) + 
+      chargeSignal[2][iTime]*cross_talks_inv(3,3);
+    if(charge<0.){
+      charge = 0.;
     }
-    Qsum+=Charge;
-    QsumR+=Charge;
-    //std::cout<<" XTalks = "<<XTalks<<std::endl;
-    //std::cout<<" XTalksInv = "<<XTalksInv<<std::endl;
+    q_sum+=charge;
+    q_sumR+=charge;
   }
-  //std::cout<<" QsumL = "<<QsumL<<" QsumC = "<< QsumC<<" QsumR = "<< QsumR<<" Qsum = "<< Qsum<<std::endl; 
-  
 }
 
 
@@ -344,181 +343,182 @@ void CSCXonStrip_MatchGatti::initChamberSpecs() {
 }
 
 
-void CSCXonStrip_MatchGatti::getCorrectionValues(std::string Estimator){
-  HardCodedCorrectionInitialization();
+void CSCXonStrip_MatchGatti::getCorrectionValues(std::string estimator){
+  hardcodedCorrectionInitialization();
 }
 
-double CSCXonStrip_MatchGatti::Estimated2GattiCorrection(double Xestimated, float StripWidth, bool ME1_1) {
+double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, float stripWidth, bool ME1_1) {
   //---- 11 "nominal" strip widths : 0.6 - 1.6 cm; for ME1_1 just 6 "nominal" strip widths : 0.3 - 0.8 cm; see HardCodedCorrectionInitialization() 
   //---- Calculate corrections at specific  Xestimated (linear interpolation between points)
-  int N_SW;
+  int n_SW;
   int min_SW;
   if(ME1_1){
-    N_SW = N_SW_ME1_1;
+    n_SW = n_SW_ME1_1;
     min_SW = 3; // min SW calculated is 0.3 cm
   }
   else{
-    N_SW = N_SW_noME1_1;
+    n_SW = n_SW_noME1_1;
     min_SW = 6;// min SW calculated is 0.6 cm
   }
-  int stripDown = int(10.*StripWidth) - min_SW; // 0 is at min strip width calculated
+  int stripDown = int(10.*stripWidth) - min_SW; // 0 is at min strip width calculated
   int stripUp = stripDown + 1;
-  if(stripUp>N_SW-1){
-    if(stripUp>N_SW){
-      std::cout<<" Is strip width = "<<StripWidth<<" OK?" <<std::endl;
+  if(stripUp>n_SW-1){
+    if(stripUp>n_SW){
+      std::cout<<" Is strip width = "<<stripWidth<<" OK?" <<std::endl;
     }
-    stripUp = N_SW-1;
+    stripUp = n_SW-1;
   }
-  
-  double HalfStripWidth = 0.5;
+
+  double half_strip_width = 0.5;
   //const int Nbins = 501;
-  const int Nbins = N_val;
-  double CorrToXc = 999.;
+  const int n_bins = n_val;
+  double corr_2_xestim = 999.;
   if(stripDown<0){
-    CorrToXc = 1;
+    corr_2_xestim = 1;
   }
   else{
-    //---- Parametrized Xgatti minus Xestimated differences
-    
-    int Xc_bin = -999;
-    double deltaStripWidth = 999.;
-    double deltaStripWidthUpDown = 999.;
-    double DiffToStripWidth = 999.;
-    deltaStripWidth = StripWidth - int(StripWidth*10)/10.;
-    deltaStripWidthUpDown = 0.1;
+    //---- Parametrized x_gatti minus x_estimated differences
 
-    if(fabs(Xestimated)>0.5){
-      if(fabs(Xestimated)>1.){
-        CorrToXc = 1.;// for now; to be investigated
+    int xestim_bin = -999;
+    double delta_strip_width = 999.;
+    double delta_strip_widthUpDown = 999.;
+    double diff_2_strip_width = 999.;
+    delta_strip_width = stripWidth - int(stripWidth*10)/10.;
+    delta_strip_widthUpDown = 0.1;
+
+    if(fabs(x_estimated)>0.5){
+      if(fabs(x_estimated)>1.){
+        corr_2_xestim = 1.;// for now; to be investigated
       }
-      else{
-        //if(fabs(Xestimated)>0.55){
-          //std::cout<<"X position from the estimated position above 0.55 (safty margin)?! "<<std::endl;
-          //CorrToXc = 999.;
-        //}
-        Xc_bin = int((1.- fabs(Xestimated))/HalfStripWidth * Nbins);
-        if(ME1_1){
-          DiffToStripWidth = Xcorrection_ME1_1[stripUp][Xc_bin]-Xcorrection_ME1_1[stripDown][Xc_bin];
-          CorrToXc =  Xcorrection_ME1_1[stripDown][Xc_bin] +
-            (deltaStripWidth/deltaStripWidthUpDown)*DiffToStripWidth ;
-        }
-        else{
-          DiffToStripWidth = Xcorrection_noME1_1[stripUp][Xc_bin]-Xcorrection_noME1_1[stripDown][Xc_bin];
-          CorrToXc =  Xcorrection_noME1_1[stripDown][Xc_bin] +
-            (deltaStripWidth/deltaStripWidthUpDown)*DiffToStripWidth ;
-        }
-        CorrToXc = -CorrToXc;
+      else{	 
+	//if(fabs(Xestimated)>0.55){
+	  //std::cout<<"X position from the estimated position above 0.55 (safty margin)?! "<<std::endl;
+	  //CorrToXc = 999.;
+	//}
+	xestim_bin = int((1.- fabs(x_estimated))/half_strip_width * n_bins);
+	if(ME1_1){
+	  diff_2_strip_width = x_correction_ME1_1[stripUp][xestim_bin]-x_correction_ME1_1[stripDown][xestim_bin];
+	  corr_2_xestim =  x_correction_ME1_1[stripDown][xestim_bin] +
+	    (delta_strip_width/delta_strip_widthUpDown)*diff_2_strip_width ;
+	}
+	else{
+	  diff_2_strip_width = x_correction_noME1_1[stripUp][xestim_bin]-x_correction_noME1_1[stripDown][xestim_bin];
+	  corr_2_xestim =  x_correction_noME1_1[stripDown][xestim_bin] +
+	    (delta_strip_width/delta_strip_widthUpDown)*diff_2_strip_width ;
+	}
+	corr_2_xestim = -corr_2_xestim;
       }
     }
     else{
-      Xc_bin = int((fabs(Xestimated)/HalfStripWidth) * Nbins);
+      xestim_bin = int((fabs(x_estimated)/half_strip_width) * n_bins);
       if(ME1_1){
-        DiffToStripWidth = Xcorrection_ME1_1[stripUp][Xc_bin]-Xcorrection_ME1_1[stripDown][Xc_bin];
-        CorrToXc =  Xcorrection_ME1_1[stripDown][Xc_bin] +
-          (deltaStripWidth/deltaStripWidthUpDown)*DiffToStripWidth ;
+	diff_2_strip_width = x_correction_ME1_1[stripUp][xestim_bin] - x_correction_ME1_1[stripDown][xestim_bin];
+	corr_2_xestim =  x_correction_ME1_1[stripDown][xestim_bin] +
+	  (delta_strip_width/delta_strip_widthUpDown)*diff_2_strip_width ;
       }
       else{
-        DiffToStripWidth = Xcorrection_noME1_1[stripUp][Xc_bin]-Xcorrection_noME1_1[stripDown][Xc_bin];
-        CorrToXc =  Xcorrection_noME1_1[stripDown][Xc_bin] +
-          (deltaStripWidth/deltaStripWidthUpDown)*DiffToStripWidth ;
+	diff_2_strip_width = x_correction_noME1_1[stripUp][xestim_bin] - x_correction_noME1_1[stripDown][xestim_bin];
+	corr_2_xestim =  x_correction_noME1_1[stripDown][xestim_bin] +
+	  (delta_strip_width/delta_strip_widthUpDown)*diff_2_strip_width ;
       }
     }
-    if(Xestimated<0.){
-      CorrToXc = -CorrToXc;
+    if(x_estimated<0.){
+      corr_2_xestim = -corr_2_xestim;
     }
   }
-
-  return CorrToXc;
+  
+  return corr_2_xestim;
 }
 
-double CSCXonStrip_MatchGatti::Estimated2Gatti(double Xestimated, float StripWidth, bool isME1_1) {
+
+double CSCXonStrip_MatchGatti::estimated2Gatti(double x_estimated, float stripWidth, bool ME1_1) {
 
  int sign;
- if(Xestimated>0.){
+ if(x_estimated>0.){
    sign = 1;
  }
  else{
    sign = - 1;
  }
- double Xcorr = Estimated2GattiCorrection(Xestimated, StripWidth, isME1_1);
- double Xgatti = Xestimated + Xcorr;
+ double x_corr = estimated2GattiCorrection(x_estimated, stripWidth, ME1_1);
+ double x_gatti = x_estimated + x_corr;
 
- return Xgatti;
+ return x_gatti;
 }
 
-double CSCXonStrip_MatchGatti::XF_error_noise(double L, double C, double R, double noise){
+double CSCXonStrip_MatchGatti::xfError_Noise(double noise){
 
   double min, max;
-  if(R>L){
-    min = L;
-    max = R;
+  if(q_sumR>q_sumL){
+    min = q_sumL;
+    max = q_sumR;
   }
   else{
-    min = R;
-    max = L;
+    min = q_sumR;
+    max = q_sumL;
   }
   //---- Error propagation...
   //---- Names here are fake! Due to technical features
-  double dr_L2 = pow(R-L,2);
-  double dr_C2 = pow(C-min,2);
-  double dr_R2 = pow(C-max,2);
-  double error = sqrt(dr_L2 + dr_C2 + dr_R2)*noise/pow(C-min,2)/2;
+  double dr_L2 = pow(q_sumR-q_sumL,2);
+  double dr_C2 = pow(q_sumC-min,2);
+  double dr_R2 = pow(q_sumC-max,2);
+  double error = sqrt(dr_L2 + dr_C2 + dr_R2)*noise/pow(q_sumC-min,2)/2;
 
   return error;
 }
 
-double CSCXonStrip_MatchGatti::XF_error_XTasym(double L, double C, double R, double XTasym){
+double CSCXonStrip_MatchGatti::xfError_XTasym(double xt_asym){
 
   double min;
-  if(R>L){
-    min = L;
+  if(q_sumR>q_sumL){
+    min = q_sumL;
   }
   else{
-    min = R;
+    min = q_sumR;
   }
   //---- Error propagation
-  double dXTL = (pow(C,2)+pow(R,2)-L*R-R*C);
-  double dXTR = (pow(C,2)+pow(L,2)-L*R-L*C);
-  double dXT = sqrt(pow(dXTL,2) + pow(dXTR,2))/pow((C-min),2)/2;
-  double error = dXT * XTasym;
+  double dXTL = (pow(q_sumC,2)+pow(q_sumR,2)-q_sumL*q_sumR-q_sumR*q_sumC);
+  double dXTR = (pow(q_sumC,2)+pow(q_sumL,2)-q_sumL*q_sumR-q_sumL*q_sumC);
+  double dXT = sqrt(pow(dXTL,2) + pow(dXTR,2))/pow((q_sumC-min),2)/2;
+  double error = dXT * xt_asym;
 
   return error;
 }
 
 
-double CSCXonStrip_MatchGatti::calculateXonStripError(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1){
+double CSCXonStrip_MatchGatti::calculateXonStripError(float stripWidth, bool ME1_1){
   double min;
-  if(QsumR>QsumL){
-    min = QsumL;
+  if(q_sumR>q_sumL){
+    min = q_sumL;
   }
   else{
-    min = QsumR;
+    min = q_sumR;
   }
   
-  double XF = (QsumR - QsumL)/(QsumC - min)/2;
-  double XF_ErrorNoise = XF_error_noise(QsumL, QsumC, QsumR, NoiseLevel);
-  double XF_ErrorXTasym = XF_error_XTasym(QsumL, QsumC, QsumR, XTasymmetry);
-  double Xgatti_shift = sqrt( pow( XF_ErrorNoise, 2) + pow( XF_ErrorXTasym, 2)) * 
-    (1 + (Estimated2GattiCorrection(XF+0.001, StripWidth, isME1_1) -
-	  Estimated2GattiCorrection(XF, StripWidth, isME1_1))*1000.);
-  double Xgatti_error =   sqrt( pow( fabs(Xgatti_shift)*StripWidth, 2) + pow(ConstSyst, 2) );
-  return  Xgatti_error; 
+  double xf = (q_sumR - q_sumL)/(q_sumC - min)/2;
+  double xf_ErrorNoise = xfError_Noise(noise_level);
+  double xf_ErrorXTasym = xfError_XTasym(xt_asymmetry);
+  double x_shift = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2)) * 
+    (1 + (estimated2GattiCorrection(xf+0.001, stripWidth, ME1_1) -
+	  estimated2GattiCorrection(xf, stripWidth, ME1_1))*1000.);
+  double x_error =   sqrt( pow( fabs(x_shift)*stripWidth, 2) + pow(const_syst, 2) );
+  return  x_error; 
 }
 
-double CSCXonStrip_MatchGatti::calculateXonStripPosition(double QsumL, double QsumC, double QsumR, float StripWidth, bool isME1_1){
+double CSCXonStrip_MatchGatti::calculateXonStripPosition(float stripWidth, bool ME1_1){ 
 
-  double  Xestimated = -99.;
+  double  x_estimated = -99.;
   double min;
-  if(QsumR>QsumL){
-    min = QsumL;
+  if(q_sumR>q_sumL){
+    min = q_sumL;
   }
   else{
-    min = QsumR;
+    min = q_sumR;
   }
   //---- This is XF ( X Florida - after the first group that used it)  
-  Xestimated = (QsumR - QsumL)/(QsumC - min)/2;
-  double Xgatti = Estimated2Gatti(Xestimated, StripWidth, isME1_1);
-  return Xgatti;
+  x_estimated = (q_sumR - q_sumL)/(q_sumC - min)/2;
+  double x_gatti = estimated2Gatti(x_estimated, stripWidth, ME1_1);
+  return x_gatti;
 }
 
 

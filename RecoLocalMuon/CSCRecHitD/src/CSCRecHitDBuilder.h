@@ -83,7 +83,7 @@ class CSCRecHitDBuilder
 
  private:
 
-  bool isData;
+  //bool isData;
   bool useCalib;
   bool debug;  
   int stripWireDeltaT;

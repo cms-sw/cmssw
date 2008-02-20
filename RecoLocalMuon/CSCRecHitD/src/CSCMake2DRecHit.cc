@@ -58,10 +58,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   
   float sqrt_12 = 3.4641;
   
-  double sigma, chisq, prob;
+  double sigma;
   sigma = 0.00;
-  chisq = -90.00;
-  prob  = -91.00;
   float tpeak = -90.;
   
   CSCRecHit2D::ChannelContainer channels;
@@ -111,7 +109,6 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
       tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
   }
   
-  //CSCRecHit2D *rechit_;  
   // If at the edge, then used 1 strip cluster only :
   if ( ch == 1 || ch == specs_->nStrips() || nStrip < 2 ) {
     
@@ -126,8 +123,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     
     // Now compute the errors properly on local x and y
     LocalError localerr = layergeom_->localError( centerStrip, sigma, sigmaWire );
-    
-    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, chisq, prob );
+    int quality = 2; 
+    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, 0., sigma,quality);
     return rechit;  
   } 
   else{
@@ -153,16 +150,14 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     }
     
     //---- Calculate local position within the strip
-    float x_to_gatti = x;   
-    double PositionWithinTheStrip;
-    double SigmaWithinTheStrip;
-    float chisq_fit;//---- meaningless here
-    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, x_to_gatti, stripWidth, PositionWithinTheStrip, tpeak, SigmaWithinTheStrip, chisq_fit);
+    float xWithinChamber = x;   
+    float PositionWithinTheStrip= -99.;
+    float SigmaWithinTheStrip = -99.;
+    int quality = 0;
+    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, xWithinChamber, stripWidth, tpeak, PositionWithinTheStrip, SigmaWithinTheStrip, quality);
     
-    x     = PositionWithinTheStrip;
+    x     = xWithinChamber;
     sigma = SigmaWithinTheStrip;
-    chisq = chisq_fit; //---- meaningless here
-    prob  = 1.;//---- meaningless here
     
     y = layergeom_->yOfWire(centerWire, x);
     
@@ -172,7 +167,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     LocalError localerr = layergeom_->localError( centerStrip, sigma, sigmaWire );
     
     // store rechit    
-    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, chisq, prob );
+    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, PositionWithinTheStrip, SigmaWithinTheStrip, quality);
     return rechit;
   }
 }

@@ -38,7 +38,6 @@ CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
 
 
   useCalib               = ps.getUntrackedParameter<bool>("CSCUseCalibrations");  
-  isData                 = ps.getUntrackedParameter<bool>("CSCIsRunningOnData"); 
   debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   stripWireDeltaT        = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
   makePseudo2DHits       = ps.getUntrackedParameter<bool>("CSCproduce1DHits");
@@ -90,11 +89,28 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
   for ( CSCWireDigiCollection::DigiRangeIterator it = wiredc->begin(); it != wiredc->end(); ++it ){
     const CSCDetId& id = (*it).first;
     const CSCLayer* layer = getLayer( id );
-    const CSCWireDigiCollection::Range rwired = wiredc->get( id );
-    
+    //const CSCWireDigiCollection::Range rwired = wiredc->get( id );
+    CSCWireDigiCollection::Range rwired = wiredc->get( id );
     // Skip if no wire digis in this layer
-    if ( rwired.second == rwired.first ) continue;
-    
+    // But for ME11, real wire digis are labelled as belonging to 
+    //ME1b, so that's where ME1a must look
+    // (We try ME1a - above - anyway, because simulated wire digis are labelled as ME1a.)
+    if ( rwired.second == rwired.first ) {
+      if ( id.station()!=1 || id.ring()!=4 ){
+	continue; // not ME1a, skip to next layer
+      }
+      // It is ME1a but no wire digis there, so try ME1b...
+      int endcap  = id.endcap();
+      int chamber = id.chamber();
+      int layer   = id.layer();
+      CSCDetId idw( endcap, 1, 1, chamber, layer ); // Set idw to same layer in ME1b
+	//      CSCWireDigiCollection::Range rwired = wiredc->get( idw );
+      rwired = wiredc->get( idw );
+      if ( rwired.second == rwired.first ){
+	continue; // Nothing there either, skip
+      }
+    }
+          
     std::vector<CSCWireHit> rhv = HitsFromWireOnly_->runWire( id, layer, rwired);
 
     if ( rhv.size() > 0 ) wireLayer.push_back( id );
@@ -163,35 +179,18 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       old_id = sDetId;
     }
 
-    // This is the id I'll compare the wire digis against because of the ME1a confusion in data
-    // i.e. ME1a == ME11 == ME1b for wire in data
-    CSCDetId compId;
-
-    // For ME11, real data wire digis are labelled as belonging to ME1b, 
-    // so that's where ME1a must look
-    if ((      isData          ) && 
-        (sDetId.station() == 1 ) && 
-        (sDetId.ring()    == 4 )) {
-      int sendcap  = sDetId.endcap();
-      int schamber = sDetId.chamber();
-      int slayer   = sDetId.layer();
-      CSCDetId testId( sendcap, 1, 1, schamber, slayer );
-      compId = testId;
-    } else {
-      compId = sDetId;
-    }
-
+    
     // Now loop over wire hits
     for ( wIt=wireLayer.begin(); wIt != wireLayer.end(); ++wIt ) {
         
       const CSCDetId& wDetId  = (*wIt);
         
       // Because of ME1a, use the compId to make a comparison between strip and wire hit CSCDetId
-      if ((wDetId.endcap()  == compId.endcap() ) &&
-          (wDetId.station() == compId.station()) &&
-          (wDetId.ring()    == compId.ring()   ) &&
-          (wDetId.chamber() == compId.chamber()) &&
-          (wDetId.layer()   == compId.layer()  )) {
+      if ((wDetId.endcap()  == sDetId.endcap() ) &&
+          (wDetId.station() == sDetId.station()) &&
+          (wDetId.ring()    == sDetId.ring()   ) &&
+          (wDetId.chamber() == sDetId.chamber()) &&
+          (wDetId.layer()   == sDetId.layer()  )) {
           
         // Create vector of wire hits for this layer
         std::vector<CSCWireHit> cscWireHit;
