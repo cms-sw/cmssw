@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.19 $
-///  last update: $Date: 2008/02/04 19:30:42 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.20 $
+///  last update: $Date: 2008/02/20 08:59:32 $
+///  by         : $Author: pivarski $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -328,6 +328,15 @@ void AlignmentProducer::endOfJob()
        Alignments* alignments = theAlignableTracker->alignments();
        AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 
+       // FIXME: remove the global coordinate transformation from these alignments!
+       // GeometryAligner aligner;
+       // Alignments localAlignments = aligner.removeGlobalTransform(alignments,
+       //                              align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)));
+       // and put &localAlignments into the database
+       // (the removal code should be in GeometryAligner so that a
+       // developer can see that the inverse is properly calculated in
+       // the same file that it is added)
+
        // Store
        std::string alignRecordName( "TrackerAlignmentRcd" );
        std::string errorRecordName( "TrackerAlignmentErrorRcd" );
@@ -352,6 +361,12 @@ void AlignmentProducer::endOfJob()
        AlignmentErrors* dtAlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
        Alignments*      cscAlignments      = theAlignableMuon->cscAlignments();
        AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+
+       // FIXME: remove the global coordinate transformation from these alignments!
+       // GeometryAligner aligner;
+       // Alignments localDTAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)));
+       // Alignments localCSCAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)));
+       // and put &localDTAlignments, &localCSCAlignments into the database
 
        std::string dtAlignRecordName( "DTAlignmentRcd" );
        std::string dtErrorRecordName( "DTAlignmentErrorRcd" );
@@ -408,8 +423,7 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   if ( doTracker_ ) {
     std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
     std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
-    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors),
-					      align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)) );
+    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors), AlignTransform() ); // don't apply global a second time!
   }
   if ( doMuon_ ) {
     std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
@@ -417,10 +431,8 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
     std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
     std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
 
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
-					  align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
-					  align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
+    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors), AlignTransform() ); // don't apply global a second time!
+    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors), AlignTransform() ); // nope!
   }
 }
 
