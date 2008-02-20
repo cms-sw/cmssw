@@ -24,8 +24,6 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
   if (params.first){
     TrackBase::ParameterVector sParameters = params.second;
     TrackBase::ParameterVector rParameters = rt->parameters();
-    rParameters[3] = rt->dxy(bs.position());
-    rParameters[4] = rt->dsz(bs.position());
 
     TrackBase::ParameterVector diffParameters = rParameters - sParameters;
     double chi2 = ROOT::Math::Dot(diffParameters * invertedCovariance, diffParameters);
@@ -49,8 +47,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
      Chi2SimMap outMap;
 
     TrackBase::ParameterVector rParameters = track->parameters();
-    rParameters[3] = track->dxy(bs.position());
-    rParameters[4] = track->dsz(bs.position());
+
     TrackBase::CovarianceMatrix recoTrackCovMatrix = track->covariance();
     if (onlyDiagonal){
       for (unsigned int i=0;i<5;i++){
@@ -89,8 +86,6 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
   double chi2;
   
   TrackBase::ParameterVector rParameters = rt->parameters();
-  rParameters[3] = rt->dxy(bs.position());
-  rParameters[4] = rt->dsz(bs.position());
 
   TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
       if (onlyDiagonal) {
@@ -149,9 +144,7 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
     
-    GlobalPoint bsp(bs.x0(),bs.y0(),bs.z0());
-    GlobalPoint tsp = tsAtClosestApproach.trackStateAtPCA().position();
-    GlobalPoint v(tsp.x()-bsp.x(),tsp.y()-bsp.y(),tsp.z()-bsp.z());
+    GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
     GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
     sParameters[0] = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
     sParameters[1] = Geom::halfPi() - p.theta();
@@ -185,8 +178,6 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
 				<< "===========================================" << "\n";
  
     TrackBase::ParameterVector rParameters = (*rt)->parameters();
-    rParameters[3] = (*rt)->dxy(bs.position());
-    rParameters[4] = (*rt)->dsz(bs.position());
 
     TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
     if (onlyDiagonal){
@@ -278,8 +269,6 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
       for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
 	
 	TrackBase::ParameterVector rParameters = (*rt)->parameters();
-	rParameters[3] = (*rt)->dxy(bs.position());
-	rParameters[4] = (*rt)->dsz(bs.position());
 
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
 	if (onlyDiagonal) {
