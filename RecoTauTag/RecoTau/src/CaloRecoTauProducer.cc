@@ -22,6 +22,10 @@ void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
   CaloRecoTauAlgo_->setTransientTrackBuilder(myTransientTrackBuilder.product());
   
+  ESHandle<MagneticField> myMF;
+  iSetup.get<IdealMagneticFieldRecord>().get(myMF);
+  CaloRecoTauAlgo_->setMagneticField(myMF.product());
+    
   // query a rec/sim PV
   Handle<VertexCollection> thePVs;
   iEvent.getByLabel(PVProducer_,thePVs);
@@ -44,7 +48,7 @@ void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   int iinfo=0;
   for(CaloTauTagInfoCollection::const_iterator i_info=theCaloTauTagInfoCollection->begin();i_info!=theCaloTauTagInfoCollection->end();i_info++) { 
     if(i_info->calojetRef()->pt()>JetMinPt_){ 
-      CaloTau myCaloTau=CaloRecoTauAlgo_->buildCaloTau(iEvent,Ref<CaloTauTagInfoCollection>(theCaloTauTagInfoCollection,iinfo),thePV);
+      CaloTau myCaloTau=CaloRecoTauAlgo_->buildCaloTau(iEvent,iSetup,Ref<CaloTauTagInfoCollection>(theCaloTauTagInfoCollection,iinfo),thePV);
       resultCaloTau->push_back(myCaloTau);
     }
     ++iinfo;
