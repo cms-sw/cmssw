@@ -111,6 +111,7 @@ class Matching {
 	inline bool isMatched1st(index_type index) { return matched1[index]; }
 	inline bool isMatched2nd(index_type index) { return matched2[index]; }
 
+    private:
 	SimpleMatrix<Delta>	matrix;
 	std::vector<bool>	matched1, matched2;
 };

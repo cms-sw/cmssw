@@ -1,3 +1,4 @@
+#include <iostream>
 #include <functional>
 #include <vector>
 #include <memory>
@@ -15,6 +16,8 @@
 #include "GeneratorInterface/LHEInterface/interface/JetClustering.h"
 
 #include "Matching.h"
+
+// #define DEBUG
 
 namespace lhef {
 
@@ -47,10 +50,13 @@ namespace {
 } // anonymous namespace
 
 JetMatching::JetMatching(const edm::ParameterSet &params) :
-	jetInput(new JetInput(params)),
+	partonInput(new JetInput(params)),
+	jetInput(new JetInput(*partonInput)),
 	jetClustering(new JetClustering(params)),
 	maxDeltaR(params.getParameter<double>("maxDeltaR"))
 {
+	partonInput->setPartonicFinalState(false);
+
 	std::string matchMode = params.getParameter<std::string>("matchMode");
 	if (matchMode == "inclusive")
 		this->matchMode = kInclusive;
@@ -80,6 +86,31 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 	JetInput::ParticleVector partons = (*jetInput)(partonLevel);
 	std::vector<JetClustering::Jet> jets =
 				(*jetClustering)((*jetInput)(finalState));
+
+#ifdef DEBUG
+	for(JetClustering::ParticleVector::const_iterator c = partons.begin();
+	    c != partons.end(); c++)
+		std::cout << "\tpid = " << (*c)->pdg_id()
+		          << ", pt = " << (*c)->momentum().perp()
+		          << ", eta = " << (*c)->momentum().eta()
+		          << ", phi = " << (*c)->momentum().phi()
+		          << std::endl;
+	std::cout << "===== " << jets.size() << " jets:" << std::endl;
+	for(std::vector<JetClustering::Jet>::const_iterator iter = jets.begin();
+	    iter != jets.end(); ++iter) {
+		std::cout << "* pt = " << iter->pt()
+		          << ", eta = " << iter->eta()
+		          << ", phi = " << iter->phi()
+		          << std::endl;
+		for(JetClustering::ParticleVector::const_iterator c = iter->constituents().begin();
+		    c != iter->constituents().end(); c++)
+			std::cout << "\tpid = " << (*c)->pdg_id()
+			          << ", pt = " << (*c)->momentum().perp()
+			          << ", eta = " << (*c)->momentum().eta()
+			          << ", phi = " << (*c)->momentum().phi()
+			          << std::endl;
+	}
+#endif
 
 	std::cout << partons.size() << " partons and "
 	          << jets.size() << " jets." << std::endl;

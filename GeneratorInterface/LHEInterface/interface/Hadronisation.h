@@ -41,9 +41,6 @@ class Hadronisation {
 	inline const boost::shared_ptr<LHEEvent> &getRawEvent() const
 	{ return rawEvent; }
 
-	static const HepMC::GenVertex *findSignalVertex(
-						const HepMC::GenEvent *event);
-
     private:
 	boost::shared_ptr<LHEEvent>		rawEvent;
 };

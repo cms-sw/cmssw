@@ -64,7 +64,7 @@ bool JetInput::isResonance(int pdgId)
 {
 	// gauge bosons and tops
 	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-	return (pdgId > 21 && pdgId <= 29) || pdgId == 6 || pdgId == 8;
+	return (pdgId > 21 && pdgId <= 39) || pdgId == 6 || pdgId == 8;
 }
 
 bool JetInput::isIgnored(int pdgId) const

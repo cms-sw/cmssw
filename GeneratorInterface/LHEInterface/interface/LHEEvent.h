@@ -8,6 +8,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/GenVertex.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -35,6 +36,9 @@ class LHEEvent {
 	const PDF *getPDF() const { return pdf.get(); }
 
 	std::auto_ptr<HepMC::GenEvent> asHepMCEvent() const;
+
+	static const HepMC::GenVertex *findSignalVertex(
+			const HepMC::GenEvent *event, bool status3 = true);
 
     private:
 	static bool checkHepMCTree(const HepMC::GenEvent *event);

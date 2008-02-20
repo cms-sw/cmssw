@@ -32,6 +32,7 @@ class JetMatching {
 	JetMatching();
 	JetMatching(const edm::ParameterSet &params);
 
+	std::auto_ptr<JetInput>		partonInput;
 	std::auto_ptr<JetInput>		jetInput;
 	std::auto_ptr<JetClustering>	jetClustering;
 
