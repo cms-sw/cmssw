@@ -52,8 +52,6 @@ namespace edm
     virtual bool produce(Event & e);
     void clear();
     
-    HepMC::GenEvent  *evt;
-    
     /// Pythia PYLIST Verbosity flag
     unsigned int pythiaPylistVerbosity_;
     /// HepMC verbosity flag
