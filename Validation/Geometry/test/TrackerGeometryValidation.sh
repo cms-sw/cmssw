@@ -18,7 +18,7 @@ eval `scramv1 runtime -sh`
 # OLD: from CMSSW_1_6_* no more updated:
 #export referenceDir=/afs/cern.ch/cms/data/CMSSW/Validation/Geometry/reference/Tracker
 # NEW: the reference files can be chosen
-export referenceDir=/afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles/$Version/Geometry
+export referenceDir=/afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles/$Version/Geometry.tgz
 echo "Reference area:" $referenceDir | tee -a $reportFile
 
 # Create Images/ directory if it does not exist
@@ -39,18 +39,24 @@ fi
 
 # Download the reference files and rename them to 'old'
 echo "Download the reference 'old' files..." | tee -a $reportFile
-cp $referenceDir/matbdg_TkStrct.root       matbdg_TkStrct_old.root 
-cp $referenceDir/matbdg_PixBar.root        matbdg_PixBar_old.root 
-cp $referenceDir/matbdg_PixFwdPlus.root    matbdg_PixFwdPlus_old.root 
-cp $referenceDir/matbdg_PixFwdMinus.root   matbdg_PixFwdMinus_old.root 
-cp $referenceDir/matbdg_TIB.root           matbdg_TIB_old.root 
-cp $referenceDir/matbdg_TIDF.root          matbdg_TIDF_old.root 
-cp $referenceDir/matbdg_TIDB.root          matbdg_TIDB_old.root 
-cp $referenceDir/matbdg_InnerServices.root matbdg_InnerServices_old.root 
-cp $referenceDir/matbdg_TOB.root           matbdg_TOB_old.root 
-cp $referenceDir/matbdg_TEC.root           matbdg_TEC_old.root 
-cp $referenceDir/matbdg_Tracker.root       matbdg_Tracker_old.root 
-cp $referenceDir/matbdg_BeamPipe.root      matbdg_BeamPipe_old.root 
+echo "Untar the 'old' files..." | tee -a $reportFile
+tar -xvzf $referenceDir
+mv Geometry/matbdg_TkStrct.root       matbdg_TkStrct_old.root
+mv Geometry/matbdg_PixBar.root        matbdg_PixBar_old.root 
+mv Geometry/matbdg_PixFwdPlus.root    matbdg_PixFwdPlus_old.root 
+mv Geometry/matbdg_PixFwdMinus.root   matbdg_PixFwdMinus_old.root 
+mv Geometry/matbdg_TIB.root           matbdg_TIB_old.root 
+mv Geometry/matbdg_TIDF.root          matbdg_TIDF_old.root 
+mv Geometry/matbdg_TIDB.root          matbdg_TIDB_old.root 
+mv Geometry/matbdg_InnerServices.root matbdg_InnerServices_old.root 
+mv Geometry/matbdg_TOB.root           matbdg_TOB_old.root 
+mv Geometry/matbdg_TEC.root           matbdg_TEC_old.root 
+mv Geometry/matbdg_Tracker.root       matbdg_Tracker_old.root 
+mv Geometry/matbdg_BeamPipe.root      matbdg_BeamPipe_old.root 
+ 
+mv Geometry/ModuleInfo.log            ModuleInfo_old.log
+mv Geometry/ModuleNumbering.dat       ModuleNumbering_old.dat
+mv Geometry/trackerOverlap.log        trackerOverlap_old.log
 echo "...done" | tee -a $reportFile
 #
 
@@ -173,7 +179,7 @@ if [ -e diff_info.temp ]; then
     rm -rf diff_info.temp
 fi
 #
-diff ModuleInfo.log $referenceDir/ModuleInfo.log > diff_info.temp
+diff ModuleInfo.log ModuleInfo_old.log > diff_info.temp
 if [ -s diff_info.temp ]; then
     echo "WARNING: the module position/orientation is changed, check diff_info.temp file for details" | tee -a $reportFile
 else
@@ -200,7 +206,7 @@ if [ -e diff_num.temp ]; then
     rm -rf diff_num.temp
 fi
 #
-diff ModuleNumbering.dat $referenceDir/ModuleNumbering.dat > diff_num.temp
+diff ModuleNumbering.dat ModuleNumbering_old.dat > diff_num.temp
 if [ -s diff_num.temp ]; then
     echo "WARNING: the module numbering is changed, check diff_num.temp file for details" | tee -a $reportFile
 else
@@ -211,7 +217,7 @@ echo "...done" | tee -a $reportFile
 
 # Compare the TrackerNumberingComparison.C, to compare the ModuleNumbering.dat file with the reference, element-by-element mapping both files 
 echo "Run the TrackerNumberingComparison.C macro" | tee -a $reportFile
-cp $referenceDir/ModuleNumbering.dat ModuleNumbering_reference.dat
+cp ModuleNumbering_old.dat ModuleNumbering_reference.dat
 root -b -q 'TrackerNumberingComparison.C("ModuleNumbering.dat","ModuleNumbering_reference.dat","NumberingInfo.log")'
 if [ -s NumberingInfo.log ]; then
     echo "ERROR: a failure in the numbering scheme, see NumberingInfo.log" | tee -a $reportFile
