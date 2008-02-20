@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jul 16 16:56:34 CDT 2007
-// $Id: MuonGeometryIntoNtuples.cc,v 1.3 2007/10/23 07:20:42 fronga Exp $
+// $Id: MuonGeometryIntoNtuples.cc,v 1.4 2007/12/06 01:46:43 ratnik Exp $
 //
 //
 
@@ -55,6 +55,9 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CLHEP/Matrix/SymMatrix.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
@@ -194,6 +197,9 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
    edm::ESHandle<Alignments> dtAlignments, cscAlignments;
    edm::ESHandle<AlignmentErrors> dtAlignmentErrors, cscAlignmentErrors;
 
+   edm::ESHandle<Alignments> globalPositionRcd;
+   iSetup.get<MuonGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+
    if (m_dtApplyAlignment) {
       if (m_dtFromSurvey) {
 	 edm::LogWarning("MuonGeometryIntoNtuples") << "applying (mis)alignment from DTSurveyRcd \"" << m_dtLabel << "\"";
@@ -212,13 +218,15 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	    }
 	    alignmentErrors.m_alignError.push_back(AlignTransformError(matrix3by3, iter->rawId()));
 	 }
-	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &alignmentErrors);
+	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &alignmentErrors,
+					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
       }
       else {
 	 edm::LogWarning("MuonGeometryIntoNtuples") << "applying (mis)alignment from DTAlignmentRcd \"" << m_dtLabel << "\"";
 	 iSetup.get<DTAlignmentRcd>().get(m_dtLabel, dtAlignments);
 	 iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrors);
-	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &(*dtAlignmentErrors));
+	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &(*dtAlignmentErrors),
+					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
       }
       edm::LogWarning("MuonGeometryIntoNtuples") << "done!";
    }
@@ -244,13 +252,15 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	    }
 	    alignmentErrors.m_alignError.push_back(AlignTransformError(matrix3by3, iter->rawId()));
 	 }
-	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &alignmentErrors);
+	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &alignmentErrors,
+					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
       }
       else {
 	 edm::LogWarning("MuonGeometryIntoNtuples") << "applying (mis)alignment from CSCAlignmentRcd \"" << m_cscLabel << "\"";
 	 iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
 	 iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrors);
-	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors));
+	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors),
+					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
       }
       edm::LogWarning("MuonGeometryIntoNtuples") << "done!";
    }

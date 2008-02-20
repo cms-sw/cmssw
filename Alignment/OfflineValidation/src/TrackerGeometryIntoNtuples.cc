@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.2 2007/10/23 07:24:07 fronga Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.3 2007/12/06 01:46:43 ratnik Exp $
 //
 //
 
@@ -40,6 +40,9 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 //
 // class decleration
@@ -131,8 +134,11 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
 	
 	//apply the latest alignments
+	edm::ESHandle<Alignments> globalPositionRcd;
+	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	GeometryAligner aligner;
-	aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors));
+	aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
+						  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
 	
 	
 	theCurrentTracker = new AlignableTracker(&(*theCurTracker));	

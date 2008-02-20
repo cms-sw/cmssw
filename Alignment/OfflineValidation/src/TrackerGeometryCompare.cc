@@ -21,6 +21,9 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Alignment/OfflineValidation/interface/TrackerGeometryCompare.h"
 #include "TFile.h" 
@@ -138,8 +141,11 @@ void TrackerGeometryCompare::createDBGeometry(const edm::EventSetup& iSetup){
 		iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
 
 		//apply the latest alignments
+		edm::ESHandle<Alignments> globalPositionRcd;
+		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 		GeometryAligner aligner;
-		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors));
+		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
+							  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
 		currentTracker = new AlignableTracker(&(*theCurTracker));
 		
 	}
@@ -162,8 +168,11 @@ void TrackerGeometryCompare::createDBGeometry(const edm::EventSetup& iSetup){
 		surveyToTracker(&(*dummyTracker), alignVals, alignErrors); 
 		
 		//apply the survey alignments
+		edm::ESHandle<Alignments> globalPositionRcd;
+		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 		GeometryAligner aligner;
-		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), alignVals, alignErrors);
+		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), alignVals, alignErrors,
+							  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
 		currentTracker = new AlignableTracker(&(*theCurTracker));
 			
 	}
@@ -246,15 +255,20 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 
+	edm::ESHandle<Alignments> globalPositionRcd;
+	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner1;
-	aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1));
+	aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
+						   align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner2;
-	aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2));
+	aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
+						   align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
 
