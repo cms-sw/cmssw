@@ -155,6 +155,12 @@ public:
   /// Value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
   double chiSquared() const { return theChiSquared;}
 
+  /// Number of dof of the trajectory. The method accepts a bool in order to properly 
+  /// take into account the presence of magnetic field in the dof computation.
+  /// By default the MF is considered ON.
+  int ndof(bool bon = true) const;
+
+
   /** Direction of "growing" of the trajectory. 
    *  Possible values are alongMomentum (outwards) and 
    *  oppositeToMomentum (inwards).

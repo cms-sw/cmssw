@@ -80,6 +80,21 @@ Trajectory::RecHitContainer Trajectory::recHits(bool splitting) const {
 }
 
 
+int Trajectory::ndof(bool bon) const {
+  const Trajectory::RecHitContainer transRecHits = recHits();
+  
+  int dof = 0;
+  
+  for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
+      rechit != transRecHits.end(); ++rechit)
+    if ((*rechit)->isValid()) dof += (*rechit)->dimension();
+  
+  int constr = bon ? 5 : 4;
+  return std::max(dof - constr, 0); 
+}
+
+
+
 void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
   hits.reserve(theData.size());
   if(!splitting){  
