@@ -1,5 +1,5 @@
-#ifndef TRACKINGTOOLS_TRANSIENTRACKBUILDER_H
-#define TRACKINGTOOLS_TRANSIENTRACKBUILDER_H
+#ifndef TransientTrackFromFTSFactory_H
+#define TransientTrackFromFTSFactory_H
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
