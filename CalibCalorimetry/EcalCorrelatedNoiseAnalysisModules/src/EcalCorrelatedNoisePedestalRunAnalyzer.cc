@@ -15,7 +15,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.cc,v 1.2 2007/08/10 14:52:31 ferriff Exp $
+// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.cc,v 1.3 2008/01/22 19:17:21 muzaffar Exp $
 //
 //          Update:  08/06/2007  
 
@@ -135,7 +135,7 @@ EcalCorrelatedNoisePedestalRunAnalyzer::~EcalCorrelatedNoisePedestalRunAnalyzer(
   //fMyCnaRunEBBurst1->MakeHistosOfSamplesAsFunctionOfEvent();
   fMyCnaRunEBBurst1->ComputeCorrelationsBetweenSamples();
   //fMyCnaRunEBBurst1->ComputeCorrelationsBetweenChannelsMeanOverSamples();
-  fMyCnaRunEBBurst1->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
+  //fMyCnaRunEBBurst1->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
   fMyCnaRunEBBurst1->ComputeExpectationValuesOfExpectationValuesOfSamples();
   fMyCnaRunEBBurst1->ComputeExpectationValuesOfSigmasOfSamples();
   fMyCnaRunEBBurst1->ComputeExpectationValuesOfCorrelationsBetweenSamples();
@@ -176,7 +176,7 @@ EcalCorrelatedNoisePedestalRunAnalyzer::~EcalCorrelatedNoisePedestalRunAnalyzer(
   //fMyCnaRunEBBurst2->MakeHistosOfSamplesAsFunctionOfEvent();
   fMyCnaRunEBBurst2->ComputeCorrelationsBetweenSamples();
   //fMyCnaRunEBBurst2->ComputeCorrelationsBetweenChannelsMeanOverSamples();
-  fMyCnaRunEBBurst2->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
+  //fMyCnaRunEBBurst2->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
   fMyCnaRunEBBurst2->ComputeExpectationValuesOfExpectationValuesOfSamples();
   fMyCnaRunEBBurst2->ComputeExpectationValuesOfSigmasOfSamples();
   fMyCnaRunEBBurst2->ComputeExpectationValuesOfCorrelationsBetweenSamples();
@@ -219,7 +219,7 @@ EcalCorrelatedNoisePedestalRunAnalyzer::~EcalCorrelatedNoisePedestalRunAnalyzer(
   //fMyCnaRunEBBurst3->MakeHistosOfSamplesAsFunctionOfEvent();
   fMyCnaRunEBBurst3->ComputeCorrelationsBetweenSamples();
   //fMyCnaRunEBBurst3->ComputeCorrelationsBetweenChannelsMeanOverSamples();
-  fMyCnaRunEBBurst3->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
+  //fMyCnaRunEBBurst3->ComputeCorrelationsBetweenTowersMeanOverSamplesAndChannels();
   fMyCnaRunEBBurst3->ComputeExpectationValuesOfExpectationValuesOfSamples();
   fMyCnaRunEBBurst3->ComputeExpectationValuesOfSigmasOfSamples();
   fMyCnaRunEBBurst3->ComputeExpectationValuesOfCorrelationsBetweenSamples();
@@ -296,10 +296,6 @@ EcalCorrelatedNoisePedestalRunAnalyzer::analyze(const edm::Event& iEvent, const 
       fMyCnaRunEBBurst2 = new TCnaRunEB();
       fMyCnaRunEBBurst3 = new TCnaRunEB();
 
-      fMyCnaRunEBBurst1->PrintAllComments();
-      fMyCnaRunEBBurst2->PrintAllComments();
-      fMyCnaRunEBBurst3->PrintAllComments();
- 
       cout << endl;
       
       cout << "*EcalCorrelatedNoisePedestalRunAnalyzer> RunNumber          = " << fRunNumber   << endl;

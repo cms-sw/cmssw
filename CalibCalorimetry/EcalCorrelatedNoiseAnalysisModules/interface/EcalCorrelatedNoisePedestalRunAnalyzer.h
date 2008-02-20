@@ -16,7 +16,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.h,v 1.1 2007/07/12 12:54:32 fabbro Exp $
+// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.h,v 1.2 2007/07/13 12:11:58 fabbro Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 #include "Riostream.h"
 
 // ROOT include files
+#include "TROOT.h"
+#include "TColor.h"
 #include "TObject.h"
 #include "TSystem.h"
 #include "TString.h"
@@ -80,10 +82,24 @@ class EcalCorrelatedNoisePedestalRunAnalyzer : public edm::EDAnalyzer {
   Int_t        fgMaxCar;   // Max nb of caracters for char*
 
   // ----------member data ---------------------------
+
+  // from Paolo Meridiani (EE,TB2007)
+      std::string rootfile_;
+      std::string digiCollection_;
+      std::string digiProducer_;
+      std::string hitCollection_;
+      std::string hitProducer_;
+      std::string hodoRecInfoCollection_;
+      std::string hodoRecInfoProducer_;
+      std::string tdcRecInfoCollection_;
+      std::string tdcRecInfoProducer_;
+      std::string eventHeaderCollection_;
+      std::string eventHeaderProducer_;
+
   unsigned int verbosity_;
   Int_t nChannels_;
   Int_t iEvent_; // should be removed when we can access class EventID
-  string eventHeaderProducer_;
+  // string eventHeaderProducer_;
 
   Int_t   fEvtNumber;
 
