@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date: 2007/12/04 23:55:26 $
- *  (last update by $Author: ratnik $)
+ *  $Revision: 1.12 $
+ *  $Date: 2007/12/31 00:34:05 $
+ *  (last update by $Author: elmer $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -101,7 +101,7 @@ bool MillePedeMonitor::init(TDirectory *directory)
 				    30, -TMath::Pi(), TMath::Pi()));
   myTrackHists1D.push_back(new TH1F("yLastTrack", "y(last hit);y [cm]", 40, -120., +120.));
   myTrackHists1D.push_back(new TH1F("zLastTrack", "z(last hit);z [cm]", 30, -300., +300.));
-  myTrackHists1D.push_back(new TH1F("chi2PerNdf", "#chi^{2}/ndf;#chi^{2}/ndf", 50, 0., 50.));
+  myTrackHists1D.push_back(new TH1F("chi2PerNdf", "#chi^{2}/ndf;#chi^{2}/ndf", 500, 0., 50.));
   myTrackHists1D.push_back(new TH1F("impParZ", "impact parameter in z", 20, -20., 20.));
   myTrackHists1D.push_back(new TH1F("impParErrZ", "error of impact parameter in z",
 				    40, 0., 0.06));  
