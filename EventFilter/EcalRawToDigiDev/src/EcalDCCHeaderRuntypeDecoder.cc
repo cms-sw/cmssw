@@ -111,21 +111,27 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
       theSettings.wavelength = wavelengthInTTCCommand;    }
     
     
-    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
+    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
       if(isLocal)  theHeader->      setRunType(EcalDCCHeaderBlock::LED_STD);
       else         theHeader->      setRunType(EcalDCCHeaderBlock::LED_GAP);
     }
     
-    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
+    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_MGPA);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_GAP);
     }
     
-    if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_PEDESTAL){
+    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_PEDESTAL){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_STD);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_GAP);
     }
 
+    else {
+      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
+      theHeader->setRunType(-1);
+      WasDecodingOk_ = false;
+    }
+    
     theHeader->setEventSettings(theSettings);
     
   }
