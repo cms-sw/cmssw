@@ -634,7 +634,7 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
 						   SiStripEventSummary& summary ) {
   
   // Retrieve contents of DAQ registers
-  uint16_t trigger_type = sistrip::invalid_;
+  //@@ uint16_t trigger_type = sistrip::invalid_;
   uint16_t readout_mode = sistrip::invalid_;
   uint32_t daq1 = sistrip::invalid32_;
   uint32_t daq2 = sistrip::invalid32_;
