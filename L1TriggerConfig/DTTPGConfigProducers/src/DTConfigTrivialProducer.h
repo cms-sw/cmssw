@@ -49,6 +49,7 @@ public:
   void buildManager();
 
 private:
+  std::string mapEntryName(const DTChamberId & chambid) const;
   // ----------member data ---------------------------
   edm::ParameterSet m_ps;
   DTConfigManager* m_manager;

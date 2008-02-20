@@ -81,9 +81,7 @@ void DTConfigTrivialProducer::buildManager()
     for (int ist=1;ist<=4;++ist){
       for (int ise=1;ise<=12;++ise){
 	DTChamberId chambid(iwh,ist,ise);
-	std::ostringstream os;
-	os << "wh" << chambid.wheel() << "st" << chambid.station() << "se" << chambid.sector();
-	vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(os.str().c_str());
+	vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(mapEntryName(chambid).c_str());
 //      std::cout << "  untracked vint32 wh" << chambid.wheel()
 // 		  << "st" << chambid.station()
 // 		  << "se" << chambid.sector() << " = { ";
@@ -136,9 +134,7 @@ void DTConfigTrivialProducer::buildManager()
     for (int ise=13;ise<=14;++ise){
       int ist =4;
       DTChamberId chambid(iwh,ist,ise);
-      std::ostringstream os;
-      os << "wh" << chambid.wheel() << "st" << chambid.station() << "se" << chambid.sector();
-      vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(os.str().c_str());
+      vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(mapEntryName(chambid).c_str());
 //       std::cout << "  untracked vint32 wh" << chambid.wheel()
 // 		<< "st" << chambid.station()
 // 		<< "se" << chambid.sector() << " = { ";
@@ -191,4 +187,19 @@ void DTConfigTrivialProducer::buildManager()
     for (int se=1;se<=12;se++)
       m_manager->setDTConfigSectColl(DTSectCollId(wh,se),sectcollconf);
 
+}
+
+
+std::string DTConfigTrivialProducer::mapEntryName(const DTChamberId & chambid) const
+{
+  int iwh = chambid.wheel();
+  std::ostringstream os;
+  os << "wh";
+  if (iwh < 0) {
+     os << 'm' << -iwh;
+   } else {
+     os << iwh;
+  }
+  os << "st" << chambid.station() << "se" << chambid.sector();
+  return os.str();
 }
