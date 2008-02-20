@@ -3,10 +3,8 @@
 <InputFile>
 <State  Value="closed"/>
 <LFN></LFN>
-<PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_1.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
 <Runs>
   <Run>100</Run>
 </Runs>
@@ -21,10 +19,8 @@
 <InputFile>
 <State  Value="closed"/>
 <LFN></LFN>
-<PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_2.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
 <Runs>
   <Run>200</Run>
 </Runs>
@@ -39,10 +35,8 @@
 <File>
 <State  Value="closed"/>
 <LFN></LFN>
-<PFN>/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMerge_out.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>output</ModuleLabel>
-<GUID>80C2A0D3-8788-DC11-A767-00C09F38C95A</GUID>
 <Runs>
   <Run>100</Run>
   <Run>200</Run>
@@ -55,7 +49,7 @@
 <OutputModuleClass>PoolOutputModule</OutputModuleClass>
 <TotalEvents>25</TotalEvents>
 
-<DataType></DataType>
+<DataType>MC</DataType>
 
 <BranchHash>NO_BRANCH_HASH</BranchHash>
 
@@ -75,11 +69,9 @@
 <Inputs>
 <Input>
   <LFN></LFN>
-  <PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_1.root</PFN>
 </Input>
 <Input>
   <LFN></LFN>
-  <PFN>file:/nfs/cms/sw/users/cdj/cms/src/FW/head/tmp/slc4_ia32_gcc345/EdmFastMergeTest_2.root</PFN>
 </Input>
 </Inputs>
 </File>
