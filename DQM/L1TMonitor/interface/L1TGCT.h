@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/09/04 02:54:21 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/20 18:59:29 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.7 2007/09/04 02:54:21 wittich Exp $
+ * $Id: L1TGCT.h,v 1.8 2008/02/20 18:59:29 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.8  2008/02/20 18:59:29  tapper
+ * Ported GCTMonitor histograms into L1TGCT
+ *
  * Revision 1.7  2007/09/04 02:54:21  wittich
  * - fix dupe ME in RCT
  * - put in rank>0 req in GCT
@@ -61,7 +64,7 @@
 
 // DQM
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 
 
