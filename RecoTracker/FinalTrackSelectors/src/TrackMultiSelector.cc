@@ -1,4 +1,5 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMultiSelector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <Math/DistFunc.h>
 #include "TMath.h"
@@ -28,6 +29,11 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") )
 {
+    edm::ParameterSet beamSpotPSet = cfg.getParameter<edm::ParameterSet>("beamspot");
+    beamspot_   = beamSpotPSet.getParameter<edm::InputTag>("src");
+    beamspotDZsigmas_ = beamSpotPSet.getParameter<double>("dzSigmas"); 
+    beamspotD0_ = beamSpotPSet.getParameter<double>("d0"); 
+
     typedef std::vector<edm::ParameterSet> VPSet;
     VPSet psets = cfg.getParameter<VPSet>("cutSets");
     blocks_.reserve(psets.size());
@@ -102,7 +108,10 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     edm::Handle<reco::VertexCollection> hVtx;
     evt.getByLabel(vertices_, hVtx);
     std::vector<Point> points;
-    selectVertices(*hVtx, points);
+    if (vtxNumber_ != 0) selectVertices(*hVtx, points);
+
+    edm::Handle<reco::BeamSpot> hBsp;
+    evt.getByLabel(beamspot_, hBsp);
 
     evt.getByLabel( src_, hSrcTrack );
 
@@ -121,7 +130,7 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     size_t current = 0;
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
-        short where = select(trk, points); 
+        short where = select(trk, *hBsp, points); 
         if (where == -1) {
             if (copyTrajectories_) whereItWent_[current] = std::pair<short, reco::TrackRef>(-1, reco::TrackRef());
             continue;
@@ -144,7 +153,7 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
             tx.add( TrackingRecHitRef( rHits_[where], selHits_[where]->size() - 1) );
         }
         if (copyTrajectories_) {
-            whereItWent_[current] = std::pair<short, reco::TrackRef>(-1, TrackRef(rTracks_[where], selTracks_[where]->size() - 1));
+            whereItWent_[current] = std::pair<short, reco::TrackRef>(where, TrackRef(rTracks_[where], selTracks_[where]->size() - 1));
         }
     }
     if ( copyTrajectories_ ) {
@@ -172,6 +181,7 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
         }
     }
 
+
     static const std::string emptyString;
     for (size_t i = 0; i < nblocks; i++) {
         const std::string & lbl = ( splitOutputs_ ? labels_[i] : emptyString);
@@ -187,33 +197,34 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     }
 }
 
-inline bool  TrackMultiSelector::testVtx ( const Point &pca,double d0Err,double dzErr,
+inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::BeamSpot &beamSpot,
 					   const std::vector<Point> &points,
 					   const TrackMultiSelector::Block &cut) {
     using std::abs;
-    if (points.empty()) { 
-        return ( (abs(pca.z()) < 15.9) && (pca.Rho() < 0.2) );
+    double d0Err =abs(tk.d0Error()), dzErr = abs(tk.dzError());  // not fully sure they're > 0!
+    if (points.empty()) {
+        Point spot = beamSpot.position();
+        double dz = abs(tk.dz(spot)), d0 = abs(tk.dxy(spot));
+        return ( dz < beamspotDZsigmas_*beamSpot.sigmaZ() ) && ( d0 < beamspotD0_ );
     }
     for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-        math::XYZVector d = *point - pca;
-        if ((fabs(d.z()) < cut.dz) && (d.Rho() < cut.d0) 
-	    && fabs(d.z()/std::max(dzErr,1e-9)) < cut.dzRel && (d.Rho()/std::max(d0Err,1e-8) < cut.d0Rel )) return true;
+        double dz = abs(tk.dz(*point)), d0 = abs(tk.dxy(*point));
+        if ((dz < cut.dz) && (d0 < cut.d0) 
+	    && fabs(dz/std::max(dzErr,1e-9)) < cut.dzRel && (d0/std::max(d0Err,1e-8) < cut.d0Rel )) return true;
     }
     return false;
 }
 
-short TrackMultiSelector::select(const reco::Track &tk, const std::vector<Point> &points) {
+short TrackMultiSelector::select(const reco::Track &tk, const reco::BeamSpot &beamSpot, const std::vector<Point> &points) {
    uint32_t vhits = tk.numberOfValidHits(), lhits = tk.numberOfLostHits();
    double pt = tk.pt(), chi2n =  tk.normalizedChi2();
-   const Point &pca = tk.vertex();
    int which = 0;
    for (std::vector<TrackMultiSelector::Block>::const_iterator itb = blocks_.begin(), edb = blocks_.end(); itb != edb; ++itb, ++which) {
         if ( ( itb->vhits.first <= vhits ) && ( vhits <= itb->vhits.second ) &&
              ( itb->chi2n.first <= chi2n ) && ( chi2n <= itb->chi2n.second ) &&
              ( itb->pt.first    <= pt    ) && ( pt    <= itb->pt.second    ) &&
              ( itb->lhits.first <= lhits ) && ( lhits <= itb->lhits.second ) &&
-             testVtx(pca,tk.d0Error(),tk.dzError(),
-		     points, *itb) ) 
+             testVtx(tk, beamSpot, points, *itb) ) 
         {
             return which;
         }
@@ -226,7 +237,7 @@ void TrackMultiSelector::selectVertices(const reco::VertexCollection &vtxs, std:
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
         if ((it->tracksSize() >= vtxTracks_)  && 
-                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
+                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
             points.push_back(it->position()); 
             toTake--; if (toTake == 0) break;
         }

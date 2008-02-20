@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: TrackMultiSelector.h,v 1.1 2007/12/21 15:51:29 gpetrucc Exp $
+ * $Id: TrackMultiSelector.h,v 1.2 2007/12/27 16:53:15 mangano Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace reco { namespace modules {
 
@@ -57,13 +58,15 @@ namespace reco { namespace modules {
             /// process one event
             void produce( edm::Event& evt, const edm::EventSetup& es ) ;
             /// return class, or -1 if rejected
-            short select ( const reco::Track &tk, const std::vector<Point> &points);
+            short select ( const reco::Track &tk, const reco::BeamSpot &beamSpot, const std::vector<Point> &points);
             void selectVertices ( const reco::VertexCollection &vtxs, std::vector<Point> &points);
-            inline bool testVtx ( const Point &pca, double d0Err,double dzErr,
+            inline bool testVtx ( const reco::Track &tk, const reco::BeamSpot  &beamSpot,
 				  const std::vector<Point> &points, const Block &cut);
             /// source collection label
             edm::InputTag src_;
             edm::InputTag vertices_;
+            edm::InputTag beamspot_;
+            double        beamspotDZsigmas_, beamspotD0_;
             /// copy only the tracks, not extras and rechits (for AOD)
             bool copyExtras_;
             /// copy also trajectories and trajectory->track associations

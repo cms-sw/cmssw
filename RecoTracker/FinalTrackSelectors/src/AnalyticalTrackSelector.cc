@@ -176,7 +176,7 @@ void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs,
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
         if ((it->tracksSize() >= vtxTracks_)  && 
-                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), it->ndof()) >= vtxChi2Prob_) ) ) {
+                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
             points.push_back(it->position()); 
             toTake--; if (toTake == 0) break;
         }
