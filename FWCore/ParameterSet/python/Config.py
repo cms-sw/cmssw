@@ -163,7 +163,7 @@ class Process(object):
         #clone the item
         newValue =value.copy()
         if not self._okToPlace(name, value, self.__dict__):
-            print "WARNING: trying to override definition of process."+name
+            #print "WARNING: trying to override definition of process."+name
             return
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -194,7 +194,9 @@ class Process(object):
             #  Need to add checks
             if mod._isModified:
                 if d[name]._isModified:
-                    raise RuntimeError("The module %s has been modified twice" %(name))
+                    #raise RuntimeError("The module %s has been modified twice" %(name))
+                    # often OK, if coming from the same cff
+                    return False
                 else:
                     return True
             else:
