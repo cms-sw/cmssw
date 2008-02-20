@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/02/09 19:49:57 $
- * $Revision: 1.180 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.181 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -548,6 +548,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     int ism = superModules_[i];
 
     cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
