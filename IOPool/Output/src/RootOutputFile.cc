@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.45 2008/02/10 23:29:54 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.46 2008/02/12 22:53:01 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -68,7 +68,8 @@ namespace edm {
       lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
-      newFileAtEndOfRun_(false) {
+      newFileAtEndOfRun_(false), 
+      dataTypeReported_(false)  {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -138,6 +139,15 @@ namespace edm {
 
     // Auxiliary branch
     pEventAux_ = &e.aux();
+
+    // Add the dataType to the job report if it hasn't already been done
+    if(!dataTypeReported_) {
+      Service<JobReport> reportSvc;
+      std::string dataType("MC");
+      if(pEventAux_->isRealData())  dataType = "Data";
+      reportSvc->reportDataType(reportToken_,dataType);
+      dataTypeReported_ = true;
+    }
 
     // Product Statuses
     pProductStatuses_ = &e.productStatuses();

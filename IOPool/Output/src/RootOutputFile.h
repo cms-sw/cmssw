@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.23 2008/02/01 20:23:42 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.24 2008/02/05 22:56:42 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -130,6 +130,7 @@ namespace edm {
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     mutable bool newFileAtEndOfRun_;
+    bool dataTypeReported_;
   };
 }
 
