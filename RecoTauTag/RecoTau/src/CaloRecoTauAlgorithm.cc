@@ -1,7 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
 
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),chargedpi_mass_(0.13957018){}  
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),chargedpi_mass_(0.13957018){
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
   UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
@@ -32,9 +32,11 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
 }
 void CaloRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
+void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticField_=x;} 
 
-CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
+CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetup,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
   CaloJetRef myCaloJet=(*myCaloTauTagInfoRef).calojetRef(); // catch a ref to the initial CaloJet  
+  const vector<CaloTowerRef> myCaloTowers=(*myCaloJet).getConstituents();
   CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); // create the CaloTau with the initial CaloJet Lorentz-vector
   
   myCaloTau.setcaloTauTagInfoRef(myCaloTauTagInfoRef);
@@ -61,6 +63,37 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
       myCaloTau_refInnerPosition_x=(*myleadTk).innerPosition().x(); 
       myCaloTau_refInnerPosition_y=(*myleadTk).innerPosition().y(); 
       myCaloTau_refInnerPosition_z=(*myleadTk).innerPosition().z(); 
+    }
+    
+    if(MagneticField_!=0){ 
+      math::XYZPoint mypropagleadTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
+      if(mypropagleadTrackECALSurfContactPoint.R()!=0.){
+	double myleadTrackHCAL3x3hottesthitDEta=0.;
+	double myleadTrackHCAL3x3hottesthitEt=0.;
+	double myleadTrackHCAL3x3hitsEtSum=0.;
+	ESHandle<CaloGeometry> myCaloGeometry;
+	iSetup.get<IdealGeometryRecord>().get(myCaloGeometry);
+	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
+	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
+													  mypropagleadTrackECALSurfContactPoint.y(),
+													  mypropagleadTrackECALSurfContactPoint.z())));
+	for(vector<CaloTowerRef>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
+	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
+	  int dEta = abs((mypropagleadTrack_closestCaloTowerId.ieta()<0?mypropagleadTrack_closestCaloTowerId.ieta()+1:mypropagleadTrack_closestCaloTowerId.ieta())
+			 -(iCaloTowerId.ieta()<0?iCaloTowerId.ieta()+1:iCaloTowerId.ieta() ) ) ;
+	  int dPhi = abs(mypropagleadTrack_closestCaloTowerId.iphi()-iCaloTowerId.iphi());
+	  if (abs(72-dPhi)<dPhi) dPhi=72-dPhi;
+	  if(dEta>1 || dPhi>1) continue;
+	  myleadTrackHCAL3x3hitsEtSum+=(**iCaloTower).hadEt();
+	  if((**iCaloTower).hadEt()>=myleadTrackHCAL3x3hottesthitEt ){
+	    if ((**iCaloTower).hadEt()!=myleadTrackHCAL3x3hottesthitEt || 
+		((**iCaloTower).hadEt()==myleadTrackHCAL3x3hottesthitEt && fabs((**iCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta())<myleadTrackHCAL3x3hottesthitDEta)) myleadTrackHCAL3x3hottesthitDEta = fabs((**iCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta());
+	    myleadTrackHCAL3x3hottesthitEt=(**iCaloTower).hadEt();
+	  }	
+	}	
+	myCaloTau.setleadTrackHCAL3x3hitsEtSum(myleadTrackHCAL3x3hitsEtSum);
+	if (myleadTrackHCAL3x3hottesthitEt!=0.) myCaloTau.setleadTrackHCAL3x3hottesthitDEta(myleadTrackHCAL3x3hottesthitDEta);
+      }
     }
     
     if (UseTrackLeadTrackDZconstraint_){
@@ -126,7 +159,8 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
     alternatLorentzVect+=iChargedPionCand_XYZTLorentzVect;
   }
   myCaloTau.setTracksInvariantMass(myTks_XYZTLorentzVect.mass());
-  for(BasicClusterRefVector::iterator iBasicCluster=(*myCaloTauTagInfoRef).neutralECALBasicClusters().begin();iBasicCluster!=(*myCaloTauTagInfoRef).neutralECALBasicClusters().end();iBasicCluster++) {
+  vector<BasicClusterRef> myneutralECALBasicClusters=(*myCaloTauTagInfoRef).neutralECALBasicClusters();
+  for(vector<BasicClusterRef>::const_iterator iBasicCluster=myneutralECALBasicClusters.begin();iBasicCluster!=myneutralECALBasicClusters.end();iBasicCluster++) {
     // build a gamma candidate Lorentz vector from a neutral ECAL BasicCluster
     double iGammaCand_px=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*cos((**iBasicCluster).position().phi());
     double iGammaCand_py=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*sin((**iBasicCluster).position().phi());
@@ -140,7 +174,6 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
   myCaloTau.setVertex(math::XYZPoint(myCaloTau_refInnerPosition_x,myCaloTau_refInnerPosition_y,myCaloTau_refInnerPosition_z));
     
   // setting Et of the highest Et HCAL CaloTower
-  const vector<CaloTowerRef> myCaloTowers=(*myCaloJet).getConstituents();
   double mymaxEtHCALtower_Et=0.; 
   for(unsigned int iTower=0;iTower<myCaloTowers.size();iTower++){
     if((*myCaloTowers[iTower]).hadEt()>=mymaxEtHCALtower_Et) mymaxEtHCALtower_Et=(*myCaloTowers[iTower]).hadEt();
