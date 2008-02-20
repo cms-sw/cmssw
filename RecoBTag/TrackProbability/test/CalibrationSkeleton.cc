@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.7 2007/09/24 13:31:41 arizzi Exp $
+// $Id: CalibrationSkeleton.cc,v 1.8 2007/09/24 21:26:17 fwyzard Exp $
 //
 //
 
@@ -195,7 +195,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
  
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks",primaryVertex);
+  iEvent.getByLabel("offlinePrimaryVertices",primaryVertex);
   
   //*********************************************************************************** 
   //look at reco vertices 
@@ -221,7 +221,7 @@ CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //*************************************************************************
   //look at JetTracks
   edm::Handle<JetTracksAssociationCollection> associationHandle;
-  iEvent.getByLabel("jetTracksAssociations", associationHandle);
+  iEvent.getByLabel("ic5JetTracksAssociatorAtVertex", associationHandle);
   reco::JetTracksAssociationCollection::const_iterator it = associationHandle->begin();
   
   
