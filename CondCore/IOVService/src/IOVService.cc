@@ -67,14 +67,17 @@ cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
 				       iovToken,
 				payloadObjectName); 
 }
+
 std::string
 cond::IOVService::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					     const std::string& iovToken,
+					     const std::string& destToken,
 					     cond::Time_t since,
 					     cond::Time_t till,
 					     const std::string& payloadObjectName ){
   return  m_impl->exportIOVRangeWithPayload( destDB,
 					     iovToken,
+					     destToken,
 					     since,
 					     till,
 					     payloadObjectName); 

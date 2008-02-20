@@ -56,6 +56,7 @@ namespace cond{
     */
     std::string exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					   const std::string& iovToken,
+					   const std::string& destToken,
 					   cond::Time_t since,
 					   cond::Time_t till,
 					   const std::string& payloadObjectName );

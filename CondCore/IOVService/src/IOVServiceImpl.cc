@@ -153,9 +153,11 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
   newiovref.markWrite(cond::IOVNames::container());
   return newiovref.token();
 }
+
 std::string 
 cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 const std::string& iovToken,
+						 const std::string& destToken,
 						 cond::Time_t since,
 						 cond::Time_t till,
 						 const std::string& payloadObjectName ){
@@ -164,19 +166,25 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     m_iovcache.insert(std::make_pair< std::string,cond::TypedRef<cond::IOV> >(iovToken,cond::TypedRef<cond::IOV>(*m_pooldb,iovToken)));
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
-  std::map<cond::Time_t, std::string>::iterator ifirstTill=iov->iov.lower_bound(since);
-  std::map<cond::Time_t, std::string>::iterator isecondTill=iov->iov.lower_bound(till);
-  if( isecondTill==iov->iov.end() ){
-    throw cond::Exception("IOVServiceImpl::exportIOVRange out of range");
+  std::map<cond::Time_t, std::string>::const_iterator ifirstTill=iov->iov.lower_bound(since);
+  std::map<cond::Time_t, std::string>::const_iterator isecondTill=iov->iov.lower_bound(till);
+  if( isecondTill!=iov->iov.end() ){
+    isecondTill++;
   }
-  cond::IOV* newiov=new cond::IOV;
-  for( std::map<cond::Time_t,std::string>::iterator it=ifirstTill;
-       it==isecondTill; ++it){
+  cond::TypedRef<cond::IOV> newiovref;
+  if (destToken.empty()) {
+    // create a new one 
+    newiovref = cond::TypedRef<cond::IOV>(destDB,new cond::IOV);
+    newiovref.markWrite(cond::IOVNames::container());
+  } else {
+    newiovref = cond::TypedRef<cond::IOV>(destDB,destToken);
+  }
+  cond::IOV & newiov = *newiovref;
+  for( std::map<cond::Time_t,std::string>::const_iterator it=ifirstTill;
+       it!=isecondTill; ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPtoken=payloadRef.exportTo(destDB);
-    newiov->iov.insert(std::make_pair<cond::Time_t,std::string>(it->first,newPtoken));
+    newiov.iov.insert(std::make_pair<cond::Time_t,std::string>(it->first,newPtoken));
   }  
-  cond::TypedRef<cond::IOV> newiovref(destDB,newiov);
-  newiovref.markWrite(cond::IOVNames::container());
   return newiovref.token();
 }
