@@ -1,8 +1,8 @@
 #ifndef RecoTauTag_RecoTau_CaloRecoTauAlgorithm_H
 #define RecoTauTag_RecoTau_CaloRecoTauAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
@@ -10,7 +10,12 @@
 #include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
+#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
@@ -28,9 +33,11 @@ class  CaloRecoTauAlgorithm  {
   CaloRecoTauAlgorithm(const ParameterSet& iConfig);
   ~CaloRecoTauAlgorithm(){}
   void setTransientTrackBuilder(const TransientTrackBuilder*);
-  CaloTau buildCaloTau(Event&,const CaloTauTagInfoRef&,const Vertex&); 
+  void setMagneticField(const MagneticField*);
+  CaloTau buildCaloTau(Event&,const EventSetup&,const CaloTauTagInfoRef&,const Vertex&); 
  private:
   const TransientTrackBuilder* TransientTrackBuilder_;
+  const MagneticField* MagneticField_;
   double LeadTrack_minPt_;
   double Track_minPt_;
   bool UseTrackLeadTrackDZconstraint_;
