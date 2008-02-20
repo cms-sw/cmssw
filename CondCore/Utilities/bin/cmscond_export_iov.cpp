@@ -203,15 +203,15 @@ int main( int argc, char** argv ){
     cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
     
-    cond::Time_time since = iovmanager.globalSince();
-    cond::Time_time till = iovmanager.globalTill();
+    cond::Time_t since = iovmanager.globalSince();
+    cond::Time_t till = iovmanager.globalTill();
 
 
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
     destdb.start(false);
     bool newIOV = destiovtoken.empty();
-    destiovtoken=iovmanager.exportIOVWithPayload( destdb,
+    destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
 						  sourceiovtoken,
 						  destiovtoken,
 						  since, till,
