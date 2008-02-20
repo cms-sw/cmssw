@@ -34,14 +34,14 @@ This Text Inserted from File doc/html/overview.html
 	  for specific strip width. Then for a given offset (simulating the
 	  hit offset from the center of the strip) the charges for the three strips are
 	  extracted and X_Florida is calculated. The initial offset is
-	  in fact X_Gatti (the maximum of the distributio is at X_Gatti
+	  in fact X_Gatti (the maximum of the distribution is at X_Gatti
 	  by definition), i.e. the position within the strip as predicted by
 	  the Gatti distribution.
 	  The correction is Correction = X_Gatti - X_Florida  (there are no
 	  ambiguities) or in other words - the correction that should be
 	  applied to X_Florida in order to obtain X_Gatti.
 	  Thus the corrected X_Florida is effectively X_Gatti.
-	  In reality varios systematic factors make this only an approximation
+	  In reality various systematic factors make this only an approximation
 	  (which is also true when we use a real Gatti fitting!).
 
 	  Step three:
@@ -50,6 +50,11 @@ This Text Inserted from File doc/html/overview.html
 	  Noise, XTalk asymmetry (or similar effects), constant term. These three
 	  factors should be obtained by studies.
 
+Note: The theoretical Gatti distribution depends on chamber parameters 
+      (of course). For all but ME1/1 chambers the relevant parameters 
+      are practically the same. So there are two types of corrections:
+      for ME1/1 chambers and for non-ME1/1 chambers. All are encoded in
+      HardCodedCorrectionInitialization.cc. 
 
 <table border=0 width=100%>
 <tr>
