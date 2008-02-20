@@ -5,7 +5,7 @@
  * the object of this class is created by RecoTauTag/RecoTau CaloRecoTauTagInfoProducer EDProducer starting from JetTrackAssociations <a CaloJet,a list of Tracks> object,
  *                          is the initial object for building a CaloTau object;
  * created: Sep 4 2007,
- * revised: Sep 10 2007,
+ * revised: Feb 20 2008,
  * authors: Ludovic Houchu
  */
 
@@ -33,12 +33,12 @@ namespace reco{
     const vector<pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
     void setpositionAndEnergyECALRecHits(vector<pair<math::XYZPoint,float> >);
 
-    const BasicClusterRefVector& neutralECALBasicClusters()const;
-    void setneutralECALBasicClusters(BasicClusterRefVector);
+    const vector<BasicClusterRef> neutralECALBasicClusters()const;
+    void setneutralECALBasicClusters(vector<BasicClusterRef>);
   private:
     CaloJetRef CaloJetRef_;
     vector<pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;
-    BasicClusterRefVector neutralECALBasicClusters_;
+    vector<BasicClusterRef> neutralECALBasicClusters_;
   };
 }
 
