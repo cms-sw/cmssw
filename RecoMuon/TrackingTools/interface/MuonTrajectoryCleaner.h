@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2008/02/04 14:58:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/04 15:03:23 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -33,9 +33,6 @@ class MuonTrajectoryCleaner {
   /// Clean the candidates container, erasing the (worst) clone trajectory
   void clean(CandidateContainer &muonTrajectories); //used by reference...
 
-  /// Compute the dof of a trajectory
-  double computeNDOF(const Trajectory& trajectory) const;
-  
 protected:
 
 private:

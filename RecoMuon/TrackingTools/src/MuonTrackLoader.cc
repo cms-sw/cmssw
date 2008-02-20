@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/01/29 18:50:02 $
- *  $Revision: 1.58 $
+ *  $Date: 2008/02/14 10:25:02 $
+ *  $Revision: 1.59 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -188,7 +188,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     if(theUpdatingAtVtx){
       // build the "bare" track UPDATED at vtx
-      updateResult = buildTrackUpdatedAtPCA(track);
+      updateResult = buildTrackUpdatedAtPCA(track,event);
 
       if(!updateResult.first) ++trackIndex;
       else{
@@ -404,7 +404,8 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
   GlobalVector p = ftsAtVtx.momentum();
   math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
   
-  double ndof = computeNDOF(trajectory);
+  // FIXME set Boff via cfg!
+  double ndof = trajectory.ndof();
   
   reco::Track track(trajectory.chiSquared(), 
 		    ndof,
@@ -417,7 +418,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
 }
 
 
-pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) const {
+pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track,edm::Event &event) const {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
   MuonPatternRecoDumper debug;
@@ -428,7 +429,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track
 				      theService->trackingGeometry());
 
   LogTrace(metname) << "Apply the vertex constraint";
-  pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack);
+  pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack,event);
 
   if(!updateResult.first){
     return pair<bool,reco::Track>(false,reco::Track());
@@ -505,17 +506,3 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
  
 }
 
-
-double MuonTrackLoader::computeNDOF(const Trajectory& trajectory) const {
-  
-  const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
-  
-  double ndof = 0.;
-  
-  for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
-      rechit != transRecHits.end(); ++rechit)
-    if ((*rechit)->isValid()) ndof += (*rechit)->dimension();
-  
-  // FIXME! in case of Boff is dof - 4
-  return max(ndof - 5., 0.);
-}

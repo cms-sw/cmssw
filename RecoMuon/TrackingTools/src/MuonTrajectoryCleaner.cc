@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2008/02/04 14:41:46 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/02/04 14:53:06 $
+ *  $Revision: 1.17 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -57,8 +57,9 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 
       // get the chi2()/d.o.f
       
-      double chi2_dof_i = (*iter)->chiSquared() / computeNDOF(**iter) ;
-      double chi2_dof_j = (*jter)->chiSquared() / computeNDOF(**jter) ;
+      // FIXME Set Boff/on via cfg!
+      double chi2_dof_i = (*iter)->ndof();
+      double chi2_dof_j = (*jter)->ndof();
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
@@ -246,17 +247,3 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
   candC = result;
 }
 
-
-double MuonTrajectoryCleaner::computeNDOF(const Trajectory& trajectory) const {
-  
-  const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
-  
-  double ndof = 0.;
-  
-  for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
-      rechit != transRecHits.end(); ++rechit)
-    if ((*rechit)->isValid()) ndof += (*rechit)->dimension();
-  
-  // FIXME! in case of Boff is dof - 4
-  return max(ndof - 5., 0.);
-}
