@@ -25,7 +25,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
   scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
-
   scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   barrelClusterShapeMapProducer_   = conf_.getParameter<std::string>("barrelClusterShapeMapProducer");
@@ -36,11 +35,14 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
   barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = conf_.getParameter<std::string>("endcapHitCollection");
+
   hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
   hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
+  minR9_        = conf_.getParameter<double>("minR9");
+
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
@@ -141,6 +143,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
+
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
@@ -216,11 +219,11 @@ void PhotonProducer::fillPhotonCollection(
     iSC++;
     lSC++;
     
-    // calculate HoE
-    double HoE = hOverE(scRef,mhbhe);
     
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    // calculate HoE
+    double HoE = hOverE(scRef,mhbhe);
     if (HoE>=maxHOverE_)  continue;
     
     
@@ -235,7 +238,7 @@ void PhotonProducer::fillPhotonCollection(
     // compute position of ECAL shower
     double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
     math::XYZPoint caloPosition;
-    if (r9>0.93) {
+    if (r9>minR9_) {
       caloPosition = unconvPos;
     } else {
       caloPosition = aClus->position();
@@ -254,7 +257,16 @@ void PhotonProducer::fillPhotonCollection(
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
     math::XYZVector momentum = direction.unit() * aClus->energy();
-    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+    double photonEnergy=0;
+    if ( r9 > minR9_) {
+      photonEnergy=aClus->energy();
+      
+    } else {
+      photonEnergy=seedShapeRef->e5x5();
+    }
+
+
+    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     
     reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
     outputPhotonCollection.push_back(newCandidate);
