@@ -3,6 +3,8 @@
 CaloTau::CaloTau() {  
   maximumHCALhitEt_ = NAN;
   leadTracksignedSipt_=NAN;
+  leadTrackHCAL3x3hitsEtSum_=NAN;
+  leadTrackHCAL3x3hottesthitDEta_=NAN;
   signalTracksInvariantMass_ = NAN; 
   TracksInvariantMass_ = NAN;
   isolationTracksPtSum_=NAN;
@@ -12,6 +14,8 @@ CaloTau::CaloTau() {
 CaloTau::CaloTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx) {
   maximumHCALhitEt_ = NAN;
   leadTracksignedSipt_ =NAN;
+  leadTrackHCAL3x3hitsEtSum_=NAN;
+  leadTrackHCAL3x3hottesthitDEta_=NAN;
   signalTracksInvariantMass_ = NAN; 
   TracksInvariantMass_ = NAN;
   isolationTracksPtSum_=NAN;
@@ -25,6 +29,12 @@ void CaloTau::setcaloTauTagInfoRef(const CaloTauTagInfoRef x) {CaloTauTagInfoRef
 
 float CaloTau::leadTracksignedSipt()const{return leadTracksignedSipt_;}
 void CaloTau::setleadTracksignedSipt(const float& x){leadTracksignedSipt_=x;}
+
+float CaloTau::leadTrackHCAL3x3hitsEtSum()const{return leadTrackHCAL3x3hitsEtSum_;}
+void CaloTau::setleadTrackHCAL3x3hitsEtSum(const float& x){leadTrackHCAL3x3hitsEtSum_=x;}
+
+float CaloTau::leadTrackHCAL3x3hottesthitDEta()const{return leadTrackHCAL3x3hottesthitDEta_;}
+void CaloTau::setleadTrackHCAL3x3hottesthitDEta(const float& x){leadTrackHCAL3x3hottesthitDEta_=x;}
 
 float CaloTau::signalTracksInvariantMass()const{return signalTracksInvariantMass_;}
 void CaloTau::setsignalTracksInvariantMass(const float& x){signalTracksInvariantMass_=x;}
