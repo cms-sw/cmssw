@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.2 2007/12/06 02:26:28 kukartse Exp $
+// $Id: LMap.cc,v 1.1 2008/02/12 17:02:01 kukartse Exp $
 //
 
 // system include files
@@ -24,21 +24,20 @@
 
 using namespace std;
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
 
-//
-// constructors and destructor
-//
 LMap::LMap()
 {
   //read( "HCALmapHBEF_10.31.2007.txt" );
 }
+
+
+
+LMap::~LMap()
+{
+}
+
+
 
 int LMap::read( string map_file, string type )
 {
@@ -130,35 +129,17 @@ int LMap::read( string map_file, string type )
   return 0;
 }
 
-// LMap::LMap(const LMap& rhs)
-// {
-//    // do actual copying here;
-// }
 
-LMap::~LMap()
-{
+
+hcal::ConfigurationDatabase::LUTId LMap::getLUTId( LMapDetId _etaphi ){
+
+  hcal::ConfigurationDatabase::LUTId result;
+
+  return result;
 }
 
-//
-// assignment operators
-//
-// const LMap& LMap::operator=(const LMap& rhs)
-// {
-//   //An exception safe implementation is
-//   LMap temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
-//
-// member functions
-//
 
-//
-// const member functions
-//
 
-//
-// static member functions
-//
+
+

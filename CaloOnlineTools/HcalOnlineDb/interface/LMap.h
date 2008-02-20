@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.2 2007/12/06 02:26:08 kukartse Exp $
+// $Id: LMap.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
 //
 
 // system include files
@@ -24,11 +24,9 @@
 #include <string.h>
 #include <fstream>
 
+#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
+
 using namespace std;
-
-// user include files
-
-// forward declarations
 
 class LMapRow
 {
@@ -56,6 +54,18 @@ class LMapRow
 
 };
 
+class LMapDetId
+{
+ public:
+  LMapDetId(){};
+  ~LMapDetId(){};
+
+  int side;
+  int eta, phi, depth;
+  string subdetector;
+
+};
+
 class LMap
 {
   
@@ -63,14 +73,9 @@ class LMap
     
   LMap();
   int read( string map_file, string type = "HBEF" ); // type = "HNEF" or "HO"
+  hcal::ConfigurationDatabase::LUTId getLUTId( LMapDetId _etaphi );
   virtual ~LMap();
   
-  // ---------- const member functions ---------------------
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
-
   vector<LMapRow> _table;
 
  private:

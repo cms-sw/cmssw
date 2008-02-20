@@ -687,7 +687,7 @@ int testDB( string _tag, string _filename )
 {
 
   HCALConfigDB * db = new HCALConfigDB();
-  db -> connect( _filename );
+  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
 
   //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
   //vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
@@ -697,14 +697,20 @@ int testDB( string _tag, string _filename )
   struct timeval _t;
   gettimeofday( &_t, NULL );
   cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
+
+  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
   HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
-  _lut = db -> getOnlineLUT( _tag, _hcaldetid2 . rawId() );
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
+
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
+
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
