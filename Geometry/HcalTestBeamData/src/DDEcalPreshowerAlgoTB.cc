@@ -55,7 +55,6 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
   wedge_offset = double(nArgs["wedge_offset"]);
   zwedge_ceramic_diff = double(nArgs["zwedge_ceramic_diff"]);
   ywedge_ceramic_diff = double(nArgs["ywedge_ceramic_diff"]);
-  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
   micromodulesx = vArgs["MicromodulesX"]; // micromodules in X plane
   micromodulesy = vArgs["MicromodulesY"]; // micromodules in Y plane
   absorbx = double(nArgs["absorbx"]);
@@ -66,9 +65,13 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
   ScndplaneYshift = double(nArgs["2ndPlaneYshift"]);
   TotSFXshift = double(nArgs["SF07vsSF_Xshift"]);
   TotSFYshift = double(nArgs["SF07vsSF_Yshift"]);
+  dummyMaterial = sArgs["DummyMaterial"];
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB Dummy Material = "
+		       << dummyMaterial;
 
   idNameSpace = DDCurrentNamespace::ns();
 
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
 }
 
 void DDEcalPreshowerAlgoTB::execute() {
@@ -101,16 +104,7 @@ void DDEcalPreshowerAlgoTB::doLayers() {
     rIn = rmaxVec[i];
     rOut = rminVec[i];
     zHalf = thickLayers_[i]/2.;
-      
-    // create a logical part representing a single layer in the preshower
-    //DDSolid solid = DDSolidFactory::tubs(ddname,zHalf,rIn,rOut,0.,360.*deg);
 
-    DDSolid solid = DDSolidFactory::box(ddname,absorbx,absorby,zHalf);
-    
-    DDName        matname(getMaterial(i),"materials"); 
-    DDMaterial    material(matname);
-    DDLogicalPart layer = DDLogicalPart(ddname,material,solid);
-      
     // position the logical part w.r.t. the parent volume
     zpos += zHalf;
     //sum_z += thickLayers_[i];
@@ -128,12 +122,23 @@ void DDEcalPreshowerAlgoTB::doLayers() {
       zlead2_ = zpos + zHalf;
     }
       
-    DDTranslation tran=DDTranslation(trabsorbx+TotSFXshift,trabsorby+TotSFYshift, zpos);
-    DDpos(layer, parent(), 1, tran, DDRotation());
-    LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB debug : Child "
-			 << layer << " Copy 1 in " << parent().name()
-			 << " with translation " << tran
-			 << " and rotation " << DDRotation();
+    if (getMaterial(i) != dummyMaterial ) {
+      // create a logical part representing a single layer in the preshower
+      //DDSolid solid = DDSolidFactory::tubs(ddname,zHalf,rIn,rOut,0.,360.*deg);
+
+      DDSolid solid = DDSolidFactory::box(ddname,absorbx,absorby,zHalf);
+    
+      DDName        matname(getMaterial(i),"materials"); 
+      DDMaterial    material(matname);
+      DDLogicalPart layer = DDLogicalPart(ddname,material,solid);
+
+      DDTranslation tran=DDTranslation(trabsorbx+TotSFXshift,trabsorby+TotSFYshift, zpos);
+      DDpos(layer, parent(), 1, tran, DDRotation());
+      LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB debug : Child "
+			   << layer << " Copy 1 in " << parent().name()
+			   << " with translation " << tran
+			   << " and rotation " << DDRotation();
+    }
     zpos += zHalf;
   }
   

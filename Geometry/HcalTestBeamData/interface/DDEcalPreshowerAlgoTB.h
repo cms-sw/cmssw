@@ -33,6 +33,7 @@ private:
   std::vector<double> rmaxVec;
   std::vector<double> micromodulesx;
   std::vector<double> micromodulesy;
+  std::string dummyMaterial;
   std::string   idNameSpace; //Namespace of this and ALL sub-parts
   double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, absorbx, absorby, trabsorbx, trabsorby, ScndplaneXshift, ScndplaneYshift, TotSFXshift, TotSFYshift;
   int go;

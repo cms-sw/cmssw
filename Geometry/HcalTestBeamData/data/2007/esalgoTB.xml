@@ -2,7 +2,9 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="esalgoTB.xml" eval="true">
-
+ <Constant name="zElec" value="([escon:box_thick]-[escon:elec_thick])/2"/>
+ <Constant name="zCer"  value="-([escon:box_thick]-[escon:ceramic_thick])/2"/>
+ <Constant name="zWaf"  value="[zCer]+([escon:ceramic_thick]+[escon:waf_thick])/2"/>
 
 </ConstantsSection>
 
@@ -150,13 +152,13 @@
    <rParent name="esalgoTB:SFBX"/>
    <rChild name="esalgoTB:SFCX"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-750*mum" />
+  <Translation x="0*fm" y="0*fm" z="[zCer]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="esalgoTB:SFBX"/>
    <rChild name="esalgoTB:SFWX"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="-1.85*cm" z="-295*mum" />
+  <Translation x="0*fm" y="-1.85*cm" z="[zWaf]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="esalgoTB:SFWX"/>
@@ -168,13 +170,13 @@
    <rParent name="esalgoTB:SFBY"/>
    <rChild name="esalgoTB:SFCY"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-750*mum" />
+  <Translation x="0*fm" y="0*fm" z="[zCer]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="esalgoTB:SFBY"/>
    <rChild name="esalgoTB:SFWY"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="-1.85*cm" y="0*fm" z="-295*mum" />
+  <Translation x="-1.85*cm" y="0*fm" z="[zWaf]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -187,14 +189,14 @@
    <rParent name="esalgoTB:SFBX"/>
    <rChild name="esalgoTB:SFEX"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="3.15*cm" z="300*mum" />
+  <Translation x="0*fm" y="3.15*cm" z="[zElec]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="esalgoTB:SFBY"/>
    <rChild name="esalgoTB:SFEY"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="3.15*cm" y="0*fm" z="300*mum" />
+  <Translation x="3.15*cm" y="0*fm" z="[zElec]" />
  </PosPart>
 
 </PosPartSection>
@@ -329,6 +331,7 @@
       [escon:P20], [escon:P21], [escon:P22], [escon:P24]
   </Vector>
 
+  <String name="DummyMaterial"  value="E_Air"/>
 
   <Vector name="LayMat" type="string" nEntries="19">
      E_G10, <!--  1 --> 

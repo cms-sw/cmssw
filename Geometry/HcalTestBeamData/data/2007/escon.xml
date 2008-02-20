@@ -66,7 +66,7 @@
   <Constant name="ywedge_ceramic_diff" value="([ceramic_length]/2.)*cos([wedge_angle]*2.) -[wedge_length]/2." />
   <Constant name="elec_width" value="[waf_width]" />
   <Constant name="elec_length" value="[ceramic_length] - [waf_width]" />
-  <Constant name="box_thick" value="[elec_thick] + [ceramic_thick]" />
+  <Constant name="box_thick" value="[elec_thick]+[waf_thick]+[ceramic_thick]"/>
   <Constant name="zwedge_ceramic_diff" value="([box_thick]/2)/cos([wedge_angle]*2) + [wedge_front_thick]+ ([ceramic_length]/2.) *sin([wedge_angle]*2)" />
   <Constant name="angle" value="2*[wedge_angle]" />
 
