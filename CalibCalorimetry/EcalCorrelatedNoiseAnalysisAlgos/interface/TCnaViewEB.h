@@ -6,6 +6,7 @@
 #include <time.h>
 #include "TSystem.h"
 
+#include "TROOT.h"
 #include "TGraph.h"
 #include "TVectorD.h"
 #include "TCanvas.h"

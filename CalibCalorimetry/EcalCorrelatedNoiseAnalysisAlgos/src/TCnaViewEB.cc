@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/DAPNIA/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 20/07/2007
+//---------Modified: 20/02/2008
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaViewEB.h"
 
@@ -1619,7 +1619,7 @@ void TCnaViewEB::ViewTowerGrid(TEBNumbering* MyNumbering, const Int_t&  SMNumber
   TString  x_var_name  = GetEtaPhiAxisTitle("ietaTow");
   TString  x_direction = MyNumbering->GetXDirection(SMNumber);
 
-  TF1 *f1 = new TF1("f1", x_direction, eta_min, eta_max);                fCnewRoot++;
+  TF1 *f1 = new TF1("f1", x_direction.Data(), eta_min, eta_max);                fCnewRoot++;
 
   TGaxis* sup_axis_x = 0;
 
@@ -1650,7 +1650,7 @@ void TCnaViewEB::ViewTowerGrid(TEBNumbering* MyNumbering, const Int_t&  SMNumber
       TString  y_var_name  = GetEtaPhiAxisTitle("phi");
       TString  y_direction = MyNumbering->GetYDirection(SMNumber);
       
-      TF1 *f2 = new TF1("f2", y_direction, phi_min, phi_max);               fCnewRoot++;
+      TF1 *f2 = new TF1("f2", y_direction.Data(), phi_min, phi_max);               fCnewRoot++;
       TGaxis* sup_axis_y = 0;
       
       if ( y_direction == "-x" )  // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
@@ -1679,7 +1679,7 @@ void TCnaViewEB::ViewTowerGrid(TEBNumbering* MyNumbering, const Int_t&  SMNumber
   TString  jy_var_name  = GetEtaPhiAxisTitle("jphiTow");
   TString  jy_direction = MyNumbering->GetJYDirection(SMNumber);
 
-  TF1 *f3 = new TF1("f3", jy_direction, j_phi_min, j_phi_max);               fCnewRoot++;
+  TF1 *f3 = new TF1("f3", jy_direction.Data(), j_phi_min, j_phi_max);               fCnewRoot++;
   TGaxis* sup_axis_jy = 0;
 
   sup_axis_jy = new TGaxis( (Float_t)0., (Float_t)0.,
@@ -2610,7 +2610,7 @@ void TCnaViewEB::ViewSuperModuleGrid(TEBParameters* MyEcal,  TEBNumbering* MyNum
   TString  x_var_name  = GetEtaPhiAxisTitle("ietaSM");;
   TString  x_direction = MyNumbering->GetXDirection(SMNumber);
 
-  TF1 *f1 = new TF1("f1", x_direction, eta_min, eta_max);          fCnewRoot++;
+  TF1 *f1 = new TF1("f1", x_direction.Data(), eta_min, eta_max);          fCnewRoot++;
     TGaxis* sup_axis_x = 0;
 
   if( x_direction == "-x" ) // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
@@ -2636,7 +2636,7 @@ void TCnaViewEB::ViewSuperModuleGrid(TEBParameters* MyEcal,  TEBNumbering* MyNum
   TString  y_var_name  = GetEtaPhiAxisTitle("phi");
   TString  y_direction = MyNumbering->GetYDirection(SMNumber);
 
-  TF1 *f2 = new TF1("f2", y_direction, phi_min, phi_max);           fCnewRoot++;
+  TF1 *f2 = new TF1("f2", y_direction.Data(), phi_min, phi_max);           fCnewRoot++;
   TGaxis* sup_axis_y = 0;
   
   if ( y_direction == "-x" ) // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
@@ -2664,7 +2664,7 @@ void TCnaViewEB::ViewSuperModuleGrid(TEBParameters* MyEcal,  TEBNumbering* MyNum
   TString  jy_var_name  = " ";
   TString  jy_direction = MyNumbering->GetJYDirection(SMNumber);
 
-  TF1 *f3 = new TF1("f3", jy_direction, jphi_min, jphi_max);           fCnewRoot++;
+  TF1 *f3 = new TF1("f3", jy_direction.Data(), jphi_min, jphi_max);           fCnewRoot++;
   TGaxis* sup_axis_jy = 0;
   
   //............; essai
