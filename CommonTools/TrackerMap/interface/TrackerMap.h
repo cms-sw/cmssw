@@ -30,6 +30,7 @@ class TrackerMap {
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
+  void printonline();
   void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
   void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",int width=1500, int height=800);

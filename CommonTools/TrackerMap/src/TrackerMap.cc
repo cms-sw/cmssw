@@ -1058,6 +1058,139 @@ int TrackerMap::getcolor(float value,int palette){
         } 
    return(blue|(green<<8)|(red<<16));
 }
+void TrackerMap::printonline(){
+//Copy interface
+  std::ofstream * ofilename;
+  std::ifstream * ifilename;
+  std::ostringstream ofname;
+  std::string ifname;
+  string line;
+  bool print_total = true;
+  float minval = 0.;
+  float maxval = 0.;
+  string outputfilename="dqmtmap";
+  ifname="CommonTools/TrackerMap/data/viewer.xhtml";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname << outputfilename << "viewer.xhtml";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+*ofilename <<"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""<<endl;
+*ofilename <<"    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"<<endl;
+*ofilename <<"<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"<<endl;
+*ofilename <<"  <head>"<<endl;
+*ofilename <<"    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"<<endl;
+*ofilename <<"    <title>TrackerMap Viewer</title>"<<endl;
+*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\"viewer.css\" />"<<endl;
+*ofilename <<"    <script type=\"text/javascript\" src=\"viewer.js\">"<<endl;
+*ofilename <<"    </script>"<<endl;
+*ofilename <<"    <script type=\"text/javascript\">"<<endl;
+*ofilename <<"    //<![CDATA["<<endl;
+*ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
+*ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
+  ifname="CommonTools/TrackerMap/data/viewer.css";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname <<  "viewer.css";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
+  ifname="CommonTools/TrackerMap/data/viewer.js";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname << "viewer.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
+  ifname="CommonTools/TrackerMap/data/crate.js";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname <<  "crate.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
+  ifname="CommonTools/TrackerMap/data/layer.js";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname <<  "layer.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
+  ifname="CommonTools/TrackerMap/data/null.png";
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ofname <<  "null.png";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  
+    ostringstream outs,outs1,outs2;
+    outs << outputfilename<<".png";
+save(true,0.,0.,outs.str(),3000,1600);
+temporary_file=false;
+printlayers(true,0.,0.,outputfilename);
+
+//Now print a text file for each layer 
+  ofstream * txtfile;
+for (int layer=1; layer < 44; layer++){
+    ostringstream outs;
+    outs << outputfilename <<"layer"<<layer<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+	if(mod !=0 && !mod->notInUse()){
+            int idmod=mod->idex;
+            int nchan=0;
+            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
+             multimap<const int, TmApvPair*>::iterator pos;
+             for (pos = apvModuleMap.lower_bound(idmod);
+                pos != apvModuleMap.upper_bound(idmod); ++pos) {
+               TmApvPair* apvpair = pos->second;
+               if(apvpair!=0){
+                   nchan++;
+                   *txtfile  <<  apvpair->text << endl;
+                    }
+
+                    }
+                   *txtfile  << "</pre><h3>"<< mod->name<<"</h3>"<<endl;
+                  }
+                }
+                }
+    *txtfile << "</body></html>" << endl;
+    txtfile->close();
+                }
+if(enableFedProcessing){
+    outs1 << outputfilename<<"fed.png";
+save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
+    outs2 << outputfilename<<".xml";
+save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
+//And a text file for each crate 
+  std::map<int , int>::iterator i_fed;
+  ofstream * txtfile;
+  for (int crate=1; crate < (ncrates+1); crate++){
+    ostringstream outs;
+    outs << outputfilename <<"crate"<<crate<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+    for (i_fed=fedMap.begin();i_fed != fedMap.end(); i_fed++){
+      if(i_fed->second == crate){
+	int fedId = i_fed->first;
+	for (int nconn=0;nconn<96;nconn++){
+	  int key = fedId*1000+nconn; 
+	  TmApvPair *  apvPair= apvMap[key];
+	  if(apvPair !=0){
+            int idmod=apvPair->idex;
+            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
+            *txtfile  <<  apvPair->text << endl;
+            ostringstream outs;
+            outs << "fedchannel "  <<apvPair->getFedId() << "/"<<apvPair->getFedCh()<<" connects to module  " << apvPair->mod->idex ;
+            *txtfile  << "</pre><h3>"<< outs.str()<<"</h3>"<<endl;
+             }
+          }
+      }
+      }
+    *txtfile << "</body></html>" << endl;
+    txtfile->close();
+                }
+  }
+}
 void TrackerMap::printall(bool print_total, float minval, float maxval, string outputfilename){
 //Copy interface
   std::ofstream * ofilename;
