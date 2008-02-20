@@ -22,10 +22,9 @@ my $doPB  = 0;
 my $doEP  = 1;
 my $doSM  = 1;
 my $doDQM = 0;
-my $copyFUConf = 0;
 
 my $PBfile;
-my $FUfile;
+my $EPcfg = "";
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -75,14 +74,14 @@ my $pwd = `pwd`; chomp $pwd;
 foreach $param (@ARGV) {
     if    ($hostname eq "fillme")    { $hostname=$param; }
     elsif ($param    eq "-host")     { $hostname="fillme"; }
-    elsif ($doEP     == -1)          { $doEP    =$param; }
-    elsif ($param    eq "-nEP")      { $doEP    =    -1; }
+    elsif ($EPcfg    eq "fillme")    { $EPcfg   =$param; }
+    elsif ($param    eq "-cfgEP")    { $EPcfg   ="fillme"; }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
     elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
-    elsif ($FUfile   eq "fillme")    { $FUfile  =$param; }
-    elsif ($param    eq "-fuConfig") { $FUfile="fillme"; $copyFUConf = 1}
+    elsif ($doEP     == -1)          { $doEP    =$param; }
+    elsif ($param    eq "-nEP")      { $doEP    =    -1; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
-    elsif ($param    eq "-noSM")     { $doSM=0;$doDQM=0; }
+    elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     else { die ("Unknown parameter $param!\n"); }
 }
@@ -112,9 +111,12 @@ print "make directories ...\n";
 #
 print "make cfg files ...\n";
 
-open(CFG,">./cfg/fu.cfg") or die ("Can't open file: $!\n");
-print CFG makeCfgFu($doSM,$doDQM);
-close(CFG);
+if ($EPcfg eq "") {
+    $EPcfg = "$pwd/cfg/fu.cfg";
+    open(CFG,">$EPcfg") or die ("Can't open file: $!\n");
+    print CFG makeCfgFu($doSM,$doDQM);
+    close(CFG);
+}
 
 if ($doSM) {
     open(CFG,">./cfg/sm.cfg") or die ("Can't open file: $!\n");
@@ -170,10 +172,10 @@ my @apps = ($BUappname,$BUlocalid,0,
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
 
-my @BUproperties = ("replay","boolean","true",
-		    "queueSize_","unsignedInt","1000",
-		    "crc","boolean","false",
-		    "eventBufferSize","unsignedInt","0x100000");
+my @BUproperties = ("replay","boolean","false",
+		    "queueSize","unsignedInt","32",
+		    "crc","boolean","true",
+		    "eventBufferSize","unsignedInt","0x400000");
 
     
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
@@ -181,23 +183,21 @@ my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "collReconnSec","integer","-1");
 
 my @RBproperties = ("buClassName", "string",     $BUappname,
-		    "doCrcCheck", "unsignedInt","0",
-		    "nbRawCells",  "unsignedInt","16",
-		    "nbRecoCells", "unsignedInt","4",
-		    "nbDqmCells",  "unsignedInt","4",
-		    "rawCellSize", "unsignedInt","0x100000",
-		    "recoCellSize","unsignedInt","0x200000",
-		    "monSleepSec", "unsignedInt","120",
-                    "dqmCellSize", "unsignedInt","0x100000");
+		    "doCrcCheck", "unsignedInt","1",
+		    "monSleepSec", "unsignedInt","30",
+		    "nbRawCells",  "unsignedInt","32",
+		    "nbRecoCells", "unsignedInt","8",
+		    "nbDqmCells",  "unsignedInt","8",
+		    "rawCellSize", "unsignedInt","0x400000",
+		    "recoCellSize","unsignedInt","0x800000",
+                    "dqmCellSize", "unsignedInt","0x800000");
+
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
-my $fuConfigurationFile = "file:$pwd/cfg/fu.cfg";
-if ($copyFUConf) { $fuConfigurationFile = "file:".$FUfile; } 
+my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
+		    "runNumber",     "unsignedInt", "10",
+		    "collReconnSec", "integer",     "-1");
 
-print "HLT config file = $fuConfigurationFile\n";
-
-my @EPproperties = ("parameterSet", "string",$fuConfigurationFile,
-		    "collReconnSec","integer","-1");
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
@@ -392,11 +392,11 @@ close (CTL);
 #
 
 print "\nstart xdaq.exe on $hostname:$BUport\n";
-`nice -n 15  xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
+`nice -n 15 xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
 
 if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
-    `nice -n 15  xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
+    `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
 }
 
 for ($i=0;$i<$doEP;$i++) {
@@ -485,9 +485,10 @@ sub makeCfgFu
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked string          readerPluginName    = \"FUShmReader\"\n";
-    $result = $result . "    untracked uint32          evtsPerLS           = 10\n";
+    $result = $result . "    untracked uint32          evtsPerLS           = 100\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
+    $result = $result . "  path p0 = { errorInjector }\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
     $result = $result . "  path p2 = { m2, a2 }\n";
     $result = $result . "  path p3 = { m3, a3 }\n";
@@ -521,6 +522,8 @@ sub makeCfgFu
     $result = $result . "    untracked int32 lumiSectionInterval     =     30\n";
     $result = $result . "  }\n\n";
     
+    $result = $result . "  service = ModuleWebRegistry {}\n\n";
+
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
@@ -549,6 +552,8 @@ sub makeCfgFu
     $result = $result . "  {\n";
     $result = $result . "    string product_to_get = \"m3\"\n";
     $result = $result . "  }\n\n";
+
+    $result = $result . "  module errorInjector = ExceptionGenerator{}\n\n";
 
     if ($doDQM) {
 	$result = $result . "  module dqm = SMDQMSourceExample{}\n\n";
@@ -638,7 +643,7 @@ sub makeCfgPlayback
     $result = $result . "  // modules\n\n";
     $result = $result . "  module playback = PlaybackRawDataProvider\n";
     $result = $result . "  {\n";
-    $result = $result . "    untracked uint32 queueSize = 1000\n";
+    $result = $result . "    untracked uint32 queueSize = 32\n";
     $result = $result . "  }\n\n";
     $result = $result . "}\n";
     
