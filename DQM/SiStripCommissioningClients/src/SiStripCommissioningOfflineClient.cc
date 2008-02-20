@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.25 2008/01/25 15:06:40 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.26 2008/02/07 16:44:14 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -221,6 +221,9 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Extract run number from contents
   runNumber_ = CommissioningHistograms::runNumber( bei, contents ); 
+
+  // Copy custom information to the collated structure
+  CommissioningHistograms::copyCustomInformation( bei, contents );
   
   // Check runType
   if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 

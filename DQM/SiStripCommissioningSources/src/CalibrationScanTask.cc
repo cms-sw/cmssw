@@ -12,12 +12,14 @@ CalibrationScanTask::CalibrationScanTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn,
 			      const sistrip::RunType& rtype,
 			      const char* filename,
+			      uint32_t run,
                               const edm::EventSetup& setup ) :
   CommissioningTask( dqm, conn, "CalibrationScanTask" ),
   runType_(rtype),
   calib1_(),calib2_(),
   nBins_(65),lastISHA_(0),lastVFS_(0),
-  filename_(filename)
+  filename_(filename),
+  run_(run)
 {
   LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Constructing object...";
   // load the pedestals

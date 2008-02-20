@@ -12,7 +12,7 @@ class CalibrationTask : public CommissioningTask {
  public:
   
   CalibrationTask( DaqMonitorBEInterface*, const FedChannelConnection&, const sistrip::RunType&, 
-                   const char* filename, const edm::EventSetup& setup );
+                   const char* filename, uint32_t run, const edm::EventSetup& setup );
   virtual ~CalibrationTask();
   
  private:
@@ -22,7 +22,9 @@ class CalibrationTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   void checkAndSave(const uint16_t&);
-  
+  void directory( std::stringstream&,
+                  uint32_t run_number = 0 );
+
   sistrip::RunType runType_;
   
   std::vector<HistoSet> calib_;
@@ -31,7 +33,8 @@ class CalibrationTask : public CommissioningTask {
   uint16_t lastCalChan_;
   std::string filename_;
   std::vector<uint16_t> ped;
-
+  uint32_t run_;
+  MonitorElement* calchanElement_;
 };
 
 #endif // DQM_SiStripCommissioningSources_CalibrationTask_h

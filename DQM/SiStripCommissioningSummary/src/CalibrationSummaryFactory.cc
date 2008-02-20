@@ -9,45 +9,18 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SummaryHistogramFactory<CalibrationAnalysis>::SummaryHistogramFactory() :
-  mon_(sistrip::UNKNOWN_MONITORABLE),
-  pres_(sistrip::UNKNOWN_PRESENTATION),
-  view_(sistrip::UNKNOWN_VIEW),
-  level_(sistrip::root_),
-  gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
-{
-} 
+uint32_t SummaryPlotFactory<CalibrationAnalysis*>::init(const sistrip::Monitorable& mon, 
+                                                        const sistrip::Presentation& pres,
+                                                        const sistrip::View& view, 
+                                                        const std::string& level, 
+                                                        const sistrip::Granularity& gran,
+                                                        const std::map<uint32_t,CalibrationAnalysis*>& data ) {
 
+  // Some initialisation
+  SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
 
-// -----------------------------------------------------------------------------
-//
-SummaryHistogramFactory<CalibrationAnalysis>::~SummaryHistogramFactory() {
-  if ( generator_ ) { delete generator_; }
-}
-
-// -----------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<CalibrationAnalysis>::init(const sistrip::Monitorable& mon, 
-                                                      const sistrip::Presentation& pres,
-                                                      const sistrip::View& view, 
-                                                      const std::string& top_level_dir, 
-                                                      const sistrip::Granularity& gran ) {
-  mon_ = mon;
-  pres_ = pres;
-  view_ = view;
-  level_ = top_level_dir;
-  gran_ = gran;
-
-  // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = 0; }
-  generator_ = SummaryGenerator::instance( view );
-  
-}
-
-//------------------------------------------------------------------------------
-//
-uint32_t SummaryHistogramFactory<CalibrationAnalysis>::extract( const std::map<uint32_t,CalibrationAnalysis>& data ) {
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
   
   // Check if data are present
   if ( data.empty() ) { 
@@ -56,60 +29,49 @@ uint32_t SummaryHistogramFactory<CalibrationAnalysis>::extract( const std::map<u
     return 0; 
   } 
   
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-         << " NULL pointer to SummaryGenerator object!";
-    return 0;  
-  }
-
-  // Transfer appropriate monitorables info to generator object
-  generator_->clearMap();
-  std::map<uint32_t,CalibrationAnalysis>::const_iterator iter = data.begin();
+  // Extract monitorable
+  std::map<uint32_t,CalibrationAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); ++iter ) {
+    if ( !iter->second ) { continue; }
     if ( mon_ == sistrip::CALIBRATION_AMPLITUDE ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.amplitude() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->amplitudeMean()[0], iter->second->amplitudeSpread()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->amplitudeMean()[1], iter->second->amplitudeSpread()[1] ); 
     } else if ( mon_ == sistrip::CALIBRATION_TAIL ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.tail() ); 
-    } else if ( mon_ == sistrip::CALIBRATION_TAIL ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.tail() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->tailMean()[0],  iter->second->tailSpread()[0]); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->tailMean()[1],  iter->second->tailSpread()[1]); 
     } else if ( mon_ == sistrip::CALIBRATION_RISETIME ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.riseTime() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->riseTimeMean()[0], iter->second->riseTimeSpread()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->riseTimeMean()[1], iter->second->riseTimeSpread()[1] ); 
     } else if ( mon_ == sistrip::CALIBRATION_TIMECONSTANT ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.timeConstant() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->timeConstantMean()[0], iter->second->timeConstantSpread()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->timeConstantMean()[1], iter->second->timeConstantSpread()[1] ); 
     } else if ( mon_ == sistrip::CALIBRATION_SMEARING ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.smearing() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->smearingMean()[0], iter->second->smearingSpread()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->smearingMean()[1], iter->second->smearingSpread()[1] ); 
     } else if ( mon_ == sistrip::CALIBRATION_CHI2 ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.chi2() ); 
-    } else { continue; }
+      generator_->fillMap( level_, gran_, iter->first, iter->second->chi2Mean()[0], iter->second->chi2Spread()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second->chi2Mean()[1], iter->second->chi2Spread()[1] ); 
+    } else { 
+      edm::LogWarning(mlSummaryPlots_)
+          << "[SummaryPlotFactory::" << __func__ << "]"
+          << " Unexpected monitorable: "
+          << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
+      continue; 
+    }
+    //TODO: fill also the information per strip directly
+    //TODO: add more plots with min/max/spread
   }
-  return generator_->size();
+  return SummaryPlotFactoryBase::generator_->nBins();
 }
 
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<CalibrationAnalysis>::fill( TH1& summary_histo ) {
+void SummaryPlotFactory<CalibrationAnalysis*>::fill( TH1& summary_histo ) {
 
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-         << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-         << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if std::map is filled
-  if ( !generator_->size() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-         << " No data in the monitorables std::map!";
-    return; 
-  } 
+  // Histogram filling and formating
+  SummaryPlotFactoryBase::fill( summary_histo );
+  
+  if ( !SummaryPlotFactoryBase::generator_ ) { return; }
 
   // Generate appropriate summary histogram 
   if ( pres_ == sistrip::HISTO_1D ) {
@@ -140,14 +102,15 @@ void SummaryHistogramFactory<CalibrationAnalysis>::fill( TH1& summary_histo ) {
   } else if ( mon_ == sistrip::CALIBRATION_CHI2 ) { 
     generator_->axisLabel( "Chi2" );
   } else { 
-    edm::LogWarning(mlSummaryPlots_) <<  " Unexpected SummaryHisto value:"
-         << SiStripEnumsAndStrings::monitorable( mon_ ) ;
+    edm::LogWarning(mlSummaryPlots_) 
+         << "[SummaryPlotFactory::" << __func__ << "]"
+         <<  " Unexpected SummaryHisto value:"
+         << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ ) ;
   } 
-  generator_->format( sistrip::CALIBRATION, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryHistogramFactory<CalibrationAnalysis>;
+template class SummaryPlotFactory<CalibrationAnalysis*>;
 

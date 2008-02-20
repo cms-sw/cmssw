@@ -309,6 +309,69 @@ void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
 }
 
 // -----------------------------------------------------------------------------
+//
+void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* const bei,
+			  	                     const std::vector<std::string>& contents ) {
+  
+  // Check if histograms present
+  if ( contents.empty() ) { 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Found no histograms!";
+    return; 
+  }
+  
+  // Iterate through added contents
+  std::vector<std::string>::const_iterator istr = contents.begin();
+  while ( istr != contents.end() ) {
+    
+    // Extract source directory path 
+    std::string source_dir = istr->substr( 0, istr->find(":") );
+    
+    // Generate corresponding client path (removing trailing "/")
+    SiStripFecKey path( source_dir );
+    std::string client_dir = path.path();
+    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
+    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
+    
+    // Iterate though MonitorElements from source directory
+    std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
+    std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
+    for ( ; ime != me_list.end(); ime++ ) {
+      
+      if ( !(*ime) ) {
+	edm::LogWarning(mlDqmClient_)
+	  << "[CommissioningHistograms::" << __func__ << "]"
+	  << " NULL pointer to MonitorElement!";
+	continue;
+      }
+      // Search for calchan
+      std::string title = (*ime)->getName();
+      std::string::size_type pos = title.find("calchan");
+      if ( pos != std::string::npos ) { 
+        MonitorElementT< int >* meptr = dynamic_cast<MonitorElementT< int >* >(*ime);
+        int value = meptr ? meptr->getValue() : -1;
+	if ( value>=0 ) { 
+	  edm::LogVerbatim(mlDqmClient_)
+	    << "[CommissioningHistograms::" << __func__ << "]"
+	    << " Found \"" <<  title.substr(pos,std::string::npos)
+	    << "\" with value \"" << value << "\"";
+	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) { 
+	    bei->setCurrentFolder(client_dir);
+	    bei->bookInt( title.substr(pos,std::string::npos))->Fill(value); 
+	    edm::LogVerbatim(mlDqmClient_)
+	      << "[CommissioningHistograms::" << __func__ << "]"
+	      << " Booked \"" << title.substr(pos,std::string::npos)
+	      << "\" in directory \"" << client_dir << "\"";
+	  }
+	}
+      }
+    }
+    istr++;
+  }
+}
+
+// -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::extractHistograms( const std::vector<std::string>& contents ) {
   LogTrace(mlDqmClient_)
@@ -586,6 +649,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	  if ( (*ime) == (*ihis)->title_ ) { histo = *ihis; }
 	  ihis++;
 	}
+      }
+      
+      if(histo) {
+        edm::LogVerbatim(mlDqmClient_) << "#CD: Found CME with title" <<  histo->title_  << std::endl;
       }
       
       // Create CollateME if it doesn't exist

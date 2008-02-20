@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.7 2007/12/12 15:06:16 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.8 2008/02/07 17:02:56 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -12,6 +12,7 @@
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -112,6 +113,11 @@ void SiStripCommissioningOfflineDbClient::createHistos() {
   else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::CALIBRATION ||
+            runType_ == sistrip::CALIBRATION_DECO ||
+            runType_ == sistrip::CALIBRATION_SCAN ||
+            runType_ == sistrip::CALIBRATION_SCAN_DECO)
+                                                { histos_ = new CalibrationHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
     histos_ = 0; 
     edm::LogError(mlDqmClient_)

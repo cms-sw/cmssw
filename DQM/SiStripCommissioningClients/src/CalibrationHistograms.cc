@@ -11,13 +11,54 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistograms::CalibrationHistograms( MonitorUserInterface* mui,const sistrip::RunType& task ) 
-  : CommissioningHistograms( mui, task ),
-    factory_( new Factory )
+CalibrationHistograms::CalibrationHistograms( DaqMonitorBEInterface* bei,const sistrip::RunType& task ) 
+  : CommissioningHistograms( bei, task ),
+    factory_( new Factory ),
+    calchan_(0)
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
+  std::string pwd = bei->pwd();
+  std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  calchanPath += "/calchan";
+  MonitorElementT< int >*  calchanElement = dynamic_cast<MonitorElementT< int >* >(bei->get(calchanPath));
+  if(calchanElement) {
+    calchan_ = calchanElement->getValue() ;
+    edm::LogVerbatim(mlDqmClient_)
+      << "[CalibrationHistograms::" << __func__ << "]"
+      << "CalChan value is " << calchan_;
+  } else {
+    edm::LogWarning(mlDqmClient_)
+      << "[CalibrationHistograms::" << __func__ << "]"
+      << "CalChan value not found at " << calchanPath
+      << ". Using " << calchan_;
+  }
+}
+
+CalibrationHistograms::CalibrationHistograms( MonitorUserInterface* mui,const sistrip::RunType& task ) 
+  : CommissioningHistograms( mui, task ),
+    factory_( new Factory ),
+    calchan_(0)
+{
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[CalibrationHistograms::" << __func__ << "]"
+       << " Constructing object...";
+  std::string pwd = bei()->pwd();
+  std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  calchanPath += "/calchan";
+  MonitorElementT< int >*  calchanElement = dynamic_cast<MonitorElementT< int >* >(bei()->get(calchanPath));
+  if(calchanElement) {
+    calchan_ = calchanElement->getValue() ;
+    edm::LogVerbatim(mlDqmClient_)
+      << "[CalibrationHistograms::" << __func__ << "]"
+      << "CalChan value is " << calchan_;
+  } else {
+    edm::LogWarning(mlDqmClient_)
+      << "[CalibrationHistograms::" << __func__ << "]"
+      << "CalChan value not found at " << calchanPath
+      << ". Using " << calchan_;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -31,8 +72,11 @@ CalibrationHistograms::~CalibrationHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void CalibrationHistograms::histoAnalysis( bool debug ) {
-
+  Analyses::iterator ianal;
   // Clear map holding analysis objects
+  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) {
+    if ( ianal->second ) { delete ianal->second; }
+  }
   data_.clear();
   
   // Iterate through map containing vectors of profile histograms
@@ -50,13 +94,12 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
     vector<TH1*> profs;
     Histos::const_iterator ihis = iter->second.begin();
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TH1D* prof = ExtractTObject<TH1D>().extract( (*ihis)->me_ );
+      TH1F* prof = ExtractTObject<TH1F>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
     } 
-
-    // Perform histo analysis (in peak mode)
-    CalibrationAnalysis anal( iter->first, false );
-    anal.analysis( profs );
+    // Perform histo analysis 
+    CalibrationAnalysis* anal = new CalibrationAnalysis( iter->first, (task()==sistrip::CALIBRATION_DECO), calchan_ );
+    anal->analysis( profs );
     data_[iter->first] = anal; 
     
  }
@@ -70,6 +113,7 @@ void CalibrationHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
 					      const string& directory,
 					      const sistrip::Granularity& gran ) {
 
+
   cout << endl // LogTrace(mlDqmClient_)
        << "[CalibrationHistograms::" << __func__ << "]";
   
@@ -77,15 +121,16 @@ void CalibrationHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   sistrip::View view = SiStripEnumsAndStrings::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
-  // Analyze histograms
-  histoAnalysis( false );
+  // Analyze histograms if not done already
+  if ( data_.empty() ) { histoAnalysis( false ); }
 
   // Extract data to be histogrammed
-  factory_->init( mon, pres, view, directory, gran );
-  uint32_t xbins = factory_->extract( data_ );
+  uint32_t xbins = factory_->init( mon, pres, view, directory, gran, data_ );
 
   // Create summary histogram (if it doesn't already exist)
-  TH1* summary = histogram( mon, pres, view, directory, xbins );
+  TH1* summary = 0;
+  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, directory, xbins ); }
+  else { summary = histogram( mon, pres, view, directory, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
 
   // Fill histogram with data
   factory_->fill( *summary );

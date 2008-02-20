@@ -11,10 +11,12 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  CalibrationHistograms( MonitorUserInterface*,const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( MonitorUserInterface*, const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( DaqMonitorBEInterface*,const sistrip::RunType& task = sistrip::CALIBRATION );
   virtual ~CalibrationHistograms();
   
-  typedef SummaryHistogramFactory<CalibrationAnalysis> Factory;
+  typedef SummaryPlotFactory<CalibrationAnalysis*> Factory;
+  typedef std::map<uint32_t,CalibrationAnalysis*> Analyses;
   
   /** */
   void histoAnalysis( bool debug );
@@ -27,9 +29,11 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
   
  protected: 
   
-  std::map<uint32_t,CalibrationAnalysis> data_;
+  Analyses data_;
   
   std::auto_ptr<Factory> factory_;
+
+  int calchan_;
   
 };
 

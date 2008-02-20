@@ -92,6 +92,11 @@ class CommissioningHistograms {
   static sistrip::RunType runType( DaqMonitorBEInterface* const,
 				   const std::vector<std::string>& );
   
+  /** Extracts custom information from list of MonitorElements. */
+  static void copyCustomInformation( DaqMonitorBEInterface* const,
+				     const std::vector<std::string>& );
+  
+  /** Retrieves list of histograms in form of strings. */
   static void getContents( DaqMonitorBEInterface* const,
 			   std::vector<std::string>& );
   

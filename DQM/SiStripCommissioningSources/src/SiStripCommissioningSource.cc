@@ -253,7 +253,6 @@ void SiStripCommissioningSource::endJob() {
 //
 void SiStripCommissioningSource::analyze( const edm::Event& event, 
 					  const edm::EventSetup& setup ) {
-
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
   event.getByLabel( inputModuleLabelSummary_, summary );
@@ -311,6 +310,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 	      task_ == sistrip::OPTO_SCAN ) { 
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
   } else if ( task_ == sistrip::VPSP_SCAN ||
+              task_ == sistrip::CALIBRATION ||
+              task_ == sistrip::CALIBRATION_DECO ||
               task_ == sistrip::CALIBRATION_SCAN ||
               task_ == sistrip::CALIBRATION_SCAN_DECO ||
 	      task_ == sistrip::PEDESTALS ) {
@@ -894,9 +895,9 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
         else if ( task_ == sistrip::APV_LATENCY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str(), setup ); }
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str(), run_, setup ); }
         else if ( task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), *iconn, task_, filename_.c_str(), setup ); }
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), *iconn, task_, filename_.c_str(), run_, setup ); }
 	else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
 	  edm::LogWarning(mlDqmSource_)  
 	    << "[SiStripCommissioningSource::" << __func__ << "]"
