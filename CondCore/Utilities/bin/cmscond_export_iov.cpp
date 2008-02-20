@@ -148,7 +148,7 @@ int main( int argc, char** argv ){
   try{
     session.open();
 
-    conHandler.connect(session);
+    conHandler.connect(&session);
     std::string sourceiovtoken;
     std::string destiovtoken;
     cond::TimeType sourceiovtype;
