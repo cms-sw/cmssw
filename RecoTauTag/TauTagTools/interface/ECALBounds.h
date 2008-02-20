@@ -8,6 +8,8 @@
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
+using namespace std;
+
 class BoundCylinder;
 class BoundDisk;
 class Cylinder;
@@ -26,7 +28,14 @@ public:
   static float endcap_innerradius()     {return 31.6f;}
   static float endcap_outerradius()     {return 171.1f;}
   static float endcap_innerZ() {return 314.40f;}
-  static float endcap_outerZ() {return 388.f;}    
+  static float endcap_outerZ() {return 388.f;}
+  /** Hard-wired numbers defining eta cracks.
+   */
+  static pair<float,float> crack_absEtaIntervalA() {return pair<float,float>(0.000f,0.018f);}
+  static pair<float,float> crack_absEtaIntervalB() {return pair<float,float>(0.423f,0.461f);}
+  static pair<float,float> crack_absEtaIntervalC() {return pair<float,float>(0.770f,0.806f);}
+  static pair<float,float> crack_absEtaIntervalD() {return pair<float,float>(1.127f,1.163f);}
+  static pair<float,float> crack_absEtaIntervalE() {return pair<float,float>(1.460f,1.558f);}
  private:
   static ReferenceCountingPointer<Surface> theCylinder;
   static ReferenceCountingPointer<Surface> theNegativeDisk;
