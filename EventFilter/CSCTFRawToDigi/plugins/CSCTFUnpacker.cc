@@ -37,8 +37,8 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
 	// Edges of the time window, which LCTs are put into (unlike tracks, which are always centred around 0):
-	m_minBX = pset.getUntrackedParameter<int>("MinBX");
-	m_maxBX = pset.getUntrackedParameter<int>("MaxBX");
+	m_minBX = pset.getParameter<int>("MinBX"); //3
+	m_maxBX = pset.getParameter<int>("MaxBX"); //9
 
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
 	swapME1strips = pset.getParameter<bool>("swapME1strips");

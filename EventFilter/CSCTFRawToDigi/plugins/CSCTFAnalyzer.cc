@@ -13,9 +13,9 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
 
 CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
-	lctProducer   = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
-	trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
-	statusProducer= conf.getUntrackedParameter<edm::InputTag>("statusProducer",edm::InputTag("csctfunpacker"));
+	lctProducer   = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("cscTrackFinderDigis"));
+	trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("cscTrackFinderDigis"));
+	statusProducer= conf.getUntrackedParameter<edm::InputTag>("statusProducer",edm::InputTag("cscTrackFinderDigis"));
 }
 
 void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){

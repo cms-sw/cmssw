@@ -27,8 +27,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
 
 	// BX window bounds in CMSSW:
-	m_minBX = conf.getUntrackedParameter<int>("MinBX",3);
-	m_maxBX = conf.getUntrackedParameter<int>("MaxBX",9);
+	m_minBX = conf.getParameter<int>("MinBX"); //3
+	m_maxBX = conf.getParameter<int>("MaxBX"); //9
 
 	// Finds central LCT BX
 	// assumes window is odd number of bins
