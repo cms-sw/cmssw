@@ -54,7 +54,7 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   urn_     ="/"+app_->getApplicationDescriptor()->getURN();
   
   std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable-"<<appClass<<"-"<<instance;
+  oss2<<"urn:xdaq-monitorable-"<<appClass;
   string monInfoSpaceName=oss2.str();
   toolbox::net::URN urn = app_->createQualifiedInfoSpace(monInfoSpaceName);
   

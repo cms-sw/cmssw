@@ -1,3 +1,8 @@
+2008-02-20  Philipp SCHIEFERDECKER <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-01
+	* remove instanceNb from monitoring infospace name
+
 2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-00

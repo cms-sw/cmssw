@@ -98,7 +98,7 @@ namespace evf{
       *out << cgicc::select().set("name","exceptiontype")     << std::endl;
       char istring[2];
 
-      for(unsigned int i = 0; i < menu_items; i++)
+      for(int i = 0; i < menu_items; i++)
 	{
 	  sprintf(istring,"%d",i);
 	  *out << cgicc::option().set("value",istring) << menu[i] << cgicc::option()       << std::endl;
