@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2007/09/20 17:08:16 $
-//   $Revision: 1.7 $
+//   $Date: 2006/06/01 00:00:00 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -95,6 +95,10 @@ void DTTFFEDReader::process(edm::Event& e) {
   // DTTF Payload constituents 
   long DTTFWord;
   int DTTFChan, bitsID;
+  int addr1[2] = { 3,  3};
+  int addr2[2] = {15, 15};
+  int addr3[2] = {15, 15};
+  int addr4[2] = {15, 15};
 
   // Trailer constituents
   int evtLgth , CRC;
@@ -242,6 +246,69 @@ void DTTFFEDReader::process(edm::Event& e) {
     }
     //Input
 
+    //Input
+    if(wheelID==0 && bitsID<=0x4){
+   
+      int wheelTh = bitsID-2;
+
+      int posALL, posBTI[7];
+
+      posALL    =  ~(*DTTFiterator)&0x7F;
+      posBTI[0] =  ~(*DTTFiterator)&0x01;
+      posBTI[1] = (~(*DTTFiterator)&0x02)>>1;
+      posBTI[2] = (~(*DTTFiterator)&0x04)>>2;
+      posBTI[3] = (~(*DTTFiterator)&0x08)>>3;
+      posBTI[4] = (~(*DTTFiterator)&0x10)>>4;
+      posBTI[5] = (~(*DTTFiterator)&0x20)>>5;
+      posBTI[6] = (~(*DTTFiterator)&0x40)>>6;
+
+      if(posALL){
+        theSegments.push_back(
+		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+      }
+
+      posALL    =  ~(*DTTFiterator)&0x3F80;
+      posBTI[0] = (~(*DTTFiterator)&0x0080)>>7;
+      posBTI[1] = (~(*DTTFiterator)&0x0100)>>8;
+      posBTI[2] = (~(*DTTFiterator)&0x0200)>>9;
+      posBTI[3] = (~(*DTTFiterator)&0x0400)>>10;
+      posBTI[4] = (~(*DTTFiterator)&0x0800)>>11;
+      posBTI[5] = (~(*DTTFiterator)&0x1000)>>12;
+      posBTI[6] = (~(*DTTFiterator)&0x2000)>>13;
+
+      if(posALL){
+        theSegments.push_back(
+		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+      }
+
+      posALL    =  ~(*DTTFiterator)&0x1FC000;
+      posBTI[0] = (~(*DTTFiterator)&0x004000)>>14;
+      posBTI[1] = (~(*DTTFiterator)&0x008000)>>15;
+      posBTI[2] = (~(*DTTFiterator)&0x010000)>>16;
+      posBTI[3] = (~(*DTTFiterator)&0x020000)>>17;
+      posBTI[4] = (~(*DTTFiterator)&0x040000)>>18;
+      posBTI[5] = (~(*DTTFiterator)&0x080000)>>19;
+      posBTI[6] = (~(*DTTFiterator)&0x100000)>>20;
+
+      if(posALL){
+        theSegments.push_back(
+		    L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+      }
+    }
+    //Input
+
+    //Addresses
+    if(wheelID!=0 && bitsID>=0xA && bitsID<=0xB){   
+
+      int candID   = bitsID - 0xA;
+
+      addr4[candID]   = ((*DTTFiterator)&0x0F);
+      addr3[candID]   = ((*DTTFiterator)&0xF0)>>4;
+      addr2[candID]   = ((*DTTFiterator)&0xF00)>>8;
+      addr1[candID]   = ((*DTTFiterator)&0x3000)>>12;
+    }
+    //Addresses
+
     //Output
     if(wheelID!=0 && bitsID>=0xC){   
 
@@ -259,8 +326,8 @@ void DTTFFEDReader::process(edm::Event& e) {
 
       if(qual!=0){
         dtTracks.push_back(
-		    L1MuRegionalCand( 0, phi, 0, pt, ch,
-                    1, muonID, qual, bxID) );
+		    L1MuDTTrackCand( 0, phi, 0, pt, ch, 1, 0, qual, bxID, wheelID, sectorID,
+                    muonID, addr1[muonID], addr2[muonID], addr3[muonID], addr4[muonID] ) );
       }
     }
     //Output
