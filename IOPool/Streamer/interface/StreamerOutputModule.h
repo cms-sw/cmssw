@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.34 2008/01/29 15:09:03 biery Exp $
+// $Id: StreamerOutputModule.h,v 1.35 2008/01/29 20:21:40 biery Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -328,7 +328,7 @@ template <class Consumer>
     gettimeofday(&now, &dummyTZ);
     double timeInSec = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0) - timeInSecSinceUTC;
     // what about overflows?
-    if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_);
+    if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
   }
 
 
