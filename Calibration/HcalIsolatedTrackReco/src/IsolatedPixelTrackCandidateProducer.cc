@@ -34,14 +34,14 @@
 
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
-  l1eTauJetsSource_=config.getUntrackedParameter<edm::InputTag>("L1eTauJetsSource");
+  l1eTauJetsSource_=config.getParameter<edm::InputTag>("L1eTauJetsSource");
   tauAssocCone_=config.getParameter<double>("tauAssociationCone"); 
   tauUnbiasCone_ = config.getParameter<double>("tauUnbiasCone");
-  pixelTracksSource_=config.getUntrackedParameter<edm::InputTag>("PixelTracksSource");
+  pixelTracksSource_=config.getParameter<edm::InputTag>("PixelTracksSource");
   pixelIsolationConeSize_=config.getParameter<double>("PixelIsolationConeSize");
-  hltGTseedlabel_=config.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
-  l1GtObjectMapSource_ = config.getUntrackedParameter<edm::InputTag> ("L1GtObjectMapSource");
-  ecalFilterLabel_ = config.getUntrackedParameter<edm::InputTag>("ecalFilterLabel");
+  hltGTseedlabel_=config.getParameter<edm::InputTag>("L1GTSeedLabel");
+  l1GtObjectMapSource_ = config.getParameter<edm::InputTag> ("L1GtObjectMapSource");
+  ecalFilterLabel_ = config.getParameter<edm::InputTag>("ecalFilterLabel");
   
   
   // Register the product

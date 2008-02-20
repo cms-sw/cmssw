@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.5 2008/01/05 14:57:10 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.6 2008/01/22 18:52:36 muzaffar Exp $
 //
 //
 
@@ -45,10 +45,10 @@ EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(con
   OutConeSize_= conf.getParameter<double>("EcalOuterConeSize");
   hitCountEthr_= conf.getParameter<double>("ECHitCountEnergyThreshold");
   hitEthr_=conf.getParameter<double>("ECHitEnergyThreshold");
-  l1tausource_=conf.getUntrackedParameter<edm::InputTag>("L1eTauJetsSource");
-  hltGTseedlabel_=conf.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
-  EBrecHitCollectionLabel_=conf.getUntrackedParameter<edm::InputTag>("EBrecHitCollectionLabel");
-  EErecHitCollectionLabel_=conf.getUntrackedParameter<edm::InputTag>("EErecHitCollectionLabel");
+  l1tausource_=conf.getParameter<edm::InputTag>("L1eTauJetsSource");
+  hltGTseedlabel_=conf.getParameter<edm::InputTag>("L1GTSeedLabel");
+  EBrecHitCollectionLabel_=conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel");
+  EErecHitCollectionLabel_=conf.getParameter<edm::InputTag>("EErecHitCollectionLabel");
 
    //register your products
   produces< reco::IsolatedPixelTrackCandidateCollection >();
