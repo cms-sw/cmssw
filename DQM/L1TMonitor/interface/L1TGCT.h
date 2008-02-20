@@ -5,11 +5,16 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/08/31 18:14:20 $
- * $Revision: 1.6 $
+ * $Date: 2007/09/04 02:54:21 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.6 2007/08/31 18:14:20 wittich Exp $
+ * $Id: L1TGCT.h,v 1.7 2007/09/04 02:54:21 wittich Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.7  2007/09/04 02:54:21  wittich
+ * - fix dupe ME in RCT
+ * - put in rank>0 req in GCT
+ * - various small other fixes
+ *
  * Revision 1.6  2007/08/31 18:14:20  wittich
  * update GCT packages to reflect GctRawToDigi, and move to raw plots
  *
@@ -90,12 +95,12 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  // L1Extra stuff
+  // GCT stuff
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
   MonitorElement* l1GctForJetsEtEtaPhi_;
   MonitorElement* l1GctTauJetsEtEtaPhi_;
-  MonitorElement* l1GctIsoEmEtEtaPhi_;
-  MonitorElement* l1GctNonIsoEmEtEtaPhi_;
+  MonitorElement* l1GctIsoEmRankEtaPhi_;
+  MonitorElement* l1GctNonIsoEmRankEtaPhi_;
 
   MonitorElement* l1GctCenJetsOccEtaPhi_;
   MonitorElement* l1GctForJetsOccEtaPhi_;  
@@ -111,11 +116,29 @@ private:
 
   MonitorElement* l1GctEtMiss_;
   MonitorElement* l1GctEtMissPhi_;
-
-  // AFAIK, these don't have phi values
   MonitorElement* l1GctEtTotal_;
   MonitorElement* l1GctEtHad_;
 
+  // GCT electron stuff
+  MonitorElement* l1GctIsoEmRankBin_[22][18];
+  MonitorElement* l1GctNonIsoEmRankBin_[22][18];
+
+  MonitorElement* l1GctIsoEmRankCand0_;
+  MonitorElement* l1GctIsoEmRankCand1_;
+  MonitorElement* l1GctIsoEmRankCand2_;
+  MonitorElement* l1GctIsoEmRankCand3_;
+
+  MonitorElement* l1GctNonIsoEmRankCand0_;
+  MonitorElement* l1GctNonIsoEmRankCand1_;
+  MonitorElement* l1GctNonIsoEmRankCand2_;
+  MonitorElement* l1GctNonIsoEmRankCand3_;
+
+  MonitorElement* l1GctIsoEmRankDiff01_;
+  MonitorElement* l1GctIsoEmRankDiff12_;
+  MonitorElement* l1GctIsoEmRankDiff23_;
+  MonitorElement* l1GctNonIsoEmRankDiff01_;
+  MonitorElement* l1GctNonIsoEmRankDiff12_;
+  MonitorElement* l1GctNonIsoEmRankDiff23_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
@@ -123,7 +146,12 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
 
-  edm::InputTag gctSource_;
+  edm::InputTag gctCenJetsSource_;
+  edm::InputTag gctForJetsSource_;
+  edm::InputTag gctTauJetsSource_;
+  edm::InputTag gctEnergySumsSource_;
+  edm::InputTag gctIsoEmSource_;
+  edm::InputTag gctNonIsoEmSource_;
 
 };
 
