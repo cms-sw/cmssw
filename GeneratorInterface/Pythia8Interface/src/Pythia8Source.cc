@@ -36,7 +36,7 @@ using namespace std;
 
 Pythia8Source::Pythia8Source( const ParameterSet & pset, 
 			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+  GeneratedInputSource(pset, desc),
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
