@@ -178,7 +178,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     newiovref.markWrite(cond::IOVNames::container());
   } else {
     newiovref = cond::TypedRef<cond::IOV>(destDB,destToken);
-    newiovref.markUpdate(cond::IOVNames::container());   
+    newiovref.markUpdate();   
   }
   cond::IOV & newiov = *newiovref;
   for( std::map<cond::Time_t,std::string>::const_iterator it=ifirstTill;
