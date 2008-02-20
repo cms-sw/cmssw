@@ -187,14 +187,14 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
   query->addToOutputList( "USERTEXT" );
   query->addToOutputList( "IOVTAG" );
   query->addToOutputList( "IOVTIMETYPE" );
-  query->addToOutputList( "PAYLOADINDEX","payloadindex" );
-  query->defineOutputType( "payloadindex", "unsigned int" );
+  query->addToOutputList( "PAYLOADINDEX" );
+  query->defineOutputType( "PAYLOADINDEX", "unsigned int" );
   query->addToOutputList( "PAYLOADNAME" );
   query->addToOutputList( "PAYLOADTOKEN" );
   query->addToOutputList( "PAYLOADCONTAINER" );
   query->addToOutputList( "EXECTIME" );
   query->addToOutputList( "EXECMESSAGE" );
-
+  query->groupBy("DESTINATIONDB,PROVENANCE,USERTEXT,IOVTAG,IOVTIMETYPE,PAYLOADINDEX,PAYLOADNAME,PAYLOADTOKEN,PAYLOADCONTAINER,EXECTIME,EXECMESSAGE");
   query->setCondition( whereClause, BindVariableList );
  
   coral::ICursor& cursor = query->execute();
@@ -206,7 +206,7 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
     logentry.usertext=row["USERTEXT"].data<std::string>();
     logentry.iovtag=row["IOVTAG"].data<std::string>();
     logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
-    logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
+    logentry.payloadIdx=row["PAYLOADINDEX"].data<unsigned int>();
     logentry.payloadName=row["PAYLOADNAME"].data<std::string>();
     logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
     logentry.payloadContainer=row["PAYLOADCONTAINER"].data<std::string>();
@@ -240,14 +240,14 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
   query->addToOutputList( "USERTEXT" );
   query->addToOutputList( "IOVTAG" );
   query->addToOutputList( "IOVTIMETYPE" );
-  query->addToOutputList( "PAYLOADINDEX","payloadindex" );
-  query->defineOutputType( "payloadindex", "unsigned int" );
+  query->addToOutputList( "PAYLOADINDEX" );
+  query->defineOutputType( "PAYLOADINDEX", "unsigned int" );
   query->addToOutputList( "PAYLOADNAME" );
   query->addToOutputList( "PAYLOADTOKEN" );
   query->addToOutputList( "PAYLOADCONTAINER" );
   query->addToOutputList( "EXECTIME" );
   query->addToOutputList( "EXECMESSAGE" );
-
+  query->groupBy("DESTINATIONDB,PROVENANCE,USERTEXT,IOVTAG,IOVTIMETYPE,PAYLOADINDEX,PAYLOADNAME,PAYLOADTOKEN,PAYLOADCONTAINER,EXECTIME,EXECMESSAGE");
   query->setCondition( whereClause, BindVariableList );
  
   coral::ICursor& cursor = query->execute();
@@ -259,7 +259,7 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     logentry.usertext=row["USERTEXT"].data<std::string>();
     logentry.iovtag=row["IOVTAG"].data<std::string>();
     logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
-    logentry.payloadIdx=row["payloadindex"].data<unsigned int>();
+    logentry.payloadIdx=row["PAYLOADINDEX"].data<unsigned int>();
     logentry.payloadName=row["PAYLOADNAME"].data<std::string>();
     logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
     logentry.payloadContainer=row["PAYLOADCONTAINER"].data<std::string>();
