@@ -15,6 +15,8 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
+#include "Fireworks/Core/interface/FW3DLegoView.h"
+
 namespace {
    struct Fireworks_Core {
       //add 'dummy' Wrapper variable for each class type you put into the Event

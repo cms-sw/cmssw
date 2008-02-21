@@ -13,4 +13,5 @@
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
   <class name="FWGUISubviewArea"/>
+  <class name="FW3DLegoView"/>
 </lcgdict>
