@@ -46,7 +46,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  } 
 
 //math precision check (numerical stability) 
- double differ = en*en - (par(4)*par(4)+par(5)*par(5)+par(6)*par(6));
+ double differ = en*en - (par(3)*par(3)+par(4)*par(4)+par(5)*par(5));
  if(differ>0.)
  {
   par(6) = sqrt(differ); 

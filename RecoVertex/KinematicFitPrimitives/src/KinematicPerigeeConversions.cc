@@ -146,7 +146,7 @@ KinematicPerigeeConversions::momentumFromPerigee(const AlgebraicVector4& momentu
  mm(0) = cos(momentum[2]) * pt;
  mm(1) = sin(momentum[2]) * pt;
  mm(2) = pt/tan(momentum[1]);
- mm(3) = momentum(4);
+ mm(3) = momentum[3];
  return mm;
 }
 
