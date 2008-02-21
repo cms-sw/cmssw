@@ -116,6 +116,14 @@ namespace {
     edm::reftobase::RefHolder<reco::MuonRef> hcc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector> hcc3;
     edm::reftobase::RefVectorHolder<reco::MuonRefVector> hcc4;
+
+    reco::CandIsoDepositAssociationPair candIsoAP;
+    reco::CandIsoDepositAssociationVector candIsoAV;
+    std::vector<reco::CandIsoDepositAssociationVector> candIsoAPV_root_seems_to_need_this;
+    edm::Wrapper<reco::CandIsoDepositAssociationVector> candIsoAV_w;
+
+    reco::IsoDepositMap idvm;
+    edm::Wrapper<reco::IsoDepositMap> w_idvm;
   }
 }
 
