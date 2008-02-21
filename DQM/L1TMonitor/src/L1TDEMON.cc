@@ -35,7 +35,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     dbe->setCurrentFolder(histFolder_);
   
   if(verbose())
-    std::cout << "L1TDEMON::L1TDEMON()...done.\n" << std::flush;
+    std::cout << "L1TDEMON::L1TDEMON constructor...done.\n" << std::flush;
 }
 
 L1TDEMON::~L1TDEMON() {}
@@ -44,7 +44,7 @@ void
 L1TDEMON::beginJob(const edm::EventSetup&) {
 
   if(verbose())
-    std::cout << "L1TDEMON::beginJob()  start\n";
+    std::cout << "L1TDEMON::beginJob()  start\n" << std::flush;
 
   DaqMonitorBEInterface* dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -143,7 +143,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
       rnkData[j] = dbe->book1D(lbl.data(),lbl.data(),
 			       rnkNBins[j], rnkMinim[j], rnkMaxim[j]);
       
-      const int nbit = 32;
+      const int nbit = (j==GLT)?128:32;
       lbl.clear();
       lbl+=SystLabel[j];lbl+="dword"; 
       dword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
@@ -486,6 +486,31 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     
   }//close loop over dedigi-cands
+
+  ///gltbits
+  const int gtnbit=128;
+  std::vector<bool> dbitv = deRecord->gltbits(0);
+  std::vector<bool> ebitv = deRecord->gltbits(1);
+  std::vector<bool> debitv(gtnbit,false), debitmaskv(gtnbit,false), 
+    gtbitmasked(gtnbit,false);
+  for(int i=0; i<gtnbit; i++)
+    gtbitmasked[i] = false; //no masking!
+  for(int i=0; i<gtnbit; i++) {
+    debitv[i]=(dbitv[i]&&ebitv[i]);
+    debitmaskv[i]=(debitv[i]&& !gtbitmasked[i]);
+    if(dbitv[i])  dword [GLT]->Fill(i,1);
+    if(ebitv[i])  eword [GLT]->Fill(i,1);
+    if(debitv[i]) deword[GLT]->Fill(i,1);
+    if(debitmaskv[i]) masked[GLT]->Fill(i,1);
+  }
+  if(verbose()) {
+    std::cout << "L1TDEMON gltbits:\n";
+    std::cout << "\ndata:"; for(int i=0; i<gtnbit; i++) std::cout << dbitv[i];
+    std::cout << "\nemul:"; for(int i=0; i<gtnbit; i++) std::cout << ebitv[i];
+    std::cout << "\nand :"; for(int i=0; i<gtnbit; i++) std::cout << debitv[i];
+    std::cout << "\nmask:"; for(int i=0; i<gtnbit; i++) std::cout << debitmaskv[i];
+    std::cout << "\n";
+  }      
 
   ///correlations: fill histograms
   double wei=1.;
