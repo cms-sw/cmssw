@@ -82,7 +82,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 								    propagationDirection(), theMass, theMomentumEstimate ) );
 
       AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
-      refTraj->setParameterErrors( externalParamErrors );
+      refTraj->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
       trajectories.push_back( refTraj );
     }
     else
