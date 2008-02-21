@@ -15,11 +15,14 @@
 #include "L1Trigger/RPCTrigger/interface/RPCTBGhostBuster.h"
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPac.h"
+#include <boost/shared_ptr.hpp>
 //---------------------------------------------------------------------------
 class RPCTriggerBoard {
 public:
   RPCTriggerBoard(RPCTriggerConfiguration* triggerConfig,
                   int tbNum, int tcNum);
+
+
 
   /** Runs RPCPacData::run() for cone. Converts RPCPacMuon to RPCTBMuon
     * and puts it to the m_PacsMuonsVec. @return true if non-empty muon was return
@@ -40,7 +43,8 @@ private:
 
   L1RpcTBMuonsVec m_PacsMuonsVec;
   
-  typedef std::vector<RPCPac*> PACsVec; // PACs in single tower
+  //typedef std::vector<RPCPac*> PACsVec; // PACs in single tower
+  typedef std::vector<boost::shared_ptr< RPCPac >  > PACsVec; // PACs in single tower
   typedef std::map<int,PACsVec> PACsAll; // Holds pacs for all towers covered by tb
       
   PACsAll m_pacs;

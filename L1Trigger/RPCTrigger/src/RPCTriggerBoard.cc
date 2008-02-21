@@ -37,7 +37,9 @@ RPCTriggerBoard::RPCTriggerBoard( RPCTriggerConfiguration* triggerConfig,
       const RPCPacData *pacData = m_TriggerConfig->getPac(coneCrds);
       
       // one trigger crate covers one logsector:
-      RPCPac *pac = new RPCPac(pacData, tower, tcNum, logSegment); 
+      //RPCPac *pac = new RPCPac(pacData, tower, tcNum, logSegment); 
+      boost::shared_ptr< RPCPac > pac (new RPCPac(pacData, tower, tcNum, logSegment) ); 
+
       m_pacs[tower].push_back(pac);
     
     }
