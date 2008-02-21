@@ -66,6 +66,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
+  hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
+  maxHOverE_        = conf_.getParameter<double>("maxHOverE");
+  minSCEt_        = conf_.getParameter<double>("minSCEt");
+
 
   // Register the product
   produces< TrackCandidateCollection > (OutInTrackCandidateCollection_);
@@ -273,8 +277,12 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco:
   reco::SuperClusterCollection::iterator aClus;
 
   for(aClus = scCollection.begin(); aClus != scCollection.end(); ++aClus) {
-  
-   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() <<  " Energy " <<  aClus->energy() << "\n";
+    // get the ref to SC
+    reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scHandle, lSC));
+    reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scHandle, lSC));
+    lSC++;
+    // preselection
+    if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
 
     theOutInSeedFinder_->setCandidate(*aClus);
     theOutInSeedFinder_->makeSeeds(  clusterCollection );
@@ -294,11 +302,7 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco:
    LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";
 
 
-    //////////// Fill vectors of Ref to SC to be used for the Track-SC association
-    reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scHandle, lSC));
-    reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scHandle, lSC));
-    lSC++;
-
+   //////////// Fill vectors of Ref to SC to be used for the Track-SC association
     for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); ++it) {
       vecOfSCRefForOutIn.push_back( scRefOutIn );
            
