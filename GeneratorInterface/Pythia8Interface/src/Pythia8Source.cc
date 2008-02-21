@@ -157,13 +157,13 @@ bool Pythia8Source::produce(Event & e) {
 
     
 //    hepmcevt->set_signal_process_id(pypars.msti[0]);
-    hepmcevt->set_event_scale(pythia->info.code());
+    hepmcevt->set_signal_process_id(pythia->info.code());
 //    hepmcevt->set_event_scale(pypars.pari[16]);
     hepmcevt->set_event_scale(pythia->info.pTHat());
     hepmcevt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
-    int id1 = pythia->info.idA();
-    int id2 = pythia->info.idB();
+    int id1 = pythia->info.id1();
+    int id2 = pythia->info.id2();
     if ( id1 == 21 ) id1 = 0;
     if ( id2 == 21 ) id2 = 0;
     double x1 = pythia->info.x1();
