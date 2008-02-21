@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.6 2008/01/23 16:12:19 lowette Exp $
+// $Id: Tau.h,v 1.7 2008/01/26 20:19:44 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -12,7 +12,7 @@
    Tau implements the analysis-level tau class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Tau.h,v 1.6 2008/01/23 16:12:19 lowette Exp $
+  \version  $Id: Tau.h,v 1.7 2008/01/26 20:19:44 gpetrucc Exp $
 */
 
 
@@ -37,14 +37,23 @@ namespace pat {
 
       float emEnergyFraction() const { return emEnergyFraction_; }
       float eOverP() const { return eOverP_; }
+      float leadEoverP() const { return leadeOverP_; }
+      float hHotOverP() const { return HhotOverP_; }
+      float hTotOverP() const { return HtotOverP_; }
 
       void setEmEnergyFraction(float fraction) { emEnergyFraction_ = fraction; }
       void setEOverP(float EoP) { eOverP_ = EoP; } 
+      void setLeadEOverP(float EoP) { leadeOverP_ = EoP; }
+      void setHhotOverP(float HHoP) {HhotOverP_ = HHoP; }
+      void setHtotOverP(float HToP) { HtotOverP_ = HToP; }
 
     private:
 
       float emEnergyFraction_;
       float eOverP_;
+      float leadeOverP_;
+      float HhotOverP_;
+      float HtotOverP_;
 
   };
 

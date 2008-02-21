@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.10 2008/02/12 18:46:41 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.11 2008/02/13 18:06:58 adamwo Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -17,6 +17,9 @@
 #include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include <DataFormats/ParticleFlowReco/interface/PFBlock.h>
+#include <DataFormats/ParticleFlowReco/interface/PFBlockElement.h>
+#include <DataFormats/ParticleFlowReco/interface/PFCluster.h>
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -84,8 +87,39 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);
       const reco::PFJet *pfJet    = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
-        aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
-        aTau.setEOverP(thePFTau->energy()/thePFTau->leadTrack()->p());
+        float ECALenergy=0.;
+        float HCALenergy=0.;
+        float leadEnergy=0.;
+	std::list<const PFBlockElement*> elements;
+        PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
+        for(int i=0;i<(int)myPFCands.size();i++){
+          if(myPFCands[i]->blockRef()->elements().size()!=0){
+            for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();
+                iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
+              elements.push_back(&(*iPFBlockElement));
+            }
+          }
+        }
+        if(thePFTau->leadPFChargedHadrCand()->blockRef()->elements().size()!=0){
+          for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=thePFTau->leadPFChargedHadrCand()->blockRef()->elements().begin();
+              iPFBlockElement!=thePFTau->leadPFChargedHadrCand()->blockRef()->elements().end();iPFBlockElement++){
+            if((iPFBlockElement->type()==PFBlockElement::HCAL)||(iPFBlockElement->type()==PFBlockElement::ECAL))
+              leadEnergy += iPFBlockElement->clusterRef()->energy();
+          }
+        }
+        elements.sort();
+        elements.unique();
+        for(std::list<const PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
+          if((*ielements)->type()==PFBlockElement::HCAL)
+            HCALenergy += (*ielements)->clusterRef()->energy();
+          else if((*ielements)->type()==PFBlockElement::ECAL)
+            ECALenergy += (*ielements)->clusterRef()->energy();
+        }
+	aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
+	aTau.setEOverP((HCALenergy+ECALenergy)/thePFTau->leadPFChargedHadrCand()->p());
+        aTau.setLeadEOverP(leadEnergy/thePFTau->leadPFChargedHadrCand()->p());
+        aTau.setHhotOverP(thePFTau->maximumHCALPFClusterEt()/thePFTau->leadPFChargedHadrCand()->p());
+        aTau.setHtotOverP(HCALenergy/thePFTau->leadPFChargedHadrCand()->p());
       }
     } else if (typeid(originalTau) == typeid(const reco::CaloTau *)) {
       const reco::CaloTau *theCaloTau = dynamic_cast<const reco::CaloTau*>(originalTau);
@@ -93,6 +127,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if(caloJet) {
         aTau.setEmEnergyFraction(caloJet->emEnergyFraction());
         aTau.setEOverP(caloJet->energy()/theCaloTau->leadTrack()->p());
+	aTau.setLeadEOverP(caloJet->energy()/theCaloTau->leadTrack()->p()/theCaloTau->numberOfTracks()); //just an approx of what can be done for PF
+        aTau.setHhotOverP(theCaloTau->maximumHCALhitEt()/theCaloTau->leadTrack()->p());
+        aTau.setHtotOverP(caloJet->energy()*caloJet->energyFractionHadronic()/theCaloTau->leadTrack()->p());
       }
     }
 
