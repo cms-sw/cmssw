@@ -8,6 +8,11 @@
    <flags EDM_PLUGIN=1>
 </library>
 
+<library file=TwoBodyDecayTrajectoryFactory.cc>
+   <flags EDM_PLUGIN=1>
+</library>
+
 <library file=CombinedTrajectoryFactory.cc>
    <flags EDM_PLUGIN=1>
 </library>
+
