@@ -118,14 +118,14 @@ private:
 
 template<typename InputCollection, typename OutputCollection>
 CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase() :
-  checkCharge_( false ), dauCharge_(), overlap_() {
+  checkCharge_(false), dauCharge_(), overlap_() {
 }
 
 template<typename InputCollection, typename OutputCollection>
 CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(int q1, int q2) :
-  checkCharge_( true ), dauCharge_( 2 ), overlap_() {
-  dauCharge_[ 0 ] = q1;
-  dauCharge_[ 1 ] = q2;
+  checkCharge_(true), dauCharge_(2), overlap_() {
+  dauCharge_[0] = q1;
+  dauCharge_[1] = q2;
 }
 
 template<typename InputCollection, typename OutputCollection>

@@ -17,18 +17,24 @@ namespace combiner {
     struct NormalClone {
       template<typename Ref, typename CMP>
       static void addDaughter(CMP & cmp, const Ref & c) {
-	cmp.addDaughter(* c);
+	cmp.addDaughter(*c);
       }
     };
     
     struct ShallowClone {
       template<typename CMP>
       static void addDaughter(CMP & cmp, const reco::CandidateRef & c) {
-	cmp.addDaughter(reco::ShallowCloneCandidate(reco::CandidateBaseRef(c)));
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowCloneCandidate(reco::CandidateBaseRef(c)));
+	else
+	  cmp.addDaughter(*c);
       }
       template<typename CMP>
       static void addDaughter(CMP & cmp, const reco::CandidateBaseRef & c) {
-	cmp.addDaughter(reco::ShallowCloneCandidate(c));
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowCloneCandidate(c));
+	else
+	  cmp.addDaughter(*c);
       }
     };
   }
