@@ -16,6 +16,10 @@ class CSCDBCrosstalk
     short int xtalk_slope_left;
     short int xtalk_intercept_left;
   };
+  int xtalk_slope_factor;
+  int xtalk_intercept_factor;
+
+  enum factors{XtalkSlopeFactor=10000000, XtalkInterceptFactor=100000};
 
   // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;
