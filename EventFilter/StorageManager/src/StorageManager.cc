@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.39 2008/02/11 15:26:13 biery Exp $
+// $Id: StorageManager.cc,v 1.40 2008/02/21 14:44:27 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2350,7 +2350,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       return false;
     }
 
-    // check whether the maxSize parameter in the SM output streams
+    // check whether the maxSize parameter in an SM output stream
     // is still specified in bytes (rather than MBytes).  (All we really
     // check is if the maxSize is unreasonably large after converting
     // it to bytes.)
@@ -2378,15 +2378,27 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
             std::string mod_type =
               endPathPSet.getParameter<std::string> ("@module_type");
             if (mod_type == "EventStreamFileWriter") {
+
+              // convert the maxSize parameter value from MB to bytes
               long long maxSize = 1048576 *
                 (long long) endPathPSet.getParameter<int> ("maxSize");
+
+              // test the maxSize value.  2E13 is somewhat arbitrary,
+              // but ~18 TeraBytes seems larger than we would realistically
+              // want, and it will catch stale (byte-based) values greater
+              // than ~18 MBytes.)
               if (maxSize > 2E+13) {
                 std::string streamLabel =  endPathPSet.getParameter<std::string> ("streamLabel");
                 std::string errorString =  "The maxSize parameter (file size) ";
                 errorString.append("for stream ");
                 errorString.append(streamLabel);
                 errorString.append(" is too large (");
-                errorString.append(boost::lexical_cast<std::string>(maxSize));
+                try {
+                  errorString.append(boost::lexical_cast<std::string>(maxSize));
+                }
+                catch (boost::bad_lexical_cast& blcExcpt) {
+                  errorString.append("???");
+                }
                 errorString.append(" bytes). ");
                 errorString.append("Please check that this parameter is ");
                 errorString.append("specified as the number of MBytes, not bytes. ");
@@ -2406,7 +2418,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     }
     catch (...) {
       // since the maxSize test is just a convenience, we'll ignore
-      // exceptions and continue running, for now.
+      // exceptions and continue normally, for now.
     }
 
     if (maxESEventRate_ < 0.0)
