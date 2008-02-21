@@ -113,6 +113,36 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
   } 
 }
 
+int ECalSD::getRadiationLenght(G4Step * aStep) {
+  
+  if (aStep == NULL) {
+    return 0;
+  } else {
+    
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    G4VPhysicalVolume* currentPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
+    G4String name = currentPV->GetName();
+    std::string crystal;
+    crystal.assign(name,0,4);
+    
+    int thisX0 = 0;
+    if (crystal == "EFRY"){
+      float z = hitPoint.z();
+      float detz = fabs(fabs(z)-3200);
+      thisX0 = (int)floor( detz/8.9 );   
+    } 
+    if(crystal == "EBRY") {
+      float x = hitPoint.x();
+      float y = hitPoint.y();
+      float r = sqrt(x*x +y*y);
+      float detr = r -1290;
+      thisX0 = (int)floor( detr/8.9);
+    }
+    
+    return thisX0;
+  }
+}
+
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
   getBaseNumber(aStep);
   return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
