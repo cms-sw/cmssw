@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.9 2007/10/15 13:29:35 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.10 2008/02/14 22:24:40 charlot Exp $
 //
 //
 
@@ -22,13 +22,17 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <typeinfo>  //FIXME
 
 using namespace reco;
 using namespace std;
@@ -53,13 +57,15 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
 
 vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
 												   const GlobalPoint& vprim,
-										  float energy,
-										  float fcharge) {
+												   float energy,
+												   float fcharge) {
+
+  float SCl_phi = xmeas.phi();
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
   LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
-
+  
 
   vector<TrajectoryMeasurement> validMeasurements;
   vector<TrajectoryMeasurement> invalidMeasurements;
@@ -87,23 +93,30 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
      if (m->recHit()->isValid()) {
+       float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
+       if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+       if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+       if(fabs(localDphi)>2.5)continue;
 	Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
-         LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition();
-         LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition();
+	LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition();
+	LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition();
 	pred1Meas.push_back( prediction);
-      
+	
 	validMeasurements.push_back(*m);
+
+	//std::cout<<"\n FH 1B "<<std::endl;
+
 	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
 	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
 	if (bdetl) {
 	  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
 	}
 	else  LogDebug("") <<"Could not downcast!!";
-      } 
+     } 
     }
-
+    
     
     // check if there are compatible 1st hits in the second layer
     firstLayer++;
@@ -114,13 +127,19 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
  
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
       if (m->recHit()->isValid()) {
+	float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
+	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	if(fabs(localDphi)>2.5)continue;
         Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
 	pred1Meas.push_back( prediction);
         LogDebug("")  << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition() << endl;
         LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition() << endl;
-      
+	
+	//std::cout<<"\n FH 2B "<<std::endl;
+
 	validMeasurements.push_back(*m);
 	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
 	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
@@ -129,41 +148,80 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	}
 	else  LogDebug("") <<"Could not downcast!!";
       }
+      
     }
   }
-
- 
+  
+  
   // check if there are compatible 1st hits the forward disks
   typedef vector<ForwardDetLayer*>::const_iterator ForwardLayerIterator;
   ForwardLayerIterator flayer;
   
   TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));  
   if (tsosfwd.isValid()) {
-
+    
     for (int i=0; i<2; i++) {
       i == 0 ? flayer = startLayers.pos1stFLayer() : flayer = startLayers.neg1stFLayer();
+
+      if (i==0 && xmeas.z() < -100. ) continue;
+      if (i==1 && xmeas.z() > 100. ) continue;
+
       vector<TrajectoryMeasurement> pixelMeasurements = 
 	theLayerMeasurements->measurements(**flayer, tsosfwd,
 					   *prop1stLayer, meas1stFLayer);
-
-
+      
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	if (m->recHit()->isValid()) {
+	  float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
+	  if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	  if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	  if(fabs(localDphi)>2.5)continue;
 	  Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
 				m->forwardPredictedState().globalPosition().z());
 	  pred1Meas.push_back( prediction);
-	
+
+	  // std::cout<<"\n FH 1D "<<std::endl;
+
 	  validMeasurements.push_back(*m);      
 	}
       }
+
+      //check if there are compatible 1st hits the outer forward disks
+      flayer++;
+      
+      vector<TrajectoryMeasurement> pixel2Measurements = 
+ 	theLayerMeasurements->measurements(**flayer, tsosfwd,
+ 					   *prop1stLayer, meas1stFLayer);
+      
+      for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
+ 	if (m->recHit()->isValid()) {
+	  float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
+	  if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	  if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	  if(fabs(localDphi)>2.5)continue;
+ 	  Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+ 				m->forwardPredictedState().globalPosition().y(),
+ 				m->forwardPredictedState().globalPosition().z());
+ 	  pred1Meas.push_back( prediction);
+
+	  //std::cout<<"\n FH 2D "<<std::endl;
+
+ 	  validMeasurements.push_back(*m);      
+	}
+	//	else{std::cout<<" hit non valid "<<std::endl; }
+      }  //end 1st hit in outer f disk
     }
   }
-
+  
+  
   // now we have the vector of all valid measurements of the first point
   for (unsigned i=0; i<validMeasurements.size(); i++){
-    const DetLayer* newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
 
+    // std::cout<<"\n run on FH n ==> "<<i<<std::endl;
+
+    const DetLayer* newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
+    
     // compute the z vertex from the cluster point and the found pixel hit
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
 									      validMeasurements[i].recHit()->localPosition()).z();
@@ -172,15 +230,16 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
        
     double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
       (xmeas.perp()-pxHit1r);
-
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
-
-    vertex = zVertexPred;
+    //    GlobalPoint vertexPred(0.,0.,zVertexPred);
+    
+    if(i==0)vertex = zVertexPred;
+    
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
 										 validMeasurements[i].recHit()->localPosition())); 
-
+    
     FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
-
+    
     PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer);
     vector<Hep3Vector> predictions = secondHit.predictionInNextLayers();
@@ -191,17 +250,24 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     // two hits from the same layer/disk (detector overlap) or from the loop over the
     // next layers in EPMatchLoopNextLayers. Take only the 1st hit.    
     if(!secondHit.measurementsInNextLayers().empty()){
-      float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
-      if (dphi > pi) dphi -= twopi;
-      if (dphi < -pi) dphi += twopi; 
-
-      ConstRecHitPointer pxrh = validMeasurements[i].recHit();
-      
-      RecHitWithDist rh(pxrh,dphi);
-      
-      pxrh = secondHit.measurementsInNextLayers()[0].recHit();
-      pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
-      result.push_back(compatiblePair);
+      for(unsigned int shit=0; shit<secondHit.measurementsInNextLayers().size(); shit++)
+      	{
+	  float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
+	  if (dphi > pi) dphi -= twopi;
+	  if (dphi < -pi) dphi += twopi; 
+	  if (fabs(dphi)<2.5)
+	    {
+	      ConstRecHitPointer pxrh = validMeasurements[i].recHit();
+	      RecHitWithDist rh(pxrh,dphi);
+	      
+	      //  pxrh = secondHit.measurementsInNextLayers()[0].recHit();	  
+	      pxrh = secondHit.measurementsInNextLayers()[shit].recHit();
+	      
+	      pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
+	      result.push_back(compatiblePair);
+	      break;
+	    }
+	}
     }
 
     //We may have one layer left, try that, if no valid hits
@@ -218,21 +284,29 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
         for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]); 
 	
         if(!secondSecondHit.measurementsInNextLayers().empty()){
-	  float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
-	  if (dphi > pi) dphi -= twopi;
-	  if (dphi < -pi) dphi += twopi; 
-	  ConstRecHitPointer pxrh = validMeasurements[i].recHit();
-	  RecHitWithDist rh(pxrh,dphi);
-	  pxrh = secondSecondHit.measurementsInNextLayers()[0].recHit();
-	  pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
-          result.push_back(compatiblePair);
-        }
+	  for(unsigned int shit=0; shit<secondSecondHit.measurementsInNextLayers().size(); shit++)
+	    {
+	      float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
+	      if (dphi > pi) dphi -= twopi;
+	      if (dphi < -pi) dphi += twopi; 
+	      if (fabs(dphi)<2.5)
+		{
+		  ConstRecHitPointer pxrh = validMeasurements[i].recHit();
+		  RecHitWithDist rh(pxrh,dphi);
+
+		  // pxrh = secondSecondHit.measurementsInNextLayers()[0].recHit();
+		  pxrh = secondSecondHit.measurementsInNextLayers()[shit].recHit();
+		
+		  pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
+		  result.push_back(compatiblePair);
+		  break;
+		}
+	    }	
+	}
       }
     }
   }
-
   return result;
-
 }
 
 

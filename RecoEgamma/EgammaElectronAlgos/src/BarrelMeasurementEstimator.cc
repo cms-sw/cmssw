@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.3 2007/02/05 17:53:52 uberthon Exp $
 //
 //
 
@@ -29,9 +29,24 @@
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							     const TransientTrackingRecHit& hit) const {
 
+
   float tsPhi = ts.globalParameters().position().phi();
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp); 
+  
+//  float myR = gp.perp();
+//  float myZ = gp.z();
+  
+  float myZmax =  theZRangeMax;
+  float myZmin =  theZRangeMin;
+
+/*
+  if(fabs(myZ)<30. && myR>8.)
+    {
+      myZmax = 0.09;
+      myZmin = -0.09;
+    }
+  */
 
   float rhPhi = gp.phi();
   
@@ -40,18 +55,18 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
 
-
+    
   if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
-       zDiff < theZRangeMax && zDiff > theZRangeMin) {
-
+       zDiff < myZmax && zDiff > myZmin) {
+  
     return std::pair<bool,double>(true,1.);
-  } else {
+     } else {
 
     //     cout<<" barrel rechit est returns false!!"<<endl;
     //     cout << " phiDiff,thePhiRangeMax,thePhiRangeMin  "<<phiDiff<<" "<<thePhiRangeMax<<" "<< thePhiRangeMin<<endl;
     //     cout << " zDiff, theZRangeMax, theZRangeMin "<<zDiff<<" "<<theZRangeMax<<" "<< theZRangeMin<<endl;
     return std::pair<bool,double>(false,0.);
-  }
+    }
 }
 
 bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 

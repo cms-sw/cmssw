@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.3 2007/02/05 17:53:52 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -25,60 +25,52 @@
 
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-							 const TransientTrackingRecHit& hit) const {
+							      const TransientTrackingRecHit& hit) const {
 
+  float tsR = ts.globalParameters().position().perp();
   float tsPhi = ts.globalParameters().position().phi();
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp);
   float rhPhi = gp.phi();
   float rhR = gp.perp();
 
-  float zLayer = ts.globalParameters().position().z();
-  float rLayer = ts.globalParameters().position().perp();
+  //  float myR = gp.perp();
+  float myZ = gp.z();
 
-  // compute the limits in r from the given limits in z
-  //estimate the vertex
-  float zVert = zLayer - rLayer/tan(ts.globalDirection().theta());
+  
+  float rMin = theZRangeMin;
+  float rMax = theZRangeMax;
+  float myPhimin = thePhiRangeMin;
+  float myPhimax = thePhiRangeMax;
 
-  //326.5 is the estimated shower center position 320.5+6cm see ECAL TDR p 81
-  float zCluster;
-  zLayer > 0 ? zCluster = 326.5 : zCluster = -326.5; 
-  zLayer = zLayer - zVert ;
-  zCluster = zCluster - zVert ;
-  float myScale = zLayer/zCluster;
-  float rCluster = rLayer/myScale;
-  float rMin; float rMax;
-  if (zLayer > 0) {
-    rMin = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
-    rMax = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
-  } else {
-    rMin = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
-    rMax = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
-  } 
+  
+//   if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+//     {
+//       rMin = -0.2;
+//       rMax = 0.2;
+//     }
 
-
+  if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+    {
+      rMin = rMin_;
+      rMax = rMax_;
+    }
 
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
+  
+  //  float rDiff = rMax -rMin;
 
-  float rDiff = rMax -rMin;
+  float rDiff = tsR - rhR;
 
-  // allow 2 x wider area
-  rMin = rMin - 0.5*rDiff;
-  rMax = rMax + 0.5*rDiff;
-
- 
-
-
-  if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
-       rhR < rMax && rhR > rMin) {
- 
-    return std::pair<bool,double>(true,1.);
-  } else {
+   
+  if ( phiDiff < myPhimax && phiDiff > myPhimin && 
+       rDiff < rMax && rDiff > rMin) {
+     return std::pair<bool,double>(true,1.);
+   } else {
     return std::pair<bool,double>(false,0.);
-  }
-  return std::pair<bool,double>(false,0.);
+    }
 }
 
 bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
@@ -101,8 +93,6 @@ bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   } else {
     return false;
   }
-
-
 }
 
 MeasurementEstimator::Local2DVector 

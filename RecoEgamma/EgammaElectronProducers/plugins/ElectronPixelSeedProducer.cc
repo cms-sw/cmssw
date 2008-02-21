@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.12 2007/12/17 16:58:41 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.13 2008/02/13 10:39:00 uberthon Exp $
 //
 //
 
@@ -46,20 +46,7 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   if (algo=="FilteredSeed") 
     matcher_= new SubSeedGenerator(pset);
-    //    matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
-  else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
-					    pset.getParameter<double>("ePhiMax1"),
-					    pset.getParameter<double>("pPhiMin1"),
-					    pset.getParameter<double>("pPhiMax1"),
-					    pset.getParameter<double>("pPhiMin2"),
-					    pset.getParameter<double>("pPhiMax2"),
-						 //					    pset.getParameter<double>("ZMin1"),
-						 //					    pset.getParameter<double>("ZMax1"),
-					    pset.getParameter<double>("ZMin2"),
-					    pset.getParameter<double>("ZMax2"),
-                                            pset.getParameter<bool>("dynamicPhiRoad"),
-						 pset.getParameter<double>("SCEtCut"));
-					      
+  else matcher_ = new ElectronPixelSeedGenerator(pset);
  
  //  get labels from config'
   label_[0]=iConfig.getParameter<std::string>("superClusterBarrelProducer");

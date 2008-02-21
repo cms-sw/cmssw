@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.4 2008/02/13 06:18:36 mangano Exp $
+// $Id: GsfElectronAlgo.cc,v 1.5 2008/02/18 10:25:38 charlot Exp $
 //
 //
 
@@ -286,7 +286,8 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
   double phiclu = clus.phi();
   double phitrk = sclPos_.phi();
   double dphi = phiclu-phitrk;
-  if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
+  if (fabs(dphi)>CLHEP::pi)
+    dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";

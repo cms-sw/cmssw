@@ -14,6 +14,7 @@
  ************************************************************/
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -22,6 +23,8 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 class PropagatorWithMaterial;
@@ -40,19 +43,7 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
-  ElectronPixelSeedGenerator(
-                          float iephimin1,
-			  float iephimax1,
-			  float ipphimin1,
-			  float ipphimax1,
-			  float iphimin2,
-			  float iphimax2,
-			  float izmin2,
-			  float izmax2,
-			  bool  idynamicphiroad,
-			  double SCEtCut
-			  ); 
-
+  ElectronPixelSeedGenerator(const edm::ParameterSet&);
   ~ElectronPixelSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
@@ -63,15 +54,21 @@ public:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection & out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
-  float ephimin1;
-  float ephimax1;
-  float pphimin1;
-  float pphimax1;
-  float pphimin2, pphimax2;
-  float zmin1, zmax1, zmin2, zmax2;
-  bool dynamicphiroad;
+  float fEtaBarrelBad(float scEta);
+  float fEtaEndcapBad(float scEta);
+  float fEtaBarrelGood(float scEta);
+  float fEtaEndcapGood(float scEta);
+  
+  bool dynamicphiroad_;
   double SCEtCut_;
-
+  float lowPtThreshold_;
+  float highPtThreshold_;
+  float sizeWindowENeg_;   
+  float phimin2_,phimax2_;
+  float deltaPhi1Low_, deltaPhi2Low_;
+  float deltaPhi1High_, deltaPhi2High_;
+  
+  double zmin1_, zmax1_;
   math::XYZPoint BSPosition_;  
 
   PixelHitMatcher *myMatchEle;
