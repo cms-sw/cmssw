@@ -15,7 +15,7 @@ class CSCDBGains{
   struct Item{
     short int gain_slope;
   };
-  int gain_factor;
+  int factor_gain;
 
   enum factors{FGAIN=1000};
 

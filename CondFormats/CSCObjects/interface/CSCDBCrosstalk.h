@@ -16,8 +16,8 @@ class CSCDBCrosstalk
     short int xtalk_slope_left;
     short int xtalk_intercept_left;
   };
-  int xtalk_slope_factor;
-  int xtalk_intercept_factor;
+  int factor_slope;
+  int factor_intercept;
 
   enum factors{FSLOPE=10000000, FINTERCEPT=100000};
 

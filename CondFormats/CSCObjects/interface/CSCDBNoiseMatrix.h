@@ -13,7 +13,7 @@ class CSCDBNoiseMatrix{
     short int elem33,elem34,elem35,elem44,elem45,elem46,
               elem55,elem56,elem57,elem66,elem67,elem77;
   };
-  int noise_factor;
+  int factor_noise;
 
   enum factors{FNOISE=1000};
 

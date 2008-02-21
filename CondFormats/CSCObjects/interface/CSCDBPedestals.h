@@ -13,8 +13,8 @@ class CSCDBPedestals{
     short int ped;
     short int rms;
   };
-  int ped_factor;
-  int rms_factor;
+  int factor_ped;
+  int factor_rms;
 
   enum factors{FPED=10, FRMS=1000};
 
