@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 /**
  * Caching refitted state of the trajectory after the vertex fit is
