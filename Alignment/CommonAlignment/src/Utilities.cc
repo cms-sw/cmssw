@@ -1,3 +1,4 @@
+#include "Alignment/CommonAlignment/interface/Hierarchy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -180,4 +181,37 @@ align::GlobalVector align::centerOfMass(const GlobalVectors& theVs)
 void align::rectify(RotationType& rot)
 {
   rot = toMatrix( toAngles(rot) );
+}
+
+unsigned int align::position(align::ID id,
+                             const std::string& structureName)
+{
+  const Hierarchy::NameCounters& nc = Hierarchy(id).nameCounters();
+
+  for (unsigned int i = 0; i < nc.size(); ++i)
+		if (nc[i].first == structureName) return nc[i].second(id);
+
+  return 0;
+}
+
+std::string align::treeName(align::ID id,
+      					            const std::string& structureName,
+           	                char delimiter)
+{
+  Hierarchy tree(id);
+
+  std::ostringstream os;
+
+  os << tree.subdetector() << delimiter;
+
+  const Hierarchy::NameCounters& nc = tree.nameCounters();
+
+  for (unsigned int i = nc.size() - 1; i >= 0; --i)
+  {
+    os << nc[i].first << nc[i].second(id) << delimiter;
+
+    if (nc[i].first == structureName) break;
+  }
+
+  return os.str();
 }
