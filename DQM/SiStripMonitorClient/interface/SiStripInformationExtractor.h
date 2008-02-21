@@ -3,6 +3,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 
 #include "xgi/Utils.h"
 #include "xgi/Method.h"
@@ -18,6 +20,7 @@
 #include <map>
 
 class SiStripLayoutParser;
+class SiStripDetCabling;
 
 class SiStripInformationExtractor {
 
@@ -45,6 +48,8 @@ class SiStripInformationExtractor {
   void readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out);
   void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   const std::ostringstream& getIMGCImage(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map);
+
+  void readQTestSummary(DaqMonitorBEInterface* bei, std::string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out);
 
 
  private:
@@ -79,7 +84,7 @@ class SiStripInformationExtractor {
   void fillNamedImageBuffer(std::string name);
   bool hasNamedImage(std::string name);
   void setCanvasDimension(std::multimap<std::string, std::string>& req_map);
-
+  
 
   std::ostringstream pictureBuffer_;
   std::map<std::string, std::string>       namedPictureBuffer_;

@@ -4,12 +4,16 @@
 #include "DQMServices/WebComponents/interface/WebInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 class SiStripActionExecutorQTest;
 class SiStripInformationExtractor;
+class SiStripDetCabling;
 
 class SiStripWebInterface 
 {
  public:
+
  
   enum SiStripActionType{NoAction=0, Summary=2, 
                          PlotSingleModuleHistos=5, PlotGlobalHistos=6,
@@ -20,9 +24,10 @@ class SiStripWebInterface
  ~SiStripWebInterface();
 
   
-  bool readConfiguration();
  
-  void handleAnalyserRequest(xgi::Input* in,xgi::Output* out, int niter);
+  //  void setCabling(const edm::ESHandle<SiStripDetCabling>& detcabling) { detCabling_ = detcabling;}
+
+  void handleAnalyserRequest(xgi::Input* in,xgi::Output* out, const edm::ESHandle<SiStripDetCabling>& detcabling, int niter);
 
 
   SiStripActionType getActionFlag() {return theActionFlag;}
@@ -43,6 +48,9 @@ class SiStripWebInterface
   std::multimap<std::string, std::string> requestMap_;
 
   DaqMonitorBEInterface* bei_;
+  //  edm::ESHandle< SiStripDetCabling > detCabling_;
+
+
  protected:
 
 

@@ -1,4 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
@@ -1001,6 +1002,84 @@ void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, 
   *out << "<Status>" << test_status.str() << "</Status>" << endl;      
   *out << "</StatusList>" << endl;
   *out << "</StatusAndPath>" << endl;
+}
+//
+// -- Read the text Summary of QTest result
+//
+void SiStripInformationExtractor::readQTestSummary(DaqMonitorBEInterface* bei, string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out) {
+  std::vector<uint32_t> SelectedDetIds;
+  detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+
+  int nDetsWithError = 0;
+  int nDetsWithWarning = 0;
+  int nTotalError = 0;
+  int nTotalWarning = 0;
+  int nDetsTotal = 0;
+  ostringstream qtest_summary, lite_summary;
+  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
+    uint32_t detId = *idetid;
+    if (detId == 0 || detId == 0xFFFFFFFF){
+      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
+					       << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
+      continue;
+    }
+    nDetsTotal++;
+    vector<MonitorElement*> detector_mes = bei->get(detId);
+    int error_me = 0;
+    int warning_me = 0;
+    for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
+	 it!= detector_mes.end(); it++) {
+      MonitorElement * me = (*it);     
+      if (!me) continue;
+      dqm::qtests::QR_map test_map = me->getQReports();
+      if (!me->hasError() && !me->hasWarning() ) continue;
+      if (test_map.size() == 0) continue;
+      if (me->hasError()) error_me++;
+      if (me->hasWarning()) warning_me++;
+      if (error_me == 1 || warning_me == 1) {
+	qtest_summary << " Module = " << me->getPathname() << endl;
+	qtest_summary << "====================================================================="<< endl; 
+      }
+      qtest_summary << me->getName() << endl; 
+      for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
+	   it++) {
+	int status =  it->second->getStatus();
+	string mess_str = it->second->getMessage();
+        
+	if (status == dqm::qstatus::STATUS_OK || status == dqm::qstatus::OTHER) continue;
+	if (status == dqm::qstatus::ERROR)        qtest_summary << " ERROR =>   ";
+        else if (status == dqm::qstatus::WARNING) qtest_summary << " WARNING => ";
+	qtest_summary << mess_str.substr(0, mess_str.find(")")+1) 
+                    << " Result  : "  << mess_str.substr(mess_str.find(")")+2) << endl;
+      } 
+    }
+    if (error_me > 0)   {
+      nDetsWithError++;
+      nTotalError += error_me;
+    }
+    if (warning_me > 0) {
+      nDetsWithWarning++;
+      nTotalWarning += warning_me;
+    }
+  }
+  lite_summary << " Total Detectors " << nDetsTotal << endl;
+  lite_summary << " # of Detectors with Warning " << nDetsWithWarning << endl;
+  lite_summary << " # of Detectors with Error " << nDetsWithError << endl;
+  lite_summary << endl;
+  lite_summary << endl;
+  lite_summary << " Total # MEs with Warning " << nTotalWarning << endl;
+  lite_summary << " Total # MEs with Error "   << nTotalError << endl;
+
+
+  cout <<  lite_summary.str() << endl;
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+  if (type == "Lite") *out << lite_summary.str();
+  else {
+   if (nDetsWithWarning == 0 && nDetsWithError ==0)  *out << lite_summary.str();
+   else  *out << qtest_summary.str();
+  }
+
+  bei->cd();
 }
 //
 // -- Define Zone from # of histograms

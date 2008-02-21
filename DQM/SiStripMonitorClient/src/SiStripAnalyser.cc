@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/12/19 21:14:44 $
- * $Revision: 1.23 $
+ * $Date: 2007/12/20 16:25:44 $
+ * $Revision: 1.24 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -27,7 +27,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include <SealBase/Callback.h>
@@ -86,7 +86,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface(bei_);
-  trackerMapCreator_ = 0;
+  actionExecutor_ = new SiStripActionExecutor();
   
 }
 //
@@ -111,11 +111,10 @@ SiStripAnalyser::~SiStripAnalyser(){
 void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
 
   // Read the summary configuration file
-  if (!sistripWebInterface_->readConfiguration()) {
+  if (!actionExecutor_->readConfiguration()) {
      edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
      summaryFrequency_ = -1;
   }
-
   nLumiSecs_ = 0;
   nEvents_   = 0;
 }
@@ -131,12 +130,13 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     m_cacheID_ = cacheID;       
     edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser::beginRun: " 
 				    << " Change in Cabling, recrated TrackerMap";     
-    if (trackerMapCreator_) delete trackerMapCreator_;
-    trackerMapCreator_ = new SiStripTrackerMapCreator();
-    if (!trackerMapCreator_->readConfiguration()) {
+    if (!actionExecutor_->readTkMapConfiguration()) {
       edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! TrackerMap will not be produced!!!";    
       tkMapFrequency_ = -1;
+
     }
+    eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
+    eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   }
 }
 //
@@ -160,8 +160,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   nLumiSecs_++;
 
-  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  //  sistripWebInterface_->setCabling(detCabling_);
  
   cout << "====================================================== " << endl;
   cout << " ===> Iteration # " << nLumiSecs_ << " " 
@@ -170,13 +169,12 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
     cout << " Creating Summary " << endl;
-    sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
-    sistripWebInterface_->performAction();
+    actionExecutor_->createSummary(bei_);
   }
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    trackerMapCreator_->create(tkMapPSet_, fedCabling_, bei_);
+    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, bei_);
   }
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
@@ -218,7 +216,7 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   }  else {
     // Handles all HTTP requests of the form
     int iter = nEvents_/100;
-    sistripWebInterface_->handleAnalyserRequest(in, out, iter);
+    sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
   }
 }
 //

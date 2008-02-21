@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMap.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -56,7 +56,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
            const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei) {
 
   if (meNames_.size() == 0) return;
-  if (!trackerMap_)     trackerMap_    = new SiStripTrackerMap(tkmapPset, fedcabling);
+  if (!trackerMap_)     trackerMap_    = new TrackerMap(tkmapPset, fedcabling);
 
   const vector<uint16_t>& feds = fedcabling->feds(); 
   uint32_t detId_save = 0;
@@ -90,7 +90,6 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   }
 
   trackerMap_->printonline();
-  trackerMap_->fedprintonline();
 }
 //
 // -- Draw Monitor Elements

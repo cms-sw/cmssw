@@ -1,8 +1,8 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 
 #include <SealBase/Callback.h>
@@ -14,33 +14,20 @@
 SiStripWebInterface::SiStripWebInterface(DaqMonitorBEInterface* bei) : bei_(bei) {
   
   theActionFlag = NoAction;
-  actionExecutor_ = 0;
   infoExtractor_  = 0;
-
-  if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutorQTest();
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
 }
 //
 // --  Destructor
 // 
 SiStripWebInterface::~SiStripWebInterface() {
-  if (actionExecutor_) delete actionExecutor_;
-  actionExecutor_ = 0;
   if (infoExtractor_) delete infoExtractor_;
   infoExtractor_ = 0; 
-}
-//
-// -- Read Configurations and access the frequency
-//
-bool SiStripWebInterface::readConfiguration(){
-  if (actionExecutor_)
-    return (actionExecutor_->readConfiguration());
-  else return false;
 }
 // 
 // -- Handles requests from WebElements submitting non-default requests 
 //
-void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out, int niter) {
+void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out, const edm::ESHandle<SiStripDetCabling>& detcabling, int niter) {
   // put the request information in a multimap...
   //  std::multimap<std::string, std::string> requestMap_;
   CgiReader reader(in);
@@ -57,10 +44,11 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     }
   }    
   else if (requestID == "CheckQTResults") {
-    out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+    std::vector<uint32_t> SelectedDetIds;
+    detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+    std::cout << "HHHHHHHHHHHHHH " << SelectedDetIds.size() << std::endl;
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
-    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite(bei_) << std::endl;
-    else *out <<  actionExecutor_->getQTestSummary(bei_) << std::endl;
+    infoExtractor_->readQTestSummary(bei_, infoType, detcabling, out);
     theActionFlag = NoAction;
   } 
   else if (requestID == "SingleModuleHistoList") {
@@ -160,7 +148,7 @@ void SiStripWebInterface::performAction() {
   switch (theActionFlag) {
   case SiStripWebInterface::Summary :
     {
-      actionExecutor_->createSummary(bei_);
+      //      actionExecutor_->createSummary(bei_);
       break;
     }
   case SiStripWebInterface::PlotSingleModuleHistos :

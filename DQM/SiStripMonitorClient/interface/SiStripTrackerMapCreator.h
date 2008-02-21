@@ -14,7 +14,7 @@
 
 class DaqMonitorBEInterface;
 
-class SiStripTrackerMap;
+class TrackerMap;
 class SiStripTrackerMapCreator {
 
  public:
@@ -35,7 +35,7 @@ class SiStripTrackerMapCreator {
 
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
 
-  SiStripTrackerMap* trackerMap_;
+  TrackerMap* trackerMap_;
   std::vector<std::string> meNames_;
   std::string tkMapName_;
   int tkMapFrequency_;

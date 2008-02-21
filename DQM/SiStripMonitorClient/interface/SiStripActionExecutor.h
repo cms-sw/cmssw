@@ -2,9 +2,10 @@
 #define _SiStripActionExecutor_h_
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <fstream>
 #include <map>
 #include <vector>
@@ -13,6 +14,7 @@
 class SiStripSummaryCreator;
 class DaqMonitorBEInterface;
 class MonitorUserInterface;
+class SiStripTrackerMapCreator;
 
 class SiStripActionExecutor {
 
@@ -21,20 +23,20 @@ class SiStripActionExecutor {
   SiStripActionExecutor();
   virtual ~SiStripActionExecutor();
 
- void setupQTests(DaqMonitorBEInterface* bei);
- void createTkMap(DaqMonitorBEInterface* bei);
- bool readConfiguration(int& sum_freq);
- bool readConfiguration();
- void saveMEs(DaqMonitorBEInterface * bei, std::string fname);
- int getTkMapMENames(std::vector<std::string>& names);
- void createSummary(DaqMonitorBEInterface* bei);
 
+ bool readConfiguration();
+ bool readConfiguration(int& sum_freq);
+ bool readTkMapConfiguration();
+
+ void saveMEs(DaqMonitorBEInterface * bei, std::string fname);
+ void createSummary(DaqMonitorBEInterface* bei);
+ void createTkMap(const edm::ParameterSet & tkmapPset, 
+		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei);
  private:
- //  SiStripConfigParser* configParser_;
+
   std::vector<std::string> tkMapMENames;
 
-  QTestHandle* qtHandler_;
-
   SiStripSummaryCreator* summaryCreator_;
+  SiStripTrackerMapCreator* tkMapCreator_;
 };
 #endif

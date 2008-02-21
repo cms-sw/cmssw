@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.14 2007/12/19 21:14:44 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.15 2008/01/22 19:17:13 muzaffar Exp $
 //
 //
 
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 

@@ -470,6 +470,7 @@ sub makeCtlDestroy
           . " fedtrackermap.html "
           . " css_files js_files images WebLib.js `;\n\n";
     $result = $result . "`rm -rf svgmap.xml svgmap_fed.xml Layer\*.xml \*.png`;\n\n";
+    $result = $result . "`rm -rf \*.html \*.xml \*.xhtml \*.js \*.css`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
