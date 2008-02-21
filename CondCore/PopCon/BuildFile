@@ -5,5 +5,8 @@
 <use name=CondCore/IOVService>
 
 <export>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/IOVService>
 <lib name=CondCorePopCon>
 </export>
