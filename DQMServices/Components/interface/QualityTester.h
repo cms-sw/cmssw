@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2007/09/06 15:40:01 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/09 07:25:14 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -26,8 +26,7 @@
 #include <iostream>
 #include <string>
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMStore;
 class QTestHandle;
 
 
@@ -56,8 +55,7 @@ private:
   bool getQualityTestsFromFile;
   std::string reportThreshold;
 
-  MonitorUserInterface * mui;
-  DaqMonitorBEInterface * bei;
+  DQMStore * bei;
 
   QTestHandle * qtHandler;
 

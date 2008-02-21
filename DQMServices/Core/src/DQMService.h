@@ -5,8 +5,7 @@
 # include "FWCore/ParameterSet/interface/ParameterSet.h"
 # include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMStore;
 class DQMNet;
 
 /** A bridge to udpate the DQM network layer at the end of every event.  */
@@ -20,8 +19,8 @@ private:
   void flush(const edm::Event &, const edm::EventSetup &);
   void shutdown(void);
 
-  DaqMonitorBEInterface	*bei_;
-  DQMNet *net_;
+  DQMStore	*store_;
+  DQMNet	*net_;
 };
 
 #endif // DQMSERVICES_CORE_DQM_SERVICE_H

@@ -1,2 +1,3 @@
 #include "DQMServices/Core/interface/DQMStore.h"
-typedef DQMStore DaqMonitorBEInterface;
+typedef DQMStore DaqMonitorROOTBackEnd;
+

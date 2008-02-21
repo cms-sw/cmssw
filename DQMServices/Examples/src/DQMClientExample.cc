@@ -4,9 +4,9 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2007/11/21 20:43:55 $
- * $Revision: 1.7 $
- * $Author: ameyer $
+ * $Date: 2008/01/22 18:48:37 $
+ * $Revision: 1.8 $
+ * $Author: muzaffar $
  *
  */
 
@@ -106,19 +106,14 @@ void DQMClientExample::analyze(const Event& e, const EventSetup& context){
 
   MonitorElement * meHisto = dbe_->get(histoName);
 
-  if (meHisto) {
-    
-    MonitorElementT<TNamed>* tNamedHisto = dynamic_cast<MonitorElementT<TNamed>*>(meHisto);
-    if(tNamedHisto) {
-
-      TH1F * rootHisto = dynamic_cast<TH1F *> (tNamedHisto->operator->());
-      if(rootHisto) {
-
-	TF1 *f1 = new TF1("f1","gaus",1,3);
-	rootHisto->Fit("f1");
-	mean = f1->GetParameter(1);
-	rms = f1->GetParameter(2);
-      }
+  if (meHisto)
+  {
+    if (TH1F *rootHisto = meHisto->getTH1F())
+    {
+      TF1 *f1 = new TF1("f1","gaus",1,3);
+      rootHisto->Fit("f1");
+      mean = f1->GetParameter(1);
+      rms = f1->GetParameter(2);
     }
   }
 

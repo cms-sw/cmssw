@@ -1,9 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/12/04 23:16:16 $
- * $Revision: 1.6 $
- * $Author: ameyer $
+ * $Date: 2008/01/22 18:52:30 $
+ * $Revision: 1.7 $
+ * $Author: muzaffar $
  * \author A. Meyer, DESY
  *
  */
@@ -38,7 +38,7 @@ counterEvt_(0), counterLS_(0)
 void DQMFileSaver::initialize(){  
   
   // get back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
     
   // set parameters   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/08 06:40:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/11 23:22:56 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,7 +26,7 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   
   // get dqm info
   dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   if (dbe) {
     if (verbosity) {
       dbe->setVerbose(1);
@@ -380,16 +380,16 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
     } // end TProfile2D creation
 
     if (classtypes[ii] == "Float") {
-      edm::Handle<MEtoEDM<float> > metoedm;
+      edm::Handle<MEtoEDM<double> > metoedm;
       iRun.getByType(metoedm);
       
       if (!metoedm.isValid()) {
 	//edm::LogWarning(MsgLoggerCat)
-	//  << "MEtoEDM<float> doesn't exist in run";
+	//  << "MEtoEDM<double> doesn't exist in run";
 	continue;
       }
       
-      std::vector<MEtoEDM<float>::MEtoEDMObject> metoedmobject = 
+      std::vector<MEtoEDM<double>::MEtoEDMObject> metoedmobject = 
 	metoedm->getMEtoEdmObject(); 
       
       me6.resize(metoedmobject.size());

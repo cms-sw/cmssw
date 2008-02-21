@@ -1,7 +1,7 @@
 #include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
 #include "DQMServices/XdaqCollector/interface/Updater.h"
 #include "DQMServices/XdaqCollector/interface/Updater.h"
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -69,7 +69,7 @@ void DQMBaseClient::configureAction(toolbox::Event::Reference e)
   cout << "configureAction called " << endl;
   if(!mui_)
     {
-      mui_ = new MonitorUIRoot(server_, port_, name_, reconnect_delay_secs_, actAsServer_);
+      mui_ = new DQMOldReceiver(server_, port_, name_, reconnect_delay_secs_, actAsServer_);
     }
 #if 0 // FIXME (LAT): Removed as a feature no longer available.
   for(unsigned int i = 0; i < subs_.size(); i++)

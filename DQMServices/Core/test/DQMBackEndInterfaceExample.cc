@@ -29,7 +29,8 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -67,7 +68,7 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   // test back-end interface functionality
   void integrityChecks();
 };
@@ -88,7 +89,7 @@ DQMBackEndInterfaceExample::DQMBackEndInterfaceExample(const edm::ParameterSet&
   : counter(0)
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   const float XMIN = 0; const float XMAX = 50;
   h0 = dbe->book1D("histo0", "Example 1D histogram.", NBINS, XMIN, XMAX );
@@ -155,7 +156,7 @@ void DQMBackEndInterfaceExample::integrityChecks()
 
   // contents of top (root) folder
   contents.push_back(h0);
-  dbe_ret = dbe->getContents("."); // this is the top folder
+  dbe_ret = dbe->getContents(""); // this is the top folder
   assert(dbe_ret == contents);
   // contents of B1/B2
   contents.clear();

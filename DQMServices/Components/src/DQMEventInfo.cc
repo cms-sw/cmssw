@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/01/16 22:21:05 $
- * $Revision: 1.13 $
- * $Author: ameyer $
+ * $Date: 2008/01/22 18:52:30 $
+ * $Revision: 1.14 $
+ * $Author: muzaffar $
  *
  */
 
@@ -29,7 +29,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   gettimeofday(&currentTime_,NULL);
   lastAvgTime_ = currentTime_;
   
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   string eventinfofolder = parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo") ;
   string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;

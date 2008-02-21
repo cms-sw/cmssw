@@ -72,20 +72,20 @@ private:
   // back-end interface
   DaqMonitorBEInterface * dbe;
   // quality tests
-  MEComp2RefChi2ROOT * chi2_test; // chi2 test
-  MEComp2RefKolmogorovROOT * ks_test; // Kolmogorov test
-  MEContentsXRangeROOT * xrange_test; // contents within x-range test
-  MEContentsYRangeROOT * yrange_test;  // contents within y-range test
-  MEDeadChannelROOT * deadChan_test;  // check against dead channels
-  MENoisyChannelROOT * noisyChan_test;  // check against noisy channels
-  MEComp2RefEqualH1ROOT * equalH1_test; // equality test for histograms
-  MEComp2RefEqualIntROOT * equalInt_test; // equality test for integers
-  MEMeanWithinExpectedROOT * meanNear_test; // mean-within-expected test
-  MEMostProbableLandauROOT *poMPLandau_test_;
+  Comp2RefChi2 * chi2_test; // chi2 test
+  Comp2RefKolmogorov * ks_test; // Kolmogorov test
+  ContentsXRange * xrange_test; // contents within x-range test
+  ContentsYRange * yrange_test;  // contents within y-range test
+  DeadChannel * deadChan_test;  // check against dead channels
+  NoisyChannel * noisyChan_test;  // check against noisy channels
+  Comp2RefEqualH1 * equalH1_test; // equality test for histograms
+  Comp2RefEqualInt * equalInt_test; // equality test for integers
+  MeanWithinExpected * meanNear_test; // mean-within-expected test
+  MostProbableLandau *poMPLandau_test_;
   // contents within z-range tests
-  MEContentsTH2FWithinRangeROOT * zrangeh2f_test; 
-  MEContentsProfWithinRangeROOT * zrangeprof_test; 
-  MEContentsProf2DWithinRangeROOT * zrangeprof2d_test;
+  ContentsTH2FWithinRange * zrangeh2f_test; 
+  ContentsProfWithinRange * zrangeprof_test; 
+  ContentsProf2DWithinRange * zrangeprof2d_test;
 
   // use <ref> as the reference for the quality tests
   void setReference(MonitorElement * ref);
@@ -142,19 +142,19 @@ DQMBackEndInterfaceQTestsExample::DQMBackEndInterfaceQTestsExample(const edm::Pa
     href->Fill(gRandom->Gaus(mean_, sigma_));
   
   // instantiate the quality tests
-  chi2_test = new MEComp2RefChi2ROOT("my_chi2");
-  ks_test = new MEComp2RefKolmogorovROOT("my_kolm");
-  xrange_test = new MEContentsXRangeROOT("my_xrange");
-  yrange_test = new MEContentsYRangeROOT("my_yrange");
-  deadChan_test = new MEDeadChannelROOT("deadChan");
-  noisyChan_test = new MENoisyChannelROOT("noisyChan");
-  equalH1_test = new MEComp2RefEqualH1ROOT("my_histo_equal");
-  equalInt_test = new MEComp2RefEqualIntROOT("my_int_equal");
-  meanNear_test = new MEMeanWithinExpectedROOT("meanNear");
-  zrangeh2f_test = new MEContentsTH2FWithinRangeROOT("zrangeh2f");
-  zrangeprof_test = new MEContentsProfWithinRangeROOT("zrangeprof");
-  zrangeprof2d_test = new MEContentsProf2DWithinRangeROOT("zrangeprof2d");
-  poMPLandau_test_ = new MEMostProbableLandauROOT( "mplandau");
+  chi2_test = new Comp2RefChi2("my_chi2");
+  ks_test = new Comp2RefKolmogorov("my_kolm");
+  xrange_test = new ContentsXRange("my_xrange");
+  yrange_test = new ContentsYRange("my_yrange");
+  deadChan_test = new DeadChannel("deadChan");
+  noisyChan_test = new NoisyChannel("noisyChan");
+  equalH1_test = new Comp2RefEqualH1("my_histo_equal");
+  equalInt_test = new Comp2RefEqualInt("my_int_equal");
+  meanNear_test = new MeanWithinExpected("meanNear");
+  zrangeh2f_test = new ContentsTH2FWithinRange("zrangeh2f");
+  zrangeprof_test = new ContentsProfWithinRange("zrangeprof");
+  zrangeprof2d_test = new ContentsProf2DWithinRange("zrangeprof2d");
+  poMPLandau_test_ = new MostProbableLandau( "mplandau");
   
   // set reference for chi2, ks tests
   setReference(href);
@@ -318,66 +318,51 @@ void DQMBackEndInterfaceQTestsExample::runTests(int expected_status,
   cout << " ========================================================== " << endl;
   cout << " Results of attempt to run " << test_type << endl;
   
-  QCriterionRoot<TH1F> * qcr = (QCriterionRoot<TH1F> *) chi2_test;
-  qcr->runTest(h1);
+  chi2_test->runTest(h1);
   checkTest(chi2_test);
 
-  qcr = (QCriterionRoot<TH1F> *) ks_test;
-  qcr->runTest(h1);
+  ks_test->runTest(h1);
   checkTest(ks_test);
 
-  qcr = (QCriterionRoot<TH1F> *) xrange_test;
-  qcr->runTest(h1);
+  xrange_test->runTest(h1);
   checkTest(xrange_test);
 
-  qcr = (QCriterionRoot<TH1F> *) yrange_test;
-  qcr->runTest(h1);
+  yrange_test->runTest(h1);
   checkTest(yrange_test);
-  showBadChannels(qcr);
+  showBadChannels(yrange_test);
 
-  qcr = (QCriterionRoot<TH1F> *) deadChan_test;
-  qcr->runTest(h1);
+  deadChan_test->runTest(h1);
   checkTest(deadChan_test);
-  showBadChannels(qcr);
+  showBadChannels(deadChan_test);
 
-  qcr = (QCriterionRoot<TH1F> *) noisyChan_test;
-  qcr->runTest(h1);
+  noisyChan_test->runTest(h1);
   checkTest(noisyChan_test);
-  showBadChannels(qcr);
+  showBadChannels(noisyChan_test);
 
-  qcr = (QCriterionRoot<TH1F> *) meanNear_test;
-  qcr->runTest(h1);
+  meanNear_test->runTest(h1);
   checkTest(meanNear_test);
 
-  qcr = (QCriterionRoot<TH1F> *) poMPLandau_test_;
-  qcr->runTest( poMPLandauH1_);
+  poMPLandau_test_->runTest( poMPLandauH1_);
   checkTest( poMPLandau_test_);
 
-  qcr = (QCriterionRoot<TH1F> *) equalH1_test;
-  qcr->runTest(h1);
+  equalH1_test->runTest(h1);
   checkTest(equalH1_test);
-  showBadChannels(qcr);
+  showBadChannels(equalH1_test);
 
-  QCriterionRoot<int> * qcr_int = (QCriterionRoot<int> *) equalInt_test;
-  qcr_int->runTest(int1);
+  equalInt_test->runTest(int1);
   checkTest(equalInt_test);
 
-  QCriterionRoot<TH2F> * qcr2 = (QCriterionRoot<TH2F> *) zrangeh2f_test;
-  qcr2->runTest(testh2f);
+  zrangeh2f_test->runTest(testh2f);
   checkTest(zrangeh2f_test);
-  showBadChannels(qcr2);
+  showBadChannels(zrangeh2f_test);
 
-  QCriterionRoot<TProfile> * qcr_p 
-    = (QCriterionRoot<TProfile> *) zrangeprof_test;
-  qcr_p->runTest(testprof);
+  zrangeprof_test->runTest(testprof);
   checkTest(zrangeprof_test);
-  showBadChannels(qcr_p);
+  showBadChannels(zrangeprof_test);
 
-  QCriterionRoot<TProfile2D> * qcr_p2 
-    = (QCriterionRoot<TProfile2D> *) zrangeprof2d_test;
-  qcr_p2->runTest(testprof2d);
+  zrangeprof2d_test->runTest(testprof2d);
   checkTest(zrangeprof2d_test);
-  showBadChannels(qcr_p2);
+  showBadChannels(zrangeprof2d_test);
 
   int status = 0;
   status = chi2_test->getStatus();
@@ -446,7 +431,7 @@ int DQMBackEndInterfaceQTestsExample::checkTest(QCriterion *qc)
   
   int status = qc->getStatus();
   cout << " Test name: " << qc->getName() << " (Algorithm: " 
-	    << qc->getAlgoName() << "), Result:"; 
+	    << qc->algoName() << "), Result:"; 
   
   switch(status)
     {
@@ -510,7 +495,7 @@ void DQMBackEndInterfaceQTestsExample::showBadChannels(QCriterion *qc)
 {
   vector<dqm::me_util::Channel> badChannels = qc->getBadChannels();
   if(!badChannels.empty())
-    cout << " Channels that failed test " << qc->getAlgoName() << ":\n";
+    cout << " Channels that failed test " << qc->algoName() << ":\n";
   
   vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
   while(it != badChannels.end())
@@ -524,7 +509,6 @@ void DQMBackEndInterfaceQTestsExample::showBadChannels(QCriterion *qc)
 
       ++it;
     }
-    
 }
 
 

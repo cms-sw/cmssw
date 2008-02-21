@@ -16,7 +16,7 @@
 # include <map>
 
 class TObject;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class DQMNet
 {
@@ -48,13 +48,15 @@ public:
 
   typedef std::vector<unsigned char>    DataBlob;
   typedef std::vector<uint32_t>         TagList;
-  typedef std::map<std::string, QValue>	QReports;
+  typedef std::vector<QValue>		QReports;
   typedef std::list<WaitObject>		WaitList;
 
   struct QValue
   {
     int			code;
     std::string		message;
+    std::string		qtname;
+    std::string		algorithm;
   };
 
   struct CoreObject
@@ -133,7 +135,7 @@ public:
   void			start(void);
   void			run(void);
 
-  virtual int		receive(DaqMonitorBEInterface *bei);
+  virtual int		receive(DQMStore *store);
   virtual void		updateLocalObject(Object &o);
   virtual void		removeLocalObject(const std::string &name);
   void			sendLocalChanges(void);
@@ -149,7 +151,7 @@ protected:
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
   bool			reconstructObject(Object &o);
-  bool			reinstateObject(DaqMonitorBEInterface *bei, Object &o);
+  bool			reinstateObject(DQMStore *store, Object &o);
   virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markAllObjectsDead(Peer *p) = 0;
@@ -477,7 +479,7 @@ class DQMBasicNet : public DQMImplNet<DQMNet::Object>
 public:
   DQMBasicNet(const std::string &appname = "");
 
-  virtual int		receive(DaqMonitorBEInterface *bei);
+  virtual int		receive(DQMStore *store);
 
 protected:
   virtual void		updateLocalObject(Object &o);

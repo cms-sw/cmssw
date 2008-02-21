@@ -50,62 +50,62 @@ class DQMQualityTest
     my_int = new int();
 
     // Chi2-based test
-    chi2_test_ = new MEComp2RefChi2ROOT("my_chi2");
+    chi2_test_ = new Comp2RefChi2("my_chi2");
     // Kolmogorov-based test
-    ks_test_ = new MEComp2RefKolmogorovROOT("my_kolm");
+    ks_test_ = new Comp2RefKolmogorov("my_kolm");
     // contents within x-range test
-    xrange_test_ = new MEContentsXRangeROOT("my_xrange");
+    xrange_test_ = new ContentsXRange("my_xrange");
     // set allowed range to [10, 90]% of nominal
     xrange_test_->setAllowedXRange(0.1*xmin_, 0.9*xmax_);
      // contents within y-range test
-    yrange_test_ = new MEContentsYRangeROOT("my_yrange");
+    yrange_test_ = new ContentsYRange("my_yrange");
     // set allowed range to [0, 40] entries
     yrange_test_->setAllowedYRange(0, 40);
    // check for dead channels
-    deadChan_test_ = new MEDeadChannelROOT("deadChan");
+    deadChan_test_ = new DeadChannel("deadChan");
     // set threshold for dead channel (default: 0)
     deadChan_test_->setThreshold(0);
    // check for noisy channels
-    noisyChan_test_ = new MENoisyChannelROOT("noisyChan");
+    noisyChan_test_ = new NoisyChannel("noisyChan");
     // set tolerance for noisy channel
     noisyChan_test_->setTolerance(0.30);
     // set # of neighboring channels for calculating average (default: 1)
     noisyChan_test_->setNumNeighbors(2);
 
     // Mean-within-expected-value test
-    meanNear_test_ = new MEMeanWithinExpectedROOT("meanNear");
+    meanNear_test_ = new MeanWithinExpected("meanNear");
     // set expected mean value
     meanNear_test_->setExpectedMean(mean);
     // use RMS of distribution to judge if mean near expected value
     meanNear_test_->useRMS();
     //
-    emu_test_ = new MEAllContentWithinFixedRangeROOT("Ricks_test");
+    emu_test_ = new AllContentWithinFixedRange("Ricks_test");
 
     // contents within z-range test
-    zrangeh2f_test_ = new MEContentsTH2FWithinRangeROOT("zrangeh2f");
+    zrangeh2f_test_ = new ContentsTH2FWithinRange("zrangeh2f");
     zrangeh2f_test_->setMeanRange(0., 3.);
     zrangeh2f_test_->setRMSRange(0., 2.);
     zrangeh2f_test_->setMeanTolerance(2.);
-    zrangeprof_test_ = new MEContentsProfWithinRangeROOT("zrangeprof");
+    zrangeprof_test_ = new ContentsProfWithinRange("zrangeprof");
     zrangeprof_test_->setMeanRange(0., 1.);
     zrangeprof_test_->setRMSRange(0., 1.);
     zrangeprof_test_->setMeanTolerance(2.);
-    zrangeprof2d_test_ = new MEContentsProf2DWithinRangeROOT("zrangeprof2d");
+    zrangeprof2d_test_ = new ContentsProf2DWithinRange("zrangeprof2d");
     zrangeprof2d_test_->setMeanRange(0., 3.);
     zrangeprof2d_test_->setRMSRange(0., 1.);
     zrangeprof2d_test_->setMeanTolerance(2.);
 
     // MostProbableLandau
-    poMPLandau_test_ = new MEMostProbableLandauROOT( "mplandau");
+    poMPLandau_test_ = new MostProbableLandau( "mplandau");
     poMPLandau_test_->setXMin( xmin_);
     poMPLandau_test_->setXMax( xmax_);
     poMPLandau_test_->setMostProbable( dLandauMP_);
     poMPLandau_test_->setSigma( dLandauSigma_);
 
     // equality test for histograms
-    equalH1_test_ = new MEComp2RefEqualH1ROOT("my_histo_equal");
+    equalH1_test_ = new Comp2RefEqualH1("my_histo_equal");
     // equality test for integers
-    equalInt_test_ = new MEComp2RefEqualIntROOT("my_int_equal");
+    equalInt_test_ = new Comp2RefEqualInt("my_int_equal");
     // init
     setReference();
   }
@@ -298,39 +298,35 @@ class DQMQualityTest
   TProfile* my_testprof;
   TProfile2D* my_testprof2d;
 
-  MEComp2RefChi2ROOT * chi2_test_; // chi2 test
-  MEComp2RefKolmogorovROOT * ks_test_; // Kolmogorov test
-  MEContentsXRangeROOT * xrange_test_; // contents within x-range test
-  MEContentsYRangeROOT * yrange_test_;  // contents within y-range test
-  MEDeadChannelROOT * deadChan_test_;  // check for dead channels
-  MENoisyChannelROOT * noisyChan_test_;  // check for noisy channels
-  MEComp2RefEqualH1ROOT * equalH1_test_; // equality test for histograms
-  MEComp2RefEqualIntROOT * equalInt_test_; // equality test for integers
-  MEMeanWithinExpectedROOT * meanNear_test_; // mean-within-expected test
-  MEAllContentWithinFixedRangeROOT *emu_test_; //EMU Test Function
+  Comp2RefChi2 * chi2_test_; // chi2 test
+  Comp2RefKolmogorov * ks_test_; // Kolmogorov test
+  ContentsXRange * xrange_test_; // contents within x-range test
+  ContentsYRange * yrange_test_;  // contents within y-range test
+  DeadChannel * deadChan_test_;  // check for dead channels
+  NoisyChannel * noisyChan_test_;  // check for noisy channels
+  Comp2RefEqualH1 * equalH1_test_; // equality test for histograms
+  Comp2RefEqualInt * equalInt_test_; // equality test for integers
+  MeanWithinExpected * meanNear_test_; // mean-within-expected test
+  AllContentWithinFixedRange *emu_test_; //EMU Test Function
 
   // contents within z-range tests
-  MEContentsTH2FWithinRangeROOT * zrangeh2f_test_; 
-  MEContentsProfWithinRangeROOT * zrangeprof_test_; 
-  MEContentsProf2DWithinRangeROOT * zrangeprof2d_test_;
+  ContentsTH2FWithinRange * zrangeh2f_test_; 
+  ContentsProfWithinRange * zrangeprof_test_; 
+  ContentsProf2DWithinRange * zrangeprof2d_test_;
 
   // MostProbables
-  MEMostProbableLandauROOT *poMPLandau_test_;
+  MostProbableLandau *poMPLandau_test_;
 
   // 
   void setReference()
   {
-    Comp2RefChi2ROOT * x = (Comp2RefChi2ROOT *) chi2_test_;
-    if(x)x->setReference(my_ref);
-    Comp2RefKolmogorovROOT * y = (Comp2RefKolmogorovROOT *) ks_test_;
-    if(y)y->setReference(my_ref);
-    Comp2RefEqualH1ROOT * z = (Comp2RefEqualH1ROOT *) equalH1_test_;
-    if(z)z->setReference(my_ref);
+    if(chi2_test_)chi2_test_->setReference(my_ref);
+    if(ks_test_)ks_test_->setReference(my_ref);
+    if(equalH1_test_)equalH1_test_->setReference(my_ref);
 
     // set reference equal to test integer
     *my_int_ref = sample_int_value;
-    Comp2RefEqual<int> * w = (Comp2RefEqual<int> *) equalInt_test_;
-    if(w)w->setReference(my_int_ref);
+    if(equalInt_test_)equalInt_test_->setReference(my_int_ref);
   }
 
   // show channels that failed test
@@ -338,7 +334,7 @@ class DQMQualityTest
   {
     std::vector<dqm::me_util::Channel> badChannels = qc->getBadChannels();
     if(!badChannels.empty())
-      std::cout << " Channels that failed test " << qc->getAlgoName() 
+      std::cout << " Channels that failed test " << qc->algoName() 
 		<< ":\n";
     
     std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin();

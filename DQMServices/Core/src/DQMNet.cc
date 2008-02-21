@@ -1,5 +1,6 @@
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "classlib/sysapi/InetSocket.h" // for completing InetAddress
 #include "classlib/iobase/Filename.h"
@@ -272,12 +273,13 @@ DQMNet::reconstructObject(Object &o)
       return abortReconstructObject(o);
     }
 
-    QReports::value_type qval(qrname, QValue());
-    qval.second.code = 0;
-    qval.second.message = m.matchString(value, 2);
+    QValue qval;
+    qval.code = 0;
+    qval.qtname = qrname;
+    qval.message = m.matchString(value, 2);
     std::string strcode = m.matchString(value, 1);
     const char *p = strcode.c_str();
-    if (! parseInt(p, "", 0, qval.second.code) || *p)
+    if (! parseInt(p, "", 0, qval.code) || *p)
     {
       logme()
 	<< "ERROR: failed to determine quality test code from '"
@@ -285,14 +287,14 @@ DQMNet::reconstructObject(Object &o)
       return abortReconstructObject(o);
     }
 
-    o.qreports.insert (qval);
+    o.qreports.push_back(qval);
   }
 
   return true;
 }
 
 bool
-DQMNet::reinstateObject(DaqMonitorBEInterface *bei, Object &o)
+DQMNet::reinstateObject(DQMStore *store, Object &o)
 {
   if (! reconstructObject (o))
     return false;
@@ -302,17 +304,17 @@ DQMNet::reinstateObject(DaqMonitorBEInterface *bei, Object &o)
   std::string name = o.name;
   folder.erase(folder.rfind('/'), std::string::npos);
   name.erase(0, name.rfind('/')+1);
-  bei->setCurrentFolder(folder);
+  store->setCurrentFolder(folder);
   if (TProfile2D *t = dynamic_cast<TProfile2D *>(o.object))
-    bei->cloneProfile2D(name, t);
+    store->cloneProfile2D(name, t);
   else if (TProfile *t = dynamic_cast<TProfile *>(o.object))
-    bei->cloneProfile(name, t);
+    store->cloneProfile(name, t);
   else if (TH3F *t = dynamic_cast<TH3F *>(o.object))
-    bei->clone3D(name, t);
+    store->clone3D(name, t);
   else if (TH2F *t = dynamic_cast<TH2F *>(o.object))
-    bei->clone2D(name, t);
+    store->clone2D(name, t);
   else if (TH1F *t = dynamic_cast<TH1F *>(o.object))
-    bei->clone1D(name, t);
+    store->clone1D(name, t);
   else if (TObjString *t = dynamic_cast<TObjString *>(o.object))
   {
     RegexpMatch m;
@@ -330,11 +332,11 @@ DQMNet::reinstateObject(DaqMonitorBEInterface *bei, Object &o)
     std::string value = m.matchString(t->GetName(), 3);
 
     if (type == "i")
-      bei->bookInt(name)->Fill(atoi(value.c_str()));
+      store->bookInt(name)->Fill(atoi(value.c_str()));
     else if (type == "f")
-      bei->bookFloat(name)->Fill(atof(value.c_str()));
+      store->bookFloat(name)->Fill(atof(value.c_str()));
     else if (type == "s")
-      bei->bookString(name, value);
+      store->bookString(name, value);
     else
     {
       logme()
@@ -347,7 +349,7 @@ DQMNet::reinstateObject(DaqMonitorBEInterface *bei, Object &o)
 
   // Reconstruct tags.  (FIXME: untag old tags first?)
   for (size_t i = 0, e = o.tags.size(); i < e; ++i)
-    bei->tag(o.name, o.tags[i]);
+    store->tag(o.name, o.tags[i]);
 
   // FIXME: Reference and quality reports?
 
@@ -1351,7 +1353,7 @@ DQMNet::run(void)
 }
 
 int
-DQMNet::receive(DaqMonitorBEInterface *)
+DQMNet::receive(DQMStore *)
 {
   logme() << "ERROR: receive() method is not supported.\n";
   return 0;
@@ -1388,7 +1390,7 @@ DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */)
 }
 
 int
-DQMBasicNet::receive(DaqMonitorBEInterface *bei)
+DQMBasicNet::receive(DQMStore *store)
 {
   int updates = 0;
 
@@ -1412,11 +1414,11 @@ DQMBasicNet::receive(DaqMonitorBEInterface *bei)
 	std::string name = o.name;
 	folder.erase(folder.rfind('/'), std::string::npos);
 	name.erase(0, name.rfind('/')+1);
-	bei->setCurrentFolder(folder);
-	bei->removeElement(name);
+	store->setCurrentFolder(folder);
+	store->removeElement(name);
 	p.objs.erase(oi++);
       }
-      else if ((o.flags & DQM_FLAG_RECEIVED) && reinstateObject(bei, o))
+      else if ((o.flags & DQM_FLAG_RECEIVED) && reinstateObject(store, o))
       {
 	o.flags &= ~DQM_FLAG_RECEIVED;
 	++oi;

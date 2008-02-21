@@ -15,8 +15,7 @@ namespace dqm{
   class Updater;
 }
 
-class MonitorUserInterface;
-
+class DQMOldReceiver;
 class DQMBaseClient : public dqm::StateMachine
 {
 
@@ -48,7 +47,7 @@ public:
 
 protected:
 
-  MonitorUserInterface *mui_; 
+  DQMOldReceiver *mui_; 
   dqm::Updater *upd_;
 
 private:

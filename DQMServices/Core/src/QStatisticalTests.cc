@@ -1,4 +1,4 @@
-#include "DQMServices/Core/interface/QStatisticalTests.h"
+#include "DQMServices/Core/src/QStatisticalTests.h"
 #include <TMath.h>
 
 using namespace TMath;

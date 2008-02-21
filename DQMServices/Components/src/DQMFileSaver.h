@@ -4,8 +4,8 @@
 /*
  * \file DQMFileSaver.h
  *
- * $Date: 2007/12/04 23:16:16 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/11 15:47:44 $
+ * $Revision: 1.4 $
  * \author A. Meyer, DESY
  *
 */
@@ -18,9 +18,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-//#include "DQMServices/Core/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <memory>
@@ -80,7 +78,7 @@ protected:
   
 private:
   // environment variables
-  DaqMonitorBEInterface* dbe_;  
+  DQMStore * dbe_;  
   ParameterSet parameters_;
 
   int irun_,ilumisec_,ievent_,itime_;

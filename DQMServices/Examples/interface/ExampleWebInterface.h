@@ -14,7 +14,7 @@ class ExampleWebInterface : public WebInterface
 
 public:
 
-  ExampleWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
+  ExampleWebInterface(std::string theContextURL, std::string theApplicationURL, DQMOldReceiver ** _mui_p);
 
   /**
     you need to implement this function if you have widgets that invoke custom-made

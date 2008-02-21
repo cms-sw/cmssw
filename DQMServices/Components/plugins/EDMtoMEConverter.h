@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/02/11 23:22:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/13 22:40:49 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -27,9 +27,8 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
@@ -74,7 +73,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   std::string outputfile;
   int frequency;
 
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information

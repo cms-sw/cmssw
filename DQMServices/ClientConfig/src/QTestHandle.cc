@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2007/12/17 18:32:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/11 15:47:42 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 
@@ -13,76 +13,77 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-QTestHandle::QTestHandle(){
-	qtParser     = new QTestConfigurationParser();
-	qtConfigurer = new QTestConfigure();
-	qtChecker    = new QTestStatusChecker();
-	
-	testsConfigured = false;
+QTestHandle::QTestHandle()
+{
+  qtParser     = new QTestConfigurationParser;
+  qtConfigurer = new QTestConfigure;
+  qtChecker    = new QTestStatusChecker;
+
+  testsConfigured = false;
 }
 
-QTestHandle::~QTestHandle(){
-	delete qtParser;     
-	delete qtConfigurer; 
-	delete qtChecker; 
-	   
+QTestHandle::~QTestHandle()
+{
+  delete qtParser;
+  delete qtConfigurer;
+  delete qtChecker;
 }
 
-bool QTestHandle::configureTests(std::string configFile, DaqMonitorBEInterface *
-bei){
-	
-	if(testsConfigured) {
-		qtParser->getNewDocument(configFile);
-	}else{	
-		qtParser->getDocument(configFile);
-		testsConfigured=true;
-	}
+bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei)
+{
+  if (testsConfigured)
+    qtParser->getNewDocument(configFile);
+  else
+  {
+    qtParser->getDocument(configFile);
+    testsConfigured=true;
+  }
 
-	if(! qtParser->parseQTestsConfiguration() ){
-	      std::map<std::string, std::map<std::string, std::string> > testsONList=qtParser->testsList();
-	      std::vector<std::string> testsOFFList=qtParser->testsOff();
-	      qtConfigurer->disableTests(testsOFFList,bei);
-	      if(qtConfigurer->enableTests(testsONList,bei)) return true;
-	
-	}else{
-	      return true;
-	}
-	
-	return false;
+  if (! qtParser->parseQTestsConfiguration())
+  {
+    std::map<std::string, std::map<std::string, std::string> > testsONList
+      = qtParser->testsList();
 
+    std::vector<std::string> testsOFFList
+      = qtParser->testsOff();
 
+    qtConfigurer->disableTests(testsOFFList,bei);
+    if (qtConfigurer->enableTests(testsONList,bei))
+      return true;
+  }
+  else
+    return true;
+
+  return false;
 }
 
-void QTestHandle::attachTests(DaqMonitorBEInterface * bei){
-		std::map<std::string, std::vector<std::string> > mapMeToTests= qtParser->meToTestsList();
+void QTestHandle::attachTests(DQMStore *bei)
+{
+  std::map<std::string, std::vector<std::string> > mapMeToTests
+    = qtParser->meToTestsList();
 
-	for(std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
-	          itr != mapMeToTests.end();++itr){   
-	    
-		std::string meName=itr->first;
-		std::vector<std::string> tests=itr->second;
-		for(std::vector<std::string>::iterator testsItr=tests.begin(); 
-			testsItr!=tests.end(); ++testsItr){
-			bei->useQTest(meName, *testsItr);
-		}	
-	}
-
-
+  for (std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
+       itr != mapMeToTests.end();
+       ++itr)
+  {
+    const std::string &meName = itr->first;
+    const std::vector<std::string> &tests = itr->second;
+    for (std::vector<std::string>::const_iterator testsItr = tests.begin();
+	 testsItr != tests.end(); ++testsItr)
+      bei->useQTest(meName, *testsItr);
+  }
 }
 
 std::pair<std::string,std::string>
-QTestHandle::checkGlobalQTStatus(DaqMonitorBEInterface * bei) const{
-
-	return qtChecker->checkGlobalStatus(bei);
-
+QTestHandle::checkGlobalQTStatus(DQMStore *bei) const
+{
+  return qtChecker->checkGlobalStatus(bei);
 }
 
-
 std::map< std::string, std::vector<std::string> >
-QTestHandle::checkDetailedQTStatus(DaqMonitorBEInterface * bei) const {
-
-		return qtChecker->checkDetailedStatus(bei);
-		
+QTestHandle::checkDetailedQTStatus(DQMStore *bei) const
+{
+  return qtChecker->checkDetailedStatus(bei);
 }

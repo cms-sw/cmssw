@@ -1,14 +1,15 @@
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMNet.h"
 #include <iostream>
 
 // Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
 // using <client_name>; if flag=true, will accept downstream connections
-MonitorUserInterface::MonitorUserInterface(const std::string &hostname, int port,
-					   const std::string &clientName,
-					   int unusedReconnectDelaySecs,
-					   bool unusedActAsServer)
-  : bei_ (DaqMonitorBEInterface::instance()),
+DQMOldReceiver::DQMOldReceiver(const std::string &hostname, int port,
+			       const std::string &clientName,
+			       int unusedReconnectDelaySecs,
+			       bool unusedActAsServer)
+  : store_ (DQMStore::instance()),
     net_ (new DQMBasicNet (clientName)),
     numUpdates_ (0)
 {
@@ -18,13 +19,13 @@ MonitorUserInterface::MonitorUserInterface(const std::string &hostname, int port
 /* Use the default constructor for running in standalone mode (ie. without
    sources or collectors); if flag=true, client will accept downstream connections
 */
-MonitorUserInterface::MonitorUserInterface(void)
-  : bei_ (DaqMonitorBEInterface::instance()),
+DQMOldReceiver::DQMOldReceiver(void)
+  : store_ (DQMStore::instance()),
     net_ (0),
     numUpdates_ (0)
 {}
 
-MonitorUserInterface::~MonitorUserInterface(void)
+DQMOldReceiver::~DQMOldReceiver(void)
 {
   delete net_;
 }
@@ -34,10 +35,10 @@ MonitorUserInterface::~MonitorUserInterface(void)
 // test results to clients downstream;
 // returns success flag
 bool
-MonitorUserInterface::update(void)
+DQMOldReceiver::update(void)
 {
   std::cout
-    << " In MonitorUserInterface::update:\n"
+    << " In DQMOldReceiver::update:\n"
     << " This method will be deprecated soon, please replace mui->update() by:\n"
     << "     bool ret = mui->doMonitoring();\n"
     << "     bei->runQTests();\n";
@@ -48,7 +49,7 @@ MonitorUserInterface::update(void)
 
   // Run quality tests (and determine updated contents);
   // Method is overloaded if client acts as server to other clients downstream
-  bei_->runQTests();
+  store_->runQTests();
 
   return ret;
 }
@@ -56,11 +57,10 @@ MonitorUserInterface::update(void)
 // retrieval of monitoring, sending of subscription requests/cancellations,
 // returns success flag
 bool
-MonitorUserInterface::doMonitoring(void)
+DQMOldReceiver::doMonitoring(void)
 {
-  // initialization needed at beginning of monitoring cycle
-  bei_->resetMonitorableDiff();
-  bei_->resetMonitoringDiff();
-  numUpdates_ += (net_ ? net_->receive(bei_) : 0);
+  store_->reset();
+  numUpdates_ += (net_ ? net_->receive(store_) : 0);
+  // FIXME: Invoke callbacks?
   return true;
 }

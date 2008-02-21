@@ -29,7 +29,7 @@ Implementation:
 
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/Core/interface/DQMDefinitions.h"
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/QCriterionRoot.h"
 
 #include <TRandom.h>
@@ -73,15 +73,15 @@ private:
   // Monitor UI
   MonitorUserInterface * mui;
   // quality tests
-  MEComp2RefChi2ROOT * chi2_test; // chi2 test
-  MEComp2RefKolmogorovROOT * ks_test; // Kolmogorov test
-  MEContentsXRangeROOT * xrange_test; // contents within x-range test
-  MEContentsYRangeROOT * yrange_test;  // contents within y-range test
-  MEDeadChannelROOT * deadChan_test;  // check against dead channels
-  MENoisyChannelROOT * noisyChan_test;  // check against noisy channels
-  MEComp2RefEqualH1ROOT * equalH1_test; // equality test for histograms
-  MEComp2RefEqualIntROOT * equalInt_test; // equality test for integers
-  MEMeanWithinExpectedROOT * meanNear_test; // mean-within-expected test
+  Comp2RefChi2 * chi2_test; // chi2 test
+  Comp2RefKolmogorov * ks_test; // Kolmogorov test
+  ContentsXRange * xrange_test; // contents within x-range test
+  ContentsYRange * yrange_test;  // contents within y-range test
+  DeadChannel * deadChan_test;  // check against dead channels
+  NoisyChannel * noisyChan_test;  // check against noisy channels
+  Comp2RefEqualH1 * equalH1_test; // equality test for histograms
+  Comp2RefEqualInt * equalInt_test; // equality test for integers
+  MeanWithinExpected * meanNear_test; // mean-within-expected test
   // names for all quality tests
   vector<string> testNames;
 
@@ -136,51 +136,51 @@ void DQMMonitorUIRootStandaloneExample::createQualityTests(void)
   testNames.push_back("my_int_equal");
   testNames.push_back("meanNear");
 
-  dqm::me_util::cvIt it = testNames.begin();
+  vector<string>::const_iterator it = testNames.begin();
 
   // create the quality tests
-  chi2_test = dynamic_cast<MEComp2RefChi2ROOT *> 
-    (dbe->createQTest(Comp2RefChi2ROOT::getAlgoName(), *it) );
+  chi2_test = dynamic_cast<Comp2RefChi2 *> 
+    (dbe->createQTest(Comp2RefChi2::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
  ++it;
- ks_test = dynamic_cast<MEComp2RefKolmogorovROOT *>
-    (dbe->createQTest(Comp2RefKolmogorovROOT::getAlgoName(), *it) );
+ ks_test = dynamic_cast<Comp2RefKolmogorov *>
+    (dbe->createQTest(Comp2RefKolmogorov::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
  ++it;
-  xrange_test = dynamic_cast<MEContentsXRangeROOT *>
-    (dbe->createQTest(ContentsXRangeROOT::getAlgoName(), *it) );
+  xrange_test = dynamic_cast<ContentsXRange *>
+    (dbe->createQTest(ContentsXRange::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
   ++it;
-  yrange_test = dynamic_cast<MEContentsYRangeROOT *>
-    (dbe->createQTest(ContentsYRangeROOT::getAlgoName(), *it) );
+  yrange_test = dynamic_cast<ContentsYRange *>
+    (dbe->createQTest(ContentsYRange::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
  ++it;
-  deadChan_test = dynamic_cast<MEDeadChannelROOT *>
-    (dbe->createQTest(DeadChannelROOT::getAlgoName(), *it) );
+  deadChan_test = dynamic_cast<DeadChannel *>
+    (dbe->createQTest(DeadChannel::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
   ++it;
-  noisyChan_test = dynamic_cast<MENoisyChannelROOT *>
-    (dbe->createQTest(NoisyChannelROOT::getAlgoName(), *it) );
+  noisyChan_test = dynamic_cast<NoisyChannel *>
+    (dbe->createQTest(NoisyChannel::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
   ++it;
-  equalH1_test = dynamic_cast<MEComp2RefEqualH1ROOT *>
-    (dbe->createQTest(Comp2RefEqualH1ROOT::getAlgoName(), *it) );
+  equalH1_test = dynamic_cast<Comp2RefEqualH1 *>
+    (dbe->createQTest(Comp2RefEqualH1::getAlgoName(), *it) );
   dbe->useQTest("histo_1", *it);
 
   ++it;
-  equalInt_test = dynamic_cast<MEComp2RefEqualIntROOT *>
-    (dbe->createQTest(Comp2RefEqualIntROOT::getAlgoName(), *it) );
+  equalInt_test = dynamic_cast<Comp2RefEqualInt *>
+    (dbe->createQTest(Comp2RefEqualInt::getAlgoName(), *it) );
   dbe->useQTest("int1", *it);
 
   ++it;
-  meanNear_test = dynamic_cast<MEMeanWithinExpectedROOT *>
-    (dbe->createQTest(MeanWithinExpectedROOT::getAlgoName(), *it));
+  meanNear_test = dynamic_cast<MeanWithinExpected *>
+    (dbe->createQTest(MeanWithinExpected::getAlgoName(), *it));
   dbe->useQTest("histo_1", *it);
 
 }
@@ -219,7 +219,7 @@ DQMMonitorUIRootStandaloneExample::DQMMonitorUIRootStandaloneExample(const edm::
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
-  mui = new MonitorUIRoot();
+  mui = new MonitorUserInterface();
 
   createMonitorElements();
   
@@ -301,7 +301,7 @@ void DQMMonitorUIRootStandaloneExample::runTests()
       cout << " ============================================= " << endl;
       cout << "         All messages for quality tests " << endl;
       cout << " ============================================= " << endl;
-      for(dqm::me_util::cvIt it = testNames.begin(); 
+      for(vector<string>::const_iterator it = testNames.begin(); 
 	  it != testNames.end(); ++it)
 	{
 	  string test_message;

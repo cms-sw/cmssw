@@ -1,10 +1,10 @@
 #include "DQMServices/XdaqCollector/interface/Updater.h"
 #include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 using namespace dqm;
 
-Updater::Updater(MonitorUserInterface *the_mui) : mui(the_mui), observed(false),
+Updater::Updater(DQMOldReceiver *the_mui) : mui(the_mui), observed(false),
 						  running(false)
 {
   // create a thread and pass a pointer to the static function start

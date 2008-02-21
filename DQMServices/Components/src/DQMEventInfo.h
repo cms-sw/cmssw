@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2008/01/11 15:47:44 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/13 22:40:50 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -18,8 +18,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
-#include <DQMServices/Core/interface/DaqMonitorBEInterface.h>
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <memory>
 #include <iostream>
@@ -49,7 +49,7 @@ private:
 
   double getUTCtime(timeval* a, timeval* b = NULL);
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore *dbe_;
 
   edm::ParameterSet parameters_;
   timeval currentTime_, lastUpdateTime_, lastAvgTime_;

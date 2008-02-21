@@ -7,12 +7,12 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2007/11/07 14:47:59 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/11 15:47:41 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
   */
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include<map>
 #include<vector>

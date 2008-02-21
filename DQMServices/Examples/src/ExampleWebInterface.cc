@@ -14,7 +14,7 @@
 /*
   Create your widgets in the constructor of your web interface
 */
-ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p)
+ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string theApplicationURL, DQMOldReceiver ** _mui_p)
   : WebInterface(theContextURL, theApplicationURL, _mui_p)
 {
   // a navigator allows you to make subscriptions:

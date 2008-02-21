@@ -2,12 +2,13 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2007/09/06 13:21:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/09 07:26:50 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <iostream>
 
 QTestStatusChecker::QTestStatusChecker(){

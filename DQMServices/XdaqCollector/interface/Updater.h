@@ -4,8 +4,7 @@
 #include <pthread.h>
 #include <list>
 
-class MonitorUserInterface;
-
+class DQMOldReceiver;
 namespace dqm
 {
   class UpdateObserver;
@@ -16,14 +15,14 @@ namespace dqm
       typedef std::list<dqm::UpdateObserver *> olist;
       typedef olist::const_iterator obi;
       pthread_t worker;
-      MonitorUserInterface *mui; 
+      DQMOldReceiver *mui; 
       olist obs_;
       bool observed;
       bool running;
 
     public:
       
-      Updater(MonitorUserInterface *the_mui);
+      Updater(DQMOldReceiver *the_mui);
       
       ~Updater()
 	{
