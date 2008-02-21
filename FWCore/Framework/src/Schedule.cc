@@ -290,34 +290,14 @@ namespace edm {
 	"\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    ParameterSet maxLumisPSet(pset_.getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()));
-    int maxLumiSpecs = 0; 
-    int maxLumisOut = -1;
-    ParameterSet vMaxLumisOut;
-    std::vector<std::string> intNamesL = maxLumisPSet.getParameterNamesForType<int>(false);
-    if (search_all(intNamesL, output)) {
-      maxLumisOut = maxLumisPSet.getUntrackedParameter<int>(output);
-      ++maxLumiSpecs;
-    }
-    std::vector<std::string> psetNamesL;
-    maxLumisPSet.getParameterSetNames(psetNamesL, false);
-    if (search_all(psetNamesL, output)) {
-      vMaxLumisOut = maxLumisPSet.getUntrackedParameter<ParameterSet>(output);
-      ++maxLumiSpecs;
-    }
-
-    if (maxLumiSpecs > 1) {
-      throw edm::Exception(edm::errors::Configuration) <<
-	"\nAt most, one form of 'output' may appear in the 'maxLumis' parameter set";
-    }
-    if (maxEventSpecs == 0 && maxLumiSpecs == 0) {
+    if (maxEventSpecs == 0) {
       return;
     }
 
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
         it != itEnd; ++it) {
-      OutputModuleDescription desc(maxEventsOut, maxLumisOut);
-      if (!vMaxEventsOut.empty() || !vMaxLumisOut.empty()) {
+      OutputModuleDescription desc(maxEventsOut);
+      if (!vMaxEventsOut.empty()) {
 	std::string moduleLabel = (*it)->description().moduleLabel_;
         if (!vMaxEventsOut.empty()) {
           try {
@@ -325,14 +305,6 @@ namespace edm {
 	  } catch (edm::Exception) {
             throw edm::Exception(edm::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
-	  }
-	}
-        if (!vMaxLumisOut.empty()) {
-          try {
-            desc.maxLumis_ = vMaxLumisOut.getUntrackedParameter<int>(moduleLabel);
-	  } catch (edm::Exception) {
-            throw edm::Exception(edm::errors::Configuration) <<
-              "\nNo entry in 'maxLuminosityBlocks' for output module label '" << moduleLabel << "'.\n";
 	  }
 	}
       }

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.70 2008/01/15 06:51:49 wmtan Exp $
+$Id: OutputModule.h,v 1.73 2008/02/07 22:46:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,14 +49,6 @@ namespace edm {
     /// -1 is used for unlimited.
     int remainingEvents() const {return remainingEvents_;}
 
-    /// Accessor for maximum number of lumis to be written.
-    /// -1 is used for unlimited.
-    int maxLuminosityBlocks() const {return maxLumis_;}
-
-    /// Accessor for remaining number of lumis to be written.
-    /// -1 is used for unlimited.
-    int remainingLuminosityBlocks() const {return remainingLumis_;}
-
     bool selected(BranchDescription const& desc) const;
 
     unsigned int nextID() const;
@@ -93,8 +85,6 @@ namespace edm {
 
     int maxEvents_;
     int remainingEvents_;
-    int maxLumis_;
-    int remainingLumis_;
 
     unsigned int nextID_;
     // TODO: Give OutputModule
@@ -219,7 +209,7 @@ namespace edm {
       moduleDescription_ = md;
     }
 
-    bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
+    bool limitReached() const {return remainingEvents_ == 0;}
 
     // The following member functions are part of the Template Method
     // pattern, used for implementing doCloseFile() and maybeEndFile().

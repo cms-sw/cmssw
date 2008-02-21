@@ -6,18 +6,16 @@
 OutputModuleDescription : the stuff that is needed to configure an
 output module that does not come in through the ParameterSet  
 
-$Id: OutputModuleDescription.h,v 1.8 2007/11/29 17:27:38 wmtan Exp $
+$Id: OutputModuleDescription.h,v 1.1 2007/11/30 07:06:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
 
   struct OutputModuleDescription {
-    OutputModuleDescription() : maxEvents_(-1), maxLumis_(-1) {}
-    OutputModuleDescription(int maxEvents, int maxLumis) :
-      maxEvents_(maxEvents),
-      maxLumis_(maxLumis)
+    OutputModuleDescription() : maxEvents_(-1) {}
+    OutputModuleDescription(int maxEvents) :
+      maxEvents_(maxEvents)
     {}
     int maxEvents_;
-    int maxLumis_;
   };
 }
 
