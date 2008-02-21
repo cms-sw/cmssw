@@ -2,10 +2,12 @@
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
 #include "DQM/SiStripCommissioningSummary/interface/PedestalsSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "TProfile.h"
 
 using namespace std;
 using namespace sistrip;

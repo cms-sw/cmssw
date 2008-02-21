@@ -4,27 +4,21 @@
 #define USING_NEW_COLLATE_METHODS
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#ifndef USING_NEW_COLLATE_METHODS
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-#endif
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <boost/cstdint.hpp>
-#include "TProfile.h"
-#include "TH1.h"
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
 
-class MonitorElement;
+#ifndef USING_NEW_COLLATE_METHODS
+class CollateMonitorElement;
+#endif
 class CommissioningAnalysis;
+class DaqMonitorBEInterface;
+class MonitorElement;
+class MonitorUserInterface;
+class TH1;
 
 class CommissioningHistograms {
 

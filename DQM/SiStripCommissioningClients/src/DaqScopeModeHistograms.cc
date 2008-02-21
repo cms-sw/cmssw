@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>

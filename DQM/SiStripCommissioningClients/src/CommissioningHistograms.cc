@@ -2,9 +2,19 @@
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#ifndef USING_NEW_COLLATE_METHODS
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
+#endif
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
+#include "TH1.h"
 #include <iomanip>
 
 using namespace std;

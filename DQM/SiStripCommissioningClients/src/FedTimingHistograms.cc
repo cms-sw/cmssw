@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <iostream>
 #include <sstream>

@@ -1,15 +1,16 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripTFile.h,v 1.1 2007/04/04 07:16:15 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripTFile_H
 #define DQM_SiStripCommissioningClients_SiStripTFile_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h" 
-#include "TDirectory.h"
 #include "TFile.h"
-#include "TH1.h"
 #include <vector>
 #include <string>
 #include <map>
+
+class TDirectory;
+class TH1;
 
 /** 
     @class : SiStripTFile 

@@ -1,21 +1,21 @@
-// Last commit: $Id: SiStripTFile.cc,v 1.1 2007/04/04 07:16:16 bainbrid Exp $
+// Last commit: $Id: SiStripTFile.cc,v 1.2 2007/06/19 12:29:22 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h" 
-#include "TString.h"
-#include "TProfile.h"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TDirectory.h"
+#include "TH1.h"
 #include <sstream>
 
-using namespace std;
+using namespace sistrip;
 
 //-----------------------------------------------------------------------------
 
 SiStripTFile::SiStripTFile( const char* fname, 
-						    Option_t* option, 
-						    const char* ftitle, 
-						    Int_t compress ) :
+			    Option_t* option, 
+			    const char* ftitle, 
+			    Int_t compress ) :
   TFile(fname,option,ftitle,compress),
   runType_(sistrip::UNKNOWN_RUN_TYPE),
   view_(sistrip::UNKNOWN_VIEW),
@@ -34,30 +34,35 @@ SiStripTFile::~SiStripTFile() {;}
 //-----------------------------------------------------------------------------
 
 TDirectory* SiStripTFile::setDQMFormat( sistrip::RunType run_type, 
-						    sistrip::View view) {
-
+					sistrip::View view) {
+  
   view_ = view;
   runType_ = run_type;
-
+  
   if (view == sistrip::CONTROL_VIEW) {
-    stringstream ss("");
+    std::stringstream ss("");
     ss << sistrip::dqmRoot_ << sistrip::dir_ << sistrip::root_ << sistrip::dir_ << sistrip::controlView_;
     top_ = addPath( ss.str() );
     dqmTop_ = GetDirectory(sistrip::dqmRoot_.c_str());
     sistripTop_ = dqmTop_->GetDirectory(sistrip::root_.c_str());
     dqmFormat_ = true;
-
+    
     //TNamed defining commissioning runType
-    stringstream run_type_label;
-    stringstream run_type_title;
+    std::stringstream run_type_label;
+    std::stringstream run_type_title;
     run_type_label << sistrip::taskId_ << sistrip::sep_ << SiStripEnumsAndStrings::runType(runType_);
     run_type_title << "s=" << SiStripEnumsAndStrings::runType(runType_);
     TNamed run_type_description(run_type_label.str().c_str(),run_type_title.str().c_str());
     sistripTop_->WriteTObject(&run_type_description);
   }
 
-  else {cout << "[CommissioningFile::setDQMFormat]: Currently only implemented for Control View." << endl; return 0;}
-
+  else {
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningFile::setDQMFormat]: Currently only implemented for Control View." 
+      << std::endl; 
+    return 0;
+  }
+  
   return top_;
 }
 
@@ -84,12 +89,12 @@ TDirectory* SiStripTFile::readDQMFormat() {
         bool loop = true;
         while (loop) { 
           if (obj == keylist->Last()) {loop = false;}
-          if ( string(obj->GetName()).find(sistrip::taskId_) != string::npos ) {
-            runType_ = SiStripEnumsAndStrings::runType( string(obj->GetTitle()).substr(2,string::npos) );
-	    // 	    cout << " name: " << string(obj->GetName())
-	    // 		 << " title: " << string(obj->GetTitle()) 
+          if ( std::string(obj->GetName()).find(sistrip::taskId_) != std::string::npos ) {
+            runType_ = SiStripEnumsAndStrings::runType( std::string(obj->GetTitle()).substr(2,std::string::npos) );
+	    // 	    cout << " name: " << std::string(obj->GetName())
+	    // 		 << " title: " << std::string(obj->GetTitle()) 
 	    // 		 << " runType: " << SiStripEnumsAndStrings::runType( runType_ )
-	    // 		 << endl;
+	    // 		 << std::endl;
           }
           obj = keylist->After(obj);
         }
@@ -114,7 +119,12 @@ TDirectory* SiStripTFile::top() {
 //-----------------------------------------------------------------------------
 
 TDirectory* SiStripTFile::dqmTop() {
-  if (!dqmFormat_) {cout << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format." << endl; return 0;}
+  if (!dqmFormat_) {
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format." 
+      << std::endl; 
+    return 0;
+  }
 
   return dqmTop_;}
 
@@ -122,7 +132,12 @@ TDirectory* SiStripTFile::dqmTop() {
 //-----------------------------------------------------------------------------
 
 TDirectory* SiStripTFile::sistripTop() {
-  if (!dqmFormat_) {cout << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format." << endl; return 0;}
+  if (!dqmFormat_) {
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format."
+      << std::endl; 
+    return 0;
+  }
 
   return sistripTop_;}
 
@@ -143,30 +158,34 @@ void SiStripTFile::addDevice(unsigned int key) {
   if (view_ == sistrip::CONTROL_VIEW) {
     if (!dqmFormat_) setDQMFormat(sistrip::UNKNOWN_RUN_TYPE, sistrip::CONTROL_VIEW);
     SiStripFecKey control_path(key);
-    string directory_path = control_path.path();
+    std::string directory_path = control_path.path();
     cd(sistrip::dqmRoot_.c_str());
     addPath(directory_path);
   }
 
-  else {cout << "[CommissioningFile::addDevice]: Currently only implemented for Control View." << endl; }
+  else {
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningFile::addDevice]: Currently only implemented for Control View." 
+      << std::endl; 
+  }
 
 }
 
 //-----------------------------------------------------------------------------
 
-TDirectory* SiStripTFile::addPath( const string& path ) {
+TDirectory* SiStripTFile::addPath( const std::string& path ) {
   
-//   string path = dir;
-//   string root = sistrip::dqmRoot_+"/"+sistrip::root_+"/";
-//   if ( path.find( root ) == string::npos ) {
+//   std::string path = dir;
+//   std::string root = sistrip::dqmRoot_+"/"+sistrip::root_+"/";
+//   if ( path.find( root ) == std::string::npos ) {
 //     cerr << "Did not find \"" << root << "\" root in path: " << dir;
 //     path = root + dir;
 //   }
   
-  vector<string> directories; directories.reserve(10);
+  std::vector<std::string> directories; directories.reserve(10);
 
-  //fill vector
-  string::const_iterator it, previous_dir, latest_dir;
+  //fill std::vector
+  std::string::const_iterator it, previous_dir, latest_dir;
   if (*(path.begin()) == sistrip::dir_) {
     it = previous_dir = latest_dir = path.begin();}
   else {it = previous_dir = latest_dir = path.begin()-1;}
@@ -176,16 +195,16 @@ TDirectory* SiStripTFile::addPath( const string& path ) {
     if (*it == sistrip::dir_) {
       previous_dir = latest_dir; 
       latest_dir = it;
-      directories.push_back(string(previous_dir+1, latest_dir));
+      directories.push_back(std::string(previous_dir+1, latest_dir));
     }
   }
 
   if (latest_dir != (path.end()-1)) {
-    directories.push_back(string(latest_dir+1, path.end()));}
+    directories.push_back(std::string(latest_dir+1, path.end()));}
  
   //update file
   TDirectory* child = gDirectory;
-  for (vector<string>::const_iterator dir = directories.begin(); dir != directories.end(); dir++) {
+  for (std::vector<std::string>::const_iterator dir = directories.begin(); dir != directories.end(); dir++) {
     if (!dynamic_cast<TDirectory*>(child->Get(dir->c_str()))) {
       child = child->mkdir(dir->c_str());
       child->cd();}
@@ -196,9 +215,9 @@ TDirectory* SiStripTFile::addPath( const string& path ) {
 
 //-----------------------------------------------------------------------------
 
-void SiStripTFile::findHistos( TDirectory* dir, map< string, vector<TH1*> >* histos ) {
+void SiStripTFile::findHistos( TDirectory* dir, std::map< std::string, std::vector<TH1*> >* histos ) {
 
-  vector< TDirectory* > dirs;
+  std::vector< TDirectory* > dirs;
   dirs.reserve(20000);
   dirs.push_back(dir);
 
@@ -214,8 +233,8 @@ void SiStripTFile::findHistos( TDirectory* dir, map< string, vector<TH1*> >* his
 
 
 void SiStripTFile::dirContent(TDirectory* dir, 
-					  vector<TDirectory*>* dirs, 
-					  map< string, vector<TH1*> >* histos ) {
+					  std::vector<TDirectory*>* dirs, 
+					  std::map< std::string, std::vector<TH1*> >* histos ) {
 
   TList* keylist = dir->GetListOfKeys();
   if (keylist) {
@@ -237,11 +256,11 @@ void SiStripTFile::dirContent(TDirectory* dir,
 	TH1* his = dynamic_cast<TH1*>( dir->Get(obj->GetName()) );
 	if ( his ) {
 	  bool found = false;
-	  vector<TH1*>::iterator ihis = (*histos)[string(dir->GetPath())].begin();
-	  for ( ; ihis != (*histos)[string(dir->GetPath())].end(); ihis++ ) {
+	  std::vector<TH1*>::iterator ihis = (*histos)[std::string(dir->GetPath())].begin();
+	  for ( ; ihis != (*histos)[std::string(dir->GetPath())].end(); ihis++ ) {
 	    if ( (*ihis)->GetName() == his->GetName() ) { found = true; }
 	  }
-	  if ( !found ) { (*histos)[string(dir->GetPath())].push_back(his); }
+	  if ( !found ) { (*histos)[std::string(dir->GetPath())].push_back(his); }
 	}
 	obj = keylist->After(obj);
       }

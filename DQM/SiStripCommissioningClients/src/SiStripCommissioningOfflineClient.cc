@@ -1,32 +1,32 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.26 2008/02/07 16:44:14 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.27 2008/02/20 21:01:04 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-//#include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
+#include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/SummaryPlotXmlParser.h"
+#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
+#include <sys/types.h>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
-#include "TProfile.h"
 
 using namespace sistrip;
 
