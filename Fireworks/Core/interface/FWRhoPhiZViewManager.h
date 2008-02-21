@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.9 2008/02/15 18:11:31 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.10 2008/02/21 16:09:54 chrjones Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ class TGeoShape;
 class TEveGeoShapeExtract;
 class FWGUIManager;
 class FWRhoPhiZView;
+class FWViewBase;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
@@ -124,8 +125,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void registerProxyBuilder(const std::string&, 
 				const std::string&);
  
-      TGFrame* createRhoPhiView(TGFrame* iParent);
-      TGFrame* createRhoZView(TGFrame* iParent);
+      FWViewBase* createRhoPhiView(TGFrame* iParent);
+      FWViewBase* createRhoZView(TGFrame* iParent);
    
    
    protected:

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.3 2008/02/15 20:33:03 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.4 2008/02/21 16:09:58 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
-
+#include "Fireworks/Core/interface/FWViewBase.h"
 //
 // constants, enums and typedefs
 //
@@ -270,7 +270,7 @@ FWGUIManager::createView(const std::string& iName)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   addFrameHoldingAView(itFind->second(parentForNextView()));
+   addFrameHoldingAView((itFind->second(parentForNextView()))->frame());
 }
 
 

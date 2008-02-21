@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.5 2008/02/21 16:08:40 chrjones Exp $
+// $Id: FW3DLegoViewManager.h,v 1.6 2008/02/21 19:20:47 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ class FWEventItem;
 class FWGUIManager;
 class TGFrame;
 class FW3DLegoView;
+class FWViewBase;
 
 struct FW3DLegoModelProxy
 {
@@ -67,7 +68,7 @@ class FW3DLegoViewManager : public FWViewManagerBase
       void registerProxyBuilder(const std::string&, 
 				const std::string&);
    
-      TGFrame* buildView(TGFrame* iParent);
+      FWViewBase* buildView(TGFrame* iParent);
 
       /*
       void DynamicCoordinates();

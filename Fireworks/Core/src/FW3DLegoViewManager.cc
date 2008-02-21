@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.11 2008/02/21 19:20:47 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.12 2008/02/21 20:39:07 chrjones Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ FW3DLegoViewManager::~FW3DLegoViewManager()
 //
 // member functions
 //
-TGFrame* 
+FWViewBase* 
 FW3DLegoViewManager::buildView(TGFrame* iParent)
 {
    if(0==m_stack) {
@@ -97,7 +97,7 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
    boost::shared_ptr<FW3DLegoView> view( new FW3DLegoView(iParent) );
    m_views.push_back(view);
    view->draw(m_stack);
-   return view->frame();
+   return view.get();
 
 }
 

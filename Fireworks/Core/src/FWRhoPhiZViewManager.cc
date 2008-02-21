@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.16 2008/02/21 16:09:59 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.17 2008/02/21 20:39:17 chrjones Exp $
 //
 
 // system include files
@@ -121,7 +121,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
 //
 // member functions
 //
-TGFrame* 
+FWViewBase* 
 FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
@@ -138,10 +138,10 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
        ++it) {
       pView->replicateGeomElement(*it);
    }
-   return pView->frame();
+   return pView.get();
 }
 
-TGFrame* 
+FWViewBase* 
 FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
@@ -159,7 +159,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
        ++it) {
       pView->replicateGeomElement(*it);
    }
-   return pView->frame();
+   return pView.get();
 }
 
 

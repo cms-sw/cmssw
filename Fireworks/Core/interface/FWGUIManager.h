@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.3 2008/02/15 20:32:56 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.4 2008/02/21 16:09:54 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ class TGCompositeFrame;
 
 class FWEventItemsManager;
 class FWEventItem;
+class FWViewBase;
 
 class FWGUIManager
 {
@@ -57,7 +58,7 @@ class FWGUIManager
       TGFrame* parentForNextView();
    
       //have to use the portable syntax else the reflex code will not build
-      typedef boost::function1<TGFrame*,TGFrame*> ViewBuildFunctor;
+      typedef boost::function1<FWViewBase*,TGFrame*> ViewBuildFunctor;
       void registerViewBuilder(const std::string& iName, 
                               ViewBuildFunctor& iBuilder);
    
