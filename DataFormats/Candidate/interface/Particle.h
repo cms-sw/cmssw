@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.25 2007/10/23 17:27:04 llista Exp $
+ * \version $Id: Particle.h,v 1.26 2008/02/19 13:16:52 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -163,7 +163,7 @@ namespace reco {
     /// electric charge
     Charge qx3_;   
     /// four-momentum Lorentz vector
-    Double32_t pt_, eta_, phi_, mass_;
+    float pt_, eta_, phi_, mass_;
     /// vertex position
     Point vertex_;
     /// PDG identifier

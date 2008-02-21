@@ -1,4 +1,4 @@
-// $Id: testParticle.cc,v 1.5 2007/10/20 09:34:39 llista Exp $
+// $Id: testParticle.cc,v 1.6 2007/10/23 17:27:05 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <iostream>
@@ -23,7 +23,8 @@ void testParticle::test( const reco::Particle & t,
 			 reco::Particle::Charge q, const reco::Particle::Point & vtx,
 			 const reco::Particle::LorentzVector & p,
 			 const reco::Particle::PolarLorentzVector & pp ) {
-  const double epsilon = 1.e-9;
+  const double epsilon = 1.e-5;
+  const double epsilon2 = 5.e-4;
   CPPUNIT_ASSERT( t.charge() == q );
   CPPUNIT_ASSERT( t.threeCharge() == q*3 );
   CPPUNIT_ASSERT( (t.polarP4() - pp).M2() < epsilon );
@@ -37,9 +38,9 @@ void testParticle::test( const reco::Particle & t,
   CPPUNIT_ASSERT( fabs(t.theta() - p.Theta()) < epsilon );
   CPPUNIT_ASSERT( fabs(t.eta() - p.Eta()) < epsilon  );
   CPPUNIT_ASSERT( fabs(t.mass() - p.M()) < epsilon );
-  CPPUNIT_ASSERT( fabs(t.massSqr() - p.M2()) < epsilon );
+  CPPUNIT_ASSERT( fabs(t.massSqr() - p.M2()) < epsilon2 );
   CPPUNIT_ASSERT( fabs(t.mt() - p.Mt()) < epsilon );
-  CPPUNIT_ASSERT( fabs(t.mtSqr() - p.Mt2()) < epsilon );  
+  CPPUNIT_ASSERT( fabs(t.mtSqr() - p.Mt2()) < epsilon2 );  
   CPPUNIT_ASSERT( fabs(t.rapidity() - p.Rapidity()) < epsilon );  
   CPPUNIT_ASSERT( fabs(t.vx() - vtx.x()) < epsilon );
   CPPUNIT_ASSERT( fabs(t.vy() - vtx.y()) < epsilon );
