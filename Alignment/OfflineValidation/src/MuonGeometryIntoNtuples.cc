@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jul 16 16:56:34 CDT 2007
-// $Id: MuonGeometryIntoNtuples.cc,v 1.4 2007/12/06 01:46:43 ratnik Exp $
+// $Id: MuonGeometryIntoNtuples.cc,v 1.5 2008/02/20 23:15:54 pivarski Exp $
 //
 //
 
@@ -219,14 +219,14 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	    alignmentErrors.m_alignError.push_back(AlignTransformError(matrix3by3, iter->rawId()));
 	 }
 	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &alignmentErrors,
-					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					     align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
       }
       else {
 	 edm::LogWarning("MuonGeometryIntoNtuples") << "applying (mis)alignment from DTAlignmentRcd \"" << m_dtLabel << "\"";
 	 iSetup.get<DTAlignmentRcd>().get(m_dtLabel, dtAlignments);
 	 iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrors);
 	 aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &(*dtAlignmentErrors),
-					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					     align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
       }
       edm::LogWarning("MuonGeometryIntoNtuples") << "done!";
    }
@@ -253,14 +253,14 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	    alignmentErrors.m_alignError.push_back(AlignTransformError(matrix3by3, iter->rawId()));
 	 }
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &alignmentErrors,
-					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					     align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
       }
       else {
 	 edm::LogWarning("MuonGeometryIntoNtuples") << "applying (mis)alignment from CSCAlignmentRcd \"" << m_cscLabel << "\"";
 	 iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
 	 iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrors);
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors),
-					     align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					     align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
       }
       edm::LogWarning("MuonGeometryIntoNtuples") << "done!";
    }

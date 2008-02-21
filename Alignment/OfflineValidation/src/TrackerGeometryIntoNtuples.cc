@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.3 2007/12/06 01:46:43 ratnik Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.4 2008/02/20 23:15:55 pivarski Exp $
 //
 //
 
@@ -138,7 +138,7 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	GeometryAligner aligner;
 	aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
-						  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
+						  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	
 	
 	theCurrentTracker = new AlignableTracker(&(*theCurTracker));	

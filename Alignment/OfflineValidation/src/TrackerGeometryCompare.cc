@@ -145,7 +145,7 @@ void TrackerGeometryCompare::createDBGeometry(const edm::EventSetup& iSetup){
 		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 		GeometryAligner aligner;
 		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
-							  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
+							  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 		currentTracker = new AlignableTracker(&(*theCurTracker));
 		
 	}
@@ -172,7 +172,7 @@ void TrackerGeometryCompare::createDBGeometry(const edm::EventSetup& iSetup){
 		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 		GeometryAligner aligner;
 		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), alignVals, alignErrors,
-							  align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
+							  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 		currentTracker = new AlignableTracker(&(*theCurTracker));
 			
 	}
@@ -262,13 +262,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner1;
 	aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
-						   align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
+						   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner2;
 	aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
-						   align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Tracker)));
+						   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
 
