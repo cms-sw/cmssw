@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.4 2008/02/15 18:11:30 chrjones Exp $
+// $Id: FW3DLegoViewManager.h,v 1.5 2008/02/21 16:08:40 chrjones Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ class FW3DLegoDataProxyBuilder;
 class FWEventItem;
 class FWGUIManager;
 class TGFrame;
+class FW3DLegoView;
 
 struct FW3DLegoModelProxy
 {
@@ -68,11 +69,13 @@ class FW3DLegoViewManager : public FWViewManagerBase
    
       TGFrame* buildView(TGFrame* iParent);
 
+      /*
       void DynamicCoordinates();
       void exec3event(int event, int x, int y, TObject *selected);
       void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
 		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
-
+       */
+       
    protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
@@ -87,7 +90,8 @@ class FW3DLegoViewManager : public FWViewManagerBase
       TypeToBuilder m_typeToBuilder;
       std::vector<FW3DLegoModelProxy> m_modelProxies;
 
-      TCanvas* m_legoCanvas;
+      //TCanvas* m_legoCanvas;
+      std::vector<boost::shared_ptr<FW3DLegoView> > m_views;
       THStack* m_stack;
       TH2F* m_background;
       int  m_legoRebinFactor;
