@@ -25,6 +25,7 @@ namespace cond{
 
   private:
     pool::ObjectRelationalMappingUtilities* m_mappingutil;
+    coral::ISessionProxy* m_coralsessionHandle;
   };
 }
 #endif
