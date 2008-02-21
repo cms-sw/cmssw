@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.8 2008/01/29 12:18:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.9 2008/02/15 18:11:31 chrjones Exp $
 //
 
 // system include files
@@ -45,8 +45,11 @@ public:
    void itemChanged(const FWEventItem*);
    virtual TEveElementList* getRhoPhiProduct() const =0;
    virtual TEveElementList* getRhoZProduct() const = 0;
-   virtual void setRhoPhiProj(TEveElement*) = 0;
-   virtual void setRhoZProj(TEveElement*) = 0;
+   virtual void addRhoPhiProj(TEveElement*) = 0;
+   virtual void addRhoZProj(TEveElement*) = 0;
+   virtual void clearRhoPhiProjs() = 0;
+   virtual void clearRhoZProjs() = 0;
+
 private:
    virtual void itemChangedImp(const FWEventItem*) = 0;
    
@@ -60,8 +63,10 @@ public:
    m_builder(iBuilder),m_product(0),m_mustRebuild(true) {}
    TEveElementList* getRhoPhiProduct() const;
    TEveElementList* getRhoZProduct() const;
-   void setRhoPhiProj(TEveElement*);
-   void setRhoZProj(TEveElement*);
+   void addRhoPhiProj(TEveElement*);
+   void addRhoZProj(TEveElement*);
+   void clearRhoPhiProjs();
+   void clearRhoZProjs();
 private:
    void itemChangedImp(const FWEventItem*) ;
    TEveElementList* getProduct() const;
@@ -82,8 +87,10 @@ public:
 
    TEveElementList* getRhoPhiProduct() const;
    TEveElementList* getRhoZProduct() const;
-   void setRhoPhiProj(TEveElement*);
-   void setRhoZProj(TEveElement*);
+   void addRhoPhiProj(TEveElement*);
+   void addRhoZProj(TEveElement*);
+   void clearRhoPhiProjs();
+   void clearRhoZProjs();
 private:
    void itemChangedImp(const FWEventItem*) ;
    boost::shared_ptr<FWRPZ2DDataProxyBuilder>   m_builder;
@@ -97,6 +104,7 @@ class TGeoHMatrix;
 class TGeoShape;
 class TEveGeoShapeExtract;
 class FWGUIManager;
+class FWRhoPhiZView;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
@@ -115,7 +123,11 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       void registerProxyBuilder(const std::string&, 
 				const std::string&);
-
+ 
+      TGFrame* createRhoPhiView(TGFrame* iParent);
+      TGFrame* createRhoZView(TGFrame* iParent);
+   
+   
    protected:
       virtual void modelChangesComing() ;
       virtual void modelChangesDone() ;
@@ -144,14 +156,13 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       std::vector<boost::shared_ptr<FWRPZModelProxyBase> > m_modelProxies;
 
       TEveElement* m_geom;
-      TEveProjectionManager* m_rhoPhiProjMgr;
-      TEveProjectionManager* m_rhoZProjMgr;
+      TEveProjectionManager* m_rhoPhiGeomProjMgr;
+      TEveProjectionManager* m_rhoZGeomProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;
       std::vector<TEveElement*> m_rhoZGeom;
    
-      TEvePad* m_pad;
-      std::vector<TEveViewer*> m_viewers;
-      std::vector<TGLEmbeddedViewer*> m_embeddedViewers;
+      std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
+      std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
       bool m_itemChanged;
 };
 

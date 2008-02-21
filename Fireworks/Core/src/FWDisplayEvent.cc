@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.24 2008/02/11 20:19:33 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.25 2008/02/15 18:11:13 chrjones Exp $
 //
 
 // system include files
@@ -62,10 +62,7 @@ FWDisplayEvent::FWDisplayEvent() :
                                       m_selectionManager.get())),
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                 m_eiManager.get())),
-  m_viewManager( new FWViewManagerManager(m_changeManager.get())) //,
-//  m_continueProcessingEvents(false),
-//  m_waitForUserAction(true),
-//  m_code(0)
+  m_viewManager( new FWViewManagerManager(m_changeManager.get())) 
 {
   //connect up the managers
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
@@ -93,6 +90,10 @@ FWDisplayEvent::FWDisplayEvent() :
   m_viewManager->add(rpzViewManager);
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
    
+  m_guiManager->createView("Rho Phi");
+  m_guiManager->createView("Rho Z");
+  m_guiManager->createView("3D Lego");
+
   m_guiManager->processGUIEvents();
 }
 

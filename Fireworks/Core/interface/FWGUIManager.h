@@ -16,10 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.2 2008/02/15 18:11:32 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.3 2008/02/15 20:32:56 chrjones Exp $
 //
 
 // system include files
+#include <map>
+#include <boost/function.hpp>
 
 // user include files
 
@@ -53,6 +55,13 @@ class FWGUIManager
       // ---------- member functions ---------------------------
       void addFrameHoldingAView(TGFrame*);
       TGFrame* parentForNextView();
+   
+      //have to use the portable syntax else the reflex code will not build
+      typedef boost::function1<TGFrame*,TGFrame*> ViewBuildFunctor;
+      void registerViewBuilder(const std::string& iName, 
+                              ViewBuildFunctor& iBuilder);
+   
+      void createView(const std::string& iName);
    
       void goForward();
       void goBack();
@@ -104,6 +113,9 @@ class FWGUIManager
       TGSplitFrame* m_splitFrame;
       std::vector<TGCompositeFrame*> m_viewFrames;
       std::vector<TGCompositeFrame*>::iterator m_nextFrame;
+      
+      typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
+      NameToViewBuilder m_nameToViewBuilder;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.14 2008/02/03 02:49:40 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.15 2008/02/15 18:11:10 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "vis_macros.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/FWRhoPhiZView.h"
 
 #include <sstream>
 
@@ -68,61 +69,29 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase(kBuilderPrefixes,
                     kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
   m_geom(0),
-  m_rhoPhiProjMgr(0),
-  m_rhoZProjMgr(0),
-  m_pad(new TEvePad() ),
+  m_rhoPhiGeomProjMgr(0),
+  m_rhoZGeomProjMgr(0),
+  //m_pad(new TEvePad() ),
   m_itemChanged(false)
 {
-   //setup projection
-   /*
-   TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
-   nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
-   nv->AddScene(ns);
-    */
-   //Need to use an 'embedded' viewer so we can put it into the GUI
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iGUIMgr->parentForNextView(), m_pad);
-   m_embeddedViewers.push_back(ev);
-   TEveViewer* nv = new TEveViewer("Rho Phi");
-   nv->SetGLViewer(ev);
-   nv->IncDenyDestroy();
-   iGUIMgr->addFrameHoldingAView(ev->GetFrame());
-   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
-   nv->AddScene(ns);
-   m_viewers.push_back(nv);
-   //this is needed so if a TEveElement changes this view will be informed
-   gEve->AddElement(nv, gEve->GetViewers());
-   
-   m_rhoPhiProjMgr = new TEveProjectionManager;
-   gEve->AddToListTree(m_rhoPhiProjMgr,kTRUE);
-   gEve->AddElement(m_rhoPhiProjMgr,ns);
-   
-   /*
-   nv = gEve->SpawnNewViewer("Rho Z");
-   nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   ns = gEve->SpawnNewScene("Rho Z");
-   nv->AddScene(ns);
-   */
-   ev = new TGLEmbeddedViewer(iGUIMgr->parentForNextView(), m_pad);
-   m_embeddedViewers.push_back(ev);
-   nv = new TEveViewer("Rho Z");
-   nv->SetGLViewer(ev);
-   nv->IncDenyDestroy();
-   iGUIMgr->addFrameHoldingAView(ev->GetFrame());
-   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   ns = gEve->SpawnNewScene("Rho Z");
-   nv->AddScene(ns);
-   gEve->AddElement(nv, gEve->GetViewers());
-   
-   m_rhoZProjMgr = new TEveProjectionManager;
-   m_rhoZProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
-   gEve->AddToListTree(m_rhoZProjMgr,kTRUE);
-   gEve->AddElement(m_rhoZProjMgr,ns);
-   
+   FWGUIManager::ViewBuildFunctor f;
+   f = boost::bind(&FWRhoPhiZViewManager::createRhoPhiView,
+                   this, _1);
+   iGUIMgr->registerViewBuilder("Rho Phi",f);
+   f=boost::bind(&FWRhoPhiZViewManager::createRhoZView,
+                 this, _1);
+   iGUIMgr->registerViewBuilder("Rho Z",f);
 
+   //setup geometry projections
+   m_rhoPhiGeomProjMgr = new TEveProjectionManager;
+   gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
+   
+   m_rhoZGeomProjMgr = new TEveProjectionManager;
+   m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
+   gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
+   
   //kTRUE tells it to reset the camera so we see everything 
-  gEve->Redraw3D(kTRUE);  
+  //gEve->Redraw3D(kTRUE);  
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -149,6 +118,48 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
 //
 // member functions
 //
+TGFrame* 
+FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
+{
+   TEveManager::TRedrawDisabler disableRedraw(gEve);
+   //do geometry now so that when we open the first view we can tell it to 
+   // show the entire detector
+   setupGeometry();
+   
+   boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
+                                                             "Rho Phi",
+                                                             TEveProjection::kPT_RPhi) );
+   m_rhoPhiViews.push_back(pView);
+   for(TEveElement::List_i it = m_rhoPhiGeomProjMgr->BeginChildren(), itEnd = m_rhoPhiGeomProjMgr->EndChildren();
+       it != itEnd;
+       ++it) {
+      pView->replicateGeomElement(*it);
+   }
+   return pView->frame();
+}
+
+TGFrame* 
+FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
+{
+   TEveManager::TRedrawDisabler disableRedraw(gEve);
+  //do geometry now so that when we open the first view we can tell it to 
+   // show the entire detector
+   setupGeometry();
+   
+   boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
+                                                             "Rho Z",
+                                                             TEveProjection::kPT_RhoZ) );
+   m_rhoZViews.push_back(pView);
+   for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(), 
+       itEnd = m_rhoZGeomProjMgr->EndChildren();
+       it != itEnd;
+       ++it) {
+      pView->replicateGeomElement(*it);
+   }
+   return pView->frame();
+}
+
+
 void 
 FWRhoPhiZViewManager::rerunBuilders()
 {
@@ -163,25 +174,13 @@ FWRhoPhiZViewManager::rerunBuilders()
      // Eve do any redrawing
      TEveManager::TRedrawDisabler disableRedraw(gEve);
 
-     // R-Phi projections
+     std::for_each(m_rhoPhiViews.begin(),
+                   m_rhoPhiViews.end(),
+                   boost::bind(&FWRhoPhiZView::destroyElements, _1));
+     std::for_each(m_rhoZViews.begin(),
+                   m_rhoZViews.end(),
+                   boost::bind(&FWRhoPhiZView::destroyElements, _1));
      
-     // setup the projection
-     // each projection knows what model proxies it needs
-     // NOTE: this should be encapsulated and made configurable 
-     //       somewhere else.
-     m_rhoPhiProjMgr->DestroyElements();
-     for ( std::vector<TEveElement*>::iterator element = m_rhoPhiGeom.begin(); 
-	   element != m_rhoPhiGeom.end(); ++element )
-       m_rhoPhiProjMgr->AddElement(*element);
-     
-     m_rhoZProjMgr->DestroyElements();
-     for ( std::vector<TEveElement*>::iterator element = m_rhoZGeom.begin(); 
-	   element != m_rhoZGeom.end(); ++element )
-       m_rhoZProjMgr->AddElement(*element);
-     
-     // FIXME - standard way of loading geomtry failed
-     // ----------- from here 
-     setupGeometry();
      addElements();
   }
 }
@@ -202,7 +201,7 @@ FWRhoPhiZViewManager::setupGeometry()
       set_color(m_geom,kGray+3,1.,10);
       
       hide_tracker_endcap(m_geom);
-      m_rhoPhiProjMgr->ImportElements(m_geom);
+      m_rhoPhiGeomProjMgr->ImportElements(m_geom);
       
       makeMuonGeometryRhoPhi();
       // makeMuonGeometryRhoZ();
@@ -213,33 +212,22 @@ FWRhoPhiZViewManager::setupGeometry()
 
 void FWRhoPhiZViewManager::addElements()
 {
-   //keep track of the last element added
-   TEveElement::List_i itLastRPElement = m_rhoPhiProjMgr->BeginChildren();
-   TEveElement::List_i itLastRZElement = m_rhoZProjMgr->BeginChildren();
-   bool rpHasMoreChildren = m_rhoPhiProjMgr->GetNChildren();
-   bool rzHasMoreChildren = m_rhoZProjMgr->GetNChildren();
-   int index = 0;
-   while(++index < m_rhoPhiProjMgr->GetNChildren()) {++itLastRPElement;}
-   index =0;
-   while(++index < m_rhoZProjMgr->GetNChildren()) {++itLastRZElement;}
-   
    for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxy = m_modelProxies.begin();
 	 proxy != m_modelProxies.end(); ++proxy )  {
-      m_rhoPhiProjMgr->ImportElements((*proxy)->getRhoPhiProduct());
-      m_rhoZProjMgr->ImportElements((*proxy)->getRhoZProduct());
-      if(proxy == m_modelProxies.begin()) {
-         if(rpHasMoreChildren) {
-            ++itLastRPElement;
-         }
-         if(rzHasMoreChildren) {
-            ++itLastRZElement;
-         }
-      } else {
-         ++itLastRPElement;
-         ++itLastRZElement;
+      (*proxy)->clearRhoPhiProjs();
+      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoPhiViews.begin(),
+          itEnd = m_rhoPhiViews.end();
+          it != itEnd;
+          ++it) {
+         (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct()));
       }
-      (*proxy)->setRhoPhiProj(*itLastRPElement);
-      (*proxy)->setRhoZProj(*itLastRZElement);
+      (*proxy)->clearRhoZProjs();
+      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
+          itEnd = m_rhoZViews.end();
+          it != itEnd;
+          ++it) {
+         (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct()));
+      }
    }  
    
 }
@@ -335,11 +323,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 	 if ( extract ) cStation->AddElement( extract );
       }
    }
-   m_rhoPhiProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   m_rhoPhiGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
 	   
    // set background geometry visibility parameters
 	
-   TEveElementIter rhoPhiDT(m_rhoPhiProjMgr,"MuonRhoPhi");
+   TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr,"MuonRhoPhi");
    if ( rhoPhiDT.current() ) {
       m_rhoPhiGeom.push_back( rhoPhiDT.current() );
       rhoPhiDT.current()->IncDenyDestroy();
@@ -413,9 +401,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 	 }
       }
    }
-   m_rhoZProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   m_rhoZGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
    
-   TEveElementIter rhoZDT(m_rhoZProjMgr,"DT");
+   TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
       rhoZDT.current()->IncDenyDestroy();
@@ -430,7 +418,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       }
    }
 	
-   TEveElementIter rhoZCSC(m_rhoZProjMgr,"CSC");
+   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
       rhoZCSC.current()->IncDenyDestroy();
@@ -514,9 +502,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 	 }
       }
    }
-   m_rhoZProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   m_rhoZGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
    
-   TEveElementIter rhoZDT(m_rhoZProjMgr,"DT");
+   TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
       rhoZDT.current()->IncDenyDestroy();
@@ -531,7 +519,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       }
    }
    
-   TEveElementIter rhoZCSC(m_rhoZProjMgr,"CSC");
+   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
       rhoZCSC.current()->IncDenyDestroy();
@@ -672,16 +660,29 @@ FWRPZ3DModelProxy::getRhoZProduct() const
 }
 
 void
-FWRPZ3DModelProxy::setRhoPhiProj(TEveElement* iElement)
+FWRPZ3DModelProxy::addRhoPhiProj(TEveElement* iElement)
 {
-   m_builder->setRhoPhiProj(iElement);
+   m_builder->addRhoPhiProj(iElement);
 }
 
 void
-FWRPZ3DModelProxy::setRhoZProj(TEveElement* iElement)
+FWRPZ3DModelProxy::addRhoZProj(TEveElement* iElement)
 {
-   m_builder->setRhoZProj(iElement);
+   m_builder->addRhoZProj(iElement);
 }
+
+void
+FWRPZ3DModelProxy::clearRhoPhiProjs()
+{
+   m_builder->clearRhoPhiProjs();
+}
+
+void
+FWRPZ3DModelProxy::clearRhoZProjs()
+{
+   m_builder->clearRhoZProjs();
+}
+
 void
 FWRPZ2DModelProxy::itemChangedImp(const FWEventItem*)
 {
@@ -709,16 +710,29 @@ FWRPZ2DModelProxy::getRhoZProduct() const
 }
 
 void
-FWRPZ2DModelProxy::setRhoPhiProj(TEveElement* iElement)
+FWRPZ2DModelProxy::addRhoPhiProj(TEveElement* iElement)
 {
-   m_builder->setRhoPhiProj(iElement);
+   m_builder->addRhoPhiProj(iElement);
 }
 
 void
-FWRPZ2DModelProxy::setRhoZProj(TEveElement* iElement)
+FWRPZ2DModelProxy::addRhoZProj(TEveElement* iElement)
 {
-   m_builder->setRhoZProj(iElement);
+   m_builder->addRhoZProj(iElement);
 }
+
+void
+FWRPZ2DModelProxy::clearRhoPhiProjs()
+{
+   m_builder->clearRhoPhiProjs();
+}
+
+void
+FWRPZ2DModelProxy::clearRhoZProjs()
+{
+   m_builder->clearRhoZProjs();
+}
+
 void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
 						   double& min_rho, double& max_rho, double& min_z, double& max_z )
 {

@@ -8,12 +8,13 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.1 2008/01/12 17:22:53 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.2 2008/01/28 14:02:28 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
+#include <algorithm>
 #include "TEveElement.h"
 
 // user include files
@@ -91,17 +92,23 @@ FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds)
 {
-   if(0!=m_rhoPhiProj) {
-      modelChangesRhoPhi(iIds,m_rhoPhiProj);
-   }
+   std::for_each(m_rhoPhiProjs.begin(),
+                 m_rhoPhiProjs.end(),
+                 boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoPhi,
+                             this,
+                             iIds,
+                             _1));
 }
 
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds)
 {
-   if(0!=m_rhoZProj) {
-      modelChangesRhoZ(iIds,m_rhoZProj);
-   }
+   std::for_each(m_rhoZProjs.begin(),
+                 m_rhoZProjs.end(),
+                 boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoZ,
+                             this,
+                             iIds,
+                             _1));
 }
 
 static void
@@ -161,18 +168,31 @@ FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEveElement* i
 }
 
 void 
-FWRPZ2DDataProxyBuilder::setRhoPhiProj(TEveElement* iElement)
+FWRPZ2DDataProxyBuilder::addRhoPhiProj(TEveElement* iElement)
 {
    
    //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
-   m_rhoPhiProj=iElement;
+   assert(0!=iElement);
+   m_rhoPhiProjs.push_back(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
 void 
-FWRPZ2DDataProxyBuilder::setRhoZProj(TEveElement* iElement)
+FWRPZ2DDataProxyBuilder::addRhoZProj(TEveElement* iElement)
 {
-   m_rhoZProj=iElement;
+   assert(0!=iElement);
+   m_rhoZProjs.push_back(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
+}
+
+void 
+FWRPZ2DDataProxyBuilder::clearRhoPhiProjs()
+{
+   m_rhoPhiProjs.clear();
+}
+void 
+FWRPZ2DDataProxyBuilder::clearRhoZProjs()
+{
+   m_rhoZProjs.clear();
 }
 
 //

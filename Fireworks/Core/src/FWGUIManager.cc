@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.2 2008/02/15 18:11:16 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.3 2008/02/15 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -241,8 +241,9 @@ FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
                                                      kLHintsExpandY) );
    
    m_mainFrame->MapSubwindows();
-   //m_mainFrame->Resize();
-   //m_mainFrame->MapWindow();
+   m_mainFrame->Resize();
+   iChild->Resize();
+   m_mainFrame->MapWindow();
    
    ++m_nextFrame;
 }
@@ -252,6 +253,24 @@ FWGUIManager::parentForNextView()
 {
    assert(m_nextFrame != m_viewFrames.end());
    return *m_nextFrame;
+}
+
+
+void 
+FWGUIManager::registerViewBuilder(const std::string& iName, 
+                                  ViewBuildFunctor& iBuilder)
+{
+   m_nameToViewBuilder[iName]=iBuilder;
+}
+
+void 
+FWGUIManager::createView(const std::string& iName)
+{
+   NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
+   if(itFind == m_nameToViewBuilder.end()) {
+      throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
+   }
+   addFrameHoldingAView(itFind->second(parentForNextView()));
 }
 
 

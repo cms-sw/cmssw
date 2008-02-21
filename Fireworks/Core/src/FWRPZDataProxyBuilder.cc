@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.3 2008/01/23 18:29:18 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.4 2008/01/24 00:28:26 chrjones Exp $
 //
 
 // system include files
@@ -35,8 +35,8 @@
 //
 FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
   m_item(0),
-  m_rhoPhiProj(0),
-  m_rhoZProj(0)
+  m_rhoPhiProjs(),
+  m_rhoZProjs()
 {
 }
 
@@ -86,12 +86,18 @@ void
 FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
    modelChanges(iIds,m_elements);
-   if(0!=m_rhoPhiProj) {
-      modelChanges(iIds,m_rhoPhiProj);
-   }
-   if(0!=m_rhoZProj) {
-      modelChanges(iIds,m_rhoZProj);
-   }
+   std::for_each(m_rhoPhiProjs.begin(),
+                 m_rhoPhiProjs.end(),
+                 boost::bind(&FWRPZDataProxyBuilder::modelChanges,
+                             this,
+                             iIds,
+                             _1));
+   std::for_each(m_rhoZProjs.begin(),
+                 m_rhoZProjs.end(),
+                 boost::bind(&FWRPZDataProxyBuilder::modelChanges,
+                             this,
+                             iIds,
+                             _1));
 }
 
 static void
@@ -138,19 +144,33 @@ FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds,
 }
 
 void 
-FWRPZDataProxyBuilder::setRhoPhiProj(TEveElement* iElement)
+FWRPZDataProxyBuilder::addRhoPhiProj(TEveElement* iElement)
 {
 
    //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
-   m_rhoPhiProj=iElement;
+   assert(0!=iElement);
+   m_rhoPhiProjs.push_back(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
 void 
-FWRPZDataProxyBuilder::setRhoZProj(TEveElement* iElement)
+FWRPZDataProxyBuilder::addRhoZProj(TEveElement* iElement)
 {
-   m_rhoZProj=iElement;
+   assert(0!=iElement);
+   m_rhoZProjs.push_back(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
+
+void 
+FWRPZDataProxyBuilder::clearRhoPhiProjs()
+{
+   m_rhoPhiProjs.clear();
+}
+void 
+FWRPZDataProxyBuilder::clearRhoZProjs()
+{
+   m_rhoZProjs.clear();
+}
+
 
 //
 // const member functions

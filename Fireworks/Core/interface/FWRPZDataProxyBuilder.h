@@ -16,10 +16,11 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.3 2008/01/22 21:08:57 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.4 2008/01/24 00:28:27 chrjones Exp $
 //
 
 // system include files
+#include <vector>
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
@@ -46,9 +47,12 @@ class FWRPZDataProxyBuilder
 
       void modelChanges(const FWModelIds&);
    
-      void setRhoPhiProj(TEveElement*);
-      void setRhoZProj(TEveElement*);
+      void addRhoPhiProj(TEveElement*);
+      void addRhoZProj(TEveElement*);
 
+      void clearRhoPhiProjs();
+      void clearRhoZProjs();
+   
    protected:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
@@ -64,8 +68,8 @@ class FWRPZDataProxyBuilder
       // ---------- member data --------------------------------
       const FWEventItem* m_item;
       TEveElementList* m_elements;
-      TEveElement* m_rhoPhiProj;
-      TEveElement* m_rhoZProj;
+      std::vector<TEveElement*> m_rhoPhiProjs;
+      std::vector<TEveElement*> m_rhoZProjs;
 };
 
 
