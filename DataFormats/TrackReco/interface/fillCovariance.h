@@ -4,7 +4,7 @@
 
 namespace reco {
   typedef math::Error<5>::type PerigeeCovarianceMatrix;
-  PerigeeCovarianceMatrix & fillCovariance( PerigeeCovarianceMatrix & v, const double * data );
+  PerigeeCovarianceMatrix & fillCovariance( PerigeeCovarianceMatrix & v, const float * data );
 }
   
 #endif

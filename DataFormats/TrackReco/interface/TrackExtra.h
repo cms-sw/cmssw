@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.24 2007/10/08 03:35:20 mangano Exp $
+ * \version $Id: TrackExtra.h,v 1.25 2007/11/16 11:45:10 tboccali Exp $
  *
  */
 #include <Rtypes.h>
@@ -119,7 +119,7 @@ namespace reco {
     /// outermost hit validity flag
     bool outerOk_;
     /// outermost trajectory state curvilinear errors 
-    Double32_t outerCovariance_[ covarianceSize ];
+    float outerCovariance_[ covarianceSize ];
     unsigned int outerDetId_;
 
 
@@ -130,7 +130,7 @@ namespace reco {
     /// innermost hit validity flag
     bool innerOk_;
     /// innermost trajectory state 
-    Double32_t innerCovariance_[ covarianceSize ];
+    float innerCovariance_[ covarianceSize ];
     unsigned int innerDetId_;
 
     PropagationDirection seedDir_;

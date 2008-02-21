@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.58 2007/12/19 17:54:37 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.59 2008/01/15 13:05:49 llista Exp $
  *
  */
 
@@ -212,9 +212,9 @@ namespace reco {
 
   private:
     /// chi-squared
-    Double32_t chi2_;
+    float chi2_;
     /// number of degrees of freedom
-    Double32_t ndof_;
+    float ndof_;
      /// innermost (reference) point on track
     Point vertex_;
     /// momentum vector at innermost point
@@ -222,7 +222,7 @@ namespace reco {
     /// electric charge
     char charge_;
     /// perigee 5x5 covariance matrix
-    Double32_t covariance_[ covarianceSize ];
+    float covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
 
