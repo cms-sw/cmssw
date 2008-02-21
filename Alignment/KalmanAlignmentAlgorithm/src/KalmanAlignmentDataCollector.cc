@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "TNtuple.h"
 #include "TFile.h"
+#include "TH1F.h"
 
 using namespace std;
 
