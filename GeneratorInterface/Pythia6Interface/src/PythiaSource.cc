@@ -22,6 +22,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+
 #include <iostream>
 #include "time.h"
 
@@ -52,6 +53,11 @@ extern "C" {
 #define PYEXEC pyexec_
 extern "C" {
   void PYEXEC();
+}
+
+#define PYCOMP pycomp_
+extern "C" {
+   int PYCOMP(int& ip);
 }
 
 #define TXGIVE txgive_
@@ -114,6 +120,8 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     doubleParticle = pset.getUntrackedParameter<bool>("DoubleParticle",true);
     cout <<" double back-to-back " << doubleParticle << endl; 
 
+    kinedata = pset.getUntrackedParameter<string>("kinematicsFile","");
+
     ptmin = pset.getUntrackedParameter<double>("Ptmin",20.);
     ptmax = pset.getUntrackedParameter<double>("Ptmax",420.);
     cout <<" ptmin = " << ptmin <<" ptmax = " << ptmax << endl;
@@ -124,10 +132,16 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       cout <<" emin = " << emin <<" emax = " << emax << endl;
     }
 
-    etamin = pset.getUntrackedParameter<double>("Etamin",0.);
-    etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
-    cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;
-
+    if(kinedata.size() < 1){                                                                                 
+       etamin = pset.getUntrackedParameter<double>("Etamin",0.);                                             
+       etamax = pset.getUntrackedParameter<double>("Etamax",2.2);                                            
+       cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;                                       
+    }else{                                                                                                   
+       ymin = pset.getUntrackedParameter<double>("ymin",0.);                                                 
+       ymax = pset.getUntrackedParameter<double>("ymax",10.);                                                
+       cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;                                               
+    }                             
+    
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
@@ -137,7 +151,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     cout << " seed= " << seed << endl ;
     fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
     fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
- 
+
+    if(kinedata.size() > 0)
+       fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine); 
+
   }
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = 
@@ -215,7 +232,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   if(particleID) 
     {
-      call_pyinit( "NONE", " ", " ", comenergy );
+      call_pyinit( "NONE", "p", "p", comenergy );
     } else {
       call_pyinit( "CMS", "p", "p", comenergy );
     }
@@ -316,29 +333,42 @@ bool PythiaSource::produce(Event & e) {
     //	
    if(particleID) 
       {    
-        int ip = 1;
-	double pt  = fRandomGenerator->fire(ptmin, ptmax);
-	double e   = fRandomGenerator->fire(emin, emax);
-	double eta = fRandomGenerator->fire(etamin, etamax);
-	double the = 2.*atan(exp(-eta));
-	double phi = fRandomGenerator->fire(phimin, phimax);
-	double pmass = PYMASS(particleID);
-	double ee = 0.;
-	if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy
-	  ee = e;
-	} else { // generate single particle distribution flat in pt
-	  double pe = pt/sin(the);
-	  ee = sqrt(pe*pe+pmass*pmass);
-	}
-    
-	/*
-	cout <<" pt = " << pt 
-	     <<" eta = " << eta 
-	     <<" the = " << the 
-	     <<" pe = " << pe 
-	     <<" phi = " << phi 
-	     <<" pmass = " << pmass 
-	     <<" ee = " << ee << endl;
+	 double pi = 3.1415927;
+	 int ip = 1;                                                                                           
+	 double ee=0,the=0,eta=0;                                                                              
+	 double pmass = PYMASS(particleID);                                                                    
+	 double phi = fRandomGenerator->fire(phimin, phimax);                                                  
+	 
+	 if(kinedata.size() < 1){  // no kinematics input specified, use flat distribution, pt and eta         
+	    double pt  = fRandomGenerator->fire(ptmin, ptmax);                                                 
+	    double e   = fRandomGenerator->fire(emin, emax);                                                   
+	    eta = fRandomGenerator->fire(etamin, etamax);                                                      
+	    the = 2.*atan(exp(-eta));                                                                          
+	    if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy      
+	       ee = e;                                                                                         
+	    } else { // generate single particle distribution flat in pt                                       
+	       double pe = pt/sin(the);                                                                        
+	       ee = sqrt(pe*pe+pmass*pmass);                                                                   
+	    }                                                                                                  
+	 }else{ // kinematics from input file, pt and y                                                        
+	    double pt  = fPtYGenerator->firePt(ptmin, ptmax);                                                
+	    double y = fPtYGenerator->fireY(ymin, ymax);                                                       
+	    double u = exp(y);                                                                                 
+	    ee = 0.5*sqrt(pmass*pmass+pt*pt)*(u*u+1)/u;                                                        
+	    double pz = sqrt(ee*ee-pt*pt-pmass*pmass);                   
+	    if(y<0) pz = -pz;
+	    the = atan(pt/pz);                                                                                 
+	    if(pz < 0) the = pi + the;
+	    eta = -log(tan(the/2));                                                                            
+	 }                                 
+	 /*
+	   cout <<" pt = " << pt
+	   <<" eta = " << eta                                                                                  
+	   <<" the = " << the                                                                                  
+	   <<" pe = " << pe                                                                                    
+	   <<" phi = " << phi                                                                                  
+	   <<" pmass = " << pmass                                                                              
+	   <<" ee = " << ee << endl; 
 	*/
 
 	phi = phi * (3.1415927/180.);
@@ -348,7 +378,11 @@ bool PythiaSource::produce(Event & e) {
 	if(doubleParticle)
 	  {
 	    ip = ip + 1;
-	    int particleID2 = -1 * particleID;
+// Check if particle is its own anti-particle.
+	    // int particleID2 = -1 * particleID;
+            int pythiaCode = PYCOMP(particleID);
+            int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
+            int particleID2 = has_antipart ? -1 * particleID : particleID;	    
 	    the = 2.*atan(exp(eta));
 	    phi  = phi + 3.1415927;
 	    if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}         
@@ -372,10 +406,10 @@ bool PythiaSource::produce(Event & e) {
     //
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
-
-    // (tmp ?) fix for pgun mode ("non-beam")
-    if (particleID) evt->set_beam_particles(0,0);
-
+    
+    // fix for 1-part events
+    if ( particleID ) evt->set_beam_particles(0,0);
+    
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_scale(pypars.pari[16]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
@@ -396,23 +430,21 @@ bool PythiaSource::produce(Event & e) {
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
     evt->weights().push_back( pyint1.vint[96] );
-    
+
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
 
       // Prints PYLIST info
-      //
       if(pythiaPylistVerbosity_) {
 	call_pylist(pythiaPylistVerbosity_);
       }
       
       // Prints HepMC event
-      //
       if(pythiaHepMCVerbosity_) {
 	cout << "Event process = " << pypars.msti[0] << endl 
-	<< "----------------------" << endl;	
+	<< "----------------------" << endl;
 	evt->print();
       }
     }
