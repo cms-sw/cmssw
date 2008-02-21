@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.20 2007/11/09 23:08:34 badgett Exp $
+   $Id: StorageManager.h,v 1.21 2008/01/29 21:18:18 biery Exp $
 */
 
 #include <string>
@@ -119,7 +119,7 @@ namespace stor {
     void DQMconsumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
-    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
+    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz);
 	
     // *** state machine related
     evf::StateMachine fsm_;
