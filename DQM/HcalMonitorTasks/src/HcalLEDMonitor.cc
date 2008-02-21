@@ -414,12 +414,12 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  else if(digi.id().ieta()<-28){
 	    if((digi.id().iphi()==1)||(digi.id().iphi()==71)){
 	      HFlumi_ETsum_perwedge->Fill(19,tmpET);
-              if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+              if((digi.id().ieta()==-33)||(digi.id().ieta()==-34)) {
 		if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(19,1);
 		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(19,1);
 		if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(19,1);
 	      }
-	      else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+	      else if((digi.id().ieta()==-35)||(digi.id().ieta()==-36)) {
 		if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(19,1);
 		if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(19,1);
 		if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(19,1);
@@ -430,12 +430,12 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 		int itemp=4*(iw-1);
 		if( (digi.id().iphi()==(itemp+1)) || (digi.id().iphi()==(itemp-1))) {
                   HFlumi_ETsum_perwedge->Fill(iw+18,tmpET);
-		  if((digi.id().ieta()==33)||(digi.id().ieta()==34)) {
+		  if((digi.id().ieta()==-33)||(digi.id().ieta()==-34)) {
 		    if(jadc>100) HFlumi_Occupancy_above_thr_r1->Fill(iw+18,1);
 		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r1->Fill(iw+18,1);
 		    if(jadc<10) HFlumi_Occupancy_below_thr_r1->Fill(iw+18,1);
 		  }
-		  else if((digi.id().ieta()==35)||(digi.id().ieta()==36)) {
+		  else if((digi.id().ieta()==-35)||(digi.id().ieta()==-36)) {
 		    if(jadc>100) HFlumi_Occupancy_above_thr_r2->Fill(iw+18,1);
 		    if((jadc>=10)&&(jadc<=100)) HFlumi_Occupancy_between_thrs_r2->Fill(iw+18,1);
 		    if(jadc<10) HFlumi_Occupancy_below_thr_r2->Fill(iw+18,1);
@@ -485,8 +485,8 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals,
 
   string type = "HB";
   if(id==1) type = "HE"; 
-  else if(id==2) type = "HF"; 
-  else if(id==3) type = "HO"; 
+  else if(id==2) type = "HO"; 
+  else if(id==3) type = "HF"; 
   
   if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
 
