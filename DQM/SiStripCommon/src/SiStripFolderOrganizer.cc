@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.12 2007/12/06 10:54:40 ebutz Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.13 2008/01/22 19:16:55 muzaffar Exp $
 //
 
 #include <iostream>
@@ -22,6 +22,8 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 

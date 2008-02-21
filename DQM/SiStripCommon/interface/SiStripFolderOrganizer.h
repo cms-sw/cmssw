@@ -16,11 +16,12 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiStripFolderOrganizer.h,v 1.2 2006/04/11 10:22:31 dkcira Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.3 2006/04/23 13:24:20 dkcira Exp $
 //
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <string>
+
+class DaqMonitorBEInterface;
 
 class SiStripFolderOrganizer
 {

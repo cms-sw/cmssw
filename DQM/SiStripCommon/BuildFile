@@ -1,22 +1,11 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=DQMServices/Core>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ServiceRegistry>
 <use name=boost>
 <use name=root>
 
-<use name=FWCore/MessageLogger>
-
 <export>
-   <lib name=DQMSiStripCommon>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/PluginManager>
-   <use name=DataFormats/SiStripCommon>
-   <use name=DataFormats/SiStripDetId>
-   <use name=DQMServices/Core>
-   <use name=boost>
-   <use name=root>
+  <lib name=DQMSiStripCommon>
+  <use name=boost>
 </export>
