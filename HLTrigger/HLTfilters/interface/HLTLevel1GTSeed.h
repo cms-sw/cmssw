@@ -22,7 +22,6 @@
 // system include files
 #include <string>
 #include <vector>
-#include <map>
 
 // user include files
 
@@ -67,8 +66,12 @@ private:
 
     /// update the tokenResult members from m_l1AlgoLogicParserin 
     /// for a new event
-    void updateAlgoLogicParser(const DecisionWord&);
+    void updateAlgoLogicParser(const std::vector<bool>&);
     
+    /// for seeding via technical triggers, convert the "name" to tokenNumber
+    /// (seeding via bit numbers)
+    void convertStringToBitNumber();
+
     /// debug print grouped in a single function
     /// can be called for a new menu (bool "true") or for a new event
     void debugPrint(bool);
@@ -96,8 +99,11 @@ private:
 
 private:
 
+    /// seeding done via technical trigger bits, if value is "true";
+    bool m_l1TechTriggerSeeding;
+
     /// logical expression for the required L1 algorithms;
-    /// the algorithms can be given by name or by bit number
+    /// the algorithms are specified by name
     std::string m_l1SeedsLogicalExpression;
 
     /// InputTag for the L1 Global Trigger DAQ readout record

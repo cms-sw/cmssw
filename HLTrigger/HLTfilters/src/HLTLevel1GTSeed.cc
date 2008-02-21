@@ -25,6 +25,9 @@
 #include <vector>
 #include <algorithm>
 
+#include <iostream>
+#include <sstream>
+
 // user include files
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -69,6 +72,9 @@
 // constructors
 HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
 
+    // seeding done via technical trigger bits, if value is "true";
+    m_l1TechTriggerSeeding = parSet.getParameter<bool>("L1TechTriggerSeeding");
+
     // logical expression for the required L1 algorithms;
     m_l1SeedsLogicalExpression = parSet.getParameter<std::string>("L1SeedsLogicalExpression");
 
@@ -100,7 +106,14 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
         m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
     }
 
+    // for seeding via technical triggers, convert the "name" to tokenNumber
+    // (seeding via bit numbers)
+    if (m_l1TechTriggerSeeding) {
+        convertStringToBitNumber();
+    }
+        
     LogDebug("HLTLevel1GTSeed") << "\n" 
+        << "L1 Seeding via Technical Triggers   " << m_l1TechTriggerSeeding << "\n"
         << "L1 Seeds Logical Expression:        " << m_l1SeedsLogicalExpression << "\n" 
         << "Input tag for GT DAQ record:        " << m_l1GtReadoutRecordTag.label() << " \n" 
         << "Input tag for GT object map record: " << m_l1GtObjectMapTag.label() << " \n" 
@@ -159,6 +172,29 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         }
 
     }
+    
+    // seeding done via technical trigger bits
+    if (m_l1TechTriggerSeeding) {
+
+        // get Global Trigger technical trigger word, update the tokenResult members 
+        // from m_l1AlgoLogicParser and get the result for the logical expression
+        const std::vector<bool>& gtTechTrigWord = gtReadoutRecord->technicalTriggerWord();
+        updateAlgoLogicParser(gtTechTrigWord);
+
+        // always empty filter - GT not aware of objects for technical triggers
+        iEvent.put(filterObject);
+
+        bool seedsResult = m_l1AlgoLogicParser.expressionResult();
+        
+        if (seedsResult) {
+            return true;
+        } else {
+            return false;            
+        }
+        
+    }
+    
+    // seeding via physics algorithms
 
     // get / update the trigger menu from the EventSetup 
     // local cache & check on cacheIdentifier
@@ -179,7 +215,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     
     // get Global Trigger decision word, update the tokenResult members 
     // from m_l1AlgoLogicParser and get the result for the logical expression
-    const DecisionWord& gtDecisionWord = gtReadoutRecord->decisionWord();
+    const std::vector<bool>& gtDecisionWord = gtReadoutRecord->decisionWord();
     updateAlgoLogicParser(gtDecisionWord);
 
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
@@ -841,17 +877,17 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
 
 // update the tokenResult members from m_l1AlgoLogicParser in 
 // for a new event
-void HLTLevel1GTSeed::updateAlgoLogicParser(const DecisionWord& gtDecisionWord) {
+void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord) {
 
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
         m_l1AlgoLogicParser.operandTokenVector();
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
-        (algOpTokenVector[i]).tokenResult = gtDecisionWord.at((algOpTokenVector[i]).tokenNumber);
+        (algOpTokenVector[i]).tokenResult = gtWord.at((algOpTokenVector[i]).tokenNumber);
     }
 
     for (size_t i = 0; i < m_l1AlgoSeeds.size(); ++i) {
-        (m_l1AlgoSeeds[i]).tokenResult = gtDecisionWord.at((m_l1AlgoSeeds[i]).tokenNumber);
+        (m_l1AlgoSeeds[i]).tokenResult = gtWord.at((m_l1AlgoSeeds[i]).tokenNumber);
     }
 
     if (edm::isDebugEnabled() ) {
@@ -861,19 +897,78 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const DecisionWord& gtDecisionWord) 
 
 }
 
+// for seeding via technical triggers, convert the "name" to tokenNumber
+// (seeding via bit numbers) - done once in constructor
+void HLTLevel1GTSeed::convertStringToBitNumber() {
+
+    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
+        m_l1AlgoLogicParser.operandTokenVector();
+
+    for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
+        
+        std::string bitString = (algOpTokenVector[i]).tokenName;
+        std::istringstream bitStream(bitString);
+        int bitInt;
+
+        if ((bitStream >> bitInt).fail() ) {
+
+            throw cms::Exception("FailModule")
+            << "\nL1 Seeds Logical Expression: = '" << m_l1SeedsLogicalExpression << "'"
+            << "\n  Conversion to integer failed for " << bitString
+            << std::endl;
+        }
+        
+        (algOpTokenVector[i]).tokenNumber = bitInt;
+        
+    }
+    
+
+    for (size_t i = 0; i < m_l1AlgoSeeds.size(); ++i) {
+
+        std::string bitString = (m_l1AlgoSeeds[i]).tokenName;
+        std::istringstream bitStream(bitString);
+        int bitInt;
+
+        if ((bitStream >> bitInt).fail() ) {
+
+            throw cms::Exception("FailModule")
+            << "\nL1 Seeds Logical Expression: = '" << m_l1SeedsLogicalExpression << "'"
+            << "\n  Conversion to integer failed for " << bitString
+            << std::endl;
+        }
+        
+        (m_l1AlgoSeeds[i]).tokenNumber = bitInt;
+    }
+    
+    
+}
+
 // debug print grouped in a single function
 // can be called for a new menu (bool "true") or for a new event
 void HLTLevel1GTSeed::debugPrint(bool newMenu) {
     
-    if (newMenu) {
+    
+
+    if (m_l1TechTriggerSeeding) {
         LogDebug("HLTLevel1GTSeed")
-            << "\n\nupdateAlgoLogicParser: L1 trigger menu changed to "
-            << m_l1GtMenu->gtTriggerMenuName() << std::endl;        
-    } else {
-        LogDebug("HLTLevel1GTSeed")
-            << "\n\nupdateAlgoLogicParser: L1 trigger menu unchanged ("
-            << m_l1GtMenu->gtTriggerMenuName() << ")\n   update event quantities." 
-            << std::endl;                
+                << "\n\nupdateAlgoLogicParser: seeding via technical trigger"
+                << "\n   update event quantities."
+                << std::endl;
+
+    }
+    else {
+
+        if (newMenu) {
+            LogDebug("HLTLevel1GTSeed")
+                    << "\n\nupdateAlgoLogicParser: L1 trigger menu changed to "
+                    << m_l1GtMenu->gtTriggerMenuName() << std::endl;
+        }
+        else {
+            LogDebug("HLTLevel1GTSeed")
+                    << "\n\nupdateAlgoLogicParser: L1 trigger menu unchanged ("
+                    << m_l1GtMenu->gtTriggerMenuName()
+                    << ")\n   update event quantities." << std::endl;
+        }
     }
     
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
