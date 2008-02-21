@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id$
+// $Id: FW3DLegoView.h,v 1.1 2008/02/21 19:20:05 chrjones Exp $
 //
 
 // system include files
 #include "Rtypes.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWViewBase.h"
 
 // forward declarations
 class TGFrame;
@@ -31,7 +32,7 @@ class THStack;
 class TCanvas;
 class TObject;
 
-class FW3DLegoView
+class FW3DLegoView : public FWViewBase
 {
 
    public:
@@ -40,9 +41,11 @@ class FW3DLegoView
 
       // ---------- const member functions ---------------------
       TGFrame* frame() const;
-
+      const std::string& typeName() const;
+     
       // ---------- static member functions --------------------
-
+      static const std::string& staticTypeName();
+   
       // ---------- member functions ---------------------------
       void draw(THStack*);
 

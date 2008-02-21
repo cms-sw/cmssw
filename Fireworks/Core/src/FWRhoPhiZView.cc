@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id$
+// $Id: FWRhoPhiZView.cc,v 1.1 2008/02/21 14:38:53 chrjones Exp $
 //
 
 // system include files
@@ -79,7 +79,8 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 // constructors and destructor
 //
-FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType)
+FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
+m_typeName(iName)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
@@ -161,6 +162,12 @@ TGFrame*
 FWRhoPhiZView::frame() const
 {
    return m_embeddedViewer->GetFrame();
+}
+
+const std::string& 
+FWRhoPhiZView::typeName() const
+{
+   return m_typeName;
 }
 
 //

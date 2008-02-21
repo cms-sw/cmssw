@@ -16,15 +16,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id$
+// $Id: FWRhoPhiZView.h,v 1.1 2008/02/21 14:38:54 chrjones Exp $
 //
 
 // system include files
 #include <string>
-
-// user include files
 #include "TGLViewer.h"
 #include "TEveProjections.h"
+
+// user include files
+#include "Fireworks/Core/interface/FWViewBase.h"
 
 // forward declarations
 class TEvePad;
@@ -33,7 +34,7 @@ class TGLEmbeddedViewer;
 class TEveProjectionManager;
 class TGFrame;
 
-class FWRhoPhiZView
+class FWRhoPhiZView : public FWViewBase
 {
 
    public:
@@ -44,6 +45,7 @@ class FWRhoPhiZView
 
       // ---------- const member functions ---------------------
       TGFrame* frame() const;
+      const std::string& typeName() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -63,7 +65,7 @@ class FWRhoPhiZView
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveProjectionManager* m_projMgr;
       std::vector<TEveElement*> m_geom;
-
+      std::string m_typeName;
 
 };
 

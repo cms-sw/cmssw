@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id$
+// $Id: FW3DLegoView.cc,v 1.1 2008/02/21 19:20:04 chrjones Exp $
 //
 
 // system include files
@@ -184,6 +184,19 @@ FW3DLegoView::frame() const
    return m_frame;
 }
 
+const std::string& 
+FW3DLegoView::typeName() const
+{
+   return staticTypeName();
+}
+
 //
 // static member functions
 //
+const std::string& 
+FW3DLegoView::staticTypeName()
+{
+   static std::string s_name("3D Lego");
+   return s_name;
+}
+
