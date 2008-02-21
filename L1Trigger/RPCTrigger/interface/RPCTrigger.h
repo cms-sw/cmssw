@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2007/03/26 09:43:17 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/06/06 13:39:13 $
+ *  $Revision: 1.12 $
  *  \author Tomasz Fruboes
  */
 
@@ -67,6 +67,7 @@ class RPCTrigger : public edm::EDProducer {
  
     bool m_firstRun;   
     int m_triggerDebug;
+    unsigned long long m_cacheID;
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);
 
     std::string m_label;

@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/07/16 08:33:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/31 13:46:10 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -26,6 +26,8 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
   
 
   m_firstRun = true;
+  m_cacheID = 0;
+
 
   m_triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
   
@@ -53,45 +55,43 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  
 
-  if (m_firstRun){ // IOV checking?
+
+  if (m_firstRun){
+
+     m_cacheID = iSetup.get<L1RPCConfigRcd>().cacheIdentifier();
      m_firstRun = false;  
      edm::ESHandle<L1RPCConfig> conf;
      iSetup.get<L1RPCConfigRcd>().get(conf);
      const L1RPCConfig *rpcconf = conf.product();
 
-     int ppt =  rpcconf->getPPT();
 
-     //std::string patternsDirNameLocal = rpcconf->getDataDir();
-     
-     // Since fileInPath doesnt allow us to use directory we use this quick and dirty solution
-     //edm::FileInPath fp(patternsDirNameLocal+"keepme.txt"); 
-     //std::string patternsDirNameUnstriped = fp.fullPath();
-     //std::string patternsDirName = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
-     
-     /*
-     switch (ppt){
-        case 1:
-          m_pacManager.init(patternsDirName, ONE_PAC_PER_TOWER); // TODO: read that from cfg
-          break;
-        case 12:
-          m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
-          break;
-        case 144:
-          m_pacManager.init(patternsDirName, _144_PACS_PER_TOWER);
-          break;
-        default:
-          throw cms::Exception("BadConfig")
-                  << "PACsPerTower set to wrong value: " << ppt << "\n";
-       }*/
-       m_pacManager.init(rpcconf);
-  
-       m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
-  
-       m_trigConfig->setDebugLevel(m_triggerDebug);
-  
-       m_pacTrigger = new RPCPacTrigger(m_trigConfig);
+     m_pacManager.init(rpcconf);
+     m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
+     m_trigConfig->setDebugLevel(m_triggerDebug);
+     m_pacTrigger = new RPCPacTrigger(m_trigConfig);
 
       
+  }
+
+  if (m_cacheID != iSetup.get<L1RPCConfigRcd>().cacheIdentifier()) {
+
+      //std::cout << " New pats: " << iSetup.get<L1RPCConfigRcd>().cacheIdentifier() << std::endl ; 
+      m_cacheID = iSetup.get<L1RPCConfigRcd>().cacheIdentifier();
+
+     edm::ESHandle<L1RPCConfig> conf;
+     iSetup.get<L1RPCConfigRcd>().get(conf);
+     const L1RPCConfig *rpcconf = conf.product();
+
+     m_pacManager.init(rpcconf);
+     delete m_trigConfig;
+     m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
+     m_trigConfig->setDebugLevel(m_triggerDebug);
+
+     delete m_pacTrigger;
+     m_pacTrigger = new RPCPacTrigger(m_trigConfig);
+
+
+       
   }
 
  
