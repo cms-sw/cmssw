@@ -70,7 +70,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   
   // Store result to EventSetup
   GeometryAligner aligner;
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
+  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors, 
+                                            AlignTransform()); // dummy global position
 
   // Write alignments to DB: have to sort beforhand!
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
