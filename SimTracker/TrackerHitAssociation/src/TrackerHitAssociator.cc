@@ -167,6 +167,9 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     {
       simtrackid = associateGSRecHit(rechit);
     }
+  if (const SiTrackerMultiRecHit * rechit = dynamic_cast<const SiTrackerMultiRecHit *>(&thit)){
+    return associateMultiRecHit(rechit);
+  }
   //check if these are GSRecHits (from FastSim)
   else if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
     {
@@ -244,6 +247,9 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
   DetId detid=  thit.geographicalId();
   //apparently not used
   //  uint32_t detID = detid.rawId();
+  if (const SiTrackerMultiRecHit * rechit = dynamic_cast<const SiTrackerMultiRecHit *>(&thit)){
+        return associateMultiRecHitId(rechit);
+  }
 
   //cout << "Associator ---> get Detid " << detID << endl;
   //check we are in the strip tracker
@@ -289,7 +295,7 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
     {
       simtrackid = associateGSMatchedRecHit(rechit);
     }
-  
+
  
   return simtrackid;  
 }
@@ -513,6 +519,29 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTracker
   return simtrackid;
 }
 
+std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerMultiRecHit * multirechit){
+        std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
+        std::vector<PSimHit> assimhits;
+        std::vector<const TrackingRecHit*>::const_iterator iter;
+        for (iter = componenthits.begin(); iter != componenthits.end(); iter ++){
+                std::vector<PSimHit> asstocurrent = associateHit(**iter);
+                assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
+        }
+        //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
+        return assimhits;
+}
+
+std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit){
+        std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
+        std::vector<SimHitIdpr> assimhits;
+        std::vector<const TrackingRecHit*>::const_iterator iter;
+        for (iter = componenthits.begin(); iter != componenthits.end(); iter ++){
+                std::vector<SimHitIdpr> asstocurrent = associateHitId(**iter);
+                assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
+        }
+        //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
+        return assimhits;
+}
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
 {
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
