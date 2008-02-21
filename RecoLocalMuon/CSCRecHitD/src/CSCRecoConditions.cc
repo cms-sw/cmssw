@@ -1,13 +1,13 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-
-#include <iostream>
 
 CSCRecoConditions::CSCRecoConditions( const edm::ParameterSet & ps ) {
 }
 
 CSCRecoConditions::~CSCRecoConditions() {
+}
+
+void CSCRecoConditions::initializeEvent( const edm::EventSetup& es ) {
+  theConditions.initializeEvent( es );
 }
 
 // This expects ME11 detId for ME1b (channels 1-64) AND for ME1a (channels 65-80)

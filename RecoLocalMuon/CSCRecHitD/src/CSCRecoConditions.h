@@ -12,11 +12,10 @@
  * \author Tim Cox
  */
 
-#include "CondFormats/CSCObjects/interface/CSCConditions.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-class CSCDetId;
-class edm::EventStup;
+#include "CondFormats/CSCObjects/interface/CSCConditions.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 class CSCRecoConditions 
 {
