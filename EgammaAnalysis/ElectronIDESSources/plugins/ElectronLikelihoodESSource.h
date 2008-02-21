@@ -54,14 +54,16 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
 		       edm::ValidityInterval & );
   
  private:
-  /// read PDF's from CondDB
+  //! read PDF's from CondDB
   const ElectronLikelihoodCalibration* readPdfFromDB ( const ElectronLikelihoodRcd & );
 
  private:
 
-  /// input file names for EB/EE Fisher coefficients
-  edm::FileInPath m_fisherEBFileName ;
-  edm::FileInPath m_fisherEEFileName ;
+  //! fisher coefficients
+  std::vector<double> m_fisherEBLt15;
+  std::vector<double> m_fisherEBGt15;
+  std::vector<double> m_fisherEELt15;
+  std::vector<double> m_fisherEEGt15;
 
   //! barrel electron classes fractions
   std::vector<double> m_eleEBFracsLt15 ;

@@ -1,10 +1,11 @@
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "EgammaAnalysis/ElectronIDESSources/plugins/ElectronLikelihoodESSource.h"
+#include <TFile.h>
+#include <TDirectory.h>
 
 
 ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet& cfg) :
-  m_fisherEBFileName (cfg.getParameter<edm::FileInPath> ("fisherEBFileName")) ,
-  m_fisherEEFileName (cfg.getParameter<edm::FileInPath> ("fisherEEFileName")) ,
   m_eleWeight (cfg.getParameter<double> ("eleWeight")) ,
   m_piWeight  (cfg.getParameter<double> ("piWeight")) ,
   m_signalWeightSplitting (cfg.getParameter<std::string> ("signalWeightSplitting")) ,
@@ -14,6 +15,27 @@ ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet&
 {
   setWhatProduced (this) ;
   findingRecord<ElectronLikelihoodRcd> () ;
+
+  m_fisherEBLt15.push_back (cfg.getParameter<double> ("fisherCoeffEBLt15_constant")) ;
+  m_fisherEBLt15.push_back (cfg.getParameter<double> ("fisherCoeffEBLt15_sigmaEtaEta")) ;
+  m_fisherEBLt15.push_back (cfg.getParameter<double> ("fisherCoeffEBLt15_s9s25")) ;
+  m_fisherEBLt15.push_back (cfg.getParameter<double> ("fisherCoeffEBLt15_etaLat")) ;
+  m_fisherEBLt15.push_back (cfg.getParameter<double> ("fisherCoeffEBLt15_a20")) ;
+  m_fisherEBGt15.push_back (cfg.getParameter<double> ("fisherCoeffEBGt15_constant")) ;
+  m_fisherEBGt15.push_back (cfg.getParameter<double> ("fisherCoeffEBGt15_sigmaEtaEta")) ;
+  m_fisherEBGt15.push_back (cfg.getParameter<double> ("fisherCoeffEBGt15_s9s25")) ;
+  m_fisherEBGt15.push_back (cfg.getParameter<double> ("fisherCoeffEBGt15_etaLat")) ;
+  m_fisherEBGt15.push_back (cfg.getParameter<double> ("fisherCoeffEBGt15_a20")) ;
+  m_fisherEELt15.push_back (cfg.getParameter<double> ("fisherCoeffEELt15_constant")) ;
+  m_fisherEELt15.push_back (cfg.getParameter<double> ("fisherCoeffEELt15_sigmaEtaEta")) ;
+  m_fisherEELt15.push_back (cfg.getParameter<double> ("fisherCoeffEELt15_s9s25")) ;
+  m_fisherEELt15.push_back (cfg.getParameter<double> ("fisherCoeffEELt15_etaLat")) ;
+  m_fisherEELt15.push_back (cfg.getParameter<double> ("fisherCoeffEELt15_a20")) ;
+  m_fisherEEGt15.push_back (cfg.getParameter<double> ("fisherCoeffEEGt15_constant")) ;
+  m_fisherEEGt15.push_back (cfg.getParameter<double> ("fisherCoeffEEGt15_sigmaEtaEta")) ;
+  m_fisherEEGt15.push_back (cfg.getParameter<double> ("fisherCoeffEEGt15_s9s25")) ;
+  m_fisherEEGt15.push_back (cfg.getParameter<double> ("fisherCoeffEEGt15_etaLat")) ;
+  m_fisherEEGt15.push_back (cfg.getParameter<double> ("fisherCoeffEEGt15_a20")) ;
 
   m_eleEBFracsLt15.push_back (cfg.getParameter<double> ("eleEBGoldenFracLt15")) ;
   m_eleEBFracsLt15.push_back (cfg.getParameter<double> ("eleEBBigbremFracLt15")) ;
@@ -50,11 +72,12 @@ ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet&
   m_piEEFracsGt15.push_back (cfg.getParameter<double> ("piEEShoweringFracGt15")) ;
 
   m_eleIDSwitches.m_useDeltaEtaCalo = cfg.getParameter<double> ("useDeltaEtaCalo") ;
-  m_eleIDSwitches.m_useDeltaPhiIn = cfg.getParameter<double> ("useDeltaPhiIn") ;
-  m_eleIDSwitches.m_useHoverE = cfg.getParameter<double> ("useHoverE") ;
-  m_eleIDSwitches.m_useEoverPOut = cfg.getParameter<double> ("useEoverPOut") ;
-  m_eleIDSwitches.m_useShapeFisher = cfg.getParameter<double> ("useShapeFisher") ;
-  
+  m_eleIDSwitches.m_useDeltaPhiIn   = cfg.getParameter<double> ("useDeltaPhiIn") ;
+  m_eleIDSwitches.m_useHoverE       = cfg.getParameter<double> ("useHoverE") ;
+  m_eleIDSwitches.m_useEoverPOut    = cfg.getParameter<double> ("useEoverPOut") ;
+  m_eleIDSwitches.m_useShapeFisher  = cfg.getParameter<double> ("useShapeFisher") ;
+  m_eleIDSwitches.m_useSigmaEtaEta  = cfg.getParameter<double> ("useSigmaEtaEta") ;
+  m_eleIDSwitches.m_useE9overE25    = cfg.getParameter<double> ("useE9overE25") ;
 }
 
 
@@ -75,7 +98,8 @@ ElectronLikelihoodESSource::produce (const ElectronLikelihoodRcd & iRecord)
   const ElectronLikelihoodCalibration *calibration = readPdfFromDB (iRecord) ;
 
   ReturnType LHAlgo (new ElectronLikelihood (&(*calibration), 
-					     m_fisherEBFileName, m_fisherEEFileName,
+					     m_fisherEBLt15,     m_fisherEBGt15,
+					     m_fisherEELt15,     m_fisherEEGt15,
 					     m_eleEBFracsLt15,   m_piEBFracsLt15, 
 					     m_eleEEFracsLt15,   m_piEEFracsLt15,
 					     m_eleEBFracsGt15,   m_piEBFracsGt15, 
