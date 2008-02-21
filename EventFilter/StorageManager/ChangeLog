@@ -1,3 +1,9 @@
+2008-02-21  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-04 
+	* Fixes to allow propor behavior for file sizes greater than 2GB, and to
+	  make the cfg file specify the max file size in MBytes instead of bytes.
+
 2008-02-11  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-03 
