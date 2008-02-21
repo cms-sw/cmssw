@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.23 2008/02/07 16:28:49 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.24 2008/02/09 19:50:10 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.23 $
-  \date $Date: 2008/02/07 16:28:49 $
+  \version $Revision: 1.24 $
+  \date $Date: 2008/02/09 19:50:10 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -19,7 +19,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
