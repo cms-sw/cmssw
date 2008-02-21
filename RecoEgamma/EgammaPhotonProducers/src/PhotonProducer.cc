@@ -12,6 +12,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
@@ -35,6 +37,10 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
   barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = conf_.getParameter<std::string>("endcapHitCollection");
+
+  conversionProducer_ = conf_.getParameter<std::string>("conversionProducer");
+  conversionCollection_ = conf_.getParameter<std::string>("conversionCollection");
+
 
   hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
   hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
@@ -143,6 +149,17 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
+  ///// Get the conversion collection
+  validConversions_=true;
+  edm::Handle<reco::ConversionCollection> conversionHandle; 
+  theEvent.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
+  if (!conversionHandle.isValid()) {
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Corrected Photons will be made with null reference to conversions " << "\n";
+    //return;
+    validConversions_=false;
+  }
+ 
+
 
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
@@ -185,8 +202,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -202,6 +219,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloSubdetectorGeometry *geometryES,
 		   const EcalRecHitCollection *hits,
 		   HBHERecHitMetaCollection *mhbhe,
+                   const edm::Handle<reco::ConversionCollection> & conversionHandle,
 		   const reco::ElectronPixelSeedCollection& pixelSeeds,
 		   math::XYZPoint & vtx,
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
@@ -211,6 +229,10 @@ void PhotonProducer::fillPhotonCollection(
   reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
 
+  reco::ConversionCollection conversionCollection;
+  if (validConversions_) conversionCollection = *(conversionHandle.product());
+
+
   int lSC=0; // reset local supercluster index
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
 
@@ -218,7 +240,8 @@ void PhotonProducer::fillPhotonCollection(
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
     iSC++;
     lSC++;
-    
+
+    const reco::SuperCluster* pClus=&(*aClus);
     
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
@@ -265,10 +288,31 @@ void PhotonProducer::fillPhotonCollection(
       photonEnergy=seedShapeRef->e5x5();
     }
 
-
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     
     reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
+
+    if ( validConversions_) {
+	int icp=0;
+	
+	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+	  
+	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+	  icp++;      
+	  
+          if ( scRef != (*itCP).superCluster() ) continue; 
+	  if ( !(*itCP).isConverted() ) continue;  
+	  
+	  
+	  newCandidate.addConversion(cpRef);     
+	  
+	  
+	}		     
+
+      }
+
+
+
     outputPhotonCollection.push_back(newCandidate);
     
     
