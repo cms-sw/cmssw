@@ -651,10 +651,6 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	}
       }
       
-      if(histo) {
-        edm::LogVerbatim(mlDqmClient_) << "#CD: Found CME with title" <<  histo->title_  << std::endl;
-      }
-      
       // Create CollateME if it doesn't exist
       if ( !histo ) {
 
