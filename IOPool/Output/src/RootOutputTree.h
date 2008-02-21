@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.15 2008/02/01 20:23:42 wmtan Exp $
+$Id: RootOutputTree.h,v 1.16 2008/02/20 04:05:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ $Id: RootOutputTree.h,v 1.15 2008/02/01 20:23:42 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
@@ -38,55 +38,49 @@ namespace edm {
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
 		   BranchType const& branchType,
 		   T const*& pAux,
-		   ProductStatusVector const*& pProdStats,
 		   int bufSize,
 		   int splitLevel,
 		   bool fastCloning = false,
-		   bool fastMetaCloning = false,
 		   TTree * tree = 0,
 		   TTree * metaTree = 0,
 		   Selections const& dropList = Selections(),
 		   std::vector<std::string> renamedList = std::vector<std::string>()) :
       filePtr_(filePtr),
-      tree_(fastCloning ?
-		cloneTTree(filePtr.get(), tree, dropList, renamedList, true)
+      fastCloning_(fastCloning),
+      tree_(fastCloning_ ?
+		pseudoCloneTTree(filePtr.get(), tree, splitLevel)
 		:
 		makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
-      metaTree_(fastMetaCloning ?
+      metaTree_(fastCloning ?
 		cloneTTree(filePtr.get(), metaTree, Selections(), renamedList)
 		:
 		makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
-      infoTree_(makeTTree(filePtr.get(), BranchTypeToInfoTreeName(branchType), 0)),
+      oldTree_(tree),
       auxBranch_(0),
-      statusBranch_(0),
       branches_(),
       metaBranches_(),
-      infoBranches_(),
       clonedBranches_(),
       clonedMetaBranches_(),
       currentlyFastCloning_(),
-      currentlyFastMetaCloning_(),
       basketSize_(bufSize),
       splitLevel_(splitLevel),
       branchNames_() {
 
-      auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (auxBranch_ != 0) {
-	auxBranch_->SetAddress(&pAux);
+      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
+      if (fastCloning_) {
         clonedBranches_.push_back(auxBranch_);
       } else {
-        auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
         branches_.push_back(auxBranch_);
       }
-      statusBranch_ = infoTree_->Branch(BranchTypeToProductStatusBranchName(branchType).c_str(), &pProdStats, bufSize, 0);
-      infoBranches_.push_back(statusBranch_);
     }
 
     ~RootOutputTree() {}
     
     static void fastCloneTTree(TTree *in, TTree *out);
 
-    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, bool force = false);
+    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
+
+    static TTree * pseudoCloneTTree(TFile *filePtr, TTree *tree, int splitLevel);
 
     static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
 
@@ -98,7 +92,7 @@ namespace edm {
 
     bool isValid() const;
 
-    void addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd);
+    void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd);
 
     std::vector<std::string> const& branchNames() const {return branchNames_;}
 
@@ -116,19 +110,12 @@ namespace edm {
       return metaTree_;
     }
 
-    TTree *const infoTree() const {
-      return infoTree_;
-    }
-
     void setEntries() {
       if (tree_->GetNbranches() != 0) tree_->SetEntries(-1);
       if (metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
-    void beginInputFile(bool fastCloning, bool fastMetaCloning) {
-      currentlyFastCloning_ = fastCloning;
-      currentlyFastMetaCloning_ = fastMetaCloning;
-    }
+    void beginInputFile(bool fastCloning) {currentlyFastCloning_ = fastCloning;}
 
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
@@ -136,18 +123,16 @@ namespace edm {
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
     boost::shared_ptr<TFile> filePtr_;
+    bool fastCloning_;
     TTree *const tree_;
     TTree *const metaTree_;
-    TTree *const infoTree_;
+    TTree *const oldTree_;
     TBranch * auxBranch_;
-    TBranch * statusBranch_;
     std::vector<TBranch *> branches_; // does not include cloned branches
     std::vector<TBranch *> metaBranches_; // does not include cloned branches
-    std::vector<TBranch *> infoBranches_;
     std::vector<TBranch *> clonedBranches_;
     std::vector<TBranch *> clonedMetaBranches_;
     bool currentlyFastCloning_;
-    bool currentlyFastMetaCloning_;
     int basketSize_;
     int splitLevel_;
     std::vector<std::string> branchNames_;

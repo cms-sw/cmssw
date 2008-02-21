@@ -1,41 +1,21 @@
 #include "RootOutputTree.h"
-#include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCloner.h"
-#include "TBranchElement.h"
-#include "TStreamerInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/bind.hpp"
 #include <algorithm>
-#include <limits>
 #include <cstring>
 
 namespace edm {
-  namespace {
-    void forceStreamerInfo(TFile * filePtr, TObjArray * branches) {
-      for (int i = 0; i < branches->GetEntries(); ++i) {
-	TBranchElement * br = (TBranchElement *)branches->At(i);
-	br->GetInfo()->ForceWriteInfo(filePtr);
-	if (std::strlen(br->GetClonesName())) {
-	  TClass *cp = gROOT->GetClass(br->GetClonesName());
- 	  if (cp) {
-	    cp->GetStreamerInfo()->ForceWriteInfo(filePtr);
-	  }
-	}
-    	TObjArray * brs = br->GetListOfBranches();
-	forceStreamerInfo(filePtr, brs);
-      }
-    }
-  }
 
   TTree *
   RootOutputTree::assignTTree(TFile * filePtr, TTree * tree) {
     tree->SetDirectory(filePtr);
     // Turn off autosaving because it is such a memory hog and we are not using
     // this check-pointing feature anyway.
-    tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+    tree->SetAutoSave(400000000000LL);
     return tree;
   }
 
@@ -46,17 +26,19 @@ namespace edm {
   }
 
   TTree *
-  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, bool force) {
+  RootOutputTree::pseudoCloneTTree(TFile * filePtr, TTree *tree, int splitLevel) {
+    TTree *newTree = new TTree(tree->GetName(), tree->GetTitle(), splitLevel);
+    return assignTTree(filePtr, newTree);
+  }
+
+  TTree *
+  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList) {
     pruneTTree(tree, dropList, renamedList);
     TTree *newTree = tree->CloneTree(0);
     tree->SetBranchStatus("*", 1);
 //  Break association of the tree with its clone
     tree->GetListOfClones()->Remove(newTree);
     newTree->ResetBranchAddresses();
-    if (force) {
-      TObjArray * branches = newTree->GetListOfBranches();
-      forceStreamerInfo(filePtr, branches);
-    }
     return assignTTree(filePtr, newTree);
   }
 
@@ -88,29 +70,21 @@ namespace edm {
   RootOutputTree::writeTree() const {
     writeTTree(tree_);
     writeTTree(metaTree_);
-    writeTTree(infoTree_);
   }
 
   void
   RootOutputTree::fastCloneTree(TTree *tree, TTree *metaTree) {
-    if (currentlyFastCloning_) {
-      fastCloneTTree(tree, tree_);
-    }
-    if (currentlyFastMetaCloning_) {
-      fastCloneTTree(metaTree, metaTree_);
-    }
+    fastCloneTTree(metaTree, metaTree_);
+    fastCloneTTree(tree, tree_);
   }
 
   void
   RootOutputTree::fillTree() const {
-    fillTTree(infoTree_, infoBranches_);
     fillTTree(metaTree_, metaBranches_);
     fillTTree(tree_, branches_);
     if (!currentlyFastCloning_) {
-      fillTTree(tree_, clonedBranches_);
-    }
-    if (!currentlyFastMetaCloning_) {
       fillTTree(metaTree_, clonedMetaBranches_);
+      fillTTree(tree_, clonedBranches_);
     }
   }
 
@@ -146,23 +120,27 @@ namespace edm {
   }
 
   void
-  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd) {
+  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
       prod.init();
       TBranch * meta = metaTree_->GetBranch(prod.branchName().c_str());
       if (meta != 0) {
-	meta->SetAddress(&pEntryDescID);
+	meta->SetAddress(&pProv);
         clonedMetaBranches_.push_back(meta);
       } else {
-        meta = metaTree_->Branch(prod.branchName().c_str(), &pEntryDescID, basketSize_, 0);
+        meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
         metaBranches_.push_back(meta);
       }
       if (selected) {
-        TBranch * branch = tree_->GetBranch(prod.branchName().c_str());
-        if (branch != 0) {
-	  branch->SetAddress(&pProd);
+        TBranch * oldBranch = (fastCloning_ ? oldTree_->GetBranch(prod.branchName().c_str()) : 0);
+        if (oldBranch != 0) {
+	  TBranch *branch = tree_->Branch(prod.branchName().c_str(),
+		   prod.wrappedName().c_str(),
+		   &pProd,
+		   (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
+		   oldBranch->GetSplitLevel());
           clonedBranches_.push_back(branch);
 	} else {
-	  branch = tree_->Branch(prod.branchName().c_str(),
+	  TBranch *branch = tree_->Branch(prod.branchName().c_str(),
 		   prod.wrappedName().c_str(),
 		   &pProd,
 		   (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
