@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.16 2008/02/14 13:29:55 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.17 2008/02/19 11:23:36 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -410,16 +410,14 @@ void SiStripFecKey::initFromValue() {
   // APV I2C address
   if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
        i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
-    i2cAddr_ = i2cAddr_;
+    i2cAddr_ = i2cAddr_; 
+    if ( lldChan( i2cAddr_ ) != lldChan_ ) { 
+      i2cAddr_ = sistrip::invalid_;
+      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+    }
   } else if ( i2cAddr_ == 0 ) { 
     i2cAddr_ = 0;
   } else { i2cAddr_ = sistrip::invalid_; }
-  
-//   // Consistency check of I2C addresss wrt LLD channel
-//   if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-//     i2cAddr_ = sistrip::invalid_;
-//     key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-//   }
   
 }
 
@@ -497,18 +495,16 @@ void SiStripFecKey::initFromKey() {
     // Extract APV I2C address
     if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
 	 i2cAddr_ <= sistrip::APV_I2C_MAX ) {
-      key( key() | ( hybridPos(i2cAddr_) << i2cAddrOffset_ ) ); 
+      key( key() | ( ( firstApvOfPair( i2cAddr_ ) ? 1 : 2 ) << i2cAddrOffset_ ) ); // key encodes APV number (1 or 2)
+      if ( lldChan( i2cAddr_ ) != lldChan_ ) { 
+	i2cAddr_ = sistrip::invalid_;
+	key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+      }
     } else if ( i2cAddr_ == 0 ) { 
       key( key() | (i2cAddr_<<i2cAddrOffset_) );
     } else { 
       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
     }
-    
-//     // Consistency check of I2C addresss wrt LLD channel
-//     if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-//     }
     
   } else {
     
@@ -523,20 +519,14 @@ void SiStripFecKey::initFromKey() {
     i2cAddr_  = ( key()>>i2cAddrOffset_ )  & i2cAddrMask_;
 
     if ( fecCrate_ == fecCrateMask_ ) { fecCrate_ = sistrip::invalid_; } 
-    if ( fecSlot_ == fecSlotMask_ )   { fecSlot_ = sistrip::invalid_; } 
-    if ( fecRing_ == fecRingMask_ )   { fecRing_ = sistrip::invalid_; } 
-    if ( ccuAddr_ == ccuAddrMask_ )   { ccuAddr_ = sistrip::invalid_; } 
-    if ( ccuChan_ == ccuChanMask_ )   { ccuChan_ = sistrip::invalid_; }
-    else if ( ccuChan_ )              { ccuChan_ += (sistrip::CCU_CHAN_MIN-1); }
-    if ( lldChan_ == lldChanMask_ )   { lldChan_ = sistrip::invalid_; }
-    if ( i2cAddr_ == i2cAddrMask_ )   { i2cAddr_ = sistrip::invalid_; }
-    else if ( i2cAddr_ )              { i2cAddr_ = i2cAddr(i2cAddr_); }
-    
-//     // Consistency check of I2C addresss wrt LLD channel
-//     if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-//     }
+    if ( fecSlot_ == fecSlotMask_ ) { fecSlot_ = sistrip::invalid_; } 
+    if ( fecRing_ == fecRingMask_ ) { fecRing_ = sistrip::invalid_; } 
+    if ( ccuAddr_ == ccuAddrMask_ ) { ccuAddr_ = sistrip::invalid_; } 
+    if ( ccuChan_ == ccuChanMask_ ) { ccuChan_ = sistrip::invalid_; }
+    else if ( ccuChan_ ) { ccuChan_ += (sistrip::CCU_CHAN_MIN-1); }
+    if ( lldChan_ == lldChanMask_ ) { lldChan_ = sistrip::invalid_; }
+    if ( i2cAddr_ == i2cAddrMask_ ) { i2cAddr_ = sistrip::invalid_; }
+    else if ( i2cAddr_ && lldChan_ != lldChanMask_ ) { i2cAddr_ = i2cAddr( lldChan_, 2-i2cAddr_ ); }
     
   }
   
