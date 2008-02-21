@@ -1,0 +1,33 @@
+# gt emulator
+
+module l1GtEmulDigis = L1GlobalTrigger {
+    string triggerMenu = "lumi1x1032"
+    // XML file for Global Trigger configuration 
+    string xmlConfig = "L1Menu2007.xml"              
+    string xmlVME = ""
+    vuint32 inputMask = { 1, 0 }
+    untracked InputTag GmtInputTag = gtUnpack
+    untracked InputTag GctInputTag = gctUnpacker
+}
+
+
+/*
+GT notes:
+
+#emulator
+L1Trigger/GlobalTrigger/src/L1GlobalTrigger.cc
+produces<L1GlobalTriggerReadoutRecord>();
+produces<L1GlobalTriggerEvmReadoutRecord>();
+produces<L1GlobalTriggerObjectMapRecord>();
+
+#unpacker
+EventFilter/L1GlobalTriggerRawToDigi/src/L1GlobaTriggerRawToDigi.cc
+produces<L1GlobalTriggerReadoutRecord>();
+
+produces<L1MuGMTReadoutCollection>();
+produces<std::vector<L1MuRegionalCand> >("DT");
+produces<std::vector<L1MuRegionalCand> >("CSC");
+produces<std::vector<L1MuRegionalCand> >("RPCb");
+produces<std::vector<L1MuRegionalCand> >("RPCf");
+produces<std::vector<L1MuGMTCand> >();
+*/

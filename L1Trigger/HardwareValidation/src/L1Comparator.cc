@@ -593,16 +593,30 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT);
 
   // >>---- GLT ---- <<  
+  std::vector<bool> gtword_d(128,false);
+  std::vector<bool> gtword_e(128,false);
+
   if(m_doSys[GLT]) {
     if(dumpEvent_) {
-      m_dumpFile << "\nEvent: " << nevt_ << std::endl;
+      m_dumpFile << "\nEntry: " << nevt_ 
+		 << " (event:"  << evtNum_
+		 << " | run:"   << runNum_ 
+		 << ")\n"       << std::flush;
       dumpEvent_=false;
     }
     m_dumpFile << "\n  GT...\n";
 
-    DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
-    DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
-    DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
+    if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
+      gtword_d = glt_rdt_data->decisionWord();
+      gtword_e = glt_rdt_emul->decisionWord();
+      DEncand[GLT][0]=1; DEncand[GLT][1]=1;
+      DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
+    }
+
+    if(glt_evm_data.isValid() && glt_evm_emul.isValid())
+      DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
+    if(glt_obj_data.isValid() && glt_obj_emul.isValid())
+      DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
 
     char ok[10];
     char dumptofile[1000];
@@ -652,6 +666,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // >>---- d|e record ---- <<  
   std::auto_ptr<L1DataEmulRecord> record
     (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis));
+  record->set_gltbits(gtword_d,gtword_e);
   if(verbose()) {
     std::cout << "\n [L1Comparator] printing DErecord" 
 	      << "(entry:"<< nevt_ 
@@ -844,7 +859,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
 	   << std::endl;
 
   // gt decision word
-  m_dumpFile << "\n\tDecisionWord  (bits: 0:63, 127:64)";
+  m_dumpFile << "\n\tDecisionWord  (bits: 63:0, 127:64)";
   int nbitword = 64; 
   std::vector<bool> data_gtword = data->decisionWord();
   std::vector<bool> emul_gtword = emul->decisionWord();
