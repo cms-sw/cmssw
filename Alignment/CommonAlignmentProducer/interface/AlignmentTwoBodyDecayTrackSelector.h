@@ -28,13 +28,17 @@ class AlignmentTwoBodyDecayTrackSelector
 
   bool useThisFilter();
  private:
+  ///checks if the mass of the mother is in the mass region
   Tracks checkMass(const Tracks& cands)const;
+  ///checks if the mass of the mother is in the mass region adding missing E_T
   Tracks checkMETMass(const Tracks& cands,const edm::Event& iEvent)const;
+  ///checks if the mother has charge = [theCharge]
   Tracks checkCharge(const Tracks& cands)const;
+  ///checks if the [cands] are acoplanar (returns empty set if not)
   Tracks checkAcoplanarity(const Tracks& cands)const;
+  ///checks if [cands] contains a acoplanar track w.r.t missing ET (returns empty set if not)
   Tracks checkMETAcoplanarity(const Tracks& cands,const edm::Event& iEvent)const; 
   /// private data members
-  edm::ParameterSet theCfg;
 
   //settings from conigfile
   bool theMassrangeSwitch;
@@ -53,6 +57,7 @@ class AlignmentTwoBodyDecayTrackSelector
   //acoplanarity Filter
   double theAcoplanarDistance;
   //helpers
+  ///print Information on Track-Collection
   void printTracks(const Tracks& col) const;
 };
 

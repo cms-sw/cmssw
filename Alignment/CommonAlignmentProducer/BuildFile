@@ -7,7 +7,14 @@
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
+<use name=DataFormats/RecoCandidate>
+<use name=DataFormats/Math>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/RecoAlgos>
 <use name=rootcore>

@@ -22,7 +22,6 @@ using namespace edm;
 // constructor ----------------------------------------------------------------
 
 AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg) :
-  theCfg(cfg),
   theMissingETSource("met")
 {
  LogDebug("Alignment")   << "> applying two body decay Trackfilter ...";
@@ -151,7 +150,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   return cands;
 }
 
-///checks if the mother has [charge]
+///checks if the mother has charge = [theCharge]
 AlignmentTwoBodyDecayTrackSelector::Tracks 
 AlignmentTwoBodyDecayTrackSelector::checkCharge(const Tracks& cands) const
 {

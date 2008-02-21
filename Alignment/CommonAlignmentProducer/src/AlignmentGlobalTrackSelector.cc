@@ -27,7 +27,6 @@ using namespace edm;
 // constructor ----------------------------------------------------------------
 
 AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg) :
-  theConf(cfg),
   theMuonSource("muons"),
   theJetIsoSource("fastjet6CaloJets"),
   theJetCountSource("fastjet6CaloJets")
@@ -121,7 +120,7 @@ AlignmentGlobalTrackSelector::checkIsolation(const Tracks& cands,const edm::Even
   }else  LogError("Alignment")<<"@SUB=AlignmentGlobalTrackSelector::checkIsolation"
 						 <<">  could not optain jetCollection!";
 
-  if((int)result.size() < theMinIsolatedCount) result.clear();
+  if(static_cast<int>(result.size()) < theMinIsolatedCount) result.clear();
   return result;
 }
 
@@ -165,7 +164,7 @@ AlignmentGlobalTrackSelector::findMuons(const Tracks& tracks, const edm::Event& 
   //  LogDebug("Alignment")<<">  globalMuons";  printTracks(globalMuons);
   result = matchTracks(tracks,globalMuons);
   
-  if((int)result.size() < theMinGlobalMuonCount) result.clear();
+  if(static_cast<int>(result.size()) < theMinGlobalMuonCount) result.clear();
 
   return result;
 }
@@ -184,7 +183,7 @@ AlignmentGlobalTrackSelector::matchTracks(const Tracks& src, const Tracks& comp)
 	//	LogDebug("Alignment") << "> Trackmatch dist: "<<deltaR(src.at(i),*itComp);
 	if(min > deltaR(*(src.at(i)),*(*itComp))){
 	  min = deltaR(*(src.at(i)),*(*itComp));
-	  match = (int)i;
+	  match = static_cast<int>(i);
 	}
       }
       if(match > -1)
