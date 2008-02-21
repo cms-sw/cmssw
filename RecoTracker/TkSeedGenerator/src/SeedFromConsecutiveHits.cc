@@ -38,7 +38,7 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
   // build initial helix and FTS
   const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
   const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), GlobalPoint(0.,0.,0.),es);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
   GlobalTrajectoryParameters kine = helix.stateAtVertex().parameters();
   float sinTheta = sin( kine.momentum().theta() );
   FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta));
@@ -101,7 +101,7 @@ construct( const TrackingRecHit* outerHit,
   GlobalPoint outer = 
       tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
 
-  FastHelix helix(outer, inner, GlobalPoint(0.,0.,0.),iSetup);
+  FastHelix helix(outer, inner, vertexPos,iSetup);
   
   GlobalTrajectoryParameters kine = helix.stateAtVertex().parameters();
   float sinTheta = sin( kine.momentum().theta() );
