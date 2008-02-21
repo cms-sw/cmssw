@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.3 2008/02/17 07:03:52 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.4 2008/02/20 22:47:47 pivarski Exp $
 //
 //
 
@@ -272,7 +272,7 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
 
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &cscAlignments, &cscAlignmentErrors,
-					      align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
@@ -293,7 +293,7 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
 
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors),
-					      align::DetectorGlobalPosition(globalPositionRcd, DetId(DetId::Muon)));
+					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;

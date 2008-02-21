@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.20 $
-///  last update: $Date: 2008/02/20 08:59:32 $
+///  Revision   : $Revision: 1.21 $
+///  last update: $Date: 2008/02/20 14:05:52 $
 ///  by         : $Author: pivarski $
 
 #include "AlignmentProducer.h"
@@ -174,7 +174,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       edm::ESHandle<AlignmentErrors> alignmentErrors;
       iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
       aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
-						align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)) );
+						align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Tracker)) );
     }
     if ( doMuon_ ) {
       edm::ESHandle<Alignments> dtAlignments;
@@ -182,14 +182,14 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
       iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
       aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
-					   align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
+					   align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)) );
 
       edm::ESHandle<Alignments> cscAlignments;
       iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
       edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
       iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
       aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
-					    align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)) );
+					    align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)) );
     }
   }
 
@@ -331,7 +331,7 @@ void AlignmentProducer::endOfJob()
        // FIXME: remove the global coordinate transformation from these alignments!
        // GeometryAligner aligner;
        // Alignments localAlignments = aligner.removeGlobalTransform(alignments,
-       //                              align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Tracker)));
+       //                              align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Tracker)));
        // and put &localAlignments into the database
        // (the removal code should be in GeometryAligner so that a
        // developer can see that the inverse is properly calculated in
@@ -364,8 +364,8 @@ void AlignmentProducer::endOfJob()
 
        // FIXME: remove the global coordinate transformation from these alignments!
        // GeometryAligner aligner;
-       // Alignments localDTAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)));
-       // Alignments localCSCAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(globalPositionRcd_, DetId(DetId::Muon)));
+       // Alignments localDTAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
+       // Alignments localCSCAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
        // and put &localDTAlignments, &localCSCAlignments into the database
 
        std::string dtAlignRecordName( "DTAlignmentRcd" );
