@@ -118,10 +118,10 @@ protected:
 private: 
 
   // some useful functions
-  float      FitX(HepMatrix sp, HepMatrix ep);
-  HepMatrix  GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  float      GetTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  void       Efficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  float      fitX(HepMatrix sp, HepMatrix ep);
+  HepMatrix  getCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float      getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  void       doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
   void       getEfficiency(float bin, float Norm, std::vector<float> &eff);
   void       histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
 

@@ -40,9 +40,6 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   theFile->mkdir("Calib");
   theFile->cd();
 
-  // Book the histograms
-
-  printf("\n\n\n==book my histograms====\n\n\n");
 
   // calib
   hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",400,0,400);
@@ -218,10 +215,6 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
 // Destructor
 CSCValidation::~CSCValidation(){
   
-  // write out total number of events processed
-  printf("\n\n======= write out my histograms ====\n");
-  printf("\n\ttotal number of events processed: %i\n\n\n\n",nEventsAnalyzed);
-
 
   // Write the histos to file
 
@@ -412,18 +405,14 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // increment counter
   nEventsAnalyzed++;
 
-  // printalot debug output
-  bool printalot = (nEventsAnalyzed < 1);
 
   int iRun   = event.id().run();
   int iEvent = event.id().event();
-  if (printalot) printf("\n==enter==CSCValidation===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
 
   //
   // These declarations create handles to the types of records that you want
   // to retrieve from event "e".
   //
-  if (printalot) printf("\tget handles for digi collections\n");
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> comparators;
@@ -436,7 +425,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
   //
-  if (printalot) printf("\tpass handles\n");
 
   event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
   event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
@@ -473,29 +461,18 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     eventSetup.get<CSCDBPedestalsRcd>().get( hPedestals );
     const CSCDBPedestals* pPedestals = hPedestals.product();
 
-    // testing
-//    for (int i = 0; i < pGains->gains.size(); i++){
     for (int i = 0; i < 400; i++){
       hCalibGainsS->SetBinContent(i+1,pGains->gains[i].gain_slope);
       hCalibGainsI->SetBinContent(i+1,pGains->gains[i].gain_intercept);
       hCalibGainsChi2->SetBinContent(i+1,pGains->gains[i].gain_chi2);
-    }
-//    for (int i = 0; i < pCrosstalk->crosstalk.size(); i++){
-    for (int i = 0; i < 400; i++){
       hCalibXtalkSL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_left);
       hCalibXtalkSR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_right);
       hCalibXtalkIL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_left);
       hCalibXtalkIR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_right);
       hCalibXtalkChi2L->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_left);
       hCalibXtalkChi2R->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_right);
-    }
-//    for (int i = 0; i < pPedestals->pedestals.size(); i++){
-    for (int i = 0; i < 400; i++){
       hCalibPedsP->SetBinContent(i+1,pPedestals->pedestals[i].ped);
       hCalibPedsR->SetBinContent(i+1,pPedestals->pedestals[i].rms);
-    }
-//    for (int i = 0; i < pNoiseMatrix->matrix.size() ; i++){
-    for (int i = 0; i < 400 ; i++){
       hCalibNoise33->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem33);
       hCalibNoise34->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem34);
       hCalibNoise35->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem35);
@@ -631,19 +608,15 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // ===============================================
 
   // Get the CSC Geometry :
-  if (printalot) printf("\tget the CSC geometry.\n");
   ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
   
   // Get the RecHits collection :
-  if (printalot) printf("\tGet the recHits collection.\t");
   Handle<CSCRecHit2DCollection> recHits; 
   event.getByLabel("csc2DRecHits",recHits);  
   int nRecHits = recHits->size();
-  if (printalot) printf("  The size is %i\n",nRecHits);
 
   // Get the SimHits (if applicable)
-  if (printalot && isSimulation) printf("\tGet the simHits collection.\t");
   Handle<PSimHitContainer> simHits;
   if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
  
@@ -651,14 +624,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // ---------------------
   // Loop over rechits 
   // ---------------------
-  if (printalot) printf("\t...start loop over rechits...\n");
   int iHit = 0;
 
   // Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator recIt;
   for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
     iHit++;
-    if (printalot) printf("\t\thit number %i\n",iHit);
 
     // Find chamber with rechits in CSC 
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
@@ -668,7 +639,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
     int kLayer   = idrec.layer();
-    if (printalot) printf("\t\t\tendcap/ring/station/chamber/layer: %i/%i/%i/%i/%i\n",kEndcap,kRing,kStation,kChamber,kLayer);
 
     // Store reco hit as a Local Point:
     LocalPoint rhitlocal = (*recIt).localPosition();  
@@ -686,7 +656,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int nStrips     =  hitstrips.size();
     int centerid    =  nStrips/2 + 1;
     int centerStrip =  hitstrips[centerid - 1];
-    HepMatrix rHcharge = GetCharge3x3(*strips, idrec, centerStrip);    
+    HepMatrix rHcharge = getCharge3x3(*strips, idrec, centerStrip);    
     float rHSumQ = rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3) +
                    rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3) +
                    rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3);
@@ -695,7 +665,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
                      (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
 
     // Get the signal timing of this hit
-    float rHtime = GetTiming(*strips, idrec, centerStrip);
+    float rHtime = getTiming(*strips, idrec, centerStrip);
 
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
@@ -709,7 +679,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
 
-    if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
 
     float simHitXres = -99;
     float simHitYres = -99;
@@ -735,7 +704,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
           }
         }
       }
-      if (printalot) printf("\t\t\tSimHit Residual: %f\t\n",simHitXres);
     }
 
     // Fill the rechit position branch
@@ -842,15 +810,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
         hRHTiming42->Fill(rHtime);
       }
     }
-    
-    // get the channels in this recHit
-    CSCRecHit2D::ChannelContainer chan = (CSCRecHit2D::ChannelContainer)(*recIt).channels();
-    int nChan = chan.size();
-    if (printalot) printf("\t\t\t\tn channels = %i :\t",nChan);
-    for (unsigned int thisChan = 0; thisChan != chan.size(); thisChan++) {
-      if (printalot) printf(" %i, ",chan[thisChan]);
-    }
-    if (printalot) printf("\n");
 
   }
 
@@ -861,11 +820,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // ===============================================
 
   // get CSC segment collection
-  if (printalot) printf("\tGet CSC segment collection...");
   Handle<CSCSegmentCollection> cscSegments;
   event.getByLabel("cscSegments", cscSegments);
   int nSegments = cscSegments->size();
-  if (printalot) printf("  The size is %i\n",nSegments);
 
   // -----------------------
   // loop over segments
@@ -880,7 +837,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    if (printalot) printf("\tendcap/ring/station/chamber: %i %i %i %i\n",kEndcap,kRing,kStation,kChamber);
     //
     float chisq    = (*it).chi2();
     int nhits      = (*it).nRecHits();
@@ -894,14 +850,11 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     LocalVector segDir = (*it).localDirection();
     double theta   = segDir.theta();
     double phi     = segDir.phi();
-    if (printalot) printf("\tlocal position: %f %f %f\ttheta,phi: %f %f\n",segX,segY,segZ,theta,phi);
 
     //
     // try to get the CSC recHits that contribute to this segment.
-    if (printalot) printf("\tGet the recHits for this segment.\t");
     std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
     int nRH = (*it).nRecHits();
-    if (printalot) printf("    nRH = %i\n",nRH);
     int jRH = 0;
     HepMatrix sp(6,1);
     HepMatrix se(6,1);
@@ -913,7 +866,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       int kStation = idRH.station();
       int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
-      if (printalot) printf("\t%i RH\tendcap/station/ring/chamber/layer: %i %i %i %i %i\n",jRH,kEndcap,kRing,kStation,kChamber,kLayer);
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){
@@ -936,7 +888,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     // Fit all points except layer 3, then compare expected value for layer 3 to reconstructed value
     if (nRH == 6){
-      float expected = FitX(sp,se);
+      float expected = fitX(sp,se);
       residual = expected - sp(3,1);
     }
 
@@ -960,12 +912,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       GlobalVector globalDirection = cscchamber->toGlobal(segDir);
       globTheta = globalDirection.theta();
       globPhi   = globalDirection.phi();
-    } else {
-      if (printalot) printf("\tFailed to get a local->global segment tranformation.\n");
     }
     //
-    if (printalot) printf("\t\tsegment %i\tchisq,nhits: %f, %i\tx,y,z: %f, %f, %f\t%f, %f, %f\n",iSegment,chisq,nhits,segX,segY,segZ,globX,globY,globZ);
-    if (printalot) printf("\t\ttheta,phi: %f %f\t%f %f\n",theta,phi,globTheta,globPhi);
 
 
     // Fill the segment position branch
@@ -1048,11 +996,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
 
   // do Efficiency
-  Efficiencies(recHits, cscSegments);
+  doEfficiencies(recHits, cscSegments);
 
 
-  // exit
-  if (printalot) printf("==exit===CSCValidation===== run %i\tevent %i\n\n",iRun,iEvent);
 }
 
 //-------------------------------------------------------------------------------------
@@ -1060,7 +1006,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 // and removes hit in layer 3.  It then returns the expected position value in layer 3
 // based on the fit.
 //-------------------------------------------------------------------------------------
-float CSCValidation::FitX(HepMatrix points, HepMatrix errors){
+float CSCValidation::fitX(HepMatrix points, HepMatrix errors){
 
   float S   = 0;
   float Sx  = 0;
@@ -1103,7 +1049,7 @@ float CSCValidation::FitX(HepMatrix points, HepMatrix errors){
 // the timing in units of time buckets (50ns)
 //---------------------------------------------------------------------------------------
 
-float CSCValidation::GetTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
 
   float ADC[8];
   float timing = 0;
@@ -1151,7 +1097,7 @@ float CSCValidation::GetTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
 // (i.e. to the left of the leftmost strip in a chamber).  Charge is ped subtracted.
 //---------------------------------------------------------------------------------------
 
-HepMatrix CSCValidation::GetCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+HepMatrix CSCValidation::getCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
 
   float ADC[8];
   int peakTime = -1;
@@ -1240,9 +1186,8 @@ HepMatrix CSCValidation::GetCharge3x3(const CSCStripDigiCollection& stripdigis, 
 // Author: S. Stoynev
 //----------------------------------------------------------------------------
 
-void CSCValidation::Efficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
+void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
 
-  bool result = false;
   bool AllRecHits[2][4][4][36][6];
   bool AllSegments[2][4][4][36];
   //bool MultiSegments[2][4][4][36];
@@ -1330,7 +1275,6 @@ void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff
 }
 //
 void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
-  int Ninfo_bins = 10;
   std::vector<float> eff(2);
   int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
   std::vector<float> bins(Nbins);
