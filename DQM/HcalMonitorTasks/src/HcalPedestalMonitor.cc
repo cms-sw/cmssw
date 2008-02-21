@@ -312,8 +312,8 @@ void HcalPedestalMonitor::perChanHists(int id,
 
   string type = "HB";
   if(id==1) type = "HE"; 
-  else if(id==2) type = "HF"; 
-  else if(id==3) type = "HO"; 
+  else if(id==2) type = "HO"; 
+  else if(id==3) type = "HF"; 
   
   if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
 
