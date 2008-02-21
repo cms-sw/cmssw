@@ -130,24 +130,37 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
       if (dacs_.size()>0) {
         index=dacs_.back().index()*dacs_.back().getNPoints();
       }
-      PixelDACScanRange dacrange(pos::k_DACName_Vcal,first,last,step,index);
-      dacs_.push_back(dacrange);
       in >> tmp;
+      bool mix = false;
+      if ( tmp=="mix" )
+      {
+        mix = true;
+        in >> tmp;
+      }
+      PixelDACScanRange dacrange(pos::k_DACName_Vcal,first,last,step,index,mix);
+      dacs_.push_back(dacrange);
     }
     else{
 
       //in >> tmp;
       while(tmp=="Scan:"){
-        in >> tmp;
+        std::string dacname;
+        in >> dacname;
         unsigned int  first,last,step;
         in >> first >> last >> step;
         unsigned int index=1;
         if (dacs_.size()>0) {
           index=dacs_.back().index()*dacs_.back().getNPoints();
         }
-        PixelDACScanRange dacrange(tmp,first,last,step,index);
-        dacs_.push_back(dacrange);
         in >> tmp;
+        bool mix = false;
+        if ( tmp=="mix" )
+        {
+          mix = true;
+          in >> tmp;
+        }
+        PixelDACScanRange dacrange(dacname,first,last,step,index,mix);
+        dacs_.push_back(dacrange);
       }
       
       while (tmp=="Set:"){
@@ -156,7 +169,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
         in >> val;
         unsigned int index=1;
         if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
-        PixelDACScanRange dacrange(tmp,val,val,1,index);
+        PixelDACScanRange dacrange(tmp,val,val,1,index,false);
         dacs_.push_back(dacrange);
         in >> tmp;
       }
@@ -412,6 +425,10 @@ unsigned int PixelCalibConfiguration::scanROC(unsigned int state) const{
 unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
                                                unsigned int state) const{
 
+    // This function should not be run for DACs that are mixed across ROCS.
+    // FIXME Eventually this entire scanValue function should be removed.
+    assert( dacs_[iscan].mixValuesAcrossROCs() );
+    
     unsigned int i_threshold = scanCounter(iscan, state);
 
     unsigned int threshold=dacs_[iscan].first()+
@@ -419,6 +436,45 @@ unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
 
     return threshold;
 
+}
+
+
+unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
+                                                unsigned int state,
+                                                unsigned int ROCNumber,
+                                                unsigned int ROCsOnChannel) const{
+
+    unsigned int i_threshold = scanCounter(iscan, state);
+
+    // Spread the DAC values on the different ROCs uniformly across the scan range.
+    if ( dacs_[iscan].mixValuesAcrossROCs() ) i_threshold = (i_threshold + (nScanPoints(iscan)*ROCNumber)/ROCsOnChannel)%nScanPoints(iscan);
+
+    unsigned int threshold=dacs_[iscan].first()+
+      i_threshold*dacs_[iscan].step();
+
+    return threshold;
+
+}
+
+
+unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
+                                                unsigned int state,
+                                                PixelROCName roc,
+                                                PixelNameTranslation* trans) const{
+
+	const PixelChannel& channel = trans->getChannelForROC(roc);
+	std::vector<PixelROCName> rocsOnChannel = trans->getROCsFromChannel(channel);
+	
+	unsigned int ROCsToCalibrateOnChannel = 0;
+	int ROCNumberOnChannel = -1;
+	for ( std::vector<PixelROCName>::const_iterator rocsOnChannel_itr = rocsOnChannel.begin(); rocsOnChannel_itr != rocsOnChannel.end(); rocsOnChannel_itr++ )
+	{
+		if ( roc == *rocsOnChannel_itr ) ROCNumberOnChannel = ROCsToCalibrateOnChannel;
+		ROCsToCalibrateOnChannel++;
+	}
+	assert( ROCNumberOnChannel >= 0 );
+	
+	return scanValue( iscan, state, ROCNumberOnChannel, ROCsToCalibrateOnChannel );
 }
 
 
@@ -507,10 +563,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
   // Whether we're beginning a new scan over the DACs after changing which ROC or which pixel pattern.
   unsigned int first_scan=true;
-  // Fill a list of the values we'll set the DACs to.
-  std::vector<unsigned int> dacvalues;
   for (unsigned int i=0;i<dacs_.size();i++){
-    dacvalues.push_back(scanValue(i,state));
     if (scanCounter(i,state)!=0) first_scan=false;
   }
 
@@ -587,13 +640,16 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
     
     // Program all the DAC values.
     for (unsigned int ii=0;ii<dacs_.size();ii++){
+    
+      unsigned int dacvalue = scanValue(ii, state, rocs_[i], trans);
+    
       pixelFEC->progdac(theROC.mfec(),
          theROC.mfecchannel(),
          theROC.hubaddress(),
          theROC.portaddress(),
          theROC.rocid(),
          dacs_[ii].dacchannel(),
-         dacvalues[ii],_bufferData);
+         dacvalue,_bufferData);
 
       if (dacs_[ii].dacchannel()==k_DACAddress_WBC) changedWBC=true;
     }

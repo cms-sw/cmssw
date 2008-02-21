@@ -74,7 +74,6 @@ namespace pos{
     unsigned int nROC() const { assert(rocAndModuleListsBuilt_); return nROC_; }
     unsigned int nPixelPatterns() const { return rows_.size()*cols_.size(); }
     unsigned int nTriggersPerPattern() const { return ntrigger_; }
-    unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }    
     unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(dac)); }    
 
     unsigned int nScanPoints() const {unsigned int points=1;
@@ -96,29 +95,28 @@ namespace pos{
     //If in singleROC mode this returns the current ROC
     unsigned int scanROC(unsigned int state) const;
 
-    unsigned int scanValue(unsigned int iscan, unsigned int state) const;
-    unsigned int scanValue(std::string dac, unsigned int state) const{
-      return scanValue(iScan(dac),state);
-    }
-
-    unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
     unsigned int scanCounter(std::string dac, unsigned int state) const{
       return scanCounter(iScan(dac),state);
     }
 
-    unsigned int numberOfScanVariables() const {return dacs_.size();}
+    unsigned int scanValue(std::string dac, unsigned int state) const{
+      return scanValue(iScan(dac),state);
+    }
+    
+    unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc, PixelNameTranslation* trans) const{
+      return scanValue(iScan(dac), state, roc, trans);
+    }
 
-    std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
+    unsigned int numberOfScanVariables() const {return dacs_.size();}
 
     bool containsScan(std::string name) const;
 
-    double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
+    std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
+
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
-    double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
-	dacs_[iscan].step()*(nScanPoints(iscan)-1);}
     double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
-    double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
     double scanValueStep(std::string dac) const {return scanValueStep(iScan(dac));}
+    bool scanValuesMixedAcrossROCs(std::string dac) const {return scanValuesMixedAcrossROCs(iScan(dac));}
 
     unsigned int iScan(std::string dac) const;
 
@@ -148,6 +146,20 @@ namespace pos{
     
     // Which set of columns we're on.
     unsigned int colCounter(unsigned int state) const;
+
+    unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }
+
+    unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
+
+    unsigned int scanValue(unsigned int iscan, unsigned int state) const;
+    unsigned int scanValue(unsigned int iscan, unsigned int state, unsigned int ROCNumber, unsigned int ROCsOnChannel) const;
+    unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc, PixelNameTranslation* trans) const;
+
+    double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
+    double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
+                                                   dacs_[iscan].step()*(nScanPoints(iscan)-1);}
+    double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
+    bool scanValuesMixedAcrossROCs(unsigned int iscan) const {return dacs_[iscan].mixValuesAcrossROCs();}
 
     // Used in constructor or in buildROCAndModuleLists()
     void buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet);
