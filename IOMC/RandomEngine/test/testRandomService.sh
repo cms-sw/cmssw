@@ -30,9 +30,12 @@ pushd ${LOCAL_TMP_DIR}
   echo " "
   echo "RandomNumberGeneratorService test 4"
   echo "==================================="
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}4.cfg || die "cmsRun ${test}4.cfg" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}4.cfg -j testRandomService4.xml || die "cmsRun ${test}4.cfg" $?
   mv ${test}.txt ${test}4.txt 
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/${test}4.txt ${LOCAL_TMP_DIR}/${test}4.txt || die "comparing ${test}4.txt" $?
+#
+# Can't do this comparison since the job report has dates in it.
+# diff ${LOCAL_TEST_DIR}/unit_test_outputs/${test}4.xml ${LOCAL_TMP_DIR}/${test}4.xml || die "comparing ${test}4.xml" $?
 
 popd
 

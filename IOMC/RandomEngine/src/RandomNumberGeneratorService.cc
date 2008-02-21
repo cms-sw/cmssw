@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.10 2008/01/30 19:58:01 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.11 2008/02/11 14:27:09 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <unistd.h>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -26,6 +27,8 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 using namespace edm::service;
@@ -45,6 +48,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // in the previous process to store the random engine state
   restoreStateLabel_(iPSet.getUntrackedParameter<std::string>("restoreStateLabel", std::string())),
   saveFileName_(std::string()),
+  saveFileNameRecorded_(false),
   restoreFileName_(std::string())
 {
 
@@ -59,6 +63,16 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // A blank name means don't bother.
   saveFileName_    = iPSet.getUntrackedParameter<std::string>("saveFileName",   std::string());
   restoreFileName_ = iPSet.getUntrackedParameter<std::string>("restoreFileName",std::string());
+
+// The saveFileName and must correspond to a file name without any path specification.
+// Throw if that is not true.
+  if(!saveFileName_.empty() && (saveFileName_.find("/") != std::string::npos)) {
+    std::ostringstream sstr;
+    sstr << "Configuration: The saveFileName parameter " << saveFileName_ << "\n" 
+         << "must be a simple file name with no path specification.\n" ;
+    edm::Exception except(edm::errors::Configuration, sstr.str());
+    throw except;
+  }     
 
 // Loop over parameters of type ParameterSet. Skip those with reserved names
 
@@ -512,7 +526,15 @@ RandomNumberGeneratorService::preEventProcessing(const edm::EventID&, const edm:
   pop();
  
   // Here is the right place to record engine states if that has been requested
-  if(!saveFileName_.empty())  saveEngineState();
+  if(!saveFileName_.empty())  {
+    saveEngineState();
+    if(!saveFileNameRecorded_) {
+      std::string fullName = constructSaveFileName();
+      Service<JobReport> reportSvc;
+      reportSvc->reportRandomStateFile(fullName);
+      saveFileNameRecorded_ = true;
+    }
+  }
 }
 
 void 
@@ -1135,4 +1157,13 @@ int32_t RandomNumberGeneratorService::expectedSeedCount(std::string const &name)
   if(name == std::string("RanecuEngine"))   count = 2;
   if(name == std::string("TRandom3"))       count = 1;
   return count;
+}
+std::string RandomNumberGeneratorService::constructSaveFileName()
+{
+  std::string fullName;
+  fullName.reserve(1000);
+  fullName = getcwd(&fullName[0],1000); 
+  fullName += "/" + saveFileName_;
+  fullName.reserve();
+  return fullName;
 }

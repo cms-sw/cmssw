@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.4 2008/01/29 20:56:15 marafino Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.5 2008/02/11 14:27:09 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -117,6 +117,8 @@ namespace edm {
 
       int32_t expectedSeedCount(std::string const &name);
 
+      std::string constructSaveFileName();
+
 
       // ---------- member data --------------------------------
 
@@ -153,9 +155,11 @@ namespace edm {
       std::map<std::string, std::vector<uint32_t> > seedMap_;
 
       // Keep the name of the file where we want to save the state
-      // of all declared engines at the end of each event. A
-      // blank name means don't bother.
+      // of all declared engines at the end of each event. A blank
+      // name means don't bother.  Also, keep a record of whether
+      // the save file name has been recorded in the job report.
       std::string saveFileName_;
+      bool saveFileNameRecorded_;
 
       // Keep the name of the file from which we restore the state
       // of all declared engines at the befinnig of a run. A
