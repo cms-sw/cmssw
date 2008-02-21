@@ -56,15 +56,13 @@ class EcalUnpackerWorker {
   mutable std::auto_ptr<EcalRawDataCollection> productDccHeaders;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGains;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch;
-  //  mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidChIds;
   mutable std::auto_ptr< EEDetIdCollection> productInvalidEEGains;
   mutable std::auto_ptr<EEDetIdCollection> productInvalidEEGainsSwitch;
   mutable std::auto_ptr<EEDetIdCollection> productInvalidEEChIds;
   mutable std::auto_ptr<EBSrFlagCollection> productEBSrFlags;
   mutable std::auto_ptr<EESrFlagCollection> productEESrFlags;
-  mutable std::auto_ptr<EcalTrigPrimDigiCollection> productEBTps;
-  mutable std::auto_ptr<EcalTrigPrimDigiCollection> productEETps;
+  mutable std::auto_ptr<EcalTrigPrimDigiCollection> productTps;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths;
   mutable std::auto_ptr<EcalPnDiodeDigiCollection> productPnDiodeDigis;
