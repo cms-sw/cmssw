@@ -93,7 +93,7 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
           for (int DAC = DACstart ; DAC < DACend ; ++DAC)
             {
               double average = m_entries[gainId-1][crystal][DAC].average () ;
-              if (average == -999) continue ;
+              if (average == -1) continue ;
               if (m_entries[gainId-1][crystal][DAC].RMSSq () > m_RMSmax * m_RMSmax) continue ;
               if (fabs (average - m_bestPedestal) < delta &&   average>1 ) 
                 {
@@ -139,7 +139,7 @@ int TPedValues::checkEntries (const int & DACstart, const int & DACend) const
           for (int DAC = DACstart ; DAC < DACend ; ++DAC)
             {
               double average = m_entries[gainId-1][crystal][DAC].average () ;
-              if (average == -999) 
+              if (average == -1) 
                 {
                   ++returnCode ;
                   //! do something!
@@ -169,6 +169,7 @@ int TPedValues::checkEntries (const int & DACstart, const int & DACend) const
 //! create a plot of the DAC pedestal trend
 int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const 
 {
+  using namespace std;
   // prepare the ROOT file
   if (!rootFile->cd (dirName.c_str ())) 
     {
@@ -178,31 +179,34 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
     
   // loop over the crystals
   for (int xtl=0 ; xtl<1700 ; ++xtl)
+  {
     // loop over the gains
     for (int gain=0 ; gain<3 ; ++gain)
       {
-        bool doGraph = false;
-        double asseX[256] ;  reset (asseX) ;
-        double sigmaX[256] ; reset (sigmaX) ;
-        double asseY[256] ;  reset (asseY) ;
-        double sigmaY[256] ; reset (sigmaY) ;
+        vector<double> asseX;
+        vector<double> sigmaX;
+        vector<double> asseY;
+        vector<double> sigmaY;
+        asseX.reserve(256);
+        sigmaX.reserve(256);
+        asseY.reserve(256);
+        sigmaY.reserve(256);
         // loop over DAC values
         for (int dac=0 ; dac<256 ; ++dac)
           {
-            asseX[dac] = dac ;
-            sigmaX[dac] = 0 ;
-            asseY[dac] = m_entries[gain][xtl][dac].average () ;
-            sigmaY[dac] = m_entries[gain][xtl][dac].RMS () ;
-            if (asseY[dac] < -100)
-              sigmaY[dac] = asseY[dac] = 0 ;
-        
-            // Only do the graph if one of the averages is nonzero
-            if(asseY[dac] != 0)
-              doGraph = true;
+            double average = m_entries[gain][xtl][dac].average();
+            if(average > -1)
+            {
+              double rms = m_entries[gain][xtl][dac].RMS();
+              asseX.push_back(dac);
+              sigmaX.push_back(0);
+              asseY.push_back(average);
+              sigmaY.push_back(rms); 
+            }
           } // loop over DAC values
-        if(doGraph)
+        if(asseX.size() > 0)
         {
-          TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
+          TGraphErrors graph(asseX.size(),&(*asseX.begin()),&(*asseY.begin()),&(*sigmaX.begin()),&(*sigmaY.begin()));
           char name[120] ;
           int gainHuman;
           if      (gain ==0) gainHuman =12;
@@ -215,7 +219,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
           graph.Write (name);
         }
       } // loop over the gains
-        // (loop over the crystals)
+  }     // (loop over the crystals)
 
   return 0 ;
 }
