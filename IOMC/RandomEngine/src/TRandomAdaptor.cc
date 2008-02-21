@@ -7,8 +7,10 @@
 #include "RVersion.h"
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
+typedef TBufferFile RootBuffer;
 #else
 #include "TBuffer.h"
+typedef TBuffer RootBuffer;
 #endif
 
 #include <string>
@@ -18,17 +20,14 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
-
 namespace edm {
 
-TRandomAdaptor::TRandomAdaptor( std::istream& is )  
+TRandomAdaptor::TRandomAdaptor(std::istream& is)  
 {
   Grumble(std::string("Cannot instantiate a TRandom engine from an istream"));
 }
 
-std::ostream & TRandomAdaptor::put ( std::ostream& os ) const
-{
+std::ostream & TRandomAdaptor::put (std::ostream& os) const {
   Grumble(std::string("put(std::ostream) not available for TRandom engines"));
   return os;
 }
@@ -37,7 +36,7 @@ std::vector<unsigned long> TRandomAdaptor::put () const {
   int32_t itemSize = sizeof(unsigned long);
   std::vector<unsigned long> v;
   v.push_back (CLHEP::engineIDulong<TRandomAdaptor>());
-  TBuffer buffer(TBuffer::kWrite,1024*itemSize);
+  RootBuffer buffer(TBuffer::kWrite,1024*itemSize);
   trand_->Streamer(buffer);
   buffer.SetReadMode();
   char* bufferPtr = buffer.Buffer();
@@ -48,14 +47,12 @@ std::vector<unsigned long> TRandomAdaptor::put () const {
   return v;
 }
 
-std::istream &  TRandomAdaptor::get ( std::istream& is )
-{
+std::istream &  TRandomAdaptor::get (std::istream& is) {
   Grumble(std::string("get(std::istream) not available for TRandom engines"));
   return getState(is);
 }
 
-std::istream &  TRandomAdaptor::getState ( std::istream& is )
-{
+std::istream &  TRandomAdaptor::getState (std::istream& is) {
   Grumble(std::string("getState(std::istream) not available for TRandom engines"));
   return is;
 }
@@ -65,7 +62,7 @@ bool TRandomAdaptor::get (const std::vector<unsigned long> & v) {
   if(v[0] != CLHEP::engineIDulong<TRandomAdaptor>()) return false;
   int32_t numItems = v.size()-1;
   int32_t itemSize = sizeof(unsigned long);
-  TBuffer buffer(TBuffer::kRead,numItems*itemSize+1024);
+  RootBuffer buffer(TBuffer::kRead,numItems*itemSize+1024);
   char* bufferPtr = buffer.Buffer();
   for(int i=0; i<(int)numItems; ++i) {
     *(unsigned long*)(bufferPtr+i*itemSize) = v[i+1];
