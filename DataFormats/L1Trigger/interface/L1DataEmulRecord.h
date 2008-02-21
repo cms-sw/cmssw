@@ -19,6 +19,7 @@ class L1DataEmulRecord {
 
   static const int DEnsys = 12; 
   typedef std::vector<L1DataEmulDigi> L1DEDigiCollection;
+  typedef std::vector<bool> GltDecisionBits;
 
   L1DataEmulRecord();
   L1DataEmulRecord(bool evt_match, bool sys_comp[DEnsys], bool sys_match[DEnsys], 
@@ -31,10 +32,13 @@ class L1DataEmulRecord {
   L1DEDigiCollection getColl() const {return deColl;}
   int getNCand(int i, int j) const {return deNCand[i][j];}
   bool get_isComp(int i) const {return deSysCompared[i];}
+  GltDecisionBits gltbits(int i) const {return gltBits[i];}
 
   void set_status(const bool result);
   void set_status(const bool result[]); 
   void setColl (const L1DEDigiCollection col) {deColl = col;}
+  void set_gltbits(const GltDecisionBits d, const GltDecisionBits e)
+    {gltBits[0]=d; gltBits[1]=e;}
 
   bool empty() const {return deColl.size()==0;}
 
@@ -45,7 +49,7 @@ class L1DataEmulRecord {
   bool deMatch[DEnsys];
   int deNCand[DEnsys][2];
   L1DEDigiCollection deColl;
-
+  GltDecisionBits gltBits[2];
 };
 
 std::ostream& operator<<(std::ostream&, const L1DataEmulRecord&);

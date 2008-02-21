@@ -8,6 +8,11 @@ L1DataEmulRecord::L1DataEmulRecord() : deAgree(0) {
       deNCand[i][j] =  0;
   }
   deColl.clear();
+  for(int j=0; j<2; j++) {
+    gltBits[j].reserve(128);
+    for(int i=0; i<128; i++)
+      gltBits[j][i]=false;  
+  }
 }
 
 L1DataEmulRecord::L1DataEmulRecord(bool evt_match, bool sys_comp[], 
@@ -19,6 +24,11 @@ L1DataEmulRecord::L1DataEmulRecord(bool evt_match, bool sys_comp[],
       deNCand[i][j] = nCand[i][j];
   }
   deColl = coll;
+  for(int j=0; j<2; j++) {
+    gltBits[j].reserve(128);
+    for(int i=0; i<128; i++)
+      gltBits[j][i]=false;  
+  }
 }
 
 L1DataEmulRecord::~L1DataEmulRecord() { } 
