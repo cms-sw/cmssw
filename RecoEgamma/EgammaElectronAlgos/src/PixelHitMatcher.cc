@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.10 2008/02/14 22:24:40 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.11 2008/02/21 09:40:13 uberthon Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <typeinfo>  //FIXME
+#include <typeinfo>  
 
 using namespace reco;
 using namespace std;
@@ -50,23 +50,21 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   theMagField = magField;
   delete prop2ndLayer;
-  float mass=.1057; // using muon propagation
+  float mass=.000511; // electron propagation
   prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
 
-vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
-												   const GlobalPoint& vprim,
-												   float energy,
-												   float fcharge) {
-
+vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > 
+ PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
+  const GlobalPoint& vprim, float energy, float fcharge) {
+  
   float SCl_phi = xmeas.phi();
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
   LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
   
-
   vector<TrajectoryMeasurement> validMeasurements;
   vector<TrajectoryMeasurement> invalidMeasurements;
 
@@ -74,7 +72,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 
   pred1Meas.clear();
   pred2Meas.clear();
-
 
   typedef vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
   BarrelLayerIterator firstLayer = startLayers.firstBLayer();
@@ -106,8 +103,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	
 	validMeasurements.push_back(*m);
 
-	//std::cout<<"\n FH 1B "<<std::endl;
-
 	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
 	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
 	if (bdetl) {
@@ -117,7 +112,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
      } 
     }
     
-    
+       
     // check if there are compatible 1st hits in the second layer
     firstLayer++;
 
@@ -138,8 +133,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
         LogDebug("")  << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition() << endl;
         LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition() << endl;
 	
-	//std::cout<<"\n FH 2B "<<std::endl;
-
 	validMeasurements.push_back(*m);
 	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
 	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
@@ -181,8 +174,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 				m->forwardPredictedState().globalPosition().z());
 	  pred1Meas.push_back( prediction);
 
-	  // std::cout<<"\n FH 1D "<<std::endl;
-
 	  validMeasurements.push_back(*m);      
 	}
       }
@@ -204,8 +195,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
  				m->forwardPredictedState().globalPosition().y(),
  				m->forwardPredictedState().globalPosition().z());
  	  pred1Meas.push_back( prediction);
-
-	  //std::cout<<"\n FH 2D "<<std::endl;
 
  	  validMeasurements.push_back(*m);      
 	}

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.4 2007/02/05 17:53:52 uberthon Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.5 2008/02/21 09:40:13 uberthon Exp $
 //
 //
 
@@ -100,9 +100,6 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 		    {
 		      measurementsHere.push_back( *m);
 		      hitsHere.push_back(m->recHit());
-
-		      // std::cout<<"\n SH TID "<<std::endl;
-
 		    }
 		  // else{ std::cout<<" 2H not valid "<<std::endl;}
 		}
@@ -149,7 +146,6 @@ std::vector<TrajectoryMeasurement> PixelMatchNextLayers::badMeasurementsInNextLa
   return badMeasurementsHere;
 }
 
-//RC vector<TSiPixelRecHit> PixelMatchNextLayers::hitsInNextLayers() const {
 TransientTrackingRecHit::RecHitContainer PixelMatchNextLayers::hitsInNextLayers() const {
 
   return hitsHere;

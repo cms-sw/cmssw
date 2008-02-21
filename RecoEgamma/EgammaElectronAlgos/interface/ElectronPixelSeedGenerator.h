@@ -54,19 +54,14 @@ public:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection & out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
-  float fEtaBarrelBad(float scEta);
-  float fEtaEndcapBad(float scEta);
-  float fEtaBarrelGood(float scEta);
-  float fEtaEndcapGood(float scEta);
-  
   bool dynamicphiroad_;
   double SCEtCut_;
   float lowPtThreshold_;
   float highPtThreshold_;
   float sizeWindowENeg_;   
   float phimin2_,phimax2_;
-  float deltaPhi1Low_, deltaPhi2Low_;
-  float deltaPhi1High_, deltaPhi2High_;
+  float deltaPhi1Low_, deltaPhi1High_;
+  float deltaPhi2_;
   
   double zmin1_, zmax1_;
   math::XYZPoint BSPosition_;  

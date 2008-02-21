@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.3 2007/02/05 17:53:52 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.4 2008/02/21 09:40:13 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -34,21 +34,12 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   float rhPhi = gp.phi();
   float rhR = gp.perp();
 
-  //  float myR = gp.perp();
   float myZ = gp.z();
-
   
   float rMin = theZRangeMin;
   float rMax = theZRangeMax;
   float myPhimin = thePhiRangeMin;
   float myPhimax = thePhiRangeMax;
-
-  
-//   if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
-//     {
-//       rMin = -0.2;
-//       rMax = 0.2;
-//     }
 
   if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
     {
@@ -60,10 +51,7 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
   
-  //  float rDiff = rMax -rMin;
-
   float rDiff = tsR - rhR;
-
    
   if ( phiDiff < myPhimax && phiDiff > myPhimin && 
        rDiff < rMax && rDiff > rMin) {
@@ -99,14 +87,11 @@ MeasurementEstimator::Local2DVector
 ForwardMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 						       const BoundPlane& plane) const
 {
-  // temporary version
   float nSigmaCut = 3.;
   if ( ts.hasError()) {
     LocalError le = ts.localError().positionError();
-    //    return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
     return Local2DVector( sqrt(le.xx())*nSigmaCut, sqrt(le.yy())*nSigmaCut);
   }
-  //UB FIXME!!!
   else return Local2DVector(999999,999999);
 }
 
