@@ -60,7 +60,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
 
   //Size of Event Header
-  uint32 eventHeaderSize = 1+ (8*4) + hlt_sz + l1_sz;
+  uint32 eventHeaderSize = 2 + (9*4) + hlt_sz + l1_sz;
   convert(eventHeaderSize, h->event_header_size_);
 }
 
