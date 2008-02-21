@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.82 $
+ * $Date: 2008/02/21 20:45:24 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2967,67 +2967,67 @@ void EELaserClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] ); 
-	if ( me_hs01_[ism-1] ) {
-	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
-	}
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        if ( me_hs01_[ism-1] ) {
+          me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+          me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-	if ( me_hs02_[ism-1] ) {
-	  me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
-	  me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs02_[ism-1] ) {
+          me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+          me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
-	if ( me_hs03_[ism-1] ) {
-	  me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
-	  me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs03_[ism-1] ) {
+          me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+          me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs04_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs04_[ism-1] );
-	if ( me_hs04_[ism-1] ) {
-	  me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
-	  me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs04_[ism-1] ) {
+          me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
+          me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs05_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-	if ( me_hs05_[ism-1] ) {
-	  me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-	  me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs05_[ism-1] ) {
+          me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+          me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs06_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs06_[ism-1] );
-	if ( me_hs06_[ism-1] ) {
-	  me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
-	  me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs06_[ism-1] ) {
+          me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
+          me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs07_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs07_[ism-1] );
-	if ( me_hs07_[ism-1] ) {
-	  me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
-	  me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs07_[ism-1] ) {
+          me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
+          me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs08_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs08_[ism-1] );
-	if ( me_hs08_[ism-1] ) {
-	  me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
-	  me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs08_[ism-1] ) {
+          me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
+          me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
     }

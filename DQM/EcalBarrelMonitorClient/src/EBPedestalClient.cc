@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/02/20 18:19:29 $
- * $Revision: 1.182 $
+ * $Date: 2008/02/21 20:44:06 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -320,7 +320,7 @@ void EBPedestalClient::setup(void) {
     if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
     if ( mer02_[ism-1] ) mer02_[ism-1]->Reset();
     if ( mer03_[ism-1] ) mer03_[ism-1]->Reset();
-			    
+
     if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
     if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
@@ -720,7 +720,7 @@ void EBPedestalClient::analyze(void){
     if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
     if ( mer02_[ism-1] ) mer02_[ism-1]->Reset();
     if ( mer03_[ism-1] ) mer03_[ism-1]->Reset();
-			    
+
     if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
     if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 

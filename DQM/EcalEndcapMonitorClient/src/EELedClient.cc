@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.64 $
+ * $Date: 2008/02/21 20:45:27 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1199,18 +1199,18 @@ void EELedClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-	if ( me_hs01_[ism-1] ) {
-	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs01_[ism-1] ) {
+          me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+          me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
       if ( hs05_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-	if ( me_hs05_[ism-1] ) {
-	  me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-	  me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
-	}
+        if ( me_hs05_[ism-1] ) {
+          me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+          me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+        }
       }
 
     }

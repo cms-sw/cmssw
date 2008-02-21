@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.188 $
+ * $Date: 2008/02/21 20:44:06 $
+ * $Revision: 1.189 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -184,7 +184,7 @@ void EBIntegrityClient::setup(void) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
-	
+
       }
     }
 

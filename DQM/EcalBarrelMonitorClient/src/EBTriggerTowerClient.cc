@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.89 $
+ * $Date: 2008/02/21 20:44:06 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -218,7 +218,7 @@ void EBTriggerTowerClient::setup(void) {
       if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
       if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
       if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
-    } 
+    }
     for (int j=0; j<6; j++) {
       if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
@@ -295,9 +295,9 @@ void EBTriggerTowerClient::cleanup(void) {
     int ism = superModules_[i];
 
     if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
-    me_h01_[ism-1] = 0; 
+    me_h01_[ism-1] = 0;
     if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
-    me_h02_[ism-1] = 0; 
+    me_h02_[ism-1] = 0;
     for (int j=0; j<2; j++) {
       if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
       me_i01_[ism-1][j] = 0;
@@ -437,20 +437,20 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 //       mek02_[ism-1][j] = me;
 //
 //     }
-    
+
     if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
     if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
     for (int j=0; j<2; j++) {
       if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
       if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
       if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
-    } 
+    }
     for (int j=0; j<6; j++) {
       if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
-    
+
     for (int ie = 1; ie <= 17; ie++) {
       for (int ip = 1; ip <= 4; ip++) {
 
@@ -731,7 +731,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName[iemu] = "";
 
         obj2f = 0;
-        switch ( iemu ) { 
+        switch ( iemu ) {
           case 0:
             obj2f = UtilsClient::getHisto<TH2F*>( me_m01_[ism-1][j] );
             break;

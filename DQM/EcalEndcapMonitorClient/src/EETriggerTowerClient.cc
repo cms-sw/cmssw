@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.56 $
+ * $Date: 2008/02/21 20:45:27 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -211,7 +211,7 @@ void EETriggerTowerClient::setup(void) {
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-    
+
     int ism = superModules_[i];
 
     if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
