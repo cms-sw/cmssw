@@ -53,7 +53,7 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-
+  /*
 
   if (dqmexpert && dqmsuperexpert==false) {
     
@@ -84,7 +84,8 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
     //    sleep(10);
 
     
-  }    
+  } 
+  */   
  
 }
 
@@ -108,6 +109,7 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
   
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
+  s1 = dbe -> book3D("example 3D", "title of 3D Histogram", 20, 0, 20, 40, 0, 40, 30, 0, 30);
   dbe->showDirStructure();
 }
 
@@ -309,12 +311,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	sprintf(r48, "W%d_RB4--_S%d_Backward", detId.ring(), detId.sector());
 	
 
-	if(r23==detUnitLabel) {
-
-	  std::cout<<"uraaa!!!"<<std::endl;
-
-	}
-	
 	ChamberNr.insert( make_pair( r11, 1) ); 
 	ChamberNr.insert( make_pair( r12, 2) ); 
 	
@@ -331,7 +327,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	std::string rpccham1=r23;
 	std::string monitel1=detUnitLabel;
 	if (rpccham1==monitel1) {
-	  std::cout<<"avoieee !!"<<std::endl;
+	  
 	  //RB2in_Middle
 	  i++;
 	  ChamberNr.insert( make_pair( r23, i) );
@@ -403,7 +399,14 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  //std::string ChamNum = meId;
 	  
 	  meMap[meId]->Fill(strip, nrnr);
-	  meMap[meId]->setBinLabel(nrnr, detUnitLabel, 2);
+
+	  std::string Yaxis=detUnitLabel;
+	  Yaxis.erase(0,3);
+	  Yaxis.replace(Yaxis.find("S"),4,"");
+	  Yaxis.erase(Yaxis.find("_")+2,8);
+
+	  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
+	 
 	  
 	} 
 	else { 
@@ -513,15 +516,17 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 //float yposition=point.y();
 	 
 	 
-	 if (mult<=10)ClusterSize_for_BarrelandEndcaps -> Fill(mult);
-	 if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
+	 // if (mult<=10)ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	 ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	 //if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
 	 
 	 
 	 
 	 if(detId.region() ==  0) {
 	   
-	   if(mult<=10) ClusterSize_for_Barrel->Fill(mult);
-	   if(mult>10) ClusterSize_for_Barrel->Fill(11);
+	   // if(mult<=10) ClusterSize_for_Barrel->Fill(mult);
+	   ClusterSize_for_Barrel -> Fill(mult);
+	   //if(mult>10) ClusterSize_for_Barrel->Fill(11);
 	   
 	 } else if (detId.region() ==  -1) {
 	   
@@ -538,8 +543,9 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 if(dqmexpert || dqmsuperexpert) {
 	   
 	   sprintf(meId,"ClusterSize_%s",detUnitLabel);
-	   if(mult<=10) meMap[meId]->Fill(1);
-	   if(mult>10)  meMap[meId]->Fill(11);
+	   //if(mult<=10) meMap[meId]->Fill(mult);
+	   meMap[meId]->Fill(mult);
+	   //if(mult>10)  meMap[meId]->Fill(11);
 	   
 	 }
 	 
