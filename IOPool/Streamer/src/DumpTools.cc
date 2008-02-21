@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <iostream>
 #include <iterator>
-#include "TBuffer.h"
+#include "TBufferFile.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
@@ -86,7 +86,7 @@ void dumpInitVerbose(const InitMsgView* view)
   dumpInitHeader(view);
 
   TClass* desc = getTClass(typeid(SendJobHeader));
-  TBuffer xbuf(TBuffer::kRead, view->descLength(),
+  TBufferFile xbuf(TBuffer::kRead, view->descLength(),
                (char*)view->descData(), kFALSE);
   std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 

@@ -1,8 +1,10 @@
 #include "RootOutputTree.h"
+#include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCloner.h"
 #include "TBranchElement.h"
+#include "TStreamerInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/bind.hpp"
