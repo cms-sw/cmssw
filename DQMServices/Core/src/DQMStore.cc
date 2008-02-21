@@ -51,7 +51,7 @@ static std::string s_monitorDirName = "DQMStore";
 static std::string s_referenceDirName = "Reference";
 static std::string s_collateDirName = "Collate";
 static std::string s_dqmPatchVersion = dqm::DQMPatchVersion;
-static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345689-+=_()# ";
+static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 static DQMStore *s_instance = 0;
 
 static const lat::Regexp s_rxmeval ("<(.*)>(i|f|s|qr)=(.*)</\\1>");
@@ -125,6 +125,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     std::cout << "DQMStore: disabling histogram collation\n";
 
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
+  if (! ref.empty())
   {
     std::cout << "DQMStore: using reference file " << ref << std::endl;
 
@@ -203,7 +204,6 @@ DQMStore::setCurrentFolder(const std::string &fullpath)
 {
   makeDirectory(fullpath);
   pwd_ = fullpath;
-  std::cerr << "DQMSTORE: DBEUG: pwd is now '" << pwd_ << "'\n";
 }
 
 /// equivalent to "cd .."
@@ -766,7 +766,17 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
   for ( ; di != de; ++di)
   {
     MEMap::const_iterator mi = data_.lower_bound(*di);
-    if (mi == me || mi->second.path_ != *di)
+    MEMap::const_iterator m = mi;
+    size_t sz = di->size() + 2;
+    size_t nfound = 0;
+    for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
+      if (*di == m->second.path_)
+      {
+	sz += m->second.name_.size() + 1;
+	++nfound;
+      }
+
+    if (! nfound)
       continue;
 
     std::vector<std::string>::iterator istr
@@ -774,11 +784,6 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
 
     if (showContents)
     {
-      size_t sz = di->size() + 2;
-      MEMap::const_iterator m = mi;
-      for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
-	if (*di == m->second.path_)
-	  sz += m->second.name_.size() + 1;
       istr->reserve(sz);
 
       *istr += *di;
@@ -791,7 +796,7 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
 	if (sz > 0)
 	  *istr += ',';
 
-	*istr += m->second.name_;
+	*istr += mi->second.name_;
 	++sz;
       }
     }
@@ -839,18 +844,22 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
   for ( ; di != de; ++di)
   {
     MEMap::const_iterator mi = data_.lower_bound(*di);
-    if (mi == me || mi->second.path_ != *di || mi->second.data_.tags.empty())
+    MEMap::const_iterator m = mi;
+    size_t sz = di->size() + 2;
+    size_t nfound = 0;
+    for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
+      if (*di == m->second.path_ && ! mi->second.data_.tags.empty())
+      {
+        // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
+	sz += 1 + m->second.name_.size() + 11*m->second.data_.tags.size();
+	++nfound;
+      }
+
+    if (! nfound)
       continue;
 
     std::vector<std::string>::iterator istr
       = into.insert(into.end(), std::string());
-
-    size_t sz = di->size() + 2;
-    MEMap::const_iterator m = mi;
-    for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
-      // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
-      if (*di == m->second.path_)
-	sz += 1 + m->second.name_.size() + 11*m->second.data_.tags.size();
 
     istr->reserve(sz);
 
@@ -864,7 +873,7 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
       if (sz > 0)
 	*istr += ',';
 
-      *istr += m->second.name_;
+      *istr += mi->second.name_;
 
       for (size_t ti = 0, te = m->second.data_.tags.size(); ti < te; ++ti)
       {

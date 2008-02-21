@@ -158,7 +158,7 @@ MonitorElement::Fill(float x, float yw)
     static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2))
       ->Fill(x, yw, 1);
   else if (kind_ == DQM_KIND_TPROFILE)
-    static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 2))
+    static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
       ->Fill(x, yw, 1);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -387,7 +387,7 @@ MonitorElement::accessRootObject(const char *func, int reqdim) const
       << "Method '" << func << "' cannot be invoked on monitor element '"
       << data_.name << "' because it requires " << reqdim
       << " dimensions; this object of type '" << typeid(*h).name()
-      << " has " << ndim << " dimensions";
+      << "' has " << ndim << " dimensions";
 
   return h;
 }
