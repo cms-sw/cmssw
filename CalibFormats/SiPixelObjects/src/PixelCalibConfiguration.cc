@@ -449,23 +449,6 @@ unsigned int PixelCalibConfiguration::scanROC(unsigned int state) const{
 
 
 unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
-                                               unsigned int state) const{
-
-    // This function should not be run for DACs that are mixed across ROCS.
-    // FIXME Eventually this entire scanValue function should be removed.
-    assert( !(dacs_[iscan].mixValuesAcrossROCs()) );
-    
-    unsigned int i_threshold = scanCounter(iscan, state);
-
-    unsigned int threshold=dacs_[iscan].first()+
-      i_threshold*dacs_[iscan].step();
-
-    return threshold;
-
-}
-
-
-unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
                                                 unsigned int state,
                                                 unsigned int ROCNumber,
                                                 unsigned int ROCsOnChannel) const{

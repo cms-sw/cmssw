@@ -99,10 +99,6 @@ namespace pos{
       return scanCounter(iScan(dac),state);
     }
 
-    unsigned int scanValue(std::string dac, unsigned int state) const{
-      return scanValue(iScan(dac),state);
-    }
-    
     unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc) const {
       return scanValue(iScan(dac), state, roc);
     }
@@ -154,7 +150,6 @@ namespace pos{
 
     unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
 
-    unsigned int scanValue(unsigned int iscan, unsigned int state) const;
     unsigned int scanValue(unsigned int iscan, unsigned int state, unsigned int ROCNumber, unsigned int ROCsOnChannel) const;
     unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc) const;
 
