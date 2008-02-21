@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.2 2007/02/05 16:39:41 klute Exp $
+// $Id: StreamService.cc,v 1.3 2007/08/18 06:04:57 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -141,7 +141,7 @@ void StreamService::handleLock(shared_ptr<FileRecord> file)
 //
 bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& view)
 {
-  if (file->fileSize() + static_cast<int>(view.size()) > maxSize_ && file->events() > 0)
+  if (file->fileSize() + static_cast<long long>(view.size()) > maxSize_ && file->events() > 0)
     return false;
 
   return true;
@@ -236,7 +236,7 @@ void StreamService::setStreamParameter()
   //mailboxPath_        = parameterSet_.getParameter<string> ("mailboxPath");
   //setupLabel_         = parameterSet_.getParameter<string> ("setupLabel");
   streamLabel_        = parameterSet_.getParameter<string> ("streamLabel");
-  maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
+  maxSize_ = 1048576 * (long long) parameterSet_.getParameter<int> ("maxSize");
   //highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
   //lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
   fileName_           = ""; // set by setFileName
