@@ -2,7 +2,15 @@
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperator.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperator.h"
 #include <cmath>
+<<<<<<< ExpressionFunctionSetter.cc
+#include <Math/ProbFuncMathCore.h>
+#ifdef BOOST_SPIRIT_DEBUG 
+#include <string>
+#include <iostream>
+#endif
+=======
 #include <Math/DistFunc.h>
+>>>>>>> 1.4
 
 namespace reco {
   namespace parser {
@@ -11,7 +19,7 @@ namespace reco {
     struct asin_f { double operator()( double x ) const { return asin( x ); } };
     struct atan_f { double operator()( double x ) const { return atan( x ); } };
     struct atan2_f { double operator()( double x, double y ) const { return atan2( x, y ); } };
-    struct chi2prob_f { double operator()( double x, double y ) const { return ROOT::Math::chisquared_prob( x, y ); } };
+    struct chi2prob_f { double operator()( double x, double y ) const { return ROOT::Math::chisquared_cdf_c( x, y ); } };
     struct cos_f { double operator()( double x ) const { return cos( x ); } };
     struct cosh_f { double operator()( double x ) const { return cosh( x ); } };
     struct exp_f { double operator()( double x ) const { return exp( x ); } };
