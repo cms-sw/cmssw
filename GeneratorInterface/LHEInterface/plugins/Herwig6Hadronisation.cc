@@ -288,6 +288,8 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 	    iter != event->particles_end(); iter++)
 		(*iter)->set_status(getStatus(*iter));
 
+	LHEEvent::fixHepMCEventTimeOrdering(event.get());
+
 	event->set_signal_process_id(hwproc.IPROC);	//FIXME
 
 	return event;

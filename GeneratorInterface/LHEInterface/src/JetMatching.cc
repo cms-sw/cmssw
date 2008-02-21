@@ -89,6 +89,7 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 				(*jetClustering)((*jetInput)(finalState));
 
 #ifdef DEBUG
+	std::cout << "===== Partons:" << std::endl;
 	for(JetClustering::ParticleVector::const_iterator c = partons.begin();
 	    c != partons.end(); c++)
 		std::cout << "\tpid = " << (*c)->pdg_id()
@@ -96,7 +97,7 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 		          << ", eta = " << (*c)->momentum().eta()
 		          << ", phi = " << (*c)->momentum().phi()
 		          << std::endl;
-	std::cout << "===== " << jets.size() << " jets:" << std::endl;
+	std::cout << "----- " << jets.size() << " jets:" << std::endl;
 	for(std::vector<JetClustering::Jet>::const_iterator iter = jets.begin();
 	    iter != jets.end(); ++iter) {
 		std::cout << "* pt = " << iter->pt()
@@ -111,10 +112,9 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 			          << ", phi = " << (*c)->momentum().phi()
 			          << std::endl;
 	}
-#endif
-
 	std::cout << partons.size() << " partons and "
 	          << jets.size() << " jets." << std::endl;
+#endif
 
 	Matching<double> matching(partons, jets,
 			DeltaRSeparation<JetInput::ParticleVector::value_type,
@@ -126,11 +126,13 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 				std::less<double>(),
 				std::bind2nd(std::less<double>(), maxDeltaR));
 
+#ifdef DEBUG
 	for(std::vector<Match>::const_iterator iter = matches.begin();
 	    iter != matches.end(); ++iter)
 		std::cout << "\tParton " << iter->index1 << " matches jet "
 		          << iter->index2 << " with a Delta_R of "
 		          << matching.delta(*iter) << std::endl;
+#endif
 
 	switch(matchMode) {
 	    case kExclusive:

@@ -40,6 +40,8 @@ class LHEEvent {
 	static const HepMC::GenVertex *findSignalVertex(
 			const HepMC::GenEvent *event, bool status3 = true);
 
+	static void fixHepMCEventTimeOrdering(HepMC::GenEvent *event);
+
     private:
 	static bool checkHepMCTree(const HepMC::GenEvent *event);
 	HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;

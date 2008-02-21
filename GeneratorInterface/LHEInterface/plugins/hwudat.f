@@ -308,7 +308,7 @@ C--add new variable to prevent infinite loops in HWDFOR/FIV
 c      PARAMETER (NLAST=458,NNEXT=458+1,NLEFT=NMXRES-458)
 c      PARAMETER (NREST=NMXRES-120)
 c      DATA NRES/458/
-      PARAMETER (NLAST=471,NNEXT=NLAST+1,NLEFT=NMXRES-NLAST)
+      PARAMETER (NLAST=458,NNEXT=NLAST+1,NLEFT=NMXRES-NLAST)
       PARAMETER (NREST=NMXRES-120)
       DATA NRES/NLAST/
 C Don't forget to change the three occurances above as well
@@ -830,20 +830,7 @@ C Don't forget to change the three occurances above as well
      & 'CHGINO2+', 1000037,   0,+1,0.00D0,1.000D+30,0.5D0,
      & 'CHGINO1-',-1000024,   0,-1,0.00D0,1.000D+30,0.5D0,
      & 'CHGINO2-',-1000037,   0,-1,0.00D0,1.000D+30,0.5D0,
-     & 'GRAVTINO', 1000039,   0, 0,0.00D0,1.000D+30,1.5D0,
-     & 'VDQRK   ', 6000001,   0, 0,0.01D0,0.000D+00,0.5D0,
-     & 'VUQRK   ', 6000002,   0, 0,0.01D0,0.000D+00,0.5D0,
-     & 'VDBAR   ',-6000001,   0, 0,0.01D0,0.000D+00,0.5D0,
-     & 'VUBAR   ',-6000002,   0, 0,0.01D0,0.000D+00,0.5D0,
-     & 'VCLUS   ', 6000091,   0, 0,0.00D0,0.000D+00,0.0D0,
-     & 'VSTRING ', 6000092,   0, 0,0.00D0,0.000D+00,0.0D0,
-     & 'VPI0    ', 6000111,   0, 0,1.26D1,1.306D+01,0.5D0,
-     & 'VPI+    ', 6000211,   0, 0,1.30D1,0.000D+00,0.5D0,
-     & 'VPI-    ',-6000211,   0, 0,1.30D1,0.000D+00,0.5D0,
-     & 'VN+     ', 6002112,   0, 0,8.75D1,0.000D+00,0.5D0,
-     & 'VN-     ',-6002112,   0, 0,8.75D1,0.000D+00,0.5D0,
-     & 'VP+     ', 6002212,   0, 0,8.74D1,0.000D+00,0.5D0,
-     & 'VP-     ',-6002212,   0, 0,8.74D1,0.000D+00,0.5D0/
+     & 'GRAVTINO', 1000039,   0, 0,0.00D0,1.000D+30,1.5D0/
 C
       DATA QORQQB/.FALSE.,
      & 6*.TRUE.,6*.FALSE.,96*.FALSE.,6*.FALSE.,6*.TRUE.,NREST*.FALSE./
@@ -1827,34 +1814,7 @@ C     to avoid compiler problems with the C escape character
      & '                   $&tilde{&chi}^-_2$',
      & '         ~chi<SUP>-</SUP><SUB>2</SUB>',
      & '                          $&tilde{G}$',
-     & '                                   ~G',
-     & '                                VDQRK',
-     & '                                VDQRK',
-     & '                                VUQRK',
-     & '                                VUQRK',
-     & '                                VDBAR',
-     & '                                VDBAR',
-     & '                                VUBAR',
-     & '                                VUBAR',
-     & '                                VCLUS',
-     & '                                VCLUS',
-     & '                              VSTRING',
-     & '                              VSTRING',
-     & '                                 VPI0',
-     & '                                 VPI0',
-     & '                                 VPI+',
-     & '                                 VPI+',
-     & '                                 VPI-',
-     & '                                 VPI-',
-     & '                                  VN+',
-     & '                                  VN+',
-     & '                                  VN-',
-     & '                                  VN-',
-     & '                                  VP+',
-     & '                                  VP+',
-     & '                                  VP-',
-     & '                                  VP-'/
-     /
+     & '                                   ~G'/
 C
       DATA (RNAME(I),I=NNEXT,NMXRES)/NLEFT*'        '/
       DATA (IDPDG(I),I=NNEXT,NMXRES)/NLEFT*0/

@@ -2,11 +2,13 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <memory>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenVertex.h>
 #include <HepMC/GenParticle.h>
+#include <HepMC/SimpleVector.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -319,6 +321,39 @@ const HepMC::GenVertex *LHEEvent::findSignalVertex(
 	}
 
 	return vertex;
+}
+
+static void fixSubTree(HepMC::GenVertex *vertex,
+                       HepMC::FourVector time,
+                       std::set<const HepMC::GenVertex*> &visited)
+{
+	HepMC::FourVector curTime = vertex->position();
+	bool needsFixup = curTime.t() <= time.t();
+
+	if (!visited.insert(vertex).second && !needsFixup)
+		return;
+
+	if (needsFixup) {
+		vertex->set_position(time);
+		time = curTime;
+	}
+
+	for(HepMC::GenVertex::particles_out_const_iterator iter =
+					vertex->particles_out_const_begin();
+	    iter != vertex->particles_out_const_end(); ++iter) {
+		HepMC::GenVertex *endVertex = (*iter)->end_vertex();
+		if (endVertex)
+			fixSubTree(endVertex, time, visited);
+	}
+}
+
+void LHEEvent::fixHepMCEventTimeOrdering(HepMC::GenEvent *event)
+{
+	std::set<const HepMC::GenVertex*> visited;
+	HepMC::FourVector zeroTime;
+	for(HepMC::GenEvent::vertex_iterator iter = event->vertices_begin();
+	    iter != event->vertices_end(); ++iter)
+		fixSubTree(*iter, zeroTime, visited);
 }
 
 } // namespace lhef

@@ -118,11 +118,12 @@ bool LHESource::produce(edm::Event &event)
 			double weight = jetMatching->match(
 					partonLevel->asHepMCEvent().get(),
 					hadronLevel.get());
-			std::cout << "Event got a weight of " << weight
-			          << " by the jet matching." << std::endl;
-
-			if (weight <= 0.0)
+			if (weight <= 0.0) {
+				edm::LogInfo("Generator|LHEInterface")
+					<< "Event got rejected by the"
+					   "jet matching." << std::endl;
 				continue;
+			}
 		}
 
 		break;
