@@ -52,10 +52,10 @@ class CSCEventData {
 
 
   ///if dealing with ALCT data
-  bool isALCT(const short unsigned int * buf) {return 1;}
+  bool isALCT(const short unsigned int * buf);
 
   ///if dealing with TMB data
-  bool isTMB(const short unsigned int * buf) {return 1;}
+  bool isTMB(const short unsigned int * buf);
 
 
   

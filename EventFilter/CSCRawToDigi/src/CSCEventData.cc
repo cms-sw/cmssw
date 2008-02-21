@@ -86,23 +86,10 @@ CSCEventData::CSCEventData(unsigned short * buf){
     else  edm::LogError ("CSCEventData") <<"Error:nclct reported but no TMB data found!!!";
   }
 
-
-
   for(int icfeb = 0; icfeb < 5; ++icfeb)  {
     theCFEBData[icfeb] = 0;
     int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
-    // There seemed to be a bug in the DMB firmware used during 2003 test
-    // beam, which resulted in occasional zero values of cfebAvailable
-    // word in DMBHeader whereas in reality it was not zero.  So TMBHeader
-    // might be a better place to get this info from.  But I am not quite
-    // sure of it, so I leave it as is for now. -Sl.
-    //int cfeb_available_2 = 0;
-    //if (nclct()== 1)
-    //	cfeb_available_2 = (theTMBData->tmbHeader().ActiveCFEBs() >> icfeb) & 1;
-    //if ( (cfeb_available==1)&&(cfeb_available_2 == 1) ) {
-
     //cfeb_available cannot be trusted - need additional verification!
-
     if ( cfeb_available==1 )   {
       // Fill CFEB data and convert it into cathode digis
       theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
@@ -121,12 +108,38 @@ CSCEventData::CSCEventData(unsigned short * buf){
   theDMBTrailer = *( (CSCDMBTrailer *) pos );
   pos += theDMBTrailer.sizeInWords();
   size_ = pos-buf;
+  unsigned int cfebTimeout = theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout;
   
   //check for correct cfebs being reported
-  if ( theDMBHeader.cfebAvailable() &  (theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout) ) {
+  if ( theDMBHeader.cfebAvailable() &  cfebTimeout ) {
     edm::LogError ("CSCEventData") <<"!!!Mismatch between cfebAvailable and cfebTimeout!!!";
+    //fix the cfeb numbers if possible...
+    int currentCfeb=0;
+    for(int icfeb = 0; icfeb < 5; ++icfeb) {
+      int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
+      if ( cfeb_available==1 ) {
+	if (currentCfeb<=icfeb) currentCfeb=icfeb;
+	if ((cfebTimeout >> currentCfeb) & 1) {
+	  //this cfeb timed out in spite of cfebAvailable==1
+	  do ++currentCfeb; while ((!theDMBHeader.cfebAvailable(currentCfeb))&&(currentCfeb<5)&&
+				  ((cfebTimeout >> currentCfeb) & 1));
+	}
+	if (currentCfeb<5) theCFEBData[icfeb]->setBoardNumber(currentCfeb);
+	else break;
+      }  
+    }    
   }
 }
+
+
+bool CSCEventData::isALCT(const short unsigned int * buf) {
+  return true;  
+}
+
+bool CSCEventData::isTMB(const short unsigned int * buf) {
+  return true;
+}
+
 
 
 CSCEventData::CSCEventData(const CSCEventData & data) {

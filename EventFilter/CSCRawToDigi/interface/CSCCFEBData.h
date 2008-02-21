@@ -46,7 +46,8 @@ class CSCCFEBData {
   unsigned short * data() {return theData;}
   unsigned sizeInWords() const {return theSize;} 
   unsigned boardNumber() const {return boardNumber_;}
-
+  void setBoardNumber(int cfeb) {boardNumber_=cfeb;}
+  
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBData &);
   static void selfTest();
 
