@@ -2,7 +2,6 @@
 #define HcalDigis_HcalSubdetDigiMonitor_h
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include <string>
 
 class HcalSubdetDigiMonitor

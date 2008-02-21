@@ -18,7 +18,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -372,26 +371,18 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
     edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
   }
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("HcalDigiTask");
-  }
 
 }
    
 
-HcalDigiTester::~HcalDigiTester()
-{
-  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
-  std::cout << " dbe_ = " << dbe_ << std::endl; 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
-}
-
-void HcalDigiTester::endJob() {
+HcalDigiTester::~HcalDigiTester() { 
   std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
   std::cout << " dbe_ = " << dbe_ << std::endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
+
+
+void HcalDigiTester::endJob() { }
 
 void HcalDigiTester::beginJob(const edm::EventSetup& c){
 

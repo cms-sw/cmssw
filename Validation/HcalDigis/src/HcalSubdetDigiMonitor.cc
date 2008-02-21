@@ -63,7 +63,9 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   
   Char_t histo[100];
   const char * sub = subdet_.c_str();
-  dbe_->setCurrentFolder("HcalDigiTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("HcalDigiTask");
+  }
 
   /*
   std::cout << " HcalSubdetDigiMonitor : "
