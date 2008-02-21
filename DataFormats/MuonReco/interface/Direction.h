@@ -39,6 +39,9 @@ public:
     return false; 
   }
 
+  inline double deltaR2(const Direction & dir2) const { 
+    return reco::deltaR2(*this, dir2);
+  } 
   inline double deltaR(const Direction & dir2) const { 
     return reco::deltaR(*this, dir2);
   } 
