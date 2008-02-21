@@ -68,6 +68,10 @@ LHESource::LHESource(const edm::ParameterSet &params,
 
 	produces<edm::HepMCProduct>();
 	produces<edm::GenInfoProduct, edm::InRun>();
+	if (jetMatching.get()) {
+		produces< std::vector<double> >("matchDeltaR");
+		produces< std::vector<double> >("matchDeltaPRel");
+	}
 }
 
 LHESource::~LHESource()
@@ -140,6 +144,29 @@ bool LHESource::produce(edm::Event &event)
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
+
+	if (jetMatching.get()) {
+		std::auto_ptr< std::vector<double> > matchDeltaR(
+						new std::vector<double>);
+		std::auto_ptr< std::vector<double> > matchDeltaPRel(
+						new std::vector<double>);
+
+		typedef std::vector<JetMatching::JetPartonMatch> Matches;
+		Matches matches = jetMatching->getMatchSummary();
+
+		for(Matches::const_iterator iter = matches.begin();
+		    iter != matches.end(); ++iter) {
+			if (!iter->isMatch())
+				continue;
+
+			matchDeltaR->push_back(iter->delta);
+			matchDeltaPRel->push_back(iter->jet.mag() /
+			                          iter->parton.mag() - 1.0);
+		}
+
+		event.put(matchDeltaR, "matchDeltaR");
+		event.put(matchDeltaPRel, "matchDeltaPRel");
+	}
 
 	return true;
 }

@@ -1,5 +1,6 @@
-#include <iostream>
 #include <functional>
+#include <algorithm>
+#include <iostream>
 #include <vector>
 #include <memory>
 #include <string>
@@ -8,6 +9,7 @@
 #include <Math/GenVector/VectorUtil.h>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/SimpleVector.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -47,6 +49,15 @@ namespace {
 			return VectorUtil::DeltaR(v1, v2);
 		}
 	};
+
+	struct ParticlePtLess {
+		double operator () (const HepMC::GenParticle *v1,
+		                    const HepMC::GenParticle *v2)
+		{ return v1->momentum().perp() < v2->momentum().perp(); }
+	};
+
+	inline HepMC::FourVector convert(const JetClustering::Jet &jet)
+	{ return HepMC::FourVector(jet.px(), jet.py(), jet.pz(), jet.e()); }
 } // anonymous namespace
 
 JetMatching::JetMatching(const edm::ParameterSet &params) :
@@ -82,9 +93,11 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 // use polymorphic JetMatching subclasses when modularizing
 
 double JetMatching::match(const HepMC::GenEvent *partonLevel,
-                          const HepMC::GenEvent *finalState) const
+                          const HepMC::GenEvent *finalState)
 {
 	JetInput::ParticleVector partons = (*partonInput)(partonLevel);
+	std::sort(partons.begin(), partons.end(), ParticlePtLess());
+
 	std::vector<JetClustering::Jet> jets =
 				(*jetClustering)((*jetInput)(finalState));
 
@@ -133,6 +146,26 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 		          << iter->index2 << " with a Delta_R of "
 		          << matching.delta(*iter) << std::endl;
 #endif
+
+	matchSummary.clear();
+	for(std::vector<Match>::const_iterator iter = matches.begin();
+	    iter != matches.end(); ++iter)
+		matchSummary.push_back(
+			JetPartonMatch(partons[iter->index1]->momentum(),
+			               convert(jets[iter->index2]),
+			               matching.delta(*iter),
+			               partons[iter->index1]->pdg_id()));
+
+	for(Matching<double>::index_type i = 0; i < partons.size(); i++)
+		if (!matching.isMatched1st(i))
+			matchSummary.push_back(
+				JetPartonMatch(partons[i]->momentum(),
+				               partons[i]->pdg_id()));
+
+	for(Matching<double>::index_type i = 0; i < jets.size(); i++)
+		if (!matching.isMatched2nd(i))
+			matchSummary.push_back(
+				JetPartonMatch(convert(jets[i])));
 
 	switch(matchMode) {
 	    case kExclusive:
