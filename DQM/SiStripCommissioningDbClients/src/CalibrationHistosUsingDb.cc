@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.5 2008/02/20 11:26:12 bainbrid Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.1 2008/02/20 21:01:08 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -10,9 +10,10 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
-					      const DbParams& params )
+					            const DbParams& params,
+						    const sistrip::RunType& task )
   : CommissioningHistosUsingDb( params ),
-    CalibrationHistograms( mui )
+    CalibrationHistograms( mui, task )
 {
   LogTrace(mlDqmClient_) 
     << "[CalibrationHistosUsingDb::" << __func__ << "]"
@@ -22,9 +23,11 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
-					      SiStripConfigDb* const db )
-  : CommissioningHistosUsingDb( db ),
-    CalibrationHistograms( mui )
+					      SiStripConfigDb* const db,
+					      const sistrip::RunType& task )
+  : CommissioningHistograms( mui, task ),
+    CommissioningHistosUsingDb( db, mui, task),
+    CalibrationHistograms( mui, task )
 {
   LogTrace(mlDqmClient_) 
     << "[CalibrationHistosUsingDb::" << __func__ << "]"
@@ -34,9 +37,10 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( DaqMonitorBEInterface* bei,
-					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db ),
-    CalibrationHistograms( bei )
+					      SiStripConfigDb* const db,
+					      const sistrip::RunType& task ) 
+  : CommissioningHistosUsingDb( db, task ),
+    CalibrationHistograms( bei, task )
 {
   LogTrace(mlDqmClient_) 
     << "[CalibrationHistosUsingDb::" << __func__ << "]"

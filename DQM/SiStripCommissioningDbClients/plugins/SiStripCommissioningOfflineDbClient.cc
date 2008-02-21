@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.8 2008/02/07 17:02:56 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.9 2008/02/20 21:01:07 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -117,7 +117,7 @@ void SiStripCommissioningOfflineDbClient::createHistos() {
             runType_ == sistrip::CALIBRATION_DECO ||
             runType_ == sistrip::CALIBRATION_SCAN ||
             runType_ == sistrip::CALIBRATION_SCAN_DECO)
-                                                { histos_ = new CalibrationHistosUsingDb( mui_, db ); }
+                                                { histos_ = new CalibrationHistosUsingDb( mui_, db, runType_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
     histos_ = 0; 
     edm::LogError(mlDqmClient_)

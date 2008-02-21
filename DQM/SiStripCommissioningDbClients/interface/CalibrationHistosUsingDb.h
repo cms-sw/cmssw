@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.3 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.1 2008/02/20 21:01:06 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
@@ -15,13 +15,16 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
  public:
   
   CalibrationHistosUsingDb( MonitorUserInterface*,
-			 const DbParams& );
+			    const DbParams&,
+			    const sistrip::RunType& task = sistrip::CALIBRATION );
   
   CalibrationHistosUsingDb( MonitorUserInterface*,
-			 SiStripConfigDb* const );
+			    SiStripConfigDb* const,
+			    const sistrip::RunType& task = sistrip::CALIBRATION );
   
   CalibrationHistosUsingDb( DaqMonitorBEInterface*,
-			 SiStripConfigDb* const );
+			    SiStripConfigDb* const,
+			    const sistrip::RunType& task = sistrip::CALIBRATION );
 
   virtual ~CalibrationHistosUsingDb();
 
