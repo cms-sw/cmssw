@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -48,6 +49,11 @@ namespace reco {
   typedef edm::AssociationVector<MuonRefProd,MuIsoDepositCollection > MuIsoDepositAssociationVectorToMuon;
 
   typedef edm::AssociationVector<CandidateBaseRefProd,MuIsoDepositCollection > MuIsoDepositAssociationVectorToCandidateView;
+
+  typedef edm::AssociationVector<CandidateBaseRefProd,MuIsoDepositCollection > CandIsoDepositAssociationVector;
+  typedef CandIsoDepositAssociationVector::value_type CandIsoDepositAssociationPair;
+
+  typedef edm::ValueMap<reco::MuIsoDeposit> IsoDepositMap;
 
 }
 
