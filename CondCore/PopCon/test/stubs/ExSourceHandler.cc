@@ -1,5 +1,5 @@
 #include "ExSourceHandler.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -31,19 +31,18 @@ popcon::ExPedestalSource::~ExPedestalSource()
 }
 
 void popcon::ExPedestalSource::getNewObjects() {
-   std::cerr << "------- " << m_name 
-	     << " - > getNewObjects" << std::endl;
+   edm::LogInfo   ("ExPedestalsSource") << "------- " << m_name 
+	     << " - > getNewObjects\n" << 
   //check whats already inside of database
-  std::cerr<<"got offlineInfo"<<std::endl;
- 
-  std::cerr << tagInfo().name << ", size " << tagInfo().size 
-            << " last object valid since " 
+      "got offlineInfo"<<
+    tagInfo().name << ", size " << tagInfo().size 
+            << ", last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
   
 
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
-    std::cerr<<"size of last payload  "<< 
+    edm::LogInfo   ("ExPedestalsSource")<<"size of last payload  "<< 
       payload->m_pedestals.size()<<std::endl;
   }
 
@@ -62,5 +61,5 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_to_transfer.push_back(std::make_pair((Pedestals*)p1,m_since+20));
   m_to_transfer.push_back(std::make_pair((Pedestals*)p2,m_since+10));
 
-  std::cerr << "------- " << m_name << " - > getNewObjects" << std::endl;
+  edm::LogInfo   ("ExPedestalsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }
