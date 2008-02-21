@@ -245,7 +245,12 @@ class _TypedParameterizable(_Parameterizable):
             result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         else:
             # too big.  Need to dump externally
-            result += ")\n" + self.dumpPythonAttributes("FIX-THIS", options)
+            label = ""
+            try:
+               label = self.label()
+            except:
+               label = "FIX-THIS"
+            result += ")\n" + self.dumpPythonAttributes(label, options)
         return result
 
     def dumpPythonAttributes(self, myname, options):
