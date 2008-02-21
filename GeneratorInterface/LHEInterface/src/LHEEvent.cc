@@ -328,15 +328,15 @@ static void fixSubTree(HepMC::GenVertex *vertex,
                        std::set<const HepMC::GenVertex*> &visited)
 {
 	HepMC::FourVector curTime = vertex->position();
-	bool needsFixup = curTime.t() <= time.t();
+	bool needsFixup = curTime.t() < time.t();
 
 	if (!visited.insert(vertex).second && !needsFixup)
 		return;
 
-	if (needsFixup) {
+	if (needsFixup)
 		vertex->set_position(time);
+	else
 		time = curTime;
-	}
 
 	for(HepMC::GenVertex::particles_out_const_iterator iter =
 					vertex->particles_out_const_begin();
