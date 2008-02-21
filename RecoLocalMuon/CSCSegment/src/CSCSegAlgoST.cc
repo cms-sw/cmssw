@@ -525,6 +525,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
   int best_pseg = -1;
   int best_noLx_pseg = -1;
+  int best_Layer_noLx = -1;
 
   //************************************************************************;    
   //***   Start segment building   *****************************************;    
@@ -861,10 +862,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL1_B[ pseg_noL1_pos ];
 		    best_curv_noLx_A = curv_noL1_A[ pseg_noL1_pos ];
 		    best_noLx_pseg = pseg_noL1_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL1;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL1_A;
+                    best_Layer_noLx = 1;
 		  }
 
 		}
@@ -924,10 +922,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL2_B[ pseg_noL2_pos ];
 		    best_curv_noLx_A = curv_noL2_A[ pseg_noL2_pos ];
 		    best_noLx_pseg = pseg_noL2_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL2;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL2_A;
+                    best_Layer_noLx = 2;
 		  }
 
 		}
@@ -987,10 +982,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL3_B[ pseg_noL3_pos ];
 		    best_curv_noLx_A = curv_noL3_A[ pseg_noL3_pos ];
 		    best_noLx_pseg = pseg_noL3_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL3;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL3_A;
+                    best_Layer_noLx = 3;
 		  }
 
 		}
@@ -1050,10 +1042,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL4_B[ pseg_noL4_pos ];
 		    best_curv_noLx_A = curv_noL4_A[ pseg_noL4_pos ];
 		    best_noLx_pseg = pseg_noL4_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL4;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL4_A;
+                    best_Layer_noLx = 4;
 		  }
 
 		}
@@ -1113,10 +1102,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL5_B[ pseg_noL5_pos ];
 		    best_curv_noLx_A = curv_noL5_A[ pseg_noL5_pos ];
 		    best_noLx_pseg = pseg_noL5_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL5;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL5_A;
+                    best_Layer_noLx = 5;
 		  }
 
 		}
@@ -1176,10 +1162,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 		    best_weight_noLx_B = weight_noL6_B[ pseg_noL6_pos ];
 		    best_curv_noLx_A = curv_noL6_A[ pseg_noL6_pos ];
 		    best_noLx_pseg = pseg_noL6_pos;
-		    Psegments_noLx.clear();
-		    Psegments_noLx = Psegments_noL6;
-		    weight_noLx_A.clear();
-		    weight_noLx_A = weight_noL6_A;
+                    best_Layer_noLx = 6;
 		  }
 
 		}
@@ -1221,7 +1204,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
   float hit_drop_limit = -999999.999;
 
-  switch ( n_layers_processed ) { // define different weight improvement requirements depending on how many layers are in the segment candidate
+  // define different weight improvement requirements depending on how many layers are in the segment candidate
+  switch ( n_layers_processed ) {
   case 1 : 
     // do nothing;
     break;
@@ -1248,17 +1232,62 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     hit_drop_limit = 0.1;
   }
 
-  if ( min_weight_noLx_A/min_weight_A < hit_drop_limit ) {
-    chosen_weight = min_weight_noLx_A;
-    chosen_ywgt = best_weight_noLx_B;
-    chosen_curv = best_curv_noLx_A;
-    chosen_nlayers = n_layers_occupied_tot-1;
-    chosen_pseg = best_noLx_pseg;
-    chosen_Psegments.clear();
-    chosen_weight_A.clear();
-    chosen_Psegments = (Psegments_noLx);
-    chosen_weight_A = (weight_noLx_A);
+  // choose the NoLx collection (the one that contains the best N-1 candidate)
+  switch ( best_Layer_noLx ) {
+  case 1 : 
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL1;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL1_A;
+    break;
+  case 2 :
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL2;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL2_A;
+    break;
+  case 3 : 
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL3;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL3_A;
+    break;
+  case 4 : 
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL4;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL4_A;
+    break;
+  case 5 : 
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL5;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL5_A;
+    break;
+  case 6 : 
+    Psegments_noLx.clear();
+    Psegments_noLx = Psegments_noL6;
+    weight_noLx_A.clear();
+    weight_noLx_A = weight_noL6_A;
+    break;
+    
+  default : 
+    // Fallback - should occur only for preclusters with only 3 layers with hits.
+    Psegments_noLx.clear();
+    weight_noLx_A.clear();
   }
+  
+   if ( min_weight_noLx_A/min_weight_A < hit_drop_limit ) {
+     chosen_weight = min_weight_noLx_A;
+     chosen_ywgt = best_weight_noLx_B;
+     chosen_curv = best_curv_noLx_A;
+     chosen_nlayers = n_layers_occupied_tot-1;
+     chosen_pseg = best_noLx_pseg;
+     chosen_Psegments.clear();
+     chosen_weight_A.clear();
+     chosen_Psegments = (Psegments_noLx);
+     chosen_weight_A = (weight_noLx_A);
+   }
 
   if(onlyBestSegment) {
     ChooseSegments2a( chosen_Psegments, chosen_pseg );
@@ -1301,6 +1330,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
 
   // always select and return best protosegment:  
   GoodSegments.push_back( chosen_segments[ chosen_seg ] );
+
   float chosen_weight_temp = 999999.;
   int chosen_seg_temp = -1;
 
@@ -1312,7 +1342,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
       if( chosen_weight[iCand] < 0. ) continue;
       SumCommonHits = 0;
 
-      for( int ihits = 0; ihits < int(chosen_segments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (alsways have by construction)
+      for( int ihits = 0; ihits < int(chosen_segments[iCand].size()); ++ihits ) { // iCand and iiCand NEED to have same nr of hits! (always have by construction)
 	if( chosen_segments[iCand][ihits] == chosen_segments[chosen_seg][ihits]) {
 	  SumCommonHits++;
 	}
@@ -1333,6 +1363,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
     }
 
     if( chosen_seg_temp > -1 ) GoodSegments.push_back( chosen_segments[ chosen_seg_temp ] );
+
     chosen_seg = chosen_seg_temp;
     // re-initialze temporary best parameters
     chosen_weight_temp = 999999;
