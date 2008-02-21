@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.10 2008/02/21 16:08:39 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.11 2008/02/21 19:20:47 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FW3DLegoViewManager::buildView,
                  this, _1);
-   iGUIMgr->registerViewBuilder("3D Lego", f);
+   iGUIMgr->registerViewBuilder(FW3DLegoView::staticTypeName(), f);
    
 }
 

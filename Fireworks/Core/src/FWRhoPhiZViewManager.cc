@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.15 2008/02/15 18:11:10 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.16 2008/02/21 16:09:59 chrjones Exp $
 //
 
 // system include files
@@ -58,6 +58,9 @@ const char* const kBuilderPrefixes[] = {
    "Proxy3DBuilder",
    "ProxyRhoPhiZ2DBuilder"
 };
+static
+const char* const kRhoPhiViewTypeName = "Rho Phi";
+const char* const kRhoZViewTypeName = "Rho Z";
 //
 // static data member definitions
 //
@@ -77,10 +80,10 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
    FWGUIManager::ViewBuildFunctor f;
    f = boost::bind(&FWRhoPhiZViewManager::createRhoPhiView,
                    this, _1);
-   iGUIMgr->registerViewBuilder("Rho Phi",f);
+   iGUIMgr->registerViewBuilder(kRhoPhiViewTypeName,f);
    f=boost::bind(&FWRhoPhiZViewManager::createRhoZView,
                  this, _1);
-   iGUIMgr->registerViewBuilder("Rho Z",f);
+   iGUIMgr->registerViewBuilder(kRhoZViewTypeName,f);
 
    //setup geometry projections
    m_rhoPhiGeomProjMgr = new TEveProjectionManager;
@@ -127,7 +130,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
    setupGeometry();
    
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
-                                                             "Rho Phi",
+                                                             kRhoPhiViewTypeName,
                                                              TEveProjection::kPT_RPhi) );
    m_rhoPhiViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoPhiGeomProjMgr->BeginChildren(), itEnd = m_rhoPhiGeomProjMgr->EndChildren();
@@ -147,7 +150,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
    setupGeometry();
    
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
-                                                             "Rho Z",
+                                                             kRhoZViewTypeName,
                                                              TEveProjection::kPT_RhoZ) );
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(), 
