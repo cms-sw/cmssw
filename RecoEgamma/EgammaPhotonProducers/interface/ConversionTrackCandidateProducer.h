@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.4 2008/02/12 14:12:51 nancy Exp $ 
- **  $Date: 2008/02/12 14:12:51 $ 
- **  $Revision: 1.4 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.5 2008/02/15 16:51:53 nancy Exp $ 
+ **  $Date: 2008/02/15 16:51:53 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -67,6 +67,10 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::string scHybridBarrelCollection_;
   std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
+
+  double hOverEConeSize_;
+  double maxHOverE_;
+  double minSCEt_;
 
   
   const NavigationSchool*       theNavigationSchool_;
