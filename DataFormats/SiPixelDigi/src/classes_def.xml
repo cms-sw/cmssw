@@ -22,7 +22,9 @@
    <class name="edm::Wrapper<edm::DetSet<SiPixelCalibDigi > > " splitLevel="0"/>
    <class name="edm::Wrapper<edm::DetSetVector<SiPixelCalibDigi> > " splitLevel="0"/>
 
+   <class name="uint8_t"/>
    <class name="SiPixelCalibDigiError"/>
+   <class name="edm::DetSet<SiPixelCalibDigiError>"/>
    <class name="std::vector<SiPixelCalibDigiError>"/>
    <class name="edm::DetSetVector<SiPixelCalibDigiError>"/>
    <class name="std::vector<edm::DetSet<SiPixelCalibDigiError> >"/>

@@ -23,6 +23,8 @@ namespace {
     edm::Wrapper<std::vector<edm::DetSet<SiPixelCalibDigi> > > calibdigidetset;
     edm::Wrapper<edm::DetSetVector<SiPixelCalibDigi> > calibdigidetsetvec;
     
+    uint8_t singlesmallerror;
+    uint16_t containerforrowsandcolumns;
     SiPixelCalibDigiError calibdigierr;
     edm::Wrapper<SiPixelCalibDigiError> calibdigierrw;
     edm::Wrapper<std::vector<SiPixelCalibDigiError> > calibdigierrvec;
@@ -30,7 +32,6 @@ namespace {
     edm::Wrapper<std::vector<edm::DetSet<SiPixelCalibDigiError> > > calibdigierrdetset;
     edm::Wrapper<edm::DetSetVector<SiPixelCalibDigiError> > calibdigierrdetsetvec;
     
-
     edm::Wrapper<PixelDigi> zs0;
     edm::Wrapper<PixelDigiCollection> zsc0;
     edm::Wrapper< std::vector<PixelDigi>  > zs1;
