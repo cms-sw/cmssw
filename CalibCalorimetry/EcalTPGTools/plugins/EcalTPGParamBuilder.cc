@@ -41,7 +41,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   
   readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
-  string DBhost   = pSet.getParameter<std::string>("DBhost") ;
   string DBsid    = pSet.getParameter<std::string>("DBsid") ;
   string DBuser   = pSet.getParameter<std::string>("DBuser") ;
   string DBpass   = pSet.getParameter<std::string>("DBpass") ;
@@ -168,14 +167,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
-    //(*out_fileEB_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
     if (writeToFiles_) (*out_fileEB_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    //const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
@@ -203,14 +200,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
-    //(*out_fileEE_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
     if (writeToFiles_) (*out_fileEE_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    //const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
