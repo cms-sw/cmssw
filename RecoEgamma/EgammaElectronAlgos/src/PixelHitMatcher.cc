@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.11 2008/02/21 09:40:13 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.12 2008/02/21 13:54:00 charlot Exp $
 //
 //
 
@@ -179,27 +179,29 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
       }
 
       //check if there are compatible 1st hits the outer forward disks
-      flayer++;
+      if (searchInTIDTEC_) {
+	flayer++;
       
-      vector<TrajectoryMeasurement> pixel2Measurements = 
- 	theLayerMeasurements->measurements(**flayer, tsosfwd,
- 					   *prop1stLayer, meas1stFLayer);
+	vector<TrajectoryMeasurement> pixel2Measurements = 
+	  theLayerMeasurements->measurements(**flayer, tsosfwd,
+					     *prop1stLayer, meas1stFLayer);
       
-      for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
- 	if (m->recHit()->isValid()) {
-	  float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
-	  if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
-	  if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
-	  if(fabs(localDphi)>2.5)continue;
- 	  Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
- 				m->forwardPredictedState().globalPosition().y(),
- 				m->forwardPredictedState().globalPosition().z());
- 	  pred1Meas.push_back( prediction);
+	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
+	  if (m->recHit()->isValid()) {
+	    float localDphi = SCl_phi-m->forwardPredictedState().globalPosition().phi();
+	    if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	    if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	    if(fabs(localDphi)>2.5)continue;
+	    Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
+				  m->forwardPredictedState().globalPosition().y(),
+				  m->forwardPredictedState().globalPosition().z());
+	    pred1Meas.push_back( prediction);
 
- 	  validMeasurements.push_back(*m);      
-	}
-	//	else{std::cout<<" hit non valid "<<std::endl; }
-      }  //end 1st hit in outer f disk
+	    validMeasurements.push_back(*m);      
+	  }
+	  //	else{std::cout<<" hit non valid "<<std::endl; }
+	}  //end 1st hit in outer f disk
+      }
     }
   }
   
@@ -230,7 +232,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
     FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
     
     PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
-				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer);
+				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,searchInTIDTEC_);
     vector<Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]); 
@@ -266,7 +268,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
         if (!missedMeasurements[j].recHit()->det()) continue;
         const DetLayer* newLayer = theGeometricSearchTracker->detLayer(missedMeasurements[j].recHit()->det()->geographicalId());
 	PixelMatchNextLayers secondSecondHit(theLayerMeasurements, newLayer, secondFTS,
-					     prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer);
+					     prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,searchInTIDTEC_);
 
         vector<Hep3Vector> predictions = secondSecondHit.predictionInNextLayers();
 

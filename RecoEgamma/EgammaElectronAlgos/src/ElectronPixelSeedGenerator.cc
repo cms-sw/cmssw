@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.36 2008/02/21 09:40:13 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.37 2008/02/21 13:54:00 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -81,7 +81,8 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
 				    pset.getParameter<double>("z2MinF"),
 				    pset.getParameter<double>("z2MaxF"),
 				    pset.getParameter<double>("rMin"),
-				    pset.getParameter<double>("rMax"));
+				    pset.getParameter<double>("rMax"),
+				    pset.getParameter<bool>("searchInTIDTEC"));
 
   myMatchPos = new PixelHitMatcher( pset.getParameter<double>("pPhiMin1"),
 				    pset.getParameter<double>("pPhiMax1"),
@@ -92,7 +93,8 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
 				    pset.getParameter<double>("z2MinF"),
 				    pset.getParameter<double>("z2MaxF"),
 				    pset.getParameter<double>("rMin"),
-				    pset.getParameter<double>("rMax"));
+				    pset.getParameter<double>("rMax"),
+				    pset.getParameter<bool>("searchInTIDTEC"));
 
 }
 

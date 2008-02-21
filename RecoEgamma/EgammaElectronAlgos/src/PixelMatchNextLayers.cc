@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.5 2008/02/21 09:40:13 uberthon Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.6 2008/02/21 13:54:00 charlot Exp $
 //
 //
 
@@ -45,7 +45,9 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 					   FreeTrajectoryState & aFTS,
 					   const PropagatorWithMaterial *aProp,  
 					   const BarrelMeasurementEstimator *aBarrelMeas,
-					   const ForwardMeasurementEstimator *aForwardMeas) {
+					   const ForwardMeasurementEstimator *aForwardMeas,
+					   bool searchInTIDTEC)
+ {
 
   typedef std::vector<TrajectoryMeasurement>::const_iterator aMeas;
   std::vector<const DetLayer*> nl = ilayer->nextLayers( aFTS, alongMomentum);
@@ -80,7 +82,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	      }
 	    }
 	  }
-	  
+	  if (searchInTIDTEC) {	  
 	  //additional search in the TID layers
 	  if ( ((*il)->subDetector())==GeomDetEnumerators::TID && (ilayer->location()) == GeomDetEnumerators::endcap)
 	    {
@@ -131,6 +133,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 		  // else{ std::cout<<" 2H not valid "<<std::endl;}
 		}
 	    } //end of TEC search
+	  }
 	}
     } 
 }
