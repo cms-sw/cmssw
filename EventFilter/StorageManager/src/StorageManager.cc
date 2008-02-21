@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.38 2008/02/02 02:26:34 hcheung Exp $
+// $Id: StorageManager.cc,v 1.39 2008/02/11 15:26:13 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -50,6 +50,8 @@
 #include "xoap/domutils.h"
 
 #include "xdata/InfoSpaceFactory.h"
+
+#include "boost/lexical_cast.hpp"
 
 namespace stor {
 extern bool getSMFC_exceptionStatus();
@@ -2276,7 +2278,7 @@ void StorageManager::actionPerformed(xdata::Event& e)
 
 
 
-void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz)
+void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz)
 {
   unsigned int no;
   stringstream pippo;
@@ -2346,6 +2348,65 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       fsm_.fireFailed(reasonForFailedState_,this);
       //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
       return false;
+    }
+
+    // check whether the maxSize parameter in the SM output streams
+    // is still specified in bytes (rather than MBytes).  (All we really
+    // check is if the maxSize is unreasonably large after converting
+    // it to bytes.)
+    try {
+      // create a parameter set from the configuration string
+      ProcessDesc pdesc(smConfigString_);
+      boost::shared_ptr<edm::ParameterSet> smPSet = pdesc.getProcessPSet();
+
+      // loop over each end path
+      std::vector<std::string> allEndPaths = 
+          smPSet->getParameter<std::vector<std::string> >("@end_paths");
+      for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();
+          endPathIter != allEndPaths.end(); ++endPathIter) {
+
+        // loop over each element in the end path list (not sure why...)
+        std::vector<std::string> anEndPath =
+          smPSet->getParameter<std::vector<std::string> >((*endPathIter));
+        for(std::vector<std::string>::iterator ep2Iter = anEndPath.begin();
+            ep2Iter != anEndPath.end(); ++ep2Iter) {
+
+          // fetch the end path parameter set
+          edm::ParameterSet endPathPSet =
+            smPSet->getParameter<edm::ParameterSet>((*ep2Iter));
+          if (! endPathPSet.empty()) {
+            std::string mod_type =
+              endPathPSet.getParameter<std::string> ("@module_type");
+            if (mod_type == "EventStreamFileWriter") {
+              long long maxSize = 1048576 *
+                (long long) endPathPSet.getParameter<int> ("maxSize");
+              if (maxSize > 2E+13) {
+                std::string streamLabel =  endPathPSet.getParameter<std::string> ("streamLabel");
+                std::string errorString =  "The maxSize parameter (file size) ";
+                errorString.append("for stream ");
+                errorString.append(streamLabel);
+                errorString.append(" is too large (");
+                errorString.append(boost::lexical_cast<std::string>(maxSize));
+                errorString.append(" bytes). ");
+                errorString.append("Please check that this parameter is ");
+                errorString.append("specified as the number of MBytes, not bytes. ");
+                errorString.append("(The units for maxSize was changed from ");
+                errorString.append("bytes to MBytes, and it is possible that ");
+                errorString.append("your storage manager configuration file ");
+                errorString.append("needs to be updated to reflect this.)");
+
+                reasonForFailedState_ = errorString;
+                fsm_.fireFailed(reasonForFailedState_,this);
+                return false;
+              }
+            }
+          }
+        }
+      }
+    }
+    catch (...) {
+      // since the maxSize test is just a convenience, we'll ignore
+      // exceptions and continue running, for now.
     }
 
     if (maxESEventRate_ < 0.0)
@@ -2522,12 +2583,12 @@ void StorageManager::stopAction()
     {
       string name;
       unsigned int nev;
-      unsigned int size;
+      unsigned long long size;
       parseFileEntry((*it),name,nev,size);
       fileList_.push_back(name);
       eventsInFile_.push_back(nev);
       totInFile += nev;
-      fileSize_.push_back(size);
+      fileSize_.push_back((unsigned int) (size / 1048576));
       FDEBUG(5) << name << " " << nev << " " << size << std::endl;
     }
 
