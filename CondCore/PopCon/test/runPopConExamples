@@ -1,10 +1,6 @@
 #run popcon example1
-echo "populate 10,20,30"
-echo 10 | cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.cfg
-echo "produce error"
-echo 5 | cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.cfg
-echo "populate 52,62,72"
-echo 50 | cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.cfg
+echo "populate 10,20,30, then 5?,15?,25?, then 50,60,70"
+cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.cfg
 echo "inspect db"
 cmscond_list_iov -c sqlite_file:pop_test.db
 echo "get iov details"
