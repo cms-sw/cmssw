@@ -11,7 +11,7 @@
 
 #include "CondCore/DBOutputService/interface/TagInfo.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -79,16 +79,16 @@ namespace popcon {
   template<typename T>
   void PopCon::writeOne(T * payload, Time_t time) {
     if (m_dbService->isNewTagRequest(m_record) ){
-      std::cerr << "Creating new IOV " << time << std::endl;
+      edm::LogInfo ("PopCon") << "Creating new IOV " << time << std::endl;
       m_dbService->createNewIOV<T>(payload, m_since ?  m_dbService->endOfTime() : time, m_record, m_LoggingOn);
     }
     else{
       if (m_since){
-	std::cerr << "Appending since time " <<  time << std::endl; 
+	edm::LogInfo ("PopCon") << "Appending since time " <<  time << std::endl; 
 	m_dbService->appendSinceTime<T>(payload, time, m_record, m_LoggingOn);
       } 
       else {
-	std::cerr << "Appending till time "  <<  time << std::endl; 
+	edm::LogInfo ("PopCon") << "Appending till time "  <<  time << std::endl; 
 	m_dbService->appendTillTime<T>(payload, time, m_record, m_LoggingOn);
       }
     }
@@ -99,7 +99,7 @@ namespace popcon {
   void displayHelper(Container const & payloads, bool sinceAppend) {
     typename Container::const_iterator it;
     for (it = payloads.begin(); it != payloads.end(); it++){
-      std::cerr<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
+      edm::LogInfo ("PopCon")<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
     }
   }
 
