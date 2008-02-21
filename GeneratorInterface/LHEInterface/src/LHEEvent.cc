@@ -290,6 +290,12 @@ const HepMC::GenVertex *LHEEvent::findSignalVertex(
 	    iter != event->vertices_end(); ++iter) {
 		if ((*iter)->particles_in_size() < 2)
 			continue;
+		if ((*iter)->particles_out_size() < 1 ||
+		    ((*iter)->particles_out_size() == 1 &&
+		     (!(*(*iter)->particles_out_const_begin())->end_vertex() ||
+		      !(*(*iter)->particles_out_const_begin())
+				->end_vertex()->particles_out_size())))
+			continue;
 
 		double px = 0.0, py = 0.0, pz = 0.0, E = 0.0;
 		bool hadStatus3 = false;

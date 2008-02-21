@@ -55,6 +55,7 @@ JetMatching::JetMatching(const edm::ParameterSet &params) :
 	jetClustering(new JetClustering(params)),
 	maxDeltaR(params.getParameter<double>("maxDeltaR"))
 {
+	partonInput->setPtMin(jetClustering->getJetPtMin());
 	partonInput->setPartonicFinalState(false);
 
 	std::string matchMode = params.getParameter<std::string>("matchMode");
@@ -83,7 +84,7 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 double JetMatching::match(const HepMC::GenEvent *partonLevel,
                           const HepMC::GenEvent *finalState) const
 {
-	JetInput::ParticleVector partons = (*jetInput)(partonLevel);
+	JetInput::ParticleVector partons = (*partonInput)(partonLevel);
 	std::vector<JetClustering::Jet> jets =
 				(*jetClustering)((*jetInput)(finalState));
 

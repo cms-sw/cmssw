@@ -24,7 +24,9 @@ class JetClustering::Algorithm {
 	virtual std::vector<Jet> operator () (
 				const ParticleVector &input) const = 0;
 
-    protected:
+	double getJetPtMin() const { return jetPtMin; }
+
+    private:
 	double	jetPtMin;
 };
 
@@ -69,7 +71,7 @@ std::vector<JetClustering::Jet> KtAlgorithm::operator () (
 
 	fastjet::ClusterSequence sequence(jfInput, jetDefinition);
 	std::vector<fastjet::PseudoJet> jets =
-				sequence.inclusive_jets(jetPtMin);
+				sequence.inclusive_jets(getJetPtMin());
 
 	std::vector<Jet> result;
 	result.reserve(jets.size());
@@ -120,6 +122,11 @@ void JetClustering::init(const edm::ParameterSet &params, double jetPtMin)
 		throw cms::Exception("Configuration")
 			<< "JetClustering algorithm \"" << algoName
 			<< "\" unknown." << std::endl;
+}
+
+double JetClustering::getJetPtMin() const
+{
+	return jetAlgo->getJetPtMin();
 }
 
 std::vector<JetClustering::Jet> JetClustering::operator () (

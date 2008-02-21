@@ -17,14 +17,18 @@ namespace lhef {
 JetInput::JetInput() :
 	partonicFinalState(false),
 	excludeResonances(false),
-	onlySignalProcess(false)
+	onlySignalProcess(false),
+	tausAsJets(false),
+	ptMin(0.0)
 {
 }
 
 JetInput::JetInput(const edm::ParameterSet &params) :
 	partonicFinalState(params.getParameter<bool>("partonicFinalState")),
 	excludeResonances(params.getParameter<bool>("excludeResonances")),
-	onlySignalProcess(params.getParameter<bool>("onlySignalProcess"))
+	onlySignalProcess(params.getParameter<bool>("onlySignalProcess")),
+	tausAsJets(params.getParameter<bool>("tausAsJets")),
+	ptMin(0.0)
 {
 	if (params.exists("ignoreParticleIDs"))
 		setIgnoredParticles(
@@ -43,13 +47,13 @@ void JetInput::setIgnoredParticles(
 	std::sort(ignoreParticleIDs.begin(), ignoreParticleIDs.end());
 }
 
-bool JetInput::isParton(int pdgId)
+bool JetInput::isParton(int pdgId) const
 {
 	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
 	return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
-	       pdgId == 9 || pdgId == 15 || pdgId == 21;
+	       pdgId == 9 || (tausAsJets && pdgId == 15) || pdgId == 21;
 	// tops are not considered "regular" partons
-	// but taus are (since they may hadronize later)
+	// but taus eventually are (since they may hadronize later)
 }
 
 bool JetInput::isHadron(int pdgId)
@@ -111,9 +115,9 @@ static void invalidateTree(JetInput::ParticleBitmap &invalid,
 	}
 }
 
-static int testPartonChildren(JetInput::ParticleBitmap &invalid,
-                              const JetInput::ParticleVector &p,
-                              const HepMC::GenVertex *v)
+int JetInput::testPartonChildren(JetInput::ParticleBitmap &invalid,
+                                 const JetInput::ParticleVector &p,
+                                 const HepMC::GenVertex *v) const
 {
 	if (!v)
 		return 0;
@@ -126,9 +130,9 @@ static int testPartonChildren(JetInput::ParticleBitmap &invalid,
 		if (invalid[idx])
 			continue;
 
-		if (JetInput::isParton((*iter)->pdg_id()))
+		if (isParton((*iter)->pdg_id()))
 			return 1;
-		if (JetInput::isHadron((*iter)->pdg_id()))
+		if (isHadron((*iter)->pdg_id()))
 			return -1;
 
 		const HepMC::GenVertex *v = (*iter)->end_vertex();
@@ -263,7 +267,8 @@ JetInput::ParticleVector JetInput::operator () (
 		if (isIgnored(particle->pdg_id()))
 			continue;
 
-		result.push_back(particle);
+		if (particle->momentum().perp() >= ptMin)
+			result.push_back(particle);
 	}
 
 	return result;

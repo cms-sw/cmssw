@@ -59,6 +59,8 @@ class JetClustering {
 
 	std::vector<Jet> operator () (const ParticleVector &input) const;
 
+	double getJetPtMin() const;
+
 	class Algorithm;
 
     private:

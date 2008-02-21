@@ -25,6 +25,8 @@ class JetInput {
 	bool getPartonicFinalState() const { return partonicFinalState; }
 	bool getExcludeResonances() const { return excludeResonances; }
 	bool getSignalProcessOnly() const { return onlySignalProcess; }
+	bool getTausAndJets() const { return tausAsJets; }
+	double getPtMin() const { return ptMin; }
 	const std::vector<unsigned int> &getIgnoredParticles() const
 	{ return ignoreParticleIDs; }
 
@@ -34,9 +36,11 @@ class JetInput {
 	{ excludeResonances = flag; }
 	void setSignalProcessOnly(bool flag = true)
 	{ onlySignalProcess = flag; }
+	void setTausAsJets(bool flag = true) { tausAsJets = flag; }
+	void setPtMin(double ptMin) { this->ptMin = ptMin; }
 	void setIgnoredParticles(const std::vector<unsigned int> &particleIDs);
 
-	static bool isParton(int pdgId);
+	bool isParton(int pdgId) const;
 	static bool isHadron(int pdgId);
 	static bool isResonance(int pdgId);
 
@@ -55,10 +59,16 @@ class JetInput {
 	                   const HepMC::GenVertex *signal) const;
 
     private:
+	int testPartonChildren(ParticleBitmap &invalid,
+	                       const ParticleVector &p,
+	                       const HepMC::GenVertex *v) const;
+
 	std::vector<unsigned int>	ignoreParticleIDs;
 	bool				partonicFinalState;
 	bool				excludeResonances;
 	bool				onlySignalProcess;
+	bool				tausAsJets;
+	double				ptMin;
 };
 
 } // namespace lhef
