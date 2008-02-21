@@ -19,7 +19,7 @@ class CSCDBCrosstalk
   int xtalk_slope_factor;
   int xtalk_intercept_factor;
 
-  enum factors{XtalkSlopeFactor=10000000, XtalkInterceptFactor=100000};
+  enum factors{FSLOPE=10000000, FINTERCEPT=100000};
 
   // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;

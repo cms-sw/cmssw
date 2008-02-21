@@ -16,7 +16,7 @@ class CSCDBPedestals{
   int ped_factor;
   int rms_factor;
 
-  enum factors{PedFactor=10, RmsFactor=1000};
+  enum factors{FPED=10, FRMS=1000};
 
   // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;

@@ -15,7 +15,7 @@ class CSCDBNoiseMatrix{
   };
   int noise_factor;
 
-  enum factors{NoiseFactor=1000};
+  enum factors{FNOISE=1000};
 
   // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;

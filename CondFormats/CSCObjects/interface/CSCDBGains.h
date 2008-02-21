@@ -17,7 +17,7 @@ class CSCDBGains{
   };
   int gain_factor;
 
-  enum factors{GainFactor=1000};
+  enum factors{FGAIN=1000};
 
   // accessor to appropriate element
   const Item & item(const CSCDetId & cscId, int strip) const;
