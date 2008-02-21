@@ -82,7 +82,7 @@ namespace pos{
       }
       return points;
     }
-    unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
+    unsigned int nConfigurations() const { return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
     bool noHits() const {return (maxNumHitsPerROC()==0);} // returns true if no hits will be produced
@@ -92,8 +92,8 @@ namespace pos{
     std::set< std::pair<unsigned int, unsigned int> > pixelsWithHits(unsigned int state) const;
     //                  column #      row #
 
-    //If in singleROC mode this returns the current ROC
-    unsigned int scanROC(unsigned int state) const;
+    // Whether this ROC is currently being scanned.  (Always true when not in SingleROC mode.)
+    bool scanningROCForState(PixelROCName roc, unsigned int state) const;
 
     unsigned int scanCounter(std::string dac, unsigned int state) const{
       return scanCounter(iScan(dac),state);
@@ -103,8 +103,8 @@ namespace pos{
       return scanValue(iScan(dac),state);
     }
     
-    unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc, PixelNameTranslation* trans) const{
-      return scanValue(iScan(dac), state, roc, trans);
+    unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc) const {
+      return scanValue(iScan(dac), state, roc);
     }
 
     unsigned int numberOfScanVariables() const {return dacs_.size();}
@@ -124,11 +124,11 @@ namespace pos{
     const std::vector<std::vector<unsigned int> > &rowList() const {return rows_;}
     const std::vector<PixelROCName>& rocList() const {assert(rocAndModuleListsBuilt_); return rocs_;}
     const std::set <PixelModuleName>& moduleList() const {assert(rocAndModuleListsBuilt_); return modules_;}
-    const std::set <PixelChannel>& channelList(const PixelNameTranslation* aNameTranslation);
+    const std::set <PixelChannel>& channelList() const {assert( objectsDependingOnTheNameTranslationBuilt_ ); return channels_;}
 
     virtual std::string mode() {return mode_;}
 
-    bool singleROC() {return singleROC_;}
+    bool singleROC() const {return singleROC_;}
 
     unsigned int nParameters() const {return parameters_.size();}
     // get the value of parameter parameterName, or "" if parameterName is not in the list
@@ -147,13 +147,16 @@ namespace pos{
     // Which set of columns we're on.
     unsigned int colCounter(unsigned int state) const;
 
+    // In SingleROC mode, which ROC we're on.  In normal mode, this equals 1.
+    unsigned int scanROC(unsigned int state) const;
+
     unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }
 
     unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
 
     unsigned int scanValue(unsigned int iscan, unsigned int state) const;
     unsigned int scanValue(unsigned int iscan, unsigned int state, unsigned int ROCNumber, unsigned int ROCsOnChannel) const;
-    unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc, PixelNameTranslation* trans) const;
+    unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc) const;
 
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
@@ -163,6 +166,11 @@ namespace pos{
 
     // Used in constructor or in buildROCAndModuleLists()
     void buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet);
+
+    void buildObjectsDependingOnTheNameTranslation(const PixelNameTranslation* aNameTranslation);
+    
+    unsigned int ROCNumberOnChannelAmongThoseCalibrated(PixelROCName roc) const;
+    unsigned int numROCsCalibratedOnChannel(PixelROCName roc) const;
 
     //Mode is one of the following: 
     //  ThresholdCalDelay
@@ -182,15 +190,17 @@ namespace pos{
 
     mutable std::vector<PixelROCName> rocs_;
     std::set <PixelModuleName> modules_;
-    std::map <PixelModuleName,unsigned int> countROC_;
     bool rocAndModuleListsBuilt_;
     std::vector<std::string> rocListInstructions_;
     
-    // Channel list, filled from ROC list only when needed.
+    // Objects built using the name translation.
     std::set <PixelChannel> channels_;
-    bool channelListBuilt_;
-
+    std::map <PixelROCName, unsigned int> ROCNumberOnChannelAmongThoseCalibrated_;
+    std::map <PixelROCName, unsigned int> numROCsCalibratedOnChannel_;
+    bool objectsDependingOnTheNameTranslationBuilt_;
+    
     mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
+
 
     //unsigned int vcal_;
 
