@@ -15,8 +15,106 @@
 #include <sstream>
 #include <stdlib.h>
 
-void CSCTFTrackBuilder::initialize(const edm::EventSetup& c)
-{
+CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset){
+  my_dtrc = new CSCTFDTReceiver();
+
+  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
+    {
+      for(int s = CSCTriggerNumbering::minTriggerSectorId();
+	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
+	{
+          // All SPs work with the same configuration (impossible to make it more exclusive in this framework)
+	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset);
+	}
+    }
+  // Uninitialize following parameters: 
+  run_core = -1;
+  trigger_on_ME1a = -1;
+  trigger_on_ME1b = -1;
+  trigger_on_ME2  = -1;
+  trigger_on_ME3  = -1;
+  trigger_on_ME4  = -1;
+  trigger_on_MB1a = -1;
+  trigger_on_MB1d = -1;
+  singlesTrackPt  = -1;
+  singlesTrackOutput = -1;
+
+  try {
+    run_core = pset.getParameter<bool>("run_core");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using run_core configuration parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for run_core parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_ME1a = pset.getParameter<bool>("trigger_on_ME1a");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_ME1a parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_ME1a parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_ME1b = pset.getParameter<bool>("trigger_on_ME1b");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_ME1b parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_ME1b parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_ME2 = pset.getParameter<bool>("trigger_on_ME2");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_ME2 parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_ME2 parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_ME3 = pset.getParameter<bool>("trigger_on_ME3");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_ME3 parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_ME3 parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_ME4 = pset.getParameter<bool>("trigger_on_ME4");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_ME4 parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_ME4 parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_MB1a = pset.getParameter<bool>("trigger_on_MB1a");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_MB1a parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_MB1a parameter in EventSetup";
+  }
+  
+  try {
+    trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using trigger_on_MB1d parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for trigger_on_MB1d parameter in EventSetup";
+  }
+  
+  try {
+    singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using singlesTrackPt parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for singlesTrackPt parameter in EventSetup";
+  }
+  
+  try {
+    singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
+    edm::LogInfo("CSCTFTrackBuilder") << "Using singlesTrackOutput parameter from .cfi file";
+  } catch(...) {
+    edm::LogInfo("CSCTFTrackBuilder") << "Looking for singlesTrackOutput parameter in EventSetup";
+  }
+  
+  m_minBX = pset.getParameter<int>("MinBX");
+  m_maxBX = pset.getParameter<int>("MaxBX");
+  if( m_maxBX-m_minBX >= 7 ) edm::LogWarning("CSCTFTrackBuilder::ctor")<<" BX window width >= 7BX. Resetting m_maxBX="<<(m_maxBX=m_minBX+6);
+}
+
+void CSCTFTrackBuilder::initialize(const edm::EventSetup& c){
  //my_dtrc->initialize(c);
  	for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
 	{
@@ -42,54 +140,42 @@ void CSCTFTrackBuilder::initialize(const edm::EventSetup& c)
 
     if( register_=="CSR_REQ" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        run_core         = value&0x8000;
-        trigger_on_ME1a  = value&0x0001;
-        trigger_on_ME1b  = value&0x0002;
-        trigger_on_ME2   = value&0x0004;
-        trigger_on_ME3   = value&0x0008;
-        trigger_on_ME4   = value&0x0010;
-        trigger_on_MB1a  = value&0x0100;
-        trigger_on_MB1d  = value&0x0200;
+        // Initializeing in constructor from .cf? file always have priority over EventSetup
+        if(run_core<0)        run_core         = value&0x8000;
+        if(trigger_on_ME1a<0) trigger_on_ME1a  = value&0x0001;
+        if(trigger_on_ME1b<0) trigger_on_ME1b  = value&0x0002;
+        if(trigger_on_ME2 <0) trigger_on_ME2   = value&0x0004;
+        if(trigger_on_ME3 <0) trigger_on_ME3   = value&0x0008;
+        if(trigger_on_ME4 <0) trigger_on_ME4   = value&0x0010;
+        if(trigger_on_MB1a<0) trigger_on_MB1a  = value&0x0100;
+        if(trigger_on_MB1d<0) trigger_on_MB1d  = value&0x0200;
     }
     if( register_=="DAT_FTR" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        singlesTrackPt = value;//&0x1F - rank; // value&0x60; - Q1,Q0 // value&0x80; - charge
+        // Initializeing in constructor from .cf? file always have priority over EventSetup
+        if(singlesTrackPt<0) singlesTrackPt = value; // 0x1F - rank, 0x60 - Q1,Q0, 0x80 - charge
     }
     if( register_=="CSR_SFC" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        singlesTrackOutput = (value&0x3000)>>12;
+        // Initializeing in constructor from .cf? file always have priority over EventSetup
+        if(singlesTrackOutput<0) singlesTrackOutput = (value&0x3000)>>12;
     }
   }
+  // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
+  if(run_core       <0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
+  if(trigger_on_ME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
+  if(trigger_on_ME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1b parameter left uninitialized";
+  if(trigger_on_ME2 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME2 parameter left uninitialized";
+  if(trigger_on_ME3 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME3 parameter left uninitialized";
+  if(trigger_on_ME4 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME4 parameter left uninitialized";
+  if(trigger_on_MB1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1a parameter left uninitialized";
+  if(trigger_on_MB1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1d parameter left uninitialized";
+  if( trigger_on_ME1a>0 || trigger_on_ME1b>0 ||trigger_on_ME2>0  ||
+      trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 ){
+      if(singlesTrackPt<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackPt parameter left uninitialized";
+      if(singlesTrackOutput<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
+  }
 }
-
-CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
-{
-  my_dtrc = new CSCTFDTReceiver();
-
-  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
-    {
-      for(int s = CSCTriggerNumbering::minTriggerSectorId();
-	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
-	{
-	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset);
-	}
-    }
-  // All SPs work with the same configuration (impossible to make it more exclusive in this framework)
-  run_core         = pset.getParameter<bool>("run_core");
-  trigger_on_ME1a  = pset.getParameter<bool>("trigger_on_ME1a");
-  trigger_on_ME1b  = pset.getParameter<bool>("trigger_on_ME1b");
-  trigger_on_ME2   = pset.getParameter<bool>("trigger_on_ME2");
-  trigger_on_ME3   = pset.getParameter<bool>("trigger_on_ME3");
-  trigger_on_ME4   = pset.getParameter<bool>("trigger_on_ME4");
-  trigger_on_MB1a  = pset.getParameter<bool>("trigger_on_MB1a");
-  trigger_on_MB1d  = pset.getParameter<bool>("trigger_on_MB1d");
-  singlesTrackPt   = pset.getParameter<unsigned int>("singlesTrackPt");
-  singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
-  m_minBX          = pset.getParameter<int>("MinBX");
-  m_maxBX          = pset.getParameter<int>("MaxBX");
-  if( m_maxBX-m_minBX >= 7 ) edm::LogWarning("CSCTFTrackBuilder::ctor")<<" BX window width >= 7BX. Resetting m_maxBX="<<(m_maxBX=m_minBX+6);
-}
-
 CSCTFTrackBuilder::~CSCTFTrackBuilder()
 {
   delete my_dtrc;

@@ -310,7 +310,8 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
  // eta and mode should be only 4-bits, since that is the input to the large LUT
     if (eta>15 || mode>15)
       {
-        std::cout << "Error: Eta or Mode out of range in AU quality assignment" << std::endl;
+        //std::cout << "Error: Eta or Mode out of range in AU quality assignment" << std::endl;
+        edm::LogError("CSCTFPtLUT::trackQuality()")<<"Eta or Mode out of range in AU quality assignment";
         return 0;
       }
     unsigned int quality;

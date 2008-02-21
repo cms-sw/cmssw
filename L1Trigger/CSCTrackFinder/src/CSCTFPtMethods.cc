@@ -619,7 +619,8 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
 
   if (type<0 || type>3) 
     {
-      std::cout << "CSCTFPtMethods: illegal track type for Chi-square method" << std::endl;
+//      std::cout << "CSCTFPtMethods: illegal track type for Chi-square method" << std::endl;
+      edm::LogError("CSCTFPtMethods::Pt2StnChiSq()")<<"Illegal track type for Chi-square method";
       return 0.;
     }
   
@@ -637,7 +638,8 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
     }
   if ( i == 15 ) 
     {
-      std::cout<<" CSCTFPtMethods: muon not within any eta range"<< std::endl;
+//      std::cout<<" CSCTFPtMethods: muon not within any eta range"<< std::endl;
+      edm::LogWarning("CSCTFPtMethods::Pt2StnChiSq()")<<"Muon not within any eta range";
       if (eta<etabins[0]) 
 	{ 
 	  eta = etabins[0];
@@ -662,7 +664,8 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
       while (dphifr0[type][i][j] == -1 && sigmafr0[type][i][j] == 1 && j != 28) j++;
       if ( j == 28 ) 
 	{
-	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
+//	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
+          edm::LogInfo("CSCTFPtMethods::Pt2StnChiSq()")<<"Every entry in row is default";
 	  //      exit(0); //normal termination
 	  bCallOldMethod = true;
 	}
@@ -704,7 +707,8 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
       
       if ( j == 28 ) 
 	{
-	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
+//	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
+          edm::LogInfo("CSCTFPtMethods::Pt2StnChiSq()")<<"Every entry in row is default";
 	  //      exit(0); //normal termination
 	  bCallOldMethod = true;
 	}
@@ -758,7 +762,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 
   if (type<4 || type>5) 
     {
-      std::cout << "PtParams: illegal track type for Chi-square method" << std::endl;
+//      std::cout << "PtParams: illegal track type for Chi-square method" << std::endl;
+      edm::LogError("CSCTFPtMethods::Pt3StnChiSq()")<<"Illegal track type for Chi-square method";
       return 0.;
     }
 
@@ -775,7 +780,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
     }
   if ( i == 15 ) 
     {
-      std::cout<<"muon not within any eta range";
+      //std::cout<<"muon not within any eta range";
+      edm::LogWarning("CSCTFPtMethods::Pt3StnChiSq()")<<"Muon not within any eta range";
       if (eta<etabins[0]) 
 	{ 
 	  eta = etabins[0];
@@ -805,7 +811,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr0[0][i][j] == -1 && sigmafr0[0][i][j] == 1) || (dphifr0[2][i][j] == -1 && sigmafr0[2][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+//	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+              edm::LogInfo("CSCTFPtMethods::Pt3StnChiSq()")<<"Every entry in row is default";
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -845,7 +852,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr1[0][i][j] == -1 && sigmafr1[0][i][j] == 1) || (dphifr1[2][i][j] == -1 && sigmafr1[2][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+//	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+              edm::LogInfo("CSCTFPtMethods::Pt3StnChiSq()")<<"Every entry in row is default";
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -890,7 +898,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr0[0][i][j] == -1 && sigmafr0[0][i][j] == 1) || (dphifr0[3][i][j] == -1 && sigmafr0[3][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+//	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+              edm::LogInfo("CSCTFPtMethods::Pt3StnChiSq()")<<"Every entry in row is default";
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -930,7 +939,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr1[0][i][j] == -1 && sigmafr1[0][i][j] == 1) || (dphifr1[3][i][j] == -1 && sigmafr1[3][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+//	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
+              edm::LogInfo("CSCTFPtMethods::Pt3StnChiSq()")<<"Every entry in row is default";
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }

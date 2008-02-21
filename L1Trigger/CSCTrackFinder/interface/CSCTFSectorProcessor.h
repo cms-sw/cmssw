@@ -53,9 +53,9 @@ public:
   unsigned m_latency;
 
   int m_minBX, m_maxBX;
-  unsigned m_etawin[6], m_etamin[8], m_etamax[8];
-
-  unsigned m_mindphip, m_mindeta_accp, m_maxdeta_accp, m_maxdphi_accp;
+  // parameters below are signed to allow for uninitialized (<0) state
+  int m_etawin[6], m_etamin[8], m_etamax[8];
+  int m_mindphip, m_mindeta_accp, m_maxdeta_accp, m_maxdphi_accp;
 
 
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
