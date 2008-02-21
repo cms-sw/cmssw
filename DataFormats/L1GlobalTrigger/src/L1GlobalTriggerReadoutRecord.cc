@@ -250,6 +250,39 @@ L1GlobalTriggerReadoutRecord::decisionWord() const
 }
 
 
+
+const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
+    
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+            itBx != m_gtFdlWord.end(); ++itBx) {
+
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx).gtTechnicalTriggerWord();
+        }
+    }
+
+    // if bunch cross not found, throw exception (action: SkipEvent)
+    // TODO re-evaluate action
+
+    //    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
+    << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
+    << " does not exist.\n"
+    << "Can not return technical trigger word for this bx!\n"
+    << std::endl;
+
+    TechnicalTriggerWord ttW; // empty; it does not arrive here
+    return ttW;
+}
+
+const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord() const {
+    
+    int bxInEventL1Accept = 0;
+    return technicalTriggerWord(bxInEventL1Accept);
+    
+}
+
+
 // set global decision
 //    general
 void L1GlobalTriggerReadoutRecord::setDecision(const bool& t, int bxInEventValue)
@@ -320,6 +353,41 @@ void L1GlobalTriggerReadoutRecord::setDecisionWord(
     setDecisionWord(decisionWordValue, bxInEventL1Accept);
 
 }
+
+void L1GlobalTriggerReadoutRecord::setTechnicalTriggerWord(
+        const TechnicalTriggerWord& ttWordValue, int bxInEventValue)
+{
+
+    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
+            itBx != m_gtFdlWord.end(); ++itBx) {
+
+        if ((*itBx).bxInEvent() == bxInEventValue) {
+
+            (*itBx).setGtTechnicalTriggerWord(ttWordValue);
+            return;
+        }
+    }
+
+    // if bunch cross not found, throw exception (action: SkipEvent)
+
+    //    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
+            << "\nError: requested GtFdlWord for bxInEvent = "
+            << bxInEventValue << " does not exist.\n"
+            << "Can not set technical trigger word for this bx!\n" << std::endl;
+
+}
+
+void L1GlobalTriggerReadoutRecord::setTechnicalTriggerWord(
+        const TechnicalTriggerWord& ttWordValue)
+{
+
+    int bxInEventL1Accept = 0;
+    setTechnicalTriggerWord(ttWordValue, bxInEventL1Accept);
+
+}
+
+
 
 // print global decision and algorithm decision word
 void L1GlobalTriggerReadoutRecord::printGtDecision(

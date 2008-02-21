@@ -79,7 +79,7 @@ public:
 
 public:
 
-    /// get Global Trigger decision and the decision word
+    /// get Global Trigger decision, decision word and technical trigger word
     ///   overloaded w.r.t. bxInEvent argument
     ///   bxInEvent not given: for bunch cross with L1Accept
     const bool decision(int bxInEventValue) const;
@@ -87,13 +87,19 @@ public:
 
     const DecisionWord decisionWord(int bxInEventValue) const;
     const DecisionWord decisionWord() const;
+    
+    const TechnicalTriggerWord technicalTriggerWord(int bxInEventValue) const;
+    const TechnicalTriggerWord technicalTriggerWord() const;   
 
-    /// set global decision and the decision word
+    /// set global decision, decision word and technical trigger word
     void setDecision(const bool& t, int bxInEventValue);
     void setDecision(const bool& t);
 
     void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEventValue);
     void setDecisionWord(const DecisionWord& decisionWordValue);
+
+    void setTechnicalTriggerWord(const TechnicalTriggerWord& ttWordValue, int bxInEventValue);
+    void setTechnicalTriggerWord(const TechnicalTriggerWord& ttWordValue);
 
     /// print global decision and algorithm decision word
     void printGtDecision(std::ostream& myCout, int bxInEventValue) const;
