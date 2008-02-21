@@ -34,14 +34,12 @@ namespace cms
     // Step A: Get ESObject 
     edm::ESHandle<SiStripNoises> noiseHandle;
     edm::ESHandle<SiStripPedestals> pedestalsHandle;
-    es.get<SiStripNoisesRcd>().get(noiseHandle);
-    es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-   
+
     edm::Handle< edm::DetSetVector<SiStripRawDigi> >  input;
 
     Parameters::iterator itRawDigiProducersList = RawDigiProducersList.begin();
     for(; itRawDigiProducersList != RawDigiProducersList.end(); ++itRawDigiProducersList ) {
-
+   
       // Step B: Get Inputs   
       std::string rawdigiProducer = itRawDigiProducersList->getParameter<std::string>("RawDigiProducer");
       std::string rawdigiLabel = itRawDigiProducersList->getParameter<std::string>("RawDigiLabel");
@@ -51,6 +49,8 @@ namespace cms
       std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
       vSiStripDigi.reserve(10000);
       if (input->size()){
+	es.get<SiStripNoisesRcd>().get(noiseHandle);
+	es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
 	LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << rawdigiProducer << " " << rawdigiLabel << std::endl;
 	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi,pedestalsHandle,noiseHandle);
       }
