@@ -42,6 +42,8 @@ class CSCGainsDBConditions: public edm::ESProducer, public edm::EventSetupRecord
 // to workaround plugin library
 inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 {
+  const int MAX_SIZE = 217728;
+  const int FACTOR = 1000;
   CSCDBGains * cndbgains = new CSCDBGains();
 
   int db_index;
@@ -64,9 +66,9 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   int new_nrlines=0;
   
   std::ifstream dbdata; 
-  dbdata.open("dbgains.dat",std::ios::in); 
+  dbdata.open("old_dbgains.dat",std::ios::in); 
   if(!dbdata) {
-    std::cerr <<"Error: dbgains.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: old_dbgains.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -96,19 +98,20 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
     new_nrlines++;
   }
   newdata.close();
-  
-  CSCDBGains * itemarray[217728];
 
-   for(int i=0; i<CSCDBGains::ArraySize;++i){
-    itemarray[i]->gains[i].gain_slope= (short int) db_slope[i];
+  CSCDBGains::GainContainer & itemvector = cndbgains->gains;
+  itemvector.resize(MAX_SIZE);
+
+   for(int i=0; i<MAX_SIZE;++i){
+    itemvector[i].gain_slope= int (db_slope[i]*FACTOR+0.5);
   }
 
-   for(int i=0; i<CSCDBGains::ArraySize;++i){
+   for(int i=0; i<MAX_SIZE;++i){
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemarray[counter]->gains[i].gain_slope= (short int) new_slope[k];
-	 itemarray[i] = itemarray[counter];
+	 itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
+	 itemvector[i] = itemvector[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }
@@ -119,3 +122,4 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 
 
 #endif
+

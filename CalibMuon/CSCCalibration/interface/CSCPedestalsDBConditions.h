@@ -45,7 +45,10 @@ class CSCPedestalsDBConditions: public edm::ESProducer, public edm::EventSetupRe
 // to workaround plugin library
 inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()  
 {
- CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
+  const int PED_FACTOR=10;
+  const int RMS_FACTOR=1000;
+  const int MAX_SIZE = 217728;
+  CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
 
   int db_index;
   float db_ped, db_rms;
@@ -63,9 +66,9 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   int new_nrlines=0;
   
   std::ifstream dbdata; 
-  dbdata.open("dbpeds.dat",std::ios::in); 
+  dbdata.open("old_dbpeds.dat",std::ios::in); 
   if(!dbdata) {
-    std::cerr <<"Error: dbpeds.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: old_dbpeds.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -79,9 +82,9 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   dbdata.close();
 
   std::ifstream newdata;
-  newdata.open("new_peds.dat",std::ios::in); 
+  newdata.open("peds.dat",std::ios::in); 
   if(!newdata) {
-    std::cerr <<"Error: new_peds.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: peds.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -94,21 +97,21 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   }
   newdata.close();
   
-  CSCDBPedestals * itemarray[217728];
-  //std::vector<CSCDBPedestals::Item> itemvector;
+  CSCDBPedestals::PedestalContainer & itemvector = cndbpedestals->pedestals;
+  itemvector.resize(MAX_SIZE);
 
-  for(int i=0; i<CSCDBPedestals::ArraySize;++i){
-    itemarray[i]->pedestals[i].ped= (short int) db_peds[i];
-    itemarray[i]->pedestals[i].rms= (short int) db_pedrms[i];
+  for(int i=0; i<MAX_SIZE;++i){
+    itemvector[i].ped= int (db_peds[i]*PED_FACTOR+0.5);
+    itemvector[i].rms= int (db_pedrms[i]*RMS_FACTOR+0.5);
   }
 
-  for(int i=0; i<CSCDBPedestals::ArraySize;++i){
-    counter=db_index_id[i];  
+  for(int i=0; i<MAX_SIZE;++i){
+     counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemarray[counter]->pedestals[i].ped= (short int) new_peds[k];
-	 itemarray[counter]->pedestals[i].rms= (short int) new_pedrms[k];
-	 itemarray[i] = itemarray[counter];
+	 itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
+	 itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
+	 itemvector[i] = itemvector[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }

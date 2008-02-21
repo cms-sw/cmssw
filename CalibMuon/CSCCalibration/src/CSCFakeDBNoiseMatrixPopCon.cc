@@ -6,29 +6,27 @@
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrixPopCon.h"
 
-void CSCFakeDBNoiseMatrixPopCon::prefillDBNoiseMatrix(){
-
+void CSCFakeDBNoiseMatrixPopCon::prefillDBNoiseMatrix()
+{
+  const int MAX_SIZE = 127728;
+  const int FACTOR = 1000;
   cndbmatrix = new CSCDBNoiseMatrix();
-  std::vector<CSCDBNoiseMatrix::Item> *itemvector;
-  itemvector = new std::vector<CSCDBNoiseMatrix::Item> ;
-  itemvector->resize(252288);
+  cndbmatrix->matrix.resize(MAX_SIZE);
   
   for(int i=0; i<252288;i++){
-    itemvector->at(i).elem33 = 10.0;
-    itemvector->at(i).elem34 = 4.0;
-    itemvector->at(i).elem44 = 10.0;
-    itemvector->at(i).elem35 = 3.0;
-    itemvector->at(i).elem45 = 8.0;
-    itemvector->at(i).elem55 = 10.0;
-    itemvector->at(i).elem46 = 2.0;
-    itemvector->at(i).elem56 = 5.0;
-    itemvector->at(i).elem66 = 10.0;
-    itemvector->at(i).elem57 = 3.0;
-    itemvector->at(i).elem67 = 4.0;
-    itemvector->at(i).elem77 = 10.0;
+    cndbmatrix->matrix[i].elem33 = 10.0;
+    cndbmatrix->matrix[i].elem34 = 4.0;
+    cndbmatrix->matrix[i].elem44 = 10.0;
+    cndbmatrix->matrix[i].elem35 = 3.0;
+    cndbmatrix->matrix[i].elem45 = 8.0;
+    cndbmatrix->matrix[i].elem55 = 10.0;
+    cndbmatrix->matrix[i].elem46 = 2.0;
+    cndbmatrix->matrix[i].elem56 = 5.0;
+    cndbmatrix->matrix[i].elem66 = 10.0;
+    cndbmatrix->matrix[i].elem57 = 3.0;
+    cndbmatrix->matrix[i].elem67 = 4.0;
+    cndbmatrix->matrix[i].elem77 = 10.0;
   }
-  std::copy(itemvector->begin(), itemvector->end(), std::back_inserter(cndbmatrix->matrix));
-  delete itemvector;
 }
 
 CSCFakeDBNoiseMatrixPopCon::CSCFakeDBNoiseMatrixPopCon(const edm::ParameterSet& iConfig)

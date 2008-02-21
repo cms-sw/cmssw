@@ -7,7 +7,6 @@
 #include <typeinfo>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-//#include "CondCore/PopCon/interface/LogReader.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,11 +28,7 @@ namespace popcon
       CSCDBCrosstalkImpl(const edm::ParameterSet& pset);
   
     private:
-      //std::string m_pop_connect; //connect string to popcon metaschema
       std::string m_name;
-      //std::string m_cs;
-      //const CSCDBCrosstalk * mycrosstalk;
-      //LogReader* lgrdr;
     };
 }
 #endif

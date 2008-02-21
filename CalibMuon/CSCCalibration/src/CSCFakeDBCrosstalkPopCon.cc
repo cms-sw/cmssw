@@ -7,27 +7,23 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBCrosstalkPopCon.h"
 
 void CSCFakeDBCrosstalkPopCon::prefillDBFakeCrosstalk(){
-  
+  const int MAX_SIZE = 217728;
+  const int SLOPE_FACTOR=1000000;
+  const int INTERCEPT_FACTOR=10000;
   cndbcrosstalk = new CSCDBCrosstalk();
-  
+  cndbcrosstalk->crosstalk.resize(MAX_SIZE);
+
   seed = 10000;	
   srand(seed);
   mean=-0.0009, min=0.035, minchi=1.5, M=1000;
  
-  std::vector<CSCDBCrosstalk::Item> *itemvector;
-  itemvector = new std::vector<CSCDBCrosstalk::Item> ;
-  itemvector->resize(252288);
   
-  for(int i=0; i<252288;++i){
-    itemvector->at(i).xtalk_slope_right = -((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
-    itemvector->at(i).xtalk_intercept_right= ((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
-    itemvector->at(i).xtalk_chi2_right= ((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-    itemvector->at(i).xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
-    itemvector->at(i).xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
-    itemvector->at(i).xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-  }
-  std::copy(itemvector->begin(), itemvector->end(), std::back_inserter(cndbcrosstalk->crosstalk)); 
-  delete itemvector;
+  for(int i=0; i<MAX_SIZE;++i){
+    cndbcrosstalk->crosstalk[i].xtalk_slope_right = int (-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean)*SLOPE_FACTOR;
+    cndbcrosstalk->crosstalk[i].xtalk_intercept_right=int  (((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min)*INTERCEPT_FACTOR;
+    cndbcrosstalk->crosstalk[i].xtalk_slope_left=int (-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean)*SLOPE_FACTOR;
+    cndbcrosstalk->crosstalk[i].xtalk_intercept_left=int (((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min)*INTERCEPT_FACTOR;
+   }
 }
 
 

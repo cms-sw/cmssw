@@ -3,22 +3,20 @@
 
 void CSCFakeDBPedestals::prefillDBPedestals()
 {
+  const int MAX_SIZE = 217728;
+  const int PED_FACTOR=10;
+  const int RMS_FACTOR=1000;
   cndbpedestals = new CSCDBPedestals();
-  
+  cndbpedestals->pedestals.resize(MAX_SIZE);
+
   seed = 10000;	
   srand(seed);
   meanped=600.0, meanrms=1.5, M=1000;
    
-  std::vector<CSCDBPedestals::Item> *itemvector;
-  itemvector = new std::vector<CSCDBPedestals::Item> ;
-  itemvector->resize(217728);
-  
-  for(int i=0; i<217728;i++){
-    itemvector->at(i).ped=((double)rand()/((double)(RAND_MAX)+(double)(1)))*100+meanped;
-    itemvector->at(i).rms=((double)rand()/((double)(RAND_MAX)+(double)(1)))+meanrms;
+  for(int i=0; i<MAX_SIZE;i++){
+    cndbpedestals->pedestals[i].ped=int (((double)rand()/((double)(RAND_MAX)+(double)(1)))*100+meanped*PED_FACTOR+0.5);
+    cndbpedestals->pedestals[i].rms=int (((double)rand()/((double)(RAND_MAX)+(double)(1)))+meanrms*RMS_FACTOR+0.5);
   }
-  std::copy(itemvector->begin(), itemvector->end(), std::back_inserter(cndbpedestals->pedestals));
-  delete itemvector;
 }  
 
 CSCFakeDBPedestals::CSCFakeDBPedestals(const edm::ParameterSet& iConfig)
@@ -34,7 +32,6 @@ CSCFakeDBPedestals::CSCFakeDBPedestals(const edm::ParameterSet& iConfig)
 
 CSCFakeDBPedestals::~CSCFakeDBPedestals()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   delete cndbpedestals;

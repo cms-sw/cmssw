@@ -1,42 +1,35 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrix.h"
 
-void CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix(){
-
+void CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
+{
+  const int MAX_SIZE = 217728;
+  const int FACTOR=1000;
   cndbmatrix = new CSCDBNoiseMatrix();
-  std::vector<CSCDBNoiseMatrix::Item> *itemvector;
-  itemvector = new std::vector<CSCDBNoiseMatrix::Item> ;
-  itemvector->resize(217728);
+  cndbmatrix->matrix.resize(MAX_SIZE); 
   
-  for(int i=0; i<217728;i++){
-    itemvector->at(i).elem33 = 10.0;
-    itemvector->at(i).elem34 = 4.0;
-    itemvector->at(i).elem44 = 10.0;
-    itemvector->at(i).elem35 = 3.0;
-    itemvector->at(i).elem45 = 8.0;
-    itemvector->at(i).elem55 = 10.0;
-    itemvector->at(i).elem46 = 2.0;
-    itemvector->at(i).elem56 = 5.0;
-    itemvector->at(i).elem66 = 10.0;
-    itemvector->at(i).elem57 = 3.0;
-    itemvector->at(i).elem67 = 4.0;
-    itemvector->at(i).elem77 = 10.0;
+  for(int i=0; i<MAX_SIZE;i++){
+    cndbmatrix->matrix[i].elem33 = int (10.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem34 = int (4.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem44 = int (10.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem35 = int (3.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem45 = int (8.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem55 = int (10.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem46 = int (2.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem56 = int (5.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem66 = int (10.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem57 = int (3.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem67 = int (4.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem77 = int (10.0*FACTOR+0.5);
   }
-  std::copy(itemvector->begin(), itemvector->end(), std::back_inserter(cndbmatrix->matrix));
-  delete itemvector;
 }
 
 CSCFakeDBNoiseMatrix::CSCFakeDBNoiseMatrix(const edm::ParameterSet& iConfig)
 {
-  
   //tell the framework what data is being produced
   prefillDBNoiseMatrix();  
-  setWhatProduced(this,&CSCFakeDBNoiseMatrix::produceDBNoiseMatrix);
-  
+  setWhatProduced(this,&CSCFakeDBNoiseMatrix::produceDBNoiseMatrix);  
   findingRecord<CSCDBNoiseMatrixRcd>();
-  
-  //now do what ever other initialization is needed
-  
 }
 
 
@@ -44,7 +37,6 @@ CSCFakeDBNoiseMatrix::~CSCFakeDBNoiseMatrix()
 {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
-  
   delete cndbmatrix; // since not made persistent so we still own it.
   //When using this to write to DB comment out the above line!
 }

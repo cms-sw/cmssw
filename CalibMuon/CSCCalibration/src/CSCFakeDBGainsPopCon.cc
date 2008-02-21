@@ -9,23 +9,18 @@
 
 void CSCFakeDBGainsPopCon::prefillDBGains()
 {
+  const int MAX_SIZE=217728;
+  const int FACTOR=1000;
   cndbgains = new CSCDBGains();
- 
+  cndbgains->gains.resize(MAX_SIZE);
+
   seed = 10000;	
   srand(seed);
   mean=6.8, min=-10.0, minchi=1.0, M=1000;
 
-  std::vector<CSCDBGains::Item> *itemvector;
-  itemvector = new std::vector<CSCDBGains::Item> ;
-  itemvector->resize(252288);
-  
-  for(int i=0; i<252288;i++){
-    itemvector->at(i).gain_slope=((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean;
-    itemvector->at(i).gain_intercept=((double)rand()/((double)(RAND_MAX)+(double)(1)))+min;
-    itemvector->at(i).gain_chi2=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
+  for(int i=0; i<MAX_SIZE;i++){
+   cndbgains->gains[i].gain_slope=int ((((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean)*FACTOR+0.5);
   }
-  std::copy(itemvector->begin(), itemvector->end(), std::back_inserter(cndbgains->gains));
-  delete itemvector;
 }  
 
 CSCFakeDBGainsPopCon::CSCFakeDBGainsPopCon(const edm::ParameterSet& iConfig)
@@ -45,7 +40,6 @@ CSCFakeDBGainsPopCon::~CSCFakeDBGainsPopCon()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   delete cndbgains;
-
 }
 
 

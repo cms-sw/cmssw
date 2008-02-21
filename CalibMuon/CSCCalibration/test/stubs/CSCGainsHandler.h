@@ -7,7 +7,6 @@
 #include <typeinfo>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-//#include "CondCore/PopCon/interface/LogReader.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

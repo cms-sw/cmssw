@@ -37,8 +37,6 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 
 };
 
-
-
 #include<fstream>
 #include<vector>
 #include<iostream>
@@ -46,6 +44,9 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 // to workaround plugin library
 inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 {
+  const int MAX_SIZE = 217728;
+  const int SLOPE_FACTOR=10000000;
+  const int INTERCEPT_FACTOR=100000;
   CSCDBCrosstalk * cndbcrosstalk = new CSCDBCrosstalk();
 
   int db_index,new_index;
@@ -69,15 +70,15 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   std::vector<float> new_slope_l;
   std::vector<float> new_intercept_l;
   std::vector<float> new_chi2_l;
-      
+    
   int counter;
   int db_nrlines=0;
   int new_nrlines=0;
-  
+    
   std::ifstream dbdata; 
-  dbdata.open("dbxtalk.dat",std::ios::in); 
+  dbdata.open("old_dbxtalk.dat",std::ios::in); 
   if(!dbdata) {
-    std::cerr <<"Error: dbxtalk.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: old_dbxtalk.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -114,37 +115,32 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   newdata.close();
   
-  CSCDBCrosstalk * itemarray[217728];
-  //CSCDBCrosstalk::CrosstalkContainer & itemvector = cndbcrosstalk->crosstalk;
-
-  for(int i=0; i<CSCDBCrosstalk::ArraySize;++i){
-    itemarray[i]->crosstalk[i].xtalk_slope_right=(short int) db_slope_r[i];
-    itemarray[i]->crosstalk[i].xtalk_intercept_right=(short int) db_intercept_r[i]; 
-    itemarray[i]->crosstalk[i].xtalk_slope_left=(short int) db_slope_l[i];  
-    itemarray[i]->crosstalk[i].xtalk_intercept_left=(short int) db_intercept_l[i];  
+  CSCDBCrosstalk::CrosstalkContainer & itemvector = cndbcrosstalk->crosstalk;
+  itemvector.resize(MAX_SIZE);
+  for(int i=0; i<MAX_SIZE;++i){
+    itemvector[i].xtalk_slope_right=int (db_slope_r[i]*SLOPE_FACTOR+0.5);
+    itemvector[i].xtalk_intercept_right= int (db_intercept_r[i]*INTERCEPT_FACTOR+0.5); 
+    itemvector[i].xtalk_slope_left= int (db_slope_l[i]*SLOPE_FACTOR+0.5);  
+    itemvector[i].xtalk_intercept_left= int (db_intercept_l[i]*INTERCEPT_FACTOR+0.5);  
   }
 
-  for(int i=0; i<CSCDBCrosstalk::ArraySize;++i){
+  for(int i=0; i<MAX_SIZE;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemarray[counter]->crosstalk[i].xtalk_slope_right=(short int) new_slope_r[k];
-	itemarray[counter]->crosstalk[i].xtalk_intercept_right=(short int) new_intercept_r[k]; 
-	itemarray[counter]->crosstalk[i].xtalk_slope_left=(short int) new_slope_l[k];  
-	itemarray[counter]->crosstalk[i].xtalk_intercept_left=(short int) new_intercept_l[k];  
-	itemarray[i] = itemarray[counter];
+	itemvector[counter].xtalk_slope_right= int (new_slope_r[k]*SLOPE_FACTOR+0.5);
+	itemvector[counter].xtalk_intercept_right= int (new_intercept_r[k]*INTERCEPT_FACTOR+0.5); 
+	itemvector[counter].xtalk_slope_left= int ( new_slope_l[k]*SLOPE_FACTOR+0.5);  
+	itemvector[counter].xtalk_intercept_left= int (new_intercept_l[k]*INTERCEPT_FACTOR+0.5);  
+	itemvector[i] = itemvector[counter];
 	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
     }
   }
   
-
   return cndbcrosstalk;
 
 }
   
-
-
-
-
 #endif
+
