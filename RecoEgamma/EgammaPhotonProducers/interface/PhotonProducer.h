@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -45,6 +45,7 @@ class PhotonProducer : public edm::EDProducer {
 			    const CaloSubdetectorGeometry *geometryES,
 			    const EcalRecHitCollection *hits,
 			    HBHERecHitMetaCollection *mhbhe,
+			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 			    const reco::ElectronPixelSeedCollection& pixelSeeds,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
@@ -65,12 +66,18 @@ class PhotonProducer : public edm::EDProducer {
   std::string endcapHitProducer_;
   std::string barrelHitCollection_;
   std::string endcapHitCollection_;
+
+  std::string conversionProducer_;
+  std::string conversionCollection_;
+
+
   std::string hbheLabel_;
   std::string hbheInstanceName_;
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
   double minR9_;
+  bool validConversions_;
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
   bool usePrimaryVertex_;
