@@ -168,9 +168,7 @@ bool Pythia8Source::produce(Event & e) {
     if ( id2 == 21 ) id2 = 0;
     double x1 = pythia->info.x1();
     double x2 = pythia->info.x2();
-    double Q  = sqrt( pythia->info.tHat()*pythia->info.uHat() /
-                                             pythia->info.sHat() );
-                         // it seems that info.QRen() is the same
+    double Q  = pythia->info.QRen();
     double pdf1 = pythia->info.pdf1()/pythia->info.x1();
     double pdf2 = pythia->info.pdf2()/pythia->info.x2();
     hepmcevt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
