@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.8 2008/02/15 18:11:09 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.9 2008/02/18 10:55:33 dmytro Exp $
 //
 
 // system include files
 #include <iostream>
+#include <boost/bind.hpp>
 #include "THStack.h"
 #include "TCanvas.h"
 #include "TVirtualHistPainter.h"
@@ -47,38 +48,11 @@ FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
   m_legoCanvas(0),
   m_legoRebinFactor(1)
 {
-  TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", iGUIMgr->parentForNextView());
-  iGUIMgr->addFrameHoldingAView(eCanvas);
-  m_legoCanvas = eCanvas->GetCanvas(); 
-  //m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
+   FWGUIManager::ViewBuildFunctor f;
+   f=boost::bind(&FW3DLegoViewManager::buildView,
+                 this, _1);
+   iGUIMgr->registerViewBuilder("3D Lego", f);
    
-   m_legoCanvas->SetFillColor(Color_t(kBlack));
-     
-  // one way of connecting event processing function to a canvas
-  m_legoCanvas->AddExec("ex", "FW3DLegoViewManager::DynamicCoordinates()");
-  
-  // use Qt messaging mechanism
-  m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
-			"FW3DLegoViewManager", this,
-			"exec3event(Int_t,Int_t,Int_t,TObject*)");
-
-  m_stack = new THStack("LegoStack", "Calo tower lego plot");
-  m_stack->SetMaximum(100);
-  m_stack->SetBit(TH1::kNoTitle);
-
-  m_background = new TH2F("bkgLego","Background distribution",
-			  82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
-   m_background->SetFillColor( Color_t(TColor::GetColor("#151515")) );
-  m_background->Rebin2D();
-  m_stack->Add(m_background);
-
-  m_legoCanvas->cd();
-  // m_stack->GetHistogram()->GetXaxis()->SetRangeUser(-1.74,1.74); // zoomed in default view
-  
-  m_stack->Draw("lego1 fb bb");
-  m_legoCanvas->Modified();
-  m_legoCanvas->Update();
-
 }
 
 // FW3DLegoViewManager::FW3DLegoViewManager(const FW3DLegoViewManager& rhs)
@@ -105,10 +79,49 @@ FW3DLegoViewManager::~FW3DLegoViewManager()
 //
 // member functions
 //
+TGFrame* 
+FW3DLegoViewManager::buildView(TGFrame* iParent)
+{
+   TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", iParent);
+   m_legoCanvas = eCanvas->GetCanvas(); 
+   
+   m_legoCanvas->SetFillColor(Color_t(kBlack));
+   
+   // one way of connecting event processing function to a canvas
+   m_legoCanvas->AddExec("ex", "FW3DLegoViewManager::DynamicCoordinates()");
+   
+   // use Qt messaging mechanism
+   m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
+                         "FW3DLegoViewManager", this,
+                         "exec3event(Int_t,Int_t,Int_t,TObject*)");
+   
+   m_stack = new THStack("LegoStack", "Calo tower lego plot");
+   m_stack->SetMaximum(100);
+   
+   m_background = new TH2F("bkgLego","Background distribution",
+                           82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
+   m_background->SetFillColor( Color_t(TColor::GetColor("#151515")) );
+   m_background->Rebin2D();
+   m_stack->Add(m_background);
+   
+   m_legoCanvas->cd();
+   
+   m_stack->Draw("lego1 fb bb");
+   m_legoCanvas->Modified();
+   m_legoCanvas->Update();   
+   
+   return eCanvas;
+
+}
+
+
 void 
 FW3DLegoViewManager::newEventAvailable()
 {
   
+   if(0==m_legoCanvas) {
+      return;
+   }
    for ( std::vector<FW3DLegoModelProxy>::iterator proxy = 
 	   m_modelProxies.begin();
 	proxy != m_modelProxies.end(); ++proxy ) {
