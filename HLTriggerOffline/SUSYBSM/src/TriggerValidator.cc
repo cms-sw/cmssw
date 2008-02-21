@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.2 2007/09/28 11:10:19 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.4 2008/01/21 15:31:35 chiorbo Exp $
 //
 //
 
@@ -161,7 +161,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //for the moment the names are not included in L1GlobalTriggerReadoutRecord
     //we need to use L1GlobalTriggerObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
+    iEvent.getByLabel("gtDigis", gtObjectMapRecord);
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
       gtObjectMapRecord->gtObjectMap();
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
