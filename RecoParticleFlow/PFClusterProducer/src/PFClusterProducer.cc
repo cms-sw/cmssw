@@ -433,7 +433,8 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      
+      EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
+      if (esd != 1) continue;
       if(energy < clusterAlgoECAL_.threshBarrel() ) continue;
           
       
@@ -472,7 +473,8 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      
+      EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
+      if (esd != 2) continue;
       if(energy < clusterAlgoECAL_.threshEndcap() ) continue;
 
       
