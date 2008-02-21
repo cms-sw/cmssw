@@ -2,7 +2,7 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
+//#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TFile.h"
