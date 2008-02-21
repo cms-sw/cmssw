@@ -71,7 +71,7 @@ void FWL_PFEtVal::readData()
     {
       RECO_caloJetBranch_->GetEntry(i);
       PF_JetBranch_->GetEntry(i);
-      for(int a=0;a<RECO_caloJet_->size();a++)
+      for(unsigned int a=0;a<RECO_caloJet_->size();a++)
 	cout<<(*RECO_caloJet_)[a].et()<<endl;
       
       

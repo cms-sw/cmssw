@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticleCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
