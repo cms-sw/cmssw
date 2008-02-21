@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/02/14 11:15:44 $
- * $Revision: 1.62 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -291,16 +291,19 @@ void EEPedestalClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
-    meg03_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
+
+    if ( meg04_[ism-1] ) meg04_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ix, iy, -1. );
-        meg02_[ism-1]->setBinContent( ix, iy, -1. );
-        meg03_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -308,9 +311,9 @@ void EEPedestalClient::setup(void) {
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
-          meg01_[ism-1]->setBinContent( ix, iy, 2. );
-          meg02_[ism-1]->setBinContent( ix, iy, 2. );
-          meg03_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
       }
@@ -318,40 +321,40 @@ void EEPedestalClient::setup(void) {
 
     for ( int i = 1; i <= 10; i++ ) {
 
-        meg04_[ism-1]->setBinContent( i, 1, 2. );
-        meg05_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
 
     }
 
-    mep01_[ism-1]->Reset();
-    mep02_[ism-1]->Reset();
-    mep03_[ism-1]->Reset();
+    if ( mep01_[ism-1] ) mep01_[ism-1]->Reset();
+    if ( mep02_[ism-1] ) mep02_[ism-1]->Reset();
+    if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();
 
-    mer01_[ism-1]->Reset();
-    mer02_[ism-1]->Reset();
-    mer03_[ism-1]->Reset();
+    if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
+    if ( mer02_[ism-1] ) mer02_[ism-1]->Reset();
+    if ( mer03_[ism-1] ) mer03_[ism-1]->Reset();
 
-    mer04_[ism-1]->Reset();
-    mer05_[ism-1]->Reset();
+    if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
+    if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
-    mes02_[ism-1]->Reset();
-    mes03_[ism-1]->Reset();
+    if ( mes01_[ism-1] ) mes01_[ism-1]->Reset();
+    if ( mes02_[ism-1] ) mes02_[ism-1]->Reset();
+    if ( mes03_[ism-1] ) mes03_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
-    met02_[ism-1]->Reset();
-    met03_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
+    if ( met02_[ism-1] ) met02_[ism-1]->Reset();
+    if ( met03_[ism-1] ) met03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        mes01_[ism-1]->setBinContent( ix, iy, -999. );
-        mes02_[ism-1]->setBinContent( ix, iy, -999. );
-        mes03_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent( ix, iy, -999. );
 
-        met01_[ism-1]->setBinContent( ix, iy, -999. );
-        met02_[ism-1]->setBinContent( ix, iy, -999. );
-        met03_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ix, iy, -999. );
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ix, iy, -999. );
 
       }
     }
@@ -725,31 +728,31 @@ void EEPedestalClient::analyze(void){
     me = dbe_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
-    meg03_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
 
-    meg04_[ism-1]->Reset();
-    meg05_[ism-1]->Reset();
+    if ( meg04_[ism-1] ) meg04_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
 
-    mep01_[ism-1]->Reset();
-    mep02_[ism-1]->Reset();
-    mep03_[ism-1]->Reset();
+    if ( mep01_[ism-1] ) mep01_[ism-1]->Reset();
+    if ( mep02_[ism-1] ) mep02_[ism-1]->Reset();
+    if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();
 
-    mer01_[ism-1]->Reset();
-    mer02_[ism-1]->Reset();
-    mer03_[ism-1]->Reset();
+    if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
+    if ( mer02_[ism-1] ) mer02_[ism-1]->Reset();
+    if ( mer03_[ism-1] ) mer03_[ism-1]->Reset();
 
-    mer04_[ism-1]->Reset();
-    mer05_[ism-1]->Reset();
+    if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
+    if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
-    mes02_[ism-1]->Reset();
-    mes03_[ism-1]->Reset();
+    if ( mes01_[ism-1] ) mes01_[ism-1]->Reset();
+    if ( mes02_[ism-1] ) mes02_[ism-1]->Reset();
+    if ( mes03_[ism-1] ) mes03_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
-    met02_[ism-1]->Reset();
-    met03_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
+    if ( met02_[ism-1] ) met02_[ism-1]->Reset();
+    if ( met03_[ism-1] ) met03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/09 19:49:56 $
- * $Revision: 1.187 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -177,21 +177,21 @@ void EBIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
-
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
+	
       }
     }
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
-        meg02_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
@@ -734,8 +734,8 @@ void EBIntegrityClient::analyze(void){
     float num00;
 
     // integrity summary histograms
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
 
     num00 = 0.;
 

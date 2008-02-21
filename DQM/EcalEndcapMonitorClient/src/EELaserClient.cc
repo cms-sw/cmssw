@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/15 15:26:39 $
- * $Revision: 1.81 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -613,27 +613,27 @@ void EELaserClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
-    meg03_[ism-1]->Reset();
-    meg04_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
+    if ( meg04_[ism-1] ) meg04_[ism-1]->Reset();
 
-    meg05_[ism-1]->Reset();
-    meg06_[ism-1]->Reset();
-    meg07_[ism-1]->Reset();
-    meg08_[ism-1]->Reset();
-    meg09_[ism-1]->Reset();
-    meg10_[ism-1]->Reset();
-    meg11_[ism-1]->Reset();
-    meg12_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
+    if ( meg06_[ism-1] ) meg06_[ism-1]->Reset();
+    if ( meg07_[ism-1] ) meg07_[ism-1]->Reset();
+    if ( meg08_[ism-1] ) meg08_[ism-1]->Reset();
+    if ( meg09_[ism-1] ) meg09_[ism-1]->Reset();
+    if ( meg10_[ism-1] ) meg10_[ism-1]->Reset();
+    if ( meg11_[ism-1] ) meg11_[ism-1]->Reset();
+    if ( meg12_[ism-1] ) meg12_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ix, iy, -1. );
-        meg02_[ism-1]->setBinContent( ix, iy, -1. );
-        meg03_[ism-1]->setBinContent( ix, iy, -1. );
-        meg04_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, -1. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -641,10 +641,10 @@ void EELaserClient::setup(void) {
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
-          meg01_[ism-1]->setBinContent( ix, iy, 2. );
-          meg02_[ism-1]->setBinContent( ix, iy, 2. );
-          meg03_[ism-1]->setBinContent( ix, iy, 2. );
-          meg04_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
       }
@@ -652,79 +652,79 @@ void EELaserClient::setup(void) {
 
     for ( int i = 1; i <= 10; i++ ) {
 
-        meg05_[ism-1]->setBinContent( i, 1, 2. );
-        meg06_[ism-1]->setBinContent( i, 1, 2. );
-        meg07_[ism-1]->setBinContent( i, 1, 2. );
-        meg08_[ism-1]->setBinContent( i, 1, 2. );
-        meg09_[ism-1]->setBinContent( i, 1, 2. );
-        meg10_[ism-1]->setBinContent( i, 1, 2. );
-        meg11_[ism-1]->setBinContent( i, 1, 2. );
-        meg12_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent( i, 1, 2. );
 
     }
 
-    mea01_[ism-1]->Reset();
-    mea02_[ism-1]->Reset();
-    mea03_[ism-1]->Reset();
-    mea04_[ism-1]->Reset();
-    mea05_[ism-1]->Reset();
-    mea06_[ism-1]->Reset();
-    mea07_[ism-1]->Reset();
-    mea08_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
+    if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
+    if ( mea03_[ism-1] ) mea03_[ism-1]->Reset();
+    if ( mea04_[ism-1] ) mea04_[ism-1]->Reset();
+    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
+    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
+    if ( mea07_[ism-1] ) mea07_[ism-1]->Reset();
+    if ( mea08_[ism-1] ) mea08_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
-    met02_[ism-1]->Reset();
-    met03_[ism-1]->Reset();
-    met04_[ism-1]->Reset();
-    met05_[ism-1]->Reset();
-    met06_[ism-1]->Reset();
-    met07_[ism-1]->Reset();
-    met08_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
+    if ( met02_[ism-1] ) met02_[ism-1]->Reset();
+    if ( met03_[ism-1] ) met03_[ism-1]->Reset();
+    if ( met04_[ism-1] ) met04_[ism-1]->Reset();
+    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
+    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
+    if ( met07_[ism-1] ) met07_[ism-1]->Reset();
+    if ( met08_[ism-1] ) met08_[ism-1]->Reset();
 
-    metav01_[ism-1]->Reset();
-    metav02_[ism-1]->Reset();
-    metav03_[ism-1]->Reset();
-    metav04_[ism-1]->Reset();
-    metav05_[ism-1]->Reset();
-    metav06_[ism-1]->Reset();
-    metav07_[ism-1]->Reset();
-    metav08_[ism-1]->Reset();
+    if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
+    if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
+    if ( metav03_[ism-1] ) metav03_[ism-1]->Reset();
+    if ( metav04_[ism-1] ) metav04_[ism-1]->Reset();
+    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
+    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
+    if ( metav07_[ism-1] ) metav07_[ism-1]->Reset();
+    if ( metav08_[ism-1] ) metav08_[ism-1]->Reset();
 
-    metrms01_[ism-1]->Reset();
-    metrms02_[ism-1]->Reset();
-    metrms03_[ism-1]->Reset();
-    metrms04_[ism-1]->Reset();
-    metrms05_[ism-1]->Reset();
-    metrms06_[ism-1]->Reset();
-    metrms07_[ism-1]->Reset();
-    metrms08_[ism-1]->Reset();
+    if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
+    if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
+    if ( metrms03_[ism-1] ) metrms03_[ism-1]->Reset();
+    if ( metrms04_[ism-1] ) metrms04_[ism-1]->Reset();
+    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
+    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
+    if ( metrms07_[ism-1] ) metrms07_[ism-1]->Reset();
+    if ( metrms08_[ism-1] ) metrms08_[ism-1]->Reset();
 
-    meaopn01_[ism-1]->Reset();
-    meaopn02_[ism-1]->Reset();
-    meaopn03_[ism-1]->Reset();
-    meaopn04_[ism-1]->Reset();
-    meaopn05_[ism-1]->Reset();
-    meaopn06_[ism-1]->Reset();
-    meaopn07_[ism-1]->Reset();
-    meaopn08_[ism-1]->Reset();
+    if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
+    if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
+    if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->Reset();
+    if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->Reset();
+    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
+    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
+    if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->Reset();
+    if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->Reset();
 
-    mepnprms01_[ism-1]->Reset();
-    mepnprms02_[ism-1]->Reset();
-    mepnprms03_[ism-1]->Reset();
-    mepnprms04_[ism-1]->Reset();
-    mepnprms05_[ism-1]->Reset();
-    mepnprms06_[ism-1]->Reset();
-    mepnprms07_[ism-1]->Reset();
-    mepnprms08_[ism-1]->Reset();
+    if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
+    if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
+    if ( mepnprms03_[ism-1] ) mepnprms03_[ism-1]->Reset();
+    if ( mepnprms04_[ism-1] ) mepnprms04_[ism-1]->Reset();
+    if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Reset();
+    if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Reset();
+    if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Reset();
+    if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset();
-    me_hs02_[ism-1]->Reset();
-    me_hs03_[ism-1]->Reset();
-    me_hs04_[ism-1]->Reset();
-    me_hs05_[ism-1]->Reset();
-    me_hs06_[ism-1]->Reset();
-    me_hs07_[ism-1]->Reset();
-    me_hs08_[ism-1]->Reset();
+    if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
+    if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
+    if ( me_hs03_[ism-1] ) me_hs03_[ism-1]->Reset();
+    if ( me_hs04_[ism-1] ) me_hs04_[ism-1]->Reset();
+    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
+    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
+    if ( me_hs07_[ism-1] ) me_hs07_[ism-1]->Reset();
+    if ( me_hs08_[ism-1] ) me_hs08_[ism-1]->Reset();
 
   }
 
@@ -1913,82 +1913,82 @@ void EELaserClient::analyze(void){
     me = dbe_->get(histo);
     i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
-    meg03_[ism-1]->Reset();
-    meg04_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
+    if ( meg04_[ism-1] ) meg04_[ism-1]->Reset();
 
-    meg05_[ism-1]->Reset();
-    meg06_[ism-1]->Reset();
-    meg07_[ism-1]->Reset();
-    meg08_[ism-1]->Reset();
-    meg09_[ism-1]->Reset();
-    meg10_[ism-1]->Reset();
-    meg11_[ism-1]->Reset();
-    meg12_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
+    if ( meg06_[ism-1] ) meg06_[ism-1]->Reset();
+    if ( meg07_[ism-1] ) meg07_[ism-1]->Reset();
+    if ( meg08_[ism-1] ) meg08_[ism-1]->Reset();
+    if ( meg09_[ism-1] ) meg09_[ism-1]->Reset();
+    if ( meg10_[ism-1] ) meg10_[ism-1]->Reset();
+    if ( meg11_[ism-1] ) meg11_[ism-1]->Reset();
+    if ( meg12_[ism-1] ) meg12_[ism-1]->Reset();
 
-    mea01_[ism-1]->Reset();
-    mea02_[ism-1]->Reset();
-    mea03_[ism-1]->Reset();
-    mea04_[ism-1]->Reset();
-    mea05_[ism-1]->Reset();
-    mea06_[ism-1]->Reset();
-    mea07_[ism-1]->Reset();
-    mea08_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
+    if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
+    if ( mea03_[ism-1] ) mea03_[ism-1]->Reset();
+    if ( mea04_[ism-1] ) mea04_[ism-1]->Reset();
+    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
+    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
+    if ( mea07_[ism-1] ) mea07_[ism-1]->Reset();
+    if ( mea08_[ism-1] ) mea08_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
-    met02_[ism-1]->Reset();
-    met03_[ism-1]->Reset();
-    met04_[ism-1]->Reset();
-    met05_[ism-1]->Reset();
-    met06_[ism-1]->Reset();
-    met07_[ism-1]->Reset();
-    met08_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
+    if ( met02_[ism-1] ) met02_[ism-1]->Reset();
+    if ( met03_[ism-1] ) met03_[ism-1]->Reset();
+    if ( met04_[ism-1] ) met04_[ism-1]->Reset();
+    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
+    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
+    if ( met07_[ism-1] ) met07_[ism-1]->Reset();
+    if ( met08_[ism-1] ) met08_[ism-1]->Reset();
 
-    metav01_[ism-1]->Reset();
-    metav02_[ism-1]->Reset();
-    metav03_[ism-1]->Reset();
-    metav04_[ism-1]->Reset();
-    metav05_[ism-1]->Reset();
-    metav06_[ism-1]->Reset();
-    metav07_[ism-1]->Reset();
-    metav08_[ism-1]->Reset();
+    if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
+    if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
+    if ( metav03_[ism-1] ) metav03_[ism-1]->Reset();
+    if ( metav04_[ism-1] ) metav04_[ism-1]->Reset();
+    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
+    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
+    if ( metav07_[ism-1] ) metav07_[ism-1]->Reset();
+    if ( metav08_[ism-1] ) metav08_[ism-1]->Reset();
 
-    metrms01_[ism-1]->Reset();
-    metrms02_[ism-1]->Reset();
-    metrms03_[ism-1]->Reset();
-    metrms04_[ism-1]->Reset();
-    metrms05_[ism-1]->Reset();
-    metrms06_[ism-1]->Reset();
-    metrms07_[ism-1]->Reset();
-    metrms08_[ism-1]->Reset();
+    if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
+    if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
+    if ( metrms03_[ism-1] ) metrms03_[ism-1]->Reset();
+    if ( metrms04_[ism-1] ) metrms04_[ism-1]->Reset();
+    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
+    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
+    if ( metrms07_[ism-1] ) metrms07_[ism-1]->Reset();
+    if ( metrms08_[ism-1] ) metrms08_[ism-1]->Reset();
 
-    meaopn01_[ism-1]->Reset();
-    meaopn02_[ism-1]->Reset();
-    meaopn03_[ism-1]->Reset();
-    meaopn04_[ism-1]->Reset();
-    meaopn05_[ism-1]->Reset();
-    meaopn06_[ism-1]->Reset();
-    meaopn07_[ism-1]->Reset();
-    meaopn08_[ism-1]->Reset();
+    if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
+    if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
+    if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->Reset();
+    if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->Reset();
+    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
+    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
+    if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->Reset();
+    if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->Reset();
 
-    mepnprms01_[ism-1]->Reset();
-    mepnprms02_[ism-1]->Reset();
-    mepnprms03_[ism-1]->Reset();
-    mepnprms04_[ism-1]->Reset();
-    mepnprms05_[ism-1]->Reset();
-    mepnprms06_[ism-1]->Reset();
-    mepnprms07_[ism-1]->Reset();
-    mepnprms08_[ism-1]->Reset();
+    if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
+    if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
+    if ( mepnprms03_[ism-1] ) mepnprms03_[ism-1]->Reset();
+    if ( mepnprms04_[ism-1] ) mepnprms04_[ism-1]->Reset();
+    if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Reset();
+    if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Reset();
+    if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Reset();
+    if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset();
-    me_hs02_[ism-1]->Reset();
-    me_hs03_[ism-1]->Reset();
-    me_hs04_[ism-1]->Reset();
-    me_hs05_[ism-1]->Reset();
-    me_hs06_[ism-1]->Reset();
-    me_hs07_[ism-1]->Reset();
-    me_hs08_[ism-1]->Reset();
+    if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
+    if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
+    if ( me_hs03_[ism-1] ) me_hs03_[ism-1]->Reset();
+    if ( me_hs04_[ism-1] ) me_hs04_[ism-1]->Reset();
+    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
+    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
+    if ( me_hs07_[ism-1] ) me_hs07_[ism-1]->Reset();
+    if ( me_hs08_[ism-1] ) me_hs08_[ism-1]->Reset();
 
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
@@ -2968,50 +2968,66 @@ void EELaserClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] ); 
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs01_[ism-1] ) {
+	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs02_[ism-1] ) {
+	  me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+	  me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs03_[ism-1] ) {
+	  me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+	  me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs04_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs04_[ism-1] );
-        me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
-        me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs04_[ism-1] ) {
+	  me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
+	  me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs05_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs05_[ism-1] ) {
+	  me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+	  me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs06_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs06_[ism-1] );
-        me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
-        me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs06_[ism-1] ) {
+	  me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
+	  me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs07_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs07_[ism-1] );
-        me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
-        me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs07_[ism-1] ) {
+	  me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
+	  me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs08_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs08_[ism-1] );
-        me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
-        me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs08_[ism-1] ) {
+	  me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
+	  me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
     }

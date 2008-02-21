@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.55 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -214,17 +214,17 @@ void EETriggerTowerClient::setup(void) {
     
     int ism = superModules_[i];
 
-    me_h01_[ism-1]->Reset();
-    me_h02_[ism-1]->Reset();
+    if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
+    if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
     for (int j=0; j<2; j++) {
-      me_i01_[ism-1][j]->Reset();
-      me_i02_[ism-1][j]->Reset();
-      me_n01_[ism-1][j]->Reset();
+      if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
+      if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
+      if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
     }
     for (int j=0; j<6; j++) {
-      me_j01_[ism-1][j]->Reset();
-      me_j02_[ism-1][j]->Reset();
-      me_m01_[ism-1][j]->Reset();
+      if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
+      if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
+      if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
 
   }
@@ -440,18 +440,19 @@ void EETriggerTowerClient::analyze(const char* nameext,
 //
 //     }
 
-    me_h01_[ism-1]->Reset();
-    me_h02_[ism-1]->Reset();
+    if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
+    if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
     for (int j=0; j<2; j++) {
-      me_i01_[ism-1][j]->Reset();
-      me_i02_[ism-1][j]->Reset();
-      me_n01_[ism-1][j]->Reset();
+      if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
+      if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
+      if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
     }
     for (int j=0; j<6; j++) {
-      me_j01_[ism-1][j]->Reset();
-      me_j02_[ism-1][j]->Reset();
-      me_m01_[ism-1][j]->Reset();
+      if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
+      if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
+      if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
+
 
     for (int ix = 1; ix <= 50; ix++) {
       for (int iy = 1; iy <= 50; iy++) {

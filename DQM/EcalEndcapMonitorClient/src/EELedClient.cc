@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/15 15:26:39 $
- * $Revision: 1.63 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -303,16 +303,16 @@ void EELedClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
 
-    meg05_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
 
-    meg09_[ism-1]->Reset();
+    if ( meg09_[ism-1] ) meg09_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -320,7 +320,7 @@ void EELedClient::setup(void) {
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
-          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
       }
@@ -328,39 +328,39 @@ void EELedClient::setup(void) {
 
     for ( int i = 1; i <= 10; i++ ) {
 
-        meg05_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
 
-        meg09_[ism-1]->setBinContent( i, 1, 2. );
+        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent( i, 1, 2. );
 
     }
 
-    mea01_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
 
-    mea05_[ism-1]->Reset();
+    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
 
-    met05_[ism-1]->Reset();
+    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
 
-    metav01_[ism-1]->Reset();
+    if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
 
-    metav05_[ism-1]->Reset();
+    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
 
-    metrms01_[ism-1]->Reset();
+    if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
 
-    metrms05_[ism-1]->Reset();
+    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
 
-    meaopn01_[ism-1]->Reset();
+    if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
 
-    meaopn05_[ism-1]->Reset();
+    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
 
-    mepnprms01_[ism-1]->Reset();
+    if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
 
-    mepnprms05_[ism-1]->Reset();
+    if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset();
+    if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
 
-    me_hs05_[ism-1]->Reset();
+    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
 
   }
 
@@ -818,39 +818,39 @@ void EELedClient::analyze(void){
     me = dbe_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
-    meg01_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
 
-    meg05_[ism-1]->Reset();
+    if ( meg05_[ism-1] ) meg05_[ism-1]->Reset();
 
-    meg09_[ism-1]->Reset();
+    if ( meg09_[ism-1] ) meg09_[ism-1]->Reset();
 
-    mea01_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
 
-    mea05_[ism-1]->Reset();
+    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
 
-    met01_[ism-1]->Reset();
+    if ( met01_[ism-1] ) met01_[ism-1]->Reset();
 
-    met05_[ism-1]->Reset();
+    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
 
-    metav01_[ism-1]->Reset();
+    if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
 
-    metav05_[ism-1]->Reset();
+    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
 
-    metrms01_[ism-1]->Reset();
+    if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
 
-    metrms05_[ism-1]->Reset();
+    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
 
-    meaopn01_[ism-1]->Reset();
+    if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
 
-    meaopn05_[ism-1]->Reset();
+    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
 
-    mepnprms01_[ism-1]->Reset();
+    if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
 
-    mepnprms05_[ism-1]->Reset();
+    if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset();
+    if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
 
-    me_hs05_[ism-1]->Reset();
+    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
 
     float meanAmplA;
     float meanAmplB;
@@ -1199,14 +1199,18 @@ void EELedClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs01_[ism-1] ) {
+	  me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+	  me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
       if ( hs05_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+	if ( me_hs05_[ism-1] ) {
+	  me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+	  me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
+	}
       }
 
     }

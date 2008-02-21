@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/14 11:15:43 $
- * $Revision: 1.61 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -181,13 +181,13 @@ void EEIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -195,7 +195,7 @@ void EEIntegrityClient::setup(void) {
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
-          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
       }
@@ -204,7 +204,7 @@ void EEIntegrityClient::setup(void) {
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
-        meg02_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
@@ -783,8 +783,8 @@ void EEIntegrityClient::analyze(void){
     float num00;
 
     // integrity summary histograms
-    meg01_[ism-1]->Reset();
-    meg02_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg02_[ism-1]->Reset();
 
     num00 = 0.;
 

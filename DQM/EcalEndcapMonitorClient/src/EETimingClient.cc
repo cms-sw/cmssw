@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/14 11:15:44 $
- * $Revision: 1.63 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -170,12 +170,12 @@ void EETimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    meg01_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -183,15 +183,15 @@ void EETimingClient::setup(void) {
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
-          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
       }
     }
 
-    mea01_[ism-1]->Reset();
-    mep01_[ism-1]->Reset();
-    mer01_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
+    if ( mep01_[ism-1] ) mep01_[ism-1]->Reset();
+    if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
 
   }
 
@@ -357,10 +357,10 @@ void EETimingClient::analyze(void){
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    meg01_[ism-1]->Reset();
-    mea01_[ism-1]->Reset();
-    mep01_[ism-1]->Reset();
-    mer01_[ism-1]->Reset();
+    if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
+    if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
+    if ( mep01_[ism-1] ) mep01_[ism-1]->Reset();
+    if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

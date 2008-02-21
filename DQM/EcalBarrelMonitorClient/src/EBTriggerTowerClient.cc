@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/01/27 19:26:02 $
- * $Revision: 1.88 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -212,17 +212,17 @@ void EBTriggerTowerClient::setup(void) {
 
     int ism = superModules_[i];
 
-    me_h01_[ism-1]->Reset();
-    me_h02_[ism-1]->Reset();
+    if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
+    if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
     for (int j=0; j<2; j++) {
-      me_i01_[ism-1][j]->Reset();
-      me_i02_[ism-1][j]->Reset();
-      me_n01_[ism-1][j]->Reset();
+      if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
+      if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
+      if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
     } 
     for (int j=0; j<6; j++) {
-      me_j01_[ism-1][j]->Reset();
-      me_j02_[ism-1][j]->Reset();
-      me_m01_[ism-1][j]->Reset();
+      if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
+      if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
+      if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
 
   }
@@ -437,20 +437,20 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 //       mek02_[ism-1][j] = me;
 //
 //     }
-
-    me_h01_[ism-1]->Reset();
-    me_h02_[ism-1]->Reset();
+    
+    if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
+    if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
     for (int j=0; j<2; j++) {
-      me_i01_[ism-1][j]->Reset();
-      me_i02_[ism-1][j]->Reset();
-      me_n01_[ism-1][j]->Reset();
+      if ( me_i01_[ism-1][j] ) me_i01_[ism-1][j]->Reset();
+      if ( me_i02_[ism-1][j] ) me_i02_[ism-1][j]->Reset();
+      if ( me_n01_[ism-1][j] ) me_n01_[ism-1][j]->Reset();
     } 
     for (int j=0; j<6; j++) {
-      me_j01_[ism-1][j]->Reset();
-      me_j02_[ism-1][j]->Reset();
-      me_m01_[ism-1][j]->Reset();
+      if ( me_j01_[ism-1][j] ) me_j01_[ism-1][j]->Reset();
+      if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
+      if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
-
+    
     for (int ie = 1; ie <= 17; ie++) {
       for (int ip = 1; ip <= 4; ip++) {
 
