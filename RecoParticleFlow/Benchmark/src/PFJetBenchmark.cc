@@ -279,7 +279,8 @@ void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHad
 	  cout << "blocks:"<<endl;
 	  // print blocks
 	  for (unsigned k =0; k<PFBRef.size();k++){ // for each block in turn
-	  cout<< "block id " << PFBRef[k].key() <<  *(PFBRef[k])<<endl;
+	    // FIXME, JW 
+	    //	  cout<< "block id " << PFBRef[k].key() <<  *(PFBRef[k])<<endl;
 		}// end loop on k
    cout<<resetiosflags(ios::right|ios::fixed);
    }
