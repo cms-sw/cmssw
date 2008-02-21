@@ -38,13 +38,12 @@
 #endif
                                                                                                  
 
-CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps){
+CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
+   recoConditions_( 0 ){
 
   debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getUntrackedParameter<double>("CSCStripxtalksOffset");
-  stripCrosstalk_            = new CSCStripCrosstalk( ps );
-  stripNoiseMatrix_          = new CSCStripNoiseMatrix( ps );
   noise_level                 = ps.getUntrackedParameter<double>("NoiseLevel"); 
   xt_asymmetry                = ps.getUntrackedParameter<double>("XTasymmetry"); 
   const_syst                   = ps.getUntrackedParameter<double>("ConstSyst"); 
@@ -54,8 +53,6 @@ CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps){
 
 
 CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
-  delete stripCrosstalk_;
-  delete stripNoiseMatrix_;
   delete peakTimeFinder_;
 }
 
@@ -116,8 +113,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
 
   if ( useCalib ) {
     std::vector<float> xtalks;
-    stripCrosstalk_->setCrossTalk( xtalk_ );
-    stripCrosstalk_->getCrossTalk( id, centralStrip, xtalks);
+    recoConditions_->crossTalk( id, centralStrip, xtalks );
     float dt = 50. * tmax - (t_peak + t_zero);  // QUESTION:  should it be only - (t_peak) ???
     // XTalks; l,r are for left, right XTalk; lr0,1,2 are for what charge "remains" in the strip 
     for ( int t = 0; t < 3; ++t ) {
@@ -163,8 +159,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   // Load in auto-correlation noise matrices
   if ( useCalib ) {
     std::vector<float> nmatrix;
-    stripNoiseMatrix_->setNoiseMatrix( globalGainAvg, gains_, noise_ );
-    stripNoiseMatrix_->getNoiseMatrix( id, centralStrip, nmatrix);
+    recoConditions_->noiseMatrix( id, centralStrip, nmatrix );
 
     for ( int istrip =0; istrip < 3; ++istrip ) {
       a11[istrip] = nmatrix[0+tbin*3+istrip*15];

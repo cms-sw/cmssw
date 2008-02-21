@@ -8,12 +8,9 @@
  * a Strip Hit out of these clusters by finding the center-of-mass position of the hit
  * The DetId, strip hit position, and peaking time are stored in a CSCStripHit collection.
  *
- * Here one has to be careful with the ME_1/a chambers:  in MC, digis are produced only for the first 16
- * strips, so one has to account for the ganging in groups of 3.
- *
- * In data, the ME_11 digis are stored in the same collection, so one has to untangle the output from
- * the ME_1a and ME_1b strips.  64 readouts from ME_1b, 16 from ME_1a.  Will have to figure out if ME_1a comes
- * first, and then the 64 ME_1b...
+ * Be careful with the ME_1/a chambers: the 48 strips are ganged into 16 channels,
+ * Each channel contains signals from three strips, each separated by 16 strips from the next.
+ * This is the same for real data and for the MC. (This ME1a info is from Tim Cox.)
  *
  * \author Dominique Fortin - UCR
  *
@@ -22,6 +19,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 
@@ -33,10 +31,8 @@
 class CSCLayer;
 class CSCChamberSpecs;
 class CSCLayerGeometry;
-class CSCDBGains;
 class CSCStripDigi;
 class CSCPeakBinOfStripPulse;
-class CSCStripGain;
 
 
 class CSCHitFromStripOnly 
@@ -52,9 +48,8 @@ class CSCHitFromStripOnly
   
   std::vector<CSCStripHit> runStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripDigiCollection::Range& rstripd );
 
-  void setCalibration( float gainAvg, const CSCDBGains* gains ) { 
-    globalGainAvg  = gainAvg;
-    gains_ = gains; 
+  void setConditions( const CSCRecoConditions* reco ) {
+    recoConditions_ = reco;
   }
 
  protected:
@@ -87,7 +82,7 @@ class CSCHitFromStripOnly
 
   // Variables entering the CSCStripHit construction:
   int tmax_cluster;
-  int ClusterSize;
+  int clusterSize;
   std::vector<float> strips_adc;  
   std::vector<int> theStrips;
   
@@ -108,16 +103,10 @@ class CSCHitFromStripOnly
   // Number of strips in layer
   unsigned Nstrips;
 
-
-  /* Cache calibrations for current event
-   *
-   */
-  const CSCDBGains*       gains_;
-  float globalGainAvg;
+  /// Hold pointer to current conditions data
+  const CSCRecoConditions* recoConditions_;
 
   CSCPeakBinOfStripPulse* pulseheightOnStripFinder_;
-  CSCStripGain*           stripGain_;
-
 };
 
 #endif

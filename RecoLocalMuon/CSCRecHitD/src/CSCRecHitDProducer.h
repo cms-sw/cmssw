@@ -20,12 +20,12 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCRecHitDBuilder; 
-class CSCStripGainAvg;
+class CSCRecoConditions;
 
 class CSCRecHitDProducer : public edm::EDProducer {
 
 public:
-  explicit CSCRecHitDProducer( const edm::ParameterSet& ps);
+  explicit CSCRecHitDProducer( const edm::ParameterSet& ps );
   ~CSCRecHitDProducer();
 
   virtual void produce( edm::Event&, const edm::EventSetup& );
@@ -40,13 +40,11 @@ public:
   bool useCleanWireCollection;
   bool useCleanStripCollection;
 
-  float CSCstripGainAvg;
-
   std::string stripDigiProducer_;
   std::string wireDigiProducer_;
 
   CSCRecHitDBuilder* recHitBuilder_;
-  CSCStripGainAvg* stripGainAvg_;
+  CSCRecoConditions* recoConditions_;
 };
 
 #endif

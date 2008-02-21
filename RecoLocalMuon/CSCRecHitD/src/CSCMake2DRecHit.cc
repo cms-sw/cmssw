@@ -5,6 +5,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -32,6 +33,7 @@ CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
   stripWireDeltaTime         = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
 
   xMatchGatti_             = new CSCXonStrip_MatchGatti( ps );
+
 }   
 
 
@@ -142,13 +144,6 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     float stripWidth = layergeom_->stripPitch( lpTest );  
     sigma =  stripWidth / sqrt_12;
     
-    
-    // 
-    
-    if (useCalib){
-      xMatchGatti_->setCalibration( globalGainAvg, gains_, xtalk_, noise_ );
-    }
-    
     //---- Calculate local position within the strip
     float xWithinChamber = x;   
     float PositionWithinTheStrip= -99.;
@@ -193,5 +188,7 @@ bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D&
   return isInFiducial;
 }
  
- 
+void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
+  xMatchGatti_->setConditions( reco );
+} 
 

@@ -42,22 +42,22 @@ CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
   stripWireDeltaT        = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
   makePseudo2DHits       = ps.getUntrackedParameter<bool>("CSCproduce1DHits");
   
-  HitsFromStripOnly_     = new CSCHitFromStripOnly( ps ); 
-  HitsFromWireOnly_      = new CSCHitFromWireOnly( ps );  
-  //HitsFromWireSegments_  = new CSCWireSegments( ps );
-  //HitsFromStripSegments_ = new CSCStripSegments( ps );
-  Make2DHits_            = new CSCMake2DRecHit( ps );
+  hitsFromStripOnly_     = new CSCHitFromStripOnly( ps ); 
+  hitsFromWireOnly_      = new CSCHitFromWireOnly( ps );  
+  //hitsFromWireSegments_  = new CSCWireSegments( ps );
+  //hitsFromStripSegments_ = new CSCStripSegments( ps );
+  make2DHits_            = new CSCMake2DRecHit( ps );
 }
 
 /* Destructor
  *
  */
 CSCRecHitDBuilder::~CSCRecHitDBuilder() {
-  delete HitsFromStripOnly_;
-  delete HitsFromWireOnly_;
-  //delete HitsFromWireSegments_;
-  //delete HitsFromStripSegments_;
-  delete Make2DHits_;   
+  delete hitsFromStripOnly_;
+  delete hitsFromWireOnly_;
+  //delete hitsFromWireSegments_;
+  //delete hitsFromStripSegments_;
+  delete make2DHits_;   
 }
 
 
@@ -66,15 +66,6 @@ CSCRecHitDBuilder::~CSCRecHitDBuilder() {
  */
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
                                CSCRecHit2DCollection& oc ) {
-
-  if ( useCalib ) {
-    // Pass gain constants to strip hit reconstruction package
-    HitsFromStripOnly_->setCalibration( gAvg_, gains_ );
-    // Pass X-talks and noise matrix to 2-D hit builder 
-    Make2DHits_->setCalibration( gAvg_, gains_, xtalk_, noise_ );
-  }
-
-
 
   // Clean hit collections sorted by layer    
   std::vector<CSCDetId> stripLayer;
@@ -111,7 +102,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       }
     }
           
-    std::vector<CSCWireHit> rhv = HitsFromWireOnly_->runWire( id, layer, rwired);
+    std::vector<CSCWireHit> rhv = hitsFromWireOnly_->runWire( id, layer, rwired);
 
     if ( rhv.size() > 0 ) wireLayer.push_back( id );
     
@@ -132,7 +123,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     // Skip if no strip digis in this layer
     if ( rstripd.second == rstripd.first ) continue;
     
-    std::vector<CSCStripHit> rhv = HitsFromStripOnly_->runStrip( id, layer, rstripd);
+    std::vector<CSCStripHit> rhv = hitsFromStripOnly_->runStrip( id, layer, rstripd);
 
     if ( rhv.size() > 0 ) stripLayer.push_back( id );
     
@@ -210,8 +201,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
           const CSCStripHit s_hit = cscStripHit[i];
           for (unsigned j = 0; j != cscWireHit.size(); ++j ) {
             const CSCWireHit w_hit = cscWireHit[j];
-            CSCRecHit2D rechit = Make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
-            bool isInFiducial = Make2DHits_->isHitInFiducial( layer, rechit );
+            CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
+            bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
             if ( isInFiducial ) {
               foundMatch = true;  
               hitsInLayer.push_back( rechit );
@@ -245,3 +236,7 @@ const CSCLayer* CSCRecHitDBuilder::getLayer( const CSCDetId& detId )  {
   return geom_->layer(detId);
 }
 
+void CSCRecHitDBuilder::setConditions( const CSCRecoConditions* reco ) {
+  hitsFromStripOnly_->setConditions( reco );
+  make2DHits_->setConditions( reco );  
+}

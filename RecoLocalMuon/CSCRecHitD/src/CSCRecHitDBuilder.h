@@ -30,15 +30,13 @@
 
 class CSCLayer;
 class CSCGeometry;
-class CSCDBGains;
-class CSCDBCrosstalk;
-class CSCDBNoiseMatrix;
 class CSCDetId;
 class CSCHitFromStripOnly;
 class CSCHitFromWireOnly;
 class CSCWireSegments;
 class CSCStripSegments;
 class CSCMake2DRecHit;
+class CSCRecoConditions;
 
 class CSCRecHitDBuilder
 {
@@ -63,20 +61,15 @@ class CSCRecHitDBuilder
   void build( const CSCStripDigiCollection* stripds, const CSCWireDigiCollection* wireds,
 	      CSCRecHit2DCollection& oc );
   
-  /*
-   * Cache pointer to geometry and calibration constants so they can be
-   * redistributed further downstream
+  /**
+   * Cache pointer to geometry so it can be passed downstream
    */
   void setGeometry   ( const CSCGeometry* geom ) {geom_ = geom;}
-  void setCalibration( float gainAvg,
-	               const CSCDBGains* gains,
-                       const CSCDBCrosstalk* xtalk,
-                       const CSCDBNoiseMatrix* noise ) {
-    gAvg_  = gainAvg;
-    gains_ = gains;
-    xtalk_ = xtalk;
-    noise_ = noise;
-  }
+
+  /**
+   * Pass conditions downstream
+   */
+  void setConditions ( const CSCRecoConditions* reco );
 
   const CSCLayer* getLayer( const CSCDetId& detId );
 
@@ -96,21 +89,16 @@ class CSCRecHitDBuilder
    *  it stores in a special collection.  Proto strip/wire segments
    *  are then build from these hits and allow to clean up up the list of hits.
    */
-  CSCHitFromStripOnly*   HitsFromStripOnly_;
-  CSCHitFromWireOnly*    HitsFromWireOnly_;
-  //CSCWireSegments*       HitsFromWireSegments_;  
-  //CSCStripSegments*      HitsFromStripSegments_;  
-  CSCMake2DRecHit*       Make2DHits_;
+  CSCHitFromStripOnly*   hitsFromStripOnly_;
+  CSCHitFromWireOnly*    hitsFromWireOnly_;
+  //CSCWireSegments*       hitsFromWireSegments_;  
+  //CSCStripSegments*      hitsFromStripSegments_;  
+  CSCMake2DRecHit*       make2DHits_;
 
   /*
-   * Cache geometry and calibrations for current event
+   * Cache geometry for current event
    */
   const CSCGeometry* geom_;
-  float gAvg_;
-  const CSCDBGains* gains_;
-  const CSCDBCrosstalk* xtalk_;
-  const CSCDBNoiseMatrix* noise_;
-
 };
 
 #endif

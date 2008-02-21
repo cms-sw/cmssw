@@ -24,11 +24,7 @@ class CSCDetId;
 class CSCLayer;
 class CSCChamberSpecs;
 class CSCLayerGeometry;
-class CSCDBGains;
-class CSCDBCrosstalk;
-class CSCDBNoiseMatrix;
-class CSCStripCrosstalk;
-class CSCStripNoiseMatrix;
+class CSCRecoConditions;
 class CSCXonStrip_MatchGatti;
 
 class CSCMake2DRecHit
@@ -46,17 +42,9 @@ class CSCMake2DRecHit
   /// Test if rechit is in fiducial volume 
   bool isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D& rh );
 
-  /// Load in X-Talks and Noise Matrix
-  void setCalibration( float GlobalGainAvg,
-                       const CSCDBGains* gains,
-                       const CSCDBCrosstalk* xtalk,
-                       const CSCDBNoiseMatrix* noise ) {
-    globalGainAvg = GlobalGainAvg;
-    gains_ = gains;
-    xtalk_ = xtalk;
-    noise_ = noise;
-  }
- 
+  /// Pass pointer to conditions data onwards
+  void setConditions( const CSCRecoConditions* reco );
+
   const CSCLayer*         layer_;
   const CSCLayerGeometry* layergeom_;
   const CSCChamberSpecs*  specs_;
@@ -70,16 +58,6 @@ class CSCMake2DRecHit
   bool useGatti;
   float maxGattiChi2;
 
-  /* Cache calibrations for current event
-   *
-   */
-  float globalGainAvg;
-  const CSCDBGains*       gains_;
-  const CSCDBCrosstalk*   xtalk_;
-  const CSCDBNoiseMatrix* noise_;
-
-  CSCStripCrosstalk*       stripCrosstalk_; 
-  CSCStripNoiseMatrix*     stripNoiseMatrix_;
   CSCXonStrip_MatchGatti* xMatchGatti_;  
 };
 

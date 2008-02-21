@@ -12,6 +12,7 @@
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <map>  
@@ -20,11 +21,6 @@
 class CSCLayer;
 class CSCChamberSpecs;
 class CSCFindPeakTime;
-class CSCDBGains;
-class CSCDBCrosstalk;
-class CSCDBNoiseMatrix;
-class CSCStripCrosstalk;
-class CSCStripNoiseMatrix;
 
 class CSCXonStrip_MatchGatti
 {
@@ -48,16 +44,9 @@ class CSCXonStrip_MatchGatti
   /// Set matrix for XT corrections and noise
   void setupMatrix();
 
-
-  /// Load in x-Talks and Noise Matrix
-  void setCalibration( float GlobalGainAvg,
-                       const CSCDBGains* gains,
-                       const CSCDBCrosstalk* xtalk,
-                       const CSCDBNoiseMatrix* noise ) {
-    globalGainAvg = GlobalGainAvg;
-    gains_ = gains;
-    xtalk_ = xtalk;
-    noise_ = noise;
+  /// Cache pointer to conditions data
+  void setConditions( const CSCRecoConditions* reco ) {
+    recoConditions_ = reco;
   }
 
  private:
@@ -97,17 +86,12 @@ class CSCXonStrip_MatchGatti
   bool use3TimeBins;
   float xtalksOffset;
 
-  /* Cache calibrations for current event
+  /** Cache pointer to conditions for current event
    *
    */
-  float globalGainAvg;
-  const CSCDBGains*       gains_;
-  const CSCDBCrosstalk*   xtalk_;
-  const CSCDBNoiseMatrix* noise_;
+  const CSCRecoConditions* recoConditions_;
 
   // other classes used
-  CSCStripCrosstalk*       stripCrosstalk_;
-  CSCStripNoiseMatrix*     stripNoiseMatrix_;
   CSCFindPeakTime*         peakTimeFinder_;  
 
   // some variables and funfctions to use

@@ -28,7 +28,7 @@
 #include <iostream>
 
 
-CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) {
+CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0) {
   
   debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
@@ -38,14 +38,12 @@ CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) {
   theThresholdForCluster     = ps.getUntrackedParameter<double>("CSCStripClusterChargeCut");
 
   pulseheightOnStripFinder_  = new CSCPeakBinOfStripPulse( ps );
-  stripGain_                 = new CSCStripGain( ps );
-  
+
 }
 
 
 CSCHitFromStripOnly::~CSCHitFromStripOnly() {
   delete pulseheightOnStripFinder_;
-  delete stripGain_;
 }
 
 
@@ -70,15 +68,10 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
 
   TmaxOfCluster = 5;
 
-  // Get gains for cluster and compute correction weights:
-
-  // Fill all the gain weights at once, so save calling this function many times.
-  // N.B. in database, strip_id starts at 0, whereas it starts at 1 in detId
-  // Initialize weights to 1. and crosstalk to 0., in case database isn't populated or using MC
-
+  // Get gain correction weights for all strips in layer, and cache in gainWeight.
+  // They're used in fillPulseHeights below.
   if ( useCalib ) {
-    stripGain_->setCalibration( globalGainAvg, gains_ );
-    stripGain_->getStripGain( id_, gainWeight );
+    recoConditions_->stripWeights( id, gainWeight );
   }
   
   // Fill adc map and find maxima (potential hits)
@@ -89,7 +82,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
   for ( unsigned imax = 0; imax < theMaxima.size(); ++imax ) {
 
     // Initialize parameters entering the CSCStripHit
-    ClusterSize = theClusterSize;
+    clusterSize = theClusterSize;
     theStrips.clear();
     strips_adc.clear();
 
@@ -114,7 +107,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
 float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
   
   float strippos = -1.;
-  ClusterSize = theClusterSize;
+  clusterSize = theClusterSize;
   std::vector<CSCStripHitData> stripDataV;
  
   // We only want to use strip position in terms of strip # for the strip hit.
@@ -125,11 +118,11 @@ float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
     if ( centerStrip - i < 1 || centerStrip + i > specs_->nStrips() ) {
 
       // Shrink cluster size, but keep it an odd number of strips.
-      ClusterSize = 2*i - 1;  
+      clusterSize = 2*i - 1;  
     }
   }
 
-  for ( int i = -ClusterSize/2; i <= ClusterSize/2; ++i ) {
+  for ( int i = -clusterSize/2; i <= clusterSize/2; ++i ) {
     CSCStripHitData data = makeStripData(centerStrip, i);
     stripDataV.push_back( data );
     theStrips.push_back( centerStrip + i );
@@ -141,9 +134,8 @@ float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
 }
 
 
-/* makeStripData
+/** makeStripData
  *
- * Gain corrections are applied here
  */
 CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) {
   
@@ -190,7 +182,7 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
     
     // If there's another maximum that would like to use part of this cluster, 
     // it gets shared in proportion to the height of the maxima
-    for ( int i = 1; i <= ClusterSize/2; ++i ) {
+    for ( int i = 1; i <= clusterSize/2; ++i ) {
 
       // Find the direction of the offset
       int testStrip = thisStrip + sign*i;
