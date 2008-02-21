@@ -1,7 +1,31 @@
 #run popcon example1
+#  put your firstsince value after xxx 
+mkdir testPopCon
+cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg | sed 's/xxx/3/g' > testPopCon/tmp_PopConExample.cfg
 
-echo "populate 1,11, 21 then  50, 60, 70 then  10, 20, 30??....."
-cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1_new.cfg
+echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/3/g' 
+cmsRun $LOCALRT/src/CondCore/PopCon/test/testPopCon/tmp_PopConExample.cfg
+rm testPopCon/tmp_PopConExample.cfg
+
+# if you want to proove again... otherwise skip to db inspection
+#  put your firstsince value after xxx 
+
+cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg| sed 's/xxx/45/g' > testPopCon/tmp_PopConExample.cfg
+
+echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/45/g' 
+cmsRun $LOCALRT/src/CondCore/PopCon/test/testPopCon/tmp_PopConExample.cfg
+
+rm testPopCon/tmp_PopConExample.cfg
+
+# if you want to proove again... otherwise skip to db inspection
+#  put your firstsince value after xxx 
+
+cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg | sed 's/xxx/15/g' > testPopCon/tmp_PopConExample.cfg
+
+echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/15/g' 
+cmsRun $LOCALRT/src/CondCore/PopCon/test/testPopCon/tmp_PopConExample.cfg
+
+
 echo "inspect db"
 cmscond_list_iov -c sqlite_file:pop_test.db
 echo "get iov details"
@@ -10,12 +34,13 @@ cmscond_list_iov -c sqlite_file:pop_test.db -t CSC_tst_tag1
 #note: tag-name, log-name and db-name must be the same as in the cfg file  
 
 echo "dump log"
-cmscond_logdb_dump -c sqlite_file:log.db  > test_log1.log
+cmscond_logdb_dump -c sqlite_file:log.db  > testPopCon/test_log1.log
 
 # moving the EXECTIME information from the log
-cat test_log1.log | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9][0-9]//g' | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9]//g'| sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9]:[0-9][0-9]//g' > test_log2.log
+cat test_log1.log | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9][0-9]//g' | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9]//g'| sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9]:[0-9][0-9]//g' > testPopCon/test_log2.log
 
-rm  test_log1.log
-mv test_log2.log test_log1.log
+rm  testPopCon/test_log1.log
+mv testPopCon/test_log2.log testPopCon/test_log1.log
 rm pop_test.db
 rm log.db
+rm testPopCon/tmp_PopConExample.cfg
