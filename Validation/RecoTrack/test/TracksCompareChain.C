@@ -650,21 +650,21 @@ void TracksCompareChain()
    canvas->Print("ctf_pullPt_Qoverp_Phi.eps");
    canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
-   //pull Dxy, Dsz, Theta
+   //pull Dxy, Dz, Theta
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",rh1);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",sh1);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",rc1);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDsz",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDsz",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDsz",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDsz",sc2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",rh2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",sh2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",rc2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",sc2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",sc3);
 
-   canvas = new TCanvas("Tracks5","Tracks: pull of Dxy, Dsz, Theta",1000,1000);
+   canvas = new TCanvas("Tracks5","Tracks: pull of Dxy, Dz, Theta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
    title->Draw();
    TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
@@ -813,8 +813,8 @@ void TracksCompareChain()
      myPV->PVCompute(rh3, sh3, te, option );
    }
    
-   canvas->Print("ctf_pullDxy_Dsz_Theta.eps");
-   canvas->Print("ctf_pullDxy_Dsz_Theta.gif");
+   canvas->Print("ctf_pullDxy_Dz_Theta.eps");
+   canvas->Print("ctf_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmapt",rh1);
@@ -934,21 +934,21 @@ void TracksCompareChain()
    canvas->Print("ctf_resolPt_Phi.eps");
    canvas->Print("ctf_resolPt_Phi.gif");
 
-   //resolution Dxy, Dsz, Theta
+   //resolution Dxy, Dz, Theta
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",rh1);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",sh1);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",rc1);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadsz",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadsz",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadsz",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadsz",sc2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadz",rh2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadz",sh2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadz",rc2);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadz",sc2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",sc3);
 
-   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dsz, Theta resolution",1000,1000);
+   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
    title->Draw();
    TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
@@ -1086,8 +1086,8 @@ void TracksCompareChain()
      myPV->PVCompute(rh3, sh3, te, option );
    }
    
-   canvas->Print("ctf_resolDxy_Dsz_Theta.eps");
-   canvas->Print("ctf_resolDxy_Dsz_Theta.gif");
+   canvas->Print("ctf_resolDxy_Dz_Theta.eps");
+   canvas->Print("ctf_resolDxy_Dz_Theta.gif");
  }
 
 
@@ -1682,21 +1682,21 @@ void TracksCompareChain()
    canvas->Print("rs_pullPt_Qoverp_Phi.eps");
    canvas->Print("rs_pullPt_Qoverp_Phi.gif");
 
-   //pull Dxy, Dsz, Theta
+   //pull Dxy, Dz, Theta
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",rh1);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",sh1);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",rc1);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDsz",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDsz",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDsz",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDsz",sc2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",rh2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",sh2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",rc2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",sc2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",sc3);
 
-   canvas = new TCanvas("Tracks12","Tracks: pull of Dxy, Dsz, Theta",1000,1000);
+   canvas = new TCanvas("Tracks12","Tracks: pull of Dxy, Dz, Theta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
    title->Draw();
    TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
@@ -1845,8 +1845,8 @@ void TracksCompareChain()
      myPV->PVCompute(rh3, sh3, te, option );
    }
    
-   canvas->Print("rs_pullDxy_Dsz_Theta.eps");
-   canvas->Print("rs_pullDxy_Dsz_Theta.gif");
+   canvas->Print("rs_pullDxy_Dz_Theta.eps");
+   canvas->Print("rs_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmapt",rh1);
@@ -1966,21 +1966,21 @@ void TracksCompareChain()
    canvas->Print("rs_resolPt_Phi.eps");
    canvas->Print("rs_resolPt_Phi.gif");
 
-   //resolution Dxy, Dsz, Theta
+   //resolution Dxy, Dz, Theta
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",rh1);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",sh1);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",rc1);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadsz",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadsz",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadsz",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadsz",sc2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadz",rh2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadz",sh2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadz",rc2);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadz",sc2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",rh3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",sh3);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",rc3);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
 
-   canvas = new TCanvas("Tracks14","Tracks: Dxy, Dsz, Theta resolution",1000,1000);
+   canvas = new TCanvas("Tracks14","Tracks: Dxy, Dz, Theta resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
    title->Draw();
    TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
@@ -2118,8 +2118,8 @@ void TracksCompareChain()
      myPV->PVCompute(rh3, sh3, te, option );
    }
    
-   canvas->Print("rs_resolDxy_Dsz_Theta.eps");
-   canvas->Print("rs_resolDxy_Dsz_Theta.gif");
+   canvas->Print("rs_resolDxy_Dz_Theta.eps");
+   canvas->Print("rs_resolDxy_Dz_Theta.gif");
  }
 }
 

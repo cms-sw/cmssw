@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/02/11 15:02:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/19 11:28:20 $
+ *  $Revision: 1.2 $
  *  \author cerati
  */
 
@@ -195,7 +195,7 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_effic, h_efficPt, h_fakerate, h_fakeratePt, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   std::vector<MonitorElement*>  h_effic_vs_hit, h_fake_vs_hit;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
-  std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDsz,h_pullQoverp;
+  std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  
   std::vector<MonitorElement*> etares_vs_eta, nrec_vs_nsim;

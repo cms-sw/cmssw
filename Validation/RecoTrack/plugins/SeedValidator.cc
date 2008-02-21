@@ -13,7 +13,6 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "Math/ProbFuncMathMore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
@@ -23,7 +22,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 using namespace std;
-using namespace ROOT::Math;
 using namespace edm;
 
 void SeedValidator::beginJob( const EventSetup & setup) {
@@ -93,7 +91,7 @@ void SeedValidator::beginJob( const EventSetup & setup) {
       h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
       h_pullPhi.push_back( dbe_->book1D("pullPhi","pull of #phi parameter",250,-25,25) );
       h_pullDxy.push_back( dbe_->book1D("pullDxy","pull of dxy parameter",250,-25,25) );
-      h_pullDsz.push_back( dbe_->book1D("pullDsz","pull of dsz parameter",250,-25,25) );
+      h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
       h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
       if (associators[ww]=="TrackAssociatorByHits"){
@@ -244,8 +242,9 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
 
 	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
-	GlobalPoint vSeed = tsAtClosestApproachSeed.trackStateAtPCA().position();
+	GlobalPoint vSeed1 = tsAtClosestApproachSeed.trackStateAtPCA().position();
 	GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
+	GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
 
 	double etaSeed = state.globalMomentum().eta();
 	double ptSeed = sqrt(state.globalMomentum().perp2());
@@ -257,14 +256,14 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 	double lambdaSeed = M_PI/2-thetaSeed;
 	double phiSeed    = pSeed.phi();
 	double dxySeed    = (-vSeed.x()*sin(pSeed.phi())+vSeed.y()*cos(pSeed.phi()));
-	double dszSeed    = vSeed.z()*pSeed.perp()/pSeed.mag() - (vSeed.x()*pSeed.x()+vSeed.y()*pSeed.y())/pSeed.perp() * pSeed.z()/pSeed.mag();
+	double dzSeed     = vSeed.z() - (vSeed.x()*pSeed.x()+vSeed.y()*pSeed.y())/pSeed.perp() * pSeed.z()/pSeed.perp();
 
 	PerigeeTrajectoryError seedPerigeeErrors = tspConverter.ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
 	double qoverpErrorSeed = tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix().At(0,0);
 	double lambdaErrorSeed = seedPerigeeErrors.thetaError();//=theta error
 	double phiErrorSeed = seedPerigeeErrors.phiError();
 	double dxyErrorSeed = seedPerigeeErrors.transverseImpactParameterError();
-	double dszErrorSeed = seedPerigeeErrors.longitudinalImpactParameterError();
+	double dzErrorSeed = seedPerigeeErrors.longitudinalImpactParameterError();
 	double ptErrorSeed = (state.charge()!=0) ?  sqrt(
 	       ptSeed*ptSeed*pmSeed*pmSeed/state.charge()/state.charge() * tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix().At(0,0)
 	       + 2*ptSeed*pmSeed/state.charge()*pzSeed * tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix().At(0,1)
@@ -329,26 +328,27 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 			    TrackCharge(tpr->charge()),
 			    theMF.product());
 	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
-	  GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
+	  GlobalPoint v1 = tsAtClosestApproach.trackStateAtPCA().position();
 	  GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
+	  GlobalPoint v(v1.x()-bs.x0(),v1.y()-bs.y0(),v1.z()-bs.z0());
 
 	  double qoverpSim = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
 	  double lambdaSim = M_PI/2-p.theta();
 	  double phiSim    = p.phi();
 	  double dxySim    = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
-	  double dszSim    = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
+	  double dzSim     = v.z() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.perp();
 
-	  // eta residue; pt, k, theta, phi, dxy, dsz pulls
+	  // eta residue; pt, k, theta, phi, dxy, dz pulls
 	  double qoverpPull=(qoverpSeed-qoverpSim)/qoverpErrorSeed;
 	  double thetaPull=(lambdaSeed-lambdaSim)/lambdaErrorSeed;
 	  double phiPull=(phiSeed-phiSim)/phiErrorSeed;
 	  double dxyPull=(dxySeed-dxySim)/dxyErrorSeed;
-	  double dszPull=(dszSeed-dszSim)/dszErrorSeed;
+	  double dzPull=(dzSeed-dzSim)/dzErrorSeed;
 
 	  double contrib_Qoverp = ((qoverpSeed-qoverpSim)/qoverpErrorSeed)*
 	    ((qoverpSeed-qoverpSim)/qoverpErrorSeed)/5;
 	  double contrib_dxy = ((dxySeed-dxySim)/dxyErrorSeed)*((dxySeed-dxySim)/dxyErrorSeed)/5;
-	  double contrib_dsz = ((dszSeed-dszSim)/dszErrorSeed)*((dszSeed-dszSim)/dszErrorSeed)/5;
+	  double contrib_dz = ((dzSeed-dzSim)/dzErrorSeed)*((dzSeed-dzSim)/dzErrorSeed)/5;
 	  double contrib_theta = ((lambdaSeed-lambdaSim)/lambdaErrorSeed)*
 	    ((lambdaSeed-lambdaSim)/lambdaErrorSeed)/5;
 	  double contrib_phi = ((phiSeed-phiSim)/phiErrorSeed)*
@@ -359,13 +359,13 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 					 << "etaREC=" << etaSeed << "\n"
 					 << "qoverpREC=" << qoverpSeed << "\n"
 					 << "dxyREC=" << dxySeed << "\n"
-					 << "dszREC=" << dszSeed << "\n"
+					 << "dzREC=" << dzSeed << "\n"
 					 << "thetaREC=" << thetaSeed << "\n"
 					 << "phiREC=" << phiSeed << "\n"
 					 << "" <<  "\n"
 					 << "qoverpError()=" << qoverpErrorSeed << "\n"
 					 << "dxyError()=" << dxyErrorSeed << "\n"
-					 << "dszError()=" << dszErrorSeed << "\n"
+					 << "dzError()=" << dzErrorSeed << "\n"
 					 << "thetaError()=" << lambdaErrorSeed << "\n"
 					 << "phiError()=" << phiErrorSeed << "\n"
 					 << "" <<  "\n"
@@ -373,23 +373,23 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 					 << "etaSIM=" << assocTrack->momentum().Eta() << "\n"    
 					 << "qoverpSIM=" << qoverpSim << "\n"
 					 << "dxySIM=" << dxySim << "\n"
-					 << "dszSIM=" << dszSim << "\n"
+					 << "dzSIM=" << dzSim << "\n"
 					 << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
 					 << "phiSIM=" << phiSim << "\n"
 					 << "" << "\n"
 					 << "contrib_Qoverp=" << contrib_Qoverp << "\n"
 					 << "contrib_dxy=" << contrib_dxy << "\n"
-					 << "contrib_dsz=" << contrib_dsz << "\n"
+					 << "contrib_dz=" << contrib_dz << "\n"
 					 << "contrib_theta=" << contrib_theta << "\n"
 					 << "contrib_phi=" << contrib_phi << "\n"
 					 << "" << "\n"
-					 <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dsz+contrib_theta+contrib_phi<<"\n";
+					 <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dz+contrib_theta+contrib_phi<<"\n";
 	  
 	  h_pullQoverp[w]->Fill(qoverpPull);
 	  h_pullTheta[w]->Fill(thetaPull);
 	  h_pullPhi[w]->Fill(phiPull);
 	  h_pullDxy[w]->Fill(dxyPull);
-	  h_pullDsz[w]->Fill(dszPull);
+	  h_pullDz[w]->Fill(dzPull);
 
 	  double ptres=ptSeed-sqrt(assocTrack->momentum().perp2()); 
 	  //double etares=etaSeed-assocTrack->momentum().pseudoRapidity();
