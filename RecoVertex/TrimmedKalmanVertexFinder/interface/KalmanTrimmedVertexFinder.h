@@ -30,11 +30,24 @@ public:
     vertices(const vector<reco::TransientTrack> & tracks) const { 
     return theFinder->vertices(tracks); 
   }
+  
+  virtual inline vector<TransientVertex> 
+    vertices(const vector<reco::TransientTrack> & tracks,
+        const reco::BeamSpot & s ) const { 
+    return theFinder->vertices(tracks,s); 
+  }
 
   inline vector<TransientVertex> 
     vertices( const vector<reco::TransientTrack> & tracks, 
 	      vector<reco::TransientTrack>& unused) const {
-    return theFinder->vertices(tracks, unused);
+    return theFinder->vertices(tracks, unused, reco::BeamSpot(), false );
+  }
+  
+  inline vector<TransientVertex> 
+    vertices( const vector<reco::TransientTrack> & tracks, 
+	      vector<reco::TransientTrack>& unused,
+        const reco::BeamSpot & spot, bool usespot=false ) const {
+    return theFinder->vertices(tracks, unused, spot, usespot );
   }
 
   /** Access to parameters

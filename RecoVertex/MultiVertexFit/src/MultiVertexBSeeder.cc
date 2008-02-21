@@ -129,8 +129,7 @@ namespace {
           i!=trks.end() ; ++i )
     {
       bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
-      if (status)
-      {
+      if (status) {
         pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
         double d = ( pt.first - pt.second ).mag();
         double w = 1. / ( 0.002 + d ); // hard coded weights

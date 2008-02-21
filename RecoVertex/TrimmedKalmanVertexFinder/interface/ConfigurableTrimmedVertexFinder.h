@@ -52,10 +52,15 @@ public:
 
   virtual vector<TransientVertex> 
     vertices(const vector<reco::TransientTrack> & tracks) const;
+  
+  virtual vector<TransientVertex> 
+    vertices(const vector<reco::TransientTrack> & tracks,
+        const reco::BeamSpot & spot ) const;
 
   vector<TransientVertex> 
     vertices( const vector<reco::TransientTrack> & tracks,
-	      vector<reco::TransientTrack>& unused) const;
+	      vector<reco::TransientTrack>& unused,
+        const reco::BeamSpot & spot, bool use_spot ) const;
 
   /** Access to parameters
    */
@@ -114,7 +119,8 @@ private:
   // find vertex candidates
   vector<TransientVertex> 
     vertexCandidates(const vector<reco::TransientTrack> & tracks, 
-		     vector<reco::TransientTrack>& unused) const;
+		     vector<reco::TransientTrack>& unused,
+         const reco::BeamSpot & spot, bool use_spot ) const;
 
   // remove bad candidates
   vector<TransientVertex> 

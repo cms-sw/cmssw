@@ -96,6 +96,15 @@ vector < TransientVertex > MultiVertexReconstructor::vertices (
 }
 
 vector < TransientVertex > MultiVertexReconstructor::vertices ( 
+    const vector < reco::TransientTrack > & trks,
+    const vector < reco::TransientTrack > & primaries,
+    const reco::BeamSpot & s ) const
+{
+  return vertices ( trks, primaries );
+}
+
+
+vector < TransientVertex > MultiVertexReconstructor::vertices ( 
     const vector < reco::TransientTrack > & trks ) const
 {
   /*

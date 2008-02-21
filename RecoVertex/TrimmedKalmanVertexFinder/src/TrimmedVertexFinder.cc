@@ -2,6 +2,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 
@@ -28,19 +29,31 @@ TrimmedVertexFinder::~TrimmedVertexFinder() {
   delete theEstimator;
 }
 
+vector<TransientVertex> 
+TrimmedVertexFinder::vertices(vector<TransientTrack> & tks ) const
+{
+  // FIXME write this!!!
+  return vertices ( tks, reco::BeamSpot(), false );
+}
 
 vector<TransientVertex> 
-TrimmedVertexFinder::vertices(vector<TransientTrack> & tks) 
-  const
+TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
+    const reco::BeamSpot & spot, bool use_spot )  const
 {
   vector<TransientVertex> all;
   if (tks.size() < 2) return all;
 
   // prepare vertex tracks and initial vertex
-  CachingVertex<5> vtx = theFitter->vertex(tks);
+  CachingVertex<5> vtx;
+  if ( use_spot ) 
+  {
+     vtx = theFitter->vertex(tks, spot );
+  } else {
+     vtx = theFitter->vertex(tks);
+  }
   if (!vtx.isValid()) {
-    cout << "TrimmedVertexFinder::WARNING: initial vertex invalid"
-	 << endl << "vertex finding stops here." << endl;
+    edm::LogWarning ( "TrimmedVertexFinder" ) << "initial vertex invalid."
+	    << " vertex finding stops here.";
     return all;
   }
 
@@ -71,10 +84,15 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
 	// successive removals lead to numerical problems
 	// this is however quick since intermediate quantities are cached
 	// in the RefCountedVertexTracks
-	vtx = theFitter->vertex(selected);
+  if ( use_spot ) // && all.size()==0 )
+  {
+	  vtx = theFitter->vertex(selected,spot);
+  } else {
+	  vtx = theFitter->vertex(selected);
+  }
 	if (!vtx.isValid()) {
-	  cout << "TrimmedVertexFinder::WARNING: current vertex invalid"
-	       << endl << "vertex finding stops here." << endl;
+    edm::LogWarning ( "TrimmedVertexFinder" ) << "current vertex invalid"
+	       << "vertex finding stops here.";
 	  return all;
 	}
 
@@ -103,11 +121,11 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
       };
 
       if ( n_tracks_in_vertex > 1 ) {
-	all.push_back(vtx);
+        all.push_back(vtx);
       }
       else {
-	cout << "[TrimmedVertexFinder] ERROR: found vertex ";
-	cout << "has less than 2 tracks " << endl;
+        edm::LogError ( "TrimmedVertexFinder" ) 
+          << "found vertex has less than 2 tracks";
       }
     }
   }
@@ -153,9 +171,9 @@ TrimmedVertexFinder::theWorst(const CachingVertex<5> & vtx,
     }
     catch ( cms::Exception & e) {
       // problematic track, remove it from vertex
-      cout << "[TrimmedVertexFinder] warning: "
-	   << "exception caught for this track, causing its rejection:" 
-	   << e.what() << endl;
+      edm::LogWarning ( "TrimmedVertexFinder" )
+        << "exception caught for this track, causing its rejection:" 
+	      << e.what();
       iWorst = itr;
       break;
     }
