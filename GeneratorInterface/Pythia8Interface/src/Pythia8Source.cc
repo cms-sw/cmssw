@@ -5,7 +5,9 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/Pythia8Source.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/JamesRandom.h"
@@ -126,7 +128,10 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
   //********                                      
   
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
+
   cout << "Pythia8Source: starting event generation ... " << endl;
+
 }
 
 
@@ -140,6 +145,18 @@ Pythia8Source::~Pythia8Source(){
 
 void Pythia8Source::clear() {
  
+}
+
+
+void Pythia8Source::endRun(Run & r) {
+
+ double cs = pythia->info.sigmaGen(); // cross section in mb
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+// giprod->set_external_cross_section(extCrossSect);
+// giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+
 }
 
 
