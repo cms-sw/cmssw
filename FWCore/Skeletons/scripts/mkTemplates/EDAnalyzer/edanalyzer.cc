@@ -31,7 +31,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 @example_track #include "FWCore/ParameterSet/interface/InputTag.h"
 @example_track #include "DataFormats/TrackReco/interface/Track.h"
-
+@example_histo #include "FWCore/ServiceRegistry/interface/Service.h"
+@example_histo #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+@example_histo #include "TH1.h"
 //
 // class decleration
 //
@@ -49,6 +51,7 @@ class anlzrname : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 @example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
+@example_histo       TH1D * histo; 
 };
 
 //
@@ -68,6 +71,8 @@ anlzrname::anlzrname(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
+@example_histo   edm::Service<TFileService> fs;
+@example_histo   histo = fs->make<TH1D>("charge" , "Charges" , 200 , -2 , 2 );
 
 }
 
@@ -90,7 +95,7 @@ void
 anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   using namespace std;
+
 @example_track   using reco::TrackCollection;
 
 @example_track    Handle<TrackCollection> tracks;
@@ -98,7 +103,9 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_track    for(TrackCollection::const_iterator itTrack = tracks->begin();
 @example_track        itTrack != tracks->end();                      
 @example_track        ++itTrack) {
-@example_track       int charge = itTrack->charge();  
+@example_track_histo       int charge = 0;
+@example_track       charge = itTrack->charge();  
+@example_histo       histo->Fill( charge );
 @example_track    }
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE

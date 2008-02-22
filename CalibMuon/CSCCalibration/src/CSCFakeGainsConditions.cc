@@ -71,7 +71,6 @@ CSCFakeGainsConditions::CSCFakeGainsConditions(const edm::ParameterSet& iConfig)
   //the following line is needed to tell the framework what
   // data is being produced
   prefillGains();
-  // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFakeGainsConditions::produceGains);
   findingRecord<CSCGainsRcd>();
   //now do what ever other initialization is needed
@@ -83,7 +82,7 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cngains;
 }
 
 
@@ -95,11 +94,7 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
 CSCFakeGainsConditions::ReturnType
 CSCFakeGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
-  // Added by Zhen, need a new object so to not be deleted at exit
-  CSCGains* mydata=new CSCGains( *cngains );
-  
-  return mydata;
-  
+  return cngains;  
 }
 
  void CSCFakeGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

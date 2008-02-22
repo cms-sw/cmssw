@@ -190,11 +190,4 @@
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef> " />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef> " />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
-
-  <class name="edm::RefToBase<reco::Jet>" />
-  <class name="edm::reftobase::BaseHolder<reco::Jet>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>" />
-  <!-- <class name="edm::reftobase::Holder<reco::Jet, reco::GenJetRef>" /> -->
-  <!-- <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" /> -->
-
 </lcgdict>

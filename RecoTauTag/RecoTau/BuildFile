@@ -1,4 +1,5 @@
-<use name=DataFormats/BTauReco>
+<use name=SimDataFormats/Vertex>
+<use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
@@ -6,16 +7,25 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=SimDataFormats/Vertex>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoBTag/BTagTools>
+<use name=RecoJets/JetAlgorithms>
+<use name=RecoTauTag/TauTagTools>
 <flags EDM_PLUGIN=1>
 <export>
-  <use name=DataFormats/BTauReco>
+  <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
-  <use name=SimDataFormats/Vertex>
+  <use name=RecoTauTag/TauTagTools>
   <lib name=RecoTauTagRecoTau>
 </export>
 

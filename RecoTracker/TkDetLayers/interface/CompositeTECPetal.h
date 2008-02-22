@@ -27,12 +27,10 @@ class CompositeTECPetal : public TECPetal{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual void
-  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const;
-
+			 const MeasurementEstimator& est) const;
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -55,13 +53,11 @@ class CompositeTECPetal : public TECPetal{
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  static
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window);
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window) const;
 
-  static
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est);
+			   const MeasurementEstimator& est) const;
 
   int findBin( float R,int layer) const;
   
@@ -77,9 +73,6 @@ class CompositeTECPetal : public TECPetal{
   std::vector<const GeometricSearchDet*> theFrontComps;
   std::vector<const GeometricSearchDet*> theBackComps;
   std::vector<const GeomDet*> theBasicComps;
-
-  std::vector<float> theFrontBoundaries;
-  std::vector<float> theBackBoundaries;
 
   ReferenceCountingPointer<BoundDiskSector> theFrontSector;
   ReferenceCountingPointer<BoundDiskSector> theBackSector;  

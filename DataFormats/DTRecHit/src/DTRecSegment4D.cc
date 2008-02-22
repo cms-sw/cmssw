@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/11/22 10:02:32 $
- * $Revision: 1.10 $
+ * $Date: 2006/07/03 15:12:46 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -250,8 +250,8 @@ std::ostream& operator<<(std::ostream& os, const DTRecSegment4D& seg) {
 std::vector<const TrackingRecHit*> DTRecSegment4D::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits; 
 
-  if (hasPhi()) pointersOfRecHits.push_back(phiSegment());
-  if (hasZed()) pointersOfRecHits.push_back(zSegment());
+  pointersOfRecHits.push_back(phiSegment());
+  pointersOfRecHits.push_back(zSegment());
 
   return pointersOfRecHits;
 }
@@ -262,8 +262,8 @@ std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
 
   std::vector<TrackingRecHit*> pointersOfRecHits; 
 
-  if (hasPhi()) pointersOfRecHits.push_back(phiSegment());
-  if (hasZed()) pointersOfRecHits.push_back(zSegment());
+  pointersOfRecHits.push_back(phiSegment());
+  pointersOfRecHits.push_back(zSegment());
   
   return pointersOfRecHits;
 }

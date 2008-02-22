@@ -207,6 +207,7 @@ void SiStripRecHitsCompare()
   Strip3->Print("ErrxTIBCompare.eps");
   Strip3->Print("ErrxTIBCompare.gif");
   
+  /*
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer1tib",restib[0]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer2tib",restib[1]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer3tib",restib[2]);
@@ -238,7 +239,7 @@ void SiStripRecHitsCompare()
   
   Strip4->Print("ResTIBCompare.eps");
   Strip4->Print("ResTIBCompare.gif");
-
+  */
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer1tib",pulltib[0]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer2tib",pulltib[1]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer3tib",pulltib[2]);
@@ -681,7 +682,7 @@ void SiStripRecHitsCompare()
  TH1F* errxtid[5];
  TH1F* restid[5];
  TH1F* chi2tid[5];
- TH1F* matchedtid[12];
+ TH1F* matchedtid[8];
  TH1F* matchedchi2tid[6];
  TH1F* newadctid[5];
  TH1F* newpulltid[5];
@@ -690,7 +691,7 @@ void SiStripRecHitsCompare()
  TH1F* newerrxtid[5];
  TH1F* newrestid[5];
  TH1F* newchi2tid[5];
- TH1F* newmatchedtid[12];
+ TH1F* newmatchedtid[8];
  TH1F* newmatchedchi2tid[6];
  
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Adc_rphi_layer1tid",adctid[0]);
@@ -913,10 +914,6 @@ void SiStripRecHitsCompare()
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Erry_matched_layer1tid",matchedtid[5]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Errx_matched_layer2tid",matchedtid[6]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Erry_matched_layer2tid",matchedtid[7]);
- rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resx_matched_layer1tid",matchedtid[8]);
- rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resy_matched_layer1tid",matchedtid[9]);
- rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resx_matched_layer2tid",matchedtid[10]);
- rfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resy_matched_layer2tid",matchedtid[11]);
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Posx_matched_layer1tid",newmatchedtid[0]);
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Posy_matched_layer1tid",newmatchedtid[1]);
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Posx_matched_layer2tid",newmatchedtid[2]);
@@ -925,15 +922,10 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Erry_matched_layer1tid",newmatchedtid[5]);
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Errx_matched_layer2tid",newmatchedtid[6]);
  sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Erry_matched_layer2tid",newmatchedtid[7]);
- sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resx_matched_layer1tid",newmatchedtid[8]);
- sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resy_matched_layer1tid",newmatchedtid[9]);
- sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resx_matched_layer2tid",newmatchedtid[10]);
- sfile->GetObject("DQMData/TrackerRecHits/Strip/TID/Resy_matched_layer2tid",newmatchedtid[11]);
-
 
  Strip20 = new TCanvas("Strip20","Strip20",800,500);
- Strip20->Divide(4,3);
- for (Int_t i=0; i<12; i++) {
+ Strip20->Divide(2,4);
+ for (Int_t i=0; i<8; i++) {
    Strip20->cd(i+1);
    matchedtid[i]->SetLineColor(2);
    newmatchedtid[i]->SetLineColor(4);

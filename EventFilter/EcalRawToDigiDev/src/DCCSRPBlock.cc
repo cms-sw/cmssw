@@ -4,8 +4,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
-
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
 
@@ -22,7 +20,7 @@ DCCSRPBlock::DCCSRPBlock(
 }
 
 
-void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){    
+int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){    
   
   expNumbSrFlags_ = numbFlags;
   error_          = false;  
@@ -32,12 +30,16 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   
   // Check SRP Length
   if( (*dwToEnd_) < blockLength_ ){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
+    
+	edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
+      <<"\n Event "<<l1_
       <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
-    //Note : add to error collection 
-    throw ECALUnpackerException(output.str());
+    
+	//Note : add to error collection 
+    
+	return STOP_EVENT_UNPACKING;
+	
   }
   
   
@@ -50,26 +52,32 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   l1_             = ( *data_>>SRP_L1_B     ) & SRP_L1_MASK;
   nSRFlags_       = ( *data_>>SRP_NFLAGS_B ) & SRP_NFLAGS_MASK;
  
-  checkSrpIdAndNumbSRFlags(); 
+  if( ! checkSrpIdAndNumbSRFlags() ){ 
+    // SRP flags are required to check FE data 
+	return  STOP_EVENT_UNPACKING; 
+  }
 	 
   // Check synchronization
   if(sync_){
     uint dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
     uint dccBx = ( event_->bx()  ) & SRP_L1_MASK;
     if( dccBx != bx_ || dccL1 != l1_ ){
-      std::ostringstream output;
-      output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
+      edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
+        <<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
         <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
         <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
        //Note : add to error collection ?		 
-       throw ECALUnpackerException(output.str());
+       // SRP flags are required to check FE , better using synchronized data...
+	   return STOP_EVENT_UNPACKING;
     }
-  }  
+  } 
+   
   //display(cout); 
   addSRFlagToCollection();
   
-  
   updateEventPointers();
+  
+  return true;
         
 }
 

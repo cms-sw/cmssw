@@ -3,8 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <fstream>

@@ -1,0 +1,12 @@
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
+<export>
+   <lib name=HeavyFlavorAnalysisSkimming>
+   <use name=FWCore/Framework>
+   <use name=DataFormats/MuonReco>
+   <use name=DataFormats/TrackReco>
+</export>

@@ -2,14 +2,13 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.8 2007/03/22 06:12:56 wmtan Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.9 2007/05/08 03:18:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include <cppunit/extensions/HelperMacros.h>
 

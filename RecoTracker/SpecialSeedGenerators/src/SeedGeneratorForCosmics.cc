@@ -109,6 +109,9 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     FastHelix helix(inner, middle, outer,iSetup);
     GlobalVector gv=helix.stateAtVertex().parameters().momentum();
     float ch=helix.stateAtVertex().parameters().charge();
+    float Mom = sqrt( gv.x()*gv.x() + gv.y()*gv.y() + gv.z()*gv.z() ); 
+    if(Mom > 1000 || isnan(Mom))  continue;   // ChangedByDaniele 
+
     if (gv.y()>0){
       gv=-1.*gv;
       ch=-1.*ch;

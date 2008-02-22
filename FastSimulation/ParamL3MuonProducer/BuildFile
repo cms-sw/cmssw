@@ -12,6 +12,7 @@
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/Track>
 <use name=Utilities/General>
+<use name=rootmath>
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=FastSimulationParamL3MuonProducer>

@@ -92,8 +92,8 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              fJet1n = (*jets)[0];
              fJet2n = (*jets)[1];
 
-             double phi1=fabs(fJet1n.phi());
-             double phi2=fabs(fJet2n.phi());
+             double phi1=fJet1n.phi();
+             double phi2=fJet2n.phi();
              double dphi = fabs(phi1-phi2);
              if (dphi > myvalue) dphi = twomyvalue-dphi;
              double degreedphi = dphi*180./myvalue;
@@ -190,7 +190,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr1 = sqrt(deta*deta+dphi*dphi);
            deta = etahit - fJet2.eta();
-           dphi = phihit - fJet2.phi();
+           dphi = fabs(phihit - fJet2.phi());
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr2 = sqrt(deta*deta+dphi*dphi);
 
@@ -220,7 +220,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr1 = sqrt(deta*deta+dphi*dphi);
            deta = etahit - fJet2.eta();
-           dphi = phihit - fJet2.phi();
+           dphi = fabs(phihit - fJet2.phi());
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr2 = sqrt(deta*deta+dphi*dphi);
 
@@ -248,7 +248,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr1 = sqrt(deta*deta+dphi*dphi);
            deta = etahit - fJet2.eta();
-           dphi = phihit - fJet2.phi();
+           dphi = fabs(phihit - fJet2.phi());
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr2 = sqrt(deta*deta+dphi*dphi);
 	   
@@ -276,8 +276,8 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr1 = sqrt(deta*deta+dphi*dphi);
            deta = etahit - fJet2.eta();
-           dphi = phihit - fJet2.phi();
-           if (dphi > myvalue) dphi = myvalue - dphi;
+           dphi = fabs(phihit - fJet2.phi());
+           if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr2 = sqrt(deta*deta+dphi*dphi);
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHFRecHitCollection->push_back(*hfItr);

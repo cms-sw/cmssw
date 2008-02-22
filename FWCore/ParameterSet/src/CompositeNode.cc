@@ -1,6 +1,5 @@
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <ostream>
 
 namespace edm {

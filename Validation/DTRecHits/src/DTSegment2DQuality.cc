@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/04 10:35:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -146,7 +146,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
     int nMuSimHit = muSimHitPerWire.size();
     if(nMuSimHit == 0 || nMuSimHit == 1) {
       if(debug && nMuSimHit == 1)
-        cout << "[DTSegment2DQuality] Only " << nMuSimHit << " mu SimHit in this SL, skipping!" << endl;
+	cout << "[DTSegment2DQuality] Only " << nMuSimHit << " mu SimHit in this SL, skipping!" << endl;
       continue; // If no or only one mu SimHit is found skip this SL
     } 
     if(debug)
@@ -162,8 +162,8 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
     LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
     LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
     if(debug)
-      cout<<"  Simulated segment:  local direction "<<simSegmLocalDir<<endl
-        <<"                      local position  "<<simSegmLocalPos<<endl;
+	cout<<"  Simulated segment:  local direction "<<simSegmLocalDir<<endl
+	    <<"                      local position  "<<simSegmLocalPos<<endl;
     const DTSuperLayer* superLayer = dtGeom->superLayer(*slId);
     GlobalPoint simSegmGlobalPos = superLayer->toGlobal(simSegmLocalPos);
 
@@ -200,7 +200,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	   ++segment2D){
 	// Check the dimension
 	if((*segment2D).dimension() != 2) {
-      if(debug) cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
+	  cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
 	  abort();
 	}
 	// Segment Local Direction and position (in SL RF)
@@ -209,7 +209,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
       
 	float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
 	if(debug)
-      cout << "  RecSegment direction: " << recSegDirection << endl
+	cout << "  RecSegment direction: " << recSegDirection << endl
 	     << "             position : " << recSegPosition << endl
 	     << "             alpha    : " << recSegAlpha << endl;
       
@@ -225,9 +225,6 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
 	LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
 
-    LocalError bestRecHitLocalPosErr = bestRecHit->localPositionError();
-    LocalError bestRecHitLocalDirErr = bestRecHit->localDirectionError();
-
 	float angleBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
 
 	if(fabs(angleBestRHit - angleSimSeg) < 5*sigmaResAngle &&
@@ -240,15 +237,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
 	  hRes = h2DHitRPhi;
 	} else if((*slId).superlayer() == 2) { //RZ SL
-	  h2DHitRZ->Fill(angleSimSeg,
-                    angleBestRHit,
-                    posSimSeg,
-                    bestRecHitLocalPos.x(),
-                    etaSimSeg,
-                    phiSimSeg,
-                    sqrt(bestRecHitLocalPosErr.xx()),
-                    sqrt(bestRecHitLocalDirErr.xx())
-                    );
+	  h2DHitRZ->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
 	  if(abs((*slId).wheel()) == 0)
 	    hRes = h2DHitRZ_W0;
 	  else if(abs((*slId).wheel()) == 1)
@@ -256,15 +245,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	  else if(abs((*slId).wheel()) == 2)
 	    hRes = h2DHitRZ_W2;
 	}
-	hRes->Fill(angleSimSeg,
-               angleBestRHit,
-               posSimSeg,
-               bestRecHitLocalPos.x(),
-               etaSimSeg,
-               phiSimSeg,
-               sqrt(bestRecHitLocalPosErr.xx()),
-               sqrt(bestRecHitLocalDirErr.xx())
-               );
+	hRes->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
       }
     } //end of if(nsegm!=0)
 

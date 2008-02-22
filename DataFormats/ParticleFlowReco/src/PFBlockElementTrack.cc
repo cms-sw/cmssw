@@ -1,8 +1,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/Common/interface/Ref.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 
-#include <iostream>
 #include <iomanip>
 
 using namespace reco;
@@ -16,23 +17,37 @@ PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref ) :
 
 
 void PFBlockElementTrack::Dump(ostream& out, 
-			       const char* tab ) const {
-
+                               const char* tab ) const {
+  
   if(! out ) return;
-
+  
   if( !trackRef_.isNull() ) {
+    
     double charge = trackRef_->charge();
     double pt = trackRef_->pt();
     double p = trackRef_->p();
+    string s = "  at vertex";
+    double tracketa = trackRef_->eta();
+    double trackphi = trackRef_->phi();
+    const reco::PFTrajectoryPoint& atECAL 
+      = trackRefPF_->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+    // check if  reach ecal Shower max 
+    if( atECAL.isValid() ) { 
+      s = "  at ECAL shower max";  
+      tracketa = atECAL.positionXYZ().Eta();
+      trackphi = atECAL.positionXYZ().Phi();
+    }
     
-    
+    out<<setprecision(0);
+    out<<tab<<setw(7)<<"charge="<<setw(3)<<charge;
     out<<setprecision(3);
-    out<<tab<<setw(10)<<"charge="<<setw(2)<<charge;
     out<<setiosflags(ios::right);
     out<<setiosflags(ios::fixed);
-    out<<", pT="<<setw(7)<<pt;
+    out<<", pT ="<<setw(7)<<pt;
     out<<", p ="<<setw(7)<<p;
-    out<<resetiosflags(ios::right|ios::fixed);
-    // out<<resetiosflags(ios::fixed);
-  }
+    out<<" (eta,phi)= (";
+    out<<tracketa<<",";
+    out<<trackphi<<")" << s;
+    
+    out<<resetiosflags(ios::right|ios::fixed);  }
 }

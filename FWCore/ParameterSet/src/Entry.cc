@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.24 2007/06/01 13:16:41 rpw Exp $
+// $Id: Entry.cc,v 1.26 2007/07/23 23:42:35 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -16,9 +16,7 @@
 
 #include <map>
 #include <sstream>
-#include <string>
 #include <ostream>
-
 
 namespace edm {
   namespace pset {
@@ -487,54 +485,87 @@ namespace edm {
 
   std::string
   Entry::toString() const {
-    return std::string() + tracked + type + '(' + rep + ')';
+    std::string result;
+    result.reserve(sizeOfString());
+    result += tracked;
+    result += type;
+    result += '(';
+    result += rep;
+    result += ')';
+    return result;
   }
 
   std::string
   Entry::toStringOfTracked() const {
+    size_t size = sizeOfStringOfTracked();
     std::string result;
+    result.reserve(size);
     result += tracked;
     result += type;
     result += '(';
-
-    switch (type)
-      {
-      case 'P': // ParameterSet
-	{
-	  // Make sure we get the representation of the contained
-	  // ParameterSet including *only* tracked parameters
-	  ParameterSet val = getPSet();
-	  result += val.toStringOfTracked();
+    switch (type) {
+      case 'P':
+        {      
+	  result += tracked_rep;
+          break;
+	}
+      case 'p':
+        {      
+	  result += tracked_rep;
+	  break;
+       }
+      default: // everything else
+        {
+	  result += rep;
 	  break;
 	}
-      case 'p': // vector<ParameterSet>
-	{
-	  // Make sure we get the representation of each contained
-	  // ParameterSet including *only* tracked parameters
-	 std::vector<ParameterSet> whole = getVPSet();
-	 std::vector<ParameterSet> onlytracked;
-	 onlytracked.reserve(whole.size());
-	 std::vector<ParameterSet>::const_iterator i = whole.begin();
-	 std::vector<ParameterSet>::const_iterator e = whole.end();
-	  for ( ; i != e; ++i )
-	    {
+    }
+    result += ')';
+    return result;
+  }
+
+  size_t
+  Entry::sizeOfStringOfTracked() const {
+    size_t size = 0;
+    switch (type) {
+      case 'P':
+        {      
+	  if (tracked_rep.empty()) {
+	    // Make sure we get the representation of each contained
+	    // ParameterSet including *only* tracked parameters
+	    ParameterSet val = getPSet();
+	    tracked_rep = val.toStringOfTracked();
+	  }
+	  size = tracked_rep.size() + 4;
+          break;
+	}
+      case 'p':
+        {      
+	  if (tracked_rep.empty()) {
+	    // Make sure we get the representation of each contained
+	    // ParameterSet including *only* tracked parameters
+	    std::vector<ParameterSet> whole = getVPSet();
+	    std::vector<ParameterSet> onlytracked;
+	    onlytracked.reserve(whole.size());
+	    std::vector<ParameterSet>::const_iterator i = whole.begin();
+	    std::vector<ParameterSet>::const_iterator e = whole.end();
+	    for ( ; i != e; ++i ) {
 	      ParameterSet tracked_part( i->toStringOfTracked() );
 	      onlytracked.push_back(tracked_part);
 	    }
-	  std::string tracked_rep;
-	  if(!encode(tracked_rep, onlytracked)) 
-	    throwEncodeError("vector<ParameterSet>");	  
-	  result += tracked_rep;
+	    if(!encode(tracked_rep, onlytracked)) 
+	      throwEncodeError("vector<ParameterSet>");	  
+	  }
+	  size = tracked_rep.size() + 4;
 	  break;
-	}
+       }
       default: // everything else
-	{
-	  result += rep;
+        {
+	  size = sizeOfString();
 	  break;	  
 	}
-      }
-    result += ')';
-    return result;
+    }
+    return size;
   }
 
 // ----------------------------------------------------------------------

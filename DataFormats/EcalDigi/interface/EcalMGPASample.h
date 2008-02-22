@@ -8,14 +8,14 @@
  *  Simple container packer/unpacker for a single sample from teh MGPA electronics
  *
  *
- *  $Id: EcalMGPASample.h,v 1.3 2007/03/27 09:55:01 meridian Exp $
+ *  $Id: EcalMGPASample.h,v 1.2 2005/10/06 11:26:58 meridian Exp $
  */
 
 class EcalMGPASample {
  public:
   EcalMGPASample() { theSample=0; }
-  EcalMGPASample(const uint16_t data) { theSample=data; }
-  EcalMGPASample(const int adc, const int gainId);
+  EcalMGPASample(const uint16_t& data) { theSample=data; }
+  EcalMGPASample(const int& adc, const int& gainId);
     
   /// get the raw word
   uint16_t raw() const { return theSample; }

@@ -19,7 +19,7 @@ InitMsgView::InitMsgView(void* buf):
 
   //Lets get Process Name from right after Release Name  
   if (protocolVersion() > 3) {
-	std::cout << "Protocol Version > 3 encountered" << std::endl;
+	//std::cout << "Protocol Version > 3 encountered" << std::endl;
 	processName_len_ = *(release_start_ + release_len_);
 	processName_start_ = (uint8*)(release_start_ + release_len_ + sizeof(uint8));
 

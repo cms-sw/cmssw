@@ -23,8 +23,8 @@ namespace reco {
     PFSimParticle();
   
     PFSimParticle(double charge, int pdgCode, 
-		  unsigned id, int motherId,
-		  const std::vector<int>& daughterIds);
+                  unsigned id, int motherId,
+                  const std::vector<int>& daughterIds);
 
     PFSimParticle(const PFSimParticle& other);
 
@@ -42,7 +42,7 @@ namespace reco {
 
 
     friend  std::ostream& operator<<(std::ostream& out, 
-				     const PFSimParticle& track);
+                                     const PFSimParticle& track);
 
   private:
     

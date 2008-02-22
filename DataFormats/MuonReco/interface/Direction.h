@@ -36,12 +36,26 @@ public:
     return false; 
   }
 
-  inline double deltaR(const Direction & dir2) const {
+  inline double deltaR2(const Direction & dir2) const {
     double dEta = theEta - dir2.eta();
     double dPhi = fabs( thePhi - dir2.phi());
     while (dPhi > M_PI) dPhi -= 2*M_PI;
-    return sqrt( dEta*dEta + dPhi*dPhi);
+    return dEta*dEta + dPhi*dPhi;
   }
+  inline double deltaR(const Direction & dir2) const {
+    return std::sqrt( deltaR2(dir2) );
+  }
+
+  inline double deltaR2(double eta, double phi) const {
+    double dEta = theEta - eta;
+    double dPhi = fabs( thePhi - phi);
+    while (dPhi > M_PI) dPhi -= 2*M_PI;
+    return dEta*dEta + dPhi*dPhi;
+  }
+  inline double deltaR(double eta, double phi) const {
+    return std::sqrt(deltaR2(eta,phi));
+  }
+
 
   Distance operator- (const Direction & dir2) const {
     Distance result;

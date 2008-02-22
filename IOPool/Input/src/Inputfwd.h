@@ -6,8 +6,6 @@
 #include "Rtypes.h"
 #include "Reflex/Type.h"
 class TBranch;
-class TFile;
-class TTree;
 
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
@@ -19,9 +17,8 @@ namespace edm {
   namespace input {
     struct EventBranchInfo {
       EventBranchInfo(ConstBranchDescription const& prod) :
-        branchDescription_(prod), type(), provenanceBranch_(0), productBranch_(0) {}
+        branchDescription_(prod), provenanceBranch_(0), productBranch_(0) {}
       ConstBranchDescription branchDescription_;
-      ROOT::Reflex::Type type;
       TBranch * provenanceBranch_;
       TBranch * productBranch_;
     };

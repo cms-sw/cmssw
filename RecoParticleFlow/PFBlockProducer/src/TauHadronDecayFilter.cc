@@ -90,8 +90,9 @@ TauHadronDecayFilter::filter(edm::Event& iEvent,
 
 void TauHadronDecayFilter::beginJob(const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
-//   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
-  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
+  // edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+
   es.getData(pdt);
   if ( !ParticleTable::instance() ) 
     ParticleTable::instance(&(*pdt));

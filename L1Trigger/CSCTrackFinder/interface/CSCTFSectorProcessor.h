@@ -1,7 +1,7 @@
 /**
  * \author L. Gray
  * \class CSCTFSectorProcessor.h
- *
+ * 
  * A class that represents a sector processor board.
  */
 
@@ -19,19 +19,12 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
-///KK
-#include <FWCore/Framework/interface/EventSetup.h>
-///
 
 class CSCTFSectorProcessor
 {
-public:
-  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet& pset);
-
-///KK
-  void initialize(const edm::EventSetup& c);
-///
-
+ public:
+  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet&);
+  
   ~CSCTFSectorProcessor();
 
   bool run(const CSCTriggerContainer<csctf::TrackStub>&);
@@ -54,7 +47,7 @@ public:
 
   int m_minBX, m_maxBX;
   unsigned m_etawin[6];
-
+  
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
   CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF
 

@@ -45,7 +45,7 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
 }
 
 
-void DCCEETCCBlock::checkTccIdAndNumbTTs(){
+bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	
 	
   bool tccFound(false);
@@ -79,15 +79,14 @@ void DCCEETCCBlock::checkTccIdAndNumbTTs(){
    }
 	
   if(!tccFound){
-    std::ostringstream output;
-     output<<"EcalRawToDigi@SUB=DCCEETCCBlock::unpack"
+    edm::LogWarning("EcalRawToDigi@SUB=DCCTCCBlock::unpack") 
       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
       <<"\n => Skipping the event...";
-     //Note : add to error collection ?		 
-     throw ECALUnpackerException(output.str());
+     //todo : add to error collection   
   }
 
+ return tccFound;
 
 }
 

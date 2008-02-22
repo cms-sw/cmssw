@@ -48,15 +48,12 @@ Disclaimer: Most of the code here is randomly written during
 
 #include <iostream>
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
 
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include "IOPool/Streamer/interface/IndexRecords.h"
 
 #include "FWCore/Utilities/interface/Exception.h"

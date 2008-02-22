@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/22 23:05:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/05/04 00:10:55 $
+ *  $Revision: 1.8 $
  *  \author A. Tumanov - Rice
  */
 
@@ -144,18 +144,16 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	    { ///fill the right dcc 
 	      dccEvent.dduData()[indexDDU].add(chamberItr->second);
 	      boost::dynamic_bitset<> dccBits = dccEvent.pack();
-	      FEDRawData * rawData = new FEDRawData(dccBits.size());
-	      unsigned char * data = rawData->data();
+	      FEDRawData & fedRawData = fed_buffers.FEDData(startingFED+idcc);
+	      fedRawData.resize(dccBits.size());
 	      ///fill data with dccEvent
-	      bitset_utilities::bitsetToChar(dccBits, data);
+	      bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
 	      int dduId = mapping.dduId(chamberItr->first); ///get ddu id based on ChamberId form mapping
 	      if (oldDDUNumber!=dduId) 
 		{ //if new ddu increment indexDDU counter
 		  ++indexDDU;
 		  oldDDUNumber = dduId;
 		}
-	      FEDRawData& fedRawData = fed_buffers.FEDData(startingFED+idcc); 
-	      fedRawData = *rawData;
 	    }
 	}
     }

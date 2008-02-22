@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.4 2007/05/16 22:57:45 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.5 2007/06/30 16:09:01 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -26,7 +26,6 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/TestFileReader.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
 
 #include "xcept/tools.h"
 

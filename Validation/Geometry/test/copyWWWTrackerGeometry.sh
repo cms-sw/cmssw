@@ -30,9 +30,11 @@ mkdir $mbDir
 mkdir $mbDir/Comparison
 mkdir $mbDir/Comparison/eps
 #mkdir $mbDir/Comparison/gif
+mkdir $mbDir/Comparison/pdf
 mkdir $mbDir/Plots
 mkdir $mbDir/Plots/eps
 mkdir $mbDir/Plots/gif
+mkdir $mbDir/Plots/pdf
 
 # make Geometry
 mkdir $nsDir
@@ -41,6 +43,7 @@ mkdir $nsDir
 # move Material Budget plots
 cp Images/*Comparison*.eps $mbDir/Comparison/eps/.
 #cp Images/*Comparison*.gif $mbDir/Comparison/gif/.
+cp Images/*Comparison*.pdf $mbDir/Comparison/pdf/.
 for i in $(ls Images/*.eps | grep -v Comparison)
   do
   cp $i $mbDir/Plots/eps/.
@@ -48,6 +51,10 @@ done
 for i in $(ls Images/*.gif | grep -v Comparison)
   do
   cp $i $mbDir/Plots/gif/.
+done
+for i in $(ls Images/*.pdf | grep -v Comparison)
+  do
+  cp $i $mbDir/Plots/pdf/.
 done
 
 # move geometry diff files

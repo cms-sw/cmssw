@@ -381,7 +381,7 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
 	  
 
     } // algo = 5
-  cout<<"CMSSW130 Algo = "<<algo<<" Ecal response= "<<recal <<" Hcal response= "<<rhcal<<" Energy of track= "<<echar<<endl;            
+//  cout<<"CMSSW130 Algo = "<<algo<<" Ecal response= "<<recal <<" Hcal response= "<<rhcal<<" Energy of track= "<<echar<<endl;            
   response.push_back(recal);
   response.push_back(rhcal);
   return response;

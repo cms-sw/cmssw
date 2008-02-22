@@ -1,5 +1,0 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<library file=ZToLLEdmNtupleDumper.cc>
-  <use name=DataFormats/Candidate>
-</library>

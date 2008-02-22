@@ -16,7 +16,7 @@ SiTrivialInduceChargeOnStrips::SiTrivialInduceChargeOnStrips(const edm::Paramete
   geVperElectron = g;
 }
 void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det, 
-					   SiPileUpSignals::signal_map_type &hit_signal){
+					   SiPileUpSignals::signal_map_type &hit_signal,SiPileUpSignals::signal_map_type &hit_signal_temp){
   signalCoupling.clear();
   signalCoupling.push_back(coupling_costant[0]);
   signalCoupling.push_back(coupling_costant[1]);
@@ -76,6 +76,7 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
 	  hit_signal[i+j] += signalCoupling[abs(j)]* 
 	    (totalIntegrationRange/geVperElectron)*
 	    (*sp).amplitude();   
+	  hit_signal_temp[i+j]=hit_signal[i+j];
 	}
       }
     } //loop on i

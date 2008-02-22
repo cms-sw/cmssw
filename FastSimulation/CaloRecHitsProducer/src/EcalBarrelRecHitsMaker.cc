@@ -37,7 +37,9 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   
   t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
   t2_ = 2.* t1_ ; 
-  sat_ = 12.*t1_;
+
+  // Saturation value. Not needed in the digitization
+  sat_ = 12.*t1_*calibfactor_;
 }
 
 EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
@@ -68,6 +70,8 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
   unsigned nhit=theFiredCells_.size();
   //  std::cout << " loadEcalBarrelRecHits " << nhit << std::endl;
   unsigned gain, adc;
+  ecalDigis.reserve(nhit);
+  ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
     {      
       unsigned icell = theFiredCells_[ihit];
@@ -94,10 +98,20 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
       // is afterwards put in this cell which would not be correct. 
-      if (  theCalorimeterHits_[icell]<threshold_ ) theCalorimeterHits_[icell]=0.;
+      float energy=theCalorimeterHits_[icell];
+      if ( energy <threshold_ ) 
+	{
+	  theCalorimeterHits_[icell]=0.;
+	  energy=0.;
+	} 
+      else if (energy > sat_)
+	{
+	  theCalorimeterHits_[icell]=sat_;
+	  energy=sat_;
+	}
 //      std::cout << " Threshold ok " << std::endl;
 //      std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
-      ecalHits.push_back(EcalRecHit(myDetId,theCalorimeterHits_[icell],0.));
+      ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
       //      std::cout << " Hit stored " << std::endl;
     }
   //  std::cout << " Done " << std::endl;

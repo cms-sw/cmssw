@@ -97,7 +97,7 @@ namespace edm
     OutputModule(ps),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
-    es_(ps,&descVec_[InEvent],bufs_),
+    es_(ps,&descVec()[InEvent],bufs_),
     c_(ps.template getParameter<ParameterSet>("consumer_config"),bufs_)
   {
     // temporary hack
@@ -122,7 +122,7 @@ namespace edm
   template <class Consumer>
   void EventStreamingModule<Consumer>::write(EventPrincipal const& e)
   {
-    // b contains the serialized data, the provanence information, and event
+    // b contains the serialized data, the provenance information, and event
     // header data - the collision ID and trigger bits, the object lifetime
     // is managed by the es_ object.
     es_.serialize(e);
@@ -134,7 +134,7 @@ namespace edm
   {
     //std::cerr << "In beginJob" << std::endl;
 
-    es_.serializeRegistry(descVec_[InEvent]);
+    es_.serializeRegistry(descVec()[InEvent]);
     c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
 
   }

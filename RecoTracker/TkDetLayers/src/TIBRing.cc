@@ -128,25 +128,49 @@ TIBRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 }
 
 
-void
-TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+vector<DetWithState> 
+TIBRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
+		      const Propagator& prop, 
+		      const MeasurementEstimator& est) const{
+
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+TIBRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,
-				 const MeasurementEstimator& est,
-				 vector<DetGroup> & result) const
+				const MeasurementEstimator& est) const
 {
+  vector<DetGroup> result;  //to clean out
   vector<DetGroup> closestResult;
   SubRingCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid_) return;
+  if(! crossings.isValid_) return closestResult;
 
-  typedef CompatibleDetToGroupAdder Adder;
-  Adder::add( *theDets[theBinFinder.binIndex(crossings.closestIndex)], 
+  CompatibleDetToGroupAdder adder;
+  adder.add( *theDets[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
   
   if(closestResult.empty()){
-    Adder::add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
-	       tsos, prop, est, result);
-    return;
+    vector<DetGroup> nextResult;
+    adder.add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
+	       tsos, prop, est, nextResult);
+    return nextResult;
   }      
 
   DetGroupElement closestGel( closestResult.front().front());
@@ -156,22 +180,21 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (Adder::add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
+    if (adder.add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+      DetGroupMerger merger;
       if (crossings.closestIndex < crossings.nextIndex) {
-	DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult,
-						result,
+	result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
 						theHelicity, crossingSide);
       }
       else {
-	DetGroupMerger::orderAndMergeTwoLevels( nextResult, closestResult,
-						result,
+	result = merger.orderAndMergeTwoLevels( nextResult, closestResult, 
 						theHelicity, crossingSide);
       }
     }
     else {
-      result.swap(closestResult);
+      result = closestResult;
     }
   }
   
@@ -179,6 +202,7 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if (window > 0.5*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
+  return result;
 }
 
 void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -188,35 +212,29 @@ void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			       float window, 
 			       vector<DetGroup>& result) const
 {
-  typedef CompatibleDetToGroupAdder Adder;
+  CompatibleDetToGroupAdder adder;
   int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
-  typedef DetGroupMerger Merger;
+  DetGroupMerger merger;
   
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
   int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
   
   int quarter = theDets.size()/4;
-  vector<DetGroup> tmp;
-  vector<DetGroup> newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
     const GeomDet* neighbor = theDets[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    tmp.clear();
-    newResult.clear();
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
-    Merger::orderAndMergeTwoLevels( tmp, result, newResult, theHelicity, crossingSide);
-    result.swap(newResult);
+    vector<DetGroup> tmp;
+    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
     const GeomDet* neighbor = theDets[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    tmp.clear();
-    newResult.clear();
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
-    Merger::orderAndMergeTwoLevels( result, tmp, newResult, theHelicity, crossingSide);
-    result.swap(newResult);
+    vector<DetGroup> tmp;
+    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    result = merger.orderAndMergeTwoLevels( result, tmp, theHelicity, crossingSide);
   }
 }
 

@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.59 2007/07/18 13:22:41 marafino Exp $
+$Id: EventPrincipal.h,v 1.64 2007/08/02 23:14:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,22 +29,17 @@ namespace edm {
     typedef Principal Base;
   public:
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
+    static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
+    static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         ProcessConfiguration const& pc,
         bool isReal,
-	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Unspecified,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
-    EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-	LuminosityBlockNumber_t lumi,
-        ProcessConfiguration const& pc,
-        bool isReal,
-	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Unspecified,
+	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
+	int bunchXing = invalidBunchXing,
+	int storeNumber = invalidStoreNumber,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
@@ -68,6 +63,22 @@ namespace edm {
 
     Timestamp const& time() const {
       return aux().time();
+    }
+
+    bool const isReal() const {
+      return aux().isRealData();
+    }
+
+    EventAuxiliary::ExperimentType ExperimentType() const {
+      return aux().experimentType();
+    }
+
+    int const bunchCrossing() const {
+      return aux().bunchCrossing();
+    }
+
+    int const storeNumber() const {
+      return aux().storeNumber();
     }
 
     EventAuxiliary const& aux() const {

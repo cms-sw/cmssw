@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.4.2.2 2007/05/31 21:59:08 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.7 2007/07/25 22:50:56 wmtan Exp $
 //
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -54,7 +54,7 @@ using namespace ML;
     dest_p = new ELlog4cplus;
     dest_p->setAppl(appl_);
     edm::service::NamedDestination * ndest = new edm::service::NamedDestination ( "log4cplus", dest_p ); 
-    edm::MessageLoggerQ::EXT(ndest);
+    edm::MessageLoggerQ::MLqEXT(ndest);
   }
 
 
@@ -90,7 +90,3 @@ using namespace ML;
   {
     appl_ = app;
   }
-
-
-using ML::MLlog4cplus;
-DEFINE_FWK_SERVICE(MLlog4cplus);

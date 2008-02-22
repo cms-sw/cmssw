@@ -8,6 +8,7 @@
 <use name=FastSimulation/ParticleDecay>
 <use name=FastSimulation/ParticlePropagator>
 <use name=FastSimulation/TrackerSetup>
+<use name=FastSimulation/Utilities>
 <use name=Geometry/CommonDetUnit>
 <use name=MagneticField/Engine>
 <use name=RecoTracker/TkDetLayers>

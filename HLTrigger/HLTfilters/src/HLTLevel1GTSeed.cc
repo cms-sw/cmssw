@@ -6,8 +6,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -251,7 +251,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             // condition not in the list
             if (std::count( condList.begin(), condList.end(), iCond ) == 0) {
-                
+
                 LogTrace("HLTLevel1GTSeed")
                 << "\nHLTLevel1GTSeed::filter "
                 << "\n  Condition index " << iCond
@@ -560,7 +560,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             << "phi = " << particle.phi();
         }
 
-        LogTrace("HLTLevel1GTSeed") << " \n\n" 
+        LogTrace("HLTLevel1GTSeed") << " \n\n"
         << std::endl;
 
     }
@@ -615,14 +615,24 @@ void HLTLevel1GTSeed::getAlgoMap(
         << "\n  L1 Trigger menu: map for algorithm name and bits\n"
         << std::endl;
 
-        typedef std::map<std::string, int>::const_iterator CIter;
+        // use another map <int, string> to get sorted after bit number
+        // both names and bit numbers are unique
+        std::map<int, std::string> algoBitToName;
 
-        for (CIter it = m_algoNameToBit.begin(); it != m_algoNameToBit.end(); ++it) {
+        for (std::map<std::string, int>::const_iterator
+                it = m_algoNameToBit.begin(); it != m_algoNameToBit.end(); ++it) {
+
+            algoBitToName[it->second] = it->first;
+        }
+
+        for (std::map<int, std::string>::const_iterator
+                it = algoBitToName.begin(); it != algoBitToName.end(); ++it) {
 
             LogTrace("HLTLevel1GTSeed")
-            << it->first << "  " <<  it->second
+            << it->first << "\t" <<  it->second
             << std::endl;
         }
+
     }
 
 }

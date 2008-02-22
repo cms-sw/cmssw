@@ -12,8 +12,12 @@
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 #include "RecoParticleFlow/PFRootEvent/interface/FastJetFWLiteWrapper.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/ProductID.h"
+
+// #include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+// #include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 using namespace reco;
 using namespace JetReco;
 class Utils;

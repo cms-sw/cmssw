@@ -1,19 +1,43 @@
+
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
     pass
+
+class PrintOptions(object):
+    def __init__(self):
+        self.indent_= 0
+        self.deltaIndent_ = 4
+        self.isCfg = True
+    def indentation(self):
+        return ' '*self.indent_
+    def indent(self):
+        self.indent_ += self.deltaIndent_
+    def unindent(self):
+        self.indent_ -= self.deltaIndent_
 
 
 class _Parameterizable(object):
     """Base class for classes which allow addition of _ParameterTypeBase data"""
     def __init__(self,*arg,**kargs):
+        self.__dict__['_Parameterizable__parameterNames'] = []
         """The named arguments are the 'parameters' which are added as 'python attributes' to the object"""
         if len(arg) != 0:
-            raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
-        self.__dict__['_Parameterizable__parameterNames'] = []
+            #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
+            for block in arg:
+                if type(block).__name__ != "PSet":
+                    raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
+                self.__setParameters(block.parameters())
         self.__setParameters(kargs)
     def parameterNames_(self):
         """Returns the name of the parameters"""
         return self.__parameterNames[:]
+    def parameters(self):
+        """Returns a dictionary of copies of the user-set parameters"""
+        import copy
+        result = dict()
+        for name in self.parameterNames_():
+               result[name]=copy.deepcopy(self.__dict__[name])
+        return result
     def __setParameters(self,parameters):
         for name,value in parameters.iteritems():
             if not isinstance(value,_ParameterTypeBase):
@@ -41,6 +65,28 @@ class _Parameterizable(object):
     def __delattr__(self,name):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
+    def dumpPython(self, options=PrintOptions()):
+        others = []
+        usings = []
+        for name in self.parameterNames_():
+            param = self.__dict__[name]
+            options.indent()
+            #_UsingNodes don't get assigned variables
+            if name.startswith("using_"):
+                usings.append(options.indentation()+param.dumpPython(options))
+            else:
+                others.append(options.indentation()+name+' = '+param.dumpPython(options))
+            options.unindent()
+        # usings need to go first
+        resultList = usings
+        resultList.extend(others)
+        return ',\n'.join(resultList)+'\n'
+    def __repr__(self):
+        return self.dumpPython()
+    def insertContentsInto(self, parameterSet):
+        for name in self.parameterNames_():
+            param = getattr(self,name)
+            param.insertInto(parameterSet, name)
 
 
 class _TypedParameterizable(_Parameterizable):
@@ -48,10 +94,11 @@ class _TypedParameterizable(_Parameterizable):
     def __init__(self,type_,*arg,**kargs):
         self.__dict__['_TypedParameterizable__type'] = type_
         #the 'type' is also placed in the 'arg' list and we need to remove it
-        if 'type_' not in kargs:
-            arg = arg[1:]
-        else:
-            del args['type_']
+        #if 'type_' not in kargs:
+        #    arg = arg[1:]
+        #else:
+        #    del args['type_']
+        arg = tuple([x for x in arg if x != None])
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
     def _place(self,name,proc):
         self._placeImpl(name,proc)
@@ -59,11 +106,8 @@ class _TypedParameterizable(_Parameterizable):
         """returns the type of the object, e.g. 'FooProducer'"""
         return self.__type
     def copy(self):
-        import copy
         returnValue =_TypedParameterizable.__new__(type(self))
-        params = dict()
-        for name in self.parameterNames_():
-               params[name]=copy.deepcopy(self.__dict__[name])
+        params = self.parameters()
         args = list()
         if len(params) == 0:
             args.append(None)
@@ -101,13 +145,32 @@ class _TypedParameterizable(_Parameterizable):
                         return params
         return None
     
-    def dumpConfig(self,indent='',deltaIndent=''):
+    def dumpConfig(self, options=PrintOptions()):
         config = self.__type +' { \n'
         for name in self.parameterNames_():
             param = self.__dict__[name]
-            config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
-        config += indent+'}\n'
+            options.indent()
+            config+=options.indentation()+param.configTypeName()+' '+name+' = '+param.configValue(options)+'\n'
+            options.unindent()
+        config += options.indentation()+'}\n'
         return config
+    def dumpPython(self, options=PrintOptions()):
+        result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
+        if len(self.parameters()) > 0:
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
+        result += ")\n" 
+        return result
+    def nameInProcessDesc_(self, myname):
+        return myname;
+    def moduleLabel_(self, myname):
+        return myname
+    def insertInto(self, parameterSet, myname):
+        newpset = parameterSet.newPSet()
+        newpset.addString(True, "@module_label", self.moduleLabel_(myname))
+        newpset.addString(True, "@module_type", self.type_())
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
+
 
 
 class _Labelable(object):
@@ -136,6 +199,8 @@ class _Labelable(object):
             myDeps=set(presentDeps)
             knownDeps[self.label()]=myDeps
         presentDeps.add(self.label())
+    def fillNamesList(self, l):
+        l.append(self.__label)
 
 
 class _Unlabelable(object):
@@ -151,6 +216,14 @@ class _ParameterTypeBase(object):
         if self.isTracked():            
             return type(self).__name__
         return 'untracked '+type(self).__name__
+    def pythonTypeName(self):
+        if self.isTracked():
+            return 'cms.'+type(self).__name__
+        return 'cms.untracked.'+type(self).__name__
+    def dumpPython(self, options=PrintOptions()):
+        return self.pythonTypeName()+"("+self.pythonValue(options)+")"
+    def __repr__(self):
+        return self.dumpPython()
     def isTracked(self):
         return self.__isTracked
     def setIsTracked(self,trackness):
@@ -170,10 +243,10 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         if not self._isValid(value):
             raise ValueError(str(value)+" is not a valid "+str(type(self)))        
         self._value = value
-    def configValue(self,indent,deltaIndent):
+    def configValue(self, options=PrintOptions()):
         return str(self._value)
-
-
+    def pythonValue(self, options=PrintOptions()):
+        return self.configValue(options)
 
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
@@ -206,3 +279,46 @@ class _ValidatingListBase(list):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to this container")
         super(_ValidatingListBase,self).insert(i,x)
+
+class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
+    def __init__(self,*arg,**args):
+        _ParameterTypeBase.__init__(self)
+        super(_ValidatingParameterListBase,self).__init__(*arg,**args)
+    def value(self):
+        return list(self)
+    def setValue(self,v):
+        self[:] = []
+        self.extend(v)
+    def configValue(self, options=PrintOptions()):
+        config = '{\n'
+        first = True
+        for value in iter(self):
+            options.indent()
+            config += options.indentation()
+            if not first:
+                config+=', '
+            config+=  self.configValueForItem(value, options)+'\n'
+            first = False
+            options.unindent()
+        config += options.indentation()+'}\n'
+        return config
+    def configValueForItem(self,item, options):
+        return str(item)
+    def pythonValueForItem(self,item, options):
+        return self.configValueForItem(item, options)
+    def __repr__(self):
+        return self.dumpPython()
+    def dumpPython(self, options=PrintOptions()):
+        result = self.pythonTypeName()+"("
+        first = True
+        for value in iter(self):
+            if not first:
+                result+=', '
+            result+=self.pythonValueForItem(value, options)
+            first = False
+        result += ')'
+        return result
+    @staticmethod
+    def _itemsFromStrings(strings,converter):
+        return (converter(x).value() for x in strings)
+

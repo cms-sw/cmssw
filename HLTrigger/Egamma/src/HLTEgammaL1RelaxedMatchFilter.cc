@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1RelaxedMatchFilter
  *
- * $Id: HLTEgammaL1RelaxedMatchFilter.cc,v 1.2 2007/02/04 20:41:41 monicava Exp $
+ * $Id: HLTEgammaL1RelaxedMatchFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -16,6 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"

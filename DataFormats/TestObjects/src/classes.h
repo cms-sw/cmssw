@@ -23,6 +23,9 @@ struct dictionary {
   edm::Wrapper<edmtest::AVSimpleProduct> dummyw18;
   edm::Wrapper<edmtest::DSVSimpleProduct> dummyw19;
   edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
+  edm::Wrapper<edmtest::DSTVSimpleProduct> dummyw21;
+  edm::Wrapper<edmtest::DSTVSimpleDerivedProduct> dummyw22;
+
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
   edm::Wrapper<edmtest::ThingCollection> dummy3;

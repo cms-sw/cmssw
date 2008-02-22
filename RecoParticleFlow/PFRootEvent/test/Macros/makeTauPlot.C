@@ -3,7 +3,7 @@
 //This macro can be used to reproduce the tau benchmark plot
 //for tau jet reconstruction studies
 // 50 GeV taus desintegrating hadronically have been studied
-
+gROOT->Reset();
 TFile *f = new TFile("tauBenchmark.root");
 
 h_deltaETvisible_MCPF->SetStats(1); 

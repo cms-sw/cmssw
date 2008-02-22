@@ -364,4 +364,4 @@ int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid ) {
   return layerNumber;
 }
 
-//DEFINE_FWK_MODULE(TrackingTruthProducer);
+DEFINE_FWK_MODULE(TrackingTruthProducer);

@@ -35,6 +35,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
 #include <iostream>
 #include <string>
 #include <map>
@@ -56,8 +63,10 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   virtual   void beginJob( const edm::EventSetup& );
   virtual  void endJob();
  private:
-  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit,  const TrackingRecHit *);
+  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit,  const TrackingRecHit *, int numpartners);
 
+std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
+						const BoundPlane& plane, int thesign) ;
 
   edm::ParameterSet conf_;
   const TrackerGeometry * trackerG;
@@ -79,12 +88,16 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
     double PXF_Err_AxisLim;
 
     double TIB_Res_AxisLim ;
+    double TIB_Resy_AxisLim ;
     double TIB_Pos_AxisLim ;
     double TID_Res_AxisLim ;
+    double TID_Resy_AxisLim ;
     double TID_Pos_AxisLim ;
     double TOB_Res_AxisLim ;
+    double TOB_Resy_AxisLim ;
     double TOB_Pos_AxisLim ;
     double TEC_Res_AxisLim ;
+    double TEC_Resy_AxisLim ;
     double TEC_Pos_AxisLim ;
     int NumTracks_AxisLim;
 
@@ -92,8 +105,14 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
     double TID_Err_AxisLim;
     double TOB_Err_AxisLim;
     double TEC_Err_AxisLim;
+    double TIB_Erry_AxisLim;
+    double TID_Erry_AxisLim;
+    double TOB_Erry_AxisLim;
+    double TEC_Erry_AxisLim;
 
     int iEventCounter;
+   TString outfilename;
+    
 };
 
 #endif

@@ -109,7 +109,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    } 
    reco::Vertex theRecVertex = *pvmax;
     
-    cout<<" Vertex with pt= "<<ptmax<<endl;
+//    cout<<" Vertex with pt= "<<ptmax<<endl;
    }// Primary vertex exists
     else // No primary vetices but tracks are found
    {
@@ -117,13 +117,14 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
      {
        theTrack.push_back(*it);
      }
-     cout<<" The number of tracks included in correction "<<theTrack.size()<<endl;
+//     cout<<" The number of tracks included in correction "<<theTrack.size()<<endl;
    } // Track collection was taken
     
 //==================================================================================      
 
       double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
-      
+    
+  
       for (vector<reco::Track>::const_iterator track = theTrack.begin();
                 track != theTrack.end(); track++)
       {
@@ -194,8 +195,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
          NewResponse =  NewResponse - resp.front() - resp.back();
    
       } 
-       cout<<"old energy of jet "<<fJet.energy()<<" new energy of jet  "<<NewResponse<<
-       " sum of charged energy "<<echarsum<<" correction factor "<<NewResponse/fJet.energy()<<endl;
+//       cout<<"Old ET"<<fJet.et()<<" eta "<<fJet.eta()<<"old energy of jet "<<fJet.energy()<<" new energy of jet  "<<NewResponse<<
+//       " sum of charged energy "<<echarsum<<" correction factor "<<NewResponse/fJet.energy()<<endl;
 	 
          float mScale = NewResponse/fJet.energy();
 	 		

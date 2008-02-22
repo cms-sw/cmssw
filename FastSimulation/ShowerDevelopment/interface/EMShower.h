@@ -44,6 +44,9 @@ class EMShower
 
   virtual ~EMShower(){;}
 
+  /// Computes the steps before the real compute
+  void prepareSteps();
+
   /// Compute the shower longitudinal and lateral development
   void compute();
 
@@ -106,12 +109,18 @@ class EMShower
   //  std::vector<double> meanDepth;  
   //  double globalMeanDepth;
   std::vector<double> maximumOfShower;
+  std::vector<std::vector<double> >depositedEnergy;
+  std::vector<double> meanDepth;
+  double innerDepth, outerDepth;
+  
   double globalMaximum;
 
   double totalEnergy;
 
   // The steps for the longitudinal development
   Steps steps; 
+  unsigned nSteps;
+  bool stepsCalculated;
 
   // The crystal grid
   EcalHitMaker * theGrid;

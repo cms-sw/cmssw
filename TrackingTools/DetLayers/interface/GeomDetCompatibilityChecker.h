@@ -13,6 +13,10 @@
 
 class GeomDetCompatibilityChecker{
  public:
+  GeomDetCompatibilityChecker(){};
+  ~GeomDetCompatibilityChecker(){};
+
+  
   /** tests the geometrical compatibility of the GeomDet with the predicted state.
    *  The  TrajectoryState argument is propagated to the GeomDet surface using
    *  the Propagator argument. The resulting TrajectoryStateOnSurface is
@@ -21,10 +25,11 @@ class GeomDetCompatibilityChecker{
    *  If the propagation fails, or if the state is not compatible,
    *  a std::pair< false, propagatedState> is returned.
    */
-  static std::pair<bool, TrajectoryStateOnSurface>  isCompatible(const GeomDet* theDet,
+  
+  std::pair<bool, TrajectoryStateOnSurface>  isCompatible(const GeomDet* theDet,
 							  const TrajectoryStateOnSurface& ts,
 							  const Propagator& prop, 
-							  const MeasurementEstimator& est);  
+							  const MeasurementEstimator& est) const;  
 };
 
 

@@ -201,7 +201,9 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 		myCalorimeter_->layer1Properties(onLayer1), 
 		myCalorimeter_->layer2Properties(onLayer2),
 		theCoreIntervals_,
-		theTailIntervals_);
+		theTailIntervals_,
+		RCFactor_,
+		RTFactor_);
 
   // Photons : create an e+e- pair
   if ( myTrack.type() == 22 ) {
@@ -464,7 +466,9 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       
       std::pair<double,double> response =
 	myHDResponse_->responseHCAL(EGen,pathEta,0); // 0=e/gamma
-      emeas = response.first;
+      e = response.first;
+      sigma = response.second;             
+      emeas = random->gaussShoot(e,sigma); 
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
 	LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
@@ -713,6 +717,8 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   theCoreIntervals_ = ECALparameters.getParameter<std::vector<double> >("CoreIntervals");
   theTailIntervals_ = ECALparameters.getParameter<std::vector<double> >("TailIntervals");
   
+  RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
+  RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
   
   if(gridSize_ <1) gridSize_= 7;

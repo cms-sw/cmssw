@@ -970,28 +970,31 @@ const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vecto
 
 }
 
+
 //
 // choose final trajectory
 //
 const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectoryNew(const std::vector<Trajectory*>& t) const {
 
-  Trajectory* result = 0;
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|chooseTrajectoryNew";
 
-  double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
-  double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
+  double prob[4];
 
-  if ( t[2] ) {
-    result = t[2];
-    if ( t[3] && ( (prob2 - prob3) > 0.9 )  ) { result = t[3]; LogTrace(category) << "PMR"; } else LogTrace(category) << "FMS";
-  } else 
-    if ( t[3] ) { result = t[3]; LogTrace(category) << "PMR"; }
-      else 
-      if ( t[1] ) { result = t[1]; LogTrace(category) << "GMR"; }
-        else
-        if ( t[0] ) { result = t[0]; LogTrace(category) << "TO "; }
-  
-  return result;
+  for (int i=0;i<4;i++) 
+    prob[i] = (t[i]) ? trackProbability(*t[i]) : 0.0; 
+
+  int chosen=3;
+
+  if (!t[3])
+    if (t[2]) chosen=2; else
+      if (t[1]) chosen=1; else
+        if (t[0]) chosen=0;
+
+  if ( t[0] && t[3] && ((prob[3]-prob[0]) > 48.) ) chosen=0;
+  if ( t[0] && t[1] && ((prob[1]-prob[0]) < 3.) ) chosen=1;
+  if ( t[2] && ((prob[chosen]-prob[2]) > 9.) ) chosen=2;
+
+  return t[chosen];
 
 }
 
@@ -1139,7 +1142,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
       timerName = category + "::makeSeeds";
       times.push(timerName);
       RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
-      theTkSeedGenerator->trackerSeeds(staCand,region, tkSeeds);
+      tkSeeds = theTkSeedGenerator->trackerSeeds(staCand,region);
 
       LogTrace(category) << "Found " << tkSeeds.size() << " tracker seeds";
 

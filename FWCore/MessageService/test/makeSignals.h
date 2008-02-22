@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "TSystem.h"
-#include "TUnixSystem.h"
 
 namespace edm {
   class ParameterSet;

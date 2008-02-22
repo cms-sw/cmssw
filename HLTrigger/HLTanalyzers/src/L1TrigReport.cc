@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/28 12:58:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/30 14:06:35 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -15,6 +15,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
@@ -116,7 +117,7 @@ L1TrigReport::endJob()
   using namespace std;
   const unsigned int n(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
 
-    cout << endl;
+    cout << dec << endl;
     cout << "L1T-Report " << "---------- Event  Summary ------------\n";
     cout << "L1T-Report"
 	 << " Events total = " << nEvents_

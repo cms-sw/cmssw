@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/05/12 09:39:06 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,8 +13,11 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -182,7 +185,7 @@ void EETriggerTowerClient::cleanup(void) {
 
 }
 
-bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
@@ -433,16 +436,6 @@ void EETriggerTowerClient::analyze(void){
 
 }
 
-std::string binary( int i ) {
-  if ( i == 0 ) return( "0" );
-  std::string s;
-  while( i > 0 ) {
-    s = char( 48 + (i&1) ) + s;
-    i = i >> 1;
-  }
-  return s;
-}
-
 void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
@@ -630,7 +623,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         std::stringstream title;
         if ( j < 7 ) {
-          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << binary(j-1);
+          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << bitset<3>(j-1);
         } else {
           title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << " bits 110+111";
         }

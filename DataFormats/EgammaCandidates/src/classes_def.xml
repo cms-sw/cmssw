@@ -67,5 +67,19 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Electron>, float, unsigned int > > >" />
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Electron> > >" />
 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PixelMatchGsfElectronRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::PixelMatchGsfElectronRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PhotonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PhotonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::PhotonRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::ConvertedPhotonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector>" />
 </lcgdict>
 

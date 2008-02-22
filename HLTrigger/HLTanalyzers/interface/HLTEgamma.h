@@ -36,8 +36,7 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const ElectronCollection& pixelectron,
-	       const ElectronCollection& silelectron,
+  void analyze(const ElectronCollection& electron,
 	       const PhotonCollection& photon,
 	       const CaloGeometry& geom,
 	       TTree* tree);
@@ -45,10 +44,9 @@ public:
 private:
 
   // Tree variables
-  float *pixelpt, *pixelphi, *pixeleta, *pixelet, *pixele; 
-  float *silelpt, *silelphi, *sileleta, *silelet, *silele; 
+  float *elpt, *elphi, *eleta, *elet, *ele; 
   float *photonpt, *photonphi, *photoneta, *photonet, *photone; 
-  int npixele,nsilele,nphoton;
+  int nele,nphoton;
 
   // input variables
   bool _Monte,_Debug;

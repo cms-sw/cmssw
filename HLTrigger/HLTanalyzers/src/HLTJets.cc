@@ -17,6 +17,8 @@ HLTJets::HLTJets() {
   //set parameter defaults 
   _Monte=false;
   _Debug=false;
+  _CalJetMin=0.;
+  _GenJetMin=0.;
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
@@ -29,6 +31,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myJetParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "CalJetMin" ) _CalJetMin =  myJetParams.getParameter<double>( *iParam );
+    else if ( (*iParam) == "GenJetMin" ) _GenJetMin =  myJetParams.getParameter<double>( *iParam );
   }
 
   const int kMaxJetCal = 10000;
@@ -53,32 +57,35 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   towoe = new float[kMaxTower];
 
   // Jet- MEt-specific branches of the tree 
-  HltTree->Branch("NobjJetCal",&njetcal,"NobjJetCal/I");
-  HltTree->Branch("NobjJetGen",&njetgen,"NobjJetGen/I");
-  HltTree->Branch("NobjTowCal",&ntowcal,"NobjTowCal/I");
-  HltTree->Branch("JetCalPt",jcalpt,"JetCalPt[NobjJetCal]/F");
-  HltTree->Branch("JetCalPhi",jcalphi,"JetCalPhi[NobjJetCal]/F");
-  HltTree->Branch("JetCalEta",jcaleta,"JetCalEta[NobjJetCal]/F");
-  HltTree->Branch("JetCalEt",jcalet,"JetCalEt[NobjJetCal]/F");
-  HltTree->Branch("JetCalE",jcale,"JetCalE[NobjJetCal]/F");
-  HltTree->Branch("JetGenPt",jgenpt,"JetGenPt[NobjJetGen]/F");
-  HltTree->Branch("JetGenPhi",jgenphi,"JetGenPhi[NobjJetGen]/F");
-  HltTree->Branch("JetGenEta",jgeneta,"JetGenEta[NobjJetGen]/F");
-  HltTree->Branch("JetGenEt",jgenet,"JetGenEt[NobjJetGen]/F");
-  HltTree->Branch("JetGenE",jgene,"JetGenE[NobjJetGen]/F");
-  HltTree->Branch("TowEt",towet,"TowEt[NobjTowCal]/F");
-  HltTree->Branch("TowEta",toweta,"TowEta[NobjTowCal]/F");
-  HltTree->Branch("TowPhi",towphi,"TowPhi[NobjTowCal]/F");
-  HltTree->Branch("TowE",towen,"TowE[NobjTowCal]/F");
-  HltTree->Branch("TowEm",towem,"TowEm[NobjTowCal]/F");
-  HltTree->Branch("TowHad",towhd,"TowHad[NobjTowCal]/F");
-  HltTree->Branch("TowOE",towoe,"TowOE[NobjTowCal]/F");
-  HltTree->Branch("MetCal",&mcalmet,"MetCal/F");
-  HltTree->Branch("MetCalPhi",&mcalphi,"MetCalPhi/F");
-  HltTree->Branch("MetCalSum",&mcalsum,"MetCalSum/F");
-  HltTree->Branch("MetGen",&mgenmet,"MetGen/F");
-  HltTree->Branch("MetGenPhi",&mgenphi,"MetGenPhi/F");
-  HltTree->Branch("MetGenSum",&mgensum,"MetGenSum/F");
+  HltTree->Branch("NrecoJetCal",&njetcal,"NrecoJetCal/I");
+  HltTree->Branch("NrecoJetGen",&njetgen,"NrecoJetGen/I");
+  HltTree->Branch("NrecoTowCal",&ntowcal,"NrecoTowCal/I");
+  HltTree->Branch("recoJetCalPt",jcalpt,"recoJetCalPt[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalPhi",jcalphi,"recoJetCalPhi[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalEta",jcaleta,"recoJetCalEta[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalEt",jcalet,"recoJetCalEt[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalE",jcale,"recoJetCalE[NrecoJetCal]/F");
+  HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
+  HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
+  HltTree->Branch("recoJetGenEta",jgeneta,"recoJetGenEta[NrecoJetGen]/F");
+  HltTree->Branch("recoJetGenEt",jgenet,"recoJetGenEt[NrecoJetGen]/F");
+  HltTree->Branch("recoJetGenE",jgene,"recoJetGenE[NrecoJetGen]/F");
+  HltTree->Branch("recoTowEt",towet,"recoTowEt[NrecoTowCal]/F");
+  HltTree->Branch("recoTowEta",toweta,"recoTowEta[NrecoTowCal]/F");
+  HltTree->Branch("recoTowPhi",towphi,"recoTowPhi[NrecoTowCal]/F");
+  HltTree->Branch("recoTowE",towen,"recoTowE[NrecoTowCal]/F");
+  HltTree->Branch("recoTowEm",towem,"recoTowEm[NrecoTowCal]/F");
+  HltTree->Branch("recoTowHad",towhd,"recoTowHad[NrecoTowCal]/F");
+  HltTree->Branch("recoTowOE",towoe,"recoTowOE[NrecoTowCal]/F");
+  HltTree->Branch("recoMetCal",&mcalmet,"recoMetCal/F");
+  HltTree->Branch("recoMetCalPhi",&mcalphi,"recoMetCalPhi/F");
+  HltTree->Branch("recoMetCalSum",&mcalsum,"recoMetCalSum/F");
+  HltTree->Branch("recoMetGen",&mgenmet,"recoMetGen/F");
+  HltTree->Branch("recoMetGenPhi",&mgenphi,"recoMetGenPhi/F");
+  HltTree->Branch("recoMetGenSum",&mgensum,"recoMetGenSum/F");
+  HltTree->Branch("recoHTCal",&htcalet,"recoHTCal/F");
+  HltTree->Branch("recoHTCalPhi",&htcalphi,"recoHTCalPhi/F");
+  HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
 
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
 
@@ -89,27 +96,39 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 		      const GenJetCollection& genjets,
 		      const CaloMETCollection& recmets,
 		      const GenMETCollection& genmets,
+		      const METCollection& ht,
 		      const CaloTowerCollection& caloTowers,
 		      const CaloGeometry& geom,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTJets " << std::endl;
 
+  //initialize branch variables
+  njetcal=0; njetgen=0;ntowcal=0;
+  mcalmet=0.; mcalphi=0.;
+  mgenmet=0.; mgenphi=0.;
+  htcalet=0.,htcalphi=0.,htcalsum=0.;
+
   if (&calojets) {
     CaloJetCollection mycalojets;
     mycalojets=calojets;
     std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
-    njetcal = mycalojets.size();
+//     njetcal = mycalojets.size();
     typedef CaloJetCollection::const_iterator cjiter;
     int jcal=0;
     for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
-      jcalpt[jcal] = i->pt();
-      jcalphi[jcal] = i->phi();
-      jcaleta[jcal] = i->eta();
-      jcalet[jcal] = i->et();
-      jcale[jcal] = i->energy();
-      jcal++;
+
+      if (i->pt()>_CalJetMin){
+	jcalpt[jcal] = i->pt();
+	jcalphi[jcal] = i->phi();
+	jcaleta[jcal] = i->eta();
+	jcalet[jcal] = i->et();
+	jcale[jcal] = i->energy();
+	jcal++;
+      }
+
     }
+    njetcal = jcal;
   }
   else {njetcal = 0;}
 
@@ -138,26 +157,40 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
     }
   }
 
+  if (&ht) {
+    typedef METCollection::const_iterator iter;
+    for ( iter i=ht.begin(); i!=ht.end(); i++) {
+      htcalet = i->pt();
+      htcalphi = i->phi();
+      htcalsum = i->sumEt();
+    }
+  }
+
   if (_Monte){
 
     if (&genjets) {
       GenJetCollection mygenjets;
       mygenjets=genjets;
       std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
-      njetgen = mygenjets.size();
+//       njetgen = mygenjets.size();
       typedef GenJetCollection::const_iterator gjiter;
       int jgen=0;
       for ( gjiter i=mygenjets.begin(); i!=mygenjets.end(); i++) {
-	jgenpt[jgen] = i->pt();
-	jgenphi[jgen] = i->phi();
-	jgeneta[jgen] = i->eta();
-	jgenet[jgen] = i->et();
-	jgene[jgen] = i->energy();
-	jgen++;
+
+	if (i->pt()>_GenJetMin){
+	  jgenpt[jgen] = i->pt();
+	  jgenphi[jgen] = i->phi();
+	  jgeneta[jgen] = i->eta();
+	  jgenet[jgen] = i->et();
+	  jgene[jgen] = i->energy();
+	  jgen++;
+	}
+
       }
+       njetgen = jgen;
     }
     else {njetgen = 0;}
-    
+
     if (&genmets) {
       typedef GenMETCollection::const_iterator gmiter;
       for ( gmiter i=genmets.begin(); i!=genmets.end(); i++) {

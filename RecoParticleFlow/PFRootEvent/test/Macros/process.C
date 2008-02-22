@@ -4,12 +4,12 @@
 
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libRecoParticleFlowPFRootEvent.so");
-AutoLibraryLoader::enable();
+// AutoLibraryLoader::enable();
 gSystem->Load("libCintex.so");
 ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
-PFRootEventManagerColin em("pfRootEvent.opt");
+PFRootEventManager em("pfRootEvent.opt");
 
 if(em.tree() ) {
   int n =  em.tree()->GetEntries();

@@ -15,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2006/11/06 14:51:18 $
-// $Id: EcalRecHitRecalib.h,v 1.1 2006/11/06 14:51:18 malgeri Exp $
+//         Created:  $Date: 2006/11/21 16:47:46 $
+// $Id: EcalRecHitRecalib.h,v 1.3 2006/11/21 16:47:46 malgeri Exp $
 //
 //
 
@@ -52,6 +52,9 @@ class EcalRecHitRecalib : public edm::EDProducer {
  std::string endcapHits_;
  std::string RecalibBarrelHits_;
  std::string RecalibEndcapHits_;
+ double refactor_;
+ double refactor_mean_;
+
 };
 
 #endif

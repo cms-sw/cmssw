@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
-// $Id$
+// $Id: DependsOnDummyService.h,v 1.1 2005/09/09 17:23:39 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 namespace testserviceregistry {

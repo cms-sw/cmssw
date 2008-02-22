@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentSeedSelector.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h" 
 
 struct SeedConfigSelector {
 
@@ -16,13 +17,16 @@ struct SeedConfigSelector {
   const_iterator end() const { return selected_.end(); }
   size_t size() const { return selected_.size(); }
 
-  void select( const edm::Handle<TrajectorySeedCollection> c,  const edm::Event & evt) {
+  void select( const edm::Handle<TrajectorySeedCollection> c,  const edm::Event & evt,
+               const edm::EventSetup &/*dummy*/)
+  {
     all_.clear();
     selected_.clear();
-    for( TrajectorySeedCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
+    for (collection::const_iterator i = c.product()->begin(), iE = c.product()->end();
+         i != iE; ++i) {
       all_.push_back( & * i );
     }
-    selected_=theSelector.select(all_,evt);
+    selected_ = theSelector.select(all_, evt); // might add dummy...
   }
 
 private:

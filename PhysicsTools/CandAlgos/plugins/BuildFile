@@ -1,38 +1,9 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/Candidate>
-<use name=PhysicsTools/UtilAlgos>
-<use name=PhysicsTools/CandAlgos>
-<library file=CandHistoAnalyzer.cc></library>
-<library file=CandSelector.cc></library>
-<library file=PtMinCandSelector.cc></library>
-<library file=AssociatedVariableMaxCutCandSelector.cc></library>
-<library file=AssociatedVariableMaxCutCandRefSelector.cc></library>
-<library file=PtMinAssociatedVariableMaxCutCandSelector.cc></library>
-<library file=LargestPtCandSelector.cc></library>
-<library file=EtaPtMinCandSelector.cc></library>
-<library file=EtaPtMinCandViewSelector.cc></library>
-<library file=EtaPtMinPdgIdCandSelector.cc></library>
-<library file=PdgIdCandSelector.cc></library>
-<library file=PdgIdAndStatusCandSelector.cc></library>
-<library file=PdgIdAndStatusCandDecaySelector.cc></library>
-<library file=PdgIdCandRefSelector.cc></library>
-<library file=MassRangeCandCombiner.cc></library>
-<library file=MassRangeCandShallowCloneCombiner.cc></library>
-<library file=MassMinCandCombiner.cc></library>
-<library file=MassMinCandShallowCloneCombiner.cc></library>
-<library file=MassRangeAndChargeCandCombiner.cc></library>
-<library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
-<library file=CandCombiner.cc></library>
-<library file=DeltaRMinCandCombiner.cc></library>
-<library file=DeltaPhiMinCandCombiner.cc></library>
-<library file=CandShallowCloneCombiner.cc></library>
-<library file=CandMerger.cc></library>
-<library file=CandShallowCloneProducer.cc></library>
-<library file=CandCountFilter.cc></library>
-<library file=CandReducer.cc></library>
-<library file=TrivialDeltaRMatcher.cc></library>
-<library file=CandMatchedCloneProducer.cc></library>
-<library file=PtMinCandViewSelector.cc></library>
-<library file=PtMinCandViewCloneSelector.cc></library>
-<library file=PtMinCandRefToBaseCloneSelector.cc></library>
+<export></export>
+<library name=PhysicsToolsCandAlgos_plugins file=*.cc>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/HepMCCandidate>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=PhysicsTools/CandAlgos>
+</library>

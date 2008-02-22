@@ -10,12 +10,12 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 
 template<typename InputCollection, typename Selector, 
-	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type,
-	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
-	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
-	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
-	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base,
-	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
+	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
+	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
+	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
+	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection>::type,
+	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection>::base,
+	 typename RefAdder = typename ::helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SingleObjectSelector : 
   public ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>, 
 			OutputCollection, NonNullNumberSelector, PostProcessor, StoreManager, Base> {

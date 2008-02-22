@@ -12,12 +12,14 @@
 
 
 #include <memory>
+#include <string>
 
 using namespace edm;
 
 TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::ParameterSet & p) 
 {
     setWhatProduced(this);
+    geoLabel = p.getUntrackedParameter<std::string>("trackerGeometryLabel","");
 }
 
 TrackerRecoGeometryESProducer::~TrackerRecoGeometryESProducer() {}
@@ -30,7 +32,7 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
   edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> tG;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get(tG );
+  iRecord.getRecord<TrackerDigiGeometryRecord>().get(geoLabel, tG );
   GeometricSearchTrackerBuilder builder;
   _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( &(*gD), &(*tG) ));
   return _tracker;

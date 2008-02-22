@@ -97,14 +97,14 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     if (printdebug_) cout << "[CandOneToManyDeltaRMatcher] source (Et,Eta,Phi) =(" << src.et() << "," << 
                                                                                       src.eta() << "," << 
 		                                                                      src.phi() << ")" << endl;
-    vector<helper::MatchPair> v;
+    vector<reco::helper::MatchPair> v;
     for( size_t m = 0; m != matched->size(); ++ m ) {
       const Candidate & match = ( * matched )[ m ];
       double dist = DeltaR( src.p4() , match.p4() );
       v.push_back( make_pair( m, dist ) );      
     }
     if ( v.size() > 0 ) {
-      sort( v.begin(), v.end(), helper::SortBySecond() );
+      sort( v.begin(), v.end(), reco::helper::SortBySecond() );
       for( size_t m = 0; m != v.size(); ++ m ) {
 	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ v[m].first ].et() << "," << 
                                                                                                ( * matched )[ v[m].first ].eta() << "," << 

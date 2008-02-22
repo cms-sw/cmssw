@@ -3,12 +3,12 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
 <use name=DataFormats/VertexReco>
 <use name=TrackingTools/TrajectoryState>
-<use name=SimDataFormats/HepMCProduct>
-<use name=pythia6_227>
 <export>
    <lib name=JetMETCorrectionsJetPlusTrack>
+   <use name=CondFormats/DataRecord>
    <use name=JetMETCorrections/Objects>
    <use name=TrackingTools/TrackAssociator>
 </export>

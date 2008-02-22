@@ -1,3 +1,12 @@
+2007-08-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-01-00
+	* fixed bug in handling state transition in case of bad configuration
+	* removed PLUGIN_PATH from web page
+	* removed MonitorDaemon initialization (obsolete)
+	* added reasonForFailed to web page
+	* mispace -> monitorInfoSpace_
+
 2007-07-03  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-00-05

@@ -2,8 +2,11 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
+<use name=SimDataFormats/Track>
 <use name=CLHEP>
 <use name=root>
 <flags EDM_PLUGIN=1>
@@ -14,6 +17,8 @@
 # <use name=FWCore/Framework>
 # <use name=FWCore/ParameterSet>
 # <use name=FWCore/MessageLogger>
+#<use name=PhysicsTools/UtilAlgos>
+#<use name=FWCore/ServiceRegistry>
 # <use name=SimDataFormats/MuonValidation>
 # <use name=DataFormats/DetId>
 # <use name=Geometry/CommonDetUnit>

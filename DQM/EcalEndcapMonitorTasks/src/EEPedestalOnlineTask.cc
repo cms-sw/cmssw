@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -20,8 +20,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -36,8 +36,6 @@ using namespace std;
 
 EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
-  Numbers::maxSM = 18;
-
   init_ = false;
 
   // get hold of back-end interface
@@ -45,7 +43,7 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
 
   for (int i = 0; i < 18 ; i++) {
     mePedMapG12_[i] = 0;
@@ -80,7 +78,7 @@ void EEPedestalOnlineTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG12_[i], i+1);
     }
 
@@ -117,34 +115,35 @@ void EEPedestalOnlineTask::endJob(void){
 
 void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+    Handle<EEDigiCollection> digis;
+    e.getByLabel(EEDigiCollection_, digis);
 
-    int nebd = digis->size();
-    LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << need;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       LogDebug("EEPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EEPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EEPedestalOnlineTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       for (int i = 0; i < 3; i++) {
 
@@ -159,7 +158,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+        if ( mePedMap ) mePedMap->Fill(xix, xiy, xval);
 
       }
 
@@ -167,7 +166,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEPedestalOnlineTask") << EBDigiCollection_ << " not available";
+    LogWarning("EEPedestalOnlineTask") << EEDigiCollection_ << " not available";
 
   }
 

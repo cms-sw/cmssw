@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.5 2007/06/13 13:53:50 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.6 2007/06/18 15:42:47 pjanot Exp $
 //
 //
 
@@ -67,6 +67,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+// Root
+#include <TRandom3.h>
+
 
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
@@ -99,7 +102,15 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
       "You must add the service in the configuration file\n"
       "or remove the module that requires it.";
   }
-  random = new RandomEngine(&(*rng));
+
+  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
+  if ( !useTRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
 
 }
 
@@ -110,7 +121,10 @@ ParamL3MuonProducer::~ParamL3MuonProducer()
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
   
-  if ( random ) delete random;
+  if ( random ) { 
+    if ( random->theRootEngine() ) delete random->theRootEngine();
+    delete random;
+  }
 }
 
 

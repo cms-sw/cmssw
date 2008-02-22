@@ -9,7 +9,7 @@ class Selection {
 public:
   typedef typename C::value_type value_type;
   typedef typename C::size_type size_type;
-  typedef value_type value_type;
+  typedef value_type & reference;
   typedef const value_type & const_reference;
   Selection( const C & c, const Selector & sel ) :
     select_( sel ) {

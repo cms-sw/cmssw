@@ -16,42 +16,44 @@
  *
  */
 
-// user include files
-#include <HiggsAnalysis/Skimming/interface/HiggsAnalysisSkimType.h>
+// system include files
+#include <memory>
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/Event.h>
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+using namespace edm;
+using namespace std;
 
-class HiggsToZZ4LeptonsSkim : public HiggsAnalysisSkimType {
+class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   
  public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkim(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~HiggsToZZ4LeptonsSkim(){};
+  ~HiggsToZZ4LeptonsSkim();
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool skim(edm::Event&, const edm::EventSetup&, int& whichTrigger);
+  virtual bool filter(edm::Event&, const edm::EventSetup& );
 
 
  private:
+  int nEvents, nSelectedEvents;
+
+
   bool debug;
-  bool useChargeBalance;
-  bool searchForEtMiss;  // SUSY...
   float muonMinPt;
   float elecMinEt;
   int nLeptonMin;
 
-  // Cuts to mimic HLT while HLT is not available
-  float singleMuonHLTPtCut;
-  float doubleMuonHLTPtCut;
-  float singleElecHLTEtCut;
-  float doubleElecHLTEtCut;
-
-
+  // Reco samples
   edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
   edm::InputTag thePixelGsfELabel;

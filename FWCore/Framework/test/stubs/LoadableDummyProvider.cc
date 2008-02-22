@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyProvider.cc,v 1.4 2005/12/22 20:29:01 chrjones Exp $
+// $Id: LoadableDummyProvider.cc,v 1.5 2006/10/21 17:18:57 wmtan Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 // user include files
 #include "FWCore/Framework/test/DummyProxyProvider.h"
 
-#include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 namespace edm {

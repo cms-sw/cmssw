@@ -8,8 +8,6 @@ LOGICAL_INPUT_1=PoolTest_1.root
 LOGICAL_INPUT_2=PoolTest_2.root
 
 rm -f ${INPUT_1} ${INPUT_2}
-rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml
-rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml.BAK
 rm -f ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg          ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg
 
 #---------------------------
@@ -26,8 +24,6 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_1}'
-		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml'
-		untracked string logicalFileName = '${LOGICAL_INPUT_1}'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
@@ -54,8 +50,6 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_2}'
-		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml'
-		untracked string logicalFileName = '${LOGICAL_INPUT_2}'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
@@ -72,6 +66,6 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg || die 'Failur
 # Merge files
 #---------------------------
 
-EdmFastMerge -i file:${INPUT_1} ${LOGICAL_INPUT_2} -j ${LOCAL_TMP_DIR}/FrameworkJobReport.xml -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root -c ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml || die 'Failure using EdmFastMerge' $?
+edmFastMerge -i file:${INPUT_1} file:${INPUT_2} -j ${LOCAL_TMP_DIR}/FrameworkJobReport.xml -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root || die 'Failure using edmFastMerge' $?
 
 

@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.29 2006/11/30 20:51:23 rpw Exp $
+ * $Id: pset_lex.l,v 1.30 2006/12/05 22:01:43 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -12,7 +12,11 @@
 #include <cstring>
 #include <string>
 
-#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/VPSetNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
+
 #include "FWCore/ParameterSet/src/pset_parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 

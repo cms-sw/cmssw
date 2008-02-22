@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.8 2007/05/24 16:35:46 paterno Exp $
+$Id: RefBase.h,v 1.9 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,9 +39,6 @@ namespace edm {
 
     /// Accessor for index and pointer
     RefItem<KEY> const& item() const {return item_;}
-
-    typedef typename RefItem<KEY>::key_type key_type;
-
 
     // /// Return the index for the referenced element.
     // key_type key() const { return item_.key(); }

@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
+$Id: RefProd.h,v 1.15 2007/09/18 08:01:51 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -100,13 +100,13 @@ namespace edm {
     }
 
     /// Checks for null
-    bool isNull() const {return !isNonnull(); }
+    bool isNull() const {return !isNonnull();}
 
     /// Checks for non-null
-    bool isNonnull() const {return id().isValid(); }
+    bool isNonnull() const {return id().isValid();}
 
     /// Checks for null
-    bool operator!() const {return isNull(); }
+    bool operator!() const {return isNull();}
 
     /// Accessor for product ID.
     ProductID id() const {return product_.id();}
@@ -116,6 +116,15 @@ namespace edm {
 
     /// Checks if product is in memory.
     bool hasCache() const {return product_.productPtr() != 0;}
+
+    /// Checks if product is in memory.
+    bool hasProductCache() const {return hasCache();}
+
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return product_.isAvailable();}
+
+    void swap( RefProd<C> & );
 
   private:
     // Compile time check that the argument is a C* or C const*
@@ -156,6 +165,13 @@ namespace edm {
     return edm::template getProduct<C>(product_);
   } 
 
+
+  template<typename C>
+  inline
+  void RefProd<C>::swap( RefProd<C> & other ) {
+    std::swap( product_, other.product_ );
+  }
+
   template <typename C>
   inline
   bool
@@ -176,6 +192,12 @@ namespace edm {
   operator< (RefProd<C> const& lhs, RefProd<C> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
   }
+
+  template<typename C>
+  inline
+  void swap( const edm::RefProd<C> & lhs, const edm::RefProd<C> & rhs ) {
+    lhs.swap( rhs );
+  }
 }
 
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
@@ -189,6 +211,10 @@ namespace edm {
 	throw edm::Exception(errors::InvalidReference)
 	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.";
       }
+      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	throw edm::Exception(errors::InvalidReference)
+          << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+       }
     };
 
     template<typename C, typename T>
@@ -198,6 +224,10 @@ namespace edm {
 
     struct RefProdRefHolderToRefVector {
       static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
 	throw edm::Exception(errors::InvalidReference)
 	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
       }

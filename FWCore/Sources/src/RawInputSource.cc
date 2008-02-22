@@ -1,12 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.6 2007/07/18 13:22:45 marafino Exp $
+$Id: RawInputSource.cc,v 1.13 2007/07/31 23:58:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "DataFormats/Provenance/interface/Timestamp.h" 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
@@ -18,8 +19,9 @@ namespace edm {
     newRun_(true),
     newLumi_(true),
     ep_(),
-    lbp_()
-  { }
+    lbp_() {
+      setTimestamp(Timestamp::beginOfTime());
+  }
 
   RawInputSource::~RawInputSource() {
   }
@@ -43,25 +45,38 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RawInputSource::readRun_() {
-    newRun_ = false;
-    return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runNumber_, productRegistry(), processConfiguration()));
+    if (!newRun_) {
+      return boost::shared_ptr<RunPrincipal>();
+    } else {
+      newRun_ = false;
+      return boost::shared_ptr<RunPrincipal>(
+	new RunPrincipal(runNumber_,
+			 timestamp(),
+			 Timestamp::invalidTimestamp(),
+			 productRegistry(),
+			 processConfiguration()));
+    }
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RawInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    if (newRun_) {
+    if (newRun_ || !newLumi_) {
       lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
     } else {
       newLumi_ = false;
       lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(luminosityBlockNumber_, productRegistry(), rp, processConfiguration()));
+	new LuminosityBlockPrincipal(luminosityBlockNumber_,
+				     timestamp(),
+				     Timestamp::invalidTimestamp(),
+				     productRegistry(),
+				     rp,
+				     processConfiguration()));
     }
     return lbp_;
   }
 
   std::auto_ptr<EventPrincipal>
-  RawInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) {
+  RawInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     if (remainingEvents_ == 0 || newRun_ || newLumi_) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
@@ -78,8 +93,8 @@ namespace edm {
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventId, Timestamp(tstamp),
-	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Unspecified));
+	new EventPrincipal(eventId, tstamp,
+	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.2 2007/01/19 15:40:30 covarell Exp $
+// $Id: TrackHitFilter.cc,v 1.3 2007/06/22 08:20:39 covarell Exp $
 //
 //
 
@@ -106,12 +106,13 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (accHits.at(nTr) >= theMinHits) {
        const Track * trk = &(*iTrack2);
        Track * myTrk = new Track(*trk);
+       PropagationDirection seedDir = trk->seedDirection();
        myTrk->setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
        TrackExtra * tx = new TrackExtra( trk->outerPosition(), trk->outerMomentum(), 
 					   trk->outerOk(), trk->innerPosition(), 
 					   trk->innerMomentum(), trk->innerOk(),
 					   trk->outerStateCovariance(), trk->outerDetId(),
-					   trk->innerStateCovariance(), trk->innerDetId() ) ;	
+					   trk->innerStateCovariance(), trk->innerDetId() , seedDir ) ;	
 
        unsigned int i = 0; 
        for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {

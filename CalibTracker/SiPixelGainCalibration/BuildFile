@@ -15,11 +15,9 @@
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=CalibFormats/SiPixelObjects>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibTrackerSiPixelGainCalibration>
-   <use name=CalibFormats/SiPixelObjects>
    <use name=FWCore/Framework>
    <use name=PhysicsTools/UtilAlgos>
    <use name=Foundation/PluginManager>

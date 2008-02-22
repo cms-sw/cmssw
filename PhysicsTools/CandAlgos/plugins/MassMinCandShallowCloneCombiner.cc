@@ -13,7 +13,9 @@ namespace reco {
   namespace modules {
 
     typedef CandCombiner< 
+              reco::CandidateCollection,
               MassMinSelector,
+              reco::CandidateCollection,
               AnyPairSelector,
               combiner::helpers::ShallowClone
             > MassMinCandShallowCloneCombiner;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/08 09:53:32 $
- *  $Revision: 1.14.2.2 $
+ *  $Date: 2007/06/08 09:58:58 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -19,16 +19,23 @@
 // constructors and destructor
 //
 HLTMakeSummaryObjects::HLTMakeSummaryObjects(const edm::ParameterSet& iConfig)
-  : tns_(), fob0_(), fob1_(), fob2_(), fobs_(), fobnames_(), pobs_()
+  : tns_(), selector_(edm::ProcessNameSelector("*")), 
+    fob0_(), fob1_(), fob2_(), fobs_(), fobnames_(), pobs_()
 {
 
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
     // get tns pointer
     tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
     if (tns_!=0) {
+
+      const std::string& processName(tns_->getProcessName());
+      LogDebug("") << "Current process name: " << processName;
+      selector_=edm::ProcessNameSelector(processName);
+
       const std::vector<std::string>& paths(tns_->getTrigPaths());
       const unsigned int n(paths.size());
-      LogDebug("") << "Number of trigger paths: " << n;
+
+      LogDebug("") << "Number of HLT  paths: " << n;
 
       //register your products
       for (unsigned int p=0; p!=n; ++p) {
@@ -69,15 +76,15 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      return;
    }
 
-   // get all possible types of filter objects
+   // get all possible types of filter objects created in current process
 
    fob0_.clear();
    fob1_.clear();
    fob2_.clear();
 
-   iEvent.getManyByType(fob0_);
-   iEvent.getManyByType(fob1_);
-   iEvent.getManyByType(fob2_);
+   iEvent.getMany(selector_,fob0_);
+   iEvent.getMany(selector_,fob1_);
+   iEvent.getMany(selector_,fob2_);
 
    const unsigned int n0(fob0_.size());
    const unsigned int n1(fob1_.size());

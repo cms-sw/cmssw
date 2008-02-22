@@ -16,7 +16,10 @@ Measurement1D TrajectoryStateClosestToBeamLine::transverseImpactParameter() cons
   GlobalPoint impactPoint=theFTS.position();
   AlgebraicVector3 transverseFlightPath(
 	impactPoint.x()-thePointOnBeamLine.x(),impactPoint.y()-thePointOnBeamLine.y(),0.);
+  double length = ROOT::Math::Mag(transverseFlightPath);
+  // Warning: after the transverseFlightPath.Unit() statement, the
+  // transverseFlightPath vector is CHANGED to a UNIT vector.
   double ipError = sqrt( ROOT::Math::Similarity(transverseFlightPath.Unit(),error) );
-  return Measurement1D (ROOT::Math::Mag(transverseFlightPath), ipError);
+  return Measurement1D (length, ipError);
 }
 

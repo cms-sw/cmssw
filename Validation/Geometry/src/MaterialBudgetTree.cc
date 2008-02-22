@@ -4,14 +4,12 @@
 
 MaterialBudgetTree::MaterialBudgetTree(MaterialBudgetData* data, const std::string& filename ): MaterialBudgetFormat( data )
 {
-
   theFile = new TFile(filename.c_str(),"RECREATE");
   
   theFile->cd();
 
   book();
-
-
+  
 }
 
 
@@ -77,10 +75,11 @@ void MaterialBudgetTree::book()
     theTree->Branch("Volume Z axis 2", t_VolumeZaxis2, "VolumeZaxis2[Nsteps]/F");
     theTree->Branch("Volume Z axis 3", t_VolumeZaxis3, "VolumeZaxis3[Nsteps]/F");
     
-    theTree->Branch("Material ID",      t_MaterialID,   "MaterialID[Nsteps]/I");
-    theTree->Branch("Material Name",    t_MaterialName, "MaterialName[Nsteps]/C");
-    theTree->Branch("Material X0",      t_MaterialX0,   "MaterialX0[Nsteps]/F");
-    theTree->Branch("Material Lambda0", t_MaterialX0,   "MaterialLambda0[Nsteps]/F");
+    theTree->Branch("Material ID",      t_MaterialID,      "MaterialID[Nsteps]/I");
+    theTree->Branch("Material Name",    t_MaterialName,    "MaterialName[Nsteps]/C");
+    theTree->Branch("Material X0",      t_MaterialX0,      "MaterialX0[Nsteps]/F");
+    theTree->Branch("Material Lambda0", t_MaterialLambda0, "MaterialLambda0[Nsteps]/F");
+    theTree->Branch("Material Density", t_MaterialDensity, "MaterialDensity[Nsteps]/F");
     
     theTree->Branch("Particle Step ID",             t_ParticleStepID,            "Step_ID[Nsteps]/I");
     theTree->Branch("Particle Step Initial Pt",     t_ParticleStepInitialPt,     "Step_Initial_Pt[Nsteps]/F");
@@ -187,6 +186,7 @@ void MaterialBudgetTree::fillEndTrack()
       t_MaterialName[ii]      = const_cast<char*> (theData->getStepMaterialName(ii).c_str());
       t_MaterialX0[ii]        = theData->getStepMaterialX0(ii);
       t_MaterialLambda0[ii]   = theData->getStepMaterialLambda0(ii);
+      t_MaterialDensity[ii]   = theData->getStepMaterialDensity(ii);
       
       t_ParticleStepID[ii]            = theData->getStepID(ii);
       t_ParticleStepInitialPt[ii]     = theData->getStepInitialPt(ii);

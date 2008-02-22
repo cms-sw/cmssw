@@ -120,14 +120,18 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 					 (**ihit).det()->surface());
     }
     if(!predTsos.isValid()) {
+      if ( myTraj.foundHits()>=3 ) {
+	edm::LogInfo("GsfTrajectoryFitter") 
+	  << "GsfTrajectoryFitter: predicted tsos not valid! \n"
+	  << "Returning trajectory with " << myTraj.foundHits() << " found hits.";
+	return std::vector<Trajectory>(1,myTraj);
+      }
+      else {
       edm::LogInfo("GsfTrajectoryFitter") 
-	<< "GsfTrajectoryFitter: predicted tsos not valid! \n"
-	<< "returning trajectory with " << myTraj.foundHits() << " found hits";
-      //       edm::LogInfo("GsfTrajectoryFitter") << "current TSOS: "<<currTsos;
-      //       if((**ihit).isValid())
-      // 	edm::LogInfo("GsfTrajectoryFitter") << "next Surface: "<<(**ihit).det().surface().position();
-//       return std::vector<Trajectory>();
-      return std::vector<Trajectory>(1,myTraj);
+	<< "GsfTrajectoryFitter: predicted tsos not valid after " << myTraj.foundHits()
+	<< " hits, discarding candidate!";
+	return std::vector<Trajectory>();
+      }
     }
     if ( merger() ) predTsos = merger()->merge(predTsos);
     

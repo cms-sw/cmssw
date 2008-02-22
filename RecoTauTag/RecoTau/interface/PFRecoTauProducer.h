@@ -1,16 +1,14 @@
-#ifndef RecoTauTag_PFRecoTau
-#define RecoTauTag_PFRecoTau
+#ifndef RecoTauTag_RecoTau_PFRecoTauProducer
+#define RecoTauTag_RecoTau_PFRecoTauProducer
 
-/* class PFRecoTau
- * EDProducer of the tagged TauJet with the PFConeIsolationAlgorithm, 
- * authors: Simone Gennai, Ludovic Houchu
+/* class PFRecoTauProducer
+ * EDProducer of the PFTauCollection, starting from the PFTauTagInfoCollection, 
+ * authors: Simone Gennai (simone.gennai@cern.ch), Ludovic Houchu (Ludovic.Houchu@cern.ch)
  */
 
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,12 +16,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
 
+#include "CLHEP/Random/RandGauss.h"
 
 #include <memory>
 
@@ -33,18 +34,15 @@ using namespace std;
 
 class PFRecoTauProducer : public EDProducer {
  public:
-  explicit PFRecoTauProducer(const ParameterSet& iConfig){
-    PFTagInfo_  = iConfig.getParameter<InputTag>("PFTagInfo");
-    PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
-    JetMinPt_  = iConfig.getParameter<double>("JetPtMin");
-    produces<TauCollection>();      
-  }
-  ~PFRecoTauProducer(){
-    delete PFRecoTauAlgo_;
-  }
+  explicit PFRecoTauProducer(const ParameterSet& iConfig);
+  ~PFRecoTauProducer();
   virtual void produce(Event&,const EventSetup&);
  private:
-  InputTag PFTagInfo_;
+  InputTag PFTauTagInfoProducer_;
+  string PVProducer_;
+  double smearedPVsigmaX_;
+  double smearedPVsigmaY_;
+  double smearedPVsigmaZ_;
   double JetMinPt_;
   PFRecoTauAlgorithm* PFRecoTauAlgo_;
 };

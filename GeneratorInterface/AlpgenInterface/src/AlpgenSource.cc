@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/07/13 16:07:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/08 09:58:19 $
+ *  $Revision: 1.9 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -234,6 +234,7 @@ bool AlpgenSource::produce(Event & e) {
     
     //    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
+    
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     

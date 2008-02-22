@@ -1,17 +1,9 @@
-<use name=PhysicsTools/IsolationAlgos>
-
-<library file=CandPtIsolationProducer.cc>
+<export></export>
+<library name=PhysicsToolsIsolationAlgos_plugins file=*.cc> 
   <use name=DataFormats/Candidate>
-</library>
-
-
-<library file=MuonCalIsolationProducer.cc>
   <use name=DataFormats/MuonReco>
-  <use name=PhysicsTools/IsolationAlgos>
-</library>
-
-
-<library file=TrkCalIsolationProducer.cc>
   <use name=DataFormats/TrackReco>
   <use name=PhysicsTools/IsolationUtils>
+  <use name=PhysicsTools/IsolationAlgos>
+  <use name=RecoMuon/MuonIsolation>
 </library>

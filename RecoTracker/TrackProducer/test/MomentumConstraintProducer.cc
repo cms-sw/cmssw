@@ -5,15 +5,15 @@
 // 
 /**\class MomentumConstraintProducer MomentumConstraintProducer.cc RecoTracker/ConstraintProducerTest/src/MomentumConstraintProducer.cc
 
- Description: <one line class summary>
+Description: <one line class summary>
 
- Implementation:
-     <Notes on implementation>
+Implementation:
+<Notes on implementation>
 */
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id$
+// $Id: MomentumConstraintProducer.cc,v 1.1 2007/07/16 10:07:48 cerati Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 
@@ -37,16 +38,17 @@
 //
 
 class MomentumConstraintProducer: public edm::EDProducer {
-   public:
-      explicit MomentumConstraintProducer(const edm::ParameterSet&);
-      ~MomentumConstraintProducer();
+public:
+  explicit MomentumConstraintProducer(const edm::ParameterSet&);
+  ~MomentumConstraintProducer();
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
       
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
+  const edm::ParameterSet iConfig_;
 };
 
 //
@@ -60,20 +62,20 @@ class MomentumConstraintProducer: public edm::EDProducer {
 //
 // constructors and destructor
 //
-MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig)
+MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig) : iConfig_(iConfig)
 {
-   //register your products
-   produces<std::vector<MomentumConstraint> >();
-   produces<TrackMomConstraintAssociationCollection>();
+  //register your products
+  produces<std::vector<MomentumConstraint> >();
+  produces<TrackMomConstraintAssociationCollection>();
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
 
 MomentumConstraintProducer::~MomentumConstraintProducer()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -85,8 +87,9 @@ MomentumConstraintProducer::~MomentumConstraintProducer()
 void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  InputTag srcTag = iConfig_.getParameter<InputTag>("src");
   Handle<reco::TrackCollection> theTCollection;
-  iEvent.getByLabel("ctfWithMaterialTracks",theTCollection);
+  iEvent.getByLabel(srcTag,theTCollection);
   
   std::auto_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
   std::auto_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);

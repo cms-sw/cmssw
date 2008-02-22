@@ -1,34 +1,59 @@
-#include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
-#include <TTree.h>
-#include <TApplication.h>
 #include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
-DialogFrame::DialogFrame(PFRootEventManager *evman,const TGWindow *p,UInt_t w,UInt_t h)
-                         :TGMainFrame(p, w, h)
+#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
+#include <TTree.h>
+#include "TLine.h"
+#include "TList.h"
+#include <TApplication.h>
+
+
+
+DialogFrame::DialogFrame(PFRootEventManager *evman,DisplayManager *dm,const TGWindow *p,UInt_t w,UInt_t h)
+                         :TGMainFrame(p, w, h),evMan_(evman),display_(dm)
 {
-  evMan_=evman;
-  mainFrame_= new TGCompositeFrame(this,200,300);
-  maxEvents_=evMan_->tree_->GetEntries();
-  eventNb_=evMan_->iEvent_;
   
-  //create object selection buttons
+  mainFrame_= new TGCompositeFrame(this,200,300);
+  //maxEvents_=evMan_->tree_->GetEntries();
+  
+  createCmdFrame();
+  
+   
+  AddFrame(mainFrame_, new TGLayoutHints(kLHintsLeft | kLHintsExpandY,2,0,2,2));
+  // Set a name to the main frame
+  SetWindowName("PFRootEvent Dialog");
+  // Map all subwindows of main frame
+  MapSubwindows();
+  // Initialize the layout algorithm
+  Resize(mainFrame_->GetDefaultSize());
+  // Map main frame
+  MapWindow();
+    
+}
+//__________________________________________________________________________________________________
+void DialogFrame::createCmdFrame() 
+{
+ //create object selection buttons
   TGGroupFrame *gr1= new TGGroupFrame(mainFrame_,"Draw Selection",kVerticalFrame); 
   gr1->SetLayoutManager(new TGMatrixLayout(gr1,6,3,5));
   
   selectObject[0] = new TGCheckButton(gr1,"Hits");
-  selectObject[0]->SetState(kButtonDown);
+  selectObject[0]->SetState(display_->drawHits_ ? kButtonDown :kButtonUp);
   selectObject[0]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=0)");
   selectObject[1] = new TGCheckButton(gr1,"Clusters");
-  selectObject[1]->SetState(kButtonDown);
+  selectObject[1]->SetState(display_->drawClus_ ? kButtonDown :kButtonUp);
   selectObject[1]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=1)");
   selectObject[2] = new TGCheckButton(gr1,"Tracks");
-  selectObject[2]->SetState(evMan_->displayRecTracks_ ?kButtonDown :kButtonUp);
+  selectObject[2]->SetState(display_->drawTracks_ ? kButtonDown :kButtonUp);
   selectObject[2]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=2)");
   selectObject[3] = new TGCheckButton(gr1,"Particles");
-  selectObject[3]->SetState(evMan_->displayTrueParticles_ ?kButtonDown :kButtonUp);
+  selectObject[3]->SetState(display_->drawParticles_ ? kButtonDown :kButtonUp);
   selectObject[3]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=3)");
   selectObject[4] = new TGCheckButton(gr1,"ClusterLines");
-  selectObject[4]->SetState(evMan_->displayClusterLines_ ?kButtonDown :kButtonUp);
+  selectObject[4]->SetState(display_->drawClusterL_ ? kButtonDown :kButtonUp);
   selectObject[4]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=4)");
 
   // create threshold fields
@@ -43,10 +68,10 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,const TGWindow *p,UInt_t w,UI
     threshEntry[i]->SetLimits(lim,0,5);
     threshEntry[i]->SetFormat((TGNumberFormat::EStyle)0);
   }
-  thresholdS[0]->SetPosition((long)(evMan_->displayRecHitsPtMin_));
-  thresholdS[1]->SetPosition((long)(evMan_->displayClustersPtMin_));
-  thresholdS[2]->SetPosition((long)(evMan_->displayRecTracksPtMin_));
-  thresholdS[3]->SetPosition((long)(evMan_->displayTrueParticlesPtMin_));
+  thresholdS[0]->SetPosition((long) display_->hitEnMin_);
+  thresholdS[1]->SetPosition((long) display_->clusEnMin_);
+  thresholdS[2]->SetPosition((long) display_->trackPtMin_);
+  thresholdS[3]->SetPosition((long) display_->particlePtMin_);
   
   int charw= threshEntry[0]->GetCharWidth("O");
   int size=charw*4;
@@ -59,7 +84,7 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,const TGWindow *p,UInt_t w,UI
   TGLayoutHints *lo=new TGLayoutHints(kLHintsTop | kLHintsLeft, 5, 5, 5, 5);
   TGLabel *label=new TGLabel(gr1,"  ");
   gr1->AddFrame(label,lo);
-  label=new TGLabel(gr1,"Pt Threshold");
+  label=new TGLabel(gr1," En/Pt  Threshold");
   gr1->AddFrame(label,lo);
   label=new TGLabel(gr1," (Gev) ");  
   gr1->AddFrame(label,lo);
@@ -84,25 +109,15 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,const TGWindow *p,UInt_t w,UI
   previousButton = new TGTextButton(h1,"Draw Previous");
   previousButton->Connect("Clicked()","DialogFrame",this,"doPreviousEvent()");
   h1->AddFrame(previousButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
+  
+  reProcessButton = new TGTextButton(h1,"Re-Process");
+  reProcessButton->Connect("Clicked()","DialogFrame",this,"doReProcessEvent()");
+  h1->AddFrame(reProcessButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
     
   exitButton = new TGTextButton(h1,"&Exit","gApplication->Terminate(0)");
   h1->AddFrame(exitButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
+}  
   
-  // 
-   
-  AddFrame(mainFrame_, new TGLayoutHints(kLHintsLeft | kLHintsExpandY,2,0,2,2));
-  // Set a name to the main frame
-  SetWindowName("PFRootEvent");
-  // Map all subwindows of main frame
-  MapSubwindows();
-  // Initialize the layout algorithm
-  Resize(mainFrame_->GetDefaultSize());
-  // Map main frame
-  MapWindow();
-  
-  // display first event 
-  evMan_->display(eventNb_);
-}
 //________________________________________________________________________________
 void DialogFrame::CloseWindow()
 {
@@ -113,25 +128,27 @@ void DialogFrame::CloseWindow()
 void DialogFrame::doModifyOptions(unsigned objNb)
 {
  // hits and clusters are always drawn !
- eventNb_=evMan_->iEvent_;
+ //int eventNb = evMan_->iEvent_;
+   //case 0: selectObject[0]->SetState(kButtonDown); break;
+   //case 1: selectObject[1]->SetState(kButtonDown); break;
  switch (objNb) {
-   case 0: selectObject[0]->SetState(kButtonDown); break;
-   case 1: selectObject[1]->SetState(kButtonDown); break;
+   case 0:
+     display_->drawHits_ = (selectObject[0]->IsDown()) ?true :false;
+     break;
+   case 1:
+     display_->drawClus_ = (selectObject[1]->IsDown()) ?true :false;
+     break; 
    case 2:
-     evMan_->displayRecTracks_ = (selectObject[2]->IsDown()) ?true :false;
-     evMan_->display(eventNb_);
+     display_->drawTracks_ = (selectObject[2]->IsDown()) ?true :false;
      break;
    case 3: 
-     evMan_->displayTrueParticles_ = (selectObject[3]->IsDown()) ?true :false;
-     evMan_->display(eventNb_);
-     //doDraw();
+     display_->drawParticles_ = (selectObject[3]->IsDown()) ?true :false;
      break;
    case 4:
-     evMan_->displayClusterLines_ = (selectObject[4]->IsDown()) ?true :false;
-     evMan_->display(eventNb_);
-     //doDraw();
+     display_->drawClusterL_ = (selectObject[4]->IsDown()) ?true :false;
      break;
- }    
+ }
+ display_->displayAll();    
 }
 //_______________________________________________________________________________
 DialogFrame::~DialogFrame()
@@ -142,32 +159,54 @@ DialogFrame::~DialogFrame()
 void DialogFrame::doModifyPtThreshold(unsigned objNb,long pt)
 {
  switch(objNb) {
-   case 0: evMan_->displayRecHitsPtMin_=(double)pt;break;
-   case 1: evMan_->displayClustersPtMin_=(double)pt;break;
-   case 2: evMan_->displayRecTracksPtMin_=(double)pt;break;
-   case 3: evMan_->displayTrueParticlesPtMin_=(double)pt;break;
+   case 0: 
+     display_->hitEnMin_=(double)pt;break;
+     break;
+   case 1:
+     display_->clusEnMin_=(double)pt;break;
+     break;
+   case 2:
+     display_->trackPtMin_=(double)pt;break;
+     break;
+   case 3:
+     display_->particlePtMin_=(double)pt;break;
    default:break;
  }  
- eventNb_=evMan_->iEvent_;
- evMan_->display(eventNb_);
+ display_->displayAll();
 }
 //_________________________________________________________________________________
 void DialogFrame::doNextEvent()
 {
- eventNb_=evMan_->iEvent_;
- if (eventNb_<maxEvents_) {
-    ++eventNb_;
-    evMan_->display(eventNb_);
- }   
+ display_->displayNext();
+ int eventNb = evMan_->getEventIndex();
+ //TODOLIST:display new value of eventNb in the futur reserve field
 } 
 //_________________________________________________________________________________
 void DialogFrame::doPreviousEvent()
 {
- eventNb_=evMan_->iEvent_;
- if (eventNb_>0) {
-   --eventNb_;
-   evMan_->display(eventNb_);
- }  
+  display_->displayPrevious();
+  int eventNb = evMan_->getEventIndex();
+  //TODOLIST:display new value of eventNb in the futur reserve field
+}
+//__________________________________________________________________________________
+void DialogFrame::doReProcessEvent()
+{
+// TODOLIST:evMan_->connect() + nouveau nom de fichier s'il y a lieu ??
+ int eventNb = evMan_->getEventIndex();
+ display_->display(eventNb);
+}
+
+
+//________________________________________________________________________________
+void DialogFrame::updateDisplay()
+{
+  display_->updateDisplay();
+}
+
+//________________________________________________________________________________
+void DialogFrame::unZoom()
+{
+  display_->unZoom();
 }
 //_________________________________________________________________________________
 Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
@@ -179,11 +218,10 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
          switch (parm1) {
 	   case EN :case EN+1: case EN+2: case EN+3:
 	      {
-	       eventNb_=evMan_->iEvent_;
+	       //int eventNb=evMan_->iEvent_;
 	       long val=threshEntry[parm1-EN]->GetIntNumber();
 	       thresholdS[parm1-EN]->SetPosition(val);
 	       doModifyPtThreshold(parm1-EN,val);
-	       evMan_->display(eventNb_);
                break;
 	      }
 	   default:break;

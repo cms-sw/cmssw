@@ -46,7 +46,7 @@ public:
 
   pair<RefCountedRefittedTrackState, AlgebraicMatrix> 
 	trackRefit(const VertexState & vertex,
-		RefCountedLinearizedTrackState linTrackState, float weight=1.0 ) const;
+		RefCountedLinearizedTrackState linTrackState) const;
 
   /**
    *  Clone method

@@ -7,13 +7,22 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 
-
+#include <string>
+#include <memory>
+#include <map>
+#
 using namespace std;
 using namespace reco;
 
@@ -65,6 +74,12 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
 
   using namespace edm;
+
+   const CaloGeometry* geo;
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<IdealGeometryRecord>().get(pG);
+   geo = pG.product();
+   
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
@@ -73,7 +88,25 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
   }
-   if(nameProd_ != "IsoProd")
+   if(nameProd_ == "ALCARECOMuAlZMuMu" )
+   {
+   
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel("horeco", ho);
+   const HORecHitCollection Hitho = *(ho.product());
+   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+   edm::Handle<MuonCollection> mucand;
+   iEvent.getByLabel(nameProd_,"SelectedMuons", mucand);
+   std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
+   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
+   {
+      TrackRef mu = (*it).combinedMuon();
+      std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
+   }
+   
+   }  
+  
+   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" )
    {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
@@ -97,25 +130,73 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    cout<<" We are here "<<endl;
    edm::Handle<reco::TrackCollection> tracks;
    iEvent.getByLabel(nameProd_,Tracks_,tracks);
+ 
+   
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
+   reco::TrackCollection::const_iterator track = tracks->begin ();
+
+          for (; track != tracks->end (); track++)
+         {
+           cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<endl;
+         }  
 
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByLabel(nameProd_,ecalInput_,ecal);
    const EcalRecHitCollection Hitecal = *(ecal.product());
-   std::cout<<" Size of HO "<<(Hitecal).size()<<std::endl;
+   std::cout<<" Size of Ecal "<<(Hitecal).size()<<std::endl;
+   EcalRecHitCollection::const_iterator hite = (ecal.product())->begin ();
 
+         double energyECAL = 0.;
+         double energyHCAL = 0.;
+
+          for (; hite != (ecal.product())->end (); hite++)
+         {
+
+//           cout<<" Energy ECAL "<<(*hite).energy()<<endl;
+
+
+//	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
+
+	 GlobalPoint posE = geo->getPosition((*hite).detid());
+
+           cout<<" Energy ECAL "<<(*hite).energy()<<
+	   " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
+
+         energyECAL = energyECAL + (*hite).energy();
+	 
+         }
 
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_,hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
+   HBHERecHitCollection::const_iterator hith = (hbhe.product())->begin ();
+
+          for (; hith != (hbhe.product())->end (); hith++)
+         {
+
+	 GlobalPoint posH = geo->getPosition((*hith).detid());
+
+           cout<<" Energy HCAL "<<(*hith).energy()<<
+	   " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;
+
+         energyHCAL = energyHCAL + (*hith).energy();
+	 
+         }
+   
+   cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<endl;
    
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(nameProd_,hoInput_,ho);
    const HORecHitCollection Hitho = *(ho.product());
-   std::cout<<" Size of HBHE "<<(Hitho).size()<<std::endl;
+   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+   HORecHitCollection::const_iterator hito = (ho.product())->begin ();
 
-
+          for (; hito != (ho.product())->end (); hito++)
+         {
+//           cout<<" Energy HO    "<<(*hito).energy()<<endl;
+//	   " eta "<<(*hite).eta()<<" phi "<<(*hite).phi()<<endl;
+         }
 
    }
    if(nameProd_ == "GammaJetProd" || nameProd_ == "DiJProd")

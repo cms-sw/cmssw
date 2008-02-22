@@ -1,0 +1,20 @@
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/Math>
+<use name=DataFormats/TauReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=PhysicsTools/IsolationUtils>
+<use name=TrackingTools/GeomPropagators>
+<use name=root>
+<export>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/TauReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=PhysicsTools/IsolationUtils>
+  <lib name=RecoTauTagTauTagTools>
+</export>
+

@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/06/11 19:07:32 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/21 10:13:25 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,7 +74,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -109,10 +109,6 @@ CollateMonitorElement* me_hs01_[18];
 CollateMonitorElement* me_hs02_[18];
 CollateMonitorElement* me_hs03_[18];
 
-CollateMonitorElement* me_he01_[18];
-CollateMonitorElement* me_he02_[18];
-CollateMonitorElement* me_he03_[18];
-
 TProfile2D* ha01_[18];
 TProfile2D* ha02_[18];
 TProfile2D* ha03_[18];
@@ -129,10 +125,6 @@ MEContentsProf2DWithinRangeROOT* qtha07_[18];
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
 TProfile2D* hs03_[18];
-
-TH2F* he01_[18];
-TH2F* he02_[18];
-TH2F* he03_[18];
 
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];
@@ -162,7 +154,6 @@ TProfile2D* i04_[18];
 
 float percentVariation_;
 float RMSThreshold_;
-float threshold_on_AmplitudeErrorsNumber_;
 
 // Quality check on PNs
 
@@ -171,6 +162,13 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg04_[36];
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

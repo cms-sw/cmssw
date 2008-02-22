@@ -7,19 +7,18 @@
 
 class JetTagComputer {
 public:
-  // default constructor
-  JetTagComputer(void) { }
+	// default constructor
+	JetTagComputer() {}
+	virtual ~JetTagComputer() {}
 
-  // explicit constructor accepting a ParameterSet for configuration
-  explicit JetTagComputer(const edm::ParameterSet & configuration) { }
-  
-  virtual float discriminator(const reco::BaseTagInfo &) const = 0;
-  virtual void  setEventSetup(const edm::EventSetup &) const { }
+	// explicit constructor accepting a ParameterSet for configuration
+	explicit JetTagComputer(const edm::ParameterSet & configuration) {}
 
-  float operator()(const reco::BaseTagInfo & info) const {
-    return discriminator(info);
-  }
-  
+	virtual float discriminator(const reco::BaseTagInfo &) const = 0;
+	virtual void setEventSetup(const edm::EventSetup &) const {}
+
+	float operator()(const reco::BaseTagInfo & info) const
+	{ return discriminator(info); }
 };
 
 #endif // RecoBTau_JetTagComputer_h

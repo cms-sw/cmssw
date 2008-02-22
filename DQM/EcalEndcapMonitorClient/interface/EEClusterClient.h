@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/05/22 15:44:13 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/24 17:10:53 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -75,7 +75,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

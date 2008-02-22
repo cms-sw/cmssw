@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2007/03/07 08:31:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/17 22:46:41 $
+ *  $Revision: 1.3 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -83,9 +83,9 @@ void testDaqSource::testReadFile(){
 
   const std::string config=
     "process TEST = { \n"
-    "source = DaqSource{ string reader = \"DaqFileReader\"\n"
-    "                    untracked int32 maxEvents = 1\n"
-    "                    PSet pset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
+    "untracked PSet maxEvents = {untracked int32 input = 1}"
+    "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
+    "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
     "module dummyunpacker = DummyUnpackingModule{ }\n"
     "path p = {dummyunpacker}\n"
     "}\n";
@@ -102,13 +102,14 @@ void testDaqSource::testReadFileWritePool(){
 
   const std::string config=
     "process TEST = { \n"
-    "source = DaqSource{ string reader = \"DaqFileReader\"\n"
-    "                    untracked int32 maxEvents = 1\n"
-    "                    PSet pset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
+    "untracked PSet maxEvents = {untracked int32 input = 1}"
+    "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
+    "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
     "module dummyunpacker = DummyUnpackingModule{ }\n"
     "module out = PoolOutputModule {\n"
     "                     string fileName =\"" + testfileLocation+ "rawdata.root" +"\"} \n"
-    "path p = {dummyunpacker,out}\n"
+    "path p     = {dummyunpacker}\n"
+    "endpath ep = {out}\n"
     "}\n";
  int rc = runIt(config);
  CPPUNIT_ASSERT(rc==0);
@@ -123,6 +124,7 @@ void testDaqSource::testReadPool(){
 
   const std::string config=
     "process TEST = { \n"
+    "untracked PSet maxEvents = {untracked int32 input = 1}"
     " module dummyunpacker = DummyUnpackingModule{ }\n"
     " path p = {dummyunpacker}\n"
     " source = PoolSource{ untracked vstring fileNames ={\"file:" + testfileLocation+ "rawdata.root" +"\"}} \n"
@@ -142,9 +144,9 @@ void testDaqSource::testGenerate(){
 
   const std::string config=
     "process TEST = { \n"
-    "source = DaqSource{ string reader = \"DaqFakeReader\"\n"
-    "                    untracked int32 maxEvents = 1\n"
-    "                    PSet pset = { untracked int32 dummy = 0} }\n"
+    "untracked PSet maxEvents = {untracked int32 input = 1}"
+    "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
+    "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
     "module dummyunpacker = DummyUnpackingModule{ }\n"
     "path p = {dummyunpacker}\n"
     "}\n";
@@ -161,13 +163,14 @@ void testDaqSource::testGenerateWritePool(){
 
   const std::string config=
     "process TEST = { \n"
-    "source = DaqSource{ string reader = \"DaqFakeReader\"\n"
-    "                    untracked int32 maxEvents = 1\n"
-    "                    PSet pset = { untracked int32 dummy = 0} }\n"
+    "untracked PSet maxEvents = {untracked int32 input = 1}"
+    "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
+    "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
     "module dummyunpacker = DummyUnpackingModule{ }\n"
     "module out = PoolOutputModule {\n"
     "                     untracked string fileName =\"" + testfileLocation+ "rawdata.root" +"\"} \n"
-    "path p = {dummyunpacker,out}\n"
+    "path     p = {dummyunpacker}\n"
+    "endpath ep = {out}\n"
     "}\n";
  int rc = runIt(config);
  CPPUNIT_ASSERT(rc==0);

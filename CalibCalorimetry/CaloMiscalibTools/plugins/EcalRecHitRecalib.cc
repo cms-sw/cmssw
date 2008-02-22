@@ -19,6 +19,8 @@ EcalRecHitRecalib::EcalRecHitRecalib(const edm::ParameterSet& iConfig)
   endcapHits_ = iConfig.getParameter< std::string > ("endcapHitCollection");
   RecalibBarrelHits_ = iConfig.getParameter< std::string > ("RecalibBarrelHitCollection");
   RecalibEndcapHits_ = iConfig.getParameter< std::string > ("RecalibEndcapHitCollection");
+  refactor_ = iConfig.getUntrackedParameter<double> ("Refactor",(double)1);
+  refactor_mean_ = iConfig.getUntrackedParameter<double> ("Refactor_mean",(double)1);
 
   //register your products
   produces< EBRecHitCollection >(RecalibBarrelHits_);
@@ -87,10 +89,10 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
           
           // make the rechit with rescaled energy and put in the output collection
-
-	  EcalRecHit aHit(itb->id(),itb->energy()*icalconst,itb->time());
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)
+	EcalRecHit aHit(itb->id(),itb->energy()*icalconst,itb->time());
 	  
-	  RecalibEBRecHitCollection->push_back( aHit);
+	RecalibEBRecHitCollection->push_back( aHit);
       }
     }
 
@@ -114,10 +116,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
           
           // make the rechit with rescaled energy and put in the output collection
-
-	  EcalRecHit aHit(ite->id(),ite->energy()*icalconst,ite->time());
-	  
-	  RecalibEERecHitCollection->push_back( aHit);
+	
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)
+	EcalRecHit aHit(ite->id(),ite->energy()*icalconst,ite->time());
+	
+	RecalibEERecHitCollection->push_back( aHit);
       }
     }
 

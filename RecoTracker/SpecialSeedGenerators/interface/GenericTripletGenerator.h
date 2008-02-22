@@ -8,8 +8,10 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+
+//class ctfseeding::SeedingLayers;
 
 class GenericTripletGenerator : public OrderedHitsGenerator {
 	public:
@@ -20,7 +22,11 @@ class GenericTripletGenerator : public OrderedHitsGenerator {
 					      const edm::EventSetup& es);
 	private:
 	ctfseeding::SeedingLayerSets init(const edm::EventSetup& es);
-	edm::ParameterSet conf_;
+	std::pair<bool,float> qualityFilter(const OrderedHitTriplet& oht, 
+					    const std::map<float, OrderedHitTriplet>& map,
+					    const ctfseeding::SeedingLayers& ls) const;
+	//edm::ParameterSet conf_;
+	SeedingLayerSetsBuilder theLsb;	
 	OrderedHitTriplets hitTriplets;
 };
 

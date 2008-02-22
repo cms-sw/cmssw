@@ -34,7 +34,7 @@ public:
     Stamp (Counter &counter);
     
     void		tick (double amount = 0.) const;
-  private:
+  protected:
     Counter		&m_counter;
     double		m_start;
   };

@@ -4,8 +4,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/05/10 18:34:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/18 17:21:10 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -55,7 +55,7 @@ class TrackerSeedGeneratorBC : public TrackerSeedGenerator {
   /// destructor
   virtual ~TrackerSeedGeneratorBC();
 
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection&);
+  BTSeedCollection trackerSeeds(const TrackCand&, const TrackingRegion&);
     
   void setEvent(const edm::Event&);
 
@@ -83,7 +83,7 @@ class TrackerSeedGeneratorBC : public TrackerSeedGenerator {
 		  const RectangularEtaPhiTrackingRegion&,
 		  float deltaEta, float deltaPhi);
 
-  void  rsSeeds(const reco::Track&);
+  std::vector<TrajectorySeed> rsSeeds(const reco::Track&);
 
   //Propagator* thePropagator;
   //Propagator* theStepPropagator;

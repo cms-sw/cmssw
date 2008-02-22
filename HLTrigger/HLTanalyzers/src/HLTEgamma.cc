@@ -9,7 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
+
 
 HLTEgamma::HLTEgamma() {
   evtCounter=0;
@@ -31,18 +34,12 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     else if ( (*iParam) == "Debug" ) _Debug =  myEmParams.getParameter<bool>( *iParam );
   }
   
-  const int kMaxPixEl = 10000;
-  pixelpt = new float[kMaxPixEl];
-  pixelphi = new float[kMaxPixEl];
-  pixeleta = new float[kMaxPixEl];
-  pixelet = new float[kMaxPixEl];
-  pixele = new float[kMaxPixEl];
-  const int kMaxSilEl = 10000;
-  silelpt = new float[kMaxSilEl];
-  silelphi = new float[kMaxSilEl];
-  sileleta = new float[kMaxSilEl];
-  silelet = new float[kMaxSilEl];
-  silele = new float[kMaxSilEl];
+  const int kMaxEl = 10000;
+  elpt = new float[kMaxEl];
+  elphi = new float[kMaxEl];
+  eleta = new float[kMaxEl];
+  elet = new float[kMaxEl];
+  ele = new float[kMaxEl];
   const int kMaxPhot = 10000;
   photonpt = new float[kMaxPhot];
   photonphi = new float[kMaxPhot];
@@ -51,71 +48,46 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   photone = new float[kMaxPhot];
 
   // Egamma-specific branches of the tree 
-  HltTree->Branch("NobjPixElectron",&npixele,"NobjPixElectron/I");
-  HltTree->Branch("ElectronPxPt",pixelpt,"ElectronPxPt[NobjPixElectron]/F");
-  HltTree->Branch("ElectronPxPhi",pixelphi,"ElectronPxPhi[NobjPixElectron]/F");
-  HltTree->Branch("ElectronPxEta",pixeleta,"ElectronPxEta[NobjPixElectron]/F");
-  HltTree->Branch("ElectronPxEt",pixelet,"ElectronPxEt[NobjPixElectron]/F");
-  HltTree->Branch("ElectronPxE",pixele,"ElectronPxE[NobjPixElectron]/F");
-  HltTree->Branch("NobjSilElectron",&nsilele,"NobjSilElectron/I");
-  HltTree->Branch("ElectronSiPt",silelpt,"ElectronSiPt[NobjSilElectron]/F");
-  HltTree->Branch("ElectronSiPhi",silelphi,"ElectronSiPhi[NobjSilElectron]/F");
-  HltTree->Branch("ElectronSiEta",sileleta,"ElectronSiEta[NobjSilElectron]/F");
-  HltTree->Branch("ElectronSiEt",silelet,"ElectronSiEt[NobjSilElectron]/F");
-  HltTree->Branch("ElectronSiE",silele,"ElectronSiE[NobjSilElectron]/F");
-  HltTree->Branch("NobjPhoton",&nphoton,"NobjPhoton/I");
-  HltTree->Branch("PhotonPt",photonpt,"PhotonPt[NobjPhoton]/F");
-  HltTree->Branch("PhotonPhi",photonphi,"PhotonPhi[NobjPhoton]/F");
-  HltTree->Branch("PhotonEta",photoneta,"PhotonEta[NobjPhoton]/F");
-  HltTree->Branch("PhotonEt",photonet,"PhtonEt[NobjPhoton]/F");
-  HltTree->Branch("PhotonE",photone,"PhotonE[NobjPhoton]/F");
+  HltTree->Branch("NrecoElec",&nele,"NrecoElec/I");
+  HltTree->Branch("recoElecPt",elpt,"recoElecPt[NrecoElec]/F");
+  HltTree->Branch("recoElecPhi",elphi,"recoElecPhi[NrecoElec]/F");
+  HltTree->Branch("recoElecEta",eleta,"recoElecEta[NrecoElec]/F");
+  HltTree->Branch("recoElecEt",elet,"recoElecEt[NrecoElec]/F");
+  HltTree->Branch("recoElecE",ele,"recoElecE[NrecoElec]/F");
+  HltTree->Branch("NrecoPhot",&nphoton,"NrecoPhot/I");
+  HltTree->Branch("recoPhotPt",photonpt,"recoPhotPt[NrecoPhot]/F");
+  HltTree->Branch("recoPhotPhi",photonphi,"recoPhotPhi[NrecoPhot]/F");
+  HltTree->Branch("recoPhotEta",photoneta,"recoPhotEta[NrecoPhot]/F");
+  HltTree->Branch("recoPhotEt",photonet,"recoPhotEt[NrecoPhot]/F");
+  HltTree->Branch("recoPhotE",photone,"recoPhotE[NrecoPhot]/F");
 
 }
 
 /* **Analyze the event** */
-void HLTEgamma::analyze(const ElectronCollection& pixElectron,
-			const ElectronCollection& silElectron,
+void HLTEgamma::analyze(const ElectronCollection& Electron,
 			const PhotonCollection& Photon,
 			const CaloGeometry& geom,
 			TTree* HltTree) {
 
   //std::cout << " Beginning HLTEgamma " << std::endl;
 
-  if (&pixElectron) {
-    ElectronCollection mypixelectrons;
-    mypixelectrons=pixElectron;
-    npixele = mypixelectrons.size();
-    std::sort(mypixelectrons.begin(),mypixelectrons.end(),EtGreater());
+  if (&Electron) {
+    ElectronCollection myelectrons;
+    myelectrons=Electron;
+    nele = myelectrons.size();
+    std::sort(myelectrons.begin(),myelectrons.end(),EtGreater());
     typedef ElectronCollection::const_iterator ceiter;
-    int ipixel=0;
-    for (ceiter i=mypixelectrons.begin(); i!=mypixelectrons.end(); i++) {
-      pixelpt[ipixel] = i->pt();
-      pixelphi[ipixel] = i->phi();
-      pixeleta[ipixel] = i->eta();
-      pixelet[ipixel] = i->et();
-      pixele[ipixel] = i->energy();
-      ipixel++;
+    int iel=0;
+    for (ceiter i=myelectrons.begin(); i!=myelectrons.end(); i++) {
+      elpt[iel] = i->pt();
+      elphi[iel] = i->phi();
+      eleta[iel] = i->eta();
+      elet[iel] = i->et();
+      ele[iel] = i->energy();
+      iel++;
     }
   }
-  else {npixele = 0;}
-
-  if (&silElectron) {
-    ElectronCollection mysilelectrons;
-    mysilelectrons=silElectron;
-    nsilele = mysilelectrons.size();
-    std::sort(mysilelectrons.begin(),mysilelectrons.end(),EtGreater());
-    typedef ElectronCollection::const_iterator seiter;
-    int isil=0;
-    for (seiter i=mysilelectrons.begin(); i!=mysilelectrons.end(); i++) {
-      silelpt[isil] = i->pt();
-      silelphi[isil] = i->phi();
-      sileleta[isil] = i->eta();
-      silelet[isil] = i->et();
-      silele[isil] = i->energy();
-      isil++;
-    }
-  }
-  else {nsilele = 0;}
+  else {nele = 0;}
 
   if (&Photon) {
     PhotonCollection myphotons;

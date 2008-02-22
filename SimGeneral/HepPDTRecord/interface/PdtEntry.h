@@ -157,7 +157,7 @@ namespace edm {
   }
 
   template<>
-  std::vector<std::string> ParameterSet::getParameterNamesForType<PdtEntry>(bool trackiness) const {
+  inline std::vector<std::string> ParameterSet::getParameterNamesForType<PdtEntry>(bool trackiness) const {
     std::vector<std::string> ints = getParameterNamesForType<int>(trackiness);
     std::vector<std::string> strings = getParameterNamesForType<std::string>(trackiness);
     std::copy( strings.begin(), strings.end(), std::back_insert_iterator<std::vector<std::string> >( ints ) ); 
@@ -165,7 +165,7 @@ namespace edm {
   }
   
   template<>
-  std::vector<std::string> ParameterSet::getParameterNamesForType<std::vector<PdtEntry> >(bool trackiness) const {
+  inline std::vector<std::string> ParameterSet::getParameterNamesForType<std::vector<PdtEntry> >(bool trackiness) const {
     std::vector<std::string> ints = getParameterNamesForType<std::vector<int> >(trackiness);
     std::vector<std::string> strings = getParameterNamesForType<std::vector<std::string> >(trackiness);
     std::copy( strings.begin(), strings.end(), std::back_insert_iterator<std::vector<std::string> >( ints ) ); 

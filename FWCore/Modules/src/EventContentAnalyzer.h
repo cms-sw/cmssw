@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:49:35 CEST 2005
-// $Id: EventContentAnalyzer.h,v 1.2 2006/01/10 17:23:08 chrjones Exp $
+// $Id: EventContentAnalyzer.h,v 1.3 2006/01/10 22:11:16 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,9 @@ private:
    std::string indentation_;
    std::string verboseIndentation_;
    std::vector<std::string> moduleLabels_;
-   bool        verbose_;  
+   bool        verbose_; 
+   std::vector<std::string> getModuleLabels_;
+   bool        getData_;
    int         evno_;
    std::map<std::string, int>  cumulates_;
 };

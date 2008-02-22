@@ -64,12 +64,7 @@ class GeometricSearchDet {
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-  virtual void
-  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		   const MeasurementEstimator& est,
-		   std::vector<DetWithState>& result) const; //=0;
+		  const MeasurementEstimator& est) const=0;
 
   /** Similar to compatibleDets(), but the compatible Dets are grouped in 
    *  one or more groups.
@@ -93,13 +88,7 @@ class GeometricSearchDet {
   virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-  virtual void
-  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const; // = 0;
+			 const MeasurementEstimator& est) const = 0;
 
 
   virtual bool hasGroups() const = 0; 
@@ -107,21 +96,6 @@ class GeometricSearchDet {
  protected:
   GeomDetCompatibilityChecker theCompatibilityChecker;
  
-};
-
-
-class GeometricSearchDetWithGroups : public virtual GeometricSearchDet {
-public:
-typedef GeometricSearchDet::DetWithState DetWithState;
-  
-  void
-  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		   const Propagator& prop, 
-		   const MeasurementEstimator& est,
-		   std::vector<DetWithState> & result) const;
-
-  bool hasGroups() const {return true;}
-  
 };
 
 #endif

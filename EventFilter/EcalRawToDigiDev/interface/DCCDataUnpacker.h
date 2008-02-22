@@ -5,12 +5,14 @@
 /*
  *\ Class DCCDataUnpacker
  *
- * This class takes care of unpacking ECAL's raw data info
+ * This class takes care of unpacking ECAL's raw data info.
+ * A gateway for all blocks unpackers and committing collections to the Event
+ * DCCEBEventBlock and DCCEEEventBlock are used here
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/14 15:07:37 $
+ * $Revision: 1.7 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -26,7 +28,6 @@
 
 //DATA DECODER
 
-#include "ECALUnpackerException.h"      
 #include "DCCEventBlock.h"
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
@@ -188,17 +189,17 @@ public :
 protected :
 
   // Data collections pointers
-  std::auto_ptr<EBDigiCollection>             * ebDigis_;
-  std::auto_ptr<EEDigiCollection>             * eeDigis_;
-  std::auto_ptr<EcalTrigPrimDigiCollection >  * ebTps_;
-  std::auto_ptr<EcalTrigPrimDigiCollection >  * eeTps_;
-  std::auto_ptr<EcalRawDataCollection>        * dccHeaders_;
-  std::auto_ptr<EBDetIdCollection>            * invalidGains_;
-  std::auto_ptr<EBDetIdCollection>            * invalidGainsSwitch_;
-  std::auto_ptr<EBDetIdCollection>            * invalidGainsSwitchStay_;
-  std::auto_ptr<EBDetIdCollection>            * invalidChIds_;
-  std::auto_ptr<EBSrFlagCollection>           * ebSrFlags_;
-  std::auto_ptr<EESrFlagCollection>           * eeSrFlags_;
+  std::auto_ptr<EBDigiCollection>                       * ebDigis_;
+  std::auto_ptr<EEDigiCollection>                       * eeDigis_;
+  std::auto_ptr<EcalTrigPrimDigiCollection >      * ebTps_;
+  std::auto_ptr<EcalTrigPrimDigiCollection >      * eeTps_;
+  std::auto_ptr<EcalRawDataCollection>             * dccHeaders_;
+  std::auto_ptr<EBDetIdCollection>                    * invalidGains_;
+  std::auto_ptr<EBDetIdCollection>                    * invalidGainsSwitch_;
+  std::auto_ptr<EBDetIdCollection>                    * invalidGainsSwitchStay_;
+  std::auto_ptr<EBDetIdCollection>                    * invalidChIds_;
+  std::auto_ptr<EBSrFlagCollection>                   * ebSrFlags_;
+  std::auto_ptr<EESrFlagCollection>                   * eeSrFlags_;
   std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
   std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_; 
   
@@ -207,10 +208,10 @@ protected :
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemBlockSizes_ ;
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemChIds_ ;
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemGains_ ;
-  std::auto_ptr<EcalPnDiodeDigiCollection>    * pnDiodeDigis_;
+  std::auto_ptr<EcalPnDiodeDigiCollection>   * pnDiodeDigis_;
 
   EcalElectronicsMapper                  * electronicsMapper_;
-  DCCEventBlock                          * currentEvent_;
+  DCCEventBlock                            * currentEvent_;
   DCCEBEventBlock                        * ebEventBlock_;
   DCCEEEventBlock                        * eeEventBlock_;
 		
