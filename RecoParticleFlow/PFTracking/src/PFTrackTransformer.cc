@@ -376,7 +376,7 @@ PFTrackTransformer::addPointsAndBrems( reco::PFRecTrack& pftrack,
     uint iTrajPoint =  iTrajPos + 2;
 
     PFBrem brem(DP,SigmaDP,iTrajPoint);
-    cout << " DP " << DP <<  " Sigma " << SigmaDP << endl;   // Daniele: Remove
+//     cout << " DP " << DP <<  " Sigma " << SigmaDP << endl;   // Daniele: Remove
 
 
     GlobalVector p_gamma= p*(fabs(DP)/p.mag());   // Direction from the electron (tangent), DP without any sign!;
