@@ -18,17 +18,23 @@ HistoComposite( std::string dir, std::string candTitle, std::string candName,
 
   histoMuon_     = new HistoMuon    ( dir );
   histoElectron_ = new HistoElectron( dir );
+  histoTau_      = new HistoTau     ( dir );
   histoJet_      = new HistoJet     ( dir );
   histoMET_      = new HistoMET     ( dir );
+  histoPhoton_   = new HistoPhoton  ( dir );
+  histoTrack_    = new HistoTrack   ( dir );
   histoParticle_ = new HistoParticle( dir );
 }
 
 HistoComposite::~HistoComposite()
 {
-  if ( histoMuon_    ) delete histoMuon_;    ;
+  if ( histoMuon_    ) delete histoMuon_     ;
   if ( histoElectron_) delete histoElectron_ ;
-  if ( histoJet_     ) delete histoJet_;     ;
-  if ( histoMET_     ) delete histoMET_;     ;
+  if ( histoTau_     ) delete histoTau_      ;
+  if ( histoJet_     ) delete histoJet_      ;
+  if ( histoMET_     ) delete histoMET_      ;
+  if ( histoPhoton_  ) delete histoPhoton_   ;
+  if ( histoTrack_   ) delete histoTrack_    ;
   if ( histoParticle_) delete histoParticle_ ;
 }
 
@@ -40,8 +46,11 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
 
   int imu = 1;
   int iele = 1;
+  int itau = 1;
   int ijet = 1;
   int imet = 1;
+  int iphoton = 1;
+  int itrack = 1;
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); i++ ) {
@@ -55,6 +64,10 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
       histoElectron_->fill( dynamic_cast<const Electron*>( c ), iele );
       iele++;
     }
+    else if ( dynamic_cast<const Tau*>( c ) != 0 ) {
+      histoTau_->fill( dynamic_cast<const Tau*>( c ), itau );
+      itau++;
+    }
     else if ( dynamic_cast<const Jet*>     ( c ) != 0 ) {
       histoJet_     ->fill( dynamic_cast<const Jet*>     ( c ), ijet );
       ijet++;
@@ -62,6 +75,14 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     else if ( dynamic_cast<const MET*>     ( c ) != 0 ) {
       histoMET_     ->fill( dynamic_cast<const MET*>     ( c ), imet );
       imet++;
+    }
+    else if ( dynamic_cast<const Photon*>     ( c ) != 0 ) {
+      histoPhoton_     ->fill( dynamic_cast<const Photon*>     ( c ), iphoton );
+      iphoton++;
+    }
+    else if ( dynamic_cast<const reco::RecoChargedCandidate *>     ( c ) != 0 ) {
+      histoTrack_     ->fill( dynamic_cast<const reco::RecoChargedCandidate*>     ( c ), itrack );
+      itrack++;
     }
     else if ( dynamic_cast<const reco::CompositeCandidate*> ( c ) != 0 ) {
       this          ->fill( dynamic_cast<const reco::CompositeCandidate*> (c) );

@@ -37,8 +37,11 @@
 // CMSSW include files
 #include "PhysicsTools/StarterKit/interface/HistoMuon.h"
 #include "PhysicsTools/StarterKit/interface/HistoElectron.h"
+#include "PhysicsTools/StarterKit/interface/HistoTau.h"
 #include "PhysicsTools/StarterKit/interface/HistoJet.h"
 #include "PhysicsTools/StarterKit/interface/HistoMET.h"
+#include "PhysicsTools/StarterKit/interface/HistoPhoton.h"
+#include "PhysicsTools/StarterKit/interface/HistoTrack.h"
 #include "PhysicsTools/StarterKit/interface/HistoParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
@@ -68,8 +71,11 @@ namespace pat {
 
     HistoMuon *     histoMuon_;
     HistoElectron * histoElectron_;
+    HistoTau *      histoTau_;
     HistoJet *      histoJet_;
     HistoMET *      histoMET_;
+    HistoPhoton *   histoPhoton_;
+    HistoTrack *    histoTrack_;
     HistoParticle * histoParticle_;
   };
 

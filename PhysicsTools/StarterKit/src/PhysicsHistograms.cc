@@ -8,7 +8,7 @@
 //
 // Original Author:  Petar Maksimovic
 //         Created:  Christmas 2007
-// $Id: PhysicsHistograms.cc,v 1.5 2008/01/17 17:47:18 ewv Exp $
+// $Id: PhysicsHistograms.cc,v 1.1 2008/01/18 23:41:28 ewv Exp $
 //
 // Revision History:
 //------------------------------------------------------------------------
@@ -27,8 +27,11 @@ PhysicsHistograms::PhysicsHistograms()
   //--- Initialize histogram objects
   muonHistograms_     = new pat::HistoMuon    ();
   electronHistograms_ = new pat::HistoElectron();
+  tauHistograms_      = new pat::HistoTau     ();
   jetHistograms_      = new pat::HistoJet     ();
   metHistograms_      = new pat::HistoMET     ();
+  photonHistograms_   = new pat::HistoPhoton  ();
+  trackHistograms_    = new pat::HistoTrack   ();
 
   //--- Output file (still unused?)
   outputTextName_ = "blahblah.txt";  // &&& need to decide what to do with this.
@@ -47,8 +50,11 @@ PhysicsHistograms::~PhysicsHistograms()
 {
   delete muonHistograms_     ;
   delete electronHistograms_ ;
+  delete tauHistograms_      ;
   delete jetHistograms_      ;
   delete metHistograms_      ;
+  delete photonHistograms_   ;
+  delete trackHistograms_    ;
 
   outputFile_.close();
 }
@@ -72,8 +78,11 @@ PhysicsHistograms::configure( std::string & histos_to_disable,   // comma separa
   //--- Pass this information to histogramGroups
   muonHistograms_    ->configure( histos_to_disable, histos_to_enable ) ;
   electronHistograms_->configure( histos_to_disable, histos_to_enable ) ;
+  tauHistograms_     ->configure( histos_to_disable, histos_to_enable ) ;
   metHistograms_     ->configure( histos_to_disable, histos_to_enable ) ;
   jetHistograms_     ->configure( histos_to_disable, histos_to_enable ) ;
+  photonHistograms_  ->configure( histos_to_disable, histos_to_enable ) ;
+  trackHistograms_   ->configure( histos_to_disable, histos_to_enable ) ;
 
 }
 
@@ -93,8 +102,11 @@ PhysicsHistograms::select( std::string  vars_to_select,   // comma separated lis
   //--- Pass this information to histogramGroups
   muonHistograms_    ->select( vars_to_select, selectedVars ) ;
   electronHistograms_->select( vars_to_select, selectedVars ) ;
+  tauHistograms_     ->select( vars_to_select, selectedVars ) ;
   metHistograms_     ->select( vars_to_select, selectedVars ) ;
   jetHistograms_     ->select( vars_to_select, selectedVars ) ;
+  photonHistograms_  ->select( vars_to_select, selectedVars ) ;
+  trackHistograms_   ->select( vars_to_select, selectedVars ) ;
 
   std::cout << "PhysicsHistograms:: selected " << selectedVars.size()
 	    << " variables." << std::endl;

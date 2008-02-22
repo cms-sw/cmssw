@@ -31,8 +31,11 @@
 // user include files
 #include "PhysicsTools/StarterKit/interface/HistoMuon.h"
 #include "PhysicsTools/StarterKit/interface/HistoElectron.h"
+#include "PhysicsTools/StarterKit/interface/HistoTau.h"
 #include "PhysicsTools/StarterKit/interface/HistoJet.h"
 #include "PhysicsTools/StarterKit/interface/HistoMET.h"
+#include "PhysicsTools/StarterKit/interface/HistoPhoton.h"
+#include "PhysicsTools/StarterKit/interface/HistoTrack.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -86,6 +89,11 @@ public:
   inline void fillCollection( const std::vector<pat::Electron> & coll )
     { electronHistograms_->fillCollection(coll); }
 
+  //--- ... or Taus...
+  //
+  inline void fillCollection( const std::vector<pat::Tau> & coll )
+    { tauHistograms_->fillCollection(coll); }
+
   //--- ... or Jets...
   //
   inline void fillCollection( const std::vector<pat::Jet> & coll )
@@ -95,6 +103,17 @@ public:
   //
   inline void fillCollection( const std::vector<pat::MET> & coll )
     { metHistograms_->fillCollection(coll); }
+
+  //--- ... or Photon.
+  //
+  inline void fillCollection( const std::vector<pat::Photon> & coll )
+    { photonHistograms_->fillCollection(coll); }
+
+  //--- ... or Track.
+  //
+  inline void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll )
+    { trackHistograms_->fillCollection(coll); }
+
 
 
   // &&& Design note: again, let's be explicit.  This could be compressed into
@@ -117,6 +136,13 @@ public:
   inline void addElectronHistoGroup( pat::HistoElectron * hgr )
     { electronHistograms_->addHistoGroup(hgr); }
 
+  //--- Add one histo to tau group, or a whole group of tau histograms
+  //
+  inline void addTauHisto ( pat::PhysVarHisto * h )
+    { tauHistograms_->addHisto(h); }
+  inline void addTauHistoGroup( pat::HistoTau * hgr )
+    { tauHistograms_->addHistoGroup(hgr); }
+
   //--- Add one histo to jet group, or a whole group of jet histograms
   //
   inline void addJetHisto ( pat::PhysVarHisto * h )
@@ -130,6 +156,22 @@ public:
     { metHistograms_->addHisto(h); }
   inline void addMetHistoGroup( pat::HistoMET * hgr )
     { metHistograms_->addHistoGroup(hgr); }
+
+  //--- Add one histo to photon group, or a whole group of photon histograms
+  //
+  inline void addPhotonHisto ( pat::PhysVarHisto * h )
+    { photonHistograms_->addHisto(h); }
+  inline void addPhotonHistoGroup( pat::HistoPhoton * hgr )
+    { photonHistograms_->addHistoGroup(hgr); }
+
+
+  //--- Add one histo to track group, or a whole group of track histograms
+  //
+  inline void addTrackHisto ( pat::PhysVarHisto * h )
+    { trackHistograms_->addHisto(h); }
+  inline void addTrackHistoGroup( pat::HistoTrack * hgr )
+    { trackHistograms_->addHistoGroup(hgr); }
+
 
 
 
@@ -145,9 +187,11 @@ private:
   // Histogram objects that make "standard" plots for each object
   pat::HistoMuon     * muonHistograms_;
   pat::HistoElectron * electronHistograms_;
+  pat::HistoTau      * tauHistograms_;
   pat::HistoMET      * metHistograms_;
   pat::HistoJet      * jetHistograms_;
-
+  pat::HistoPhoton   * photonHistograms_;
+  pat::HistoTrack    * trackHistograms_;
 
   //--- The summary of all PhysVarHistos.
   // &&& Is this still needed?
