@@ -26,5 +26,6 @@ struct SpecificCaloMETData
   double EmEtInHF;           // Em ET in HF
   double EtFractionHadronic; // Hadronic ET fraction
   double EtFractionEm;       // Em ET fraction
+  double METSignificance;       // Em ET fraction
 }; //public : struct SpecificCaloMETData
 #endif

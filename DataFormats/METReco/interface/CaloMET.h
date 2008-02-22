@@ -57,6 +57,8 @@ namespace reco
       double emEtInEE() const {return calo_data.EmEtInEE;};
       /* Returns the event electromagnetic energy extracted from HF */
       double emEtInHF() const {return calo_data.EmEtInHF;};
+      /* Returns the event MET Significance */
+      double metSignificance() const {return calo_data.METSignificance;};
       
       // block accessors
       SpecificCaloMETData getSpecific() const {return calo_data;}
