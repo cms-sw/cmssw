@@ -39,20 +39,21 @@ private:
       {p->SetUserInformation(new GenParticleInfo(id));}
 
 private:
-    bool   fPtCuts;
-    bool   fEtaCuts;
-    bool   fPhiCuts;
-    double theMinPhiCut;
-    double theMaxPhiCut;
-    double theMinEtaCut;
-    double theMaxEtaCut;
-    double theMinPtCut;
-    double theMaxPtCut;
-    double theDecLenCut;
-    int verbose;
-    HepMC::GenEvent*  evt_;
-    math::XYZTLorentzVector* vtx_;
-    double weight_;    
+  bool   fPtCuts;
+  bool   fEtaCuts;
+  bool   fPhiCuts;
+  double theMinPhiCut;
+  double theMaxPhiCut;
+  double theMinEtaCut;
+  double theMaxEtaCut;
+  double theMinPtCut;
+  double theMaxPtCut;
+  double theDecLenCut;
+  double theEtaRegionForDecLenCut; 
+  int verbose;
+  HepMC::GenEvent*  evt_;
+  math::XYZTLorentzVector* vtx_;
+  double weight_;    
 };
 
 #endif

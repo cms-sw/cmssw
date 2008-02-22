@@ -35,6 +35,7 @@ Generator::Generator(const ParameterSet & p) :
   theMinPtCut(p.getParameter<double>("MinPtCut")),    // now operates in GeV (CMS standard)
   theMaxPtCut(p.getParameter<double>("MaxPtCut")),   
   theDecLenCut(p.getParameter<double>("DecLenCut")*cm),
+  theEtaRegionForDecLenCut(p.getParameter<double>("EtaRegionForDecLenCut")),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
   evt_(0),
   vtx_(0) ,
@@ -82,31 +83,28 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
   if (vtx_ != 0) delete vtx_;
   vtx_ = new math::XYZTLorentzVector((*(evt->vertices_begin()))->position().x(),
-		        (*(evt->vertices_begin()))->position().y(),
-		        (*(evt->vertices_begin()))->position().z(),
-		        (*(evt->vertices_begin()))->position().t());
+				     (*(evt->vertices_begin()))->position().y(),
+				     (*(evt->vertices_begin()))->position().z(),
+				     (*(evt->vertices_begin()))->position().t());
   
-  if (verbose > 0)
-    {
-      evt->print();
-      cout << " " << endl;
-      cout << " Prim.Vtx : " << vtx_->x() << " " 
-	   << vtx_->y() << " "
-	   << vtx_->z() << endl;
-    }
-    
-    
+  if(verbose >0){
+    evt->print();
+    cout << " " << endl;
+    cout << " Prim.Vtx : " << vtx_->x() << " " 
+	 << vtx_->y() << " "
+	 << vtx_->z() << endl;
+  }
+
   for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
       vitr != evt->vertices_end(); ++vitr ) 
     { // loop for vertex ...
-	
       // real vertex?
       G4bool qvtx=false;
+      
       for (HepMC::GenVertex::particle_iterator 
 	     pitr= (*vitr)->particles_begin(HepMC::children);
 	   pitr != (*vitr)->particles_end(HepMC::children); ++pitr) 
 	{
-	    
 	  if (!(*pitr)->end_vertex() && (*pitr)->status()==1) 
 	    {
 	      qvtx=true;
@@ -137,7 +135,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       double t1 = (*vitr)->position().t();	
       //fix later
       //if (! CheckVertexInsideWorld(xvtx.vect()*mm)) continue;
-	
+      
       // create G4PrimaryVertex and associated G4PrimaryParticles
       G4PrimaryVertex* g4vtx= 
 	new G4PrimaryVertex(x1*mm, y1*mm, z1*mm, t1*mm/c_light);
@@ -154,6 +152,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	  // in the generator product (this seem to "violate" the idea 
 	  // that a product can't be modified one it's in edm::Event... 
 	  // but it seems to fly...)
+
 	  double decay_length=-1;
 	  if ( (*vpitr)->status() == 2 ) 
 	    {
@@ -168,13 +167,14 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    }             
 	  // end modification
 		
-	  if( (*vpitr)->status() == 1 || ((*vpitr)->status() == 2 && decay_length > theDecLenCut ) ) {
-	  
-	    //G4LorentzVector p= (*vpitr)->momentum();
+	  if( (*vpitr)->status() == 1 || 
+	      ((*vpitr)->status() == 2 && decay_length > theDecLenCut && 
+	       fabs((*vpitr)->momentum().eta()) < theEtaRegionForDecLenCut ) ) {
+	    
 	    math::XYZTLorentzVector p((*vpitr)->momentum().px(),
-				  (*vpitr)->momentum().py(),
-				  (*vpitr)->momentum().pz(),
-				  (*vpitr)->momentum().e());
+				      (*vpitr)->momentum().py(),
+				      (*vpitr)->momentum().pz(),
+				      (*vpitr)->momentum().e());
 	 
 	    
 	    if ( !particlePassesPrimaryCuts( p ) ) 
@@ -194,16 +194,16 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    
 	    g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
 	    setGenId( g4prim, (*vpitr)->barcode() ) ;
-	    if ( (*vpitr)->status() == 2) particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
+	    if ( (*vpitr)->status() == 2 && fabs((*vpitr)->momentum().eta()) < theEtaRegionForDecLenCut ) 
+	      particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
             if ( verbose > 1 ) g4prim->Print();
 	    g4vtx->SetPrimary(g4prim);
 	  }
 	}
-
       if (verbose > 1 ) g4vtx->Print();
       g4evt->AddPrimaryVertex(g4vtx);
     }
-    
+  
   delete evt ;  
     
   return ;
@@ -264,66 +264,66 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
   return;
 }
 
-  bool Generator::particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom ) const 
-    {
+bool Generator::particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom ) const 
+{
+  
+  double phi = mom.Phi() ;   
+  double pt  = mom.Pt() ;
+  double eta = -log( tan(mom.Theta()/2.) ) ;
+  
+  if ( (fPtCuts)  && (pt  < theMinPtCut  || pt  > theMaxPtCut) )  return false ;
+  if ( (fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut) ) return false ;
+  if ( (fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut) ) return false ;
+  
+  return true;   
+}
 
-      double phi = mom.Phi() ;   
-      double pt  = mom.Pt() ;
-      double eta = -log( tan(mom.Theta()/2.) ) ;
-      
-      if ( (fPtCuts)  && (pt  < theMinPtCut  || pt  > theMaxPtCut) )  return false ;
-      if ( (fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut) ) return false ;
-      if ( (fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut) ) return false ;
-   
-      return true;   
-    }
- 
-  bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
+bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
+{
+  G4ThreeVector mom = p->GetMomentum();
+  double        phi = mom.phi() ;
+  double        pt  = sqrt(p->GetPx()*p->GetPx() + p->GetPy()*p->GetPy());
+  pt /= GeV ;  // need to convert, since Geant4 operates in MeV
+  double        eta = -log(tan(mom.theta()/2));
+  if (((fPtCuts)  && (pt  < theMinPtCut  || pt  > theMaxPtCut))           ||
+      ((fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut))          ||
+      ((fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut)))
+    return false;
+  else return true;
+}
+
+void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
+{
+  int i = 0; 
+  for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
+      it != evt->particles_end(); ++it )
     {
-      G4ThreeVector mom = p->GetMomentum();
-      double        phi = mom.phi() ;
-      double        pt  = sqrt(p->GetPx()*p->GetPx() + p->GetPy()*p->GetPy());
-      pt /= GeV ;  // need to convert, since Geant4 operates in MeV
-      double        eta = -log(tan(mom.theta()/2));
-      if (((fPtCuts)  && (pt  < theMinPtCut  || pt  > theMaxPtCut))           ||
-	  ((fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut))          ||
-	  ((fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut)))
-	return false;
-      else return true;
-    }
- 
-  void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
-    {
-      int i = 0; 
-      for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
-	  it != evt->particles_end(); ++it )
+      i++;
+      HepMC::GenParticle * g = (*it);	
+      int g_status = g->status();
+      // storing only particle with status == 1 	
+      if (g_status == 1)
 	{
-	  i++;
-	  HepMC::GenParticle * g = (*it);	
-	  int g_status = g->status();
-	  // storing only particle with status == 1 	
-	  if (g_status == 1)
-	    {
-	      int g_id = g->pdg_id();	    
-	      G4PrimaryParticle * g4p = 
-		new G4PrimaryParticle(g_id,g->momentum().px()*GeV,g->momentum().py()*GeV,g->momentum().pz()*GeV);
-	      if (g4p->GetG4code() != 0)
-		{ 
-		  g4p->SetMass(g4p->GetG4code()->GetPDGMass());
-		  g4p->SetCharge(g4p->GetG4code()->GetPDGCharge()) ;
-		}
-	      g4p->SetWeight(i*10000);
-	      setGenId(g4p,i);
-	      if (particlePassesPrimaryCuts(g4p))
-		{
-		  G4PrimaryVertex * v = new 
-		    G4PrimaryVertex(g->production_vertex()->position().x()*mm,
-                                    g->production_vertex()->position().y()*mm,
-                                    g->production_vertex()->position().z()*mm,
-                                    g->production_vertex()->position().t()*mm/c_light);
-		  v->SetPrimary(g4p);
-		  g4evt->AddPrimaryVertex(v);
-		}
+	  int g_id = g->pdg_id();	    
+	  G4PrimaryParticle * g4p = 
+	    new G4PrimaryParticle(g_id,g->momentum().px()*GeV,g->momentum().py()*GeV,g->momentum().pz()*GeV);
+	  if (g4p->GetG4code() != 0)
+	    { 
+	      g4p->SetMass(g4p->GetG4code()->GetPDGMass());
+	      g4p->SetCharge(g4p->GetG4code()->GetPDGCharge()) ;
 	    }
-	} // end loop on HepMC particles
-    }
+	  g4p->SetWeight(i*10000);
+	  setGenId(g4p,i);
+	  if (particlePassesPrimaryCuts(g4p))
+	    {
+	      G4PrimaryVertex * v = new 
+		G4PrimaryVertex(g->production_vertex()->position().x()*mm,	     
+				g->production_vertex()->position().y()*mm,	     
+				g->production_vertex()->position().z()*mm,	     
+				g->production_vertex()->position().t()*mm/c_light);
+	      v->SetPrimary(g4p);
+	      g4evt->AddPrimaryVertex(v);
+	    }
+	}
+    } // end loop on HepMC particles
+}
