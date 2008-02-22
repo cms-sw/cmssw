@@ -39,7 +39,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     }
 
     // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
-    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting); 
+    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
 
     reco::Track * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;
@@ -125,9 +125,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     delete theTraj;
   }
 
-
   // Now we can re-set refs to hits, as they have already been cloned
-  if (rekeyClusterRefs_) { 
+  if (rekeyClusterRefs_) {
       ClusterRemovalRefSetter refSetter(evt, clusterRemovalInfo_);
       for (TrackingRecHitCollection::iterator it = selHits->begin(), ed = selHits->end(); it != ed; ++it) {
           refSetter.reKey(&*it);

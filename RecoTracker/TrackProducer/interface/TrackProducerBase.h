@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2007/10/06 08:04:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/02/18 17:16:12 $
+ *  $Revision: 1.14 $
  *  \author cerati
  */
 
@@ -21,8 +21,8 @@
 
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class Propagator;
 class TrajectoryStateUpdator;
@@ -40,8 +40,8 @@ public:
 public:
   /// Constructor
   TrackProducerBase(bool trajectoryInEvent = false):
-    trajectoryInEvent_(trajectoryInEvent),
-    rekeyClusterRefs_(false) {}
+     trajectoryInEvent_(trajectoryInEvent),
+        rekeyClusterRefs_(false) {}
 
   /// Destructor
   virtual ~TrackProducerBase();
@@ -55,9 +55,9 @@ public:
 			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
 
   /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
-  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&);
+  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&, reco::BeamSpot&);
   /// Get TrackCollection from the Event (needed by TrackRefitter)
-  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCollection>&);
+  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCollection>&, reco::BeamSpot&);
 
   /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -66,10 +66,7 @@ public:
   void setConf(edm::ParameterSet conf){conf_=conf;}
 
   /// set label of source collection
-  void setSrc(std::string src){src_=src;}
-
-  /// set the producer of source collection
-  void setProducer(std::string pro){pro_=pro;}
+  void setSrc(edm::InputTag src, edm::InputTag bsSrc){src_=src;bsSrc_=bsSrc;}
 
   /// set the aliases of produced collections
   void setAlias(std::string alias){
@@ -77,22 +74,22 @@ public:
     alias_=alias;
   }
 
-  void setClusterRemovalInfo(const edm::InputTag &clusterRemovalInfo) { 
-    rekeyClusterRefs_ = true; 
-    clusterRemovalInfo_ = clusterRemovalInfo; 
+  /// Sets the information on cluster removal, and turns it on
+  void setClusterRemovalInfo(const edm::InputTag &clusterRemovalInfo) {
+    rekeyClusterRefs_ = true;
+    clusterRemovalInfo_ = clusterRemovalInfo;
   }
- 
-  const edm::ParameterSet& getConf() const {return conf_;}
 
+  const edm::ParameterSet& getConf() const {return conf_;}
  private:
   edm::ParameterSet conf_;
-  std::string src_;
-  std::string pro_;
+  edm::InputTag src_;
  protected:
   std::string alias_;
   bool trajectoryInEvent_;
   edm::OrphanHandle<TrackCollection> rTracks_;
-  
+  edm::InputTag bsSrc_;
+
   bool rekeyClusterRefs_;
   edm::InputTag clusterRemovalInfo_;
 };
