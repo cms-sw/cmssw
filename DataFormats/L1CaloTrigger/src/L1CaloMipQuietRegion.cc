@@ -6,6 +6,8 @@ using std::ostream;
 using std::endl;
 using std::hex;
 using std::dec;
+using std::showbase;
+using std::noshowbase;
 
 
 L1CaloMipQuietRegion::L1CaloMipQuietRegion():
@@ -40,7 +42,7 @@ bool L1CaloMipQuietRegion::operator==(const L1CaloMipQuietRegion& rhs) const
 
 ostream& operator<< (ostream& os, const L1CaloMipQuietRegion& rhs)
 {
-  os << hex
+  os << showbase << hex
      <<"L1CaloMipQuietRegion:"
      << " MIP=" << rhs.mip()
      << " Quiet=" << rhs.quiet()
@@ -54,6 +56,6 @@ ostream& operator<< (ostream& os, const L1CaloMipQuietRegion& rhs)
      << " GCT eta=" << rhs.gctEta()
      << " GCT phi=" << rhs.gctPhi()
      << "\n                      BX=" << rhs.bx()
-     << dec << endl;
+     << dec << noshowbase << endl;
   return os;
 }
