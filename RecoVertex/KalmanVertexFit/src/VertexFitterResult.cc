@@ -101,7 +101,8 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
       Basic3DVector<double> momAtVtx((**simTrack).momentum());
 
       pair<bool, reco::TrackBase::ParameterVector> paramPair =
-	associatorForParamAtPca->parametersAtClosestApproach(vert, momAtVtx, (float) (**simTrack).charge());
+	associatorForParamAtPca->parametersAtClosestApproach(vert, momAtVtx, 
+	  (float) (**simTrack).charge(), recTrackV.front().stateAtBeamLine().beamSpot());
         if (paramPair.first) {
 	  fillParameters(paramPair.second, simPars, numberOfSimTracks);
 	  simIndex[numberOfSimTracks] = -1;
@@ -150,7 +151,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
     }
 
     TrajectoryStateClosestToPoint tscp = recTrack->trajectoryStateClosestToPoint(recVertex.position());
-    fillParameters(tscp.perigeeParameters(), recPars, numberOfRecTracks);
+    fillParameters(recTrack->track().parameters(), recPars, numberOfRecTracks);
     fillErrors(tscp.perigeeError(), recErrs, numberOfRecTracks);
 //     trackWeight[numberOfRecTracks] = recVertex.trackWeight(*recTrack);
 // 
