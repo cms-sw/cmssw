@@ -39,6 +39,7 @@ namespace edm
     /// Destructor
     virtual ~Pythia8Source();
 
+    void endRun( Run& r);
 
   private:
 
