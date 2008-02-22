@@ -10,7 +10,9 @@
 
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
-    net_(0)
+    net_(0),
+    lastFlush_(0),
+    publishFrequency_(5.0)
 {
   ar.watchPostProcessEvent(this, &DQMService::flush);
   ar.watchPostEndJob(this, &DQMService::shutdown);
@@ -18,6 +20,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   std::string host = pset.getUntrackedParameter<std::string>("collectorHost", ""); 
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
   bool verbose = pset.getUntrackedParameter<bool>("verbose", false);
+  publishFrequency_ = pset.getUntrackedParameter<double>("publishFrequency", publishFrequency_);
 
   if (host != "" && port > 0)
   {
@@ -39,11 +42,18 @@ DQMService::~DQMService(void)
 void
 DQMService::flush(const edm::Event &, const edm::EventSetup &)
 {
+  // Avoid sending updates excessively often.
+  uint64_t version = lat::Time::current().ns();
+  double vtime = version * 1e-9;
+  if (vtime - lastFlush_ < publishFrequency_)
+    return;
+  lastFlush_ = vtime;
+
+  // OK, send an update.
   if (net_)
   {
     // Lock the network layer so we can modify the data.
     net_->lock();
-    uint64_t version = lat::Time::current().ns();
     bool updated = false;
 
     // Find updated contents and update the network cache.

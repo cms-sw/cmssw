@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TKey.h"
+#include "TClass.h"
 #include <iterator>
 
 /** @var DQMStore::verbose_

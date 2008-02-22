@@ -21,6 +21,8 @@ private:
 
   DQMStore	*store_;
   DQMNet	*net_;
+  double	lastFlush_;
+  double	publishFrequency_;
 };
 
 #endif // DQMSERVICES_CORE_DQM_SERVICE_H
