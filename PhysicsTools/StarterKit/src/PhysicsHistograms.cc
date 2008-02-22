@@ -8,7 +8,7 @@
 //
 // Original Author:  Petar Maksimovic
 //         Created:  Christmas 2007
-// $Id: PhysicsHistograms.cc,v 1.1 2008/01/18 23:41:28 ewv Exp $
+// $Id: PhysicsHistograms.cc,v 1.2 2008/02/22 20:36:49 srappocc Exp $
 //
 // Revision History:
 //------------------------------------------------------------------------
@@ -25,12 +25,19 @@
 PhysicsHistograms::PhysicsHistograms()
 {
   //--- Initialize histogram objects
+  std::cout << "PhysicsHistograms: Creating muon histograms" << std::endl;
   muonHistograms_     = new pat::HistoMuon    ();
+  std::cout << "PhysicsHistograms: Creating electron histograms" << std::endl;
   electronHistograms_ = new pat::HistoElectron();
+  std::cout << "PhysicsHistograms: Creating tau histograms" << std::endl;
   tauHistograms_      = new pat::HistoTau     ();
+  std::cout << "PhysicsHistograms: Creating jet histograms" << std::endl;
   jetHistograms_      = new pat::HistoJet     ();
+  std::cout << "PhysicsHistograms: Creating met histograms" << std::endl;
   metHistograms_      = new pat::HistoMET     ();
+  std::cout << "PhysicsHistograms: Creating photon histograms" << std::endl;
   photonHistograms_   = new pat::HistoPhoton  ();
+  std::cout << "PhysicsHistograms: Creating track histograms" << std::endl;
   trackHistograms_    = new pat::HistoTrack   ();
 
   //--- Output file (still unused?)
