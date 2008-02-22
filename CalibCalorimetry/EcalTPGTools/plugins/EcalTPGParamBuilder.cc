@@ -49,6 +49,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   uint32_t DBnbRun    = pSet.getParameter<unsigned int>("DBnbRun") ;
   if (readFromDB_ || writeToDB_) {
     try {
+      cout << "Warning: using the DB is not yet implemented " <<endl ;
       db_ = new EcalTPGCondDBApp(DBsid, DBuser, DBpass) ;
     } catch (exception &e) {
       cout << "ERROR:  " << e.what() << endl;
@@ -75,6 +76,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
 
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
+  LUT_threshold_ = pSet.getParameter<double>("LUT_threshold") ;
   LUT_stochastic_EB_ = pSet.getParameter<double>("LUT_stochastic_EB") ;
   LUT_noise_EB_ =pSet.getParameter<double>("LUT_noise_EB") ;
   LUT_constant_EB_ =pSet.getParameter<double>("LUT_constant_EB") ;
@@ -649,7 +651,7 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
     }
   }
 
-  // Now, add TTF thresholds to LUT
+  // Now, add TTF thresholds to LUT and apply LUT threshold if needed
   for (int j=0 ; j<1024 ; j++) {
     double Et_GeV = Et_sat_/1024*j ;
     int ttf = 0x0 ;    
@@ -657,7 +659,9 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
     if (Et_GeV >= TTF_lowThreshold && Et_GeV < TTF_highThreshold) ttf = 1 ;
     ttf = ttf << 8 ;
     lut[j] += ttf ;
+    if (Et_GeV < LUT_threshold_) lut[j] = 0 ;
   }
+
 }
 
 

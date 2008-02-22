@@ -79,6 +79,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   unsigned int nSample_ ;
   unsigned int complement2_ ;
   std::string LUT_option_ ;
+  double LUT_threshold_ ;
   double LUT_stochastic_EB_, LUT_noise_EB_, LUT_constant_EB_ ;
   double LUT_stochastic_EE_, LUT_noise_EE_, LUT_constant_EE_ ;
   double TTF_lowThreshold_EB_, TTF_highThreshold_EB_ ;
