@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.49 2008/01/08 06:57:39 wmtan Exp $
+$Id: PoolSource.h,v 1.51 2008/02/22 19:03:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,7 +26,7 @@ namespace edm {
 
   class RootInputFileSequence;
   class FileCatalogItem;
-  class PoolSource : public VectorInputSource, public boost::noncopyable {
+  class PoolSource : public VectorInputSource, private boost::noncopyable {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
@@ -36,8 +36,6 @@ namespace edm {
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
-    PoolSource(PoolSource const&); // disable copy construction
-    PoolSource & operator=(PoolSource const&); // disable assignment
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();

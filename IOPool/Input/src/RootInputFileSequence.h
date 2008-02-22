@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.49 2008/01/08 06:57:39 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.1 2008/02/22 19:03:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@ $Id: RootInputFileSequence.h,v 1.49 2008/01/08 06:57:39 wmtan Exp $
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 
 namespace CLHEP {
   class RandFlat;
@@ -34,7 +35,7 @@ namespace edm {
   class RootFile;
   class FileCatalogItem;
   class InputFileCatalog;
-  class RootInputFileSequence {
+  class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog);
     virtual ~RootInputFileSequence();
@@ -42,8 +43,6 @@ namespace edm {
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
-    RootInputFileSequence(RootInputFileSequence const&); // disable copy construction
-    RootInputFileSequence & operator=(RootInputFileSequence const&); // disable assignment
     std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     boost::shared_ptr<RunPrincipal> readRun_();
