@@ -2,15 +2,7 @@
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperator.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperator.h"
 #include <cmath>
-<<<<<<< ExpressionFunctionSetter.cc
 #include <Math/ProbFuncMathCore.h>
-#ifdef BOOST_SPIRIT_DEBUG 
-#include <string>
-#include <iostream>
-#endif
-=======
-#include <Math/DistFunc.h>
->>>>>>> 1.4
 
 namespace reco {
   namespace parser {

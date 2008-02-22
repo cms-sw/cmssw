@@ -1,10 +1,7 @@
 #ifndef PhysicsTools_Utilities_HistoChiSquare_h
 #define PhysicsTools_Utilities_HistoChiSquare_h
-
+#include <vector>
 #include "TH1.h"
-#include <iostream>
-
-using namespace std;
 
 namespace fit {
   template<typename T>
@@ -31,7 +28,6 @@ namespace fit {
 	  chi += (r * r);
 	}
       }
-      //cout << "chi = " << chi << endl;
       return chi;
     }
     void setHistos(TH1D *histo) { 
@@ -39,7 +35,6 @@ namespace fit {
       xMin_ = histo->GetXaxis()->GetXmin();
       xMax_ = histo->GetXaxis()->GetXmax();
       deltaX_ =(xMax_ - xMin_) / nBins_;
-      //cout << xMin_ << "  " << xMax_ << endl;
     }
     size_t degreesOfFreedom() const {
       size_t fullBins = 0;
@@ -48,7 +43,6 @@ namespace fit {
 	if((x > rangeMin_)&&(x < rangeMax_)&&(err_[i] > 0))  
 	  fullBins++;
       }
-      cout << "degrees of freedom = " << fullBins << endl;
       return fullBins; 
     }
     T & function() { return * t_; }
@@ -58,8 +52,8 @@ namespace fit {
     double rangeMin_, rangeMax_;
     size_t nBins_;
     double xMin_, xMax_, deltaX_;
-    vector<double> cont_;
-    vector<double> err_;
+    std::vector<double> cont_;
+    std::vector<double> err_;
   };
 }
 

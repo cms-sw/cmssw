@@ -53,7 +53,7 @@ int main() {
        << endl;
   unsigned int ndof = fullBins - minuit.getNumberOfFreeParameters();
   cout << "Chi^2 = " << amin << "/" << ndof << " = " << amin/ndof 
-       << "; prob: " << TMath::Prob( amin, ndof )
+    //       << "; prob: " << TMath::Prob( amin, ndof )
        << endl;
   yield = minuit.getParameter(0);
   dyield = minuit.getParameterError(0);
