@@ -16,6 +16,7 @@ HistoTau::HistoTau(std::string dir,
   : HistoGroup<Tau>( dir, "Tau", "tau", pt1, pt2, m1, m2)
 {
 
+  histoLeadingTrack_ = new HistoTrack( dir, "TauLeadingTrack", "tauLeadingTrack" );
   histoSignalTrack_ = new HistoTrack( dir, "TauSignalTracks", "tauSignalTracks" );
   histoIsolationTrack_ = new HistoTrack( dir, "TauIsolationTracks", "tauIsolationTracks" );
 
@@ -42,7 +43,17 @@ void HistoTau::fill( const Tau *tau, uint iTau )
   // fill relevant tau histograms
 
   const double M_PION = 0.13957018;
-
+  
+  const reco::Track & trk = *( tau->leadTrack() );
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4;
+  p4.SetPt( trk.pt() );
+  p4.SetEta( trk.eta() );
+  p4.SetPhi( trk.phi() );
+  p4.SetM( M_PION );
+  reco::Particle::LorentzVector p4_2( p4.x(), p4.y(), p4.z(), p4.t() );
+  reco::RecoChargedCandidate trk_p4( trk.charge(), p4_2 );
+  histoLeadingTrack_->fill( &trk_p4 );
+  
   for ( unsigned int isignal = 0; isignal < tau->signalTracks().size(); isignal++ ) {
     const reco::Track & trk = *( tau->signalTracks().at(isignal) );
     ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4;

@@ -65,8 +65,10 @@ namespace pat {
     void clearVec();
 
   protected:
-    PhysVarHisto * h_dxy_  ;    //!<   &&& document this
-    PhysVarHisto * h_dz_   ;    //!<   &&& document this
+    PhysVarHisto * h_dxy_  ;    //!<   Track dxy
+    PhysVarHisto * h_dz_   ;    //!<   Track dsz
+    PhysVarHisto * h_nValid_;   //!<   Number of valid hits
+    PhysVarHisto * h_nLost_;    //!<   Number of lost hits
   };
 }
 #endif

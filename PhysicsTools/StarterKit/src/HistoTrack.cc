@@ -21,6 +21,12 @@ HistoTrack::HistoTrack(std::string dir, std::string groupName, std::string group
   addHisto( h_dz_ =
 	    new PhysVarHisto( "trkDz", "Track Impact Parameter, z", 20, -3, 3, currDir_, "", "vD" )
 	   );
+  addHisto( h_nValid_ =
+	    new PhysVarHisto( "trkNValid", "Number of Valid hits", 20, 0, 20, currDir_, "", "vD" )
+	   );
+  addHisto( h_nLost_ =
+	    new PhysVarHisto( "trkNLost", "Number of Lost hits", 20, 0, 20, currDir_, "", "vD" )
+	   );
 
 }
 
@@ -36,6 +42,8 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk )
   // fill relevant track histograms
   h_dxy_->fill( track->track()->dxy(), iTrk );
   h_dz_->fill( track->track()->dsz(), iTrk );
+  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk);
+  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk);
 }
 
 
@@ -45,4 +53,6 @@ void HistoTrack::clearVec()
 
   h_dxy_->clearVec();
   h_dz_->clearVec();
+  h_nValid_->clearVec();
+  h_nLost_->clearVec();
 }

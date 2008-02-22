@@ -66,6 +66,7 @@ namespace pat {
     void clearVec();
 
   protected:
+    HistoTrack   * histoLeadingTrack_;        //!< Leading track
     HistoTrack   * histoSignalTrack_;         //!< Tracks in signal cone
     HistoTrack   * histoIsolationTrack_;      //!< Tracks in isolation cone
     PhysVarHisto * h_emEnergyFraction_ ;      //!< EM Fraction

@@ -57,8 +57,27 @@ namespace pat {
     void fill( const MET * met, uint iPart = 0  );
     void fill( const MET & met, uint iPart = 0  ) { fill(&met, iPart); }
 
-    //     // Clear ntuple cache
-    //     void clearVec();
+    // Clear ntuple cache
+    void clearVec();
+
+  protected:
+    
+    PhysVarHisto * h_sumEt_;
+    PhysVarHisto * h_mEtSig_;
+    PhysVarHisto * h_eLongitudinal_;
+
+    PhysVarHisto * h_maxEtInEmTowers_;     
+    PhysVarHisto * h_maxEtInHadTowers_;    
+    PhysVarHisto * h_etFractionHadronic_; 
+    PhysVarHisto * h_emEtFraction_;        
+    PhysVarHisto * h_hadEtInHB_;           
+    PhysVarHisto * h_hadEtInHO_;           
+    PhysVarHisto * h_hadEtInHE_;           
+    PhysVarHisto * h_hadEtInHF_;           
+    PhysVarHisto * h_emEtInEB_;            
+    PhysVarHisto * h_emEtInEE_;            
+    PhysVarHisto * h_emEtInHF_;            
+
   };
 
 }
