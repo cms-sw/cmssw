@@ -31,6 +31,7 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.EmEtInHF = 0.0;           // Em energy in HF
   specific.EtFractionHadronic = 0.0; // Hadronic energy fraction
   specific.EtFractionEm = 0.0;       // Em energy fraction
+  specific.METSignificance = 0.0;       // MET Significance
   double totalEt = 0.0; 
   double totalEm     = 0.0;
   double totalHad    = 0.0;
