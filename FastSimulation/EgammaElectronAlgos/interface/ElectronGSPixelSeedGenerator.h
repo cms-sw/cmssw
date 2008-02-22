@@ -14,7 +14,9 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -70,7 +72,9 @@ public:
   void setupES(const edm::EventSetup& setup);
 
   void run(edm::Event&, 
-	   const edm::Handle<reco::SuperClusterCollection>&, 
+	   const edm::Handle<reco::SuperClusterCollection>& clusters,  
+	   const SiTrackerGSMatchedRecHit2DCollection*,
+	   const edm::SimTrackContainer*,
 	   reco::ElectronPixelSeedCollection&);
 
  private:

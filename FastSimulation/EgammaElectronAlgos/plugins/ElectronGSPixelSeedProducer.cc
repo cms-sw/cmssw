@@ -23,9 +23,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include <iostream>
 
@@ -59,10 +62,10 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
   matcher_->setup(true); //always set to offline in our case!
  
  //  get labels from config'
-  label_[0]=iConfig.getParameter<std::string>("superClusterBarrelProducer");
-  instanceName_[0]=iConfig.getParameter<std::string>("superClusterBarrelLabel");
-  label_[1]=iConfig.getParameter<std::string>("superClusterEndcapProducer");
-  instanceName_[1]=iConfig.getParameter<std::string>("superClusterEndcapLabel");
+  clusters_[0]=iConfig.getParameter<edm::InputTag>("superClusterBarrel");
+  clusters_[1]=iConfig.getParameter<edm::InputTag>("superClusterEndcap");
+  simTracks_=iConfig.getParameter<edm::InputTag>("simTracks");
+  trackerHits_=iConfig.getParameter<edm::InputTag>("trackerHits");
 
   //register your products
   produces<reco::ElectronPixelSeedCollection>();
@@ -90,13 +93,23 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
   std::auto_ptr<reco::ElectronPixelSeedCollection> pSeeds;
   reco::ElectronPixelSeedCollection *seeds= new reco::ElectronPixelSeedCollection;
 
-  // loop over barrel + endcap
+  // Get the Monte Carlo truth (SimTracks)
+  edm::Handle<edm::SimTrackContainer> theSTC;
+  e.getByLabel(simTracks_,theSTC);
+  const edm::SimTrackContainer* theSimTracks = &(*theSTC);
+  
+  // Get the collection of Tracker RecHits
+  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theRHC;
+  e.getByLabel(trackerHits_, theRHC);
+  const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits = &(*theRHC);
+
+  // Get the two supercluster collections
   for (unsigned int i=0; i<2; i++) {  
 
     // invoke algorithm
     edm::Handle<reco::SuperClusterCollection> clusters;
-    e.getByLabel(label_[i],instanceName_[i],clusters);
-    matcher_->run(e,clusters,*seeds);
+    e.getByLabel(clusters_[i],clusters);
+    matcher_->run(e,clusters,theGSRecHits,theSimTracks,*seeds);
   
   }
 

@@ -31,8 +31,9 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
  private:
-  std::string label_[2];
-  std::string instanceName_[2];
+  edm::InputTag clusters_[2];
+  edm::InputTag simTracks_;
+  edm::InputTag trackerHits_;
   ElectronGSPixelSeedGenerator *matcher_;
  
   };

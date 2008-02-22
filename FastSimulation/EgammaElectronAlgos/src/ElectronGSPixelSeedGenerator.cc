@@ -31,12 +31,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
@@ -125,7 +123,9 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 void  ElectronGSPixelSeedGenerator::run(
   edm::Event& e, 
-  const edm::Handle<reco::SuperClusterCollection> &clusters, 
+  const edm::Handle<reco::SuperClusterCollection>& clusters,  
+  const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
+  const edm::SimTrackContainer* theSimTracks,
   reco::ElectronPixelSeedCollection & out) {
 
   // Get the beam spot
@@ -142,21 +142,6 @@ void  ElectronGSPixelSeedGenerator::run(
   // A map of vector of pixel seeds, for each clusters
   std::map<unsigned,std::vector<reco::ElectronPixelSeed> > myPixelSeeds;
 
-  // Get the Monte Carlo truth (SimTracks)
-  edm::Handle<edm::SimTrackContainer> theSTC;
-  e.getByLabel("famosSimHits",theSTC);
-  const edm::SimTrackContainer* theSimTracks = &(*theSTC);
-  
-  // Get the Monte Carlo truth (SimVertices)
-  //edm::Handle<edm::SimVertexContainer> theSVC;
-  //e.getByLabel("famosSimHits",theSVC);
-  //SimVertexContainer* theSimVertices = &(*theSTC);
-
-  // Get the collection of Tracker RecHits
-  edm::Handle<SiTrackerGSRecHit2DCollection> theRHC;
-  e.getByLabel("siTrackerGaussianSmearingRecHits", theRHC);
-  const SiTrackerGSRecHit2DCollection* theGSRecHits = &(*theRHC);
-
   // No seeding attempted if no hits !
   if(theGSRecHits->size() == 0) return;    
 
@@ -169,11 +154,11 @@ void  ElectronGSPixelSeedGenerator::run(
     unsigned simTrackId = theSimTrackIds[tkId];
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
-    SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
-    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
-    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit2;
+    SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
 
     // Request a minimum pT for the sim track
     if ( theSimTrack.momentum().perp2() < pTMin2 ) continue;
@@ -185,7 +170,7 @@ void  ElectronGSPixelSeedGenerator::run(
 
     // Now save a collection of Pixel hits for seeding electrons
     std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
-    const SiTrackerGSRecHit2D *hit;
+    const SiTrackerGSMatchedRecHit2D *hit;
     std::vector<ConstRecHitPointer> thePixelRecHits;
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	  iterRecHit != theRecHitRangeIteratorEnd; 

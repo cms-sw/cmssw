@@ -1,8 +1,10 @@
 <library name="FastSimulationEgammaElectronAlgosPlugins" file="*.cc">
  <use name=DataFormats/EgammaReco>
+ <use name=DataFormats/TrackerRecHit2D>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=FWCore/ParameterSet>
  <use name=FastSimulation/EgammaElectronAlgos>
+ <use name=SimDataFormats/Track>
  <flags EDM_PLUGIN=1>
 </library>
