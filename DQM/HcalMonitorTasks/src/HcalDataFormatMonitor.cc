@@ -1,5 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
@@ -25,7 +26,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
   firstFED_ = FEDNumbering::getHcalFEDIds().first;
   for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++) {
-    if(fVerbosity) cout << "Pushback for fedUnpackList_: " << i <<endl;
+    if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
     fedUnpackList_.push_back(i);
   }
 
@@ -36,44 +37,49 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);
-    
-    char* type = "Spigot Format Errors";
+
+    char* type = "DCC Ev Fragment Size Distribution";
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,200000,-0.5,200000.5);
+    meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",1);
+    meFEDRawDataSizes_->setAxisTitle("# of bytes",2);
+
+    type = "Spigot Format Errors";
     meSpigotFormatErrors_=  m_dbe->book1D(type,type,500,-1,999);
     meSpigotFormatErrors_->setAxisTitle("# of Errors",1);
     meSpigotFormatErrors_->setAxisTitle("# of Events",2);
-    type = "Bad Quality Digis";
+    type = "Number of Bad Quality Digis";
     meBadQualityDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
     meBadQualityDigis_->setAxisTitle("# of Events",2);
-    type = "Unmapped Digis";
+    type = "Number of Unmapped Digis";
     meUnmappedDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
     meUnmappedDigis_->setAxisTitle("# of Events",2);
-    type = "Unmapped Trigger Primitive Digis";
+    type = "Number of Unmapped Trigger Primitive Digis";
     meUnmappedTPDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
     meUnmappedTPDigis_->setAxisTitle("# of Events",2);
-    type = "FED Error Map";
+    type = "FED Error Map (from Unpacker Report)";
     meFEDerrorMap_ = m_dbe->book1D(type,type,33,699.5,732.5);
       meFEDerrorMap_->setAxisTitle("Dcc Id",1);
       meFEDerrorMap_->setAxisTitle("# of Errors",2);
-    type = "Evt Number Out-of-Synch";
+    type = "BCN Not Consistent Within Spigots of a DCC";
     meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
       meEvtNumberSynch_->setAxisTitle("Slot #",1);
       meEvtNumberSynch_->setAxisTitle("Crate #",2);
-    type = "BCN Not Consistent";
+    type = "BCN Not Consistent Within Spigots of a DCC";
     meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
        meBCNSynch_->setAxisTitle("Slot #",1);
        meBCNSynch_->setAxisTitle("Crate #",2);
-    type = "BCN";
+    type = "BCN from HTRs";
     meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
        meBCN_->setAxisTitle("BCN",1);
        meBCN_->setAxisTitle("# of Entries",2);
    
-    type = "BCN Check";
+    type = "BCN Differences Among Spigots of a DCC";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
     meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
-    type = "EvtN Check";
+    type = "BCN Differences Among Spigots of a DCC";
     meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
     meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
     type = "BCN of Fiber Orbit Message";
@@ -89,7 +95,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFEDId_=m_dbe->book1D(type, type, 4095, -0.5, 4094.5);
     meFEDId_->setAxisTitle("All possible values of FED ID",1);
 
-    type = "Event Fragments violating the Common Data Format";
+    type = "Common Data Format violations";
     meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
     meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
     meCDFErrorFound_->setBinLabel(1, "Missing Indicator for Second CDF Header", 2);
@@ -98,7 +104,9 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meCDFErrorFound_->setBinLabel(4, "Beginning Of Event not '0x5' as Spec'ed", 2);
     meCDFErrorFound_->setBinLabel(5, "Erroneous Third CDF Header Indicated", 2);
     meCDFErrorFound_->setBinLabel(6, "Reserved Second Header Bits Inconsistent", 2);
-    meCDFErrorFound_->setBinLabel(7, "Second BOE not '0x0;", 2);
+    meCDFErrorFound_->setBinLabel(7, "Second BOE not '0x0", 2);
+    meCDFErrorFound_->setBinLabel(8, "placeholder", 2);
+    meCDFErrorFound_->setBinLabel(9, "placeholder", 2);
 
     type = "DCC Event Format violation";
     meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
@@ -341,7 +349,6 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   ievt_++;
   meEVT_->Fill(ievt_);
   
-
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
   meUnmappedDigis_->Fill(report.unmappedDigis());
@@ -352,7 +359,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
-    if (fed.size()<16) continue;
+    if (fed.size()<12) continue; // Was 16. How do such tiny events even get here?
     unpack(fed,emap);
   }
 
@@ -371,9 +378,17 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 void HcalDataFormatMonitor::unpack(const FEDRawData& raw, 
 				   const HcalElectronicsMap& emap){
   
-  // get the DataFormat header
+  // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
   if(!dccHeader) return;
+
+  // get the DCC trailer 
+  unsigned char* trailer_ptr = (unsigned char*) (raw.data()+raw.size()-sizeof(uint64_t));
+  FEDTrailer trailer = FEDTrailer(trailer_ptr);
+
+  //DCC Event Fragment sizes distribution, in bytes.
+  meFEDRawDataSizes_->Fill(raw.size());
+
   int dccid=dccHeader->getSourceId();
   if(fVerbosity) cout << "DCC " << dccid << endl;
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
@@ -417,12 +432,17 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 				 (dccid,dccHeader->getSlink64ReservedBits() ) );
     CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   } // then check against it.
-  if (dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second)
+  if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second)
     meCDFErrorFound_->Fill(dccid,6);
   /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
   if (dccHeader->BOEshouldBeZeroAlways() !=0)
     meCDFErrorFound_->Fill(dccid, 7);
-  
+  /* 8 */ //There should always be a zero in the CDF Trailer, bit 2
+  //  if trailer.
+  /* 9 */ //CDF Trailer [55:30] should be the # 64-bit words in the EvFragment
+  /*10 */ //There should always be a 5 in CDF Trailer bits [63:60]
+
+
   ////////// Histogram problems with DCC Event Format compliance;////////////
   /* 1 */ //Make sure a reference value of the DCC Event Format version has been noted for this dcc.
   DCCEvtFormat_it = DCCEvtFormat_list.find(dccid);
@@ -586,7 +606,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meEvtNCheck_->Fill(EvtNdiff);
 }
     else {
-      if(htrEvtN!=lastEvtN_) {meEvtNumberSynch_->Fill(slotnum,cratenum);
+      if((int) htrEvtN!=lastEvtN_) {meEvtNumberSynch_->Fill(slotnum,cratenum);
       if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;}
 }
 
@@ -606,7 +626,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 }
 
     else {
-      if(htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
+      if((int)htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
       if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;}
     }
  
