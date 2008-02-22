@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/18 08:48:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 21:26:40 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,7 +12,9 @@
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 
 // Alignments
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -42,13 +44,16 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
   // Called whenever the alignments or alignment errors change
   //  
   if ( applyAlignment_ ) {
+    edm::ESHandle<Alignments> globalPositionRcd;
+    record.getRecord<GlobalPositionRcd>().get( globalPositionRcd );
     edm::ESHandle<Alignments> alignments;
     record.getRecord<DTAlignmentRcd>().get( alignments );
     edm::ESHandle<AlignmentErrors> alignmentErrors;
     record.getRecord<DTAlignmentErrorRcd>().get( alignmentErrors );
     GeometryAligner aligner;
     aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
-                                         &(*alignments), &(*alignmentErrors) );
+                                         &(*alignments), &(*alignmentErrors),
+                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
   }
 
   return _dtGeometry;
