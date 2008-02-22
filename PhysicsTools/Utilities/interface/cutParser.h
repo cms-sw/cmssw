@@ -10,7 +10,7 @@ namespace reco {
     bool cutParser(const std::string & value, SelectorPtr & sel) {
       using namespace boost::spirit;
       Grammar grammar(sel, (const T *)(0));
-      return parse(value.c_str(), grammar.use_parser<0>(), space_p).full;
+      return parse(value.c_str(), grammar.use_parser<0>() >> end_p, space_p).full;
     } 
   }
 }

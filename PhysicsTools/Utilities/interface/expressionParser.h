@@ -10,7 +10,7 @@ namespace reco {
     bool expressionParser( const std::string & value, ExpressionPtr & expr) {
       using namespace boost::spirit;
       Grammar grammar(expr, (const T*)(0));
-      return parse(value.c_str(), grammar.use_parser<1>(), space_p).full;
+      return parse(value.c_str(), grammar.use_parser<1>() >> end_p, space_p).full;
     }
   }
 }
