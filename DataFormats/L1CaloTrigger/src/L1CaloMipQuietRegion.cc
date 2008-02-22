@@ -1,4 +1,4 @@
-#include "L1CaloMipQuietRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloMipQuietRegion.h"
 
 
 L1CaloMipQuietRegion::L1CaloMipQuietRegion():
