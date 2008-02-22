@@ -1,55 +1,54 @@
- <use name=clhep>
- <use name=boost>
- <use name=RecoTracker/TkMSParametrization>
- <use name=RecoTracker/Record>
- <use name=RecoTracker/TkDetLayers>
- <use name=FWCore/ParameterSet>
- <use name=TrackingTools/DetLayers>
- <use name=DataFormats/TrackerRecHit2D>
- <use name=FWCore/Framework>
- <use name=DataFormats/SiStripDetId>
- <use name=TrackingTools/TransientTrackingRecHit>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-
-<use name=CondFormats/SiPixelObjects>
-<use name=CondFormats/DataRecord>
-<use name=DataFormats/SiPixelDetId>
-<use name=Geometry/CommonDetUnit>
+<use name=boost>
+<use name=clhep>
 
 <use name=CondCore/DBCommon>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+<use name=DataFormats/SiPixelDetId>
+
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/TrackerRecHit2D>
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+
+<use name=RecoTracker/Record>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/TkMSParametrization>
+
+<use name=TrackingTools/DetLayers>
+<use name=TrackingTools/TransientTrackingRecHit>
+
 
 <export>
-   <use name=clhep>
+   <lib name=RecoTrackerTkSeedingLayers>
    <use name=boost>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=RecoTracker/Record>
-   <use name=TrackingTools/DetLayers>
-   <use name=DataFormats/TrackerRecHit2D>
-   <use name=RecoTracker/TkDetLayers>
-   <use name=DataFormats/SiStripDetId>
-   <use name=TrackingTools/TransientTrackingRecHit>
-   <use name=Geometry/TrackerGeometryBuilder>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=DataFormats/SiPixelDetId>
-   <use name=CondFormats/DataRecord>
-   <use name=CondFormats/SiPixelObjects>
-   <use name=Geometry/Records>
-   <use name=Geometry/CommonDetUnit>
-   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=clhep>
    <use name=CondCore/DBCommon>
    <use name=CondCore/IOVService>
    <use name=CondCore/MetaDataService>
-
-   <lib name=RecoTrackerTkSeedingLayers>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/SiPixelObjects>
+   <use name=DataFormats/SiPixelDetId>
+   <use name=DataFormats/SiStripDetId>
+   <use name=DataFormats/TrackerRecHit2D>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/PluginManager>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/Records>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=RecoTracker/Record>
+   <use name=RecoTracker/TkDetLayers>
+   <use name=TrackingTools/DetLayers>
+   <use name=TrackingTools/TransientTrackingRecHit>
 </export>
 
