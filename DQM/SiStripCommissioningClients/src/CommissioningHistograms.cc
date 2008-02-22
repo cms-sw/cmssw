@@ -9,6 +9,7 @@
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/MonitorElementT.h"
 #ifndef USING_NEW_COLLATE_METHODS
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 #endif
