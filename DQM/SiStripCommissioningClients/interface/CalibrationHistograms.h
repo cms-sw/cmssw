@@ -6,6 +6,7 @@
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class CalibrationHistograms : virtual public CommissioningHistograms {
 
