@@ -18,31 +18,26 @@ $Id: PoolSource.h,v 1.49 2008/01/08 06:57:39 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/RunID.h"
 
-#include "boost/shared_ptr.hpp"
-
-namespace CLHEP {
-  class RandFlat;
-}
+#include "boost/scoped_ptr.hpp"
+#include "boost/utility.hpp"
 
 namespace edm {
 
-  class RootFile;
+  class RootInputFileSequence;
   class FileCatalogItem;
-  class PoolSource : public VectorInputSource {
+  class PoolSource : public VectorInputSource, public boost::noncopyable {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
+    using InputSource::productRegistryUpdate;
+    using InputSource::runPrincipal;
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
-    virtual std::auto_ptr<EventPrincipal> readCurrentEvent();
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -56,27 +51,9 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result);
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void initFile(bool skipBadFiles);
-    void updateProductRegistry() const;
-    bool nextFile();
-    bool previousFile();
-    void rewindFile();
 
-    bool firstFile_;
-    std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
-    std::vector<FileCatalogItem>::const_iterator fileIter_;
-    RootFileSharedPtr rootFile_;
-    BranchDescription::MatchMode matchMode_;
-
-    CLHEP::RandFlat * flatDistribution_;
-    int eventsRemainingInFile_;
-    RunNumber_t startAtRun_;
-    LuminosityBlockNumber_t startAtLumi_;
-    EventNumber_t startAtEvent_;
-    unsigned int eventsToSkip_;
-    bool skipBadFiles_;
-    int forcedRunOffset_;
-    RunNumber_t setRun_;
+    boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
+    boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }
