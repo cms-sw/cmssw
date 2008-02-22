@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.13 2008/02/01 14:53:48 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.14 2008/02/08 15:27:15 fblekman Exp $
 //
 //
 
@@ -129,7 +129,7 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
   edm::LogInfo("SiPixelIsAliveCalibration") << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
   double eff = -1;
   if(denom>0)
-    eff = nom;
+    eff = nom/denom;
   if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0)
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
   else
