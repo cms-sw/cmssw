@@ -12,9 +12,9 @@ rm tmp_PopConExample.cfg
 # if you want to proove again... otherwise skip to db inspection
 #  put your firstsince value after xxx 
 
-cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg| sed 's/xxx/45/g' > tmp_PopConExample.cfg
+cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg| sed 's/xxx/15/g' > tmp_PopConExample.cfg
 
-echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/45/g' 
+echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/15/g' 
 cmsRun tmp_PopConExample.cfg
 
 rm tmp_PopConExample.cfg
@@ -22,9 +22,9 @@ rm tmp_PopConExample.cfg
 # if you want to proove again... otherwise skip to db inspection
 #  put your firstsince value after xxx 
 
-cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg | sed 's/xxx/15/g' > tmp_PopConExample.cfg
+cat $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg | sed 's/xxx/45/g' > tmp_PopConExample.cfg
 
-echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/15/g' 
+echo "populate  xxx, xxx+10, xxx+20" | sed 's/xxx/45/g' 
 cmsRun tmp_PopConExample.cfg
 rm tmp_PopConExample.cfg
 
