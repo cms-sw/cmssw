@@ -2,7 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.2 2007/08/06 19:53:05 wmtan Exp $
+// $Id: FileCatalog.h,v 1.3 2007/09/05 21:11:22 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -18,13 +18,13 @@ namespace edm {
 
   class FileCatalogItem {
   public:
-    FileCatalogItem() : pfn_(0), lfn_(0) {}
-    FileCatalogItem(std::string const& pfn, std::string const& lfn) : pfn_(&pfn), lfn_(&lfn) {}
-    std::string const& fileName() const {return *pfn_;}
-    std::string const& logicalFileName() const {return *lfn_;}
+    FileCatalogItem() : pfn_(), lfn_() {}
+    FileCatalogItem(std::string const& pfn, std::string const& lfn) : pfn_(pfn), lfn_(lfn) {}
+    std::string const& fileName() const {return pfn_;}
+    std::string const& logicalFileName() const {return lfn_;}
   private:
-    std::string const* pfn_;
-    std::string const* lfn_;
+    std::string pfn_;
+    std::string lfn_;
   };
 
   class ParameterSet;
@@ -37,7 +37,8 @@ namespace edm {
       return (name.empty() || name.find(':') != std::string::npos);
     }
     pool::IFileCatalog& catalog() {return catalog_;}
-    std::string& url() {return url_;}
+    std::string & url() {return url_;}
+    std::string const& url() const {return url_;}
     void setActive() {active_ = true;}
     bool active() const {return active_;}
   private:
