@@ -42,10 +42,9 @@ bool L1CaloMipQuietRegion::operator==(const L1CaloMipQuietRegion& rhs) const
 
 ostream& operator<< (ostream& os, const L1CaloMipQuietRegion& rhs)
 {
-  os << showbase << hex
-     <<"L1CaloMipQuietRegion:"
+  os <<"L1CaloMipQuietRegion:"
      << " MIP=" << rhs.mip()
-     << " Quiet=" << rhs.quiet()
+     << " Quiet=" << rhs.quiet() << showbase << hex
      << "\n                     "
      << " RCT crate=" << rhs.rctCrate()
      << " RCT card=" << rhs.rctCard()
