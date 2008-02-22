@@ -25,8 +25,6 @@ double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, const EcalTri
 
 double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, int ADC, const EcalTrigTowerDetId & towerId)
 { 
-  double tpgInGev = 0. ;
-
   // 1. get lsb
   edm::ESHandle<EcalTPGPhysicsConst> physHandle;
   evtSetup.get<EcalTPGPhysicsConstRcd>().get( physHandle );
@@ -43,7 +41,16 @@ double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, int ADC, cons
     lsb10bits = item.EtSat/1024. ;
   }
 
-  // 2. get compressed look-up table
+  // 2. linearized TPG
+  return lsb10bits * getLinearizedTPG(evtSetup, ADC, towerId) ;
+
+}
+
+int EcalTPGScale::getLinearizedTPG(const edm::EventSetup & evtSetup, int ADC, const EcalTrigTowerDetId & towerId)
+{
+  int tpg10bits = 0 ;
+ 
+  // Get compressed look-up table
   edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
   evtSetup.get<EcalTPGLutGroupRcd>().get( lutGrpHandle );
   const EcalTPGGroups::EcalTPGGroupsMap & lutGrpMap = lutGrpHandle.product()->getMap() ;  
@@ -59,12 +66,12 @@ double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, int ADC, cons
     const unsigned int * lut = (itLut->second).getLut() ;
     for (uint i=0 ; i<1024 ; i++)
       if (ADC == (0xff & lut[i])) {
-	tpgInGev = i*lsb10bits ;
+	tpg10bits = i ;
 	break ;
       }
   }
 
-  return tpgInGev ;
+  return tpg10bits ;
 }
 
 int EcalTPGScale::getTPGInADC(const edm::EventSetup & evtSetup, double energy, const EcalTrigTowerDetId & towerId)

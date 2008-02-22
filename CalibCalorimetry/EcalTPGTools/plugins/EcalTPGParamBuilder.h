@@ -30,7 +30,6 @@
 #include <iostream>
 
 class CaloSubdetectorGeometry ;
-class EcalTrigTowerConstituentsMap ;
 class EcalElectronicsMapping ;
 class EcalTPGCondDBApp ;
 
