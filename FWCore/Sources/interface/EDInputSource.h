@@ -2,7 +2,7 @@
 #define FWCore_Sources_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
+$Id: EDInputSource.h,v 1.3 2007/08/06 19:53:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -21,16 +21,22 @@ namespace edm {
     explicit EDInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~EDInputSource();
 
-    std::vector<std::string> const& logicalFileNames() const {return catalog_.logicalFileNames();}
-    std::vector<std::string> const& fileNames() const {return catalog_.fileNames();}
-    std::vector<FileCatalogItem> const& fileCatalogItems() const {return catalog_.fileCatalogItems();}
-    InputFileCatalog& catalog() {return catalog_;}
+    std::vector<std::string> const& logicalFileNames(int n = 0) const {
+      return catalogs_.at(n).logicalFileNames();
+    }
+    std::vector<std::string> const& fileNames(int n = 0) const {
+      return catalogs_.at(n).fileNames();
+    }
+    std::vector<FileCatalogItem> const& fileCatalogItems(int n = 0) const {
+      return catalogs_.at(n).fileCatalogItems();
+    }
+    InputFileCatalog& catalog(int n = 0) {return catalogs_.at(n);}
 
   private:
     virtual void setRun(RunNumber_t);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     
-    InputFileCatalog catalog_;
+    std::vector<InputFileCatalog> catalogs_;
   };
 }
 #endif
