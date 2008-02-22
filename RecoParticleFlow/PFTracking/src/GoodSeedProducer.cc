@@ -16,6 +16,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
