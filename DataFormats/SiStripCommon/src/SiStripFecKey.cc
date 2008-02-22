@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.17 2008/02/19 11:23:36 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.18 2008/02/21 16:51:58 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -411,7 +411,7 @@ void SiStripFecKey::initFromValue() {
   if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
        i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
     i2cAddr_ = i2cAddr_; 
-    if ( lldChan( i2cAddr_ ) != lldChan_ ) { 
+    if ( lldChan_ && lldChan( i2cAddr_ ) != lldChan_ ) { 
       i2cAddr_ = sistrip::invalid_;
       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
     }
@@ -496,7 +496,7 @@ void SiStripFecKey::initFromKey() {
     if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
 	 i2cAddr_ <= sistrip::APV_I2C_MAX ) {
       key( key() | ( ( firstApvOfPair( i2cAddr_ ) ? 1 : 2 ) << i2cAddrOffset_ ) ); // key encodes APV number (1 or 2)
-      if ( lldChan( i2cAddr_ ) != lldChan_ ) { 
+      if ( lldChan_ && lldChan( i2cAddr_ ) != lldChan_ ) { 
 	i2cAddr_ = sistrip::invalid_;
 	key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
       }

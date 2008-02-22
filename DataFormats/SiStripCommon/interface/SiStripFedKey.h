@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.h,v 1.12 2008/02/06 14:32:47 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.h,v 1.13 2008/02/14 13:29:55 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H
@@ -173,20 +173,20 @@ class SiStripFedKey : public SiStripKey {
   uint16_t fedApv_; 
   
   // Definition of bit field positions for 32-bit key 
-  static const uint16_t fedCrateOffset_ = 26;
-  static const uint16_t fedSlotOffset_  = 21;
-  static const uint16_t fedIdOffset_    = 11;
-  static const uint16_t feUnitOffset_   =  7;
-  static const uint16_t feChanOffset_   =  3;
+  static const uint16_t fedCrateOffset_ = 24;
+  static const uint16_t fedSlotOffset_  = 19;
+  static const uint16_t fedIdOffset_    = 10;
+  static const uint16_t feUnitOffset_   =  6;
+  static const uint16_t feChanOffset_   =  2;
   static const uint16_t fedApvOffset_   =  0;
 
   // Definition of bit field masks for 32-bit key 
   static const uint16_t fedCrateMask_ = 0x03F; // (6 bits)
   static const uint16_t fedSlotMask_  = 0x01F; // (5 bits)
-  static const uint16_t fedIdMask_    = 0x3FF; // (10 bits)
+  static const uint16_t fedIdMask_    = 0x1FF; // (9 bits)
   static const uint16_t feUnitMask_   = 0x00F; // (4 bits)
   static const uint16_t feChanMask_   = 0x00F; // (4 bits)
-  static const uint16_t fedApvMask_   = 0x007; // (3 bits)
+  static const uint16_t fedApvMask_   = 0x003; // (2 bits)
   
 };
 

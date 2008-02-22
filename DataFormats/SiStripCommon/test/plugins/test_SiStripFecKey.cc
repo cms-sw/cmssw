@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.5 2008/01/15 16:27:57 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.6 2008/01/22 18:46:07 muzaffar Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -118,17 +118,6 @@ void testSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 		   << ">>> isInvalid      : " << tmp1.isInvalid()
 		   << " " << tmp1.isInvalid( tmp1.granularity() )
 		   << " " << tmp1.isInvalid( sistrip::APV );
-
-// 		ss << ">>> original:" << std::endl << tmp1 << std::endl
-// 		   << ">>> from FEC key:" << std::endl << tmp2 << std::endl
-// 		   << ">>> from directory:" << std::endl << tmp3 << std::endl
-// 		   << ">>> isValid:   " << tmp1.isValid()
-// 		   << " " << tmp1.isValid( tmp1.granularity() )
-// 		   << " " << tmp1.isValid( sistrip::APV ) << std::endl
-// 		   << ">>> isInvalid: " << tmp1.isInvalid()
-// 		   << " " << tmp1.isInvalid( tmp1.granularity() )
-// 		   << " " << tmp1.isInvalid( sistrip::APV );
-
 		LogTrace(mlDqmCommon_) << ss.str();
 		
 	      }
