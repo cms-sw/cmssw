@@ -38,7 +38,7 @@ public:
 
   //! make single MuIsoDeposit based on trackRef as input
   virtual reco::MuIsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, 
-				     const reco::TrackRef & track) const{
+				     const reco::TrackBaseRef & track) const{
     return deposit(ev, evSetup, *track);
   }
 
@@ -66,10 +66,10 @@ public:
     return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
   }
 
-  //! make multiple MuIsoDeposit(s) based on a TrackRef as input
+  //! make multiple MuIsoDeposit(s) based on a TrackBaseRef as input
   //! use these only if CPU-constrained
   virtual std::vector<reco::MuIsoDeposit> 
-    deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackRef & track) const{
+    deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackBaseRef & track) const{
     return deposits(ev, evSetup, *track);
   }
 
