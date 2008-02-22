@@ -3,19 +3,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-//namespace {
-//
-//  void fill(RPCEMap & map, int nc) {
-//    map.m_pedestals.reserve(nc);
-//    for(int ichannel=1; ichannel<=nc; ++ichannel){
-//      Pedestals::Item item;
-//      item.m_mean=1.11*ichannel;
-//      item.m_variance=1.12*ichannel;
-//      p.m_pedestals.push_back(item);
-//    }
-//  }
-//}
-
 popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) :
   m_name(ps.getUntrackedParameter<std::string>("name","RPCEMapSourceHandler")),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
@@ -40,73 +27,13 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
-  RPCEMap* eMap_prev=0;
+  Ref payload;
   if(m_validate==1 && tagInfo().size>0) {
     std::cout<<" Validation was requested, so will check present contents"<<std::endl;
     std::cout<<"Name of tag : "<<tagInfo().name << ", tag size : " << tagInfo().size 
             << ", last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  
-    Ref payload = lastPayload();
-//    std::cout<<"Sizes of last payload  :"<< std::endl;
-//    std::cout<<payload->theDccs.size()<<" DCCs"<<std::endl;
-//    std::cout<<payload->theTBs.size()<<" TBs"<<std::endl;
-//    std::cout<<payload->theLinks.size()<<" links"<<std::endl;
-//    std::cout<<payload->theLBs.size()<<" LBs"<<std::endl;
-//    std::cout<<payload->theFebs.size()<<" FEBs"<<std::endl;
-//    std::cout<<payload->theStrips.size()<<" strips"<<std::endl;
-    eMap_prev=new RPCEMap(payload->theVersion);
-    for (unsigned int iDcc=0; iDcc<payload->theDccs.size(); iDcc++) {
-      RPCEMap::dccItem thisDcc;
-      thisDcc.theId=payload->theDccs[iDcc].theId;
-      thisDcc.nTBs=payload->theDccs[iDcc].nTBs;
-      eMap_prev->theDccs.push_back(thisDcc);
-    }
-    for (unsigned int iTB=0; iTB<payload->theTBs.size(); iTB++) {
-      RPCEMap::tbItem thisTB;
-      thisTB.theNum=payload->theTBs[iTB].theNum;
-      thisTB.theMaskedLinks=payload->theTBs[iTB].theMaskedLinks;
-      thisTB.nLinks=payload->theTBs[iTB].nLinks;
-      eMap_prev->theTBs.push_back(thisTB);
-    }
-    for (unsigned int iLink=0; iLink<payload->theLinks.size(); iLink++) {
-      RPCEMap::linkItem thisLink;
-      thisLink.theTriggerBoardInputNumber=payload->theLinks[iLink].theTriggerBoardInputNumber;
-      thisLink.nLBs=payload->theLinks[iLink].nLBs;
-      eMap_prev->theLinks.push_back(thisLink);
-    }
-    for (unsigned int iLB=0; iLB<payload->theLBs.size(); iLB++) {
-      RPCEMap::lbItem thisLB;
-      thisLB.theMaster=payload->theLBs[iLB].theMaster;
-      thisLB.theLinkBoardNumInLink=payload->theLBs[iLB].theLinkBoardNumInLink;
-      thisLB.nFebs=payload->theLBs[iLB].nFebs;
-      eMap_prev->theLBs.push_back(thisLB);
-    }
-    for (unsigned int iFeb=0; iFeb<payload->theFebs.size(); iFeb++) {
-      RPCEMap::febItem thisFeb;
-      thisFeb.theLinkBoardInputNum=payload->theFebs[iFeb].theLinkBoardInputNum;
-      thisFeb.theRawId=payload->theFebs[iFeb].theRawId;
-      thisFeb.cmsEtaPartition=payload->theFebs[iFeb].cmsEtaPartition;
-      thisFeb.positionInCmsEtaPartition=payload->theFebs[iFeb].positionInCmsEtaPartition;
-      thisFeb.localEtaPartition=payload->theFebs[iFeb].localEtaPartition;
-      thisFeb.positionInLocalEtaPartition=payload->theFebs[iFeb].positionInLocalEtaPartition;
-      thisFeb.diskOrWheel=payload->theFebs[iFeb].diskOrWheel;
-      thisFeb.layer=payload->theFebs[iFeb].layer;
-      thisFeb.sector=payload->theFebs[iFeb].sector;
-      thisFeb.subsector=payload->theFebs[iFeb].subsector;
-      thisFeb.chamberLocationName=payload->theFebs[iFeb].chamberLocationName;
-      thisFeb.febZOrnt=payload->theFebs[iFeb].febZOrnt;
-      thisFeb.febZRadOrnt=payload->theFebs[iFeb].febZRadOrnt;
-      thisFeb.barrelOrEndcap=payload->theFebs[iFeb].barrelOrEndcap;
-      thisFeb.nStrips=payload->theFebs[iFeb].nStrips;
-      eMap_prev->theFebs.push_back(thisFeb);
-    }
-    for (unsigned int iSt=0; iSt<payload->theStrips.size(); iSt++) {
-      RPCEMap::stripItem thisStrip;
-      thisStrip.cablePinNumber=payload->theStrips[iSt].cablePinNumber;
-      thisStrip.chamberStripNumber=payload->theStrips[iSt].chamberStripNumber;
-      thisStrip.cmsStripNumber=payload->theStrips[iSt].cmsStripNumber;
-      eMap_prev->theStrips.push_back(thisStrip);
-    }
+    payload = lastPayload();
   }
 
 // now construct new cabling map from online DB
@@ -118,11 +45,12 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 	
 // look for recent changes
         int difference=1;
-        if (m_validate==1) difference=Compare2EMaps(eMap_prev,eMap);
+        if (m_validate==1) difference=Compare2EMaps(payload,eMap);
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
           m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
+          delete eMap;
         }
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
@@ -349,7 +277,8 @@ void popcon::RPCEMapSourceHandler::readEMap()
   cout << endl <<"Building RPC e-Map done!" << flush << endl << endl;
 }
 
-int popcon::RPCEMapSourceHandler::Compare2EMaps(const RPCEMap* map1, RPCEMap* map2) {
+//int popcon::RPCEMapSourceHandler::Compare2EMaps(const RPCEMap* map1, RPCEMap* map2) {
+int popcon::RPCEMapSourceHandler::Compare2EMaps(Ref map1, RPCEMap* map2) {
   RPCReadOutMapping* oldmap1 = map1->convert();
   RPCReadOutMapping* oldmap2 = map2->convert();
   vector<const DccSpec *> dccs1 = oldmap1->dccList();
