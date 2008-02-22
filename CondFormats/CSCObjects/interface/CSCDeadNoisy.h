@@ -13,7 +13,7 @@ class CSCDeadNoisy{
     int pointer;
     int bad_channels;
   };
-  struct Item{
+  struct BadChannels{
     short int layer;
     short int channel;
     short int flag1;
@@ -22,7 +22,7 @@ class CSCDeadNoisy{
   };
 
   typedef std::vector<BadChambers> BadChambersContainer;
-  typedef std::vector<Item> BadChannelsContainer;
+  typedef std::vector<BadChannels> BadChannelsContainer;
 
   BadChambersContainer chambers;
   BadChannelsContainer channels;
