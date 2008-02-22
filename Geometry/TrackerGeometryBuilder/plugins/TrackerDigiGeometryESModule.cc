@@ -8,6 +8,8 @@
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -38,23 +40,35 @@ TrackerDigiGeometryESModule::~TrackerDigiGeometryESModule() {}
 
 //__________________________________________________________________
 boost::shared_ptr<TrackerGeometry> 
-TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord){ 
+TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
+{ 
 
   //
-  // Called whenever the alignments or alignment errors change
+  // Called whenever the alignments, alignment errors or global positions change
   //
-  if ( applyAlignment_ ) {
-    // Retrieve and apply alignments
+
+  if (applyAlignment_) {
+    // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
+    edm::ESHandle<Alignments> globalPosition;
+    iRecord.getRecord<GlobalPositionRcd>().get(globalPosition);
     edm::ESHandle<Alignments> alignments;
-    iRecord.getRecord<TrackerAlignmentRcd>().get( alignments );
+    iRecord.getRecord<TrackerAlignmentRcd>().get(alignments);
     edm::ESHandle<AlignmentErrors> alignmentErrors;
-    iRecord.getRecord<TrackerAlignmentErrorRcd>().get( alignmentErrors );
-    GeometryAligner aligner;
-    aligner.applyAlignments<TrackerGeometry>( &(*_tracker), &(*alignments), &(*alignmentErrors) );
+    iRecord.getRecord<TrackerAlignmentErrorRcd>().get(alignmentErrors);
+    // apply if not empty:
+    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+      edm::LogWarning("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
+                                << "Empty Alignment(Error)s and global position, "
+                                << "I assume fake and do not apply.";
+    } else {
+      GeometryAligner ali;
+      ali.applyAlignments<TrackerGeometry>(&(*_tracker), &(*alignments), &(*alignmentErrors),
+                                           align::DetectorGlobalPosition(*globalPosition,
+                                                                         DetId(DetId::Tracker)));
+    }
   }
 
   return _tracker;
-
 } 
 
 
