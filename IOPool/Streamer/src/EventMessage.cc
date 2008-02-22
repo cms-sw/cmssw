@@ -14,8 +14,18 @@ EventMsgView::EventMsgView(void* buf):
   // version number included (>= 5).
   if (protocolVersion() < 5 || protocolVersion() > 5) {
     throw cms::Exception("EventMsgView", "Invalid Message Version:")
-      << "Only message version 5 is currently supported "
-      << "(invalid value = " << protocolVersion() << ").\n";
+      << "Only message version 5 is currently supported \n"
+      << "(invalid value = " << protocolVersion() << ").\n"
+      << "We support only reading and converting streamer files\n"
+      << "using the same version of CMSSW used to created the\n"
+      << "streamer file. This is because the streamer format is\n"
+      << "only a temporary format, as such we do not support\n"
+      << "backwards compatibility. If you really need a streamer\n"
+      << "file for some reason, the work around is that you convert\n"
+      << "the streamer file to a Root file using the CMSSW version\n"
+      << "that created the streamer file, then convert the Root file\n"
+      << "to a streamer file using a newer release that will produce\n"
+      << "the version of streamer file that you desire.\n";
   }
 
   uint8* l1_bit_size_ptr = buf_ + sizeof(EventHeader); //Just after Header 
