@@ -5,6 +5,8 @@
 #include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
+
+#include <TROOT.h>
 #include <TTree.h>
 #include "TLine.h"
 #include "TList.h"
