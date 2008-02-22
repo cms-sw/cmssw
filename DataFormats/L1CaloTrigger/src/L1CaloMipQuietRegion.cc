@@ -53,8 +53,8 @@ ostream& operator<< (ostream& os, const L1CaloMipQuietRegion& rhs)
      << " RCT phi=" << rhs.rctPhi()
      << "\n                     "
      << " GCT eta=" << rhs.gctEta()
-     << " GCT phi=" << rhs.gctPhi()
+     << " GCT phi=" << rhs.gctPhi() << dec << noshowbase
      << "\n                      BX=" << rhs.bx()
-     << dec << noshowbase << endl;
+     << endl;
   return os;
 }
