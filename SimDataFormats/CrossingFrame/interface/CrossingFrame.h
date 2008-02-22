@@ -40,7 +40,7 @@ class CrossingFrame
 
   void addSignals(const std::vector<T> * vec,edm::EventID id);
 
-  void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false);
+  void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
   
   void print(int level=0) const ;
   void setBcrOffset() {
