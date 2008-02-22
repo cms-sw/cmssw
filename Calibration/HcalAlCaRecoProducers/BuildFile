@@ -2,8 +2,11 @@
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EcalDetId>
-<use name=DataFormats/DetId>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/HcalDigi>
 
+<use name=DataFormats/DetId>
+<use name=DataFormats/HcalCalibObjects>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
@@ -45,9 +48,10 @@
    <use name=RecoEcal/EgammaCoreTools>
 #   <use name=RecoEcal/EgammaClusterProducers>
 
-
+   <use name=CondFormats/HcalObjects>
    <use name=DataFormats/HcalDigi>
    <use name=DataFormats/HcalRecHit>
+   <use name=DataFormats/HcalCalibObjects> 
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/CaloTowers>
    <use name=DataFormats/RecoCandidate>
