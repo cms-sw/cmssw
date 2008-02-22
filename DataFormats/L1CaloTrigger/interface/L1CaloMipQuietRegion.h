@@ -10,8 +10,8 @@
 * \brief Miniumum Ionising Particle (MIP) and Quiet bits for a calorimeter trigger region.
 * 
 * \author Robert Frazier
-* $Revision: $
-* $Date: $
+* $Revision: 1.1 $
+* $Date: 2008/02/22 13:54:32 $
 */ 
 
 class L1CaloMipQuietRegion
@@ -24,7 +24,7 @@ public:
   L1CaloMipQuietRegion();
 
   /// Constructor for RCT emulator (HB/HE regions)
-  L1CaloMipQuietRegion(bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn, int16_t bx=0);
+  L1CaloMipQuietRegion(bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn, int16_t bx);
 
   /// Construct with GCT eta,phi indices, for testing GCT emulator
   L1CaloMipQuietRegion(bool mip, bool quiet, unsigned ieta, unsigned iphi, int16_t bx=0);
