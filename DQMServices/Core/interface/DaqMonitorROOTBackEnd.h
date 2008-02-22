@@ -1,3 +1,1 @@
-#include "DQMServices/Core/interface/DQMStore.h"
-typedef DQMStore DaqMonitorROOTBackEnd;
-
+#error DQMServices/Core/interface/DaqMonitorROOTBackEnd.h is obsolete

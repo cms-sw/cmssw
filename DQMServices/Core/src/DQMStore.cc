@@ -19,7 +19,7 @@
 
     Flag used to print out a warning when calling quality tests.
     twice without having called reset() in between; to be reset in
-    MonitorUserInterface::runQualityTests.  */
+    DQMOldReceiver::runQualityTests.  */
 
 /** @var DQMStore::collateHistograms_ */
 

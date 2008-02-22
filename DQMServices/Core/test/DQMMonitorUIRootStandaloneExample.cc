@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    DQMServices/CoreROOT
-// Class:      DQMMonitorUIRootStandaloneExample
+// Class:      DQMDQMOldReceiverStandaloneExample
 // 
-/**\class DQMMonitorUIRootStandaloneExample
+/**\class DQMDQMOldReceiverStandaloneExample
 
 Description: Simple example that fills monitoring elements and 
              compares them to reference
@@ -29,8 +29,9 @@ Implementation:
 
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/Core/interface/DQMDefinitions.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/QTest.h"
 
 #include <TRandom.h>
 
@@ -48,10 +49,10 @@ const float XMAX = 3;
 // class declaration
 //
 
-class DQMMonitorUIRootStandaloneExample : public edm::EDAnalyzer {
+class DQMDQMOldReceiverStandaloneExample : public edm::EDAnalyzer {
 public:
-  explicit DQMMonitorUIRootStandaloneExample( const edm::ParameterSet& );
-  ~DQMMonitorUIRootStandaloneExample();
+  explicit DQMDQMOldReceiverStandaloneExample( const edm::ParameterSet& );
+  ~DQMDQMOldReceiverStandaloneExample();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
@@ -69,9 +70,9 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   // Monitor UI
-  MonitorUserInterface * mui;
+  DQMOldReceiver * mui;
   // quality tests
   Comp2RefChi2 * chi2_test; // chi2 test
   Comp2RefKolmogorov * ks_test; // Kolmogorov test
@@ -105,7 +106,7 @@ private:
 };
 
 // create the monitoring structure
-void DQMMonitorUIRootStandaloneExample::createMonitorElements(void)
+void DQMDQMOldReceiverStandaloneExample::createMonitorElements(void)
 {
   // set # of bins, range for histogram(s)
   const int NBINS = 50;
@@ -124,7 +125,7 @@ void DQMMonitorUIRootStandaloneExample::createMonitorElements(void)
 }
 
 // create the quality tests
-void DQMMonitorUIRootStandaloneExample::createQualityTests(void)
+void DQMDQMOldReceiverStandaloneExample::createQualityTests(void)
 {
   testNames.push_back("my_chi2");
   testNames.push_back("my_kolm");
@@ -186,7 +187,7 @@ void DQMMonitorUIRootStandaloneExample::createQualityTests(void)
 }
 
 // tune cuts for quality tests
-void DQMMonitorUIRootStandaloneExample::tuneCuts(void)
+void DQMDQMOldReceiverStandaloneExample::tuneCuts(void)
 {
   // set reference for chi2, ks tests
   setReference(href);
@@ -212,14 +213,14 @@ void DQMMonitorUIRootStandaloneExample::tuneCuts(void)
 
 
 // constructors and destructor
-DQMMonitorUIRootStandaloneExample::DQMMonitorUIRootStandaloneExample(const edm::ParameterSet& iConfig ) : counter(0)
+DQMDQMOldReceiverStandaloneExample::DQMDQMOldReceiverStandaloneExample(const edm::ParameterSet& iConfig ) : counter(0)
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
-  mui = new MonitorUserInterface();
+  mui = new DQMOldReceiver();
 
   createMonitorElements();
   
@@ -230,7 +231,7 @@ DQMMonitorUIRootStandaloneExample::DQMMonitorUIRootStandaloneExample(const edm::
 }
 
 // use <ref> as the reference for the quality tests
-void DQMMonitorUIRootStandaloneExample::setReference(MonitorElement * ref)
+void DQMDQMOldReceiverStandaloneExample::setReference(MonitorElement * ref)
 {
   if(chi2_test)chi2_test->setReference(ref);
   if(ks_test)ks_test->setReference(ref);  
@@ -246,21 +247,21 @@ void DQMMonitorUIRootStandaloneExample::setReference(MonitorElement * ref)
 }
 
 
-DQMMonitorUIRootStandaloneExample::~DQMMonitorUIRootStandaloneExample()
+DQMDQMOldReceiverStandaloneExample::~DQMDQMOldReceiverStandaloneExample()
 {
   delete mui;
 }
 
-void DQMMonitorUIRootStandaloneExample::endJob(void)
+void DQMDQMOldReceiverStandaloneExample::endJob(void)
 {
   runTests();
 }
 
 // run quality tests;
 // (see Core/interface/QTestStatus.h)
-void DQMMonitorUIRootStandaloneExample::runTests()
+void DQMDQMOldReceiverStandaloneExample::runTests()
 {
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
+  DQMStore * bei = mui->getBEInterface();
 
   bei->runQTests(); // mui->update() would have the same result
 
@@ -332,7 +333,7 @@ void DQMMonitorUIRootStandaloneExample::runTests()
 //
 
 // ------------ method called to produce the data  ------------
-void DQMMonitorUIRootStandaloneExample::analyze(const edm::Event& iEvent, 
+void DQMDQMOldReceiverStandaloneExample::analyze(const edm::Event& iEvent, 
 					 const edm::EventSetup& iSetup )
 {
   // fill in test histogram with random data
@@ -341,7 +342,7 @@ void DQMMonitorUIRootStandaloneExample::analyze(const edm::Event& iEvent,
 }
 
 // show channels that failed test
-void DQMMonitorUIRootStandaloneExample::showBadChannels(QReport *qr)
+void DQMDQMOldReceiverStandaloneExample::showBadChannels(QReport *qr)
 {
   vector<dqm::me_util::Channel> badChannels = qr->getBadChannels();
   if(!badChannels.empty())
@@ -362,5 +363,5 @@ void DQMMonitorUIRootStandaloneExample::showBadChannels(QReport *qr)
 
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(DQMMonitorUIRootStandaloneExample);
+DEFINE_FWK_MODULE(DQMDQMOldReceiverStandaloneExample);
 

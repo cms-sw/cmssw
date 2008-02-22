@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/02/03 00:39:24 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/03 10:49:37 $
+ * $Revision: 1.13 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
@@ -26,7 +26,7 @@ using namespace edm;
 DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps ) :
 counterEvt_(0)
 {
-     dbe_ = Service<DaqMonitorBEInterface>().operator->();
+     dbe_ = Service<DQMStore>().operator->();
      parameters_ = ps;
      monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
      cout << "Monitor name = " << monitorName_ << endl;

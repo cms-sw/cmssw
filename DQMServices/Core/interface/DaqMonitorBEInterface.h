@@ -1,2 +1,1 @@
-#include "DQMServices/Core/interface/DQMStore.h"
-typedef DQMStore DaqMonitorBEInterface;
+#error DQMServices/Core/interface/DaqMonitorBEInterface.h is obsolete

@@ -2,14 +2,15 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/01/11 15:47:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/21 03:26:45 $
+ *  $Revision: 1.11 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
-#include "DQMServices/Core/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/QTest.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DaqMonitorBEInterface *bei){
+bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DQMStore *bei){
 	
 	testsConfigured.clear();
 	
@@ -39,7 +40,7 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 
 
 
-void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -61,7 +62,7 @@ void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -81,7 +82,7 @@ void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -101,7 +102,7 @@ void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::s
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
@@ -123,7 +124,7 @@ void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
@@ -170,7 +171,7 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 void QTestConfigure::EnableMostProbableLandauTest( 
        const std::string                        &roTEST_NAME,
        std::map<std::string, std::string> &roMParams,
-       DaqMonitorBEInterface                     *bei) {
+       DQMStore                     *bei) {
 
   // Create QTest or Get already assigned one
   MostProbableLandau *poQTest = 0;
@@ -196,7 +197,7 @@ void QTestConfigure::EnableMostProbableLandauTest(
   poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
 
-void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
@@ -228,7 +229,7 @@ void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::ma
 
 }
 
-void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
@@ -260,7 +261,7 @@ void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::ma
 
 }
 
-void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
@@ -292,7 +293,7 @@ void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::
 
 }
 
-void QTestConfigure::disableTests(std::vector<std::string> testsOFFList, DaqMonitorBEInterface *bei){
+void QTestConfigure::disableTests(std::vector<std::string> testsOFFList, DQMStore *bei){
  std::vector<std::string>::iterator testsItr;
  for(testsItr= testsOFFList.begin(); testsItr != testsOFFList.end();++testsItr){ 
 	if( bei->getQCriterion(*testsItr) ){

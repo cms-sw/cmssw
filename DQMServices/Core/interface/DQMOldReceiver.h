@@ -12,7 +12,7 @@ public:
 
   /** Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
      using <client_name>; if flag=true, client will accept downstream connections
-     MonitorUserInterface(std::string hostname,int port_no,std::string client_name,
+     DQMOldReceiver(std::string hostname,int port_no,std::string client_name,
 
      int reconnect_delay_secs = 5, bool actAsServer = false); 
   */
@@ -20,7 +20,7 @@ public:
   /** Connect with monitoring server (DQM Collector) with a list of hostnames at 
      <port_no> using <client_name>;   
      if flag=true, client will accept downstream connections
-     MonitorUserInterface::MonitorUserInterface(std::vector<std::string> hostnames, int port_no, 
+     DQMOldReceiver::DQMOldReceiver(std::vector<std::string> hostnames, int port_no, 
      std::string client_name, int reconnect_delay_secs=5, bool actAsServer=false); 
   */ 
 

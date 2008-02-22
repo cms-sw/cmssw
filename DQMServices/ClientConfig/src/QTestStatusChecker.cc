@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2007/11/09 07:26:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/21 03:26:45 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 
@@ -18,7 +18,7 @@ QTestStatusChecker::QTestStatusChecker(){
 QTestStatusChecker::~QTestStatusChecker(){
 }
 
-std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(DaqMonitorBEInterface * bei){
+std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(DQMStore * bei){
 	std::pair<std::string,std::string> statement;
 	int status= bei->getStatus();
 	switch(status){
@@ -42,7 +42,7 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(DaqMoni
 	return statement;
 }
 
-std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetailedStatus(DaqMonitorBEInterface * bei){ 
+std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetailedStatus(DQMStore * bei){ 
 	
 	std::vector<std::string> allPathNames=this->fullPathNames(bei); 
 	detailedWarnings.clear();
@@ -52,7 +52,7 @@ std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetai
 } 
 
 		
-void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, DaqMonitorBEInterface * bei){	
+void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, DQMStore * bei){	
   
  for(std::vector<std::string>::iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
         
@@ -99,7 +99,7 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, Da
 }
 
 
-std::vector<std::string> QTestStatusChecker::fullPathNames(DaqMonitorBEInterface * bei){
+std::vector<std::string> QTestStatusChecker::fullPathNames(DQMStore * bei){
 
 
   std::vector<std::string> contents;

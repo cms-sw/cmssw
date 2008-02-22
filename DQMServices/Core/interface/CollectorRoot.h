@@ -1,1 +1,1 @@
-#error DQMServices/Core/interface/Core/interface/CollectorRoot.h is obsolete
+#error DQMServices/Core/interface/CollectorRoot.h is obsolete

@@ -1,1 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
+#error DQMServices/Core/interface/RuleCSC01.h is obsolete

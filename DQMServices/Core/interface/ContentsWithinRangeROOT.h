@@ -1,1 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
+#error DQMServices/Core/interface/ContentsWithinRangeROOT.h is obsolete

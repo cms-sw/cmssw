@@ -1,7 +1,7 @@
 #include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
 #include "DQMServices/XdaqCollector/interface/Updater.h"
 #include "DQMServices/XdaqCollector/interface/Updater.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"

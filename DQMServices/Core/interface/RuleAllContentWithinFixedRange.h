@@ -1,1 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
+#error DQMServices/Core/interface/RuleAllContentWithinFixedRange.h is obsolete

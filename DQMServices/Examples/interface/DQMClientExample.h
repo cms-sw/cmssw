@@ -5,14 +5,14 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/10/11 22:41:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/05 11:30:18 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti CERN
  *   
  */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <memory>
@@ -63,7 +63,7 @@ private:
   
   edm::ParameterSet parameters_;
 
-  DaqMonitorBEInterface* dbe_;  
+  DQMStore* dbe_;  
   std::string monitorName_;
   int counterLS_;      ///counter
   int counterEvt_;     ///counter

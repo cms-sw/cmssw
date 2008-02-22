@@ -29,7 +29,7 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -48,7 +48,7 @@ private:
   // ----------member data ---------------------------
   
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   
   // remove all MonitorElements and directories
   void removeAll();
@@ -60,7 +60,7 @@ private:
 DQMReadFileExample::DQMReadFileExample(const edm::ParameterSet& iConfig ) 
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   std::string filename = iConfig.getUntrackedParameter<std::string>
     ("RootFileName", "test_playback.root");

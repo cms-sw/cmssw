@@ -49,7 +49,7 @@ class AllContentAlongDiagonal;		typedef AllContentAlongDiagonal RuleAllContentAl
 
 class QCriterion
 {
-  /// (class should be created by DaqMonitorBEInterface class)
+  /// (class should be created by DQMStore class)
 
 public:
   /// enable test

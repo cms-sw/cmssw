@@ -1,6 +1,5 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-#include "DQMServices/QualityTests/interface/EMUQCriterionRoot.h"
+#include "DQMServices/Core/interface/QTest.h"
 
 #include <TH1F.h>
 #include <TRandom.h>

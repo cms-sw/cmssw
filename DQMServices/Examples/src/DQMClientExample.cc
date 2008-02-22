@@ -4,9 +4,9 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2008/01/22 18:48:37 $
- * $Revision: 1.8 $
- * $Author: muzaffar $
+ * $Date: 2008/02/21 03:26:58 $
+ * $Revision: 1.9 $
+ * $Author: lat $
  *
  */
 
@@ -42,7 +42,7 @@ void DQMClientExample::initialize(){
   counterEvt_=0; 
   
   // get back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
@@ -61,7 +61,7 @@ void DQMClientExample::initialize(){
 void DQMClientExample::beginJob(const EventSetup& context){
 
   // get backendinterface  
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   // do your thing
   dbe_->setCurrentFolder(monitorName_+"C1/Tests");

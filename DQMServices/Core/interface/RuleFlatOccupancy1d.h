@@ -1,2 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
-
+#error DQMServices/Core/interface/RuleFlatOccupancy1d.h is obsolete

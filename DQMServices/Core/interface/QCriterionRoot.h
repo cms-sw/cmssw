@@ -1,1 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
+#error DQMServices/Core/interface/QCriterionRoot.h is obsolete

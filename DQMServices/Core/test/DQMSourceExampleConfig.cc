@@ -29,8 +29,7 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TRandom.h> // this is just the random number generator
@@ -54,7 +53,7 @@ public:
 
   virtual void endJob(void);
 
-    void recursiveBuild (string, int, int, int, DaqMonitorBEInterface * , int);
+    void recursiveBuild (string, int, int, int, DQMStore * , int);
     
 private:
       // ----------member data ---------------------------
@@ -67,7 +66,7 @@ private:
     // event counter
     int counter;
     // back-end interface
-     DaqMonitorBEInterface * dbe;
+     DQMStore * dbe;
 
     const int NBINS;
 
@@ -108,7 +107,7 @@ DQMSourceExampleConfig::DQMSourceExampleConfig ( const edm::ParameterSet& iConfi
  	iConfig.getUntrackedParameter<int>("histoNumber", 10); 
 
     //     get hold of back-end interface
-       dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+       dbe = edm::Service<DQMStore>().operator->();
   
     //   //We put this here for the moment since there is no better place 
     edm::Service<MonitorDaemon> daemon;
@@ -166,7 +165,7 @@ void DQMSourceExampleConfig::analyze(const edm::Event& iEvent,
      ++counter;
  }
 
-void DQMSourceExampleConfig::recursiveBuild (string dirName, int histo_X_dir, int histoLeft, int level_depth, DaqMonitorBEInterface * dbe2, int directories_left) 
+void DQMSourceExampleConfig::recursiveBuild (string dirName, int histo_X_dir, int histoLeft, int level_depth, DQMStore * dbe2, int directories_left) 
 {
     if (histoLeft <= 0) 
 	return;

@@ -27,9 +27,9 @@ Implementation:
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/Core/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/QTest.h"
 
 #include <TRandom.h>
 
@@ -70,7 +70,7 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   // quality tests
   Comp2RefChi2 * chi2_test; // chi2 test
   Comp2RefKolmogorov * ks_test; // Kolmogorov test
@@ -108,7 +108,7 @@ private:
 DQMBackEndInterfaceQTestsExample::DQMBackEndInterfaceQTestsExample(const edm::ParameterSet& iConfig ) : counter(0)
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   // set # of bins, range for histogram(s)
   const int NBINS = 50; const float XMIN = -3; const float XMAX = 3;

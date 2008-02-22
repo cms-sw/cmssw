@@ -1,1 +1,1 @@
-#error DQMServices/Core/interface/Core/interface/MonitorUIRoot.h is obsolete
+#error DQMServices/Core/interface/MonitorUIRoot.h is obsolete

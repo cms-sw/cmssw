@@ -1,1 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
+#error DQMServices/Core/interface/Comp2RefChi2ROOT.h is obsolete

@@ -1,1 +1,1 @@
-#error DQMServices/Core/interface/MonitorElementRootT.h is obsolete
+#error DQMServices/Core/interface/MonitorElement.h is obsolete

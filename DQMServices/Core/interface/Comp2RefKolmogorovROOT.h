@@ -1,2 +1,1 @@
-#include "DQMServices/Core/interface/QTest.h"
-
+#error DQMServices/Core/interface/Comp2RefKolmogorovROOT.h is obsolete
