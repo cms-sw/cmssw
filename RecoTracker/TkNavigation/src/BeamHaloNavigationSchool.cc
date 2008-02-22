@@ -98,6 +98,8 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
 
 void BeamHaloNavigationSchool::
 linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
+  NavigationSetter setter(*this);
+
   LogDebug("BeamHaloNavigationSchool")<<"reachable from horizontal";
   //generally, on the right side, what are the forward layers reachable from the horizontal
   FDLC reachableFL= reachableFromHorizontal();
