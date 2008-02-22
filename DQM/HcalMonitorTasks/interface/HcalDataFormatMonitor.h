@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/11/12 17:14:07 $
- * $Revision: 1.18 $
+ * $Date: 2007/11/20 00:34:19 $
+ * $Revision: 1.19 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -50,6 +50,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    MonitorElement* meUnmappedDigis_;
    MonitorElement* meUnmappedTPDigis_;
    MonitorElement* meFEDerrorMap_;
+
+   MonitorElement* meFEDRawDataSizes_;
    //Check that evt numbers are synchronized across all HTRs
    MonitorElement* meEvtNumberSynch_;
    MonitorElement* meBCNSynch_;
