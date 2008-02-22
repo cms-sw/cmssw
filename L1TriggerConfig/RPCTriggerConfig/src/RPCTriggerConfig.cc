@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 20 12:30:19 CET 2007
-// $Id: RPCTriggerConfig.cc,v 1.2 2007/04/02 10:45:40 fruboes Exp $
+// $Id: RPCTriggerConfig.cc,v 1.3 2007/11/20 17:01:18 michals Exp $
 //
 //
 
@@ -122,7 +122,7 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
        sgCnt = 12;
     }
     else if(m_ppt == 144) {
-       sgCnt = 12;
+       scCnt = 12;
        sgCnt = 12;
     }
     else {
