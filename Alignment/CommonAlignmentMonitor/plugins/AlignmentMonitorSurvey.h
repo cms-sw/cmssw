@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  10/8/07
-// $Id: AlignmentMonitorSurvey.h,v 1.2 2007/11/26 12:07:34 cklae Exp $
+// $Id: AlignmentMonitorSurvey.h,v 1.3 2008/01/03 13:10:35 cklae Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
@@ -28,6 +28,10 @@ class AlignmentMonitorSurvey:
 
   virtual void event(const edm::EventSetup&,
 		     const ConstTrajTrackPairCollection&) {}
+
+  private:
+
+  std::vector<align::StructureType> theLevels;
 };
 
 #endif

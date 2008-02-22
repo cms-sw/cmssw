@@ -1,10 +1,20 @@
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
 
 AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
   :AlignmentMonitorBase(cfg)
 {
+  static AlignableObjectId dummy;
+
+  const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> >("surveyResiduals");
+
+  for (unsigned int l = 0; l < levels.size(); ++l)
+  {
+    theLevels.push_back( dummy.nameToType(levels[l]) );
+  }
 }
 
 void AlignmentMonitorSurvey::book()
@@ -30,9 +40,9 @@ void AlignmentMonitorSurvey::book()
 
     id = ali->id();
 
-    for ( const Alignable* mom = ali; mom->mother() != 0; mom = mom->mother() )
+    for (unsigned int l = 0; l < theLevels.size(); ++l)
     {
-      level = mom->alignableObjectId();	
+      level = theLevels[l];
 
       SurveyResidual resid(*ali, level, true);
       AlgebraicVector resParams = resid.sensorResidual();
