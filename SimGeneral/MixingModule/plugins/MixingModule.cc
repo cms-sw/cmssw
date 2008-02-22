@@ -209,22 +209,21 @@ namespace edm
       // add HighTof simhits to high and low signals
       float tof = bcr*cfSimHits_[subdethigh]->getBunchSpace();
       if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
-
 	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
 	if (simhitshigh) {
-	  cfSimHits_[subdethigh]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
-	  cfSimHits_[subdetlow]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
+          cfSimHits_[subdethigh]->addPileups(bcr,simhitshigh,eventNr,0,checktof_,true);
+	  cfSimHits_[subdetlow]->addPileups(bcr,simhitshigh,eventNr,0,checktof_,false);
 	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitshigh->size()<<" Hits added to high+low";
 	}
       }
 
       // add LowTof simhits to high and low signals
-      if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {     
+      if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {
 	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	if (simhitslow) {
 	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitslow->size()<<" Hits added to high+low";
-	  cfSimHits_[subdethigh]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
-	  cfSimHits_[subdetlow]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
+	  cfSimHits_[subdethigh]->addPileups(bcr,simhitslow,eventNr,0,checktof_,true);
+	  cfSimHits_[subdetlow]->addPileups(bcr,simhitslow,eventNr,0,checktof_,false);
 	}
       }
     }
