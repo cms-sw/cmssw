@@ -98,6 +98,12 @@ AlignmentMonitorTracksFromTrajectories::AlignmentMonitorTracksFromTrajectories(c
    : AlignmentMonitorBase(cfg)
    , m_vertexConstraint(cfg.getParameter<bool>("vertexConstraint"))
 {
+   if (m_vertexConstraint) {
+      throw cms::Exception("NotImplemented")
+	 << "Sorry; AlignmentMonitorTracksFromTrajectories can't constrain "
+	 << "to the vertex because that now requires a beamspot, which requires "
+	 << "the whole Event record (something AlignmentMonitor modules don't get)." << std::endl;
+   }
    theMuonServiceProxy = new MuonServiceProxy(cfg.getParameter<edm::ParameterSet>("ServiceParameters"));
    theMuonUpdatorAtVertex = new MuonUpdatorAtVertex(cfg.getParameter<edm::ParameterSet>("MuonUpdatorAtVertexParameters"), theMuonServiceProxy);
 }
@@ -177,13 +183,13 @@ void AlignmentMonitorTracksFromTrajectories::event(const edm::EventSetup &iSetup
       if (closest != 10000.) {
 	 std::pair<bool, FreeTrajectoryState> state;
 
-	 if (m_vertexConstraint) {
-	    state = theMuonUpdatorAtVertex->propagateWithUpdate(closestTSOS);
-	    // add in chi^2 contribution from vertex contratint?
-	 }
-	 else {
-	    state = theMuonUpdatorAtVertex->propagate(closestTSOS);
-	 }
+// 	 if (m_vertexConstraint) {
+// 	    state = theMuonUpdatorAtVertex->propagateWithUpdate(closestTSOS, iEvent???);
+// 	    // add in chi^2 contribution from vertex contratint?
+// 	 }
+// 	 else {
+ 	    state = theMuonUpdatorAtVertex->propagate(closestTSOS);
+// 	 }
 
 	 if (state.first) {
 	    double chi2 = traj->chiSquared();
