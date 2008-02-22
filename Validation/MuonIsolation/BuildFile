@@ -6,7 +6,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/TrackReco>   
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ServiceRegistry>  #Possibly Unnecessary
 <use name=DataFormats/MuonReco>
 <use name=DQMServices/CoreROOT>
 
@@ -22,7 +21,6 @@
 	<use name=FWCore/ServiceRegistry>
 	<use name=DataFormats/TrackReco>   
 	<use name=FWCore/MessageLogger>
-	<use name=FWCore/ServiceRegistry>  #Possibly Unnecessary
 	<use name=DataFormats/MuonReco>
 	<use name=DQMServices/CoreROOT>
 
