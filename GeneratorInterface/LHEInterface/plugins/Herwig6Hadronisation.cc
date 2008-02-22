@@ -1,3 +1,6 @@
+// Copyright notice:
+// Large parts taken from Herwig6Interface, originally by Fabian Stoeckli
+
 #include <iostream>
 #include <string>
 #include <vector>
