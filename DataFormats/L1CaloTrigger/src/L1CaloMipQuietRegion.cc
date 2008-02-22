@@ -1,6 +1,13 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloMipQuietRegion.h"
 
 
+// Namespace resolution
+using std::ostream;
+using std::endl;
+using std::hex;
+using std::dec;
+
+
 L1CaloMipQuietRegion::L1CaloMipQuietRegion():
   m_id(),
   m_data(0),
@@ -9,7 +16,7 @@ L1CaloMipQuietRegion::L1CaloMipQuietRegion():
 }
 
 L1CaloMipQuietRegion::L1CaloMipQuietRegion(bool mip, bool quiet, unsigned crate,
-                                           unsigned card, unsigned rgn, int16_t bx=0):
+                                           unsigned card, unsigned rgn, int16_t bx):
   m_id(crate, card, rgn),
   m_data(0), // Over-ridden below
   m_bx(bx)
@@ -18,7 +25,7 @@ L1CaloMipQuietRegion::L1CaloMipQuietRegion(bool mip, bool quiet, unsigned crate,
 }
 
 L1CaloMipQuietRegion::L1CaloMipQuietRegion(bool mip, bool quiet, unsigned ieta,
-                                           unsigned iphi, int16_t bx=0):
+                                           unsigned iphi, int16_t bx):
   m_id(ieta, iphi),
   m_data(0), // Over-ridden below
   m_bx(bx)
@@ -26,7 +33,7 @@ L1CaloMipQuietRegion::L1CaloMipQuietRegion(bool mip, bool quiet, unsigned ieta,
   pack(mip, quiet);
 }
 
-bool L1CaloMipQuietRegion::operator==(const L1CaloMipQuietRegion& rhs)
+bool L1CaloMipQuietRegion::operator==(const L1CaloMipQuietRegion& rhs) const
 {
   return ( m_data==rhs.raw() && m_bx==rhs.bx() && m_id==rhs.id() );
 }
