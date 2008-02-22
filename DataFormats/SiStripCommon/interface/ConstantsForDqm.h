@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.6 2007/12/11 16:38:12 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.7 2007/12/11 19:36:45 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -27,6 +27,7 @@ namespace sistrip {
   static const std::string dqmClientFileName_ = "SiStripCommissioningClient";
 
   static const std::string dqmRoot_     = "DQMData";
+  static const std::string collate_     = "Collate";
   static const std::string root_        = "SiStrip";
   static const std::string taskId_      = "SiStripCommissioningTask";
   static const std::string summaryPlot_ = "SummaryPlot";
