@@ -86,6 +86,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
       << " L1Comparator::L1Comparator() : "
       << " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
 
+  /// dump level:  -1(all),0(none),1(disagree),2(loc.disagree),3(loc.agree)
   m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode",0);  
 
   m_match = true;
@@ -716,7 +717,7 @@ void L1Comparator::process(T const* data, T const* emul, const int sys) {
     prt = false;
   else if(m_dumpMode==-1)
     prt=true;
-  else if(m_dumpMode==1) {
+  else if(m_dumpMode>0) {
     DEcompare<T> tmp(data,emul);
     if(tmp.get_ncand(0)==0 && tmp.get_ncand(1)==0)
       prt=false;

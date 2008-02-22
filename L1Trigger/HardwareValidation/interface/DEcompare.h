@@ -191,8 +191,13 @@ bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump = 0) {
     else if(i>=ndt && i< nem) prtmode=2; //em
     else assert(0);
 
-    if(dump)
+    if(abs(dump)==1)
       DumpCandidate(itd,itm,os,prtmode);
+    else if(prtmode==0) { 
+      if( (dump==2 && !de_utils.de_equal_loc(*itd,*itm)) ||
+	  (dump==3 &&  de_utils.de_equal_loc(*itd,*itm)) )
+	DumpCandidate(itd,itm,os,prtmode);
+    }
 
     // Fill in DEdigi collection 
     if(prtmode==0) {
