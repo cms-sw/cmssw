@@ -136,6 +136,8 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   TrajectoryInput input1 = this->innermostStateAndRecHits( tracks[0] );
   TrajectoryInput input2 = this->innermostStateAndRecHits( tracks[1] );
 
+  if ( !( input1.first.isValid() && input2.first.isValid() ) ) return trajectories;
+
   // produce TwoBodyDecayTrajectoryState (input for TwoBodyDecayTrajectory)
   TsosContainer tsos( input1.first, input2.first );
   ConstRecHitCollection recHits( input1.second, input2.second );
