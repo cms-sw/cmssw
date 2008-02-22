@@ -2,6 +2,7 @@
 
 #include "HLTrigger/btau/interface/HLTJetTag.h"
 #include "HLTrigger/btau/interface/HLTDisplacedmumuFilter.h"
+#include "HLTrigger/btau/interface/HLTmmkFilter.h"
 #include "HLTrigger/btau/interface/GetJetsFromHLTobject.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
@@ -10,4 +11,5 @@
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L3MumuTrackingRegion, "L3MumuTrackingRegion");
 DEFINE_FWK_MODULE(HLTJetTag);
 DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
+DEFINE_FWK_MODULE(HLTmmkFilter);
 DEFINE_FWK_MODULE(GetJetsFromHLTobject);
