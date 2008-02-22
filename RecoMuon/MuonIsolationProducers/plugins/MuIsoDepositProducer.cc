@@ -10,7 +10,7 @@
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -42,7 +42,6 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   edm::ParameterSet ioPSet = par.getParameter<edm::ParameterSet>("IOPSet");
 
   theInputType = ioPSet.getParameter<std::string>("InputType");
-  theOutputType = ioPSet.getParameter<std::string>("OutputType");
   theExtractForCandidate = ioPSet.getParameter<bool>("ExtractForCandidate");
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
   theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
@@ -55,29 +54,20 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
   }
   
-  if (theOutputType == "MapToMuons"){
-    callProduces<MuIsoDepositAssociationMapToMuon >(theDepositNames);
-  } else if (theOutputType == "MapToTracks"){
-    callProduces<MuIsoDepositAssociationMap >(theDepositNames);
-  }else if (theOutputType == "VectorToMuons"){
-    callProduces<MuIsoDepositAssociationVectorToMuon >(theDepositNames);
-  } else if (theOutputType == "VectorToTracks"){
-    callProduces<MuIsoDepositAssociationVector >(theDepositNames);
-  } else if (theOutputType == "VectorToCandidateView"){
-    callProduces<MuIsoDepositAssociationVectorToCandidateView >(theDepositNames);
-  } else {
-    edm::LogError("MuonIsolation")<<" Unknown output type requested ";
+  for (uint i = 0; i < theDepositNames.size(); ++i){
+    std::string alias = theConfig.getParameter<std::string>("@module_label");
+    if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
+    produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
-
 }
 
-/// destructor
+//! destructor
 MuIsoDepositProducer::~MuIsoDepositProducer(){
   LogDebug("RecoMuon/MuIsoDepositProducer")<<" MuIsoDepositProducer DTOR";
   delete theExtractor;
 }
 
-/// build deposits
+//! build deposits
 void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
 
@@ -98,11 +88,12 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 
   // Take the muon container
   LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionTag;
-  Handle<TrackCollection> muonTracks;
-  Handle<MuonCollection> muons;
-  Handle<View<Candidate> > candsView;
+  Handle<View<Track> > tracks;
+  //! read them as RecoCandidates: need to have track() standAloneMuon() etc in the interface
+  Handle<View<RecoCandidate> > muons;//! get rid of this at some point and use the cands
+  Handle<View<Candidate> > cands;
 
-  uint nMuons = 99999;
+  uint nMuons = 0;
 
   bool readFromRecoTrack = theInputType == "TrackCollection";
   bool readFromRecoMuon = theInputType == "MuonCollection";
@@ -115,125 +106,111 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     
   } 
   if (readFromRecoTrack){
-    event.getByLabel(theMuonCollectionTag,muonTracks);
-    nMuons = muonTracks->size();
+    event.getByLabel(theMuonCollectionTag,tracks);
+    nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
-  if (readFromCandidateView || theExtractForCandidate 
-      || theOutputType == "VectorToCandidateView"){
-    event.getByLabel(theMuonCollectionTag,candsView);
-    uint nCands = candsView->size();
-    if (nCands != nMuons && nMuons != 99999) edm::LogError(metname)<<"Wrong muon-candidate count";
-    LogDebug(metname)<< "Got candidate view with size "<<nCands;
-    if (nMuons == 99999) nMuons = nCands;
+  if (readFromCandidateView || theExtractForCandidate){
+    event.getByLabel(theMuonCollectionTag,cands);
+    uint nCands = cands->size();
+    if (readFromRecoMuon && theExtractForCandidate){
+      //! expect nMuons set already
+      if (nMuons != nCands) edm::LogError(metname)<<"Inconsistent configuration or failure to read Candidate-muon view";
+    }
+    LogDebug(metname)<< "Got candidate view with size "<<nMuons;
   }
 
   static const uint MAX_DEPS=10;
-  std::auto_ptr<MuIsoDepositAssociationMap> depMaps[MAX_DEPS];
-  std::auto_ptr<MuIsoDepositAssociationMapToMuon> depMapsMus[MAX_DEPS];
-  std::auto_ptr<MuIsoDepositAssociationVector> depVecs[MAX_DEPS];
-  std::auto_ptr<MuIsoDepositAssociationVectorToMuon> depVecsMus[MAX_DEPS];
-  std::auto_ptr<MuIsoDepositAssociationVectorToCandidateView> depVecsCand[MAX_DEPS];
+  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
+
   for (uint i =0;i<nDeps; ++i){
-    if (theOutputType == "MapToMuons"){
-      depMapsMus[i] =  std::auto_ptr<MuIsoDepositAssociationMapToMuon>(new MuIsoDepositAssociationMapToMuon());
-    } else if (theOutputType == "MapToTracks"){
-      depMaps[i] =  std::auto_ptr<MuIsoDepositAssociationMap>(new MuIsoDepositAssociationMap());
-    } else if (theOutputType == "VectorToMuons"){
-      MuonRefProd refMuons(muons);
-      depVecsMus[i] =  std::auto_ptr<MuIsoDepositAssociationVectorToMuon>(new MuIsoDepositAssociationVectorToMuon(refMuons));
-    } else if (theOutputType == "VectorToTracks"){
-      TrackRefProd refTracks(muonTracks);
-      depVecs[i] =  std::auto_ptr<MuIsoDepositAssociationVector>(new MuIsoDepositAssociationVector(refTracks));
-    } else if (theOutputType == "VectorToCandidateView"){
-      CandidateBaseRefProd refBCands(candsView);
-      depVecsCand[i] =  std::auto_ptr<MuIsoDepositAssociationVectorToCandidateView>(new MuIsoDepositAssociationVectorToCandidateView(refBCands));
-    }
+    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
   }
-
-
-  for (uint i=0; i<  nMuons; ++i) {
-    TrackRef mu;
-    if (readFromRecoMuon){
-      if (theMuonTrackRefType == "track"){
-	mu = (*muons)[i].track();
-      } else if (theMuonTrackRefType == "standAloneMuon"){
-	mu = (*muons)[i].standAloneMuon();
-      } else if (theMuonTrackRefType == "combinedMuon"){
-	mu = (*muons)[i].combinedMuon();
-      } else if (theMuonTrackRefType == "bestGlbTrkSta"){
-	if (!(*muons)[i].combinedMuon().isNull()){
-	  mu = (*muons)[i].combinedMuon();
-	} else if (!(*muons)[i].track().isNull()){
-	  mu = (*muons)[i].track();
-        } else {
-	  mu = (*muons)[i].standAloneMuon();
+  
+  //! OK, now we know how many deps for how many muons each we will create
+  //! might linearize this at some point (lazy)
+  //! do it in case some muons are there only
+  if (nMuons > 0){
+    
+    std::vector<std::vector<MuIsoDeposit> > deps2D(nDeps, std::vector<MuIsoDeposit>(nMuons));
+    
+    for (uint i=0; i<  nMuons; ++i) {
+      TrackBaseRef muRef;
+      if (readFromRecoMuon){
+	if (theMuonTrackRefType == "track"){
+	  muRef = TrackBaseRef((*muons)[i].track());
+	} else if (theMuonTrackRefType == "standAloneMuon"){
+	  muRef = TrackBaseRef((*muons)[i].standAloneMuon());
+	} else if (theMuonTrackRefType == "combinedMuon"){
+	  muRef = TrackBaseRef((*muons)[i].combinedMuon());
+	} else if (theMuonTrackRefType == "bestGlbTrkSta"){
+	  if (!(*muons)[i].combinedMuon().isNull()){
+	    muRef = TrackBaseRef((*muons)[i].combinedMuon());
+	  } else if (!(*muons)[i].track().isNull()){
+	    muRef = TrackBaseRef((*muons)[i].track());
+	  } else {
+	    muRef = TrackBaseRef((*muons)[i].standAloneMuon());
+	  }
+	}else {
+	  edm::LogWarning(metname)<<"Wrong track type is supplied: breaking";
+	  break;
 	}
-      }else {
-	edm::LogWarning(metname)<<"Wrong track type is supplied: breaking";
-	break;
+      } else if (readFromRecoTrack){
+	muRef = TrackBaseRef(tracks, i);
       }
-    } else if (readFromRecoTrack){
-      mu = TrackRef(muonTracks, i);
-    }
-    std::vector<MuIsoDeposit> deps(1);
-    if (! theMultipleDepositsFlag){
-      if (theExtractForCandidate) deps[0] = theExtractor->deposit(event, eventSetup, (*candsView)[i]);
-      else deps[0] = theExtractor->deposit(event, eventSetup, *mu);
 
-    } else {
-      if (theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*candsView)[i]);
-      else deps = theExtractor->deposits(event, eventSetup, *mu);
-
-    }
-
+      if (! theMultipleDepositsFlag){
+	if (theExtractForCandidate) deps2D[0][i] = theExtractor->deposit(event, eventSetup, (*cands)[i]);
+	else deps2D[0][i] = theExtractor->deposit(event, eventSetup, muRef);
+	
+      } else {
+	std::vector<MuIsoDeposit> deps(nDeps);
+	if (theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
+	else deps = theExtractor->deposits(event, eventSetup, muRef);
+	for (uint iDep =0; iDep<nDeps; ++iDep) {
+	  deps2D[iDep][i] = deps[iDep];
+	}
+      }
+    }//! end for (nMuons)
+    
     //! now fill in selectively
     for (uint iDep=0; iDep < nDeps; ++iDep){
-      LogTrace(metname)<<deps[iDep].print();
-      if (theOutputType == "MapToMuons"){
-	depMapsMus[iDep]->insert(MuonRef(muons,i), deps[iDep]);
-      } else if (theOutputType == "MapToTracks"){
-	depMaps[iDep]->insert(mu, deps[iDep]);
-      } else if (theOutputType == "VectorToMuons"){
-	depVecsMus[iDep]->setValue(i, deps[iDep]);
-      } else if (theOutputType == "VectorToTracks"){
-	depVecs[iDep]->setValue(i, deps[iDep]);
-      } else if (theOutputType == "VectorToCandidateView"){
-	depVecsCand[iDep]->setValue(i, deps[iDep]);
+      //!some debugging stuff
+      for (uint iMu = 0; iMu< nMuons; ++iMu){
+	LogTrace(metname)<<"Contents of "<<theDepositNames[iDep]
+			 <<" for a muon at index "<<iMu;
+	LogTrace(metname)<<deps2D[iDep][iMu].print();
       }
+
+      //! fill the maps here  
+      reco::IsoDepositMap::Filler filler(*depMaps[iDep]);     
+
+      //!now figure out the source handle (see getByLabel above)
+      if (readFromRecoMuon){
+	filler.insert(muons, deps2D[iDep].begin(), deps2D[iDep].end());
+      } else if (readFromRecoTrack){
+	filler.insert(tracks, deps2D[iDep].begin(), deps2D[iDep].end());
+      } else if (readFromCandidateView){
+	filler.insert(cands, deps2D[iDep].begin(), deps2D[iDep].end());
+      } else {
+	edm::LogError(metname)<<"Inconsistent configuration: unknown type requested";
+      }
+
+      //! now actually fill
+      filler.fill();
     }
-  }
+  }//! end if (nMuons>0)
 
 
   for (uint iMap = 0; iMap < nDeps; ++iMap){
-    if (theOutputType == "MapToMuons"){
-      event.put(depMapsMus[iMap], theDepositNames[iMap]);
-    } else if (theOutputType == "MapToTracks"){
-      event.put(depMaps[iMap], theDepositNames[iMap]);
-    }else if (theOutputType == "VectorToMuons"){
-      event.put(depVecsMus[iMap], theDepositNames[iMap]);
-    } else if (theOutputType == "VectorToTracks"){
-      event.put(depVecs[iMap], theDepositNames[iMap]);
-    } else if (theOutputType == "VectorToCandidateView"){
-      event.put(depVecsCand[iMap], theDepositNames[iMap]);
-    } else {
-      edm::LogError("MuonIsolation")<<" Unknown output type requested ";
-    }
-    
+    LogTrace(metname)<<"About to put a deposit named "<<theDepositNames[iMap]
+		     <<" of size "<<depMaps[iMap]->size()
+		     <<" into edm::Event";
+    event.put(depMaps[iMap], theDepositNames[iMap]);
   }
+
   LogTrace(metname) <<" END OF EVENT " <<"================================";
 }
-
-
-template <typename T>
-void MuIsoDepositProducer::callProduces(const std::vector<std::string>& instLabels){
-  for (uint i = 0; i < instLabels.size(); ++i){
-    std::string alias = theConfig.getParameter<std::string>("@module_label");
-    if (instLabels[i] != "") alias += "_" + instLabels[i];
-    produces<T>(instLabels[i]).setBranchAlias(alias);
-  }
-}
-
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

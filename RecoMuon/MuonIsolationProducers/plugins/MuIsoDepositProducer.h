@@ -14,21 +14,23 @@ class MuIsoDepositProducer : public edm::EDProducer {
 
 public:
 
+  //! constructor
   MuIsoDepositProducer(const edm::ParameterSet&);
 
+  //! destructor
   virtual ~MuIsoDepositProducer();
 
+  //! data making method
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 private:
-  template <typename T>
-    void callProduces(const std::vector<std::string>& instLabels);
-
-
+  //! module configuration
   edm::ParameterSet theConfig;
+
+  //! input type. Choose from:
+  //! 
   std::string theInputType;
 
-  std::string theOutputType;
   bool theExtractForCandidate;
 
   std::string theMuonTrackRefType;
