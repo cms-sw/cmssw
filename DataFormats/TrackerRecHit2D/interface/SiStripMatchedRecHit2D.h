@@ -13,7 +13,10 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
 					 
   const SiStripRecHit2D *stereoHit() const { return &componentStereo_;}
   const SiStripRecHit2D *monoHit() const { return &componentMono_;}
-  
+ 
+  // Non const variants needed for cluster re-keying 
+  SiStripRecHit2D *stereoHit() { return &componentStereo_;}
+  SiStripRecHit2D *monoHit() { return &componentMono_;}
   
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this); }
  

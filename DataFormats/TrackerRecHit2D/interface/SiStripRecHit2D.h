@@ -29,6 +29,9 @@ public:
   ClusterRegionalRef const&  cluster_regional()  const { return clusterRegional_;}
 
   ClusterRef const&  cluster()  const { return cluster_;}
+
+  void setClusterRef(ClusterRef const & ref) { cluster_ = ref; }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { clusterRegional_ = ref; }
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   

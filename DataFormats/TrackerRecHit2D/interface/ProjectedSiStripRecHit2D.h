@@ -15,6 +15,7 @@ public:
   virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
 
   const SiStripRecHit2D& originalHit() const {return originalHit_;}
+  SiStripRecHit2D& originalHit() {return originalHit_;}
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {
     return originalHit().sharesInput(other,what);

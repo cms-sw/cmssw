@@ -70,4 +70,7 @@
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
+  <class name="edmNew::DetSetVector<uint16_t>"/>
+  <class name="reco::ClusterRemovalInfo" />
+  <class name="edm::Wrapper<reco::ClusterRemovalInfo>" />
 </lcgdict>

@@ -39,8 +39,8 @@ public:
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, 
-	   SiPixelCluster>  const& cluster() const { return cluster_;}
+  ClusterRef const& cluster() const { return cluster_;}
+  void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 

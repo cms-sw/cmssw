@@ -20,6 +20,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include <vector>
 
@@ -136,6 +137,7 @@ namespace {
   edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
   edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy3;
 
+  edm::Wrapper<reco::ClusterRemovalInfo> clusterRemovalInfo;
 }
 
 #endif // SISTRIPRECHIT_CLASSES_H
