@@ -18,8 +18,15 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
+  setSrc( iConfig.getParameter<std::string>( "src" ));
+  setProducer( iConfig.getParameter<std::string>( "producer" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
+
+  if ( iConfig.exists("clusterRemovalInfo") ) {
+        edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
+        if (!(tag == edm::InputTag())) { setClusterRemovalInfo( tag ); }
+  }
+
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
@@ -56,8 +63,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   AlgoProductCollection algoResults;
   edm::Handle<TrackCandidateCollection> theTCCollection;
-  reco::BeamSpot bs;
-  getFromEvt(theEvent,theTCCollection,bs);
+  getFromEvt(theEvent,theTCCollection);
   //protect against missing product  
   if (theTCCollection.failedToGet()){
     edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";} 
@@ -65,7 +71,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
     try{  
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
     } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw;}
   }
   
@@ -98,8 +104,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   //
   AlgoProductCollection algoResults;
   edm::Handle<TrackCandidateCollection> theTCCollection;
-  reco::BeamSpot bs;
-  getFromEvt(theEvent,theTCCollection,bs);
+  getFromEvt(theEvent,theTCCollection);
   //protect against missing product  
   if (theTCCollection.failedToGet()){
     edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";}
@@ -107,7 +112,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
     try{  
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
     }
     catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
   }
