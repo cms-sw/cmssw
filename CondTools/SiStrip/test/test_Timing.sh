@@ -17,7 +17,6 @@ function test_db() {
     [ `echo $@ | grep -c "\-gain[ ]*"`      = 1 ] && module=gain     
     [ `echo $@ | grep -c "\-ped[ ]*"`      = 1 ] && module=ped     
     [ `echo $@ | grep -c "\-noise[ ]*"`    = 1 ] && module=noise   
-    [ `echo $@ | grep -c "\-pednoise[ ]*"` = 1 ] && module=pednoise
 
     debugflag="false"
     [ `echo $@ | grep -c "\-debug[ ]*"` = 1 ] && debugflag=debug 
@@ -94,7 +93,7 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in badstrip gain ped noise pednoise;
+	for what in badstrip gain ped noise;
 	  do
 	  echo -e "\n\n$mode $what with $stream on geometry ideal\n\n"      
 	  test_db -$mode -$what -$stream 
@@ -112,7 +111,7 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in modulehv badstrip gain ped noise pednoise;
+	for what in modulehv badstrip gain ped noise;
 	  do
 	  echo -e "$mode \t$what \twith $stream on geometry ideal      \t\t" ${timeis[$i]}     
 	  let i++
@@ -122,5 +121,5 @@ if [ "$1" == "doLoop" ];
 else 
     echo -e "\n[usage]:  "
     echo -e "\n\ttest_Timing.sh doLoop"
-    echo -e "OR\n\tgo to bash\n\t. ./test_Timing.sh  \n\t test_db -mode<write/read> -what<modulehv, badstrip,gain,ped,noise,pednoise> -stream<blob,noblob> <-debug>\n"
+    echo -e "OR\n\tgo to bash\n\t. ./test_Timing.sh  \n\t test_db -mode<write/read> -what<modulehv, badstrip,gain,ped,noise> -stream<blob,noblob> <-debug>\n"
 fi
