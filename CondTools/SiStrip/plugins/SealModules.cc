@@ -1,0 +1,38 @@
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_SEAL_MODULE();
+
+#include "CondTools/SiStrip/plugins/SiStripPedestalsBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripPedestalsReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsReader);
+
+#include "CondTools/SiStrip/plugins/SiStripNoisesBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripNoisesReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesReader);
+
+#include "CondTools/SiStrip/plugins/SiStripApvGainBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripApvGainBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripApvGainReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripApvGainReader);
+
+#include "CalibTracker/SiStripQuality/test/SiStripBadChannelBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelBuilder);
+
+#include "CalibTracker/SiStripQuality/test/SiStripBadFiberBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadFiberBuilder);
+
+#include "CalibTracker/SiStripQuality/test/SiStripBadStripReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripReader);
+
+#include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryReader);
