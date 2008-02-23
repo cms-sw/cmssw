@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/23 16:22:23 $
- * $Revision: 1.149 $
+ * $Date: 2008/02/23 18:15:17 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -345,12 +345,17 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]       = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]       = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::HALO_GLOBAL]          = "HALO";
   runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]        = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]        = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::HALO_LOCAL]           = "HALO";
+
   runTypes_[EcalDCCHeaderBlock::LASER_GAP]            = "LASER";
   runTypes_[EcalDCCHeaderBlock::LED_GAP]              = "LED";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]        = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]         = "PEDESTAL";
+
+  runTypes_[EcalDCCHeaderBlock::CALIB_LOCAL]          = "CALIB";
 
   // clients' constructors
 
