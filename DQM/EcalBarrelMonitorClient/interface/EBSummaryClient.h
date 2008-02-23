@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/01/09 18:46:40 $
- * $Revision: 1.26 $
+ * $Date: 2008/01/18 18:04:05 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -15,15 +15,12 @@
 #include <fstream>
 
 #include "TROOT.h"
-#include "TProfile2D.h"
-#include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -43,7 +40,7 @@ virtual ~EBSummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* mui);
 
 /// EndJob
 void endJob(void);
@@ -94,7 +91,6 @@ std::vector<int> superModules_;
 
 std::vector<EBClient*> clients_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meIntegrity_;

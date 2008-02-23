@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/02/14 11:15:43 $
- * $Revision: 1.48 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
@@ -78,10 +78,9 @@ EECosmicClient::~EECosmicClient(){
 
 }
 
-void EECosmicClient::beginJob(MonitorUserInterface* mui){
+void EECosmicClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EECosmicClient: beginJob" << endl;
 

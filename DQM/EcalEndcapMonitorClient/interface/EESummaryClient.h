@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/01/09 18:46:47 $
- * $Revision: 1.16 $
+ * $Date: 2008/01/18 18:04:09 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -15,15 +15,12 @@
 #include <fstream>
 
 #include "TROOT.h"
-#include "TProfile2D.h"
-#include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -43,7 +40,7 @@ virtual ~EESummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* dbe);
 
 /// EndJob
 void endJob(void);
@@ -94,7 +91,6 @@ std::vector<int> superModules_;
 
 std::vector<EEClient*> clients_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meIntegrity_[2];

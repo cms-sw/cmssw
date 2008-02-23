@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.23 $
+ * $Date: 2008/01/18 18:04:03 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,7 +23,6 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -43,7 +42,7 @@ virtual ~EBBeamHodoClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* mui);
 
 /// EndJob
 void endJob(void);
@@ -87,7 +86,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TH1F* ho01_[4];

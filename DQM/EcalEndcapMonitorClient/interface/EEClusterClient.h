@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.13 $
+ * $Date: 2008/01/18 18:04:08 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -24,7 +24,6 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -46,7 +45,7 @@ virtual ~EEClusterClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* dbe);
 
 /// EndJob
 void endJob(void);
@@ -90,7 +89,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TH1F* h01_[3];

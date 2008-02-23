@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/02/09 19:49:56 $
- * $Revision: 1.101 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,7 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
@@ -76,10 +76,9 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(MonitorUserInterface* mui){
+void EBCosmicClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 

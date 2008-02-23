@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/02/09 19:50:12 $
- * $Revision: 1.40 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
@@ -101,10 +101,9 @@ EEBeamCaloClient::~EEBeamCaloClient(){
 
 }
 
-void EEBeamCaloClient::beginJob(MonitorUserInterface* mui){
+void EEBeamCaloClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEBeamCaloClient: beginJob" << endl;
 

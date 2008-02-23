@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/02/20 17:02:01 $
- * $Revision: 1.74 $
+ * $Date: 2008/02/20 17:04:38 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
@@ -128,10 +128,9 @@ EETestPulseClient::~EETestPulseClient(){
 
 }
 
-void EETestPulseClient::beginJob(MonitorUserInterface* mui){
+void EETestPulseClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EETestPulseClient: beginJob" << endl;
 

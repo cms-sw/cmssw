@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsClient.h
  *
- * $Date: 2008/01/09 18:46:47 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/18 18:04:09 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,6 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -44,7 +43,7 @@ virtual ~EEStatusFlagsClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* dbe);
 
 /// EndJob
 void endJob(void);
@@ -88,7 +87,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meh01_[18];

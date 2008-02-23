@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2008/01/26 20:13:55 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/27 09:10:22 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,7 +23,6 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -45,7 +44,7 @@ virtual ~EEOccupancyClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* dbe);
 
 /// EndJob
 void endJob(void);
@@ -89,7 +88,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TH2F* h01_[2][3];

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/02/03 10:45:22 $
- * $Revision: 1.111 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -104,10 +104,9 @@ EBSummaryClient::~EBSummaryClient(){
 
 }
 
-void EBSummaryClient::beginJob(MonitorUserInterface* mui){
+void EBSummaryClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBSummaryClient: beginJob" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/02/21 20:44:06 $
- * $Revision: 1.90 $
+ * $Date: 2008/02/21 21:31:50 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,7 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -106,10 +106,9 @@ EBTriggerTowerClient::~EBTriggerTowerClient(){
 
 }
 
-void EBTriggerTowerClient::beginJob(MonitorUserInterface* mui){
+void EBTriggerTowerClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.64 $
+ * $Date: 2008/02/21 20:45:27 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -94,10 +94,9 @@ EETimingClient::~EETimingClient(){
 
 }
 
-void EETimingClient::beginJob(MonitorUserInterface* mui){
+void EETimingClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EETimingClient: beginJob" << endl;
 

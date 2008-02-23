@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.61 $
+ * $Date: 2008/02/21 20:45:27 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -93,10 +93,9 @@ EEPedestalOnlineClient::~EEPedestalOnlineClient(){
 
 }
 
-void EEPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
+void EEPedestalOnlineClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEPedestalOnlineClient: beginJob" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/01/26 22:47:20 $
- * $Revision: 1.53 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -18,7 +18,7 @@
 #include "TStyle.h"
 #include "TGaxis.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
@@ -83,10 +83,9 @@ EBClusterClient::~EBClusterClient(){
 
 }
 
-void EBClusterClient::beginJob(MonitorUserInterface* mui){
+void EBClusterClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBClusterClient: beginJob" << endl;
 

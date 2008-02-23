@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.70 $
+ * $Date: 2008/02/21 20:44:06 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -16,7 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -92,10 +92,9 @@ EBTimingClient::~EBTimingClient(){
 
 }
 
-void EBTimingClient::beginJob(MonitorUserInterface* mui){
+void EBTimingClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBTimingClient: beginJob" << endl;
 

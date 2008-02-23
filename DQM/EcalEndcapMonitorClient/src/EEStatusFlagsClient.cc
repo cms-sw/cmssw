@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/02/07 13:39:02 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -17,7 +17,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -70,10 +70,9 @@ EEStatusFlagsClient::~EEStatusFlagsClient(){
 
 }
 
-void EEStatusFlagsClient::beginJob(MonitorUserInterface* mui){
+void EEStatusFlagsClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEStatusFlagsClient: beginJob" << endl;
 

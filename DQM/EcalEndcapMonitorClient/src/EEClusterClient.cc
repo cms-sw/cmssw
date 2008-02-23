@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/27 09:41:13 $
- * $Revision: 1.40 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -85,10 +85,9 @@ EEClusterClient::~EEClusterClient(){
 
 }
 
-void EEClusterClient::beginJob(MonitorUserInterface* mui){
+void EEClusterClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEClusterClient: beginJob" << endl;
 

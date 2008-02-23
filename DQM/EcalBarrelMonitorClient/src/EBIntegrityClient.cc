@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/21 20:44:06 $
- * $Revision: 1.189 $
+ * $Date: 2008/02/21 21:29:02 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -111,10 +111,9 @@ EBIntegrityClient::~EBIntegrityClient(){
 
 }
 
-void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
+void EBIntegrityClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
 

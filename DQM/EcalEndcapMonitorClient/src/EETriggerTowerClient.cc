@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/02/21 20:45:27 $
- * $Revision: 1.57 $
+ * $Date: 2008/02/21 21:30:28 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -108,10 +108,9 @@ EETriggerTowerClient::~EETriggerTowerClient(){
 
 }
 
-void EETriggerTowerClient::beginJob(MonitorUserInterface* mui){
+void EETriggerTowerClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EETriggerTowerClient: beginJob" << endl;
 

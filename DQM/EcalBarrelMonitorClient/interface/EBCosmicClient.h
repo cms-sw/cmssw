@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2008/01/18 18:04:04 $
- * $Revision: 1.44 $
+ * $Date: 2008/02/04 19:41:10 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,7 +23,6 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -45,7 +44,7 @@ virtual ~EBCosmicClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* mui);
 
 /// EndJob
 void endJob(void);
@@ -89,7 +88,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meh01_[36];

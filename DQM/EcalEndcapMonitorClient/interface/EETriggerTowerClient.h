@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.14 $
+ * $Date: 2008/01/18 18:04:09 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,13 +17,14 @@
 #include "TROOT.h"
 #include "TProfile2D.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -45,7 +46,7 @@ virtual ~EETriggerTowerClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* dbe);
 
 /// EndJob
 void endJob(void);
@@ -91,7 +92,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meh01_[18];

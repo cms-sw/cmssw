@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/01/22 19:47:09 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/16 10:17:58 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -68,10 +68,9 @@ EBStatusFlagsClient::~EBStatusFlagsClient(){
 
 }
 
-void EBStatusFlagsClient::beginJob(MonitorUserInterface* mui){
+void EBStatusFlagsClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
 

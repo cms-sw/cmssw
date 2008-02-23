@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/20 17:01:59 $
- * $Revision: 1.189 $
+ * $Date: 2008/02/20 17:04:37 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
@@ -126,10 +126,9 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 }
 
-void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
+void EBTestPulseClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
 

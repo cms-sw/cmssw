@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2008/02/15 13:56:00 $
- * $Revision: 1.64 $
+ * $Date: 2008/02/15 14:28:49 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,7 +23,6 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -45,7 +44,7 @@ virtual ~EBTestPulseClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* mui);
 
 /// EndJob
 void endJob(void);
@@ -89,7 +88,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TProfile2D* ha01_[36];

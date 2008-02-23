@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.123 $
+ * $Date: 2008/02/21 20:44:06 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -91,10 +91,9 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
 }
 
-void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
+void EBPedestalOnlineClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 

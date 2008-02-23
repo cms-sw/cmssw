@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/21 20:45:24 $
- * $Revision: 1.83 $
+ * $Date: 2008/02/21 21:30:28 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
@@ -234,10 +234,9 @@ EELaserClient::~EELaserClient(){
 
 }
 
-void EELaserClient::beginJob(MonitorUserInterface* mui){
+void EELaserClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EELaserClient: beginJob" << endl;
 

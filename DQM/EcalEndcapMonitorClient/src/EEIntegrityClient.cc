@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.62 $
+ * $Date: 2008/02/21 20:45:23 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -115,10 +115,9 @@ EEIntegrityClient::~EEIntegrityClient(){
 
 }
 
-void EEIntegrityClient::beginJob(MonitorUserInterface* mui){
+void EEIntegrityClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEIntegrityClient: beginJob" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/20 10:31:35 $
- * $Revision: 1.381 $
+ * $Date: 2008/02/20 16:49:18 $
+ * $Revision: 1.382 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -627,7 +627,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   delete summaryClient_;
 
-  delete mui_;
+  if ( enableMonitorDaemon_ ) delete mui_;
 
 }
 
@@ -659,16 +659,21 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   last_time_db_ = current_time_;
   last_time_html_ = current_time_;
 
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
-
-  // start DQM user interface instance
-  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
-
   if ( enableMonitorDaemon_ ) {
+
+    // start DQM user interface instance
+    // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
+
     mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
+    dbe_ = mui_->getBEInterface();
+
   } else {
-    mui_ = new MonitorUIRoot();
+    
+    // get hold of back-end interface
+
+    mui_ = 0;
+    dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  
   }
 
   if ( verbose_ ) {
@@ -686,10 +691,10 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   }
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob(mui_);
+    clients_[i]->beginJob(dbe_);
   }
 
-  summaryClient_->beginJob(mui_);
+  summaryClient_->beginJob(dbe_);
 
   Numbers::initGeometry(c);
 
@@ -1267,7 +1272,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   // update MEs (online mode)
   if ( enableUpdate_ ) {
-    mui_->doMonitoring();
+    if ( enableMonitorDaemon_ ) mui_->doMonitoring();
   }
 
   char histo[200];

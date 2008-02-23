@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/02/21 20:44:06 $
- * $Revision: 1.218 $
+ * $Date: 2008/02/21 21:31:50 $
+ * $Revision: 1.219 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
@@ -232,10 +232,9 @@ EBLaserClient::~EBLaserClient(){
 
 }
 
-void EBLaserClient::beginJob(MonitorUserInterface* mui){
+void EBLaserClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
 

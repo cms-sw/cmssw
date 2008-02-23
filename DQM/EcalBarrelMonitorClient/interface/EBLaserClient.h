@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.69 $
+ * $Date: 2008/01/18 18:04:04 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,6 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class EcalCondDBInterface;
 class RunIOV;
@@ -44,7 +43,7 @@ virtual ~EBLaserClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(DaqMonitorBEInterface* mui);
 
 /// EndJob
 void endJob(void);
@@ -88,7 +87,6 @@ std::string prefixME_;
 
 std::vector<int> superModules_;
 
-MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 TProfile2D* h01_[36];

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/01/22 19:59:23 $
- * $Revision: 1.21 $
+ * $Date: 2008/02/16 10:18:00 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,7 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -90,10 +90,9 @@ EEBeamHodoClient::~EEBeamHodoClient(){
 
 }
 
-void EEBeamHodoClient::beginJob(MonitorUserInterface* mui){
+void EEBeamHodoClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EEBeamHodoClient: beginJob" << endl;
 

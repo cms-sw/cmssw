@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/21 20:45:27 $
- * $Revision: 1.65 $
+ * $Date: 2008/02/21 21:30:28 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
@@ -153,10 +153,9 @@ EELedClient::~EELedClient(){
 
 }
 
-void EELedClient::beginJob(MonitorUserInterface* mui){
+void EELedClient::beginJob(DaqMonitorBEInterface* dbe){
 
-  mui_ = mui;
-  dbe_ = mui->getBEInterface();
+  dbe_ = dbe;
 
   if ( verbose_ ) cout << "EELedClient: beginJob" << endl;
 
