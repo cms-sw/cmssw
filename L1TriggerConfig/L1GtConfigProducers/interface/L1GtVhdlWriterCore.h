@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/02 22:14:36 $
- * $Revision: 1.3 $
+ * $Date: 2008/02/21 21:59:50 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -82,6 +82,8 @@ class L1GtVhdlWriterCore
         bool buildCondChipParameters(const unsigned short int &condChip, std::map<std::string,int> &conditionToIntegerMap,
             const std::vector<ConditionMap> &conditionMap, std::map<std::string, L1GtVhdlTemplateFile> &templates, std::map<std::string, std::string> &commonParams);
 
+        std::string retNumberOfConditionsString(const std::string &typeStr, const int &number);
+        
         bool findObjectType(const L1GtObject &object, ConditionMap &map);
 
         /// builds the parameters particle_common for the cond_chip.vhd's
@@ -117,6 +119,9 @@ class L1GtVhdlWriterCore
         /// builds cond_chip.vhds
         void writeConditionChipSetup(std::map<std::string, L1GtVhdlTemplateFile> templates, const std::map<std::string, std::string> &common, const unsigned short int &chip);
 
+        /// writes def_val_pkg.vhd
+        void writeDefValPkg();
+        
         /// builds etm setup files
         void writeEtmSetup(std::string &etmString, const int &condChip);
 
@@ -127,7 +132,7 @@ class L1GtVhdlWriterCore
         void writeQsfSetupFiles(const std::string &version);
 
         /// converts a integer into a string
-        std::string int2str(const int &integerValue);
+        static std::string int2str(const int &integerValue);
 
         /// checks weather value searchValue exists in a <string,int> map, saves it in &intVal if it exists and returns false if not
         bool getIntVal(const std::map<std::string,int> &map,  const std::string &searchValue, int &intVal);
@@ -159,9 +164,14 @@ class L1GtVhdlWriterCore
         void printConditionsOfCategory(const L1GtConditionCategory &category, const ConditionMap &map);
 
         void writeCondChipPkg(const int &chip);
+        
+        std::map<std::string,int> getCond2IntMap();
 
     private:
 
+        /// stores to condition name to integer conversion table
+        std::map<std::string,int> conditionToIntegerMap_;
+        
         /// converts L1GtConditionType to firmware string
         std::map<L1GtConditionType,std::string> condType2Str_;
 
