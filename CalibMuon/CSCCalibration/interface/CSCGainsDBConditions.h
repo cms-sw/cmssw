@@ -2,6 +2,7 @@
 #define _CSCGAINSDBCONDITIONS_H
 
 #include <memory>
+#include <cmath>
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -44,8 +45,9 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 {
   const int MAX_SIZE = 217728;
   const int FACTOR = 1000;
+  const int MAX_SHORT = 32767;
   CSCDBGains * cndbgains = new CSCDBGains();
-
+    
   int db_index;
   float db_gainslope,db_intercpt, db_chisq;
   std::vector<int> db_index_id;
@@ -101,8 +103,10 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 
   CSCDBGains::GainContainer & itemvector = cndbgains->gains;
   itemvector.resize(MAX_SIZE);
+  cndbgains->factor_gain = int (FACTOR);
+  std::cout<<"myfactor "<<cndbgains->factor_gain<<std::endl;
 
-   for(int i=0; i<MAX_SIZE;++i){
+  for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].gain_slope= int (db_slope[i]*FACTOR+0.5);
   }
 
@@ -110,14 +114,13 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
+	 if (int (fabs(new_slope[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }
    }
-   
-   return cndbgains;
+     return cndbgains;
 }
 
 

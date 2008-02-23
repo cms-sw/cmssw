@@ -2,6 +2,7 @@
 #define _CSCNOISEMATRIXDBCONDITIONS_H
 
 #include <memory>
+#include <cmath>
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -44,6 +45,7 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 {
   const int MAX_SIZE = 217728;
   const int FACTOR=1000;
+  const int MAX_SHORT= 32767;
  
   int new_index, db_index;
   float db_elm33,db_elm34, db_elm44, db_elm35, db_elm45, db_elm55;
@@ -162,18 +164,18 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemvector[counter].elem33 = int (new_elem33[k]*FACTOR+0.5);
-	itemvector[counter].elem34 = int (new_elem34[k]*FACTOR+0.5); 
-	itemvector[counter].elem44 = int (new_elem44[k]*FACTOR+0.5);
-	itemvector[counter].elem35 = int (new_elem35[k]*FACTOR+0.5);
-	itemvector[counter].elem45 = int (new_elem45[k]*FACTOR+0.5);
-	itemvector[counter].elem55 = int (new_elem55[k]*FACTOR+0.5);
-	itemvector[counter].elem46 = int (new_elem46[k]*FACTOR+0.5);
-	itemvector[counter].elem56 = int (new_elem56[k]*FACTOR+0.5);
-	itemvector[counter].elem66 = int (new_elem66[k]*FACTOR+0.5);
-	itemvector[counter].elem57 = int (new_elem57[k]*FACTOR+0.5);
-	itemvector[counter].elem67 = int (new_elem67[k]*FACTOR+0.5);
-	itemvector[counter].elem77 = int (new_elem77[k]*FACTOR+0.5);
+	if(int (fabs(new_elem33[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem33 = int (new_elem33[k]*FACTOR+0.5);
+	if(int (fabs(new_elem34[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem34 = int (new_elem34[k]*FACTOR+0.5); 
+	if(int (fabs(new_elem44[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem44 = int (new_elem44[k]*FACTOR+0.5);
+	if(int (fabs(new_elem35[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem35 = int (new_elem35[k]*FACTOR+0.5);
+	if(int (fabs(new_elem45[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem45 = int (new_elem45[k]*FACTOR+0.5);
+	if(int (fabs(new_elem55[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem55 = int (new_elem55[k]*FACTOR+0.5);
+	if(int (fabs(new_elem46[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem46 = int (new_elem46[k]*FACTOR+0.5);
+	if(int (fabs(new_elem56[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem56 = int (new_elem56[k]*FACTOR+0.5);
+	if(int (fabs(new_elem66[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem66 = int (new_elem66[k]*FACTOR+0.5);
+	if(int (fabs(new_elem57[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem57 = int (new_elem57[k]*FACTOR+0.5);
+	if(int (fabs(new_elem67[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem67 = int (new_elem67[k]*FACTOR+0.5);
+	if(int (fabs(new_elem77[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem77 = int (new_elem77[k]*FACTOR+0.5);
 	itemvector[i] = itemvector[counter];
       }  
     }

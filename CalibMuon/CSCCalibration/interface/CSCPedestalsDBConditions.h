@@ -2,6 +2,7 @@
 #define _CSCPEDESTALSDBCONDITIONS_H
 
 #include <memory>
+#include <cmath>
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -48,6 +49,7 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   const int PED_FACTOR=10;
   const int RMS_FACTOR=1000;
   const int MAX_SIZE = 217728;
+  const int MAX_SHORT= 32767;
   CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
 
   int db_index;
@@ -109,10 +111,10 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
-	 itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
+	 if(int (fabs(new_peds[k]*PED_FACTOR+0.5))<MAX_SHORT)   itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
+	 if(int (fabs(new_pedrms[k]*RMS_FACTOR+0.5))<MAX_SHORT) itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
-	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
+	 //std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  
      }
    }

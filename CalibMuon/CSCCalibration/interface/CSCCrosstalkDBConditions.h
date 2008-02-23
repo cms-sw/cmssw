@@ -2,6 +2,7 @@
 #define _CSCCROSSTALKDBCONDITIONS_H
 
 #include <memory>
+#include <cmath>
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -47,6 +48,7 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   const int MAX_SIZE = 217728;
   const int SLOPE_FACTOR=10000000;
   const int INTERCEPT_FACTOR=100000;
+  const int MAX_SHORT= 32767;
   CSCDBCrosstalk * cndbcrosstalk = new CSCDBCrosstalk();
 
   int db_index,new_index;
@@ -128,10 +130,10 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemvector[counter].xtalk_slope_right= int (new_slope_r[k]*SLOPE_FACTOR+0.5);
-	itemvector[counter].xtalk_intercept_right= int (new_intercept_r[k]*INTERCEPT_FACTOR+0.5); 
-	itemvector[counter].xtalk_slope_left= int ( new_slope_l[k]*SLOPE_FACTOR+0.5);  
-	itemvector[counter].xtalk_intercept_left= int (new_intercept_l[k]*INTERCEPT_FACTOR+0.5);  
+	if (int (fabs(new_slope_r[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)         itemvector[counter].xtalk_slope_right= int (new_slope_r[k]*SLOPE_FACTOR+0.5);
+	if (int (fabs(new_intercept_r[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_right= int (new_intercept_r[k]*INTERCEPT_FACTOR+0.5); 
+	if (int (fabs(new_slope_l[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)             itemvector[counter].xtalk_slope_left= int (new_slope_l[k]*SLOPE_FACTOR+0.5);  
+	if (int (fabs(new_intercept_l[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_left= int (new_intercept_l[k]*INTERCEPT_FACTOR+0.5);  
 	itemvector[i] = itemvector[counter];
 	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
