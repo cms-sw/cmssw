@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 18:15:14 $
- * $Revision: 1.391 $
+ * $Date: 2008/02/23 22:36:19 $
+ * $Revision: 1.392 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1366,8 +1366,8 @@ void EcalBarrelMonitorClient::analyze(void){
   if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
     cout << " RUN status = \"" << status_ << "\"" << endl;
-    cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
-    cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
+    cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
+    cout << "   ECAL run/event number = " << ecal_run << "/" << ecal_evt << endl;
     cout << "   ECAL location = " << location_ << endl;
     cout << "   ECAL run/event type = " << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
