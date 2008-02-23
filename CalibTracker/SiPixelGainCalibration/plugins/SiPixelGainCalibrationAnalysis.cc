@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.15 2008/02/12 11:10:56 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.16 2008/02/13 17:41:04 fblekman Exp $
 //
 //
 
@@ -22,6 +22,8 @@ Implementation:
 
 #include "SiPixelGainCalibrationAnalysis.h"
 #include <sstream>
+#include <math.h>
+#include "TMath.h"
 //
 // constructors and destructor
 //
