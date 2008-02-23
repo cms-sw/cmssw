@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/27 18:46:22 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

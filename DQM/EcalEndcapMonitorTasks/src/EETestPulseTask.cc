@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/02/14 11:52:07 $
- * $Revision: 1.34 $
+ * $Date: 2008/02/14 11:53:55 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

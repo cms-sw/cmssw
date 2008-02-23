@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/02/15 06:55:51 $
- * $Revision: 1.53 $
+ * $Date: 2008/02/20 11:39:21 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -12,10 +12,10 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

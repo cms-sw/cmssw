@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/02/14 06:41:55 $
- * $Revision: 1.28 $
+ * $Date: 2008/02/15 06:55:51 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
  */
@@ -11,10 +11,10 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

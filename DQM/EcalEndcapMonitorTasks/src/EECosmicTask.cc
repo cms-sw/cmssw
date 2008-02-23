@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/02/09 23:08:26 $
- * $Revision: 1.29 $
+ * $Date: 2008/02/11 08:39:53 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

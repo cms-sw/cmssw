@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/27 18:50:42 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/27 19:07:32 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -15,6 +15,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

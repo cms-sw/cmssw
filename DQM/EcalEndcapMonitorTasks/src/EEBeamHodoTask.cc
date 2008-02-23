@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/01/22 19:14:57 $
- * $Revision: 1.17 $
+ * $Date: 2008/01/22 19:47:14 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
