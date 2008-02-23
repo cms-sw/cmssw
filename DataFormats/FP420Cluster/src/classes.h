@@ -49,6 +49,26 @@ namespace {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+#include "DataFormats/FP420Cluster/interface/RecoFP420.h"
+namespace {
+  namespace {
+    edm::Wrapper<RecoFP420 > zr0;
+    edm::Wrapper<std::vector<RecoFP420> > zr1;
+    edm::Wrapper< edm::DetSet<RecoFP420> > zr2;
+    edm::Wrapper< std::vector<edm::DetSet<RecoFP420> > > zr3;
+    edm::Wrapper< edm::DetSetVector<RecoFP420> > zr4;
+  }
+}
+
+#include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
+namespace {
+  namespace {
+    edm::Wrapper<RecoCollectionFP420> rcollection;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 #endif // ClusterFP420_CLASSES_H
 
 
