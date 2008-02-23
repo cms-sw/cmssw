@@ -38,6 +38,7 @@ L1GtXmlParserTags::~L1GtXmlParserTags() {
 // static class members
 
 const std::string L1GtXmlParserTags::m_xmlTagDef("def");
+const std::string L1GtXmlParserTags::m_xmlTagHeader("header");
 const std::string L1GtXmlParserTags::m_xmlTagChip("condition_chip_");
 const std::string L1GtXmlParserTags::m_xmlTagConditions("conditions");
 // see parseAlgorithms note for "prealgos"

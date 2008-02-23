@@ -40,6 +40,7 @@ protected:
 
     // strings for the def.xml-syntax
     static const std::string m_xmlTagDef;
+    static const std::string m_xmlTagHeader;
     static const std::string m_xmlTagChip;
     static const std::string m_xmlTagConditions;
     static const std::string m_xmlTagAlgorithms;
