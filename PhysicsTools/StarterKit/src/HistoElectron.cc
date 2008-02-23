@@ -41,6 +41,24 @@ void HistoElectron::fill( const Electron * electron, uint iE )
 
 }
 
+
+void HistoElectron::fillCollection( const std::vector<Electron> & coll ) 
+{
+
+  HistoGroup<Electron>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<Electron>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
 void HistoElectron::clearVec()
 {
   HistoGroup<Electron>::clearVec();

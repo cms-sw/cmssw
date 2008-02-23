@@ -82,6 +82,24 @@ void HistoTau::fill( const Tau *tau, uint iTau )
 }
 
 
+void HistoTau::fillCollection( const std::vector<Tau> & coll ) 
+{
+
+  HistoGroup<Tau>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<Tau>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
+
 void HistoTau::clearVec()
 {
   HistoGroup<Tau>::clearVec();

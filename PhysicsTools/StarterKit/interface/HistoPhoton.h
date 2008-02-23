@@ -54,9 +54,10 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoPhoton();
 
-    void fill( const Photon * photon, uint iPart = 0 );
-    void fill( const Photon & photon, uint iPart = 0 ) { fill(&photon, iPart); }
+    virtual void fill( const Photon * photon, uint iPart = 0 );
+    virtual void fill( const Photon & photon, uint iPart = 0 ) { fill(&photon, iPart); }
 
+    virtual void fillCollection( const std::vector<Photon> & coll );
 
     // Clear ntuple cache
     void clearVec();

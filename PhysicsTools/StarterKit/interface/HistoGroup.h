@@ -441,7 +441,7 @@ namespace pat {
       std::string test_name = "," + (*h)->name() + ",";
 
       if ( verboseLevel_ > 10)
-	std::cout << "HistoGroup::select (debug): test_name = " << test_name;
+	std::cout << "HistoGroup::select (debug): test_name = " << test_name << std::endl;
 
       // is test_name a part of vars_to_select?
       std::string::size_type loc = vars_to_select.find( test_name, 0 );
@@ -465,10 +465,11 @@ namespace pat {
   HistoGroup<PHYS_OBJECT>::
   clearVec()
   {
-    h_pt_->clearVec();
-    h_eta_->clearVec();
-    h_phi_->clearVec();
-    h_mass_->clearVec();
+
+    for ( std::vector<PhysVarHisto *>::iterator i = histograms_.begin();
+	  i != histograms_.end(); i++ ) {
+      (*i)->clearVec();
+    }
   }
 
 }

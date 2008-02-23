@@ -47,6 +47,23 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk )
 }
 
 
+void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll ) 
+{
+
+  HistoGroup<RecoChargedCandidate>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<RecoChargedCandidate>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
 void HistoTrack::clearVec()
 {
   HistoGroup<reco::RecoChargedCandidate>::clearVec();

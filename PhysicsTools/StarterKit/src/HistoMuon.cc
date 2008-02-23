@@ -41,6 +41,23 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
   h_leptonID_->fill( muon->leptonID(), iMu );
 }
 
+void HistoMuon::fillCollection( const std::vector<Muon> & coll ) 
+{
+
+  HistoGroup<Muon>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<Muon>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
 
 void HistoMuon::clearVec()
 {

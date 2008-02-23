@@ -42,6 +42,24 @@ void HistoJet::fill( const Jet * jet, uint iJet )
 
 }
 
+
+void HistoJet::fillCollection( const std::vector<Jet> & coll ) 
+{
+
+  HistoGroup<Jet>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<Jet>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
 void HistoJet::clearVec()
 {
   HistoGroup<Jet>::clearVec();

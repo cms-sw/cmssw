@@ -54,9 +54,10 @@ namespace pat {
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoJet();
 
-    void fill( const Jet * jet, uint iPart = 0 );
-    void fill( const Jet & jet, uint iPart = 0 ) { fill(&jet, iPart); }
+    virtual void fill( const Jet * jet, uint iPart = 0 );
+    virtual void fill( const Jet & jet, uint iPart = 0 ) { fill(&jet, iPart); }
 
+    virtual void fillCollection( const std::vector<Jet> & coll );
 
     // Clear ntuple cache
     void clearVec();

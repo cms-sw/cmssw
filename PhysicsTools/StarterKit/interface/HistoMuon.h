@@ -56,10 +56,10 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMuon() { } ;
 
-    void fill( const Muon *muon, uint iPart = 0 );
+    virtual void fill( const Muon *muon, uint iPart = 0 );
+    virtual void fill( const Muon &muon, uint iPart = 0 ) { fill(&muon, iPart); }
 
-    // &&& Isn't this one already provided in the base class?
-    void fill( const Muon &muon, uint iPart = 0 ) { fill(&muon, iPart); }
+    virtual void fillCollection( const std::vector<Muon> & coll );
 
     // Clear ntuple cache
     void clearVec();

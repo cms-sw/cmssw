@@ -79,6 +79,24 @@ void HistoMET::fill( const MET * met, uint iPart)
 
 }
 
+
+void HistoMET::fillCollection( const std::vector<MET> & coll ) 
+{
+
+  HistoGroup<MET>::fillCollection( coll );
+ 
+  h_size_->fill( coll.size() );     //! Save the size of the collection.
+
+  std::vector<MET>::const_iterator
+    iobj = coll.begin(),
+    iend = coll.end();
+
+  uint i = 1;              //! Fortran-style indexing
+  for ( ; iobj != iend; ++iobj, ++i ) {
+    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+  } 
+}
+
 void HistoMET::clearVec()
 {
   HistoGroup<MET>::clearVec();

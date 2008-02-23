@@ -54,9 +54,10 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoElectron();
 
-    void fill( const Electron * electron, uint iPart = 0 );
-    void fill( const Electron & electron, uint iPart = 0 ) { fill(&electron, iPart); }
+    virtual void fill( const Electron * electron, uint iPart = 0 );
+    virtual void fill( const Electron & electron, uint iPart = 0 ) { fill(&electron, iPart); }
 
+    virtual void fillCollection( const std::vector<Electron> & coll );
 
     // Clear ntuple cache
     void clearVec();
