@@ -1,7 +1,10 @@
 #include "RootOutputTree.h"
+#include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCloner.h"
+#include "TBranchElement.h"
+#include "TStreamerInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/bind.hpp"
@@ -10,6 +13,23 @@
 #include <cstring>
 
 namespace edm {
+  namespace {
+    void forceStreamerInfo(TFile * filePtr, TObjArray * branches) {
+      for (int i = 0; i < branches->GetEntries(); ++i) {
+	TBranchElement * br = (TBranchElement *)branches->At(i);
+	br->GetInfo()->ForceWriteInfo(filePtr);
+	if (std::strlen(br->GetClonesName())) {
+	  TClass *cp = gROOT->GetClass(br->GetClonesName());
+ 	  if (cp) {
+	    cp->GetStreamerInfo()->ForceWriteInfo(filePtr);
+	  }
+	}
+    	TObjArray * brs = br->GetListOfBranches();
+	forceStreamerInfo(filePtr, brs);
+      }
+    }
+  }
+
   TTree *
   RootOutputTree::assignTTree(TFile * filePtr, TTree * tree) {
     tree->SetDirectory(filePtr);
@@ -26,19 +46,17 @@ namespace edm {
   }
 
   TTree *
-  RootOutputTree::pseudoCloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, int splitLevel) {
-    TTree *newTree = new TTree(tree->GetName(), tree->GetTitle(), splitLevel);
-    return assignTTree(filePtr, newTree);
-  }
-
-  TTree *
-  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList) {
+  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, bool force) {
     pruneTTree(tree, dropList, renamedList);
     TTree *newTree = tree->CloneTree(0);
     tree->SetBranchStatus("*", 1);
 //  Break association of the tree with its clone
     tree->GetListOfClones()->Remove(newTree);
     newTree->ResetBranchAddresses();
+    if (force) {
+      TObjArray * branches = newTree->GetListOfBranches();
+      forceStreamerInfo(filePtr, branches);
+    }
     return assignTTree(filePtr, newTree);
   }
 
@@ -139,16 +157,12 @@ namespace edm {
         metaBranches_.push_back(meta);
       }
       if (selected) {
-        TBranch * oldBranch = (fastCloning_ ? oldTree_->GetBranch(prod.branchName().c_str()) : 0);
-        if (oldBranch != 0) {
-	  TBranch *branch = tree_->Branch(prod.branchName().c_str(),
-		   prod.wrappedName().c_str(),
-		   &pProd,
-		   oldBranch->GetBasketSize(),
-		   oldBranch->GetSplitLevel());
+        TBranch * branch = tree_->GetBranch(prod.branchName().c_str());
+        if (branch != 0) {
+	  branch->SetAddress(&pProd);
           clonedBranches_.push_back(branch);
 	} else {
-	  TBranch *branch = tree_->Branch(prod.branchName().c_str(),
+	  branch = tree_->Branch(prod.branchName().c_str(),
 		   prod.wrappedName().c_str(),
 		   &pProd,
 		   (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
