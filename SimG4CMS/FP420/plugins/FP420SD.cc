@@ -166,7 +166,7 @@ bool FP420SD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   LogDebug("FP420Sim") << "FP420SD :  number of hits = " << theHC->entries() << std::endl;
 #endif
 
-    if (HitExists() == false && edeposit>0. &&  theHC->entries()< 100 ){ 
+    if (HitExists() == false && edeposit>0. &&  theHC->entries()< 200 ){ 
       CreateNewHit();
     return true;
     }
@@ -412,7 +412,7 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
     FP420G4Hit* aHit = (*theHC)[j];
     if(fabs(aHit->getTof()) < 1700.) {
       ++nhits;
-      if(nhits<100.){
+      if(nhits<200.){
 #ifdef ddebug
 	//    LogDebug("FP420SD") << " FP420Hit " << j << " " << *aHit << std::endl;
 	LogDebug("FP420Sim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
