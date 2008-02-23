@@ -1176,10 +1176,22 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     match &= ( data_ovec.at(idx).algoName()               == emul_ovec.at(idx).algoName()               );
     match &= ( data_ovec.at(idx).algoBitNumber()          == emul_ovec.at(idx).algoBitNumber()	        );
     match &= ( data_ovec.at(idx).algoGtlResult()          == emul_ovec.at(idx).algoGtlResult()	        );
-    match &= ( data_ovec.at(idx).algoLogicalExpression()  == emul_ovec.at(idx).algoLogicalExpression()  );
-    match &= ( data_ovec.at(idx).algoNumericalExpression()== emul_ovec.at(idx).algoNumericalExpression());
     match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
-    match &= ( data_ovec.at(idx).objectTypeVector()       == emul_ovec.at(idx).objectTypeVector()       );
+    match &= ( data_ovec.at(idx).operandTokenVector().size()==emul_ovec.at(idx).operandTokenVector().size());
+    if(match) {
+      for(int i=0; i< data_ovec.at(idx).operandTokenVector().size(); i++) {
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenName ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenName );
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenNumber ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenNumber );
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenResult ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenResult );
+      }
+      //match &= ( data_ovec.at(idx).operandTokenVector()     == emul_ovec.at(idx).operandTokenVector()     );
+      //match &= ( data_ovec.at(idx).algoLogicalExpression()  == emul_ovec.at(idx).algoLogicalExpression()  );
+      //match &= ( data_ovec.at(idx).algoNumericalExpression()== emul_ovec.at(idx).algoNumericalExpression());
+      //match &= ( data_ovec.at(idx).objectTypeVector()       == emul_ovec.at(idx).objectTypeVector()       );
+    }
   }
 
   if(m_dumpMode==0 && match)
@@ -1192,22 +1204,22 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
 	     << " algorithmName:"         << data_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << data_ovec.at(idx).algoBitNumber()
 	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult()
-	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size() 
-	     << " objectTypeVectorSize:"  << data_ovec.at(idx).objectTypeVector().size() << "\n\t"
-	     << " nlogicalExpression:"    << data_ovec.at(idx).algoLogicalExpression()   << "\n\t"
-	     << " numericalExpression:"   << data_ovec.at(idx).algoNumericalExpression();
+	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size()
+	     << " operandTokenVector:"    << data_ovec.at(idx).operandTokenVector().size(); 
+    //<< " objectTypeVectorSize:"  << data_ovec.at(idx).objectTypeVector().size() << "\n\t"
+    //<< " nlogicalExpression:"    << data_ovec.at(idx).algoLogicalExpression()   << "\n\t"
+    //<< " numericalExpression:"   << data_ovec.at(idx).algoNumericalExpression();
   m_dumpFile << "\n\temul: "
 	     << " algorithmName:"         << emul_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << emul_ovec.at(idx).algoBitNumber()
 	     << " GTLresult:"             << emul_ovec.at(idx).algoGtlResult()
-	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size() 
-	     << " objectTypeVectorSize:"  << emul_ovec.at(idx).objectTypeVector().size()  << "\n\t"
-	     << " logicalExpression:"     << emul_ovec.at(idx).algoLogicalExpression()    << "\n\t"
-	     << " numericalExpression:"   << emul_ovec.at(idx).algoNumericalExpression()
+	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size()
+	     << " operandTokenVector:"    << emul_ovec.at(idx).operandTokenVector().size() 
+    //<< " objectTypeVectorSize:"  << emul_ovec.at(idx).objectTypeVector().size()  << "\n\t"
+    //<< " logicalExpression:"     << emul_ovec.at(idx).algoLogicalExpression()    << "\n\t"
+    //<< " numericalExpression:"   << emul_ovec.at(idx).algoNumericalExpression()
 	     << "\n" << std::endl;
 
-  /// todo: dump combinationVector(), objectTypeVector()
-  
   char ok[10];
   if(match) sprintf(ok,"successful");
   else      sprintf(ok,"failed");
