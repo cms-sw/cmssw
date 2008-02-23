@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date$
- * $Revision$
+ * $Date: 2008/02/21 21:58:33 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -86,12 +86,8 @@ class L1GtVhdlTemplateFile
 		bool split(const std::string &param, std::vector<std::string> &result);
 		/// extracts all conditions from a algorithm
 		void getConditionsFromAlgo(std::string condString, std::vector<std::string> &result);
-		
-		/// FIXME
+		/// returns a string with the content of vector lines
 		std::string lines2String();
-		
-		std::vector<std::string> returnLinesVec();
-		
 
 };
 #endif											  /*L1GtConfigProducers_L1GtVhdlTemplateFile_h*/

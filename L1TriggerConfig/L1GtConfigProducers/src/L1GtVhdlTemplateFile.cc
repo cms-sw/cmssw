@@ -9,8 +9,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date: 2008/01/31 15:27:17 $
- * $Revision: 1.1 $
+ * $Date: 2008/02/21 21:56:46 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -420,10 +420,4 @@ std::string L1GtVhdlTemplateFile::lines2String()
     }
 
     return buffer.str();
-}
-
-
-std::vector<std::string> L1GtVhdlTemplateFile::returnLinesVec()
-{
-    return lines_;
 }
