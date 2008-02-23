@@ -10,8 +10,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date$
- * $Revision$
+ * $Date: 2008/01/31 15:27:18 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -198,8 +198,13 @@ std::string L1GtVhdlWriterBitManager::buildEtaMuon(const std::vector<L1GtMuonTem
 		std::ostringstream ossEtaRange;
 		ossEtaRange << std::hex<< std::setw(16)<<std::setfill('0')<<(*op).at(i).etaRange<<std::dec;
 
+		/*
 		ossEta
 			<<mirror(32,ossEtaRange.str());
+		*/
+		
+		ossEta << ossEtaRange.str();
+		
 		if (num>0 && i!=num-1) ossEta <<"_";
 
 	}
@@ -226,13 +231,16 @@ std::string L1GtVhdlWriterBitManager::buildEtaCalo(const std::vector<L1GtCaloTem
 
 		ossEtaRange << std::hex <<std::setw(4)<<std::setfill('0')<< (*op).at(i).etaRange<<std::dec;
 
+		/*
 		std::string tempstr=hex2bin(ossEtaRange.str());
 		tempstr[0]='0';
 		tempstr[15]='0';
-		ossEta<<std::setw(4)<<std::setfill('0')<<mirror(8,bin2hex(tempstr));
+		*/
+		
+		//ossEta<<std::setw(4)<<std::setfill('0')<<mirror(8,bin2hex(tempstr));
 
-		/////
-
+		ossEta << ossEtaRange.str();
+		
 		if (num>0 && i!=num-1) ossEta <<"_";
 
 	}
