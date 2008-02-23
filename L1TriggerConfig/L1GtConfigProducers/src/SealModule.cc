@@ -14,7 +14,6 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtTriggerMenuTester.h"
 
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriter.h"
-#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVmeWriter.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1GtStableParametersTrivialProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtParametersTrivialProducer);
