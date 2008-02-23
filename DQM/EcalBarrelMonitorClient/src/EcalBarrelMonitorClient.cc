@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.383 $
+ * $Date: 2008/02/23 09:46:17 $
+ * $Revision: 1.384 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -643,7 +643,8 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   status_  = "unknown";
   run_     = -1;
   evt_     = -1;
-  runtype_ = -1;
+  runType_ = -1;
+  evtType_ = -1;
 
   last_run_ = -1;
 
@@ -722,7 +723,7 @@ void EcalBarrelMonitorClient::beginRun(void){
     clients_[i]->cleanup();
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
         done = true;
         clients_[i]->beginRun();
       }
@@ -803,7 +804,7 @@ void EcalBarrelMonitorClient::endRun(void) {
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
         done = true;
         clients_[i]->endRun();
       }
@@ -817,7 +818,8 @@ void EcalBarrelMonitorClient::endRun(void) {
   status_  = "unknown";
   run_     = -1;
   evt_     = -1;
-  runtype_ = -1;
+  runType_ = -1;
+  evtType_ = -1;
 
   subrun_ = -1;
 
@@ -829,7 +831,7 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
     forced_update_ = true;
     this->analyze();
@@ -863,7 +865,7 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
   cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
   cout << endl;
 
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
     forced_update_ = true;
     this->analyze();
@@ -914,14 +916,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_]  );
+  rundef.setRunType( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_]  );
 
   RunTag runtag;
 
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] );
+  runtag.setGeneralTag( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] );
 
   // fetch the RunIOV from the DB
 
@@ -978,10 +980,10 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
   if ( rt == "UNKNOWN" ) {
-    runtype_ = -1;
+    runType_ = -1;
   } else {
     for ( unsigned int i=0; i<runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] ) runtype_ = i;
+      if ( rt == runTypes_[i] ) runType_ = i;
     }
   }
 
@@ -1099,8 +1101,10 @@ void EcalBarrelMonitorClient::writeDb(void) {
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runtype_ != -1 && runtype_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
+        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
@@ -1325,7 +1329,7 @@ void EcalBarrelMonitorClient::analyze(void){
   me = dbe_->get(histo);
   if ( me ) {
     s = me->valueString();
-    runtype_ = atoi(s.substr(2,s.size()-2).c_str());
+    evtType_ = atoi(s.substr(2,s.size()-2).c_str());
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
@@ -1346,7 +1350,7 @@ void EcalBarrelMonitorClient::analyze(void){
     cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
     cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
     cout << "   ECAL location = " << location_ << endl;
-    cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
+    cout << "   ECAL run ( event/run ) type = " << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << "/" << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) << flush;
 
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
@@ -1367,7 +1371,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "begin-of-run" ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! begin_run_ ) {
 
@@ -1391,7 +1395,7 @@ void EcalBarrelMonitorClient::analyze(void){
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool done = false;
           for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-            if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+            if ( runType_ != -1 && runType_ == (*j).second && !done ) {
               done = true;
               clients_[i]->analyze();
             }
@@ -1413,9 +1417,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( enableSubRunDb_ ) {
         if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
-          if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
-               runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
+               runType_ == EcalDCCHeaderBlock::BEAMH2 ||
+               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
           last_time_db_ = current_time_;
         }
       }
@@ -1426,7 +1430,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "end-of-run" ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -1445,7 +1449,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! mergeRuns_ ) {
 
@@ -1494,7 +1498,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
       if ( ! forced_status_ ) {
 
@@ -1566,7 +1570,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
   htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<"</span></h2> " << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<ul>" << endl;
@@ -1576,8 +1580,10 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runtype_ != -1 && runtype_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
+        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         htmlName = "EB" + clientsNames_[i] + "Client.html";
         clients_[i]->htmlOutput(run_, htmlDir, htmlName);

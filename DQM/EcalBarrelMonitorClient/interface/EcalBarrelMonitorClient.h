@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/01/18 18:09:47 $
- * $Revision: 1.95 $
+ * $Date: 2008/01/24 12:32:21 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -100,7 +100,7 @@ inline int getEvtPerJob() { return( ievt_ ); }
 inline int getEvtPerRun() { return( jevt_ ); }
 inline int getEvt( void ) { return( evt_ ); }
 inline int getRun( void ) { return( run_ ); }
-inline std::string getRunType( void ) { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+inline std::string getRunType( void ) { return( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ); }
 
 inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
 
@@ -176,8 +176,12 @@ DaqMonitorBEInterface* dbe_;
 bool enableUpdate_;
  
 std::string location_;
-int         runtype_;
+
+int runType_;
+int evtType_;
+
 std::string status_;
+
 int run_;
 int evt_;
  
