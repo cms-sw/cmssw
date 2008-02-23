@@ -104,7 +104,7 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   CSCDBGains::GainContainer & itemvector = cndbgains->gains;
   itemvector.resize(MAX_SIZE);
   cndbgains->factor_gain = int (FACTOR);
-  std::cout<<"myfactor "<<cndbgains->factor_gain<<std::endl;
+  std::cout<<" myfactor "<<cndbgains->factor_gain<<std::endl;
 
   for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].gain_slope= int (db_slope[i]*FACTOR+0.5);

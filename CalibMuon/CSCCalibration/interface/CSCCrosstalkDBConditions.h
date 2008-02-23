@@ -119,6 +119,9 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   
   CSCDBCrosstalk::CrosstalkContainer & itemvector = cndbcrosstalk->crosstalk;
   itemvector.resize(MAX_SIZE);
+  cndbcrosstalk->factor_slope = int (SLOPE_FACTOR);
+  cndbcrosstalk->factor_intercept = int (INTERCEPT_FACTOR);
+
   for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].xtalk_slope_right=int (db_slope_r[i]*SLOPE_FACTOR+0.5);
     itemvector[i].xtalk_intercept_right= int (db_intercept_r[i]*INTERCEPT_FACTOR+0.5); 

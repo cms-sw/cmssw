@@ -101,6 +101,8 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   
   CSCDBPedestals::PedestalContainer & itemvector = cndbpedestals->pedestals;
   itemvector.resize(MAX_SIZE);
+  cndbpedestals->factor_ped= int (PED_FACTOR);
+  cndbpedestals->factor_rms= int (RMS_FACTOR);
 
   for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].ped= int (db_peds[i]*PED_FACTOR+0.5);

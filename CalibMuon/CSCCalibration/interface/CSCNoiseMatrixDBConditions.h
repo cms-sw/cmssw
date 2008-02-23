@@ -143,6 +143,7 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   
   CSCDBNoiseMatrix::NoiseMatrixContainer & itemvector = cndbmatrix->matrix;
   itemvector.resize(MAX_SIZE);
+  cndbmatrix->factor_noise= int (FACTOR);
   
   for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].elem33 = int (db_elem33[i]*FACTOR+0.5);
