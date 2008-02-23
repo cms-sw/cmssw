@@ -93,6 +93,11 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     std::cout << "TrackProducerFP420:ERROR in trackFinderSophisticated: check zn0 (xytype) = " << zn0 << std::endl; 
     return rhits;
   }
+// sn0= 3 - 2St configuration, sn0= 4 - 3St configuration 
+  if( sn0 < 3 || zn0 > 4 ){
+    std::cout << "TrackProducerFP420:ERROR in trackFinderSophisticated: check sn0 (configuration) = " << sn0 << std::endl; 
+    return rhits;
+  }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   int zbeg = 1, zmax=3;// XY
   //  if( zn0==1){
@@ -150,8 +155,13 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	  
 	  
 	  double zdiststat = 0.;
-	  if(sector==2) zdiststat = zD2;
-	  if(sector==3) zdiststat = zD3;
+	  if(sn0<4) {
+	    if(sector==2) zdiststat = zD3;
+	  }
+	  else {
+	    if(sector==2) zdiststat = zD2;
+	    if(sector==3) zdiststat = zD3;
+	  }
 	  double zcurrent = zinibeg + z420 + (ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
 	  //double zcurrent = zinibeg +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;  
 	  
@@ -310,34 +320,51 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 
   // criteria for track selection: 
   // track is selected if for 1st station #cl >=pys1Cut
-//  int  pys1Cut = 5, pyssCut = 5, pyallCut=12;
-//  int  pys1Cut = 1, pyssCut = 1, pyallCut= 3;
-  int  pys1Cut = 1, pyssCut = 1, pyallCut= 4;
-
-//  double yyyvtx = 0.0, xxxvtx = -15;  //mm
-
-// for equidistant 3 Stations:
-//  double sigman=0.18, ssigma = 2.5, sigmam=0.18;
-//  double sigman=0.18, ssigma = 1.8, sigmam=0.18;
-
-//  double sigman=0.18, ssigma = 2.9, sigmam=0.18;
-// for tests:
-//  double sigman=118., ssigma = 299., sigmam=118.;
-// RMS1=0.013, RMS2 = 1.0, RMS3 = 0.018 see plots d1XCL, d2XCL, d3XCL
-  double sigman=0.05, ssigma = 2.5, sigmam=0.06;
-//  double sigman=0.18, ssigma = 2.5, sigmam=0.18;
-
-
+  //  int  pys1Cut = 5, pyssCut = 5, pyallCut=12;
+  //  int  pys1Cut = 1, pyssCut = 1, pyallCut= 3;
+  int  pys1Cut = 3, pyssCut = 3, pyallCut= 6;
+  
+  //  double yyyvtx = 0.0, xxxvtx = -15;  //mm
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
   // for configuration: 3St, 1m for 1-2 St:
- // double sigman=0.1, ssigma = 1.0, sigmam=0.15;/* ssigma is foreseen to match 1st point of 2nd Station*/
+  // double sigman=0.1, ssigma = 1.0, sigmam=0.15;/* ssigma is foreseen to match 1st point of 2nd Station*/
+  //
+  // for equidistant 3 Stations:
+  //
+  // for tests:
+  //  double sigman=118., ssigma = 299., sigmam=118.;
+  // RMS1=0.013, RMS2 = 1.0, RMS3 = 0.018 see plots d1XCL, d2XCL, d3XCL
+  //
+  //  double sigman=0.05, ssigma = 2.5, sigmam=0.06;
+  //  double sigman=0.18, ssigma = 1.8, sigmam=0.18;
+  //  double sigman=0.18, ssigma = 2.9, sigmam=0.18;
+  //
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // for 3 Stations:
+  // LAST:
+  double sigman=0.18, ssigma = 2.5, sigmam=0.18;
+  if( sn0 < 4 ){
+    // for 2 Stations:
+    // sigman=0.24, ssigma = 4.2, sigmam=0.33;
+    //  sigman=0.18, ssigma = 3.9, sigmam=0.18;
+    // sigman=0.18, ssigma = 3.6, sigmam=0.18;
+    sigman=0.18, ssigma = 3.3, sigmam=0.18;
+  }
+#ifdef debugsophisticated
+  std::cout << "trackFinderSophisticated: ssigma= " << ssigma << std::endl;
+#endif
 
-/* ssigma = 3. * 8000.*(0.025+0.009)/sqrt(pn0-1)/100. = 2.9 mm(!!!)----
-   ssigma is reduced by factor k_reduced = (sn0-1)-sector+1 = sn0-sector
-    # Stations  currentStation
-    2Stations:     sector=2,         sn0=3 , sn0-sector = 1 --> k_reduced = 1
-    3Stations:     sector=2,         sn0=4 , sn0-sector = 2 --> k_reduced = 2
-    3Stations:     sector=3,         sn0=4 , sn0-sector = 1 --> k_reduced = 1
-*/
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /* ssigma = 3. * 8000.*(0.025+0.009)/sqrt(pn0-1)/100. = 2.9 mm(!!!)----
+     ssigma is reduced by factor k_reduced = (sn0-1)-sector+1 = sn0-sector
+     # Stations  currentStation
+     2Stations:     sector=2,         sn0=3 , sn0-sector = 1 --> k_reduced = 1
+     3Stations:     sector=2,         sn0=4 , sn0-sector = 2 --> k_reduced = 2
+     3Stations:     sector=3,         sn0=4 , sn0-sector = 1 --> k_reduced = 1
+  */
   int numberXtracks=0, numberYtracks=0, totpl = 2*(pn0-1)*(sn0-1); double sigma;
 
   //  for (int zside=zbeg; zside<zmax; ++zside) {
@@ -512,11 +539,21 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		    }//py<3
 		    else {
 		      if(NewStation){
-			sigma = ssigma/(sn0-1-sector);
+			if( sn0 < 4 ) {
+			  sigma = ssigma;
+			}
+			else {
+			  sigma = ssigma/(sn0-1-sector);
+			}
+			//	std::cout << " sector= " << sector << " sn0= " << sn0 << " sigma= " << sigma << std::endl;
+			//	std::cout << " stattimes= " << stattimes << " ssigma= " << ssigma << " sigmam= " << sigmam << std::endl;
+
 			//sigma = ssigma/(sn0-sector);
 			//if(stattimes==1 || sector==3 ) sigma = msigma * sqrt(1./wA[cl][ii]);
-			if(stattimes==1 || sector==3 ) sigma = sigmam;
-			
+
+			if(stattimes==1 || sector==3 ) sigma = sigmam; // (1st $3rd Stations for 3St. configur. ), 1st only for 2St. conf.
+			//	if(stattimes==1 || sector==(sn0-1) ) sigma = sigmam;
+
 			double cov00, cov01, cov11, c0Y, c1Y, chisqY;
 			gsl_fit_wlinear (fzY, 1, fwY, 1, fyY, 1, py-1, 
 					 &c0Y, &c1Y, &cov00, &cov01, &cov11, 
