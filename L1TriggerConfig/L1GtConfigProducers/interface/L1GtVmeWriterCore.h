@@ -21,11 +21,14 @@
 
 // system include files
 #include <string>
+#include <vector>
 
 // user include files
-//   base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlTemplateFile.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
@@ -33,23 +36,63 @@
 class L1GtVmeWriterCore : public L1GtXmlParserTags
 {
 
-    public:
+public:
 
-        /// constructor
-        L1GtVmeWriterCore(const std::string& outputDir, const std::string& vmeXmlFile);
+    /// constructor
+    L1GtVmeWriterCore(const std::string& outputDir,
+            const std::string& vmeXmlFile);
 
-        /// destructor
-        virtual ~L1GtVmeWriterCore();
+    /// destructor
+    virtual ~L1GtVmeWriterCore();
 
-        void writeVME();
+    void writeVME(const std::vector<ConditionMap> &conditionMap,
+            std::map<std::string,int> cond2intMap, L1GtVhdlTemplateFile header,  const int spacesPerLevel=2);
 
-    private:
+    /// opens a new xml tag 
+    std::string openTag(const std::string &tag);
 
-        /// output directory
-        std::string m_outputDir;
-        
-        /// output file
-        std::string m_vmeXmlFile;
+    /// closes xml tag
+    std::string closeTag(const std::string &tag);
+
+    /// returns a string containing spaces dependant on level
+    std::string spaces(const unsigned int &level);
+
+    /// builds a address value block
+    std::string vmeAddrValueBlock(const std::string &addr, const int &val,
+            const int &spaceLevel, const bool setMsb=false);
+
+    /// conversion algorithm for condition index to hex value 
+    /// used to calculate address values
+    int condIndex2reg(const unsigned int &index);
+
+    /// calculates address
+    std::string calculateAddress(const L1GtObject &obj,
+            const L1GtConditionType &type, const std::string &reg,
+            const int &index);
+
+    /// calculates addresses for jets counts
+    std::string calculateJetsAddress(const int &countIndex, const int &obj,
+            const int &index);
+
+private:
+
+    /// output directory
+    std::string m_outputDir;
+
+    /// output file
+    std::string m_vmeXmlFile;
+
+    std::map<L1GtObject,int> object2reg_;
+
+    std::map<L1GtConditionType,int> type2reg_;
+
+    std::map<std::string,int> reg2hex_;
+
+    std::map<int,int> jetType2reg_;
+
+    std::map<int,int> jetObj2reg_;
+    
+    int spacesPerLevel_;
 
 };
 
