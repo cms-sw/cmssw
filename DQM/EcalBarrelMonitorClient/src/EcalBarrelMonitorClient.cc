@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 09:46:17 $
- * $Revision: 1.384 $
+ * $Date: 2008/02/23 14:49:12 $
+ * $Revision: 1.385 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -983,7 +983,15 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     runType_ = -1;
   } else {
     for ( unsigned int i=0; i<runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] ) runType_ = i;
+      if ( rt == runTypes_[i] ) {
+        runType_ = i;
+        cout << endl;
+        cout << "Taking Run Type from DB: "
+             << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] )
+             << endl;
+        cout << endl;
+        break;
+      }
     }
   }
 
@@ -1102,9 +1110,9 @@ void EcalBarrelMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
@@ -1330,6 +1338,7 @@ void EcalBarrelMonitorClient::analyze(void){
   if ( me ) {
     s = me->valueString();
     evtType_ = atoi(s.substr(2,s.size()-2).c_str());
+    if ( runType_ == -1 ) runType_ = evtType_;
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
@@ -1350,7 +1359,7 @@ void EcalBarrelMonitorClient::analyze(void){
     cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
     cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
     cout << "   ECAL location = " << location_ << endl;
-    cout << "   ECAL run ( event/run ) type = " << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << "/" << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) << flush;
+    cout << "   ECAL run/event type = " << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
@@ -1581,9 +1590,10 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( verbose_ ) cout << "Preparing html output for " << clientsNames_[i] << endl;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         htmlName = "EB" + clientsNames_[i] + "Client.html";
         clients_[i]->htmlOutput(run_, htmlDir, htmlName);
