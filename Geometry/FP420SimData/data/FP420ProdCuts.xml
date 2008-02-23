@@ -5,36 +5,57 @@
  <SpecPar name="fp420_beam_pipe_steel">
    <PartSelector path="//SBST"/>
    <PartSelector path="//SBSTs"/>
+   <PartSelector path="//SBSTG"/>
+   <PartSelector path="//SBSTGs"/>
+   <PartSelector path="//FlIn"/>
+   <PartSelector path="//FlOut"/>
+   <PartSelector path="//EdgeOut"/>
+   <PartSelector path="//FlOutIn"/>
+   <PartSelector path="//Bellows"/>
+   <PartSelector path="//EdgeLOut3"/>
+   <PartSelector path="//EdgeROut3"/>
+   <PartSelector path="//EdgeL2Out3"/>
+   <PartSelector path="//EdgeR2Out3"/>
       <Parameter name="CMSCutsRegion" value="BeamPipeRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
       <Parameter name="ProdCutsForGamma" value="10000*mm"/>
  </SpecPar>  
 
+ <SpecPar name="fp420_gastof">
+   <PartSelector path="//GASTOFALL"/>
+   <PartSelector path="//GASTOF"/>
+      <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
+ </SpecPar>  
+
+
  <SpecPar name="fp420_silicon_station">
    <PartSelector path="//SISTATION"/>
    <PartSelector path="//SIPLANE"/>
    <PartSelector path="//BOUNDDET"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
-      <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
  </SpecPar>  
 
 
 <SpecPar name="fp420_silicon_detl">
    <PartSelector path="//SIDETL"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
-      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
+      <Parameter name="ProdCutsForElectrons" value="100*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="100*mm"/>
+      <Parameter name="ProdCutsForGamma" value="100*mm"/>
  </SpecPar>  
  <SpecPar name="fp420_silicon_detr">
    <PartSelector path="//SIDETR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
-      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
+      <Parameter name="ProdCutsForElectrons" value="100*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="100*mm"/>
+      <Parameter name="ProdCutsForGamma" value="100*mm"/>
  </SpecPar>  
  <SpecPar name="fp420_ceramic">
    <PartSelector path="//CERAMDET"/>
