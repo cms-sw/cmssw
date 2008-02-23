@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 14:49:12 $
- * $Revision: 1.385 $
+ * $Date: 2008/02/23 15:28:36 $
+ * $Revision: 1.386 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -328,7 +328,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // set runTypes (use resize() on purpose!)
 
   runTypes_.resize(30);
-  for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
+  for ( int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
@@ -982,8 +982,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( rt == "UNKNOWN" ) {
     runType_ = -1;
   } else {
-    for ( unsigned int i=0; i<runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] ) {
+    for ( int i = 0; i < runTypes_.size(); i++ ) {
+      if ( rt == runTypes_[i] && runType_ != i ) {
         runType_ = i;
         cout << endl;
         cout << "Taking Run Type from DB: "
@@ -1110,6 +1110,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
+        if ( verbose_ ) cout << ">> " << clientsNames_[i] << endl;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
@@ -1364,7 +1365,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << " ( " << flush;
-        for ( int i=0; i<int(runTypes_.size()); i++ ) {
+        for ( int i = 0; i < runTypes_.size(); i++ ) {
           if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
             string s = runTypes_[i];
             transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
@@ -1590,7 +1591,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( verbose_ ) cout << "Preparing html output for " << clientsNames_[i] << endl;
+        if ( verbose_ ) cout << "... for " << clientsNames_[i] << endl;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && clientsNames_[i] == "TestPulse" && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
