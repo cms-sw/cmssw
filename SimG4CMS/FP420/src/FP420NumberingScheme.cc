@@ -91,10 +91,10 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 	det   = copyno[ich];
       } else if(name[ich] == "FP420Ex1") {
 	stationgen   = 1;
-      } else if(name[ich] == "FP420Ex2") {
-	stationgen   = 2;
+	//    } else if(name[ich] == "FP420Ex2") {
+	//	stationgen   = 2;
       } else if(name[ich] == "FP420Ex3") {
-	stationgen   = 3;
+	stationgen   = 2;// was =3
       } else if(name[ich] == "SISTATION") {
 	station   = stationgen;
       } else if(name[ich] == "SIPLANE") {
