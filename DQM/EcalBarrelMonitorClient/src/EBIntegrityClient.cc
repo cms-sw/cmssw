@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/21 21:29:02 $
- * $Revision: 1.190 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,10 +16,6 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

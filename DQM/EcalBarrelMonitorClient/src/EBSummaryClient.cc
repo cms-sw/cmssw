@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.112 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  *
 */
@@ -14,10 +14,6 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

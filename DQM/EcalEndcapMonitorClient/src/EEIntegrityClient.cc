@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/21 20:45:23 $
- * $Revision: 1.63 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,10 +18,6 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 

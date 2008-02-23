@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.87 $
+ * $Date: 2008/02/23 08:39:26 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -17,10 +17,6 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
