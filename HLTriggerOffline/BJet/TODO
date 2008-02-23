@@ -1,0 +1,44 @@
+TODO PLOTS - steal as much as possible from offline
+
+Validation and comparison plots:
+
+ + L1 bits ?
+ + L1 jets ?
+ + L1 muons ?
+
+ + jets, at each stage (L1, L2, L2.5, L3) (calibrated energy ?)
+    - flavour distribution (u,d,s,c,b,g) (uds ?) (udsg ?)
+    - energy, ET, eta, phi spectra (overall, by flavour)
+ + efficiency of each filter 
+    - flavour distribution (u,d,s,c,b,g) (uds ?) (udsg ?)
+    - energy, ET, eta, phi spectra (overall, by flavour)
+
+Detailed plots:
+
+ + primary vertex
+    - x, y, z simulated distributions
+    - x, y, z reconstructed distributions
+    - x, y, z pulls
+    - 3D scatter plot of simulated and reconstructed positions
+
+ + pixel tracks
+    - chi2, n hits
+    - SIP_3D, SIP_2D
+    - L2.5 filter efficiency
+
+ + tracker tracks
+    - chi2, n hits
+    - SIP_3D, SIP_2D
+    - L3 filter efficiency
+
+ + L2 muons
+    ? decay distribution (b, b->c, c, uds, other) (b->X->l, c->X->l) (b->c vs. b->c' ?)
+    - energy, ET, eta, phi spectra (overall, by decay ?)
+    - DeltaR, DeltaR' (distance from closest jet axis and jet+mu axis)
+    - L2.5 filter efficiency
+
+ + L3 muons 
+    ? decay distribution (b, b->c, c, uds, other) (b->X->l, c->X->l) (b->c vs. b->c' ?)
+    - energy, ET, eta, phi spectra (overall, by decay ?)
+    - DeltaR, DeltaR', SIP_3D, SIP_2D, pT_rel
+    - L3 filter efficiency

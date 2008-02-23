@@ -1,0 +1,9 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/Provenance>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=rootcore>
+<flags EDM_PLUGIN=1>
+
