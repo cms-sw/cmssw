@@ -14,3 +14,10 @@ cmsRun runEDDigi.cfg           (produce: testDIevent.root )
 cmsRun runEDDigiCluster.cfg    (produce: testDICLeventt.root)
 cmsRun runEDDigiCluTrack.cfg   (produce: testDICLTRevent.root) 
 
+======================================
+
+!!!   !!!   !!!
+
+with Hector transport:
+cmsRun runHecDigiCluTrack.cfg
+================
