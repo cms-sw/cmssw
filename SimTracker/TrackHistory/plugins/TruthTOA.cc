@@ -18,8 +18,6 @@
 
 // user include files
 
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
-
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -33,8 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -64,9 +61,13 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
   
+  std::string trackingParticleModule_;
+  std::string trackingParticleInstance_;
+  
   std::string rootFile_;
-  bool antiparticles_;
-  bool status_;
+  bool status_, antiparticles_;
+
+  TrackOrigin tracer_;
     
   vvstring vetoList_;
   
@@ -119,8 +120,12 @@ private:
 };
 
 
-TruthTOA::TruthTOA(const edm::ParameterSet& iConfig)
+TruthTOA::TruthTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
+  trackingParticleModule_ = iConfig.getParameter<std::string> ( "trackingParticleModule" );
+
+  trackingParticleInstance_ = iConfig.getParameter<std::string> ( "trackingParticleProduct" );
+
   matchedHits_ = iConfig.getParameter<int> ( "matchedHits" );
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
@@ -148,15 +153,13 @@ TruthTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
+  iEvent.getByLabel(trackingParticleModule_, trackingParticleInstance_, TPCollection);
 
-  // Get tracking particle information from the file.
-  iEvent.getByType(TPCollection);
-
-  std::cout << std::endl;
-  std::cout << "New event" << std::endl;
-
-  // Define the track origin object.
-  TrackOrigin tracer;
+  // Set the history depth
+  if(status_)
+    tracer_.depth(-2);
+  else
+    tracer_.depth(-1);
 
   // Initialize and reset the temporal counters 
   InitCounter();
@@ -170,9 +173,9 @@ TruthTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // If the track is not fake then get the orginal particles
     if ((*track).matchedHit() >= matchedHits_)
     {
-      if (tracer.evaluate(track))
+      if ( tracer_.evaluate(track) )
       {
-        const HepMC::GenParticle * particle = tracer.particle();
+        const HepMC::GenParticle * particle = tracer_.particle();
         // If the origin can be determined then take the first particle as the original
         if (particle)
           Count(particle->barcode(), particle->pdg_id());

@@ -23,25 +23,23 @@ class BTrackingParticleSelector {
   // iterator over result collection type. 
   typedef container::const_iterator const_iterator;
 
-  // default constructor
-  BTrackingParticleSelector() {};
-
   // constructor from parameter set configurability
-  BTrackingParticleSelector( const edm::ParameterSet & ) {};
+  BTrackingParticleSelector( const edm::ParameterSet & iConfig) : classifier_(iConfig) {};
 
   // select object from a collection and 
   // possibly event content
-  void select( const edm::Handle<collection> & TPCH, const edm::Event &, const edm::EventSetup &){
+  void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup & iSetup)
+  {
     selected_.clear();
 
     const collection & tpc = *(TPCH.product());
-    
+        
     for(TrackingParticleCollection::size_type i=0; i<tpc.size(); i++){
       
       TrackingParticleRef tp(TPCH, i);
 
-      if( classifier.evaluate(tp) )
-        if( classifier.is(TrackCategories::Bottom) )
+      if( classifier_.evaluate(tp) )
+        if( classifier_.is(TrackCategories::Bottom) )
         {
           const TrackingParticle * trap = &(tpc[i]);
           selected_.push_back(trap);
@@ -61,7 +59,7 @@ class BTrackingParticleSelector {
   //private:
 
   container selected_;
-  TrackCategories classifier;
+  TrackCategories classifier_;
 
 };
 

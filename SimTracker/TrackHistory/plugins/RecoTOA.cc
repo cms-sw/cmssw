@@ -21,8 +21,6 @@
 #include "TFile.h"
 #include "TH1D.h"
 
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
-
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -36,8 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -73,8 +70,7 @@ private:
     
   vvstring vetoList_;
 
-  bool associationByHits_;
-  TrackAssociatorBase * associator_;
+  TrackOrigin tracer_;
   
   // Track origin
 
@@ -125,14 +121,13 @@ private:
 };
 
 
-RecoTOA::RecoTOA(const edm::ParameterSet& iConfig)
+RecoTOA::RecoTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackCollection_            = iConfig.getParameter<std::string> ( "trackCollection" );
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
   antiparticles_     = iConfig.getParameter<bool> ( "antiparticles" );
-  associationByHits_ = iConfig.getParameter<bool> ( "associationByHits" );
 
   status_ = iConfig.getParameter<bool> ( "status2" );
 
@@ -151,46 +146,31 @@ RecoTOA::~RecoTOA() { }
 void
 RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // Tracking particle information
-  edm::Handle<TrackingParticleCollection>  TPCollection;
-  // Get TPCollection from the file
-  iEvent.getByType(TPCollection);
-
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
   // Get reco::TrackCollection from the file.
   iEvent.getByLabel(trackCollection_,trackCollection);
 
-  // Get the associator between reco::Track and TrakingParticle
-  reco::RecoToSimCollection association 
-    = associator_->associateRecoToSim ( trackCollection, TPCollection, &iEvent ); 
-
-  std::cout << std::endl;
-  std::cout << "New event" << std::endl;
-
   // Initialive the TrackOrigin object.
-  int status;
   if (status_)
-    status = -2;
+    tracer_.depth(-2);
   else
-    status = -1;
+    tracer_.depth(-1);
     
-  TrackOrigin tracer(status);
-
+  // Set the tracer for a new event  
+  tracer_.newEvent(iEvent, iSetup);
+     
   // Initialize and reset the temporal counters 
   InitCounter();
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
-    // Get a pointer to a track per each track in collection
-    edm::RefToBase<reco::Track>  track(trackCollection, index);
-
     // If the track is not fake then get the orginal particles
-    if (tracer.evaluate(track, association, associationByHits_))
+    if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ))
     {
       //TrackingParticle::GenParticleRefVector particles = tracer.genParticles();
-      const HepMC::GenParticle * particle = tracer.particle();
+      const HepMC::GenParticle * particle = tracer_.particle();
       // If the origin can be determined then take the first particle as the original
       if (particle)
         Count(particle->barcode(), particle->pdg_id());
@@ -205,24 +185,9 @@ RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 RecoTOA::beginJob(const edm::EventSetup& iSetup) 
 {
-  // Get the associator by hits
-  edm::ESHandle<TrackAssociatorBase> associator;
-
-  if(associationByHits_)
-  {  
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();
-  }
-  else  
-  {
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();  
-  }
-  
   // Get the particles table.
   iSetup.getData( pdt_ );
 }
-
 
 
 void 

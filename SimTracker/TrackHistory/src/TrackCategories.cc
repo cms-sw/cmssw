@@ -3,46 +3,26 @@
  */
 
 #include <math.h>
+#include <iostream>
 
-#include "HepPDT/ParticleID.hh"// user include files
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"#include "SimTracker/TrackHistory/interface/TrackCategories.h"	
+#include "HepPDT/ParticleID.hh"
 
-
-TrackCategories::TrackCategories (
-  const edm::ParameterSet & iConfig
-)
-{
-  // Initialize flags	
-  reset();
-
-  // Set the history depth after hadronization
-  tracer_.depth(-2);
-		
-  // Name of the track collection 
-  trackCollection_ = iConfig.getParameter<std::string> ( "trackCollection" );
-
-  // Association by hit
-  associationByHits_ = iConfig.getParameter<bool> ( "associationByHits" );
-}
+// user include files
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"	
 
 
-void TrackCategories::event (
+void TrackCategories::newEvent (
   const edm::Event & iEvent, const edm::EventSetup & iSetup
 )
 {
-  // Track collection  edm::Handle<edm::View<reco::Track> > trackCollection;
-  iEvent.getByLabel(trackCollection_, trackCollection);
+  // Get the new event information for the tracer	
+  tracer_.newEvent(iEvent, iSetup);
   
-  // Tracking particle information  edm::Handle<TrackingParticleCollection>  TPCollection;
-  iEvent.getByType(TPCollection);
-
-  // Magnetic field  iSetup.get<IdealMagneticFieldRecord>().get(magneticField_);
+  // Magnetic field
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField_);
   
-  // Trasient track builder  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
-
-  // Get the associator by hits or chi2  edm::ESHandle<TrackAssociatorBase> associator;  if(associationByHits_)    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", associator);  else      iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2", associator);
-    
-  association_ = associator->associateRecoToSim (trackCollection, TPCollection, &iEvent);
+  // Trasient track builder
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
 }
 
 
@@ -52,10 +32,10 @@ bool TrackCategories::evaluate (edm::RefToBase<reco::Track> track)
   reset();
     
   // Check if the track is a fake
-  if ( tracer_.evaluate(track, association_, associationByHits_) )
-  {
+  if ( tracer_.evaluate(track) )
+  {  	
   	// Set fake flag
-    flags_[Fake] = true; 
+    flags_[Fake] = false; 
     
     // Classify by reconstructed information
     byReco(track);
@@ -64,9 +44,9 @@ bool TrackCategories::evaluate (edm::RefToBase<reco::Track> track)
     byHistory();
   }
   else
-    flags_[Fake] = false;
+    flags_[Fake] = true;
     
-  return flags_[Unknown];
+  return !flags_[Unknown];
 }
 
 
@@ -84,17 +64,31 @@ bool TrackCategories::evaluate (TrackingParticleRef track)
   else
     flags_[Unknown] = true;
   
-  return flags_[Unknown];
+  return !flags_[Unknown];
 }
 
 
 void TrackCategories::byHistory()
 {
-	
+  // Get the event id for the initial TP.
+  EncodedEventId eventId = tracer_.simParticle()->eventId();
+  
+  // Check for signal events.	
+  if ( eventId.bunchCrossing() && eventId.event() )
+  {
+    flags_[SignalEvent] = true;
+    // Check for PV, SV, TV
+    TrackHistory::GenVertexTrail genVertexTrail(tracer_.genVertexTrail());
+    if ( genVertexTrail.empty() )
+      flags_[PV] = true;
+    else if ( genVertexTrail.size() == 1 )
+      flags_[SV] = true;
+    else
+      flags_[TV] = true;
+  }
+ 	
   // Check for the existence of a simulated vertex (displaced).
-  if ( tracer_.simVertexTrail().empty() )
-    flags_[Displaced] = false;
-  else
+  if ( !tracer_.simVertexTrail().empty() )
     flags_[Displaced] = true;
 		
   // Get the simulated particle.
@@ -108,7 +102,7 @@ void TrackCategories::byHistory()
     flags_[Strange] = pid.hasStrange();
     flags_[Charm] = pid.hasCharm();
     flags_[Bottom] = pid.hasBottom();
-    flags_[Light] = pid.hasUp() || pid.hasDown() || pid.hasStrange(); 
+    flags_[Light] = !pid.hasCharm() || !pid.hasBottom();
   }
   else
     flags_[Unknown] = true;
@@ -117,16 +111,38 @@ void TrackCategories::byHistory()
 
 void TrackCategories::byReco(edm::RefToBase<reco::Track> track)
 {
-  // Find a TrackingParticle for the given RecoTrack 
-  std::vector<std::pair<TrackingParticleRef, double> > tp;
-     
-  try  {    tp = association_[track];  }  catch (edm::Exception e) {}
+  TrackingParticleRef tpr = tracer_.simParticle();
 
-  // Get track with maximum match.  double match = 0;  TrackingParticleRef tpr;
+  // Compute tracking particle parameters at point of closest approach to the beamline
+  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
+ 
+  FreeTrajectoryState ftsAtProduction(
+    GlobalPoint(
+      tpr->vertex().x(),
+      tpr->vertex().y(),
+      tpr->vertex().z()
+    ),
+    GlobalVector(
+      assocTrack->momentum().x(),
+      assocTrack->momentum().y(),
+      assocTrack->momentum().z()
+    ), 
+    TrackCharge(track->charge()),
+    magneticField_.product()
+  );
+      
+  TSCPBuilderNoMaterial tscpBuilder;
   
-  for (std::size_t i=0; i<tp.size(); i++)   {    if (associationByHits_)     {      if (i && tp[i].second > match)       {        tpr = tp[i].first;        match = tp[i].second;      }      else       {        tpr = tp[i].first;        match = tp[i].second;      }    }     else     {      if (i && tp[i].second < match)       {        tpr = tp[i].first;        match = tp[i].second;      }      else      {        tpr = tp[i].first;        match = tp[i].second;      }    }  }
-  // Compute tracking particle parameters at point of closest approach to the beamline  const SimTrack * assocTrack = &(*tpr->g4Track_begin());   FreeTrajectoryState ftsAtProduction(    GlobalPoint(      tpr->vertex().x(),      tpr->vertex().y(),      tpr->vertex().z()    ),    GlobalVector(      assocTrack->momentum().x(),      assocTrack->momentum().y(),      assocTrack->momentum().z()    ),     TrackCharge(track->charge()),    magneticField_.product()  );        TSCPBuilderNoMaterial tscpBuilder;    TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(    ftsAtProduction,    GlobalPoint(0,0,0)  );    GlobalPoint v = tsAtClosestApproach.theState().position();  GlobalVector p = tsAtClosestApproach.theState().momentum();   
-  // Simulated d0  double d0Sim = - (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
+  TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
+    ftsAtProduction,
+    GlobalPoint(0,0,0)
+  );
+  
+  GlobalPoint v = tsAtClosestApproach.theState().position();
+  GlobalVector p = tsAtClosestApproach.theState().momentum(); 
+  
+  // Simulated d0
+  double d0Sim = - (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
   
   // Calculate the d0 pull
   double d0Pull = ( track->d0() - d0Sim ) / track->d0Error();

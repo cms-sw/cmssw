@@ -1,27 +1,6 @@
 <use name=root>
+<use name=TrackingTools/IPTools>
 <use name=SimTracker/TrackHistory>
-<library file="RecoTOA.cc" name=RecoTOA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="OptTOA.cc" name=OptTOA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="TruthTOA.cc" name=TruthTOA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="IpsTOA.cc" name=IpsTOA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="VertexTHA.cc" name=VertexTHA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="SimpleTHA.cc" name=SimpleTHA>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="GenTrackMatcher.cc" name=GenTrackMatcher>
-  <flags EDM_PLUGIN=1>
-</library>
-<library file="BTrackingParticleSelector.cc" name=BTrackingParticleSelection>
-  <flags EDM_PLUGIN=1>
+<library file=*.cc name=TrackHistoryPlugins>
 </library>
 

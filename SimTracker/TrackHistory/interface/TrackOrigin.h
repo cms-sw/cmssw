@@ -19,18 +19,12 @@ class TrackOrigin : public TrackHistory {
 
 public:
 
-  //! Void constructor
-  TrackOrigin() : TrackHistory() {}
-
-  //! Constructor by depth.
-  /* Creates a TrackHistory with any given depth. Positive values
-     constrain the number of TrackingVertex visit in the history. 
-     Negatives values set the limit of the iteration over generated 
-     information i.e. (-1 -> status 1 or -2 -> status 2 particles).
+  //! Constructor by pset.
+  /* Creates a TrackHistory with association given by pset.
   
-     /param[in] depth the history
+     /param[in] pset with the consfiguration values
   */
-  TrackOrigin(int depth) : TrackHistory(depth) {}
+  TrackOrigin(const edm::ParameterSet & iConfig) : TrackHistory(iConfig) {}
   
   //! Returns a pointer to most primitive status 1 or 2 particle.
   const HepMC::GenParticle * particle() const

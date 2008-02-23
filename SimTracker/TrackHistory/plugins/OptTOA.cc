@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.3 2008/01/17 16:05:17 fambrogl Exp $
+// $Id: OptTOA.cc,v 1.4 2008/02/20 22:28:23 bazterra Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "HepPDT/ParticleID.hh"
 
 // user include files
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -42,8 +42,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoBTag/Analysis/interface/Tools.h"
-#include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
-#include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
@@ -75,12 +74,12 @@ private:
   typedef std::vector<std::string> vstring;
 
   std::string trackCollection_;
-  std::string jetTracksAssociator_;
+  std::string jetTracks_;
   
   std::string rootFile_;
 
-  double minPt_, maxChi2_;
-  std::size_t minNumberOfHits_;
+  int minimumNumberOfHits_, minimumNumberOfPixelHits_;
+  double minimumTransverseMomentum_, maximumChiSquared_;
 
   void 
   LoopOverJetTracksAssociation(
@@ -226,7 +225,7 @@ private:
   std::string primaryVertex_;
 
   // Track classification.
-  TrackCategories * classifier_;
+  TrackCategories classifier_;
 
 };
 
@@ -234,28 +233,22 @@ private:
 //
 // constructors and destructor
 //
-OptTOA::OptTOA(const edm::ParameterSet& iConfig)
+OptTOA::OptTOA(const edm::ParameterSet& iConfig) : classifier_(iConfig)
 {
-  trackCollection_     = iConfig.getParameter<std::string> ( "trackCollection" );
-  jetTracksAssociator_ = iConfig.getParameter<std::string> ( "jetTracksAssociator" ); 
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+  jetTracks_       = iConfig.getParameter<std::string> ( "jetTracks" ); 
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
-  
-  minPt_ = iConfig.getParameter<double> ( "minPt" );
-  maxChi2_ = iConfig.getParameter<double> ( "maxChi2" );
-  minNumberOfHits_ = iConfig.getParameter<int> ( "minNumberOfHits" );
 
-  edm::ParameterSet pset;
-  
+  minimumNumberOfHits_       = iConfig.getParameter<int> ( "minimumNumberOfHits" );  
+  minimumNumberOfPixelHits_  = iConfig.getParameter<int> ( "minimumNumberOfPixelHits" );
+  minimumTransverseMomentum_ = iConfig.getParameter<double> ( "minimumTransverseMomentum" );
+  maximumChiSquared_         = iConfig.getParameter<double> ( "maximumChiSquared" );
+
   primaryVertex_ = iConfig.getParameter<std::string> ( "primaryVertex" );
-
-  classifier_ = new TrackCategories(iConfig);
 }
 
-OptTOA::~OptTOA() 
-{
-  delete classifier_;	
-}
+OptTOA::~OptTOA() {}
 
 //
 // member functions
@@ -272,19 +265,19 @@ OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(primaryVertex_, primaryVertex);  
   // Jet to tracks associator
-  edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociator;
-  iEvent.getByLabel(jetTracksAssociator_, jetTracksAssociator);
+  edm::Handle<reco::JetTracksAssociationCollection> jetTracks;
+  iEvent.getByLabel(jetTracks_, jetTracks);
   // Trasient track builder
   edm::ESHandle<TransientTrackBuilder> TTbuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
  
   // Setting up event information for the track categories.
-  classifier_->event(iEvent, iSetup);
+  classifier_.newEvent(iEvent, iSetup);
 
   LoopOverJetTracksAssociation(
     TTbuilder,
     primaryVertex,
-    jetTracksAssociator
+    jetTracks
   );
 }    
 
@@ -301,10 +294,10 @@ OptTOA::beginJob(const edm::EventSetup& iSetup)
 void 
 OptTOA::endJob() 
 {
-  TFile file(rootFile_.c_str(), "RECREATE"); 
+  TFile file(rootFile_.c_str(), "RECREATE");
   file.cd();
 
-	// saving the histograms
+  // saving the histograms
   for(std::size_t i=0; i<5; i++)
   {	
     std::string particle;
@@ -319,9 +312,11 @@ OptTOA::endJob()
     else
       particle = std::string("fake_tracks");
 
-		histogram_t histogram(particle);
+    histogram_t histogram(particle);
+
     for (std::size_t j=0; j<histogram_data_[i].size(); j++)
       histogram.Fill(histogram_data_[i][j]);
+
     histogram.Write();
   }
 
@@ -362,8 +357,6 @@ OptTOA::LoopOverJetTracksAssociation(
   
   reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
   
-  SignedImpactParameter3D sipc;
-    
   int i=0;
   
   for(; it != jetTracksAssociation->end(); it++, i++)
@@ -379,29 +372,34 @@ OptTOA::LoopOverJetTracksAssociation(
     for(std::size_t index = 0; index < tracks.size(); index++)
 	{
 	  edm::RefToBase<reco::Track> track(tracks[index]);
+
 	  double pt = tracks[index]->pt();
-	  double chi2 = tracks[index]->normalizedChi2();
-	  std::size_t hits = tracks[index]->recHitsSize();
-	  
-	  if(hits < minNumberOfHits_ || chi2 > maxChi2_ || pt < minPt_ ) continue;
+	  double chi2 = tracks[index]->normalizedChi2();	  
+	  int hits = tracks[index]->hitPattern().numberOfValidHits();
+	  int pixelHits = tracks[index]->hitPattern().numberOfValidPixelHits();
+	  	  
+	  if( 
+	      hits < minimumNumberOfHits_ || pixelHits < minimumNumberOfPixelHits_ ||
+          pt < minimumTransverseMomentum_ || chi2 >  maximumChiSquared_
+      ) continue;
 	  
 	  const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
-	  double dta = - SignedImpactParameter3D::distanceWithJetAxis(transientTrack, direction, pv).second.value();
-	  double sdl = SignedDecayLength3D::apply(transientTrack, direction, pv).second.value();
-      double ips = sipc.apply(transientTrack, direction, pv).second.significance();
+	  double dta = - IPTools::jetTrackDistance(transientTrack, direction, pv).second.value();
+	  double sdl = IPTools::signedDecayLength3D(transientTrack, direction, pv).second.value();
+      double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
       double dz = tracks[index]->dz() - pvZ;
 	  double d0 = tracks[index]->d0();
 	  
 	  // Classify the reco track;
-	  if ( classifier_->evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
+	  if ( classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
 	  {
-	    if ( classifier_->is(TrackCategories::Fake) )
+	    if ( classifier_.is(TrackCategories::Fake) )
 	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
-        else if ( classifier_->is(TrackCategories::Bottom) )
+        else if ( classifier_.is(TrackCategories::Bottom) )
 		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));      
-        else if ( classifier_->is(TrackCategories::Bad) )
+        else if ( classifier_.is(TrackCategories::Bad) )
           histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));          
-        else if ( classifier_->is(TrackCategories::Displaced) )
+        else if ( classifier_.is(TrackCategories::Displaced) )
           histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
 	    else
 	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));	    

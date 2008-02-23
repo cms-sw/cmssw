@@ -7,8 +7,51 @@
  *
  */
 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
-#include "SimTracker/TrackHistory/interface/TrackHistory.h"	
+
+TrackHistory::TrackHistory (
+  const edm::ParameterSet & iConfig
+)
+{
+  // Default depth	
+  depth_ = 1;
+			
+  // Name of the track collection
+  recoTrackModule_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+
+  // Name of the traking pariticle collection
+  trackingParticleModule_ = iConfig.getParameter<std::string> ( "trackingParticleModule" );
+  trackingParticleInstance_ = iConfig.getParameter<std::string> ( "trackingParticleProduct" );
+  
+  // Association by hit
+  associationModule_ = iConfig.getParameter<std::string> ( "associationModule" );
+
+  // Association by max. value
+  bestMatchByMaxValue_ = iConfig.getParameter<bool> ( "bestMatchByMaxValue" );
+}
+
+
+void TrackHistory::newEvent (
+  const edm::Event & iEvent, const edm::EventSetup & iSetup
+)
+{
+  // Track collection
+  edm::Handle<edm::View<reco::Track> > trackCollection;
+  iEvent.getByLabel(recoTrackModule_, trackCollection);
+   
+  // Tracking particle information
+  edm::Handle<TrackingParticleCollection>  TPCollection;
+  iEvent.getByLabel(trackingParticleModule_, trackingParticleInstance_, TPCollection);
+    
+  // Get the associator by hits or chi2
+  edm::ESHandle<TrackAssociatorBase> associator;
+
+  iSetup.get<TrackAssociatorRecord>().get(associationModule_, associator);
+    
+  association_ = associator->associateRecoToSim (trackCollection, TPCollection, &iEvent);
+}
 
 
 void TrackHistory::traceGenHistory(const HepMC::GenParticle * gpp)
@@ -116,55 +159,66 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
 }
 
 
-bool TrackHistory::evaluate (
-  edm::RefToBase<reco::Track> tr,
-  reco::RecoToSimCollection const & association, 
-  bool maxMatch
-)
+bool TrackHistory::evaluate ( edm::RefToBase<reco::Track> tr )
 {
-  try
+  TrackingParticleRef tpr( match(tr) );
+
+  if ( !tpr.isNull() )
   {
-    std::vector<std::pair<TrackingParticleRef, double> > tp = association[tr];
-    
-    // get the track with maximum match
-    double match = 0;
-    TrackingParticleRef tpr;
-    
-    for (std::size_t i=0; i<tp.size(); i++) 
-    {
-      if (maxMatch) 
-      {
-        if (i && tp[i].second > match) 
-        {
-          tpr = tp[i].first;
-          match = tp[i].second;
-        }
-        else 
-        {
-          tpr = tp[i].first;
-          match = tp[i].second;
-        }
-      } 
-      else 
-      {
-        if (i && tp[i].second < match) 
-        {
-          tpr = tp[i].first;
-          match = tp[i].second;
-        }
-        else
-        {
-          tpr = tp[i].first;
-          match = tp[i].second;
-        }
-      }
-    }
-    // evaluate history for the best match.
     evaluate(tpr);
     return true;
   }
-  catch (edm::Exception event) {}
+  
   return false;
 }
 
+
+TrackingParticleRef TrackHistory::match ( edm::RefToBase<reco::Track> tr )
+{
+  TrackingParticleRef tpr;
+  std::vector<std::pair<TrackingParticleRef, double> > tp;
+
+  try
+  {	
+    tp = association_[tr];
+  }
+  catch (edm::Exception event) 
+  {
+  	return tpr;
+  }
+
+  double m = 0;
+    
+  for (std::size_t i=0; i<tp.size(); i++) 
+  {
+    if ( bestMatchByMaxValue_ ) 
+    {
+      if (i && tp[i].second > m) 
+      {
+        tpr = tp[i].first;
+        m = tp[i].second;
+      }
+      else 
+      {
+        tpr = tp[i].first;
+        m = tp[i].second;
+      }
+    } 
+    else 
+    {
+      if (i && tp[i].second < m) 
+      {
+        tpr = tp[i].first;
+        m = tp[i].second;
+      }
+      else
+      {
+        tpr = tp[i].first;
+        m = tp[i].second;
+      }
+    }
+  }
+
+  return tpr;
+}
 

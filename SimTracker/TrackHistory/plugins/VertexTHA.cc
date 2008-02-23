@@ -18,8 +18,6 @@
 
 // user include files
 
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
-
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -34,7 +32,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -68,8 +66,7 @@ private:
     
   vvstring vetoList_;
 
-  bool associationByHits_;
-  TrackAssociatorBase * associator_;
+  TrackOrigin tracer_;  
   
   // Track history
 
@@ -86,53 +83,34 @@ private:
   void Count(const std::string &);  
 };
 
-VertexTHA::VertexTHA(const edm::ParameterSet& iConfig)
+VertexTHA::VertexTHA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "trackCollection" );
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
-  associationByHits_ = iConfig.getParameter<bool> ( "associationByHits" );
   sourceCut_ = iConfig.getParameter<double> ( "sourceCut" );
 }
 
 VertexTHA::~VertexTHA() { }
 
-void
-VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // Tracking particle information
-  edm::Handle<TrackingParticleCollection>  TPCollection;
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-
-  // Get tracking particle information from the file.
-  iEvent.getByType(TPCollection);
-
-  // Get reco::TrackCollection from the file.
-  iEvent.getByLabel(trackCollection_,trackCollection);
-
-  // Get the associator between reco::Track and TrakingParticle
-  reco::RecoToSimCollection association 
-    = associator_->associateRecoToSim ( trackCollection, TPCollection, &iEvent ); 
-
-  std::cout << std::endl;
-  std::cout << "New event" << std::endl;
-
-  // Initialive the TrackHistory object.    
-  TrackOrigin tracer;
+  iEvent.getByLabel(trackCollection_, trackCollection);
+  
+  // Set the tracer for a new event
+  tracer_.newEvent(iEvent, iSetup);
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
-    // Get a pointer to a track per each track in collection
-    edm::RefToBase<reco::Track>  track(trackCollection, index);
-
     // If the track is not fake then get the vertexes
-    if (tracer.evaluate(track, association, associationByHits_))
+    if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ) )
     {
       // Get the list of TrackingVertexes associated to
-      TrackOrigin::SimVertexTrail vertexes(tracer.simVertexTrail());
+      TrackOrigin::SimVertexTrail vertexes(tracer_.simVertexTrail());
          
       // Loop over all vertexes                       
       if( !vertexes.empty() )
@@ -209,20 +187,6 @@ VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 VertexTHA::beginJob(const edm::EventSetup& iSetup) 
 {
-  // Get the associator by hits
-  edm::ESHandle<TrackAssociatorBase> associator;
-
-  if(associationByHits_)
-  {  
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();
-  }
-  else  
-  {
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();  
-  }
-  
   // Get the particles table.
   iSetup.getData( pdt_ );
   

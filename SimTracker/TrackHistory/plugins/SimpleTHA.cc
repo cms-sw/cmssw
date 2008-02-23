@@ -15,8 +15,6 @@
 
 // user include files
 
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
-
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -30,8 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -39,7 +36,6 @@
 
 class SimpleTHA : public edm::EDAnalyzer 
 {
-
 public:
 
   explicit SimpleTHA(const edm::ParameterSet&);
@@ -54,34 +50,31 @@ private:
   
   std::string trackCollection_;
       
-  bool associationByHits_;
- 
-   TrackAssociatorBase * associator_;
-    std::size_t totalTracks_;
+  std::size_t totalTracks_;
    
-   edm::ESHandle<ParticleDataTable> pdt_;
+  edm::ESHandle<ParticleDataTable> pdt_;
    
-   std::string particleString(int) const;
-
-   std::string vertexString(
+  std::string particleString(int) const;
+  
+  TrackHistory tracer_;
+  
+  std::string vertexString(
     TrackingParticleRefVector,
     TrackingParticleRefVector
-   ) const;
+  ) const;
    
-   std::string vertexString(
-     HepMC::GenVertex::particles_in_const_iterator,
-     HepMC::GenVertex::particles_in_const_iterator,
-     HepMC::GenVertex::particles_out_const_iterator,
-     HepMC::GenVertex::particles_out_const_iterator
-   ) const;
-  
+  std::string vertexString(
+    HepMC::GenVertex::particles_in_const_iterator,
+    HepMC::GenVertex::particles_in_const_iterator,
+    HepMC::GenVertex::particles_out_const_iterator,
+    HepMC::GenVertex::particles_out_const_iterator
+  ) const;
 };
 
 
-SimpleTHA::SimpleTHA(const edm::ParameterSet& iConfig)
+SimpleTHA::SimpleTHA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "trackCollection" );
-  associationByHits_ = iConfig.getParameter<bool> ( "associationByHits" );
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
 }
 
 
@@ -90,35 +83,22 @@ SimpleTHA::~SimpleTHA() { }
 
 void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // Tracking particle information
-  edm::Handle<TrackingParticleCollection>  TPCollection;
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-
-  // Get tracking particle information from the file.
-  iEvent.getByType(TPCollection);
-
-  // Get reco::TrackCollection from the file.
   iEvent.getByLabel(trackCollection_,trackCollection);
 
-  // Get the associator between reco::Track and TrakingParticle
-  reco::RecoToSimCollection association 
-    = associator_->associateRecoToSim ( trackCollection, TPCollection, &iEvent ); 
-
-  // Initialive the TrackHistory object.    
-  TrackOrigin tracer(-2);
+  tracer_.depth(-2);
+  tracer_.newEvent(iEvent, iSetup);
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
-    // Get a pointer to a track per each track in collection
-    edm::RefToBase<reco::Track>  track(trackCollection, index);
 
     // If the track is not fake then get the vertexes
-    if (tracer.evaluate(track, association, associationByHits_))
+    if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ) )
     {
       // Get the list of TrackingParticles associated to
-      TrackOrigin::SimParticleTrail simParticles(tracer.simParticleTrail());
+      TrackOrigin::SimParticleTrail simParticles(tracer_.simParticleTrail());
 
       std::cout << std::endl << "History for track #" << index << " : " << std::endl;
 
@@ -131,7 +111,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackOrigin::SimVertexTrail simVertexes(tracer.simVertexTrail());
+      TrackOrigin::SimVertexTrail simVertexes(tracer_.simVertexTrail());
          
       // Loop over all simVertexes                       
       if( !simVertexes.empty() )
@@ -150,7 +130,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::cout << "  simVertex no found" << std::endl;
 
       // Get the list of GenParticles associated to
-      TrackHistory::GenParticleTrail genParticles(tracer.genParticleTrail());
+      TrackHistory::GenParticleTrail genParticles(tracer_.genParticleTrail());
 
       // Loop over all genParticles
       for(std::size_t hindex=0; hindex<genParticles.size(); hindex++) 
@@ -161,7 +141,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackHistory::GenVertexTrail genVertexes(tracer.genVertexTrail());
+      TrackHistory::GenVertexTrail genVertexes(tracer_.genVertexTrail());
          
       // Loop over all simVertexes                       
       if( !genVertexes.empty() )
@@ -192,20 +172,6 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 SimpleTHA::beginJob(const edm::EventSetup& iSetup) 
 {
-  // Get the associator by hits
-  edm::ESHandle<TrackAssociatorBase> associator;
-
-  if(associationByHits_)
-  {  
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();
-  }
-  else  
-  {
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",associator);
-    associator_ = (TrackAssociatorBase *) associator.product();  
-  }
-  
   // Get the particles table.
   iSetup.getData( pdt_ );
   

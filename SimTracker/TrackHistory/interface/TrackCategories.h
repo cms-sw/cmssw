@@ -11,12 +11,9 @@
 #define TrackCategories_h
 
 #include <set>
-#include <string>
 
-#include "FWCore/Framework/interface/Event.h"#include "FWCore/Framework/interface/ESHandle.h"#include "FWCore/Framework/interface/EventSetup.h"#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"#include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"#include "TrackingTools/Records/interface/TransientTrackRecord.h"#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -30,6 +27,10 @@ public:
   enum Category {
     Fake = 0,
     Bad,
+    SignalEvent,
+    PV,
+    SV,
+    TV,
     Displaced,
     Up,
     Down,
@@ -42,27 +43,30 @@ public:
 
   typedef std::vector<bool> Flags;
 
-  //! Void constructor
-  TrackCategories()
+  //! Constructor by ParameterSet
+  TrackCategories( const edm::ParameterSet & pset) : tracer_(pset)
   {
-  	// Initialize flags	
+    // Initialize flags	
     reset();
 
     // Set the history depth after hadronization
     tracer_.depth(-2);
   }
 
-  //! Constructor by ParameterSet
-  TrackCategories( const edm::ParameterSet& );
-
   //! Pre-process event information (for accessing reconstraction information)
-  void event(const edm::Event &, const edm::EventSetup &);
+  void newEvent(const edm::Event &, const edm::EventSetup &);
   
-  //! classify the RecoTrack in categories.
+  //! Classify the RecoTrack in categories.
   bool evaluate (edm::RefToBase<reco::Track>);
 
-  //! classify the TrackingParticle in categories.
+  //! Classify the TrackingParticle in categories.
   bool evaluate (TrackingParticleRef);
+
+  //! Classify the RecoTrack in categories (TODO: Remove).
+  bool evaluate (reco::TrackRef track)
+  { 
+  	return evaluate( edm::RefToBase<reco::Track>(track) );
+  }
 
   //! Returns track flag for a given category.
   bool is(Category category) const
@@ -87,12 +91,6 @@ private:
   Flags flags_;
   
   TrackOrigin tracer_;
-
-  bool associationByHits_;
-
-  std::string trackCollection_;
-
-  reco::RecoToSimCollection association_;
 
   edm::ESHandle<MagneticField> magneticField_;
 
