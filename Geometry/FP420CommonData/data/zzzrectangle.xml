@@ -24,7 +24,7 @@
  <Constant name="dRcopper"         value="0.05*mm"/>
 <!-- copper thickness (in Y) in range of flat pocket part -->
  <Constant name="dYcopper"         value="0.05*mm"/>
-<!-- copper thickness of window                           -->
+<!-- copper thickness of window    0.05 was                   -->
  <Constant name="dZcopper"         value="0.05*mm"/>
 <!--  -->
                                                      <!--StainlessSteel  -->
@@ -32,8 +32,8 @@
  <Constant name="dRsteel"         value="2.00*mm"/>
 <!-- StSteel thickness (in Y) in range of flat pocket part -->
  <Constant name="dYsteel"         value="0.15*mm"/>
-<!-- StSteel thickness of window                          -->
- <Constant name="dZsteel"         value="0.15*mm"/>
+<!-- StSteel thickness of window       0.15 was               -->
+ <Constant name="dZsteel"         value="0.45*mm"/>
 <!--  -->
 <!--  -->
 <!-- technical/safety value to construct SubtractionSolid --> 
@@ -85,20 +85,32 @@
 <!-- put values for ZUnit,ZD2,ZD3 and then ZUnit1 and ZUnit2 calculated via known formulas -->
 <!--  -->
 <!--  -->
-<!--case 1m between 1st and 2nd stations  -->
+<!--case 1m between 1st and 2nd stations                                                                -->
 <!-- <Constant name="ZD2"           value="1000.*mm"/> -->
 <!-- <Constant name="ZD3"           value="8000.*mm"/> -->
 <!-- <Constant name="ZUnit"           value="1000.*mm"/> -->
 <!--  -->
 <!-- case equidistant distance between stations d2=4m. Put zUnit=4000 to have the same for ZUnit1,ZUnit2-->
-<!--case 1m between 1st and 2nd stations  -->
+<!--  <Constant name="ZD2"           value="4000.*mm"/> -->
+<!--  <Constant name="ZD3"           value="8000.*mm"/> -->
+<!--  <Constant name="ZUnit"         value="4000.*mm"/> -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--                              2 Stations only                                                       -->
+<!--  -->
  <Constant name="ZD2"           value="4000.*mm"/>
  <Constant name="ZD3"           value="8000.*mm"/>
- <Constant name="ZUnit"         value="4000.*mm"/>
+ <Constant name="ZUnit"         value="8000.*mm"/>
+<!--  -->
+<!--                                                                                                     -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
 <!--  -->
  <Constant name="ZUnit1"           value="2*[ZD2]-[ZUnit]"/>
  <Constant name="ZUnit2"           value="2*[ZD3]-2*[ZUnit1]-[ZUnit]"/>
-<!--  -->
 <!--  -->
 <!--  -->
 <!--                                                                              Parameter Values for station:  -->
@@ -249,7 +261,6 @@
  <SolidSection label="zzzrectangle.xml">
 <!-- -->
  <Tubs name="FP420Ex1" rMin="[fp420:Rmin]" rMax="[fp420:HfpR]" dz="[ZUnit]/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="FP420Ex2" rMin="[fp420:Rmin]" rMax="[fp420:HfpR]" dz="[ZUnit1]/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="FP420Ex3" rMin="[fp420:Rmin]" rMax="[fp420:HfpR]" dz="[ZUnit2]/2" startPhi="0*deg" deltaPhi="360*deg"/>
 <!-- -->
 <!--for area 2) -->
@@ -295,9 +306,6 @@
  <Tubs name="EdgeROut3" rMin="[fp420:Rmin]" rMax="[OutTubR]" dz="[ZpureTubeR]/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="EdgeRIn3" rMin="[fp420:Rmin]" rMax="[OutTubR]-[RoutThick]" dz="[ZpureTubeR]/2" startPhi="0*deg" deltaPhi="360*deg"/><!-- -->
 <!--  -->
-<!--  -->
- <Tubs name="Edge1Out3" rMin="[fp420:Rmin]" rMax="[OutTubR]" dz="[ZpureTube1]/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="Edge1In3" rMin="[fp420:Rmin]" rMax="[OutTubR]-[RoutThick]" dz="[ZpureTube1]/2" startPhi="0*deg" deltaPhi="360*deg"/><!-- -->
 <!--  -->
 <!--  -->
  <Tubs name="EdgeL2Out3" rMin="[fp420:Rmin]" rMax="[OutTubR]" dz="[ZpureTubeL2]/2" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -490,10 +498,6 @@
   <rSolid name="FP420Ex1"/>
   <rMaterial name="materialsfp420:Air"/>
  </LogicalPart>
- <LogicalPart name="FP420Ex2" category="unspecified">
-  <rSolid name="FP420Ex2"/>
-  <rMaterial name="materialsfp420:Air"/>
- </LogicalPart>
  <LogicalPart name="FP420Ex3" category="unspecified">
   <rSolid name="FP420Ex3"/>
   <rMaterial name="materialsfp420:Air"/>
@@ -555,7 +559,7 @@
  </LogicalPart>
  <LogicalPart name="CERAMDET" category="unspecified">
   <rSolid name="CERAMDET"/>
-   <rMaterial name="materialsfp420:CarbonVar130"/> 
+   <rMaterial name="materialsfp420:BladeSi70Al30"/> 
 <!--  -->
 <!--   <rMaterial name="materialsfp420:Ceramic"/>   -->
 <!--  -->
@@ -578,11 +582,11 @@
 <!--  -->
  <LogicalPart name="GASTOFALL" category="unspecified">
   <rSolid name="GASTOFALL"/>
-  <rMaterial name="materialsfp420:Air"/>
+  <rMaterial name="materialsfp420:StainlessSteel"/>
  </LogicalPart>
  <LogicalPart name="GASTOF" category="unspecified">
   <rSolid name="GASTOF"/>
-  <rMaterial name="materialsfp420:Air"/>
+  <rMaterial name="materialsfp420:GasC4F10"/>
  </LogicalPart>
 <!--  -->
 <!-- Dead material around: -->
@@ -643,15 +647,6 @@
  </LogicalPart>
 <!--  -->
 <!--  -->
- <LogicalPart name="Edge1In3" category="unspecified">
-  <rSolid name="Edge1In3"/>
-  <rMaterial name="materialsfp420:Vacuum"/>
- </LogicalPart>
- <LogicalPart name="Edge1Out3" category="unspecified">
-  <rSolid name="Edge1Out3"/>
-  <rMaterial name="materialsfp420:StainlessSteel"/>
- </LogicalPart>
-<!--  -->
 <!--  -->
  <LogicalPart name="EdgeL2In3" category="unspecified">
   <rSolid name="EdgeL2In3"/>
@@ -698,13 +693,6 @@
    <rParent name="fp420:FP420E"/>
    <rChild name="zzzrectangle:FP420Ex1"/>
   <Translation x="0*fm" y="0*fm" z="0*fm" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
-<!--  -->
- <PosPart copyNumber="1">
-   <rParent name="fp420:FP420E"/>
-   <rChild name="zzzrectangle:FP420Ex2"/>
-  <Translation x="0*fm" y="0*fm" z="0*fm+([ZUnit]+[ZUnit1])/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!--  -->
@@ -765,51 +753,6 @@
    <rParent name="zzzrectangle:FP420Ex1"/>
    <rChild name="zzzrectangle:EdgeLOut3"/>
   <Translation x="0*fm" y="0*fm" z="-[TubZ]-[ZoutWidth]-[ZpureTubeL]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
-<!-- Ex2 -->
-<!-- Ex2 ZUnit1 -->
-<!--  -->
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:SBST"/>
-  <Translation x="0*fm" y="0*fm" z="0*fm" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:FlIn"/>
-  <Translation x="0*fm" y="0*fm" z="[TubZ]-[ZinFlanze]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:FlIn"/>
-  <Translation x="0*fm" y="0*fm" z="-[TubZ]+[ZinFlanze]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:FP420E2"/>
-  <Translation x="0*fm" y="0*fm" z="[TubZ]+[ZoutWidth]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:FP420E2"/>
-  <Translation x="0*fm" y="0*fm" z="-[TubZ]-[ZoutWidth]/2" />
-  <rRotation name="FP420Rot:FP42090Y2"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:Edge1Out3"/>
-  <Translation x="0*fm" y="0*fm" z="[TubZ]+[ZoutWidth]+[ZpureTube1]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:Edge1Out3"/>
-  <Translation x="0*fm" y="0*fm" z="-[TubZ]-[ZoutWidth]-[ZpureTube1]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!-- Ex3 -->
@@ -880,13 +823,6 @@
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!--  -->
-<!--  -->
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:Edge1Out3"/>
-   <rChild name="zzzrectangle:Edge1In3"/>
-  <Translation x="0*fm" y="0*fm" z="0*fm" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
 <!--  -->
 <!--  -->
  <PosPart copyNumber="1">
@@ -980,12 +916,6 @@
    <rParent name="zzzrectangle:FP420Ex1"/>
    <rChild name="zzzrectangle:GASTOFALL"/>
   <Translation x="0*fm" y="[work]+[gap]+[dYGap]+[dYsteel]+[dYcopper]+[YSiStation]/2+[YDropGas]" z="([TubZ]+[TubZG])+[TubZG]-[ZsafetyShiftG]-[BoxDzG]+([ZedgeG1]-[ZedgeG2])/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:FP420Ex2"/>
-   <rChild name="zzzrectangle:SISTATION"/>
-  <Translation x="0*fm" y="[work]+[gap]+[dYGap]+[dYsteel]+[dYcopper]+[YSiStation]/2" z="[TubZ]-[ZsafetyShift]-[BoxDz]-([Zedge2]-[Zedge1])/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="1">
