@@ -93,6 +93,22 @@
       <rMaterial name="materialsfp420:Oxygen"/>
     </MaterialFraction>
   </CompositeMaterial>
+  <CompositeMaterial name="GasC4F10" density="10.06*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.20184519">
+      <rMaterial name="materialsfp420:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.79815481">
+      <rMaterial name="materialsfp420:Fluorine"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BladeSi70Al30" density="2.40*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.70758123">
+      <rMaterial name="materialsfp420:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.29241877">
+      <rMaterial name="materialsfp420:Aluminium"/>
+    </MaterialFraction>
+  </CompositeMaterial>
   <ElementaryMaterial name="Aluminium" density="2.7*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
   <ElementaryMaterial name="Argon" density="1.639*mg/cm3" symbol=" " atomicWeight="39.948*g/mole" atomicNumber="18"/>
   <ElementaryMaterial name="Beryllium" density="1.848*g/cm3" symbol=" " atomicWeight="9.0122*g/mole" atomicNumber="4"/>
