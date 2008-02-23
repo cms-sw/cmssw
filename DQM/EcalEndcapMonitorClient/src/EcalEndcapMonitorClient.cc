@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/23 15:28:37 $
- * $Revision: 1.145 $
+ * $Date: 2008/02/23 15:37:29 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -331,7 +331,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   // set runTypes (use resize() on purpose!)
 
   runTypes_.resize(30);
-  for ( int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
+  for ( unsigned int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
@@ -1013,8 +1013,8 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   if ( rt == "UNKNOWN" ) {
     runType_ = -1;
   } else {
-    for ( int i = 0; i < runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] && runType_ != i ) {
+    for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
+      if ( rt == runTypes_[i] && runType_ != int(i) ) {
         runType_ = i;
         cout << endl;
         cout << "Taking Run Type from DB: "
@@ -1397,7 +1397,7 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << " ( " << flush;
-        for ( int i = 0; i < runTypes_.size(); i++ ) {
+        for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
           if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
             string s = runTypes_[i];
             transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );

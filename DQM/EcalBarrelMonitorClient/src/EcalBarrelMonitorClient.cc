@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 15:28:36 $
- * $Revision: 1.386 $
+ * $Date: 2008/02/23 15:37:12 $
+ * $Revision: 1.387 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -328,7 +328,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // set runTypes (use resize() on purpose!)
 
   runTypes_.resize(30);
-  for ( int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
+  for ( unsigned int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
@@ -982,8 +982,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( rt == "UNKNOWN" ) {
     runType_ = -1;
   } else {
-    for ( int i = 0; i < runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] && runType_ != i ) {
+    for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
+      if ( rt == runTypes_[i] && runType_ != int(i) ) {
         runType_ = i;
         cout << endl;
         cout << "Taking Run Type from DB: "
@@ -1365,7 +1365,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << " ( " << flush;
-        for ( int i = 0; i < runTypes_.size(); i++ ) {
+        for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
           if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
             string s = runTypes_[i];
             transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
