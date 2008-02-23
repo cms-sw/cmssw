@@ -210,7 +210,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
    // change by hands:
 
 	// number of station
-	int  mysn0 = 3;
+	int  mysn0 = 2;
 	
 	// number of planes 
 	int  mypn0 = 5;
