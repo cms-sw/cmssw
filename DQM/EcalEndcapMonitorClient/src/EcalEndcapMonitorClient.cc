@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/23 15:37:29 $
- * $Revision: 1.146 $
+ * $Date: 2008/02/23 15:40:20 $
+ * $Revision: 1.147 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1014,13 +1014,15 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
     runType_ = -1;
   } else {
     for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] && runType_ != int(i) ) {
-        runType_ = i;
-        cout << endl;
-        cout << "Taking Run Type from DB: "
-             << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] )
-             << endl;
-        cout << endl;
+      if ( rt == runTypes_[i] ) {
+        if ( runType_ != int(i) ) {
+          cout << endl;
+          cout << "Taking Run Type from DB: "
+               << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] )
+               << endl;
+          cout << endl;
+          runType_ = i;
+        }
         break;
       }
     }
@@ -1141,7 +1143,6 @@ void EcalEndcapMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( verbose_ ) cout << ">> " << clientsNames_[i] << endl;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
@@ -1623,7 +1624,6 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( verbose_ ) cout << ">> " << clientsNames_[i] << endl;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
         if ( runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && clientsNames_[i] == "Pedestal" && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
