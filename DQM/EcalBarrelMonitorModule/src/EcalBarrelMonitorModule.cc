@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/22 19:47:11 $
- * $Revision: 1.166 $
+ * $Date: 2008/02/15 10:40:27 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,6 +16,8 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
