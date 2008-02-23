@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.11 2008/01/22 19:54:03 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.12 2008/02/15 07:11:53 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2008/01/22 19:54:03 $
+  \version $Revision: 1.12 $
+  \date $Date: 2008/02/15 07:11:53 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -46,8 +46,6 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string x
   if ( dbe_ ) {
 
     dbe_->setCurrentFolder("EcalBarrel/MonitorElementsDb");
-
-    //meTemp_ = dbe_->book2D("TEMP", "TEMP", 17, -0.5, 16.5, 10, -0.5, 9.5);
 
     parser_ = new MonitorXMLParser( xmlFile_ );
     try {
@@ -122,8 +120,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
       if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
-        MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(MEs_[i]) );
-        if( ob ) ob->Reset();
+        MEs_[i]->Reset();
 
         vars.clear();
 
