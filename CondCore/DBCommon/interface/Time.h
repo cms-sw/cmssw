@@ -5,8 +5,8 @@ namespace cond{
   //typedef unsigned int Time_t;
   typedef unsigned long long Time_t;
   typedef std::pair<Time_t, Time_t> ValidityInterval;
-  enum TimeType{ runnumber=0,timestamp,lumiid };
+  typedef enum { runnumber=0,timestamp,lumiid } TimeType;
   const unsigned int TIMETYPE_LIST_MAX=3;
-  cond::TimeType TimeTypeList[TIMETYPE_LIST_MAX]={runnumber,timestamp,lumiid};
+  const cond::TimeType TimeTypeList[TIMETYPE_LIST_MAX]={runnumber,timestamp,lumiid};
 }
 #endif
