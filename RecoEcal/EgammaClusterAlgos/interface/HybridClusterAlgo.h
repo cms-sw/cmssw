@@ -63,7 +63,7 @@ class HybridClusterAlgo
   // geometry
   const CaloSubdetectorGeometry* geometry;
 
-  SuperClusterShapeAlgo* SCShape_;
+  //  SuperClusterShapeAlgo* SCShape_;
 
   //Set of DetIds that have already been used.
   std::set<DetId> useddetids;
@@ -103,7 +103,7 @@ class HybridClusterAlgo
   ~HybridClusterAlgo() 
   {
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
-     delete SCShape_;
+     //     delete SCShape_;
   } 
 
   //Hand over the map, the geometry, and I'll hand you back clusters.

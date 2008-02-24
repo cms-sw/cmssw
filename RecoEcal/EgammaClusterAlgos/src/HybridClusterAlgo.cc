@@ -43,8 +43,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   //Pass in a pointer to the collection.
   recHits_ = recColl;
   
-  //Pass the geometry
-  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
+  //
+  //  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
 
   if ( debugLevel_ == pDEBUG ) {
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
@@ -433,6 +433,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     posY /= ClusterE;
     posZ /= ClusterE;
 
+    /* //This part is moved to EgammaSCEnergyCorrectionAlgo
     double preshowerE = 0.;
     double phiWidth = 0.;
     double etaWidth = 0.;
@@ -444,6 +445,9 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     //Assign phiWidth & etaWidth to SuperCluster as data members
     suCl.setPhiWidth(phiWidth);
     suCl.setEtaWidth(etaWidth);
+    */
+
+    reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc);
 
     SCcoll.push_back(suCl);
     
