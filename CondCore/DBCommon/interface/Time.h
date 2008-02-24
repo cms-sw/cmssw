@@ -8,5 +8,6 @@ namespace cond{
   typedef enum { runnumber=0,timestamp,lumiid } TimeType;
   const unsigned int TIMETYPE_LIST_MAX=3;
   const cond::TimeType TimeTypeList[TIMETYPE_LIST_MAX]={runnumber,timestamp,lumiid};
+  static const Time_t TIMELIMIT(0xFFFFFFFF);
 }
 #endif
