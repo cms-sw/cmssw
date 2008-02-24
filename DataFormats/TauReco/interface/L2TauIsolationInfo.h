@@ -24,9 +24,10 @@ class L2TauIsolationInfo
   double ECALIsolConeCut; //ECAL : Isolation Cones cut
   int ECALIsolDiscriminator; //ECAL :Isolation Cones Answer
 
+  double SeedTowerEt;//Seed CaloTower Et
   double TowerIsolConeCut;//ECAL+HCAL : Isolation Cones Cut
   int TowerIsolDiscriminator;//ECAL+HCAL:Isolation Cones Discriminator
-
+  
   int ECALClusterNClusters;//ECAL Clustering : N Clusters
   double ECALClusterEtaRMS;//ECAL Clustering : Eta RMS
   double ECALClusterPhiRMS;//ECAL Clustering : Phi RMS
@@ -49,6 +50,7 @@ class L2TauIsolationInfo
       ECALClusterPhiRMS=0.;
       ECALClusterDRRMS=0.;
       ECALClusterDiscriminator=0;
+      SeedTowerEt=0.;
 
     }
   //Destructor
