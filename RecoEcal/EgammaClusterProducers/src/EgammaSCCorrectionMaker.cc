@@ -8,6 +8,14 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+
 #include <string>
 
 EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
@@ -62,7 +70,21 @@ void
 EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   using namespace edm;
-   
+
+  // get the collection geometry:
+  edm::ESHandle<CaloGeometry> geoHandle;
+  es.get<IdealGeometryRecord>().get(geoHandle);
+  const CaloGeometry& geometry = *geoHandle;
+  const CaloSubdetectorGeometry *geometry_p;
+
+  if(rHInputCollection_ == "EcalRecHitsEB") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  } else if(rHInputCollection_ == "EcalRecHitsEE") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  } else if(rHInputCollection_ == "EcalRecHitsPS") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  } else throw(std::runtime_error("\n\nSCCorrectionMaker encountered invalied ecalhitcollection type.\n\n"));
+  
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
   try { 
@@ -96,14 +118,21 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     {
       reco::SuperCluster newClus;
       if(applyEnergyCorrection_) {
-        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
+	//        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
+        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p);
       }
 
       if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
 	//Print out bool parameter showing which energy corr is applied 
 	//and corrected energy of SC before placing SCs in collection
-	std::cout << "boolPar & CorrEnergy " << oldEnergyScaleCorrection_ 
-		  << " : " << newClus.energy() << std::endl;
+	//std::cout << "boolPar & CorrEnergy " << oldEnergyScaleCorrection_ 
+	//	  << " : " << newClus.energy() << std::endl;
+	//std::cout << "Keti's debug 1 " << "\n"
+	//	  << " Parameters of corrected SCs " << "\n"
+	//	  << " energy = " << newClus.energy() <<"\n"
+	//	  << " pw = " << newClus.phiWidth() << "\n"
+	//	  << " ew = " << newClus.etaWidth() << std::endl;
+
 	corrClusters->push_back(newClus);
       }
     }
