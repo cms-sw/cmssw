@@ -38,7 +38,8 @@ namespace cond{
     create an editor to a brand new iov
     user aquires the ownership of the pointer. Need explicit delete after usage
     */
-    IOVEditor* newIOVEditor();
+    IOVEditor* newIOVEditor( const cond::Time_t firstsince=0,
+			     const cond::Time_t lasttill=cond::TIMELIMIT);
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;

@@ -13,6 +13,8 @@ namespace cond{
     virtual ~IOV(){}
     //std::map<unsigned long long,std::string> iov;
     std::map<cond::Time_t,std::string> iov;
+    int timetype;
+    cond::Time_t firstsince;
   };
 }//ns cond
 #endif

@@ -7,14 +7,17 @@
 cond::IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
 				    const std::string& token,
 				    cond::Time_t globalSince, 
-				    cond::Time_t globalTill
-				    ):m_pooldb(&pooldb),m_token(token),m_globalSince(globalSince),m_globalTill(globalTill),m_isActive(false){
+				    cond::Time_t globalTill,
+				    cond::TimeType timetype=cond::runnumber
+				    ):m_pooldb(&pooldb),m_token(token),m_globalSince(globalSince),m_globalTill(globalTill),m_timetype(timetype),m_isActive(false){
 }
 void cond::IOVEditorImpl::init(){
   if(!m_token.empty()){
     m_iov=cond::TypedRef<cond::IOV>(*m_pooldb, m_token); 
   }else{
     m_iov=cond::TypedRef<cond::IOV>(*m_pooldb,new cond::IOV);
+    m_iov->timetype=(int)m_timetype;
+    m_iov->firstsince=m_globalSince;
   }
   *m_iov;
   m_isActive=true;

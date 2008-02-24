@@ -24,7 +24,8 @@ namespace cond{
     void deleteAll(bool withPayload);
     IOVIterator* newIOVIterator( const std::string& iovToken );
     IOVEditor* newIOVEditor( const std::string& token );
-    IOVEditor* newIOVEditor();
+    IOVEditor* newIOVEditor( const cond::Time_t firstsince,
+			     const cond::Time_t lasttill);    
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;

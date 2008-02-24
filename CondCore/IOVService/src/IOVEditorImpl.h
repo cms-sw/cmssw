@@ -10,7 +10,8 @@ namespace cond{
     IOVEditorImpl( cond::PoolTransaction& pooldb,
 		   const std::string& token,
 		   cond::Time_t globalSince, 
-		   cond::Time_t globalTill);
+		   cond::Time_t globalTill,
+		   cond::TimeType timetype);
     /// Destructor
     virtual ~IOVEditorImpl();
     /// Assign a payload with till time. Returns the payload index in the iov sequence
@@ -34,6 +35,7 @@ namespace cond{
     std::string m_token;
     cond::Time_t m_globalSince;
     cond::Time_t m_globalTill;
+    cond::TimeType m_timetype;
     bool m_isActive;
     cond::TypedRef<cond::IOV> m_iov;
   };

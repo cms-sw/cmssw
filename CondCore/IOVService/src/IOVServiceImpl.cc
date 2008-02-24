@@ -115,11 +115,12 @@ cond::IOVServiceImpl::newIOVIterator( const std::string& iovToken ){
 }
 cond::IOVEditor* 
 cond::IOVServiceImpl::newIOVEditor( const std::string& iovToken ){
-  return new cond::IOVEditorImpl(*m_pooldb, iovToken, m_beginOftime, m_endOftime );
-}
+  return new cond::IOVEditorImpl(*m_pooldb, iovToken, m_beginOftime, m_endOftime,m_timetype );
+} 
 cond::IOVEditor* 
-cond::IOVServiceImpl::newIOVEditor( ){
-  return new cond::IOVEditorImpl(*m_pooldb, "", m_beginOftime, m_endOftime );
+cond::IOVServiceImpl::newIOVEditor(const cond::Time_t firstsince,
+				   const cond::Time_t lasttill){
+  return new cond::IOVEditorImpl(*m_pooldb, "", firstsince, lasttill,m_timetype );
 }
 cond::TimeType 
 cond::IOVServiceImpl::timeType() const{
