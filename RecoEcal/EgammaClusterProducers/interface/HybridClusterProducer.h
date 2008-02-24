@@ -29,7 +29,6 @@ class HybridClusterProducer : public edm::EDProducer
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
