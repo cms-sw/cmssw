@@ -35,7 +35,7 @@ echo " You can also get the list of the data format errors in the mem or trigger
 echo ""
 echo "Options:"
 echo ""
-echo "      -p|--path_file        file_path       path to the data to be analyzed (default is /data/ecalod-22/daq-data/)"
+echo "      -p|--path_file        file_path       data file to be analyzed preceeded by path"
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last  (as written to file) event that will be analyzed; default is 9999"
@@ -168,23 +168,38 @@ echo ""
 
 
 
+if [[ $extension == "root" ]]; then
+  input_module="
+# if getting data from a .root pool file
+  source = PoolSource {
+    untracked uint32 skipEvents = $first_event
+      untracked vstring fileNames = { 'file:$data_path' }
+    untracked bool   debugFlag     = true
+   }"
+else
+  input_module="
+     source = NewEventStreamFileReader{
+       untracked uint32 skipEvents = $first_event
+       untracked vstring fileNames = { 'file:$data_path' }
+       untracked uint32 debugVebosity = 10
+       untracked bool   debugFlag     = true
+     }" 
+fi
+
+
+
 
 cat > "$cfg_path$data_file".digi.$$.cfg <<EOF
 
-process TESTDUMPER = { 
+process TESTDIGIDUMPER = { 
 
 include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerMapping.cfi" 
 include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi" 
 
-# if getting data from a .root pool file
-       source = PoolSource {
-               untracked uint32 skipEvents = $first_event
-               #untracked vstring fileNames = { 'file:$data_path$data_file' }
-               untracked vstring fileNames = { 'file:$data_path' }
-           untracked bool   debugFlag     = true
-          }
 
   untracked PSet maxEvents = {untracked int32 input = $last_event}
+
+$input_module
 
   include "CaloOnlineTools/EcalTools/data/ecalDigiDisplay.cfi"
 
