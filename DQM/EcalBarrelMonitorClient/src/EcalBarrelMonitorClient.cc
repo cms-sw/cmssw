@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/24 09:27:06 $
- * $Revision: 1.394 $
+ * $Date: 2008/02/24 09:30:56 $
+ * $Revision: 1.395 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -985,6 +985,20 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   // end - setup the RunIOV (on behalf of the DAQ)
 
+  cout << endl;
+  cout << "=============RunIOV:" << endl;
+  cout << "Run Number:         " << runiov_.getRunNumber() << endl;
+  cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
+  cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
+  cout << "====================" << endl;
+  cout << endl;
+  cout << "=============RunTag:" << endl;
+  cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
+  cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
+  cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
+  cout << "====================" << endl;
+  cout << endl;
+
   string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
   if ( rt == "UNKNOWN" ) {
     runType_ = -1;
@@ -1001,20 +1015,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       }
     }
   }
-
-  cout << endl;
-  cout << "=============RunIOV:" << endl;
-  cout << "Run Number:         " << runiov_.getRunNumber() << endl;
-  cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
-  cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "=============RunTag:" << endl;
-  cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
-  cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
-  cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
-  cout << "====================" << endl;
-  cout << endl;
 
   if ( maskFile_.size() != 0 ) {
     try {
