@@ -16,20 +16,19 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/03 02:57:10 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/18 10:54:54 dmytro Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
 
 // forward declarations
 
 class TEveGeoShapeExtract;
-
 class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
 
@@ -50,6 +49,9 @@ class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem, 
                                TEveElementList** product);
 
+      std::pair<int,int>        getiEtaRange( const reco::CaloJet& jet );
+      std::pair<double,double>  getPhiRange( const reco::CaloJet& jet );
+     
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
    
       CaloJetProxyRhoPhiZ2DBuilder(const CaloJetProxyRhoPhiZ2DBuilder&); // stop default

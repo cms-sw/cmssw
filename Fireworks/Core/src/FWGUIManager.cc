@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.4 2008/02/21 16:09:58 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.5 2008/02/21 20:49:11 chrjones Exp $
 //
 
 // system include files
@@ -64,6 +64,9 @@ m_code(0)
    
    TEveManager::Create();
    TEveBrowser* browser = gEve->GetBrowser();
+   // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
+   // browser->MoveResize(f->GetX(), f->GetY(), f->GetWidth(), f->GetHeight());
+   // browser->Resize( gClient->GetDisplayWidth(), gClient->GetDisplayHeight() );
    
    //should check to see if already has our tab
    {

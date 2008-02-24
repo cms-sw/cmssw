@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/03 02:57:10 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/02/18 10:53:56 dmytro Exp $
 //
 
 // system include files
@@ -204,7 +204,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements(const char* name,
       extract->SetRGBA(rgba);
       extract->SetRnrSelf(kTRUE);
       extract->SetRnrElements(kTRUE);
-      extract->SetShape( new TGeoTrap(size,0,0,1,r_trap_min/2,r_trap_min/2,0,1,r_trap_max/2,r_trap_max/2,0) );
+      extract->SetShape( new TGeoTrap(size,0,0,0.001,r_trap_min/2,r_trap_min/2,0,0.001,r_trap_max/2,r_trap_max/2,0) );
       container->AddElement( extract );
    }
    return container;
@@ -263,7 +263,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements(const char* name,
    extract->SetRGBA(rgba);
    extract->SetRnrSelf(kTRUE);
    extract->SetRnrElements(kTRUE);
-   extract->SetShape( new TGeoTrap(size,0,0,1,r_trap_min/2,r_trap_min/2,0,1,r_trap_max/2,r_trap_max/2,0) );
+   extract->SetShape( new TGeoTrap(size,0,0,0.001,r_trap_min/2,r_trap_min/2,0,0.001,r_trap_max/2,r_trap_max/2,0) );
    return extract;
 }
 

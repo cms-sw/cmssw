@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/03 02:57:10 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/18 10:54:55 dmytro Exp $
 //
 
 // system include files
@@ -21,11 +21,14 @@
 #include "TH1F.h"
 #include "TColor.h"
 #include "TROOT.h"
+#include "TEvePointSet.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+#include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -79,29 +82,17 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       return;
    }
    
-   double minJetEt = 15; // less energetic jets will be invisible
-   // double z_ecal = 304.5; // ECAL endcap inner surface
-   double r = 128;
-   double jetPhiSize = 0.5;
-   // double transition_angle = atan(r/z_ecal);
-   // double r_trap_min = 0;
-   // double r_trap_max = r*jetPhiSize;
-   double offset = 0;
+   double r_ecal = 129;
+   double scale = 2;
    
    unsigned int i = 0;
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-      if (jet->pt()<minJetEt) continue;
+
       TEveTrans t;
-      // t(1,1) = 0; t(1,2) = 0; t(1,3) = 1;
-      // t(2,1) = 1; t(2,2) = 0; t(2,3) = 0;
-      // t(3,1) = 0; t(3,2) = 1; t(3,3) = 0;
-      // t(1,4) = r/2; t(2,4) = 0; t(3,4) = 0;
-      // t.RotatePF(1,2, offset+jet->phi() );
-      t(1,1) = 1; t(1,2) = 0; t(1,3) = 1;
+      t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
       t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
       t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
       t(1,4) = 0; t(2,4) = 0; t(3,4) = 0;
-      t.RotatePF(1,2, offset+jet->phi() );
       std::ostringstream s;
       s << "Jet " << i;
       ++i;
@@ -115,18 +106,59 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	 rgba[1] = c->GetGreen();
 	 rgba[2] = c->GetBlue();
       }
+
+      std::pair<double,double> phiRange = getPhiRange( *jet );
+      double min_phi = phiRange.first-M_PI/36/2;
+      double max_phi = phiRange.second+M_PI/36/2;
       
+      double phi = jet->phi();
+      double dPhi1 = max_phi - phi;
+      double dPhi2 = phi - min_phi;
+
       extract->SetRGBA(rgba);
       extract->SetRnrSelf(kTRUE);
       extract->SetRnrElements(kTRUE);
-      // extract->SetShape( new TGeoTrap(r/2,0,0,1,r_trap_min/2,r_trap_min/2,0,1,r_trap_max/2,r_trap_max/2,0) );
-      TGeoSphere* shape = new TGeoSphere(double(0),r, 89.99, 90.01, -180/M_PI*jetPhiSize/2, 180/M_PI*jetPhiSize/2 );
-      shape->SetNumberOfDivisions(1);
-      extract->SetShape( shape );
-      // extract->SetShape( new TGeoTubeSeg(double(0),r,1,-180/M_PI*jetPhiSize/2, 180/M_PI*jetPhiSize/2) );
+      
+      double size = scale*jet->et();
+      Double_t points[16];
+      
+      // define outer edge
+      double rho = (r_ecal+size)/cos(dPhi1);
+      points[2] = rho*cos(max_phi);
+      points[3] = rho*sin(max_phi);
+      rho = (r_ecal+size)/cos(dPhi2);
+      points[4] = rho*cos(min_phi);
+      points[5] = rho*sin(min_phi);
+      rho = r_ecal/cos(dPhi1);
+      points[0] = rho*cos(max_phi);
+      points[1] = rho*sin(max_phi);
+      rho = r_ecal/cos(dPhi2);
+      points[6] = rho*cos(min_phi);
+      points[7] = rho*sin(min_phi);
+      
+      for( int i = 0; i<8; ++i ) points[i+8] = points[i];
+      extract->SetShape( new TGeoArb8(0,points) );
       TEveElement* element = TEveGeoShape::ImportShapeExtract( extract, 0 );
       element->SetMainTransparency(90);
+      
+      /*
+      TEveStraightLineSet* marker = new TEveStraightLineSet("jet centroid");
+      marker->SetLineWidth(4);
+      marker->SetLineColor(  tList->GetMainColor() );
+      marker->AddLine(0., (jet->phi()>0 ? (r-5)*fabs(sin(theta)) : -(r-5)*fabs(sin(theta))), (r-5)*cos(theta),
+		      0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+      element->AddElement(marker);
+       */
+      
+      TEvePointSet *marker2 = new TEvePointSet("jet centroid", 1);
+      marker2->SetNextPoint(r_ecal*cos(phi),r_ecal*sin(phi),0);
+      marker2->SetMarkerSize(2);
+      marker2->SetMarkerStyle(20);
+      marker2->SetMarkerColor(tList->GetMainColor());
+      element->AddElement(marker2);
+      
       tList->AddElement( element );
+
    }
 }
 
@@ -135,7 +167,6 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
-
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"Jets RhoZ",true);
       *product = tList;
@@ -151,24 +182,24 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloJets"<<std::endl;
       return;
    }
-   double minJetEt = 15; // less energetic jets will be invisible
-   double z = 300; // ECAL endcap inner surface
-   double r = 120;
-   double jetSize = 0.5;
-   double transition_angle = atan(r/z);
-   // double r_trap_min = 0;
-   // double r_trap_max = r*jetPhiSize;
-   // double offset = 0;
+   
+   // NOTE:
+   //      We derive eta bin size from xbins array used for LEGO assuming that all 82
+   //      eta bins are accounted there. 
+   assert ( sizeof(fw3dlego::xbins)/sizeof(*fw3dlego::xbins) == 82+1 );
+   static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
+
+   
+   double scale = 2;
+   double z_ecal = 304.5; // ECAL endcap inner surface
+   double r_ecal = 129;
+   double transition_angle = atan(r_ecal/z_ecal);
    
    unsigned int i = 0;
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-      if (jet->pt()<minJetEt) continue;
+      std::pair<int,int> iEtaRange = getiEtaRange( *jet );
+      
       TEveTrans t;
-      // t(1,1) = 0; t(1,2) = 0; t(1,3) = 1;
-      // t(2,1) = 1; t(2,2) = 0; t(2,3) = 0;
-      // t(3,1) = 0; t(3,2) = 1; t(3,3) = 0;
-      // t(1,4) = r/2; t(2,4) = 0; t(3,4) = 0;
-      // t.RotatePF(1,2, offset+jet->phi() );
       t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
       t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
       t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
@@ -191,62 +222,144 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       extract->SetRGBA(rgba);
       extract->SetRnrSelf(kTRUE);
       extract->SetRnrElements(kTRUE);
-      double min_theta = getTheta(jet->eta()+jetSize);
-      double max_theta = getTheta(jet->eta()-jetSize);
-      Double_t points[16];
-      points[0] = 0;
-      points[1] = 0;
+      double max_theta = thetaBins[iEtaRange.first].first;
+      double min_theta = thetaBins[iEtaRange.second].second;;
       
-      if ( max_theta > M_PI - transition_angle )
+      double theta = jet->theta();
+      double dTheta1 = max_theta - theta;
+      double dTheta2 = theta - min_theta;
+      
+      // distance from the origin of the jet centroid
+      // energy is measured from this point
+      // if jet is made of a single tower, the length of the jet will 
+      // be identical to legth of the displayed tower
+      double r(0); 
+      if ( theta < transition_angle || M_PI-theta < transition_angle )
+	r = z_ecal/fabs(cos(theta));
+      else
+	r = r_ecal/sin(theta);
+      
+      double size = scale*jet->et();
+      
+      // Shape:
+      //   energy - distance from the center of inner most edge to the 
+      //            center of the outer most edge
+      Double_t points[16];
+      
+      // define outer edge
+      double rho = (r+size)/cos(dTheta1);
+      points[2] = rho*cos(max_theta);
+      points[3] = jet->phi()>0 ? rho*sin(max_theta) : -rho*sin(max_theta);
+      rho = (r+size)/cos(dTheta2);
+      points[4] = rho*cos(min_theta);
+      points[5] = jet->phi()>0 ? rho*sin(min_theta) : -rho*sin(min_theta);
+	
+/*      // inner edge:
+      // - horizontal if jet is contained in the barrel
+      // - vertical if jet is contained in the endcaps
+      // - parallel to the outer edge if in the transition area
+      
+      if ( max_theta < M_PI - transition_angle && min_theta > transition_angle )
 	{
-	   points[6] = -z;
-	   points[7] = jet->phi()>0 ? z*fabs(tan(max_theta)) : -z*fabs(tan(max_theta));
-	} else 
-	if ( max_theta < transition_angle ) {
-	   points[6] = z;
-	   points[7] = jet->phi()>0 ? z*fabs(tan(max_theta)) : -z*fabs(tan(max_theta));
-	} else {
-	   points[6] = r/tan(max_theta);
-	   points[7] = jet->phi()>0 ? r : -r;
+	   points[0] = r_ecal/tan(max_theta);
+	   points[1] = jet->phi()>0 ? r_ecal : -r_ecal;
+	   points[6] = r_ecal/tan(min_theta);
+	   points[7] = jet->phi()>0 ? r_ecal : -r_ecal;
 	}
       
       if ( min_theta > M_PI - transition_angle )
 	{
-	   points[2] = -z;
-	   points[3] = jet->phi()>0 ? z*fabs(tan(min_theta)) : -z*fabs(tan(min_theta));
-	} else 
-	if ( min_theta < transition_angle ) {
-	   points[2] = z;
-	   points[3] = jet->phi()>0 ? z*fabs(tan(min_theta)) : -z*fabs(tan(min_theta));
-	} else {
-	   points[2] = r/tan(min_theta);
-	   points[3] = jet->phi()>0 ? r : -r;
+	   points[0] = -z_ecal;
+	   points[1] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
+	   points[6] = -z_ecal;
+	   points[7] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
 	}
       
-      if ( min_theta < M_PI - transition_angle && max_theta > M_PI - transition_angle )
+      if ( max_theta < transition_angle )
 	{
-	   points[4] = -z;
-	   points[5] = jet->phi()>0 ? r : -r;
-	} else
-	if ( min_theta < transition_angle && max_theta > transition_angle ) {
-	   points[4] = z;
-	   points[5] = jet->phi()>0 ? r : -r;
-	} else {
-	   points[4] = points[2];
-	   points[5] = points[3];
+	   points[0] = z_ecal;
+	   points[1] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
+	   points[6] = z_ecal;
+	   points[7] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
 	}
-      
-      std::cout << "Jet theta: " << jet->theta() << std::endl;
-      for( int i = 0; i<8; ++i ){
-	 points[i+8] = points[i];
-	 std::cout << "\t" << points[i];
-      }
-      std::cout << std::endl;
+
+      if ( ( min_theta < transition_angle && max_theta > transition_angle) ||
+	   ( min_theta < M_PI - transition_angle && max_theta > M_PI - transition_angle ) )
+	{
+*/	   rho = r/cos(dTheta1);
+	   points[0] = rho*cos(max_theta);
+	   points[1] = jet->phi()>0 ? rho*sin(max_theta) : -rho*sin(max_theta);
+	   rho = r/cos(dTheta2);
+	   points[6] = rho*cos(min_theta);
+	   points[7] = jet->phi()>0 ? rho*sin(min_theta) : -rho*sin(min_theta);
+//	}
+
+//      printf("Jet (et,theta,phi): (%0.2f,%0.2f, %0.2f), angles (min,max,trans): ((%0.2f,%0.2f, %0.2f)\n",
+//	     jet->et(), jet->theta(), jet->phi(), min_theta, max_theta, transition_angle);
+      for( int i = 0; i<8; ++i ) points[i+8] = points[i];
       extract->SetShape( new TGeoArb8(0,points) );
       TEveElement* element = TEveGeoShape::ImportShapeExtract( extract, 0 );
       element->SetMainTransparency(90);
+      
+      /*
+      TEveStraightLineSet* marker = new TEveStraightLineSet("jet centroid");
+      marker->SetLineWidth(4);
+      marker->SetLineColor(  tList->GetMainColor() );
+      marker->AddLine(0., (jet->phi()>0 ? (r-5)*fabs(sin(theta)) : -(r-5)*fabs(sin(theta))), (r-5)*cos(theta),
+		      0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+      element->AddElement(marker);
+       */
+      
+      TEvePointSet *marker2 = new TEvePointSet("jet centroid", 1);
+      marker2->SetNextPoint(0, (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
+      marker2->SetMarkerSize(2);
+      marker2->SetMarkerStyle(20);
+      marker2->SetMarkerColor(tList->GetMainColor());
+      element->AddElement(marker2);
+      
       tList->AddElement( element );
    }
 }
    
    
+std::pair<int,int> CaloJetProxyRhoPhiZ2DBuilder::getiEtaRange( const reco::CaloJet& jet )
+{
+   int min =  100;
+   int max = -100;
+
+   std::vector<CaloTowerRef> towers = jet.getConstituents();
+   for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin(); 
+	 tower != towers.end(); ++tower ) 
+     {
+	unsigned int ieta = 41 + (*tower)->id().ieta();
+	if ( ieta > 40 ) --ieta;
+	assert( ieta <= 82 );
+	
+	if ( int(ieta) > max ) max = ieta;
+	if ( int(ieta) < min ) min = ieta;
+     }
+   if ( min > max ) return std::pair<int,int>(0,0);
+   return std::pair<int,int>(min,max);
+}
+
+std::pair<double,double> CaloJetProxyRhoPhiZ2DBuilder::getPhiRange( const reco::CaloJet& jet )
+{
+   double min =  100;
+   double max = -100;
+
+   std::vector<CaloTowerRef> towers = jet.getConstituents();
+   for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin(); 
+	 tower != towers.end(); ++tower ) 
+     {
+	double phi = (*tower)->phi();
+	// make phi continuous around jet phi
+	if ( phi - jet.phi() > M_PI ) phi -= 2*M_PI;
+	if ( jet.phi() - phi > M_PI ) phi += 2*M_PI;
+	if ( phi > max ) max = phi;
+	if ( phi < min ) min = phi;
+     }
+   
+   if ( min > max ) return std::pair<double,double>(0,0);
+   
+   return std::pair<double,double>(min,max);
+}
