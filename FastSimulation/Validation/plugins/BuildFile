@@ -1,8 +1,6 @@
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=boost>
 <use name=root>
