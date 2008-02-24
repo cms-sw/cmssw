@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.5 2007/07/16 22:59:56 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.6 2008/01/22 19:13:01 muzaffar Exp $
 
 
 #include <iostream>
@@ -23,6 +23,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 // #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+// #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
@@ -39,8 +41,7 @@ using namespace edm;
 
 
 SiPixelMonitorTrackResiduals::SiPixelMonitorTrackResiduals(const edm::ParameterSet& iConfig) 
-                            : conf_(iConfig),
-                              src_(conf_.getParameter<edm::InputTag>("src")) {
+                            : conf_(iConfig), src_(conf_.getParameter<edm::InputTag>("src")) {
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   // conf_ = iConfig;
   LogInfo("PixelDQM") << "SiPixelMonitorTrackResiduals constructed" << endl;
@@ -62,21 +63,22 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
   LogVerbatim("PixelDQM") << pDD->dets().size() <<" detectors; "
                           << pDD->detTypes().size() <<" types" << endl;
  
-  for (TrackerGeometry::DetContainer::const_iterator it=pDD->dets().begin(); 
-       it!=pDD->dets().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
-      DetId detId = (*it)->geographicalId();
-
-      if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelBarrel)) {
-	uint32_t id = detId();
-	SiPixelResidualModule* module = new SiPixelResidualModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
-      }	
-      else if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelEndcap)) {
-	uint32_t id = detId();
-	SiPixelResidualModule* module = new SiPixelResidualModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
-      }
+  for (TrackerGeometry::DetContainer::const_iterator pxb=pDD->detsPXB().begin(); 
+       pxb!=pDD->detsPXB().end(); pxb++) {
+    if (dynamic_cast<PixelGeomDetUnit*>((*pxb))!=0) {
+      DetId detId = (*pxb)->geographicalId();
+      uint32_t id = detId();
+      SiPixelResidualModule* module = new SiPixelResidualModule(id);
+      thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
+    }
+  }
+  for (TrackerGeometry::DetContainer::const_iterator pxf=pDD->detsPXF().begin(); 
+       pxf!=pDD->detsPXF().end(); pxf++) {
+    if (dynamic_cast<PixelGeomDetUnit*>((*pxf))!=0) {
+      DetId detId = (*pxf)->geographicalId();
+      uint32_t id = detId();
+      SiPixelResidualModule* module = new SiPixelResidualModule(id);
+      thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << thePixelStructure.size() << endl;
