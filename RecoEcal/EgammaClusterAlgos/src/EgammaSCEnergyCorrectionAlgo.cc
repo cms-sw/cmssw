@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.8 2008/02/11 12:56:34 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.9 2008/02/24 15:43:18 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -150,7 +150,8 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   // Return the corrected cluster
   recHits_m->clear();
   return corrCl;
-  
+ 
+  delete SCShape;
 }
 
 //Energy Correction functions
