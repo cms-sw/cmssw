@@ -67,11 +67,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
                                    posCalculator_,
-<<<<<<< HybridClusterProducer.cc
-				   ps.getParameter<bool>("dynamicPhiRoad"),
-=======
                                    ps.getParameter<bool>("dynamicPhiRoad"),
->>>>>>> 1.19
                                    debugL);
 
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
@@ -153,8 +149,8 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   
   //Weird though it is, get the BasicClusters back out of the event.  We need the
   //edm::Ref to these guys to make our superclusters for Hybrid.
-//  edm::Handle<reco::BasicClusterCollection> bccHandle;
- // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
+  //edm::Handle<reco::BasicClusterCollection> bccHandle;
+  // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
   if (!(bccHandle.isValid())) {
     if (debugL <= HybridClusterAlgo::pINFO)
       std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
@@ -184,6 +180,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   for (unsigned int i = 0; i < clusterCollection.size(); i++){
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  
+  
   evt.put(shapeAssocs_p,clusterShapeAssociation_);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
