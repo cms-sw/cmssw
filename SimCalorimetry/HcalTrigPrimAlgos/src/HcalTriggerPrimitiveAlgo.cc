@@ -1,12 +1,16 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w,
-						   int latency)
+						   int latency, uint32_t FG_threshold)
   : incoder_(0), outcoder_(0), theThreshold(0),
-    peakfind_(pf), weights_(w), latency_(latency)
+    peakfind_(pf), weights_(w), latency_(latency), FG_threshold_(FG_threshold)
 {
 }
 
@@ -27,7 +31,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder * incoder,
   outcoder_=outcoder;
 
   theSumMap.clear();
-
+  theFGSumMap.clear();
+  theTowerMapFG.clear();
   // do the HB/HE digis
   for(HBHEDigiCollection::const_iterator hbheItr = hbheDigis.begin();
       hbheItr != hbheDigis.end(); ++hbheItr)
@@ -40,6 +45,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder * incoder,
       hfItr != hfDigis.end(); ++hfItr)
     {
       addSignal(*hfItr);
+      
     }
 
 
@@ -95,6 +101,34 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
     incoder_->adc2Linear(frame, samples);
     
     addSignal(samples);
+        
+    uint32_t fgid;
+
+    // Mask off depths: fgid is the same for both depths
+
+    fgid = (frame.id().rawId() | 0x1c000) ;
+	 
+    SumMapFG::iterator itr = theFGSumMap.find(fgid);
+   
+    if(itr == theFGSumMap.end()) {
+      theFGSumMap.insert(std::make_pair(fgid, samples));
+    } 
+    else {
+      // wish CaloSamples had a +=
+      for(int i = 0; i < samples.size(); ++i) {
+	(itr->second)[i] += samples[i];        
+      }      
+    }
+
+    // Depth =2 is the second entry in map (sum). Use its original Hcal Det Id to obtain trigger tower
+    if (frame.id().depth()==2)
+      {      
+      for(unsigned int n = 0; n < ids.size(); n++)
+      	  {
+          theTowerMapFG.insert(TowerMapFG::value_type(ids[n],itr->second));
+	  }
+      }
+    
   }
 }
 
@@ -107,11 +141,11 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
   } else {
     // wish CaloSamples had a +=
     for(int i = 0; i < samples.size(); ++i) {
-      
-      (itr->second)[i] += samples[i];
+      (itr->second)[i] += samples[i];   
     }
   }
 }
+
 
 void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, 
 				       HcalTriggerPrimitiveDigi & result)
@@ -200,8 +234,20 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
 {
   std::vector<bool> finegrain(samples.size(),false);
   // IntegerCaloSamples sum(samples.id(), samples.size());
-  
-  
+  HcalTrigTowerDetId detId_(samples.id()); 
+   
+  // get information from Tower map
+  for(TowerMapFG::iterator mapItr = theTowerMapFG.begin(); mapItr != theTowerMapFG.end(); ++mapItr)
+    {
+      bool set_fg = false;
+      HcalTrigTowerDetId detId(mapItr->first);
+      if (detId == detId_) {
+	for (int i=0; i < samples.size(); ++i) {
+	  mapItr->second[i] >= FG_threshold_ ? set_fg = true : false;
+	  finegrain[i] = (finegrain[i] || set_fg);
+	}
+      }
+    }  
   IntegerCaloSamples output(samples.id(),samples.size());
   output.setPresamples(samples.presamples());
   //cout<<"Presamples = "<<samples.presamples()<<endl;

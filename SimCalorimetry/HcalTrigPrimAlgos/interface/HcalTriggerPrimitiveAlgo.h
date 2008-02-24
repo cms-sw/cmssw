@@ -17,7 +17,7 @@ class IntegerCaloSamples;
 class HcalTriggerPrimitiveAlgo {
 public:
   HcalTriggerPrimitiveAlgo(bool pf, 
-			   const std::vector<double>& w, int latency);
+			   const std::vector<double>& w, int latency, uint32_t FG_threshold);
   ~HcalTriggerPrimitiveAlgo();
 
   void run(const HcalTPGCoder * incoder,
@@ -31,7 +31,7 @@ public:
   void addSignal(const HBHEDataFrame & frame);
   void addSignal(const HFDataFrame & frame);
   void addSignal(const IntegerCaloSamples & samples);
-
+  void addSignalFG(const IntegerCaloSamples & samples);
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
@@ -45,11 +45,18 @@ public:
 
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;  
+  
+  typedef std::map<uint32_t, IntegerCaloSamples> SumMapFG;
+  SumMapFG theFGSumMap;
+
+  typedef std::multimap<HcalTrigTowerDetId, IntegerCaloSamples> TowerMapFG;
+  TowerMapFG theTowerMapFG;
 
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
   int latency_;
+  uint32_t FG_threshold_;
 };
 
 
