@@ -50,8 +50,8 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   /// get hold of back-end interfacestd::cout<<"\n test"<<std::endl;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  //edm::Service<MonitorDaemon> daemon;
+  //daemon.operator->();
 
   /*
 
@@ -326,6 +326,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
 	std::string rpccham1=r23;
 	std::string monitel1=detUnitLabel;
+	monitel1.erase(1,1);
 	if (rpccham1==monitel1) {
 	  
 	  //RB2in_Middle
@@ -339,9 +340,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	ChamberNr.insert( make_pair( r25, i) );	
 	
 	std::string rpccham=r26;
-	std::string monitel=detUnitLabel;
-	
-	if(rpccham==monitel) {
+		
+	if(rpccham==monitel1) {
 	  i++;
 	  //RB2out_Middle
 	  ChamberNr.insert( make_pair( r26, i) );
@@ -389,10 +389,14 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		
 	std::string label;
 	int nrnr;
-	if(ChamberNr.find(detUnitLabel) != ChamberNr.end()) {
+	
+	std::string Yaxis=detUnitLabel;
+	Yaxis.erase (1,1);
+	std::cout<<Yaxis<<std::endl;
+	if(ChamberNr.find(Yaxis) != ChamberNr.end()) {
 	  
 	  //strcpy(layerLabel, ChamberNr.find(label)->second.());
-	  nrnr = ChamberNr.find(detUnitLabel)->second;
+	  nrnr = ChamberNr.find(Yaxis)->second;
 	  //std::cout<<"strip :"<<strip<<"/"<<nrnr<<"/"<<detUnitLabel<<std::endl;
 	  
 	  sprintf(meId, "Occupancy_%s_%d_Sector_%d",ringType.c_str(),detId.ring(),detId.sector());
@@ -400,8 +404,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  
 	  meMap[meId]->Fill(strip, nrnr);
 
-	  std::string Yaxis=detUnitLabel;
-	  Yaxis.erase(0,3);
+	 
+	  Yaxis.erase(0,2);
 	  Yaxis.replace(Yaxis.find("S"),4,"");
 	  Yaxis.erase(Yaxis.find("_")+2,8);
 
@@ -411,7 +415,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	} 
 	else { 
 	  
-	  std::cout<<"Missing Gap !!!"<<meId<<std::endl;
+	  std::cout<<"Missing Gap !!!"<<detUnitLabel<<"/"<<r11<<std::endl;
 	  nrnr= 0;
 	}
 	
