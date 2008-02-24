@@ -36,6 +36,19 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
 					       edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0 ) const ;
   
+  /// compare reco to sim the handle of reco::Track and TrackingParticle collections
+  reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
+					       edm::Handle<TrackingParticleCollection>& tPCH, 
+					       const edm::Event * event = 0) const {
+    return TrackAssociatorBase::associateRecoToSim(tCH,tPCH,event);
+  }
+  
+  /// compare reco to sim the handle of reco::Track and TrackingParticle collections
+  reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
+					       edm::Handle<TrackingParticleCollection>& tPCH,
+					       const edm::Event * event = 0) const {
+    return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event);
+  }  
 
   //seed
   reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<TrajectorySeedCollection >&, 
