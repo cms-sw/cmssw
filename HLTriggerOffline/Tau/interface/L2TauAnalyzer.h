@@ -51,7 +51,7 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       //Parameters to read
-      std::string triggerPath_; //Path to analyze
+      edm::InputTag  l2TauInfoAssoc_; //Path to analyze
       std::string rootFile_;//Output File Name
 
       // std::string mcColl_;//Matched Collection
@@ -63,7 +63,7 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       //Stuff to be stored (arrays)
 
       int cl_Nclusters,matchBit;
-      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCphi,MCet; 
+      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCet,seedTowerEt,JetEt; 
 
       TFile *l2file;//File to store the histos...
       TTree *l2tree;

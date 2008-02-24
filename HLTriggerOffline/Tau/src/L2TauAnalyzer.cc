@@ -5,7 +5,7 @@
 #include <fstream>
 
 L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
- triggerPath_(iConfig.getParameter<std::string>("TriggerPathInput")),
+ l2TauInfoAssoc_(iConfig.getParameter<edm::InputTag>("L2InfoAssociationInput")),
  rootFile_(iConfig.getParameter<std::string>("outputFileName")),
  IsSignal_(iConfig.getParameter<bool>("IsSignal")),
  mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection")),
@@ -28,12 +28,11 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   cl_phiRMS=0.;
   cl_drRMS=0.;
   MCeta=0.;
-  MCphi=0.;
   MCet=0.;
   cl_Nclusters=0;
- 
+  seedTowerEt = 0.;
   matchBit=0;
-
+  JetEt=0.;
 
   //Setup Branches
   l2tree->Branch("ecalIsol_Et",&ecalIsol_Et,"ecalIsol_Et/F");
@@ -42,11 +41,12 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   l2tree->Branch("cl_phiRMS",&cl_phiRMS,"cl_phiRMS/F");
   l2tree->Branch("cl_drRMS",&cl_drRMS,"cl_drRMS/F");
   l2tree->Branch("MCeta",&MCeta,"MCeta/F");
-  l2tree->Branch("MCphi",&MCphi,"MCphi/F");
   l2tree->Branch("MCet",&MCet,"MCet/F");
   l2tree->Branch("cl_Nclusters",&cl_Nclusters,"cl_Nclusters/I");
   l2tree->Branch("Matched",&matchBit,"matchBit/I");
-
+  l2tree->Branch("seedTower_Et",&seedTowerEt,"seedTower_Et/F");
+  l2tree->Branch("Jet_Et",&JetEt,"Jet_Et/F");
+ 
  
 }
 
@@ -87,8 +87,8 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    try {
      
-     if(triggerPath_=="doubleTau")
-        iEvent.getByLabel("doubleTauL2Producer","L2TauIsolationInfoAssociator",l2TauInfoAssoc);//get the handle
+    
+        iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);//get the handle
 
        }
        catch(...)
@@ -128,9 +128,10 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        cl_etaRMS=l2info.ECALClusterEtaRMS;
        cl_phiRMS=l2info.ECALClusterPhiRMS;
        cl_drRMS=l2info.ECALClusterDRRMS;
-       MCeta =jet.eta();
-       MCphi=jet.phi();
-       MCet=jet.et();
+       seedTowerEt = l2info.SeedTowerEt;
+       MCeta =mcMatch.mcEta;
+       MCet=mcMatch.mcEt;
+       JetEt = jet.et();
 
 
        //Fill Tree
