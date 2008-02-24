@@ -1,6 +1,4 @@
 // Framework headers
-#include "PluginManager/PluginManager.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 // SimpleConfigurable replacement
@@ -11,7 +9,6 @@
 
 // Hector headers
 #include "SimTransport/HectorProducer/interface/HectorProducer.h"
-//#include "SimTransport/Hector/interface/TransportHector.h"
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
 // SimDataFormats headers
@@ -115,4 +112,3 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   iEvent.put( NewProduct ) ;
 }
 
-DEFINE_FWK_MODULE(HectorProducer);
