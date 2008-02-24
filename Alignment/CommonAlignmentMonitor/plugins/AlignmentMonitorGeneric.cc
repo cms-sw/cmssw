@@ -2,6 +2,10 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
+#include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include "TObject.h" 
+
+#include <TString.h>
 
 AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg):
   AlignmentMonitorBase(cfg)
@@ -14,10 +18,10 @@ void AlignmentMonitorGeneric::book()
 
   std::vector<std::string> residNames; // names of residual histograms
 
-  residNames.push_back("x hit residual pull pos track");
-  residNames.push_back("x hit residual pull neg track");
-  residNames.push_back("y hit residual pull pos track");
-  residNames.push_back("y hit residual pull neg track");
+  residNames.push_back("x hit residuals pos track");
+  residNames.push_back("x hit residuals neg track");
+  residNames.push_back("y hit residuals pos track");
+  residNames.push_back("y hit residuals neg track");
 
   const std::vector<Alignable*>& alignables = pStore()->alignables();
 
@@ -33,18 +37,23 @@ void AlignmentMonitorGeneric::book()
     hists.resize(nResidName, 0);
 
     align::ID id = ali->id();
-
-    const std::string& name = idMap.typeToName( ali->alignableObjectId() );
+    align::StructureType type = ali->alignableObjectId();
 
     for (unsigned int n = 0; n < nResidName; ++n)
     {
-      std::string histName = residNames[n] + '/' + align::treeName(id, name);
+      const std::string& name = residNames[n];
 
-      TH1F* hist = new TH1F(histName.c_str(),
-                            histName.c_str(),
-                            nBin_, -5., 5.);
+      TString histName(name.c_str());
+      histName += Form("_%s_%d", idMap.typeToName(type).c_str(), id);
+      histName.ReplaceAll(" ", "");
 
-      hists[n] = static_cast<TH1F*>( add("/iterN/" + residNames[n] + '/', hist) );
+      TString histTitle(name.c_str());
+      histTitle += Form(" for %s with ID %d (subdet %d)",
+			idMap.typeToName(type).c_str(),
+			id, DetId(id).subdetId());
+
+      TH1F* hist = new TH1F(histName, histTitle, nBin_, -5., 5.);
+      hists[n] = static_cast<TH1F*>( add("/iterN/" + name + '/', hist) );
     }
   }
 
