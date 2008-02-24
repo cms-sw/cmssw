@@ -1419,8 +1419,8 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     if(binFactor!=-1) {
       histos_value[iHist]->Rebin(binFactor);
       histos_nominal[iHist]->Rebin(binFactor);
-      histos_value[iHist]->GetXaxis()->SetRangeUser( histos_value[iHist]->GetMean() - 3 * histos_value[iHist]->GetRMS() , 
-						     histos_value[iHist]->GetMean() + 3 * histos_value[iHist]->GetRMS() );
+//      histos_value[iHist]->GetXaxis()->SetRangeUser( histos_value[iHist]->GetMean() - 3 * histos_value[iHist]->GetRMS() , 
+//						     histos_value[iHist]->GetMean() + 3 * histos_value[iHist]->GetRMS() );
       // normalise entries of nominal histo to value histo (useful for pixel)
       if(histos_nominal[iHist]->GetEntries()!=0) histos_nominal[iHist]->Scale(histos_value[iHist]->GetEntries()/histos_nominal[iHist]->GetEntries());
     }
