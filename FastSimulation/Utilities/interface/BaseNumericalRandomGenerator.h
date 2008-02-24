@@ -62,8 +62,8 @@ class BaseNumericalRandomGenerator
 
   const RandomEngine* random;
 
-  double sampling[1000];
-  double f[1000];
+  double sampling[100000];
+  double f[100000];
   double xmin, xmax;
   int n, iter;
   double rmin, deltar;
