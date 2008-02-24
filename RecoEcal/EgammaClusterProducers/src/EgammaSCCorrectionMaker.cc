@@ -127,7 +127,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 	//and corrected energy of SC before placing SCs in collection
 	//std::cout << "boolPar & CorrEnergy " << oldEnergyScaleCorrection_ 
 	//	  << " : " << newClus.energy() << std::endl;
-	//std::cout << "Keti's debug 1 " << "\n"
+	//std::cout << " Check 1 " << "\n"
 	//	  << " Parameters of corrected SCs " << "\n"
 	//	  << " energy = " << newClus.energy() <<"\n"
 	//	  << " pw = " << newClus.phiWidth() << "\n"
