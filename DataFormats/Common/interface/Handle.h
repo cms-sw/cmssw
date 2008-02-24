@@ -23,7 +23,7 @@ If failedToGet() returns true then the requested data is not available
 If failedToGet() returns false but isValid() is also false then no attempt 
   to get data has occurred
 
-$Id: Handle.h,v 1.9 2007/07/13 09:30:12 llista Exp $
+$Id: Handle.h,v 1.10 2007/10/05 21:55:55 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -238,7 +238,7 @@ namespace edm
     if (wrap == 0)
       throw edm::Exception(edm::errors::LogicError,"ConvertType")
       << "edm::Wrapper converting from EDProduct to "
-      << typeid(originalWrap).name();
+      << typeid(*originalWrap).name();
 
     Handle<T> h(wrap->product(), orig.provenance());
     h.swap(result);
