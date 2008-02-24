@@ -40,5 +40,7 @@ class L2TauIsolationSelector : public edm::EDProducer {
       double Cluster_phiRMS_;
       double Cluster_drRMS_;
       int    Cluster_nClusters_;
-
+      double JetEt_;
+      double SeedTowerEt_;
+    
 };

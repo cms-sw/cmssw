@@ -11,7 +11,10 @@ L2TauIsolationSelector::L2TauIsolationSelector(const edm::ParameterSet& iConfig)
   Cluster_etaRMS_(iConfig.getParameter<double>("ClusterEtaRMS")),
   Cluster_phiRMS_(iConfig.getParameter<double>("ClusterPhiRMS")),
   Cluster_drRMS_(iConfig.getParameter<double>("ClusterDRRMS")),
-  Cluster_nClusters_(iConfig.getParameter<int>("ClusterNClusters"))
+  Cluster_nClusters_(iConfig.getParameter<int>("ClusterNClusters")),
+  JetEt_(iConfig.getParameter<double>("MinJetEt")),
+  SeedTowerEt_(iConfig.getParameter<double>("SeedTowerEt"))
+
 {
 
 
@@ -58,12 +61,15 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
 	     const L2TauIsolationInfo l2info = p->val;
-       
+	     //Retrieve the Jet
+	     const CaloJet& jet =*(p->key);
 	     
 	
 	     
 	     //If The Cuts are Satisfied
+	   if(jet.et()>JetEt_) 
 	     if(l2info.ECALIsolConeCut< ECALIsolEt_)
+	       if(l2info.SeedTowerEt>SeedTowerEt_)
 	        if(l2info.ECALClusterNClusters <Cluster_nClusters_)
 		   if(l2info.ECALClusterNClusters <Cluster_nClusters_)
 		     if(l2info.ECALClusterEtaRMS <Cluster_etaRMS_)
@@ -72,7 +78,6 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 			   if(l2info.TowerIsolConeCut<TowerIsolEt_)
 			     {
 			         //Retrieve the Jet From the AssociationMap
-			       const CaloJet& jet =*(p->key);
 
 	   		       l2IsolCaloJets->push_back(*(jet.clone()));
 			     }

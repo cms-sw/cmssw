@@ -12,8 +12,7 @@ L2TauECALCluster::L2TauECALCluster()
   m_phic=0;
   m_et=0;
   m_ncrystals=0;
-  m_etasum=0.;
-  m_phisum=0.;
+
 
 }
 
@@ -21,8 +20,6 @@ L2TauECALCluster::L2TauECALCluster(const math::PtEtaPhiELorentzVector& c)
 {
   m_etac= c.eta();
   m_phic= c.phi();
-  m_etasum=0;
-  m_phisum=0;
   m_ncrystals=0;
   m_et=0;
 
@@ -65,48 +62,42 @@ L2TauECALCluster::addCrystal(const math::PtEtaPhiELorentzVector& crystal)
   
 
   m_ncrystals++;
-  m_et+=et;
-  
-  m_etasum+=et*eta;
-  m_etac=m_etasum/m_et;
 
-
+  m_etac=(m_etac*m_et+eta*et)/(et+m_et);
+ 
   //Take care of the Phi Boundary when recalcluating Cluster Center
 
-  if(fabs(phi)<2.8)
+  double tmpphi = fabs(m_phic-phi);
+  double d = fabs(tmpphi-2*M_PI);
+
+  if(tmpphi>1.5) //Problem
     {
-      m_phisum+=et*phi;
-      m_phic=m_phisum/m_et;
+
+      if(phi>m_phic) 
+	{
+	  phi=m_phic-d;
+	}
+      else
+	{
+	  phi=m_phic+d;
+	}
+
+      m_phic=(m_phic*m_et+phi*et)/(et+m_et);
+      
+      if(m_phic<-M_PI)
+	m_phic=2*M_PI+m_phic;
+      if(m_phic>M_PI)
+	m_phic=m_phic-2*M_PI;
     }
   else
     {
-      if(phi*m_phic>0) //no boundary issue
-	{
-	  m_phisum+=et*phi;
-	  m_phic=m_phisum/m_et;
-	}
-      else //Cluster on the boundary- Be Carefull
-	{
-	  if(phi>0) 
-	    m_phisum-=et*phi;
-	  else
-	    m_phisum+=et*phi;
+      m_phic=(m_phic*m_et+phi*et)/(et+m_et);
     
-	  m_phic = m_phisum/m_et;
-
-	  if(m_phic>M_PI) 
-	    m_phic-=2*M_PI;
-	  else if(m_phic<-M_PI) 
-	    m_phic+=2*M_PI;
-    
-	}
     }
 
-
+  m_et+=et;
   
-  
-    
-}
+ }
 
 
 //CLASS IMPLEMENTATION L2TauECALClustering-------------------------------------
@@ -141,7 +132,7 @@ L2TauECALClustering::run(const math::PtEtaPhiELorentzVectorCollection& hits,cons
 
   //Fill info Class
    
-     std::vector<double> rms  = clustersRMS(jet);
+     std::vector<double> rms  = clusterSeperation(jet);
      l2info.ECALClusterNClusters=nClusters();
      l2info.ECALClusterEtaRMS=rms[0];
      l2info.ECALClusterPhiRMS=rms[1];
@@ -230,7 +221,7 @@ L2TauECALClustering::clusterize(const math::PtEtaPhiELorentzVectorCollection& my
       }
    else
      {
-       printf("L2TauClustering : No ECAL Hits - Nothing to be done\n");  
+
        return;
      }
 }
@@ -244,7 +235,7 @@ L2TauECALClustering::nClusters() const
 
 
 std::vector<double> 
-L2TauECALClustering::clustersRMS(const CaloJet& jet) const
+L2TauECALClustering::clusterSeperation(const CaloJet& jet) const
 {
   double eta_rms=0.;
   double phi_rms=0.;
@@ -261,23 +252,18 @@ L2TauECALClustering::clustersRMS(const CaloJet& jet) const
     {
       for(L2TauECALClusterIt c = m_clusters.begin();c!=m_clusters.end();++c) //loop on clusters
 	{
-	  eta_rms+=c->et()*pow(c->etac()-jet_eta,2);
+	  eta_rms+=pow(c->etac()-jet_eta,2);
 
 	  tmpdphi=c->phic()-jet_phi;
 	  if(fabs(tmpdphi) > M_PI)
 	    tmpdphi = fabs( fabs(tmpdphi) - 2*M_PI);
 	  
-	  phi_rms+= c->et()*pow(tmpdphi,2);
-	  dr_rms+=c->et()*(pow(c->etac()-jet_eta,2)+pow(tmpdphi,2));
+	  phi_rms+=pow(tmpdphi,2);
+	  dr_rms+=(pow(c->etac()-jet_eta,2)+pow(tmpdphi,2));
 	  
 
 	}
-      eta_rms=sqrt(eta_rms/m_clusters.size());
-      phi_rms=sqrt(phi_rms/m_clusters.size());
-      dr_rms=sqrt(phi_rms/m_clusters.size());
-      
-
-    
+         
     }
   else
     {
@@ -401,25 +387,35 @@ L2TauTowerIsolation::run(const CaloJet& jet, L2TauIsolationInfo& l2info)
 {
   //Calculate Isolation Energy
   double etIsol = isolatedEt(jet);
-  
+  double seedEt = seedTowerEt(jet);
   
   //Fill Trigger Info Class
   l2info.TowerIsolConeCut = etIsol; 
-
+  l2info.SeedTowerEt = seedEt;
 
 
  
 }
 
 
+double 
+L2TauTowerIsolation::seedTowerEt(const CaloJet& jet) const
+{
+  //get the sorted calotower collection
+  std::vector<CaloTowerRef> towers = jet.getConstituents();
+ 
+  if(towers.size()>0)
+    return (**(towers.begin())).et();
+  else
+    return 0;
+
+
+}
+
 
 double 
 L2TauTowerIsolation::isolatedEt(const CaloJet& jet) const
 {
-  //Get The CaloJet from the Jet by dynamic_cast
- 
-
-
   //get the CaloTowers from the jet
   std::vector<CaloTowerRef> towers = jet.getConstituents();
   

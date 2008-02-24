@@ -54,10 +54,6 @@ class L2TauECALCluster
   //Number of crystals
   int m_ncrystals;
 
-  //Sum of Eta and Phi (Et weighted..) for calculating new centers..
-  double m_etasum;
-  double m_phisum;
-
 };
 
 typedef std::vector<L2TauECALCluster> L2TauECALClusterCollection;
@@ -96,7 +92,7 @@ class L2TauECALClustering
   void clusterize(const math::PtEtaPhiELorentzVectorCollection&); //Do Clustering
   double deltaR(const math::PtEtaPhiELorentzVector&,const L2TauECALCluster&) const;//DeltaR (corr) between Crystal,Cluster
   int nClusters() const; //Number of Clusters
-  std::vector<double> clustersRMS(const CaloJet&) const; //Cluster RMS Values
+  std::vector<double> clusterSeperation(const CaloJet&) const; //Spreading of Clusters
   
   
 
@@ -153,7 +149,7 @@ class L2TauTowerIsolation
  private:
   //METHODS;
   double isolatedEt(const CaloJet&) const;
-
+  double seedTowerEt(const CaloJet&) const; 
 
   //VARIABLES;
   double m_innerCone;
