@@ -24,7 +24,7 @@ class EgammaSCEnergyCorrectionAlgo
     ~EgammaSCEnergyCorrectionAlgo();
 
     // take a SuperCluster and return a corrected SuperCluster
-    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo);
+    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry);
  
     // function to set the verbosity level
     void setVerbosity(VerbosityLevel verbosity)
