@@ -64,7 +64,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   
   //check expected trigger tower id
   if( expTowerID_ != towerId_ &&
-      expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){
+      expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC-1) ){
     
     edm::LogWarning("EcalRawToDigiDevTowerId")
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
