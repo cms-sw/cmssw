@@ -36,6 +36,8 @@ Hector::Hector(const edm::ParameterSet & param) :
   beam2filename  = hector_par.getParameter<string>("Beam2");  
   m_rppzdc       = (float) lengthzdc ;
   m_rppd1       = (float) lengthd1 ;
+  //  m_smearAng = true;
+  m_smearAng     = hector_par.getParameter<bool>("smearAng");
   
   etacut = 8.2;
   
@@ -185,11 +187,15 @@ void Hector::add( const HepMC::GenEvent * evt ) {
 	  //	pt = sqrt( (px*px) + (py*py) );
 	  pt = part->pt();
 	  /// Clears H_BeamParticle::positions and sets the initial one
-	    h_p->setPosition( m_IPx + part->x(), m_IPy + part->y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + part->z() );
+	    // h_p->setPosition( m_IPx + part->x(), m_IPy + part->y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + part->z() );
+	  h_p->setPosition( m_IPx + (*eventParticle)->production_vertex()->position().x(), m_IPy + (*eventParticle)->production_vertex()->position().y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + (*eventParticle)->production_vertex()->position().z() );
 	    
 	    m_beamPart[line] = h_p;
 	    m_direct[line] = ( pz > 0 ) ? 1 : -1;
 	    
+	    if (m_smearAng) {   
+	      h_p->smearAng();
+	    }
 	    //    m_eta[line] = part->momentum().eta();
 	    // m_pdg[line] = part->pdg_id();
 	    //  m_pz[line]  = part->momentum().pz();
