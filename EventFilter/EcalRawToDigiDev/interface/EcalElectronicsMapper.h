@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/12/20 23:29:34 $
- * $Revision: 1.11 $
+ * $Date: 2008/02/13 21:56:57 $
+ * $Revision: 1.12 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -128,7 +128,7 @@ public:
 
   uint getSMId(uint aDCCId) const;
   
-  uint getNumChannelsInDcc(uint aDCCId){return numChannelsInDcc_[aDCCId];}
+  uint getNumChannelsInDcc(uint aDCCId){return numChannelsInDcc_[aDCCId-1];}
 
   const EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
   
