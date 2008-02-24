@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/23 23:10:42 $
- * $Revision: 1.393 $
+ * $Date: 2008/02/24 09:27:06 $
+ * $Revision: 1.394 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -993,9 +993,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       if ( rt == runTypes_[i] ) {
         if ( runType_ != int(i) ) {
           cout << endl;
-          cout << "Taking Run Type from DB: "
-               << runTypes_[i] )
-               << endl;
+          cout << "Taking Run Type from DB: " << runTypes_[i] << endl;
           cout << endl;
           runType_ = i;
         }
