@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/23 22:36:36 $
- * $Revision: 1.151 $
+ * $Date: 2008/02/23 23:10:43 $
+ * $Revision: 1.152 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1027,7 +1027,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
         if ( runType_ != int(i) ) {
           cout << endl;
           cout << "Taking Run Type from DB: "
-               << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] )
+               << runTypes_[i] )
                << endl;
           cout << endl;
           runType_ = i;
