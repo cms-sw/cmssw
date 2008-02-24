@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/01/22 11:57:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/14 12:34:38 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -62,17 +62,10 @@ FastL3MuonTrajectoryBuilder::FastL3MuonTrajectoryBuilder(const edm::ParameterSet
   theTkSeedGenerator(0), theTrajectoryCleaner(0) 
 {
 
-  theTkTrajsAvailableFlag = par.getParameter<bool>("TkTrajectoryAvailable");  
   theFirstEvent = true;
   
   theTrackerTrajectoryCollection = par.getParameter<edm::InputTag>("TrackerTrajectories");
   theSimModule = par.getParameter<edm::InputTag>("SimulatedMuons");
-
-  //
-  // start seed generator;
-  //
-  std::string stateOnTrackerOutProp = 
-    par.getParameter<std::string>("StateOnTrackerBoundOutPropagator");
 
 }
 
@@ -161,10 +154,8 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   }
   tkTrajs.clear();  
 
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
+  for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+    delete (*is).first;   
   }
 
   return result;
@@ -175,7 +166,7 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 // make a TrackCand collection using tracker Track, Trajectory information
 //
 std::vector<FastL3MuonTrajectoryBuilder::TrackCand> 
-FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
+FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
 
   // const std::string category = "Muon|RecoMuon|FastL3MuonTrajectoryBuilder|makeTkCandCollection";
 

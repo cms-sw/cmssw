@@ -4,8 +4,8 @@
 /** \class FastL3MuonTrajectoryBuilder
  *  class to build muon trajectory from STA L2 muons and tracker tracks
  *
- *  $Date: 2007/12/28 21:00:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/08 17:43:49 $
+ *  $Revision: 1.2 $
  *
  *  \author Patrick Janot - CERN 
  */
@@ -49,7 +49,7 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
   
     /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) const;
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
 
     /// build a tracker Trajectory from a seed
     TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
