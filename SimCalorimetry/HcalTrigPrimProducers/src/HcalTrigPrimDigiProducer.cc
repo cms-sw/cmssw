@@ -23,7 +23,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 : 
   theAlgo(ps.getParameter<bool>("peakFilter"),
 	  ps.getParameter<std::vector<double> >("weights"),
-	  ps.getParameter<int>("latency")),
+	  ps.getParameter<int>("latency"),
+	  ps.getParameter<uint32_t>("FG_threshold")),
   inputLabel_(ps.getParameter<edm::InputTag>("inputLabel"))
 {
    produces<HcalTrigPrimDigiCollection>();
