@@ -47,7 +47,8 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	
 	
   bool tccFound(false);
-  std::vector<uint> * m = mapper_->getTccs();
+  int  activeDCC =  mapper_->getActiveSM();
+  std::vector<uint> * m = mapper_->getTccs(activeDCC);
   std::vector<uint>::iterator it;
   for(it= m->begin();it!=m->end();it++){
     if((*it) == tccId_){ 

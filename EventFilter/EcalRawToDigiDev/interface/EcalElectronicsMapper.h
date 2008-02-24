@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2008/02/13 21:56:57 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/24 23:19:38 $
+ * $Revision: 1.13 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -106,7 +106,7 @@ public:
   // this getter method needs be clarified
   EcalSrFlag * getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
-  std::vector<uint> * getTccs(){ return mapSmIdToTccIds_[smId_];}
+  std::vector<uint> * getTccs(uint smId){ return mapSmIdToTccIds_[smId];}
 	
   uint getActiveDCC()                 { return dccId_;                      }
  
