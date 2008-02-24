@@ -53,6 +53,7 @@ private:
   double lengthd1 ;
 
   float etacut;
+  bool m_smearAng;
 
   float m_rpp420_f;
   float m_rpp420_b;
