@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.7 2007/08/28 17:58:56 meridian Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.8 2008/02/11 12:56:34 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -25,7 +25,7 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 }
 
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
-  const EcalRecHitCollection &rhc, reco::AlgoId theAlgo)
+  const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry)
 {	
 	
   // Insert the recHits into map	
@@ -96,6 +96,18 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
   }
 
+  //Create the pointer ot class SuperClusterShapeAlgo
+  //which calculates phiWidth and etaWidth
+  SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
+
+  double preshowerE = 0.;
+  double phiWidth = 0.;
+  double etaWidth = 0.;
+  //Calculate phiWidth & etaWidth for SuperClusters
+  SCShape->Calculate_Covariances(cl);
+  phiWidth = SCShape->phiWidth();
+  etaWidth = SCShape->etaWidth();
+
   // Calculate the new supercluster energy either 
   //as a function of number of crystals in the seed basiccluster 
   //or apply new Enegry SCale correction
@@ -111,7 +123,8 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     // first apply Zhang's eta corrections
     newEnergy = cl.energy()/fEta(cl.eta());
     // now apply F(brem)
-    newEnergy = newEnergy/fBrem(cl.phiWidth()/cl.etaWidth(), newEnergy);
+    //    newEnergy = newEnergy/fBrem(cl.phiWidth()/cl.etaWidth(), newEnergy);
+    newEnergy = newEnergy/fBrem(phiWidth/etaWidth, newEnergy);
     // now apply F(Et, eta)
     double theta = atan(2*exp(-cl.eta()));
     double eT = newEnergy*sin(theta);
@@ -130,8 +143,10 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v );
 
-  corrCl.setPhiWidth(cl.phiWidth());
-  corrCl.setEtaWidth(cl.etaWidth());
+  //  corrCl.setPhiWidth(cl.phiWidth());
+  //  corrCl.setEtaWidth(cl.etaWidth());
+  corrCl.setPhiWidth(phiWidth);
+  corrCl.setEtaWidth(etaWidth);
   // Return the corrected cluster
   recHits_m->clear();
   return corrCl;
