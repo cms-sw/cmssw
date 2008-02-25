@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.46 2008/02/14 13:58:13 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.47 2008/02/19 21:32:18 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -595,8 +595,8 @@ void SiStripConfigDb::usingDatabase() {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Overriding TNS_ADMIN value using cfg file!" << std::endl
-       << "  Original value was \"" << tns_admin << "\"!" << std::endl
-       << "  New value is \"" << dbParams_.tnsAdmin_ << "\"!";
+       << "  Original value : \"" << tns_admin << "\"!" << std::endl
+       << "  New value      : \"" << dbParams_.tnsAdmin_ << "\"!";
     tns_admin = dbParams_.tnsAdmin_;
     edm::LogVerbatim(mlConfigDb_) << ss.str();
   }
