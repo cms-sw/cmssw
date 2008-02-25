@@ -27,6 +27,7 @@ cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb ,
 }
 cond::IOVServiceImpl::~IOVServiceImpl(){
 }
+
 std::string 
 cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
 				    cond::Time_t currenttime ){
@@ -42,6 +43,7 @@ cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
     return iEnd->second;
   }
 }
+
 bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
 				    cond::Time_t currenttime ){
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
@@ -57,6 +59,7 @@ bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
   }
   return result;
 }
+
 std::pair<cond::Time_t, cond::Time_t> 
 cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t currenttime ){
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
@@ -75,6 +78,7 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
   till=iEnd->first;
   return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
+
 std::string 
 cond::IOVServiceImpl::payloadContainerName( const std::string& iovToken ){
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
@@ -89,6 +93,7 @@ cond::IOVServiceImpl::payloadContainerName( const std::string& iovToken ){
   theTok->release();
   return result;
 }
+
 void 
 cond::IOVServiceImpl::deleteAll(bool withPayload){
   cond::ContainerIterator<cond::IOV> it(*m_pooldb,cond::IOVNames::container());

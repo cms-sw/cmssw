@@ -269,7 +269,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
   if(withlogging){
     m_logdb->getWriteLock();
   }
-
+  std::string objToken;
   unsigned int result=0;
   try{
     pooldb.start(false);
@@ -297,31 +297,42 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
 
 
 void 
-cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName,bool withlogging){
+cond::service::PoolDBOutputService::add( bool sinceNotTill, 
+					 GetToken const & paylodToken,  
+					 cond::Time_t time,
+					 const std::string& EventSetupRecordName,
+					 bool withlogging=false) {
+
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   cond::PoolTransaction& pooldb=m_connection->poolTransaction();
   if(withlogging){
     m_logdb->getWriteLock();
   }
+
   unsigned int payloadIdx=0;
+
   try{
     pooldb.start(false);
-    payloadIdx=this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
+    objToken = payloadToken(pooldb);
+    payloadIdx= sinceNotTill ?
+      this->appendIOV(pooldb,myrecord,objloadToken,time) :
+      this->insertIOV(pooldb,myrecord,objToken,time);
+
     pooldb.commit();
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,payloadIdx);
+      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx);
     }
   }catch(const std::exception& er){
     if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
     std::string destconnect=m_connection->connectStr();
     cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-    m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
+    m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
     m_logdb->releaseWriteLock();
-    throw cond::Exception("PoolDBOutputService::appendSinceTime "+std::string(er.what()));
+    throw cond::Exception("PoolDBOutputService::add "+std::string(er.what()));
   }
   if(withlogging){
     m_logdb->releaseWriteLock();
