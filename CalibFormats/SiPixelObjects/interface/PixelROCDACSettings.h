@@ -178,6 +178,8 @@ namespace pos{
     bits8 WBC_;              //addr 254
     bits8 ChipContReg_;      //addr 253
     
+    std::string ToLower(std::string) ;
+    
   };
 }
 #endif
