@@ -31,10 +31,10 @@ namespace edm
   {
     if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") 
     {
-      //PythonProcessDesc pythonProcessDesc(fileName);
-      //return pythonProcessDesc.processDesc();
-      std::string configString(pythonFileToConfigure(fileName)); 
-      return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
+      PythonProcessDesc pythonProcessDesc(fileName);
+      return pythonProcessDesc.processDesc();
+      //std::string configString(pythonFileToConfigure(fileName)); 
+      //return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
     }
     else
     {
