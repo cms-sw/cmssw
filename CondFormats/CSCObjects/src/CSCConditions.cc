@@ -30,25 +30,25 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   // Strip gains
   edm::ESHandle<CSCDBGains> hGains;
   es.get<CSCDBGainsRcd>().get( hGains );
-  theGains = &*hGains.product();
+  theGains = hGains.product();
   // Strip X-talk
   edm::ESHandle<CSCDBCrosstalk> hCrosstalk;
   es.get<CSCDBCrosstalkRcd>().get( hCrosstalk );
-  theCrosstalk = &*hCrosstalk.product();
+  theCrosstalk = hCrosstalk.product();
   // Strip pedestals
   edm::ESHandle<CSCDBPedestals> hPedestals;
   es.get<CSCDBPedestalsRcd>().get( hPedestals );
-  thePedestals = &*hPedestals.product();
+  thePedestals = hPedestals.product();
 
   // Strip autocorrelation noise matrix
   edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
   es.get<CSCDBNoiseMatrixRcd>().get(hNoiseMatrix);
-  theNoiseMatrix = &*hNoiseMatrix.product();
+  theNoiseMatrix = hNoiseMatrix.product();
 
-  // reset average gain 
-  //@@ This is a pain - should only be necessary when cond data changes
-  //@@ but I don't know how to recognize that.
-  theAverageGain = -1.0;
+  // Has GainsRcd changed?
+  if( gainsWatcher_.check( es ) ) { // Yes...
+    theAverageGain = -1.0; // ...reset, so next access will recalculate it
+  }
   
 //  print();
 }
