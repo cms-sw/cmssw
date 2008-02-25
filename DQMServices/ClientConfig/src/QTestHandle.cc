@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2008/01/11 15:47:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/21 03:26:45 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 
@@ -72,7 +72,7 @@ void QTestHandle::attachTests(DQMStore *bei)
     const std::vector<std::string> &tests = itr->second;
     for (std::vector<std::string>::const_iterator testsItr = tests.begin();
 	 testsItr != tests.end(); ++testsItr)
-      bei->useQTest(meName, *testsItr);
+      bei->useQTestByMatch(meName, *testsItr);
   }
 }
 
