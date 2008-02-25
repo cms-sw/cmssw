@@ -22,6 +22,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
+    ioveditor->create(iovmanager.globalSince());
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -54,6 +55,7 @@ int main(){
     delete ioveditor;
     pooldb.start(false);
     ioveditor=iovmanager.newIOVEditor();
+    ioveditor->create(iovmanager.globalSince());
     Pedestals* p=new Pedestals;
     for(int ichannel=1; ichannel<=2; ++ichannel){
       Pedestals::Item item;
@@ -73,6 +75,7 @@ int main(){
     ///I write different pedestals in another record
     //
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
+    anotherioveditor->create(iovmanager.globalSince());
     pooldb.start(false);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;

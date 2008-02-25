@@ -15,38 +15,43 @@ namespace cond{
 
     IOVService( cond::PoolTransaction& pooldb,
 		cond::TimeType timetype=cond::runnumber );
+
     virtual ~IOVService();
+
     std::string payloadToken( const std::string& iovToken,
 			      cond::Time_t currenttime );
+
     bool isValid( const std::string& iovToken,
 		  cond::Time_t currenttime );
+
     std::pair<cond::Time_t, cond::Time_t> 
       validity( const std::string& iovToken, cond::Time_t currenttime );
+
     std::string payloadContainerName( const std::string& iovtoken );
+
     void deleteAll( bool withPayload=false );
+
     /**
     create an iterator to on the iov selected by the token
     user aquires the ownership of the pointer. Need explicit delete after usage
     */
     IOVIterator* newIOVIterator( const std::string& iovToken,  bool forward=forwardIter);
+
     /**
     create an editor to the iov selected by the token
     user aquires the ownership of the pointer. Need explicit delete after usage
     */
-    IOVEditor* newIOVEditor( const std::string& token );
-    /**
-    create an editor to a brand new iov
-    user aquires the ownership of the pointer. Need explicit delete after usage
-    */
-    IOVEditor* newIOVEditor( const cond::Time_t firstsince=0,
-			     const cond::Time_t lasttill=cond::TIMELIMIT);
+    IOVEditor* newIOVEditor( const std::string& token="" );
+
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;
+
     /**
        export IOV selected by token and associated payload to another database
        return new iov token string 
     */
+
     std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
 				      const std::string& iovToken,
 				      const std::string& payloadObjectName );
