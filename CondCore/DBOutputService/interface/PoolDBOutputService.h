@@ -93,18 +93,31 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,firstPayloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  payloadToken=myPayload.token();
-	  result=this->insertIOV(pooldb, myrecord,payloadToken,firstSinceTime,firstTillTime);
+
+	  cond::IOVService iovmanager(pooldb);
+	  cond::IOVEditor* editor=iovmanager.newIOVEditor("");
+	  editor->create(firstSinceTime,iovmanager.timeType());
+	  unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
+	  iovToken=editor->token();
+	  delete editor;    
+
 	  iovToken=result.second;
 	  pooldb.commit();
 	  cond::CoralTransaction& coraldb=m_connection->coralTransaction();
 	  cond::MetaData metadata(coraldb);
 	  coraldb.start(false);
-	  MetaDataEntry imetadata;
-	  imetadata.tagname=myrecord.m_tag;
-	  imetadata.iovtoken=iovToken;
-	  imetadata.timetype=m_timetype;
-	  //metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
-	  metadata.addMapping(imetadata);
+
+	  /*
+	    MetaDataEntry imetadata;
+	    imetadata.tagname=myrecord.m_tag;
+	    imetadata.iovtoken=iovToken;
+	    imetadata.timetype=m_timetype;
+	    imetadata.firstsince=firstSinceTime;
+	    metadata.addMapping(imetadata);
+	  */
+	  metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
+
+
 	  coraldb.commit();
 	  myrecord.m_isNewTag=false;
 	  myrecord.m_iovtoken=iovToken;

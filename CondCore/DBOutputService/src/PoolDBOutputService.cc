@@ -224,13 +224,15 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::CoralTransaction& coraldb=m_connection->coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
+    /*
     MetaDataEntry imetadata;
     imetadata.tagname=myrecord.m_tag;
     imetadata.iovtoken=iovToken;
     imetadata.timetype=m_timetype;
     imetadata.firstsince=firstSinceTime;
-    //metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
     metadata.addMapping(imetadata);
+   */
+    metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
     coraldb.commit();
     m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
     myrecord.m_iovtoken=iovToken;
