@@ -34,7 +34,7 @@ void PedestalsSummaryFactory::extract( Iterator iter ) {
     }
   } else if ( mon_ == sistrip::PEDESTALS_MEAN ) {
     value[0][0] = anal->pedsMean()[0];
-    value[0][0] = anal->pedsMean()[1];
+    value[1][0] = anal->pedsMean()[1];
   } else if ( mon_ == sistrip::PEDESTALS_SPREAD ) { 
     value[0][0] = anal->pedsSpread()[0]; 
     value[1][0] = anal->pedsSpread()[1]; 
