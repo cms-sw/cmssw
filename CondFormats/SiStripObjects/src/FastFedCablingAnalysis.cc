@@ -218,12 +218,8 @@ void FastFedCablingAnalysis::analyse() {
   if ( !low.empty() ) { lowMedian_ = low[ low.size()%2 ? low.size()/2 : low.size()/2 ]; }
 
   // Check if light levels above thresholds
-  if ( highMedian_ < dirtyThreshold_ ) {
-    addErrorCode(sistrip::invalidLightLevel_); 
-  }
-  if ( lowMedian_ < trimDacThreshold_ ) {
-    addErrorCode(sistrip::invalidTrimDacLevel_); 
-  }
+  //if ( highMedian_ < dirtyThreshold_ ) { addErrorCode(sistrip::invalidLightLevel_); }
+  //if ( lowMedian_ < trimDacThreshold_ ) { addErrorCode(sistrip::invalidTrimDacLevel_); }
   
   // Find mean and rms in "low" samples
   lowMean_ = 0.;
@@ -268,12 +264,8 @@ void FastFedCablingAnalysis::analyse() {
   }
 
   // Check if light levels above thresholds
-  if ( highMean_ < dirtyThreshold_ ) {
-    addErrorCode(sistrip::invalidLightLevel_); 
-  }
-  if ( lowMean_ < trimDacThreshold_ ) {
-    addErrorCode(sistrip::invalidTrimDacLevel_); 
-  }
+  //if ( highMean_ < dirtyThreshold_ ) { addErrorCode(sistrip::invalidLightLevel_); }
+  //if ( lowMean_ < trimDacThreshold_ ) { addErrorCode(sistrip::invalidTrimDacLevel_); }
 
   // Recalculate range
   if ( highMean_ < 1. * sistrip::valid_ &&
