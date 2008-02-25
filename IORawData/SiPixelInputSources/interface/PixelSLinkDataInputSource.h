@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.h,v 1.7 2007/11/17 23:23:02 wmtan Exp $
+// $Id: PixelSLinkDataInputSource.h,v 1.8 2007/12/05 16:01:05 fblekman Exp $
 //
 //
 
@@ -52,5 +52,10 @@ private:
   int m_runnumber;
   uint64_t m_data;
   uint32_t m_currenteventnumber;
+  uint32_t m_currenttriggernumber;
+  uint32_t m_globaleventnumber;
+  int32_t m_eventnumber_shift;
+  int getEventNumberFromFillWords(std::vector<uint64_t> data, uint32_t &totword);
+  uint32_t synchronizeEvents();
 };
 #endif
