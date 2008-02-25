@@ -10,7 +10,6 @@
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
-//   E. Delmeire  UAM Madrid
 //
 //--------------------------------------------------
 
@@ -32,6 +31,8 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
   produces<L1MuDTTrackContainer>("DATA");
+
+  DTTFInputTag = pset.getParameter<edm::InputTag>("DTTF_FED_Source");
 
 }
 
@@ -106,7 +107,7 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
-  e.getByType(data);
+  e.getByLabel(getDTTFInputTag(),data);
   FEDRawData dttfdata = data->FEDData(0x030C);
   if ( dttfdata.size() == 0 ) return;
 

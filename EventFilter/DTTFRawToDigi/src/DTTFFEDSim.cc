@@ -31,6 +31,9 @@ DTTFFEDSim::DTTFFEDSim(const edm::ParameterSet& pset) : eventNum(0) {
 
   produces<FEDRawDataCollection>();
 
+  DTDigiInputTag = pset.getParameter<edm::InputTag>("DTDigi_Source");
+  DTPHTFInputTag = pset.getParameter<edm::InputTag>("DTTracks_Source");
+
 }
 
 DTTFFEDSim::~DTTFFEDSim(){}
@@ -55,15 +58,15 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   int lines = 2;
 
   edm::Handle<L1MuDTChambPhContainer> phtrig;
-  e.getByType(phtrig);
+  e.getByLabel(getDTDigiInputTag(),phtrig);
   lines += phtrig->bxSize(-1, 1);
 
   edm::Handle<L1MuDTChambThContainer> thtrig;
-  e.getByType(thtrig);
+  e.getByLabel(getDTDigiInputTag(),thtrig);
   lines += thtrig->bxSize(-1, 1);
 
   edm::Handle<L1MuDTTrackContainer>   trtrig;
-  e.getByType(trtrig);
+  e.getByLabel(getDTPHTFInputTag(),trtrig);
   lines += trtrig->bxSize(-1, 1)*2;
 
   FEDRawData& dttfdata = data.FEDData(0x30C);

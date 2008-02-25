@@ -22,6 +22,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 #include <string>
 
@@ -46,6 +47,8 @@ class DTTFFEDReader : public edm::EDProducer {
 
  private:
   
+  edm::InputTag DTTFInputTag;
+
   // Operations
 
   // access data
@@ -81,6 +84,8 @@ class DTTFFEDReader : public edm::EDProducer {
   int wheel(int channel);
 
   void calcCRC(long myD1, long myD2, int &myC);
+
+  edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 
 };
 #endif
