@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.1.2.6 2008/02/25 22:11:48 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
 //
 
 // system include files
@@ -137,6 +137,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
      for(PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
 	 i != electrons->end(); ++i, ++index) {
 	  assert(i->gsfTrack().isNonnull());
+#if 0
 	  printf("GsfTrack contains %d inner states, %d outer states\n",
 		 i->gsfTrack()->gsfExtra()->innerStateLocalParameters().size(),
 		 i->gsfTrack()->gsfExtra()->outerStateLocalParameters().size());
@@ -160,6 +161,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 			   v_out[j][3],
 			   v_out[j][4]);
 	  }
+#endif
 	  t.fP = TEveVector(i->gsfTrack()->px(),
 			    i->gsfTrack()->py(),
 			    i->gsfTrack()->pz());
