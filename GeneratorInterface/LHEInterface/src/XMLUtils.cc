@@ -61,18 +61,28 @@ XMLDocument::XMLDocument(std::auto_ptr<Storage> &in, Handler &handler) :
 
 void XMLDocument::init(Handler &handler)
 {
-	parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
-	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
-	parser->setFeature(XMLUni::fgXercesSchema, false);
-	parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+	try {
+		parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
+		parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
+		parser->setFeature(XMLUni::fgXercesSchema, false);
+		parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
 
-	parser->setContentHandler(&handler);
-	parser->setLexicalHandler(&handler);
-	parser->setErrorHandler(&handler);
+		parser->setContentHandler(&handler);
+		parser->setLexicalHandler(&handler);
+		parser->setErrorHandler(&handler);
 
-	if (!parser->parseFirst(*source, token))
-		throw cms::Exception("XMLParseError")
-			<< "SAXParser::parseFirst failed" << std::endl;
+		if (!parser->parseFirst(*source, token))
+			throw cms::Exception("XMLParseError")
+				<< "SAXParser::parseFirst failed" << std::endl;
+	} catch(const XMLException &e) {
+		throw cms::Exception("XMLDocument")
+			<< "XMLPlatformUtils::Initialize failed because of "
+			<< XMLSimpleStr(e.getMessage())	<< std::endl;
+	} catch(const SAXException &e) {
+		throw cms::Exception("XMLDocument")
+			<< "XML parser reported: "
+			<< XMLSimpleStr(e.getMessage()) << "." << std::endl;  
+        }
 }
 
 XMLDocument::~XMLDocument()
@@ -81,10 +91,20 @@ XMLDocument::~XMLDocument()
 
 bool XMLDocument::parse()
 {
-	if (done || parser->getErrorCount())
-		return false;
+	try {
+		if (done || parser->getErrorCount())
+			return false;
 
-	done = !parser->parseNext(token);
+		done = !parser->parseNext(token);
+	} catch(const XMLException &e) {
+		throw cms::Exception("XMLDocument")
+			<< "XMLPlatformUtils::Initialize failed because of "
+			<< XMLSimpleStr(e.getMessage())	<< std::endl;
+	} catch(const SAXException &e) {
+		throw cms::Exception("XMLDocument")
+			<< "XML parser reported: "
+			<< XMLSimpleStr(e.getMessage()) << "." << std::endl;  
+        }
 
 	return !done;
 }
