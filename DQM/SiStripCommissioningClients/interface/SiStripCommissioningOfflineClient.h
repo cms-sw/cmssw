@@ -4,8 +4,13 @@
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
+#include "DQM/SiStripCommissioningClients/interface/SummaryPlotXmlParser.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlot.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -13,7 +18,6 @@
 class CommissioningHistograms;
 class DaqMonitorBEInterface;
 class MonitorUIRoot;
-class SummaryPlot;
 class TH1;
 
 /**

@@ -2,20 +2,10 @@
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorElementT.h"
-#ifndef USING_NEW_COLLATE_METHODS
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-#endif
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TProfile.h"
-#include "TH1.h"
 #include <iomanip>
 
 using namespace std;
@@ -322,34 +312,34 @@ void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
 // -----------------------------------------------------------------------------
 //
 void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* const bei,
-			  	                     const std::vector<std::string>& contents ) {
+						     const std::vector<std::string>& contents ) {
   
   // Check if histograms present
-  if ( contents.empty() ) { 
+  if ( contents.empty() ) {
     edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
+      << "[CommissioningHistograms::" << __func__  << "]"
       << " Found no histograms!";
-    return; 
+    return;
   }
   
   // Iterate through added contents
   std::vector<std::string>::const_iterator istr = contents.begin();
   while ( istr != contents.end() ) {
-    
-    // Extract source directory path 
+
+    // Extract source directory path
     std::string source_dir = istr->substr( 0, istr->find(":") );
-    
+
     // Generate corresponding client path (removing trailing "/")
     SiStripFecKey path( source_dir );
     std::string client_dir = path.path();
-    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
+    std::string slash = client_dir.substr( client_dir.size()-1, 1 );
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
-    
+
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
-    std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
+    std::vector<MonitorElement*>::iterator ime = me_list.begin();
     for ( ; ime != me_list.end(); ime++ ) {
-      
+
       if ( !(*ime) ) {
 	edm::LogWarning(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
@@ -359,17 +349,17 @@ void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* cons
       // Search for calchan
       std::string title = (*ime)->getName();
       std::string::size_type pos = title.find("calchan");
-      if ( pos != std::string::npos ) { 
-        MonitorElementT< int >* meptr = dynamic_cast<MonitorElementT< int >* >(*ime);
-        int value = meptr ? meptr->getValue() : -1;
-	if ( value>=0 ) { 
+      if ( pos != std::string::npos ) {
+	MonitorElementT< int >* meptr = dynamic_cast<MonitorElementT< int >* >(*ime);
+	int value = meptr ? meptr->getValue() : -1;
+	if ( value>=0 ) {
 	  edm::LogVerbatim(mlDqmClient_)
 	    << "[CommissioningHistograms::" << __func__ << "]"
-	    << " Found \"" <<  title.substr(pos,std::string::npos)
+	    << " Found \"" << title.substr(pos,std::string::npos)
 	    << "\" with value \"" << value << "\"";
-	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) { 
+	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) {
 	    bei->setCurrentFolder(client_dir);
-	    bei->bookInt( title.substr(pos,std::string::npos))->Fill(value); 
+	    bei->bookInt( title.substr(pos,std::string::npos))->Fill(value);
 	    edm::LogVerbatim(mlDqmClient_)
 	      << "[CommissioningHistograms::" << __func__ << "]"
 	      << " Booked \"" << title.substr(pos,std::string::npos)
@@ -383,6 +373,7 @@ void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* cons
 }
 
 // -----------------------------------------------------------------------------
+
 /** */
 void CommissioningHistograms::extractHistograms( const std::vector<std::string>& contents ) {
   LogTrace(mlDqmClient_)
@@ -413,7 +404,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     //#ifdef USING_NEW_COLLATE_METHODS
     //if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
     //#else 
-    if ( idir->find(sistrip::collate_) == std::string::npos ||
+    if ( idir->find(sistrip::collate_) != std::string::npos || 
 	 idir->find("Collector") != std::string::npos ||
 	 idir->find("EvF") != std::string::npos ||
 	 idir->find("FU") != std::string::npos ) { continue; }
