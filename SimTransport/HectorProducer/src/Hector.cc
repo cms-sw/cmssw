@@ -35,11 +35,18 @@ Hector::Hector(const edm::ParameterSet & param) :
   beam1filename  = hector_par.getParameter<string>("Beam1");
   beam2filename  = hector_par.getParameter<string>("Beam2");  
   m_rppzdc       = (float) lengthzdc ;
-  m_rppd1       = (float) lengthd1 ;
-  //  m_smearAng = true;
+  m_rppd1        = (float) lengthd1 ;
   m_smearAng     = hector_par.getParameter<bool>("smearAng");
+  Rpipe          = hector_par.getParameter<double>("InnerPipeRadius" );
+  x0_zdc         = hector_par.getParameter<double>("XpipeCenterAtZ140" );
+  y0_zdc         = hector_par.getParameter<double>("YpipeCenterAtZ140" );
+  etacut         = hector_par.getParameter<double>("AddEtaCut" );
   
-  etacut = 8.2;
+  //  etacut = 8.2;
+  //  m_smearAng = true;
+  //  Rpipe=3.5;// inner radius of beam pipe mm
+  //  x0_zdc=0.0;// X0-coord. center of beam pipe at z=140m 
+  // y0_zdc=0.0;// Y0-coord. center of beam pipe at z=140m 
   
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
 			  << "   Verbosity: " << m_verbosity << "\n"
@@ -79,43 +86,6 @@ Hector::Hector(const edm::ParameterSet & param) :
   
   
   
-  
-  // construct beam line for ZDC:                                                                                           .
-  m_beamlineZDC1 = new H_BeamLine(  1, lengthzdc + 0.1 ); // (direction, length)
-  m_beamlineZDC2 = new H_BeamLine( -1, lengthzdc + 0.1 ); //
-  try {
-    m_beamlineZDC1->fill( b1.fullPath(),  1, "IP5" );
-    m_beamlineZDC2->fill( b2.fullPath(), -1, "IP5" );
-  } catch ( const edm::Exception& e ) {
-    std::string msg = e.what();
-    msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
-    edm::LogError ("DataNotFound") << msg;
-  }
-  m_beamlineZDC1->offsetElements( 120, -0.097 );
-  m_beamlineZDC2->offsetElements( 120, +0.097 );
-  m_beamlineZDC1->calcMatrix();
-  m_beamlineZDC2->calcMatrix();
-  
-  
-  
-  
-  
-  // construct beam line for D1:                                                                                           .
-  m_beamlineD11 = new H_BeamLine(  1, lengthd1 + 0.1 ); // (direction, length)
-  m_beamlineD12 = new H_BeamLine( -1, lengthd1 + 0.1 ); //
-  try {
-    m_beamlineD11->fill( b1.fullPath(),  1, "IP5" );
-    m_beamlineD12->fill( b2.fullPath(), -1, "IP5" );
-  } catch ( const edm::Exception& e ) {
-    std::string msg = e.what();
-    msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
-    edm::LogError ("DataNotFound") << msg;
-  }
-  m_beamlineD11->offsetElements( 120, -0.097 );
-  m_beamlineD12->offsetElements( 120, +0.097 );
-  m_beamlineD11->calcMatrix();
-  m_beamlineD12->calcMatrix();
-  
   edm::LogInfo ("Hector") << "===================================================================\n";
   
 }
@@ -130,10 +100,6 @@ Hector::~Hector(){
   //
   delete m_beamlineFP4201;
   delete m_beamlineFP4202;
-  delete m_beamlineZDC1;
-  delete m_beamlineZDC2;
-  delete m_beamlineD11;
-  delete m_beamlineD12;
   
   edm::LogInfo ("Hector") << "===================================================================\n";  
 }
@@ -213,7 +179,7 @@ void Hector::filterFP420(){
   H_BeamParticle * part;
   std::map< unsigned int, H_BeamParticle* >::iterator it;
   
-  bool is_stop;
+  bool is_stop=true;
   int direction;
   
   float x1_420;
@@ -231,36 +197,24 @@ void Hector::filterFP420(){
       if ( direction == 1 ) {
 	part->computePath( m_beamlineFP4201, 1 );
 	is_stop = part->stopped( m_beamlineFP4201 );
-	m_isStoppedfp420[line] = is_stop;
-	if (!is_stop) {
-	  part->propagate( m_rpp420_f );
-	  x1_420 = part->getX();
-	  y1_420 = part->getY();
-	  
-	  m_xAtTrPoint[line]  = x1_420;
-	  m_yAtTrPoint[line]  = y1_420;
-	  m_TxAtTrPoint[line] = part->getTX();
-	  m_TyAtTrPoint[line] = part->getTY();
-	  m_eAtTrPoint[line]  = part->getE();
-	  
-	}
       }
-      
       else {
 	part->computePath( m_beamlineFP4202, -1 );
 	is_stop = part->stopped( m_beamlineFP4202 );
-	m_isStoppedfp420[line] = is_stop;
-	if (!is_stop) {
-	  part->propagate( m_rpp420_b );
-	  x1_420 = part->getX();
-	  y1_420 = part->getY();
-	  
-	  m_xAtTrPoint[line]  = x1_420;
-	  m_yAtTrPoint[line]  = y1_420;
-	  m_TxAtTrPoint[line] = part->getTX();
-	  m_TyAtTrPoint[line] = part->getTY();
-	  m_eAtTrPoint[line]  = part->getE();
-	}
+      }
+      
+      m_isStoppedfp420[line] = is_stop;
+      if (!is_stop) {
+	part->propagate( m_rpp420_f );
+	x1_420 = part->getX();
+	y1_420 = part->getY();
+	
+	m_xAtTrPoint[line]  = x1_420;
+	m_yAtTrPoint[line]  = y1_420;
+	m_TxAtTrPoint[line] = part->getTX();
+	m_TyAtTrPoint[line] = part->getTY();
+	m_eAtTrPoint[line]  = part->getE();
+	
       }
       
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
@@ -273,8 +227,8 @@ void Hector::filterZDC(){
   H_BeamParticle * part;
   std::map< unsigned int, H_BeamParticle* >::iterator it;
   
-  bool is_stop_zdc;
-  bool is_stop_d1;
+  bool is_stop_zdc=true;
+  bool is_stop_d1=true;
   int direction;
   
   float x1_d1;
@@ -287,51 +241,41 @@ void Hector::filterZDC(){
       part = (*it).second;
       if ( ((*m_isStoppedfp420.find(line)).second) ) {
 	
-	
-	//propagating
-	direction = (*(m_direct.find( line ))).second;
+       	direction = (*(m_direct.find( line ))).second;
 	if ( direction == 1 ) {
-	  part->computePath( m_beamlineZDC1, 1 );
-	  is_stop_zdc = part->stopped( m_beamlineZDC1 );
-  	  m_isStoppedzdc[line] = is_stop_zdc;
-	  part->computePath( m_beamlineD11, 1 );
-	  is_stop_d1 = part->stopped( m_beamlineD11 );
-	  m_isStoppedd1[line] = is_stop_d1;
-	  
-	  if (!is_stop_d1 && is_stop_zdc) {
-	    part->propagate(  lengthd1);
-	    x1_d1 = part->getX();
-	    y1_d1 = part->getY();
-	    
-	    m_xAtTrPoint[line]  = x1_d1;
-	    m_yAtTrPoint[line]  = y1_d1;
-	    m_TxAtTrPoint[line] = part->getTX();
-	    m_TyAtTrPoint[line] = part->getTY();
-	    m_eAtTrPoint[line]  = part->getE();
-	    
-	  }
+	  part->computePath( m_beamlineFP4201, 1 );
 	}
-	
 	else {
-	  part->computePath( m_beamlineZDC2, -1 );
-	  is_stop_zdc = part->stopped( m_beamlineZDC2 );
-	  m_isStoppedzdc[line] = is_stop_zdc;
-	  part->computePath( m_beamlineD12, -1 );
-	  is_stop_d1 = part->stopped( m_beamlineD12 );
-	  m_isStoppedd1[line] = is_stop_d1;
-	  if (!is_stop_d1 && is_stop_zdc) {
-	    part->propagate( lengthd1 );
-	    x1_d1 = part->getX();
-	    y1_d1 = part->getY();
-	    
-	    m_xAtTrPoint[line]  = x1_d1;
-	    m_yAtTrPoint[line]  = y1_d1;
-	    m_TxAtTrPoint[line] = part->getTX();
-	    m_TyAtTrPoint[line] = part->getTY();
-	    m_eAtTrPoint[line]  = part->getE();
-	  }
+	  part->computePath( m_beamlineFP4202, -1 );
+	}
+	part->propagate(  lengthzdc );
+	x1_d1 = part->getX()*0.001;
+	y1_d1 = part->getY()*0.001;
+	if(sqrt((x1_d1-x0_zdc)*(x1_d1-x0_zdc)+(y1_d1-y0_zdc)*(y1_d1-y0_zdc))< Rpipe) { is_stop_zdc=false;}
+	m_isStoppedzdc[line] = is_stop_zdc;
+	
+	part->propagate(  lengthd1 );
+	x1_d1 = part->getX()*0.001;
+	y1_d1 = part->getY()*0.001;
+	if(sqrt((x1_d1)*(x1_d1)+(y1_d1)*(y1_d1))< Rpipe) { is_stop_d1=false;}
+	m_isStoppedd1[line] = is_stop_d1;
+	
+	
+	if (!is_stop_d1 && is_stop_zdc) {
+	  part->propagate(  lengthd1);
+	  x1_d1 = part->getX();
+	  y1_d1 = part->getY();
+	  m_xAtTrPoint[line]  = x1_d1;
+	  m_yAtTrPoint[line]  = y1_d1;
+	  m_TxAtTrPoint[line] = part->getTX();
+	  m_TyAtTrPoint[line] = part->getTY();
+	  m_eAtTrPoint[line]  = part->getE();
 	}
       }// if stopfp420
+      else {
+	m_isStoppedzdc[line] = is_stop_zdc;
+	m_isStoppedd1[line] = is_stop_d1;
+      }
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
   } // if ( m_beamPart.size() )
   // cout << "=================== Hector:filterZDC end: " << endl;
