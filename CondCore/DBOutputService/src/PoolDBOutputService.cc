@@ -255,7 +255,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
   }
 }
 
-/*
+
 void 
 cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName,bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
@@ -288,7 +288,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
     m_logdb->releaseWriteLock();
   }
 }
-*/
+
 
 void 
 cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName,bool withlogging){

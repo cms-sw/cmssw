@@ -129,17 +129,19 @@ namespace cond{
 	  m_logdb->releaseWriteLock();
 	}
       }
+
       void createNewIOV( const std::string& firstPayloadToken, 
 			 cond::Time_t firstSinceTime, 
 			 cond::Time_t firstTillTime,
 			 const std::string& EventSetupRecordName,
 			 bool withlogging=false);
 
-      /*template<typename T>
-	void appendTillTime( T* payloadObj, 
-			     cond::Time_t tillTime,
-			     const std::string& EventSetupRecordName,
-			     bool withlogging=false){
+      
+      template<typename T>
+      void appendTillTime( T* payloadObj, 
+			   cond::Time_t tillTime,
+			   const std::string& EventSetupRecordName,
+			   bool withlogging=false){
 	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
 	if (!m_dbstarted) this->initDB();
 	cond::PoolTransaction& pooldb=m_connection->poolTransaction();
@@ -153,8 +155,7 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,payloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  payloadToken=myPayload.token();
-	  result=this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
-	  std::string iovToken=result.second;
+	  this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
 
 	  pooldb.commit();
 	  if(withlogging){
@@ -176,12 +177,13 @@ namespace cond{
 	  m_logdb->releaseWriteLock();
 	}
       }
+
       void appendTillTime( const std::string& payloadToken, 
 			   cond::Time_t tillTime,
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false
 			   );
-      */
+      
       template<typename T>
 	void appendSinceTime( T* payloadObj, 
 			      cond::Time_t sinceTime,
