@@ -104,21 +104,21 @@ void CSCConditions::print() const
 float CSCConditions::gain(const CSCDetId & detId, int channel) const
 {
   assert(theGains != 0);
-  return theGains->item(detId, channel).gain_slope/CSCDBGains::FGAIN;
+  return float( theGains->item(detId, channel).gain_slope )/CSCDBGains::FGAIN;
 }
 
 
 float CSCConditions::pedestal(const CSCDetId & detId, int channel) const
 {
   assert(thePedestals != 0);
-  return thePedestals->item(detId, channel).ped/CSCDBPedestals::FPED;
+  return float ( thePedestals->item(detId, channel).ped )/CSCDBPedestals::FPED;
 }
 
 
 float CSCConditions::pedestalSigma(const CSCDetId&detId, int channel) const
 {
   assert(thePedestals != 0);
-  return thePedestals->item(detId, channel).rms/CSCDBPedestals::FRMS;
+  return float ( thePedestals->item(detId, channel).rms )/CSCDBPedestals::FRMS;
 }
 
 
@@ -128,8 +128,8 @@ float CSCConditions::crosstalkIntercept(const CSCDetId&detId, int channel, bool 
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
   // resistive fraction is at the peak, where t=0
-  return leftRight ? item.xtalk_intercept_right/CSCDBCrosstalk::FINTERCEPT 
-                   : item.xtalk_intercept_left/CSCDBCrosstalk::FINTERCEPT ;
+  return leftRight ? float ( item.xtalk_intercept_right )/CSCDBCrosstalk::FINTERCEPT 
+                   : float ( item.xtalk_intercept_left )/CSCDBCrosstalk::FINTERCEPT ;
 }
 
 
@@ -139,8 +139,8 @@ float CSCConditions::crosstalkSlope(const CSCDetId&detId, int channel, bool left
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
   // resistive fraction is at the peak, where t=0
-  return leftRight ? item.xtalk_slope_right/CSCDBCrosstalk::FSLOPE
-                   : item.xtalk_slope_left/CSCDBCrosstalk::FSLOPE ;
+  return leftRight ? float ( item.xtalk_slope_right )/CSCDBCrosstalk::FSLOPE
+                   : float ( item.xtalk_slope_left )/CSCDBCrosstalk::FSLOPE ;
 }
 
 const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& detId, int channel) const
@@ -152,27 +152,27 @@ const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& detId,
 void CSCConditions::noiseMatrixElements( const CSCDetId& id, int channel, std::vector<float>& me ) const {
   assert(me.size()>11);
   const CSCDBNoiseMatrix::Item& item = noiseMatrix(id, channel);
-  me[0] = item.elem33/CSCDBNoiseMatrix::FNOISE;
-  me[1] = item.elem34/CSCDBNoiseMatrix::FNOISE;
-  me[2] = item.elem35/CSCDBNoiseMatrix::FNOISE;
-  me[3] = item.elem44/CSCDBNoiseMatrix::FNOISE;
-  me[4] = item.elem45/CSCDBNoiseMatrix::FNOISE;
-  me[5] = item.elem46/CSCDBNoiseMatrix::FNOISE;
-  me[6] = item.elem55/CSCDBNoiseMatrix::FNOISE;
-  me[7] = item.elem56/CSCDBNoiseMatrix::FNOISE;
-  me[8] = item.elem57/CSCDBNoiseMatrix::FNOISE;
-  me[9] = item.elem66/CSCDBNoiseMatrix::FNOISE;
-  me[10] = item.elem67/CSCDBNoiseMatrix::FNOISE;
-  me[11] = item.elem77/CSCDBNoiseMatrix::FNOISE;
+  me[0] = float ( item.elem33 )/CSCDBNoiseMatrix::FNOISE;
+  me[1] = float ( item.elem34 )/CSCDBNoiseMatrix::FNOISE;
+  me[2] = float ( item.elem35 )/CSCDBNoiseMatrix::FNOISE;
+  me[3] = float ( item.elem44 )/CSCDBNoiseMatrix::FNOISE;
+  me[4] = float ( item.elem45 )/CSCDBNoiseMatrix::FNOISE;
+  me[5] = float ( item.elem46 )/CSCDBNoiseMatrix::FNOISE;
+  me[6] = float ( item.elem55 )/CSCDBNoiseMatrix::FNOISE;
+  me[7] = float ( item.elem56 )/CSCDBNoiseMatrix::FNOISE;
+  me[8] = float ( item.elem57 )/CSCDBNoiseMatrix::FNOISE;
+  me[9] = float ( item.elem66 )/CSCDBNoiseMatrix::FNOISE;
+  me[10] = float ( item.elem67 )/CSCDBNoiseMatrix::FNOISE;
+  me[11] = float ( item.elem77 )/CSCDBNoiseMatrix::FNOISE;
 }
 
 void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<float>& ct ) const {
   assert(theCrosstalk != 0);
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(id, channel);
-  ct[0] = item.xtalk_slope_left/CSCDBCrosstalk::FSLOPE;
-  ct[1] = item.xtalk_intercept_left/CSCDBCrosstalk::FINTERCEPT;
-  ct[2] = item.xtalk_slope_right/CSCDBCrosstalk::FSLOPE;
-  ct[3] = item.xtalk_intercept_right/CSCDBCrosstalk::FINTERCEPT;
+  ct[0] = float ( item.xtalk_slope_left )/CSCDBCrosstalk::FSLOPE;
+  ct[1] = float ( item.xtalk_intercept_left )/CSCDBCrosstalk::FINTERCEPT;
+  ct[2] = float ( item.xtalk_slope_right )/CSCDBCrosstalk::FSLOPE;
+  ct[3] = float ( item.xtalk_intercept_right )/CSCDBCrosstalk::FINTERCEPT;
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.
@@ -193,7 +193,7 @@ float CSCConditions::averageGain() const {
 
   CSCDBGains::GainContainer::const_iterator it;
   for ( it=theGains->gains.begin(); it!=theGains->gains.end(); ++it ) {
-    float the_gain = it->gain_slope/CSCDBGains::FGAIN;
+    float the_gain = float( it->gain_slope )/CSCDBGains::FGAIN;
     if (the_gain > loEdge && the_gain < hiEdge ) {
       gain_tot += the_gain;
       ++n_strip;
