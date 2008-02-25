@@ -4,18 +4,27 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2007/08/15 15:15:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/14 16:24:24 $
+ *  $Revision: 1.3 $
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
  */
 
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+namespace edm {class Event;}
 
 class MuonServiceProxy;
 class RectangularEtaPhiTrackingRegion;
@@ -36,29 +45,30 @@ class MuonTrackingRegionBuilder {
 
   RectangularEtaPhiTrackingRegion* region(const reco::Track&) const;
 
+  /// pass the Event to the algo at each event
+  virtual void setEvent(const edm::Event&);
+
+
  private:
-  bool theFixedFlag;
-  
-  const MuonServiceProxy * theService;
-  
-  double HalfZRegion_size; 
-  double Delta_R_Region;
-  double TkEscapePt;
-  double Nsigma_eta;
-  double Nsigma_phi;
+
+  edm::InputTag theBeamSpotTag; //beam spot
+  const edm::Event* theEvent;
+
+  bool   theFixedFlag,EnableBeamSpot;
+  const  MuonServiceProxy * theService;
+  double  TkEscapePt;
+  double  Nsigma_eta,Nsigma_Dz,Nsigma_phi ;
   
   double Eta_Region_parameter1; 
   double Eta_Region_parameter2;
   double Phi_Region_parameter1;
   double Phi_Region_parameter2;
 
-  double Phi_minimum;
-  double Eta_minimum;
-  double Phi_fixed;
-  double Eta_fixed;
+  double Phi_minimum,Eta_minimum;
+  double  Delta_R_Region,HalfZRegion_size;
+  double  Phi_fixed,Eta_fixed;
 
   GlobalPoint theVertexPos;
-  GlobalError theVertexErr;
-
+  GlobalPoint vertexPosiBS;
 };
 #endif

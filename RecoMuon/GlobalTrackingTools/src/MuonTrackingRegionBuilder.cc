@@ -1,12 +1,12 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2007/08/15 15:18:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/14 16:24:25 $
+ *  $Revision: 1.4 $
  *  \author A. Everett - Purdue University
     \author A. Grelli -  Purdue University, Pavia University
  */
-
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
@@ -18,6 +18,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
+//Beam Spot option & vertexing
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 using namespace std;
 
 /// constructor
@@ -25,13 +29,15 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   : theService(service)
   {
 
-  // Parmeters
-  Nsigma_eta = par.getParameter<double>("Rescale_eta");
-  Nsigma_phi = par.getParameter<double>("Rescale_phi");
+  // Vertex Collection and Beam Spot
+  theBeamSpotTag = par.getParameter<edm::InputTag>("beamSpot");
 
-  HalfZRegion_size = par.getParameter<double>("DeltaZ_Region");
-  Delta_R_Region = par.getParameter<double>("DeltaR");
-  TkEscapePt = par.getParameter<double>("EscapePt");
+  // Parmeters
+  Nsigma_eta     = par.getParameter<double>("Rescale_eta");
+  Nsigma_phi     = par.getParameter<double>("Rescale_phi");
+  Nsigma_Dz      = par.getParameter<double>("Rescale_Dz");
+
+  TkEscapePt     = par.getParameter<double>("EscapePt");
 
   //Upper Limits Parameters   
   Eta_Region_parameter1 = par.getParameter<double>("EtaR_UpperLimit_Par1"); 
@@ -40,27 +46,34 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   Phi_Region_parameter2 = par.getParameter<double>("PhiR_UpperLimit_Par2");
 
   //Fixed limits
-  theFixedFlag = par.getParameter<bool>("UseFixedRegion");
-  Phi_minimum = par.getParameter<double>("Phi_min");
-  Eta_minimum = par.getParameter<double>("Eta_min");
+  theFixedFlag     = par.getParameter<bool>("UseFixedRegion");
+  Phi_minimum      = par.getParameter<double>("Phi_min");
+  Eta_minimum      = par.getParameter<double>("Eta_min");
+  HalfZRegion_size = par.getParameter<double>("DeltaZ_Region");
+  Delta_R_Region   = par.getParameter<double>("DeltaR");
 
   //Perigee Reference point
   theVertexPos = GlobalPoint(0.0,0.0,0.0);
 }
 
-RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::TrackRef& track) const
+RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::TrackRef& track) const//, const reco::BeamSpot& beamSpot) const
 {
   return region(*track);
 }
 
-RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const
-{
+void MuonTrackingRegionBuilder::setEvent(const edm::Event& event) {
+  
+  theEvent = &event;
+}
 
+
+RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const//, const reco::BeamSpot& beamSpot) const
+{
   TSCPBuilderNoMaterial tscpBuilder; 
   //Get muon free state updated at vertex
   TrajectoryStateTransform tsTransform;
   FreeTrajectoryState muFTS = tsTransform.initialFreeState(staTrack,&*theService->magneticField());
-  
+   
   //Get track direction at vertex
   GlobalVector dirVector(muFTS.momentum());
 
@@ -71,8 +84,18 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
     mom = dirVector; 
   }
 
-  GlobalPoint vertexPos = (muFTS.position());
-  GlobalError vertexErr = (muFTS.cartesianError().position());
+  // Inizial vertex position (in the following replaced with beam spot/vertexing)
+  GlobalPoint vertexPos(0.0,0.0,0.0);
+
+  //retrieve beam spot information
+  edm::Handle<reco::BeamSpot> bsHandle;
+  bool bsHandleFlag = theEvent->getByLabel(theBeamSpotTag, bsHandle);
+  //cechk the validity otherwise vertexing
+  if(bsHandleFlag) {
+    const reco::BeamSpot & bs = *bsHandle;
+    GlobalPoint vertexPosBS(bs.x0(), bs.y0(), bs.z0());
+    vertexPos = vertexPosBS;
+  }
 
   TrajectoryStateClosestToPoint tscp = tscpBuilder(muFTS,theVertexPos);
 
@@ -87,13 +110,17 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   //Get dEta and dPhi
   double deta = Nsigma_eta*(1/fabs(sin_theta))*deltaTheta;
   double dphi = Nsigma_phi*(covar.phiError());
-  
+
+
   /* Region_Parametrizations to take into account possible 
      L2 matrix inconsistencies. Detailed Explanation in TWIKI
      page.
   */
-  double region_dEta,region_dPhi,region_dEta1,region_dPhi1,Par_eta,Par_phi;
-  double acoeff1_Phi,acoeff1_Eta,acoeff3_Phi,acoeff3_Eta;
+  double region_dEta = 0;
+  double region_dPhi = 0;
+
+  double region_dEta1,region_dPhi1,Par_eta,Par_phi;
+  float  acoeff1_Phi,acoeff1_Eta,acoeff3_Phi,acoeff3_Eta;
 
   // Eta , ptparametrization as in MC study
    if(abs(mom.perp())<=10.){
@@ -129,11 +156,12 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   region_dPhi = max(Phi_minimum,region_dPhi1);
   region_dEta = max(Eta_minimum,region_dEta1);
 
-  double deltaZ  = HalfZRegion_size;
-  double deltaR  = Delta_R_Region;
+  float deltaZ  = HalfZRegion_size;
+  float deltaR  = Delta_R_Region;
   double minPt   = max(TkEscapePt,mom.perp()*0.6);
 
   RectangularEtaPhiTrackingRegion * region = 0;  
+
 
   if(theFixedFlag) {
      region_dEta = Eta_fixed;
@@ -149,3 +177,4 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
 
 
 }
+

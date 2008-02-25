@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 22:00:54 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/19 18:03:11 $
+ *  $Revision: 1.10 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -145,7 +145,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   theLayerMeasurements->setEvent(event);  
   theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
-
+  theRegionBuilder->setEvent(event);
   // the concrete TrajectoryBuilder should get other stuffs
 
 }
