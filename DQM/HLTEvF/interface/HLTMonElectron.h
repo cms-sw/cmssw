@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id$
+// $Id: HLTMonElectron.h,v 1.1 2008/02/06 13:09:22 lorenzo Exp $
 //
 //
 
@@ -58,16 +58,28 @@ class HLTMonElectron : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& , std::vector<int>& ,int);
+      template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& , const edm::Event&  ,unsigned int);
 
       // ----------member data --------------------------- 
       int nev_;
       DaqMonitorBEInterface * dbe;
       std::vector<MonitorElement *> etahist;
       std::vector<MonitorElement *> ethist;
+      std::vector<MonitorElement *> etahistiso;
+      std::vector<MonitorElement *> ethistiso;
+      MonitorElement* total;
       std::vector<edm::InputTag> theHLTCollectionLabels;  
       std::vector<int> theHLTOutputTypes;
-      bool verbose_;
+      std::vector<bool> plotiso;
+      std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
+      std::vector<std::pair<double,double> > plotBounds; 
+      unsigned int reqNum;
+ 
+      double thePtMin ;
+      double thePtMax ;
+      unsigned int theNbins ;
+      
+      std::string dirname_;
       bool monitorDaemon_;
       ofstream logFile_;
       int theHLTOutputType;
