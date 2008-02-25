@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.7 2008/02/01 14:18:19 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.8 2008/02/12 12:35:35 fblekman Exp $
 //
 //
 
@@ -218,7 +218,7 @@ SiPixelOfflineCalibAnalysisBase::doFits(uint32_t detid, std::vector<SiPixelCalib
 {
   short row=ipix->row();
   short col=ipix->col();
-  std::vector<short> nentries = ipix->getnentries();
+  std::vector<uint8_t> nentries = ipix->getnentries();
   std::vector<uint32_t> sum = ipix->getsum();
   std::vector<uint32_t> sumquares = ipix->getsumsquares();
    //do nothing
