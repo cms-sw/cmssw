@@ -61,46 +61,22 @@ class GammaJetAnalysis : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   // names of modules, producing object collections
      
-     edm::InputTag hbheLabel_;
-     edm::InputTag hoLabel_;
-     edm::InputTag hfLabel_;
-     std::vector<edm::InputTag> ecalLabels_;
-     std::vector<edm::InputTag> mInputCalo;
-     std::vector<edm::InputTag> mInputGen;
-     std::string myName;
-  // Ecal reconstruction
-      std::string islandBarrelBasicClusterCollection_;
-      std::string islandBarrelBasicClusterProducer_;
-      std::string islandBarrelBasicClusterShapes_;
-
-      std::string islandBarrelSuperClusterCollection_;
-      std::string islandBarrelSuperClusterProducer_;
-
-      std::string correctedIslandBarrelSuperClusterCollection_;
-      std::string correctedIslandBarrelSuperClusterProducer_;
-
-      std::string islandEndcapBasicClusterCollection_;
-      std::string islandEndcapBasicClusterProducer_;
-      std::string islandEndcapBasicClusterShapes_;
-
-      std::string islandEndcapSuperClusterCollection_;
-      std::string islandEndcapSuperClusterProducer_;
-
-      std::string correctedIslandEndcapSuperClusterCollection_;
-      std::string correctedIslandEndcapSuperClusterProducer_;
-
-      std::string hybridSuperClusterCollection_;
-      std::string hybridSuperClusterProducer_;
-
-      std::string correctedHybridSuperClusterCollection_;
-      std::string correctedHybridSuperClusterProducer_;
-   
+  std::string nameProd_;
+  std::string jetCalo_;
+  std::string gammaClus_;
+  std::string ecalInput_;
+  std::string hbheInput_;
+  std::string hoInput_;
+  std::string hfInput_;
+  std::string Tracks_;
+  std::string myName; 
       double CutOnEgammaEnergy_;
      
   // stuff for histogramms
   //  output file name with histograms
      string fOutputFileName ;
      bool allowMissingInputs_;
+     bool useMC;
   //
      TFile*      hOutputFile ;
      TTree * myTree;
