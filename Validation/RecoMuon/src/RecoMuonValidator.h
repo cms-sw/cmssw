@@ -22,7 +22,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/Tools/interface/FitSlicesYTool.h"

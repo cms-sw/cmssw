@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2007/10/03 14:07:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/08 04:11:35 $
+ *  $Revision: 1.5 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -155,8 +155,8 @@ int main(int argc, char *argv[] )
   TCanvas* c1 = new TCanvas("c1") ;
   pdf = 0 ;
   if (makePdf) pdf = new TPDF(TString(pdfname)) ;
-  int pageNumber = 2 ;
-  double titleSize = 0.050 ; 
+  //  int pageNumber = 2 ;
+  // double titleSize = 0.050 ; 
   
   gROOT->SetStyle("Plain") ; 
   gStyle->SetPalette(1) ; 

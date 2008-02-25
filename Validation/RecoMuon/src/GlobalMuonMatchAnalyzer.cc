@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2007/10/20 15:54:07 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/15 16:49:57 $
+ * $Revision: 1.2 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -34,7 +34,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TH2.h>

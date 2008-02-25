@@ -4,8 +4,8 @@
 /** \class Histograms
  *  No description available.
  *
- *  $Date: 2007/01/24 10:30:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/29 08:57:31 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -16,6 +16,8 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iostream>
+#include <vector>
+#include <cmath>
 
 class HTrackVariables{
 public:

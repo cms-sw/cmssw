@@ -1,6 +1,7 @@
 #include "Validation/RecoMuon/src/HTrack.h" 
 #include "Validation/RecoMuon/src/Histograms.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
 #include "TFile.h"
