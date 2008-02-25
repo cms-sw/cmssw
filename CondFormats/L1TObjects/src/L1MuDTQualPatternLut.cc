@@ -7,8 +7,8 @@
 //                coarse eta values 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/30 07:48:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -49,9 +49,9 @@ using namespace std;
 
 L1MuDTQualPatternLut::L1MuDTQualPatternLut() {
 
-  if ( load() != 0 ) {
-    cout << "Can not open files to load eta matching look-up tables for DTTrackFinder!" << endl;
-  }
+  //  if ( load() != 0 ) {
+  //    cout << "Can not open files to load eta matching look-up tables for DTTrackFinder!" << endl;
+  //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
 
@@ -95,7 +95,7 @@ void L1MuDTQualPatternLut::reset() {
 int L1MuDTQualPatternLut::load() {
 
   // get directory name
-  string defaultPath(getenv("DTTF_DATA_PATH"));
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string eau_dir = "L1TriggerData/DTTrackFinder/Eau/";
   string emu_str = "";
 

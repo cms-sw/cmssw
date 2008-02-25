@@ -5,8 +5,8 @@
 //   Description: Look-up tables for extrapolation
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/30 07:48:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -51,9 +51,9 @@ L1MuDTExtLut::L1MuDTExtLut() {
 
   ext_lut.reserve(MAX_EXT);
   setPrecision();
-  if ( load() != 0 ) {
-    cout << "Can not open files to load  extrapolation look-up tables for DTTrackFinder!" << endl;
-  }
+  //  if ( load() != 0 ) {
+  //    cout << "Can not open files to load  extrapolation look-up tables for DTTrackFinder!" << endl;
+  //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
 
@@ -66,13 +66,13 @@ L1MuDTExtLut::L1MuDTExtLut() {
 
 L1MuDTExtLut::~L1MuDTExtLut() {
 
-  typedef vector<LUT*>::iterator LI;
+  typedef vector<LUT>::iterator LI;
   for ( LI iter = ext_lut.begin(); iter != ext_lut.end(); iter++ ) {
-    if (*iter != 0 ) {
-      delete *iter;
-      *iter = 0;
-    }
+    (*iter).low.clear();
+    (*iter).high.clear();
   }
+
+  ext_lut.clear();
 
 }
 
@@ -97,7 +97,7 @@ void L1MuDTExtLut::reset() {
 int L1MuDTExtLut::load() {
 
   // get directory name
-  string defaultPath(getenv("DTTF_DATA_PATH"));
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string ext_dir = "L1TriggerData/DTTrackFinder/Ext/";
   string ext_str = "";
 
@@ -135,8 +135,7 @@ int L1MuDTExtLut::load() {
     //    if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
     //                                         << file.getName() << endl; 
 
-    LUT* tmplut = new LUT;
-    ext_lut.push_back(tmplut);
+    LUT tmplut;
 
     int number = -1;
     int adr_old = -512 >> sh_phib;
@@ -154,8 +153,8 @@ int L1MuDTExtLut::load() {
       
       if ( adr != adr_old ) {
       
-        tmplut->low[adr_old]  = sum_low  >> sh_phi;
-        tmplut->high[adr_old] = sum_high >> sh_phi;
+        tmplut.low[adr_old]  = sum_low  >> sh_phi;
+        tmplut.high[adr_old] = sum_high >> sh_phi;
 
         adr_old = adr;
         number = 0;
@@ -171,7 +170,7 @@ int L1MuDTExtLut::load() {
     }
 
     file.close();
-    
+    ext_lut.push_back(tmplut);
   }
   return 0;
 
@@ -207,12 +206,12 @@ void L1MuDTExtLut::print() const {
     for ( int i = 0; i < 2*nbit_phi + nbit_phib; i++ ) cout << '-';
     cout << "---------------------------------" << endl;
 
-    LUT::LUTmap::const_iterator iter = ext_lut[ext]->low.begin();
+    LUT::LUTmap::const_iterator iter = ext_lut[ext].low.begin();
     LUT::LUTmap::const_iterator iter1;
-    while ( iter != ext_lut[ext]->low.end() ) {
+    while ( iter != ext_lut[ext].low.end() ) {
       int address = (*iter).first;
       int low     = (*iter).second;
-      iter1 = ext_lut[ext]->high.find(address);
+      iter1 = ext_lut[ext].high.find(address);
       int high    = (*iter1).second;
 
       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
@@ -247,8 +246,8 @@ void L1MuDTExtLut::print() const {
 //
 int L1MuDTExtLut::getLow(int ext_ind, int address) const {
 
-  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind]->low.find(address);
-  if ( iter != ext_lut[ext_ind]->low.end() ) {
+  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind].low.find(address);
+  if ( iter != ext_lut[ext_ind].low.end() ) {
     return (*iter).second;
   }
   else {
@@ -263,8 +262,8 @@ int L1MuDTExtLut::getLow(int ext_ind, int address) const {
 //
 int L1MuDTExtLut::getHigh(int ext_ind, int address) const {
 
-  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind]->high.find(address);
-  if ( iter != ext_lut[ext_ind]->high.end() ) {
+  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind].high.find(address);
+  if ( iter != ext_lut[ext_ind].high.end() ) {
     return (*iter).second;
   }
   else {

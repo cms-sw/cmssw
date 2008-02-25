@@ -5,8 +5,8 @@
  *   Look-up tables for phi-assignment
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 07:48:02 $
+ *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -71,7 +71,7 @@ class L1MuDTPhiLut {
 
     typedef std::map<int, int, std::less<int> > LUT;
 
-    std::vector<LUT*> phi_lut;
+    std::vector<LUT> phi_lut;
     
     unsigned short int nbit_phi;
     unsigned short int nbit_phib;

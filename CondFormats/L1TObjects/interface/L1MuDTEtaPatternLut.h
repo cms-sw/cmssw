@@ -5,8 +5,8 @@
  *   Look-up table for eta track finder
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 07:48:02 $
+ *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,7 +30,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-class L1MuDTEtaPattern;
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
 
 //              ---------------------
 //              -- Class Interface --
@@ -40,7 +40,7 @@ class L1MuDTEtaPatternLut {
 
   public:
 
-    typedef std::map<int, L1MuDTEtaPattern*, std::less<int> > LUT;
+    typedef std::map<int, L1MuDTEtaPattern, std::less<int> > LUT;
     typedef LUT::const_iterator ETFLut_iter;
     typedef LUT::iterator       ETFLut_Iter;
     
@@ -60,7 +60,7 @@ class L1MuDTEtaPatternLut {
     void print() const;
 
     /// get pattern with a given ID
-    L1MuDTEtaPattern* getPattern(int id) const;
+    L1MuDTEtaPattern getPattern(int id) const;
     
     /// return number of entries in the LUT
     inline int size() const { return m_lut.size(); }

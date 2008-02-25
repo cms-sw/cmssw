@@ -5,8 +5,8 @@
  *   Look-up tables for extrapolation
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 07:48:02 $
+ *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -78,7 +78,7 @@ class L1MuDTExtLut {
         LUTmap high;
     };
 
-    std::vector<LUT*> ext_lut;
+    std::vector<LUT> ext_lut;
 
     unsigned short int nbit_phi;
     unsigned short int nbit_phib;

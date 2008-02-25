@@ -5,8 +5,8 @@
  *   Look-up tables for pt-assignment
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 07:48:02 $
+ *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -71,8 +71,8 @@ class L1MuDTPtaLut {
 
     typedef std::map<int, int, std::less<int> > LUT;
 
-    std::vector<LUT*> pta_lut;
-    std::vector<int>  pta_threshold;
+    std::vector<LUT> pta_lut;
+    std::vector<int> pta_threshold;
 
     unsigned short int nbit_phi;
     
