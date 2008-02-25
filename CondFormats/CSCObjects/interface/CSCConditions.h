@@ -2,8 +2,10 @@
 #define CSCObjects_CSCConditions_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
+#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <vector>
 
 class CSCDBGains;
@@ -59,6 +61,7 @@ private:
   const CSCDBCrosstalk * theCrosstalk;
 
   mutable float theAverageGain; // average over entire system, subject to some constraints!
+  edm::ESWatcher<CSCDBGainsRcd> gainsWatcher_; 
 };
 
 #endif
