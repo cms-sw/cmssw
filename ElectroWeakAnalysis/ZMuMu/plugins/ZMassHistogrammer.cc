@@ -29,14 +29,14 @@ using namespace edm;
 ZMassHistogrammer::ZMassHistogrammer(const ParameterSet& pset) :
   z_(pset.getParameter<InputTag>("z")),
   gen_(pset.getParameter<InputTag>("gen")) { 
-  cout << "Z Mass constructor" << endl;
+  cout << ">>> Z Mass constructor" << endl;
   Service<TFileService> fs;
-  h_mZ_ = fs->make<TH1F>("mZ", "Z mass (GeV/c^{2})", 100,  0, 200);
-  h_mZMC_ = fs->make<TH1F>("mZMC", "Z MC mass (GeV/c^{2})", 100,  0, 200);
+  h_mZ_ = fs->make<TH1F>("ZMass", "Z mass (GeV/c^{2})", 100,  0, 200);
+  h_mZMC_ = fs->make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", 100,  0, 200);
 }
 
 void ZMassHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
-  cout << ">>> TestZ analyze" << endl;
+  cout << ">>> Z Mass analyze" << endl;
   Handle<CandidateCollection> z;
   Handle<CandidateCollection> gen;
   event.getByLabel(z_, z);

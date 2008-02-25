@@ -1,42 +1,41 @@
 #ifndef ElectroWeakAnalysis_ZMuMu_ZMuMuScaledFunction_h
 #define ElectroWeakAnalysis_ZMuMu_ZMuMuScaledFunction_h
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "ElectroWeakAnalysis/ZMuMu/interface/ZMuMuFunction.h"
 #include <boost/shared_ptr.hpp>
 
 namespace function {
   class ZMuMuScaledFunction {
    public: 
-    enum { arguments = 1 };
-    enum { parameters = 9 };
+    static const unsigned int arguments = 1;
     ZMuMuScaledFunction(const ZMuMuFunction & zmm, int bin): 
       binScaleFactor(bin), zmm_(zmm) {}
-    ZMuMuScaledFunction(boost::shared_ptr<double> m, boost::shared_ptr<double> g, boost::shared_ptr<double> Ng, boost::shared_ptr<double> Ni, 
+     ZMuMuScaledFunction(const Parameter & m, const Parameter & g, 
+			 const Parameter & Ng, const Parameter & Ni, 
+			 const Parameter & me, const Parameter & s, 
+			 const Parameter & N, 
+			 const Parameter & eff_tr, const Parameter & eff_sa, 
+			 int bin):
+       mass(m.ptr()), width(g.ptr()), 
+       Ngamma(Ng.ptr()), Nint(Ni.ptr()), 
+       mean(me.ptr()), sigma(s.ptr()), 
+       numberOfEvents(N.ptr()), 
+       efficiencyTrack(eff_tr.ptr()), efficiencyStandalone(eff_sa.ptr()), 
+       binScaleFactor(bin), 
+       zmm_(m, g, Ng, Ni, me, s, N, eff_tr, eff_sa) {}
+    ZMuMuScaledFunction(boost::shared_ptr<double> m, boost::shared_ptr<double> g, 
+			boost::shared_ptr<double> Ng, boost::shared_ptr<double> Ni, 
 			boost::shared_ptr<double> me, boost::shared_ptr<double> s, 
-			boost::shared_ptr<double> N, boost::shared_ptr<double> eff_tr, boost::shared_ptr<double> eff_sa, int bin):
-      mass(m), width(g), Ngamma(Ng), Nint(Ni), mean(me), sigma(s), 
-      numberOfEvents(N), efficiencyTrack(eff_tr), efficiencyStandalone(eff_sa), binScaleFactor(bin), 
+			boost::shared_ptr<double> N, 
+			boost::shared_ptr<double> eff_tr, boost::shared_ptr<double> eff_sa, 
+			int bin):
+      mass(m), width(g), 
+      Ngamma(Ng), Nint(Ni), 
+      mean(me), sigma(s), 
+      numberOfEvents(N), 
+      efficiencyTrack(eff_tr), efficiencyStandalone(eff_sa), 
+      binScaleFactor(bin), 
       zmm_(m, g, Ng, Ni, me, s, N, eff_tr, eff_sa) {}
-    ZMuMuScaledFunction(double m, double g, double Ng, double Ni, 
-			double me, double s, 
-			double N, double eff_tr, double eff_sa, 
-			int bin): 
-      mass(new double(m)), width(new double(g)), Ngamma(new double(Ng)), Nint(new double(Ni)), mean(new double(me)), sigma(new double(s)), 
-      numberOfEvents(new double(N)), efficiencyTrack(new double(eff_tr)), efficiencyStandalone(new double(eff_sa)), binScaleFactor(bin), 
-      zmm_(m, g, Ng, Ni, me, s, N, eff_tr, eff_sa) {}
-    void setParameters(double m, double g, double Ng, double Ni, 
-		       double me, double s, 
-		       double N, double eff_tr, double eff_sa) { 
-      *mass = m; 
-      *width = g; 
-      *Ngamma = Ng; 
-      *Nint = Ni; 
-      *mean = me; 
-      *sigma = s; 
-      *numberOfEvents = N; 
-      *efficiencyTrack = eff_tr; 
-      *efficiencyStandalone = eff_sa; 
-      zmm_.setParameters(m, g, Ng, Ni, me, s, N, eff_tr, eff_sa);
-    }
     double operator()(double x) const {
       return binScaleFactor * zmm_(x);
     }
