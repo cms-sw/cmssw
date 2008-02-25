@@ -197,6 +197,7 @@ cond::service::PoolDBOutputService::currentTime() const{
 
 void 
 cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
+
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIO not a new tag");
@@ -207,10 +208,18 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     m_logdb->getWriteLock();
   }
   std::pair<unsigned int, std::string> result;
+
   try{
     pooldb.start(false);
-    result=this->insertIOV(pooldb,myrecord,firstPayloadToken,firstSinceTime,firstTillTime);
-    iovToken=result.second;
+    
+    cond::IOVService iovmanager(pooldb);
+    cond::IOVEditor* editor=iovmanager.newIOVEditor("");
+    editor->create(firstSinceTime,iovmanager.timeType());
+    unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
+    iovToken=editor->token();
+    delete editor;    
+
+
     pooldb.commit();
     cond::CoralTransaction& coraldb=m_connection->coralTransaction();
     cond::MetaData metadata(coraldb);
@@ -245,6 +254,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     m_logdb->releaseWriteLock();
   }
 }
+
 /*
 void 
 cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName,bool withlogging){
@@ -279,6 +289,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
   }
 }
 */
+
 void 
 cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName,bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
@@ -324,6 +335,8 @@ cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSe
   if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
 }
+
+
 unsigned int 
 cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
 						   cond::service::serviceCallbackRecord& record, 
@@ -332,26 +345,34 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
   if( record.m_isNewTag ) {
     throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
+
   cond::IOVService iovmanager(pooldb);  
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadidx=editor->append(sinceTime,payloadToken);
   delete editor;
   return payloadidx;
 }
-std::pair<unsigned int,std::string> 
+
+unsigned int
 cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
 					       cond::service::serviceCallbackRecord& record, 
 					       const std::string& payloadToken,
 					       cond::Time_t firstSinceTime,
-					       cond::Time_t tillTime)
-{
+					       cond::Time_t tillTime){
+  
+  if( record.m_isNewTag ) {
+    throw cond::Exception(std::string("PoolDBOutputService::insertIOV: cannot append to non-existing tag ")+record.m_tag );  
+  }
+  
   cond::IOVService iovmanager(pooldb);
-  cond::IOVEditor* editor=iovmanager.newIOVEditor(firstSinceTime);
+  cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
-  std::string iovToken=editor->token();
   delete editor;    
-  return std::make_pair(payloadIdx,iovToken);
+  return payloadidx;
 }
+
+
+
 void
 cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& usertext)
 {

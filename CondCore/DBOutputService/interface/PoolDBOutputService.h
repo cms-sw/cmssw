@@ -134,6 +134,7 @@ namespace cond{
 			 cond::Time_t firstTillTime,
 			 const std::string& EventSetupRecordName,
 			 bool withlogging=false);
+
       /*template<typename T>
 	void appendTillTime( T* payloadObj, 
 			     cond::Time_t tillTime,
@@ -268,14 +269,15 @@ namespace cond{
 			     cond::service::serviceCallbackRecord& record,
 			     const std::string& payloadToken, 
 			     cond::Time_t sinceTime);
-      /// Returns payload location index and iov token 
-      std::pair<unsigned int,std::string> 
-	insertIOV(cond::PoolTransaction& pooldb,
-		  cond::service::serviceCallbackRecord& record,
-		  const std::string& payloadToken, 
-		  cond::Time_t firstSinceTime,				    
-		  cond::Time_t tillTime);
+
+      /// Returns payload location index 
+      unsigned int 
+      insertIOV(cond::PoolTransaction& pooldb,
+		cond::service::serviceCallbackRecord& record,
+		const std::string& payloadToken, 			    
+		cond::Time_t tillTime);
       //			    const std::string& EventSetupRecordName);
+      
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
       UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
       

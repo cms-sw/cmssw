@@ -18,6 +18,12 @@ namespace cond{
   public:
     /// Destructor
     virtual ~IOVEditor(){}
+
+    virtial  void create(cond::Time_t firstSince,
+			 cond::TimeType timetype=cond::runnumber) = 0;
+
+
+
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     virtual unsigned int insert( cond::Time_t tillTime,
 				 const std::string& payloadToken

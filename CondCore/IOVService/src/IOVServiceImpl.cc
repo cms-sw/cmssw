@@ -162,10 +162,13 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 cond::Time_t since,
 						 cond::Time_t till,
 						 const std::string& payloadObjectName ){
+
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
+
   if(it==m_iovcache.end()){
     m_iovcache.insert(std::make_pair< std::string,cond::TypedRef<cond::IOV> >(iovToken,cond::TypedRef<cond::IOV>(*m_pooldb,iovToken)));
   }
+
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
   std::map<cond::Time_t, std::string>::const_iterator ifirstTill=iov->iov.lower_bound(since);
   std::map<cond::Time_t, std::string>::const_iterator isecondTill=iov->iov.lower_bound(till);

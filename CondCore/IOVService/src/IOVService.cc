@@ -39,15 +39,12 @@ cond::IOVService::newIOVIterator( const std::string& token, bool forward ){
     (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill()) :
     (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
+
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){
-  return new cond::IOVEditorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill(),m_impl->timeType());
+  return new cond::IOVEditorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
-cond::IOVEditor* 
-cond::IOVService::newIOVEditor( const cond::Time_t firstsince,
-				const cond::Time_t lasttill ){
-  return new cond::IOVEditorImpl( *m_pooldb,"",firstsince,lasttill,m_impl->timeType());
-}
+
 cond::TimeType 
 cond::IOVService::timeType() const{
   return m_impl->timeType();
