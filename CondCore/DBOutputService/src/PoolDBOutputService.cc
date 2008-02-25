@@ -196,7 +196,7 @@ cond::service::PoolDBOutputService::currentTime() const{
 }
 
 void 
-cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
+cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
 
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
@@ -215,7 +215,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     editor->create(firstSinceTime,iovmanager.timeType());
-    unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
+    unsigned int payloadIdx=editor->insert(tillTime,payloadToken(pooldb));
     iovToken=editor->token();
     delete editor;    
 

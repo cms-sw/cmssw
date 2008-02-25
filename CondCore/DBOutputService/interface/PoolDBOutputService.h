@@ -36,8 +36,48 @@ namespace cond{
 	start write metadata transaction only if the first pool commit 
 	successful;
 	for append,start readonly metadata transaction. start pool transaction only if metadata transaction successful.
+
 	
     */
+
+
+    struct GetToken {
+      virtual std::string operator()(cond::PoolTransaction&) const =0;
+
+    }
+
+      struct GetTrivialToken : public GetToken {
+
+      GetTrivialToken(std::string token) : 
+	m_token(token){}
+
+      virtual std::string operator()(cond::PoolTransaction&) const {
+	return m_token;
+      }
+
+      std::string m_token;
+    };
+
+    template<typename T>
+    struct GetTokenFromPointer : public GetToken {
+      
+      GetTokenFromPointer(T * t, const std::string& recordName) : 
+	m_p(p),  m_recordName(recordName) {}
+      
+      virtual std::string operator()(cond::PoolTransaction& pooldb) const {
+	cond::TypedRef<T> myPayload_pooldb,m_p);
+	  myPayload.markWrite(m_recordName);
+	  return myPayload.token();
+
+      }
+
+      T* m_p;
+      const std::string& m_recordName;
+    }
+
+
+
+      
     class PoolDBOutputService{
     public:
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -74,80 +114,40 @@ namespace cond{
 			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& EventSetupRecordName,
+
 			   bool withlogging=false){
-	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
-	if ( !m_dbstarted ) {
-	  this->initDB();
-	}
-	if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
-	//aquire writer lock
-	cond::PoolTransaction& pooldb=m_connection->poolTransaction();
-	std::string iovToken;
-	std::string payloadToken("");
-	if(withlogging){
-	  m_logdb->getWriteLock();
-	}
-	std::pair<unsigned int,std::string> result;
-	try{
-	  pooldb.start(false);
-	  cond::TypedRef<T> myPayload(pooldb,firstPayloadObj);
-	  myPayload.markWrite(EventSetupRecordName);
-	  payloadToken=myPayload.token();
 
-	  cond::IOVService iovmanager(pooldb);
-	  cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-	  editor->create(firstSinceTime,iovmanager.timeType());
-	  unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
-	  iovToken=editor->token();
-	  delete editor;    
-
-	  iovToken=result.second;
-	  pooldb.commit();
-	  cond::CoralTransaction& coraldb=m_connection->coralTransaction();
-	  cond::MetaData metadata(coraldb);
-	  coraldb.start(false);
-
-	  /*
-	    MetaDataEntry imetadata;
-	    imetadata.tagname=myrecord.m_tag;
-	    imetadata.iovtoken=iovToken;
-	    imetadata.timetype=m_timetype;
-	    imetadata.firstsince=firstSinceTime;
-	    metadata.addMapping(imetadata);
-	  */
-	  metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
-
-
-	  coraldb.commit();
-	  myrecord.m_isNewTag=false;
-	  myrecord.m_iovtoken=iovToken;
-	  m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );	  
-	  if(withlogging){
-	    if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
-	    std::string destconnect=m_connection->connectStr();
-	    cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-	    m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first);
-	  }
-	}catch(const std::exception& er){
-	  if(withlogging){
-	    std::string destconnect=m_connection->connectStr();
-	    cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-	    m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result.first,std::string(er.what()));
-	    m_logdb->releaseWriteLock();
-	  }
-	  throw cond::Exception("PoolDBOutputService::createNewIOV "+std::string(er.what()));
-	}
-	if(withlogging){
-	  m_logdb->releaseWriteLock();
-	}
+	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj,EventSetupRecordName),
+		      firstSinceTime, 
+		      firstTillTime,
+		      EventSetupRecordName,
+		      bool withlogging;	
+		      );
+	
       }
 
       void createNewIOV( const std::string& firstPayloadToken, 
 			 cond::Time_t firstSinceTime, 
 			 cond::Time_t firstTillTime,
 			 const std::string& EventSetupRecordName,
+			 bool withlogging=false) {
+	
+	createNewIOV( GetTrivialToken(firstPayloadToken),
+		      firstSinceTime, 
+		      firstTillTime,
+		      EventSetupRecordName,
+		      bool withlogging;	
+		      );
+      }
+
+
+      void createNewIOV( GetToken const & token, 
+			 cond::Time_t firstSinceTime, 
+			 cond::Time_t firstTillTime,
+			 const std::string& EventSetupRecordName,
 			 bool withlogging=false);
 
+  
       
       template<typename T>
       void appendTillTime( T* payloadObj, 
