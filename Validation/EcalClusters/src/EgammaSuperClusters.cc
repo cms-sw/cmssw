@@ -81,7 +81,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder("CMSSW_"+CMSSW_Version_+"/EcalClusters/SuperClusters/");
+	dbe_->setCurrentFolder("EcalClustersV/CMSSW_"+CMSSW_Version_+"/EcalClusters/SuperClusters/");
 
 	hist_HybridEB_SC_Size_ 
 		= dbe_->book1D("hist_HybridEB_SC_Size_","# Super Clusters from Hybrid in Barrel",
