@@ -9,6 +9,9 @@ class StripDigiSimLink {
   StripDigiSimLink(unsigned int ch, unsigned int tkId, unsigned int counter, EncodedEventId e,float a ):
     chan(ch),simTkId(tkId), CFpos(counter), eId(e) , fract(a) {;}
 
+  StripDigiSimLink(unsigned int ch, unsigned int tkId, EncodedEventId e,float a ):
+    chan(ch),simTkId(tkId), CFpos(0), eId(e) , fract(a) {;}
+
     StripDigiSimLink():chan(0),simTkId(0),CFpos(0),eId(0), fract(0) {;}
 
   ~StripDigiSimLink(){;}
