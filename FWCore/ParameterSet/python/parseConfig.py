@@ -110,6 +110,7 @@ def _findAndHandleParameterIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
+            #print "EXTRACT "+l
             newValues.extend(v.extract(l, otherFiles,
                                        recurseFiles,
                                        onlyParameters.parseFile,
@@ -126,6 +127,7 @@ def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
+            #print "EXTREACT "+l
             newValues.extend(v.extract(l, otherFiles,
                                        recurseFiles,
                                        onlyProcessBody.parseFile,
@@ -2884,16 +2886,17 @@ process RECO = {
 
             process = cms.Process("Test")
             foobar = 'cms.InputTag("foobar","","")'
+            fooRepr = 'cms.InputTag("foobar")'
             process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar",""))
             t = replace.parseString('replace a.b = foobar:')
-            self.checkRepr(t[0][1], "a.b = "+foobar)
+            self.checkRepr(t[0][1], "a.b = "+fooRepr)
             t[0][1].do(process)
-            self.assertEqual(process.a.b.configValue(),'foobar::')                        
+            self.assertEqual(process.a.b.configValue(),'foobar')                        
 
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
-            self.checkRepr(t[0][1], "a.b = cms.VInputTag("+foobar+")")
+            self.checkRepr(t[0][1], "a.b = cms.VInputTag("+fooRepr+")")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
@@ -2901,7 +2904,7 @@ process RECO = {
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b += {foobar:}')
-            self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+foobar+"))")
+            self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+fooRepr+"))")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
