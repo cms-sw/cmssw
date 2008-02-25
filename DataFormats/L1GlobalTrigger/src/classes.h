@@ -1,6 +1,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
@@ -66,6 +67,10 @@ namespace { namespace {
     // dictionary for L1 Global Trigger Object Map Record
     L1GlobalTriggerObjectMapRecord dummy72;
     edm::Wrapper<L1GlobalTriggerObjectMapRecord> dummy73;
+
+    // dictionary for L1 Global Trigger Record
+    L1GlobalTriggerRecord dummy120;
+    edm::Wrapper<L1GlobalTriggerRecord> dummy121;
     
     std::vector<L1GtObject> dummy100;
     std::vector<std::vector<L1GtObject> > dummy101; 

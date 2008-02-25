@@ -39,6 +39,9 @@
   <class name="L1GlobalTriggerObjectMapRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerObjectMapRecord>"/>
 
+  <class name="L1GlobalTriggerRecord"/>
+  <class name="edm::Wrapper<L1GlobalTriggerRecord>"/>
+
   <class name="std::vector<std::vector<int> >"/>
   <class name="std::vector<std::vector<std::vector<int> > >"/>
   
