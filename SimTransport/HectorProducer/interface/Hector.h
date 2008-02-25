@@ -65,13 +65,13 @@ private:
   double m_IPz;
   double m_IPt;
 
+  double Rpipe;// inner radius of beam pipe mm
+  double x0_zdc;// X0-coord. center of beam pipe at z=140m 
+  double y0_zdc;// Y0-coord. center of beam pipe at z=140m 
+
   // Hector
   H_BeamLine * m_beamlineFP4201;
   H_BeamLine * m_beamlineFP4202;
-  H_BeamLine * m_beamlineZDC1;
-  H_BeamLine * m_beamlineZDC2;
-  H_BeamLine * m_beamlineD11;
-  H_BeamLine * m_beamlineD12;
   //
 
     H_RecRPObject * m_rp420_f;
