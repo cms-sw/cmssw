@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/02/12 17:26:25 $
- ** $Revision: 1.3 $
+ ** $Date: 2008/02/12 20:40:52 $
+ ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -40,6 +40,7 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       virtual void endJob();
  private:
 
+      float  etaTransformation( float a, float b);
 
       std::string mcProducer_;
       std::string mcCollection_;
@@ -53,17 +54,19 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_scEt_;
       TH1F* h1_scEta_;
       TH1F* h1_scPhi_;
-
+      TH1F* h1_deltaEtaSC_;
+      TH1F* h1_deltaPhiSC_ ;
+ 
       
       TH1F* h1_recEoverTrueE_ ;
       TH1F* h1_deltaEta_;
       TH1F* h1_deltaPhi_ ;
     
 
-      TH1F* h1_corrPho_E_;
-      TH1F* h1_corrPho_Eta_;
-      TH1F* h1_corrPho_Phi_;
-      TH1F* h1_corrPho_R9_;
+      TH1F* h1_pho_E_;
+      TH1F* h1_pho_Eta_;
+      TH1F* h1_pho_Phi_;
+      TH1F* h1_pho_R9_;
 
 
 
