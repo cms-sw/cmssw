@@ -21,9 +21,9 @@
       !                 mu+    pi+    K+     p+     n0
       !                 mu-    pi-    K-
       DOUBLE PRECISION R_MU_P,R_PI_P,R_KA_P,R_PROT,R_NEUT
-     &                ,R_MU_M,R_PI_M,R_KA_M
+     &                ,R_MU_M,R_PI_M,R_KA_M,NPRIME,NSTACK
       COMMON/PRATES/   R_MU_P,R_PI_P,R_KA_P,R_PROT,R_NEUT
-     &                ,R_MU_M,R_PI_M,R_KA_M
+     &                ,R_MU_M,R_PI_M,R_KA_M,NPRIME,NSTACK
 
       ! particle rate fractions
       !                 mu+    pi+    K+     p+     n0

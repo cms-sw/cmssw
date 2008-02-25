@@ -29,7 +29,7 @@ namespace edm
 
   private:
 	bool call_ki_bhg_init(long& seed);
-        bool call_bh_set_parameters(int* ival, float* fval);
+        bool call_bh_set_parameters(int* ival, float* fval,const std::string cval_string);
 	bool call_ki_bhg_fill(int& iret, float& weight);
 	bool call_ki_bhg_stat(int& iret);
 
@@ -47,7 +47,7 @@ namespace edm
 	int IW_HAD_;
 	float EG_MIN_;
 	float EG_MAX_;
-
+	std::string G3FNAME_;
   };
 
 }

@@ -26,7 +26,7 @@ extern "C" {
 
 #define BHSETPARAM bhsetparam_
 extern "C" {
-   void BHSETPARAM(int* iparam, float* fparam);
+  void BHSETPARAM(int* iparam, float* fparam, const char* cparam, int length);
 }
 
 #define KI_BHG_FILL ki_bhg_fill_
@@ -59,22 +59,25 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 
    int iparam[6];
    float fparam[3];
-
+   std::string cparam;
  // -- from bhgctrl.inc
    iparam[0]  = pset.getUntrackedParameter<int>("GENMOD");
    iparam[1]  = pset.getUntrackedParameter<int>("LHC_B1");
    iparam[2]  = pset.getUntrackedParameter<int>("LHC_B2");
    iparam[3]  = pset.getUntrackedParameter<int>("IW_MUO");
    iparam[4]  = pset.getUntrackedParameter<int>("IW_HAD");
-
-   iparam[5]  = pset.getUntrackedParameter<int>("shift_bx");
+   iparam[5]  = numberEventsInRun();
+   iparam[6]  = pset.getUntrackedParameter<int>("OFFSET",0);
+   iparam[7]  = pset.getUntrackedParameter<int>("shift_bx");
    
    fparam[0]  = (float)pset.getUntrackedParameter<double>("EG_MIN");
    fparam[1]  = (float)pset.getUntrackedParameter<double>("EG_MAX");
 
    fparam[2] = (float)pset.getUntrackedParameter<double>("BXNS");
+   fparam[3]  = (float)pset.getUntrackedParameter<double>("W0",1.0);
 
-    call_bh_set_parameters(iparam,fparam);
+   cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
+   call_bh_set_parameters(iparam,fparam,cparam);
 
 
 // -- Seed for randomnumbers
@@ -82,7 +85,7 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
     long seed = (long)(rng->mySeed());
 
 
-// -- initialisationa
+// -- initialisation
    call_ki_bhg_init(seed);
 
 
@@ -137,8 +140,8 @@ bool BeamHaloSource::produce(Event & e) {
 
 
 
-bool BeamHaloSource::call_bh_set_parameters(int* ival, float* fval) {
-	BHSETPARAM(ival,fval);
+bool BeamHaloSource::call_bh_set_parameters(int* ival, float* fval, const std::string cval_string) {
+  BHSETPARAM(ival,fval,cval_string.c_str(),cval_string.length());
 	return true;
 }
 
