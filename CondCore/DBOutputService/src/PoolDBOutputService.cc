@@ -216,7 +216,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     editor->create(firstSinceTime,iovmanager.timeType());
     objToken = payloadToken(pooldb);
-    unsigned int payloadIdx=editor->insert(tillTime, objToken);
+    unsigned int payloadIdx=editor->insert(firstTillTime, objToken);
     iovToken=editor->token();
     delete editor;    
 
@@ -261,13 +261,16 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
 
 void 
 cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName,bool withlogging){
+
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
+
   cond::PoolTransaction& pooldb=m_connection->poolTransaction();
   if(withlogging){
     m_logdb->getWriteLock();
   }
-  unsigned int = result=0;
+
+  unsigned int result=0;
   try{
     pooldb.start(false);
     result=this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
@@ -276,7 +279,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
       cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result;
+      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result);
     }
   }catch(const std::exception& er){
     if(withlogging){
@@ -304,7 +307,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadT
   unsigned int payloadIdx=0;
   try{
     pooldb.start(false);
-     payloadIdx=this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
+    payloadIdx=this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
     pooldb.commit();
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
@@ -351,16 +354,15 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
 
   cond::IOVService iovmanager(pooldb);  
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
-  unsigned int payloadidx=editor->append(sinceTime,payloadToken);
+  unsigned int payloadIdx=editor->append(sinceTime,payloadToken);
   delete editor;
-  return payloadidx;
+  return payloadIdx;
 }
 
 unsigned int
 cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
 					       cond::service::serviceCallbackRecord& record, 
 					       const std::string& payloadToken,
-					       cond::Time_t firstSinceTime,
 					       cond::Time_t tillTime){
   
   if( record.m_isNewTag ) {
@@ -371,7 +373,7 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
   delete editor;    
-  return payloadidx;
+  return payloadIdx;
 }
 
 
