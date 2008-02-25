@@ -25,7 +25,7 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
   theTypePlot6HitsShower( dbe_->book1D("CSCSegments6HitsShower", "", 100, 0, 10) ),
   theTypePlot6HitsShowerSeg( dbe_->book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10) )
 {
-   dbe_->setCurrentFolder("CSCRecHitTask");
+   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
    for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200],  

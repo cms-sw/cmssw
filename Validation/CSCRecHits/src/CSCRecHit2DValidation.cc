@@ -7,7 +7,7 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 : CSCBaseValidation(dbe, inputTag),
   theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
 {
-   dbe_->setCurrentFolder("CSCRecHitTask");
+   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
 
    for(int i = 0; i < 10; ++i)
   {
