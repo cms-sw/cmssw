@@ -168,9 +168,8 @@ namespace cond{
 			      cond::Time_t sinceTime,
 			      const std::string& EventSetupRecordName,
 			      bool withlogging=false){
-
 	add(true,
-	    GetTokenFromPointer<T>(firstPayloadObj,EventSetupRecordName),
+	    GetTokenFromPointer<T>(payloadObj,EventSetupRecordName),
 	    sinceTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -189,8 +188,7 @@ namespace cond{
 	    GetTrivialToken(payloadToken),
 	    sinceTime, 
 	    EventSetupRecordName,
-	    withlogging);
-	
+	    withlogging);	
       }
 
       //

@@ -260,48 +260,11 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
 
 
 void 
-cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName,bool withlogging){
-
-  cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
-  if (!m_dbstarted) this->initDB();
-
-  cond::PoolTransaction& pooldb=m_connection->poolTransaction();
-  if(withlogging){
-    m_logdb->getWriteLock();
-  }
-  std::string objToken;
-  unsigned int result=0;
-  try{
-    pooldb.start(false);
-    result=this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
-    pooldb.commit();
-    if(withlogging){
-      if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
-      std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result);
-    }
-  }catch(const std::exception& er){
-    if(withlogging){
-      std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadToken,myrecord.m_tag,m_timetypestr,result,std::string(er.what()));
-      m_logdb->releaseWriteLock();
-    }
-    throw cond::Exception("PoolDBOutputService::appendTillTime "+std::string(er.what()));
-  }
-  if(withlogging){
-    m_logdb->releaseWriteLock();
-  }
-}
-
-
-void 
 cond::service::PoolDBOutputService::add( bool sinceNotTill, 
-					 GetToken const & paylodToken,  
+					 GetToken const & payloadToken,  
 					 cond::Time_t time,
 					 const std::string& EventSetupRecordName,
-					 bool withlogging=false) {
+					 bool withlogging) {
 
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
@@ -310,13 +273,14 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
     m_logdb->getWriteLock();
   }
 
+  std::string objToken;
   unsigned int payloadIdx=0;
 
   try{
     pooldb.start(false);
     objToken = payloadToken(pooldb);
     payloadIdx= sinceNotTill ?
-      this->appendIOV(pooldb,myrecord,objloadToken,time) :
+      this->appendIOV(pooldb,myrecord,objToken,time) :
       this->insertIOV(pooldb,myrecord,objToken,time);
 
     pooldb.commit();
@@ -338,6 +302,7 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
     m_logdb->releaseWriteLock();
   }
 }
+
 cond::service::serviceCallbackRecord& 
 cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRecordName){
   size_t callbackToken=this->callbackToken( EventSetupRecordName );
