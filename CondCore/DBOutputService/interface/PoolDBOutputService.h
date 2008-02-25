@@ -103,7 +103,6 @@ namespace cond{
 	  imetadata.tagname=myrecord.m_tag;
 	  imetadata.iovtoken=iovToken;
 	  imetadata.timetype=m_timetype;
-	  imetadata.firstsince=firstSinceTime;
 	  //metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
 	  metadata.addMapping(imetadata);
 	  coraldb.commit();

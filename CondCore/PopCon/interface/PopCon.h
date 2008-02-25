@@ -80,7 +80,10 @@ namespace popcon {
   void PopCon::writeOne(T * payload, Time_t time) {
     if (m_dbService->isNewTagRequest(m_record) ){
       edm::LogInfo ("PopCon") << "Creating new IOV " << time << std::endl;
-      m_dbService->createNewIOV<T>(payload, m_since ?  m_dbService->endOfTime() : time, m_record, m_LoggingOn);
+      m_dbService->createNewIOV<T>(payload, 
+				   m_since ? time : m_dbService->beginOfTime(),
+				   m_since ?  m_dbService->endOfTime() : time, 
+				   m_record, m_LoggingOn);
     }
     else{
       if (m_since){
