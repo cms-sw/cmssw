@@ -14,6 +14,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 #include "Fireworks/Core/interface/FW3DLegoView.h"
 
