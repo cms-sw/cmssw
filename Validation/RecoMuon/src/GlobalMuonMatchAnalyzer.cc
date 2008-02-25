@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2008/02/25 10:06:46 $
- * $Revision: 1.3 $
+ * $Date: 2008/02/25 21:48:32 $
+ * $Revision: 1.4 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -238,7 +238,7 @@ GlobalMuonMatchAnalyzer::beginJob(const edm::EventSetup& setup)
 
   dbe_->cd();
   std::string dirName="Matcher/";
-  dbe_->setCurrentFolder("RecoMuon/Matcher");
+  dbe_->setCurrentFolder("RecoMuonV/Matcher");
 
   h_shouldMatch = dbe_->book2D("h_shouldMatch","SIM associated to Tk and Sta",50,-2.5,2.5,100,0.,500.);
   h_goodMatchSim = dbe_->book2D("h_goodMatchSim","SIM associated to Glb Sta Tk",50,-2.5,2.5,100,0.,500.);
