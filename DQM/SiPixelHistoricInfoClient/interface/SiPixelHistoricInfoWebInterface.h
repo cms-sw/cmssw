@@ -1,10 +1,6 @@
-#ifndef SiPixelHistoricInfoClient_SiPixelHistoricInfoWebInterface_h
-#define SiPixelHistoricInfoClient_SiPixelHistoricInfoWebInterface_h
+#ifndef SiPixelHistoricInfoClient_WebInterface_h
+#define SiPixelHistoricInfoClient_WebInterface_h
 
-/* Description: this class is an example web interface that can be 
-                instantiated in a DQM client. Such web interfaces 
-		inherit the ability to react to widget requests from 
-		the WebInterface class of WebComponents. */
 		
 #include "DQMServices/WebComponents/interface/WebInterface.h"
 
@@ -14,21 +10,21 @@ public:
   SiPixelHistoricInfoWebInterface(std::string theContextURL, 
                                   std::string theApplicationURL, 
 				  MonitorUserInterface** _mui_p);
+ ~SiPixelHistoricInfoWebInterface();
 
-  // you need to implement this function if you have widgets 
-  // that invoke custom-made methods defined in your client
   void handleCustomRequest(xgi::Input* in, xgi::Output* out) throw (xgi::exception::Exception);
+  void handleEDARequest(xgi::Input* in, xgi::Output* out); 
 
-  // methods that we want to bind to widgets
-  void saveToFile(xgi::Input* in, xgi::Output* out) throw (xgi::exception::Exception);
+  bool getSaveToFile() const { return savetoFile_; };
+  void setSaveToFile(bool flag) { savetoFile_ = flag; };
 
-  // methods to get/set action flags
-  bool getSaveToFile() const { return doSaveToFile; };
-  void setSaveToFile(bool setsavto) { doSaveToFile = setsavto; };
+  bool getWriteToDB() const { return writetoDB_; };
+  void setWriteToDB(bool flag) { writetoDB_ = flag; };
 
-private:
-  // action flags that are raised in the WebInterface but executed in the Client in the onUpdate() method
-  bool doSaveToFile; 
+private: 
+  bool savetoFile_; 
+  bool writetoDB_; 
+  std::multimap<std::string, std::string> request_multimap;
 };
 
 
