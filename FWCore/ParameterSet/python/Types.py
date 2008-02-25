@@ -180,9 +180,20 @@ class InputTag(_ParameterTypeBase):
         self.__processName = label
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self, options=PrintOptions()):
-        return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
+        result = self.__moduleLabel
+        if self.__productInstance != "" or self.__processName != "":
+            result += ':' + self.__productInstance
+        if self.__processName != "":
+            result += ':' + self.__processName
+        if result == "":
+            result = '\"\"'
+        return result;
     def pythonValue(self, options=PrintOptions()):
-        colonedValue = "\""+self.configValue(options)+"\""
+        cfgValue = self.configValue(options)
+        # empty strings already have quotes
+        if cfgValue == '\"\"':
+            return cfgValue
+        colonedValue = "\""+cfgValue+"\""
         # change label:instance:process to "label","instance","process"
         return colonedValue.replace(":","\",\"")
     @staticmethod
@@ -520,7 +531,7 @@ if __name__ == "__main__":
             self.assertEqual(it.getProcessName(), "proc")
             self.assertEqual(repr(it), "cms.InputTag(\"label\",\"\",\"proc\")")
             vit = VInputTag(InputTag("label1"), InputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\",\"\",\"\"),cms.InputTag(\"label2\",\"\",\"\"))")
+            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"),cms.InputTag(\"label2\"))")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
