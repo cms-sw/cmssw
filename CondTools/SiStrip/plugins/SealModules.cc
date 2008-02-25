@@ -22,13 +22,13 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripApvGainBuilder);
 #include "CondTools/SiStrip/plugins/SiStripApvGainReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripApvGainReader);
 
-#include "CalibTracker/SiStripQuality/test/SiStripBadChannelBuilder.h"
+#include "CondTools/SiStrip/plugins/SiStripBadChannelBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelBuilder);
 
-#include "CalibTracker/SiStripQuality/test/SiStripBadFiberBuilder.h"
+#include "CondTools/SiStrip/plugins/SiStripBadFiberBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadFiberBuilder);
 
-#include "CalibTracker/SiStripQuality/test/SiStripBadStripReader.h"
+#include "CondTools/SiStrip/plugins/SiStripBadStripReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripReader);
 
 #include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryBuilder.h"
