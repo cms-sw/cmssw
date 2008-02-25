@@ -70,6 +70,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   //intialize tools
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
+  theRegionBuilder->setEvent(ev);
 
   //retrieve L2 track collection
   edm::Handle<reco::TrackCollection> l2muonH;
