@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.4 2008/02/21 09:40:12 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.3 2007/02/05 17:53:52 uberthon Exp $
 //
 //
 
@@ -29,23 +29,9 @@
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							     const TransientTrackingRecHit& hit) const {
 
-
   float tsPhi = ts.globalParameters().position().phi();
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp); 
-  
-  float myR = gp.perp();
-  float myZ = gp.z();
-  
-  float myZmax =  theZRangeMax;
-  float myZmin =  theZRangeMin;
-
-// this is commented out in last Arabella's version
-  if(fabs(myZ)<30. && myR>8.)
-    {
-      myZmax = 0.09;
-      myZmin = -0.09;
-    } 
 
   float rhPhi = gp.phi();
   
@@ -53,18 +39,19 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
-   
+
+
   if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
-       zDiff < myZmax && zDiff > myZmin) {
-  
+       zDiff < theZRangeMax && zDiff > theZRangeMin) {
+
     return std::pair<bool,double>(true,1.);
-     } else {
+  } else {
 
     //     cout<<" barrel rechit est returns false!!"<<endl;
     //     cout << " phiDiff,thePhiRangeMax,thePhiRangeMin  "<<phiDiff<<" "<<thePhiRangeMax<<" "<< thePhiRangeMin<<endl;
     //     cout << " zDiff, theZRangeMax, theZRangeMin "<<zDiff<<" "<<theZRangeMax<<" "<< theZRangeMin<<endl;
     return std::pair<bool,double>(false,0.);
-    }
+  }
 }
 
 bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
@@ -101,11 +88,13 @@ MeasurementEstimator::Local2DVector
 BarrelMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 							const BoundPlane& plane) const
 {
+  // completely temporary version
   float nSigmaCut = 3.;
   if ( ts.hasError()) {
     LocalError le = ts.localError().positionError();
     return Local2DVector( sqrt(le.xx())*nSigmaCut, sqrt(le.yy())*nSigmaCut);
   }
+  //UB FIXME!!!!!!!  else return Local2DVector(0,0);
   else return Local2DVector(99999,99999);
 }
 

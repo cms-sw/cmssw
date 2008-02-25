@@ -14,7 +14,6 @@
  ************************************************************/
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -23,8 +22,6 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 class PropagatorWithMaterial;
@@ -43,7 +40,19 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
-  ElectronPixelSeedGenerator(const edm::ParameterSet&);
+  ElectronPixelSeedGenerator(
+                          float iephimin1,
+			  float iephimax1,
+			  float ipphimin1,
+			  float ipphimax1,
+			  float iphimin2,
+			  float iphimax2,
+			  float izmin2,
+			  float izmax2,
+			  bool  idynamicphiroad,
+			  double SCEtCut
+			  ); 
+
   ~ElectronPixelSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
@@ -54,16 +63,15 @@ public:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection & out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
-  bool dynamicphiroad_;
+  float ephimin1;
+  float ephimax1;
+  float pphimin1;
+  float pphimax1;
+  float pphimin2, pphimax2;
+  float zmin1, zmax1, zmin2, zmax2;
+  bool dynamicphiroad;
   double SCEtCut_;
-  float lowPtThreshold_;
-  float highPtThreshold_;
-  float sizeWindowENeg_;   
-  float phimin2_,phimax2_;
-  float deltaPhi1Low_, deltaPhi1High_;
-  float deltaPhi2_;
-  
-  double zmin1_, zmax1_;
+
   math::XYZPoint BSPosition_;  
 
   PixelHitMatcher *myMatchEle;

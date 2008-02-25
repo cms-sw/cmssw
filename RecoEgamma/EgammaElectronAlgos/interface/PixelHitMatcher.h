@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.9 2008/02/21 09:40:12 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.8 2008/02/13 12:05:43 uberthon Exp $
 //
 //
 
@@ -74,20 +74,16 @@ class PixelHitMatcher{
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
+
   PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
-		  float z2minB, float z2maxB,
-		  float z2minF, float z2maxF,
-		  float rMin, float rMax, bool searchInTIDTEC) :
-    //zmin1 and zmax1 are dummy at this moment, set from beamspot later
-    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2minB,z2maxB), 
-    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,z2minF,z2maxF),
+		  float z2min, float z2max) :
+    phi1min(phi1min), phi1max(phi1max), phi2min(phi2min), phi2max(phi2max), 
+    z2min(z2min), z2max(z2max), 
+    //zmin1 and zmax1 are dummy at this moment
+    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2min,z2max), 
+    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,z2min,z2max),
     startLayers(),
-    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.),
-    searchInTIDTEC_(searchInTIDTEC)
-    {
-      meas1stFLayer.setRRange(rMin,rMax);
-      meas2ndFLayer.setRRange(rMin,rMax);
-    }
+    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.) {}
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
 
@@ -121,7 +117,7 @@ class PixelHitMatcher{
   //vector<TSiPixelRecHit> hitsInTrack;
   RecHitContainer hitsInTrack;
 
-  //  float phi1min, phi1max, phi2min, phi2max, z1min, z1max, z2min, z2max;
+  float phi1min, phi1max, phi2min, phi2max, z1min, z1max, z2min, z2max;
   std::vector<Hep3Vector> pred1Meas;
   std::vector<Hep3Vector> pred2Meas; 
   FTSFromVertexToPointFactory myFTS;
@@ -136,8 +132,6 @@ class PixelHitMatcher{
   const LayerMeasurements *theLayerMeasurements;
   const MagneticField* theMagField;
   float vertex;
-
-  bool searchInTIDTEC_;
 
 
 };

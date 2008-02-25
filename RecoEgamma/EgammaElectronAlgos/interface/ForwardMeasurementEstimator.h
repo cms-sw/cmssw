@@ -42,11 +42,6 @@ public:
     theZRangeMin=zmin;
     theZRangeMax=zmax;
   }
-   void setRRange (float rmin , float rmax) 
-  { 
-    rMin_= rmin;
-    rMax_ = rmax;
-  }
   
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
@@ -62,13 +57,16 @@ public:
     maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			      const BoundPlane& plane) const;
 
+  void setVertex (float vertex);
+  
  private:
 
   float thePhiRangeMin;
   float thePhiRangeMax;
   float theZRangeMin;
   float theZRangeMax;
-  float rMin_, rMax_;
+  
+  float zVert;
 
 };
 

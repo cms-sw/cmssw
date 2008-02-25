@@ -35,7 +35,7 @@ public:
   PixelMatchNextLayers(const LayerMeasurements * theLayerMeasurements, const DetLayer* ilayer, FreeTrajectoryState & aFTS,
 	                        const PropagatorWithMaterial *aProp, 
                       const BarrelMeasurementEstimator *aBarrelMeas,
-		      const ForwardMeasurementEstimator *aForwardMeas,bool searchInTIDTEC);
+		      const ForwardMeasurementEstimator *aForwardMeas);
   std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
   //RC vector<TSiPixelRecHit> hitsInNextLayers() const;  
