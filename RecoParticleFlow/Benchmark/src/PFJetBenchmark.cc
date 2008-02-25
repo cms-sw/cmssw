@@ -262,19 +262,23 @@ void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHad
         << "      charged/neutral multiplicity: " << pfj->chargedMultiplicity () << '/' << pfj->neutralMultiplicity () << endl
 		<< "    # of pfCandidates: " << pfCandidates.size() << endl;
    	vector <PFBlockRef> PFBRef;
-	// print PFCandidates constituents of the jet
-	for(unsigned i=0; i<pfCandidates.size(); i++) {
-		const PFCandidate* pfCand = pfCandidates[i];
-		PFBlockRef blockRef = pfCand->block();
-		// store vector of different block refs in the jet	
-		bool findref = false;
-		for (unsigned k =0; k<PFBRef.size();k++){ // scan blockrefs already stored
-		if (PFBRef[k]==blockRef) findref = true;
-		}// end loop on k
-		if (!findref) PFBRef.push_back(blockRef);
-		cout<<i <<" " << *pfCand << endl;
-	} // end loop on i (PFCandidates)
+
+	//COLIN PFCandidate::block() does not exist anymore
+	// 	// print PFCandidates constituents of the jet
+	// 	for(unsigned i=0; i<pfCandidates.size(); i++) {
+	// 		const PFCandidate* pfCand = pfCandidates[i];
+	// 		PFBlockRef blockRef = pfCand->block();
+	// 		// store vector of different block refs in the jet	
+	// 		bool findref = false;
+	// 		for (unsigned k =0; k<PFBRef.size();k++){ // scan blockrefs already stored
+	// 		if (PFBRef[k]==blockRef) findref = true;
+	// 		}// end loop on k
+	// 		if (!findref) PFBRef.push_back(blockRef);
+	// 		cout<<i <<" " << *pfCand << endl;
+	// 	} // end loop on i (PFCandidates)
 	// print blocks associated to the jet
+
+
 	  cout << "# of blocks in PFJet " <<  PFBRef.size()<< endl;
 	  cout << "blocks:"<<endl;
 	  // print blocks
