@@ -31,7 +31,7 @@ namespace function {
     double y0 = x - max_;
     for(size_t n = 0; n < steps_; ++n) {
       double y = y0 + n*delta_;
-      f += a_(y) * b_(x - y);;
+      f += a_(y) * b_(x - y);
     }   
     return f * delta_;
   }

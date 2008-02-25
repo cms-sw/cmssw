@@ -129,23 +129,23 @@ namespace root {
   template<typename F>
   TF1 tf1(const char * name, F& f,
 	  double min, double max) {
-    TF1 fun(name, function(f), min, max, 0);
+    TF1 fun(name, root::function(f), min, max, 0);
     return fun;
   }
 
   template<typename F>
-    TF1 tf1(const char * name, F& f, double min, double max,
+  TF1 tf1(const char * name, F& f, double min, double max,
 	  boost::shared_ptr<double> p0) {
-    TF1 fun(name, function(f, p0), min, max, 1);
+    TF1 fun(name, root::function(f, p0), min, max, 1);
     fun.SetParameter(0, *p0);
     return fun;
   }
 
   template<typename F>
-    TF1 tf1(const char * name, F& f, double min, double max,
+  TF1 tf1(const char * name, F& f, double min, double max,
 	  boost::shared_ptr<double> p0,
 	  boost::shared_ptr<double> p1) {
-    TF1 fun(name, function(f, p0, p1), min, max, 2);
+    TF1 fun(name, root::function(f, p0, p1), min, max, 2);
     fun.SetParameter(0, *p0);
     fun.SetParameter(1, *p1);
     return fun;
@@ -156,7 +156,7 @@ namespace root {
 	  boost::shared_ptr<double> p0,
 	  boost::shared_ptr<double> p1,
 	  boost::shared_ptr<double> p2) {
-    TF1 fun(name, function(f, p0, p1, p2), min, max, 3);
+    TF1 fun(name, root::function(f, p0, p1, p2), min, max, 3);
     fun.SetParameter(0, *p0);
     fun.SetParameter(1, *p1);
     fun.SetParameter(2, *p2);
@@ -166,7 +166,7 @@ namespace root {
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
 	  const std::vector<boost::shared_ptr<double> > & p) {
-    TF1 fun(name, function(f, p), min, max, p.size());
+    TF1 fun(name, root::function(f, p), min, max, p.size());
     for(size_t i = 0; i < p.size(); ++i)
       fun.SetParameter(i, *p[i]);
     return fun;
