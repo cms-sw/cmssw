@@ -38,6 +38,9 @@ class DQMQualityTest
     my_testprof2d = new TProfile2D("my_testprof2d", "testprof2d histo", 
 				   NBINS/10, XMIN, XMAX, NBINS/10, XMIN, XMAX,
 				   XMIN, XMAX);
+    // test histogram
+    poTH1Landau_test_ = new TH1F("poTH1Landau_test_", "landau test histo", NBINS, XMIN, XMAX);
+
     // root stuff
     my_ref->SetDirectory(0); my_test->SetDirectory(0);
     my_testh2f->SetDirectory(0); my_testprof->SetDirectory(0); 
@@ -111,25 +114,27 @@ class DQMQualityTest
 
   ~DQMQualityTest()
   {
-    if(my_ref)delete my_ref; if(my_test) delete my_test;
-    if(my_int_ref) delete my_int_ref; if(my_int) delete my_int;
-    if(chi2_test_)delete chi2_test_;
-    if(ks_test_)delete ks_test_;
-    if(xrange_test_)delete xrange_test_;
-    if(yrange_test_)delete yrange_test_;
-    if(deadChan_test_)delete deadChan_test_;
-    if(noisyChan_test_)delete noisyChan_test_;
-    if(equalH1_test_)delete equalH1_test_;
-    if(equalInt_test_)delete equalInt_test_;
-    if(meanNear_test_)delete meanNear_test_;
-    if(emu_test_) delete emu_test_;
-    if(my_testh2f) delete my_testh2f;
-    if(my_testprof) delete my_testprof;
-    if(my_testprof2d) delete my_testprof2d;
-    if(zrangeh2f_test_) delete zrangeh2f_test_;
-    if(zrangeprof_test_) delete zrangeprof_test_;
-    if(zrangeprof2d_test_) delete zrangeprof2d_test_;
-    if( poMPLandau_test_) delete poMPLandau_test_;
+    delete my_ref;
+    delete my_test;
+    delete my_int_ref;
+    delete my_int;
+    delete chi2_test_;
+    delete ks_test_;
+    delete xrange_test_;
+    delete yrange_test_;
+    delete deadChan_test_;
+    delete noisyChan_test_;
+    delete equalH1_test_;
+    delete equalInt_test_;
+    delete meanNear_test_;
+    delete emu_test_;
+    delete my_testh2f;
+    delete my_testprof;
+    delete my_testprof2d;
+    delete zrangeh2f_test_;
+    delete zrangeprof_test_;
+    delete zrangeprof2d_test_;
+    delete poMPLandau_test_;
   }
   // N_ref: statistics for reference histogram
   // N_test: statistics for test histogram
