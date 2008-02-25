@@ -10,8 +10,8 @@ BaseNumericalRandomGenerator::BaseNumericalRandomGenerator(
   random(engine),
   xmin(xmin), xmax(xmax), n(n), iter(iter) 
 {
-  // Limit the array size to the hard-coded maximum 
-  if ( n>100000) n=100000;
+  f.resize(n);
+  sampling.resize(n);
 }
 
 void
@@ -21,7 +21,11 @@ BaseNumericalRandomGenerator::initialize() {
   rmin = 0.;
   deltar = (double)m-rmin;
 
-  double a[100000],y[100000],z[100000],xnew[100000];
+  std::vector<double> a,y,z,xnew;
+  a.resize(n);
+  y.resize(n);
+  z.resize(n);
+  xnew.resize(n);
 
   double sig1 = 0.;
 
