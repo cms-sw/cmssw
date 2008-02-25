@@ -25,7 +25,7 @@ namespace cond {
     }
 
     m_iov=cond::TypedRef<cond::IOV>(*m_pooldb,new cond::IOV);
-    m_iov->timetype=(int)m_timetype;
+    m_iov->timetype=(int)timetype;
     m_iov->firstsince=m_globalSince;
     
     m_iov.markWrite(cond::IOVNames::container());
@@ -55,11 +55,11 @@ namespace cond {
   }
   
   Time_t IOVEditorImpl::firstSince() const {
-    m_iov->firstsince;
+    return m_iov->firstsince;
   }
   
   TimeType IOVEditorImpl::timetype() const {
-    return m_iov->timetype;
+    return (TimeType)(m_iov->timetype);
 
   }
   
