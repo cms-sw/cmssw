@@ -44,9 +44,9 @@ namespace cond{
     struct GetToken {
       virtual std::string operator()(cond::PoolTransaction&) const =0;
 
-    }
+    };
 
-      struct GetTrivialToken : public GetToken {
+    struct GetTrivialToken : public GetToken {
 
       GetTrivialToken(std::string token) : 
 	m_token(token){}
@@ -61,11 +61,11 @@ namespace cond{
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       
-      GetTokenFromPointer(T * t, const std::string& recordName) : 
+      GetTokenFromPointer(T * p, const std::string& recordName) : 
 	m_p(p),  m_recordName(recordName) {}
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
-	cond::TypedRef<T> myPayload_pooldb,m_p);
+	cond::TypedRef<T> myPayload(pooldb,m_p);
 	  myPayload.markWrite(m_recordName);
 	  return myPayload.token();
 
@@ -73,7 +73,7 @@ namespace cond{
 
       T* m_p;
       const std::string& m_recordName;
-    }
+    };
 
 
 
@@ -114,15 +114,13 @@ namespace cond{
 			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& EventSetupRecordName,
-
 			   bool withlogging=false){
 
 	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj,EventSetupRecordName),
 		      firstSinceTime, 
 		      firstTillTime,
 		      EventSetupRecordName,
-		      bool withlogging;	
-		      );
+		      withlogging);
 	
       }
 
@@ -136,8 +134,7 @@ namespace cond{
 		      firstSinceTime, 
 		      firstTillTime,
 		      EventSetupRecordName,
-		      bool withlogging;	
-		      );
+		      withlogging);
       }
 
 
