@@ -194,19 +194,19 @@ private:
 //////////////////////////////////////////////////////////////////////
 template <class INTO> inline const INTO *
 QTestValueOf(const MonitorElement *me)
-{ return dynamic_cast<const INTO *>(me->getTH1()); }
+{ return me ? dynamic_cast<const INTO *>(me->getTH1()) : 0; }
 
 template <> inline const int *
 QTestValueOf(const MonitorElement *me)
-{ return &me->getIntValue(); }
+{ return me ? &me->getIntValue() : 0; }
 
 template <> inline const double *
 QTestValueOf(const MonitorElement *me)
-{ return &me->getFloatValue(); }
+{ return me ? &me->getFloatValue() : 0; }
 
 template <> inline const std::string *
 QTestValueOf(const MonitorElement *me)
-{ return &me->getStringValue(); }
+{ return me ? &me->getStringValue() : 0; }
 
 template <class T> inline bool
 QTestNotEnoughStats(const T *, unsigned)
