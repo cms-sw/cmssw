@@ -26,7 +26,7 @@ namespace cond {
 
     m_iov=cond::TypedRef<cond::IOV>(*m_pooldb,new cond::IOV);
     m_iov->timetype=(int)timetype;
-    m_iov->firstsince=m_globalSince;
+    m_iov->firstsince=firstsince;
     
     m_iov.markWrite(cond::IOVNames::container());
     m_token=m_iov.token();

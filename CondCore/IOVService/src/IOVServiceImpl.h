@@ -21,14 +21,13 @@ namespace cond{
     std::pair<cond::Time_t, cond::Time_t> 
       validity( const std::string& iovToken, cond::Time_t currenttime );
     std::string payloadContainerName( const std::string& iovtoken );
-    void deleteAll(bool withPayload);
-    IOVIterator* newIOVIterator( const std::string& iovToken );
-    IOVEditor* newIOVEditor( const std::string& token );
-    IOVEditor* newIOVEditor( const cond::Time_t firstsince,
-			     const cond::Time_t lasttill);    
+ 
+   void deleteAll(bool withPayload);
+
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;
+
     std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
 			       const std::string& iovToken,
 			       const std::string& payloadObjectName );

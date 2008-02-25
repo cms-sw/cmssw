@@ -109,41 +109,37 @@ cond::IOVServiceImpl::deleteAll(bool withPayload){
     it.dataRef().markDelete();
   }
 }
-cond::IOVIterator* 
-cond::IOVServiceImpl::newIOVIterator( const std::string& iovToken ){
-  return new cond::IOVIteratorImpl(*m_pooldb, iovToken, m_beginOftime, m_endOftime );
-}
-cond::IOVEditor* 
-cond::IOVServiceImpl::newIOVEditor( const std::string& iovToken ){
-  return new cond::IOVEditorImpl(*m_pooldb, iovToken, m_beginOftime, m_endOftime,m_timetype );
-} 
-cond::IOVEditor* 
-cond::IOVServiceImpl::newIOVEditor(const cond::Time_t firstsince,
-				   const cond::Time_t lasttill){
-  return new cond::IOVEditorImpl(*m_pooldb, "", firstsince, lasttill,m_timetype );
-}
+
 cond::TimeType 
 cond::IOVServiceImpl::timeType() const{
   return m_timetype;
 }
+
 cond::Time_t 
 cond::IOVServiceImpl::globalSince() const{
   return m_beginOftime;
 }
+
 cond::Time_t 
 cond::IOVServiceImpl::globalTill() const{
   return m_endOftime;
 }
+
 std::string
 cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
 					    const std::string& iovToken,
 					    const std::string& payloadObjectName ){
+
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
   if(it==m_iovcache.end()){
     m_iovcache.insert(std::make_pair< std::string,cond::TypedRef<cond::IOV> >(iovToken,cond::TypedRef<cond::IOV>(*m_pooldb,iovToken)));
   }
+
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
   cond::IOV* newiov=new cond::IOV;
+  newiov->timetype= iov->timetype;
+  newiov->firstsince=iov->firstsince;
+
   for( std::map<cond::Time_t,std::string>::iterator it=iov->iov.begin();
        it!=iov->iov.end(); ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
@@ -175,14 +171,33 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   if( isecondTill!=iov->iov.end() ){
     isecondTill++;
   }
+  
+  std::map<cond::Time_t, std::string>::const_iterator iprev=ifirstTill;
+
+  // compute since
+  since = (iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first;
+
   cond::TypedRef<cond::IOV> newiovref;
+
   if (destToken.empty()) {
     // create a new one 
     newiovref = cond::TypedRef<cond::IOV>(destDB,new cond::IOV);
     newiovref.markWrite(cond::IOVNames::container());
+    newiov->timetype= iov->timetype;
+    newiov->firstsince = since;
   } else {
     newiovref = cond::TypedRef<cond::IOV>(destDB,destToken);
-    newiovref.markUpdate();   
+    newiovref.markUpdate();
+    if (since < newiovref.firstsince
+	|| (newiovref->iov.size()>1 && since< (--(newiovref->iov.rbegin())).first)
+	)  {
+      // problem
+    }
+    // update last till
+    std::map<cond::Time_t, std::string>::iterator last = newiovref->rbegin();
+    std::string ltoken = last->second;
+    newiovref.erase(last);
+    newiovref.insert(std::make_pair(since,ltoken);
   }
   cond::IOV & newiov = *newiovref;
   for( std::map<cond::Time_t,std::string>::const_iterator it=ifirstTill;
