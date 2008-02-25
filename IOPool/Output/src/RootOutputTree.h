@@ -49,7 +49,7 @@ namespace edm {
 		   std::vector<std::string> renamedList = std::vector<std::string>()) :
       filePtr_(filePtr),
       tree_(fastCloning ?
-		cloneTTree(filePtr.get(), tree, dropList, renamedList, true)
+		pseudoCloneTTree(filePtr.get(), tree, dropList, renamedList, splitLevel)
 		:
 		makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(fastMetaCloning ?
@@ -86,7 +86,9 @@ namespace edm {
     
     static void fastCloneTTree(TTree *in, TTree *out);
 
-    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, bool force = false);
+    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
+
+    static TTree * pseudoCloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, int splitLevel);
 
     static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
 

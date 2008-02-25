@@ -14,18 +14,11 @@
 
 namespace edm {
   namespace {
-    void forceStreamerInfo(TFile * filePtr, TObjArray * branches) {
+    void makeBranches(TTree * tree, TObjArray * branches) {
+      void * p = 0;
       for (int i = 0; i < branches->GetEntries(); ++i) {
 	TBranchElement * br = (TBranchElement *)branches->At(i);
-	br->GetInfo()->ForceWriteInfo(filePtr);
-	if (std::strlen(br->GetClonesName())) {
-	  TClass *cp = gROOT->GetClass(br->GetClonesName());
- 	  if (cp) {
-	    cp->GetStreamerInfo()->ForceWriteInfo(filePtr);
-	  }
-	}
-    	TObjArray * brs = br->GetListOfBranches();
-	forceStreamerInfo(filePtr, brs);
+	tree->Branch(br->GetName(), br->GetClassName(), &p, br->GetBasketSize(), br->GetSplitLevel());
       }
     }
   }
@@ -46,17 +39,28 @@ namespace edm {
   }
 
   TTree *
-  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, bool force) {
+  RootOutputTree::pseudoCloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList, int splitLevel) {
+    pruneTTree(tree, dropList, renamedList);
+    TTree *midTree = tree->CloneTree(0);
+    tree->SetBranchStatus("*", 1);
+//  Break association of the tree with its clone
+    tree->GetListOfClones()->Remove(midTree);
+    midTree->ResetBranchAddresses();
+    TTree *newTree = new TTree(tree->GetName(), tree->GetTitle(), splitLevel);
+    TObjArray * branches = midTree->GetListOfBranches();
+    makeBranches(newTree, branches);
+    delete midTree;
+    return assignTTree(filePtr, newTree);
+  }
+
+  TTree *
+  RootOutputTree::cloneTTree(TFile * filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList) {
     pruneTTree(tree, dropList, renamedList);
     TTree *newTree = tree->CloneTree(0);
     tree->SetBranchStatus("*", 1);
 //  Break association of the tree with its clone
     tree->GetListOfClones()->Remove(newTree);
     newTree->ResetBranchAddresses();
-    if (force) {
-      TObjArray * branches = newTree->GetListOfBranches();
-      forceStreamerInfo(filePtr, branches);
-    }
     return assignTTree(filePtr, newTree);
   }
 
