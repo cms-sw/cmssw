@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.7 2008/02/15 13:32:19 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.8 2008/02/19 13:49:06 fblekman Exp $
 //
 //
 
@@ -71,13 +71,6 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       virtual void clear();
       virtual void endJob() ;
       typedef std::pair<uint32_t,std::pair<short,short> >  pixelstruct;
-      //      class pixelstruct {
-      //      public:
-      //	pixelstruct():detid(0),row(0),col(0) {}
-      //	uint32_t detid;
-      //	short row;
-      //	short col;
-      //      };
       // ----------member data ---------------------------
       edm::InputTag src_;
       uint32_t iEventCounter_;
@@ -90,6 +83,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       std::string label_;
       std::string instance_;
       uint32_t number_of_pixels_per_pattern_;
+      bool use_realeventnumber_;
       
       edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
       edm::ESHandle<TrackerGeometry> theGeometry_; // the tracker geometry

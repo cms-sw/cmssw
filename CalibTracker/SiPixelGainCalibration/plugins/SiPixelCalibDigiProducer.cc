@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.11 2008/02/12 12:45:42 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.12 2008/02/19 13:49:06 fblekman Exp $
 //
 //
 
@@ -59,7 +59,8 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   includeErrors_(iConfig.getUntrackedParameter<bool>("includeErrors",false)),
   errorType(iConfig.getUntrackedParameter<int>("errorTypeNumber",1)),
   conf_(iConfig),
-  number_of_pixels_per_pattern_(0)
+  number_of_pixels_per_pattern_(0),
+  use_realeventnumber_(iConfig.getParameter<bool>("useRealEventNumber"))
 
 {
    //register your products
@@ -280,7 +281,11 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 {
   //  std::cout <<"in produce() " << std::endl;
   using namespace edm;
-  iEventCounter_++;
+  if(use_realeventnumber_){
+    iEventCounter_= iEvent.id().event()-1;
+  }
+  else
+    iEventCounter_++;
   if(iEventCounter_%pattern_repeat_==1)
     setPattern();
   
@@ -375,7 +380,6 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
     temppixelworker.second.second=col;
     std::map<pixelstruct,SiPixelCalibDigiError>::const_iterator ierr = error_data_.find(temppixelworker);
     if(ierr== error_data_.end()){
-      const unsigned int errorword32=1;
       SiPixelCalibDigiError temperr(row,col,1);
       error_data_[temppixelworker]=temperr;
     }
