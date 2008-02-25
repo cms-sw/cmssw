@@ -101,7 +101,7 @@ void L1MuDTSectorReceiver::reset() {
 void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByType(dttrig);
+  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
 
   L1MuDTChambPhDigi* ts=0;
 
@@ -118,6 +118,8 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
       if ( m_sp.ovl() && (reladr/2)%2 != 0 ) continue;
       int wheel  = address2wheel(reladr);
       int sector = address2sector(reladr);     
+      if ( abs(wheel)  != 0 ) continue;
+      //      if ( sector != 0 && sector != 2 ) continue;
       if ( reladr%2 == 0 ) ts = dttrig->chPhiSegm1(wheel,station,sector,bx);
       if ( reladr%2 == 1 ) ts = dttrig->chPhiSegm2(wheel,station,sector,bx);
       if ( ts ) {
@@ -191,10 +193,12 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 //
 void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
   
+  return;
+
   if ( bx < CSCConstants::MIN_BUNCH || bx > CSCConstants::MAX_BUNCH ) return;
 
   edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
-  e.getByType(csctrig);
+  e.getByLabel(L1MuDTTFConfig::getCSCTrSInputTag(),csctrig);
 
   const int bxCSC = CSCConstants::TIME_OFFSET;
   

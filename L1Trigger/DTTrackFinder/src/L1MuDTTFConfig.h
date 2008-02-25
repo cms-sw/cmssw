@@ -5,8 +5,8 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/03/30 09:05:32 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,6 +30,7 @@
 //------------------------------------
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 //              ---------------------
 //              -- Class Interface --
@@ -45,6 +46,9 @@ class L1MuDTTFConfig {
     /// destructor 
     virtual ~L1MuDTTFConfig();
 
+    static edm::InputTag getDTDigiInputTag() { return m_DTDigiInputTag; }
+    static edm::InputTag getCSCTrSInputTag() { return m_CSCTrSInputTag; }
+ 
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return (m_debug && m_dbgLevel >= level); }
  
@@ -73,6 +77,9 @@ class L1MuDTTFConfig {
   private:
 
     const edm::ParameterSet* m_ps;
+
+    static edm::InputTag m_DTDigiInputTag;
+    static edm::InputTag m_CSCTrSInputTag;
 
     static bool   m_debug;             // debug flag 
     static int    m_dbgLevel;          // debug level

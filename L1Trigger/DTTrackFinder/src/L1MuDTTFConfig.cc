@@ -60,7 +60,10 @@ L1MuDTTFConfig::~L1MuDTTFConfig() {}
 //--------------
 
 void L1MuDTTFConfig::setDefaults() {
-  
+
+  m_DTDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source");
+  m_CSCTrSInputTag = m_ps->getParameter<edm::InputTag>("CSCStub_Source");
+
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
 
@@ -101,6 +104,10 @@ void L1MuDTTFConfig::setDefaults() {
   if ( Debug(1) ) cout << "*******************************************" << endl;
   if ( Debug(1) ) cout << endl;
   
+  if ( Debug(1) ) cout << "L1 barrel Track Finder : DT Digi Source:  " <<  m_DTDigiInputTag << endl;
+  if ( Debug(1) ) cout << "L1 barrel Track Finder : CSC Stub Source: " <<  m_CSCTrSInputTag << endl;
+  if ( Debug(1) ) cout << endl;
+
   if ( Debug(1) ) cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
 
   if ( Debug(1) && m_overlap ) {
@@ -149,19 +156,22 @@ void L1MuDTTFConfig::setDefaults() {
 
 // static data members
 
+edm::InputTag L1MuDTTFConfig::m_DTDigiInputTag = edm::InputTag();
+edm::InputTag L1MuDTTFConfig::m_CSCTrSInputTag = edm::InputTag();
+
 bool L1MuDTTFConfig::m_debug = false;
-int L1MuDTTFConfig::m_dbgLevel = -1;
+int  L1MuDTTFConfig::m_dbgLevel = -1;
 bool L1MuDTTFConfig::m_overlap = true;
-int L1MuDTTFConfig::m_BxMin = -9;
-int L1MuDTTFConfig::m_BxMax =  7;
-int L1MuDTTFConfig::m_extTSFilter  = 1;
+int  L1MuDTTFConfig::m_BxMin = -9;
+int  L1MuDTTFConfig::m_BxMax =  7;
+int  L1MuDTTFConfig::m_extTSFilter  = 1;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
 bool L1MuDTTFConfig::m_TSOutOfTimeFilter = false;
-int L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
-int L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
-int L1MuDTTFConfig::m_NbitsExtPhib = 8;
-int L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
-int L1MuDTTFConfig::m_NbitsPtaPhib = 10;
-int L1MuDTTFConfig::m_NbitsPhiPhi  = 10; 
-int L1MuDTTFConfig::m_NbitsPhiPhib = 10;
+int  L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
+int  L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
+int  L1MuDTTFConfig::m_NbitsExtPhib = 8;
+int  L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
+int  L1MuDTTFConfig::m_NbitsPtaPhib = 10;
+int  L1MuDTTFConfig::m_NbitsPhiPhi  = 10; 
+int  L1MuDTTFConfig::m_NbitsPhiPhib = 10;

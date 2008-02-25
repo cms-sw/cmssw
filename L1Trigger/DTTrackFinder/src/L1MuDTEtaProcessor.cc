@@ -160,16 +160,16 @@ void L1MuDTEtaProcessor::print() const {
      cout << "Found patterns :" << endl;
      vector<int>::const_iterator iter;
      for ( iter = m_foundPattern.begin(); iter != m_foundPattern.end(); iter++ ) {
-        const L1MuDTEtaPattern* p = theEtaPatternLUT->getPattern(*iter);
-        int qualitycode = p->quality();
-        cout << "ID = " << setw(4) << p->id() << "  "
-             << "eta = " << setw(3) << p->eta() << "  "
+        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(*iter);
+        int qualitycode = p.quality();
+        cout << "ID = " << setw(4) << p.id() << "  "
+             << "eta = " << setw(3) << p.eta() << "  "
              << "quality = " << setw(2) << qualitycode << " ("
              << quality(qualitycode,1) << " "
              << quality(qualitycode,2) << " " 
              << quality(qualitycode,3) << ")";
         for ( int i = 0; i < 12; i++ ) { 
-          if ( m_pattern[i] ==  p->id() ) cout << " <--";
+          if ( m_pattern[i] ==  p.id() ) cout << " <--";
         }
         cout << endl;     
       }
@@ -183,15 +183,15 @@ void L1MuDTEtaProcessor::print() const {
       cout << "Matched patterns : " << endl;
       for ( int i = 0; i < 12; i++ ) {      
         if ( m_fine[i] ) {
-          const L1MuDTEtaPattern* p = theEtaPatternLUT->getPattern(m_pattern[i]);
-          int fineeta = p->eta();
+          const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
+          int fineeta = p.eta();
           int coarseeta = theQualPatternLUT->getCoarseEta(i/2+1,m_address[i]);
           cout << "Index = " << setw(2) << i << ", "
                << "address = " << setw(2) << m_address[i] << " --> " 
                << "pattern = " << setw(4) << m_pattern[i] << " "
                << "eta (coarse) = " << setw(3) << coarseeta << " "
                << "eta (fine) = " << setw(3) << fineeta << " "
-               << "quality = " << setw(2) << p->quality() << endl;
+               << "quality = " << setw(2) << p.quality() << endl;
         }
       }
     }
@@ -212,7 +212,7 @@ void L1MuDTEtaProcessor::print() const {
 void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e) {
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
-  e.getByType(dttrig);
+  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;
@@ -298,15 +298,15 @@ void L1MuDTEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
   L1MuDTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT->begin();
   while ( it != theEtaPatternLUT->end() ) {
   
-    const L1MuDTEtaPattern* pattern = (*it).second;
-    int qualitycode = pattern->quality();
+    const L1MuDTEtaPattern pattern = (*it).second;
+    int qualitycode = pattern.quality();
 
     bool good = true;
 
     for ( int station = 0; station < 3; station++) {
       int q = quality(qualitycode,station+1);
-      int wheel = pattern->wheel(station+1);
-      int bin = pattern->position(station+1);
+      int wheel = pattern.wheel(station+1);
+      int bin = pattern.position(station+1);
       if ( bin == 0 ) continue;
       bitset<7> pos  = m_tseta[wheel+2 + station*5]->position();
       bitset<7> qual = m_tseta[wheel+2 + station*5]->quality();
@@ -316,7 +316,7 @@ void L1MuDTEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
       if ( q == 2 ) good &= qual.test(bin-1);  
     }
 
-    if ( good ) m_foundPattern.push_back(pattern->id());
+    if ( good ) m_foundPattern.push_back(pattern.id());
 
     it++;
     
@@ -352,10 +352,10 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
       f_iter = find(m_foundPattern.begin(),m_foundPattern.end(),(*iter));
       // found
       if ( f_iter != m_foundPattern.end() ) {
-        const L1MuDTEtaPattern* p = theEtaPatternLUT->getPattern(*f_iter);
+        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(*f_iter);
         // assign fine eta value     
         m_fine[i] = true;
-        m_eta[i]  = p->eta();  // improved eta
+        m_eta[i]  = p.eta();  // improved eta
         m_pattern[i] = (*f_iter);
         break;
       }
@@ -400,12 +400,12 @@ void L1MuDTEtaProcessor::assign() {
       if ( m_fine[i] ) {
         m_TrackCand[i]->setFineEtaBit();
         // find all contributing track segments 
-        const L1MuDTEtaPattern* p = theEtaPatternLUT->getPattern(m_pattern[i]);
+        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
         vector<const L1MuDTTrackSegEta*> TSeta;
         const L1MuDTTrackSegEta* ts = 0;
         for ( int stat = 0; stat < 3; stat++ ) {
-          int wh = p->wheel(stat+1);
-          int pos = p->position(stat+1);
+          int wh = p.wheel(stat+1);
+          int pos = p.position(stat+1);
           if ( pos == 0 ) continue;
           ts = m_tseta[wh+2 + stat*5];
           TSeta.push_back(ts);
