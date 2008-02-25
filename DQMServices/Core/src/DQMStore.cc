@@ -71,6 +71,23 @@ isSubdirectory(const std::string &ofdir, const std::string &path)
 		  || path[ofdir.size()] == '/')));
 }
 
+static void
+cleanTrailingSlashes(const std::string &path, std::string &clean, const std::string *&cleaned)
+{
+  clean.clear();
+  cleaned = &path;
+
+  size_t len = path.size();
+  for ( ; len > 0 && path[len-1] == '/'; --len)
+    ;
+
+  if (len != path.size())
+  {
+    clean = path.substr(0, len);
+    cleaned = &clean;
+  }
+}
+
 template <class T>
 QCriterion *
 makeQCriterion(const std::string &qtname)
@@ -160,6 +177,9 @@ DQMStore::~DQMStore(void)
   for (QCMap::iterator i = qtests_.begin(), e = qtests_.end(); i != e; ++i)
     delete i->second;
 
+  for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
+    delete i->first;
+
   if (s_instance == this)
     s_instance = 0;
 }
@@ -189,11 +209,15 @@ DQMStore::cd(void)
 void
 DQMStore::cd(const std::string &subdir)
 {
-  if (! dirExists(subdir))
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(subdir, clean, cleaned);
+
+  if (! dirExists(*cleaned))
     throw cms::Exception("DQMStore")
-      << "Cannot 'cd' into non-existent directory '" << subdir << "'";
+      << "Cannot 'cd' into non-existent directory '" << *cleaned << "'";
   
-  setCurrentFolder(subdir);
+  setCurrentFolder(*cleaned);
 }
 
 /// set the last directory in fullpath as the current directory(create if needed);
@@ -203,8 +227,11 @@ DQMStore::cd(const std::string &subdir)
 void
 DQMStore::setCurrentFolder(const std::string &fullpath)
 {
-  makeDirectory(fullpath);
-  pwd_ = fullpath;
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(fullpath, clean, cleaned);
+  makeDirectory(*cleaned);
+  pwd_ = *cleaned;
 }
 
 /// equivalent to "cd .."
@@ -257,11 +284,13 @@ DQMStore::dirExists(const std::string &path) const
 MonitorElement *
 DQMStore::initialise(MonitorElement *me)
 {
+  assert(me->getPathname().empty() || *me->getPathname().rbegin() != '/');
+
   // Initialise quality test information.
   QTestSpecs::iterator qi = qtestspecs_.begin();
   QTestSpecs::iterator qe = qtestspecs_.end();
   for ( ; qi != qe; ++qi)
-    if (isSubdirectory(qi->first, me->path_))
+    if (qi->first->match(me->data_.name))
       me->addQReport(qi->second);
 
   // If we have a reference, assign it now.
@@ -599,10 +628,14 @@ DQMStore::tagContents(const std::string &path, unsigned int myTag)
 void
 DQMStore::tagAllContents(const std::string &path, unsigned int myTag)
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   // FIXME: WILDCARDS? Old one supported them, but nobody seemed to use them.
   MEMap::iterator e = data_.end();
-  MEMap::iterator i = data_.lower_bound(path);
-  while (i != e && isSubdirectory(path, i->first))
+  MEMap::iterator i = data_.lower_bound(*cleaned);
+  while (i != e && isSubdirectory(*cleaned, i->first))
   {
     tag(&i->second, myTag);
     ++i;
@@ -719,11 +752,15 @@ DQMStore::get(unsigned int tag) const
 std::vector<MonitorElement *>
 DQMStore::getContents(const std::string &path) const
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   std::vector<MonitorElement *> result;
   MEMap::const_iterator e = data_.end();
-  MEMap::const_iterator i = data_.lower_bound(path);
-  for ( ; i != e && isSubdirectory(path, i->second.path_); ++i)
-    if (i->second.path_ == path)
+  MEMap::const_iterator i = data_.lower_bound(*cleaned);
+  for ( ; i != e && isSubdirectory(*cleaned, i->second.path_); ++i)
+    if (i->second.path_ == *cleaned)
       result.push_back(const_cast<MonitorElement *>(&i->second));
 
   return result;
@@ -733,12 +770,16 @@ DQMStore::getContents(const std::string &path) const
 std::vector<MonitorElement *>
 DQMStore::getContents(const std::string &path, unsigned int tag) const
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   std::vector<MonitorElement *> result;
   MEMap::const_iterator e = data_.end();
-  MEMap::const_iterator i = data_.lower_bound(path);
-  for ( ; i != e && isSubdirectory(path, i->second.path_); ++i)
+  MEMap::const_iterator i = data_.lower_bound(*cleaned);
+  for ( ; i != e && isSubdirectory(*cleaned, i->second.path_); ++i)
   {
-    if (i->second.path_ != path)
+    if (i->second.path_ != *cleaned)
       continue;
     const MonitorElement &me = i->second;
     DQMNet::TagList::const_iterator te = me.data_.tags.end();
@@ -817,8 +858,11 @@ DQMStore::findObject(const std::string &dir, const std::string &name, std::strin
 {
   path.clear();
   path.reserve(dir.size() + name.size() + 2);
-  path += dir;
-  path += '/';
+  if (! dir.empty())
+  {
+    path += dir;
+    path += '/';
+  }
   path += name;
 
   if (path.find_first_not_of(s_safe) != std::string::npos)
@@ -897,16 +941,46 @@ DQMStore::getContents(const std::string &pathname, std::vector<MonitorElement *>
 #endif
 
 /// get vector with children of folder, including all subfolders + their children;
-/// must use exact pathname: FAST
-/// pathname including wildcards (*, ?): SLOW!
+/// must use an exact pathname
 std::vector<MonitorElement*>
 DQMStore::getAllContents(const std::string &path) const
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   std::vector<MonitorElement *> result;
   MEMap::const_iterator e = data_.end();
-  MEMap::const_iterator i = data_.lower_bound(path);
-  for ( ; i != e && isSubdirectory(path, i->second.path_); ++i)
+  MEMap::const_iterator i = data_.lower_bound(*cleaned);
+  for ( ; i != e && isSubdirectory(*cleaned, i->second.path_); ++i)
     result.push_back(const_cast<MonitorElement *>(&i->second));
+
+  return result;
+}
+
+/// get vector with children of folder, including all subfolders + their children;
+/// matches names against a wildcard pattern matched against the full ME path
+std::vector<MonitorElement*>
+DQMStore::getMatchingContents(const std::string &pattern) const
+{
+  lat::Regexp rx;
+  try
+  {
+    rx = lat::Regexp(pattern, 0, lat::Regexp::Wildcard);
+    rx.study();
+  }
+  catch (lat::Error &e)
+  {
+    throw cms::Exception("DQMStore")
+      << "Invalid regular expression '" << pattern << "': " << e.explain();
+  }
+
+  std::vector<MonitorElement *> result;
+  MEMap::const_iterator i = data_.begin();
+  MEMap::const_iterator e = data_.end();
+  for ( ; i != e; ++i)
+    if (rx.match(i->first))
+      result.push_back(const_cast<MonitorElement *>(&i->second));
 
   return result;
 }
@@ -1174,7 +1248,7 @@ DQMStore::cdInto(const std::string &path) const
 /// if directory="", save full monitoring structure
 void
 DQMStore::save(const std::string &filename,
-	       const std::string &path /* ="" */,
+	       const std::string &path /* = "" */,
 	       int minStatus /* =dqm::qstatus::STATUS_OK */)
 {
   TFile f(filename.c_str(), "RECREATE");
@@ -1435,17 +1509,21 @@ DQMStore::getDQMPatchVersion(void)
 void
 DQMStore::rmdir(const std::string &path)
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   MEMap::iterator e = data_.end();
-  MEMap::iterator i = data_.lower_bound(path);
-  while (i != e && isSubdirectory(path, i->second.path_))
+  MEMap::iterator i = data_.lower_bound(*cleaned);
+  while (i != e && isSubdirectory(*cleaned, i->second.path_))
   {
     removed_.push_back(i->second.data_.name);
     data_.erase(i++);
   }
 
   std::set<std::string>::iterator de = dirs_.end();
-  std::set<std::string>::iterator di = dirs_.lower_bound(path);
-  while (di != de && isSubdirectory(path, *di))
+  std::set<std::string>::iterator di = dirs_.lower_bound(*cleaned);
+  while (di != de && isSubdirectory(*cleaned, *di))
     dirs_.erase(di++);
 }
 
@@ -1493,8 +1571,11 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
 {
   std::string path;
   path.reserve(dir.size() + name.size() + 2);
-  path += dir;
-  path += '/';
+  if (! dir.empty())
+  {
+    path += dir;
+    path += '/';
+  }
   path += name;
 
   MEMap::iterator pos = data_.find(path);
@@ -1543,25 +1624,54 @@ DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
   return qc;
 }
 
-/// attach quality test <qc> to directory contents ==> FAST
+/// attach quality test <qtname> to directory contents
 /// (need exact pathname without wildcards, e.g. A/B/C);
 void
-DQMStore::useQTest(const std::string &searchString, const std::string &qtname)
+DQMStore::useQTest(const std::string &dir, const std::string &qtname)
+{
+  // Clean the path
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(dir, clean, cleaned);
+
+  // Redirect to the pattern match version.
+  useQTestByMatch(*cleaned + "/*", qtname);
+}
+
+/// attach quality test <qc> to monitor elements matching <pattern>.
+void
+DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
 {
   QCriterion *qc = getQCriterion(qtname);
   if (! qc)
     throw cms::Exception("DQMStore")
       << "Cannot apply non-existent quality test '" << qtname << '\'';
 
+  // Clean the path
+  lat::Regexp *rx = 0;
+  try
+  {
+    rx = new lat::Regexp(pattern, 0, lat::Regexp::Wildcard);
+    rx->study();
+  }
+  catch (lat::Error &e)
+  {
+    delete rx;
+    throw cms::Exception("DQMStore")
+      << "Invalid wildcard pattern '" << pattern
+      << "' in quality test specification";
+  }
+
   // Record the test for future reference.
-  QTestSpec qts(searchString, qc);
+  QTestSpec qts(rx, qc);
   qtestspecs_.push_back(qts);
 
   // Apply the quality test.
+  MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
-  MEMap::iterator mi = data_.lower_bound(qts.first);
-  for ( ; mi != me && isSubdirectory(qts.first, mi->second.path_); ++mi)
-    me->second.addQReport(qts.second);
+  for ( ; mi != me; ++mi)
+    if (rx->match(mi->first))
+      me->second.addQReport(qts.second);
 }
 
 #if 0
@@ -1610,12 +1720,16 @@ DQMStore::runQTests(void)
 int
 DQMStore::getStatus(const std::string &path /* = "" */) const
 {
+  std::string clean;
+  const std::string *cleaned = 0;
+  cleanTrailingSlashes(path, clean, cleaned);
+
   int status = dqm::qstatus::STATUS_OK;
   MEMap::const_iterator mi = data_.begin();
   MEMap::const_iterator me = data_.end();
   for ( ; mi != me; ++mi)
   {
-    if (! path.empty() && ! isSubdirectory(path, mi->second.path_))
+    if (! cleaned->empty() && ! isSubdirectory(*cleaned, mi->second.path_))
       continue;
 
     if (mi->second.hasError())

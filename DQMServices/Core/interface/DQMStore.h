@@ -9,6 +9,7 @@
 # include <set>
 
 namespace edm { class DQMHttpSource; class ParameterSet; }
+namespace lat { class Regexp; }
 
 class MonitorElement;
 class QCriterion;
@@ -131,7 +132,8 @@ public:
   // ---------------------- Quality Test methods -----------------------------
   QCriterion *			getQCriterion(const std::string &qtname) const;
   QCriterion *			createQTest(const std::string &algoname, const std::string &qtname);
-  void				useQTest(const std::string &searchString, const std::string &qtname);
+  void				useQTest(const std::string &dir, const std::string &qtname);
+  void				useQTestByMatch(const std::string &pattern, const std::string &qtname);
   //QReport *			getQReport(MonitorElement *me, const std::string &qtname);
   void				runQTests(void);
   int				getStatus(const std::string &path = "") const;
@@ -164,6 +166,7 @@ private:
   void				getAllTags(std::vector<std::string> &into) const;
   //void			getContents(const std::string &pathname, std::vector<MonitorElement *> &into) const;
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
+  std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
   //std::vector<MonitorElement*>getAllContents(const std::string &pathname, unsigned int tag) const;
   //void			getAllContents (const std::string &pathname, std::vector<MonitorElement*> &into) const;
 
@@ -221,7 +224,7 @@ private:
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef std::pair<std::string, QCriterion *>				QTestSpec;
+  typedef std::pair<lat::Regexp *, QCriterion *>			QTestSpec;
   typedef std::list<QTestSpec>						QTestSpecs;
   typedef std::map<std::string, MonitorElement>				MEMap;
   typedef std::map<std::string, QCriterion *>				QCMap;
@@ -249,7 +252,7 @@ private:
   friend class QTestStatusChecker;
   friend class EDMtoMEConverter;       // need clone methods
   friend class MEtoEDMConverter;
-  friend class DQMBackEndInterfaceExample; // for getAllContents -- sole user of this method!
+  friend class DQMBackEndInterfaceExample; // for get{All,Matching}Contents -- sole user of this method!
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H

@@ -10,11 +10,18 @@ MonitorElement *
 MonitorElement::initialise(Kind kind, const std::string &path)
 {
   const char *slash = strrchr(path.c_str(), '/');
-
-  kind_ = kind;
-  name_ = slash+1;
-  path_ = std::string(path.c_str(), slash);
   data_.name = path;
+  kind_ = kind;
+  if (slash)
+  {
+    name_ = slash+1;
+    path_ = std::string(path.c_str(), slash);
+  }
+  else
+  {
+    name_ = path;
+    path_.clear();
+  }
 
   switch (kind)
   {
