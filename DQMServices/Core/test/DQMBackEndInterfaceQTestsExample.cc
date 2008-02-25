@@ -316,7 +316,7 @@ void DQMBackEndInterfaceQTestsExample::runTests(int expected_status,
 					    string test_type)
 {
   cout << " ========================================================== " << endl;
-  cout << " Results of attempt to run " << test_type << endl;
+  cout << " Results of attempt to run " << test_type << ", expected status " << expected_status << endl;
   
   chi2_test->runTest(h1);
   checkTest(chi2_test);
@@ -364,64 +364,86 @@ void DQMBackEndInterfaceQTestsExample::runTests(int expected_status,
   checkTest(zrangeprof2d_test);
   showBadChannels(zrangeprof2d_test);
 
+  int errors;
   int status = 0;
   status = chi2_test->getStatus();
-  if(expected_status)
-    assert(status == expected_status);
+  if (expected_status && status != expected_status)
+    cout << "ERROR: Comp2RefChi2 test expected status " << expected_status
+	 << ", got " << status << endl;
   status = ks_test->getStatus();
-  if(expected_status)
-    assert(status == expected_status);  
+  if (expected_status && status != expected_status)
+    cout << "ERROR: Comp2RefKolmogorov test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = xrange_test->getStatus();
   // there is no "INVALID" result when running "contents within x-range" test
-  if(expected_status && expected_status != dqm::qstatus::INVALID)
-    assert(status == expected_status);  
+  if (expected_status
+      && expected_status != dqm::qstatus::INVALID
+      && expected_status != status)
+    cout << "ERROR: ContentsXRange test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = yrange_test->getStatus();
   // there is no "INVALID" result when running "contents within y-range" test
-  if(expected_status && expected_status != dqm::qstatus::INVALID)
-    assert(status == expected_status);  
+  if (expected_status
+      && expected_status != dqm::qstatus::INVALID
+      && expected_status != status)
+    cout << "ERROR: ContentsYRange test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = deadChan_test->getStatus();
   // there is no "INVALID" result when running "dead channel" test
-  if(expected_status && expected_status != dqm::qstatus::INVALID)
-    assert(status == expected_status);  
+  if (expected_status
+      && expected_status != dqm::qstatus::INVALID
+      && expected_status != status)
+    cout << "ERROR: DeadChannel test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = noisyChan_test->getStatus();
   // there is no "INVALID" result when running "noisy channel" test
-  if(expected_status && expected_status != dqm::qstatus::INVALID)
-    assert(status == expected_status);  
+  if (expected_status
+      && expected_status != dqm::qstatus::INVALID
+      && expected_status != status)
+    cout << "ERROR: NoisyChannel test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = meanNear_test->getStatus();
-  if(expected_status)
-    assert(status == expected_status);  
+  if (expected_status && expected_status != status)
+    cout << "ERROR: MeanWithinExpected test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = poMPLandau_test_->getStatus();
-  if( expected_status) {
-    assert( status == expected_status);
-  }
+  if (expected_status && expected_status != status)
+    cout << "ERROR: MostProbableLandau test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = equalH1_test->getStatus();
-  if(expected_status)
-    assert(status == expected_status);  
+  if (expected_status && expected_status != status)
+    cout << "ERROR: Comp2RefEqualH1 test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = equalInt_test->getStatus();
   // there is no "INSUF_STAT" result when running "int equality" tests
-  if(expected_status && expected_status != dqm::qstatus::INSUF_STAT)
-    assert(status == expected_status);  
+  if (expected_status
+      && expected_status != dqm::qstatus::INSUF_STAT
+      && expected_status != status)
+    cout << "ERROR: Comp2RefEqualInt test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = zrangeh2f_test->getStatus();
-   if(expected_status)
-    assert(status == expected_status);
+   if (expected_status && expected_status != status)
+    cout << "ERROR: Comp2RefEqualInt test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = zrangeprof_test->getStatus();
-   if(expected_status)
-    assert(status == expected_status);
+   if (expected_status && expected_status != status)
+    cout << "ERROR: ContentsProfWithinRange test expected status " << expected_status
+	 << ", got " << status << endl;
 
   status = zrangeprof2d_test->getStatus();
-   if(expected_status)
-    assert(status == expected_status); 
-
+   if (expected_status && expected_status != status)
+    cout << "ERROR: ContentsProf2DWithinRange test expected status " << expected_status
+	 << ", got " << status << endl;
 }
 
 // called by runTests; return status
