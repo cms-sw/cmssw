@@ -392,7 +392,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	
 	std::string Yaxis=detUnitLabel;
 	Yaxis.erase (1,1);
-	std::cout<<Yaxis<<std::endl;
+	//std::cout<<Yaxis<<std::endl;
 	if(ChamberNr.find(Yaxis) != ChamberNr.end()) {
 	  
 	  //strcpy(layerLabel, ChamberNr.find(label)->second.());
@@ -405,7 +405,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  meMap[meId]->Fill(strip, nrnr);
 
 	 
-	  Yaxis.erase(0,2);
+	  Yaxis.erase(0,3);
 	  Yaxis.replace(Yaxis.find("S"),4,"");
 	  Yaxis.erase(Yaxis.find("_")+2,8);
 
