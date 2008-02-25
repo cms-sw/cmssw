@@ -587,7 +587,7 @@ sub makeCfgSm
     $result = $result . "  module out = EventStreamFileWriter\n";
     $result = $result . "  {\n";
     $result = $result . "    string          streamLabel       =     \"A\"\n";
-    $result = $result . "    int32           maxSize           = 536870912\n";
+    $result = $result . "    int32           maxSize           = 2048\n";
     $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"*\"}}\n";
 
 #     $result = $result . "    untracked int32 max_event_size    = 7000000\n";
