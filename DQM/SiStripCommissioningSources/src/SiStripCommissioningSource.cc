@@ -119,18 +119,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   
   // ---------- Base directory ----------
 
-  std::stringstream dir("");
-
-#ifndef USING_NEW_COLLATE_METHODS
-  if (1) { dir << "FU/"; }
-  else {
-    dir << "FU_";
-    directory(dir);
-    dir << "/";
-  }
-#endif
-  
-  base_ = dir.str();
+  base_ = "FU/";
   
   // ---------- FED and FEC cabling ----------
   
