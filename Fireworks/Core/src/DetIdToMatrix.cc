@@ -78,10 +78,15 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
       TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
       if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
       idToMatrix_[id] = m;
-   } else {
-      idToMatrix_[id] = *(manager_->GetCurrentMatrix());
+      return &idToMatrix_[id];
    }
+      
+   TGeoHMatrix m = *(manager_->GetCurrentMatrix());
    
+   // some ECAL crystall are reflected
+   if ( detId.det() == DetId::Ecal && m.IsReflection() ) m.ReflectX(kFALSE);
+	
+   idToMatrix_[id] = m;
    return &idToMatrix_[id];
 }
 
@@ -114,11 +119,13 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds() const
 }
    
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name) const
+TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
 {
    if ( ! manager_ || ! path || ! name ) return 0;
    manager_->cd(path);
-   TGeoMatrix* matrix = manager_->GetCurrentMatrix();
+   // it's possible to get a corrected matrix from outside
+   // if it's not provided, we take whatever the geo manager has
+   if ( ! matrix ) matrix = manager_->GetCurrentMatrix();
    const Double_t* rm = matrix->GetRotationMatrix();
    const Double_t* tv = matrix->GetTranslation();
    TEveTrans t;
@@ -151,7 +158,7 @@ TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id ) const
 {
    std::ostringstream s;
    s << id;
-   return getExtract( getPath(id), s.str().c_str() );
+   return getExtract( getPath(id), s.str().c_str(), getMatrix(id) );
 }
 
 TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/) const

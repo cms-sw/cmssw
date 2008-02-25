@@ -51,7 +51,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
    
      TEveTrackPropagator *propagator = new TEveTrackPropagator();
      propagator->SetMagField( -4.0);
-     propagator->SetMaxR( 120 );
+     propagator->SetMaxR( 122 );
      propagator->SetMaxZ( 300 );
 
      int index=0;
@@ -59,6 +59,10 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      t.fBeta = 1.;
      for(PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
 	 i != electrons->end(); ++i, ++index) {
+	  std::stringstream s;
+	  s << "electron" << index;
+	  TEveElementList *elList = new TEveElementList(s.str().c_str());
+	  gEve->AddElement( elList, tList );
 	  assert(i->gsfTrack().isNonnull());
 	  t.fP = TEveVector(i->gsfTrack()->px(),
 			    i->gsfTrack()->py(),
@@ -69,7 +73,9 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 	  t.fSign = i->gsfTrack()->charge();
 	  TEveTrack* trk = new TEveTrack(&t, propagator);
 	  trk->SetMainColor(iItem->defaultDisplayProperties().color());
-	  gEve->AddElement(trk,tList);
+ 	  trk->MakeTrack();
+	  elList->AddElement(trk);
+// 	  gEve->AddElement(trk,tList);
 	  //cout << it->px()<<" "
 	  //   <<it->py()<<" "
 	  //   <<it->pz()<<endl;

@@ -35,9 +35,17 @@ class DetIdToMatrix
    const char* getPath( unsigned int id ) const;
    
    // extract globally positioned shape for stand alone use
+   // note: transformations are fixed for known differences
+   //       between Sim and Reco geometries
    TEveGeoShapeExtract* getExtract( unsigned int id ) const;
    
-   TEveGeoShapeExtract* getExtract( const char* path, const char* name ) const;
+   // extract globally positioned shape for stand alone use
+   // note: if matrix is not provided, it will be extracted from
+   //       the geo manager and no correction will be applied
+   //       to fix Sim/Reco geometry differences. 
+   //       For expert use only!
+   TEveGeoShapeExtract* getExtract(const char* path, const char* name, 
+				   const TGeoMatrix* matrix = 0) const;
 
    // get the detector volume in the geometry manager
    const TGeoVolume* getVolume( unsigned int id ) const;

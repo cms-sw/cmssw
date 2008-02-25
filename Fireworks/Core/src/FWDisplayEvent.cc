@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.25 2008/02/15 18:11:13 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.26 2008/02/21 16:09:55 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
+#include "Fireworks/Core/interface/ElectronSCViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 
@@ -89,6 +90,7 @@ FWDisplayEvent::FWDisplayEvent() :
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new ElectronSCViewManager));
    
   m_guiManager->createView("Rho Phi");
   m_guiManager->createView("Rho Z");

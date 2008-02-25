@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.10 2008/01/25 04:05:35 chrjones Exp $
+// $Id: FWEventItem.h,v 1.11.2.1 2008/02/18 06:51:43 jmuelmen Exp $
 //
 
 // system include files
@@ -110,7 +110,10 @@ class FWEventItem
       FWSelectionManager* selectionManager() const {
          return m_selectionManager;
       }
-   
+
+      // hackery methods
+      const fwlite::Event *getEvent () const { return  m_event; }
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

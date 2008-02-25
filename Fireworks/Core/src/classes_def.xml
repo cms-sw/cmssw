@@ -15,4 +15,5 @@
   <class name="FWGUISubviewArea"/>
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
+  <class name="ElectronsProxySCBuilder"/>
 </lcgdict>
