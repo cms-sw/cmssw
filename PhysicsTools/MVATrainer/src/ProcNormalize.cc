@@ -7,8 +7,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -254,7 +252,7 @@ void ProcNormalize::trainEnd()
 bool ProcNormalize::load()
 {
 	std::string filename = trainer->trainFileName(this, "xml");
-	if (!boost::filesystem::exists(filename.c_str()))
+	if (!exists(filename))
 		return false;
 
 	XMLDocument xml(filename);

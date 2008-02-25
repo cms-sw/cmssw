@@ -2,8 +2,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -125,7 +123,7 @@ void *ProcLinear::requestObject(const std::string &name) const
 bool ProcLinear::load()
 {
 	std::string filename = trainer->trainFileName(this, "xml");
-	if (!boost::filesystem::exists(filename.c_str()))
+	if (!exists(filename))
 		return false;
 
 	XMLDocument xml(filename);

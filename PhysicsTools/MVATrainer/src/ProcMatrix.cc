@@ -3,8 +3,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-
 #include <xercesc/dom/DOM.hpp>
 
 #include <TMatrixD.h>
@@ -173,7 +171,7 @@ void *ProcMatrix::requestObject(const std::string &name) const
 bool ProcMatrix::load()
 {
 	std::string filename = trainer->trainFileName(this, "xml");
-	if (!boost::filesystem::exists(filename.c_str()))
+	if (!exists(filename))
 		return false;
 
 	XMLDocument xml(filename);

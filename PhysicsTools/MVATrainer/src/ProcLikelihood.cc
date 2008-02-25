@@ -7,8 +7,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -478,7 +476,7 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 bool ProcLikelihood::load()
 {
 	std::string filename = trainer->trainFileName(this, "xml");
-	if (!boost::filesystem::exists(filename.c_str()))
+	if (!exists(filename))
 		return false;
 
 	XMLDocument xml(filename);
