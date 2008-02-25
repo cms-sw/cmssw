@@ -5,8 +5,8 @@
 
 include "L1TriggerConfig/GctConfigProducers/data/L1GctConfig.cff"
 
-#include "L1Trigger/GlobalCaloTrigger/data/l1GctEmulDigis.cfi"
-module l1GctEmulDigis = L1GctEmulator { 
+#include "L1Trigger/GlobalCaloTrigger/data/gctDigis.cfi"
+module gctDigis = L1GctEmulator { 
     InputTag inputLabel = gctUnpacker
     string jetFinderType = "tdrJetFinder"
 }

@@ -4,7 +4,7 @@
 
 CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	trackProducer = pset.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("l1csctracks"));
-	lctProducer   = pset.getUntrackedParameter<edm::InputTag>("l1CscTpgEmulDigis",edm::InputTag("l1CscTpgEmulDigis"));
+	lctProducer   = pset.getUntrackedParameter<edm::InputTag>("cscTriggerPrimitiveDigis",edm::InputTag("cscTriggerPrimitiveDigis"));
 	file = new TFile("qwe.root","RECREATE");
 	tree = new TTree("dy","QWE");
 	tree->Branch("nMuons", &nMuons, "nMuons/I");

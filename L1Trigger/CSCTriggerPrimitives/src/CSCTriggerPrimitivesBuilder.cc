@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/04/18 16:08:55 $
-//   $Revision: 1.10 $
+//   $Date: 2007/10/08 14:17:55 $
+//   $Revision: 1.11 $
 //
 //   Modifications:
 //
@@ -80,8 +80,8 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   }
 
   // Get min and max BX to sort LCTs in MPC.
-  m_minBX = conf.getUntrackedParameter<int>("MinBX",-3);
-  m_maxBX = conf.getUntrackedParameter<int>("MaxBX", 3);
+  m_minBX = conf.getParameter<int>("MinBX");
+  m_maxBX = conf.getParameter<int>("MaxBX");
 
   // Init MPC
   m_muonportcard = new CSCMuonPortCard();

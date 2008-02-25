@@ -11,8 +11,8 @@ include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
 include "L1TriggerConfig/DTTPGConfigProducers/data/L1DTTPGConfig.cff"
 include "L1TriggerConfig/DTTrackFinder/data/L1DTTrackFinderConfig.cff"
 
-//include "L1Trigger/DTTrigger/data/l1DTTPGEmulDigis.cfi"
-module l1DTTPGEmulDigis = DTTrigProd {
+//include "L1Trigger/DTTrigger/data/dtTriggerPrimitiveDigis.cfi"
+module dtTriggerPrimitiveDigis = DTTrigProd {
 	
 	# Includes configuration parametersets
 	#include "L1Trigger/DTTrigger/data/dttpg_conf.cff"
@@ -31,8 +31,8 @@ module l1DTTPGEmulDigis = DTTrigProd {
 }
 
 
-//include "L1Trigger/DTTrackFinder/data/l1DttfEmulDigis.cfi"
-module l1DttfEmulDigis = DTTrackFinder {
+//include "L1Trigger/DTTrackFinder/data/dttfDigis.cfi"
+module dttfDigis = DTTrackFinder {
        untracked int32 Debug = 0
        untracked bool  Overlap = true
        untracked int32 BX_min = -9

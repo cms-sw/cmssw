@@ -9,14 +9,14 @@ include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
 include "Geometry/CSCGeometry/data/cscGeometry.cfi"
 include "L1Trigger/CSCCommonTrigger/data/CSCCommonTrigger.cfi"
 
-include "L1Trigger/CSCTriggerPrimitives/data/l1CscTpgEmulDigis.cfi"
-replace l1CscTpgEmulDigis.CSCComparatorDigiProducer 
+include "L1Trigger/CSCTriggerPrimitives/data/cscTriggerPrimitiveDigis.cfi"
+replace cscTriggerPrimitiveDigis.CSCComparatorDigiProducer 
 = muonCSCDigis:MuonCSCComparatorDigi
-replace l1CscTpgEmulDigis.CSCWireDigiProducer       
+replace cscTriggerPrimitiveDigis.CSCWireDigiProducer       
 = muonCSCDigis:MuonCSCWireDigi
 
-include "L1Trigger/CSCTrackFinder/data/l1CscTfEmulDigis.cfi"
-replace l1CscTfEmulDigis.CSCTrackProducer = csctfunpacker //l1CscTfTrackEmulDigis
+include "L1Trigger/CSCTrackFinder/data/csctfDigis.cfi"
+replace csctfDigis.CSCTrackProducer = csctfunpacker //l1CscTfTrackEmulDigis
 
 include "L1Trigger/CSCTrackFinder/data/l1CscTfTrackEmulDigis.cfi"
 replace l1CscTfTrackEmulDigis.SectorReceiverInput = csctfunpacker::demon
@@ -87,7 +87,7 @@ produces<L1CSCStatusDigiCollection>();
 
 CTP:
 
-module l1CscTpgEmulDigis = CSCTriggerPrimitivesProducer
+module cscTriggerPrimitiveDigis = CSCTriggerPrimitivesProducer
 produces<CSCALCTDigiCollection>();
 produces<CSCCLCTDigiCollection>();
 produces<CSCCorrelatedLCTDigiCollection>();
@@ -108,7 +108,7 @@ edm::Handle<L1MuDTChambPhContainer> dttrig;
 e.getByLabel(input_module.label(),input_module.instance(), LCTs);
 e.getByType(dttrig);
 
-module l1CscTfEmulDigis = CSCTFCandidateProducer
+module csctfDigis = CSCTFCandidateProducer
 produces<std::vector<L1MuRegionalCand> >("CSC");
 edm::Handle<L1CSCTrackCollection> tracks;
 e.getByLabel(input_module.label(),input_module.instance(), tracks);

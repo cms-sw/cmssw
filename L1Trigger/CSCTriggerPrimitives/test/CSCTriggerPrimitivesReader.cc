@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/11/12 14:36:33 $
-//   $Revision: 1.17 $
+//   $Date: 2007/12/31 11:58:49 $
+//   $Revision: 1.18 $
 //
 //   Modifications:
 //
@@ -98,7 +98,7 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
 							"cscunpacker");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
-							"l1CscTpgEmulDigis");
+							"cscTriggerPrimitiveDigis");
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
   debug = conf.getUntrackedParameter<bool>("debug", false);

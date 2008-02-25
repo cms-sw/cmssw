@@ -14,7 +14,7 @@ module maskedRctInputDigis = MaskedRctInputDigiProducer {
     FileInPath maskFile = "L1Trigger/RegionalCaloTrigger/data/maskHcalGren.txt"
 }
 
-module l1RctEmulDigis = L1RCTProducer {
+module rctDigis = L1RCTProducer {
 	bool useEcal = false
 	bool useHcal = true
 	InputTag ecalDigisLabel = maskedRctInputDigis
