@@ -71,6 +71,7 @@ namespace cond{
       // 
       template<typename T>
 	void createNewIOV( T* firstPayloadObj, 
+			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
@@ -92,13 +93,19 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,firstPayloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  payloadToken=myPayload.token();
-	  result=this->insertIOV(pooldb, myrecord,payloadToken,firstTillTime);
+	  result=this->insertIOV(pooldb, myrecord,payloadToken,firstSinceTime,firstTillTime);
 	  iovToken=result.second;
 	  pooldb.commit();
 	  cond::CoralTransaction& coraldb=m_connection->coralTransaction();
 	  cond::MetaData metadata(coraldb);
 	  coraldb.start(false);
-	  metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
+	  MetaDataEntry imetadata;
+	  imetadata.tagname=myrecord.m_tag;
+	  imetadata.iovtoken=iovToken;
+	  imetadata.timetype=m_timetype;
+	  imetadata.firstsince=firstSinceTime;
+	  //metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
+	  metadata.addMapping(imetadata);
 	  coraldb.commit();
 	  myrecord.m_isNewTag=false;
 	  myrecord.m_iovtoken=iovToken;
@@ -123,10 +130,11 @@ namespace cond{
 	}
       }
       void createNewIOV( const std::string& firstPayloadToken, 
-			cond::Time_t firstTillTime,
-			const std::string& EventSetupRecordName,
-			bool withlogging=false);
-      template<typename T>
+			 cond::Time_t firstSinceTime, 
+			 cond::Time_t firstTillTime,
+			 const std::string& EventSetupRecordName,
+			 bool withlogging=false);
+      /*template<typename T>
 	void appendTillTime( T* payloadObj, 
 			     cond::Time_t tillTime,
 			     const std::string& EventSetupRecordName,
@@ -172,7 +180,7 @@ namespace cond{
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false
 			   );
-      
+      */
       template<typename T>
 	void appendSinceTime( T* payloadObj, 
 			      cond::Time_t sinceTime,
@@ -228,9 +236,13 @@ namespace cond{
       //
       // Service time utility callback method 
       // return the infinity value according to the given timetype
-      // It is the IOV closing boundary
       //
       cond::Time_t endOfTime() const;
+      //
+      // Service time utility callback method 
+      // return beginning of time value according to the given timetype
+      //
+      cond::Time_t beginOfTime() const;
       //
       // Service time utility callback method 
       // return the current conditions time value according to the 
@@ -257,10 +269,12 @@ namespace cond{
 			     const std::string& payloadToken, 
 			     cond::Time_t sinceTime);
       /// Returns payload location index and iov token 
-      std::pair<unsigned int,std::string> insertIOV(cond::PoolTransaction& pooldb,
-			    cond::service::serviceCallbackRecord& record,
-			    const std::string& payloadToken, 
-			    cond::Time_t tillTime);
+      std::pair<unsigned int,std::string> 
+	insertIOV(cond::PoolTransaction& pooldb,
+		  cond::service::serviceCallbackRecord& record,
+		  const std::string& payloadToken, 
+		  cond::Time_t firstSinceTime,				    
+		  cond::Time_t tillTime);
       //			    const std::string& EventSetupRecordName);
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
       UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);

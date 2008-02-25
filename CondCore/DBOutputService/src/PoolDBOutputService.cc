@@ -15,7 +15,7 @@
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
+//#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 //POOL include
 //#include "FileCatalog/IFileCatalog.h"
@@ -170,16 +170,33 @@ cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupR
 
 cond::Time_t 
 cond::service::PoolDBOutputService::endOfTime() const{
-  return (cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
+  switch(m_timetype){
+  case cond::runnumber:
+    return (cond::Time_t)edm::RunID::maxRunNumber();
+  case cond::timestamp:  
+    return (cond::Time_t)edm::Timestamp::endOfTime().value();
+  default:
+    return (cond::Time_t)edm::Timestamp::endOfTime().value();
+  }
 }
-
+cond::Time_t 
+cond::service::PoolDBOutputService::beginOfTime() const{
+  switch(m_timetype){ 
+  case cond::runnumber:
+    return (cond::Time_t)edm::RunID::firstValidRun().run();
+  case cond::timestamp:
+    return (cond::Time_t)edm::Timestamp::beginOfTime().value();
+  default:
+    return (cond::Time_t)edm::Timestamp::beginOfTime().value();
+  }
+}
 cond::Time_t 
 cond::service::PoolDBOutputService::currentTime() const{
   return m_currentTime;
 }
 
 void 
-cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
+cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIO not a new tag");
@@ -192,14 +209,19 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
   std::pair<unsigned int, std::string> result;
   try{
     pooldb.start(false);
-    result=this->insertIOV(pooldb,myrecord,firstPayloadToken,firstTillTime);
+    result=this->insertIOV(pooldb,myrecord,firstPayloadToken,firstSinceTime,firstTillTime);
     iovToken=result.second;
     pooldb.commit();
     cond::CoralTransaction& coraldb=m_connection->coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
-    
-    metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
+    MetaDataEntry imetadata;
+    imetadata.tagname=myrecord.m_tag;
+    imetadata.iovtoken=iovToken;
+    imetadata.timetype=m_timetype;
+    imetadata.firstsince=firstSinceTime;
+    //metadata.addMapping(myrecord.m_tag,iovToken,m_timetype);
+    metadata.addMapping(imetadata);
     coraldb.commit();
     m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
     myrecord.m_iovtoken=iovToken;
@@ -223,7 +245,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     m_logdb->releaseWriteLock();
   }
 }
-
+/*
 void 
 cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName,bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
@@ -256,7 +278,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
     m_logdb->releaseWriteLock();
   }
 }
-
+*/
 void 
 cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName,bool withlogging){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
@@ -320,10 +342,11 @@ std::pair<unsigned int,std::string>
 cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
 					       cond::service::serviceCallbackRecord& record, 
 					       const std::string& payloadToken,
+					       cond::Time_t firstSinceTime,
 					       cond::Time_t tillTime)
 {
   cond::IOVService iovmanager(pooldb);
-  cond::IOVEditor* editor=iovmanager.newIOVEditor();
+  cond::IOVEditor* editor=iovmanager.newIOVEditor(firstSinceTime);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
   std::string iovToken=editor->token();
   delete editor;    

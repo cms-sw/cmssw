@@ -52,8 +52,8 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       mySiStripNoises::Range range(theSiStripVector.begin(),theSiStripVector.end());
       me->put(detid,range);
     }
-    if( mydbservice->isNewTagRequest(m_StripRecordName) ){
-      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->endOfTime(),m_StripRecordName);
+    if( mydbservice->isNewTagRequest(m_StripRecordName) ){      
+      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_StripRecordName);
     }else{
       mydbservice->appendSinceTime<mySiStripNoises>(me,mydbservice->currentTime(),m_StripRecordName);
     }
@@ -66,7 +66,7 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       myped->m_pedestals.push_back(item);
     }
     if( mydbservice->isNewTagRequest(m_PedRecordName) ){
-      mydbservice->createNewIOV<Pedestals>(myped,mydbservice->endOfTime(),m_PedRecordName);
+      mydbservice->createNewIOV<Pedestals>(myped,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_PedRecordName);
     }else{
       mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_PedRecordName);
     }

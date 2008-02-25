@@ -43,8 +43,10 @@ void MyDataAnalyzer::endJob(){
       }
       //create 
       cond::Time_t firstTillTime=mydbservice->endOfTime();
+      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
+      std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
       std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
-      mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record,m_LoggingOn);
+      mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record,m_LoggingOn);
     }else{
       //append 
       std::cout<<"appending payload"<<std::endl;

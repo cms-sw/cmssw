@@ -51,7 +51,7 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
       me->put(detid,range);
     }
     if( mydbservice->isNewTagRequest(m_StripRecordName) ){
-      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->endOfTime(),m_StripRecordName);
+      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_StripRecordName);
     }else{
       mydbservice->appendSinceTime<mySiStripNoises>(me,mydbservice->currentTime(),m_StripRecordName);
     }

@@ -34,9 +34,11 @@ void IOVPayloadEndOfJob::endJob(){
 	myped->m_pedestals.push_back(item);
       }
       //create 
+      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
       cond::Time_t firstTillTime=mydbservice->endOfTime();
-      std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
-      mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
+       std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
+       std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
+       mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record);
     }else{
       //append 
       std::cout<<"appending payload"<<std::endl;

@@ -34,9 +34,10 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
   std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   if( mydbservice->isNewTagRequest(m_record) ){
     //create 
+    cond::Time_t firstSinceTime=mydbservice->beginOfTime();
     cond::Time_t firstTillTime=mydbservice->endOfTime();
     std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
-    mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
+    mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record);
     //std::cout<<"about to throw"<<std::endl;
     //throw cond::Exception("throwme");
     //std::cout<<"thrown"<<std::endl;
