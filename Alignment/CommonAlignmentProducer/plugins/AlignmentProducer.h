@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.8 $
-///  last update: $Date: 2007/12/04 23:39:24 $
-///  by         : $Author: ratnik $
+///  Revision   : $Revision: 1.9 $
+///  last update: $Date: 2008/02/20 08:59:36 $
+///  by         : $Author: pivarski $
 
 #include <vector>
 
@@ -19,7 +19,6 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 // Alignment
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -118,7 +117,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   bool doTracker_,doMuon_;
   bool useSurvey_; // true to read survey info from DB
 
-  edm::ESHandle<Alignments> globalPositionRcd_;
 };
 
 #endif

@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.21 $
-///  last update: $Date: 2008/02/20 14:05:52 $
+///  Revision   : $Revision: 1.22 $
+///  last update: $Date: 2008/02/21 14:36:07 $
 ///  by         : $Author: pivarski $
 
 #include "AlignmentProducer.h"
@@ -47,6 +47,7 @@
 #include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
 // Tracking 	 
@@ -164,17 +165,18 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Create the geometries from the ideal geometries (first time only)
   this->createGeometries_( iSetup );
   
-  iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd_);
-
   // Retrieve and apply alignments, if requested (requires DB setup)
   if ( applyDbAlignment_ ) {
+    //    iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd_);
+    edm::ESHandle<Alignments> globalPositionRcd;
+    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
     if ( doTracker_ ) {
       edm::ESHandle<Alignments> alignments;
       iSetup.get<TrackerAlignmentRcd>().get( alignments );
       edm::ESHandle<AlignmentErrors> alignmentErrors;
       iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
       aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
-						align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Tracker)) );
+						align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)) );
     }
     if ( doMuon_ ) {
       edm::ESHandle<Alignments> dtAlignments;
@@ -182,14 +184,14 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
       iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
       aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
-					   align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)) );
+					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
 
       edm::ESHandle<Alignments> cscAlignments;
       iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
       edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
       iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
       aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
-					    align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)) );
+					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
     }
   }
 
@@ -338,8 +340,8 @@ void AlignmentProducer::endOfJob()
        // the same file that it is added)
 
        // Store
-       std::string alignRecordName( "TrackerAlignmentRcd" );
-       std::string errorRecordName( "TrackerAlignmentErrorRcd" );
+       const std::string alignRecordName("TrackerAlignmentRcd");
+       const std::string errorRecordName("TrackerAlignmentErrorRcd");
 
        if ( poolDbService->isNewTagRequest(alignRecordName) )
 	  poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
@@ -368,10 +370,10 @@ void AlignmentProducer::endOfJob()
        // Alignments localCSCAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
        // and put &localDTAlignments, &localCSCAlignments into the database
 
-       std::string dtAlignRecordName( "DTAlignmentRcd" );
-       std::string dtErrorRecordName( "DTAlignmentErrorRcd" );
-       std::string cscAlignRecordName( "CSCAlignmentRcd" );
-       std::string cscErrorRecordName( "CSCAlignmentErrorRcd" );
+       const std::string dtAlignRecordName("DTAlignmentRcd");
+       const std::string dtErrorRecordName("DTAlignmentErrorRcd");
+       const std::string cscAlignRecordName("CSCAlignmentRcd");
+       const std::string cscErrorRecordName("CSCAlignmentErrorRcd");
 
        if (poolDbService->isNewTagRequest(dtAlignRecordName)) {
 	  poolDbService->createNewIOV<Alignments>( &(*dtAlignments), poolDbService->endOfTime(), dtAlignRecordName);
