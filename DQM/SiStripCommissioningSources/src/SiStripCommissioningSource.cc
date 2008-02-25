@@ -122,7 +122,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   std::stringstream dir("");
 
 #ifndef USING_NEW_COLLATE_METHODS
-  if (0) { dir << "FU/"; }
+  if (1) { dir << "FU/"; }
   else {
     dir << "FU_";
     directory(dir);
