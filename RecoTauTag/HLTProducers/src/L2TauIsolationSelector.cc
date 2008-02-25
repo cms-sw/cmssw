@@ -20,7 +20,7 @@ L2TauIsolationSelector::L2TauIsolationSelector(const edm::ParameterSet& iConfig)
 
 
 
-  produces<CaloJetCollection>("L2TauIsolatedCaloJets");
+  produces<CaloJetCollection>("Isolated");
 }
 
 
@@ -84,7 +84,7 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	   }
  
-	        iEvent.put(l2IsolCaloJets, "L2TauIsolatedCaloJets");
+	        iEvent.put(l2IsolCaloJets, "Isolated");
 
        }
 
