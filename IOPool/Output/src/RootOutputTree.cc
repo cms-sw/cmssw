@@ -92,21 +92,29 @@ namespace edm {
   RootOutputTree::writeTree() const {
     writeTTree(tree_);
     writeTTree(metaTree_);
+    writeTTree(infoTree_);
   }
 
   void
   RootOutputTree::fastCloneTree(TTree *tree, TTree *metaTree) {
-    fastCloneTTree(metaTree, metaTree_);
-    fastCloneTTree(tree, tree_);
+    if (currentlyFastCloning_) {
+      fastCloneTTree(tree, tree_);
+    }
+    if (currentlyFastMetaCloning_) {
+      fastCloneTTree(metaTree, metaTree_);
+    }
   }
 
   void
   RootOutputTree::fillTree() const {
+    fillTTree(infoTree_, infoBranches_);
     fillTTree(metaTree_, metaBranches_);
     fillTTree(tree_, branches_);
     if (!currentlyFastCloning_) {
-      fillTTree(metaTree_, clonedMetaBranches_);
       fillTTree(tree_, clonedBranches_);
+    }
+    if (!currentlyFastMetaCloning_) {
+      fillTTree(metaTree_, clonedMetaBranches_);
     }
   }
 
@@ -142,14 +150,14 @@ namespace edm {
   }
 
   void
-  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
+  RootOutputTree::addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd) {
       prod.init();
       TBranch * meta = metaTree_->GetBranch(prod.branchName().c_str());
       if (meta != 0) {
-	meta->SetAddress(&pProv);
+	meta->SetAddress(&pEntryDescID);
         clonedMetaBranches_.push_back(meta);
       } else {
-        meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
+        meta = metaTree_->Branch(prod.branchName().c_str(), &pEntryDescID, basketSize_, 0);
         metaBranches_.push_back(meta);
       }
       if (selected) {
