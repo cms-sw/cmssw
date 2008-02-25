@@ -1592,7 +1592,7 @@ DQMStore::runQTests(void)
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
   for ( ; mi != me; ++mi)
-    if (! mi->first.compare(0, s_referenceDirName.size(), s_referenceDirName))
+    if (mi->first.compare(0, s_referenceDirName.size(), s_referenceDirName))
       mi->second.runQTests();
 
   // Reset "modified" flag on all quality tests.
