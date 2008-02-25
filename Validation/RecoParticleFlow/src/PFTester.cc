@@ -19,8 +19,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include <vector>
@@ -131,15 +131,16 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     me["CandidateEta"]->Fill(particle->eta());
     me["CandidatePhi"]->Fill(particle->phi());
     me["CandidateCharge"]->Fill(particle->charge());
-    //me["CandidatePdgId"]->Fill(particle->pdgId());
+    me["CandidatePdgId"]->Fill(particle->pdgId());
 
     // Fill Histograms for PFCandidate Specific Methods
     me["PFCandidateType"]->Fill(particle->particleId());
-
-    // Get the PFBlock and Elements
-    PFBlock block = *(particle->block());
+    // particle->elementsInBlocks(); 
+    
+   // Get the PFBlock and Elements
+   // JW: Returns vector of blocks now ,TO BE FIXED ----
+    /*PFBlock block = *(particle->block());
     OwnVector<PFBlockElement> elements = block.elements();
-
     int numElements = elements.size();
     int numTrackElements = 0;
     int numPS1Elements = 0;
@@ -153,7 +154,6 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (element = elements.begin(); element != elements.end(); element++) {
 
       int element_type = element->type();
-
       // Element is a Tracker Track
       if (element_type == PFBlockElement::TRACK) {
 
@@ -167,41 +167,32 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         vector<PFTrajectoryPoint> points = track.trajectoryPoints();
         vector<PFTrajectoryPoint>::iterator point;
         for (point = points.begin(); point != points.end(); point++) {
-
           int point_layer = point->layer();
           double x = point->positionXYZ().x();
           double y = point->positionXYZ().y();
           double z = point->positionXYZ().z();
-
           //switch (point_layer) {
           //case PFTrajectoryPoint::ClosestApproach:
-
           // Fill the Track's D0
           if (point_layer == PFTrajectoryPoint::ClosestApproach) {
             me["TrackImpactParameter"]->Fill(sqrt(x*x + y*y + z*z));
           }
-
         }
-       
         numTrackElements++;
-
       }
 
       // Element is an ECAL Cluster
       else if (element_type == PFBlockElement::ECAL) {
         numECALElements++;
       }
-
       // Element is a HCAL Cluster
       else if (element_type == PFBlockElement::HCAL) {
         numHCALElements++;
       }
-
       // Element is a Muon Track
       else if (element_type == PFBlockElement::MUON) {
         numMuonElements++;
-      }
-    
+      } 
       // Fill the Respective Elements Sizes
       me["NumElements"]->Fill(numElements);
       me["NumTrackElements"]->Fill(numTrackElements);
@@ -210,8 +201,7 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["NumECALElements"]->Fill(numECALElements);
       me["NumHCALElements"]->Fill(numHCALElements);
       me["NumMuonElements"]->Fill(numMuonElements);
-
-    }
+    } ----------------------------------------------  */
 
   }
 
