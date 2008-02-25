@@ -183,21 +183,21 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     // create a new one 
     newiovref = cond::TypedRef<cond::IOV>(destDB,new cond::IOV);
     newiovref.markWrite(cond::IOVNames::container());
-    newiov->timetype= iov->timetype;
-    newiov->firstsince = since;
+    newiovref->timetype= iov->timetype;
+    newiovref->firstsince = since;
   } else {
     newiovref = cond::TypedRef<cond::IOV>(destDB,destToken);
     newiovref.markUpdate();
-    if (since < newiovref.firstsince
-	|| (newiovref->iov.size()>1 && since< (--(newiovref->iov.rbegin())).first)
+    if (since < newiovref->firstsince
+	|| (newiovref->iov.size()>1 && since< (++(newiovref->iov.rbegin()))->first)
 	)  {
       // problem
     }
     // update last till
-    std::map<cond::Time_t, std::string>::iterator last = newiovref->rbegin();
+    std::map<cond::Time_t, std::string>::iterator last = --newiovref->iov.end();
     std::string ltoken = last->second;
-    newiovref.erase(last);
-    newiovref.insert(std::make_pair(since,ltoken);
+    newiovref->iov.erase(last);
+    newiovref->iov.insert(std::make_pair(since,ltoken));
   }
   cond::IOV & newiov = *newiovref;
   for( std::map<cond::Time_t,std::string>::const_iterator it=ifirstTill;
