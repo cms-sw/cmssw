@@ -1,8 +1,10 @@
 #include <vector>
+#include <string>
 
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
+#include <fastjet/SISConePlugin.hh>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -31,29 +33,46 @@ class JetClustering::Algorithm {
 };
 
 namespace {
-	class KtAlgorithm : public JetClustering::Algorithm {
+	class FastJetAlgorithmWrapper : public JetClustering::Algorithm {
+	    public:
+		FastJetAlgorithmWrapper(const edm::ParameterSet &params,
+		                        double jetPtMin);
+		~FastJetAlgorithmWrapper() {}
+
+	    protected:
+		std::vector<Jet> operator () (
+				const ParticleVector &input) const;
+
+		std::auto_ptr<fastjet::JetDefinition::Plugin>	plugin;
+		std::auto_ptr<fastjet::JetDefinition>		jetDefinition;
+	};
+
+	class KtAlgorithm : public FastJetAlgorithmWrapper {
 	    public:
 		KtAlgorithm(const edm::ParameterSet &params,
 		            double jetPtMin);
 		~KtAlgorithm() {}
+	};
+
+	class SISConeAlgorithm : public FastJetAlgorithmWrapper {
+	    public:
+		SISConeAlgorithm(const edm::ParameterSet &params,
+		                 double jetPtMin);
+		~SISConeAlgorithm() {}
 
 	    private:
-		std::vector<Jet> operator () (
-				const ParticleVector &input) const;
-
-		fastjet::JetDefinition	jetDefinition;
+		static fastjet::SISConePlugin::SplitMergeScale
+					getScale(const std::string &name);
 	};
 } // anonymous namespace
 
-KtAlgorithm::KtAlgorithm(const edm::ParameterSet &params, double jetPtMin) :
-	JetClustering::Algorithm(params, jetPtMin),
-	jetDefinition(fastjet::kt_algorithm,
-	              params.getParameter<double>("ktRParam"),
-	              fastjet::Best)
+FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(
+			const edm::ParameterSet &params, double jetPtMin) :
+	JetClustering::Algorithm(params, jetPtMin)
 {
 }
 
-std::vector<JetClustering::Jet> KtAlgorithm::operator () (
+std::vector<JetClustering::Jet> FastJetAlgorithmWrapper::operator () (
 					const ParticleVector &input) const
 {
 	if (input.empty())
@@ -69,7 +88,7 @@ std::vector<JetClustering::Jet> KtAlgorithm::operator () (
 		jfInput.back().set_user_index(iter - input.begin());
 	}
 
-	fastjet::ClusterSequence sequence(jfInput, jetDefinition);
+	fastjet::ClusterSequence sequence(jfInput, *jetDefinition);
 	std::vector<fastjet::PseudoJet> jets =
 				sequence.inclusive_jets(getJetPtMin());
 
@@ -92,6 +111,46 @@ std::vector<JetClustering::Jet> KtAlgorithm::operator () (
 	}
 
 	return result;
+}
+
+KtAlgorithm::KtAlgorithm(const edm::ParameterSet &params, double jetPtMin) :
+	FastJetAlgorithmWrapper(params, jetPtMin)
+{
+	jetDefinition.reset(new fastjet::JetDefinition(
+				fastjet::kt_algorithm,
+				params.getParameter<double>("ktRParam"),
+				fastjet::Best));
+}
+
+SISConeAlgorithm::SISConeAlgorithm(
+			const edm::ParameterSet &params, double jetPtMin) :
+	FastJetAlgorithmWrapper(params, jetPtMin)
+{
+	std::string splitMergeScale = 
+			params.getParameter<std::string>("splitMergeScale");
+	fastjet::SISConePlugin::SplitMergeScale scale;
+
+	if (splitMergeScale == "pt")
+		scale = fastjet::SISConePlugin::SM_pt;
+	else if (splitMergeScale == "Et")
+		scale = fastjet::SISConePlugin::SM_Et;
+	else if (splitMergeScale == "mt")
+		scale = fastjet::SISConePlugin::SM_mt;
+	else if (splitMergeScale == "pttilde")
+		scale = fastjet::SISConePlugin::SM_pttilde;
+	else
+		throw cms::Exception("Configuration") 
+			<< "JetClustering SISCone scale '" << splitMergeScale
+			<< "' unknown." << std::endl;
+
+	plugin.reset(new fastjet::SISConePlugin(
+			params.getParameter<double>("coneRadius"), 
+			params.getParameter<double>("coneOverlapThreshold"),
+			params.getParameter<int>("maxPasses"),
+			params.getParameter<double>("protojetPtMin"),
+			params.getParameter<bool>("caching"),
+			scale));
+	jetDefinition.reset(new fastjet::JetDefinition(plugin.get()));
 }
 
 JetClustering::JetClustering(const edm::ParameterSet &params)
@@ -118,6 +177,8 @@ void JetClustering::init(const edm::ParameterSet &params, double jetPtMin)
 
 	if (algoName == "KT")
 		jetAlgo.reset(new KtAlgorithm(algoParams, jetPtMin));
+	else if (algoName == "SISCone")
+		jetAlgo.reset(new SISConeAlgorithm(algoParams, jetPtMin));
 	else
 		throw cms::Exception("Configuration")
 			<< "JetClustering algorithm \"" << algoName
