@@ -19,7 +19,7 @@ namespace cond{
     /// Destructor
     virtual ~IOVEditor(){}
 
-    virtial  void create(cond::Time_t firstSince,
+    virtual  void create(cond::Time_t firstSince,
 			 cond::TimeType timetype=cond::runnumber) = 0;
 
 

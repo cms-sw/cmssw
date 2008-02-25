@@ -10,14 +10,14 @@ namespace cond {
   IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
 				const std::string& token,
 				cond::Time_t globalSince, 
-				cond::Time_t globalTill,
+				cond::Time_t globalTill
 				):m_pooldb(&pooldb),m_token(token),
 				  m_globalSince(globalSince), m_globalTill(globalTill),
 				  m_isActive(false){
   }
   
   void IOVEditorImpl::create( cond::Time_t firstSince,
-			 cond::TimeType timetype=cond::runnumber) {
+			      cond::TimeType timetype) {
 
     if(!m_token.empty()){
       // problem??
@@ -37,7 +37,7 @@ namespace cond {
 
 
 
-  void cond::IOVEditorImpl::init(){
+  void IOVEditorImpl::init(){
     if(m_token.empty()){
       // problem?
       throw cond::Exception("cond::IOVEditorImpl::init cannot init w/o token change");
@@ -54,11 +54,11 @@ namespace cond {
   IOVEditorImpl::~IOVEditorImpl(){
   }
   
-  Time_t firstSince() const {
+  Time_t IOVEditorImpl::firstSince() const {
     m_iov->firstsince;
   }
   
-  TimeType timetype() const {
+  TimeType IOVEditorImpl::timetype() const {
     return m_iov->timetype;
 
   }
