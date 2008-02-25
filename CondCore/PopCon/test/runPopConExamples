@@ -4,7 +4,7 @@ cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConExample1.cfg
 echo "inspect db"
 cmscond_list_iov -c sqlite_file:pop_test.db
 echo "get iov details"
-cmscond_list_iov -c sqlite_file:pop_test.db -t CSC_tst_tag1
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1
 echo "dump log"
 cmscond_logdb_dump -c sqlite_file:log.db  
 
