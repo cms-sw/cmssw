@@ -14,5 +14,11 @@ namespace {
     reco::PFCandidateRefProd c_rp;
     reco::PFCandidateRefVector c_rv;
     edm::Wrapper<std::vector<reco::PFCandidate> > w1;
+    //Needed since RefToBase is there (from 17x on)
+    edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef> bla1; 
+    edm::reftobase::RefHolder<reco::PFCandidateRef> bla2; 
+    //This Dummies are needed  
+    reco::PFCandidate::ElementInBlock jo1;
+    reco::PFCandidate::ElementsInBlocks jo2;  
   }
 }
