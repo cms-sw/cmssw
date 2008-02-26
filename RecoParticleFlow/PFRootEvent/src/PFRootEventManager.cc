@@ -1440,8 +1440,8 @@ void PFRootEventManager::clustering() {
   fillRecHitMask( mask, rechitsECAL_ );
   clusterAlgoECAL_.setMask( mask );  
 
-  edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
-  clusterAlgoECAL_.doClustering( rechitsHandleECAL );
+//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
+  clusterAlgoECAL_.doClustering( rechitsECAL_ );
   clustersECAL_ = clusterAlgoECAL_.clusters();
 
   assert(clustersECAL_.get() );
@@ -1452,9 +1452,8 @@ void PFRootEventManager::clustering() {
 
   fillRecHitMask( mask, rechitsHCAL_ );
   clusterAlgoHCAL_.setMask( mask );  
-  edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
-  clusterAlgoHCAL_.doClustering( rechitsHandleHCAL );
-  //clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
+//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
+  clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
   clustersHCAL_ = clusterAlgoHCAL_.clusters();
 
   fillOutEventWithClusters( *clustersHCAL_ );
@@ -1463,9 +1462,8 @@ void PFRootEventManager::clustering() {
 
   fillRecHitMask( mask, rechitsPS_ );
   clusterAlgoPS_.setMask( mask );  
-  edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
-  clusterAlgoPS_.doClustering( rechitsHandlePS );
-  //clusterAlgoPS_.doClustering( rechitsPS_ );
+//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
+  clusterAlgoPS_.doClustering( rechitsPS_ );
   clustersPS_ = clusterAlgoPS_.clusters();
 
   fillOutEventWithClusters( *clustersPS_ );
