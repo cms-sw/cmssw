@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2008/02/14 18:02:32 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/15 14:17:11 $
+ *  $Revision: 1.6 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -13,6 +13,7 @@
  */
 
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
@@ -55,6 +56,8 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   
     bool theFirstEvent;
     bool theSeedsAvailable;    
+    bool theTrajsAvailable;    
+    bool theTkCandsAvailable;    
 
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
@@ -65,6 +68,9 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     edm::InputTag theSeedName;
     edm::Handle<L3MuonTrajectorySeedCollection> theSeedCollection;
     
-
+    edm::InputTag theTkCollName;
+    edm::Handle<TC> theTkTrajCollection;
+    edm::Handle<TrackCandidateCollection> theTkTrackCandCollection;
+    
 };
 #endif

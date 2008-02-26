@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 22:00:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/15 14:17:29 $
+ *  $Revision: 1.7 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -86,6 +86,8 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
   theSeedName = par.getParameter<edm::InputTag>("l3SeedLabel");
+  theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
+
 }
 
 
@@ -119,6 +121,8 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   theTkSeedGenerator->setEvent(event);
 
   theSeedsAvailable = event.getByLabel(theSeedName,theSeedCollection);
+  theTrajsAvailable = event.getByLabel(theTkCollName,theTkTrajCollection);
+  theTkCandsAvailable = event.getByLabel(theTkCollName,theTkTrackCandCollection);
   
 }
 
@@ -135,12 +139,15 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
   addTraj(staCand);
-  
+
+  vector<TrackCand> trackerTracks;
+
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
-
+  
   // match tracker tracks to muon track
-  vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
+  trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
+  
   LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   if ( trackerTracks.empty() ) return CandidateContainer();
   
@@ -199,6 +206,15 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
 
   vector<TrackCand> tkCandColl;  
 
+  if (theTrajsAvailable) {
+    LogDebug(category) << "Found " << theTkTrajCollection->size() <<" tkCands";
+    for (TC::const_iterator tt=theTkTrajCollection->begin();tt!=theTkTrajCollection->end();++tt){
+      tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
+    } 
+    LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
+    return tkCandColl;
+  }
+  
   // Tracks not available, make seeds and trajectories
   // std::vector<L3MuonTrajectorySeed> useSeeds;
   std::vector<TrajectorySeed> tkSeeds;
