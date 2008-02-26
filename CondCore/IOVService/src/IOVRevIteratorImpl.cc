@@ -69,7 +69,7 @@ cond::IOVRevIteratorImpl::validity() const{
   cond::Time_t till=m_globalTill;
   if (!atEnd()) {
     till = m_pos->first;
-    if (m_next!=iov().rend()) since =  m_next->first + 1;
+    since = (m_next!=iov().rend()) ?  m_next->first + 1 : m_iov->firstsince;
   }
   return cond::ValidityInterval(since,till);
 }

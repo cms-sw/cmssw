@@ -13,7 +13,7 @@ void cond::IOVIteratorImpl::init(){
   m_isOpen=true;
   m_pos=m_iov->iov.begin();
   m_count = 0;
-  m_since=m_globalSince;
+  m_since=m_iov->firstsince;
 }
 
 
