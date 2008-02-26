@@ -54,9 +54,13 @@ class Calorimeter{
 
   inline const EcalPreshowerGeometry * getEcalPreshowerGeometry() const {return PreshowerGeometry_;}
 
+  inline const CaloSubdetectorGeometry * getHcalGeometry() const {return HcalGeometry_;}
+
   const CaloSubdetectorGeometry * getEcalGeometry(int subdetn) const;
 
   const CaloSubdetectorTopology * getEcalTopology(int subdetn) const;
+
+
 
  protected:
 
