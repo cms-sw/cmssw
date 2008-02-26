@@ -180,7 +180,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   std::map<cond::Time_t, std::string>::const_iterator iprev=ifirstTill;
 
   // compute since
-  since = (iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first;
+  since = (iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first+1;
 
   cond::TypedRef<cond::IOV> newiovref;
 
@@ -196,7 +196,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     if (since <= newiovref->firstsince
 	|| (newiovref->iov.size()>1 && since <= (++(newiovref->iov.rbegin()))->first)
 	)  {
-      // problem
+      throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: since time out of range, below last since");
+
     }
     // update last till
     std::map<cond::Time_t, std::string>::iterator last = --newiovref->iov.end();
