@@ -177,10 +177,14 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     isecondTill++;
   }
   
+  if (ifirstTill==isecondTill) 
+    throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: empty input range");
+
+
   std::map<cond::Time_t, std::string>::const_iterator iprev=ifirstTill;
 
   // compute since
-  since = (iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first+1;
+  since = std::max(since,(iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first+1);
 
   cond::TypedRef<cond::IOV> newiovref;
 

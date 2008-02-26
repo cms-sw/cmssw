@@ -15,6 +15,7 @@
 #include "SealBase/SharedLibraryError.h"
 #include <boost/program_options.hpp>
 #include <iterator>
+#include <limits>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -26,7 +27,10 @@ int main( int argc, char** argv ){
     ("sourceConnect,s",boost::program_options::value<std::string>(),"source connection string(required)")
     ("destConnect,d",boost::program_options::value<std::string>(),"destionation connection string(required)")
     ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required)")
-    ("tag,t",boost::program_options::value<std::string>(),"tag to export(required)")
+    ("inputTag,i",boost::program_options::value<std::string>(),"tag to export( default = destination tag)")
+    ("destTag,t",boost::program_options::value<std::string>(),"destination tag (required)")
+    ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
+    ("endTime,e",boost::program_options::value<cond::Time_t>(),"end time (last till) (optional)")
     ("payloadName,n",boost::program_options::value<std::string>(),"payload object name(required)")
     ("authPath,p",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
@@ -37,7 +41,11 @@ int main( int argc, char** argv ){
   desc.add(visible);
   std::string sourceConnect, destConnect;
   std::string dictionary;
-  std::string tag;
+  std::string destTag;
+  std::string inputTag;
+  cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
+  cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
+
   std::string payloadName;
   std::string authPath(".");
   std::string configuration_filename;
@@ -80,13 +88,24 @@ int main( int argc, char** argv ){
     }else{
       dictionary=vm["dictionary"].as<std::string>();
     }
-    if(!vm.count("tag")){
-      std::cerr <<"[Error] no tag[t] option given \n";
+    if(!vm.count("destTag")){
+      std::cerr <<"[Error] no destRag[t] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else{
-      tag=vm["tag"].as<std::string>();
+      inputTag=destTag=vm["destTag"].as<std::string>();
     }
+
+    if(vm.count("inputTag"))
+      inputTag = vm["inputTag"].as<std::string>();
+
+    if(vm.count("beginTime"))
+      since = vm["beginTime"].as<cond::Time_t>();
+    if(vm.count("endTime"))
+      till = vm["endTime"].as<cond::Time_t>();
+    
+
+
     if(!vm.count("payloadName")){
       std::cerr <<"[Error] no payloadName[n] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -94,6 +113,8 @@ int main( int argc, char** argv ){
     }else{
       payloadName=vm["payloadName"].as<std::string>();
     }
+
+
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -114,7 +135,10 @@ int main( int argc, char** argv ){
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
     std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
     std::cout<<"payloadName:\t"<<payloadName<<'\n';
-    std::cout<<"tag:\t"<<tag<<'\n';
+    std::cout<<"inputTag:\t"<<inputTag<<'\n';
+    std::cout<<"destTag:\t"<<destTag<<'\n';
+    std::cout<<"beginTime:\t"<<since<<'\n';
+    std::cout<<"endTime:\t"<<till<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
     if(withBlob) std::cout<<"with Blob streamer"<<authPath<<'\n';
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
@@ -205,8 +229,9 @@ int main( int argc, char** argv ){
     cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
     
-    cond::Time_t since = iovmanager.globalSince();
-    cond::Time_t till = iovmanager.globalTill();
+
+    cond::Time_t since = std::max(since,iovmanager.globalSince());
+    cond::Time_t till = std::min(till,iovmanager.globalTill());
 
 
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
