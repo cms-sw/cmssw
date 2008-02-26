@@ -641,13 +641,14 @@ DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
        {              
          EBRecHitCollection::const_iterator itrechit;
          itrechit = EBhits->find (*idsIt) ;
-	 //not really understood why this should happen, but it happens
+	       //not really understood why this should happen, but it happens
          if (itrechit == EBhits->end () )
            {
             edm::LogWarning("IML") <<"max hit not found";
             continue;
            }
-	 //If the energy is greater than the currently stored energy sets maxHits to the current recHit
+	       //If the energy is greater than the currently stored energy 
+         //sets maxHits to the current recHit
          if (itrechit->energy () > currEnergy)
            {
              currEnergy = itrechit->energy () ;
@@ -656,15 +657,14 @@ DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
        } //barrel part ends
     else 
        {     
-	 //as the barrel part
+	       //as the barrel part
          EERecHitCollection::const_iterator itrechit;
          itrechit = EEhits->find (*idsIt) ;
          if (itrechit == EEhits->end () )
            {
              edm::LogWarning("IML") <<"max hit not found";
              continue;
-           }
-              
+           }              
          if (itrechit->energy () > currEnergy)
            {
             currEnergy=itrechit->energy ();
