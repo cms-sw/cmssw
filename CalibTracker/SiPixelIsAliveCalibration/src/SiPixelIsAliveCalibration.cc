@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.15 2008/02/22 14:27:49 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.16 2008/02/22 16:56:08 fblekman Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class SiPixelIsAliveCalibration : public SiPixelOfflineCalibAnalysisBase {
   virtual bool checkCorrectCalibrationType();
       // ----------member data ---------------------------
 
-  std::map<uint32_t, MonitorElement *> bookkeeper_;
+  std::map<uint32_t,MonitorElement *> bookkeeper_;
   double mineff_;
 };
 
@@ -91,7 +91,7 @@ void
 SiPixelIsAliveCalibration::newDetID(uint32_t detid){
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D(detid,"pixelAlive","pixel alive for "+tempname);
+  bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D(detid,"pixelAlive","pixel alive for "+tempname); 
 }
 bool
 SiPixelIsAliveCalibration::checkCorrectCalibrationType(){
@@ -140,12 +140,15 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
 void
 SiPixelIsAliveCalibration::calibrationEnd(){
   // print summary of bad modules:
-  for(std::map<uint32_t,MonitorElement *>::const_iterator idet= bookkeeper_.begin(); idet!=bookkeeper_.end();++idet){
+  for(std::map<uint32_t, MonitorElement *>::const_iterator idet= bookkeeper_.begin(); idet!=bookkeeper_.end();++idet){
     float idead = 0;
     float iunderthres=0;
     float imultiplefill=0;
     float itot=0;
     uint32_t detid=idet->first;
+
+    setDQMDirectory(detid);
+    MonitorElement *temp = bookDQMHistogram1D(detid,"pixelAliveSummary",bookkeeper_[detid]->getTitle(),calib_->getNTriggers()+1,0.,1+(1./(float)calib_->getNTriggers()));
     for(int icol=1; icol <= bookkeeper_[detid]->getNbinsX(); ++icol){
       for(int irow=1; irow <= bookkeeper_[detid]->getNbinsY(); ++irow){
 	itot++;
@@ -157,8 +160,10 @@ SiPixelIsAliveCalibration::calibrationEnd(){
 	if(val==-2)
 	  imultiplefill++;
 	
-	if(val>0)
-	  bookkeeper_[detid]->setBinContent(icol,irow,val/calib_->getNTriggers());
+
+	bookkeeper_[detid]->setBinContent(icol,irow,val/(float)calib_->getNTriggers());
+	temp->Fill(val/(float)calib_->getNTriggers());
+
       }
     }
     edm::LogInfo("SiPixelIsAliveCalibration") << "summary for " << translateDetIdToString(detid) << "\tfrac dead:" << idead/itot << " frac below " << mineff_ << ":" << iunderthres/itot << " bad " <<  imultiplefill/itot << std::endl;
