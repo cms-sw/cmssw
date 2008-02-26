@@ -30,6 +30,7 @@ cmsRun tmp_PopConExample.cfg
 rm tmp_PopConExample.cfg
 
 cat PopConExample1_template.cfg | sed 's/xxx/7/g' > tmp_PopConExample.cfg
+sed -i 's/Example_tag/Example_tag2/g' tmp_PopConExample.cfg
 sed -i 's/pop_test.db/pop_test3.db/g' tmp_PopConExample.cfg
 sed -i 's/yyy/10/g' tmp_PopConExample.cfg
 echo "populate pop_test3.db with 7 + other 10"
@@ -46,13 +47,13 @@ echo "get iov details"
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag
 cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag
 cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag
-cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag
+cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2
 
 
 echo "import"
 cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n Pedestals
 cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n Pedestals 
-cmscond_export_iov -s sqlite_file:pop_test3.db -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n Pedestals
+cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n  Pedestals
 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag
 

@@ -230,8 +230,8 @@ int main( int argc, char** argv ){
     cond::IOVService iovmanager(sourcedb);
     
 
-    cond::Time_t since = std::max(since,iovmanager.globalSince());
-    cond::Time_t till = std::min(till,iovmanager.globalTill());
+    since = std::max(since,iovmanager.globalSince());
+    till = std::min(till,iovmanager.globalTill());
 
 
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
