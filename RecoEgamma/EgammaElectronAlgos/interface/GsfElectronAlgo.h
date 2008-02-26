@@ -56,6 +56,7 @@ public:
 	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       HBHERecHitMetaCollection *mhbhe,
+	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
 	       edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
@@ -63,6 +64,7 @@ public:
 	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       HBHERecHitMetaCollection *mhbhe,
+	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   
   
@@ -85,7 +87,7 @@ public:
 
   // intermediate calculations
   void hOverE(const reco::SuperClusterRef & scRef,HBHERecHitMetaCollection *mhbhe);
-  bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus);
+  bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus,const math::XYZPoint & bs);
 
   //ecaleta, ecalphi: in fine to be replaced by propagators
   float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
