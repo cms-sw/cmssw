@@ -636,7 +636,3 @@ DetId PFRecHitProducerECAL::move(DetId cell,
   return result; 
 }
 
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(PFRecHitProducerECAL);
-

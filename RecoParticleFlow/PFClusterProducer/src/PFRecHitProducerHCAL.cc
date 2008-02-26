@@ -597,7 +597,3 @@ DetId PFRecHitProducerHCAL::getNorth(const DetId& id,
 } 
 
 
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(PFRecHitProducerHCAL);
-

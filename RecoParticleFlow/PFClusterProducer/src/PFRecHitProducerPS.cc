@@ -271,8 +271,3 @@ PFRecHitProducerPS::findRecHitNeighbours
 
 }
 
-
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(PFRecHitProducerPS);
-

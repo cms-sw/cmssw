@@ -75,11 +75,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   double dcorbp = 
     iConfig.getParameter<double>("depthCor_B_preshower");
 
-  if( dcormode > -0.5 && 
-      dcora > -0.5 && 
-      dcorb > -0.5 && 
-      dcorap > -0.5 && 
-      dcorbp > -0.5 )
+  if( dcormode !=0 )
     reco::PFCluster::setDepthCorParameters( dcormode, 
 					    dcora, dcorb, 
 					    dcorap, dcorbp );
@@ -114,6 +110,17 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   edm::Handle< reco::PFRecHitCollection > rechitsHandle;
   
   // access the rechits in the event
+  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );  
+
+  if(!found ) {
+
+    ostringstream err;
+    err<<"cannot find rechits: "<<inputTagPFRecHits_;
+    LogError("PFClusterProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
+  }
+
 
   // do clustering
   clusterAlgo_.doClustering( rechitsHandle );
@@ -133,7 +140,4 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 }
   
 
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(PFClusterProducer);
 
