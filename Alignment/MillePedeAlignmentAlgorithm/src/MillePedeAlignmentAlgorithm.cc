@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.29 $
- *  $Date: 2008/02/15 14:42:26 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.30 $
+ *  $Date: 2008/02/20 18:30:09 $
+ *  (last update by $Author: mstoye $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,6 +63,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMonitor(0), theMille(0), thePedeLabels(0), thePedeSteer(0),
   theTrajectoryFactory(0),
   theMinNumHits(cfg.getParameter<int>("minNumHits")),
+  theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   theUseTrackTsos(cfg.getParameter<bool>("useTrackTsos"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
@@ -720,6 +721,12 @@ void MillePedeAlignmentAlgorithm::addRefTrackData2D(const ReferenceTrajectoryBas
 int MillePedeAlignmentAlgorithm::callMille2D
 (const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit, const std::vector<int> &globalLabels, bool is2DHit, const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy)
 {
+
+  if((refTrajPtr->recHits()[iTrajHit])->dimension() != 2) {
+    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::callMille2D";
+    edm::LogError("Alignment") << "ERROR: You try to call method for 2D hits for an truly 1D Hit!!! Hit gets ignored!";
+    return -1;
+  }
   TMatrixDSym aHitCovarianceM(2);
   TMatrixF aHitResidualsM(2,1);
   const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
@@ -731,7 +738,7 @@ int MillePedeAlignmentAlgorithm::callMille2D
  
   // calculates correlation between Hit measurements
   float correlation = fabs(aHitCovarianceM(0,1))/(sqrt(aHitCovarianceM(0,0))*sqrt(aHitCovarianceM(1,1)));
-  if (correlation>0.05)  {this->diagonalize(aHitCovarianceM,aLocalDerivativesM,aHitResidualsM,aGlobalDerivativesM);
+  if (correlation>theMaximalCor2D)  {this->diagonalize(aHitCovarianceM,aLocalDerivativesM,aHitResidualsM,aGlobalDerivativesM);
   } 
  
   if (is2DHit) { // for 2d hit both measurements get to mille
