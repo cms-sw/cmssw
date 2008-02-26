@@ -41,7 +41,7 @@ class LeafNode(Node):
         self.__dict__.setdefault('recordname','')
         self.__dict__.setdefault('objectname','')
         self.__dict__.setdefault('labelname','')
-        self.__dict__.setdefault('timetype','')
+        #self.__dict__.setdefault('timetype','')
         self.__dict__.setdefault('comment','')
     def __repr__( self ):
         """__repr__

@@ -74,7 +74,7 @@ class tagInventoryPrinter:
                     print '%s\t%s\t%s'%(r.tagid,r.tagname,r.labelname)
             else:
                 result=inv.getEntryByName(self.__tag)
-                print '%s\t%s\n ##pfn:%s\n ##objectname:%s\n ##recordname:%s\n ##labelname:%s\n ##timetype:%s\n ##comment:%s'%(result.tagid,result.tagname,result.pfn,result.objectname,result.recordname,result.labelname,result.timetype,result.comment)
+                print '%s\t%s\n ##pfn:%s\n ##objectname:%s\n ##recordname:%s\n ##labelname:%s\n ##comment:%s'%(result.tagid,result.tagname,result.pfn,result.objectname,result.recordname,result.labelname,result.comment)
             del session
         except Exception, e:
             print str(e)

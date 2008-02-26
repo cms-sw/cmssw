@@ -46,7 +46,7 @@ class tagInventoryBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -t, --tag=tagdata: \"tag1{pfn=string,objectname=string, recordname=string, labelname=string, timetype=string};tag2{...}\"
+        -t, --tag=tagdata: \"tag1{pfn=string,objectname=string, recordname=string, labelname=string};tag2{...}\"
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -67,7 +67,7 @@ class tagInventoryBuilder:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-t","--tagdata",action="store",dest="tagdata",type="tagdata",help=" \"tagname{pfn:string,objectname:string,recordname:string, labelname:string,timetype:string}\" ")
+        self.__parser.add_option("-t","--tagdata",action="store",dest="tagdata",type="tagdata",help=" \"tagname{pfn:string,objectname:string,recordname:string, labelname:string}\" ")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
@@ -130,10 +130,6 @@ class tagInventoryBuilder:
                         tagentry.labelname=item['labelname']
                     else:
                         tagentry.labelname=''
-                    if item.has_key('timetype'):
-                        tagentry.timetype=item['timetype']
-                    else:
-                        tagentry.timetype='runnumber'
                     if item.has_key('comment'):
                         tagentry.comment=item['comment']
                     else:

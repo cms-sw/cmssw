@@ -9,7 +9,7 @@ class  tagInventory(object):
         self.__session = session
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
-        self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','timetype':'string','comment':'string'}
+        self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','comment':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
         self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
@@ -71,7 +71,7 @@ class  tagInventory(object):
             
             transaction.start(False)
             dbop=DBImpl.DBImpl(schema)
-            tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname,'timetype':leafNode.timetype,'comment':leafNode.comment}
+            tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname,'comment':leafNode.comment}
             dbop.insertOneRow(self.__tagInventoryTableName,
                               self.__tagInventoryTableColumns,
                               tabrowValueDict)
@@ -108,7 +108,6 @@ class  tagInventory(object):
                 leafnode.pfn=cursor.currentRow()['pfn'].data()
                 leafnode.labelname=cursor.currentRow()['labelname'].data()
                 leafnode.recordname=cursor.currentRow()['recordname'].data()
-                leafnode.timetype=cursor.currentRow()['timetype'].data()
                 leafnode.comment=cursor.currentRow()['comment'].data()
             transaction.commit()
             del query
@@ -141,7 +140,6 @@ class  tagInventory(object):
                 leafnode.pfn=cursor.currentRow()['pfn'].data()
                 leafnode.labelname=cursor.currentRow()['labelname'].data()
                 leafnode.recordname=cursor.currentRow()['recordname'].data()
-                leafnode.timetype=cursor.currentRow()['timetype'].data()
                 leafnode.comment=cursor.currentRow()['comment'].data()
             transaction.commit()
             del query
@@ -169,7 +167,6 @@ class  tagInventory(object):
                 leafnode.pfn=cursor.currentRow()['pfn'].data()
                 leafnode.recordname=cursor.currentRow()['recordname'].data()
                 leafnode.labelname=cursor.currentRow()['labelname'].data()
-                leafnode.timetype=cursor.currentRow()['timetype'].data()
                 leafnode.comment=cursor.currentRow()['comment'].data()
                 result.append(leafnode)
             transaction.commit()
@@ -247,7 +244,6 @@ if __name__ == "__main__":
         tagentry.pfn='oracle://devdb10/CMS_COND_ECAL'
         tagentry.recordname='EcalPedestalsRcd'
         tagentry.labelname=''
-        tagentry.timetype='runnumber'
         tagentry.comment='crapcrapcrapandcrackcrackcrak'
         inv.addEntry(tagentry)
         tagentry.tagname='crap'
@@ -255,7 +251,6 @@ if __name__ == "__main__":
         tagentry.pfn='oracle://devdb10/CMS_COND_ME'
         tagentry.recordname='MyPedestalsRcd'
         tagentry.labelname='mylabel'
-        tagentry.timetype='runnumber'
         tagentry.comment='no'
         inv.addEntry(tagentry)
         result=inv.getAllEntries()
