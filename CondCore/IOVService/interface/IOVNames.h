@@ -14,7 +14,7 @@ namespace cond{
       return std::string("IOV_DATA"); 
     }
     static std::string iovMappingVersion() {
-      return std::string("CONDIOV_2.0");
+      return std::string("CONDIOV_3.0");
     }
     static std::string const & iovMappingXML(){
       static const std::string buffer = 
