@@ -18,7 +18,7 @@
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
 //DS verify all these include
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
@@ -247,7 +247,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
    }
 
  //Takes the electron collection of the pixel detector
- edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+ edm::Handle<reco::GsfElectronCollection> pElectrons;
  iEvent.getByLabel (m_ElectronLabel,pElectrons);
  if (!pElectrons.isValid ()) {
      edm::LogError ("reading")<< "[EcalEleCalibLooper] electrons not found" ;
