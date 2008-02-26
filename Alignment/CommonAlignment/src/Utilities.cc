@@ -186,18 +186,10 @@ void align::rectify(RotationType& rot)
 unsigned int align::position(align::ID id,
                              const std::string& structureName)
 {
-  Hierarchy tree(id);
-
-  /// Backward compatibility with old names in AlignableObjectId.
-  std::string newName = structureName;
-
-  if (newName.find( tree.subdetector() ) != std::string::npos)
-    newName.erase( 0, tree.subdetector().size() );
-
-  const Hierarchy::NameCounters& nc = tree.nameCounters();
+  const Hierarchy::NameCounters& nc = Hierarchy(id).nameCounters();
 
   for (unsigned int i = 0; i < nc.size(); ++i)
-		if (nc[i].first == newName) return nc[i].second(id);
+		if (nc[i].first == structureName) return nc[i].second(id);
 
   return 0;
 }
@@ -208,24 +200,18 @@ std::string align::treeName(align::ID id,
 {
   Hierarchy tree(id);
 
-  /// Backward compatibility with old names in AlignableObjectId.
-  std::string newName = structureName;
-
-  if (newName.find( tree.subdetector() ) != std::string::npos)
-    newName.erase( 0, tree.subdetector().size() );
-
   std::ostringstream os;
 
-  os << tree.subdetector();
+  os << tree.subdetector() << delimiter;
 
   const Hierarchy::NameCounters& nc = tree.nameCounters();
 
-  for (int i = nc.size() - 1; i >= 0; --i)
+  for (unsigned int i = nc.size() - 1; i >= 0; --i)
   {
-    os << delimiter << nc[i].first << nc[i].second(id);
+    os << nc[i].first << nc[i].second(id) << delimiter;
 
-    if (nc[i].first == newName) return os.str();
+    if (nc[i].first == structureName) break;
   }
 
-  return "Unknown " + structureName; // structureName not in hierarchy
+  return os.str();
 }

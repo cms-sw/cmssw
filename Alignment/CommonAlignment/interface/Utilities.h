@@ -62,25 +62,11 @@ namespace align
 			    const GlobalVectors& theVs
 			    );
 	
+
   /// Correct a rotation matrix for rounding errors.
   void rectify(
 	       RotationType&
 	       );
-
-  /// Find the position of an Alignable within its mother. Starts from 1.
-  /// 0 if ID or structure name is invalid.
-  unsigned int position(
-   	                    align::ID,
-      					  		  const std::string& // structure name
-                        );
-
-  /// Name of tree of an Alignable given its ID and structure name.
-  /// Eg: TPB HalfBarrel1 Layer2 Ladder3 Module4.
-  std::string treeName(
-      								 align::ID,
-      								 const std::string&,  // structure name
-           	           char delimiter = ' ' // separator between 2 levels
-      							   );
 }
 
 #endif
