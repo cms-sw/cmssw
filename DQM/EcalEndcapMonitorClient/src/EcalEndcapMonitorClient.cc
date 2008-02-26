@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/24 09:35:57 $
- * $Revision: 1.155 $
+ * $Date: 2008/02/26 08:54:20 $
+ * $Revision: 1.156 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -96,7 +96,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
   dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
-  dbHostPort_ = ps.getUntrackedParameter<int>("dbHostPort", 1521);
+  dbHostPort_ = ps.getUntrackedParameter<int>("dbHostPort", 0);
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
@@ -940,11 +940,18 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+      try {
+        cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+        econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
     }
   }
 
@@ -1096,11 +1103,18 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+      try {
+        cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+        econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
     }
   }
 
@@ -1240,11 +1254,18 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+      try {
+        cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+        econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
     }
   }
 
