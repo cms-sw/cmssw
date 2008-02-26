@@ -34,7 +34,7 @@ rm tmp_PopConExample.cfg
 echo "inspect db"
 cmscond_list_iov -c sqlite_file:pop_test.db
 echo "get iov details"
-cmscond_list_iov -c sqlite_file:pop_test.db -t CSC_tst_tag1 
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag 
 
 #note: tag-name, log-name and db-name must be the same as in the cfg file  
 
