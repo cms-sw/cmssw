@@ -22,7 +22,8 @@ namespace {
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
-  m_since(pset.getUntrackedParameter<unsigned int >("firstSince")){
+  m_since(pset.getUntrackedParameter<unsigned int >("firstSince",5)),),
+  m_number(pset.getUntrackedParameter<unsigned int >("number",3)){
 }
 
 popcon::ExPedestalSource::~ExPedestalSource()
@@ -53,13 +54,17 @@ void popcon::ExPedestalSource::getNewObjects() {
   
   Pedestals * p0 = new Pedestals;
   fill(*p0,3);
-  Pedestals * p1 = new Pedestals;
-  fill(*p1,5);
-  Pedestals * p2 = new Pedestals;
-  fill(*p2,7);
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,m_since));
-  m_to_transfer.push_back(std::make_pair((Pedestals*)p1,m_since+20));
-  m_to_transfer.push_back(std::make_pair((Pedestals*)p2,m_since+10));
+  
+  unsigned int since = m_since+10*m_number;
+  unsigned int size = 5;
+  for (int j=1; j<(int)m_number;++j) {
+    Pedestals * p1 = new Pedestals;
+    fill(*p1,size);
+    m_to_transfer.push_back(std::make_pair((Pedestals*)p1,since));
+    since-=10;
+    size+=2;
+  }
 
   edm::LogInfo   ("ExPedestalsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }
