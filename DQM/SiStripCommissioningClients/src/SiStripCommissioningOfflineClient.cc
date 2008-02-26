@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.26 2008/02/07 16:44:14 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.29 2008/02/25 14:05:01 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -168,11 +168,9 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << "\"... (This may take some time.)";
 #ifdef USING_NEW_COLLATE_METHODS
     if ( clientHistos_ ) {
-      std::string temp = "Collate";
-      bei->open( *jfile, false, temp, "" );
+      bei->open( *jfile, false, sistrip::collate_, "" );
     } else { 
-      std::string temp = sistrip::root_;
-      bei->open( *jfile, true, temp, "Collate" );
+      bei->open( *jfile, true, sistrip::root_, sistrip::collate_ );
     }
 #else
     bei->open( *jfile );
@@ -186,24 +184,14 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   std::vector<std::string> contents;
   bei->getContents( contents ); 
   
-  // If merged histos exist, remove FU directories from list
+  // If using client file, remove "source" histograms from list
   if ( clientHistos_ ) {
     std::vector<std::string> temp;
     std::vector<std::string>::iterator istr = contents.begin();
     for ( ; istr != contents.end(); istr++ ) {
-#ifdef USING_NEW_COLLATE_METHODS
-      if ( istr->find("Collector") == std::string::npos &&
-	   istr->find("EvF") == std::string::npos &&
-	   istr->find("Collate") != std::string::npos ) { 
+      if ( istr->find(sistrip::collate_) != std::string::npos ) { 
 	temp.push_back( *istr );
       }
-#else
-      if ( istr->find("Collector") == std::string::npos &&
-	   istr->find("EvF") == std::string::npos &&
-	   istr->find("FU") == std::string::npos ) { 
-	temp.push_back( *istr );
-      }
-#endif
     }
     contents.clear();
     contents = temp;
@@ -213,8 +201,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Found " << contents.size() 
-    << " directories containing MonitorElements in "
-    << inputFiles_.size() << " root files";
+    << " directories containing MonitorElements";
   
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 

@@ -402,12 +402,11 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     
     // Ignore directories on source side
     //#ifdef USING_NEW_COLLATE_METHODS
-    //if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
+    if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
     //#else 
-    if ( idir->find(sistrip::collate_) == std::string::npos ||
-	 ( idir->find("Collector") != std::string::npos ||
-	   idir->find("EvF") != std::string::npos ||
-	   idir->find("FU") != std::string::npos ) ) { continue; }
+//     if ( idir->find("Collector") != std::string::npos ||
+// 	 idir->find("EvF") != std::string::npos ||
+// 	 idir->find("FU") != std::string::npos ) { continue; }
     //#endif
     
     // Extract source directory path 
@@ -517,9 +516,10 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 	histo->title_ = (*ime)->getName();
 
 	// If histogram present in client directory, add to map
-	if ( source_dir.find("Collector") == std::string::npos &&
-	     source_dir.find("EvF") == std::string::npos &&
-	     source_dir.find("FU") == std::string::npos ) { 
+// 	if ( source_dir.find("Collector") == std::string::npos &&
+// 	     source_dir.find("EvF") == std::string::npos &&
+// 	     source_dir.find("FU") == std::string::npos ) { 
+	if ( source_dir.find(sistrip::collate_) != std::string::npos ) { 
 	  histo->me_ = bei_->get( client_dir +"/"+(*ime)->getName() ); 
 	  if ( !histo->me_ ) { 
 	    edm::LogError(mlDqmClient_)
@@ -569,10 +569,11 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore directories on client side
-    if ( idir->find(sistrip::collate_) != std::string::npos ||
-	 ( idir->find("Collector") == std::string::npos &&
-	   idir->find("EvF") == std::string::npos &&
-	   idir->find("FU") == std::string::npos ) ) { continue; }
+//     if ( idir->find(sistrip::collate_) != std::string::npos ||
+// 	 ( idir->find("Collector") == std::string::npos &&
+// 	   idir->find("EvF") == std::string::npos &&
+// 	   idir->find("FU") == std::string::npos ) ) { continue; }
+    if ( idir->find(sistrip::collate_) != std::string::npos ) { continue; }
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
