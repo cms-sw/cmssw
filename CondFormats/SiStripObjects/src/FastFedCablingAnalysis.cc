@@ -450,8 +450,9 @@ void FastFedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
      << " Maximum level             [ADC] : " << max_ << std::endl
      << " Minimum level             [ADC] : " << min_ << std::endl;
   ss << std::boolalpha
-     << " isDirty                         : " << isDirty()  << std::endl
      << " isValid                         : " << isValid()  << std::endl
+     << " isDirty                         : " << isDirty()  << std::endl
+     << " badTrimDac                      : " << badTrimDac()  << std::endl
      << std::noboolalpha
      << " Error codes (found "  
      << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
