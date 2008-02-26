@@ -36,40 +36,40 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
     //! the biggest reason is the numberOfValidHits call (the rest are not as costly)
 
     float tZ = it->vz(); 
-    LogTrace(metname)<<"Tk vz: "<<tZ;
-    if ( !thePars.zRange.inside( tZ ) ) continue; 
-
     float tPt = it->pt();
-    LogTrace(metname)<<",  pt: "<<tPt;
-    if ( tPt < thePars.ptMin ) continue;
-
     float tD0 = fabs(it->d0());  
     float tD0Cor = fabs(it->dxy(thePars.beamPoint));
-    LogTrace(metname)<<",  d0: "<<tD0
- 		     <<",  d0wrtBeam: "<<tD0Cor;
-    if ( !thePars.rRange.inside( tD0Cor) ) continue;
-
-
     float tEta = it->eta();
     float tPhi = it->phi();
-    LogTrace(metname)<<", eta: "<<tEta
- 		     <<", phi: "<<tPhi;
-    if ( thePars.dir.deltaR( Direction(tEta, tPhi) ) > thePars.drMax ) continue;
-
-    uint tHits = it->numberOfValidHits();
-    LogTrace(metname)<<", nHits: "<<tHits;
-    if ( tHits < thePars.nHitsMin ) continue;
-
-
     float tChi2Ndof = it->normalizedChi2();
-    LogTrace(metname)<<", chi2Norm: "<<tChi2Ndof;
+    LogTrace(metname)<<"Tk vz: "<<tZ
+		     <<",  pt: "<<tPt
+		     <<",  d0: "<<tD0
+ 		     <<",  d0wrtBeam: "<<tD0Cor
+		     <<", eta: "<<tEta
+ 		     <<", phi: "<<tPhi
+		     <<", chi2Norm: "<<tChi2Ndof;
+    //! access to the remaining vars is slow
+
+    if ( !thePars.zRange.inside( tZ ) ) continue; 
+    if ( tPt < thePars.ptMin ) continue;
+    if ( !thePars.rRange.inside( tD0Cor) ) continue;
+    if ( thePars.dir.deltaR( Direction(tEta, tPhi) ) > thePars.drMax ) continue;
     if ( tChi2Ndof > thePars.chi2NdofMax ) continue;
 
+    //! skip if min Hits == 0; assumes any track has at least one valid hit
+    if (thePars.nHitsMin > 0 ){
+      uint tHits = it->numberOfValidHits();
+      LogTrace(metname)<<", nHits: "<<tHits;
+      if ( tHits < thePars.nHitsMin ) continue;
+    }
 
-    float tChi2Prob = ChiSquaredProbability(it->chi2(), it->ndof());
-    LogTrace(metname)<<", chi2Prob: "<<tChi2Prob<<std::endl;
-    if ( tChi2Prob < thePars.chi2ProbMin ) continue;
-
+    //! similarly here
+    if(thePars.chi2ProbMin > 0){
+      float tChi2Prob = ChiSquaredProbability(it->chi2(), it->ndof());
+      LogTrace(metname)<<", chi2Prob: "<<tChi2Prob<<std::endl;
+      if ( tChi2Prob < thePars.chi2ProbMin ) continue;
+    }
 
     LogTrace(metname)<<" ..... accepted"<<std::endl;
     result.push_back(&*it);

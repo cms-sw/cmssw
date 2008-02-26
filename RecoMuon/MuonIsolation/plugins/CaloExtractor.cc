@@ -51,9 +51,17 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   double bz = bField->inInverseGeV(GlobalPoint(0.,0.,0.)).z();
 
   TrackCollection::const_iterator mu;
+  TrackCollection::const_iterator muEnd(muons.end());
+  
   CaloTowerCollection::const_iterator cal;
-  for ( mu = muons.begin(); mu != muons.end(); ++mu ) {
-      for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
+  CaloTowerCollection::const_iterator calEnd(towers->end());
+  
+  for ( mu = muons.begin(); mu != muEnd; ++mu ) {
+    for ( cal = towers->begin(); cal != calEnd; ++cal ) {
+      //! make this abit faster
+      double dEta = fabs(mu->eta()-cal->eta());
+      if (fabs(dEta) > theDR_Max) continue;
+
             double deltar0 = reco::deltaR(*mu,*cal);
             if (deltar0>theDR_Max) continue;
 
@@ -99,7 +107,12 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
   double bz = bField->inInverseGeV(GlobalPoint(0.,0.,0.)).z();
 
   CaloTowerCollection::const_iterator cal;
-  for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
+  CaloTowerCollection::const_iterator calEnd(towers->end());
+  for ( cal = towers->begin(); cal != calEnd; ++cal ) {
+      //! make this abit faster
+      double dEta = fabs(muon.eta()-cal->eta());
+      if (fabs(dEta) > theDR_Max) continue;
+    
       double deltar0 = reco::deltaR(muon,*cal);
       if (deltar0>theDR_Max) continue;
 
