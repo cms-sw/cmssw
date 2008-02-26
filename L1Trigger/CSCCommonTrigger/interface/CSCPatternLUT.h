@@ -18,6 +18,8 @@ class CSCPatternLUT
   static int getBendValue(int pattern);
   static double getPosition(int pattern);
 
+  static double get2007Position(int pattern);
+
  private:
 
   /** 
