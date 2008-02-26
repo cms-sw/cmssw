@@ -41,6 +41,8 @@ namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
 
     conf_(conf),
+    theTrackCandidateOutput(true),
+    theTrajectoryOutput(false),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
@@ -129,11 +131,10 @@ namespace cms{
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-    
+    std::auto_ptr<std::vector<Trajectory> > outputT (new std::vector<Trajectory>());
     
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
-      vector<Trajectory> theFinalTrajectories;
 
       vector<Trajectory> rawResult;
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
@@ -184,7 +185,7 @@ namespace cms{
 
       //analyseCleanedTrajectories(unsmoothedResult);
       
-
+      if (theTrackCandidateOutput){
       // Step F: Convert to TrackCandidates
       output->reserve(unsmoothedResult.size());
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
@@ -216,6 +217,7 @@ namespace cms{
 	
 	delete state;
       }
+      }//output trackcandidates
       
       
       
@@ -247,14 +249,17 @@ namespace cms{
 				       <<it->lastMeasurement().predictedState().globalMomentum().perp();
       }
       LogTrace("TrackingRegressionTest") << "=================================================";
-          
-    }
+     
+      if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
+
+    }// end of ((*collseed).size()>0)
     
     // method for debugging
     deleteAssocDebugger();
 
     // Step G: write output to file
-    e.put(output);
+    if (theTrackCandidateOutput){ e.put(output);}
+    if (theTrajectoryOutput){e.put(outputT);}
   }
 }
 

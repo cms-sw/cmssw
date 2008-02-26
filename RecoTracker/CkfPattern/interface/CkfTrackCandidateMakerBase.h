@@ -39,6 +39,9 @@ namespace cms
 
     edm::ParameterSet conf_;
 
+    bool theTrackCandidateOutput;
+    bool theTrajectoryOutput;
+
     std::string theTrajectoryBuilderName;
     const TrajectoryBuilder*  theTrajectoryBuilder;
 
