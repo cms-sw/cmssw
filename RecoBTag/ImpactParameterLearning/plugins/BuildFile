@@ -17,10 +17,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=CondCore/DBOutputService>
 
-<library file=TrackProbabilityXMLtoDB.cc name=TrackProbabilityXMLtoDB>
-  <use name=FWCore/Framework>
-  <flags EDM_PLUGIN=1>
-</library>
 
 <library file=ImpactParameterCalibration.cc name=ImpactParameterCalibration>
   <use name=FWCore/Framework>

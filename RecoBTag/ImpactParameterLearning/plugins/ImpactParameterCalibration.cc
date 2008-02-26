@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.1 2007/10/01 15:53:24 arizzi Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.2 2007/10/02 09:20:54 arizzi Exp $
 //
 //
 // system include files
@@ -35,6 +35,7 @@
 
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
@@ -149,19 +150,21 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
            
       for(int i=0; i < 2;i++)
       { 
-        vector<Measurement1D> ip = it->impactParameters(i);
         it_begin=m_calibration[i]->data.begin();
         it_end=m_calibration[i]->data.end();
   
       for(int j=0;j<ip.size(); j++)
         {
+          double ipsig;
+          if (i==0) ipsig  = it->impactParameterData()[j].ip3d.significance();
+          else  ipsig  = it->impactParameterData()[j].ip2d.significance();
           TrackClassMatch::Input input(*selTracks[j],*it->jet(),pv);
-          if(ip[j].significance() < 0) 
+          if(ipsig < 0) 
            {
             found = std::find_if(it_begin,it_end,bind1st(TrackClassMatch(),input));
 //            std::cout << ip[j].significance() << std::endl; 
             if(found!=it_end) 
-              found->histogram.fill(-ip[j].significance());
+              found->histogram.fill(-ipsig);
             else
               std::cout << "No category for this track!!" << std::endl;
            }
