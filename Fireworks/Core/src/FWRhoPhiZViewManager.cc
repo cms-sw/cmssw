@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.17 2008/02/21 20:39:17 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.18 2008/02/21 20:49:11 chrjones Exp $
 //
 
 // system include files
@@ -138,6 +138,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
        ++it) {
       pView->replicateGeomElement(*it);
    }
+   pView->resetCamera();
    return pView.get();
 }
 
@@ -159,6 +160,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
        ++it) {
       pView->replicateGeomElement(*it);
    }
+   pView->resetCamera();
    return pView.get();
 }
 

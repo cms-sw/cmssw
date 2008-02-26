@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.1 2008/02/21 14:38:53 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.2 2008/02/21 20:38:40 chrjones Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
                                iFrom->GetElementTitle());
    new_re->SetRnrSelf     (iFrom->GetRnrSelf());
    new_re->SetRnrChildren(iFrom->GetRnrChildren());
-   gEve->AddElement(new_re, iParent);
+   iParent->AddElement(new_re);
    
    for (TEveElement::List_i i=iFrom->BeginChildren(); i!=iFrom->EndChildren(); ++i)
       doReplication(iMgr,*i, new_re);
@@ -89,11 +89,12 @@ m_typeName(iName)
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
    m_embeddedViewer=ev;
-   TEveViewer* nv = new TEveViewer("Rho Phi");
+   TEveViewer* nv = new TEveViewer(iName.c_str());
    nv->SetGLViewer(ev);
    nv->IncDenyDestroy();
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
+   TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
+   m_scene = ns;
    nv->AddScene(ns);
    m_viewer=nv;
    //this is needed so if a TEveElement changes this view will be informed
@@ -129,6 +130,17 @@ FWRhoPhiZView::~FWRhoPhiZView()
 // member functions
 //
 void 
+FWRhoPhiZView::resetCamera()
+{
+   //this is needed to get EVE to transfer the TEveElements to GL so the camera reset will work
+   m_scene->Repaint();
+   m_viewer->Redraw(kTRUE);
+   //gEve->Redraw3D(kTRUE);
+
+   m_embeddedViewer->ResetCurrentCamera();
+}
+
+void 
 FWRhoPhiZView::destroyElements()
 {
    m_projMgr->DestroyElements();
@@ -142,6 +154,8 @@ FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 {
    m_geom.push_back(doReplication(m_projMgr,iChild,m_projMgr));
    m_geom.back()->IncDenyDestroy();
+   m_projMgr->AssertBBox();
+   m_projMgr->ProjectChildrenRecurse(m_geom.back());
 }
 
 //returns the new element created from this import

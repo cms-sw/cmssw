@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.1 2008/02/21 14:38:54 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.2 2008/02/21 20:38:39 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ class FWRhoPhiZView : public FWViewBase
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      void resetCamera();
       void destroyElements();
       void replicateGeomElement(TEveElement*);
 
@@ -66,6 +67,7 @@ class FWRhoPhiZView : public FWViewBase
       TEveProjectionManager* m_projMgr;
       std::vector<TEveElement*> m_geom;
       std::string m_typeName;
+      TEveScene* m_scene;
 
 };
 
