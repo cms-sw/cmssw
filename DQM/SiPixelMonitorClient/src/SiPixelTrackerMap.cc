@@ -16,7 +16,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.6 2007/09/28 13:45:17 elmer Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.7 2008/01/22 19:10:32 muzaffar Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
@@ -146,7 +146,8 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   bool BPIX_L_3 = false ;
   QRegExp rx("(BPIX|FPIX)") ;
   QRegExp
-  ry("(FPIX\\s+-z\\s+disc\\s+1|FPIX\\s+-z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+1|layer\\s+\\d+)") ;
+ 
+ry("(FPIX\\s+-z\\s+disc\\s+1|FPIX\\s+-z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+2|FPIX\\s+\\+z\\s+disc\\s+1|Shell_mI/Layer_1|Shell_mO/Layer_1|Shell_pI/Layer_1|Shell_pO/Layer_1)") ;
   QString modName = mod->name ;
   if( rx.search(modName) != -1 )
   {
@@ -163,7 +164,10 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
     if( ry.cap(1) == "FPIX -z disc 2" ) {FPIX_M_2 = true;}
     if( ry.cap(1) == "FPIX +z disc 1" ) {FPIX_P_1 = true;}
     if( ry.cap(1) == "FPIX +z disc 2" ) {FPIX_P_2 = true;}
-    if( ry.cap(1) == "layer 1"        ) {BPIX_L_1 = true;}
+    if( ry.cap(1) == "Shell_mI/Layer_1") {BPIX_L_1 = true;}
+    if( ry.cap(1) == "Shell_mO/Layer_1") {BPIX_L_1 = true;}
+    if( ry.cap(1) == "Shell_pI/Layer_1") {BPIX_L_1 = true;}
+    if( ry.cap(1) == "Shell_pO/Layer_1") {BPIX_L_1 = true;}
     if( ry.cap(1) == "layer 2"        ) {BPIX_L_2 = true;}
     if( ry.cap(1) == "layer 3"        ) {BPIX_L_3 = true;}
    }

@@ -95,6 +95,7 @@
      for (var i = 0; i < dets.length; i++) 
      {
       var detId      = dets[i].getAttribute("DetId") ;
+      //var detId = 302057988;
       var red	     = dets[i].getAttribute("red"  ) ;
       var green      = dets[i].getAttribute("green") ;
       var blue       = dets[i].getAttribute("blue" ) ;
