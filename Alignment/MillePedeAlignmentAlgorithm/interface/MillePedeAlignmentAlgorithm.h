@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.15 $
-///  $Date: 2007/12/17 18:59:52 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.16 $
+///  $Date: 2008/02/20 18:33:03 $
+///  (last update by $Author: mstoye $)
 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -131,6 +131,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
   int                       theMinNumHits;
+  double                     theMaximalCor2D; // maximal coreelation allowed for 2D hits. If larger
+  // the 2D measurement gets diagonalized!!!
   bool                      theUseTrackTsos;
 
   std::vector<float>        theFloatBufferX;
