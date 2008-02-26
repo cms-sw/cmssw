@@ -154,7 +154,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   edm::Handle<reco::ConversionCollection> conversionHandle; 
   theEvent.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
   if (!conversionHandle.isValid()) {
-    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Corrected Photons will be made with null reference to conversions " << "\n";
+    edm::LogError("PhotonProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Corrected Photons will be made with null reference to conversions " << "\n";
     //return;
     validConversions_=false;
   }
