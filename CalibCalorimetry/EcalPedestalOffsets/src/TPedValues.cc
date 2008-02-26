@@ -6,6 +6,7 @@
 #include <cassert>
 #include "TGraphErrors.h"
 #include "TAxis.h"
+#include "TF1.h"
 
 void reset (double vett[256]) 
 {
@@ -89,11 +90,13 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
           //! find the DAC value with the average pedestal nearest to 200
           double delta = 1000 ;
           int dummyBestDAC = -1 ;
+          bool hasDigis = false;
           //! loop over DAC values
           for (int DAC = DACstart ; DAC < DACend ; ++DAC)
             {
               double average = m_entries[gainId-1][crystal][DAC].average () ;
               if (average == -1) continue ;
+              hasDigis = true;
               if (m_entries[gainId-1][crystal][DAC].RMSSq () > m_RMSmax * m_RMSmax) continue ;
               if (fabs (average - m_bestPedestal) < delta &&   average>1 ) 
                 {
@@ -104,18 +107,16 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
 
           bestDAC.m_DACvalue[gainId-1][crystal] = dummyBestDAC ;
 	  
-	  if ( dummyBestDAC == (DACend-1) || dummyBestDAC == -1 ) {
+	  if ((dummyBestDAC == (DACend-1) || dummyBestDAC == -1) && hasDigis)
+          {
 	    int gainHuman;
 	    if      (gainId ==1) gainHuman =12;
 	    else if (gainId ==2) gainHuman =6;
 	    else if (gainId ==3) gainHuman =1;
 	    else                 gainHuman =-1;
-	    
-	    edm::LogWarning ("EcalPedOffset") << " TPedValues :  channel: " << (crystal+1)
-					      << " gain: " << gainHuman
-					      << " has offset set to: " << dummyBestDAC << "."
-					      << " The maximum expected value is: " << DACend 
-					      << " (need be corrected by hand? Look at plots)";
+	    edm::LogError("EcalPedOffset")
+              << " TPedValues :  cannot find best DAC value for channel: " << (crystal+1)
+					      << " gain: " << gainHuman;
 	  }
 	  
         } // loop over crystals
@@ -176,7 +177,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
       rootFile->mkdir (dirName.c_str ()) ;
       rootFile->cd (dirName.c_str ()) ;
     }
-    
+  
   // loop over the crystals
   for (int xtl=0 ; xtl<1700 ; ++xtl)
   {
@@ -201,26 +202,59 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
               asseX.push_back(dac);
               sigmaX.push_back(0);
               asseY.push_back(average);
-              sigmaY.push_back(rms); 
+              sigmaY.push_back(rms);
             }
           } // loop over DAC values
         if(asseX.size() > 0)
         {
-          TGraphErrors graph(asseX.size(),&(*asseX.begin()),&(*asseY.begin()),&(*sigmaX.begin()),&(*sigmaY.begin()));
+          int lastBin = 0;
+          while(lastBin<(int)asseX.size()-1 && asseY[lastBin+1]>0
+              && (asseY[lastBin]-asseY[lastBin+1])!=0)
+            lastBin++;
+          
+          int fitRangeEnd = (int)asseX[lastBin];
+          int kinkPt = 64;
+          if(fitRangeEnd < 66)
+            kinkPt = fitRangeEnd-4;
+          TGraphErrors graph(asseX.size(),&(*asseX.begin()),&(*asseY.begin()),
+              &(*sigmaX.begin()),&(*sigmaY.begin()));
+          char funct[120];
+          sprintf(funct,"(x<%d)*([0]*x+[1])+(x>=%d)*([2]*x+[3])",kinkPt,kinkPt);
+          TF1 fitFunction("fitFunction",funct,asseX[0],fitRangeEnd);
+          fitFunction.SetLineColor(2);
+          
           char name[120] ;
           int gainHuman;
           if      (gain ==0) gainHuman =12;
           else if (gain ==1) gainHuman =6;
           else if (gain ==2) gainHuman =1;
           else               gainHuman =-1;
-          sprintf (name,"XTL%04d_GAIN%02d",(xtl+1),gainHuman) ;      
+          sprintf (name,"XTL%04d_GAIN%02d",(xtl+1),gainHuman) ;
           graph.GetXaxis()->SetTitle("DAC value");
           graph.GetYaxis()->SetTitle("Average pedestal ADC");
+          graph.Fit("fitFunction","RWQ");
           graph.Write (name);
+          
+          double slope1 = fitFunction.GetParameter(0);
+          double slope2 = fitFunction.GetParameter(2);
+
+          //TODO: make slope range a parameter
+          if(fitFunction.GetChisquare()/fitFunction.GetNDF()>10 ||
+              fitFunction.GetChisquare()/fitFunction.GetNDF()<0 ||
+              slope1>0 || slope2>0 ||
+              ((slope1<-29 || slope1>-18) && slope1<0) || 
+              ((slope2<-29 || slope2>-18) && slope2<0))
+          {
+            edm::LogError("EcalPedOffset") << "TPedValues : TGraph for channel:" << xtl+1 << 
+              " gain:" << gainHuman << " is not linear;" << "  slope of line1:" << 
+              fitFunction.GetParameter(0) << " slope of line2:" << 
+              fitFunction.GetParameter(2) << " reduced chi-squared:" << 
+              fitFunction.GetChisquare()/fitFunction.GetNDF() << endl;
+          }
         }
       } // loop over the gains
   }     // (loop over the crystals)
-
+  
   return 0 ;
 }
      
