@@ -504,6 +504,7 @@ void MultiTrackValidator::endJob() {
       fsyt_dxyPt.getFittedSigmaWithError(h_dxyrmshPt[w]);
       FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
       fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
+      fsyt_pt.getFittedMeanWithError(h_ptshifteta[w]);      
       FitSlicesYTool fsyt_ptPt(ptres_vs_pt[w]);
       fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[w]);
       FitSlicesYTool fsyt_dz(dzres_vs_eta[w]);
@@ -528,7 +529,6 @@ void MultiTrackValidator::endJob() {
       fsyt_dxyp.getFittedSigmaWithError(h_dxypulleta[w]);
       FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
       fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
-      fsyt_ptp.getFittedMeanWithError(h_ptshifteta[w]);      
       FitSlicesYTool fsyt_dzp(dzpull_vs_eta[w]);
       fsyt_dzp.getFittedSigmaWithError(h_dzpulleta[w]);
       FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
