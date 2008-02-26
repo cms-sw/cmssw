@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    DQMServices/CoreROOT
-// Class:      DQMBackEndInterfaceExample
+// Class:      DQMStoreExample
 // 
-/**\class DQMBackEndInterfaceExample
+/**\class DQMStoreExample
 
 Description: Simple example showing how to book, fill and delete monitoring elements
 
@@ -38,10 +38,10 @@ Implementation:
 //
 const int NBINS = 50;
 
-class DQMBackEndInterfaceExample : public edm::EDAnalyzer {
+class DQMStoreExample : public edm::EDAnalyzer {
 public:
-  explicit DQMBackEndInterfaceExample( const edm::ParameterSet& );
-  ~DQMBackEndInterfaceExample();
+  explicit DQMStoreExample( const edm::ParameterSet& );
+  ~DQMStoreExample();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
@@ -84,7 +84,7 @@ private:
 //
 // constructors and destructor
 //
-DQMBackEndInterfaceExample::DQMBackEndInterfaceExample(const edm::ParameterSet&
+DQMStoreExample::DQMStoreExample(const edm::ParameterSet&
 						       iConfig ) 
   : counter(0)
 {
@@ -147,7 +147,7 @@ DQMBackEndInterfaceExample::DQMBackEndInterfaceExample(const edm::ParameterSet&
 }
 
 // test back-end interface functionality
-void DQMBackEndInterfaceExample::integrityChecks()
+void DQMStoreExample::integrityChecks()
 {
  
   std::vector<MonitorElement * > contents, dbe_ret;
@@ -216,7 +216,7 @@ void DQMBackEndInterfaceExample::integrityChecks()
   assert(dbe_ret == contents);
 }
 
-DQMBackEndInterfaceExample::~DQMBackEndInterfaceExample()
+DQMStoreExample::~DQMStoreExample()
 {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
@@ -230,7 +230,7 @@ DQMBackEndInterfaceExample::~DQMBackEndInterfaceExample()
   dbe->rmdir("B1");
 }
 
-void DQMBackEndInterfaceExample::endJob(void)
+void DQMStoreExample::endJob(void)
 {
   // rounding error
   float epsilon = 0.0001;
@@ -262,8 +262,7 @@ void DQMBackEndInterfaceExample::endJob(void)
 //
 
 // ------------ method called to produce the data  ------------
-void DQMBackEndInterfaceExample::analyze(const edm::Event& iEvent, 
-					 const edm::EventSetup& iSetup )
+void DQMStoreExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   for ( int i = 0; i < 10; ++i ) {
     float x = 50. * (float)std::rand()/ RAND_MAX;
@@ -291,5 +290,5 @@ void DQMBackEndInterfaceExample::analyze(const edm::Event& iEvent,
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(DQMBackEndInterfaceExample);
+DEFINE_FWK_MODULE(DQMStoreExample);
 

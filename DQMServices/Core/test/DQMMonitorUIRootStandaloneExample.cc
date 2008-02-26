@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    DQMServices/CoreROOT
-// Class:      DQMDQMOldReceiverStandaloneExample
+// Class:      DQMOldReceiverStandaloneExample
 // 
-/**\class DQMDQMOldReceiverStandaloneExample
+/**\class DQMOldReceiverStandaloneExample
 
 Description: Simple example that fills monitoring elements and 
              compares them to reference
@@ -49,10 +49,10 @@ const float XMAX = 3;
 // class declaration
 //
 
-class DQMDQMOldReceiverStandaloneExample : public edm::EDAnalyzer {
+class DQMOldReceiverStandaloneExample : public edm::EDAnalyzer {
 public:
-  explicit DQMDQMOldReceiverStandaloneExample( const edm::ParameterSet& );
-  ~DQMDQMOldReceiverStandaloneExample();
+  explicit DQMOldReceiverStandaloneExample( const edm::ParameterSet& );
+  ~DQMOldReceiverStandaloneExample();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
@@ -106,7 +106,7 @@ private:
 };
 
 // create the monitoring structure
-void DQMDQMOldReceiverStandaloneExample::createMonitorElements(void)
+void DQMOldReceiverStandaloneExample::createMonitorElements(void)
 {
   // set # of bins, range for histogram(s)
   const int NBINS = 50;
@@ -125,7 +125,7 @@ void DQMDQMOldReceiverStandaloneExample::createMonitorElements(void)
 }
 
 // create the quality tests
-void DQMDQMOldReceiverStandaloneExample::createQualityTests(void)
+void DQMOldReceiverStandaloneExample::createQualityTests(void)
 {
   testNames.push_back("my_chi2");
   testNames.push_back("my_kolm");
@@ -142,52 +142,52 @@ void DQMDQMOldReceiverStandaloneExample::createQualityTests(void)
   // create the quality tests
   chi2_test = dynamic_cast<Comp2RefChi2 *> 
     (dbe->createQTest(Comp2RefChi2::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
  ++it;
  ks_test = dynamic_cast<Comp2RefKolmogorov *>
     (dbe->createQTest(Comp2RefKolmogorov::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
  ++it;
   xrange_test = dynamic_cast<ContentsXRange *>
     (dbe->createQTest(ContentsXRange::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
   yrange_test = dynamic_cast<ContentsYRange *>
     (dbe->createQTest(ContentsYRange::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
  ++it;
   deadChan_test = dynamic_cast<DeadChannel *>
     (dbe->createQTest(DeadChannel::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
   noisyChan_test = dynamic_cast<NoisyChannel *>
     (dbe->createQTest(NoisyChannel::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
   equalH1_test = dynamic_cast<Comp2RefEqualH1 *>
     (dbe->createQTest(Comp2RefEqualH1::getAlgoName(), *it) );
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
   equalInt_test = dynamic_cast<Comp2RefEqualInt *>
     (dbe->createQTest(Comp2RefEqualInt::getAlgoName(), *it) );
-  dbe->useQTest("int1", *it);
+  dbe->useQTestByMatch("int1", *it);
 
   ++it;
   meanNear_test = dynamic_cast<MeanWithinExpected *>
     (dbe->createQTest(MeanWithinExpected::getAlgoName(), *it));
-  dbe->useQTest("histo_1", *it);
+  dbe->useQTestByMatch("histo_1", *it);
 
 }
 
 // tune cuts for quality tests
-void DQMDQMOldReceiverStandaloneExample::tuneCuts(void)
+void DQMOldReceiverStandaloneExample::tuneCuts(void)
 {
   // set reference for chi2, ks tests
   setReference(href);
@@ -213,7 +213,7 @@ void DQMDQMOldReceiverStandaloneExample::tuneCuts(void)
 
 
 // constructors and destructor
-DQMDQMOldReceiverStandaloneExample::DQMDQMOldReceiverStandaloneExample(const edm::ParameterSet& iConfig ) : counter(0)
+DQMOldReceiverStandaloneExample::DQMOldReceiverStandaloneExample(const edm::ParameterSet& iConfig ) : counter(0)
 {
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
@@ -231,7 +231,7 @@ DQMDQMOldReceiverStandaloneExample::DQMDQMOldReceiverStandaloneExample(const edm
 }
 
 // use <ref> as the reference for the quality tests
-void DQMDQMOldReceiverStandaloneExample::setReference(MonitorElement * ref)
+void DQMOldReceiverStandaloneExample::setReference(MonitorElement * ref)
 {
   if(chi2_test)chi2_test->setReference(ref);
   if(ks_test)ks_test->setReference(ref);  
@@ -247,19 +247,19 @@ void DQMDQMOldReceiverStandaloneExample::setReference(MonitorElement * ref)
 }
 
 
-DQMDQMOldReceiverStandaloneExample::~DQMDQMOldReceiverStandaloneExample()
+DQMOldReceiverStandaloneExample::~DQMOldReceiverStandaloneExample()
 {
   delete mui;
 }
 
-void DQMDQMOldReceiverStandaloneExample::endJob(void)
+void DQMOldReceiverStandaloneExample::endJob(void)
 {
   runTests();
 }
 
 // run quality tests;
 // (see Core/interface/QTestStatus.h)
-void DQMDQMOldReceiverStandaloneExample::runTests()
+void DQMOldReceiverStandaloneExample::runTests()
 {
   DQMStore * bei = mui->getBEInterface();
 
@@ -333,8 +333,7 @@ void DQMDQMOldReceiverStandaloneExample::runTests()
 //
 
 // ------------ method called to produce the data  ------------
-void DQMDQMOldReceiverStandaloneExample::analyze(const edm::Event& iEvent, 
-					 const edm::EventSetup& iSetup )
+void DQMOldReceiverStandaloneExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   // fill in test histogram with random data
   h1->Fill(gRandom->Gaus(mean_, sigma_)); 
@@ -342,8 +341,10 @@ void DQMDQMOldReceiverStandaloneExample::analyze(const edm::Event& iEvent,
 }
 
 // show channels that failed test
-void DQMDQMOldReceiverStandaloneExample::showBadChannels(QReport *qr)
+void DQMOldReceiverStandaloneExample::showBadChannels(QReport *qr)
 {
+  assert(qr);
+
   vector<dqm::me_util::Channel> badChannels = qr->getBadChannels();
   if(!badChannels.empty())
     cout << "\n Channels that failed test " << qr->getQRName() << ":\n";
@@ -363,5 +364,5 @@ void DQMDQMOldReceiverStandaloneExample::showBadChannels(QReport *qr)
 
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(DQMDQMOldReceiverStandaloneExample);
+DEFINE_FWK_MODULE(DQMOldReceiverStandaloneExample);
 

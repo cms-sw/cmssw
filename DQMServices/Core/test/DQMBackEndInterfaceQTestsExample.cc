@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    DQMServices/CoreROOT
-// Class:      DQMBackEndInterfaceQTestsExample
+// Class:      DQMStoreQTestsExample
 // 
-/**\class DQMBackEndInterfaceQTestsExample
+/**\class DQMStoreQTestsExample
 
 Description: Simple example that fills monitoring elements and 
              compares them to reference
@@ -44,10 +44,10 @@ const int sample_int_value = 5;
 // class declaration
 //
 
-class DQMBackEndInterfaceQTestsExample : public edm::EDAnalyzer {
+class DQMStoreQTestsExample : public edm::EDAnalyzer {
 public:
-  explicit DQMBackEndInterfaceQTestsExample( const edm::ParameterSet& );
-  ~DQMBackEndInterfaceQTestsExample();
+  explicit DQMStoreQTestsExample( const edm::ParameterSet& );
+  ~DQMStoreQTestsExample();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
@@ -105,7 +105,7 @@ private:
 };
 
 // constructors and destructor
-DQMBackEndInterfaceQTestsExample::DQMBackEndInterfaceQTestsExample(const edm::ParameterSet& iConfig ) : counter(0)
+DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) : counter(0)
 {
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
@@ -181,7 +181,7 @@ DQMBackEndInterfaceQTestsExample::DQMBackEndInterfaceQTestsExample(const edm::Pa
 }
 
 // use <ref> as the reference for the quality tests
-void DQMBackEndInterfaceQTestsExample::setReference(MonitorElement * ref)
+void DQMStoreQTestsExample::setReference(MonitorElement * ref)
 {
   if(chi2_test)chi2_test->setReference(ref);
   if(ks_test)ks_test->setReference(ref);  
@@ -197,7 +197,7 @@ void DQMBackEndInterfaceQTestsExample::setReference(MonitorElement * ref)
 }
 
 
-DQMBackEndInterfaceQTestsExample::~DQMBackEndInterfaceQTestsExample()
+DQMStoreQTestsExample::~DQMStoreQTestsExample()
 {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
@@ -217,7 +217,7 @@ DQMBackEndInterfaceQTestsExample::~DQMBackEndInterfaceQTestsExample()
 
 }
 
-void DQMBackEndInterfaceQTestsExample::endJob(void)
+void DQMStoreQTestsExample::endJob(void)
 {
   // test # 1:  disable tests
   chi2_test->disable();
@@ -312,7 +312,7 @@ void DQMBackEndInterfaceQTestsExample::endJob(void)
 // run quality tests; expected_status: test status that is expected
 // (see Core/interface/QTestStatus.h)
 // test_type: info message on what kind of tests are run
-void DQMBackEndInterfaceQTestsExample::runTests(int expected_status, 
+void DQMStoreQTestsExample::runTests(int expected_status, 
 					    string test_type)
 {
   cout << " ========================================================== " << endl;
@@ -447,7 +447,7 @@ void DQMBackEndInterfaceQTestsExample::runTests(int expected_status,
 }
 
 // called by runTests; return status
-int DQMBackEndInterfaceQTestsExample::checkTest(QCriterion *qc)
+int DQMStoreQTestsExample::checkTest(QCriterion *qc)
 {
   if(!qc)return -1;
   
@@ -491,8 +491,7 @@ int DQMBackEndInterfaceQTestsExample::checkTest(QCriterion *qc)
 //
 
 // ------------ method called to produce the data  ------------
-void DQMBackEndInterfaceQTestsExample::analyze(const edm::Event& iEvent, 
-					 const edm::EventSetup& iSetup )
+void DQMStoreQTestsExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   // fill in test histogram with random data
   h1->Fill(gRandom->Gaus(mean_, sigma_)); 
@@ -513,7 +512,7 @@ void DQMBackEndInterfaceQTestsExample::analyze(const edm::Event& iEvent,
 }
 
 // show channels that failed test
-void DQMBackEndInterfaceQTestsExample::showBadChannels(QCriterion *qc)
+void DQMStoreQTestsExample::showBadChannels(QCriterion *qc)
 {
   vector<dqm::me_util::Channel> badChannels = qc->getBadChannels();
   if(!badChannels.empty())
@@ -535,5 +534,5 @@ void DQMBackEndInterfaceQTestsExample::showBadChannels(QCriterion *qc)
 
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(DQMBackEndInterfaceQTestsExample);
+DEFINE_FWK_MODULE(DQMStoreQTestsExample);
 
