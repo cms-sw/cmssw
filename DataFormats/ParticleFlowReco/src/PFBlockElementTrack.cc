@@ -11,9 +11,10 @@ using namespace std;
 
 
 PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref, TrackType tracktype ) : 
-  PFBlockElement( TRACK, tracktype ),
+  PFBlockElement( TRACK ),
   trackRefPF_( ref ), 
-  trackRef_( ref->trackRef() ) {}
+  trackRef_( ref->trackRef() ), 
+  trackType_( tracktype ) {}
 
 
 void PFBlockElementTrack::Dump(ostream& out, 

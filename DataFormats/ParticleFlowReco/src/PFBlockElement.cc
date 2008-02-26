@@ -32,7 +32,7 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
-        switch(element.tracktype_) {
+        switch( et.trackType() ) {
           case PFBlockElement::T_FROM_NUCL : out<<" from nucl"; break;
           case PFBlockElement::T_TO_NUCL : out<<" to nucl"; break;
           case PFBlockElement::T_FROM_GAMMACONV : out<<" from gammaconv"; break; 

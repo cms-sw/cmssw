@@ -44,9 +44,8 @@ namespace reco {
     };
 
     /// standard constructor
-    PFBlockElement(Type type=NONE, TrackType tracktype=DEFAULT) :  
+    PFBlockElement(Type type=NONE) :  
       type_(type), 
-      tracktype_(tracktype), 
       locked_(false),
       index_( static_cast<unsigned>(-1) ) {
     }
@@ -72,7 +71,7 @@ namespace reco {
     Type type() const { return type_; }
 
     /// \return tracktype
-    TrackType trackType() const { return tracktype_; }
+    virtual TrackType trackType() const { return DEFAULT; }
 
     /// locked ? 
     bool    locked() const {return locked_;}
@@ -88,7 +87,7 @@ namespace reco {
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
     virtual PFNuclearInteractionRef nuclearRef() const { return PFNuclearInteractionRef(); }
 
-    bool isSecondary() const { return tracktype_==T_FROM_NUCL || tracktype_==T_FROM_GAMMACONV; }
+    bool isSecondary() const { return false; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
@@ -98,8 +97,6 @@ namespace reco {
     /// type, see PFBlockElementType
     Type     type_;
 
-    TrackType     tracktype_;
-  
     /// locked flag. 
     /// \todo can probably be transient. Could be replaced by a 
     /// "remaining energy"

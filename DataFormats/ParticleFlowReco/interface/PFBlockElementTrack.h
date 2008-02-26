@@ -14,14 +14,18 @@ namespace reco {
   /// this class contains a reference to a PFRecTrack 
   class PFBlockElementTrack : public PFBlockElement {
   public:
+
     PFBlockElementTrack() {} 
 
-    PFBlockElementTrack(const PFRecTrackRef& ref , TrackType tracktype=DEFAULT );
+    PFBlockElementTrack(const PFRecTrackRef& ref , TrackType trackType=DEFAULT );
 
     PFBlockElement* clone() const { return new PFBlockElementTrack(*this); }
     
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;
+
+    /// \return tracktype
+    virtual TrackType trackType() const { return trackType_; }
     
     /// \return reference to the corresponding PFRecTrack
     PFRecTrackRef trackRefPF() const {
@@ -32,6 +36,8 @@ namespace reco {
     reco::TrackRef trackRef() const {
       return trackRef_;
     }
+
+    bool isSecondary() const { return trackType_==T_FROM_NUCL || trackType_==T_FROM_GAMMACONV; }
     
   private:
 
@@ -40,6 +46,8 @@ namespace reco {
 
     /// reference to the corresponding track 
     reco::TrackRef trackRef_;
+
+    TrackType     trackType_;
   };
 }
 
