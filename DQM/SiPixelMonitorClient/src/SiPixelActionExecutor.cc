@@ -1,9 +1,13 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include <qstring.h>
+#include <qregexp.h>
 
 #include <iostream>
 using namespace std;
@@ -16,6 +20,7 @@ SiPixelActionExecutor::SiPixelActionExecutor() {
   configParser_ = 0;
   configWriter_ = 0;
   qtHandler_ = 0;  
+  ndet_ = 0;
   //collationDone = false;
 }
 //
@@ -203,7 +208,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
 	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
-	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary")
+	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
+	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||        // track residuals
@@ -212,8 +218,13 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        tag = prefix + "_" + (*iv) + "_RMS_" 
+        if((*iv)!="pixelAliveSummary"){
+	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else{
+	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
+                                + currDir.substr(currDir.find(dir_name));
+	}
         temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }else{
@@ -234,7 +245,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet++;
-
+      
       vector<string> contents = bei->getMEs(); 
       
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
@@ -252,6 +263,11 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
 	    if (me){ 
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
+	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
+	        cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinEntries(me->getNbinsX()-1)<<" , "<<me->getBinEntries(me->getNbinsX())<<endl;
+		float nlast = me->getBinEntries(me->getNbinsX());
+		float nall = me->getEntries();
+	        (*isum)->Fill(ndet, nlast/nall);
               }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
@@ -259,6 +275,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
 	      string title = " ";
 	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
+                title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
@@ -290,7 +308,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
     }
     fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
-  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+ // cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
 void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
@@ -329,7 +347,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
 	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
-	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary")
+	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
+	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||            // track residuals
@@ -338,8 +357,13 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        tag = prefix + "_" + (*iv) + "_RMS_" 
+        if((*iv)!="pixelAliveSummary"){
+	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else{
+	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
+                                + currDir.substr(currDir.find(dir_name));
+	}
         temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }else{
@@ -378,6 +402,10 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	    if (me){ 
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
+	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
+		float nlast = me->getBinEntries(me->getNbinsX());
+		float nall = me->getEntries();
+	        (*isum)->Fill(ndet, nlast/nall);
               }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
@@ -385,6 +413,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	      string title = " ";
 	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
+                title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
@@ -564,7 +594,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
-	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS")
+	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
+	     (*iv)=="pixelAliveSummary")
 	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
@@ -693,7 +724,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
-	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS")
+	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
+	     (*iv)=="pixelAliveSummary")
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
@@ -1011,5 +1043,91 @@ int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
     names.push_back(*it) ;
   }
   return names.size();
+}
+
+///// Dump Module paths and IDs on screen:
+void SiPixelActionExecutor::dumpModIds(DaqMonitorBEInterface * bei){
+
+  bei->cd();
+  dumpBarrelModIds(bei);
+  bei->cd();
+  dumpEndcapModIds(bei);
+  bei->cd();
+
+}
+
+
+void SiPixelActionExecutor::dumpBarrelModIds(DaqMonitorBEInterface * bei){
+  string currDir = bei->pwd();
+  string dir_name = "Ladder_";
+  if (currDir.find(dir_name) != string::npos)  {
+    vector<string> subdirs = bei->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      if ( (*it).find("Module_") == string::npos) continue;
+      bei->cd(*it);
+      ndet_++;
+      cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      vector<string> contents = bei->getMEs(); 
+      bool first_me = false;
+      int detId = -999;
+      for (vector<string>::const_iterator im = contents.begin();
+         im != contents.end(); im++) {
+        if(first_me) break;
+        QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
+        QString mEName = (*im);
+        if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
+      }
+      bei->goUp();
+      cout<<"  , detector ID: "<<detId<<endl;
+    }
+  } else {  
+    vector<string> subdirs = bei->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      if((*it).find("Endcap")!=string::npos) continue;
+      bei->cd(*it);
+      dumpBarrelModIds(bei);
+      bei->goUp();
+    }
+  }
+}
+
+void SiPixelActionExecutor::dumpEndcapModIds(DaqMonitorBEInterface * bei){
+  string currDir = bei->pwd();
+  string dir_name = "Panel_";
+  if (currDir.find(dir_name) != string::npos)  {
+    vector<string> subdirs = bei->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      if ( (*it).find("Module_") == string::npos) continue;
+      bei->cd(*it);
+      ndet_++;
+      cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
+      vector<string> contents = bei->getMEs(); 
+      bool first_me = false;
+      int detId = -999;
+      for (vector<string>::const_iterator im = contents.begin();
+         im != contents.end(); im++) {
+        if(first_me) break;
+        QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
+        QString mEName = (*im);
+        if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
+      }
+      bei->goUp();
+      cout<<"  , detector ID: "<<detId<<endl;
+    }
+  } else {  
+    vector<string> subdirs = bei->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      if((bei->pwd()).find("Barrel")!=string::npos) bei->goUp();
+      bei->cd((*it));
+      if((*it).find("Barrel")!=string::npos) continue;
+      dumpEndcapModIds(bei);
+      bei->goUp();
+    }
+  }
+
 }
 
