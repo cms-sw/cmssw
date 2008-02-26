@@ -5,12 +5,35 @@
 // 
 /**\class AlCaHOCalibProducer AlCaHOCalibProducer.cc Calibration/AlCaHOCalibProducer/src/AlCaHOCalibProducer.cc
 
+change magnetic field inside 
+../data/HOCosmicCalib_RecoLocalMuon.cff
+../data/HOCosmicCalib_RecoLocalTracker.cff
+
+
+
  Description: <one line class summary>
 
  Implementation:
      <Notes on implementation>
 Missing towers : eta=5, phi=18-19
                : eta = -5, phi =11-14
+
+HO tile sizes
+Ring +-2 : width  Tray 6:404.6, 5&4:347.6, 3:352.6, 2:364.6, 1:315.6 
+                  (phi ordering is opposite) 
+           lenght Tile 1:420.1, 2:545.1, 3:583.3, 4:626.0, 5:335.5  
+
+                   (five tiles, 1 is close to Ring 1 and 5 is towardslc endcap)
+Ring +-1 : width  Tray 6:404.6, 5&4:347.6, 3:352.6, 2:364.6, 1:315.6  (same as Ring+-2)
+           lenght Tile 1:391.5, 2:394.2, 3:411.0, 4:430.9, 5:454.0, 6:426.0
+                  (1: near R0 and 6 near R2)
+
+Ring 0 L1 : Width Tray (6:290.6, 5&4:345.6, 3:350.6, 2:362.6, 1:298.6  
+            lenght 1:351.2, 2:353.8, 3:359.2, 4:189.1 (4 is towards Ring1)
+
+Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
+            length 1:331.5, 2:334.0, 3:339.0, 4:248.8 (4 is towards Ring1)
+
 
 */
 //
@@ -63,7 +86,8 @@ Missing towers : eta=5, phi=18-19
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+
+// #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 //#include "Geometry/Surface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
@@ -82,8 +106,20 @@ Missing towers : eta=5, phi=18-19
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TTree.h"
+/* C++ Headers */
+#include <string>
 
+#include <iostream>
+#include <fstream>
 //
 // class decleration
 //
@@ -129,21 +165,40 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   static const int ncapmx = 4;
   static const int netamx = 32;
 
-
+  float ho_time[10];
+  float hb_time[10];
   std::string digiLabel;
   
   bool debug;
-    std::string thePedestalFile;
-    edm::InputTag muonTags_;   // cosmicMuons or standAloneMuons
+  std::string theRootFileName;
+  std::string thePedestalFile;
+  TFile* theFile;
+  TH1F* hotime[netamx][nphimx];
+  TH1F* hopedtime[netamx][nphimx];
+  TH1F* crossg[netamx][nphimx];
+
+  TH2F* ho_occupency[5];  
+
+  bool m_hotime;
+
+  edm::InputTag muonTags_;   // cosmicMuons or standAloneMuons
   bool m_digiInput;            // digi (true) or rechit (false)
   bool m_hbinfo;
   int m_startTS;
   int m_endTS;    
   double m_magscale;
-  
+  double m_sigma;
+
   //  const HcalQIEShape* m_shape;
   //  const HcalQIECoder* m_coder;
-  
+
+  //  edm::ESHandle<HcalDbService> conditions_;
+
+  typedef math::Error<5>::type CovarianceMatrix;  
+  int Nevents;
+  SteppingHelixPropagator* stepProp;
+  FreeTrajectoryState getFreeTrajectoryState( const reco::Track& tk, const MagneticField* field, int itag, bool dir);
+
 };
 
 //
@@ -169,16 +224,18 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
    produces<ExampleData2>("label");
 */
 
-  thePedestalFile = iConfig.getUntrackedParameter<string>("PedestalFile","pedetal.txt");
+  theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName","tmp.root");
+  thePedestalFile = iConfig.getUntrackedParameter<string>("PedestalFile","pedetal25179_2.txt");
   m_digiInput = iConfig.getUntrackedParameter<bool>("digiInput", true);
   m_hbinfo = iConfig.getUntrackedParameter<bool>("hbinfo", false);
   m_startTS = iConfig.getUntrackedParameter<int>("firstTS", 4);
-
+  m_hotime = iConfig.getUntrackedParameter<bool>("hotime", false);
   if(m_startTS<0) m_startTS=0;
   m_endTS = iConfig.getUntrackedParameter<int>("lastTS", 7);
   if (m_endTS < m_startTS) m_endTS = m_startTS + 3;
   if (m_endTS >9) m_endTS=9;
   m_magscale = iConfig.getUntrackedParameter<double>("m_scale", 4.0);
+  m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
 
   produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
   //  produces<TrackCollection>("TrackCollection");
@@ -188,13 +245,58 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
     for (int j=0; j<nphimx; j++) {
       for (int k=0; k<ndepthmx; k++) {
 	for (int l=0; l <ncapmx; l++) {
-	  pedestal[i][j][k][l] = 3.2; // 4.2;
-	  pedestalHB[i][j][k][l] = 3.2; // 4.2;
+	  pedestal[i][j][k][l] = 4.0; // 3.2; // 4.2;
+	  pedestalHB[i][j][k][l] = 4.0; //3.2; // 4.2;
 	}
       }
     }
   }
 
+  /*
+  int nphi, neta, ndepth;
+  ifstream file_db;
+  file_db.open(thePedestalFile.c_str());
+  while(!(file_db.eof())){
+    file_db >>neta>>nphi>>ndepth
+	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][0]
+	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][1]
+	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][2]
+	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][3];
+  }
+  */
+
+
+
+  for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
+
+  char title[200];
+  if (m_hotime) {
+    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+    theFile->cd();
+    for (int j=0; j<netamx; j++) {
+      for (int i=0; i<nphimx; i++) {
+	int ieta = (j<15) ? j+1 : 14-j;
+	sprintf(title, "hotime_eta%i_phi%i", ieta, i+1);
+	hotime[j][i] = new TH1F(title, title, 10, -0.5, 9.5);
+	
+	sprintf(title, "hopedtime_eta%i_phi%i", ieta, i+1);
+	hopedtime[j][i] = new TH1F(title, title, 10, -0.5, 9.5);
+	
+	if (abs(ieta) <=15) { //novGlobal  && ((i >=16 && i<=21) || (i >=52 && i<=69))) {
+	  sprintf(title, "crossg_eta%i_phi%i", ieta, i+1);
+
+	  crossg[j][i] = new TH1F(title, title, 80, -5., 5.);
+	}
+
+      }
+    }
+  }
+
+  for (int i=0; i<5; i++) {
+    sprintf(title, "ho_occupency (>%i #sigma)", i); 
+    ho_occupency[i] = new TH2F(title, title, netamx, -netamx/2, netamx/2, nphimx, 0.5, nphimx+0.5);
+  }
+  
 
 }
 
@@ -206,6 +308,18 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
    // (e.g. close files, deallocate resources etc.)
 
   // Write the histos to file
+
+  if (m_hotime) {
+    theFile->cd();
+    for (int i=0;i<nphimx; i++) {
+      for (int j=0; j<netamx; j++) {
+	hotime[j][i]->Scale(10./max(1.,hotime[j][i]->GetEntries()));
+	hopedtime[j][i]->Scale(10./max(1.,hopedtime[j][i]->GetEntries()));
+      }
+    }
+  }
+  theFile->Write();
+  theFile->Close();
 
 }
 
@@ -220,41 +334,82 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    
 
-   using namespace edm;
-
-   //  int irun = iEvent.id().run();
-   //  int ievt = iEvent.id().event();
+  using namespace edm;
+  Nevents++;
+  //  int irun = iEvent.id().run();
+  //  int ievt = iEvent.id().event();
   //  cout << endl<<"--- AlCaHOCalibProducer: Event analysed #Run: " << irun << " #Event: " << ievt << endl;
-
+  if (Nevents%500==1) cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
-  //   std::auto_ptr<TrackCollection> hostore (new TrackCollection);
+
+
+  /*
+  edm::Handle<HODigiCollection> ho;     iEvent.getByType(ho);
+  try{
+    if(!(*ho).size()) throw (int)(*ho).size();
+    for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
+      const HODataFrame digi = (const HODataFrame)(*j);
+      HcalDetId id =digi.id();
+      int tmpeta= id.ieta();
+      int tmpphi= id.iphi();
+      int tmpdepth =id.depth();
+//      cout <<"HO   "<<tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" ";
+      float tmpdata[10];
+      for (int i=0; i<digi.size() && i<10; i++) {
+	tmpdata[i] = digi.sample(i).nominal_fC();
+//	cout <<" "<<i<<" "<<tmpdata[i];
+      }
+//      cout<<endl;
+    }
+  }  catch ( cms::Exception &iEvent ) { } 
+
+  edm::Handle<HBHEDigiCollection> hbhe;     iEvent.getByType(hbhe);
+  try{
+    if(!(*hbhe).size()) throw (int)(*hbhe).size();
+    for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      HcalDetId id =digi.id();
+      int tmpeta= id.ieta();
+      int tmpphi= id.iphi();
+      int tmpdepth =id.depth();
+//      cout <<"HBHE "<<tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" ";
+      float tmpdata[10];
+      for (int i=0; i<digi.size() && i<10; i++) {
+	tmpdata[i] = digi.sample(i).nominal_fC();
+//	cout <<" "<<i<<" "<<tmpdata[i];
+      }
+//      cout<<endl;
+    }
+  }  catch ( cms::Exception &iEvent ) { } 
+  */
+  
   double pival = acos(-1.);
 
-  //  edm::Handle<TrajectorySeedCollection> seeds; 
-  //  iEvent.getByLabel("CosmicMuonSeed",seeds);
-
   Handle<reco::TrackCollection> cosmicmuon;
+  bool isMuon = true;
+  try {
+    //GM09/10/07 for CSA07 sample 
+    // /store/CSA07/mc/2007/10/1/CSA07-DrellYan_mumu_40-ALCARECO-A1/0000/0059E054-8770-DC11-8432-000423D99A8E.root 
+    iEvent.getByLabel(muonTags_, cosmicmuon);
+    //    iEvent.getByLabel("ALCARECOHcalCalZMuMu","StandAlone", cosmicmuon);
 
-
-  iEvent.getByLabel(muonTags_, cosmicmuon);
-  cout <<"cosmicmuon ? "<<muonTags_<<endl;
-  //  iEvent.getByLabel("cosmicMuons", cosmicmuon); //FIXGM replace "CosmicMuon" by input through configuration file
-
-  //  iEvent.getByLabel("standAloneMuons", cosmicmuon);
-  //  iEvent.getByLabel("standAloneMuons", "UpdatedAtVtx", cosmicmuon); 
-  // Handle<reco::TrackCollection> standalonemuon;
-  // iEvent.getByLabel("standAloneMuons",standalonemuon);
-  // cout <<"stdmuon "<< standalonemuon->size()<<endl; 
-
+  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+  if (isMuon && cosmicmuon->size()>0) { 
   for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
       ncosm != cosmicmuon->end();  ++ncosm) {
     
     HOCalibVariables tmpHOCalib;
+
+    tmpHOCalib.trig1 = 0;
+    tmpHOCalib.trig2 = 0;    
+    
+
     int charge = ncosm->charge();  
     
     double innerr = (*ncosm).innerPosition().Perp2();
     double outerr = (*ncosm).outerPosition().Perp2();
-
+    int iiner = (innerr <outerr) ? 1 : 0;
+    //    cout <<"inner outer "<<innerr<<" "<<outerr<<endl;
     //    if (innery * outery <0) {
     //      cout <<"Not in same side "<< innery <<" "<<outery<<endl;
     //      continue;
@@ -270,7 +425,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double posx, posy, posz;
     double momx, momy, momz;
 
-    if (innerr < outerr) {
+    if (iiner==1) {
       posx = (*ncosm).innerPosition().X();
       posy = (*ncosm).innerPosition().Y();
       posz = (*ncosm).innerPosition().Z();
@@ -294,14 +449,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     Hep3Vector tmpmuon3v(posx, posy, posz);
     Hep3Vector tmpmuondir(momx, momy, momz);
     
-    bool samedir = (tmpmuon3v.dot(tmpmuondir)) ? true : false;
+    bool samedir = (tmpmuon3v.dot(tmpmuondir) >0) ? true : false;
 
     int inearbymuon = 0;
     for(reco::TrackCollection::const_iterator ncosmcor = cosmicmuon->begin();
 	ncosmcor != cosmicmuon->end();  ++ncosmcor) {
       if (ncosmcor==ncosm) continue;
       Hep3Vector tmpmuon3vcor;
-    if (innerr < outerr) {
+    if (iiner==1) {
 	tmpmuon3vcor = Hep3Vector((*ncosmcor).innerPosition().X(),(*ncosmcor).innerPosition().Y(),(*ncosmcor).innerPosition().Z());
       } else {
 	tmpmuon3vcor = Hep3Vector((*ncosmcor).outerPosition().X(),(*ncosmcor).outerPosition().Y(),(*ncosmcor).outerPosition().Z());
@@ -309,13 +464,16 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (tmpmuon3v.angle(tmpmuon3vcor) < 35*pival/180.) {inearbymuon=1; break;}
     }
-    if (inearbymuon==1) continue;  //Reject muons, where we have another track within 35 degree
+
+    localxhor0 = localyhor0 = 20000;  //GM for 22OCT07 data
     
+    //22OCT07    if (inearbymuon==1) continue;  //Reject muons, where we have another track within 35 degree
+    for (int i=0; i<3; i++) {tmpHOCalib.caloen[i] = 0.0;}
     if (muonTags_.label() =="standAloneMuons") {
+
       Handle<CaloTowerCollection> calotower;
       bool isCaloTower = true;
 
-      for (int i=0; i<3; i++) {tmpHOCalib.caloen[i] = 0.0;}
       try {
 	iEvent.getByLabel("towerMaker",calotower);
       } catch ( cms::Exception &iEvent ) { isCaloTower = false; } 
@@ -328,7 +486,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
 	    
 	  double angle = tmpmuon3v.angle(calo3v);
-	  //          cout <<"angle "<< angle*180/pival<<" "<< ith<<" "<<iph<<endl;
 
 	  if (angle < 15*pival/180.) {tmpHOCalib.caloen[0] += calt->emEnergy()+calt->hadEnergy();}
 	  if (angle < 25*pival/180.) {tmpHOCalib.caloen[1] += calt->emEnergy()+calt->hadEnergy();}
@@ -337,13 +494,15 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else { tmpHOCalib.caloen[0] = tmpHOCalib.caloen[1] = tmpHOCalib.caloen[2] = -1000; }
     }
 
+
+    
     if (tmpHOCalib.caloen[0] >6.0) continue;
     
     GlobalPoint glbpt(posx, posy, posz);
 
-    double trkpt = sqrt(momx*momx + momy*momy);
+    //    double trkpt = sqrt(momx*momx + momy*momy);
     double mom = sqrt(momx*momx + momy*momy +momz*momz);
-    
+
     momx /= mom;
     momy /= mom;
     momz /= mom;
@@ -358,25 +517,31 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     tmpHOCalib.trkth = trkdir.theta();
     tmpHOCalib.trkph = trkdir.phi();
 
-    tmpHOCalib.nrecht = (*ncosm).recHitsSize();
+    tmpHOCalib.nrecht = (inearbymuon ==0) ? (*ncosm).recHitsSize() : -(*ncosm).recHitsSize(); //22OCT07
     tmpHOCalib.ndof  = (int)(*ncosm).ndof();
     tmpHOCalib.chisq = (*ncosm).normalizedChi2(); // max(1.,tmpHOCalib.ndof);
+    tmpHOCalib.therr = 0.;
+    tmpHOCalib.pherr = 0.;
 
-    //    CovarianceMatrix innercov = (*ncosm).innerStateCovariance(); //FIXGM
-    //    tmpHOCalib.therr = innercov(13); //thetaError();  FIXGM check this and put properly
-    //    tmpHOCalib.pherr = innercov(15); //phi0Error();
+    if (iiner==1) {
+      reco::TrackBase::CovarianceMatrix innercov = (*ncosm).innerStateCovariance();
+      tmpHOCalib.therr = innercov(1,1); //thetaError();
+      tmpHOCalib.pherr = innercov(2,2); //phi0Error();
+    } else {
+      reco::TrackBase::CovarianceMatrix outercov = (*ncosm).outerStateCovariance();
+      tmpHOCalib.therr = outercov(1,1); //thetaError();
+      tmpHOCalib.pherr = outercov(2,2); //phi0Error();
+    }
 
+    ESHandle<MagneticField> theMagField;
+    iSetup.get<IdealMagneticFieldRecord>().get(theMagField );     
+    GlobalVector magfld = theMagField->inInverseGeV(glbpt); // inTesla(glbpt); // inKGauss(glbpt); inInverseGeV(glbpt);
 
-    ESHandle<MagneticField> magfield;
-    iSetup.get<IdealMagneticFieldRecord>().get(magfield );     
-    GlobalVector magfld = magfield->inInverseGeV(glbpt); // inTesla(glbpt); // inKGauss(glbpt); inInverseGeV(glbpt);
-    
-    double magoffield = (m_magscale/4.)*magfld.z(); // mag();
-    float curve = charge*magoffield/max(0.001,trkpt); //FIXGM p or pt
-
-    //For zero tesla data invert the curvature (a naive approximation)
-    if (magfld.mag() <0.1 && magfld.x()==0 && magfld.y()==0) curve *=-1.;
-    HelixArbitraryPlaneCrossing helixx(trkpos, trkdir, curve, (samedir) ? oppositeToMomentum : alongMomentum);
+    //    double magoffield = (m_magscale/4.)*magfld.z(); // mag();
+    //    float curve = charge*magoffield/max(0.001,trkpt); //FIXGM p or pt
+    // For zero tesla data invert the curvature (a naive approximation)
+    //    if (magfld.mag() <0.1 && magfld.x()==0 && magfld.y()==0) curve *=-1.;
+    //    HelixArbitraryPlaneCrossing helixx(trkpos, trkdir, curve, (samedir) ? oppositeToMomentum : alongMomentum);
     
     double phiho = trkpos.phi();
     if (phiho<0) phiho +=2*pival;
@@ -394,27 +559,40 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     GlobalVector zLocal = xLocal.cross(yLocal).unit();
     //    GlobalVector zLocal(cos(phirot), sin(phirot), 0.0); 
 
+    FreeTrajectoryState freetrajectorystate_ = getFreeTrajectoryState(*ncosm,&(*theMagField), iiner, samedir);
+
     Surface::RotationType rot(xLocal, yLocal, zLocal);
     int ipath = 0;
     for (int i=0; i<2; i++) { //propagate track in two HO layers
+
       double radial = 405.757; // sqrt(405.8**2+33.06**2) if rotation too, not
       if (i==0) radial = 394.5;
       Surface::PositionType pos(radial*cos(phipos), radial*sin(phipos), 0.);
       PlaneBuilder::ReturnType aPlane = PlaneBuilder().plane(pos,rot);
-      
+
+      Surface* aPlane2 = new Plane(pos,rot);
+
       PositionType hotrkpos(0., 0., 0.);
       DirectionType hotrkdir(0., 0., 0.);
-      
-      std::pair<bool,double>  pathlength = helixx.pathLength(*aPlane);
-      if (pathlength.first) {
-	if (i==1) ipath = 1;  //Only look for tracks which as hits in layer 1
-	hotrkpos = helixx.position(pathlength.second);
-	hotrkdir = helixx.direction(pathlength.second);
-	
-	LocalVector lclvt0 = (*aPlane).toLocal(GlobalVector(hotrkpos.x(),hotrkpos.y(),hotrkpos.z()));
 
-	LocalVector glbvt0 = (*aPlane).toLocal(GlobalVector(trkpos.x(),trkpos.y(),trkpos.z()));
+      
+      //      std::pair<bool,double>  pathlength = helixx.pathLength(*aPlane);
+      //      if (pathlength.first) {
+      //	if (i==1) ipath = 1;  //Only look for tracks which as hits in layer 1
+
+      //      	hotrkpos = helixx.position(pathlength.second);
+      //      	hotrkdir = helixx.direction(pathlength.second);
+      //      	LocalVector lclvt0 = (*aPlane).toLocal(GlobalVector(hotrkpos.x(),hotrkpos.y(),hotrkpos.z()));
+      
+      SteppingHelixStateInfo steppingHelixstateinfo_ = stepProp->propagate(freetrajectorystate_, (*aPlane2));
+      if (steppingHelixstateinfo_.isValid()) {
+	if (i==1) ipath = 1;  //Only look for tracks which as hits in layer 1
+
+	GlobalVector hotrkpos2(steppingHelixstateinfo_.position().x(), steppingHelixstateinfo_.position().y(), steppingHelixstateinfo_.position().z());
+	Hep3Vector hotrkdir2(steppingHelixstateinfo_.momentum().x(), steppingHelixstateinfo_.momentum().y(),steppingHelixstateinfo_.momentum().z());
 	
+	LocalVector lclvt0 = (*aPlane).toLocal(hotrkpos2);
+
 	switch (i) 
 	  {
 	  case 0 : 
@@ -424,8 +602,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  case 1 :
 	    xhor1 = lclvt0.x();
 	    yhor1 = lclvt0.y();
-
-	    tmpHOCalib.hoang = zLocal.dot(GlobalVector(hotrkdir.x(),hotrkdir.y(),hotrkdir.z()));
+	    //	    tmpHOCalib.hoang = zLocal.dot(GlobalVector(hotrkdir.x(),hotrkdir.y(),hotrkdir.z()).unit());
+	    tmpHOCalib.hoang = Hep3Vector(zLocal.x(),zLocal.y(),zLocal.z()).dot(hotrkdir2.unit());
 	    break;
 	  default : break;
 	  }
@@ -439,11 +617,13 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       for (int i=0; i<9; i++) {tmpHOCalib.hosig[i]=-100.0;}
       for (int i=0; i<18; i++) {tmpHOCalib.hocorsig[i]=-100.0;}
+      for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
       tmpHOCalib.hocro = -100;
       
       int isect = 0;
       findHOEtaPhi(iphisect, ietaho, iphiho);
-      if (ietaho !=0 && iphiho !=0) { //Muon passed through a tower
+
+      if (ietaho !=0 && iphiho !=0 && abs(iring)<=2) { //Muon passed through a tower
 	isect = 100*abs(ietaho+30)+abs(iphiho);
 	if (abs(ietaho) >=netabin || iphiho<0) isect *=-1; //Not extrapolated to any tower
 	if (abs(ietaho) >=netabin) isect -=1000000;  //not matched with eta
@@ -454,8 +634,11 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	tmpHOCalib.hody = localyhor1;      
 	
 	if (iring==0) {
-	  tmpHOCalib.hocorsig[16] = localxhor0;
-	  tmpHOCalib.hocorsig[17] = localyhor0;
+	  //	  tmpHOCalib.hocorsig[16] = localxhor0;  //22OCT07 put those in 8 & 9
+	  //	  tmpHOCalib.hocorsig[17] = localyhor0;
+	  tmpHOCalib.hocorsig[8] = localxhor0;
+	  tmpHOCalib.hocorsig[9] = localyhor0;
+
 	}
 	
 	int etamn=-4;
@@ -477,14 +660,24 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (phimn <1) phimn += nphimx;
 	if (phimx >72) phimx -= nphimx;
-	
+
 	if (m_digiInput) { 
-	  //	  edm::ESHandle<HcalDbService> conditions;  //Use database for pedestal etc
-	  //	  iSetup.get<HcalDbRecord>().get(conditions);
+	  //	  //	  edm::ESHandle<HcalDbService> conditions;  //Use database for pedestal etc
+	  //	  //	  iSetup.get<HcalDbRecord>().get(conditions);
+
+	  //	  for each id
+	  //	  HcalCalibrations calibrations;
+	  //	  //	  //	  conditions->makeHcalCalibration(cell, &calibrations);
+	  //
+	  //	  calibrations.pedestal(capid)
+	  //      calibrations.gaqin(capid)
+	  //	  // const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
+	  //	  // const HcalPedestal* pedm = (*conditions_).getPedestal(id);
+
 	}
 
-	int sigstr = m_startTS; // 5; //FIXGM use input through .cfg
-	int sigend = m_endTS; // 8; //FIXGM use input through .cfg 
+	int sigstr = m_startTS; // 5;
+	int sigend = m_endTS; // 8;
 
 	if (m_hbinfo) {
 	  for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
@@ -502,7 +695,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int tmpeta= id.ieta();
 		int tmpphi= id.iphi();
 		int tmpdepth= id.depth();
-		
+		//		const HcalPedestal* pedm = (*conditions_).getPedestal(id);
+
 		int deta = tmpeta-ietaho;
 		if (tmpeta==-1 && ietaho== 1) deta = -1;
 		if (tmpeta== 1 && ietaho==-1) deta =  1;
@@ -519,17 +713,22 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		float tmpdata[10];
 		for (int i=0; i<digi.size() && i<10; i++) {
 		  tmpdata[i] = digi.sample(i).nominal_fC();
+		  if (deta==0 && dphi==0) hb_time[i] +=tmpdata[i];
 		}
 		
 		float signal = 0;
 		for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
 		  signal += tmpdata[i]; 
 		  if (tmpeta !=0 && abs(tmpeta) <=netabin && tmpphi<=nphimx && tmpphi>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		    signal -= pedestalHB[(tmpeta<0) ? netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];
+		    //22OCT07		    signal -= 0.8*pedestalHB[(tmpeta<0) ? netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];
+		    signal -= 0.8*pedestal[(tmpeta<0) ? netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];//pedm->getValue(digi.sample(i).capid());
 		  } else {
 		    signal =-100;
 		  }
 		}
+
+
+
 		if (ipass2 == 1) {
 		  if (3*(deta+1)+dphi+1<9)  tmpHOCalib.hbhesig[3*(deta+1)+dphi+1] = signal;
 		}
@@ -580,12 +779,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	} //m_hbinfo #endif
 
 
-
-
-
-
 	if (m_digiInput) {
-	  //	  cout <<"digi "<<endl;
         edm::Handle<HODigiCollection> ho;     iEvent.getByType(ho);
 
 	try{
@@ -595,10 +789,22 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	    
 	    HcalDetId id =digi.id();
+
+	    //	    //	    const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
+	    //	    const HcalPedestal* pedm = (*conditions_).getPedestal(id);
+
 	    int tmpeta= id.ieta();
 	    int tmpphi= id.iphi();
 	    int tmpdepth =id.depth();
-	    
+
+	    //	    if (pedm && pedw) {
+	    //	      for (int i=0; i<4; i++) {
+	    //		cout <<"tmpeta "<< tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" "<<i<<" "<<pedw->getWidth(i)<<" "<<pedw->getSigma(i, (i==3) ? 0 : i+1)<<" "<<pedm->getValue(i)<<endl;
+	    //	      }
+	    //	    } else {
+	    //	      cout <<"==========tmpeta "<< tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<endl; 
+	    //	    }
+
 	    int ipass1 =0;
 	    if (tmpeta >=etamn && tmpeta <=etamx) {
 	      if (phimn < phimx) {
@@ -622,27 +828,72 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	    //	    if (ipass1 ==0 && ipass2 ==0 ) continue;
 
-	    //	    m_coder = (*conditions).getHcalCoder(digi.id());
+	    //	    //	    m_coder = (*conditions).getHcalCoder(digi.id());
 	    
-	    //	    int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
+	    int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
 
 	    float tmpdata[10]={0,0,0,0,0,0,0,0,0,0};
 	    for (int i=0; i<digi.size() && i<10; i++) {
 	      tmpdata[i] = digi.sample(i).nominal_fC();
+	      if (deta==0 && dphi==0) { 
+		ho_time[i] +=tmpdata[i];
+		if (m_hotime) { hotime[tmpeta1][tmpphi-1]->Fill(i, tmpdata[i]);}
+	      }
+	    }
+	    
+	    
+	    if (abs(tmpeta) <=15) {  //NovGlobal run
+	      float signal = 0;
+	      
+	      //	      for (int i =0; i<4; i++) {
+	      int icnt = 0;
+
+	      for (int i =0; i<10 && i< digi.size(); i++) {
+		if (i >=sigstr && i<=sigend) continue;
+		signal +=tmpdata[i] -0.8*pedestal[(tmpeta<0)?netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];// -pedm->getValue(digi.sample(i).capid())
+		if (++icnt >=4) break;
+	      }
+
+	      if (m_hotime) crossg[tmpeta1][tmpphi-1]->Fill(signal);
+	      if (deta==0 && dphi ==0) tmpHOCalib.hocro = signal; //22OCT07
 	    }
 
 
-	    if (ipass1 ==0 && ipass2 ==0 ) continue;
+	    if (m_hotime) { 
+	      if (ipass1 ==0 && ipass2 ==0 && cosmicmuon->size()<=2) {
+		if (abs(ietaho) <=netabin && iphiho >0) {
+		  if ((iphiho >=1 && iphiho<=nphimx/2 && tmpphi >=1 && tmpphi <=nphimx/2) ||
+		      (iphiho >nphimx/2 && iphiho<=nphimx && tmpphi >nphimx/2 && tmpphi <=nphimx)) {
+		    for (int i=0; i<digi.size() && i<10; i++) {
+		      hopedtime[tmpeta1][tmpphi-1]->Fill(i, tmpdata[i]);
+		    }
+		  }
+		}
+	      }
+	    }
+
+	    //	    if (ipass1 ==0 && ipass2 ==0 ) continue;
 
 	    float signal = 0;
 	    for (int i=sigstr; i<digi.size() && i<=sigend; i++) {
 	      signal += tmpdata[i];
 	      if (tmpeta !=0 && abs(tmpeta) <=netabin && tmpphi<=nphimx && tmpphi>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		signal -= pedestal[(tmpeta<0)?netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];
+		signal -= 0.8*pedestal[(tmpeta<0)?netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()]; //22OCT07pedm->getValue(digi.sample(i).capid())
 	      } else {
 		signal =-100;
 	      }
 	    }
+	    if (signal <-100 || signal >100000) signal = -100;
+	    
+	    if (signal >-100) {
+	      for (int i=0; i<5; i++) {
+		if (signal >i*m_sigma) {
+		  ho_occupency[i]->Fill(tmpeta, tmpphi);
+		}
+	      }
+	    }
+	    
+	    if (ipass1 ==0 && ipass2 ==0 ) continue;
 
 	    if (ipass1 ==1) {
 	      int tmpdph = tmpphi-phimn;
@@ -656,7 +907,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  ilog = 3*(etamx-tmpeta)+tmpdph; //Again CMS correction
 		}
 	      }
-	      if (ilog>-1 && ilog<18) { 
+	      if (ilog>-1 && ilog<18) { // if (ilog>-1 && ((ilog<16) || (ilog<18 && iring !=0)) ) {  //22OCT07
 		tmpHOCalib.hocorsig[ilog] = signal;
 	      }
 	    }	      
@@ -681,15 +932,17 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  for (int i=0; i<digicr.size() && i<10; i++) {
 		    tmpdatacr[i] = digicr.sample(i).nominal_fC();
 		  }
+		  /* //22OCT07
 		  tmpHOCalib.hocro = 0;
 		  for (int i=sigstr; i<digicr.size() && i<=sigend; i++) {
 		    tmpHOCalib.hocro += tmpdatacr[i];
 		    if (etacr !=0 && abs(etacr) <=netabin && phicr<=nphimx && phicr>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		      tmpHOCalib.hocro -= pedestal[(etacr<0)?netabin-1-etacr:etacr-1][phicr-1][tmpdepth-1][digicr.sample(i).capid()];
+		      tmpHOCalib.hocro -= 0.8*pedestal[(etacr<0)?netabin-1-etacr:etacr-1][phicr-1][tmpdepth-1][digicr.sample(i).capid()]; //22OCT07 pedm->getValue(digicr.sample(i).capid());
 		    } else {
 		      tmpHOCalib.hocro =-100;
 		    }
 		  }
+		  */
 		}
 	      }
 	    }
@@ -700,7 +953,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
       } else {
-	  //	  cout <<"rechit "<<endl;
 	edm::Handle<HORecHitCollection> ho;    iEvent.getByType(ho);
 	
 	try{
@@ -751,14 +1003,16 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  ilog = 3*(etamx-tmpeta)+tmpdph; //Again CMS correction
 		}
 	      }
-	      if (ilog>-1 && ilog<18) { 
+	      if (ilog>-1 && ilog<18) { // if (ilog>-1 && ((ilog<16) || (ilog<18 && iring !=0)) ) { //22OCT07  
 		tmpHOCalib.hocorsig[ilog] = signal;
 	      }
 	    }	      
 	    
 	    if (ipass2 ==1) {
 	      
-	      if (3*(deta+1)+dphi+1<9) tmpHOCalib.hosig[3*(deta+1)+dphi+1] = signal; //Again CMS azimuthal near phi 1&72
+	      if (3*(deta+1)+dphi+1<9) {
+		tmpHOCalib.hosig[3*(deta+1)+dphi+1] = signal; //Again CMS azimuthal near phi 1&72
+	      }
 	    }
 	    
 	    if (deta==0 && dphi ==0) {
@@ -783,15 +1037,22 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  //    m_logFile << "Event with " << i<<" HO RecHit passed." << std::endl;
 	}
 	}
-      }
-    }
+	
+	hostore->push_back(tmpHOCalib);	
+	
+      } else {cout <<"ietaho "<<ietaho<<" "<<iphiho<<" "<<iring<<" "<<tmpHOCalib.trkvx<<" "<<tmpHOCalib.trkvy<<" "<<tmpHOCalib.trkvz<<" "<<tmpHOCalib.trkmm<<" "<<tmpHOCalib.trkth<<" "<<tmpHOCalib.trkph<<" "<<xhor0<<" "<<yhor0<<" "<<xhor1<<" "<<yhor1<<endl;}
+    } else {cout <<"ipath == 0" <<" "<<tmpHOCalib.trkvy<<" "<<tmpHOCalib.trkvz<<" "<<tmpHOCalib.trkmm<<" "<<tmpHOCalib.trkth<<" "<<tmpHOCalib.trkph<<" "<<xhor0<<" "<<yhor0<<" "<<xhor1<<" "<<yhor1<<endl;} //if (ipath) { //If muon crossed HO laeyrs
 
-    hostore->push_back(tmpHOCalib);
+
+    //    hostore->push_back(tmpHOCalib);
     
-  }
-  
-  //  cout <<"hostore size "<<hostore->size()<<endl;
-  iEvent.put(hostore, "HOCalibVariableCollection");
+  } //for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
+  }// else { cout <<" No muon found " <<endl; }
+  //  cout <<"hostore size "<<hostore->size()<<" "<<iEvent.id().run()<<endl;
+  //  cout <<"AlCaHOCalibProducer event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<hostore->size()<<endl;
+
+
+  if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
 
 
 /* This is an event example
@@ -814,8 +1075,17 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-AlCaHOCalibProducer::beginJob(const edm::EventSetup&)
+AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
 {
+  Nevents = 0;
+
+  //  iSetup.get<HcalDbRecord>().get(conditions_);
+    edm::ESHandle<MagneticField> bField;
+    iSetup.get<IdealMagneticFieldRecord>().get(bField);
+    stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
+    stepProp->setMaterialMode(false);
+    stepProp->applyRadX0Correction(true);
+
   //  edm::ESHandle<CaloGeometry>PG;
   //  EventSetup.get<IdealGeometryRecord>().get(pG);
   //  geo = pG.product();
@@ -824,6 +1094,14 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 AlCaHOCalibProducer::endJob() {
+
+  cout <<"ho_time ";
+  for (int i=0; i<10; i++) { cout <<ho_time[i]<<" ";} 
+  cout<<endl;
+  cout <<"hb_time ";
+  for (int i=0; i<10; i++) { cout <<hb_time[i]<<" ";} 
+  cout<<endl;
+
 }
 
 
@@ -834,7 +1112,7 @@ void AlCaHOCalibProducer::findHOEtaPhi(int iphisect, int& ietaho, int& iphiho) {
   double etalow[netabin]={0.02, 35.42, 70.85, 106.82, 143.33, 182.53, 222, 263.15, 306.29, 351.74, 408.94, 451, 505.56, 563.94, 626.64, 660.25}; //16th(last) entries is arbitray
   
   double etahgh[netabin]={35.37, 70.75, 106.72, 125.68, 182.43, 221.9, 263.05, 306.19, 351.64, 394.29, 450.9, 505.46, 563.84, 626.54, 659.94, 700.25};
-  
+
   double philow[6]={-76.27, -35.11, 0.35, 35.81, 71.77, 108.93};  //Ring+/-1 & 2
   double phihgh[6]={-35.81, -0.35, 35.11, 71.07, 108.23, 140.49};
 
@@ -845,8 +1123,8 @@ void AlCaHOCalibProducer::findHOEtaPhi(int iphisect, int& ietaho, int& iphiho) {
   double phihgh01[6]={-35.61, -0.35, 34.91, 70.67, 107.63, 138.19,};
 
 
-  int iring = -10;
-  //  cout <<"local ho "<<xhor1<<" "<<yhor1<<" "<<xhor0<<" "<<yhor0<<endl;
+  iring = -10;
+
   double tmpdy =  abs(yhor1);
   for (int i=0; i<netabin; i++) {
     if (tmpdy >etalow[i] && tmpdy <etahgh[i]) {
@@ -929,10 +1207,28 @@ void AlCaHOCalibProducer::findHOEtaPhi(int iphisect, int& ietaho, int& iphiho) {
   } 
 }
 
+FreeTrajectoryState AlCaHOCalibProducer::getFreeTrajectoryState( const reco::Track& tk, const MagneticField* field, int iiner, bool dir)
+{
+
+  if (iiner ==0) {
+    GlobalPoint gpos( tk.outerX(), tk.outerY(), tk.outerZ());
+    GlobalVector gmom( tk.outerPx(), tk.outerPy(), tk.outerPz());
+    if (dir) gmom *=-1.;
+    GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+    CurvilinearTrajectoryError err( tk.extra()->outerStateCovariance());
+    return FreeTrajectoryState( par, err);
+  } else {
+    GlobalPoint gpos( tk.innerPosition().X(), tk.innerPosition().Y(), tk.innerPosition().Z());
+    GlobalVector gmom( tk.innerMomentum().X(), tk.innerMomentum().Y(), tk.innerMomentum().Z());
+    if (dir) gmom *=-1.;
+    GlobalTrajectoryParameters par( gpos, -gmom, tk.charge(), field);
+    CurvilinearTrajectoryError err( tk.extra()->innerStateCovariance());
+    return FreeTrajectoryState( par, err);
+  }
+
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlCaHOCalibProducer);
-
-

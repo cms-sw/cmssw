@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
+#include "TMinuit.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -39,7 +40,7 @@
 #include "TPostScript.h"
 #include "TCanvas.h"
 #include "TF1.h"
-
+#include "TStyle.h"
 
 #include <string>
 
@@ -110,6 +111,7 @@ static const int npixribt[21]={0, 0, 0, 0, 1, 2, 3, 0, 4, 5, 0, 7, 0, 9, 0,11,12
 static const int npixleup[21]={0, 4, 5, 6, 8, 9, 0,11, 0,13, 0,15,16, 0,17,18,19, 0, 0, 0,0};
 static const int npixriup[21]={0, 5, 6, 7, 9, 0,11,12,13,14, 0,16, 0,17,18,19, 0, 0, 0, 0,0};
   
+
 
 
 //#define CORREL
@@ -190,6 +192,38 @@ Double_t langaufun(Double_t *x, Double_t *par) {
   }
 
 
+int ietafit;
+int iphifit;
+static const int netamx=32;
+static const int nphimx =72;
+vector<float>sig_reg[netamx][nphimx+1];
+vector<float>cro_ssg[netamx][nphimx+1];
+
+void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
+  
+  //  double fval = 0;
+  double fval = -par[0];
+  for (unsigned int i=0; i<cro_ssg[ietafit][iphifit].size(); i++) {
+    double xval = (double)cro_ssg[ietafit][iphifit][i];
+    //    fval +=log(max(1.e-12,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    fval +=log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
+  }
+  f = -fval;
+}
+
+void fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
+
+  double xval[2];
+  double fval = -(par[0]+par[5]);
+  for (unsigned int i=0; i<sig_reg[ietafit][iphifit].size(); i++) {
+    xval[0] = (double)sig_reg[ietafit][iphifit][i];
+    //    if (xval[0]>3.) continue;
+    fval +=log(totalfunc(xval, par));
+  }
+  f = -fval;
+}
+
+
 class HOCalibAnalyzer : public edm::EDAnalyzer {
    public:
       explicit HOCalibAnalyzer(const edm::ParameterSet&);
@@ -214,7 +248,8 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
       bool m_hbinfo;
       bool m_combined;
       bool m_constant;
-
+      bool m_coulomb;
+  
   /*
       Double_t langaufun(Double_t *x, Double_t *par);
 
@@ -236,10 +271,18 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   }
   */
 
-
   static const int ncut = 11;
-  static const int netamx=32;
-  static const int nphimx =72;
+  //  static const int netamx=32;
+  //  static const int nphimx =72;
+
+  static const int nbgpr = 3;
+  static const int nsgpr = 7;
+
+  //  int ietafit;
+  //  int iphifit;
+  //  vector<float>sig_reg[netamx][nphimx+1];
+  //  vector<float>cro_ssg[netamx][nphimx+1];
+
   int ipass;
  
   TTree* T1;
@@ -312,8 +355,9 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
 
   //  } //m_checkmap #endif
 
-  TH1F* sigrsg[netamx][nphimx];
-  TH1F* crossg[netamx][nphimx];
+  float invang[netamx][nphimx+1];
+  TH1F* sigrsg[netamx][nphimx+1];
+  TH1F* crossg[netamx][nphimx+1];
 
   TH1F* mnsigrsg;
   TH1F* mncrossg;
@@ -329,6 +373,10 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   TH1F* ho_sig00[9];
   TH1F* ho_sig1m[9];
   TH1F* ho_sig2m[9];
+
+  double fitprm[nsgpr][netamx];
+  TH1F* comphi_sigrsg[netamx];
+  TH1F* comphi_crossg[netamx];
 
   //  if (m_hbinfo) { // #ifdef HBINFO
   TH1F* hbhe_sig[9];
@@ -359,16 +407,44 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   TH1F* com_corrsgc[ringmx][sectmx];
   //  } // m_checkmap #endif
 
-  TH1F* com_sigrsg[ringmx][sectmx];
-  TH1F* com_crossg[ringmx][sectmx];
+  TH1F* com_sigrsg[ringmx][sectmx+1];
+  TH1F* com_crossg[ringmx][sectmx+1];
 
   //  } //m_combined #endif
+
+
+  static const int netamxho=netamx-2;
+  TH1F* ped_evt;
+  TH1F* ped_mean;
+  TH1F* ped_width;
+  TH1F* fit_chi;
+  TH1F* sig_evt;
+  TH1F* fit_sigevt;
+  TH1F* fit_bkgevt;
+  TH1F* sig_mean;
+  TH1F* sig_diff;
+  TH1F* sig_width;
+  TH1F* sig_sigma;
+  TH1F* sig_meanerr;
+  TH1F* sig_meanerrp;
+  TH1F* sig_signf;
+
+  TH1F* ped_statmean;
+  TH1F* sig_statmean;
+  TH1F* ped_rms;
+  TH1F* sig_rms;
 
   TProfile* sigvsevt[15][11];
 
   int   irun, ievt, itrg1, itrg2, isect, nrecht, nfound, nlost, ndof, nmuon;
   float trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, 
     hoang, hosig[9], hocorsig[18], hocro, hbhesig[9];
+
+  int Nevents; 
+  int nbn;
+
+  //  void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag);
+  //  void fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag);
 
       // ----------member data ---------------------------
 
@@ -389,7 +465,6 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
   ipass = 0;
-
   
   theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName", "test.root");
   theoutputtxtFile = iConfig.getUntrackedParameter<string>("txtFileName", "test.txt");
@@ -402,6 +477,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   m_checkmap = iConfig.getUntrackedParameter<bool>("checkmap", false);
   m_combined = iConfig.getUntrackedParameter<bool>("combined", false);
   m_constant = iConfig.getUntrackedParameter<bool>("get_constant", false);
+  m_coulomb = iConfig.getUntrackedParameter<bool>("coulomb_or_gev", true);
 
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -452,9 +528,23 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   sel_muonph = new TH1F("sel_muonph", "{Phi}_{mu}(sel)", 180, -180., 180.);
   sel_muonch = new TH1F("sel_muonch", "{chi^2}/ndf(sel)", 100, 0., 1000.);
 
+  
+  int nbin = 50; //40;// 45; //50; //55; //60; //55; //45; //40; //50;
+  //  float alow = -2.0;// -1.85; //-1.90; // -1.95; // -2.0;
+  //  float ahigh = 8.0;// 8.15; // 8.10; //  8.05; //  8.0;
+  //  if (m_coulomb) { alow = -10.0; ahigh = 40.0;  }
 
+  float alow = (m_coulomb) ? -10.0 : -2.0;
+  float ahigh= (m_coulomb) ?  40.0 :  8.0;
+
+  float tmpwid = (ahigh-alow)/nbin;
+  nbn = int(-alow/tmpwid)+1;
+  if (nbn <0) nbn = 0;
+  if (nbn>nbin) nbn = nbin;
 
   char title[200];
+
+  cout <<"nbin "<< nbin<<" "<<alow<<" "<<ahigh<<" "<<tmpwid<<" "<<nbn<<endl;
 
   for (int i=0; i<15; i++) {
     
@@ -487,7 +577,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
     
     sprintf(title, "sigvserr_ring%i", i+1); 
     sigvsevt[i][9] = new TProfile(title, title, 50, 0., .3, -9., 20.);
-
+    
     sprintf(title, "sigvsacc_ring%i", i+1); 
     sigvsevt[i][10] = new TProfile(title, title, 1000, -0.5, 999.5, -9., 20.);
     
@@ -496,6 +586,21 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   for (int j=0; j<netamx; j++) {
     int ieta = (j<15) ? j+1 : 14-j;
 
+    
+    sprintf(title, "comphi_sigrsg_eta%i", ieta);
+    comphi_sigrsg[j] = new TH1F(title, title, nbin, alow, ahigh); //31,-10.5,20.5);
+    
+    sprintf(title, "comphi_crossg_eta%i", ieta);
+    comphi_crossg[j] = new TH1F(title, title, nbin, alow, ahigh); // 31,-10.5,20.5);   
+    
+    for (int i=0;i<nphimx+1;i++) {
+      sprintf(title, "sigrsg_eta%i_phi%i", ieta,i+1);
+      sigrsg[j][i] = new TH1F(title, title, nbin, alow, ahigh); //31,-10.5,20.5);
+      
+      sprintf(title, "crossg_eta%i_phi%i", ieta,i+1);
+      crossg[j][i] = new TH1F(title, title, nbin, alow, ahigh); // 31,-10.5,20.5);  
+    }
+    
     for (int i=0;i<nphimx;i++) {
       if (m_hotime) { //#ifdef HOTIME
 	sprintf(title, "hotime_eta%i_phi%i", (j<=14) ? j+1 : 14-j, i+1);
@@ -509,37 +614,32 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 	sprintf(title, "hbtime_eta%i_phi%i", (j<=15) ? j+1 : 15-j, i+1);
 	hbtime[j][i] = new TProfile(title, title, 10, -0.5, 9.5, -1.0, 30.0);
       } //m_hbtime #endif
-      sprintf(title, "sigrsg_eta%i_phi%i", ieta,i+1);
-      sigrsg[j][i] = new TH1F(title, title, 31,-10.5,20.5);
-
-      sprintf(title, "crossg_eta%i_phi%i", ieta,i+1);
-      crossg[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
 
       if (m_correl) { //#ifdef CORREL    
 	sprintf(title, "corrsg_eta%i_phi%i_leftbottom", ieta,i+1);
-	corrsglb[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsglb[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_rightbottom", ieta,i+1);
-	corrsgrb[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsgrb[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_leftup", ieta,i+1);
-	corrsglu[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsglu[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_rightup", ieta,i+1);
-	corrsgru[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsgru[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_all", ieta,i+1);
-	corrsgall[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsgall[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_left", ieta,i+1);
-	corrsgl[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsgl[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	sprintf(title, "corrsg_eta%i_phi%i_right", ieta,i+1);
-	corrsgr[j][i] = new TH1F(title, title, 31,-10.5,20.5);
+	corrsgr[j][i] = new TH1F(title, title, nbin, alow, ahigh);
       } //m_correl #endif
       if (m_checkmap) {// #ifdef CHECKMAP    
 	sprintf(title, "corrsg_eta%i_phi%i_centrl", ieta,i+1);
-	corrsgc[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	corrsgc[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
       } //m_checkmap #endif
     }
   }
@@ -603,37 +703,37 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 	  com_hbtime[j][i] = new TProfile(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	} //m_hbtime #endif
 	sprintf(title, "com_sigrsg_ring%i_sect%i", j-2,i+1);
-	com_sigrsg[j][i] = new TH1F(title, title, 31,-10.5,20.5);
+	com_sigrsg[j][i] = new TH1F(title, title, nbin, alow, ahigh);
 	
 	sprintf(title, "com_crossg_ring%i_sect%i", j-2,i+1);
-	com_crossg[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	com_crossg[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	
 	if (m_correl) { //#ifdef CORREL    
 	  sprintf(title, "com_corrsg_ring%i_sect%i_leftbottom", j-2,i+1);
-	  com_corrsglb[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsglb[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_rightbottom", j-2,i+1);
-	  com_corrsgrb[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgrb[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_leftup", j-2,i+1);
-	  com_corrsglu[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsglu[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_rightup", j-2,i+1);
-	  com_corrsgru[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgru[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_all", j-2,i+1);
-	  com_corrsgall[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgall[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_left", j-2,i+1);
-	  com_corrsgl[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgl[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	  
 	  sprintf(title, "com_corrsg_ring%i_sect%i_right", j-2,i+1);
-	  com_corrsgr[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgr[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	} //m_correl #endif
 	
 	if (m_checkmap) { // #ifdef CHECKMAP    
 	  sprintf(title, "com_corrsg_ring%i_sect%i_centrl", j-2,i+1);
-	  com_corrsgc[j][i] = new TH1F(title, title, 31,-10.5,20.5);   
+	  com_corrsgc[j][i] = new TH1F(title, title, nbin, alow, ahigh);   
 	} //m_checkmap #endif
       }
     }
@@ -644,19 +744,19 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
       int k = 3*(i+1)+j+1;
       
       sprintf(title, "hosct2p_eta%i_phi%i", i, j);
-      ho_sig2p[k] = new TH1F(title, title, 31, -10.5, 20.5);
+      ho_sig2p[k] = new TH1F(title, title, nbin, alow, ahigh);
       
       sprintf(title, "hosct1p_eta%i_phi%i", i, j);
-      ho_sig1p[k] = new TH1F(title, title, 31, -10.5, 20.5);
+      ho_sig1p[k] = new TH1F(title, title, nbin, alow, ahigh);
 
       sprintf(title, "hosct00_eta%i_phi%i", i, j);
-      ho_sig00[k] = new TH1F(title, title, 31, -10.5, 20.5);
+      ho_sig00[k] = new TH1F(title, title, nbin, alow, ahigh);
 
       sprintf(title, "hosct1m_eta%i_phi%i", i, j);
-      ho_sig1m[k] = new TH1F(title, title, 31, -10.5, 20.5);
+      ho_sig1m[k] = new TH1F(title, title, nbin, alow, ahigh);
       
       sprintf(title, "hosct2m_eta%i_phi%i", i, j);
-      ho_sig2m[k] = new TH1F(title, title, 31, -10.5, 20.5);
+      ho_sig2m[k] = new TH1F(title, title, nbin, alow, ahigh);
 
       if (m_hbinfo) { // #ifdef HBINFO
 	sprintf(title, "hbhesig_eta%i_phi%i", i, j);
@@ -664,6 +764,31 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
       } //m_hbinfo #endif
     }
   }
+
+  if (m_constant) {
+    ped_evt = new TH1F("ped_evt", "ped_evt", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    ped_mean = new TH1F("ped_mean", "ped_mean", netamxho*nphimx, -0.5, netamxho*nphimx-0.5); 
+    ped_width = new TH1F("ped_width", "ped_width", netamxho*nphimx, -0.5, netamxho*nphimx-0.5); 
+    
+    fit_chi = new TH1F("fit_chi", "fit_chi", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_evt = new TH1F("sig_evt", "sig_evt", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    fit_sigevt = new TH1F("fit_sigevt", "fit_sigevt", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    fit_bkgevt = new TH1F("fit_bkgevt", "fit_bkgevt", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_mean = new TH1F("sig_mean", "sig_mean", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);       
+    sig_diff = new TH1F("sig_diff", "sig_diff", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);       
+    sig_width = new TH1F("sig_width", "sig_width", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_sigma = new TH1F("sig_sigma", "sig_sigma", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_meanerr = new TH1F("sig_meanerr", "sig_meanerr", netamxho*nphimx, -0.5, netamxho*nphimx-0.5); 
+    sig_meanerrp = new TH1F("sig_meanerrp", "sig_meanerrp", netamxho*nphimx, -0.5, netamxho*nphimx-0.5); 
+    sig_signf = new TH1F("sig_signf", "sig_signf", netamxho*nphimx, -0.5, netamxho*nphimx-0.5); 
+
+    ped_statmean = new TH1F("ped_statmean", "ped_statmean", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_statmean = new TH1F("sig_statmean", "sig_statmean", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    ped_rms = new TH1F("ped_rms", "ped_rms", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+    sig_rms = new TH1F("sig_rms", "sig_rms", netamxho*nphimx, -0.5, netamxho*nphimx-0.5);
+
+  }
+
 }
 
 
@@ -743,8 +868,8 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   int iaxxx = 0;
   int ibxxx = 0;
-  
 
+  Nevents++;
 
   using namespace edm;
 
@@ -757,13 +882,15 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //  iEvent.getByLabel("hoCalibProducer",HOCalib); 
   bool isCosMu = true;
   try {
-    //    iEvent.getByType(HOCalib); 
-    iEvent.getByLabel("hoCalibProducer","HOCalibVariableCollection",HOCalib);
+    iEvent.getByType(HOCalib); 
+    //    iEvent.getByLabel("hoCalibProducer","HOCalibVariableCollection",HOCalib);
 
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
+  //  cout <<"icos "<<(int)isCosMu<<endl;
   if (isCosMu) { 
     nmuon = (*HOCalib).size();
-
+    //    cout <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<nmuon<<endl;
+    
     for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
       itrg1 = (*hoC).trig1;
       itrg2 = (*hoC).trig2;
@@ -787,9 +914,13 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       hodx  = (*hoC).hodx;
       hody  = (*hoC).hody;
       hoang = (*hoC).hoang;
-      for (int i=0; i<9; i++) { hosig[i] = (*hoC).hosig[i];}
+      for (int i=0; i<9; i++) { hosig[i] = (*hoC).hosig[i];} // cout<<"hosig "<<i<<" "<<hosig[i]<<endl;}
       for (int i=0; i<18; i++) { hocorsig[i] = (*hoC).hocorsig[i];}    
       hocro = (*hoC).hocro;
+
+      if (m_hbinfo) { for (int i=0; i<9; i++) { hbhesig[i] = (*hoC).hbhesig[i]; cout<<"hbhesig "<<i<<" "<<hbhesig[i]<<endl;}}
+
+
 
       int ipsall=0;
       int ips0=0; 
@@ -805,8 +936,11 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       int ips10 =0;
       
       int isel = 50*abs(int(hodx))+abs(int(hody));
+      //      cout <<"isel "<<isel<<endl;
+
       if (isect <0) continue; //FIXGM Is it proper place ?
       int ieta = int((abs(isect)%10000)/100.)-30; //an offset to acodate -ve eta values
+      //      cout <<"ieta "<<ieta<<endl;
 
       if (abs(ieta)>=16) continue;
       int iphi = abs(isect)%100;
@@ -823,6 +957,31 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       
       int iring2 = iring + 2;
       
+      
+      if (ndof >=20)                 {ips0 = (int)pow(2,0); ipsall += ips0;}
+      if (chisq >0 && chisq<10)      {ips1 = (int)pow(2,1); ipsall +=ips1;} //18Jan2008
+      if (fabs(trkth-pival/2) <21.5) {ips2 = (int)pow(2,2); ipsall +=ips2;} //No nead for pp evt
+      if (fabs(trkph+pival/2) <21.5) {ips3 = (int)pow(2,3); ipsall +=ips3;} //No nead for pp evt
+      if (therr <0.02)               {ips4 = (int)pow(2,4); ipsall +=ips4;}
+      if (pherr <0.0002)             {ips5 = (int)pow(2,5); ipsall +=ips5;}
+      if (fabs(hoang) >0.10)         {ips6 = (int)pow(2,6); ipsall +=ips6;}
+      if (fabs(trkmm) >0.100)        {ips7 = (int)pow(2,7); ipsall +=ips7;}
+      if (nmuon >=1)                 {ips8 = (int)pow(2,8); ipsall +=ips8;}
+      if (sqrt(therr*therr+pherr*pherr)<100) 
+                                     {ips9 = (int)pow(2,9); ipsall +=ips9;}
+      
+      if (fabs(hodx)<100 && fabs(hody)<100 && fabs(hodx)>2 && fabs(hody)>2) {
+	if (iring==0) {
+	  if (fabs(hocorsig[8]) <40 && fabs(hocorsig[9]) <40 && 
+	      fabs(hocorsig[8]) >1. && fabs(hocorsig[9]) >2.) {
+	    ips10=(int)pow(2,10); ipsall +=ips10;
+	  }
+	} else {
+	  ips10=(int)pow(2,10); ipsall +=ips10;
+	}
+      }
+
+      /*
       if (ndof >=20 && ndof<=40) {ips0 = (int)pow(2,0); ipsall += ips0;}
       if (ndof >5 && chisq/ndof<20 && chisq/ndof>3) {ips1 = (int)pow(2,1); ipsall +=ips1;}
       if (fabs(trkth-pival/2) <1.5) {ips2 = (int)pow(2,2); ipsall +=ips2;}
@@ -833,10 +992,10 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (fabs(trkmm) >0.00)        {ips7 = (int)pow(2,7); ipsall +=ips7;}
       if (nmuon ==1)               {ips8 = (int)pow(2,8);  ipsall +=ips8;}
       if (sqrt(therr*therr+pherr*pherr)>0.03) {ips9=(int)pow(2,9);ipsall +=ips9;}
-      
-      if (fabs(hodx)<100 && fabs(hody)<100 && fabs(hodx)>2 && fabs(hody)>2)
+           if (fabs(hodx)<100 && fabs(hody)<100 && fabs(hodx)>2 && fabs(hody)>2)
 	{ips10=(int)pow(2,10);ipsall +=ips10;}
-      
+      */
+
       
       if (ipsall-ips0==pow(2,ncut)-pow(2,0)-1) sigvsevt[iring2][0]->Fill(ndof, hosig[4]);
       if (ipsall-ips1==pow(2,ncut)-pow(2,1)-1) sigvsevt[iring2][1]->Fill(chisq/TMath::Max(ndof,1), hosig[4]);
@@ -898,6 +1057,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       int iselect = ((ipsall == pow(2,ncut) - 1)&& (int(isel/50.)> 0) && (isel%50> 0)) ? 1 : 0;
       
       iselect = 1;  //FIXME
+      //      for (int i=0; i<9; i++) { if (hosig[i] >hosig[4]+0.02) iselect = 0; break;} //GM 
       int iselect2=0;
       
       if (nmuon==1) {
@@ -913,16 +1073,20 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       muonph->Fill(trkph*180/pival);
       muonch->Fill(chisq);
       
+      //      cout <<iselect<<" "<<ips0<<" "<<ips1<<" "<<ips2<<" "<<ips3<<" "<<ips4<<" "<<ips5<<" "<<ips6<<" "<<ips7<<" "<<ips8<<" "<<ips9<<" "<<ips10<<" "<<ipsall<<" "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<endl;
+
       if (iselect==1) { 
-	T1->Fill(); ipass++;
+	//	T1->Fill(); 
+	ipass++;
+	//cout <<"Processing event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<endl;
 	sel_muonnm->Fill(nmuon);
 	sel_muonmm->Fill(trkmm);
 	sel_muonth->Fill(trkth*180/pival);
 	sel_muonph->Fill(trkph*180/pival);
 	sel_muonch->Fill(chisq);
       }
+      //      cout <<"isect "<<isect<<endl;
       
-
       if (isect <0) continue;
       
       int tmpphi = (iphi + 1)%3; //pixel mapping
@@ -956,7 +1120,8 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       int tmpeta1 = (ieta>0) ? ieta -1 : -ieta +14; 
       //Histogram filling for noise study: phi shift according to DTChamberAnalysis
       int tmpphi1 = (iphi+6 <=nphimx) ? iphi+5 : iphi+5-nphimx;
-      
+
+      /*
       //      cout<<"iring2 "<<iring<<" "<<tmpsect<<" "<<ieta<<" "<<iphi<<" "<<npixel<<" "<<tmpeta<<" "<<tmpphi<<" "<<tmpeta1<<" "<<tmpphi1<<" "<<itag<<" "<<iflip<<" "<<fact<<" "<<endl;
       
       if (iselect2==1) {
@@ -969,14 +1134,37 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  }
 	} //M_combined #endif	  
       } //Cross talk
+      */
       
       if (iselect==1) { 
 	
 	tmpphi1 = iphi - 1;
 	
+	float uplimit = (m_coulomb) ? 15.0 : 3.0;
+
+	comphi_sigrsg[tmpeta1]->Fill(hosig[4]); 
 	sigrsg[tmpeta1][tmpphi1]->Fill(hosig[4]);  
+	if (hosig[4]>-50&& hosig[4] <uplimit) { 
+	  sig_reg[tmpeta1][tmpphi1].push_back(hosig[4]);
+	  invang[tmpeta1][tmpphi1] += 1./fabs(hoang);
+	}
+	comphi_crossg[tmpeta1]->Fill(hocro);
+	if (hocro>-50) {cro_ssg[tmpeta1][tmpphi1].push_back(hocro);}
+	crossg[tmpeta1][tmpphi1]->Fill(hocro); 
+	
+	if (tmpphi1 >=0 && tmpphi1 <nphimx) {
+	  sigrsg[tmpeta1][nphimx]->Fill(hosig[4]);  
+	  if (hosig[4]>-50 && hosig[4] <uplimit) { 
+	    sig_reg[tmpeta1][nphimx].push_back(hosig[4]);
+	    invang[tmpeta1][nphimx] += 1./fabs(hoang);
+	  }
+	  if (hocro>-50) {cro_ssg[tmpeta1][nphimx].push_back(hocro);}
+	  crossg[tmpeta1][nphimx]->Fill(hocro);
+	}
+
 	if (m_combined) { //#ifdef COMBINED
-	  com_sigrsg[iring2][tmpsect-1]->Fill(hosig[4]);  
+	  com_sigrsg[iring2][tmpsect-1]->Fill(hosig[4]); 
+	  com_crossg[iring2][tmpsect-1]->Fill(hocro); //22OCT07
 	} //m_combined #endif
 	
 	if (m_checkmap) { //#ifdef CHECKMAP
@@ -1086,6 +1274,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    }	  
 	  if (m_hbinfo) { // #ifdef HBINFO
 	    hbhe_sig[k]->Fill(hbhesig[k]);
+	    cout <<"hbhe "<<k<<" "<<hbhesig[k]<<endl;
 	  } //m_hbinfo #endif
 	}
       } //if (iselect==1)
@@ -1227,112 +1416,366 @@ HOCalibAnalyzer::endJob() {
   //    } // #endif
   
   if (m_constant) { 
+
+    gStyle->SetOptStat(1100); 
+    gStyle->SetOptFit(111); //0110);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetStatBorderSize(1);
+    gStyle->SetStatStyle(1001);
+    gStyle->SetCanvasColor(10);
+    gStyle->SetPadColor(10);
+    gStyle->SetStatColor(10);  
+    gStyle->SetStatX(0.95);
+    gStyle->SetStatY(0.95);
+    gStyle->SetStatW(0.16);
+    gStyle->SetStatH(0.14);
+    gStyle->SetTitleSize(0.045,"XYZ");
+    gStyle->SetLabelSize(0.045,"XYZ");
+    gStyle->SetLabelOffset(0.012,"XYZ");
+
+    int iiter = 0;
     ofstream file_out(theoutputtxtFile.c_str());  //FIXGM Use .cfg file for name
     int ips=111;
     TPostScript ps(theoutputpsFile.c_str(),ips);  //FIXGM Use .cfg file for name  
     ps.Range(16,20);
+
+    int xsiz = 900;
+    int ysiz = 600;
+    TCanvas *c0 = new TCanvas("c0", " Pedestal vs signal", xsiz, ysiz);
     
-    for (int ij=0; ij<nphimx; ij++) {
-      for (int jk=0; jk<netamx; jk++) {
+    int mxeta = 0;
+    int mxphi = 0;
+    int mneta = 0;
+    int mnphi = 0;
+    
+    for (int iijj = 0; iijj <2; iijj++) {
+    if (iijj==0) {
+      mxeta = netamxho; //ringmx;
+      mxphi = 1; // sectmx;
+      mneta = 0;
+      mnphi = 0;
+    } else {
+      gStyle->SetStatW(0.36); //0.16
+      gStyle->SetStatH(0.34) ; //0.14 // 0.14);
+      mxeta = netamxho;
+      mxphi = nphimx+1; // 59; // 58; // nphimx;
+      mneta =  0;
+      mnphi = 0; // 52;
+    }
+
+    for (int ij=mnphi; ij<mxphi; ij++) {
+      for (int jk=mneta; jk<mxeta; jk++) {
+	//	if (jk >3 && jk <15) continue;   //Only Ring 0
+
+	/*
+	if (iijj ==1 && 
+	    (jk !=29 || ij !=  2) &&
+	    (jk != 5 || ij !=  3) &&
+	    (jk != 6 || ij !=  3) &&
+	    (jk !=20 || ij !=  3) &&
+	    (jk !=22 || ij !=  3) &&
+	    (jk !=22 || ij !=  4) &&
+	    (jk != 8 || ij !=  9) &&
+	    (jk !=20 || ij !=  9) &&
+	    (jk !=21 || ij !=  9) &&
+	    (jk !=23 || ij !=  9) &&
+	    (jk != 5 || ij != 15) &&
+	    (jk != 7 || ij != 15) &&
+	    (jk != 9 || ij != 15) &&
+	    (jk !=19 || ij != 15) &&
+	    (jk !=24 || ij != 15) &&
+	    (jk != 3 || ij != 16) &&
+	    (jk != 3 || ij != 18) &&
+	    (jk != 3 || ij != 19) &&
+	    (jk != 5 || ij != 21) &&
+	    (jk != 6 || ij != 21) &&
+	    (jk != 8 || ij != 21) &&
+	    (jk != 9 || ij != 21) &&
+	    (jk !=20 || ij != 21) &&
+	    (jk !=21 || ij != 21) &&
+	    (jk != 8 || ij != 27) &&
+	    (jk !=22 || ij != 27) &&
+	    (jk !=24 || ij != 27) &&
+	    (jk !=27 || ij != 30) &&
+	    (jk !=22 || ij != 31) &&
+	    (jk !=23 || ij != 32) &&
+	    (jk != 6 || ij != 33) &&
+	    (jk != 9 || ij != 33) &&
+	    (jk !=20 || ij != 33) &&
+	    (jk !=21 || ij != 33) &&
+	    (jk !=24 || ij != 33) &&
+	    (jk != 6 || ij != 39) &&
+	    (jk !=21 || ij != 39) &&
+	    (jk !=23 || ij != 45) &&
+	    (jk != 4 || ij != 50) &&
+	    (jk != 7 || ij != 51) &&
+	    (jk != 8 || ij != 51) &&
+	    (jk !=19 || ij != 51) &&
+	    (jk !=22 || ij != 51) &&
+	    (jk !=24 || ij != 51) &&
+	    (jk != 5 || ij != 56) &&
+	    (jk != 5 || ij != 57) &&
+	    (jk != 9 || ij != 57) &&
+	    (jk !=22 || ij != 57) &&
+	    (jk !=23 || ij != 57) &&
+	    (jk !=24 || ij != 57) &&
+	    (jk != 9 || ij != 63) &&
+	    (jk != 4 || ij != 69) &&
+	    (jk != 6 || ij != 69) &&
+	    (jk != 7 || ij != 69) &&
+	    (jk != 9 || ij != 69) &&
+	    (jk !=19 || ij != 69) &&
+	    (jk !=22 || ij != 69)) continue;
+	*/
+
+	TH1F* signall;
+	TH1F* pedstll;
 	
-	ps.NewPage();
-	int xsiz = 600;
-	int ysiz = 800;
-	TCanvas *c0 = new TCanvas("c0", " Pedestal vs signal", xsiz, ysiz);
-	c0->Divide(1,2);
-	c0->cd(1);  
-	float mean = crossg[jk][ij]->GetMean();
-	float xmn = mean-10.;
-	float xmx = mean+10;
-	float rms = crossg[jk][ij]->GetRMS();
-	float height = 0.5*crossg[jk][ij]->GetEntries();
-	
-	//      int nbin = crossg[jk][ij]->GetNbinsX();
-	TF1* gx0 = new TF1("gx0", gausX, xmn, xmx, 3);   
-	
-	double par[3] ={height, mean, rms};
-	gx0->SetParameters(par);
-	
-	crossg[jk][ij]->GetXaxis()->SetRangeUser(xmn+4, xmx);
-	crossg[jk][ij]->Fit(gx0, "R");
-	gx0->GetParameters();
-	double gaupr[3];
-	double parer[3];
-	if (crossg[jk][ij]->GetEntries() >4) {
-	  for (int k=0; k<3; k++) {
-	    parer[k] = gx0->GetParError(k);
-	    gaupr[k] = gx0->GetParameter(k);
-	  }
+	if (iijj==0) {
+	  signall = (TH1F*)comphi_sigrsg[jk]->Clone("hnew");
+	  pedstll = (TH1F*)comphi_crossg[jk]->Clone("hnew");
+
 	} else {
-	  gaupr[2]=0.9;
+	  signall = (TH1F*)sigrsg[jk][ij]->Clone("hnew");
+	  pedstll = (TH1F*)crossg[jk][ij]->Clone("hnew");
 	}
 	
-	if (sigrsg[jk][ij]->GetEntries() >10) {
-	  
-	  TF1* signal = new TF1("signal", totalfunc, -10, 20, 7);
-	  
-	  Double_t parall[7];
-	  double parserr[7];
-	  double fitres[7];
-	  //	double fitres0[7];
-	  
-	  double pedht = sigrsg[jk][ij]->GetBinContent(11);
-	  
-	  gx0->GetParameters(&parall[0]);
-	  parall[0] = 0.9*pedht;
-	  parall[1] = 0.0;
-	  parall[3] = parall[6]=parall[2];
-	  parall[4] = sigrsg[jk][ij]->GetMean();
-	  parall[5]=0.4*sigrsg[jk][ij]->GetEntries();
-	  
-	  cout <<"parall "<<jk<<" "<<ij<<" "<< parall[0]<<" "<< parall[1]<<" "<< parall[2]<<" "<< parall[3]<<" "<< parall[4]<<" "<< parall[5]<<" "<< parall[6]<<endl;
-	  file_out <<"parall "<<jk<<" "<<ij<<" "<< parall[0]<<" "<< parall[1]<<" "<< parall[2]<<" "<< parall[3]<<" "<< parall[4]<<" "<< parall[5]<<" "<< parall[6]<<endl;   
-	  
-	  signal->SetParameters(parall);
-	  signal->FixParameter(1, parall[1]);
-	  signal->FixParameter(2, parall[2]); 
-	  
-	  signal->FixParameter(0, 0.0);
-	  //      signal->SetParLimits(0, 0.00, 1.05*pedht);
-	  signal->SetParLimits(5, 0, 1.25*sigrsg[jk][ij]->GetEntries());
-	  
-	  signal->SetParLimits(3, 0.25, 3.);
-	  signal->SetParLimits(6, 0.25, 3.);    
-	  signal->SetParLimits(4, 0.25, 10.); 
-	  
-	  signal->SetParNames("const", "mean", "sigma","Width","MP","Area","GSigma");   
-	  
-	  c0->cd(2);       
-	  sigrsg[jk][ij]->Fit(signal, "0R+");
-	  //      sigrsg[jk][ij]->Fit(signal, " ");
-	  sigrsg[jk][ij]->GetXaxis()->SetRangeUser(-5.,20.);
-	  sigrsg[jk][ij]->Draw();
-	  
-	  for (int k=0; k<7; k++) {
-	    fitres[k] = signal->GetParameter(k);
-	    parserr[k] = signal->GetParError(k);
+	if (iiter%8 ==0) { 
+	  ps.NewPage();
+	  c0->Divide(2,4); // c0->Divide(1,2);
+	}
+
+	c0->cd(iiter%8+1);
+  
+	float mean = pedstll->GetMean();
+	float rms = pedstll->GetRMS();
+	float xmn = mean-6.*rms;
+	float xmx = mean+6.*rms;
+	float binwid = 	pedstll->GetBinWidth(1);
+	//	cout <<"============= "<<binwid<<" =================="<<endl;
+	if (xmx > pedstll->GetXaxis()->GetXmax()) xmx = pedstll->GetXaxis()->GetXmax()-0.5*binwid;
+	if (xmn < pedstll->GetXaxis()->GetXmin()) xmn = pedstll->GetXaxis()->GetXmin()+0.5*binwid;
+
+	float height = pedstll->GetEntries();
+	
+	//      int nbin = pedstll->GetNbinsX();
+	TF1* gx0 = new TF1("gx0", gausX, xmn, xmx, nbgpr);   
+	
+	double par[nbgpr] ={height, mean, rms};
+	gx0->SetParameters(par);
+	
+	double gaupr[nbgpr];
+	double parer[nbgpr];
+
+	ietafit = jk;
+	iphifit = ij;
+
+	//	pedstll->Draw();
+	if (pedstll->Integral() >4) {
+	  if (iijj==0) {
+	    pedstll->GetXaxis()->SetRangeUser(xmn, xmx);
+	    pedstll->Fit(gx0, "0R"); //pedstll->Fit(gx0, "R");
+	    gx0->GetParameters(); //Is it really needed or wrong concept ?
+	    if (pedstll->GetEntries() >4) {
+	      for (int k=0; k<nbgpr; k++) {
+		parer[k] = gx0->GetParError(k);
+		gaupr[k] = gx0->GetParameter(k);
+	      }
+	    } else {
+	      gaupr[2]= (m_coulomb) ? 0.9 : 0.2; //0.9 GM for GeV/fC;
+	    }
+	  } else {
+	    double strt[nbgpr] = {height, mean, rms};
+	    double step[nbgpr] = {0.1, 0.00001, 0.00001};
+	    double alow[nbgpr] = {0.5*height, 0.8*mean, 0.6*rms};
+	    double ahigh[nbgpr] ={1.5*height, 1.2*mean, 1.2*rms};
+	    
+	    TMinuit *gMinuit = new TMinuit(nbgpr);
+	    gMinuit->SetFCN(fcnbg);
+	    
+	    double arglist[10];
+	    int ierflg = 0;
+	    arglist[0] =0.5;
+	    gMinuit->mnexcm("SET ERR", arglist, 1, ierflg);
+	    char name[100];
+	    for (int k=0; k<nbgpr; k++) {
+	      sprintf(name, "pedpar%i",k);
+	      gMinuit->mnparm(k, name, strt[k], step[k], alow[k], ahigh[k],ierflg);
+	    }
+	    
+	    arglist[0] = 0;
+	    //  gMinuit->mnexcm("MINIMIZE", arglist, 0, ierflg);
+	    gMinuit->mnexcm("SIMPLEX", arglist, 0, ierflg);
+	    
+	    arglist[0] = 0;
+	    gMinuit->mnexcm("IMPROVE", arglist, 0, ierflg);
+	    
+	    TString chnam;
+	    double parv,err,xlo,xup, plerr, mierr, eparab, gcc;
+	    int iuit;
+	    
+	    for (int k=0; k<nbgpr; k++) {
+	      if (step[k] >-10) {
+		gMinuit->mnpout(k, chnam, parv, err, xlo, xup, iuit);
+		gMinuit->mnerrs(k, plerr, mierr, eparab, gcc);
+		//		cout <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab<<endl;
+		file_out <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab<<" "<<binwid<<endl;
+		if (k==0) {
+		  gaupr[k] = parv*binwid;
+		  parer[k] = err*binwid;
+		} else {
+		  gaupr[k] = parv;
+		  parer[k] = err;	
+		}
+	      }
+	    }
+	    
+	    pedstll->GetXaxis()->SetRangeUser(xmn, xmx);
+	    gx0->SetParameters(gaupr);
+	    //	    gx0->Draw("same");
+	    if (pedstll->GetEntries() <=4) {
+	      gaupr[2]= (m_coulomb) ? 0.9 : 0.2; //0.9 GM for GeV/fC;
+	    }
+	    delete  gMinuit;
+	  }
+	} else {
+	  for (int k=0; k<nbgpr; k++) {gaupr[k] = par[k]; }
+	}
+	
+	if (signall->GetEntries() >5) {
+	  Double_t parall[nsgpr];
+	  double parserr[nsgpr];
+	  double fitres[nsgpr];
+	  double pedht = 0;
+	  TF1* signal = new TF1("signal", totalfunc, xmn, xmx, nsgpr);
+	  xmn = signall->GetXaxis()->GetXmin();
+	  xmx = signall->GetXaxis()->GetXmax();
+	  if (iijj==0) {
+	    
+	    pedht = (signall->GetBinContent(nbn-1)+
+		     signall->GetBinContent(nbn)+
+		     signall->GetBinContent(nbn+1))/3.;
+	    
+	    gx0->GetParameters(&parall[0]);
+	    parall[0] = 0.9*pedht; //GM for Z-mumu, there is almost no pedestal
+	    //	  parall[1] = 0.0;
+	    //	    parall[3] = parall[6]=parall[2];
+	    parall[6]=parall[2];
+	    parall[3] = 0.14;
+	    parall[4] = signall->GetMean();
+	    double area = binwid*signall->GetEntries();
+	    parall[5]= area;
+	    
+	    file_out <<"parall "<<jk<<" "<<ij<<" "<< parall[0]<<" "<< parall[1]<<" "<< parall[2]<<" "<< parall[3]<<" "<< parall[4]<<" "<< parall[5]<<" "<< parall[6]<<endl;   
+	    
+	    signal->SetParameters(parall);
+	    signal->FixParameter(1, parall[1]);
+	    signal->FixParameter(2, parall[2]); 
+	    signal->SetParLimits(0, 0.00, 2.0*pedht+0.1);
+	    signal->FixParameter(3, 0.14);
+	    //	    signal->SetParLimits(3, 0.07, 0.20); // 035, 0.3); //GM 0.25, 3.);
+	    //	    signal->SetParLimits(4, 0.1, 1.0); //GM 0.25, 10.); 
+	    //	    signal->SetParLimits(6, 0.10, 0.27); //GM 0.25, 3.);    
+
+	    signal->SetParLimits(5, 0.40*area, 1.15*area);
+	    if (m_coulomb) {
+	      signal->SetParLimits(4, 0.6, 6.0); //GM 0.25, 10.); 
+	      signal->SetParLimits(6, 0.60, 3.0); //GM 0.25, 3.);    
+	    } else {
+	      signal->SetParLimits(4, 0.25, 6.0); //GM 0.25, 10.); 
+	      signal->SetParLimits(6, 0.25, 3.0); //GM 0.25, 3.);   
+	    }
+
+	    signal->SetParNames("const", "mean", "sigma","Width","MP","Area","GSigma");   
+	    signall->Fit(signal, "0R+");
+	    signall->GetXaxis()->SetRangeUser(xmn,xmx);
+	    //	    signall->Draw();
+	    for (int k=0; k<nsgpr; k++) {
+	      fitres[k] = fitprm[k][jk] = signal->GetParameter(k);
+	      parserr[k] = signal->GetParError(k);
+	    }
+
+	  } else {
+	    //	  c0->cd(2);  
+	    double pedhtx = 0;
+	    for (unsigned int i =0; i<sig_reg[ietafit][iphifit].size(); i++) {
+	      if (sig_reg[ietafit][iphifit][i] >gaupr[1]-3*gaupr[2] && sig_reg[ietafit][iphifit][i]<gaupr[1]+gaupr[2]) pedhtx++;
+	    }
+	    
+	    TString name[nsgpr] = {"const", "mean", "sigma","Width","MP","Area","GSigma"};
+	    
+	    double strt[nsgpr] = {0.9*pedhtx, gaupr[1], gaupr[2], 0.14, signall->GetMean(), signall->GetEntries(), 1.0};  //0.212}; //0.172}; // 0.221};
+	    double step[nsgpr] = {0.1, 0.0, 0.0, 0.0, 0.001, 0.1, 0.001};
+	    double alow[nsgpr] = {0.1*pedhtx-0.1, gaupr[1]-0.1, gaupr[2]-0.1,0.07, 0.2*strt[4], 0.1*strt[5], 0.60};
+	    double ahigh[nsgpr] ={1.2*pedhtx+0.1, gaupr[1]+0.1, gaupr[2]+0.1,0.20, 2.0*strt[4], 1.5*strt[5], 2.0};
+
+	    if (m_coulomb) { alow[6] = 0.025;}
+	    
+	    TMinuit *gMinuit = new TMinuit(nsgpr);
+	    gMinuit->SetFCN(fcnsg);
+	    
+	    double arglist[10];
+	    int ierflg = 0;
+	    arglist[0] =0.5;
+	    gMinuit->mnexcm("SET ERR", arglist, 1, ierflg);
+	    
+	    for (int k=0; k<nsgpr; k++) {
+	      // cout<< "start "<< k<<" "<< name[k]<<" "<< strt[k]<<" "<< step[k]<<" "<< alow[k]<<" "<< ahigh[k]<<endl;
+	      gMinuit->mnparm(k, name[k], strt[k], step[k], alow[k], ahigh[k],ierflg);
+	    }
+	    
+	    arglist[0] = 0;
+	    //  gMinuit->mnexcm("MINIMIZE", arglist, 0, ierflg);
+	    gMinuit->mnexcm("SIMPLEX", arglist, 0, ierflg);
+	    
+	    arglist[0] = 0;
+	    gMinuit->mnexcm("IMPROVE", arglist, 0, ierflg);
+	    
+	    TString chnam;
+	    double parv,err,xlo,xup, plerr, mierr, eparab, gcc;
+	    int iuit;
+	    
+	    for (int k=0; k<nsgpr; k++) {
+	      if (step[k] >-10) {
+		gMinuit->mnpout(k, chnam, parv, err, xlo, xup, iuit);
+		gMinuit->mnerrs(k, plerr, mierr, eparab, gcc);
+		file_out <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab<<" "<<binwid<<endl;
+		if (k==0 || k==5) { 
+		  fitres[k] = parv*binwid;
+		  parserr[k]= err*binwid;
+		} else {
+		  fitres[k] = parv;
+		  parserr[k]= err;
+		}
+
+	      }
+	    }
 	  }
 	  
-	  char temp[20];
+	  signall->GetXaxis()->SetNdivisions(506);
+	  signall->GetYaxis()->SetNdivisions(506);
+	  signall->Draw();
 	  
-	  sprintf(temp, "pedfun");
-	  TF1* pedfun = new TF1(temp, gausX, -10, 20, 3);
+	  char temp[20];
+	  sprintf(temp, "pedfun_%i",iiter);
+	  TF1* pedfun = new TF1(temp, gausX, xmn, xmx, nbgpr);
 	  pedfun->SetParameters(fitres);
 	  pedfun->SetLineColor(3);
 	  pedfun->SetLineWidth(1);
 	  pedfun->Draw("same");	
 	  
-	  sprintf(temp, "signal");
-	  TF1* sigfun = new TF1(temp, langaufun, -5, 140, 4);
+	  sprintf(temp, "signalfun_%i",iiter);
+	  TF1* sigfun = new TF1(temp, langaufun, xmn, xmx, nsgpr-nbgpr);
 	  sigfun->SetParameters(&fitres[3]);
 	  sigfun->SetLineWidth(1);
 	  sigfun->SetLineColor(4);
 	  sigfun->Draw("same");
 	  
-	  sprintf(temp, "total");
-	  TF1* signalx = new TF1(temp, totalfunc, -10, 100, 7);
+	  sprintf(temp, "total_%i",iiter);
+	  TF1* signalx = new TF1(temp, totalfunc, xmn, xmx, nsgpr);
 	  signalx->SetParameters(fitres);
-	  signalx->SetLineWidth(2);
+	  signalx->SetLineWidth(1);
 	  signalx->Draw("same");
 	  
 	  file_out <<"fitres x "<<jk<<" "<<ij<<" "<< fitres[0]<<" "<< fitres[1]<<" "<< fitres[2]<<" "<< fitres[3]<<" "<< fitres[4]<<" "<< fitres[5]<<" "<< fitres[6]<<endl;
@@ -1341,16 +1784,36 @@ HOCalibAnalyzer::endJob() {
 	  if (diff <=0) diff = 0.000001;
 	  double error=parserr[4]*parserr[4]+parer[2]*parer[2];
 	  error = pow(error,0.5);
+
+	  int ieta = (jk<15) ? (15+jk) : (29-jk);
+	  int ifl = nphimx*ieta + ij;
 	  
-	  file_out <<"Final " 
-		   <<std::setw(2)<< jk<<" "
-		   <<std::setw(2)<< ij<<" "
-	    //		 <<std::setw(2)<<islot<<" "
+	  int kl = (jk<15) ? jk+1 : 14-jk;
+	  file_out <<"table " 
+		   <<std::setw(3)<< kl<<" "
+		   <<std::setw(3)<< ij+1<<" "
 		   <<std::setw(6)<< signal->GetChisquare()<<" "
-		   <<std::setw(5)<<crossg[jk][ij]->GetEntries()<<" "
+		   <<std::setw(3)<< signal->GetNDF()<<" "
+		   <<std::setw(6)<<gaupr[2]<<" "
+		   <<std::setw(6)<<diff<<" "
+		   <<std::setw(6)<<fitres[4]<<" "
+		   <<std::setw(6)<<fitres[3]<<" "
+		   <<std::setw(6)<<fitres[5]<<" "
+		   <<std::setw(6)<<signall->GetMean()<<" "
+		   <<std::setw(6)<<signall->GetRMS()<<" "
+		   <<std::setw(5)<<signall->GetEntries()<<" "
+		   <<std::setw(7)<<invang[jk][ij]<<" "
+		   <<std::setw(7)<<error<<endl; 
+	  
+	  //GM put histogram of all these variables
+	  file_out <<"Final " 
+		   <<std::setw(3)<< kl<<" "
+		   <<std::setw(3)<< ij+1<<" "
+		   <<std::setw(6)<< signal->GetChisquare()<<" "
+		   <<std::setw(5)<<pedstll->GetEntries()<<" "
 		   <<std::setw(5)<<gaupr[2]<<" "
 		   <<std::setw(5)<<parer[2]<<" "	  
-		   <<std::setw(5)<<sigrsg[jk][ij]->GetEntries()<<" "
+		   <<std::setw(5)<<signall->GetEntries()<<" "
 		   <<std::setw(6)<<fitres[0]<<" "
 		   <<std::setw(6)<<fitres[5]<<" "
 		   <<std::setw(7)<<diff<<" "
@@ -1359,13 +1822,116 @@ HOCalibAnalyzer::endJob() {
 		   <<std::setw(7)<<fitres[6]<<" "
 		   <<std::setw(7)<<100*parserr[4]/diff<<" "
 		   <<std::setw(7)<<diff/gaupr[2]<<endl;
-	}   //if (sigrsg[jk][ij]->GetEntries() >10) {
-	c0->Update();   
+
+	  if (iijj==1) {
+	    ped_evt->Fill(ifl,pedstll->GetEntries());
+	    ped_mean->Fill(ifl,gaupr[1]);
+	    ped_width->Fill(ifl,gaupr[2]);
+	    fit_chi->Fill(ifl,signal->GetChisquare());
+	    sig_evt->Fill(ifl, signall->GetEntries());
+	    fit_sigevt->Fill(ifl, fitres[5]);
+	    fit_bkgevt->Fill(ifl, fitres[0]*sqrt(2*acos(-1.))*gaupr[2]);
+	    sig_mean->Fill(ifl, fitres[4]);
+	    sig_diff->Fill(ifl, diff);
+	    sig_width->Fill(ifl, fitres[3]);
+	    sig_sigma->Fill(ifl, fitres[6]);
+	    sig_meanerr->Fill(ifl, parserr[4]);
+	    sig_meanerrp->Fill(ifl, 100*parserr[4]/diff);
+	    sig_signf->Fill(ifl,diff/gaupr[2]); 
+	    
+	    ped_statmean->Fill(ifl,pedstll->GetMean());
+	    sig_statmean->Fill(ifl,signall->GetMean());
+	    ped_rms->Fill(ifl,pedstll->GetRMS());
+	    sig_rms->Fill(ifl,signall->GetRMS());
+	  }
+
+	} else {   //if (signall->GetEntries() >10) {
+	  float varx = 0.000;
+	  int kl = (jk<15) ? jk+1 : 14-jk;
+	  file_out <<"table " 
+		   <<std::setw(3)<< kl<<" "
+		   <<std::setw(3)<< ij+1<<" "
+		   <<std::setw(6)<< varx<<" "
+		   <<std::setw(6)<< varx<<" "	    
+		   <<std::setw(6)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(6)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(6)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(7)<< varx<<" "
+		   <<std::setw(7)<< varx<<endl; 
+	}	  
+	iiter++;
+	if (iiter%8==0) c0->Update();   
       } //for (int jk=0; jk<netamx; jk++) { 
     } //for (int ij=0; ij<nphimx; ij++) {
+    } //end of iijj
 
+    xsiz = 600;
+    ysiz = 800;
+    gStyle->SetStatH(0.05);
+    ps.NewPage(); TCanvas *c1 = new TCanvas("c1", " Pedestal vs signal", xsiz, ysiz);
+    ped_evt->Draw(); c1->Update();
+    
+    ps.NewPage();
+    ped_statmean->Draw(); c1->Update();
+
+    ps.NewPage();
+    ped_rms->Draw(); c1->Update();
+    
+    ps.NewPage();
+    ped_mean->Draw(); c1->Update();
+    
+    ps.NewPage();
+    ped_width->Draw(); c1->Update();
+    
+    ps.NewPage();
+    sig_evt->Draw(); c1->Update();
+
+    ps.NewPage();
+    sig_statmean->Draw(); c1->Update();
+
+    ps.NewPage();
+    sig_rms->Draw(); c1->Update();
+    
+    ps.NewPage();
+    fit_chi->Draw(); c1->Update();
+
+    ps.NewPage();
+    fit_sigevt->Draw(); c1->Update();
+    
+    ps.NewPage();
+    fit_bkgevt->Draw(); c1->Update();
+
+    ps.NewPage();
+    sig_mean->Draw(); c1->Update();
+
+     ps.NewPage();
+    sig_width->Draw(); c1->Update();
+               
+    ps.NewPage(); 
+    sig_sigma->Draw(); c1->Update();
+    
+    ps.NewPage(); 
+    sig_meanerr->Draw(); c1->Update();
+    
+    ps.NewPage(); 
+    sig_meanerrp->Draw(); c1->Update();
+    
+    ps.NewPage(); 
+    sig_signf->Draw(); c1->Update();
+    
     ps.Close();
+    //    file_out.close();
   } //m_constant
+
+  //  fileOut->cd();
+  //  fileOut->Write();
+  //  fileOut->Close();
+  
 }
 /*
 Double_t HOCalibAnalyzer::langaufun(Double_t *x, Double_t *par) {
@@ -1425,5 +1991,30 @@ Double_t HOCalibAnalyzer::langaufun(Double_t *x, Double_t *par) {
 }
 */
 
+/*
+void HOCalibAnalyzer::fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
+  
+  //  double fval = 0;
+  double fval = -par[0];
+  for (int i=0; i<cro_ssg[ietafit][iphifit].size(); i++) {
+    double xval = (double)cro_ssg[ietafit][iphifit][i];
+    //    fval +=log(max(1.e-12,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    fval +=log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
+  }
+  f = -fval;
+}
+
+void HOCalibAnalyzer::fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
+
+  double xval[2];
+  double fval = -(par[0]+par[5]);
+  for (int i=0; i<sig_reg[ietafit][iphifit].size(); i++) {
+    xval[0] = (double)sig_reg[ietafit][iphifit][i];
+    //    if (xval[0]>3.) continue;
+    fval +=log(totalfunc(xval, par));
+  }
+  f = -fval;
+}
+*/
 //define this as a plug-in
 DEFINE_FWK_MODULE(HOCalibAnalyzer);
