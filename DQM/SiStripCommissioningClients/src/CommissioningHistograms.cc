@@ -492,7 +492,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 				       sistrip::invalid_,
 				       sistrip::invalid_,
 				       sistrip::invalid_,
-				       channel ).key(); //@@ sistrip::invalid_ ).key(); // just record lld channel
+				       channel ).key(); // just record lld channel
 	mapping_[title.keyValue()] = temp;
 
       } else { key = SiStripKey( path.key() ).key(); }
@@ -632,7 +632,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
       
       // Build key 
       uint32_t key = sistrip::invalid32_;
+
       if ( view == sistrip::CONTROL_VIEW ) { 
+
+	// for all runs except cabling
 	SiStripFecKey temp( path.key() ); 
 	key = SiStripFecKey( temp.fecCrate(),
 			     temp.fecSlot(),
@@ -640,12 +643,21 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 			     temp.ccuAddr(),
 			     temp.ccuChan(),
 			     channel ).key();
+	mapping_[title.keyValue()] = key;
+
       } else if ( view == sistrip::READOUT_VIEW ) { 
-	key = SiStripFedKey( path.key() ).key(); 
+
+	// for cabling run
+	key = SiStripFedKey( path.key() ).key();
+	uint32_t temp = SiStripFecKey( sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       sistrip::invalid_,
+				       channel ).key(); // just record lld channel
+	mapping_[title.keyValue()] = temp;
+
       } else { key = SiStripKey( path.key() ).key(); }
-      
-      // Fill map (typically FED-FEC, sometimes FEC-FED)
-      mapping_[title.keyValue()] = key;
       
       // Find CME in histos map
       Histo* histo = 0;
