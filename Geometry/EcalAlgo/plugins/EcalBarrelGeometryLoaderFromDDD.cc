@@ -3,6 +3,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
 
 template class CaloGeometryLoader< EcalBarrelGeometry > ;
 

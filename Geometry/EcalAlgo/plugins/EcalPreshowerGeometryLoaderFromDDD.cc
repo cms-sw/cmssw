@@ -4,6 +4,7 @@
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
 
 template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 
