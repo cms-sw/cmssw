@@ -134,9 +134,7 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
-    //#ifdef USING_NEW_COLLATE_METHODS
     client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
-    //#endif
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -211,9 +209,7 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); } 
-    //#ifdef USING_NEW_COLLATE_METHODS
     client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
-    //#endif
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -401,13 +397,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore directories on source side
-    //#ifdef USING_NEW_COLLATE_METHODS
     if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
-    //#else 
-//     if ( idir->find("Collector") != std::string::npos ||
-// 	 idir->find("EvF") != std::string::npos ||
-// 	 idir->find("FU") != std::string::npos ) { continue; }
-    //#endif
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
@@ -434,9 +424,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     else { client_dir = SiStripKey( path.key() ).path(); }
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
-    //#ifdef USING_NEW_COLLATE_METHODS
     client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
-    //#endif
 
     // Retrieve MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei_->getContents( source_dir );
@@ -961,11 +949,7 @@ void CommissioningHistograms::save( std::string& path,
     << " Saving histograms to root file"
     << " (This may take some time!)";
   path = ss.str();
-  //#ifdef USING_NEW_COLLATE_METHODS
   bei_->save( path, sistrip::collate_ ); 
-  //#else 
-  //bei_->save( path, sistrip::root_ ); 
-  //#endif 
   edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Saved histograms to root file \""
@@ -985,11 +969,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   
   // Remember pwd 
   std::string pwd = bei_->pwd();
-  //#ifdef USING_NEW_COLLATE_METHODS
   bei_->setCurrentFolder( sistrip::collate_ + sistrip::dir_ + directory );
-  //#else
-  //bei_->setCurrentFolder( directory );
-  //#endif
   
   // Construct histogram name 
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
