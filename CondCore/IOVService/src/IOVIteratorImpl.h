@@ -10,7 +10,7 @@ namespace cond{
   class PoolTransaction;
   class IOVIteratorImpl : virtual public cond::IOVIterator{
   public:
-    typedef IOV::Container::const_iterator const_iterator;
+    typedef IOV::const_iterator const_iterator;
     IOVIteratorImpl( cond::PoolTransaction& pooldb,
 		     const std::string & token , 
 		     cond::Time_t globalSince, 

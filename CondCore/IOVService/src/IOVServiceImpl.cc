@@ -100,8 +100,8 @@ cond::IOVServiceImpl::deleteAll(bool withPayload){
   while ( it.next() ) {
     if(withPayload){
       std::string tokenStr;
-      std::map<cond::Time_t,std::string>::iterator payloadIt;
-      std::map<cond::Time_t,std::string>::iterator payloadItEnd=it.dataRef()->iov.end();
+      IOV::iterator payloadIt;
+      IOV::iterator payloadItEnd=it.dataRef()->iov.end();
       for(payloadIt=it.dataRef()->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->second;
 	pool::Token token;
@@ -145,7 +145,7 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
   newiov->timetype= iov->timetype;
   newiov->firstsince=iov->firstsince;
 
-  for( std::map<cond::Time_t,std::string>::iterator it=iov->iov.begin();
+  for( IOV::iterator it=iov->iov.begin();
        it!=iov->iov.end(); ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPToken=payloadRef.exportTo(destDB);
@@ -210,7 +210,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     newiovref->iov.insert(std::make_pair(since-1,ltoken));
   }
   cond::IOV & newiov = *newiovref;
-  for( std::map<cond::Time_t,std::string>::const_iterator it=ifirstTill;
+  for( IOV::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPtoken=payloadRef.exportTo(destDB);

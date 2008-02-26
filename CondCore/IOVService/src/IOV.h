@@ -6,13 +6,13 @@
 namespace cond{
   class IOV {
   public:
-    typedef std::map<cond::Time_t,std::string> Container;
+    typedef IOV::Container Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
     IOV(){}
     virtual ~IOV(){}
     //std::map<unsigned long long,std::string> iov;
-    std::map<cond::Time_t,std::string> iov;
+    IOV::Container iov;
     int timetype;
     cond::Time_t firstsince;
   };

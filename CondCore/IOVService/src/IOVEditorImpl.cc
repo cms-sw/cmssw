@@ -72,7 +72,7 @@ namespace cond {
 
   //fix me: throw if beyond global range! 
   m_iov->iov.insert(std::make_pair<cond::Time_t, std::string>(tillTime, payloadToken));
-  std::map<cond::Time_t,std::string>::iterator pos=m_iov->iov.find(tillTime);
+  IOV::iterator pos=m_iov->iov.find(tillTime);
   size_t result=0;
 
   m_iov.markUpdate();
@@ -144,8 +144,8 @@ namespace cond {
     if(!m_isActive) this->init();
     if(withPayload){
       std::string tokenStr;
-      std::map<cond::Time_t,std::string>::iterator payloadIt;
-      std::map<cond::Time_t,std::string>::iterator payloadItEnd=m_iov->iov.end();
+      IOV::iterator payloadIt;
+      IOV::iterator payloadItEnd=m_iov->iov.end();
       for(payloadIt=m_iov->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->second;
 	pool::Token token;
