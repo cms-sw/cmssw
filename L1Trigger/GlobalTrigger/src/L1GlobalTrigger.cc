@@ -84,36 +84,30 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 {
 
     // input tag for muon collection from GMT
-    m_muGmtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
-                          "GmtInputTag", edm::InputTag("L1GmtEmulDigis"));
+    m_muGmtInputTag = parSet.getParameter<edm::InputTag>("GmtInputTag");
 
     // input tag for calorimeter collection from GCT
-    m_caloGctInputTag = parSet.getUntrackedParameter<edm::InputTag>(
-                            "GctInputTag", edm::InputTag("L1GctEmulDigis"));
+    m_caloGctInputTag = parSet.getParameter<edm::InputTag>("GctInputTag");
 
 
     // logical flag to produce the L1 GT DAQ readout record
     //     if true, produce the record
-    m_produceL1GtDaqRecord = parSet.getUntrackedParameter<bool>(
-                                 "ProduceL1GtDaqRecord", true);
+    m_produceL1GtDaqRecord = parSet.getParameter<bool>("ProduceL1GtDaqRecord");
 
 
     // logical flag to produce the L1 GT EVM readout record
     //     if true, produce the record
-    m_produceL1GtEvmRecord = parSet.getUntrackedParameter<bool>(
-                                 "ProduceL1GtEvmRecord", true);
+    m_produceL1GtEvmRecord = parSet.getParameter<bool>("ProduceL1GtEvmRecord");
 
 
     // logical flag to produce the L1 GT object map record
     //     if true, produce the record
-    m_produceL1GtObjectMapRecord = parSet.getUntrackedParameter<bool>(
-                                       "ProduceL1GtObjectMapRecord", true);
+    m_produceL1GtObjectMapRecord = parSet.getParameter<bool>("ProduceL1GtObjectMapRecord");
 
 
     // logical flag to write the PSB content in the  L1 GT DAQ record
     //     if true, write the PSB content in the record
-    m_writePsbL1GtDaqRecord = parSet.getUntrackedParameter<bool>(
-                                  "WritePsbL1GtDaqRecord", true);
+    m_writePsbL1GtDaqRecord = parSet.getParameter<bool>("WritePsbL1GtDaqRecord");
 
     LogTrace("L1GlobalTrigger")
     << "\nInput tag for muon collection from GMT:         "
