@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.2 2008/01/28 14:02:28 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.3 2008/02/21 16:09:59 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,8 @@
 #include <boost/bind.hpp>
 #include <algorithm>
 #include "TEveElement.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
@@ -117,8 +119,12 @@ changeElementAndChildren(TEveElement* iElement,
 {
    iElement->SetMainColor(iInfo.displayProperties().color());
    //for now, if selected make the item white
-   if(iInfo.isSelected()) {
-      iElement->SetMainColor(static_cast<Color_t>(kWhite));
+   if(iInfo.isSelected() xor iElement->GetSelectedLevel()==1) {
+      if(iInfo.isSelected()) {         
+         gEve->GetSelection()->AddElement(iElement);
+      } else {
+         gEve->GetSelection()->RemoveElement(iElement);
+      }
    }
    
    for(TEveElement::List_i itElement = iElement->BeginChildren(),
