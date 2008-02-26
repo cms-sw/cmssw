@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/18 10:54:55 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/02/24 20:39:03 dmytro Exp $
 //
 
 // system include files
@@ -84,29 +84,9 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    
    double r_ecal = 129;
    double scale = 2;
+   double minJetEt = 15;
    
-   unsigned int i = 0;
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-
-      TEveTrans t;
-      t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
-      t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
-      t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
-      t(1,4) = 0; t(2,4) = 0; t(3,4) = 0;
-      std::ostringstream s;
-      s << "Jet " << i;
-      ++i;
-      TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(s.str().c_str());
-      extract->SetTrans(t.Array());
-      
-      TColor* c = gROOT->GetColor( tList->GetMainColor() );
-      Float_t rgba[4] = { 0.1, 0.1, 0.1, 1 };
-      if (c) {
-	 rgba[0] = c->GetRed();
-	 rgba[1] = c->GetGreen();
-	 rgba[2] = c->GetBlue();
-      }
-
       std::pair<double,double> phiRange = getPhiRange( *jet );
       double min_phi = phiRange.first-M_PI/36/2;
       double max_phi = phiRange.second+M_PI/36/2;
@@ -115,50 +95,17 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       double dPhi1 = max_phi - phi;
       double dPhi2 = phi - min_phi;
 
-      extract->SetRGBA(rgba);
-      extract->SetRnrSelf(kTRUE);
-      extract->SetRnrElements(kTRUE);
-      
       double size = scale*jet->et();
-      Double_t points[16];
       
-      // define outer edge
-      double rho = (r_ecal+size)/cos(dPhi1);
-      points[2] = rho*cos(max_phi);
-      points[3] = rho*sin(max_phi);
-      rho = (r_ecal+size)/cos(dPhi2);
-      points[4] = rho*cos(min_phi);
-      points[5] = rho*sin(min_phi);
-      rho = r_ecal/cos(dPhi1);
-      points[0] = rho*cos(max_phi);
-      points[1] = rho*sin(max_phi);
-      rho = r_ecal/cos(dPhi2);
-      points[6] = rho*cos(min_phi);
-      points[7] = rho*sin(min_phi);
-      
-      for( int i = 0; i<8; ++i ) points[i+8] = points[i];
-      extract->SetShape( new TGeoArb8(0,points) );
-      TEveElement* element = TEveGeoShape::ImportShapeExtract( extract, 0 );
-      element->SetMainTransparency(90);
-      
-      /*
-      TEveStraightLineSet* marker = new TEveStraightLineSet("jet centroid");
+      TEveStraightLineSet* marker = new TEveStraightLineSet("jet");
       marker->SetLineWidth(4);
       marker->SetLineColor(  tList->GetMainColor() );
-      marker->AddLine(0., (jet->phi()>0 ? (r-5)*fabs(sin(theta)) : -(r-5)*fabs(sin(theta))), (r-5)*cos(theta),
-		      0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-      element->AddElement(marker);
-       */
-      
-      TEvePointSet *marker2 = new TEvePointSet("jet centroid", 1);
-      marker2->SetNextPoint(r_ecal*cos(phi),r_ecal*sin(phi),0);
-      marker2->SetMarkerSize(2);
-      marker2->SetMarkerStyle(20);
-      marker2->SetMarkerColor(tList->GetMainColor());
-      element->AddElement(marker2);
-      
-      tList->AddElement( element );
-
+      if ( jet->et() > minJetEt ) {
+	 marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+	 marker->AddLine( r_ecal/cos(dPhi1)*cos(max_phi), r_ecal/cos(dPhi1)*sin(max_phi), 0,
+			  r_ecal/cos(dPhi2)*cos(min_phi), r_ecal/cos(dPhi2)*sin(min_phi), 0 );
+      }
+      tList->AddElement(marker);
    }
 }
 
@@ -194,34 +141,11 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    double z_ecal = 304.5; // ECAL endcap inner surface
    double r_ecal = 129;
    double transition_angle = atan(r_ecal/z_ecal);
+   double minJetEt = 15;
    
-   unsigned int i = 0;
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
       std::pair<int,int> iEtaRange = getiEtaRange( *jet );
       
-      TEveTrans t;
-      t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
-      t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
-      t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
-      t(1,4) = 0; t(2,4) = 0; t(3,4) = 0;
-      t.RotateLF(1,3,M_PI/2 );
-      std::ostringstream s;
-      s << "Jet " << i;
-      ++i;
-      TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(s.str().c_str());
-      extract->SetTrans(t.Array());
-      
-      TColor* c = gROOT->GetColor( tList->GetMainColor() );
-      Float_t rgba[4] = { 0.1, 0.1, 0.1, 1 };
-      if (c) {
-	 rgba[0] = c->GetRed();
-	 rgba[1] = c->GetGreen();
-	 rgba[2] = c->GetBlue();
-      }
-      
-      extract->SetRGBA(rgba);
-      extract->SetRnrSelf(kTRUE);
-      extract->SetRnrElements(kTRUE);
       double max_theta = thetaBins[iEtaRange.first].first;
       double min_theta = thetaBins[iEtaRange.second].second;;
       
@@ -241,83 +165,20 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       
       double size = scale*jet->et();
       
-      // Shape:
-      //   energy - distance from the center of inner most edge to the 
-      //            center of the outer most edge
-      Double_t points[16];
-      
-      // define outer edge
-      double rho = (r+size)/cos(dTheta1);
-      points[2] = rho*cos(max_theta);
-      points[3] = jet->phi()>0 ? rho*sin(max_theta) : -rho*sin(max_theta);
-      rho = (r+size)/cos(dTheta2);
-      points[4] = rho*cos(min_theta);
-      points[5] = jet->phi()>0 ? rho*sin(min_theta) : -rho*sin(min_theta);
-	
-/*      // inner edge:
-      // - horizontal if jet is contained in the barrel
-      // - vertical if jet is contained in the endcaps
-      // - parallel to the outer edge if in the transition area
-      
-      if ( max_theta < M_PI - transition_angle && min_theta > transition_angle )
-	{
-	   points[0] = r_ecal/tan(max_theta);
-	   points[1] = jet->phi()>0 ? r_ecal : -r_ecal;
-	   points[6] = r_ecal/tan(min_theta);
-	   points[7] = jet->phi()>0 ? r_ecal : -r_ecal;
-	}
-      
-      if ( min_theta > M_PI - transition_angle )
-	{
-	   points[0] = -z_ecal;
-	   points[1] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
-	   points[6] = -z_ecal;
-	   points[7] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
-	}
-      
-      if ( max_theta < transition_angle )
-	{
-	   points[0] = z_ecal;
-	   points[1] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
-	   points[6] = z_ecal;
-	   points[7] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
-	}
-
-      if ( ( min_theta < transition_angle && max_theta > transition_angle) ||
-	   ( min_theta < M_PI - transition_angle && max_theta > M_PI - transition_angle ) )
-	{
-*/	   rho = r/cos(dTheta1);
-	   points[0] = rho*cos(max_theta);
-	   points[1] = jet->phi()>0 ? rho*sin(max_theta) : -rho*sin(max_theta);
-	   rho = r/cos(dTheta2);
-	   points[6] = rho*cos(min_theta);
-	   points[7] = jet->phi()>0 ? rho*sin(min_theta) : -rho*sin(min_theta);
-//	}
-
-//      printf("Jet (et,theta,phi): (%0.2f,%0.2f, %0.2f), angles (min,max,trans): ((%0.2f,%0.2f, %0.2f)\n",
-//	     jet->et(), jet->theta(), jet->phi(), min_theta, max_theta, transition_angle);
-      for( int i = 0; i<8; ++i ) points[i+8] = points[i];
-      extract->SetShape( new TGeoArb8(0,points) );
-      TEveElement* element = TEveGeoShape::ImportShapeExtract( extract, 0 );
-      element->SetMainTransparency(90);
-      
-      /*
-      TEveStraightLineSet* marker = new TEveStraightLineSet("jet centroid");
+      TEveStraightLineSet* marker = new TEveStraightLineSet("jet");
       marker->SetLineWidth(4);
       marker->SetLineColor(  tList->GetMainColor() );
-      marker->AddLine(0., (jet->phi()>0 ? (r-5)*fabs(sin(theta)) : -(r-5)*fabs(sin(theta))), (r-5)*cos(theta),
-		      0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-      element->AddElement(marker);
-       */
-      
-      TEvePointSet *marker2 = new TEvePointSet("jet centroid", 1);
-      marker2->SetNextPoint(0, (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
-      marker2->SetMarkerSize(2);
-      marker2->SetMarkerStyle(20);
-      marker2->SetMarkerColor(tList->GetMainColor());
-      element->AddElement(marker2);
-      
-      tList->AddElement( element );
+      if ( jet->et() > minJetEt ) {
+	 marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+			 0., (jet->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+	 marker->AddLine(0., 
+			 ( jet->phi()>0 ? r/cos(dTheta1)*sin(max_theta) : -r/cos(dTheta1)*sin(max_theta) ),
+			 r/cos(dTheta1)*cos(max_theta), 
+			 0., 
+			 ( jet->phi()>0 ? r/cos(dTheta2)*sin(min_theta) : -r/cos(dTheta2)*sin(min_theta) ), 
+			 r/cos(dTheta2)*cos(min_theta) );
+      }
+      tList->AddElement(marker);
    }
 }
    

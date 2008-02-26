@@ -25,7 +25,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 				     TEveElementList** product)
 {
      TEveElementList* tList = *product;
-     printf("Calling electron proxy\n");
+     // printf("Calling electron proxy\n");
      
      if(0 == tList) {
 	  tList =  new TEveElementList(iItem->name().c_str(), "GSF Electrons", true);
@@ -38,16 +38,16 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      
      using reco::PixelMatchGsfElectronCollection;
      const PixelMatchGsfElectronCollection *electrons = 0;
-     printf("getting electrons\n");
+     // printf("getting electrons\n");
      iItem->get(electrons);
-     printf("got electrons\n");
+     // printf("got electrons\n");
      ElectronsProxy3DBuilder::electrons = electrons;
    
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
 	  return;
      }
-     printf("%d GSF electrons\n", electrons->size());
+     // printf("%d GSF electrons\n", electrons->size());
    
      TEveTrackPropagator *propagator = new TEveTrackPropagator();
      propagator->SetMagField( -4.0);

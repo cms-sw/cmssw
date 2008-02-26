@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.3 2008/02/25 23:21:48 jmuelmen Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ ElectronsProxySCBuilder::~ElectronsProxySCBuilder()
 //
 void ElectronsProxySCBuilder::build (TEveElementList **product) 
 {
-     printf("calling ElectronsProxySCBuilder::buildRhoZ\n");
+     // printf("calling ElectronsProxySCBuilder::buildRhoZ\n");
      TEveElementList* tList = *product;
      if(0 == tList) {
 	  tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
@@ -84,14 +84,14 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
      resetCenter();
      using reco::PixelMatchGsfElectronCollection;
      const PixelMatchGsfElectronCollection *electrons = 0;
-     printf("getting electrons\n");
+     // printf("getting electrons\n");
      m_item->get(electrons);
-     printf("got electrons\n");
+     // printf("got electrons\n");
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
 	  return;
      }
-     printf("%d GSF electrons\n", electrons->size());
+     // printf("%d GSF electrons\n", electrons->size());
      // get rechits
 /*
      const EcalRecHitCollection *hits = 0;
@@ -114,7 +114,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  return;
      }
 */
-     printf("getting rechits\n");
+     // printf("getting rechits\n");
      const fwlite::Event *ev = m_item->getEvent();
      fwlite::Handle<EcalRecHitCollection> h_hits;
      const EcalRecHitCollection* hits(0);
@@ -255,7 +255,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x(),
 					    i->TrackPositionAtCalo().y(),
 					    i->TrackPositionAtCalo().z());
-	  trackpositionAtCalo->SetMarkerStyle(28);
+	  trackpositionAtCalo->SetMarkerStyle(20);
+	  trackpositionAtCalo->SetMarkerSize(2);
 	  trackpositionAtCalo->SetMarkerColor(kRed);
 	  tList->AddElement(trackpositionAtCalo);
 	  rotation_center[0] = i->TrackPositionAtCalo().x();
@@ -267,6 +268,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 				   i->caloPosition().y(),
 				   i->caloPosition().z());
 	  scposition->SetMarkerStyle(28);
+	  scposition->SetMarkerSize(0.25);
 	  scposition->SetMarkerColor(kBlue);
 	  tList->AddElement(scposition);
 	  TVector3 sc(i->caloPosition().x(),
@@ -282,7 +284,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  pinposition->SetNextPoint(v_pin_intersection.x(),
 				    v_pin_intersection.y(),
 				    v_pin_intersection.z());
-	  pinposition->SetMarkerStyle(28);
+	  pinposition->SetMarkerStyle(20);
+	  pinposition->SetMarkerSize(2);
 	  pinposition->SetMarkerColor(kCyan);
 	  tList->AddElement(pinposition);
 	  

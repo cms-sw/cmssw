@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/02/13 22:45:50 jmuelmen Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/02/15 06:41:20 jmuelmen Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 {
      TEveElementList* tList = *product;
 
-     printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhiPhi\n");
+     // printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhiPhi\n");
      if(0 == tList) {
 	  tList =  new TEveElementList(iItem->name().c_str(),"Electron RhoPhi",true);
 	  *product = tList;
@@ -74,14 +74,14 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      // get electrons
      using reco::PixelMatchGsfElectronCollection;
      const PixelMatchGsfElectronCollection *electrons = 0;
-     printf("getting electrons\n");
+     // printf("getting electrons\n");
      iItem->get(electrons);
-     printf("got electrons\n");
+     // printf("got electrons\n");
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
 	  return;
      }
-     printf("%d GSF electrons\n", electrons->size());
+     // printf("%d GSF electrons\n", electrons->size());
      // loop over electrons
      using std::string;
      string name = "superclusters";
@@ -129,7 +129,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	       shape->SetMainTransparency(50);
 	       shape->SetMainColor(tList->GetMainColor());
 // 		    tList->AddElement(shape);
-	       double size = 1;
+	       // double size = 1;
 	       double r = 122;
 	       double phi = v.Phi();
 	       double phi_deg_min = (phi - 0.0085) * 180 / M_PI;
@@ -159,7 +159,7 @@ void
 ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					  TEveElementList** product)
 {
-     printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ\n");
+     // printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ\n");
      TEveElementList* tList = *product;
      if(0 == tList) {
 	  tList =  new TEveElementList(iItem->name().c_str(),"Electron RhoZ",true);
@@ -172,14 +172,14 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      // get electrons
      using reco::PixelMatchGsfElectronCollection;
      const PixelMatchGsfElectronCollection *electrons = 0;
-     printf("getting electrons\n");
+     // printf("getting electrons\n");
      iItem->get(electrons);
-     printf("got electrons\n");
+     // printf("got electrons\n");
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
 	  return;
      }
-     printf("%d GSF electrons\n", electrons->size());
+     // printf("%d GSF electrons\n", electrons->size());
      // loop over electrons
      using std::string;
      string name = "superclusters";
@@ -233,7 +233,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 // 	       const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( k->rawId() );
 	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( k->rawId() );
 	       if(0!=extract) {
- 		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+ 		    // TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
 //  		    shape->SetMainTransparency(100);
 //  		    shape->SetMainColor(0);
 // 		    tList->AddElement(shape);
@@ -275,18 +275,18 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      tList->AddElement(TEveGeoShape::ImportShapeExtract(container, 0));
 #if 0
 	  // use sigma_eta_eta as the width of the SC representation
-	  printf("getting cluster shapes\n");
+	  // printf("getting cluster shapes\n");
 	  using reco::BasicClusterShapeAssociationCollection;
 	  const BasicClusterShapeAssociationCollection *shapes = 0;
 	  iItem->get(shapes);
-	  printf("got cluster shapes\n");
+	  // printf("got cluster shapes\n");
 	  for (BasicClusterShapeAssociationCollection::const_iterator j
 		    = shapes->begin(); j != shapes->end(); ++j) {
 	       // Get the ClusterShapeRef corresponding to the BasicCluster
 	       using reco::ClusterShapeRef;
 	       const ClusterShapeRef &seedShapeRef = j->val;
 	       double see = sqrt(seedShapeRef->covEtaEta());
-	       printf("see = %f\n", see);
+	       // printf("see = %f\n", see);
 	  }
      }
 #endif

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: ElectronSCViewManager.cc,v 1.1.2.3 2008/02/23 07:29:23 dmytro Exp $
+// $Id: ElectronSCViewManager.cc,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
 //
 
 // system include files
@@ -61,7 +61,8 @@ ElectronSCViewManager::ElectronSCViewManager():
 //      gEve->Redraw3D(true);
      gEve->AddToListTree(ns, true);
      gEve->AddElement(ns);
-     gEve->Redraw3D(true);
+    gEve->Redraw3D();
+   // gEve->Redraw3D(true);
 }
 
 // ElectronSCViewManager::ElectronSCViewManager(const ElectronSCViewManager& rhs)
