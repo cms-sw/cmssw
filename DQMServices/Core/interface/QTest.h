@@ -844,7 +844,7 @@ public:
 protected:
   /// true if algorithm is invalid (e.g. wrong type of reference object)
   bool isInvalid(void)
-    { return false; } // FIXME: or "!validMethod_";
+    { return !validMethod_; }
 
   virtual void setMessage(void)
     {
@@ -919,7 +919,7 @@ public:
 protected:
   /// true if algorithm is invalid (e.g. wrong type of reference object)
   bool isInvalid(void)
-    { return false; } // any scenarios for invalid test?  FIXME: "return !validMethod_;"?
+    { return !validMethod_; }
 
   virtual void setMessage(void)
     {
@@ -994,7 +994,7 @@ public:
 protected:
   /// true if algorithm is invalid (e.g. wrong type of reference object)
   bool isInvalid(void)
-    { return false; } // any scenarios for invalid test?  FIXME: "return !validMethod_;"?
+    { return !validMethod_; }
 
   virtual void setMessage(void)
     {
