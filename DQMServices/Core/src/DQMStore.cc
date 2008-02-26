@@ -284,8 +284,6 @@ DQMStore::dirExists(const std::string &path) const
 MonitorElement *
 DQMStore::initialise(MonitorElement *me)
 {
-  assert(me->getPathname().empty() || *me->getPathname().rbegin() != '/');
-
   // Initialise quality test information.
   QTestSpecs::iterator qi = qtestspecs_.begin();
   QTestSpecs::iterator qe = qtestspecs_.end();
@@ -779,9 +777,9 @@ DQMStore::getContents(const std::string &path, unsigned int tag) const
   MEMap::const_iterator i = data_.lower_bound(*cleaned);
   for ( ; i != e && isSubdirectory(*cleaned, i->second.path_); ++i)
   {
-    if (i->second.path_ != *cleaned)
-      continue;
     const MonitorElement &me = i->second;
+    if (me.path_ != *cleaned)
+      continue;
     DQMNet::TagList::const_iterator te = me.data_.tags.end();
     DQMNet::TagList::const_iterator ti = me.data_.tags.begin();
     ti = std::lower_bound(ti, te, tag);
@@ -1634,6 +1632,12 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
   const std::string *cleaned = 0;
   cleanTrailingSlashes(dir, clean, cleaned);
 
+  // Validate the path.
+  if (cleaned->find_first_not_of(s_safe) != std::string::npos)
+    throw cms::Exception("DQMStore")
+      << "Monitor element path name '" << *cleaned
+      << "' uses unacceptable characters";
+
   // Redirect to the pattern match version.
   useQTestByMatch(*cleaned + "/*", qtname);
 }
@@ -1671,7 +1675,7 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   MEMap::iterator me = data_.end();
   for ( ; mi != me; ++mi)
     if (rx->match(mi->first))
-      me->second.addQReport(qts.second);
+      mi->second.addQReport(qts.second);
 }
 
 #if 0

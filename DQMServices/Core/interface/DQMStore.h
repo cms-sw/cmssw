@@ -252,7 +252,7 @@ private:
   friend class QTestStatusChecker;
   friend class EDMtoMEConverter;       // need clone methods
   friend class MEtoEDMConverter;
-  friend class DQMBackEndInterfaceExample; // for get{All,Matching}Contents -- sole user of this method!
+  friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
