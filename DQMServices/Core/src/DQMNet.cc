@@ -1273,7 +1273,7 @@ DQMNet::run(void)
 	  InetAddress myaddr = ((InetSocket *) s)->sockname();
 	  p->peeraddr = StringFormat("%1:%2")
 			.arg(peeraddr.hostname())
-		       .arg(peeraddr.port());
+			.arg(peeraddr.port());
 	  p->mask = IORead|IOWrite|IOUrgent;
 	  p->update = ap->update;
 	  p->automatic = ap;
