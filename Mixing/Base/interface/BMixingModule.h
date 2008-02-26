@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "Mixing/Base/interface/PileUp.h"
 
 
@@ -38,6 +37,11 @@ namespace edm {
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
+      //int minBunch() const {return input_.minBunch();}
+      int minBunch() const {return input_ ? input_->minBunch() : 0 ;}
+      //int maxBunch() const {return input_.maxBunch();}
+      int maxBunch() const {return input_ ? input_->maxBunch() : 0 ;}
+      //double averageNumber() const {return input_.averageNumber();}
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
       // *crossings*, including the hard scatter, or the average number of overlapping events?
       // We have guessed 'overlapping events'.
@@ -50,38 +54,22 @@ namespace edm {
       void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId) {;}
-      virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
-      virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
-      virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
-      virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 
-  protected:
+    protected:
       int bunchSpace_;
       static int vertexoffset;
       bool checktof_;
-      int const minBunch_;
-      int const maxBunch_;
 
-      // playback info
-      bool playback_;
-      std::vector<edm::EventID> eventIDs_;
-      std::vector<int> fileSeqNrs_;
-      std::vector<unsigned int> nrEvents_;
-      const static unsigned int maxNbSources_;
-
-  private:
-
+    private:
       boost::shared_ptr<PileUp> input_;
       boost::shared_ptr<PileUp> cosmics_;
       boost::shared_ptr<PileUp> beamHalo_p_;
       boost::shared_ptr<PileUp> beamHalo_m_;
-      boost::shared_ptr<PileUp> fwdDet_;
+      const static unsigned int maxNbSources;
       ModuleDescription md_;
-
       unsigned int eventId_;
-  };
-
+    };
 }//edm
 
 #endif

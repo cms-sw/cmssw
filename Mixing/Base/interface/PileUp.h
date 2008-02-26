@@ -5,27 +5,25 @@
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 
 namespace CLHEP {
-  class RandPoissonQ;
+  class RandPoisson;
 }
 
 namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback);
+    explicit PileUp(ParameterSet const& pset);
     ~PileUp();
 
-    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents);
+    void readPileUp(std::vector<EventPrincipalVector> & result);
 
-    //    int minBunch() const {return minBunch_;}
-    //    int maxBunch() const {return maxBunch_;}
+    int minBunch() const {return minBunch_;}
+    int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
-    //    int getStartFileNr() {return fileSeqNr_;}
 
   private:
     std::string const type_;
@@ -37,10 +35,7 @@ namespace edm {
     bool const fixed_;
     bool const none_;
     VectorInputSource * const input_;
-    CLHEP::RandPoissonQ *poissonDistribution_;
-
-    //playback info
-    bool playback_;
+    CLHEP::RandPoisson *poissonDistribution_;
   };
 }
 
