@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/02/13 11:06:42 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/13 11:09:16 $
+ * $Revision: 1.8 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -124,6 +124,7 @@ void EcalPedOffset::analyze (Event const& event,
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     int FEDid = 600+headerItr->id();
     DACvalues[FEDid] = settings.ped_offset;
+    LogDebug("EcalPedOffset") << "Found FED: " << FEDid << " in DCC header";
   }
 
   bool barrelDigisFound = true;
@@ -135,11 +136,16 @@ void EcalPedOffset::analyze (Event const& event,
   if(!barrelDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
-      << m_barrelDigiCollection.c_str();
+      << m_barrelDigiCollection.c_str() << "; not reading barrel digis";
     barrelDigisFound = false;
   }
 
-  if(barrelDigis->size()==0) barrelDigisFound = false;
+  if(barrelDigis->size()==0) 
+  {
+    edm::LogInfo("EcalPedOffset") << "Size of EBDigiCollection is zero;"
+      << " not reading barrel digis";
+    barrelDigisFound = false;
+  }
 
   // get the endcap digis
   // (one digi for each crystal)
@@ -148,12 +154,18 @@ void EcalPedOffset::analyze (Event const& event,
   if(!endcapDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
-      << m_endcapDigiCollection.c_str();
+      << m_endcapDigiCollection.c_str() << "; not reading endcap digis";
     endcapDigisFound = false;
   }
 
-  if(endcapDigis->size()==0) barrelDigisFound = false;
+  if(endcapDigis->size()==0) 
+  {
+    edm::LogInfo("EcalPedOffset") << "Size of EEDigiCollection is zero;"
+      << " not reading endcap digis";
+    endcapDigisFound = false;
+  }
 
+  
   if(barrelDigisFound)
     readDACs(barrelDigis, DACvalues);
   if(endcapDigisFound)
@@ -190,7 +202,10 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
     }
 
     if (!m_pedValues.count(FEDid))
+    {
+      LogDebug("EcalPedOffset") << "Inserting new TPedValues object for FED:" << FEDid;
       m_pedValues[FEDid] = new TPedValues(m_RMSmax,m_bestPed);
+    }
 
     // loop over the samples
     for (int iSample = 0; iSample < EcalDataFrame::MAXSAMPLES; ++iSample) 
@@ -231,8 +246,11 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
     }
 
     if (!m_pedValues.count(FEDid))
+    {
+      LogDebug("EcalPedOffset") << "Inserting new TPedValues object for FED:" << FEDid;
       m_pedValues[FEDid] = new TPedValues(m_RMSmax,m_bestPed);
-
+    }
+    
     // loop over the samples
     for (int iSample = 0; iSample < EcalDataFrame::MAXSAMPLES; ++iSample) 
     {
