@@ -52,7 +52,7 @@ bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
   bool result;
-  if(  currenttime >= iov.firstsince && 
+  if(  currenttime >= iov->firstsince && 
        currenttime <= iov->iov.back().first ){
     result=true;
   }else{
@@ -69,7 +69,7 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
 
-  cond::Time_t since=iov.first_since;
+  cond::Time_t since=iov->firstsince;
   cond::Time_t till=m_endOftime;
   IOV::const_iterator iter=iov->find(currenttime);
   if (iter!=iov->iov.end()) till=iter->first;
@@ -150,7 +150,7 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
        it!=iov->iov.end(); ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPToken=payloadRef.exportTo(destDB);
-    newiov.add(it->first,newPToken);
+    newiov->add(it->first,newPToken);
   }
   cond::TypedRef<cond::IOV> newiovref(destDB,newiov);
   newiovref.markWrite(cond::IOVNames::container());
@@ -189,7 +189,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 
   cond::TypedRef<cond::IOV> newiovref;
 
-  cond::Time_t lastIOV = m_endOfTime;
+  cond::Time_t lastIOV = m_endOftime;
 
 
   if (destToken.empty()) {
