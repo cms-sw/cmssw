@@ -36,7 +36,7 @@ cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
     m_iovcache.insert(std::make_pair< std::string,cond::TypedRef<cond::IOV> >(iovToken,cond::TypedRef<cond::IOV>(*m_pooldb,iovToken)));
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
-  std::map<cond::Time_t, std::string>::const_iterator iEnd=iov->iov.lower_bound(currenttime);
+  cond::IOV::const_iterator iEnd=iov->find(currenttime);
   if( iEnd==iov->iov.end() ){
     return "";
   }else{
@@ -52,7 +52,8 @@ bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
   bool result;
-  if(  currenttime <= iov->iov.rbegin()->first ){
+  if(  currenttime >= iov.firstsince && 
+       currenttime <= iov->iov.back().first ){
     result=true;
   }else{
     result=false;
@@ -67,15 +68,15 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
     m_iovcache.insert(std::make_pair< std::string,cond::TypedRef<cond::IOV> >(iovToken,cond::TypedRef<cond::IOV>(*m_pooldb,iovToken)));
   }
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
-  cond::Time_t since=m_beginOftime;
+
+  cond::Time_t since=iov.first_since;
   cond::Time_t till=m_endOftime;
-  std::map<cond::Time_t, std::string>::iterator iEnd=iov->iov.lower_bound(currenttime);
-  if( iEnd!=iov->iov.begin() ){
-    std::map<cond::Time_t, std::string>::iterator iStart(iEnd); 
-    iStart--;
-    since=iStart->first+m_beginOftime;
+  IOV::const_iterator iter=iov->find(currenttime);
+  if (iter!=iov->iov.end()) till=iter->first;
+  if( iter!=iov->iov.begin() ){
+    --iter; 
+    since=iter->first+m_beginOftime;
   }
-  till=iEnd->first;
   return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
 
@@ -149,7 +150,7 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
        it!=iov->iov.end(); ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPToken=payloadRef.exportTo(destDB);
-    newiov->iov.insert(std::make_pair<cond::Time_t,std::string>(it->first,newPToken));
+    newiov.add(it->first,newPToken);
   }
   cond::TypedRef<cond::IOV> newiovref(destDB,newiov);
   newiovref.markWrite(cond::IOVNames::container());
@@ -171,8 +172,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   }
 
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
-  std::map<cond::Time_t, std::string>::const_iterator ifirstTill=iov->iov.lower_bound(since);
-  std::map<cond::Time_t, std::string>::const_iterator isecondTill=iov->iov.lower_bound(till);
+  IOV::const_iterator ifirstTill=iov->find(since);
+  IOV::const_iterator isecondTill=iov->find(till);
   if( isecondTill!=iov->iov.end() ){
     isecondTill++;
   }
@@ -181,12 +182,15 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: empty input range");
 
 
-  std::map<cond::Time_t, std::string>::const_iterator iprev=ifirstTill;
+  IOV::const_iterator iprev=ifirstTill;
 
   // compute since
   since = std::max(since,(iprev==iov->iov.begin()) ? iov->firstsince : (--iprev)->first+1);
 
   cond::TypedRef<cond::IOV> newiovref;
+
+  cond::Time_t lastIOV = m_endOfTime;
+
 
   if (destToken.empty()) {
     // create a new one 
@@ -204,17 +208,18 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 
     }
     // update last till
-    std::map<cond::Time_t, std::string>::iterator last = --newiovref->iov.end();
-    std::string ltoken = last->second;
-    newiovref->iov.erase(last);
-    newiovref->iov.insert(std::make_pair(since-1,ltoken));
+    lastIOV = newiovref->iov.back().first;
+    newiovref->iov.back().first=since-1;
   }
+
   cond::IOV & newiov = *newiovref;
   for( IOV::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
     std::string newPtoken=payloadRef.exportTo(destDB);
-    newiov.iov.insert(std::make_pair<cond::Time_t,std::string>(it->first,newPtoken));
-  }  
+    newiov.add(it->first,newPtoken);
+  }
+  // close (well open) IOV
+  newiovref->iov.back().first = std::max(lastIOV, newiovref->iov.back().first);
   return newiovref.token();
 }

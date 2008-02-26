@@ -67,38 +67,28 @@ namespace cond {
   unsigned int
   IOVEditorImpl::insert( cond::Time_t tillTime,
 			 const std::string& payloadToken
-			     ){
-  if(!m_isActive) this->init();
-
-  //fix me: throw if beyond global range! 
-  m_iov->iov.insert(std::make_pair<cond::Time_t, std::string>(tillTime, payloadToken));
-  IOV::iterator pos=m_iov->iov.find(tillTime);
-  size_t result=0;
-
-  m_iov.markUpdate();
-  result=std::distance(m_iov->iov.begin(),pos);
- 
-  return result;
+			 ){
+    if(!m_isActive) this->init();
+    
+    //fix me: throw if beyond global range! 
+    m_iov.markUpdate();
+    return m_iov->add(tillTime, payloadToken);
+    
   }
-
-
+  
   void 
   IOVEditorImpl::bulkInsert(std::vector< std::pair<cond::Time_t,std::string> >& values){
     if(!m_isActive) this->init();
-    for(std::vector< std::pair<cond::Time_t,std::string> >::iterator it=values.begin(); it!=values.end(); ++it){
-      m_iov->iov.insert(*it);
-      m_iov.markUpdate();   
-    }
+    m_iov.markUpdate();   
+    std::insert(m_iov->iov.end(), values.begin(),values.end());
   }
+
 
   void 
   IOVEditorImpl::updateClosure( cond::Time_t newtillTime ){
     if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::updateClosure cannot change non-existing IOV index");
     if(!m_isActive) this->init();
-    cond::Time_t closeIOV=m_iov->iov.rbegin()->first;
-    std::string closePayload=m_iov->iov.rbegin()->second;
-    m_iov->iov.insert( std::make_pair(newtillTime,closePayload) );
-    m_iov->iov.erase( m_iov->iov.find(closeIOV) );
+    m_iov->iov.rbegin()->first=newtillTime;
     m_iov.markUpdate();
   }
   
@@ -109,19 +99,17 @@ namespace cond {
     if( m_token.empty() ) {
       throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to non-existing IOV index");
     }
-
+    
     if(!m_isActive) {
       this->init();
     }
-
+    
     if( m_iov->iov.size()==0 ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
-
+    
     if (sinceTime<=firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
-
-    cond::Time_t lastIOV=m_iov->iov.rbegin()->first;
-    //std::cout<<"iov size "<< m_iov->iov.size()<<std::endl;
-
-    if(  m_iov->iov.size()!=1 ){
+    
+    
+    if(  m_iov->iov.size()>1 ){
       //range check in case 
       cond::Time_t lastValidTill=(--m_iov->iov.rbegin())->first;
       //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
@@ -130,11 +118,11 @@ namespace cond {
       }
     }
 
-    std::string lastPayload=m_iov->iov.rbegin()->second;
-    m_iov->iov[lastIOV]=payloadToken;
-    m_iov->iov.insert( std::make_pair((sinceTime-1),lastPayload) );
+    std::string lastIOV=m_iov->iov.back()->first;
     m_iov.markUpdate();
-    return m_iov->iov.size()-1;
+    m_iov->iov.back()->first=(sinceTime-1);
+    return m_iov.add(lastIOV,payloadToken);
+
 
   }
 

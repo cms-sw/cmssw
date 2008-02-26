@@ -20,6 +20,12 @@ namespace cond{
     
     virtual ~IOV(){}
 
+
+    size_t add(cond::Time_t time, std::string const & token) {
+      iov.push_back(Item(time, token));
+      return iov.size()-1;
+    }
+
     iterator find(cond::Time_t time) {
       return std::lower_bound(iov.begin(),iov.end(),
 			      boost::bind(std::less<float>(),
