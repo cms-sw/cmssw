@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.2 2007/10/02 09:20:54 arizzi Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.3 2008/02/26 07:47:20 tboccali Exp $
 //
 //
 // system include files
@@ -148,12 +148,12 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
         }
        const Vertex & pv = *(primaryVertex.product()->begin());
            
-      for(int i=0; i < 2;i++)
+      for(unsigned int i=0; i < 2;i++)
       { 
         it_begin=m_calibration[i]->data.begin();
         it_end=m_calibration[i]->data.end();
   
-      for(int j=0;j<ip.size(); j++)
+      for(unsigned int j=0;j<ip.size(); j++)
         {
           double ipsig;
           if (i==0) ipsig  = it->impactParameterData()[j].ip3d.significance();
@@ -211,7 +211,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
   v.push_back(createCategory(8,5000,1.6,2.4,8,50,3,5,0,2.5,0));
   v.push_back(createCategory(8,5000,0,2.4,8,50,2,2,0,2.5,0));
   for(int i=0;i <2 ;i++)
-   for(int j=0;j<v.size() ; j++)
+   for(unsigned int j=0;j<v.size() ; j++)
     {
      TrackProbabilityCalibration::Entry e;
      e.category=v[j];
@@ -228,7 +228,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
     ca[1]  = fromXml(config.getParameter<edm::FileInPath>("calibFile2d"));
   
     for(int i=0;i <2 ;i++)
-     for(int j=0;j<ca[i]->data.size() ; j++)
+     for(unsigned int j=0;j<ca[i]->data.size() ; j++)
      {
       TrackProbabilityCalibration::Entry e;
       e.category=ca[i]->data[j].category;
@@ -256,7 +256,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
     ca[0]  = calib3DHandle.product();
     ca[1]  = calib2DHandle.product();
     for(int i=0;i <2 ;i++)
-    for(int j=0;j<ca[i]->data.size() ; j++)
+    for(unsigned int j=0;j<ca[i]->data.size() ; j++)
     {
      TrackProbabilityCalibration::Entry e;
      e.category=ca[i]->data[j].category;
@@ -368,7 +368,7 @@ ImpactParameterCalibration::endJob() {
  
   if(config.getParameter<bool>("writeToBinary"))
   {
-    std::ofstream ofile("2d.dat");
+    /*    std::ofstream ofile("2d.dat");
     TBuffer buffer(TBuffer::kWrite);
     buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
                                                   TClass::GetClass("TrackProbabilityCalibration"));
@@ -383,6 +383,7 @@ ImpactParameterCalibration::endJob() {
     Int_t size3 = buffer3.Length();
     ofile3.write(buffer3.Buffer(),size3);
     ofile3.close();
+    */
   }
 
 
