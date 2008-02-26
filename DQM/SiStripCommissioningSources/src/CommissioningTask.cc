@@ -180,7 +180,8 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   if ( bin >= histo_set.vNumOfEntries_.size() ) { 
     edm::LogWarning(mlDqmSource_)
       << "[CommissioningTask::" << __func__ << "]"
-      << " Unexpected bin when filling histogram: " << bin << " / " << histo_set.vNumOfEntries_.size();
+      << " Unexpected bin number " << bin 
+      << " when filling histogram of size " << histo_set.vNumOfEntries_.size();
     return;
   }
   

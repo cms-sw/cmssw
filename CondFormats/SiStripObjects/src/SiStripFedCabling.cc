@@ -306,7 +306,7 @@ void SiStripFedCabling::terse( std::stringstream& ss ) const {
     uint16_t connected = 0;
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) { 
-      if ( iconn->fedId() != sistrip::invalid_ ) { 
+      if ( iconn->fedId() < sistrip::valid_ ) { 
 	connected++; 
 	iconn->terse(ss); 
 	ss << std::endl;

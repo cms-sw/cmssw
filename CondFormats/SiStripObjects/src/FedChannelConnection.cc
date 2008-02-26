@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <string>
@@ -140,31 +141,33 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 // 
 void FedChannelConnection::print( std::stringstream& ss ) const {
   ss << " [FedChannelConnection::" << __func__ << "]" << std::endl
-     << " FedCrate/FedSlot/FedId/FedCh : "
+     << " FedCrate/FedSlot/FedId/FeUnit/FeChan/FedCh : "
      << fedCrate() << "/"
      << fedSlot() << "/"
      << fedId() << "/"
+     << SiStripFedKey::feUnit( fedCh() ) << "/" 
+     << SiStripFedKey::feChan( fedCh() ) << "/" 
      << fedCh() << std::endl
-     << " Crate/FEC/Ring/CCU/Module    : "
+     << " FecCrate/FecSlot/FecRing/CcuAddr/CcuChan   : "
      << fecCrate() << "/"
      << fecSlot() << "/"
      << fecRing() << "/"
      << ccuAddr() << "/"
      << ccuChan() << std::endl
-     << " DcuId/DetId                  : "
+     << " DcuId/DetId                                : "
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << std::endl
      << std::dec
-     << " LldChan/APV0/APV1            : "
+     << " LldChan/APV0/APV1                          : "
      << lldChannel() << "/" 
      << i2cAddr(0) << "/"
      << i2cAddr(1) << std::endl
-     << " pairNumber/nPairs/nStrips    : "
+     << " pairNumber/nPairs/nStrips                  : "
      << apvPairNumber() << "/"
      << nApvPairs() << "/"
      << 256*nApvPairs() << std::endl
-     << " DCU/MUX/PLL/LLD found        : "
+     << " DCU/MUX/PLL/LLD found                      : "
      << std::boolalpha
      << dcu() << "/"
      << mux() << "/"
@@ -176,16 +179,16 @@ void FedChannelConnection::print( std::stringstream& ss ) const {
 // -----------------------------------------------------------------------------
 // 
 void FedChannelConnection::terse( std::stringstream& ss ) const {
-  ss << " FED crate/slot/id/chan " 
+  ss << " FED: crate/slot/id/unit " 
      << fedCrate() << "/" 
      << fedSlot() << "/" 
      << fedId() << "/" 
-     << fedCh() << ","
-     << " FEC crate/slot/ring "
+     << SiStripFedKey::feUnit( fedCh() ) << "/" 
+     << SiStripFedKey::feChan( fedCh() ) << "," 
+     << " FEC: crate/slot/ring/CCU/module "
      << fecCrate() << "/"
      << fecSlot() << "/" 
      << fecRing() << ","
-     << " CCU addr/chan "
      << ccuAddr() << "/" 
      << ccuChan() << ","
      << " APVs " 
