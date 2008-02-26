@@ -534,7 +534,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     
   }
   
-  printHistosMap();
+  //printHistosMap();
   
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -705,7 +705,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     }
   }
   
-  printHistosMap();
+  //printHistosMap();
 
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -780,7 +780,7 @@ void CommissioningHistograms::printHistosMap() {
   for ( ; ihistos != histos_.end(); ihistos++ ) {
     std::stringstream ss;
     ss << " Found " << ihistos->second.size()
-       << " histogram(s) for key: "
+       << " histogram(s) for key: " << std::endl
        << SiStripFedKey(ihistos->first) << std::endl;
     Histos::const_iterator ihisto = ihistos->second.begin();
     for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
