@@ -3,7 +3,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include <vector>
 #include <string>
-#include <algoritm>
+#include <algorithm>
 #include <boost/bind.hpp>
 
 namespace cond{
@@ -27,7 +27,7 @@ namespace cond{
     }
 
     iterator find(cond::Time_t time) {
-      return std::lower_bound(iov.begin(),iov.end(),
+      return std::lower_bound(iov.begin(),iov.end(),Item(time,""),
 			      boost::bind(std::less<cond::Time_t>(),
 					  boost::bind(&Item::first,_1),
 					  boost::bind(&Item::first,_2)
@@ -36,7 +36,7 @@ namespace cond{
     }
 
     const_iterator find(cond::Time_t time) const {
-      return std::lower_bound(iov.begin(),iov.end(),
+      return std::lower_bound(iov.begin(),iov.end(),Item(time,""),
 			      boost::bind(std::less<cond::Time_t>(),
 					  boost::bind(&Item::first,_1),
 					  boost::bind(&Item::first,_2)

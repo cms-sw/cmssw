@@ -118,7 +118,7 @@ namespace cond {
       }
     }
 
-    cond::Time+t lastIOV=m_iov->iov.back().first;
+    cond::Time_t lastIOV=m_iov->iov.back().first;
     m_iov.markUpdate();
     m_iov->iov.back().first = sinceTime-1;
     return m_iov->add(lastIOV,payloadToken);
