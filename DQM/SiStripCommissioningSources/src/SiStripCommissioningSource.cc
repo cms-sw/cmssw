@@ -119,7 +119,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   
   // ---------- Base directory ----------
 
-  base_ = "FU/";
+  base_ = ""; //@@ should be blank, was "FU/"
   
   // ---------- FED and FEC cabling ----------
   
