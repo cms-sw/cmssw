@@ -43,6 +43,8 @@ void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
 }
 
 bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
+  if (seed->nHits()==0){    return true; }
+
     typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
     TrajectorySeed::range range = seed->recHits();
