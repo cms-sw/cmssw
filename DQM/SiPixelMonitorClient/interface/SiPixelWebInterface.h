@@ -24,7 +24,8 @@ public:
 			 PlotTkMapHistogram       =  7,
 			 periodicTrackerMapUpdate =  8,
 			 PlotHistogramFromPath    =  9,
-			 ComputeGlobalQualityFlag = 10};
+			 ComputeGlobalQualityFlag = 10,
+			 dumpModIds               = 11};
 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 

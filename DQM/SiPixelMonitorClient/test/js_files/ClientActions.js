@@ -78,7 +78,6 @@ ClientActions.CreateTrackerMap = function()
   var obj         = document.getElementById("create_tkmap");
 
   var url         = WebLib.getApplicationURL2();
-  //url		 += "/Request?";
   url 		 += queryString;
   var obj   	  = document.getElementById("monitoring_element_list");
   var sname 	  = obj.options[obj.selectedIndex].value;
@@ -159,10 +158,9 @@ ClientActions.ReadResponseAndOpenTkMap = function()
 //
 // Check Quality Test Results
 //
-ClientActions.CollateME = function() {
-  var queryString = "RequestID=CollateME";
+ClientActions.DumpModIds = function() {
+  var queryString = "RequestID=dumpModIds";
   var url = WebLib.getApplicationURL2();
-  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);     
@@ -176,7 +174,6 @@ ClientActions.RequestPlotFromLayout = function()
   try{
    var queryString;
    var url = WebLib.getApplicationURL2();
-   //url += "/Request?";
    queryString = "RequestID=PlotHistogramFromLayout";
    url += queryString;
    WebLib.makeRequest(url,WebLib.dummy);

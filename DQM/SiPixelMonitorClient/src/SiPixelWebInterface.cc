@@ -215,6 +215,8 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     //cout << ACYellow << ACBold << "[SiPixelWebInterface::handleEDARequest]  " 
     //     << ACPlain << "Compute global Pixel quality flag" << endl;
     theActionFlag = ComputeGlobalQualityFlag;
+  } else if (requestID == "dumpModIds") {
+    theActionFlag = dumpModIds;
   }
     
   performAction();
@@ -352,6 +354,11 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::ComputeGlobalQualityFlag  :
     {
       qflag_ = infoExtractor_->computeGlobalQualityFlag(bei);
+      break;
+    }
+  case SiPixelWebInterface::dumpModIds  :
+    {
+      actionExecutor_->dumpModIds(bei);
       break;
     }
   case SiPixelWebInterface::NoAction :

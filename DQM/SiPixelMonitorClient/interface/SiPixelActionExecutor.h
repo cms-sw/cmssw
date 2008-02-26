@@ -41,8 +41,15 @@ class SiPixelActionExecutor {
  void createLayout(     	    DaqMonitorBEInterface    	 * bei);
  void fillLayout(       	    DaqMonitorBEInterface    	 * bei);
  int getTkMapMENames(               std::vector<std::string>	 & names);
+ void dumpModIds(                   DaqMonitorBEInterface     	 * bei);
+ void dumpBarrelModIds(             DaqMonitorBEInterface     	 * bei);
+ void dumpEndcapModIds(             DaqMonitorBEInterface     	 * bei);
+ 
 
- private:
+
+private:
+  
+  
   MonitorElement* getSummaryME(     DaqMonitorBEInterface     	 * bei, 
                                     std::string 	     	   me_name);
   MonitorElement* getFEDSummaryME(  DaqMonitorBEInterface     	 * bei, 
@@ -65,7 +72,6 @@ class SiPixelActionExecutor {
                                     std::string              	 & me_name, 
 				    std::vector<MonitorElement*> & mes);
 
-
   SiPixelConfigParser* configParser_;
   SiPixelConfigWriter* configWriter_;
   
@@ -74,6 +80,8 @@ class SiPixelActionExecutor {
   
   int message_limit_;
   int source_type_;
+  
+  int ndet_;
   
   QTestHandle* qtHandler_;
   
