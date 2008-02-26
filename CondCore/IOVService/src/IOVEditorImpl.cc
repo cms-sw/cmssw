@@ -80,7 +80,7 @@ namespace cond {
   IOVEditorImpl::bulkInsert(std::vector< std::pair<cond::Time_t,std::string> >& values){
     if(!m_isActive) this->init();
     m_iov.markUpdate();   
-    std::insert(m_iov->iov.end(), values.begin(),values.end());
+    m_iov->iov.insert(m_iov->iov.end(), values.begin(),values.end());
   }
 
 
@@ -118,10 +118,10 @@ namespace cond {
       }
     }
 
-    std::string lastIOV=m_iov->iov.back()->first;
+    std::string lastIOV=m_iov->iov.back().first;
     m_iov.markUpdate();
-    m_iov->iov.back()->first=(sinceTime-1);
-    return m_iov.add(lastIOV,payloadToken);
+    m_iov->iov.back().first = sinceTime-1;
+    return m_iov->add(lastIOV,payloadToken);
 
 
   }
