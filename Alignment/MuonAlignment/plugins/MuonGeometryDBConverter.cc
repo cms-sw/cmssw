@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.4 2008/02/20 22:47:47 pivarski Exp $
+// $Id$
 //
 //
 
@@ -22,6 +22,14 @@
 #include <memory>
 #include <algorithm>
 #include <fstream>
+
+// Xerces include files
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+using namespace xercesc_2_7;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,8 +41,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h" 
@@ -62,6 +68,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Matrix/SymMatrix.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
 //
 // class decleration
@@ -83,17 +92,16 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       void recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
       void recursiveReadIn(std::vector<Alignable*> alignables,
 			   align::PositionType globalPosition, align::RotationType globalRotation,
-			   edm::ParameterSet pset, bool DT, bool survey);
+			   edm::ParameterSet pset, bool DT, bool survey, bool euler, bool local);
       void recursivePrintOut(std::vector<Alignable*> alignables,
 			     align::PositionType globalPosition, align::RotationType globalRotation,
-			     std::ofstream &output, int depth, bool DT, bool survey);
+			     std::ofstream &output, int depth, bool DT, bool survey, bool euler, bool local);
       void recursivePrintOutXML(std::vector<Alignable*> alignables,
 				align::PositionType globalPosition, align::RotationType globalRotation,
-				std::ofstream &output, int depth, bool DT, bool survey);
+				std::ofstream &output, int depth, bool DT, bool survey, bool euler, bool local);
 
       // ----------member data ---------------------------
       double m_missingErrorTranslation, m_missingErrorAngle;
-      bool m_alwaysEulerAngles;
 
       std::string m_CSCInputMode;
       bool m_CSCInputSurvey;
@@ -104,8 +112,8 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       std::string m_CSCOutputMode;
       bool m_CSCOutputSurvey;
       std::string m_CSCOutputFileName;
+      bool m_CSCOutputEulerAngles;
       bool m_CSCOutputLocal;
-      std::string m_CSCOutputBlockName;
 
       AlignableMuon *m_alignableMuon;
 };
@@ -124,7 +132,6 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
 MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfig) {
    m_missingErrorTranslation = iConfig.getUntrackedParameter("missingErrorTranslation", 10.);
    m_missingErrorAngle = iConfig.getUntrackedParameter("missingErrorAngle", 10.);
-   m_alwaysEulerAngles = iConfig.getUntrackedParameter("alwaysEulerAngles", false);
 
    m_CSCInputMode = iConfig.getParameter<std::string>("CSCInputMode");
    m_CSCInputSurvey = iConfig.getParameter<bool>("CSCInputSurvey");
@@ -137,7 +144,6 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
    }
    else if (m_CSCInputMode == std::string("cff")) {
       m_CSCInput = iConfig.getParameter<edm::ParameterSet>("CSCInput");
-      m_CSCInputLocal = iConfig.getParameter<bool>("CSCInputLocal");
    }
    else {
       throw cms::Exception("BadConfig") << "CSCInputMode must be one of \"ideal\", \"db\", \"cfg\"." << std::endl;
@@ -153,11 +159,12 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
    }
    else if (m_CSCOutputMode == std::string("cff")) {
       m_CSCOutputFileName = iConfig.getParameter<std::string>("CSCOutputFileName");
+      m_CSCOutputEulerAngles = iConfig.getParameter<bool>("CSCOutputEulerAngles");
       m_CSCOutputLocal = iConfig.getParameter<bool>("CSCOutputLocal");
-      m_CSCOutputBlockName = iConfig.getParameter<std::string>("CSCOutputBlockName");
    }
    else if (m_CSCOutputMode == std::string("xml")) {
       m_CSCOutputFileName = iConfig.getParameter<std::string>("CSCOutputFileName");
+      m_CSCOutputEulerAngles = iConfig.getParameter<bool>("CSCOutputEulerAngles");
       m_CSCOutputLocal = iConfig.getParameter<bool>("CSCOutputLocal");
    }
    else {
@@ -269,10 +276,10 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 std::sort(cscAlignmentErrors.m_alignError.begin(), cscAlignmentErrors.m_alignError.end(), sortOrder_AlignTransformError);
 
 	 edm::ESHandle<Alignments> globalPositionRcd;
-	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
+	 iSetup.get<MuonGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &cscAlignments, &cscAlignmentErrors,
-					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
@@ -290,10 +297,10 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 	 iSetup.get<CSCAlignmentErrorRcd>().get(m_CSCErrorsLabel, cscAlignmentErrors);
 
 	 edm::ESHandle<Alignments> globalPositionRcd;
-	 iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
+	 iSetup.get<MuonGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 
 	 aligner.applyAlignments<CSCGeometry>(cscGeometry, &(*cscAlignments), &(*cscAlignmentErrors),
-					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+					      align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 
 	 m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);
 	 std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
@@ -339,20 +346,16 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 					   << " but CSCInput.survey = " << (m_CSCInput.getParameter<bool>("survey") ? "true" : "false")
 					   << " (you probably loaded the wrong .cff)" << std::endl;
 
+      bool euler = true;
       if (!m_CSCInputSurvey) {
-	 if (m_CSCInput.getParameter<bool>("eulerAngles") != m_alwaysEulerAngles)
-	    throw cms::Exception("BadConfig") << "alwaysEulerAngles = " << (m_alwaysEulerAngles ? "true" : "false")
-					      << " but CSCInput.eulerAngles = " << (m_CSCInput.getParameter<bool>("eulerAngles") ? "true" : "false")
-					      << " (you probably loaded the wrong .cff)" << std::endl;
+	 euler = m_CSCInput.getParameter<bool>("eulerAngles");
       }
-      if (m_CSCInput.getParameter<bool>("local") != m_CSCInputLocal)
-	 throw cms::Exception("BadConfig") << "CSCInputLocal = " << (m_CSCInputLocal ? "true" : "false")
-					   << " but CSCInput.local = " << (m_CSCInput.getParameter<bool>("local") ? "true" : "false")
-					   << " (you probably loaded the wrong .cff)" << std::endl;
+
+      bool local = m_CSCInput.getParameter<bool>("local");
 
       m_alignableMuon = new AlignableMuon(dtGeometry, cscGeometry);      
 
-      recursiveReadIn(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), m_CSCInput, false, m_CSCInputSurvey);
+      recursiveReadIn(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), m_CSCInput, false, m_CSCInputSurvey, euler, local);
    }
    else assert(false);  // constructor should have caught this
 
@@ -431,34 +434,33 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
    else if (m_CSCOutputMode == std::string("cff")) {
       // write to ParameterSets
       std::ofstream output(m_CSCOutputFileName.c_str());
-      output << "block " << m_CSCOutputBlockName << " = {" << std::endl;
+      output << "block CSCGeometry = {" << std::endl;
       output << "    PSet CSCInput = {" << std::endl;
       output << "        bool survey = " << (m_CSCOutputSurvey ? "true" : "false") << std::endl;
-      output << "        bool eulerAngles = " << (m_CSCOutputSurvey || m_alwaysEulerAngles ? "true" : "false") << std::endl;
+      if (!m_CSCOutputSurvey) output << "        bool eulerAngles = " << (m_CSCOutputEulerAngles ? "true" : "false") << std::endl;
       output << "        bool local = " << (m_CSCOutputLocal ? "true" : "false") << std::endl;
 
-      recursivePrintOut(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 2, false, m_CSCOutputSurvey);
+      recursivePrintOut(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 2, false, m_CSCOutputSurvey, m_CSCOutputEulerAngles, m_CSCOutputLocal);
 
       output << "    }" << std::endl << "}" << std::endl;
    }
    else if (m_CSCOutputMode == std::string("xml")) {
       // write to XML
       std::ofstream output(m_CSCOutputFileName.c_str());
-      output << "<?xml version=\"1.0\"?>" << std::endl;
-      // DDDefintion???
-      output << "<Format survey=\"" << (m_CSCOutputSurvey ? "true" : "false") << "\" ";
-      output << "eulerAngles=\"" << (m_CSCOutputSurvey || m_alwaysEulerAngles ? "true" : "false") << "\" ";
+      output << "<CSCGeometry>" << std::endl;
+      output << "    <Format survey=\"" << (m_CSCOutputSurvey ? "true" : "false") << "\" ";
+      if (!m_CSCOutputSurvey) output << "eulerAngles=\"" << (m_CSCOutputEulerAngles ? "true" : "false") << "\" ";
       output << "local=\"" << (m_CSCOutputLocal ? "true" : "false") << "\" />" << std::endl;
+      output << "</CSCGeometry>" << std::endl;
 
-      recursivePrintOutXML(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 0, false, m_CSCOutputSurvey);
+      recursivePrintOutXML(m_alignableMuon->CSCEndcaps(), align::PositionType(), align::RotationType(), output, 1, false, m_CSCOutputSurvey, m_CSCOutputEulerAngles, m_CSCOutputLocal);
    }
    else assert(false);  // constructor should have caught this
 }
 
 void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables,
-					      align::PositionType globalPosition,
-					      align::RotationType globalRotation,
-					      edm::ParameterSet pset, bool DT, bool survey) {
+					      align::PositionType globalPosition, align::RotationType globalRotation,
+					      edm::ParameterSet pset, bool DT, bool survey, bool euler, bool local) {
    static AlignableObjectId converter;
 
    int i = 0;
@@ -481,6 +483,10 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
       fullnameSS >> fullname;
       edm::ParameterSet alipset = pset.getParameter<edm::ParameterSet>(fullname);
 
+      if (alipset.getParameter<unsigned int>("rawId") != (*alignable)->id()) {
+	 edm::LogError("IdMismatch") << fullname << " should have rawId " << (*alignable)->id() << ", not " << alipset.getParameter<unsigned int>("rawId");
+      }
+
       if (survey) {
 	 // read in position
 	 align::PositionType pos(alipset.getParameter<double>("x"), alipset.getParameter<double>("y"), alipset.getParameter<double>("z"));
@@ -493,7 +499,7 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	 align::RotationType rot(align::toMatrix(eulerAngles));
 
 	 // if we wrote/read local numbers, convert back to global!
-	 if (m_CSCInputLocal) {
+	 if (local) {
 	    pos = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
 	    rot = globalRotation * rot;
 	 }
@@ -525,7 +531,7 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	 (*alignable)->setSurvey(new SurveyDet((*alignable)->surface(), matrix6by6));
 
 	 // recurse!
-	 recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey);
+	 recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey, euler, local);
       }
       else {
 	 // if not reading survey data, only read postions/orientations for the chamber-level down
@@ -537,7 +543,7 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	    // read in position
 	    align::PositionType pos(alipset.getParameter<double>("x"), alipset.getParameter<double>("y"), alipset.getParameter<double>("z")); 
 	    align::RotationType rot;
-	    if (m_alwaysEulerAngles) {
+	    if (euler) {
 	       // standard Euler angles (introduced by survey data)
 	       align::EulerAngles eulerAngles(3);
 	       eulerAngles(1) = alipset.getParameter<double>("a");
@@ -566,7 +572,7 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 	    }
 
 	    // if we wrote/read local numbers, convert back to global!
-	    if (m_CSCInputLocal) {
+	    if (local) {
 	       pos = align::PositionType(globalRotation * pos.basicVector() + globalPosition.basicVector());
 	       rot = globalRotation * rot;
 	    }
@@ -602,12 +608,12 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 
 	    // recurse!
 	    // note that we pass the chamber coordinate system to superlayers and the superlayer coordinate system to layers
-	    recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey);
+	    recursiveReadIn((*alignable)->components(), pos, rot, alipset, DT, survey, euler, local);
 	 }
 	 else {
 	    // not a chamber or layer: recurse without asking for position data
 	    // note that we pass the global coordinate system all the way down to chambers
-	    recursiveReadIn((*alignable)->components(), globalPosition, globalRotation, alipset, DT, survey);
+	    recursiveReadIn((*alignable)->components(), globalPosition, globalRotation, alipset, DT, survey, euler, local);
 	 }
       }
    }
@@ -615,7 +621,7 @@ void MuonGeometryDBConverter::recursiveReadIn(std::vector<Alignable*> alignables
 
 void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignables,
 						align::PositionType globalPosition, align::RotationType globalRotation,
-						std::ofstream &output, int depth, bool DT, bool survey) {
+						std::ofstream &output, int depth, bool DT, bool survey, bool euler, bool local) {
    static AlignableObjectId converter;
 
    int i = 0;
@@ -634,11 +640,14 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
       for (int d = 0;  d < depth * 4;  d++) output << " ";
       output << "PSet " << name << i << " = {" << std::endl;
 
+      for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
+      output << "uint32 rawId = " << (*alignable)->id() << std::endl;
+
       if (survey) {
 	 align::PositionType pos = (*alignable)->globalPosition();
 	 align::RotationType rot = (*alignable)->globalRotation();
 
-	 if (m_CSCOutputLocal) {
+	 if (local) {
 	    pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
 	    rot = globalRotation.multiplyInverse(rot);
 	 }
@@ -665,7 +674,7 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	 output << "                  " << errors(5,0) << ", " << errors(5,1) << ", " << errors(5,2) << ", " << errors(5,3) << ", " << errors(5,4) << ", " << errors(5,5) << "}" << std::endl;
 
-	 recursivePrintOut((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+	 recursivePrintOut((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey, euler, local);
       }
       else {
 	 if ((*alignable)->alignableObjectId() == align::AlignableDTChamber   ||
@@ -676,7 +685,7 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 	    align::PositionType pos = (*alignable)->globalPosition();
 	    align::RotationType rot = (*alignable)->globalRotation();
 
-	    if (m_CSCOutputLocal) {
+	    if (local) {
 	       pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
 	       rot = globalRotation.multiplyInverse(rot);
 	    }
@@ -684,7 +693,7 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	    output << "double x = " << pos.x() << " double y = " << pos.y() << " double z = " << pos.z() << std::endl;
 
-	    if (m_alwaysEulerAngles) {
+	    if (euler) {
 	       align::EulerAngles eulerAngles = align::toAngles(rot);
 	       for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	       output << "double a = " << eulerAngles(1) << " double b = " << eulerAngles(2) << " double c = " << eulerAngles(3) << std::endl;
@@ -703,10 +712,10 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	    output << "vdouble errors = {" << errors(0,0) << ", " << errors(1,0) << ", " << errors(1,1) << ", " << errors(2,0) << ", " << errors(2,1) << ", " << errors(2,2) << "}" << std::endl;
 
-	    recursivePrintOut((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+	    recursivePrintOut((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey, euler, local);
 	 }
 	 else {
-	    recursivePrintOut((*alignable)->components(), globalPosition, globalRotation, output, depth+1, DT, survey);
+	    recursivePrintOut((*alignable)->components(), globalPosition, globalRotation, output, depth+1, DT, survey, euler, local);
 	 }
       }
 
@@ -717,7 +726,7 @@ void MuonGeometryDBConverter::recursivePrintOut(std::vector<Alignable*> alignabl
 
 void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> alignables,
 						   align::PositionType globalPosition, align::RotationType globalRotation,
-						   std::ofstream &output, int depth, bool DT, bool survey) {
+						   std::ofstream &output, int depth, bool DT, bool survey, bool euler, bool local) {
    static AlignableObjectId converter;
 
    int i = 0;
@@ -734,13 +743,13 @@ void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> align
       }
 
       for (int d = 0;  d < depth * 4;  d++) output << " ";
-      output << "<" << name << " id=\"" << i << "\">" << std::endl;
+      output << "<" << name << " id=\"" << i << " rawId=\"" << (*alignable)->id() << "\" \">" << std::endl;
 
       if (survey) {
 	 align::PositionType pos = (*alignable)->globalPosition();
 	 align::RotationType rot = (*alignable)->globalRotation();
 
-	 if (m_CSCOutputLocal) {
+	 if (local) {
 	    pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
 	    rot = globalRotation.multiplyInverse(rot);
 	 }
@@ -767,7 +776,7 @@ void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> align
 	 for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	 output << "             cx=\"" << errors(5,0) << "\" cy=\"" << errors(5,1) << "\" cz=\"" << errors(5,2) << "\" ca=\"" << errors(5,3) << "\" cb=\"" << errors(5,4) << "\" cc=\"" << errors(5,5) << "\" />" << std::endl;
 
-	 recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+	 recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey, euler, local);
       }
       else {
 	 if ((*alignable)->alignableObjectId() == align::AlignableDTChamber   ||
@@ -778,7 +787,7 @@ void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> align
 	    align::PositionType pos = (*alignable)->globalPosition();
 	    align::RotationType rot = (*alignable)->globalRotation();
 
-	    if (m_CSCOutputLocal) {
+	    if (local) {
 	       pos = align::PositionType(globalRotation.multiplyInverse(pos.basicVector() - globalPosition.basicVector()));
 	       rot = globalRotation.multiplyInverse(rot);
 	    }
@@ -786,7 +795,7 @@ void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> align
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	    output << "<Position x=\"" << pos.x() << "\" y=\"" << pos.y() << "\" z=\"" << pos.z() << "\" />" << std::endl;
 
-	    if (m_alwaysEulerAngles) {
+	    if (euler) {
 	       // standard Euler angles
 	       align::EulerAngles eulerAngles = align::toAngles(rot);
 	       for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
@@ -806,10 +815,10 @@ void MuonGeometryDBConverter::recursivePrintOutXML(std::vector<Alignable*> align
 	    for (int d = 0;  d < (depth+1) * 4;  d++) output << " ";
 	    output << "<ErrorMatrix xx=\"" << errors(0,0) << "\" yx=\"" << errors(1,0) << "\" yy=\"" << errors(1,1) << "\" zx=\"" << errors(2,0) << "\" zy=\"" << errors(2,1) << "\" zz=\"" << errors(2,2) << "\" />" << std::endl;
 
-	    recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey);
+	    recursivePrintOutXML((*alignable)->components(), (*alignable)->globalPosition(), (*alignable)->globalRotation(), output, depth+1, DT, survey, euler, local);
 	 }
 	 else {
-	    recursivePrintOutXML((*alignable)->components(), globalPosition, globalRotation, output, depth+1, DT, survey);
+	    recursivePrintOutXML((*alignable)->components(), globalPosition, globalRotation, output, depth+1, DT, survey, euler, local);
 	 }
       }
 
