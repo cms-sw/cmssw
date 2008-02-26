@@ -96,7 +96,7 @@ void DQMReadFileExample::removeAll()
   // go to top directory
   dbe->cd();
   // remove MEs at top directory
-  dbe->removeContents(); 
+  dbe->removeContents();
   // remove directory (including subdirectories recursively)
   if(dbe->dirExists("Collector"))
      dbe->rmdir("Collector");
