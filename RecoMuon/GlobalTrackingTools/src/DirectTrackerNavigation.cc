@@ -2,8 +2,8 @@
 
 /** \file DirectTrackerNavigation
  *
- *  $Date: 2007/08/16 15:21:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/20 20:53:28 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -19,7 +19,7 @@
 using namespace std;
 
 DirectTrackerNavigation::DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>& tkLayout, bool outOnly) : theGeometricSearchTracker(tkLayout), theOutLayerOnlyFlag(outOnly) {
-   epsilon_ = 0.07; 
+   epsilon_ = -0.09; 
 
 }
 
@@ -29,6 +29,7 @@ DirectTrackerNavigation::compatibleLayers( const FreeTrajectoryState& fts,
                                         PropagationDirection dir ) const {
 
   bool inOut = outward(fts);
+  double eta0 = fts.position().eta();
 
   vector<const DetLayer*> output;
 
@@ -39,19 +40,19 @@ DirectTrackerNavigation::compatibleLayers( const FreeTrajectoryState& fts,
       if ( !theOutLayerOnlyFlag ) {
          inOutPx(fts,output);
 
-         if ( fts.position().eta() > 1.55) inOutFPx(fts,output);
-         else if ( fts.position().eta() < -1.55) inOutBPx(fts,output);
+         if ( eta0 > 1.55) inOutFPx(fts,output);
+         else if ( eta0 < -1.55) inOutBPx(fts,output);
 
-         if ( fabs(fts.position().eta()) < 1.67) inOutTIB(fts,output); 
+         if ( fabs(eta0) < 1.67) inOutTIB(fts,output); 
 
-         if ( fts.position().eta() > 1.17 ) inOutFTID(fts,output);
-         else if ( fts.position().eta() < -1.17 ) inOutBTID(fts,output);
+         if ( eta0 > 1.17 ) inOutFTID(fts,output);
+         else if ( eta0 < -1.17 ) inOutBTID(fts,output);
       }
 
-      if ( fabs(fts.position().eta()) < 1.35) inOutTOB(fts,output);
+      if ( fabs(eta0) < 1.35) inOutTOB(fts,output);
 
-      if ( fts.position().eta() > 0.97 ) inOutFTEC(fts,output);
-      else if ( fts.position().eta() < -0.97 )  inOutBTEC(fts,output);
+      if ( eta0 > 0.97 ) inOutFTEC(fts,output);
+      else if ( eta0 < -0.97 )  inOutBTEC(fts,output);
 
    } else {
       LogTrace("Muon|RecoMuon|DirectionTrackerNavigation")<<"No implementation for inward state at this moment. ";
