@@ -28,7 +28,7 @@ class L1GctJetCounts {
     kEtHfSumBits     = 7,
     kEtHfSumOFlowBit = 1 << kEtHfSumBits,
     kEtHfSumMaxValue = kEtHfSumOFlowBit - 1,
-    kEtHfSumBitShift = 3
+    kEtHfSumBitShift = 0
   };
 
   /// default constructor
