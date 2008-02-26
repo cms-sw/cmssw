@@ -24,6 +24,10 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
   cmVerbosity_(pset.getParameter<bool>("Verbosity"))
   {
+
+    //if not specified (i.e. negative) then use MinP also for MinP_CMS
+    if(MinP_CMS < 0) MinP_CMS = MinP;
+
     //get seed now from Framework
     edm::Service<edm::RandomNumberGenerator> rng;
     RanS = rng->mySeed();
