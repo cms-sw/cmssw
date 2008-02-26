@@ -1,4 +1,5 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
+#include <iostream>
 
 CSCRecoConditions::CSCRecoConditions( const edm::ParameterSet & ps ) {
 }
@@ -17,7 +18,6 @@ float CSCRecoConditions::stripWeight( const CSCDetId& id, int channel ) const {
    // Weights are forced to lie within 0.5 and 1.5
    if (w > 1.5) w = 1.5;
    if (w < 0.5) w = 0.5;
-
    return w;
 }
 
