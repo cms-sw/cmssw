@@ -259,21 +259,26 @@ L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
 // Calculates Hf inner rings Et sum, and counts number of "fineGrain" bits set
 L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
 {
+  static const UShort NUMBER_OF_FRWRD_RINGS = 4;
   static const UShort NUMBER_OF_INNER_RINGS = 1;
   static const UShort BIT_SHIFT = L1GctJetCounts::kEtHfSumBitShift;
   unsigned et = 0;
   unsigned nt = 0;
   bool of = false;
   UShort offset = COL_OFFSET*(centralCol0() + 1);
-  for (UShort i=0; i < NUMBER_OF_INNER_RINGS; ++i) {
+  for (UShort i=0; i < NUMBER_OF_FRWRD_RINGS; ++i) {
     offset--;
 
-    et += m_inputRegions.at(offset).et() >> BIT_SHIFT;
-    of |= m_inputRegions.at(offset).overFlow();
-    if (m_inputRegions.at(offset).fineGrain()) nt++;
+    // Sum HF Et over "inner rings"
+    if (i<NUMBER_OF_INNER_RINGS) {
+      et += m_inputRegions.at(offset).et() >> BIT_SHIFT;
+      of |= m_inputRegions.at(offset).overFlow();
 
-    et += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
-    of |= m_inputRegions.at(offset+COL_OFFSET).overFlow();
+      et += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
+      of |= m_inputRegions.at(offset+COL_OFFSET).overFlow();
+    }
+    // Count fine grain bits over the whole HF
+    if (m_inputRegions.at(offset).fineGrain()) nt++;
     if (m_inputRegions.at(offset+COL_OFFSET).fineGrain()) nt++;
   }
   hfTowerSumsType temp(et, nt);
