@@ -273,6 +273,9 @@ public:
 private:
   friend class DQMStore;
   friend class DQMService;
+
+  //MonitorElement(const MonitorElement &);
+  //MonitorElement &operator=(const MonitorElement &);
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
