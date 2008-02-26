@@ -75,8 +75,10 @@ class CSCSectorReceiverLUT
   edm::FileInPath me_gbl_phi_file;
   edm::FileInPath mb_gbl_phi_file;
   edm::FileInPath me_gbl_eta_file;
-  bool LUTsFromFile;
-  bool isBinary;
+  bool LUTsFromFile; // readLUTs from file or generate on the fly
+  bool isBinary;     // if readLUTs is set to true, are the LUT files binary or ascii format
+
+  bool isTMB07;       // use the TMB 2007 patterns or the older set of parameters
 
   /// Arrays for holding read in LUT information.
   /// MB LUT arrays only initialized in ME1
