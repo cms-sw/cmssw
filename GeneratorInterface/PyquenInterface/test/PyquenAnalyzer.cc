@@ -1,4 +1,4 @@
-// $Id: PyquenAnalyzer.cc,v 1.4 2007/10/05 15:08:47 loizides Exp $
+// $Id: PyquenAnalyzer.cc,v 1.5 2007/12/04 03:51:31 mironov Exp $
 
 #include <iostream>
 
@@ -67,7 +67,7 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
 
    //  EvtHandle->GetEvent()->print();
    
-   double part_eta, part_y, part_pt, part_phi;
+   double part_eta, part_y, part_pt, part_phi, part_e, part_pz;
    const HepMC::GenEvent* myEvt = EvtHandle->GetEvent() ;
    for( HepMC::GenEvent::particle_const_iterator p = myEvt->particles_begin();
 	p != myEvt->particles_end(); p++ )
@@ -75,9 +75,12 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
        if( !(*p)->end_vertex() && abs( (*p)->pdg_id() ) == 211)
 	 {
 	   part_eta = (*p)->momentum().eta();
-	   part_y   = (*p)->momentum().y();
+	   part_e   = (*p)->momentum().e();
 	   part_pt  = (*p)->momentum().perp();
 	   part_phi = (*p)->momentum().phi();
+           part_pz  = (*p)->momentum().z();
+	   part_y = 0.5*log((part_e+part_pz)/(part_e-part_pz));
+
 	   phdNdEta->Fill(part_eta);
 	   phdNdY->Fill(part_y);
 	   phdNdPt->Fill(part_pt);

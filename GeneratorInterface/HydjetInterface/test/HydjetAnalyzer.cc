@@ -65,7 +65,7 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
    // by its label - HydjetSource, that is
    e.getByLabel( "source", EvtHandle ) ;
    
-   double part_eta, part_y, part_pt, part_phi;
+   double part_eta, part_y, part_pt, part_phi, part_e, part_pz;
    const HepMC::GenEvent* myEvt = EvtHandle->GetEvent() ;
    if(myEvt)
      {
@@ -74,11 +74,13 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
 	 {
 	   if( !(*p)->end_vertex() && abs( (*p)->pdg_id() ) == 211)
 	     {
-	       part_eta = (*p)->momentum().eta();
-	       part_y   = (*p)->momentum().y();
-	       part_pt  = (*p)->momentum().perp();
-	       part_phi = (*p)->momentum().phi();
-	       
+		part_eta = (*p)->momentum().eta();
+		part_e   = (*p)->momentum().e();
+		part_pt  = (*p)->momentum().perp();
+		part_phi = (*p)->momentum().phi();
+		part_pz  = (*p)->momentum().z();
+		part_y = 0.5*log((part_e+part_pz)/(part_e-part_pz));
+
 	       phdNdEta->Fill(part_eta);
 	       phdNdY->Fill(part_y);
 	       phdNdPt->Fill(part_pt);
