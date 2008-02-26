@@ -3,7 +3,7 @@
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCPeakBinOfStripPulse.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripGain.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripGain.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
@@ -32,7 +32,6 @@ CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoCo
   
   debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  //isData                     = ps.getUntrackedParameter<bool>("CSCIsRunningOnData");
   theClusterSize             = ps.getUntrackedParameter<int>("CSCStripClusterSize");
   theThresholdForAPeak       = ps.getUntrackedParameter<double>("CSCStripPeakThreshold");
   theThresholdForCluster     = ps.getUntrackedParameter<double>("CSCStripClusterChargeCut");
@@ -286,7 +285,9 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     if ( id_.station() == 1 && id_.ring() == 4 ) {
       for ( int j = 0; j < 3; ++j ) {
         thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( float(thisChannel+16*j), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5]);
-        if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
+        if ( useCalib ){
+           thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
+        }
       }
     } else {
       thePulseHeightMap[thisChannel-1] = CSCStripData( float(thisChannel), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5]);

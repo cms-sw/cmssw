@@ -58,13 +58,11 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   specs_        = layer->chamber()->specs();
   id_           = id;
   
-  float sqrt_12 = 3.4641;
+  const float sqrt_12 = 3.4641;
   
-  double sigma;
-  sigma = 0.00;
-  float tpeak = -90.;
+  double sigma = 0.0;
+  float tpeak = -99.;
   
-  CSCRecHit2D::ChannelContainer channels;
   CSCRecHit2D::ADCContainer adcMap;
   CSCRecHit2D::ChannelContainer wgroups;
   

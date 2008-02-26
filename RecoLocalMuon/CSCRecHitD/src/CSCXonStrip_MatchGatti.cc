@@ -4,8 +4,8 @@
 //---- author: Stoyan Stoynev - NU
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripCrosstalk.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripNoiseMatrix.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripCrosstalk.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripNoiseMatrix.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 
@@ -69,7 +69,6 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   specs_ = layer->chamber()->specs();
   stripWidth = sWidth;
   //initChamberSpecs();
-  //std::cout<<" init xWithinChamber = "<<xWithinChamber<<std::endl;
   // Initialize output parameters  
   xWithinStrip = xWithinChamber;  
 
@@ -127,8 +126,6 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       xt_lr0[t] = (1. - xt_l[0][t] - xt_r[0][t]);
       xt_lr1[t] = (1. - xt_l[1][t] - xt_r[1][t]);
       xt_lr2[t] = (1. - xt_l[2][t] - xt_r[2][t]);
-      //std::cout<<" xt_l[1][t] = "<<xt_l[1][t]<<" xt_r[1][t] = "<<xt_r[1][t]<<" xt_lr1[t] = "<<xt_lr1[t]<<std::endl;
-      //std::cout<<" xtalks[5] = "<<xtalks[5]<<" xtalksOffset = "<<xtalksOffset<<<" xtalks[4] = "<<xtalks[4]<<std::endl;
     }
   } else { 
     for ( int t = 0; t < 3; ++t ) {
@@ -160,7 +157,6 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if ( useCalib ) {
     std::vector<float> nmatrix;
     recoConditions_->noiseMatrix( id, centralStrip, nmatrix );
-
     for ( int istrip =0; istrip < 3; ++istrip ) {
       a11[istrip] = nmatrix[0+tbin*3+istrip*15];
       a12[istrip] = nmatrix[1+tbin*3+istrip*15];
@@ -192,7 +188,6 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   xWithinChamber = xWithinChamber + (xWithinStrip * stripWidth);
   sigma =  float(calculateXonStripError(stripWidth, ME1_1));
   quality_flag = 1;
-  //std::cout<<" QsumL = "<<QsumL<<" QsumC = "<<QsumC<<" QsumR = "<<QsumR<<" xWithinStrip = "<<xWithinStrip<<std::endl;
 }
 
 /* setupMatrix
