@@ -116,7 +116,7 @@ namespace cond {
 
     if( m_iov->iov.size()==0 ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
 
-    if (sinceTime<firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
+    if (sinceTime<=firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
 
     cond::Time_t lastIOV=m_iov->iov.rbegin()->first;
     //std::cout<<"iov size "<< m_iov->iov.size()<<std::endl;
