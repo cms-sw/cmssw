@@ -187,12 +187,12 @@ int main( int argc, char** argv ){
       cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysourcedb")->coralTransaction();
       sourceCoralDB.start(true);
       cond::MetaData  sourceMetadata(sourceCoralDB);
-      if( !sourceMetadata.hasTag(tag) ){
-	throw std::runtime_error(std::string("tag ")+tag+std::string(" not found") );
+      if( !sourceMetadata.hasTag(inputTag) ){
+	throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
       }
-      //sourceiovtoken=sourceMetadata->getToken(tag);
+      //sourceiovtoken=sourceMetadata->getToken(inputTag);
       cond::MetaDataEntry entry;
-      sourceMetadata.getEntryByTag(tag,entry);
+      sourceMetadata.getEntryByTag(inputTag,entry);
       sourceiovtoken=entry.iovtoken;
       sourceiovtype=entry.timetype;
       
@@ -209,9 +209,9 @@ int main( int argc, char** argv ){
 	cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
 	coralDB.start(true);
 	cond::MetaData  metadata(coralDB);
-	if( metadata.hasTag(tag) ){
+	if( metadata.hasTag(destTag) ){
 	  cond::MetaDataEntry entry;
-	  metadata.getEntryByTag(tag,entry);
+	  metadata.getEntryByTag(destTag,entry);
 	  destiovtoken=entry.iovtoken;
 	  if (sourceiovtype!=entry.timetype) {
 	    // throw...
@@ -249,7 +249,7 @@ int main( int argc, char** argv ){
       cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydestdb")->coralTransaction();
       cond::MetaData destMetadata(destCoralDB);
       destCoralDB.start(false);
-      destMetadata.addMapping(tag,destiovtoken,sourceiovtype);
+      destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
       if(debug){
 	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
 	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
