@@ -22,7 +22,7 @@ namespace {
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
-  m_since(pset.getUntrackedParameter<unsigned int >("firstSince",5)),),
+  m_since(pset.getUntrackedParameter<unsigned int >("firstSince",5)),
   m_number(pset.getUntrackedParameter<unsigned int >("number",3)){
 }
 
