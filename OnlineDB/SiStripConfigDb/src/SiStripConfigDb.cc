@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.47 2008/02/19 21:32:18 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.48 2008/02/25 14:30:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -373,10 +373,37 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
-  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl
-     << " ConfDb                    : " << confdb_ << endl
-    //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << endl
-     << " Partition                 : " << partition_ << endl
+
+  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl;
+
+  if ( usingDb_ ) {
+
+    ss << " ConfDb                    : " << confdb_ << endl;
+      //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << endl;
+
+  } else {
+
+    // Input
+    ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
+       << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
+       << " Input \"fec.xml\" file(s)   : ";
+    vector<string>::const_iterator ifec = inputFecXml_.begin();
+    for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
+    ss << endl;
+    ss << " Input \"fed.xml\" file(s)   : ";
+    vector<string>::const_iterator ifed = inputFedXml_.begin();
+    for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
+    ss << endl;
+
+    // Output 
+    ss << " Output \"module.xml\" file  : " << outputModuleXml_ << endl
+       << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << endl
+       << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << endl
+       << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << endl;
+
+  }
+
+  ss << " Partition                 : " << partition_ << endl
      << " Run number                : " << runNumber_ << endl
      << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << endl
      << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << endl
@@ -386,22 +413,7 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
      << " DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_;
   if ( force_ ) { ss << " (version not overridden by run number)"; }
   ss << endl;
-  // Input
-  ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
-     << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
-     << " Input \"fec.xml\" file(s)   : ";
-  vector<string>::const_iterator ifec = inputFecXml_.begin();
-  for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
-  ss << endl;
-  ss << " Input \"fed.xml\" file(s)   : ";
-  vector<string>::const_iterator ifed = inputFedXml_.begin();
-  for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
-  ss << endl;
-  // Output 
-  ss << " Output \"module.xml\" file  : " << outputModuleXml_ << endl
-     << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << endl
-     << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << endl
-     << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << endl;
+  
 }
 
 // -----------------------------------------------------------------------------
