@@ -16,19 +16,22 @@ namespace cond{
     static std::string iovMappingVersion() {
       return std::string("CONDIOV_2.0");
     }
-    static std::string iovMappingXML(){
-      std::string buffer = 
+    static std::string const & iovMappingXML(){
+      static const std::string buffer = 
 	std::string("<?xml version='1.0' encoding=\"UTF-8\"?>\n")+
 	std::string("<!DOCTYPE Mapping SYSTEM \"InMemory\">\n")+
-	std::string("<Mapping version=\"CONDIOV_2.0\" >\n")+
+	std::string("<Mapping version=\"CONDIOV_3.0\" >\n")+
 	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" >\n")+
         std::string("<Container table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
-	std::string("<Primitive column=\"IOV_TOKEN\" name=\"mapped_type\" />\n")+
-	std::string("<Primitive column=\"IOV_TIME\" name=\"key_type\" />\n")+
+	std::string("<Object table=\"IOV_DATA\" id_columns=\"INDEX\" name=\"Item\" >\n")+
+        std::string("<Primitive column=\"IOV_TOKEN\" name=\"first\" />\n")+
+        std::string("<Primitive column=\"IOV_TIME\" name=\"second\" />\n")+
+	std::string("</Object >")+
 	std::string("</Container >\n")+
+	std::string("<Primitive column=\"TIMETYPE\" name=\"timetype\" />\n")+
 	std::string("</Class >\n")+
 	std::string("</Mapping >\n");
-      return buffer; 
+      return buffer;
     }
   };
 }//ns pool
