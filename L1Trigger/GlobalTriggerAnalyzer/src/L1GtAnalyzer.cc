@@ -55,8 +55,7 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
 {
 
     // input tag for GT DAQ record
-    m_daqGtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
-                          "DaqGtInputTag", edm::InputTag("L1GtEmulDigis"));
+    m_daqGtInputTag = parSet.getParameter<edm::InputTag>("DaqGtInputTag");
 
     LogDebug("L1GtAnalyzer")
     << "\nInput tag for GT DAQ record: "
@@ -64,8 +63,7 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
     << std::endl;
 
     // input tag for GT object map collection
-    m_gtObjectMapTag = parSet.getUntrackedParameter<edm::InputTag>(
-                           "GtObjectMapTag", edm::InputTag("L1GtEmulDigis"));
+    m_gtObjectMapTag = parSet.getParameter<edm::InputTag>("GtObjectMapTag");
 
     LogDebug("L1GtAnalyzer")
     << "\nInput tag for GT object map collection: "
@@ -73,8 +71,8 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
     << std::endl;
 
     // input tag for muon collection from GMT
-    m_muGmtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
-                          "GmtInputTag", edm::InputTag("L1GmtEmulDigis"));
+    m_muGmtInputTag = parSet.getParameter<edm::InputTag>(
+                          "GmtInputTag");
 
     LogDebug("L1GtAnalyzer")
     << "\nInput tag for muon collection from GMT: "
