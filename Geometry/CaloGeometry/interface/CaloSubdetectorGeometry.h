@@ -7,6 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 /** \class CaloSubdetectorGeometry
       
@@ -14,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2007/09/07 19:08:33 $
-$Revision: 1.12 $
+$Date: 2007/09/21 06:08:06 $
+$Revision: 1.13 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -88,7 +89,8 @@ class CaloSubdetectorGeometry {
       mutable std::vector<DetId> m_validIds ;
 
       static double deltaR( const GlobalPoint& p1,
-			    const GlobalPoint& p2  ) ;
+			    const GlobalPoint& p2  ) 
+      { return reco::deltaR( p1, p2 ) ; }
 
    private:
 

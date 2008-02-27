@@ -50,48 +50,55 @@ CaloSubdetectorGeometry::getValidDetIds( DetId::Detector det,
    return m_validIds ;    
 }
 
-double 
-CaloSubdetectorGeometry::deltaR( const GlobalPoint& p1, 
-				 const GlobalPoint& p2) 
-{
-   double dp=p1.phi()-p2.phi();
-   double de=p1.eta()-p2.eta();
-   return std::sqrt(dp*dp+de*de);
-}
-
 DetId 
 CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const 
 {
-   double closest=1e5;
+   const double eta ( r.eta() ) ;
+   const double phi ( r.phi() ) ;
+   double closest ( 1e9 ) ;
    DetId retval(0);
    for( CellCont::const_iterator i ( m_cellG.begin() ); 
 	i != m_cellG.end() ; ++i ) 
    {
-      const double dR ( deltaR( r, i->second->getPosition() ) ) ;
-      if( dR<closest ) 
+      const GlobalPoint& p ( i->second->getPosition() ) ;
+      const double eta0 ( p.eta() ) ;
+      const double phi0 ( p.phi() ) ;
+      const double dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+      if( dR2 < closest ) 
       {
-	 closest=dR;
-	 retval=i->first;
+	 closest = dR2 ;
+	 retval  = i->first ;
       }
    }   
    return retval;
 }
 
-
 CaloSubdetectorGeometry::DetIdSet 
 CaloSubdetectorGeometry::getCells( const GlobalPoint& r, 
 				   double dR             ) const 
 {
+   const double dR2 ( dR*dR ) ;
+   const double eta ( r.eta() ) ;
+   const double phi ( r.phi() ) ;
+
    DetIdSet dss;
 
    for( CellCont::const_iterator i ( m_cellG.begin() ); 
 	i != m_cellG.end() ; ++i ) 
    {
-      const double dist ( deltaR( r, i->second->getPosition() ) );
-      if( dist <= dR ) dss.insert( i->first ) ;
-  }   
-
-  return dss;
+      const GlobalPoint& p ( i->second->getPosition() ) ;
+      const double eta0 ( p.eta() ) ;
+      if( fabs( eta - eta0 ) <= dR )
+      {
+	 const double phi0 ( p.phi() ) ;
+	 if( fabs( phi - phi0 ) <= dR )
+	 {
+	    const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	    if( dist2 <= dR2 ) dss.insert( i->first ) ;
+	 }
+      }
+   }   
+   return dss;
 }
 
 void 
