@@ -66,6 +66,9 @@ class CrossingFrame
   unsigned int getNrPileups(int bcr) const {
     return bcr==lastCrossing_ ? pileups_.size()-pileupOffsetsBcr_[lastCrossing_-firstCrossing_] :pileupOffsetsBcr_[bcr-firstCrossing_+1]- pileupOffsetsBcr_[bcr-firstCrossing_];} 
 
+  // get object in pileup when position in the vector is known (for DigiSimLink typically)
+  const T& getObject(unsigned int ip) const { return pileups_[ip];}
+
   // limits for tof to be considered for trackers
   static const int lowTrackTof; //nsec
   static const int highTrackTof;
