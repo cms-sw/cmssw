@@ -53,7 +53,14 @@ namespace reco {
   typedef edm::AssociationVector<CandidateBaseRefProd,MuIsoDepositCollection > CandIsoDepositAssociationVector;
   typedef CandIsoDepositAssociationVector::value_type CandIsoDepositAssociationPair;
 
-  typedef edm::ValueMap<reco::MuIsoDeposit> IsoDepositMap;
+
+  //!ValueMap typedefs
+  typedef edm::ValueMap<bool> MuIsoFlagMap; //! dictionary defined in DataFormats/Common
+  typedef edm::ValueMap<reco::MuIsoDeposit> MuIsoDepositMap;
+
+  //! this one will go once we migrate
+  typedef edm::ValueMap<reco::MuIsoDeposit> IsoDepositMap; 
+
 
 }
 
