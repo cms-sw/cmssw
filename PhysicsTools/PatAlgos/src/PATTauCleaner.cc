@@ -5,8 +5,6 @@
 
 using namespace pat;
 DEFINE_FWK_MODULE(PATPFTauCleaner);
-/* > 1.8.X functionality
 DEFINE_FWK_MODULE(PATCaloTauCleaner);
 DEFINE_FWK_MODULE(PATPF2BaseTauCleaner);
 DEFINE_FWK_MODULE(PATCalo2BaseTauCleaner);
-*/
