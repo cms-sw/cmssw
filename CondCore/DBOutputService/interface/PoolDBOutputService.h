@@ -47,10 +47,10 @@ namespace cond{
     };
 
     struct GetTrivialToken : public GetToken {
-
+      
       GetTrivialToken(std::string token) : 
 	m_token(token){}
-
+      virtual ~GetTrivialToken(){}
       virtual std::string operator()(cond::PoolTransaction&) const {
 	return m_token;
       }
