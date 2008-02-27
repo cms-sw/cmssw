@@ -50,8 +50,8 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     // or if it doesn't exist, the reference
     HcalPedestalWidths *resultPeds = new HcalPedestalWidths();
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
-    std::vector<DetId>::const_iterator cell;
-    for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    std::vector<DetId>::iterator cell;
+    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
 	DetId mydetid = *it;
 	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
@@ -76,8 +76,19 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	    // compare the values of the pedestals for valid channels between update and reference
 	    
 
+	    listNewChan.erase(cell);  // fix 25.02.08
 	  }
       }
+
+    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+      {
+	DetId mydetid = *it;
+	const HcalPedestalWidth* mywidth = myNewPeds->getValues( mydetid );
+	std::cout << "N";
+	resultPeds->setWidth( *mywidth );
+      }
+
+
     std::cout << std::endl;
 
     std::vector<DetId> listResult = resultPeds->getAllChannels();

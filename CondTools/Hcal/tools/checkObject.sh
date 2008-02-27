@@ -92,4 +92,4 @@ do
     jobnumber=`expr $jobnumber + 1`
 done
 
-rm -r ${TEMPFILE}
+ rm -r ${TEMPFILE}
