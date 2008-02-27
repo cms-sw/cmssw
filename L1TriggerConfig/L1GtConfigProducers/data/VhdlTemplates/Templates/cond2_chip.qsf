@@ -36,10 +36,11 @@ set_parameter -name CARRY_CHAIN MANUAL
 set_parameter -name CASCADE_CHAIN MANUAL
 set_parameter -name OPTIMIZE_FOR_SPEED 9
 set_parameter -name STYLE FAST
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_types_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_types_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/algo_chips/algo_components.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_types_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_types_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/algo_chips/algo_components.vhd"
 set_global_assignment -name VHDL_FILE cond_chip_pkg.vhd
+set_global_assignment -name VHDL_FILE def_val_pkg.vhd
 set_global_assignment -name VHDL_FILE tau_setup.vhd
 set_global_assignment -name VHDL_FILE muon_setup.vhd
 set_global_assignment -name VHDL_FILE jet_setup.vhd
@@ -47,31 +48,32 @@ set_global_assignment -name VHDL_FILE ieg_setup.vhd
 set_global_assignment -name VHDL_FILE fwdjet_setup.vhd
 set_global_assignment -name VHDL_FILE etm_setup.vhd
 set_global_assignment -name VHDL_FILE eg_setup.vhd
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/vme_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/basics_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_condition_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_part_and_xx_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_particle_and_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_comp_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_charge_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_condition_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_part_and_xx_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_particle_and_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_comp_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/jc_esums_pkg.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/vme_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/basics_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_condition_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_part_and_xx_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_particle_and_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/calo_comp_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_charge_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_condition_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_part_and_xx_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_particle_and_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/muon_comp_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/cond_chips/jc_es_condition_entities.vhd"
-set_global_assignment -name VHDL_FILE "../../VHDL-library/Version8.x/algo_chips/algo_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/txt_util.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/vme_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/basics_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_condition_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_part_and_xx_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_particle_and_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_comp_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_charge_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_condition_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_part_and_xx_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_particle_and_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_comp_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/jc_esums_pkg.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/vme_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/basics_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_condition_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_part_and_xx_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_particle_and_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/calo_comp_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_charge_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_condition_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_part_and_xx_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_particle_and_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/muon_comp_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/cond_chips/jc_es_condition_entities.vhd"
+set_global_assignment -name VHDL_FILE "../../VHDL-library/Version11.x/algo_chips/algo_entities.vhd"
 
 # Pin & Location Assignments
 # ==========================
@@ -661,7 +663,7 @@ set_location_assignment PIN_A11 -to CA413[8]
 # Timing Assignments
 # ==================
 set_global_assignment -name IGNORE_CLOCK_SETTINGS ON
-set_global_assignment -name FMAX_REQUIREMENT "40 MHz"
+set_global_assignment -name FMAX_REQUIREMENT "43 MHz"
 set_global_assignment -name INCLUDE_EXTERNAL_PIN_DELAYS_IN_FMAX_CALCULATIONS OFF
 
 # Analysis & Synthesis Assignments
@@ -673,7 +675,7 @@ set_global_assignment -name FAMILY Stratix
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name TOP_LEVEL_ENTITY cond_chip
 set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
-set_global_assignment -name USER_LIBRARIES "d:\\globaltrigger\\gtl\\vhdl-library\\Version8.x\\algo_chips;d:\\globaltrigger\\gtl\\vhdl-library\\Version8.x\\cond_chips"
+set_global_assignment -name USER_LIBRARIES "d:\\globaltrigger\\gtl\\vhdl-library\\Version11.x\\cond_chips;d:\\globaltrigger\\gtl\\vhdl-library\\Version11.x\\algo_chips"
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE ON
 
 # Fitter Assignments
@@ -767,14 +769,6 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to "algo_out_reg:call_alg
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to "calos_ioc:calos_ioc_inst"
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to "muons_ioc:muons_ioc_inst"
 
-	# Timing Assignments
-	# ==================
-set_instance_assignment -name CLOCK_SETTINGS CLK_40 -to CLK_40
-
-	# Analysis & Synthesis Assignments
-	# ================================
-set_instance_assignment -name AUTO_RAM_RECOGNITION ON -to "dtack_calos_muons:call_dtack_berr"
-
 # end ENTITY(cond_chip)
 # ---------------------
 
@@ -786,3 +780,5 @@ set_global_assignment -name RESERVE_RDYNBUSY_AFTER_CONFIGURATION "USE AS REGULAR
 set_global_assignment -name RESERVE_DATA7_THROUGH_DATA1_AFTER_CONFIGURATION "AS INPUT TRI-STATED"
 set_global_assignment -name DISABLE_NCS_AND_OE_PULLUPS_ON_CONFIG_DEVICE ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_global_assignment -name FMAX_REQUIREMENT "43 MHz" -section_id CLK_43MHZ
+set_instance_assignment -name CLOCK_SETTINGS CLK_43MHZ -to CLK40

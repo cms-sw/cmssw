@@ -4,12 +4,29 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 PACKAGE cond_chip_pkg IS
 
+-- ***************************************************
+-- HB081107
+
+-- boolean values are "true" and "false"
+
+-- default-value for register instantiation
+CONSTANT def_val_inst : boolean := true;
+
+-- read register instantiation
+CONSTANT rd_reg_inst : boolean := true;
+
+-- ***************************************************
+
 -- values for chip_id and version
 
 CONSTANT chip_id: STD_LOGIC_VECTOR(31 DOWNTO 0) := X"00017132";
 CONSTANT version: STD_LOGIC_VECTOR(31 DOWNTO 0) := X"$(version)";
 
--- algo of cond1_chip!!!
+-- INCLOCK_PERIOD for PLL (altclklock) of cond2_chip!!!
+
+CONSTANT INCLOCK_PERIOD: integer := 23255; -- 23255ps = 43MHz !!!!
+
+-- algo of cond2_chip!!!
 
 CONSTANT algo_chip_name: integer := 1;
 
