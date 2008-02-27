@@ -13,6 +13,12 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
+
+
+#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
+#include "CondCore/IOVService/interface/IOVNames.h"
+
+
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <limits>
@@ -20,6 +26,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdlib>
+
+
 int main( int argc, char** argv ){
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_export_iov [options] \n");
@@ -207,7 +215,16 @@ int main( int argc, char** argv ){
     {
       try {
 	cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
-	coralDB.start(true);
+	coralDB.start(false);
+
+	
+	// we need to clean this
+	cond::ObjectRelationalMappingUtility mappingUtil(&(coraldb.coralSessionProxy()) );
+	if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
+	  mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
+	}
+
+
 	cond::MetaData  metadata(coralDB);
 	if( metadata.hasTag(destTag) ){
 	  cond::MetaDataEntry entry;
