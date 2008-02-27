@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+using namespace edm;
+
 // #define STORE_WEIGHTS
 #ifdef STORE_WEIGHTS
 #include <dataharvester/Writer.h>
@@ -104,7 +106,9 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
   {
-    throw VertexException("Supplied fewer than two tracks");
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied fewer than two tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   // Linearization Point
   GlobalPoint linP(0.,0.,0.);
@@ -122,7 +126,9 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
   {
-    throw VertexException( "Supplied fewer than two tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied fewer than two tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   // Initial vertex seed, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
@@ -135,9 +141,11 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const
 {
-  if ( tracks.size() < 2 )
+  if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied fewer than two tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied no tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   VertexState beamSpotState(spot);
   return fit(tracks, beamSpotState, true );
@@ -154,7 +162,9 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 {
   if ( tracks.size() < 2 )
   {
-    throw VertexException( "Supplied fewer than two tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied fewer than two tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   // Initial vertex seed, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
@@ -175,17 +185,12 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 {
   if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied no tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied no tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
 
   VertexState beamSpotState(beamSpot);
-
-  /*
-  cout << "[AdaptiveVertexFitter] beamspot vtx state=" << beamSpotState.position()
-       << endl
-       << beamSpotState.error().matrix()
-       << endl;
-       */
   vector<RefCountedVertexTrack> vtContainer;
 
   if (tracks.size() > 1) {
@@ -219,7 +224,9 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack>
 {
   if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied no tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied no tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   VertexState seed (priorPos, priorError);
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, seed);
@@ -238,7 +245,9 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(
 {
   if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied no tracks" );
+    LogError("RecoVertex/AdaptiveVertexFitter")
+      << "Supplied no tracks. Vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
   };
   VertexState seed (priorPos, priorError);
   return fit(tracks, seed, true);
@@ -266,10 +275,9 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
         = theLinTrkFactory->linearizedTrackState(linP, *i);
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
-      cout << "[AdaptiveVertexFitter] Exception " << e.what() << " in ::linearizeTracks."
-           << endl;
-      cout << "[AdaptiveVertexFitter] Your future vertex has just lost a track."
-           << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Exception " << e.what() << " in ::linearizeTracks."
+        << "Your future vertex has just lost a track.";
     };
   }
   AlgebraicSymMatrix we(3,0);
@@ -303,9 +311,9 @@ AdaptiveVertexFitter::reLinearizeTracks(
               */
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
-      cout << "[AdaptiveVertexFitter] Exception " << e.what()
-           << " in ::relinearizeTracks." << endl;
-      cout << "[AdaptiveVertexFitter] Will not relinearize this track." << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Exception " << e.what() << " in ::relinearizeTracks. "
+        << "Will not relinearize this track.";
       lTracks.push_back ( (**i).linearizedTrack() );
     };
   };
@@ -340,15 +348,15 @@ AdaptiveVertexFitter::reWeightTracks(
 
     if ( weight > 1.0 )
     {
-      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " > 1.0!"
-           << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Weight " << weight << " > 1.0!";
       weight=1.0;
     };
 
     if ( weight < 0.0 )
     {
-      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " < 0.0!"
-           << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Weight " << weight << " < 0.0!";
       weight=0.0;
     };
 
@@ -394,15 +402,15 @@ AdaptiveVertexFitter::weightTracks(
 
     if ( weight > 1.0 )
     {
-      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " > 1.0!"
-           << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Weight " << weight << " > 1.0!";
       weight=1.0;
     };
 
     if ( weight < 0.0 )
     {
-      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " < 0.0!"
-           << endl;
+      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        << "Weight " << weight << " < 0.0!";
       weight=0.0;
     };
 
@@ -482,8 +490,7 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   GlobalPoint previousPosition = newPosition;
 
   int ns_trks=0; // number of significant tracks.
-  // If we have only two significant tracks, we throw an
-  // exception
+  // If we have only two significant tracks, we return an invalid vertex
 
   do {
     ns_trks=0;
@@ -505,21 +512,24 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     }
     // cout << "-- new iteration" << endl;
     // update sequentially the vertex estimate
+    CachingVertex<5> nVertex;
     for(vector<RefCountedVertexTrack>::const_iterator i
           = globalVTracks.begin(); i != globalVTracks.end(); i++)
     {
-      try {
-        // cout << "  -- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << " add " << (**i).weight() << endl;
-        fVertex = theUpdator->add( fVertex, *i );
-        // cout << "  +- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << endl;
+      // cout << "  -- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << " add " << (**i).weight() << endl;
+      nVertex = theUpdator->add( fVertex, *i );
+      // cout << "  +- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << endl;
+      if (nVertex.isValid()) {
         if ( (**i).weight() >= theWeightThreshold )
         {
           ns_trks++;
         };
-      } catch ( exception & e ) {
-        cout << "[AdaptiveVertexFitter] warning: updator throws " << e.what() << endl;
-        cout << "[AdaptiveVertexFitter] (your vertex might just have lost one good track)"
-             << endl;
+	fVertex = nVertex;
+      } else {
+        LogWarning("RecoVertex/AdaptiveVertexFitter") 
+          << "The updator returned an invalid vertex when adding track "
+          << i-globalVTracks.begin() <<endl
+	  << "Your vertex might just have lost one good track.";
       };
     }
     previousPosition = newPosition;
@@ -542,10 +552,11 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 
   if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
   {
-    ostringstream o;
-    o << "fewer than two significant tracks (w>" << theWeightThreshold << ")";
-    throw VertexException( o.str() );
-  };
+    LogDebug("RecoVertex/AdaptiveVertexFitter") 
+      << "fewer than two significant tracks (w>" << theWeightThreshold << ")."
+      << " Fitted vertex is invalid.";
+    return CachingVertex<5>(); // return invalid vertex
+  }
 
   #ifdef STORE_WEIGHTS
   map < string, dataharvester::MultiType > m;
