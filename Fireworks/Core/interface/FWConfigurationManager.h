@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:38:41 EST 2008
-// $Id$
+// $Id: FWConfigurationManager.h,v 1.1 2008/02/25 21:32:24 chrjones Exp $
 //
 
 // system include files
 #include <map>
+#include <string>
 
 // user include files
 
@@ -38,6 +39,9 @@ class FWConfigurationManager
       // ---------- const member functions ---------------------
       void setFrom(const FWConfiguration&) const;
       void to(FWConfiguration&) const;
+   
+      void writeToFile(const std::string&) const;
+      void readFromFile(const std::string&) const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

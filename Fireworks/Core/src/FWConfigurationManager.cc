@@ -8,10 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id$
+// $Id: FWConfigurationManager.cc,v 1.1 2008/02/25 21:32:27 chrjones Exp $
 //
 
 // system include files
+#include <fstream>
+#include <memory>
+#include <stdexcept>
+#include "TROOT.h"
+#include "TInterpreter.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
@@ -57,6 +62,12 @@ FWConfigurationManager::~FWConfigurationManager()
 //
 // member functions
 //
+void
+FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf)
+{
+   assert(0!=iConf);
+   m_configurables[iName]=iConf;
+}
 
 //
 // const member functions
@@ -85,6 +96,54 @@ FWConfigurationManager::to(FWConfiguration& oConfig) const
       it->second->addTo(config);
       oConfig.addKeyValue(it->first, config, true);
    }
+}
+
+void 
+FWConfigurationManager::writeToFile(const std::string& iName) const
+{
+   ofstream file(iName.c_str());
+   if(not file) {
+      std::string message("unable to open file ");
+      message += iName;
+      throw std::runtime_error(message.c_str());
+   }
+   FWConfiguration top;
+   to(top);
+   file <<"FWConfiguration* fwConfig() {\n return new "<<top<<";\n}\n"<<std::flush;
+}
+
+void 
+FWConfigurationManager::readFromFile(const std::string& iName) const
+{
+   Int_t error=0;
+
+   Int_t value = gROOT->LoadMacro( iName.c_str(), &error );
+   if(0 != error) {
+      std::string message("unable to load macro file ");
+      message += iName;
+      throw std::runtime_error(message.c_str());
+   }
+   
+   const std::string command("(Long_t)(fwConfig() )");
+
+   error = 0;
+   Long_t lConfig = gROOT->ProcessLineFast(command.c_str(),
+                                           &error);
+   
+   {
+      //need to unload this macro so that we can load a new configuration
+      // which uses the same function name in the macro
+      Int_t error = 0;
+      gROOT->ProcessLineSync((std::string(".U ")+iName).c_str(), &error); 
+   }
+   if(0 != error) {
+      std::string message("unable to properly parse configuration file ");
+      message += iName;
+      throw std::runtime_error(message.c_str());
+   }
+   std::auto_ptr<FWConfiguration> config( reinterpret_cast<FWConfiguration*>(lConfig) );
+   
+   setFrom( *config);
 }
 
 //
