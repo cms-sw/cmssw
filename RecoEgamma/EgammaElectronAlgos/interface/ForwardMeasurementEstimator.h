@@ -16,7 +16,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.6 2008/02/21 09:40:12 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.8 2008/02/27 12:54:57 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -38,18 +38,23 @@ public:
     thePhiRangeMax = dummyphiRangeMax ; 
   }
   void setZRange (float zmin , float zmax) 
-  { 
-    theZRangeMin=zmin;
-    theZRangeMax=zmax;
-  }
-   void setRRange (float rmin , float rmax) 
-  { 
-    rMin_= rmin;
-    rMax_ = rmax;
-  }
+    { 
+      theZRangeMin=zmin;
+      theZRangeMax=zmax;
+    }
+  void setRRange (float rmin , float rmax) 
+    { 
+      rMin_= rmin;
+      rMax_ = rmax;
+    }
+
+  void setVertex (float vertex)
+    {
+      zVert_=vertex;
+    }
   
   // zero value indicates incompatible ts - hit pair
-  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 					   const TransientTrackingRecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;
@@ -69,7 +74,7 @@ public:
   float theZRangeMin;
   float theZRangeMax;
   float rMin_, rMax_;
-
+  float zVert_;
 };
 
 #endif // ForwardMeasurementEstimator_H
