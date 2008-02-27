@@ -30,6 +30,12 @@
  <class name="CSCDBCrosstalk"/>
  <class name="CSCDBCrosstalk::Item"/>
  <class name="std::vector<CSCDBCrosstalk::Item>"/>
+
+ <class name="CSCDeadNoisy"/>
+ <class name="CSCDeadNoisy::BadChambers"/>
+ <class name="CSCDeadNoisy::BadChannels"/>
+ <class name="std::vector<CSCDeadNoisy::BadChambers>"/>
+ <class name="std::vector<CSCDeadNoisy::BadChannels>"/>
  
  <class name="CSCMapItem"/>
  <class name="CSCMapItem::MapItem"/>

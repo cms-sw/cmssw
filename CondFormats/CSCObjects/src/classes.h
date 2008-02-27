@@ -30,6 +30,11 @@ namespace{
 namespace{
   std::vector< CSCDBCrosstalk::Item> ccontainer;
 }
+#include "CondFormats/CSCObjects/interface/CSCDeadNoisy.h"
+namespace{
+  std::vector< CSCDeadNoisy::BadChambers> bchmcontainer;
+  std::vector< CSCDeadNoisy::BadChannels> bchncontainer;
+}
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 namespace{
   std::map< int, CSCMapItem::MapItem > chmap;
