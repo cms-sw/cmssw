@@ -70,7 +70,10 @@ namespace cond {
 			 ){
     if(!m_isActive) this->init();
     
-    //fix me: throw if beyond global range! 
+    if(tiilTime<=firstSince() ||
+       ( !m_iov->iov.empty() && tillTime<=m_iov.iov.back().first) 
+       )    throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
+ 
     m_iov.markUpdate();
     return m_iov->add(tillTime, payloadToken);
     
@@ -78,9 +81,15 @@ namespace cond {
   
   void 
   IOVEditorImpl::bulkInsert(std::vector< std::pair<cond::Time_t,std::string> >& values){
+    if (values.empty()) return;
     if(!m_isActive) this->init();
+    cond::Time_t tillTime = values.front().first;
+    if(tiilTime<=firstSince() ||
+       ( !m_iov->iov.empty() && tillTime<=m_iov.iov.back().first) 
+       )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
+    
+    m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
     m_iov.markUpdate();   
-    m_iov->iov.insert(m_iov->iov.end(), values.begin(),values.end());
   }
 
 
@@ -88,7 +97,7 @@ namespace cond {
   IOVEditorImpl::updateClosure( cond::Time_t newtillTime ){
     if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::updateClosure cannot change non-existing IOV index");
     if(!m_isActive) this->init();
-    m_iov->iov.rbegin()->first=newtillTime;
+    m_iov->iov.back().first=newtillTime;
     m_iov.markUpdate();
   }
   
@@ -104,7 +113,7 @@ namespace cond {
       this->init();
     }
     
-    if( m_iov->iov.size()==0 ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
     
     if (sinceTime<=firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
     

@@ -28,18 +28,18 @@ int main(){
     std::cout<<"test forward iterator "<<std::endl;
     pooldb.start(true);
     while( it->next() ){
-      std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;
-      std::cout<<"since "<<it->validity().first<<std::endl;
-      std::cout<<"till "<<it->validity().second<<std::endl;
+      std::cout<<"payloadToken "<<it->payloadToken();
+      std::cout<<", since "<<it->validity().first;
+      std::cout<<", till "<<it->validity().second<<std::endl;
     }
     delete it;
     // backward
     it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
     std::cout<<"test reverse iterator "<<std::endl;
     while( it->next() ){
-      std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;
-      std::cout<<"since "<<it->validity().first<<std::endl;
-      std::cout<<"till "<<it->validity().second<<std::endl;
+      std::cout<<"payloadToken "<<it->payloadToken();
+      std::cout<<", since "<<it->validity().first;
+      std::cout<<", till "<<it->validity().second<<std::endl;
     }
     delete it;
 

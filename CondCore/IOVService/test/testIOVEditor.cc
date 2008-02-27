@@ -4,6 +4,8 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
+
 #include <iostream>
 int main(){
   try{
@@ -16,20 +18,56 @@ int main(){
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     pooldb.start(false);
     unsigned int pos=0;
-    editor->create(0);
+    editor->create(10);
     pos=editor->insert(20,"pay1tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(40, "pay2tok");
     std::cout<<"inserted 40 payload at position "<<pos<<std::endl;
     pos=editor->insert(60, "pay3tok");
     std::cout<<"inserted 60 payload at position "<<pos<<std::endl;
+    pos=editor->append(120,"pay12tok");
+    std::cout<<"inserted 120 payload at position "<<pos<<std::endl;
+    pos=editor->append(140, "pay14tok");
+    std::cout<<"inserted 140 payload at position "<<pos<<std::endl;
+    pos=editor->append(160, "pay16tok");
+    std::cout<<"inserted 160 payload at position "<<pos<<std::endl;
     pos=editor->insert(999999, "pay4tok");
     std::cout<<"inserted 999999 payload at position "<<pos<<std::endl;
-    pos=editor->append(70, "pay5tok");
-    std::cout<<"appened payload at position "<<pos<<std::endl;
+    try {
+      pos=editor->append(5, "pay5tok");
+      std::cout<<"appened payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
+    try {
+      pos=editor->insert(25, "pay5tok");
+      std::cout<<"appened payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
+
+    try {
+      pos=editor->append(70, "pay5tok");
+      std::cout<<"appened payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
     editor->updateClosure(999997);
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
+    cond::IOVIterator* it=iovmanager.newIOVIterator(token);
+    std::cout<<"forward iterator "<<std::endl;
+    pooldb.start(true);
+    while( it->next() ){
+      std::cout<<"payloadToken "<<it->payloadToken();
+      std::cout<<", since "<<it->validity().first;
+      std::cout<<", till "<<it->validity().second<<std::endl;
+    }
+    delete it;
+    
     //cond::IOVEditor* bomber=iovmanager.newIOVEditor(token);
     //bomber->deleteEntries();
     pooldb.commit();
