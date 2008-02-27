@@ -24,7 +24,8 @@ namespace cond{
     virtual size_t position() const;
     virtual bool atEnd() const;
     virtual std::string payloadToken() const;
-    TimeType IOVEditorImpl::timetype() const {
+    TimeType timetype() const {
+      open();
       return (TimeType)(m_iov->timetype);
   }
 
