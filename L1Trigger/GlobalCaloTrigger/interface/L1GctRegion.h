@@ -24,7 +24,7 @@ class L1GctRegion : public L1CaloRegion
     kGctRegionMaxValue = kGctRegionOFlowBit - 1
   };
 
-  L1GctRegion(const unsigned et, const bool overFlow, const bool tauVeto, const unsigned ieta, const unsigned iphi);
+  L1GctRegion(const unsigned et, const bool overFlow, const bool fineGrain, const unsigned ieta, const unsigned iphi);
   L1GctRegion(const L1CaloRegion&);
   L1GctRegion();
 
