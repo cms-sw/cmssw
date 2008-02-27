@@ -684,7 +684,7 @@ namespace edm {
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
-    filemode_ = optionsPset.getUntrackedParameter<std::string>("filemode", "DENSE");
+    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "DENSE");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
 
@@ -1728,11 +1728,11 @@ namespace edm {
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    statemachine::Filemode filemode = statemachine::DENSE;
-    if (filemode_ == std::string("SPARSE")) filemode = statemachine::SPARSE;
+    statemachine::FileMode fileMode = statemachine::DENSE;
+    if (fileMode_ == std::string("SPARSE")) fileMode = statemachine::SPARSE;
 
     statemachine::Machine machine(this,
-                                  filemode,
+                                  fileMode,
                                   handleEmptyRuns_,
                                   handleEmptyLumis_);
 

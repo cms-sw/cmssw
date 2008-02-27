@@ -2,7 +2,7 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id: MockEventProcessor.h,v 1.1 2007/12/10 22:54:19 wdd Exp $
+$Id: MockEventProcessor.h,v 1.2 2008/01/02 23:52:42 wdd Exp $
 
 Version of the Event Processor used for tests of
 the state machine and other tests.
@@ -22,7 +22,7 @@ namespace edm
 
     MockEventProcessor(const std::string& mockData,
                        std::ostream& output,
-                       const statemachine::Filemode& filemode,
+                       const statemachine::FileMode& fileMode,
                        bool handleEmptyRuns,
                        bool handleEmptyLumis);
 
@@ -67,7 +67,7 @@ namespace edm
   private:
     std::string mockData_;
     std::ostream & output_;
-    statemachine::Filemode filemode_;
+    statemachine::FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptyLumis_;
 

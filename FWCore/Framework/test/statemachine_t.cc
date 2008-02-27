@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-$Id$
+$Id: statemachine_t.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -63,22 +63,22 @@ int main(int argc, char* argv[]) {
 
   // Run 8 times to exercise all 8 possible settings
   // of the three parameters.
-  Filemode filemodes[] = { SPARSE, DENSE };
+  FileMode fileModes[] = { SPARSE, DENSE };
   for (int k = 0; k < 2; ++k) {
-    Filemode filemode = filemodes[k];
+    FileMode fileMode = fileModes[k];
     for (int i = 0; i < 2; ++i) {
       bool handleEmptyRuns = i;
       for (int j = 0; j < 2; ++j) {
         bool handleEmptyLumis = j;
         output << "\nMachine parameters:  ";
-        if (filemode == SPARSE) output << "mode = SPARSE";
+        if (fileMode == SPARSE) output << "mode = SPARSE";
         else output << "mode = DENSE";
 	output << "  handleEmptyRuns = " << handleEmptyRuns;
 	output << "  handleEmptyLumis = " << handleEmptyLumis << "\n";
 
         edm::MockEventProcessor mockEventProcessor(mockData,
                                                    output,
-                                                   filemode,
+                                                   fileMode,
                                                    handleEmptyRuns,
                                                    handleEmptyLumis);
 

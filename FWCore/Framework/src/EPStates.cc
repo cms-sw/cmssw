@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.2 2008/01/02 23:52:41 wdd Exp $
+// $Id: EPStates.cc,v 1.3 2008/01/09 23:45:55 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -14,16 +14,16 @@ namespace statemachine {
   int Lumi::id() const { return id_; }
 
   Machine::Machine(edm::IEventProcessor* ep,
-                   Filemode filemode,
+                   FileMode fileMode,
                    bool handleEmptyRuns,
                    bool handleEmptyLumis) :
     ep_(ep),
-    filemode_(filemode),
+    fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptyLumis_(handleEmptyLumis) { }
 
   edm::IEventProcessor& Machine::ep() const { return *ep_; }
-  Filemode Machine::filemode() const { return filemode_; }
+  FileMode Machine::fileMode() const { return fileMode_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptyLumis() const { return handleEmptyLumis_; }
 
@@ -70,7 +70,7 @@ namespace statemachine {
   }
 
   bool HandleFiles::shouldWeCloseOutput() {
-    if (context< Machine >().filemode() == SPARSE) return true;
+    if (context< Machine >().fileMode() == SPARSE) return true;
     return ep_.shouldWeCloseOutput();
   }
 
@@ -217,7 +217,7 @@ namespace statemachine {
 
   void HandleRuns::finalizeRun() {
     if (beginRunCalled_) endRun(currentRun());
-    if (context< Machine >().filemode() == SPARSE) {
+    if (context< Machine >().fileMode() == SPARSE) {
       ep_.writeRun(currentRun_);
       ep_.deleteRunFromCache(currentRun_);
     }
@@ -358,7 +358,7 @@ namespace statemachine {
           int run = context< HandleRuns >().currentRun();
           ep_.beginLumi(run, currentLumi());
           ep_.endLumi(run, currentLumi());
-          if (context< Machine >().filemode() == SPARSE) {
+          if (context< Machine >().fileMode() == SPARSE) {
             ep_.writeLumi(run, currentLumi());
             ep_.deleteLumiFromCache(run, currentLumi());
           }
@@ -368,7 +368,7 @@ namespace statemachine {
         }
       }
       else {
-        if (context< Machine >().filemode() == SPARSE) {
+        if (context< Machine >().fileMode() == SPARSE) {
           int run = context< HandleRuns >().currentRun();
           ep_.writeLumi(run, currentLumi());
           ep_.deleteLumiFromCache(run, currentLumi());
@@ -378,7 +378,7 @@ namespace statemachine {
     else { 
       int run = context< HandleRuns >().currentRun();
       ep_.endLumi(run, currentLumi());
-      if (context< Machine >().filemode() == SPARSE) {
+      if (context< Machine >().fileMode() == SPARSE) {
         ep_.writeLumi(run, currentLumi());
         ep_.deleteLumiFromCache(run, currentLumi());
       }
@@ -393,7 +393,7 @@ namespace statemachine {
          ++iter) {
       ep_.beginLumi(run, *iter);
       ep_.endLumi(run, *iter);
-      if (context< Machine >().filemode() == SPARSE) {
+      if (context< Machine >().fileMode() == SPARSE) {
         ep_.writeLumi(run, *iter);
         ep_.deleteLumiFromCache(run, *iter);
       }

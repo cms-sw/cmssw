@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.3 2008/01/18 20:10:23 wmtan Exp $
+$Id: MockEventProcessor.cc,v 1.4 2008/02/04 20:14:20 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -25,12 +25,12 @@ namespace edm {
 
   MockEventProcessor::MockEventProcessor(const std::string& mockData,
                                          std::ostream& output,
-                                         const statemachine::Filemode& filemode,
+                                         const statemachine::FileMode& fileMode,
                                          bool handleEmptyRuns,
                                          bool handleEmptyLumis) :
     mockData_(mockData),
     output_(output),
-    filemode_(filemode),
+    fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptyLumis_(handleEmptyLumis),
     shouldWeCloseOutput_(true),
@@ -41,7 +41,7 @@ namespace edm {
   edm::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
-                                    filemode_,
+                                    fileMode_,
                                     handleEmptyRuns_,
                                     handleEmptyLumis_);
 
