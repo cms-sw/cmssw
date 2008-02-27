@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.59 2008/01/15 13:05:49 llista Exp $
+ * \version $Id: TrackBase.h,v 1.60 2008/02/21 13:16:43 gpetrucc Exp $
  *
  */
 
@@ -77,12 +77,17 @@ namespace reco {
     enum { i_qoverp = 0 , i_lambda, i_phi, i_dxy, i_dsz }; 
     /// index type
     typedef unsigned int index;
+    /// track algorithm
+    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
+    /// track quality
+    enum TrackQuality { undefQuality=0, loose=1, tight=2 };
     
     /// default constructor
     TrackBase();
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof, const Point & referencePoint,
-	       const Vector & momentum, int charge, const CovarianceMatrix &);
+	       const Vector & momentum, int charge, const CovarianceMatrix &,
+	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality);
     /// virtual destructor   
     ~TrackBase();
     /// chi-squared of the fit
@@ -210,6 +215,13 @@ namespace reco {
     void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
     /// position index 
 
+    ///Track algorithm
+    TrackAlgorithm algo() const ;
+    std::string algoName() const;
+    ///Track quality
+    TrackQuality quality() const;
+    std::string qualityName() const;
+
   private:
     /// chi-squared
     float chi2_;
@@ -225,6 +237,10 @@ namespace reco {
     float covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
+    /// track algorithm
+    char algorithm_;
+    /// track quality
+    char quality_;
 
   };
 
@@ -232,7 +248,40 @@ namespace reco {
     int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
     return b * ( b + 1 ) / 2 + a;
   }
-    
+
+  inline TrackBase::TrackAlgorithm TrackBase::algo() const {
+    return (TrackBase::TrackAlgorithm) algorithm_;
+  }
+
+  inline std::string TrackBase::algoName() const{
+    switch(algorithm_)
+      {
+      case undefAlgorithm: return "undefAlgorithm";
+      case ctf: return "ctf";
+      case rs: return "rs";
+      case cosmics: return "cosmics";
+      case beamhalo: return "beamhalo";
+      case iter1: return "iter1";
+      case iter2: return "iter2";
+      case iter3: return "iter3";
+      }
+    return "undefAlgorithm";
+  }
+      
+  inline TrackBase::TrackQuality TrackBase::quality() const {
+    return (TrackBase::TrackQuality) quality_;
+  }
+  
+  inline std::string TrackBase::qualityName() const{
+    switch(quality_)
+      {
+      case undefQuality: return "undefQuality";
+      case loose: return "loose";
+      case tight: return "tight";
+      }
+    return "undefQuality";
+  }
+
 }
 
 #endif

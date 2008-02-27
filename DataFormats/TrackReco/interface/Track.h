@@ -14,7 +14,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.44 2008/01/15 12:53:07 speer Exp $
+ * \version $Id: Track.h,v 1.45 2008/01/15 13:05:48 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -32,7 +32,8 @@ namespace reco {
     virtual ~Track();
     /// constructor from fit parameters and error matrix  
     Track( double chi2, double ndof, const Point & referencePoint,
-	   const Vector & momentum, int charge, const CovarianceMatrix &);
+	   const Vector & momentum, int charge, const CovarianceMatrix &,
+	   TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality);
     /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost hit is valid
