@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.20 $
- *  $Date: 2007/12/17 18:59:52 $
+ *  $Revision: 1.21 $
+ *  $Date: 2008/02/15 14:42:26 $
  *  (last update by $Author: flucke $)
  */
 
@@ -314,7 +314,8 @@ void PedeSteerer::correctToReferenceSystem()
   std::vector<Alignable*> definerDets; // or ...DetUnits
   for (std::vector<Alignable*>::iterator it = theCoordDefiners.begin(), iE = theCoordDefiners.end();
        it != iE; ++it) {// find lowest level objects of alignables that define the coordinate system
-    const std::vector<Alignable*> &comp = (*it)->deepComponents();
+    std::vector<Alignable*> comp;
+    (*it)->deepComponents(comp);
     definerDets.insert(definerDets.end(), comp.begin(), comp.end());
   }
 
@@ -449,7 +450,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 	file << "\n* Nr. " << iConstr << " of a '"
 	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
 	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	     << "), layer " << aliId.typeAndLayerFromDetId(ali->id()).second
+	     << "), layer " << aliId.typeAndLayerFromAlignable(ali).second //DetId(ali->id()).second
 	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
       }
