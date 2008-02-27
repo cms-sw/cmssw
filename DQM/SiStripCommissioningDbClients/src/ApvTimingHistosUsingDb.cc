@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.16 2008/02/19 21:17:17 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.17 2008/02/20 11:26:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -286,10 +286,16 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 /** */
 void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   
+  // Retrieve FED ids from cabling
+  std::vector<uint16_t> ids = cabling()->feds() ;
+  
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
   SiStripConfigDb::FedDescriptions::iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    
+    // If FED id not found in list (from cabling), then continue
+    if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; } 
     
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
@@ -375,8 +381,8 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
   edm::LogVerbatim(mlDqmClient_) 
     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Updated FED ticker thresholds for " 
-    << updated << " channels";
+    << " Updated ticker thresholds for " << updated 
+    << " channels on " << ids.size() << " FEDs!";
   
 }
 
