@@ -1,0 +1,4 @@
+<use name=Alignment/KalmanAlignmentAlgorithm>
+<library file="*.cc" name=AlignmentKalmanAlignmentPlugins>
+  <flags EDM_PLUGIN=1>
+</library>

@@ -1,5 +1,5 @@
-#ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentTrackingSetup_h
-#define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentTrackingSetup_h
+#ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentSetup_h
+#define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentSetup_h
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
@@ -13,7 +13,7 @@
 #include <string>
 
 
-class KalmanAlignmentTrackingSetup
+class KalmanAlignmentSetup
 {
 
 public:
@@ -22,25 +22,24 @@ public:
 
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-  KalmanAlignmentTrackingSetup( const std::string& id,
-				const TrajectoryFitter* fitter,
-				const Propagator* propagator,
-				const std::vector< SubDetId >& trackingIds,
-				const unsigned int minTrackingHits,
-				const bool sortInsideOut,
-				const TrajectoryFitter* externalFitter,
-				const Propagator* externalPropagator,
-				const std::vector< SubDetId >& externalIds,
-				const unsigned int minExternalHits,
-				const bool externalSortInsideOut,
-				TrajectoryFactoryBase* trajectoryFactory,
-				KalmanAlignmentUpdator* alignmentUpdator,
-				KalmanAlignmentMetricsUpdator* metricsUpdator );
+  KalmanAlignmentSetup( const std::string& id,
+			const TrajectoryFitter* fitter,
+			const Propagator* propagator,
+			const std::vector< SubDetId >& trackingIds,
+			const unsigned int minTrackingHits,
+			const bool sortInsideOut,
+			const TrajectoryFitter* externalFitter,
+			const Propagator* externalPropagator,
+			const std::vector< SubDetId >& externalIds,
+			const unsigned int minExternalHits,
+			const bool externalSortInsideOut,
+			TrajectoryFactoryBase* trajectoryFactory,
+			KalmanAlignmentUpdator* alignmentUpdator,
+			KalmanAlignmentMetricsUpdator* metricsUpdator );
 
+  KalmanAlignmentSetup( const KalmanAlignmentSetup& setup );
 
-  KalmanAlignmentTrackingSetup( const KalmanAlignmentTrackingSetup& setup );
-
-  ~KalmanAlignmentTrackingSetup( void );
+  ~KalmanAlignmentSetup( void );
 
   inline const std::string id( void ) const { return theId; }
 

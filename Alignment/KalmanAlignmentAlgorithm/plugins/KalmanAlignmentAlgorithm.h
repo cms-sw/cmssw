@@ -5,8 +5,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
 
 #include <set>
@@ -32,6 +31,9 @@ public:
   typedef KalmanAlignmentTracklet::TrackletPtr TrackletPtr;
   typedef std::vector< TrackletPtr > TrackletCollection;
 
+  typedef KalmanAlignmentSetup AlignmentSetup;
+  typedef std::vector< AlignmentSetup* > AlignmentSetupCollection;
+
 
   KalmanAlignmentAlgorithm( const edm::ParameterSet& config );
   virtual ~KalmanAlignmentAlgorithm( void );
@@ -56,18 +58,25 @@ private:
 
   void initializeAlignmentParameters( const edm::EventSetup& setup );
 
+  void initializeAlignmentSetups( const edm::EventSetup& setup );
+
+  inline const PropagationDirection getDirection( const std::string& dir )
+    { return ( dir == "alongMomentum" ) ? alongMomentum : oppositeToMomentum; }
+
+  inline const PropagationDirection oppositeDirection( const PropagationDirection dir )
+    { return ( dir == alongMomentum ) ? oppositeToMomentum : alongMomentum; }
+
+
   edm::ParameterSet theConfiguration;
+
+  AlignmentSetupCollection theAlignmentSetups;
+
+  KalmanAlignmentTrackRefitter* theRefitter;
 
   AlignmentParameterStore* theParameterStore;
   AlignableNavigator* theNavigator;
   AlignmentParameterSelector* theSelector;
 
-  KalmanAlignmentTrackRefitter* theRefitter;
-
-  TrajectoryFactoryBase* theTrajectoryFactory;
-
-  KalmanAlignmentUpdator* theAlignmentUpdator;
-  KalmanAlignmentMetricsUpdator* theMetricsUpdator;
 };
 
 #endif

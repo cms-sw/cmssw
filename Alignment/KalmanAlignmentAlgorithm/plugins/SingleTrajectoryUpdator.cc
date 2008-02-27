@@ -1,6 +1,8 @@
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/SingleTrajectoryUpdator.h"
+//#include "Alignment/KalmanAlignmentAlgorithm/plugins/SingleTrajectoryUpdator.h"
+#include "SingleTrajectoryUpdator.h"
 
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 
@@ -10,12 +12,14 @@
 
 #include <algorithm>
 
+
 using namespace std;
 
 
 SingleTrajectoryUpdator::SingleTrajectoryUpdator( const edm::ParameterSet & config ) :
   KalmanAlignmentUpdator( config )
 {
+  theMinNumberOfHits = config.getUntrackedParameter< unsigned int >( "MinNumberOfHits", 1 );
   theExtraWeight = config.getUntrackedParameter< double >( "ExtraWeight", 1e-4 );
   theExternalPredictionWeight = config.getUntrackedParameter< double >( "ExternalPredictionWeight", 1. );
   theCovCheckFlag = config.getUntrackedParameter< bool >( "CheckCovariance", true );
@@ -207,3 +211,6 @@ bool SingleTrajectoryUpdator::checkCovariance( const AlgebraicSymMatrix& cov ) c
 
   return true;
 }
+
+
+DEFINE_EDM_PLUGIN( KalmanAlignmentUpdatorPlugin, SingleTrajectoryUpdator, "SingleTrajectoryUpdator" );

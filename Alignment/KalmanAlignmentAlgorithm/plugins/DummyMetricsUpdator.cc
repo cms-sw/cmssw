@@ -1,4 +1,7 @@
-#include "Alignment/KalmanAlignmentAlgorithm/interface/DummyMetricsUpdator.h"
+//#include "Alignment/KalmanAlignmentAlgorithm/plugins/DummyMetricsUpdator.h"
+#include "DummyMetricsUpdator.h"
+
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 
@@ -64,3 +67,6 @@ const std::vector< Alignable* > DummyMetricsUpdator::alignables( void ) const
   alignables.insert( alignables.begin(), theSetOfAllAlignables.begin(), theSetOfAllAlignables.end() );
   return alignables;
 }
+
+
+DEFINE_EDM_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, DummyMetricsUpdator, "DummyMetricsUpdator" );

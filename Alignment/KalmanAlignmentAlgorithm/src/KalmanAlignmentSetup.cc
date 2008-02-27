@@ -1,5 +1,5 @@
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackingSetup.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
 
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iostream>
 
-KalmanAlignmentTrackingSetup::KalmanAlignmentTrackingSetup( const std::string& id,
+KalmanAlignmentSetup::KalmanAlignmentSetup( const std::string& id,
 							    const TrajectoryFitter* fitter,
 							    const Propagator* propagator,
 							    const std::vector< SubDetId >& trackingIds,
@@ -38,7 +38,7 @@ KalmanAlignmentTrackingSetup::KalmanAlignmentTrackingSetup( const std::string& i
 {}
 
 
-KalmanAlignmentTrackingSetup::KalmanAlignmentTrackingSetup( const KalmanAlignmentTrackingSetup& setup ) :
+KalmanAlignmentSetup::KalmanAlignmentSetup( const KalmanAlignmentSetup& setup ) :
   theId( setup.id() ),
   theFitter( setup.fitter()->clone() ),
   thePropagator( setup.propagator()->clone() ),
@@ -56,7 +56,7 @@ KalmanAlignmentTrackingSetup::KalmanAlignmentTrackingSetup( const KalmanAlignmen
 {}
 
 
-KalmanAlignmentTrackingSetup::~KalmanAlignmentTrackingSetup( void )
+KalmanAlignmentSetup::~KalmanAlignmentSetup( void )
 {
   if ( theFitter ) delete theFitter;
   if ( theExternalFitter ) delete theExternalFitter;
@@ -66,7 +66,7 @@ KalmanAlignmentTrackingSetup::~KalmanAlignmentTrackingSetup( void )
 }
 
 
-bool KalmanAlignmentTrackingSetup::useForTracking( const ConstRecHitPointer& recHit ) const
+bool KalmanAlignmentSetup::useForTracking( const ConstRecHitPointer& recHit ) const
 {
   const DetId detId( recHit->det()->geographicalId() );
   const SubDetId subdetId( detId.subdetId() );
@@ -94,7 +94,7 @@ bool KalmanAlignmentTrackingSetup::useForTracking( const ConstRecHitPointer& rec
 }
 
 
-bool KalmanAlignmentTrackingSetup::useForExternalTracking( const ConstRecHitPointer& recHit ) const
+bool KalmanAlignmentSetup::useForExternalTracking( const ConstRecHitPointer& recHit ) const
 {
 
   const DetId detId( recHit->det()->geographicalId() );

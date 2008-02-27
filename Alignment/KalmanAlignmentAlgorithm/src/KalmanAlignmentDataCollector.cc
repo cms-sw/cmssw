@@ -1,10 +1,10 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
+#include "TH1F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
 #include "TFile.h"
-#include "TH1F.h"
 
 using namespace std;
 

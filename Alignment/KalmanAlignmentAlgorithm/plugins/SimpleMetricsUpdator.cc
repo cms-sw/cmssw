@@ -1,4 +1,7 @@
-#include "Alignment/KalmanAlignmentAlgorithm/interface/SimpleMetricsUpdator.h"
+//#include "Alignment/KalmanAlignmentAlgorithm/plugins/SimpleMetricsUpdator.h"
+#include "SimpleMetricsUpdator.h"
+
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -108,3 +111,6 @@ SimpleMetricsUpdator::additionalAlignablesWithDistances( const std::vector< Alig
 
   return result;
 }
+
+
+DEFINE_EDM_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, SimpleMetricsUpdator, "SimpleMetricsUpdator" );

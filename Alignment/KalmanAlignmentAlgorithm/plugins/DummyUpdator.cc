@@ -1,5 +1,8 @@
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/DummyUpdator.h"
+//#include "Alignment/KalmanAlignmentAlgorithm/plugins/DummyUpdator.h"
+#include "DummyUpdator.h"
+
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
 
 
 DummyUpdator::DummyUpdator( const edm::ParameterSet & config ) : KalmanAlignmentUpdator( config ) {}
@@ -12,3 +15,5 @@ void DummyUpdator::process( const ReferenceTrajectoryPtr & trajectory,
 			    AlignmentParameterStore* store,
 			    AlignableNavigator* navigator,
 			    KalmanAlignmentMetricsUpdator* metrics ) {}
+
+DEFINE_EDM_PLUGIN( KalmanAlignmentUpdatorPlugin, DummyUpdator, "DummyUpdator" );

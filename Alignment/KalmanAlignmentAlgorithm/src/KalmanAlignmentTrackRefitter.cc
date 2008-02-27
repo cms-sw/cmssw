@@ -1,28 +1,15 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
-
-#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
-#include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-
-#include "Alignment/KalmanAlignmentAlgorithm/interface/CurrentAlignmentKFUpdator.h"
-
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
@@ -33,152 +20,23 @@ using namespace reco;
 using namespace Genfun;
 
 
-KalmanAlignmentTrackRefitter::KalmanAlignmentTrackRefitter( const edm::ParameterSet& config ) :
-  theConfiguration( config ),
+KalmanAlignmentTrackRefitter::KalmanAlignmentTrackRefitter( const edm::ParameterSet& config, AlignableNavigator* navigator ) :
   theRefitterAlgo( config ),
-  theNavigator( 0 ),
-  theDebugFlag( config.getUntrackedParameter< bool >( "debug", false ) )
+  theNavigator( navigator ),
+  theDebugFlag( config.getUntrackedParameter<bool>( "debug", true ) )
 {
   TrackProducerBase< reco::Track >::setConf( config );
-  TrackProducerBase< reco::Track >::setSrc( config.getParameter< string >( "src" ) );
+  TrackProducerBase< reco::Track >::setSrc( config.getParameter< edm::InputTag >( "src" ),
+					    config.getParameter< edm::InputTag >( "bsSrc" ) );
 }
 
 
 KalmanAlignmentTrackRefitter::~KalmanAlignmentTrackRefitter( void ) {}
 
 
-void KalmanAlignmentTrackRefitter::initialize( const edm::EventSetup& setup, AlignableNavigator* navigator )
-{
-  theNavigator = navigator;
-
-  // Read the tracking setups from the config-file. They define which rec-hits are refitted to tracklets and whether they are used
-  // as an external measurement or not.
-
-  const vector<string> selTrackingSetup = theConfiguration.getParameter< vector<string> >( "TrackingSetup" );
-
-  for ( vector<string>::const_iterator itSel = selTrackingSetup.begin(); itSel != selTrackingSetup.end(); ++itSel )
-  {
-    cout << "[KalmanAlignmentTrackRefitter] Add TrackingSetup: " << *itSel << endl;
-
-    const edm::ParameterSet confTrackingSetup = theConfiguration.getParameter< edm::ParameterSet >( *itSel );
-
-    string strPropDir = confTrackingSetup.getUntrackedParameter< string >( "PropagationDirection", "alongMomentum" );
-    vector<int> trackingIDs = confTrackingSetup.getParameter< vector<int> >( "Tracking" );
-    unsigned int minTrackingHits = confTrackingSetup.getUntrackedParameter<unsigned int>( "MinTrackingHits", 0 );
-    bool insideOut = confTrackingSetup.getUntrackedParameter<bool>( "SortInsideOut", true );
-
-    string strExternalPropDir = confTrackingSetup.getUntrackedParameter< string >( "ExternalPropagationDirection", "alongMomentum" );
-    vector<int> externalIDs = confTrackingSetup.getParameter< vector<int> >( "External" );
-    unsigned int minExternalHits = confTrackingSetup.getUntrackedParameter<unsigned int>( "MinExternalHits", 0 );
-    bool externalInsideOut = confTrackingSetup.getUntrackedParameter<bool>( "SortExternalInsideOut", true );
-
-    edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
-    string fitterName = theConfiguration.getParameter< std::string >( "Fitter" );
-    setup.get< TrackingComponentsRecord >().get( fitterName, aTrajectoryFitter );
-
-    double outlierEstimateCut = 5.;
-
-    const KFFittingSmoother* aFittingSmoother = dynamic_cast< const KFFittingSmoother* >( aTrajectoryFitter.product() );
-    if ( aFittingSmoother )
-    {
-      KFTrajectoryFitter* fitter = 0;
-      KFTrajectorySmoother* smoother = 0;
-      CurrentAlignmentKFUpdator* updator = new CurrentAlignmentKFUpdator( navigator );
-
-      KFTrajectoryFitter* externalFitter = 0;
-      KFTrajectorySmoother* externalSmoother = 0;
-
-      PropagationDirection fitterDir = getDirection( strPropDir );
-      PropagationDirection externalFitterDir = getDirection( strExternalPropDir );
-
-      PropagationDirection smootherDir = oppositeDirection( fitterDir );
-      PropagationDirection externalSmootherDir = oppositeDirection( externalFitterDir );
-
-      const KFTrajectoryFitter* aKFFitter = dynamic_cast< const KFTrajectoryFitter* >( aFittingSmoother->fitter() );
-      if ( aKFFitter )
-      {
-	PropagatorWithMaterial propagator( fitterDir, 0.106, aKFFitter->propagator()->magneticField() );
-	Chi2MeasurementEstimator estimator( 30. );
-	fitter = new KFTrajectoryFitter( &propagator, updator, &estimator );
-
-	AnalyticalPropagator externalPropagator( aKFFitter->propagator()->magneticField(), externalFitterDir );
-	Chi2MeasurementEstimator externalEstimator( 1000. );
-	externalFitter = new KFTrajectoryFitter( &externalPropagator, aKFFitter->updator(), &externalEstimator );
-      }
-
-      const KFTrajectorySmoother* aKFSmoother = dynamic_cast< const KFTrajectorySmoother* >( aFittingSmoother->smoother() );
-      if ( aKFSmoother )
-      {
-
-	PropagatorWithMaterial propagator( smootherDir, 0.106, aKFSmoother->propagator()->magneticField() );
-	Chi2MeasurementEstimator estimator( 30. );
-	smoother = new KFTrajectorySmoother( &propagator, updator, &estimator );
-
-	AnalyticalPropagator externalPropagator( aKFSmoother->propagator()->magneticField(), externalSmootherDir );
-	Chi2MeasurementEstimator externalEstimator( 1000. );
-	externalSmoother = new KFTrajectorySmoother( &externalPropagator, aKFFitter->updator(), &externalEstimator );
-      }
-
-      if ( fitter && smoother )
-      {
-	KFFittingSmoother* fittingSmoother = new KFFittingSmoother( *fitter, *smoother, outlierEstimateCut );
-	KFFittingSmoother* externalFittingSmoother = new KFFittingSmoother( *externalFitter, *externalSmoother );
-	///KFFittingSmoother* fittingSmoother = aFittingSmoother->clone();
-	///KFFittingSmoother* externalFittingSmoother = aFittingSmoother->clone();
-
-	string identifier;
-	edm::ParameterSet config;
-
-	config = confTrackingSetup.getParameter< edm::ParameterSet >( "TrajectoryFactory" );
-	identifier = config.getParameter< string >( "TrajectoryFactoryName" );
-	TrajectoryFactoryBase* trajectoryFactory = TrajectoryFactoryPlugin::get()->create( identifier, config );
-
-	config = confTrackingSetup.getParameter< edm::ParameterSet >( "AlignmentUpdator" );
-	identifier = config.getParameter< string >( "AlignmentUpdatorName" );
-	KalmanAlignmentUpdator* alignmentUpdator = KalmanAlignmentUpdatorPlugin::get()->create( identifier, config );
-
-	config = confTrackingSetup.getParameter< edm::ParameterSet >( "MetricsUpdator" );
-	identifier = config.getParameter< string >( "MetricsUpdatorName" );
-	KalmanAlignmentMetricsUpdator* metricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::get()->create( identifier, config );
-
-	TrackingSetup* aTrackingSetup
-	  = new TrackingSetup( *itSel,
-			       fittingSmoother, fitter->propagator(), trackingIDs, minTrackingHits, insideOut,
-			       externalFittingSmoother, externalFitter->propagator(), externalIDs, minExternalHits, externalInsideOut,
-			       trajectoryFactory, alignmentUpdator, metricsUpdator );
-
-	theTrackingSetup.push_back( aTrackingSetup );
-
-	delete fittingSmoother;
-	delete fitter;
-	delete smoother;
-
-	delete externalFittingSmoother;
-	delete externalFitter;
-	delete externalSmoother;
-      }
-      else
-      {
-	throw cms::Exception( "BadConfig" ) << "[KalmanAlignmentTrackRefitter] "
-					    << "Instance of class KFFittingSmoother has no KFTrajectoryFitter/KFTrajectorySmoother.";
-      }
-
-      delete updator;
-    }
-    else
-    {
-      throw cms::Exception( "BadConfig" ) << "[KalmanAlignmentTrackRefitter] "
-					  << "No instance of class KFFittingSmoother registered to the TrackingComponentsRecord.";
-    }
-  }
-
-  cout << "[KalmanAlignmentTrackRefitter] I'm using " << theTrackingSetup.size() << " TrackingSetup(s)." << endl;
-
-}
-
-
 KalmanAlignmentTrackRefitter::TrackletCollection
 KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
+					   const AlignmentSetupCollection& algoSetups,
 					   const ConstTrajTrackPairCollection& tracks )
 {
   // Retrieve what we need from the EventSetup
@@ -200,8 +58,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
   {
     TransientTrack fullTrack( *(*itTrack).second, aMagneticField.product() );
 
-    TrackingSetupCollection::iterator itSetup;
-    for ( itSetup = theTrackingSetup.begin(); itSetup != theTrackingSetup.end(); ++itSetup )
+    AlignmentSetupCollection::const_iterator itSetup;
+    for ( itSetup = algoSetups.begin(); itSetup != algoSetups.end(); ++itSetup )
     {
       RecHitContainer trackingRecHits;
       RecHitContainer externalTrackingRecHits;
@@ -216,8 +74,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 
  	try
 	{
-	  //if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
-	  theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
+	  if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
+	  //theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
 	} catch(...) { continue; }
 
 	if ( (*itSetup)->useForTracking( *itHits ) )
@@ -280,7 +138,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
  	//const Surface& surface = refitted.front().first->firstMeasurement().updatedState().surface();
 	const Surface& surface = refitted.front().first->lastMeasurement().updatedState().surface();
  	TrajectoryStateOnSurface externalTsos = externalTrack.impactPointState();
- 	TrajectoryStateOnSurface externalPrediction = aPropagator->propagate( externalTsos, surface );
+	AnalyticalPropagator externalPredictionPropagator( aMagneticField.product(), anyDirection );
+ 	TrajectoryStateOnSurface externalPrediction = externalPredictionPropagator.propagate( externalTsos, surface );
 	if ( !externalPrediction.isValid() ) continue;
 
 	if ( theDebugFlag )
@@ -375,10 +234,15 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
   TrackCandidateCollection candidateCollection;
   candidateCollection.push_back( candidate );
 
+  // Only dummy implementation of beam spot constraint.
+  reco::BeamSpot dummyBeamSpot;
+  dummyBeamSpot.dummy();
+
   AlgoProductCollection algoResult;
 
   theRefitterAlgo.runWithCandidate( geometry, magneticField, candidateCollection,
-				    fitter, propagator, recHitBuilder, algoResult );
+				    fitter, propagator, recHitBuilder, dummyBeamSpot,
+				    algoResult );
 
   for ( AlgoProductCollection::iterator it = algoResult.begin(); it != algoResult.end(); ++it )
     result.push_back( make_pair( (*it).first, (*it).second.first ) );

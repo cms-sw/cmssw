@@ -1,10 +1,11 @@
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentAlgorithm.h"
+//#include "Alignment/KalmanAlignmentAlgorithm/plugins/KalmanAlignmentAlgorithm.h"
+#include "KalmanAlignmentAlgorithm.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 
 // includes for alignment
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 
@@ -12,13 +13,21 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
-
+#include "Alignment/KalmanAlignmentAlgorithm/interface/CurrentAlignmentKFUpdator.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
+#include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
@@ -49,11 +58,11 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   theNavigator = new AlignableNavigator( tracker->components() );
   theSelector = new AlignmentParameterSelector( tracker );
 
-  initializeAlignmentParameters( setup );
+  theRefitter = new KalmanAlignmentTrackRefitter( theConfiguration.getParameter< edm::ParameterSet >( "TrackRefitter" ),
+						  theNavigator );
 
-  edm::ParameterSet config = theConfiguration.getParameter< edm::ParameterSet >( "TrackRefitter" );
-  theRefitter = new KalmanAlignmentTrackRefitter( config );
-  theRefitter->initialize( setup, theNavigator );
+  initializeAlignmentParameters( setup );
+  initializeAlignmentSetups( setup );
 
   KalmanAlignmentDataCollector::configure( theConfiguration.getParameter< edm::ParameterSet >( "DataCollector" ) );
 }
@@ -66,9 +75,8 @@ void KalmanAlignmentAlgorithm::terminate( void )
   set< Alignable* > allAlignables;
   vector< Alignable* > alignablesToWrite;
 
-  const KalmanAlignmentTrackRefitter::TrackingSetupCollection& setups = theRefitter->getTrackingSetups();
-  KalmanAlignmentTrackRefitter::TrackingSetupCollection::const_iterator itSetup;
-  for ( itSetup = setups.begin(); itSetup != setups.end(); ++itSetup )
+  AlignmentSetupCollection::const_iterator itSetup;
+  for ( itSetup = theAlignmentSetups.begin(); itSetup != theAlignmentSetups.end(); ++itSetup )
   {
     const vector< Alignable* >& alignablesFromMetrics  = (*itSetup)->metricsUpdator()->alignables();
     cout << "[KalmanAlignmentAlgorithm::terminate] The metrics updator for setup \'" << (*itSetup)->id()
@@ -136,15 +144,16 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
   try
   {
     // Run the refitter algorithm
-    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, tracks );
+    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks );
 
-    map< KalmanAlignmentTrackingSetup*, TrackletCollection > setupToTrackletMap;
-
+    // Associate tracklets to alignment setups
+    map< AlignmentSetup*, TrackletCollection > setupToTrackletMap;
     TrackletCollection::iterator itTracklet;
     for ( itTracklet = refittedTracklets.begin(); itTracklet != refittedTracklets.end(); ++itTracklet )
-      setupToTrackletMap[(*itTracklet)->trackingSetup()].push_back( *itTracklet );
+      setupToTrackletMap[(*itTracklet)->alignmentSetup()].push_back( *itTracklet );
 
-    map< KalmanAlignmentTrackingSetup*, TrackletCollection >::iterator itMap;
+    // Iterate on alignment setups
+    map< AlignmentSetup*, TrackletCollection >::iterator itMap;
     for ( itMap = setupToTrackletMap.begin(); itMap != setupToTrackletMap.end(); ++itMap )
     {
       ConstTrajTrackPairCollection tracklets;
@@ -157,6 +166,7 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
 	external.push_back( (*itTracklet)->externalPrediction() );
       }
 
+      // Construct reference trajectories
       ReferenceTrajectoryCollection trajectories = itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external );
       ReferenceTrajectoryCollection::iterator itTrajectories;
 
@@ -183,7 +193,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 {
   TrackerAlignableId* alignableId = new TrackerAlignableId;
 
-  const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "Initialization" );
+  const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "ParameterConfig" );
 
   int updateGraph = initConfig.getUntrackedParameter< int >( "UpdateGraphs", 100 );
 
@@ -202,7 +212,8 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
   bool applyRandomStartValues = initConfig.getUntrackedParameter< bool >( "ApplyRandomStartValues", false );
   if ( applyRandomStartValues )
-    cout << "[KalmanAlignmentAlgorithm::initializeAlignmentParameters] ADDING RANDOM START VALUES!!!" << endl;
+    cout << "[KalmanAlignmentAlgorithm::initializeAlignmentParameters] "
+	 << "ADDING RANDOM START VALUES!!!" << endl;
 
   bool applyCurl =  initConfig.getUntrackedParameter< bool >( "ApplyCurl", false );
   double curlConst =  initConfig.getUntrackedParameter< double >( "CurlConstant", 1e-6 );
@@ -255,8 +266,11 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
       cout << "[" << *itInitSel << "] add selection: " << *itAliSel << endl;
     }
 
-    vector< Alignable* > alignables = theSelector->selectedAlignables();
     vector< Alignable* >::iterator itAlignable;
+    vector< Alignable* > alignables;
+    vector< Alignable* > alignablesFromSelector = theSelector->selectedAlignables();
+    for ( itAlignable = alignablesFromSelector.begin(); itAlignable != alignablesFromSelector.end(); ++itAlignable )
+      if ( (*itAlignable)->alignmentParameters() ) alignables.push_back( *itAlignable );
 
     sort( alignables.begin(), alignables.end(), *this );
 
@@ -270,7 +284,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
     bool applyCovar = config.getUntrackedParameter< bool >( "ApplyErrorFromFile", false );
     if ( readParam || readCovar || applyParam || applyCovar )
     {
-      string file = config.getUntrackedParameter< string >( "FileName", "Input.root" );
+      string file = config.getUntrackedParameter< string >( "FileName", "input.root" );
       int ierr = 0;
       int iter = 1;
 
@@ -452,3 +466,136 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
   }
 
 }
+
+
+void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup& setup )
+{
+  // Read the setups from the config-file. They define which rec-hits are refitted to tracklets and whether they are used
+  // as an external measurement or not.
+
+  const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "AlgorithmConfig" );
+  const vector<string> selSetup = initConfig.getParameter< vector<string> >( "Setups" );
+
+  for ( vector<string>::const_iterator itSel = selSetup.begin(); itSel != selSetup.end(); ++itSel )
+  {
+    cout << "[KalmanAlignmentAlgorithm::initializeAlignmentSetups] Add AlignmentSetup: " << *itSel << endl;
+
+    const edm::ParameterSet confSetup = initConfig.getParameter< edm::ParameterSet >( *itSel );
+
+    string strPropDir = confSetup.getUntrackedParameter< string >( "PropagationDirection", "alongMomentum" );
+    vector<int> trackingIDs = confSetup.getParameter< vector<int> >( "Tracking" );
+    unsigned int minTrackingHits = confSetup.getUntrackedParameter<unsigned int>( "MinTrackingHits", 0 );
+    bool insideOut = confSetup.getUntrackedParameter<bool>( "SortInsideOut", true );
+
+    string strExternalPropDir = confSetup.getUntrackedParameter< string >( "ExternalPropagationDirection", "alongMomentum" );
+    vector<int> externalIDs = confSetup.getParameter< vector<int> >( "External" );
+    unsigned int minExternalHits = confSetup.getUntrackedParameter<unsigned int>( "MinExternalHits", 0 );
+    bool externalInsideOut = confSetup.getUntrackedParameter<bool>( "SortExternalInsideOut", true );
+
+    edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
+    string fitterName = confSetup.getUntrackedParameter< std::string >( "Fitter", "KFFittingSmoother" );
+    setup.get< TrackingComponentsRecord >().get( fitterName, aTrajectoryFitter );
+
+    double outlierEstimateCut = 5.;
+
+    const KFFittingSmoother* aFittingSmoother = dynamic_cast< const KFFittingSmoother* >( aTrajectoryFitter.product() );
+    if ( aFittingSmoother )
+    {
+      KFTrajectoryFitter* fitter = 0;
+      KFTrajectorySmoother* smoother = 0;
+      CurrentAlignmentKFUpdator* updator = new CurrentAlignmentKFUpdator( theNavigator );
+
+      KFTrajectoryFitter* externalFitter = 0;
+      KFTrajectorySmoother* externalSmoother = 0;
+
+      PropagationDirection fitterDir = getDirection( strPropDir );
+      PropagationDirection externalFitterDir = getDirection( strExternalPropDir );
+
+      PropagationDirection smootherDir = oppositeDirection( fitterDir );
+      PropagationDirection externalSmootherDir = oppositeDirection( externalFitterDir );
+
+      const KFTrajectoryFitter* aKFFitter = dynamic_cast< const KFTrajectoryFitter* >( aFittingSmoother->fitter() );
+      if ( aKFFitter )
+      {
+	PropagatorWithMaterial propagator( fitterDir, 0.106, aKFFitter->propagator()->magneticField() );
+	Chi2MeasurementEstimator estimator( 30. );
+	fitter = new KFTrajectoryFitter( &propagator, updator, &estimator );
+
+	AnalyticalPropagator externalPropagator( aKFFitter->propagator()->magneticField(), externalFitterDir );
+	Chi2MeasurementEstimator externalEstimator( 1000. );
+	externalFitter = new KFTrajectoryFitter( &externalPropagator, aKFFitter->updator(), &externalEstimator );
+      }
+
+      const KFTrajectorySmoother* aKFSmoother = dynamic_cast< const KFTrajectorySmoother* >( aFittingSmoother->smoother() );
+      if ( aKFSmoother )
+      {
+
+	PropagatorWithMaterial propagator( smootherDir, 0.106, aKFSmoother->propagator()->magneticField() );
+	Chi2MeasurementEstimator estimator( 30. );
+	smoother = new KFTrajectorySmoother( &propagator, updator, &estimator );
+
+	AnalyticalPropagator externalPropagator( aKFSmoother->propagator()->magneticField(), externalSmootherDir );
+	Chi2MeasurementEstimator externalEstimator( 1000. );
+	externalSmoother = new KFTrajectorySmoother( &externalPropagator, aKFSmoother->updator(), &externalEstimator );
+      }
+
+      if ( fitter && smoother )
+      {
+	KFFittingSmoother* fittingSmoother = new KFFittingSmoother( *fitter, *smoother, outlierEstimateCut );
+	KFFittingSmoother* externalFittingSmoother = new KFFittingSmoother( *externalFitter, *externalSmoother );
+	///KFFittingSmoother* fittingSmoother = aFittingSmoother->clone();
+	///KFFittingSmoother* externalFittingSmoother = aFittingSmoother->clone();
+
+	string identifier;
+	edm::ParameterSet config;
+
+	config = confSetup.getParameter< edm::ParameterSet >( "TrajectoryFactory" );
+	identifier = config.getParameter< string >( "TrajectoryFactoryName" );
+	cout << "TrajectoryFactoryPlugin::get() ... " << identifier << endl;
+	TrajectoryFactoryBase* trajectoryFactory = TrajectoryFactoryPlugin::get()->create( identifier, config );
+
+	config = confSetup.getParameter< edm::ParameterSet >( "AlignmentUpdator" );
+	identifier = config.getParameter< string >( "AlignmentUpdatorName" );
+	KalmanAlignmentUpdator* alignmentUpdator = KalmanAlignmentUpdatorPlugin::get()->create( identifier, config );
+
+	config = confSetup.getParameter< edm::ParameterSet >( "MetricsUpdator" );
+	identifier = config.getParameter< string >( "MetricsUpdatorName" );
+	KalmanAlignmentMetricsUpdator* metricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::get()->create( identifier, config );
+
+	AlignmentSetup* anAlignmentSetup
+	  = new AlignmentSetup( *itSel,
+				fittingSmoother, fitter->propagator(), trackingIDs, minTrackingHits, insideOut,
+				externalFittingSmoother, externalFitter->propagator(), externalIDs, minExternalHits, externalInsideOut,
+				trajectoryFactory, alignmentUpdator, metricsUpdator );
+
+	theAlignmentSetups.push_back( anAlignmentSetup );
+
+	delete fittingSmoother;
+	delete fitter;
+	delete smoother;
+
+	delete externalFittingSmoother;
+	delete externalFitter;
+	delete externalSmoother;
+      }
+      else
+      {
+	throw cms::Exception( "BadConfig" ) << "[KalmanAlignmentAlgorithm::initializeAlignmentSetups] "
+					    << "Instance of class KFFittingSmoother has no KFTrajectoryFitter/KFTrajectorySmoother.";
+      }
+
+      delete updator;
+    }
+    else
+    {
+      throw cms::Exception( "BadConfig" ) << "[KalmanAlignmentAlgorithm::initializeAlignmentSetups] "
+					  << "No instance of class KFFittingSmoother registered to the TrackingComponentsRecord.";
+    }
+  }
+
+  cout << "[KalmanAlignmentAlgorithm::initializeAlignmentSetups] I'm using " << theAlignmentSetups.size() << " AlignmentSetup(s)." << endl;
+
+}
+
+
+DEFINE_EDM_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
