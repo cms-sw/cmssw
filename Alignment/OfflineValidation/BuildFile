@@ -25,10 +25,10 @@
 
 <use name=CLHEP>
 <use name=root>
-<flags EDM_PLUGIN=1>
+#<flags EDM_PLUGIN=1>
 
-#<export>
-# <lib name=AlignmentOfflineValidation>
+<export>
+ <lib name=AlignmentOfflineValidation>
 # <use name=FWCore/PluginManager>
 # <use name=FWCore/Framework>
 # <use name=FWCore/ParameterSet>
@@ -44,5 +44,5 @@
 # <use name=Geometry/RPCGeometry>
 # <use name=root>
 # <use name=clhep>
-#</export>
+</export>
 
