@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.29 2008/02/25 14:05:01 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.30 2008/02/26 08:01:03 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -203,6 +203,16 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     << " Found " << contents.size() 
     << " directories containing MonitorElements";
   
+  // Some more debug
+  if (0) {
+    std::stringstream ss;
+    ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+       << " Directories found: " << std::endl;
+    std::vector<std::string>::iterator istr = contents.begin();
+    for ( ; istr != contents.end(); istr++ ) { ss << " " << *istr << std::endl; }
+    LogTrace(mlDqmClient_) << ss.str();
+  }
+  
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 
   
@@ -217,7 +227,8 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Unknown commissioning runType: " 
-      << SiStripEnumsAndStrings::runType( runType_ );
+      << SiStripEnumsAndStrings::runType( runType_ )
+      << " and run number is " << runNumber_;
     return;
   } else {
     LogTrace(mlDqmClient_)
@@ -357,14 +368,8 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     histos_->printSummary(); 
   }
   
-  // Remove all ME/CME objects and delete MUI
-  if ( histos_ ) { histos_->remove(); }
-  if ( mui_ ) { 
-    if ( mui_->getBEInterface() ) { 
-      mui_->getBEInterface()->setVerbose(0); 
-    }
-    delete mui_; 
-  }
+  // Remove all ME/CME objects
+  if ( histos_ ) { histos_->remove(); } 
   
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
