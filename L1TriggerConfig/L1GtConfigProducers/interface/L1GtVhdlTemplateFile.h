@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/21 21:58:33 $
- * $Revision: 1.3 $
+ * $Date: 2008/02/27 18:51:17 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -47,7 +47,7 @@ class L1GtVhdlTemplateFile
 		/// destructor
 		~L1GtVhdlTemplateFile();
 		/// replaces searchString with replaceString at it's first occurance in string
-		bool findAndReplaceString(std::string &paramString, const std::string &searchString, const std::string &replaceString);
+		static const bool findAndReplaceString(std::string &paramString, const std::string &searchString, const std::string &replaceString);
 		/// opens a template file. If the header information shall be parsed intern has to be set to true
 		bool open(const std::string &fileName, bool internal=false);
 		/// saves the content of the template file to a local file (the content of parameterMap_ will not be saved!)
@@ -88,6 +88,8 @@ class L1GtVhdlTemplateFile
 		void getConditionsFromAlgo(std::string condString, std::vector<std::string> &result);
 		/// returns a string with the content of vector lines
 		std::string lines2String();
+		/// returns a parameter of a internal template file
+		std::string getInternalParameter(const std::string &indentifier);
 
 };
 #endif											  /*L1GtConfigProducers_L1GtVhdlTemplateFile_h*/

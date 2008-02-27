@@ -9,8 +9,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date: 2008/02/21 21:56:46 $
- * $Revision: 1.3 $
+ * $Date: 2008/02/27 18:46:18 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -58,7 +58,7 @@ L1GtVhdlTemplateFile::~L1GtVhdlTemplateFile()
 }
 
 
-bool L1GtVhdlTemplateFile::findAndReplaceString(std::string &paramString, const std::string &searchString, const std::string &replaceString)
+const bool L1GtVhdlTemplateFile::findAndReplaceString(std::string &paramString, const std::string &searchString, const std::string &replaceString)
 {
     size_t position;
     position = paramString.find(searchString);
@@ -71,6 +71,8 @@ bool L1GtVhdlTemplateFile::findAndReplaceString(std::string &paramString, const 
 bool L1GtVhdlTemplateFile::open(const std::string &fileName, bool internal)
 {
 
+    const char paramIndicator='#';
+    const char commentIndicator='%';
     char buffer[2000];
     std::string stringBuffer;
 
@@ -96,22 +98,58 @@ bool L1GtVhdlTemplateFile::open(const std::string &fileName, bool internal)
 
     if (internal)
     {
-
+        
         //Delete lines containing parameters after moving them to parameterMap_
         std::vector<std::string>::iterator iter = lines_.begin();
         while( iter != lines_.end() )
         {
-            if ((*iter)[0]=='#')
+            while ((*iter)[0]==commentIndicator && (*iter)[1]==commentIndicator)
+                lines_.erase(iter);
+            
+            if ((*iter)[0]==paramIndicator)
             {
                 std::vector<std::string>::iterator iter2 = iter;
+                
+                // get the first line of content
                 iter2++;
-                parameterMap_[(*iter).substr(1)]=(*iter2);
-                lines_.erase(iter);
-                //iter is pointing on the line after the previously deleted line
-                //which is the content of the parameter
-                lines_.erase(iter);
+                
+                while (iter2!=lines_.end())
+                {
+                    if ((*iter2)[0]==paramIndicator && (*iter2)[1]==paramIndicator)
+                    {
+                        iter2++;
+                        break;
+                    }
+                    
+                   
+                    
+                    parameterMap_[(*iter).substr(1)]+=(*iter2);
+                    
+                    // overtake the newlines
+                    std::vector<std::string>::iterator tmpIter= iter2;
+                    tmpIter++;
+                   
+                    // check weather the next line is the end of the block
+                    if (!((*tmpIter)[0]==paramIndicator && (*tmpIter)[1]==paramIndicator))
+                        parameterMap_[(*iter).substr(1)]+="\n";
+                    
+                   
+                    iter2++;
+                }
+                
+                // there has been a syntax error in the internal template
+                // stop the routine
+                if (iter2==lines_.end()) 
+                    return false;
+ 
+                // deletes the content, thas has been added to parameter map before
+                // (iter one at the moment is at the beginnig of the block, iter2 at its end)
+                lines_.erase(iter,iter2 );
+                
             }
-            iter++;
+            
+            // just for security
+            if (iter!=lines_.end()) iter++;
         }
 
         //remove empty lines
@@ -420,4 +458,10 @@ std::string L1GtVhdlTemplateFile::lines2String()
     }
 
     return buffer.str();
+}
+
+
+std::string L1GtVhdlTemplateFile::getInternalParameter(const std::string &indentifier)
+{
+    return parameterMap_[indentifier];
 }
