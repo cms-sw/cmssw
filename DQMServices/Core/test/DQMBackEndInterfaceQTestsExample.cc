@@ -364,7 +364,6 @@ void DQMStoreQTestsExample::runTests(int expected_status,
   checkTest(zrangeprof2d_test);
   showBadChannels(zrangeprof2d_test);
 
-  int errors;
   int status = 0;
   status = chi2_test->getStatus();
   if (expected_status && status != expected_status)
