@@ -312,7 +312,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 ///           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 
 ///std::cout<<"Found digi in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<std::endl;
-           if( sector<0 || sector>6 || station<0 || station>3 || subSector<0 || subSector>2 || endcap<0 || endcap>1  ){
+           if( sector<0 || sector>6 || station<0 || station>4 || subSector<0 || subSector>2 || endcap<0 || endcap>1  ){
                edm::LogWarning("CSCTFTrackBuilder::buildTracks()")<<" CSC digi are out of range";
                continue;
            }
