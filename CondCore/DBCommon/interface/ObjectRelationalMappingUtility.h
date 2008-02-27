@@ -17,11 +17,11 @@ namespace cond{
 
     void buildAndStoreMappingFromBuffer( const std::string& buffer );
     
-    void listMappings( std::vector<std::string>& mappinglist );
+    //void listMappings( std::vector<std::string>& mappinglist );
 
     bool existsMapping(const std::string& version);
 
-    void removeMapping(const std::string& version);
+    //void removeMapping(const std::string& version);
 
   private:
     pool::ObjectRelationalMappingUtilities* m_mappingutil;
