@@ -1,16 +1,23 @@
 #include "IOVIteratorImpl.h"
-#include <map>
+
 cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolTransaction& pooldb,
 					const std::string & token,
 					cond::Time_t globalSince, 
 					cond::Time_t globalTill)
-  : m_pooldb(pooldb),m_token(token), m_globalSince(globalSince),m_globalTill(globalTill),  m_count(0), m_isOpen(false){
+  : m_pooldb(pooldb),m_token(token), m_globalSince(globalSince),m_globalTill(globalTill),  m_count(0), m_isInit(false), m_isOpen(false){
 } 
 cond::IOVIteratorImpl::~IOVIteratorImpl(){
 }
+
+void cond::IOVIteratorImpl::open() const{
+  if (m_isOpen) return;
+  const_cast<cond::IOVIteratorImpl*>(this)->m_iov=
+    cond::TypedRef<cond::IOV>(m_pooldb, m_token);
+  const_cast<cond::IOVIteratorImpl*>(this)->m_isOpen=true;
+}
 void cond::IOVIteratorImpl::init(){
-  m_iov=cond::TypedRef<cond::IOV>(m_pooldb, m_token);
-  m_isOpen=true;
+  open();
+  m_isInit=true;
   m_pos=m_iov->iov.begin();
   m_count = 0;
   m_since=m_iov->firstsince;
@@ -23,9 +30,11 @@ bool cond::IOVIteratorImpl::rewind() {
 }
 
 bool cond::IOVIteratorImpl::empty() const {
+  open();
   return m_iov->iov.empty();
 }
 size_t cond::IOVIteratorImpl::size() const {
+  open();
   return m_iov->iov.size();
 }
 size_t cond::IOVIteratorImpl::position() const {
@@ -34,11 +43,11 @@ size_t cond::IOVIteratorImpl::position() const {
 
 
 bool  cond::IOVIteratorImpl::atEnd() const {
-  return m_pos==m_iov->iov.end();
+  return m_isInit && m_pos==m_iov->iov.end();
 }
 
 bool cond::IOVIteratorImpl::next(){
-  if(!m_isOpen){
+  if(!m_isInit){
     init();
     return !empty();
   }
@@ -53,9 +62,7 @@ bool cond::IOVIteratorImpl::next(){
 
 std::string 
 cond::IOVIteratorImpl::payloadToken() const{
-  if(!m_isOpen){
-    const_cast<cond::IOVIteratorImpl*>(this)->init();
-  }
+  if(!m_isInit) return std::string("");
   
   return atEnd() ? std::string("") : m_pos->second;
 
@@ -63,12 +70,9 @@ cond::IOVIteratorImpl::payloadToken() const{
 
 cond::ValidityInterval
 cond::IOVIteratorImpl::validity() const{
-  if(!m_isOpen){
-    const_cast<cond::IOVIteratorImpl*>(this)->init();
-  }
   cond::Time_t since=m_globalSince;
   cond::Time_t till=m_globalTill;
-  if (!atEnd()) {
+  if (m_isInit && !atEnd()) {
     since = m_since;
     till =  m_pos->first;
   }

@@ -12,7 +12,9 @@ namespace cond{
     virtual size_t position() const=0;
     virtual bool atEnd() const=0;
     virtual std::string payloadToken() const=0;
+    TimeType IOVEditorImpl::timetype() const=0;
  
+
     /** return the "closed" validity interval:
 	i.e. the payload is valid at both extremes included 
      */

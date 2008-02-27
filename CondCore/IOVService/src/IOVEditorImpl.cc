@@ -60,7 +60,6 @@ namespace cond {
   
   TimeType IOVEditorImpl::timetype() const {
     return (TimeType)(m_iov->timetype);
-
   }
   
   

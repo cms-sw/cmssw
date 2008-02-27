@@ -23,8 +23,13 @@ namespace cond{
     virtual size_t position() const;
     virtual bool atEnd() const;
     virtual std::string payloadToken() const;
+    TimeType IOVEditorImpl::timetype() const {
+      return (TimeType)(m_iov->timetype);     
+    }
+
     virtual cond::ValidityInterval validity() const;
   private:
+    void open();
     void init();
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
@@ -35,6 +40,7 @@ namespace cond{
     cond::Time_t  m_since;
     size_t m_count;
 
+    bool m_isInit;
     bool m_isOpen;
   };
 }//ns cond
