@@ -13,7 +13,7 @@
 
 #include "DataFormats/Common/interface/RefItem.h"
 
-template <typename Collection, typename Reference, TrackCategories::Category Category>
+template <typename Collection, TrackCategories::Category Category>
 class TrackParticleSelector {
 
  public:
@@ -43,7 +43,7 @@ class TrackParticleSelector {
             
     for(typename collection::size_type i=0; i<tpc.size(); i++)
     {  
-      Reference tp(TPCH, i);
+      edm::Ref<Collection> tp(TPCH, i);
 
       if( classifier_.evaluate(tp) )
         if( classifier_.is(Category) )

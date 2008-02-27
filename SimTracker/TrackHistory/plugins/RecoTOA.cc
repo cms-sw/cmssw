@@ -21,7 +21,6 @@
 #include "TFile.h"
 #include "TH1D.h"
 
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 

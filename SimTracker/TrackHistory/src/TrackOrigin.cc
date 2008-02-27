@@ -1,6 +1,5 @@
 /*
  *  TrackOrigin.C
- *  CMSSW_1_3_1
  *
  *  Created by Victor Eduardo Bazterra on 5/30/07.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.

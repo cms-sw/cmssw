@@ -91,9 +91,17 @@ void TrackCategories::byHistory()
   if ( !tracer_.simVertexTrail().empty() )
     flags_[Displaced] = true;
 		
+  // Checks for long lived particle
+  flags_[Ks] = hasLongLived(310);      // Ks
+  flags_[Lambda] = hasLongLived(3122); // Lambda 
+  
+  // Check for photon conversion
+  flags_[PhotonConversion] = hasPhotonConversion();
+	
   // Get the simulated particle.
   const HepMC::GenParticle * particle = tracer_.particle();
-    
+  
+  // Check for the initial hadron
   if (particle)
   {
     HepPDT::ParticleID pid(particle->pdg_id());
@@ -108,6 +116,16 @@ void TrackCategories::byHistory()
     flags_[Unknown] = true;
 }
 
+bool TrackCategories::hasLongLived(int pdgid) const
+{
+  if ( !tracer_.genParticleTrail().empty() )
+  {
+    if( abs(tracer_.genParticleTrail()[0]->pdg_id()) == pdgid )
+      return true;
+  }
+  return false;}
+
+bool TrackCategories::hasPhotonConversion() const{  TrackOrigin::SimVertexTrail::const_iterator tvr;  TrackingParticleRefVector sources, daughters;  for (tvr = tracer_.simVertexTrail().begin(); tvr != tracer_.simVertexTrail().end(); tvr++)  {    sources = (*tvr)->sourceTracks();    daughters = (*tvr)->daughterTracks();    if (sources.size() == 1              &&  // require one source         daughters.size() == 2            &&  //    "    two daughters        sources[0]->pdgId() == 22        &&  //    "    a photon in the source        abs(daughters[0]->pdgId()) == 11 &&  //    "    two electrons        abs(daughters[1]->pdgId()) == 11    ) return true;  }  return false;}
 
 void TrackCategories::byReco(edm::RefToBase<reco::Track> track)
 {

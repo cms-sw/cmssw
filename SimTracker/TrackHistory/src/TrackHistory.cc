@@ -7,9 +7,10 @@
  *
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
-
 
 TrackHistory::TrackHistory (
   const edm::ParameterSet & iConfig
@@ -81,10 +82,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
   // sencond stop condition: if a gen particle is associated to the TP  
   if ( !tpr->genParticle().empty() ) 
   {
-    std::cout << "Particle " << tpr->pdgId() << " has a GenParicle image." << std::endl;
-    for (TrackingParticle::genp_iterator hepT = tpr->genParticle_begin(); hepT !=  tpr->genParticle_end(); ++hepT)
-      std::cout << "  HepMC Momentum :" << (*hepT)->momentum().mag() << (*hepT)->pdg_id() << std::endl;
-      
+    LogDebug("TrackHistory") << "Particle " << tpr->pdgId() << " has a GenParicle image." << std::endl;      
     traceGenHistory(&(**(tpr->genParticle_begin())));
     return true;
   }  
@@ -100,18 +98,8 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
     
     if ( !parentVertex->sourceTracks().empty() ) 
     {
-      std::cout << "No GenParticle image for " << tpr->pdgId() << " moving on to the parent particle." << std::endl;
-      
-      TrackingVertex::tp_iterator it = parentVertex->daughterTracks_begin();
-      
-      for(; it != parentVertex->daughterTracks_end(); it++)
-        std::cout << "  Vertex daughter " << (*it)->pdgId() << " moment: " << (*it)->pt() << " matched hits " << (*it)->matchedHit() << std::endl;
-      
-      it = parentVertex->sourceTracks_begin();
-      
-      for(; it != parentVertex->sourceTracks_end(); it++)
-        std::cout << "  Vertex source " << (*it)->pdgId() << " moment: " << (*it)->pt() << " matched hits " << (*it)->matchedHit() << std::endl;
-    
+      LogDebug("TrackHistory") << "No GenParticle image for " << tpr->pdgId() << " moving on to the parent particle." << std::endl;
+          
       // select the original source in case of combined vertexes
       bool flag = false;
       TrackingVertex::tp_iterator itd, its;
@@ -137,7 +125,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
         ) != simParticleTrail_.end()
       ) 
       {
-        std::cout <<  "WARNING: Looping track found." << std::endl;
+        LogDebug("TrackHistory") <<  "WARNING: Looping track found." << std::endl;
         return false;
       } 
       
@@ -147,12 +135,12 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
     }
     else 
     {
-      std::cout <<  "WARNING: Source track for tracking vertex cannot be found." << std::endl;
+      LogDebug("TrackHistory") <<  "WARNING: Source track for tracking vertex cannot be found." << std::endl;
     }
   }
   else
   {
-    std::cout << " WARNING: Parent vertex for tracking particle cannot be found.";
+    LogDebug("TrackHistory") << " WARNING: Parent vertex for tracking particle cannot be found.";
   }
     
   return false;

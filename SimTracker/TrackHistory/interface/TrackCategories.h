@@ -32,6 +32,9 @@ public:
     SV,
     TV,
     Displaced,
+    Ks,
+    Lambda,
+    PhotonConversion,
     Up,
     Down,
     Strange,
@@ -104,6 +107,12 @@ private:
 
   //! Define all the categories related to track history.
   void byHistory();
+
+  //! Check for long lived particles.
+  bool hasLongLived(int) const;
+  
+  //! Check for phton conversion
+  bool hasPhotonConversion() const;
 
   //! Define all the categories related to reconstruction.
   void byReco(edm::RefToBase<reco::Track>);

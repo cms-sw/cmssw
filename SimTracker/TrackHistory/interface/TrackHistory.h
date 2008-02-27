@@ -1,6 +1,5 @@
 /*
  *  TrackHistory.h
- *  CMSSW_1_3_1
  *
  *  Created by Victor Eduardo Bazterra on 7/13/07.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.
@@ -20,7 +19,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-
 
 //! This class trace the simulted and generated history of a given track.
 class TrackHistory {
@@ -85,31 +83,31 @@ public:
   bool evaluate (edm::RefToBase<reco::Track>);
 
   //! Return the initial tracking particle from the history.
-  TrackingParticleRef simParticle() const
+  const TrackingParticleRef & simParticle() const
   {
     return simParticleTrail_[0];
   }
 
   //! Return all the simulated vertexes in the history.
-  SimVertexTrail simVertexTrail() const
+  const SimVertexTrail & simVertexTrail() const
   {
     return simVertexTrail_;
   }
 
   //! Return all the simulated particle in the history.
-  SimParticleTrail simParticleTrail() const
+  const SimParticleTrail & simParticleTrail() const
   {
     return simParticleTrail_;
   }
 
   //! Return all generated vertex in the history.
-  GenVertexTrail genVertexTrail() const
+  const GenVertexTrail & genVertexTrail() const
   {
     return genVertexTrail_;
   }
   
   //! Return all generated particle in the history.
-  GenParticleTrail genParticleTrail() const
+  const GenParticleTrail & genParticleTrail() const
   {
     return genParticleTrail_;
   }
