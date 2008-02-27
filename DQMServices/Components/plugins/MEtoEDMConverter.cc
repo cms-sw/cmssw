@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/08 06:40:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/21 03:26:48 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -137,13 +137,15 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
     std::cout << "Packages accessing DQM:" << std::endl;
     std::map<std::string,int>::iterator pkgIter;
     for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter) 
-      std::cout << "  " << pkgIter->first << ": " << pkgIter->second << std::endl;
+      std::cout << "  " << pkgIter->first << ": " << pkgIter->second 
+		<< std::endl;
 
     std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
     std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
     std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
-    std::cout << "We have " << nTProfile2D << " TProfile2D objects" << std::endl;
+    std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
+	      << std::endl;
     std::cout << "We have " << nFloat << " Float objects" << std::endl;
     std::cout << "We have " << nInt << " Int objects" << std::endl;
     std::cout << "We have " << nString << " String objects" << std::endl;
@@ -275,6 +277,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH1FME.object.push_back(*me->getTH1F());
       TH1FME.name.push_back(me->getFullname());
       TH1FME.tags.push_back(me->getTags());
+      me->Reset();
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
@@ -283,6 +286,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH2FME.object.push_back(*me->getTH2F());
       TH2FME.name.push_back(me->getFullname());
       TH2FME.tags.push_back(me->getTags());
+      me->Reset();
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
@@ -291,6 +295,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH3FME.object.push_back(*me->getTH3F());
       TH3FME.name.push_back(me->getFullname());
       TH3FME.tags.push_back(me->getTags());
+      me->Reset();
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
@@ -299,6 +304,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TProfileME.object.push_back(*me->getTProfile());
       TProfileME.name.push_back(me->getFullname());
       TProfileME.tags.push_back(me->getTags());
+      me->Reset();
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
@@ -307,6 +313,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TProfile2DME.object.push_back(*me->getTProfile2D());
       TProfile2DME.name.push_back(me->getFullname());
       TProfile2DME.tags.push_back(me->getTags());
+      me->Reset();
       break;
 
     default:
@@ -341,7 +348,8 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   }
   if (! TProfile2DME.object.empty()) {
     std::auto_ptr<MEtoEDM<TProfile2D> > pOut5(new MEtoEDM<TProfile2D>);
-    pOut5->putMEtoEdmObject(TProfile2DME.name,TProfile2DME.tags, TProfile2DME.object);
+    pOut5->putMEtoEdmObject(TProfile2DME.name,TProfile2DME.tags, 
+			    TProfile2DME.object);
     iRun.put(pOut5,fName);
   }
   if (! FloatME.object.empty()) {
