@@ -16,6 +16,8 @@ HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
      , m_minHits(iConfig.getParameter<unsigned int>("minHits"))
      , m_xWindow(iConfig.getParameter<double>("xWindow"))
      , m_yWindow(iConfig.getParameter<double>("yWindow"))
+     , m_ring1(iConfig.getParameter<bool>("ring1"))
+     , m_ring2(iConfig.getParameter<bool>("ring2"))
      , m_fillHists(iConfig.getParameter<bool>("fillHists"))
 {
    if (m_fillHists) {
@@ -42,12 +44,15 @@ bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
       CSCDetId id(hit->geographicalId());
       int chamber_id = CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), 0).rawId();
 
-      std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.find(chamber_id);
-      if (chamber_iter == chamber_tohit.end()) {
-	 std::vector<const CSCRecHit2D*> newlist;
-	 newlist.push_back(&(*hit));
-      }
-      chamber_tohit[chamber_id].push_back(&(*hit));
+      if ((m_ring1  &&  (id.ring() == 1  ||  id.ring() == 4))  ||
+	  (m_ring2  &&  id.ring() == 2)) {
+	 std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.find(chamber_id);
+	 if (chamber_iter == chamber_tohit.end()) {
+	    std::vector<const CSCRecHit2D*> newlist;
+	    newlist.push_back(&(*hit));
+	 }
+	 chamber_tohit[chamber_id].push_back(&(*hit));
+      } // end if this ring is selected
    } // end loop over hits
 
    bool keep = false;

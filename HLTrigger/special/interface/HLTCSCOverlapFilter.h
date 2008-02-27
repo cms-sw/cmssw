@@ -20,6 +20,7 @@ class HLTCSCOverlapFilter : public HLTFilter {
   edm::InputTag m_input;
   unsigned int m_minHits;
   double m_xWindow, m_yWindow;
+  bool m_ring1, m_ring2;
   bool m_fillHists;
   TH1F *m_nhitsNoWindowCut, *m_xdiff, *m_ydiff, *m_pairsWithWindowCut;
 };
