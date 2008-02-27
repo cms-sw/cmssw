@@ -40,10 +40,10 @@ namespace{
       file.getline(buff,1024);
       char p;
       bool first=true;
-      while(in) {
+      while(file) {
 	file.get(p); if (p=='T') break;
 	file.putback(p);
-	file >> since >> till >> token;  in.getline(buff,1024);
+	file >> since >> till >> token;  file.getline(buff,1024);
 	values.push_back(Item(till,token));
 	if (first) {
 	  first=false;
@@ -52,6 +52,10 @@ namespace{
       }
       
     }
+
+  };
+
+}
     
 int main( int argc, char** argv ){
   boost::program_options::options_description desc("options");
