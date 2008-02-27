@@ -102,9 +102,9 @@ namespace cond {
   }
   
   unsigned int 
-  cond::IOVEditorImpl::append(  cond::Time_t sinceTime ,
-				const std::string& payloadToken
-				){
+  cond::IOVEditorImpl::append( cond::Time_t sinceTime ,
+			       const std::string& payloadToken
+			       ){
     if( m_token.empty() ) {
       throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to non-existing IOV index");
     }
@@ -128,6 +128,8 @@ namespace cond {
     }
 
     cond::Time_t lastIOV=m_iov->iov.back().first;
+    // does it make sense? (in case of mixed till and since insertions...)
+    if (lastIOV<sinceTime) lastIOV=m_globalTill;
     m_iov.markUpdate();
     m_iov->iov.back().first = sinceTime-1;
     return m_iov->add(lastIOV,payloadToken);

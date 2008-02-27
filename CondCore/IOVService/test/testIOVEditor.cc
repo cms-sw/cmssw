@@ -31,7 +31,15 @@ int main(){
     std::cout<<"inserted 140 payload at position "<<pos<<std::endl;
     pos=editor->append(160, "pay16tok");
     std::cout<<"inserted 160 payload at position "<<pos<<std::endl;
-    pos=editor->insert(999999, "pay4tok");
+    try {
+      pos=editor->insert(999999, "pay4tok");
+      std::cout<<"shall not append payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
+    editor->updateClosure(300);
+    pos=editor->insert(5000, "pay4tok");
     std::cout<<"inserted 999999 payload at position "<<pos<<std::endl;
     try {
       pos=editor->append(5, "pay5tok");
@@ -55,7 +63,7 @@ int main(){
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
-    editor->updateClosure(999997);
+    editor->updateClosure(4000);
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
     cond::IOVIterator* it=iovmanager.newIOVIterator(token);
