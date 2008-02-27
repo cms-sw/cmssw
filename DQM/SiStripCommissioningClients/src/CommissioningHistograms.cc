@@ -203,7 +203,7 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
 
     // Extract source directory path 
     std::string source_dir = istr->substr( 0, istr->find(":") );
-    
+
     // Generate corresponding client path (removing trailing "/")
     SiStripFecKey path( source_dir );
     std::string client_dir = path.path();
@@ -213,9 +213,17 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
+
+    if ( me_list.empty() ) {
+      edm::LogError(mlDqmClient_)
+	<< "[CommissioningHistograms::" << __func__ << "]"
+	<< " No MonitorElements found in dir " << source_dir;
+      return sistrip::UNKNOWN_RUN_TYPE;
+    }
+
     std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
-      
+
       if ( !(*ime) ) {
 	edm::LogError(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
@@ -252,7 +260,12 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
     istr++;
     
   }
+
+  edm::LogError(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Unable to extract RunType!";
   return sistrip::UNKNOWN_RUN_TYPE;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -848,6 +861,13 @@ void CommissioningHistograms::remove( std::string pattern ) {
       << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
+
+  if ( !mui_->getBEInterface() ) { 
+    edm::LogError(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " NULL pointer to DaqMonitorBEInterface!"; 
+    return;
+  }
   
   mui_->getBEInterface()->setVerbose(0);
 
@@ -884,7 +904,7 @@ void CommissioningHistograms::remove( std::string pattern ) {
 
     LogTrace(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " Removing all directories (and MonitorElements therein)";
+      << " Removing \"DQM source\" directories (and MonitorElements therein)";
     
   }
 
