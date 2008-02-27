@@ -75,8 +75,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
     produces<std::vector<L1MuGMTCand> >();
 
     // input tag for DAQ GT record
-    m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "DaqGtInputTag", edm::InputTag("l1GtPack"));
+    m_daqGtInputTag = pSet.getParameter<edm::InputTag>("DaqGtInputTag");
 
     // FED Id for GT DAQ record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc

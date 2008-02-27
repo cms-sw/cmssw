@@ -62,8 +62,7 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     produces<L1GlobalTriggerEvmReadoutRecord>();
 
     // input tag for EVM GT record
-    m_evmGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "EvmGtInputTag", edm::InputTag("l1GtEvmPack"));
+    m_evmGtInputTag = pSet.getParameter<edm::InputTag>("EvmGtInputTag");
 
 
     // FED Id for GT EVM record

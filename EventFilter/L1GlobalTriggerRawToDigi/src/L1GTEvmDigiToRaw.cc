@@ -69,8 +69,7 @@ L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet)
     << std::endl;
 
     // input tag for EVM GT record
-    m_evmGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "EvmGtInputTag", edm::InputTag("L1GtEmul"));
+    m_evmGtInputTag = pSet.getParameter<edm::InputTag>("EvmGtInputTag");
 
     LogDebug("L1GTEvmDigiToRaw")
     << "\nInput tag for EVM GT record: "

@@ -74,8 +74,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
     << std::endl;
 
     // input tag for DAQ GT record
-    m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "DaqGtInputTag", edm::InputTag("L1GtEmul"));
+    m_daqGtInputTag = pSet.getParameter<edm::InputTag>("DaqGtInputTag");
 
     LogDebug("L1GTDigiToRaw")
     << "\nInput tag for DAQ GT record: "
@@ -83,8 +82,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
     << std::endl;
 
     // input tag for GMT record
-    m_muGmtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                          "MuGmtInputTag", edm::InputTag("gmt"));
+    m_muGmtInputTag = pSet.getParameter<edm::InputTag>("MuGmtInputTag");
 
     LogDebug("L1GTDigiToRaw")
     << "\nInput tag for GMT record: "
