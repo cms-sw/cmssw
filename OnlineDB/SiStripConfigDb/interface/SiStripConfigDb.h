@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.39 2008/02/20 11:23:28 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.40 2008/02/26 09:00:13 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -22,7 +22,7 @@
 #include <string>
 #include <map>
 
-#define USING_NEW_DATABASE_MODEL
+//#define USING_NEW_DATABASE_MODEL
 
 /*
   - Remaining work:
