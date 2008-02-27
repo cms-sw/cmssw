@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.8 2008/02/12 12:35:32 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.9 2008/02/15 13:36:23 fblekman Exp $
 //
 //
 
@@ -89,6 +89,8 @@ public:
   MonitorElement* 			bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
   
   MonitorElement*                       bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
+  void                                  addTF1ToDQMMonitoringElement(MonitorElement *ele, TF1 *func);
+  
   bool				        setDQMDirectory(std::string dirName);	
   bool				        setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
   static TF1*                           fitFunction_;

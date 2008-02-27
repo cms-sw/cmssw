@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.8 2008/02/12 12:35:35 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.9 2008/02/25 08:47:30 fblekman Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "TList.h"
 
 TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
@@ -301,6 +302,20 @@ SiPixelOfflineCalibAnalysisBase::checkPixel(uint32_t detid,short row, short col)
     }
 
   return false;
+}
+
+// function to add tf1's to ME's:
+void SiPixelOfflineCalibAnalysisBase::addTF1ToDQMMonitoringElement(MonitorElement *ele, TF1 *func){
+  
+  if(func){
+  
+    TH1F *root_ob = dynamic_cast<TH1F*> (ele);
+  
+    if(root_ob){
+       root_ob->GetListOfFunctions()->Add(func);
+    }
+  }
+  return;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelOfflineCalibAnalysisBase);
