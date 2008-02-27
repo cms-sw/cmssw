@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-namespace cond{
   class IOV {
   public:
     typedef std::pair<cond::Time_t, std::string> Item;
@@ -49,5 +48,8 @@ namespace cond{
     int timetype;
     cond::Time_t firstsince;
   };
+
+namespace cond {
+  using ::IOV;
 }//ns cond
 #endif

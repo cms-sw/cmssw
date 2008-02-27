@@ -2,9 +2,13 @@
 #define CondCore_IOVService_IOVEditorImpl_h
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
+
+class IOV;
+
 namespace cond{
+  using ::IOV;
   class PoolTransaction;
-  class IOV;
+  // class IOV;
   class IOVEditorImpl : virtual public cond::IOVEditor{
   public:
     // constructor from existing iov
