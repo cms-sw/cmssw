@@ -35,14 +35,14 @@ int main(){
     std::cout<<"inserted 999999 payload at position "<<pos<<std::endl;
     try {
       pos=editor->append(5, "pay5tok");
-      std::cout<<"appened payload at position "<<pos<<std::endl;
+      std::cout<<"shall not append payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     try {
       pos=editor->insert(25, "pay5tok");
-      std::cout<<"appened payload at position "<<pos<<std::endl;
+      std::cout<<"shall not append payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
@@ -50,7 +50,7 @@ int main(){
 
     try {
       pos=editor->append(70, "pay5tok");
-      std::cout<<"appened payload at position "<<pos<<std::endl;
+      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
