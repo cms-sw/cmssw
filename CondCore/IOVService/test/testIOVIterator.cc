@@ -27,6 +27,8 @@ int main(){
     cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
     std::cout<<"test forward iterator "<<std::endl;
     pooldb.start(true);
+    std::cout << "size " << it->size()
+	      <<", Time Type " << it.timetype() << std::endl;
     while( it->next() ){
       std::cout<<"payloadToken "<<it->payloadToken();
       std::cout<<", since "<<it->validity().first;
