@@ -1,0 +1,44 @@
+set dir1=/afs/cern.ch/cms/sdt/web/CondCore/SQLiteData
+foreach x ($dir1/*.db)
+echo $x
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+cmscond_list_iov -c sqlite_file:$x -t $tag > `basename $x`_dump.${tag}
+end
+end
+
+##
+#
+
+touch drop
+echo "drop table COND__IOV;" >> drop
+echo "drop table COND__IOV_IOV;" >> drop
+echo "drop table IOV;" >> drop
+echo "drop table IOV_DATA;" >> drop
+echo "drop table METADATA;" >> drop
+echo "DELETE FROM POOL_RSS_CONTAINERS WHERE CLASS_NAME='cond::IOV';">>drop
+
+set dir=/build/vin/SQLiteData
+foreach x ($dir/*.db)
+echo $x
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+cmscond_delete_iov  -c sqlite_file:$x -t $tag
+end
+pool_remove_object_relational_mapping -v CONDIOV_2.0 -c sqlite_file:$x
+pool_remove_object_relational_mapping -v automatic_default_for_cond::IOV -c sqlite_file:$x
+echo ".exit" | sqlite3 -batch -init drop $x
+end
+rm drop
+
+set dir=/build/vin/SQLiteData
+foreach x (*_dump*)
+set file = `echo $x | sed 's/_dump.*$//'`
+echo $file
+cmscond_load_iov -c sqlite_file:$dir/$file $x
+end
+foreach x ($dir/*.db)
+echo $x
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+cmscond_list_iov -c sqlite_file:$x -t $tag
+end
+end
+
