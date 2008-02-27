@@ -59,8 +59,8 @@
   <class name="StringMap" />
   <class name="edm::Wrapper<StringMap>" />
 
-  <class name="std::pair<edm::RefToBase<reco::Candidate>,int32_t>" />
-  <class name="std::vector<std::pair<edm::RefToBase<reco::Candidate>,int32_t> >" />
+  <class name="std::pair<std::string,edm::RefToBase<reco::Candidate> >" />
+  <class name="std::vector<std::pair<std::string,edm::RefToBase<reco::Candidate> > >" />
   <class name="pat::EventHypothesis" />
   <class name="std::vector<pat::EventHypothesis>" />
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />

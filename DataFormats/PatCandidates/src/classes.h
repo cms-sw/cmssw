@@ -12,6 +12,7 @@
 
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
+#include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
 
 // vvvv Needed to fix dictionaries missing in 169pre2
 #include "DataFormats/METReco/interface/MET.h"
@@ -56,13 +57,12 @@ namespace {
     StringMap smap;
     edm::Wrapper<StringMap> smap_w;
 
-    std::pair<edm::RefToBase<reco::Candidate>,int32_t> hypo0;
-    std::vector<std::pair<edm::RefToBase<reco::Candidate>,int32_t> > hypo1;
+    std::pair<std::string, edm::RefToBase<reco::Candidate> > hypo0;
+    std::vector<std::pair<std::string, edm::RefToBase<reco::Candidate> > > hypo1;
     pat::EventHypothesis hypot;
     std::vector<pat::EventHypothesis> hypots;
     edm::Wrapper<std::vector<pat::EventHypothesis> > hypots_w;
 
-    
 
     // To check:
     // These don't belong here, and maybe they already exist in the meantime
