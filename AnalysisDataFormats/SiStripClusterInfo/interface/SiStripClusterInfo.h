@@ -1,91 +1,134 @@
+
 #ifndef ANALYSISDATAFORMATS_SISTRIPCLUSTERINFO_H
 #define ANALYSISDATAFORMATS_SISTRIPCLUSTERINFO_H
+// -*- C++ -*-
+//
+// Package:     AnalysisDataFormats
+// Class  :     SiStripClusterInfo
+// 
+/**\class SiStripClusterInfo SiStripClusterInfo.h AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h
 
+ Description: utility class gathering all access methods to SiStripCluster-related information
+              for detector-related studies and DQM
+
+*/
+//
+// Original Author:  Evelyne Delmeire
+//         Created:  Sun Jan 27 16:07:51 CET 2007
+//
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
+
 #include <vector>
 #include <sstream>
+#include <string>
 #include "boost/cstdint.hpp"
 
+class SiStripRawDigi;
+
+class SiStripDigi;
+
 class SiStripClusterInfo {
-public:
-
-  SiStripClusterInfo() : detId_(0) {};
-
-  SiStripClusterInfo(const SiStripCluster& cluster):
-    detId_(cluster.geographicalId()),
-    FirstStrip(cluster.firstStrip()),
-    StripAmplitudes(cluster.amplitudes()),    
-    Position(cluster.barycenter()),
-    Width(cluster.amplitudes().size()),
-    MaxCharge(0),
-    MaxPosition(0)
-    {
-      RawDigiAmplitudesL=std::vector<float>(0);
-      RawDigiAmplitudesR=std::vector<float>(0);
-      StripNoises=std::vector<float>(0);
-      ApvGains=std::vector<float>(1);
-    };
   
-
-  uint16_t firstStrip() const {return FirstStrip;}
-  unsigned int geographicalId() const {return detId_;}
-  const std::vector<uint16_t>& stripAmplitudes()    const {return StripAmplitudes;}
-  const std::vector<float>&    rawdigiAmplitudesL() const {return RawDigiAmplitudesL;}
-  const std::vector<float>&    rawdigiAmplitudesR() const {return RawDigiAmplitudesR;}
-  const std::vector<float>&    stripNoises()        const {return StripNoises;}
-  const std::vector<float>&    apvGains()           const {return ApvGains;}
+ public:
   
-  float charge()    const {return Charge;}
-  float noise()     const {return Noise;}
-  float position()  const {return Position;}
-  float width()     const {return Width;}
-  float maxCharge() const {return MaxCharge;}
-  uint16_t maxPos() const {return MaxPosition;}
-  float chargeL()   const {return ChargeL;}
-  float chargeR()   const {return ChargeR;}
-  float getGainForStripNb(uint16_t istrip) const;
+  SiStripClusterInfo(const uint32_t cluster_detId,
+                     const SiStripCluster& cluster, 
+                     const edm::EventSetup& es, 
+		     std::string CMNSubtractionMode="Median");
+  
+  ~SiStripClusterInfo();
+    
+  uint16_t                           getFirstStrip() const {return cluster_->firstStrip();}
+  float                                getPosition() const {return cluster_->barycenter();}
+  const std::vector<uint16_t>&  getStripAmplitudes() const {return cluster_->amplitudes();} 
+  
+    
+  float                            getWidth() const {return cluster_->amplitudes().size();}
+  float                           getCharge() ;
+  uint16_t                   getMaxPosition() ;
+  float                        getMaxCharge() ;  
+  std::pair<float,float>        getChargeLR() ;
+  
+  
+  std::vector<float>               getStripNoises() const; 
+  std::vector<float> getStripNoisesRescaledByGain() const; 
+  float                                  getNoise()  ;
+  float                    getNoiseRescaledByGain()  ;
+  float                        getNoiseForStripNb(uint16_t istrip ) const;
+  
+  std::vector<float> getApvGains() const; 
+  float        getGainForStripNb(uint16_t istrip ) const;
+  
+  float               getSignalOverNoise() ;
+  float getSignalOverNoiseRescaledByGain() ;
 
-  void setCharge(const float& value) {Charge=value;}  
-  void setNoise(const float& value) {Noise=value;}
-  void setStripNoises(std::vector<float>& value) {StripNoises=value;}
-  void setApvGains(std::vector<float>& value) {ApvGains=value;}
-  void setMaxCharge(const float& value) {MaxCharge=value;}
-  void setMaxPos(const uint16_t& value) {MaxPosition=value;}
-  void setChargeL(const float& value) {ChargeL=value;}
-  void setChargeR(const float& value) {ChargeR=value;}
-  void setRawDigiAmplitudesL(const std::vector<float>& value){RawDigiAmplitudesL=value;}
-  void setRawDigiAmplitudesR(const std::vector<float>& value){RawDigiAmplitudesR=value;}
+  
+  std::pair< std::vector<float>,std::vector<float> > getRawDigiAmplitudesLR(      uint32_t&                       neighbourStripNr, 
+                                                                            const edm::DetSetVector<SiStripRawDigi>& rawDigis_dsv_, 
+		                                                                  edm::DetSetVector<SiStripCluster>& clusters_dsv_,
+		                                                                  std::string                         rawDigiLabel);
 
-  void print(std::stringstream &ss);
+  std::pair< std::vector<float>,std::vector<float> > getRawDigiAmplitudesLR(      uint32_t&                neighbourStripNr, 
+                                                                            const edm::DetSet<SiStripRawDigi>& rawDigis_ds_, 
+                                                                                  edm::DetSet<SiStripCluster>& clusters_ds_,
+                                                                                  std::string                  rawDigiLabel); 
 
-private:
 
-  uint32_t                detId_;
-  uint16_t                FirstStrip;
-  std::vector<uint16_t>   StripAmplitudes;
-  std::vector<float>      RawDigiAmplitudesL;
-  std::vector<float>      RawDigiAmplitudesR;
-  std::vector<float>      StripNoises;
-  std::vector<float>      ApvGains;
+  
+  std::pair< std::vector<float>,std::vector<float> >  getDigiAmplitudesLR(      uint32_t&                       neighbourStripNr,
+                                                                          const edm::DetSetVector<SiStripDigi>&       digis_dsv_,
+									       edm::DetSetVector<SiStripCluster>&  clusters_dsv_);
 
-  float     Charge;
-  float     Noise;
-  float     Position;
-  uint16_t  Width;
-  float     MaxCharge;
-  uint16_t  MaxPosition;
-  float     ChargeL;
-  float     ChargeR;
+  std::pair< std::vector<float>,std::vector<float> > getDigiAmplitudesLR(      uint32_t&                neighbourStripNr, 
+                                                                         const edm::DetSet<SiStripDigi>&       digis_ds_, 
+                                                                               edm::DetSet<SiStripCluster>& clusters_ds_);
+ 
+
+ private:
+  
+  
+  void rawdigi_algorithm(const edm::DetSet<SiStripRawDigi> rawDigis_ds_,
+			       edm::DetSet<SiStripCluster> clusters_ds_,
+			       std::string                 rawDigiLabel);
+  
+  void digi_algorithm(const edm::DetSet<SiStripDigi>     digis_ds_,
+                           edm::DetSet<SiStripCluster> cluster_ds_);
+  
+  void findNeigh(char*                               mode,
+                 edm::DetSet<SiStripCluster> clusters_ds_,
+		 std::vector<int16_t>&               vadc,
+		 std::vector<int16_t>&             vstrip);
+ 
+
+  edm::ESHandle<SiStripNoises>        noiseHandle_;
+  edm::ESHandle<SiStripGain>           gainHandle_;
+  edm::ESHandle<SiStripPedestals> pedestalsHandle_;
+    
+  const SiStripCluster *cluster_;
+  uint32_t cluster_detId_;
+   
+  uint16_t neighbourStripNr;
+  SiStripCommonModeNoiseSubtractor* SiStripCommonModeNoiseSubtractor_;
+  std::string CMNSubtractionMode_;
+  bool validCMNSubtraction_;  
+  SiStripPedestalsSubtractor* SiStripPedestalsSubtractor_;
+  std::vector<float>   amplitudesL_;
+  std::vector<float>   amplitudesR_;
+ 
+  
 };
 
-// Comparison operators
-inline bool operator<( const SiStripClusterInfo& one, const SiStripClusterInfo& other) {
-  if(one.geographicalId() == other.geographicalId()) {
-    float StoN_one = (one.noise()!= 0) ? one.charge()/one.noise() : .0;
-    float StoN_other = (other.noise()!= 0) ? other.charge()/other.noise() : .0;
- 
-    return StoN_one < StoN_other;
-  }
-  return one.geographicalId() < other.geographicalId();
-}
 #endif // ANALYSISDATAFORMATS_SISTRIPCLUSTER_H
