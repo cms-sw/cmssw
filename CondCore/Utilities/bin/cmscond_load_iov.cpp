@@ -85,6 +85,7 @@ int main( int argc, char** argv ){
     std::cout << visible <<std::endl;;
     return 0;
   }
+
   Parser parser;
   std::string connect;
   std::string user("");
@@ -94,7 +95,8 @@ int main( int argc, char** argv ){
   std::fstream inputFile;
 
   bool debug=false;
-  std::vector< std::pair<cond::Time_t, std::string> > newValues;
+
+
   if( !vm.count("inputFile") ){
     std::cerr <<"[Error] no input file given \n";
     std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -154,7 +156,7 @@ int main( int argc, char** argv ){
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
     editor->create(parser.firstSince);
-    editor->bulkInsert(newValues);
+    editor->bulkInsert(parser.values);
     iovtoken=editor->token();
     pooldb.commit();
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
