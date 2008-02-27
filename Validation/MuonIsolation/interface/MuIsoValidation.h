@@ -55,7 +55,7 @@ class TProfile;
 class MuIsoValidation : public edm::EDAnalyzer {
 	//---------namespace and typedefs--------------
 	typedef reco::MuonCollection::const_iterator MuonIterator;
-	typedef edm::Handle<reco::MuIsoDepositAssociationMap> MuIsoDepHandle;
+	typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
 	typedef const reco::MuIsoDeposit MuIsoDepRef;
 
 	public:
