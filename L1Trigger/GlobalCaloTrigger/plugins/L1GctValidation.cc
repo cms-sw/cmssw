@@ -79,7 +79,7 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle< L1GctJetCounts > jetCountDigi ;
   iEvent.getByLabel( m_energy_tag, jetCountDigi ) ;
 
-  for (unsigned jc=0; jc<L1GctJetCounts::MAX_TRUE_COUNTS; jc++) {
+  for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
     theJetCounts.at(jc)->Fill(jetCountDigi->count(jc));
   }
 
@@ -118,13 +118,15 @@ L1GctValidation::beginJob(const edm::EventSetup&)
 
   TFileDirectory dir1 = fs->mkdir("L1GctJetCounts");
 
-  for (unsigned jc=0; jc<L1GctJetCounts::MAX_TRUE_COUNTS; jc++) {
+  for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
     std::stringstream ss;
     std::string title;
     std::string header;
     ss << "JetCount#" << jc;
     ss >> title;
     ss << "Jet Count number " << jc;
+    if (jc== 6 || jc== 7) { ss << " (Hf tower count)"; }
+    if (jc==10 || jc==11) { ss << " (Hf Et sum MSB)"; }
     ss >> header;
     theJetCounts.push_back(dir1.make<TH1F>(title.c_str(), header.c_str(), 32, 0., 32.));
   }
