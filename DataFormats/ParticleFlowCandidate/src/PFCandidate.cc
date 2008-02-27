@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -26,13 +27,21 @@ PFCandidate::PFCandidate() :
   mva_pi_mu_(-PFCandidate::bigMva_),
   mva_nothing_gamma_(-PFCandidate::bigMva_),
   mva_nothing_nh_(-PFCandidate::bigMva_),
-  mva_gamma_nh_(-PFCandidate::bigMva_)
-{}
+  mva_gamma_nh_(-PFCandidate::bigMva_) {
+  
+  setPdgId( translateTypeToPdgId( particleId_ ) );
+}
+
+
+PFCandidate::PFCandidate( const PFCandidateRef& parentRef ) {
+  *this = *parentRef;
+  parent_ = parentRef;
+}
 
 
 PFCandidate::PFCandidate( Charge charge, 
-                          const LorentzVector & p4, 
-                          ParticleType particleId ) : 
+			  const LorentzVector & p4, 
+			  ParticleType particleId ) : 
   
   CompositeCandidate(charge, p4), 
   particleId_(particleId), 
@@ -73,10 +82,12 @@ PFCandidate::PFCandidate( Charge charge,
       err += "Attempt to construct a neutral PFCandidate ";
       err += "with a non-zero charge";
       throw cms::Exception("InconsistentValue",
-                           err.c_str() );
+			   err.c_str() );
     } 
   }
+  setPdgId( translateTypeToPdgId( particleId_ ) );
 }
+
 
 
 PFCandidate * PFCandidate::clone() const {
@@ -84,16 +95,26 @@ PFCandidate * PFCandidate::clone() const {
 }
 
 
-// void PFCandidate::addElement(const  PFBlockElement* element ) {
-//   elements_.push_back( element->clone() ); 
-// }
-
-
 void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
                                      unsigned elementIndex ) {
   elementsInBlocks_.push_back( make_pair(blockref, elementIndex) );
 }
 
+
+int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
+  
+  int thecharge = charge();
+  
+  switch( type ) {
+  case h:     return thecharge*211; // pi+
+  case e:     return thecharge*11;
+  case mu:    return thecharge*13;
+  case gamma: return 22;
+  case h0:    return 130; // K_L0
+  case X: 
+  default:    return 0;  
+  }
+}
 
 void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   if(!charge()) {
@@ -105,7 +126,7 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
     err += num;
     
     throw cms::Exception("InconsistentReference",
-                         err.c_str() );
+			 err.c_str() );
   }
 
   if( particleId_ == mu ) {
@@ -115,7 +136,7 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
       err += "PFCandidate::setTrackRef: inconsistent track references!";
       
       throw cms::Exception("InconsistentReference",
-                           err.c_str() );
+			   err.c_str() );
     }    
   }
   trackRef_ = ref;
@@ -132,14 +153,14 @@ void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
     err += num;
 
     throw cms::Exception("InconsistentReference",
-                         err.c_str() );
+			 err.c_str() );
   }
   else if(  trackRef_ != muonRef_->track() ) {
     string err;
     err += "PFCandidate::setMuonRef: inconsistent track references!";
     
     throw cms::Exception("InconsistentReference",
-                         err.c_str() );
+			 err.c_str() );
   }
     
   muonRef_ = ref;
@@ -195,7 +216,7 @@ bool PFCandidate::flag(Flags theFlag) const {
 
 
 ostream& reco::operator<<(ostream& out, 
-                          const PFCandidate& c ) {
+			  const PFCandidate& c ) {
   
   if(!out) return out;
   
@@ -225,4 +246,3 @@ ostream& reco::operator<<(ostream& out,
   out<<resetiosflags(ios::right|ios::fixed);
   return out;
 }
-
