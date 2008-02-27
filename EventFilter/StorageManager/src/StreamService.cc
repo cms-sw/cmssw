@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.3 2007/08/18 06:04:57 hcheung Exp $
+// $Id: StreamService.cc,v 1.4 2008/02/21 14:24:56 biery Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -111,6 +111,8 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
   shared_ptr<OutputService> outputService(new OutputService(file, view));
 
   outputMap_[file] = outputService;
+
+  boost::mutex::scoped_lock sl(list_lock_);
   outputSummary_.push_back(file);  
 
   handleLock(file); 
@@ -299,6 +301,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 //
 std::list<std::string> StreamService::getFileList()
 {
+  boost::mutex::scoped_lock sl(list_lock_);
   std::list<std::string> files_;
   for (OutputSummaryIterator it = outputSummary_.begin(), itEnd = outputSummary_.end(); it != itEnd; ++it) {
     std::ostringstream entry;

@@ -1,3 +1,14 @@
+2008-02-25  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-09-05 
+	* added monitoring workloop and related functions
+	* added E->F asynchronous transition when failure detected in JobController thread
+	* added data structure to hold detailed stream file info 
+	* stream info and run number added to web page
+	* added findStreamName utility to extract stream name from entry in filelist
+	* modified StreamService to use a mutex around access to file list
+	* replaced application icons
+	
 2008-02-21  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-04 

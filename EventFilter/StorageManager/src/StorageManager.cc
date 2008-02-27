@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.40 2008/02/21 14:44:27 biery Exp $
+// $Id: StorageManager.cc,v 1.41 2008/02/21 17:31:17 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -238,6 +238,9 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
   // need line below anyway in case we deserialize DQMEvents for collation
   edm::RootAutoLibraryLoader::enable();
+
+  // set application icon for hyperdaq
+  getApplicationDescriptor()->setAttribute("icon", "/evf/images/smicon.jpg");
 }
 
 StorageManager::~StorageManager()
@@ -817,6 +820,10 @@ void StorageManager::addMeasurement(unsigned long size)
     //fsm_.fireFailed(reasonForFailedState_,this);
     edm::LogError("StorageManager") << "Fatal problem in FragmentCollector thread detected! \n"
        << stor::getSMFC_reason4Exception();
+    //@@EM added state transition to failed
+    reasonForFailedState_ = stor::getSMFC_reason4Exception();
+    fsm_.fireFailed(reasonForFailedState_,this);
+
   }
 }
 
@@ -837,7 +844,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/evf/images/smicon.jpg\""		       << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -861,18 +868,20 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "  </td>"                                                  << endl;
+    /* @@EM commented out till there is something to link to
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/" << getApplicationDescriptor()->getURN()
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/evf/images/bugicon.jpg\""		       << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
     *out << "       border=\"\"/>"                                     << endl;
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
+    */
     *out << "</tr>"                                                    << endl;
     if(fsm_.stateName()->value_ == "Failed")
     {
@@ -891,6 +900,73 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
+
+ //@@EM added some useful info
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\""	 << endl;
+  *out << " readonly title=\"Note: this figures updated every 30s !!!\">"<< endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"			 << endl;
+    *out << "  <tr>"						 	 << endl;
+    *out << "    <th colspan=2>"					 << endl;
+    *out << "      " << "Storage Status"				 << endl;
+    *out << "    </th>"							 << endl;
+    *out << "  </tr>"							 << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Run Number" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << runNumber_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Events Received" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << storedEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=4>"                                       << endl;
+    *out << "      " << "Streams"                                      << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr class=\"special\">"			       << endl;
+	*out << "<td >" << endl;
+	*out << "name" << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << "nfiles" << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << "nevents" << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << "size (kB)" << endl;
+	*out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
+    for(ismap it = streams_.begin(); it != streams_.end(); it++)
+      {
+        *out << "<tr>" << endl;
+	*out << "<td >" << endl;
+	*out << (*it).first << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << (*it).second.nclosedfiles_ << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << (*it).second.nevents_ << endl;
+	*out << "</td>" << endl;
+	*out << "<td align=right>" << endl;
+	*out << (*it).second.totSizeInkBytes_ << endl;
+	*out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+      }
+    *out << "</table>" << endl;
+    //@@EM end added some useful info
+
+
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
@@ -914,14 +990,6 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << receivedFrames_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Events Received" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          *out << storedEvents_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -2151,7 +2219,7 @@ void StorageManager::setupFlashList()
   // Create/Retrieve an infospace which can be monitored
   //----------------------------------------------------------------------------
   std::ostringstream oss;
-  oss << "urn:xdaq-monitorable-" << class_.value_ << "-" << instance_.value_;
+  oss << "urn:xdaq-monitorable-" << class_.value_;
   toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
   xdata::InfoSpace *is = xdata::getInfoSpaceFactory()->get(urn.toString());
 
@@ -2276,8 +2344,6 @@ void StorageManager::actionPerformed(xdata::Event& e)
   } 
 }
 
-
-
 void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz)
 {
   unsigned int no;
@@ -2286,6 +2352,30 @@ void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned i
   pippo >> no >> out >> nev >> sz;
 }
 
+std::string StorageManager::findStreamName(std::string &in)
+{
+  cout << "in findStreamName with string " << in << endl;
+  string::size_type t = in.find("storageManager");
+
+  string::size_type b;
+  if(t != string::npos)
+    {
+      cout << " storageManager is at " << t << endl;
+      b = in.rfind(".",t-2);
+      if(b!=string::npos) 
+	{
+	  cout << "looking for substring " << t-b-2 << "long" <<endl;
+	  cout << " stream name should be at " << b+1 << endl;
+	  cout << " will return name " << string(in.substr(b+1,t-b-2)) << endl;
+	  return string(in.substr(b+1,t-b-2));
+	}
+      else
+	cout << " stream name is lost " << endl;
+    }
+  else
+    cout << " storageManager is not found " << endl;
+  return in;
+}
 
 
 bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
@@ -2525,7 +2615,7 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireFailed(reasonForFailedState_,this);
     return false;
   }
-  
+  startMonitoringWorkLoop();
   return false;
 }
 
@@ -2585,10 +2675,10 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
 
 void StorageManager::stopAction()
 {
-  std::list<std::string> files = jc_->get_filelist();
-  std::list<std::string> currfiles= jc_->get_currfiles();
+  std::list<std::string>& files = jc_->get_filelist();
+  std::list<std::string>& currfiles= jc_->get_currfiles();
   closedFiles_ = files.size() - currfiles.size();
-
+  
   unsigned int totInFile = 0;
   for(list<string>::const_iterator it = files.begin();
       it != files.end(); it++)
@@ -2603,7 +2693,7 @@ void StorageManager::stopAction()
       fileSize_.push_back((unsigned int) (size / 1048576));
       FDEBUG(5) << name << " " << nev << " " << size << std::endl;
     }
-
+  
   jc_->stop();
 
   jc_->join();
@@ -2697,6 +2787,104 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
     }
 }
 
+void StorageManager::startMonitoringWorkLoop() throw (evf::Exception)
+{
+  //  struct timezone timezone;
+  //  gettimeofday(&monStartTime_,&timezone);
+  
+  try {
+    wlMonitoring_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
+						       "waiting");
+    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
+    asMonitoring_ = toolbox::task::bind(this,&StorageManager::monitoring,
+				      sourceId_+"Monitoring");
+    wlMonitoring_->submit(asMonitoring_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Monitoring'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
+bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
+{
+  // @@EM Look for exceptions in the FragmentCollector thread, do a state transition if present
+  if(stor::getSMFC_exceptionStatus()) {
+    edm::LogError("StorageManager") << "Fatal BURP in FragmentCollector thread detected! \n"
+       << stor::getSMFC_reason4Exception();
+
+    //    LOG4CPLUS_ERROR(getApplicationLogger(),"Fatal problem in FragmentCollector thread detected! "
+    //		   << stor::getSMFC_reason4Exception());
+    reasonForFailedState_ = stor::getSMFC_reason4Exception();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false; // stop monitoring workloop after going to failed state
+  }
+
+  ::sleep(30);
+  if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL &&
+     jc_->getInitMsgCollection()->size() > 0) {
+    boost::mutex::scoped_lock sl(halt_lock_);
+    if(jc_.use_count() != 0) {
+      // this is needed only if using flashlist infospace (not for the moment)
+      std::ostringstream oss;
+      oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
+      xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());  
+      is->lock();
+      
+      std::list<std::string>& files = jc_->get_filelist();
+
+      if(files.size()==0){is->unlock(); return true;}
+  //struct timeval  monEndTime;
+  //struct timezone timezone;
+  //      gettimeofday(&monEndTime,&timezone);
+      if(streams_.size()==0) {
+	for(list<string>::const_iterator it = files.begin();
+	    it != files.end(); it++)
+	  {
+	    string name;
+	    unsigned int nev;
+	    unsigned long long size;
+	    parseFileEntry((*it),name,nev,size);
+	    string sname = findStreamName(name);
+	    if(sname=="" || sname==name) continue;
+	    if(streams_.find(sname) == streams_.end())
+	      streams_.insert(pair<string,streammon>(sname,streammon()));
+	  }
+	int streamssize =  streams_.size();
+	
+      }
+      for(ismap it = streams_.begin(); it != streams_.end(); it++)
+	{
+	  (*it).second.nclosedfiles_=0;
+	  (*it).second.nevents_ =0;
+	  (*it).second.totSizeInkBytes_=0;
+	}
+      
+      for(list<string>::const_iterator it = files.begin();
+	  it != files.end(); it++)
+	{
+	  string name;
+	  unsigned int nev;
+	  unsigned long long size;
+	  parseFileEntry((*it),name,nev,size);
+	  string sname = findStreamName(name);
+	  if(sname=="" || sname==name) continue;
+	  if(streams_.find(sname) == streams_.end())
+	    streams_.insert(pair<string,streammon>(sname,streammon()));
+	  streams_[sname].nclosedfiles_++;
+	  streams_[sname].nevents_ += nev;
+	  streams_[sname].totSizeInkBytes_ += size >> 10;
+	}
+      is->unlock();
+    }
+    
+      
+  }
+    
+  return true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // *** Provides factory method for the instantiation of SM applications
