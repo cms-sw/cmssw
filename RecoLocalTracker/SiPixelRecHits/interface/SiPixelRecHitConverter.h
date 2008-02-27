@@ -56,10 +56,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 class MagneticField;
-//class SiPixelCPEParmErrors;
 namespace cms
 {
   class SiPixelRecHitConverter : public edm::EDProducer
@@ -76,7 +74,6 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    //void setupCPE(const MagneticField* mag, const SiPixelLorentzAngle * lorentzAngle); //const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle * lorentzAngle);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
@@ -104,7 +101,6 @@ namespace cms
     edm::InputTag src_;
     int   theVerboseLevel;              // algorithm's verbosity
     bool m_newCont; // save also in emdNew::DetSetVector
-    bool errorsFromDB_;
   };
 }
 

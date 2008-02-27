@@ -39,19 +39,6 @@
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Magnetic Field
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-// Error Parametrization DB Record
-#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
-
-// Lorentz Angle Record
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-
-
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
 using namespace std;
@@ -69,8 +56,7 @@ namespace cms
     ready_(false),        // since we obviously aren't
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0)),
-    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false)),
-    errorsFromDB_(conf.getUntrackedParameter<bool>("errorsFromDB",false))
+    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
@@ -82,7 +68,6 @@ namespace cms
   // Destructor
   SiPixelRecHitConverter::~SiPixelRecHitConverter() 
   { 
-		//  delete cpe_;
   }  
   
   //---------------------------------------------------------------------------
@@ -90,30 +75,6 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::beginJob(const edm::EventSetup& c) 
   {
-    /*
-			edm::ESHandle<MagneticField> magfield;
-    c.get<IdealMagneticFieldRecord>().get(magfield);
-
-	edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
-    c.get<SiPixelLorentzAngleRcd>().get(lorentzAngle);
-	
-		 edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
-
-    if(errorsFromDB_) {
-      c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
-    }
-	
-		 setupCPE(magfield.product(),lorentzAngle.product());//parmErrors.product(),lorentzAngle.product());
-		*/
-
-		/*	edm::ESHandle<PixelClusterParameterEstimator> hCPE;
-		std::string cpeName_ = conf_.getParameter<std::string>("CPE");
-		c.get<TkPixelCPERecord>().get(cpeName_,hCPE);
-		const PixelClusterParameterEstimator &cpe(*hCPE);
-		cpe_ = &cpe;
-		
-		if(cpe_) ready_ = true;*/
-
   }
 
   //---------------------------------------------------------------------------
@@ -161,54 +122,6 @@ namespace cms
 
   }
 
-  //---------------------------------------------------------------------------
-  //!  Set up the specific algorithm we are going to use.  
-  //---------------------------------------------------------------------------
-	/*	 void SiPixelRecHitConverter::setupCPE(const MagneticField* mag, const SiPixelLorentzAngle * lorentzAngle) // const SiPixelCPEParmErrors* parmErrors, const SiPixelLorentzAngle* lorentzAngle)
-		 //void SiPixelRecHitConverter::setupCPE()
-  {
-		cpeName_ = conf_.getParameter<std::string>("CPE");
-    if ( cpeName_ == "FromDetPosition" ) 
-      {
-	cpe_ = new CPEFromDetPosition(conf_,mag);
-	ready_ = true;
-      } 
-    else if ( cpeName_ == "Initial" ) 
-      {
-	cpe_ = new PixelCPEInitial(conf_,mag,lorentzAngle);
-	ready_ = true;
-      } 
-    else if ( cpeName_ == "ParmError" ) 
-      {
-	cpe_ = new PixelCPEParmError(conf_,mag,lorentzAngle);
-	ready_ = true;
-      } 
-    else if ( cpeName_ == "TemplateReco" ) 
-      {
-	cpe_ = new PixelCPETemplateReco(conf_,mag);
-	ready_ = true;
-      } 
-    else if ( cpeName_ == "Generic" ) 
-      {
-				cpe_ = new PixelCPEGeneric(conf_,mag);//,parmErrors);
-	ready_ = true;
-      } 
-    else 
-      {
-	edm::LogError("SiPixelRecHitConverter") 
-	  <<" Cluster parameter estimator " << cpeName_ << " is invalid.\n"
-	  << "Possible choices:\n" 
-	  << "    - FromDetPosition  (straight from ORCA)\n"
-	  << "    - Initial          (ORCA algorithm fixed for bix pixels\n"
-	  << "    - ParmError        (copy of FromTrackAngles from ORCA)\n"
-	  << "    - TemplateReco     (fits to templates based on PIXELAV)\n"
-	  << "    - Generic          (Initial rewritten for clarity and speed)\n";
-	ready_ = false;
-	}
-    // &&& We should really throw a fatal error here!
-
-	}
-	*/
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
   //!  and make a RecHit to store the result.
