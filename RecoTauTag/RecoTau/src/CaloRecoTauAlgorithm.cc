@@ -75,15 +75,22 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 	iSetup.get<IdealGeometryRecord>().get(myCaloGeometry);
 	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
-													  mypropagleadTrackECALSurfContactPoint.y(),
-													  mypropagleadTrackECALSurfContactPoint.z())));
+														    mypropagleadTrackECALSurfContactPoint.y(),
+														    mypropagleadTrackECALSurfContactPoint.z())));
+	vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry,mypropagleadTrack_closestCaloTowerId);
 	for(vector<CaloTowerRef>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
 	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
-	  int dEta = abs((mypropagleadTrack_closestCaloTowerId.ieta()<0?mypropagleadTrack_closestCaloTowerId.ieta()+1:mypropagleadTrack_closestCaloTowerId.ieta())
-			 -(iCaloTowerId.ieta()<0?iCaloTowerId.ieta()+1:iCaloTowerId.ieta() ) ) ;
-	  int dPhi = abs(mypropagleadTrack_closestCaloTowerId.iphi()-iCaloTowerId.iphi());
-	  if (abs(72-dPhi)<dPhi) dPhi=72-dPhi;
-	  if(dEta>1 || dPhi>1) continue;
+	  bool CaloTower_inside3x3matrix=false;
+	  if (iCaloTowerId==mypropagleadTrack_closestCaloTowerId) CaloTower_inside3x3matrix=true;
+	  if (!CaloTower_inside3x3matrix){
+	    for(vector<CaloTowerDetId>::const_iterator iCaloTowerDetId=mypropagleadTrack_closestCaloTowerNeighbourIds.begin();iCaloTowerDetId!=mypropagleadTrack_closestCaloTowerNeighbourIds.end();iCaloTowerDetId++){
+	      if (iCaloTowerId==(*iCaloTowerDetId)){ 
+		CaloTower_inside3x3matrix=true;
+		break;
+	      }
+	    }
+	  }
+	  if (!CaloTower_inside3x3matrix) continue;	  
 	  myleadTrackHCAL3x3hitsEtSum+=(**iCaloTower).hadEt();
 	  if((**iCaloTower).hadEt()>=myleadTrackHCAL3x3hottesthitEt ){
 	    if ((**iCaloTower).hadEt()!=myleadTrackHCAL3x3hottesthitEt || 
@@ -182,3 +189,36 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 
   return myCaloTau;  
 }
+
+vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry* myCaloSubdetectorGeometry,CaloTowerDetId myCaloTowerDetId){
+  CaloTowerTopology myCaloTowerTopology;
+  vector<CaloTowerDetId> myCaloTowerneighbourDetIds;
+  vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
+  vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
+  vector<DetId> northwestDetIds,southwestDetIds;
+  if (westDetIds.size()>0){
+    northwestDetIds=myCaloTowerTopology.north(westDetIds[0]);
+    southwestDetIds=myCaloTowerTopology.south(westDetIds[(int)westDetIds.size()-1]);
+  }
+  vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
+  vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
+  vector<DetId> northeastDetIds,southeastDetIds;
+  if (eastDetIds.size()>0){
+    northeastDetIds=myCaloTowerTopology.north(eastDetIds[0]);
+    southeastDetIds=myCaloTowerTopology.south(eastDetIds[(int)eastDetIds.size()-1]);
+  }
+  vector<DetId> myneighbourDetIds=northDetIds;
+  myneighbourDetIds.insert(myneighbourDetIds.end(),westDetIds.begin(),westDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),northwestDetIds.begin(),northwestDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),southwestDetIds.begin(),southwestDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),southDetIds.begin(),southDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),eastDetIds.begin(),eastDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),northeastDetIds.begin(),northeastDetIds.end());
+  myneighbourDetIds.insert(myneighbourDetIds.end(),southeastDetIds.begin(),southeastDetIds.end());
+  for(vector<DetId>::const_iterator iDetId=myneighbourDetIds.begin();iDetId!=myneighbourDetIds.end();iDetId++){
+    CaloTowerDetId iCaloTowerId(*iDetId);
+    myCaloTowerneighbourDetIds.push_back(iCaloTowerId);
+  }
+  return myCaloTowerneighbourDetIds;
+}
+

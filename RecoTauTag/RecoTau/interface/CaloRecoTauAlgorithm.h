@@ -12,6 +12,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
@@ -36,6 +37,7 @@ class  CaloRecoTauAlgorithm  {
   void setMagneticField(const MagneticField*);
   CaloTau buildCaloTau(Event&,const EventSetup&,const CaloTauTagInfoRef&,const Vertex&); 
  private:
+  vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*,CaloTowerDetId);
   const TransientTrackBuilder* TransientTrackBuilder_;
   const MagneticField* MagneticField_;
   double LeadTrack_minPt_;
