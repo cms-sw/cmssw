@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/02/15 10:40:31 $
- * $Revision: 1.43 $
+ * $Date: 2008/02/23 09:48:44 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -58,7 +58,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   if ( runNumber_ != 0 ) fixedRunNumber_ = true;
 
   if ( fixedRunNumber_ ) {
-    LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
+    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Number = " << runNumber_ << endl;
   }
 
   // this should come from the event header
@@ -72,16 +72,16 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   if ( runType_ != -1 ) fixedRunType_ = true;
 
   if ( fixedRunType_) {
-    LogInfo("EcalBarrelMonitor") << " using fixed Run Type = " << runType_ << endl;
+    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Type = " << runType_ << endl;
   }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
-    LogInfo("EcalEndcapMonitor") << " verbose switch is ON";
+    LogInfo("EcalEndcapMonitorModule") << " verbose switch is ON";
   } else {
-    LogInfo("EcalEndcapMonitor") << " verbose switch is OFF";
+    LogInfo("EcalEndcapMonitorModule") << " verbose switch is OFF";
   }
 
   // get hold of back-end interface
@@ -98,9 +98,9 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   if ( enableCleanup_ ) {
-    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
+    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
   } else {
-    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
+    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is OFF";
   }
 
   // EventDisplay switch
@@ -302,7 +302,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
 void EcalEndcapMonitorModule::endJob(void) {
 
-  LogInfo("EcalEndcapMonitor") << "analyzed " << ievt_ << " events";
+  LogInfo("EcalEndcapMonitorModule") << "analyzed " << ievt_ << " events";
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -327,7 +327,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  LogInfo("EcalEndcapMonitor") << "processing event " << ievt_;
+  LogInfo("EcalEndcapMonitorModule") << "processing event " << ievt_;
 
   if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
@@ -338,6 +338,11 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    if ( dcchs->size() == 0 ) {
+      LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " is empty";
+      return;
+    }
 
     int neec = 0;
 
@@ -369,7 +374,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
+    LogDebug("EcalEndcapMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << neec;
 
   } else {
 
@@ -382,12 +387,12 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( evtType_ >= 0 && evtType_ <= 22 ) {
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   } else {
-    LogWarning("EcalEndcapMonitor") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
+    LogWarning("EcalEndcapMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
     if ( meEvtType_ ) meEvtType_->Fill( -1 );
   }
 
   if ( ievt_ == 1 ) {
-    LogInfo("EcalEndcapMonitor") << "processing run " << runNumber_;
+    LogInfo("EcalEndcapMonitorModule") << "processing run " << runNumber_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
@@ -406,7 +411,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << need;
+    LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " digi collection size " << need;
 
     int counter[18] = { 0 };
 
@@ -426,8 +431,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      LogDebug("EcalEndcapMonitor") << " det id = " << id;
-      LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+      LogDebug("EcalEndcapMonitorModule") << " det id = " << id;
+      LogDebug("EcalEndcapMonitorModule") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
     }
 
@@ -448,7 +453,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
+    LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " hits collection size " << neeh;
 
     if ( meEEhits_[0] ) meEEhits_[0]->Fill(float(neeh));
 
@@ -471,12 +476,12 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      LogDebug("EcalEndcapMonitor") << " det id = " << id;
-      LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+      LogDebug("EcalEndcapMonitorModule") << " det id = " << id;
+      LogDebug("EcalEndcapMonitorModule") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       float xval = hit.energy();
 
-      LogDebug("EcalEndcapMonitor") << " hit energy " << xval;
+      LogDebug("EcalEndcapMonitorModule") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 
@@ -522,7 +527,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " TP digi collection size " << neetpd;
+    LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " TP digi collection size " << neetpd;
     if ( meEEtpdigis_[0] ) meEEtpdigis_[0]->Fill(float(neetpd));
 
     for (int i = 0; i < 18; i++) {

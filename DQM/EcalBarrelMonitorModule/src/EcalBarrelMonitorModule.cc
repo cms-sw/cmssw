@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/02/15 10:40:27 $
- * $Revision: 1.167 $
+ * $Date: 2008/02/23 09:48:44 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -58,7 +58,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   if ( runNumber_ != 0 ) fixedRunNumber_ = true;
 
   if ( fixedRunNumber_ ) {
-    LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
+    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Number = " << runNumber_ << endl;
   }
 
   // this should come from the event header
@@ -72,16 +72,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   if ( runType_ != -1 ) fixedRunType_ = true;
 
   if ( fixedRunType_) {
-    LogInfo("EcalBarrelMonitor") << " using fixed Run Type = " << runType_ << endl;
+    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Type = " << runType_ << endl;
   }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
-    LogInfo("EcalBarrelMonitor") << " verbose switch is ON";
+    LogInfo("EcalBarrelMonitorModule") << " verbose switch is ON";
   } else {
-    LogInfo("EcalBarrelMonitor") << " verbose switch is OFF";
+    LogInfo("EcalBarrelMonitorModule") << " verbose switch is OFF";
   }
 
   // get hold of back-end interface
@@ -98,9 +98,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   if ( enableCleanup_ ) {
-    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
+    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
   } else {
-    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
+    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is OFF";
   }
 
   // EventDisplay switch
@@ -302,7 +302,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
 void EcalBarrelMonitorModule::endJob(void) {
 
-  LogInfo("EcalBarrelMonitor") << "analyzed " << ievt_ << " events";
+  LogInfo("EcalBarrelMonitorModule") << "analyzed " << ievt_ << " events";
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -327,7 +327,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
+  LogInfo("EcalBarrelMonitorModule") << "processing event " << ievt_;
 
   if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
@@ -338,6 +338,11 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    if ( dcchs->size() == 0 ) {
+      LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
+      return;
+    }
 
     int nebc = 0;
 
@@ -369,7 +374,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
+    LogDebug("EcalBarrelMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
 
   } else {
 
@@ -382,12 +387,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( evtType_ >= 0 && evtType_ <= 22 ) {
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   } else {
-    LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
+    LogWarning("EcalBarrelMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
     if ( meEvtType_ ) meEvtType_->Fill(-1);
   }
 
   if ( ievt_ == 1 ) {
-    LogInfo("EcalBarrelMonitor") << "processing run " << runNumber_;
+    LogInfo("EcalBarrelMonitorModule") << "processing run " << runNumber_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
@@ -408,7 +413,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int counter[36] = { 0 };
 
     int nebd = digis->size();
-    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
+    LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " digi collection size " << nebd;
 
     if ( meEBdigis_[0] ) meEBdigis_[0]->Fill(float(nebd));
 
@@ -425,8 +430,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       counter[ism-1]++;
 
-      LogDebug("EcalBarrelMonitor") << " det id = " << id;
-      LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
+      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
     }
 
@@ -447,7 +452,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
-    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
+    LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " hits collection size " << nebh;
 
     if ( meEBhits_[0] ) meEBhits_[0]->Fill(float(nebh));
 
@@ -469,12 +474,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EcalBarrelMonitor") << " det id = " << id;
-      LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
+      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       float xval = hit.energy();
 
-      LogDebug("EcalBarrelMonitor") << " hit energy " << xval;
+      LogDebug("EcalBarrelMonitorModule") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 
@@ -520,7 +525,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " TP digi collection size " << nebtpd;
+    LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " TP digi collection size " << nebtpd;
     if ( meEBtpdigis_[0] ) meEBtpdigis_[0]->Fill(float(nebtpd));
 
     for (int i = 0; i < 36; i++) {
