@@ -164,11 +164,14 @@ int main( int argc, char** argv ){
     {
       cond::CoralTransaction& coraldb=myconnection.coralTransaction();
       coraldb.start(false); 
+
+      // we need to clean this
       cond::ObjectRelationalMappingUtility mappingUtil(&(coraldb.coralSessionProxy()) );
       if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
 	mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
       }
-       coraldb.commit();
+
+      coraldb.commit();
     }
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
