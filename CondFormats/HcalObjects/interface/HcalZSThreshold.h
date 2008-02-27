@@ -7,6 +7,8 @@
 contains one threshold + corresponding DetId
 */
 
+#include <boost/cstdint.hpp>
+
 class HcalZSThreshold
 {
  public:
