@@ -296,14 +296,22 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 
     // Add-on for singles:
     CSCCorrelatedLCTDigiCollection myLCTcontainer[2][6][7]; //[endcap][sector][BX]
+    std::vector<csctf::TrackStub> stubs = stub_list.get(); ///
+    for(std::vector<csctf::TrackStub>::const_iterator st=stubs.begin(); st!=stubs.end(); st++){///
+       int endcap  = st->endcap()-1;                       ///
+       int sector  = st->sector()-1;                       ///
+       int station = st->station()-1;                      ///
+       int subSector = st->subsector();                    ///
+       const CSCCorrelatedLCTDigi *lct = st->getDigi();    ///
+///    for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
+///        CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
+///        for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range.first; lct!=range.second; lct++){
+///           int endcap  = (*csc).first.endcap()-1;
+///           int sector  = (*csc).first.triggerSector()-1;
+///           int station = (*csc).first.station()-1;
+///           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 
-    for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
-        CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
-        for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range.first; lct!=range.second; lct++){
-           int endcap  = (*csc).first.endcap()-1;
-           int sector  = (*csc).first.triggerSector()-1;
-           int station = (*csc).first.station()-1;
-           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+///std::cout<<"Found digi in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<std::endl;
            if( sector<0 || sector>6 || station<0 || station>3 || subSector<0 || subSector>2 || endcap<0 || endcap>1  ){
                edm::LogWarning("CSCTFTrackBuilder::buildTracks()")<<" CSC digi are out of range";
                continue;
@@ -311,16 +319,18 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
            int mpc = ( subSector ? subSector-1 : station+1 );
            if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
                (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
-               (mpc==4&&trigger_on_ME4) ){
+               (mpc==4&&trigger_on_ME4)  || (mpc==5&&trigger_on_MB1a) ||
+               (mpc==5&&trigger_on_MB1d) ){
                int bx = lct->getBX() - m_minBX;
                if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<lct->getBX();
                else
                  if( lct->isValid() ){
-                     myLCTcontainer[endcap][sector][bx].put(range,(*csc).first);
-                     break; //we break out of the loop because we put whole range if we encounter VP
+///                     myLCTcontainer[endcap][sector][bx].put(range,(*csc).first);
+                     myLCTcontainer[endcap][sector][bx].insertDigi(st->getDetId(),*lct); ///
+///                     break; //we break out of the loop because we put whole range if we encounter VP
                  }
            }
-        }
+///        }
     }
      // Core's input was loaded in a relative time window BX=[0-7)
      // To relate it to time window of tracks (centred at BX=0) we introduce a shift:
