@@ -21,14 +21,14 @@ class HcalZSThresholds
   ~HcalZSThresholds();
 
   // get threshold for a particular cell:
-  const HcalZSThreshold getItem(DetId id) const;
+  const HcalZSThreshold* getItem(DetId id) const;
   const int getValue(DetId id) const;
 
   // set threshold for a particular cell:
   bool addValue(DetId id, int level);
 
   // validity check: is threshold available for a particular cell ?
-  bool hasValue(DetId id);
+  bool isEmpty(DetId id);
 
   // are the thresholds sorted wrt. the channels ?
   bool sorted() const {return mSorted;}

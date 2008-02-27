@@ -39,7 +39,7 @@ HcalZSThresholds::HcalZSThresholds()
 HcalZSThresholds::~HcalZSThresholds() {}
 
 
-const HcalZSThreshold HcalZSThresholds::getItem(DetId id) const
+const HcalZSThreshold* HcalZSThresholds::getItem(DetId id) const
 {
   Item target (id.rawId(), 0);
   std::vector<Item>::const_iterator cell;
@@ -55,14 +55,14 @@ const HcalZSThreshold HcalZSThresholds::getItem(DetId id) const
     }
 
   if (cell == mItems.end() || cell->rawId() != target.rawId()) // not found
-    return HcalZSThreshold();
-  else return (*cell);
+    return (new HcalZSThreshold());
+  else return &(*cell);
 }
 
 const int HcalZSThresholds::getValue(DetId id) const
 {
-  const HcalZSThreshold myItem = getItem(id);
-  return myItem.getValue();
+  const HcalZSThreshold* myItem = getItem(id);
+  return myItem->getValue();
 }
 
 bool HcalZSThresholds::addValue(DetId id, int level)
@@ -73,10 +73,10 @@ bool HcalZSThresholds::addValue(DetId id, int level)
   return true;
 }
 
-bool HcalZSThresholds::hasValue(DetId id)
+bool HcalZSThresholds::isEmpty(DetId id)
 {
-  const HcalZSThreshold myItem = getItem(id);
-  return myItem.isEmpty();  
+  const HcalZSThreshold* myItem = getItem(id);
+  return myItem->isEmpty();  
 }
 
 void HcalZSThresholds::sort()
