@@ -70,8 +70,8 @@ namespace cond {
 			 ){
     if(!m_isActive) this->init();
     
-    if(tiilTime<=firstSince() ||
-       ( !m_iov->iov.empty() && tillTime<=m_iov.iov.back().first) 
+    if(tillTime<=firstSince() ||
+       ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
  
     m_iov.markUpdate();
@@ -84,8 +84,8 @@ namespace cond {
     if (values.empty()) return;
     if(!m_isActive) this->init();
     cond::Time_t tillTime = values.front().first;
-    if(tiilTime<=firstSince() ||
-       ( !m_iov->iov.empty() && tillTime<=m_iov.iov.back().first) 
+    if(tillTime<=firstSince() ||
+       ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
     
     m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
@@ -120,7 +120,7 @@ namespace cond {
     
     if(  m_iov->iov.size()>1 ){
       //range check in case 
-      cond::Time_t lastValidTill=(--m_iov->iov.rbegin())->first;
+      cond::Time_t lastValidTill=(++m_iov->iov.rbegin())->first;
       //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
       if( (sinceTime-1)<= lastValidTill){
 	throw cond::Exception("IOVEditor::append Error: since time out of range: below last since");
