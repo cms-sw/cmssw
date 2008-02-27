@@ -21,6 +21,7 @@ namespace evf{
 	  *out << "body"                                   << endl;
 	  *out << "{"                                      << endl;
 	  *out << "background-color: white;"               << endl;
+	  *out << "font-family: Arial;"                    << endl;
 	  *out << "}"                                      << endl;
 	  *out                                             << endl;
 	  *out << "table.modules"                          << endl;
@@ -40,6 +41,11 @@ namespace evf{
 	  *out << "color: white;"                          << endl;
 	  *out << "background-color: #63F;"                << endl;
 	  *out << "}"                                      << endl;
+	  *out << "table.modules tr.special"               << endl;
+	  *out << "{"                                      << endl;
+	  *out << "color: white;"                          << endl;
+	  *out << "background-color: #000;"                << endl;
+	  *out << "}"                                      << endl;
 	  
 	  *out << "table.states"                           << endl;
 	  *out << "{"                                      << endl;
@@ -51,6 +57,11 @@ namespace evf{
 	  *out << "{"                                      << endl;
 	  *out << "color: white;"                          << endl;
 	  *out << "background-color: #63F;"                << endl;
+	  *out << "}"                                      << endl;
+	  *out << "table.states tr.special"                << endl;
+	  *out << "{"                                      << endl;
+	  *out << "color: white;"                          << endl;
+	  *out << "background-color: #000;"                << endl;
 	  *out << "}"                                      << endl;
 	  
 	  *out                                             << endl;
