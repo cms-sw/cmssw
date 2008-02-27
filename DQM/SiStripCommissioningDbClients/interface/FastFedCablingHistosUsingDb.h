@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.3 2008/02/07 17:02:55 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
@@ -28,13 +28,14 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
  private:
   
   void update( SiStripConfigDb::FedConnections&,
+	       const SiStripConfigDb::FedDescriptions&,
 	       const SiStripConfigDb::DeviceDescriptions&, 
 	       const SiStripConfigDb::DcuDetIdMap& );
   
   void update( SiStripConfigDb::FedDescriptions& );
-
+  
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
-
+  
   void connections( const SiStripConfigDb::DeviceDescriptions&, 
 		    const SiStripConfigDb::DcuDetIdMap& );
   
