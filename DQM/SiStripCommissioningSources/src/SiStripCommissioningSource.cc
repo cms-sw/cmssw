@@ -121,9 +121,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
 
   std::stringstream dir(""); 
   
-#ifdef USING_NEW_COLLATE_METHODS 	 
-  dir << "FU/"; 
-#else
+#ifndef USING_NEW_COLLATE_METHODS 	 
   dir << "FU_"; 	 
   directory(dir); 	 
   dir << "/"; 	 

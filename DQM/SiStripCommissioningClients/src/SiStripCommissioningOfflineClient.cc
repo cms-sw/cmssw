@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.30 2008/02/26 08:01:03 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.31 2008/02/27 11:17:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -170,7 +170,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     if ( clientHistos_ ) {
       bei->open( *jfile, false, sistrip::collate_, "" );
     } else { 
-      bei->open( *jfile, true, sistrip::root_, sistrip::collate_ );
+      bei->open( *jfile, true, "SiStrip", sistrip::collate_ );
     }
 #else
     bei->open( *jfile );

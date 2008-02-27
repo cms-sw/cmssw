@@ -409,7 +409,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   std::vector<std::string>::const_iterator idir;
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
-    // Ignore directories on source side
+    // Ignore "DQM source" directories if looking in client file
     if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
     
     // Extract source directory path 
@@ -567,7 +567,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore directories on client side
-    if ( idir->find(sistrip::collate_) != std::string::npos ) { continue; }
+    //if ( idir->find(sistrip::collate_) != std::string::npos ) { continue; }
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
