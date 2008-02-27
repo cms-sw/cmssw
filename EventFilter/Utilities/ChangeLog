@@ -5,6 +5,7 @@
 	* moduleName moved from private to protected in ModuleWeb
 	* more style info in Css.h
 	* various improvements to ExceptionGenerator
+	* moved to use new icons in WebGUI
 
 2008-02-20  Philipp SCHIEFERDECKER <philipp.schieferdecker@cern.ch>
 
