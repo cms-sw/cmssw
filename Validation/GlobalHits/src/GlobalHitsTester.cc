@@ -1,4 +1,5 @@
 #include "Validation/GlobalHits/interface/GlobalHitsTester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
@@ -17,7 +18,7 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
   
   dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
   if(dbe){
     meTestString = 0;

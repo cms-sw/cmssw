@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/11/20 23:58:42 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/18 23:07:03 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,8 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 

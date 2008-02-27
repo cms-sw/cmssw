@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/11/20 23:58:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/18 23:07:03 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,8 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -153,6 +152,7 @@
 #include <math.h>
 
 #include "TString.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
@@ -195,7 +195,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::string outputfile;
 
   // Electromagnetic info

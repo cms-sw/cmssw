@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/11/20 23:56:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/18 23:07:01 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,8 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -49,6 +48,7 @@
 #include <math.h>
 
 #include "TString.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class GlobalDigisHistogrammer : public edm::EDAnalyzer
@@ -78,7 +78,7 @@ class GlobalDigisHistogrammer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::string outputfile;
   edm::InputTag GlobalDigisSrc_;
   //edm::InputTag srcGlobalDigis;

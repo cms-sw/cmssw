@@ -2,12 +2,13 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:50:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/12 21:00:19 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalDigis/interface/GlobalDigisHistogrammer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -66,7 +67,7 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
   //Put in analyzer stuff here.... Pasted from Rec Hits... 
 
   dbe = 0;
-dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+dbe = edm::Service<DQMStore>().operator->();
 if (dbe) {
     if (verbosity > 0 ) {
       dbe->setVerbose(1);

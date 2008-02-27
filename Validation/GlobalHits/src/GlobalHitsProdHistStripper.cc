@@ -2,12 +2,14 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/02 03:53:15 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalHits/interface/GlobalHitsProdHistStripper.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const 
 						       edm::ParameterSet& 
@@ -39,7 +41,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
 
   // get dqm info
   dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   if (dbe) {
     if (verbosity > 0 ) {
       dbe->setVerbose(1);

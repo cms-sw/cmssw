@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/11/20 23:53:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/18 23:07:02 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,9 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DQM services
-//#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // helper files
@@ -41,6 +39,7 @@
 #include <vector>
 
 #include "TString.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class GlobalHitsProdHistStripper : public edm::EDAnalyzer
 {
@@ -67,7 +66,7 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::string outputfile;
 
   std::map<std::string,MonitorElement*> monitorElements;

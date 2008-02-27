@@ -2,12 +2,13 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/12 21:00:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/14 00:29:25 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalDigis/interface/GlobalDigisAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -84,7 +85,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   //Put in analyzer stuff here.... Pasted from Rec Hits... 
   
   dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   if (dbe) {
     if (verbosity > 0 ) {
       dbe->setVerbose(1);

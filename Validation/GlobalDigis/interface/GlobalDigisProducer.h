@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/11/20 23:56:25 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/18 23:07:01 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,8 +26,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // ecal calorimeter info

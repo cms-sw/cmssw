@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/14 00:29:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/18 23:07:01 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,8 +26,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // ecal calorimeter info
@@ -114,6 +113,7 @@
 #include <map>
 
 #include "TString.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class PGlobalDigi;
 
@@ -156,7 +156,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::string outputfile;
 
   // Electromagnetic info

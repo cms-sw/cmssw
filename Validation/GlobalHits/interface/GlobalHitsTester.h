@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/02/08 06:42:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/18 23:07:02 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -28,8 +28,7 @@
 #include "TRandom3.h"
 
 //DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // tracker info
@@ -74,6 +73,7 @@
 #include <vector>
 
 #include "TString.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class GlobalHitsTester : public edm::EDAnalyzer
 {
@@ -99,7 +99,7 @@ private:
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
-  DaqMonitorBEInterface *dbe;
+  DQMStore *dbe;
   std::string outputfile;
   MonitorElement *meTestString;
   MonitorElement *meTestInt;
