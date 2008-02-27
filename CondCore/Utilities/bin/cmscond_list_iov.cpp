@@ -134,8 +134,8 @@ int main( int argc, char** argv ){
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
        std::cout<<"Tag "<<tag
-       	        <<"\nTime Type " << ioviterator->timetype();
-                <<"\nPayloadContainerName "<<payloadContainer<<"\n";
+       	        <<"\nTime Type " << ioviterator->timetype()
+                <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        while( ioviterator->next() ){
 	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken()<<std::endl;	
