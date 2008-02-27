@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/10/07 17:28:08 $
- *   $Revision: 1.32 $
+ *   $Date: 2008/02/14 22:04:01 $
+ *   $Revision: 1.33 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -120,7 +120,18 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     
     for(TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it){	
       const Ref<vector<Trajectory> > traj = it->key;
-      const reco::TrackRef tk = (theSTACollectionLabel.instance() == "UpdatedAtVtx" ) ? (*updatedStaAssoMap)[it->val] : it->val;
+      const reco::TrackRef tkRegular  = it->val;
+      reco::TrackRef tkUpdated;
+      reco::TrackToTrackMap::const_iterator iEnd;
+      reco::TrackToTrackMap::const_iterator iii;
+      if ( theSTACollectionLabel.instance() == "UpdatedAtVtx") {
+	iEnd = updatedStaAssoMap->end();
+	iii = updatedStaAssoMap->find(it->val);
+	if (iii != iEnd ) tkUpdated = (*updatedStaAssoMap)[it->val] ;
+      }
+      
+      const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;
+      
       MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand(0,tk);
       if( traj->isValid() ) tkCand.first = &*traj ;
       staTrackCands.push_back(tkCand);

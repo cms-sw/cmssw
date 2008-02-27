@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/09/06 17:38:19 $
- *   $Revision: 1.11 $
+ *   $Date: 2008/02/14 16:26:32 $
+ *   $Revision: 1.12 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -126,10 +126,21 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   
   edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
   event.getByLabel(theL2CollectionLabel.label(),updatedL2AssoMap);
-  
+      
   for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){	
     const Ref<vector<Trajectory> > traj = it->key;
-    const reco::TrackRef tk = (theL2CollectionLabel.instance() == "UpdatedAtVtx") ? (*updatedL2AssoMap)[it->val] : it->val;
+    const reco::TrackRef tkRegular  = it->val;
+    reco::TrackRef tkUpdated;
+    reco::TrackToTrackMap::const_iterator iEnd;
+    reco::TrackToTrackMap::const_iterator iii;
+    if ( theL2CollectionLabel.instance() == "UpdatedAtVtx") {
+      iEnd = updatedL2AssoMap->end();
+      iii = updatedL2AssoMap->find(it->val);
+      if (iii != iEnd ) tkUpdated = (*updatedL2AssoMap)[it->val] ;
+    }
+    
+    const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;      
+    
     MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand(0,tk);
     if( traj->isValid() ) L2Cand.first = &*traj ;
     L2TrackCands.push_back(L2Cand);
