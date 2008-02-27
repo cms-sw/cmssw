@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.7 2008/02/25 10:40:03 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.6 2008/02/21 09:40:13 uberthon Exp $
 //
 //
 
@@ -176,12 +176,12 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
        edm::Handle<SuperClusterCollection> superClustersEndcapH; 
        e.getByLabel("correctedEndcapSuperClustersWithPreshower", superClustersEndcapH);
 
-  process(tracksH, //trackcollection
+  process(tracksH, 
           superClustersBarrelH, 
           superClustersEndcapH,   
           shpAssBarrel,shpAssEndcap   ,
           mhbhe,  
-          bsPosition,
+	  bsPosition,
           outEle);
   }
 
@@ -201,12 +201,13 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   LogDebug("GsfElectronAlgo") << str.str();
   return;
 }
+
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 		        const BasicClusterShapeAssociationCollection *shpAssBarrel,
 		        const BasicClusterShapeAssociationCollection *shpAssEndcap,
                         HBHERecHitMetaCollection *mhbhe,
-                        const math::XYZPoint &bsPosition,
-                        GsfElectronCollection & outEle) {
+			const math::XYZPoint &bsPosition,
+		        GsfElectronCollection & outEle) {
  
   BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
 
@@ -237,7 +238,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     hOverE(scRef,mhbhe);
 
     // calculate Trajectory StatesOnSurface....
-    if (!calculateTSOS(t,theClus,bsPosition)) continue;
+    if (!calculateTSOS(t,theClus, bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
     if (preSelection(theClus)) {
@@ -285,7 +286,8 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
   double phiclu = clus.phi();
   double phitrk = sclPos_.phi();
   double dphi = phiclu-phitrk;
-  if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? CLHEP::twopi + dphi : dphi - CLHEP::twopi;
+  if (fabs(dphi)>CLHEP::pi)
+    dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
@@ -490,16 +492,17 @@ const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & tra
     return elseed->superCluster();
 }
 
-bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus,const math::XYZPoint & bsPosition){
+bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const math::XYZPoint &
+bsPosition){
 
     //at innermost point
     innTSOS_ = mtsTransform_->innerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
     if (!innTSOS_.isValid()) return false;
 
     //at vertex
- // innermost state propagation to the beam spot position
-    vtxTSOS_
-          = TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
+    // innermost state propagation to the beam spot position
+    vtxTSOS_ 
+      = TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
@@ -526,7 +529,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
                             const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	                    const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
                             HBHERecHitMetaCollection *mhbhe,
-                            const math::XYZPoint &bsPosition,  
+			    const math::XYZPoint &bsPosition,
                             GsfElectronCollection & outEle) {
   
   BasicClusterShapeAssociationCollection::const_iterator seedShpItr;

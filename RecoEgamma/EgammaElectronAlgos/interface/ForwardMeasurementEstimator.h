@@ -16,7 +16,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.5 2008/02/13 10:41:43 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.6 2008/02/21 09:40:12 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -42,6 +42,11 @@ public:
     theZRangeMin=zmin;
     theZRangeMax=zmax;
   }
+   void setRRange (float rmin , float rmax) 
+  { 
+    rMin_= rmin;
+    rMax_ = rmax;
+  }
   
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
@@ -57,16 +62,13 @@ public:
     maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			      const BoundPlane& plane) const;
 
-  void setVertex (float vertex);
-  
  private:
 
   float thePhiRangeMin;
   float thePhiRangeMax;
   float theZRangeMin;
   float theZRangeMax;
-  
-  float zVert;
+  float rMin_, rMax_;
 
 };
 

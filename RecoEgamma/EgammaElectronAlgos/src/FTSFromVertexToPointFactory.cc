@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: FTSFromVertexToPointFactory.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: FTSFromVertexToPointFactory.cc,v 1.3 2008/02/21 13:54:00 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
@@ -45,7 +45,8 @@ FreeTrajectoryState FTSFromVertexToPointFactory::operator()(const MagneticField 
 
   GlobalTrajectoryParameters gp(xmeas, pNew, charge, magField);
   
-  FreeTrajectoryState VertexToPoint(gp);  
+  AlgebraicSymMatrix C(5,1);
+  FreeTrajectoryState VertexToPoint(gp,CurvilinearTrajectoryError(C));
 
   return VertexToPoint;
 }
