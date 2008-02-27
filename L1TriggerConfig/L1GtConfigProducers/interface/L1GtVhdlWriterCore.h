@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/21 21:59:50 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/27 18:51:39 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -37,10 +37,11 @@
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlDefinitions.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriterBitManager.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriterCore.h"
 
-class L1GtVhdlWriterCore
+class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
 {
 
     public:
@@ -120,7 +121,7 @@ class L1GtVhdlWriterCore
         void writeConditionChipSetup(std::map<std::string, L1GtVhdlTemplateFile> templates, const std::map<std::string, std::string> &common, const unsigned short int &chip);
 
         /// writes def_val_pkg.vhd
-        void writeDefValPkg();
+        void writeDefValPkg(const std::vector<ConditionMap> &conditionMap, const int &chip);
         
         /// builds etm setup files
         void writeEtmSetup(std::string &etmString, const int &condChip);
@@ -163,11 +164,35 @@ class L1GtVhdlWriterCore
         /// for debuggin
         void printConditionsOfCategory(const L1GtConditionCategory &category, const ConditionMap &map);
 
+        /// gets condition category from object
+        L1GtConditionCategory getCategoryFromObject(const L1GtObject &object);
+        
+        /// builds the string representing a condition in def_val_pkg.vhd. Parameters are condition index and a vector 
+        /// containig default values.
+        std:: string buildDefValString(const int &conditionIndex, const std::vector<int> &values);
+        
         void writeCondChipPkg(const int &chip);
         
         std::map<std::string,int> getCond2IntMap();
+        
+        /// helper, used by writeDefValPkg. Builds default values buffer for each object type. 
+        /// this buffer finally is inserte in the def_val_pkg.vhd template file
+        bool buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer, const std::map<L1GtConditionType,std::string> &typeList, const std::vector<std::string> &defValuesList, const L1GtObject &object);
+
+        /// this routine extracts default values for def_val_pkg.vhd from trigger menu.
+        /// it is used from buildDefValuesBuffer.
+        std::string getDefValsFromTriggerMenu(const L1GtConditionType &type, const L1GtObject &object, const VmeRegister &reg);
+        
+        /// converts string name to substiution parameter synthax; name --> $(name)
+        std::string sp(const std::string &name);
 
     private:
+        
+        /// condition map
+        std::vector<ConditionMap> conditionMap_;
+        
+        /// algorithm map
+        AlgorithmMap algorithmMap_;
 
         /// stores to condition name to integer conversion table
         std::map<std::string,int> conditionToIntegerMap_;
