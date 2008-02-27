@@ -10,12 +10,12 @@
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+// #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 // necessary ?
-#include "DataFormats/VertexReco/interface/NuclearInteraction.h"
+// #include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 
 namespace reco {
