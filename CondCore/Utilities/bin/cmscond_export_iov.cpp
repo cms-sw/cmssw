@@ -219,7 +219,7 @@ int main( int argc, char** argv ){
 
 	
 	// we need to clean this
-	cond::ObjectRelationalMappingUtility mappingUtil(&(coraldb.coralSessionProxy()) );
+	cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
 	if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
 	  mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
 	}
