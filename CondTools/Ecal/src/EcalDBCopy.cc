@@ -13,12 +13,8 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -91,8 +87,6 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalADCToGeVConstantRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibConstants") {
     cacheID = evtSetup.get<EcalIntercalibConstantsRcd>().cacheIdentifier();
-  } else if (container == "EcalIntercalibErrors") {
-    cacheID = evtSetup.get<EcalIntercalibErrorsRcd>().cacheIdentifier();
   } else if (container == "EcalGainRatios") {
     cacheID = evtSetup.get<EcalGainRatiosRcd>().cacheIdentifier();
   } else if (container == "EcalWeightXtalGroups") {
@@ -105,10 +99,7 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
   } else if (container == "EcalLaserAlphas") {
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
-  } else if (container == "EcalChannelStatus") {
-    cacheID = evtSetup.get<EcalChannelStatusRcd>().cacheIdentifier();
-  } 
-
+  }
   else {
     throw cms::Exception("Unknown container");
   }
@@ -148,30 +139,13 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
 
    dbOutput->createNewIOV<const EcalADCToGeVConstant>( new EcalADCToGeVConstant(*obj), dbOutput->endOfTime(),recordName);
 
-
-  }  else if (container == "EcalChannelStatus") {
-    edm::ESHandle<EcalChannelStatus> handle;
-    evtSetup.get<EcalChannelStatusRcd>().get(handle);
-    const EcalChannelStatus* obj = handle.product();
-    cout << "channel status pointer is: "<< obj<< endl;
-
-   dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj), dbOutput->endOfTime(),recordName);
-
-
-  }
-else if (container == "EcalIntercalibConstants") {
+  } else if (container == "EcalIntercalibConstants") {
     edm::ESHandle<EcalIntercalibConstants> handle;
     evtSetup.get<EcalIntercalibConstantsRcd>().get(handle);
     const EcalIntercalibConstants* obj = handle.product();
     cout << "inter pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj), dbOutput->endOfTime(),recordName);
 
-  } else if (container == "EcalIntercalibErrors") {
-    edm::ESHandle<EcalIntercalibErrors> handle;
-    evtSetup.get<EcalIntercalibErrorsRcd>().get(handle);
-    const EcalIntercalibErrors* obj = handle.product();
-    cout << "inter pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalIntercalibErrors>( new EcalIntercalibErrors(*obj), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalGainRatios") {
     edm::ESHandle<EcalGainRatios> handle;
