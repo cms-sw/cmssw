@@ -682,10 +682,17 @@ namespace edm {
     // not modified.
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
-    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
-    //makeParameterSets(config, parameterSet, pServiceSets);
+
+    ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    filemode_ = optionsPset.getUntrackedParameter<std::string>("filemode", "DENSE");
+    handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
+    handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
+
+    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
+    //makeParameterSets(config, parameterSet, pServiceSets);
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
@@ -1721,10 +1728,13 @@ namespace edm {
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    statemachine::Filemode filemode = statemachine::DENSE;
+    if (filemode_ == std::string("SPARSE")) filemode = statemachine::SPARSE;
+
     statemachine::Machine machine(this,
-                                  statemachine::DENSE,
-                                  true,
-                                  true);
+                                  filemode,
+                                  handleEmptyRuns_,
+                                  handleEmptyLumis_);
 
     machine.initiate();
 

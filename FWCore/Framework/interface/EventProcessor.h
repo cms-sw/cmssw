@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.54 2008/01/09 23:45:24 wdd Exp $
+$Id: EventProcessor.h,v 1.55 2008/02/14 22:03:17 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -417,6 +417,9 @@ namespace edm {
     std::auto_ptr<EventPrincipal>               sm_evp_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
+    std::string                                   filemode_;
+    bool                                          handleEmptyRuns_;
+    bool                                          handleEmptyLumis_;
 
     friend class EDLooperHelper;
     friend class event_processor::StateSentry;
