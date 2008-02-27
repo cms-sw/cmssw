@@ -19,9 +19,10 @@ namespace cond{
     static std::string const & iovMappingXML(){
       static const std::string buffer = 
 	std::string("<?xml version='1.0' encoding=\"UTF-8\"?>\n")+
-	std::string("<!DOCTYPE Mapping SYSTEM \"InMemory\">\n")+
-	std::string("<Mapping version=\"CONDIOV_3.0\" >\n")+
-	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" >\n")+
+	std::string("<!DOCTYPE PoolDatabase SYSTEM \"InMemory\">\n")+
+        std::string("<PoolDatabase >\n")+
+        std::string("<PoolContainer name=\"cond::IOV\" >\n")+
+	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"IOV\" mapping_version=\"basic\">\n")+
     	std::string("<Primitive column=\"FIRSTSINCE\" name=\"firstsince\" />\n")+
 	std::string("<Primitive column=\"TIMETYPE\" name=\"timetype\" />\n")+
         std::string("<Container table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
@@ -31,7 +32,8 @@ namespace cond{
 	std::string("</Object >\n")+
 	std::string("</Container >\n")+
 	std::string("</Class >\n")+
-	std::string("</Mapping >\n");
+	std::string("</PoolContainer >\n")+
+	std::string("</PoolDatabase >\n");
       return buffer;
     }
   };
