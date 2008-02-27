@@ -133,10 +133,10 @@ int main( int argc, char** argv ){
        pooldb.start(true);
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
-       std::cout<<"Tag "<<tag<<"\n";
-       std::cout<<"Time Type " << ioviterator->timetype();
-       std::cout<<"PayloadContainerName "<<payloadContainer<<"\n";
-       std::cout<<"since \t till \t payloadToken"<<std::endl;
+       std::cout<<"Tag "<<tag
+       	        <<"\nTime Type " << ioviterator->timetype();
+                <<"\nPayloadContainerName "<<payloadContainer<<"\n";
+                <<"since \t till \t payloadToken"<<std::endl;
        while( ioviterator->next() ){
 	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken()<<std::endl;	
 	 ++counter;
