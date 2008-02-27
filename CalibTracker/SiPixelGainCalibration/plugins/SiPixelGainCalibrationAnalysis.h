@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.10 2008/02/12 11:10:56 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.11 2008/02/15 13:32:19 fblekman Exp $
 //
 //
 
@@ -70,6 +70,7 @@ private:
   // fitter
   int nfitparameters_;
   std::string fitfunction_;
+  TF1 *func_;
 
   // flags
   bool reject_badpoints_;

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.16 2008/02/13 17:41:04 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.17 2008/02/23 12:56:07 elmer Exp $
 //
 //
 
@@ -55,6 +55,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now using fit function " << fitfunction_ << ", which has " << nfitparameters_ << " free parameters. " << std::endl;
+  func_= new TF1("func",fitfunction_.c_str());
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
@@ -143,6 +144,8 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
 void SiPixelGainCalibrationAnalysis::fillDatabase(){
   // only create when necessary.
   // process the minimum and maximum gain & ped values...
+
+
   if(gainlow_>gainhi_){  
     float temp=gainhi_;
     gainhi_=gainlow_;
@@ -320,8 +323,9 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   float chi2,slope,intercept,prob;
   prob=chi2=-1;
   slope=intercept=0;
+  TLinearFitter fitter(nfitparameters_,fitfunction_.c_str());
+ 
   if(npoints>=2){
-    TLinearFitter fitter(nfitparameters_,fitfunction_.c_str());
     fitter.AssignData(npoints,1,xvals,yvals,yerrvals);
     
     // and do the fit:
@@ -329,6 +333,9 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     
     slope = fitter.GetParameter(1);
     intercept = fitter.GetParameter(0);
+    for(int i=0; i< func_->GetNpar();i++)
+      func_->SetParameter(i,fitter.GetParameter(i));
+    
     // convert the gain and pedestal parameters to functional form y= x/gain+ ped
     if(slope!=0)
       slope = 1./ slope;
@@ -384,6 +391,8 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       bookkeeper_pixels_[detid][pixelinfo.str()]->setBinContent(ii+1,yvalsall[ii]);
       bookkeeper_pixels_[detid][pixelinfo.str()]->setBinError(ii+1,yerrvalsall[ii]);
     }
+    
+    addTF1ToDQMMonitoringElement(bookkeeper_pixels_[detid][pixelinfo.str()],func_);
   } 
   return true;
 }
