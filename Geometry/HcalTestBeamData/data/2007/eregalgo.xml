@@ -49,4 +49,14 @@
  </PosPart>
 </PosPartSection>
 
+<SpecParSection label="eregalgo.xml" eval="true">
+ <SpecPar name="ecal">
+   <PartSelector path="//ECAL" />
+    <Parameter name="CMSCutsRegion" value="EcalRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+    <Parameter name="ProdCutsForGamma" value="1*mm"/>
+ </SpecPar>
+</SpecParSection>
+
 </DDDefinition>
