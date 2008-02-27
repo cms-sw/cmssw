@@ -375,7 +375,12 @@ void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
   unsigned etSumPlusWheel  = m_plusWheelJetFpga->getOutputHfSums().etSum.value();
   unsigned etSumMinusWheel = m_minusWheelJetFpga->getOutputHfSums().etSum.value();
 
-  unsigned outBits = etSumPlusWheel | (etSumMinusWheel << 8);
+  // Do some bit manipulation to get meaningful results in single jet counts
+  // Take the five MSB of each et sum and put them in bits 14:10, 9:5;
+  // stuff the remaining bits into 3:0
+  // NB ASSUMES there are SEVEN bits per et sum.
+  unsigned outBits = (( etSumPlusWheel & 0x7c) << 3) | (( etSumPlusWheel & 0x03)) |
+                     ((etSumMinusWheel & 0x7c) << 8) | ((etSumMinusWheel & 0x03) << 2);
 
   m_outputJetCounts.at(9)  = L1GctJetCount<5>( outBits         & 0x1f);
   m_outputJetCounts.at(10) = L1GctJetCount<5>((outBits >>  5 ) & 0x1f);
