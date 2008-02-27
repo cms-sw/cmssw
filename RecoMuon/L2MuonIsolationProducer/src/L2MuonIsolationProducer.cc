@@ -41,8 +41,8 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
-  if (optOutputIsoDeposits) produces<MuIsoDepositAssociationMap>();
-  produces<MuIsoAssociationMap>();
+  if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
+  produces<reco::MuIsoFlagMap>();
 }
   
 /// destructor
@@ -74,30 +74,46 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";
-  std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
-  std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
+  std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
+  std::auto_ptr<reco::MuIsoFlagMap> isoMap( new reco::MuIsoFlagMap());
 
   theExtractor->fillVetos(event,eventSetup,*tracks);
 
-  for (unsigned int i=0; i<tracks->size(); i++) {
+  uint nTracks = tracks->size();
+  std::vector<MuIsoDeposit> deps(nTracks);
+  std::vector<bool> isos(nTracks, false);
+
+  for (unsigned int i=0; i<nTracks; i++) {
       TrackRef tk(tracks,i);
 
-      MuIsoDeposit calDeposit = theExtractor->deposit(event, eventSetup, *tk);
-      depMap->insert(tk, calDeposit);
+      deps[i] = theExtractor->deposit(event, eventSetup, *tk);
 
       muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());
       
       double conesize = cuts_here.conesize;
-      double dephlt = calDeposit.depositWithin(conesize);
+      double dephlt = deps[i].depositWithin(conesize);
       if (dephlt<cuts_here.threshold) {
-            isoMap->insert(tk, true);
+	isos[i] = true;
       } else {
-            isoMap->insert(tk, false);
+	isos[i] = false;
       }
   }
-  if (optOutputIsoDeposits) event.put(depMap);
-  event.put(isoMap);
 
+  
+
+  if (optOutputIsoDeposits){
+    //!do the business of filling iso map
+    reco::IsoDepositMap::Filler depFiller(*depMap);
+    depFiller.insert(tracks, deps.begin(), deps.end());
+    depFiller.fill();
+    event.put(depMap);
+  }
+
+  reco::MuIsoFlagMap::Filler isoFiller(*isoMap);
+  isoFiller.insert(tracks, isos.begin(), isos.end());
+  isoFiller.fill();//! annoying -- I will forget it at some point
+  event.put(isoMap);
+  
   LogDebug(metname) <<" Event loaded"
-		   <<"================================";
+		    <<"================================";
 }

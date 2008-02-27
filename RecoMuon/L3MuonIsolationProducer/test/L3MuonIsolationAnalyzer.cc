@@ -28,7 +28,7 @@ using namespace reco;
 
 /// Constructor
 L3MuonIsolationAnalyzer::L3MuonIsolationAnalyzer(const ParameterSet& pset) :
-  theIsolationLabel(pset.getUntrackedParameter<string>("IsolationCollectionLabel")),
+  theIsolationLabel(pset.getUntrackedParameter<edm::InputTag>("IsolationCollectionLabel")),
   theConeCases(pset.getParameter<std::vector<double> > ("ConeCases")),
   thePtMin(pset.getParameter<double> ("PtMin")),
   thePtMax(pset.getParameter<double> ("PtMax")),
@@ -142,52 +142,75 @@ void L3MuonIsolationAnalyzer::endJob(){
  
 
 void L3MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
+  static const string metname = "L3MuonIsolation";
   
   numberOfEvents++;
   
   // Get the isolation information from the event
-  Handle<MuIsoDepositAssociationMap> depMap;
+  Handle<reco::IsoDepositMap> depMap;
   event.getByLabel(theIsolationLabel, depMap);
 
-  MuIsoDepositAssociationMap::const_iterator depPair;
-  for (depPair=depMap->begin(); depPair!=depMap->end(); ++depPair) {
-      numberOfMuons++;
-      const TrackRef& tk = depPair->key;
-      const MuIsoDeposit& dep = depPair->val;
-      //Puts("L3MuonIsolationAnalyzer>>> Track pt: %f, Deposit eta%f", tk->pt(), dep.eta());
+  //! How do I know it's made for tracks? Just guessing
+  typedef edm::View<reco::Track>  tracks_type;
+  Handle<tracks_type > tracksH;
 
+  typedef reco::IsoDepositMap::const_iterator depmap_iterator;
+  depmap_iterator depMI = depMap->begin();
+  depmap_iterator depMEnd = depMap->end();
+
+  for (; depMI != depMEnd; ++depMI) {
+    if (depMI.id() != tracksH.id()){
+      LogTrace(metname)<<"Getting tracks with id "<<depMI.id();
+      event.get(depMI.id(), tracksH);
+    }
+    
+    typedef reco::IsoDepositMap::container::const_iterator dep_iterator;
+    dep_iterator depI = depMI.begin();
+    dep_iterator depEnd = depMI.end();
+
+    typedef tracks_type::const_iterator tk_iterator;
+    tk_iterator tkI = tracksH->begin();
+    tk_iterator tkEnd = tracksH->end();
+
+    for (;tkI != tkEnd && depI != depEnd; ++tkI, ++depI){    
+      
+      numberOfMuons++;
+      tracks_type::const_pointer tk = &*tkI;
+      const MuIsoDeposit& dep = *depI;
+      
       muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());
       double conesize = cuts_here.conesize;
       float ptsum = dep.depositWithin(conesize);
       hPtSum->Fill(ptsum);
-
+      
       hEffVsCone->Fill(theConeCases.size()+999.);
       for (unsigned int j=0; j<theConeCases.size(); j++) {
-            if (dep.depositWithin(theConeCases[j])<cuts_here.threshold) 
-                  hEffVsCone->Fill(j+1.0);
+	if (dep.depositWithin(theConeCases[j])<cuts_here.threshold) 
+	  hEffVsCone->Fill(j+1.0);
       }
-
+      
       hEffVsPt->Fill(thePtMax+999.);
       for (unsigned int j=0; j<thePtBins; j++) {
-            float ptthr = thePtMin + (j+0.5)/thePtBins*(thePtMax-thePtMin);
-            if (ptsum<ptthr) hEffVsPt->Fill(ptthr);
+	float ptthr = thePtMin + (j+0.5)/thePtBins*(thePtMax-thePtMin);
+	if (ptsum<ptthr) hEffVsPt->Fill(ptthr);
       }
-
+      
       for (unsigned int j=0; j<theConeCases.size() ; j++) {
-            float ptsum = dep.depositWithin(theConeCases[j]);
-            for (unsigned int k=0; k<theCuts.size() ; k++) {
-                  unsigned int n = theCuts.size()*j + k;
-                  if (fabs(tk->eta())<theCuts[k].etaRange.min()) continue;
-                  if (fabs(tk->eta())>theCuts[k].etaRange.max()) continue;
-                  hEffVsPtArray[n]->Fill(thePtMax+999.);
-                  for (unsigned int l=0; l<thePtBins; l++) {
-                        float ptthr = thePtMin + (l+0.5)/thePtBins*(thePtMax-thePtMin);
-                        if (ptsum<ptthr) hEffVsPtArray[n]->Fill(ptthr);
-                  }
-            }
+	float ptsum = dep.depositWithin(theConeCases[j]);
+	for (unsigned int k=0; k<theCuts.size() ; k++) {
+	  unsigned int n = theCuts.size()*j + k;
+	  if (fabs(tk->eta())<theCuts[k].etaRange.min()) continue;
+	  if (fabs(tk->eta())>theCuts[k].etaRange.max()) continue;
+	  hEffVsPtArray[n]->Fill(thePtMax+999.);
+	  for (unsigned int l=0; l<thePtBins; l++) {
+	    float ptthr = thePtMin + (l+0.5)/thePtBins*(thePtMax-thePtMin);
+	    if (ptsum<ptthr) hEffVsPtArray[n]->Fill(ptthr);
+	  }
+	}
       }
-  }
+    }
 
+  }
   Puts("L3MuonIsolationAnalyzer>>> Run: %ld, Event %ld, number of muons %d"
                  , event.id().run(), event.id().event(), depMap->size());
 }

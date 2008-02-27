@@ -7,6 +7,7 @@
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
 namespace edm {
@@ -37,7 +38,7 @@ private:
   void Puts(const char* fmt, ...);
 
   // Isolation label
-  std::string theIsolationLabel;
+  edm::InputTag theIsolationLabel;
 
   // Cone and Pt sets to be tested
   std::vector<double> theConeCases;

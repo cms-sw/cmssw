@@ -42,8 +42,8 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
-  if (optOutputIsoDeposits) produces<MuIsoDepositAssociationMap>();
-  produces<MuIsoAssociationMap>();
+  if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
+  produces<reco::MuIsoFlagMap>();
 }
   
 /// destructor
@@ -100,22 +100,24 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   Handle<TrackCollection> muons;
   event.getByLabel(theMuonCollectionLabel,muons);
 
-  std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
-  std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
+  std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
+  std::auto_ptr<reco::MuIsoFlagMap> isoMap( new reco::MuIsoFlagMap());
 
 
   //
   // get Vetos and deposits
   //
-  MuIsoDeposit::Vetos vetos;
-  typedef std::vector< std::pair<TrackRef,MuIsoDeposit> > MuonsWithDeposits;
-  MuonsWithDeposits muonsWithDeposits;
+  uint nMuons = muons->size();
 
-  for (unsigned int i=0; i<muons->size(); i++) {
+  MuIsoDeposit::Vetos vetos(nMuons);
+  
+  std::vector<MuIsoDeposit> deps(nMuons);
+  std::vector<bool> isos(nMuons, false);
+
+  for (unsigned int i=0; i<nMuons; i++) {
     TrackRef mu(muons,i);
-    MuIsoDeposit dep = theExtractor->deposit(event, eventSetup, *mu);
-    vetos.push_back(dep.veto());
-    muonsWithDeposits.push_back( std::make_pair(mu,dep) ); 
+    deps[i] = theExtractor->deposit(event, eventSetup, *mu);
+    vetos[i] = deps[i].veto();
   }
 
   //
@@ -126,24 +128,34 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   //
   // actual cut step
   //
-  for (MuonsWithDeposits::const_iterator imd = muonsWithDeposits.begin(),
-       imdEnd = muonsWithDeposits.end(); imd != imdEnd; ++imd) {
-    const TrackRef & mu = imd->first;
-    const MuIsoDeposit & deposit = imd->second;
+  for(uint iMu=0; iMu < nMuons; ++iMu){
+    const reco::Track* mu = &(*muons)[iMu];
+
+    const MuIsoDeposit & deposit = deps[iMu];
     LogTrace(metname)<< deposit.print();
+
     const Cuts::CutSpec & cut = theCuts( mu->eta());
     std::pair<double, int> sumAndCount = deposit.depositAndCountWithin(cut.conesize, vetos, theTrackPt_Min);
+
     double value = sumAndCount.first;
     bool result = (value < cut.threshold); 
     LogTrace(metname)<<"deposit in cone: "<<value<<" is isolated: "<<result;
-    if (optOutputIsoDeposits) depMap->insert(mu, deposit);
-    isoMap->insert(mu, result);
+
+    isos[iMu] = result;
   }
 
   //
   // store
   //
-  if (optOutputIsoDeposits) event.put(depMap);
+  if (optOutputIsoDeposits){
+    reco::IsoDepositMap::Filler depFiller(*depMap);
+    depFiller.insert(muons, deps.begin(), deps.end());
+    depFiller.fill();
+    event.put(depMap);
+  }
+  reco::MuIsoFlagMap::Filler isoFiller(*isoMap);
+  isoFiller.insert(muons, isos.begin(), isos.end());
+  isoFiller.fill();
   event.put(isoMap);
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";

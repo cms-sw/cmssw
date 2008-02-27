@@ -31,8 +31,8 @@ Provide track-based isolation information for L3 muons.
 Uses TrackExtractor.
 Input: reco::TrackCollection of muons and reco::TrackCollection of "other" tracks (Ctf or PXLS).
 Output: 
-  -# MuIsoDepositAssociationMap (optional) with track pt's
-  -# MuIsoAssociationMap: "is isolated" flags associated to the input muons 
+  -# IsoDepositMap [typedef ValueMap<MuIsoDeposit>] (optional) with track pt's
+  -# MuIsoFlagMap [typedef ValueMap<bool> ] : "is isolated" flags associated to the input muons 
   .
 Thresholds for these flags are set in the cff/i via 
   -# "SimpleCuts" Cuts : diff sumEtMin, coneSize for a given muon_eta range

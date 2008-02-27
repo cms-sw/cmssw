@@ -30,8 +30,8 @@ Provide calorimeter-based isolation information for L2 (StandAlone) muons.
 Uses CaloExtractor.
 Input: reco::TrackCollection and CaloTowers
 Output: 
-  - MuIsoDepositAssociationMap (optional) 
-  - MuIsoAssociationMap: "is isolated" flags associated to the input muons 
+  - IsoDepositMap [typedef ValueMap<MuIsoDeposit> ] (optional) 
+  - MuIsoFlagMap [typedef ValueMap<bool> ]: "is isolated" flags associated to the input muons 
 (thresholds for these flags are set in the cff/i via Cuts: diff sumEtMin, coneSize for a given muon_eta range)
   .
 Up-to date configuration is located in HLTrigger/Muon.
