@@ -22,9 +22,14 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( iConfig.getParameter<std::string>( "src" ));
-  setProducer( iConfig.getParameter<std::string>( "producer" ));
+  setSrc( iConfig.getParameter<edm::InputTag>( "src" ), 
+  iConfig.getParameter<edm::InputTag>( "beamSpot" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
+
+  if ( iConfig.exists("clusterRemovalInfo") ) {
+    edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
+    if (!(tag == edm::InputTag())) { setClusterRemovalInfo( tag ); }
+  }
 
   
   myname_ = iConfig.getParameter<std::string>("ComponentName");
@@ -87,8 +92,11 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 
   std::vector<int> tccLocations;
   AlgoProductCollection algoResults;
+  reco::BeamSpot bs;
+  
   try{  
-    getFromEvt(theEvent,theTCCollection);
+    getFromEvt(theEvent,theTCCollection,bs);  
+  
     
     //
     //run the algorithm  
@@ -130,16 +138,16 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
 	     i!=recHitVec.second; i++){
 	  hits.push_back(theBuilder.product()->build(&(*i) ));
-	  if ((*i).isValid()){
-	    ndof = ndof + (i->dimension())*(i->weight());
-	  }
+	  //	  if ((*i).isValid()){
+	  // ndof = ndof + (i->dimension())*(i->weight());
+	  // }
 	}
 	
 	ndof = ndof - 5;
 	
 	//build Track
 	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof);
+	bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
 	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	if(ok) {
 	  cont++;
@@ -200,16 +208,19 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
   //declare and get TrackColection to be retrieved from the event
   //
   AlgoProductCollection algoResults;
+  reco::BeamSpot bs;
+ 
   try{  
     edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
+    getFromEvt(theEvent,theTCCollection,bs);
     
     //
     //run the algorithm  
     //
    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+   theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
 
 
