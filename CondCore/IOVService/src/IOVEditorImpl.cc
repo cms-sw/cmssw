@@ -121,7 +121,7 @@ namespace cond {
     if(  m_iov->iov.size()>1 ){
       //range check in case 
       cond::Time_t lastValidTill=(++m_iov->iov.rbegin())->first;
-      //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
+      std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
       if( (sinceTime-1)<= lastValidTill){
 	throw cond::Exception("IOVEditor::append Error: since time out of range: below last since");
       }
