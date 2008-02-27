@@ -9,6 +9,10 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+
+#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
+
+
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
@@ -156,6 +160,17 @@ int main( int argc, char** argv ){
   try{
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+
+    cond::CoralTransaction& coraldb=m_connection->coralTransaction();
+    try{
+      coraldb.start(false); 
+      cond::ObjectRelationalMappingUtility* mappingUtil(&(coraldb.coralSessionProxy()) );
+      if( !mappingUtil->existsMapping(cond::IOVNames::iovMappingVersion()) ){
+	mappingUtil->buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
+      }
+    }
+    coraldb.commit();
+
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
