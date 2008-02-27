@@ -7,7 +7,6 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TH1F.h"
-#include "TFile.h"
 
 class HLTCSCOverlapFilter : public HLTFilter {
 

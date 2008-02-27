@@ -56,11 +56,10 @@ bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    } // end loop over hits
 
    bool keep = false;
+   unsigned int minHitsSquared = m_minHits * m_minHits;
    for (std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.begin();
 	chamber_iter != chamber_tohit.end();
 	++chamber_iter) {
-
-      CSCDetId grom(chamber_iter->first);
 
       if (m_fillHists) {
 	 m_nhitsNoWindowCut->Fill(chamber_iter->second.size());
@@ -71,6 +70,7 @@ bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 	 int chamber = chamber_id.chamber();
 	 int next = chamber + 1;
       
+	 // Some rings have 36 chambers, others have 18.  This will still be valid when ME4/2 is added.
 	 if (next == 37  &&  (abs(chamber_id.station()) == 1  ||  chamber_id.ring() == 2)) next = 0;
 	 if (next == 19  &&  (abs(chamber_id.station()) != 1  &&  chamber_id.ring() == 1)) next = 0;
       
@@ -96,7 +96,7 @@ bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
 		  if (fabs(pos1.x() - pos2.x()) < m_xWindow  &&  fabs(pos1.y() - pos2.y()) < m_yWindow) pairs_in_window++;
 
-		  if (pairs_in_window >= m_minHits * m_minHits) {
+		  if (pairs_in_window >= minHitsSquared) {
 		     keep = true;
 		     if (!m_fillHists) return true;
 		  }
