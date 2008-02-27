@@ -27,7 +27,7 @@
 // user include files
 //   base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
-#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriterMaps.h"
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlDefinitions.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriterCore.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlTemplateFile.h"
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
@@ -192,7 +192,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &conditionMap,
         std::map<std::string,int> cond2intMap, L1GtVhdlTemplateFile header, const int spacesPerLevel)
 {
 
-    L1GtVhdlWriterMaps maps;
+    L1GtVhdlDefinitions maps;
     
     // define appearance
     spacesPerLevel_ = spacesPerLevel;
