@@ -7,7 +7,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTracklet.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackingSetup.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -31,8 +31,7 @@ class KalmanAlignmentTrackRefitter : public TrackProducerBase<reco::Track>
 
 public:
 
-  typedef KalmanAlignmentTrackingSetup TrackingSetup;
-  typedef std::vector< TrackingSetup* > TrackingSetupCollection;
+  typedef std::vector< KalmanAlignmentSetup* > AlignmentSetupCollection;
 
   typedef edm::OwnVector< TrackingRecHit > RecHitContainer;
 
@@ -44,17 +43,14 @@ public:
   typedef AlignmentAlgorithmBase::ConstTrajTrackPairCollection ConstTrajTrackPairCollection;
 
   /// Constructor.
-  KalmanAlignmentTrackRefitter( const edm::ParameterSet& config );
+  KalmanAlignmentTrackRefitter( const edm::ParameterSet& config, AlignableNavigator* navigator );
 
   /// Destructor.
   ~KalmanAlignmentTrackRefitter( void );
 
-  void initialize( const edm::EventSetup& setup, AlignableNavigator* navigator );
-
-  TrackletCollection refitTracks( const edm::EventSetup& setup,
+  TrackletCollection refitTracks( const edm::EventSetup& eventSetup,
+				  const AlignmentSetupCollection& algoSetups,
 				  const ConstTrajTrackPairCollection& tracks );
-
-  const TrackingSetupCollection& getTrackingSetups( void ) const { return theTrackingSetup; }
 
   /// Dummy implementation, due to inheritance from TrackProducerBase.
   virtual void produce( edm::Event&, const edm::EventSetup& ) {}
@@ -78,20 +74,8 @@ private:
 
   void debugTrackData( const std::string identifier, const Trajectory* traj, const reco::Track* track );
 
-  inline const PropagationDirection getDirection( const std::string& dir )
-    { return ( dir == "alongMomentum" ) ? alongMomentum : oppositeToMomentum; }
-
-  inline const PropagationDirection oppositeDirection( const PropagationDirection dir )
-    { return ( dir == alongMomentum ) ? oppositeToMomentum : alongMomentum; }
-
-  const edm::ParameterSet theConfiguration;
-
-  TrackingSetupCollection theTrackingSetup;
-
   TrackProducerAlgorithm<reco::Track> theRefitterAlgo;
-
   AlignableNavigator* theNavigator;
-
   bool theDebugFlag;
 };
 

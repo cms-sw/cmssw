@@ -5,11 +5,11 @@
 
 KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
 						  const TrajectoryStateOnSurface& external,
-						  KalmanAlignmentTrackingSetup* setup ) :
+						  const KalmanAlignmentSetup* setup ) :
   theTrajTrackPair( trajTrackPair ),
   theExternalPrediction( external ),
   theExternalPredictionFlag( true ),
-  theTrackingSetup( setup )
+  theAlignmentSetup( setup )
 {
   // Reset pointers to NULL.
   trajTrackPair.first = 0;
@@ -18,10 +18,10 @@ KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
 
 
 KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
-						  KalmanAlignmentTrackingSetup* setup ) :
+						  const KalmanAlignmentSetup* setup ) :
   theTrajTrackPair( trajTrackPair ),
   theExternalPredictionFlag( false ),
-  theTrackingSetup( setup )
+  theAlignmentSetup( setup )
 {
   // Reset pointers to NULL.
   trajTrackPair.first = 0;
