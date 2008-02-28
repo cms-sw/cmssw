@@ -68,6 +68,10 @@ namespace pat {
     PhysVarHisto * h_trackIso_ ;   //!<   &&& document this
     PhysVarHisto * h_caloIso_  ;   //!<   &&& document this
     PhysVarHisto * h_leptonID_ ;   //!<   &&& document this
+    PhysVarHisto * h_calCompat_;   //!<   &&& document this
+    PhysVarHisto * h_caloE_    ;   //!<   &&& document this
+    PhysVarHisto * h_type_     ;   //!<   &&& document this
+    PhysVarHisto * h_nChambers_;   //!<   &&& document this
   };
 }
 #endif
