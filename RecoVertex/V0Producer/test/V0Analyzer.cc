@@ -103,6 +103,9 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* myEtaEfficiencyHisto;
   TH1D* mySimEtaHisto;
   TH1D* myRhoEfficiencyHisto;
+  TH1D* myRhoEfficiencyHisto2;
+  TH1D* myRhoEfficiencyHisto3;
+  TH1D* myRhoEfficiencyHisto4;
   TH1D* mySimRhoHisto;
   TH1D* myKshortPtHisto;
   TH1D* myImpactParameterHisto;
@@ -121,16 +124,19 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* rVtxHisto1;
   TH1D* vtxSigHisto1;
   TH1D* rVtxHisto2;
+  TH1D* simRHisto;
   TH1D* vtxSigHisto2;
 
   TH1D* rErrorHisto;
   TH1D* tkPtHisto;
+  TH1D* k0sPtHisto;
   TH1D* tkChi2Histo;
   TH1D* sqrtTkChi2Histo;
   TH1D* tkEtaHisto;
   TH1D* kShortEtaHisto;
   TH1D* numHitsHisto;
 
+  TH1D* simTkMpipiHisto;
   int numDiff1, numDiff2;
 
   std::ofstream hitsOut;
@@ -216,9 +222,25 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 			      string(" Reconstruction Efficiency vs. #rho"));
   string rhoEffHistoLabelShort(vernum + string("EffVsRho"));
 
+  string rhoEffHistoLabel2Long(algo +
+			      string(" 2-Reconstruction Efficiency vs. #rho"));
+  string rhoEffHistoLabel2Short(vernum + string("EffVsRho2"));
+
+  string rhoEffHistoLabel3Long(algo +
+			      string(" 3-Reconstruction Efficiency vs. #rho"));
+  string rhoEffHistoLabel3Short(vernum + string("EffVsRho3"));
+
+  string rhoEffHistoLabel4Long(algo +
+			      string(" 4-Reconstruction Efficiency vs. #rho"));
+  string rhoEffHistoLabel4Short(vernum + string("EffVsRho4"));
+
   string simRhoHistoLabelLong(algo +
 			      string(" Simulated K^{0}_{s} #rho"));
   string simRhoHistoLabelShort(vernum + string("SimRho"));
+
+  string simRHistoLabelLong(algo +
+			      string(" Simulated K^{0}_{s} R"));
+  string simRHistoLabelShort(vernum + string("SimR"));
 
   string simEtaHistoLabelLong(algo +
 			      string(" Simulated K^{0}_{s} #eta"));
@@ -276,7 +298,7 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 
   string vtxSigHistoLabelLong(algo+
 			      string(" V^{0} vertex significance - radial"));
-  string vtxSigHistoLabelShort(vernum + string("#sigma rVtxRadial"));
+  string vtxSigHistoLabelShort(vernum + string("VtxRadialSig"));
 
   string rVtxHistoLabel2Long(algo+
 			    string(" r_{vtx} of V^{0} decay after hit cut"));
@@ -284,7 +306,7 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 
   string vtxSigHistoLabel2Long(algo+
 			      string(" V^{0} vertex significance"));
-  string vtxSigHistoLabel2Short(vernum + string("#sigma rVtxSpherical"));
+  string vtxSigHistoLabel2Short(vernum + string("VtxSphericalSig"));
 
   string rErrorHistoLabelLong(algo+
 			      string(" Error in r_{vtx}"));
@@ -293,6 +315,10 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string tkPtHistoLabelLong(algo+
 			    string(" Track P_{t}"));
   string tkPtHistoLabelShort(vernum + string("tkPt"));
+
+  string k0sPtHistoLabelLong(algo+
+			     string(" Sim K0s P_{t}"));
+  string k0sPtHistoLabelShort(vernum + string("k0sPt"));
 
   string tkChi2HistoLabelLong(algo+
 			      string(" Track #Chi^{2}"));
@@ -313,6 +339,14 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   string numHitsHistoLabelLong(algo+
 			       string(" Number Of Hits Per Track"));
   string numHitsHistoLabelShort(vernum + string("numHits"));
+
+  string simTkMpipiHistoLabelLong(algo+
+			       string(" Sim Track Pairs m_{#pi #pi}"));
+  string simTkMpipiHistoLabelShort(vernum + string("simTkMpipi"));
+
+  simTkMpipiHisto = new TH1D(simTkMpipiHistoLabelShort.c_str(),
+			     simTkMpipiHistoLabelLong.c_str(),
+			     100, 0., 2.);
 
 
 
@@ -344,6 +378,9 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   vtxSigHisto2 = new TH1D(vtxSigHistoLabel2Short.c_str(),
 			 vtxSigHistoLabel2Long.c_str(),
 			 100, 0., 100.);
+  k0sPtHisto = new TH1D(k0sPtHistoLabelShort.c_str(),
+		       k0sPtHistoLabelLong.c_str(),
+		       100, 0., 20.);
 
   rErrorHisto = new TH1D(rErrorHistoLabelShort.c_str(),
 			 rErrorHistoLabelLong.c_str(),
@@ -392,6 +429,15 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   myRhoEfficiencyHisto = new TH1D(rhoEffHistoLabelShort.c_str(),
 				  rhoEffHistoLabelLong.c_str(),
 				  60, 0., 60.);
+  myRhoEfficiencyHisto2 = new TH1D(rhoEffHistoLabel2Short.c_str(),
+				  rhoEffHistoLabel2Long.c_str(),
+				  60, 0., 60.);
+  myRhoEfficiencyHisto3 = new TH1D(rhoEffHistoLabel3Short.c_str(),
+				  rhoEffHistoLabel3Long.c_str(),
+				  60, 0., 60.);
+  myRhoEfficiencyHisto4 = new TH1D(rhoEffHistoLabel4Short.c_str(),
+				  rhoEffHistoLabel4Long.c_str(),
+				  60, 0., 60.);
   mySimRhoHisto = new TH1D(simRhoHistoLabelShort.c_str(),
 			   simRhoHistoLabelLong.c_str(),
 			   60, 0., 60.);
@@ -418,6 +464,9 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   myEtaEfficiencyHisto->Sumw2();
   mySimEtaHisto->Sumw2();
   myRhoEfficiencyHisto->Sumw2();
+  myRhoEfficiencyHisto2->Sumw2();
+  myRhoEfficiencyHisto3->Sumw2();
+  myRhoEfficiencyHisto4->Sumw2();
   mySimRhoHisto->Sumw2();
 
   hitsOut.open("hitsOut.txt");
@@ -427,8 +476,8 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 // ------------ method called to for each event  ------------
 void V0Analyzer::analyze(const edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup) {
-  std::cout << std::endl << "@@@In module..." << std::endl;
-  std::cout << "Creating HANDLES..." << std::endl;
+  //std::cout << std::endl << "@@@In module..." << std::endl;
+  //std::cout << "Creating HANDLES..." << std::endl;
   using namespace edm;
   //Handle<reco::VertexCollection> theVtxHandle;
   Handle< std::vector<reco::Vertex> > theVtxHandle;
@@ -446,13 +495,13 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   const TrackerGeometry* trackerGeom;
   trackerGeom = trackerGeomHandle.product();
   
-  std::cout << "Getting by label..." << std::endl;
+  //std::cout << "Getting by label..." << std::endl;
   iEvent.getByLabel(algoLabel, V0CollectionName, theCandHand);
   iEvent.getByLabel(SimTkLabel, SimTk);
   iEvent.getByLabel(SimVtxLabel, SimVtx);
   iEvent.getByLabel(recoAlgoLabel, RecoTk);
 
-  std::cout << "Creating and filling vectors..." << std::endl;
+  //std::cout << "Creating and filling vectors..." << std::endl;
   std::vector<reco::Track> theRecoTracks;
   std::vector<SimVertex> theSimVerts;
   std::vector<SimTrack> theSimTracks;
@@ -463,19 +512,67 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   theKshorts.insert( theKshorts.end(), theCandHand->begin(),
 		     theCandHand->end() );
 
+  // Done getting and filling
+
+  // Count how many simulated K0s we have
   double numSimKshorts = 0.;
+  double simRad = 0.;
   for(unsigned int ndx1 = 0; ndx1 < theSimTracks.size(); ndx1++) {
     if(theSimTracks[ndx1].type() == 310) {
+      HepLorentzVector k0sP(theSimTracks[ndx1].momentum());
+      k0sPtHisto->Fill( k0sP.perp(), 1. );
+      simRad = 
+	sqrt(theSimVerts[(theSimTracks[ndx1].vertIndex() + 1)].position().perp2());
       numSimKshorts += 1.;
     }
   }
 
   myNumSimKshortsHisto->Fill(numSimKshorts, 1.);
 
-  std::cout << "Found " << theKshorts.size() << " K0s events."
-	    << std::endl;
+  //std::cout << "Found " << theKshorts.size() << " K0s events."
+  // << std::endl;
 
-  double simRad = sqrt(theSimVerts[1].position().perp2());
+  // loop over sim tracks and calculate m_pipi, and histogram it
+  for(unsigned int stkidx1 = 0; stkidx1 < theSimTracks.size(); stkidx1++) {
+    for(unsigned int stkidx2 = stkidx1 + 1; stkidx2 < theSimTracks.size();
+	stkidx2++) {
+      SimTrack *thePosSimTk = 0;
+      SimTrack *theNegSimTk = 0;
+      if( theSimTracks[stkidx1].charge() > 0. 
+	  && theSimTracks[stkidx2].charge() < 0. ) {
+	thePosSimTk = &theSimTracks[stkidx1];
+	theNegSimTk = &theSimTracks[stkidx2];
+      }
+      else if( theSimTracks[stkidx1].charge() < 0.
+	       && theSimTracks[stkidx2].charge() > 0. ) {
+	theNegSimTk = &theSimTracks[stkidx1];
+	thePosSimTk = &theSimTracks[stkidx2];
+      }
+
+      if(thePosSimTk && theNegSimTk) {
+	double posP2 = 
+	  thePosSimTk->momentum().px()*thePosSimTk->momentum().px()
+	  + thePosSimTk->momentum().py()*thePosSimTk->momentum().py()
+	  + thePosSimTk->momentum().pz()*thePosSimTk->momentum().pz();
+	double negP2 =
+	  theNegSimTk->momentum().px()*theNegSimTk->momentum().px()
+	  + theNegSimTk->momentum().py()*theNegSimTk->momentum().py()
+	  + theNegSimTk->momentum().pz()*theNegSimTk->momentum().pz();
+	double posE = sqrt(posP2 + piMassSq);
+	double negE = sqrt(negP2 + piMassSq);
+	double k0sE = posE + negE;
+	HepLorentzVector k0sMomentum(thePosSimTk->momentum()
+				     +theNegSimTk->momentum());
+	k0sMomentum.setE(k0sE);
+	double k0sInvMass = k0sMomentum.m();
+	simTkMpipiHisto->Fill(k0sInvMass, 1.);
+      }
+      thePosSimTk = theNegSimTk = 0;
+    }
+  }
+
+  // Calculate sim k0s parameters from the sim decay vertex
+  //double simRad = sqrt(theSimVerts[1].position().perp2());
   double simCosTheta = theSimVerts[1].position().z()
     / theSimVerts[1].position().mag();
   double simEta = -log( tan( acos( simCosTheta)/2. ) );
@@ -487,15 +584,17 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   bool hasKshort = false;
   bool hasLambda = false;
   bool hasLambdaBar = false;
-  std::cout << theKshorts.size() << std::endl;
+  //std::cout << theKshorts.size() << std::endl;
 
   if( V0CollectionName == std::string("Kshort") ) {
     myNumRecoKshortsHisto->Fill( (double) theKshorts.size(), 1. );
   }
 
+  // Histogram the invariant mass (retrieved from the V0Candidate)
   for(unsigned int ksndx_ = 0; ksndx_ < theKshorts.size(); ksndx_++) {
     myNativeParticleMassHisto->Fill( theKshorts[ksndx_].mass() );
   }
+
 
   for(unsigned int ksndx = 0; ksndx < theKshorts.size(); ksndx++) {
     std::vector<reco::RecoChargedCandidate> v0daughters;
@@ -535,9 +634,9 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     if(theKshorts[ksndx].pdgId() == -3122) {
       hasLambdaBar = true;
     }
-    std::cout << "$#@#$: " << hasKshort << " " << hasLambda << " "
-	      << hasLambdaBar << " size: " << theKshorts.size() << std::endl;
-    std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
+    //std::cout << "$#@#$: " << hasKshort << " " << hasLambda << " "
+    //<< hasLambdaBar << " size: " << theKshorts.size() << std::endl;
+    //std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
 
     kShortEtaHisto->Fill(theKshorts[ksndx].eta(), 1.);
 
@@ -586,19 +685,10 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     bool tkChi2Cut = true;
     if( theVtxTrax.size() == 2 ) {
 
-      //Histos
-      //tkPtHisto->Fill(theVtxTrax[0]->pt(), 1.);
-      //tkPtHisto->Fill(theVtxTrax[1]->pt(), 1.);
-      //tkChi2Histo->Fill(theVtxTrax[0]->normalizedChi2(), 1.);
-      //tkChi2Histo->Fill(theVtxTrax[1]->normalizedChi2(), 1.);
-      //sqrtTkChi2Histo->Fill(sqrt(theVtxTrax[0]->normalizedChi2()), 1.);
-      //sqrtTkChi2Histo->Fill(sqrt(theVtxTrax[1]->normalizedChi2()), 1.);
       if(theVtxTrax[0]->normalizedChi2() > 5. ||
 	 theVtxTrax[1]->normalizedChi2() > 5.) {
 	tkChi2Cut = false;
       }
-      //tkEtaHisto->Fill(theVtxTrax[0]->eta(), 1.);
-      //tkEtaHisto->Fill(theVtxTrax[1]->eta(), 1.);
 
       GlobalPoint tk1hitPos(theVtxTrax[0]->innerPosition().x(),
 			    theVtxTrax[0]->innerPosition().y(),
@@ -606,11 +696,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
       GlobalPoint tk2hitPos(theVtxTrax[1]->innerPosition().x(),
 			    theVtxTrax[1]->innerPosition().y(),
 			    theVtxTrax[1]->innerPosition().z());
-      if( tk1hitPos.perp() < (vtxR - 3.*vtxError)
+      //if( tk1hitPos.perp() < (vtxR - 5.*vtxError)
+      if( tk1hitPos.mag() < (vtxRSph - 4.*vtxErrorSph)
 	  && theVtxTrax[0]->innerOk() ) {
 	hitsOkay2 = false;
       }
-      if( tk2hitPos.perp() < (vtxR - 3.*vtxError) 
+      if( tk2hitPos.mag() < (vtxRSph - 4.*vtxErrorSph) 
 	  && theVtxTrax[1]->innerOk() ) {
 	hitsOkay2 = false;
       }
@@ -618,7 +709,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
     bool hitsOkay = true;
     bool nHitsCut = true;
-    std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
+    //std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
 
     //hitsOut << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
     if( theVtxTrax.size() == 2 ) {
@@ -639,8 +730,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
 	    //                               we can access the hit type.
 
-	    if( tk1HitPosition.perp() < (vtxR - 3.*vtxError) ) {
+	    std::cout << ":::" << tk1HitPosition.mag() << ", "
+		      << vtxRSph - 4.*vtxErrorSph << std::endl;
+
+	    if( tk1HitPosition.mag() < (vtxRSph - 4.*vtxErrorSph) ) {
 	      hitsOkay = false;
+	      std::cout << "Flagged on track 1." << std::endl;
 	    }
 	  }
 	}
@@ -653,48 +748,67 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	      = trackerGeom->idToDet(tk2HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk2HitPtr->localPosition());
+	    std::cout << ":::" << tk2HitPosition.mag() << ", "
+		      << vtxRSph - 4.*vtxErrorSph << std::endl;
 
-	    if( tk2HitPosition.perp() < (vtxR - 3.*vtxError) ) {
+	    if( tk2HitPosition.mag() < (vtxRSph - 4.*vtxErrorSph) ) {
 	      hitsOkay = false;
+	      std::cout << "Flagged on track 2." << std::endl;
 	    }
 	  }
 	}
 	numHitsHisto->Fill(nHits1, 1.);
 	numHitsHisto->Fill(nHits2, 1.);
-	if(nHits1 < 6. || nHits2 < 6.) {
+	if(nHits1 < 8. || nHits2 < 8.) {
 	  nHitsCut = false;
 	}
       }
     }
   
-    std::cout << "hitsOkay=" << hitsOkay << ", hitsOkay2=" << hitsOkay2
-	      << std::endl;
+    //std::cout << "hitsOkay=" << hitsOkay << ", hitsOkay2=" << hitsOkay2
+    //<< std::endl;
     hitsOut << "hitsOkay=" << hitsOkay << ", hitsOkay2=" << hitsOkay2
 	    << std::endl;
     if(!hitsOkay) ++numDiff1;
     if(!hitsOkay2) ++numDiff2;
     for(unsigned int ndx3 = 0; ndx3 < theRecoTracks.size(); ndx3++) {
       tkEtaHisto->Fill(theRecoTracks[ndx3].eta(), 1.);
-      tkChi2Histo->Fill(theRecoTracks[ndx3].normalizedChi2(), 1.);
+      //tkChi2Histo->Fill(theRecoTracks[ndx3].normalizedChi2(), 1.);
+    }
+
+    if(nHitsCut) {
+      for(unsigned int ndx3_1 = 0; ndx3_1 < theRecoTracks.size(); ndx3_1++) {
+	//tkEtaHisto->Fill(theRecoTracks[ndx3_1].eta(), 1.);
+	tkChi2Histo->Fill(theRecoTracks[ndx3_1].normalizedChi2(), 1.);
+      }
     }
 
     vertexChi2Histo->Fill(vtxChi2, 1.);
 
-    step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
-    if(vtxChi2 < 3. && nHitsCut && tkChi2Cut) {
+    //step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+    //if(hitsOkay2) {
+    if(vtxChi2 < 7. && nHitsCut && tkChi2Cut) {
+      step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+      myRhoEfficiencyHisto->Fill(recoRad, 1.);
       rVtxHisto1->Fill(vtxR, 1.);
       if(vtxR > 0.1) {
+      //if(vtxR > 1.) {
 	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	myRhoEfficiencyHisto2->Fill(recoRad, 1.);
 	vtxSigHisto1->Fill(vtxSig, 1.);
-	if(vtxSig > 22.) {
+	if(vtxSig > 10.) {
 	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	  myRhoEfficiencyHisto3->Fill(recoRad, 1.);
 	  if(hitsOkay) {
 	    step4massHisto->Fill(theKshorts[ksndx].mass(), 1.);
 	    rVtxHisto2->Fill(vtxR, 1.);
+	    myEtaEfficiencyHisto->Fill(recoEta, 1.);
+	    myRhoEfficiencyHisto4->Fill(recoRad, 1.);
 	  }
 	}
       }
     }
+    //}
 
     if(vtxChi2 < 1.) {
       //rVtxHisto2->Fill(vtxRSph, 1.);
@@ -707,8 +821,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
 
     //if(theKshorts.size() < 2) {
-    myEtaEfficiencyHisto->Fill(recoEta, 1.);
-    myRhoEfficiencyHisto->Fill(recoRad, 1.);
+
     //}
     
     std::vector<reco::Track> theRefTracks = k0s.refittedTracks();
@@ -810,7 +923,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     myRefitKshortMassHisto->Fill(refKShortMass);
     myKshortMassHisto->Fill(kShortMass);
   }
-  std::cout << "At end of analyze() function" << std::endl;
+  //std::cout << "At end of analyze() function" << std::endl;
 }
 
 
@@ -820,13 +933,16 @@ void V0Analyzer::endJob() {
 
   myEtaEfficiencyHisto->Divide(mySimEtaHisto);
   myRhoEfficiencyHisto->Divide(mySimRhoHisto);
-  std::cout << "Pointer address: " << theHistoFile << std::endl;
+  myRhoEfficiencyHisto2->Divide(mySimRhoHisto);
+  myRhoEfficiencyHisto3->Divide(mySimRhoHisto);
+  myRhoEfficiencyHisto4->Divide(mySimRhoHisto);
+  //std::cout << "Pointer address: " << theHistoFile << std::endl;
   theHistoFile->Write();
   delete theHistoFile;
   theHistoFile=0;
 
-  std::cout << "numDiff1 = " << numDiff1 << ", numDiff2 = "
-	    << numDiff2 << std::endl;
+  //std::cout << "numDiff1 = " << numDiff1 << ", numDiff2 = "
+  //<< numDiff2 << std::endl;
 
   hitsOut << "numDiff1 = " << numDiff1 << ", numDiff2 = "
 	    << numDiff2 << std::endl;
