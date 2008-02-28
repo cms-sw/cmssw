@@ -69,14 +69,12 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     leaftagquery->addToOutputList( "recordname" );
     leaftagquery->addToOutputList( "objectname" );
     leaftagquery->addToOutputList( "labelname" );
-    leaftagquery->addToOutputList( "timetype" );
     coral::AttributeList myresult;
     myresult.extend("tagname",typeid(std::string));
     myresult.extend("pfn",typeid(std::string));
     myresult.extend("recordname",typeid(std::string));
     myresult.extend("objectname",typeid(std::string));
     myresult.extend("labelname",typeid(std::string));
-    myresult.extend("timetype",typeid(std::string));
     leaftagquery->defineOutput( myresult );
     coral::AttributeList bindVariableList;
     bindVariableList.extend("tagid",typeid(unsigned int));
@@ -92,7 +90,6 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
       tagmetadata.recordname=row["recordname"].data<std::string>();
       tagmetadata.objectname=row["objectname"].data<std::string>();
       tagmetadata.labelname=row["labelname"].data<std::string>();
-      tagmetadata.timetype=row["timetype"].data<std::string>();
       result.insert( std::make_pair<std::string, cond::TagMetadata>(tagname,tagmetadata) );
     }
     cursor2.close();

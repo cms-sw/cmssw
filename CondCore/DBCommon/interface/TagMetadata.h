@@ -8,7 +8,6 @@ namespace cond{
     std::string recordname;
     std::string objectname;
     std::string labelname;
-    std::string timetype;
   };
 }
 #endif
