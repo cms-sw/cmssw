@@ -46,6 +46,7 @@ const std::string L1GtVhdlDefinitions::substParamDefValId_("def_val_id");
 const std::string L1GtVhdlDefinitions::substParamContent_("content");
 const std::string L1GtVhdlDefinitions::substParamOthers_("others");
 const std::string L1GtVhdlDefinitions::substParamDefValType_("defvaltype");
+const std::string L1GtVhdlDefinitions::substParamCaloOrMuon_("calo_or_muon");
 const std::string L1GtVhdlDefinitions::substParamMuonDefVals_("muon_def_vals");
 const std::string L1GtVhdlDefinitions::substParamCaloDefVals_("calo_def_vals");
 const std::string L1GtVhdlDefinitions::substParamEsumsDefVals_("esums_def_vals");
@@ -62,6 +63,7 @@ const std::string L1GtVhdlDefinitions::stringConstantPtLowDefVal_("ptl_def_val")
 const std::string L1GtVhdlDefinitions::stringConstantPtHighDefVal_("pth_def_val");
 const std::string L1GtVhdlDefinitions::stringConstantQualityDefVal_("quality_def_val");
 const std::string L1GtVhdlDefinitions::stringConstantQuargeDefVal_("charge_def_val");
+const std::string L1GtVhdlDefinitions::stringConstantCalo_("calo");
 const std::string L1GtVhdlDefinitions::stringConstantCharge1s_("charge_1_s");
 const std::string L1GtVhdlDefinitions::stringConstantCharge2s_("charge_2_s");
 const std::string L1GtVhdlDefinitions::stringConstantCharge2wsc_("charge_2_wsc");

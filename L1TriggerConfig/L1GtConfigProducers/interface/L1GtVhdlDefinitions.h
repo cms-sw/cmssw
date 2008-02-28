@@ -78,6 +78,7 @@ protected:
     static const std::string substParamType_;
     static const std::string substParamMaxNr_;
     static const std::string substParamDefValId_;
+    static const std::string substParamCaloOrMuon_;
     static const std::string substParamContent_;
     static const std::string substParamOthers_;
     static const std::string substParamDefValType_;
@@ -101,6 +102,7 @@ protected:
     static const std::string stringConstantPtHighDefVal_;
     static const std::string stringConstantQualityDefVal_;
     static const std::string stringConstantQuargeDefVal_;
+    static const std::string stringConstantCalo_;
     static const std::string stringConstantCharge1s_;
     static const std::string stringConstantCharge2s_;
     static const std::string stringConstantCharge2wsc_;
