@@ -158,7 +158,7 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 	  for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
 	       if (EBDetId::validDetId(i, j % 360)) {
 		    v.push_back(EBDetId(i, j % 360));
-		    printf("pushing back (%d, %d)\n", i, j % 360);
+// 		    printf("pushing back (%d, %d)\n", i, j % 360);
 	       }
 	  }
      }

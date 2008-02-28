@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.4 2008/02/26 02:25:33 dmytro Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.5 2008/02/28 23:25:19 jmuelmen Exp $
 //
 
 // system include files
@@ -223,8 +223,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 		       EBDetId barrel_id = *k;
 		       const double phi = v.Phi();
 		       const double eta = v.Eta();
-		       printf("eta: %e\teta index: %d\t\tphi: %e\tphi index: %d\n",
-			      v.Eta(), barrel_id.ieta(), v.Phi(), barrel_id.iphi());
+// 		       printf("eta: %e\teta index: %d\t\tphi: %e\tphi index: %d\n",
+// 			      v.Eta(), barrel_id.ieta(), v.Phi(), barrel_id.iphi());
 		       if (phi > max_phi)
 			    max_phi = phi;
 		       if (phi < min_phi)
