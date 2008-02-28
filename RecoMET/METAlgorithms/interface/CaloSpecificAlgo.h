@@ -18,7 +18,7 @@ class CaloSpecificAlgo
   typedef std::vector <const reco::Candidate*> TowerCollection;
   /// Make CaloMET. Assumes MET is made from CaloTowerCandidates
   //reco::CaloMET addInfo(const reco::CandidateCollection *towers, CommonMETData met);
-  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met);
+  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, bool noHF);
 };
 
 #endif
