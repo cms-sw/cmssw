@@ -8,6 +8,7 @@ process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidates.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genParticles.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genEventScale.cfi")
+process.include( "PhysicsTools/HepMCCandAlgos/data/genEventPdfInfo.cfi")
 # The following is still not clear how should be converted to .py...
 # process.include( "PhysicsTools/HepMCCandAlgos/test/h4l.cff")
 # include "PhysicsTools/HepMCCandAlgos/test/ttbar.cff"
@@ -32,7 +33,8 @@ process.out = OutputModule( "PoolOutputModule",
     "drop *",
     "keep *_genParticleCandidates_*_*",
     "keep *_genParticles_*_*",
-    "keep *_genEventWeight_*_*"
+    "keep *_genEventWeight_*_*",
+    "keep *_genEventPdfInfo_*_*"
   )
 )
   
@@ -41,7 +43,8 @@ process.printEventNumber = OutputModule( "AsciiOutputModule" )
 process.p = Path( 
   process.genParticleCandidates *
   process.genParticles *
-  process.genEventWeight
+  process.genEventWeight *
+  process.genEventPdfInfo
 )
 
 process.o = EndPath( 
