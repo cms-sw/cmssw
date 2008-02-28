@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.14 2008/02/27 16:33:40 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.15 2008/02/28 10:24:23 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -508,12 +508,12 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
     if ( !anal ) { continue; }
     
-    // construct string for valid and dirty connections
+    // construct strings for various categories of connections
     std::stringstream ss;
-    SiStripFecKey( anal->fecKey() ).terse(ss); ss << " "; 
     SiStripFedKey( anal->fedKey() ).terse(ss); ss << " ";
-    ss << "DcuId=" << std::hex << std::setw(8) << std::setfill('0') << anal->dcuId() << std::dec << " ";
-    ss << "DetId=" << std::hex << std::setw(8) << std::setfill('0') << anal->detId() << std::dec;
+    SiStripFecKey( anal->fecKey() ).terse(ss); ss << " "; 
+    ss << "DcuId= " << std::hex << std::setw(8) << std::setfill('0') << anal->dcuId() << std::dec << " ";
+    ss << "DetId= " << std::hex << std::setw(8) << std::setfill('0') << anal->detId() << std::dec;
     if ( anal->isValid() &&
 	 !(anal->isDirty()) &&
 	 !(anal->badTrimDac()) ) { valid.push_back( ss.str() ); }

@@ -179,28 +179,28 @@ void FedChannelConnection::print( std::stringstream& ss ) const {
 // -----------------------------------------------------------------------------
 // 
 void FedChannelConnection::terse( std::stringstream& ss ) const {
-  ss << " FED: crate/slot/id/unit " 
+  ss << " FED:crate/slot/id/unit=" 
      << fedCrate() << "/" 
      << fedSlot() << "/" 
      << fedId() << "/" 
      << SiStripFedKey::feUnit( fedCh() ) << "/" 
      << SiStripFedKey::feChan( fedCh() ) << "," 
-     << " FEC: crate/slot/ring/CCU/module "
+     << " FEC:crate/slot/ring/CCU/module="
      << fecCrate() << "/"
      << fecSlot() << "/" 
      << fecRing() << ","
      << ccuAddr() << "/" 
      << ccuChan() << ","
-     << " APVs " 
+     << " APVs=" 
      << i2cAddr(0) << "/" 
      << i2cAddr(1) << "," 
-     << " DCU/DetId " 
+     << " DCU/DetId=" 
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << ","
      << std::dec
-     << " APV pair " << apvPairNumber()+1
-     << " out of " << nApvPairs();
+     << " APVpair=" << apvPairNumber()+1
+     << " (from " << nApvPairs() << ")";
 }
 
 // -----------------------------------------------------------------------------
