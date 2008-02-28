@@ -74,7 +74,10 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 
  	try
 	{
-	  if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
+	  AlignableDetOrUnitPtr alignable = theNavigator->alignableFromDetId( (*itHits)->geographicalId() );
+	  AlignmentParameters* alignmentParameters = getAlignmentParameters( alignable );
+	  if ( !alignmentParameters ) continue;
+	  //if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
 	  //theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
 	} catch(...) { continue; }
 
@@ -277,6 +280,29 @@ void KalmanAlignmentTrackRefitter::sortRecHits( RecHitContainer& hits,
   hits.swap( tmp );
 
   return;
+}
+
+
+AlignmentParameters*
+KalmanAlignmentTrackRefitter::getAlignmentParameters( const AlignableDetOrUnitPtr& alignable ) const
+{
+  // Get alignment parameters from AlignableDet ...
+  AlignmentParameters* alignmentParameters = alignable->alignmentParameters();
+  // ... or any higher level alignable.
+  if ( !alignmentParameters ) alignmentParameters = getHigherLevelParameters( alignable );
+  return alignmentParameters;
+}
+
+
+AlignmentParameters*
+KalmanAlignmentTrackRefitter::getHigherLevelParameters( const Alignable* aAlignable ) const
+{
+  Alignable* higherLevelAlignable = aAlignable->mother();
+  // Alignable has no mother ... most probably the alignable is already the full tracker.
+  if ( !higherLevelAlignable ) return 0;
+  AlignmentParameters* higherLevelParameters = higherLevelAlignable->alignmentParameters();
+  // Found alignment parameters? If not, go one level higher in the hierarchy.
+  return higherLevelParameters ? higherLevelParameters : getHigherLevelParameters( higherLevelAlignable );
 }
 
 

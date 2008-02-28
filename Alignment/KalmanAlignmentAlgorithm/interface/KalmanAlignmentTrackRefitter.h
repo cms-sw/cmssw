@@ -5,6 +5,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTracklet.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
@@ -72,6 +73,8 @@ private:
 		    const TransientTrackingRecHitBuilder* builder,
 		    bool sortInsideOut ) const;
 
+  AlignmentParameters* getAlignmentParameters( const AlignableDetOrUnitPtr& alignable ) const;
+  AlignmentParameters* getHigherLevelParameters( const Alignable* aAlignable ) const;
   void debugTrackData( const std::string identifier, const Trajectory* traj, const reco::Track* track );
 
   TrackProducerAlgorithm<reco::Track> theRefitterAlgo;
