@@ -22,10 +22,7 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
       CSCFakeDBGains(const edm::ParameterSet&);
       ~CSCFakeDBGains();
 
-      float mean,min,minchi;
-      int seed;long int M;
-
-      void prefillDBGains(); 
+      inline static CSCDBGains * prefillDBGains(); 
 
       typedef const  CSCDBGains * ReturnType;
 
@@ -34,8 +31,35 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    CSCDBGains *cndbgains ;
+    CSCDBGains *cndbGains ;
 
 };
+
+#include<fstream>
+#include<vector>
+#include<iostream>
+
+// to workaround plugin library
+inline CSCDBGains *  CSCFakeDBGains::prefillDBGains()
+{
+  int seed;
+  long int M;
+  float mean,min, minchi;
+  const int MAX_SIZE = 217728;
+  const int FACTOR=1000;
+  
+  CSCDBGains * cndbgains = new CSCDBGains();
+  cndbgains->gains.resize(MAX_SIZE);
+
+  seed = 10000;	
+  srand(seed);
+  mean=6.8, min=-10.0, minchi=1.0, M=1000;
+  cndbgains->factor_gain = int (FACTOR);
+  
+  for(int i=0; i<MAX_SIZE;i++){
+    cndbgains->gains[i].gain_slope= (short int) (((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean*FACTOR+0.5);
+  }
+  return cndbgains;
+}  
 
 #endif

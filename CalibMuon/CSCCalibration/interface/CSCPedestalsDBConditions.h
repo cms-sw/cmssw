@@ -105,16 +105,16 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   cndbpedestals->factor_rms= int (RMS_FACTOR);
 
   for(int i=0; i<MAX_SIZE;++i){
-    itemvector[i].ped= int (db_peds[i]*PED_FACTOR+0.5);
-    itemvector[i].rms= int (db_pedrms[i]*RMS_FACTOR+0.5);
+    itemvector[i].ped= (short int) (db_peds[i]*PED_FACTOR+0.5);
+    itemvector[i].rms= (short int) (db_pedrms[i]*RMS_FACTOR+0.5);
   }
 
   for(int i=0; i<MAX_SIZE;++i){
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 if(int (fabs(new_peds[k]*PED_FACTOR+0.5))<MAX_SHORT)   itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
-	 if(int (fabs(new_pedrms[k]*RMS_FACTOR+0.5))<MAX_SHORT) itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
+	 if((short int) (fabs(new_peds[k]*PED_FACTOR+0.5))<MAX_SHORT)   itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
+	 if((short int) (fabs(new_pedrms[k]*RMS_FACTOR+0.5))<MAX_SHORT) itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
 	 //std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  

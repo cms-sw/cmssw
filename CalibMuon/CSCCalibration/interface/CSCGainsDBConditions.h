@@ -103,7 +103,7 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 
   CSCDBGains::GainContainer & itemvector = cndbgains->gains;
   itemvector.resize(MAX_SIZE);
-  cndbgains->factor_gain = int (FACTOR);
+  cndbgains->factor_gain = (short int) (FACTOR);
   std::cout<<" myfactor "<<cndbgains->factor_gain<<std::endl;
 
   for(int i=0; i<MAX_SIZE;++i){
@@ -114,7 +114,7 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
      counter=db_index_id[i];  
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
-	 if (int (fabs(new_slope[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
+	 if ((short int) (fabs(new_slope[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
 	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
        }  

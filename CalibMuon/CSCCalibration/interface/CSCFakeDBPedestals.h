@@ -21,11 +21,8 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
    public:
       CSCFakeDBPedestals(const edm::ParameterSet&);
       ~CSCFakeDBPedestals();
-
-      float meanped,meanrms;
-      int seed;long int M;
       
-      void prefillDBPedestals();
+       inline static CSCDBPedestals * prefillDBPedestals();
 
       typedef const  CSCDBPedestals * ReturnType;
 
@@ -34,7 +31,37 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-      CSCDBPedestals *cndbpedestals ;   
+      CSCDBPedestals *cndbPedestals ;   
 };
+
+#include<fstream>
+#include<vector>
+#include<iostream>
+
+// to workaround plugin library
+inline CSCDBPedestals *  CSCFakeDBPedestals::prefillDBPedestals()
+{
+  int seed;
+  long int M;
+  float meanped,meanrms;
+  const int MAX_SIZE = 217728;
+  const int PED_FACTOR=10;
+  const int RMS_FACTOR=1000;
+ 
+  CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
+  cndbpedestals->pedestals.resize(MAX_SIZE);
+
+  seed = 10000;	
+  srand(seed);
+  meanped=600.0, meanrms=1.5, M=1000;
+  cndbpedestals->factor_ped = int (PED_FACTOR);
+  cndbpedestals->factor_rms = int (RMS_FACTOR);
+ 
+  for(int i=0; i<MAX_SIZE;i++){
+    cndbpedestals->pedestals[i].ped=(short int) (((double)rand()/((double)(RAND_MAX)+(double)(1)))*100+meanped*PED_FACTOR+0.5);
+    cndbpedestals->pedestals[i].rms= (short int) (((double)rand()/((double)(RAND_MAX)+(double)(1)))+meanrms*RMS_FACTOR+0.5);
+  }
+  return cndbpedestals;
+}  
 
 #endif

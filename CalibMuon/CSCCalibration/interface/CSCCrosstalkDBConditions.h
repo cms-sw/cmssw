@@ -123,20 +123,20 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
   cndbcrosstalk->factor_intercept = int (INTERCEPT_FACTOR);
 
   for(int i=0; i<MAX_SIZE;++i){
-    itemvector[i].xtalk_slope_right=int (db_slope_r[i]*SLOPE_FACTOR+0.5);
-    itemvector[i].xtalk_intercept_right= int (db_intercept_r[i]*INTERCEPT_FACTOR+0.5); 
-    itemvector[i].xtalk_slope_left= int (db_slope_l[i]*SLOPE_FACTOR+0.5);  
-    itemvector[i].xtalk_intercept_left= int (db_intercept_l[i]*INTERCEPT_FACTOR+0.5);  
+    itemvector[i].xtalk_slope_right=(short int) (db_slope_r[i]*SLOPE_FACTOR+0.5);
+    itemvector[i].xtalk_intercept_right= (short int) (db_intercept_r[i]*INTERCEPT_FACTOR+0.5); 
+    itemvector[i].xtalk_slope_left= (short int) (db_slope_l[i]*SLOPE_FACTOR+0.5);  
+    itemvector[i].xtalk_intercept_left= (short int) (db_intercept_l[i]*INTERCEPT_FACTOR+0.5);  
   }
 
   for(int i=0; i<MAX_SIZE;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	if (int (fabs(new_slope_r[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)         itemvector[counter].xtalk_slope_right= int (new_slope_r[k]*SLOPE_FACTOR+0.5);
-	if (int (fabs(new_intercept_r[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_right= int (new_intercept_r[k]*INTERCEPT_FACTOR+0.5); 
-	if (int (fabs(new_slope_l[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)             itemvector[counter].xtalk_slope_left= int (new_slope_l[k]*SLOPE_FACTOR+0.5);  
-	if (int (fabs(new_intercept_l[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_left= int (new_intercept_l[k]*INTERCEPT_FACTOR+0.5);  
+	if ((short int) (fabs(new_slope_r[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)         itemvector[counter].xtalk_slope_right= int (new_slope_r[k]*SLOPE_FACTOR+0.5);
+	if ((short int) (fabs(new_intercept_r[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_right= int (new_intercept_r[k]*INTERCEPT_FACTOR+0.5); 
+	if ((short int) (fabs(new_slope_l[k]*SLOPE_FACTOR+0.5))<MAX_SHORT)         itemvector[counter].xtalk_slope_left= int (new_slope_l[k]*SLOPE_FACTOR+0.5);  
+	if ((short int) (fabs(new_intercept_l[k]*INTERCEPT_FACTOR+0.5))<MAX_SHORT) itemvector[counter].xtalk_intercept_left= int (new_intercept_l[k]*INTERCEPT_FACTOR+0.5);  
 	itemvector[i] = itemvector[counter];
 	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
