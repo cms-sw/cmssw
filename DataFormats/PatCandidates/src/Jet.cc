@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.4 2008/01/22 21:58:15 lowette Exp $
+// $Id: Jet.cc,v 1.5 2008/01/26 20:19:45 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -10,9 +10,9 @@ using namespace pat;
 
 /// default constructor
 Jet::Jet() :
-  PATObject<JetType>(JetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())),
+  PATObject<JetType>(JetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())), associatedTracks_(),
   partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
-  jetCharge_(0.0), associatedTracks_() {
+  jetCharge_(0.0) {
 }
 
 
