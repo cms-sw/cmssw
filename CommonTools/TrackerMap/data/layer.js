@@ -8,7 +8,6 @@ TrackerLayer.init = function()
 TrackerLayer.showData = function (evt) {
     var myPoly = evt.currentTarget;
        if (evt.type == "mouseover") {
-    var myPoly = evt.currentTarget;
        var myTracker = myPoly.getAttribute("POS");
        var separator = myTracker.indexOf("connected");
        var myTracker2 = myTracker.substring(separator);
@@ -41,13 +40,13 @@ TrackerLayer.showData = function (evt) {
 	    var apvaddr3 = "";
 	    if (rest.length>5){comma=rest.indexOf(')');apvaddr3 = rest.substring(0,comma);}
 	    //alert(apvaddr1+" "+apvaddr2+" "+apvaddr3);
-	    if(crate!=top.loaded){top.loaded=crate;top.remotewin.location.href=top.tmapname+"crate"+crate+".xml";}
+	    if(crate!=parent.loaded){parent.loaded=crate;parent.remotewin.location.href=parent.servername+parent.tmapname+"crate"+crate+".xml";}
             opacity=0.4;
             myPoly.setAttribute("style","stroke: black; stroke-width: 1") ;
-	    if(top.remotewin.document.getElementById(apvaddr1)!=null) {styledef=top.remotewin.document.getElementById(apvaddr1).getAttribute("style");if(styledef==null||styledef=="")top.remotewin.document.getElementById(apvaddr1).setAttribute("style"," stroke: black; stroke-width: 1") ; else top.remotewin.document.getElementById(apvaddr1).setAttribute("style",""); }
-	    if(apvaddr2!=""&&top.remotewin.document.getElementById(apvaddr2)!=null) {styledef=top.remotewin.document.getElementById(apvaddr2).getAttribute("style");if(styledef==null||styledef=="")top.remotewin.document.getElementById(apvaddr2).setAttribute("style"," stroke: black; stroke-width: 1") ; else top.remotewin.document.getElementById(apvaddr2).setAttribute("style",""); }
-	    if(apvaddr3!=""&&top.remotewin.document.getElementById(apvaddr3)!=null) {styledef=top.remotewin.document.getElementById(apvaddr3).getAttribute("style");if(styledef==null||styledef=="")top.remotewin.document.getElementById(apvaddr3).setAttribute("style"," stroke: black; stroke-width: 1") ; else top.remotewin.document.getElementById(apvaddr3).setAttribute("style",""); }
-	    top.document.getElementById('print1').setAttribute("src",top.tmapname+"layer"+layer+".html#"+detid);
+	    if(parent.remotewin.document.getElementById(apvaddr1)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr1).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr1).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr1).setAttribute("style",""); }
+	    if(apvaddr2!=""&&parent.remotewin.document.getElementById(apvaddr2)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr2).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr2).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr2).setAttribute("style",""); }
+	    if(apvaddr3!=""&&parent.remotewin.document.getElementById(apvaddr3)!=null) {styledef=parent.remotewin.document.getElementById(apvaddr3).getAttribute("style");if(styledef==null||styledef=="")parent.remotewin.document.getElementById(apvaddr3).setAttribute("style"," stroke: black; stroke-width: 1") ; else parent.remotewin.document.getElementById(apvaddr3).setAttribute("style",""); }
+	    parent.document.getElementById('print1').setAttribute("src",parent.servername+parent.tmapname+"layer"+layer+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
 	    
      }

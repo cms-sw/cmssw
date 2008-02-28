@@ -26,11 +26,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
  psetAvailable=true;
   xsize=340;ysize=200;
   title=" ";
+  jsPath="";
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
   saveAsSingleLayer=false;
   if(tkmapPset.exists("trackermaptxtPath")){
-  jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
+  jsPath=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath",""
+);
+  jsfilename=jsPath+"trackermap.txt";
   cout << jsfilename << endl;
   infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
   cout << infilename << endl;
@@ -1069,52 +1072,32 @@ void TrackerMap::printonline(){
   float minval = 0.;
   float maxval = 0.;
   string outputfilename="dqmtmap";
-  ifname="CommonTools/TrackerMap/data/viewer.xhtml";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.xhtml";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
-*ofilename <<"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""<<endl;
-*ofilename <<"    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"<<endl;
-*ofilename <<"<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"<<endl;
-*ofilename <<"  <head>"<<endl;
-*ofilename <<"    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"<<endl;
-*ofilename <<"    <title>TrackerMap Viewer</title>"<<endl;
-*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\"viewer.css\" />"<<endl;
-*ofilename <<"    <script type=\"text/javascript\" src=\"viewer.js\">"<<endl;
-*ofilename <<"    </script>"<<endl;
-*ofilename <<"    <script type=\"text/javascript\">"<<endl;
-*ofilename <<"    //<![CDATA["<<endl;
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+  ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.css";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewer.css");
   ofname <<  "viewer.css";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewer.js");
   ofname << "viewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/crate.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/layer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("layer.js");
   ofname <<  "layer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/null.png";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname <<  "null.png";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   
@@ -1198,52 +1181,32 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   std::ostringstream ofname;
   std::string ifname;
   string line;
-  ifname="CommonTools/TrackerMap/data/viewer.xhtml";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.xhtml";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
-*ofilename <<"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""<<endl;
-*ofilename <<"    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"<<endl;
-*ofilename <<"<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"<<endl;
-*ofilename <<"  <head>"<<endl;
-*ofilename <<"    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"<<endl;
-*ofilename <<"    <title>TrackerMap Viewer</title>"<<endl;
-*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\"viewer.css\" />"<<endl;
-*ofilename <<"    <script type=\"text/javascript\" src=\"viewer.js\">"<<endl;
-*ofilename <<"    </script>"<<endl;
-*ofilename <<"    <script type=\"text/javascript\">"<<endl;
-*ofilename <<"    //<![CDATA["<<endl;
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+  ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.css";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewer.css");
   ofname <<  "viewer.css";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("viewer.js");
   ofname << "viewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/crate.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
-  ifname="CommonTools/TrackerMap/data/layer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename=findfile("layer.js");
   ofname <<  "layer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/null.png";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname <<  "null.png";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   
@@ -1320,6 +1283,23 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
                 }
   }
 }
+ std::ifstream * TrackerMap::findfile(string filename) {
+  std::ifstream * ifilename;
+  std::string ifname;
+  if(jsPath!=""){
+  ifname=jsPath+filename;
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  if(!ifilename){
+  ifname="CommonTools/TrackerMap/data/"+filename;
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  }
+  }else {
+  ifname="CommonTools/TrackerMap/data/"+filename;
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+ }
+  if(!ifilename)cout << "File " << filename << " missing" << endl;
+  return ifilename;
+ }
 void TrackerMap::printlayers(bool print_total, float minval, float maxval, string outputfilename){
   ofstream * xmlfile;
 saveAsSingleLayer=true;

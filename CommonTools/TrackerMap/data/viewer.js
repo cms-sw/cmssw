@@ -51,8 +51,8 @@ function setUpTabs() {
    }
    tabs.showPanel(0);
    zoomFactor=.9;
-   document.getElementById('img1').src=tmapname+".png";
-   document.getElementById('img2').src=tmapname+"fed.png";
+   document.getElementById('img1').src=servername+tmapname+".png";
+   document.getElementById('img2').src=servername+tmapname+"fed.png";
    makeDraggable('img1');
    tmapObject="img1";
    setFull('layer2');
@@ -349,10 +349,10 @@ function setSingle(elemento,layer1){
       printObject.style.display='';
       divObject.style.display='none';
 	    } else { }
-         if(tmapObject=='img1')frame.src=tmapname+"layer"+layer1+".xml";
-         else frame.src=tmapname+"crate"+layer1+".xml";
-         if(tmapObject=='img1')printObject.src=tmapname+"layer"+layer1+".html";
-         else printObject.src=tmapname+"crate"+layer1+".html";
+         if(tmapObject=='img1')frame.src=servername+tmapname+"layer"+layer1+".xml";
+         else frame.src=servername+tmapname+"crate"+layer1+".xml";
+         if(tmapObject=='img1')printObject.src=servername+tmapname+"layer"+layer1+".html";
+         else printObject.src=servername+tmapname+"crate"+layer1+".html";
 		   }
 		   }
 function setFull(elemento){

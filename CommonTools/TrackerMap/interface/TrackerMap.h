@@ -54,6 +54,7 @@ class TrackerMap {
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getcolor(float value, int palette);
+  std::ifstream * findfile(std::string filename);
   int getNumMod(){return number_modules;};
   typedef std::map<const int  , TmModule *> SmoduleMap;
   SmoduleMap smoduleMap;
@@ -72,6 +73,7 @@ class TrackerMap {
   int npart; //number of detectors parts 
   string title;
    std::string jsfilename,infilename;
+  std::string jsPath;
    bool psetAvailable;
   double phival(double x, double y){
     double phi;
