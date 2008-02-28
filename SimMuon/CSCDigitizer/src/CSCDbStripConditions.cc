@@ -71,25 +71,26 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
 
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
-  const CSCDBNoiseMatrix::Item & item = theConditions.noiseMatrix(detId, istrip);
+  std::vector<float> me(12); // buffer for matrix elements
+  theConditions.noiseMatrixElements( detId, istrip, me ); // fill it
 
   CSCCorrelatedNoiseMatrix matrix;
   //TODO get the pedestals right
-  matrix(3,3) = item.elem33;
-  matrix(4,4) = item.elem44;
-  matrix(5,5) = item.elem55;
-  matrix(6,6) = item.elem66;
-  matrix(7,7) = item.elem77;
+  matrix(3,3) = me[0]; // item.elem33;
+  matrix(4,4) = me[3]; // item.elem44;
+  matrix(5,5) = me[6]; // item.elem55;
+  matrix(6,6) = me[9]; // item.elem66;
+  matrix(7,7) = me[11]; // item.elem77;
   
   if(doCorrelatedNoise_)
   {
-    matrix(3,4) = item.elem34;
-    matrix(3,5) = item.elem35;
-    matrix(4,5) = item.elem45;
-    matrix(4,6) = item.elem46;
-    matrix(5,6) = item.elem56;
-    matrix(5,7) = item.elem57;
-    matrix(6,7) = item.elem67;
+    matrix(3,4) = me[1]; // item.elem34;
+    matrix(3,5) = me[2]; // item.elem35;
+    matrix(4,5) = me[4]; // item.elem45;
+    matrix(4,6) = me[5]; // item.elem46;
+    matrix(5,6) = me[7]; // item.elem56;
+    matrix(5,7) = me[8]; // item.elem57;
+    matrix(6,7) = me[10]; // item.elem67;
   }
 
   // the other diagonal elements can just come from the pedestal sigma, I guess
