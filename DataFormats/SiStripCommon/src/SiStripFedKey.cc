@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.12 2008/02/06 14:32:54 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.13 2008/02/14 13:29:55 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -487,19 +487,26 @@ void SiStripFedKey::initGranularity() {
 // -----------------------------------------------------------------------------
 //
 void SiStripFedKey::terse( std::stringstream& ss ) const {
-  ss << " FedKey"
-    //<<"=0x" 
-    //<< std::hex
-    //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
-    //<< std::dec
-    //<< ", " << ( isValid() ? "Valid" : "Invalid" )
-    //<< ", FedCrate=" << fedCrate()
-    //<< ", FedSlot=" << fedSlot()
-     << ", FedId=" << fedId()
-     << ", FeUnit=" << feUnit()
-     << ", FeChan=" << feChan()
-    //<< ", FedChannel=" << fedChannel()
-     << ", FedApv=" << fedApv();
+  ss << "FED:crate/slot/id/unit/chan/apv= "
+     << "-" << "/"
+     << "-" << "/"
+     << fedId() << "/"
+     << feUnit() << "/"
+     << feChan() << "/"
+     << fedApv();
+//   ss << " FedKey"
+//     //<<"=0x" 
+//     //<< std::hex
+//     //<< std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+//     //<< std::dec
+//     //<< ", " << ( isValid() ? "Valid" : "Invalid" )
+//     //<< ", FedCrate=" << fedCrate()
+//     //<< ", FedSlot=" << fedSlot()
+//      << ", FedId=" << fedId()
+//      << ", FeUnit=" << feUnit()
+//      << ", FeChan=" << feChan()
+//     //<< ", FedChannel=" << fedChannel()
+//      << ", FedApv=" << fedApv();
 }
 
 // -----------------------------------------------------------------------------
