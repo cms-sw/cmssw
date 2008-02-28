@@ -22,8 +22,18 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalHardwareXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+
+#include "xgi/Utils.h"
+#include "toolbox/string.h"
+#include "occi.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 
 using namespace std;
+using namespace oracle::occi;
+using namespace hcal;
 
 int createLUTLoader( string prefix_="", string tag_="" );
 int createHTRPatternLoader( void );
@@ -33,6 +43,10 @@ int createRBXLoader( string type_, string tag_, string list_file );
 int createZSLoader( void );
 int testocci( void );
 int testDB( string _tag, string _filename );
+int hardware( void );
+int qie_adc( void );
+int test_db_access( void );
+std::vector <std::string> splitString (const std::string& fLine);
 
 int main( int argc, char **argv )
 {
@@ -46,7 +60,11 @@ int main( int argc, char **argv )
   bool luts = false;
   bool rbx = false;
   bool tag_b = false;
+
   bool testdb_b = false;
+  bool hardware_b = false;
+  bool qie_b = false;
+  bool test_db_access_b = false;
 
   string filename = "";
   string path = "";
@@ -71,6 +89,9 @@ int main( int argc, char **argv )
       {"luts2", 0, 0, 70},
       {"testocci", 0, 0, 1000},
       {"testdb", 1, 0, 1010},
+      {"hardware", 0, 0, 1050},
+      {"qie", 0, 0, 1060},
+      {"test-db-access", 0, 0, 1070},
       {0, 0, 0, 0}
     };
         
@@ -201,6 +222,18 @@ int main( int argc, char **argv )
 	  cout << "No XML file name specified! " << endl;
 	}
       break;
+
+    case 1050: // HCAL hardware map
+      hardware_b=true;
+      break;
+      
+    case 1060: // qie
+      qie_b=true;
+      break;
+      
+    case 1070: // oracle access example to lmap and stuff for Dmitry
+      test_db_access_b=true;
+      break;
       
     default:
       printf ("?? getopt returned character code 0%o ??\n", c);
@@ -235,6 +268,18 @@ int main( int argc, char **argv )
   else if ( testdb_b && tag_b )
     {
       testDB( tag, filename );      
+    }
+  else if ( hardware_b )
+    {
+      hardware();      
+    }
+  else if ( qie_b )
+    {
+      qie_adc();      
+    }
+  else if ( test_db_access_b )
+    {
+      test_db_access();      
     }
   else
     {
@@ -454,6 +499,7 @@ int createHTRPatternLoader( void )
 
   // end of HTR Patterns Loader
 
+  return 0;
 }
 
 
@@ -609,6 +655,8 @@ int createLMap( void ){
 
 
   cout << "XML Test...done" << endl;
+
+  return 0;
 }
 
 
@@ -660,6 +708,7 @@ int createRBXLoader( string type_, string tag_, string list_file )
       p . write( (*_file) + ".oracle.xml" );
     }
 
+  return 0;
 }
 
 
@@ -682,6 +731,63 @@ int testocci( void )
 
   return 0;
 }
+
+int test_db_access( void )
+{
+  // despite the name of the class, can be used with any Oracle DB
+  HCALConfigDB * db = new HCALConfigDB();
+  const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+  db -> connect( _accessor );
+
+  oracle::occi::Connection * _connection = db -> getConnection();  
+
+  unsigned int _version, _crate, _slot, _fiber, _channel;
+  hcal::ConfigurationDatabase::FPGASelection _fpga;
+
+  int side   = -1;
+  int etaAbs =  1;
+  int phi    =  1;
+  int depth  =  1;
+  string subdetector = "HB";
+
+  cout << "version	" << "eta	" << "phi	" << "depth	" << "subdetector	";
+  cout << "crate	" << "slot	" << "fiber	" << "channel	" << endl;
+
+  try {
+    Statement* stmt = _connection -> createStatement();
+    std::string query = ("SELECT cds.version, CRATE, HTR_SLOT, HTR_FPGA, HTR_FIBER, FIBER_CHANNEL ");
+    query += " FROM CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS_V3 lmap";
+    query += " join cms_hcl_core_condition_owner.cond_data_sets cds ";
+    query += " on cds.condition_data_set_id=lmap.condition_data_set_id ";
+    query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
+    
+    //SELECT
+    ResultSet *rs = stmt->executeQuery(query.c_str());
+
+    while (rs->next()) {
+      _version  = rs -> getInt(1);
+      _crate    = rs -> getInt(2);
+      _slot     = rs -> getInt(3);
+      std::string fpga_ = rs -> getString(4);
+      if ( fpga_ == "top" ) _fpga = hcal::ConfigurationDatabase::Top;
+      else _fpga  = hcal::ConfigurationDatabase::Bottom;
+      _fiber    = rs -> getInt(5);
+      _channel  = rs -> getInt(6);
+      
+      cout << _version << "	" << side*etaAbs << "	" << phi << "	" << depth << "	" << subdetector << "		";
+      cout << _crate << "	" << _slot << "	" << _fiber << "	" << _channel << endl;
+    }
+    //Always terminate statement
+    _connection -> terminateStatement(stmt);
+  } catch (SQLException& e) {
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+
+  db -> disconnect();
+  
+  return 0;
+}
+
 
 int testDB( string _tag, string _filename )
 {
@@ -727,3 +833,95 @@ int testDB( string _tag, string _filename )
   return 0;
 }
 
+int hardware( void )
+{
+  HcalHardwareXml _hw;
+
+  std::map<string,map<string,map<string,map<int,string> > > > hw_map;
+
+  ifstream infile("HBHOHE.ascii");
+  string buf;
+
+  if ( infile . is_open() ){
+  cout << "File is open" << endl;
+    while ( getline( infile, buf ) > 0 )
+      {
+	vector<string> _line = splitString( buf );
+	//cout << _line . size() << endl;
+	if ( _line[0] != "XXXXXX" && _line[1] != "XXXXXX" && _line[2] != "XXXXXX" ){
+	  if (_line[3] != "XXXXXX") hw_map[_line[0]][_line[1]]["3040000000000" + _line[2]][1] = "3040000000000" + _line[3];
+	  if (_line[4] != "XXXXXX") hw_map[_line[0]][_line[1]]["3040000000000" + _line[2]][2] = "3040000000000" + _line[4];
+	  if (_line[5] != "XXXXXX") hw_map[_line[0]][_line[1]]["3040000000000" + _line[2]][3] = "3040000000000" + _line[5];
+	}
+      }
+  }
+  
+  cout << hw_map . size() << endl;
+
+  _hw . addHardware( hw_map );
+  _hw . write("HCAL_hardware.xml");
+
+  return 0;
+}
+
+int qie_adc( void )
+{
+  HcalQIEManager _manager;
+
+  map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
+  map<HcalChannelId,HcalQIECaps> & _new = _manager . getQIETableFromFile( "qie_adc_table_after.txt" );
+
+  int goodChannels = 0;
+  int badChannels = 0;
+  cout << "old size: " << _old.size() << endl;
+  cout << "new size: " << _new.size() << endl;
+  for (map<HcalChannelId,HcalQIECaps>::const_iterator line=_old.begin(); line!=_old.end(); line++ ){
+    HcalQIECaps * the_caps;
+    HcalChannelId theId = line -> first;
+    if (_new.find(theId)==_new.end()){
+      badChannels++;
+      the_caps = &_old[theId];
+    }
+    else{
+      goodChannels++;
+      the_caps = &_new[theId];
+    }
+    char buffer[1024];
+    int eta = theId.eta;
+    int phi = theId.phi;
+    int depth = theId.depth;
+    sprintf(buffer, "%15d %15d %15d %15s", eta, phi, depth, theId.subdetector.c_str());
+    cout << buffer;
+
+    for (int j = 0; j != 32; j++){
+      double _x = the_caps->caps[j];
+      sprintf(buffer, " %8.5f", _x);
+      cout << buffer;      
+    }
+    cout << endl;
+  }
+
+  cout<< goodChannels<< "   " << badChannels << "   " << goodChannels+badChannels << endl;
+  return 0;
+}
+
+// courtesy of Fedor Ratnikov
+std::vector <std::string> splitString (const std::string& fLine) {
+  std::vector <std::string> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ' ' || fLine [i] == '	' || i == fLine.size ()) {
+      if (!empty) {
+        std::string item (fLine, start, i-start);
+        result.push_back (item);
+        empty = true;
+      }
+      start = i+1;
+    }
+    else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
