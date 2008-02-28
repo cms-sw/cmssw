@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.6 2008/02/07 17:02:55 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.7 2008/02/14 13:53:04 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -21,6 +21,7 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
 
   // DEPRECATE
   class DbParams;
+
   // DEPRECATE
   CommissioningHistosUsingDb( const DbParams& );
 
@@ -54,6 +55,10 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
   virtual void uploadConfigurations() {;}
   
+  inline bool doUploadAnal() const;
+  
+  inline bool doUploadConf() const;
+
   inline void doUploadAnal( bool );
   
   inline void doUploadConf( bool );
@@ -71,10 +76,6 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   inline SiStripConfigDb* const db() const; 
 
   inline SiStripFedCabling* const cabling() const;
-  
-  inline bool doUploadAnal() const;
-  
-  inline bool doUploadConf() const;
   
   class DetInfo { 
   public:
@@ -113,7 +114,7 @@ void CommissioningHistosUsingDb::doUploadConf( bool upload ) { uploadConf_ = upl
 void CommissioningHistosUsingDb::doUploadAnal( bool upload ) { uploadAnal_ = upload; }
 SiStripConfigDb* const CommissioningHistosUsingDb::db() const { return db_; } 
 SiStripFedCabling* const CommissioningHistosUsingDb::cabling() const { return cabling_; }
-bool CommissioningHistosUsingDb::doUploadAnal() const { return uploadConf_; }
-bool CommissioningHistosUsingDb::doUploadConf() const { return uploadAnal_; }
+bool CommissioningHistosUsingDb::doUploadAnal() const { return uploadAnal_; }
+bool CommissioningHistosUsingDb::doUploadConf() const { return uploadConf_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
