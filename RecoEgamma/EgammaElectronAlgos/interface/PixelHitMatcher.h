@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.10 2008/02/21 15:41:50 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.12 2008/02/27 12:54:57 uberthon Exp $
 //
 //
 
@@ -46,16 +46,12 @@ class RecHitWithDist
 {
  public: 
 
-  //RC
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
-  //UB change place??
-  //RC RecHitWithDist(const TSiPixelRecHit &rh, float &dphi) : rh_(rh), dphi_(dphi)
   RecHitWithDist(ConstRecHitPointer rh, float &dphi) : rh_(rh), dphi_(dphi)
     {}
-  //RC const TSiPixelRecHit & recHit() const {return rh_;}
   ConstRecHitPointer  recHit() const {return rh_;}
   float dPhi() const {return dphi_;}
   void invert() {dphi_*=-1.;}
@@ -69,7 +65,7 @@ class RecHitWithDist
 
 class PixelHitMatcher{  
  public:
-  //RC
+
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;

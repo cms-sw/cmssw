@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.5 2008/02/21 13:54:00 charlot Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.7 2008/02/27 12:54:58 uberthon Exp $
 //
 //
 
@@ -40,7 +40,6 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   float myZmax =  theZRangeMax;
   float myZmin =  theZRangeMin;
 
-// this is commented out in last Arabella's version
   if(fabs(myZ)<30. && myR>8.)
     {
       myZmax = 0.09;
@@ -60,9 +59,6 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
     return std::pair<bool,double>(true,1.);
      } else {
 
-    //     cout<<" barrel rechit est returns false!!"<<endl;
-    //     cout << " phiDiff,thePhiRangeMax,thePhiRangeMin  "<<phiDiff<<" "<<thePhiRangeMax<<" "<< thePhiRangeMin<<endl;
-    //     cout << " zDiff, theZRangeMax, theZRangeMin "<<zDiff<<" "<<theZRangeMax<<" "<< theZRangeMin<<endl;
     return std::pair<bool,double>(false,0.);
     }
 }
