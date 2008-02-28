@@ -1,5 +1,6 @@
 <use name=PhysicsTools/Utilities>
 <use name=FWCore/ServiceRegistry>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
@@ -11,6 +12,7 @@
   <lib name=PhysicsToolsUtilAlgos>
   <use name=PhysicsTools/Utilities>
   <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/MessageLogger>
   <use name=FWCore/Framework>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/ParameterSet>
