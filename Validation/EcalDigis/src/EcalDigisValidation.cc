@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2007/11/02 08:59:10 $
- * $Revision: 1.24 $
+ * $Date: 2007/12/18 18:12:41 $
+ * $Revision: 1.25 $
  * \author F. Cossutti
  *
 */
@@ -84,7 +84,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Gun Momentum" ) ;
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);

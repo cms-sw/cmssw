@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2007/08/08 08:05:56 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/15 10:32:40 $
+ * $Revision: 1.16 $
  * \author F. Cossutti
  *
 */
@@ -78,7 +78,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Barrel occupancy" ) ;
     meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);

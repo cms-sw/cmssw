@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2007/08/08 08:05:56 $
- * $Revision: 1.10 $
+ * $Date: 2008/02/15 10:32:40 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -52,7 +52,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
   Char_t histo[200];
  
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
 
     sprintf (histo, "EcalDigiTask Preshower digis multiplicity" ) ;
     meESDigiMultiplicity_ = dbe_->book1D(histo, histo, 1000, 0., 137728);

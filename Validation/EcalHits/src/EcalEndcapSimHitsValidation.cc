@@ -70,7 +70,7 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   Char_t histo[200];
  
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalSimHitsValidation");
+    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
   
     sprintf (histo, "EE+ hits multiplicity" ) ;
     meEEzpHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.) ; 

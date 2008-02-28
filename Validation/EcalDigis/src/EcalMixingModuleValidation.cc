@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/11/02 08:59:10 $
- * $Revision: 1.14 $
+ * $Date: 2007/12/18 18:12:41 $
+ * $Revision: 1.15 $
  * \author F. Cossutti
  *
 */
@@ -138,7 +138,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC" ) ;
     meEBDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;

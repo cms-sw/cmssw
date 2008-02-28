@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/01/07 16:06:32 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/18 14:20:30 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -86,7 +86,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   
   if(verbose_) dbe_->showDirStructure();
   
-  dbe_->setCurrentFolder("EcalDigiTask");
+  dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
 
   //Data volume
   meDccVol_ = bookProfile("dccVol",

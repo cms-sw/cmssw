@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2007/08/08 08:05:56 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/15 10:32:40 $
+ * $Revision: 1.17 $
  * \author F. Cossutti
  *
 */
@@ -80,7 +80,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
  
   
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigiTask");
+    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Endcap occupancy z+" ) ;
     meEEDigiOccupancyzp_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
