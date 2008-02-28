@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/01/21 01:15:38 chrjones Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/02/03 02:57:10 dmytro Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements("towers", towers, tList->GetMainColor(), true), 0 ) );
+   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements("towers", towers, iItem->defaultDisplayProperties().color(), true), 0 ) );
 }
 
 void 
@@ -96,7 +96,7 @@ HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements("towers", towers, tList->GetMainColor(), true), 0 ) );
+   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements("towers", towers, iItem->defaultDisplayProperties().color(), true), 0 ) );
 }
 
 //

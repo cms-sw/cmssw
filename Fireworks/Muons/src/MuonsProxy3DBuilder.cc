@@ -90,7 +90,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	else
 	  innerTrack = new TEveTrack( &innerRecTrack, innerShortPropagator );
 	
-	innerTrack->SetMainColor( tList->GetMainColor() );
+	innerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
 	TEveTrack* outerTrack = 0;
 	innerTrack->MakeTrack();
 	muonList->AddElement( innerTrack );
@@ -114,7 +114,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	   outerRecTrack.fP = TEveVector(scale*(vx2-vx1), scale*(vy2-vy1),scale*(vz2-vz1));
 	   outerRecTrack.fSign = innerRecTrack.fSign;
 	   outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
-	   outerTrack->SetMainColor( tList->GetMainColor() );
+	   outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
 	   // std::cout << "\tpx " << outerRecTrack.fP.fX << " py " << outerRecTrack.fP.fY << " pz " << outerRecTrack.fP.fZ
 	   //  << " vx " << outerRecTrack.fV.fX << " vy " << outerRecTrack.fV.fY << " vz " << outerRecTrack.fV.fZ
 	   //  << " sign " << outerRecTrack.fSign << std::endl;
@@ -143,7 +143,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	     if(0!=extract) {
 		TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
 		shape->SetMainTransparency(50);
-		shape->SetMainColor(tList->GetMainColor());
+		shape->SetMainColor(iItem->defaultDisplayProperties().color());
 		muonList->AddElement(shape);
 	     }
               

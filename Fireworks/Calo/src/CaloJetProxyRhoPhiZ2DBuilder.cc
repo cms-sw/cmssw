@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/02/26 02:25:32 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/02/28 18:28:48 dmytro Exp $
 //
 
 // system include files
@@ -99,12 +99,12 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
       double size = scale*jet->et();
       TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-      TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, tList->GetMainColor() );
+      TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
       
       if ( jet->et() > minJetEt ) {
 	 TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
 	 marker->SetLineWidth(4);
-	 marker->SetLineColor(  tList->GetMainColor() );
+	 marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
 	 TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
 	 element->SetPickable(kTRUE);
 	 container->AddElement(element);
@@ -175,7 +175,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       if ( jet->et() > minJetEt ) {
 	 TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
 	 marker->SetLineWidth(4);
-	 marker->SetLineColor(  tList->GetMainColor() );
+	 marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
 	 marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 			 0., (jet->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 	 container->AddElement( marker );
