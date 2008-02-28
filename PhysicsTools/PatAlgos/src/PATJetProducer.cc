@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.11 2008/02/07 18:18:20 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.12 2008/02/13 18:06:58 adamwo Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -11,14 +11,14 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
+//#include "DataFormats/BTauReco/interface/JetTagFwd.h"
+//#include "DataFormats/BTauReco/interface/JetTag.h"
+//#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
+//#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+//#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+//#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -110,13 +110,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of jet tags with b-tagging info
   //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  /*
   std::vector<edm::Handle<edm::ValueMap<reco::JetTagRef> > > jetTags_testManyByType ;
   iEvent.getManyByType(jetTags_testManyByType);
   // Define the handles for the specific algorithms
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
   edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
-
+  */
   // tracks Jet Track Association, by hand in CMSSW_1_3_X
   edm::Handle<reco::TrackCollection> hTracks;
   iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracksSource"), hTracks);
@@ -191,6 +192,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
+      /*
       for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
         edm::Handle<edm::ValueMap<reco::JetTagRef> > jetTags = jetTags_testManyByType[k];
 
@@ -218,6 +220,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           }
         }
       }
+      */
     }
 
     // Associate tracks with jet (at least temporary)

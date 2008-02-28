@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATHLTProducer.cc,v 1.1 2008/02/26 13:59:12 vadler Exp $
 //
 
 
@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -48,6 +48,7 @@ void PATHLTProducer::produce( Event& iEvent, const EventSetup& iSetup )
   } else if (   triggerResults->error ( triggerIndex ) ) {
     LogWarning( "errorTriggerPath" ) << "PATHLTProducer: The trigger path " << triggerName_ << " had an error in this event!";
   } else {
+    /*
     Handle<reco::HLTFilterObjectWithRefs> hltFilter;
     try { // In this case, we want to act differently compared to the usual behaviour on "ProductNotFound" exception thrown by Event::getByLabel.
       iEvent.getByLabel( filterName_, hltFilter );
@@ -68,6 +69,7 @@ void PATHLTProducer::produce( Event& iEvent, const EventSetup& iSetup )
         throw exc;
       }
     }
+    */
   }
   iEvent.put( patHltCandidates );
 }
