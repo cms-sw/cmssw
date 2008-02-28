@@ -12,6 +12,11 @@ PixelChannel::PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel):
 
 std::ostream& pos::operator<<(std::ostream& s, const PixelChannel& channel)
 {
-  s << channel.modulename() << "_" << channel.TBMChannelString();
+  s << channel.channelname();
   return s;
+}
+
+std::string PixelChannel::channelname() const
+{
+	return modulename() + "_ch" + TBMChannelString();
 }

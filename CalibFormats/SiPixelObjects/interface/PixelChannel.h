@@ -22,6 +22,8 @@ namespace pos{
     const PixelTBMChannel& TBMChannel() const { return TBMChannel_; }
     std::string TBMChannelString() const { return TBMChannel_.string(); }
 
+    std::string channelname() const;
+
     friend std::ostream& operator<<(std::ostream& s, const PixelChannel& channel);
 
     // allows for use of find() function in a map of PixelChannels
