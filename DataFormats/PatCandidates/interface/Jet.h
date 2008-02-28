@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.5 2008/01/26 20:19:37 gpetrucc Exp $
+// $Id: Jet.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,22 +13,19 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.5 2008/01/26 20:19:37 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+//#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
-
 namespace pat {
-
-
   typedef reco::CaloJet JetType;
-
 
   class Jet : public PATObject<JetType> {
 
@@ -56,7 +53,7 @@ namespace pat {
       Jet             mcFlavCorrJet() const;
       Jet             wCorrJet() const;
       float           bDiscriminator(std::string theLabel) const;
-      reco::JetTagRef bJetTagRef(std::string theLabel) const;
+      //      reco::JetTagRef bJetTagRef(std::string theLabel) const;
       float           lrPhysicsJetVar(unsigned int i) const;
       float           lrPhysicsJetVal(unsigned int i) const;
       float           lrPhysicsJetLRval() const;
@@ -71,7 +68,7 @@ namespace pat {
       void            setScaleCalibFactors(float noCorrF, float udsCorrF, float gluCorrF, float cCorrF, float bCorrF);
       void            setBResolutions(float bResET_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       void            addBDiscriminatorPair(std::pair<std::string, float> & thePair);
-      void            addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair);
+      //      void            addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair);
       void            setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec);
       void            setLRPhysicsJetLRval(float clr);
       void            setLRPhysicsJetProb(float plr);
@@ -96,7 +93,7 @@ namespace pat {
       std::vector<float> bCovM_;
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
-      std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;
+      //      std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;
       // jet cleaning members (not used yet)
       std::vector<std::pair<float, float> > lrPhysicsJetVarVal_;
       float lrPhysicsJetLRval_;

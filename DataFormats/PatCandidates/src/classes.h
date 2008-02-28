@@ -22,8 +22,8 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+//#include "DataFormats/BTauReco/interface/JetTagFwd.h"
+//#include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -76,8 +76,8 @@ namespace {
     std::vector<std::pair<std::string, float> >           v_p_str_dbl;
     std::vector<std::pair<unsigned int, float> >          v_p_uint_dbl;
     std::pair<unsigned int, float>                        p_uint_dbl;
-    std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
-    std::pair<std::string, reco::JetTagRef>               p_str_jtr;
+    //    std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
+    //    std::pair<std::string, reco::JetTagRef>               p_str_jtr;
 
     pat::PATObject<pat::ElectronType>           po_el;
     pat::PATObject<pat::MuonType>               po_mu;
@@ -126,7 +126,7 @@ namespace {
     edm::reftobase::RefHolder<reco::CaloMETRef> rb2a;
     edm::reftobase::RefHolder<reco::GenMETRef> rb3a;
 
-    edm::Wrapper<edm::ValueMap<reco::JetTagRef> > rjtvm1; 
+    //    edm::Wrapper<edm::ValueMap<reco::JetTagRef> > rjtvm1; 
 
     edm::Wrapper<edm::Association<reco::GenJetCollection> > rgjc;
     

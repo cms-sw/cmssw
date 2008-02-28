@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.5 2008/01/26 20:19:45 gpetrucc Exp $
+// $Id: Jet.cc,v 1.6 2008/02/28 14:08:55 llista Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -189,6 +189,7 @@ float Jet::bDiscriminator(std::string theLabel) const {
 }
 
 
+/*
 /// get JetTagRef from labael name
 reco::JetTagRef Jet::bJetTagRef(std::string theLabel) const {
   reco::JetTagRef theJetTagRef ;
@@ -202,6 +203,7 @@ reco::JetTagRef Jet::bJetTagRef(std::string theLabel) const {
   } 
   return theJetTagRef;
 }
+*/
 
 
 /// get the value of the i'th jet cleaning variable
@@ -289,10 +291,12 @@ void Jet::addBDiscriminatorPair(std::pair<std::string, float> & thePair) {
 }
 
 
+/*
 /// method to add a algolabel-jettagref pair
 void Jet::addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair) {
   pairJetTagRefVector_.push_back(thePair);
 }
+*/
 
 
 /// method to set all jet cleaning variable + LR pairs

@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.2 2008/01/23 15:53:15 lowette Exp $
+// $Id: Photon.cc,v 1.3 2008/01/26 20:19:45 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -10,7 +10,8 @@ using pat::Photon;
 
 /// default constructor
 Photon::Photon() :
-    PATObject<PhotonType>(PhotonType(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0, 0, 0), 0, 0, 0)),
+    PATObject<PhotonType>(PhotonType(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0, 0, 0), 
+				     reco::SuperClusterRef(), reco::ClusterShapeRef(), 0)),
     trackIso_(0), caloIso_(0), photonID_(-1.0) 
 {
 }

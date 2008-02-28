@@ -12,8 +12,8 @@
   <class name="std::vector<std::pair<std::string, float> >" />
   <class name="std::vector<std::pair<unsigned int, float> >" />
   <class name="std::pair<unsigned int, float>" />
-  <class name="std::vector<std::pair<std::string, reco::JetTagRef> >" />
-  <class name="std::pair<std::string, reco::JetTagRef>" />
+<!--  <class name="std::vector<std::pair<std::string, reco::JetTagRef> >" /> -->
+<!--  <class name="std::pair<std::string, reco::JetTagRef>" /> -->
 
   <class name="pat::PATObject<pat::ElectronType>" />
   <class name="pat::PATObject<pat::MuonType>" />
@@ -69,9 +69,9 @@
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
 
-  <class name="std::vector<reco::JetTagRef> "/>
-  <class name="edm::ValueMap<reco::JetTagRef>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::JetTagRef> >" />
+<!--  <class name="std::vector<reco::JetTagRef> "/> -->
+<!--  <class name="edm::ValueMap<reco::JetTagRef>" /> -->
+<!--  <class name="edm::Wrapper<edm::ValueMap<reco::JetTagRef> >" /> -->
 
   <class name="edm::Association<reco::GenJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
