@@ -2,7 +2,7 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakeCrosstalkConditions.h"
 
-void CSCFakeCrosstalkConditions::prefillFakeCrosstalk(){
+void CSCFakeCrosstalkConditions::prefillCrosstalk(){
   
   const CSCDetId& detId = CSCDetId();
   cncrosstalk = new CSCcrosstalk();
@@ -88,7 +88,7 @@ CSCFakeCrosstalkConditions::CSCFakeCrosstalkConditions(const edm::ParameterSet& 
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillFakeCrosstalk();
+  prefillCrosstalk();
   setWhatProduced(this,&CSCFakeCrosstalkConditions::produceCrosstalk);
   findingRecord<CSCcrosstalkRcd>();
   //now do what ever other initialization is needed
