@@ -2,7 +2,7 @@
 
 %% Body
 
-CONSTANT $(def_val_id) : $(particle)_maxnr$(max_nr)vector8_arr := 
+CONSTANT $(def_val_id) : $(calo_or_muon)_maxnr$(max_nr)vector8_arr := 
 (
 $(content)
 $(others)
