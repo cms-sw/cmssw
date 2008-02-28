@@ -22,6 +22,7 @@ class BeamHaloPairGenerator : public OrderedHitsGenerator {
 	ctfseeding::SeedingLayerSets init(const edm::EventSetup& es);
 	edm::ParameterSet conf_;
 	OrderedHitPairs hitPairs;
+	double theMaxTheta;
 };
 
 
