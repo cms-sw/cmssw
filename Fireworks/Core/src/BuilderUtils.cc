@@ -149,13 +149,17 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 {
      std::vector<DetId> v;
      int ieta = (int)rint(eta / 1.74e-2);
-     int iphi = (int)rint(phi / 1.74e-2) + 10;  // black magic
+     // black magic for phi
+     int iphi = (int)rint(phi / 1.74e-2);  
      if (iphi < 0)
-	  iphi = 360 - iphi;
+	  iphi = 360 + iphi;
+     iphi += 10;
      for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
 	  for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
-	       if (EBDetId::validDetId(i, j % 360))
+	       if (EBDetId::validDetId(i, j % 360)) {
 		    v.push_back(EBDetId(i, j % 360));
+		    printf("pushing back (%d, %d)\n", i, j % 360);
+	       }
 	  }
      }
      return getEcalCrystals(hits, geo, v);
