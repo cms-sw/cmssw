@@ -26,6 +26,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrackNuclear.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #

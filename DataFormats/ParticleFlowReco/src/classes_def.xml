@@ -61,6 +61,15 @@
     <field name="trackRefPF_" transient="true"/>
   </class>
 
+  <class name="reco::PFBlockElementGsfTrack">   // Daniele
+    <field name="GsftrackRefPF_" transient="true"/> // Daniele
+  </class>
+
+  <class name="reco::PFBlockElementBrem">   // Daniele
+    <field name="BremtrackRefPF_" transient="true"/> // Daniele
+  </class>
+
+
   <class name="reco::PFBlockElementTrackNuclear">
     <field name="pfNuclInterRef_" transient="true"/>
   </class>

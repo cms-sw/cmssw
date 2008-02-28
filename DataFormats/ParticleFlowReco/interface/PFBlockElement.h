@@ -37,6 +37,8 @@ namespace reco {
 
     enum TrackType {
       DEFAULT=0,
+      T_FROM_GSF,  
+      T_FROM_BREM, 
       T_FROM_NUCL,
       T_TO_NUCL,
       T_FROM_GAMMACONV,
