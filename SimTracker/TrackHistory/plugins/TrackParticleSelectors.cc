@@ -11,67 +11,39 @@
 
 #include "SimTracker/TrackHistory/plugins/TrackParticleSelector.h"
 
+#define DEFINE_TRACKPARTICLE_SELECTOR(Collection, Category) \
+typedef ObjectSelector<TrackParticleSelector<Collection, TrackCategories::Category> > Category##Collection##Selector; \
+DEFINE_FWK_MODULE( Category##Collection##Selector )
+
+
 namespace reco{
   namespace modules {
+	
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, SignalEvent);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, PV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, SV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, TV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Displaced);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Ks);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Lambda);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, PhotonConversion);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Light);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Charm);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackingParticleCollection, Bottom);
 
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::PV> > PVTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( PVTrackingParticleSelection );
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Fake);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Bad);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, SignalEvent);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, PV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, SV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, TV);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Displaced);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Ks);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Lambda);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, PhotonConversion);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Light);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Charm);
+    DEFINE_TRACKPARTICLE_SELECTOR(TrackCollection, Bottom);
 
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::SV> > SVTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( SVTrackingParticleSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::TV> > TVTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( TVTrackingParticleSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::Light> > LightTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( LightTrackingParticleSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::Charm> > CTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( CTrackingParticleSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackingParticleCollection, TrackCategories::Bottom> > BTrackingParticleSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( BTrackingParticleSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::PV> > PVTrackSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( PVTrackSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::SV> > SVTrackSelection;
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( SVTrackSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::TV> > TVTrackSelection;
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( TVTrackSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::Light> > LightTrackSelection;    
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( LightTrackSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::Charm> > CTrackSelection;
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( CTrackSelection );
-
-    // define your producer name
-    typedef ObjectSelector<TrackParticleSelector<TrackCollection, TrackCategories::Bottom> > BTrackSelection;
-    // declare the module as plugin
-    DEFINE_FWK_MODULE( BTrackSelection );
   }
 }
