@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.15 2008/02/27 12:54:58 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.17 2008/02/28 17:52:36 uberthon Exp $
 //
 //
 
@@ -216,13 +216,18 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
     // compute the z vertex from the cluster point and the found pixel hit
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
 									      validMeasurements[i].recHit()->localPosition()).z();
-    double pxHit1r = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).perp();
+    double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
+									      validMeasurements[i].recHit()->localPosition()).x();
+    double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
+									      validMeasurements[i].recHit()->localPosition()).y();
        
-    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
-      (xmeas.perp()-pxHit1r);
+    double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+    r1diff=sqrt(r1diff);
+    double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+    r2diff=sqrt(r2diff);
+    double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
-    //    GlobalPoint vertexPred(0.,0.,zVertexPred);
     
     if(i==0)vertex = zVertexPred;
     
