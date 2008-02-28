@@ -747,6 +747,7 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
     
     int firstBin = 0;
     int diffScale = maxBitsLUT - maxBitsReal;
+    int bits16 = maxBitsLUT/4; // hex size
     
     if (diffScale != 0) {
         firstBin = 1;
@@ -754,7 +755,7 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
     for (int oldBit = 0; oldBit < maxBitsLUT; ++oldBit) {
 
-        int bitValue = (oldLUT & (1 << oldBit)) >> oldBit;
+        boost::uint64_t bitValue = (oldLUT & (1ULL << oldBit)) >> oldBit;
 
         newBit = maxBitsReal/2 + firstBin - oldBit - 1;
 
@@ -775,14 +776,19 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
         newLUT = newLUT | (bitValue << newBit);
 
-        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number = " << oldBit
-        //        << "  new bit number = " << newBit << "\n  bit value = "
+        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number -> new bit number: " 
+        //        << oldBit
+        //        << "\t ---> " << newBit << ";\t  bit value = "
         //        << bitValue << std::endl;
     }
 
     LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
-            << std::hex << "\n    GTgui.XML:    " << oldLUT << std::dec
-            << std::hex << "\n    Mirror:       " << newLUT << std::dec
+            << "\n    GTgui.XML:    " 
+            << std::hex << std::setw(bits16) << std::setfill('0') 
+            << oldLUT
+            << "\n    Mirror:       " 
+            << std::hex << std::setw(bits16) << std::setfill('0') 
+            << newLUT << std::dec
             << std::endl;
 
     return newLUT;
