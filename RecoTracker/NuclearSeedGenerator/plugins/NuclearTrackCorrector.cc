@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.3 2007/10/04 16:17:20 roberfro Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.6 2007/10/08 15:52:14 roberfro Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -279,7 +280,8 @@ bool NuclearTrackCorrector::getTrackFromTrajectory(const Trajectory& newTraj , c
 		TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(&(*theT),hits,theG.product(),theMF.product()
 );
 
-           return theAlgo->buildTrack(theFitter.product(), thePropagator.product(), algoResults, hits, theInitialStateForRefitting ,it->seed(), ndof);
+           reco::BeamSpot bs;
+           return theAlgo->buildTrack(theFitter.product(), thePropagator.product(), algoResults, hits, theInitialStateForRefitting ,it->seed(), ndof, bs, theT->seedRef());
          }
 
 	return false;
