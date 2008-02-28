@@ -3,39 +3,13 @@
 // system include files
 #include <memory>
 #include <vector>
-//#include <TROOT.h>
-// user include files
-#include "CLHEP/Vector/RotationInterfaces.h" 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-//using namespace edm;
-//using namespace std;
-const double fBfield=4.06;
 
 class TrackerValidationVariables  {
  public:  
@@ -64,6 +38,8 @@ class TrackerValidationVariables  {
     float d0;
     float dz;
     int charge;
+
+
   };
   TrackerValidationVariables();
   TrackerValidationVariables(const edm::EventSetup&, const edm::ParameterSet&);
@@ -74,5 +50,6 @@ class TrackerValidationVariables  {
   const edm::ParameterSet conf_;
   edm::ESHandle<TrackerGeometry> tkgeom;
   //edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+  double fBfield;
 };
 #endif
