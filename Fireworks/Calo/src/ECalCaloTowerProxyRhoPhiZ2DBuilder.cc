@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/02/18 10:53:56 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/02/24 20:39:04 dmytro Exp $
 //
 
 // system include files
@@ -301,8 +301,8 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements(const char* name,
    
    // Make objects representing towers
    TEveGeoShapeExtract* container = new TEveGeoShapeExtract( name );
-   double z_ecal = 304.5; // ECAL endcap inner surface
-   double r_ecal = 129;
+   double z_ecal = 310; // ECAL endcap inner surface
+   double r_ecal = 134;
    double transition_angle = atan(r_ecal/z_ecal);
    for ( unsigned int i=0; i<82; ++i ) {
       double theta = ( thetaBins[i].first + thetaBins[i].second )/2;
