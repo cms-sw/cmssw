@@ -1151,8 +1151,10 @@ void DisplayManager::loadGPFBlocks()
          iter != ((*(em_->pfBlocks_))[ibl].elements()).end();iter++) {
       //std::cout<<"elem index "<<(*iter).index()<<"-type:"
       //         <<(*iter).type()<<std::flush<<std::endl;
-      int ident=-1;                          
-      switch ((*iter).type()) {
+      int ident=-1;  
+
+      reco::PFBlockElement::Type type = (*iter).type();
+      switch (type) {
       case reco::PFBlockElement::NONE :
         std::cout<<"unknown PFBlock element"<<std::endl;
         break;
@@ -1196,8 +1198,6 @@ void DisplayManager::loadGPFBlocks()
           ident=(CLUSTERHCALID <<shiftId_) |clusref.key();
         }
       break;
-      case reco::PFBlockElement::MUON:
-        break;
       default: 
         std::cout<<"unknown PFBlock element"<<std::endl;
         break; 
