@@ -1,22 +1,17 @@
 #ifndef SimTransport_HectorProducer_H
 #define SimTransport_HectorProducer_H
  
-//#include "SimG4Core/Notification/interface/Observer.h"
-//#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-//#include "SimG4Core/Watcher/interface/SimWatcher.h"
-//#include "SimG4Core/Watcher/interface/SimProducer.h"
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/Handle.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 #include "DataFormats/Common/interface/EDProduct.h"
 
 class HectorManager;
-//class TransportHector;
+
 class Hector;
 
 namespace HepMC {
@@ -24,18 +19,21 @@ namespace HepMC {
 }
 class HectorProducer : public edm::EDProducer
 {
-public:
+ public:
   HectorProducer(edm::ParameterSet const & p);    //!< default constructor
   virtual ~HectorProducer();   //!< default destructor
   virtual void beginJob(const edm::EventSetup & c);
   virtual void endJob();
   void produce(edm::Event & iEvent, const edm::EventSetup & es);   //!< this method will do the user analysis
-private:
+ private:
   int eventsAnalysed; //!< just to count events that have been analysed
   HepMC::GenEvent * evt_;
   Hector * hector;
-
+  
   std::string m_InTag;
+  bool m_verbosity;
+  bool m_FP420Transport;
+  bool m_ZDCTransport;
 };
 
 #endif
