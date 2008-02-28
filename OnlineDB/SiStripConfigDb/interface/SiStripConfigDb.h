@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.40 2008/02/26 09:00:13 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.41 2008/02/27 11:27:43 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -220,6 +220,7 @@ class SiStripConfigDb {
   friend class cms::SiStripO2O;
   
   // Commissioning clients
+  friend class SiStripCommissioningSource;
   friend class SiStripCommissioningDbClient;
   friend class SiStripCommissioningOfflineDbClient;
   friend class CommissioningHistosUsingDb;
@@ -463,4 +464,3 @@ void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_st
 std::ostream& operator<< ( std::ostream&, const SiStripConfigDb::DbParams& );
 
 #endif // OnlineDB_SiStripConfigDb_SiStripConfigDb_h
-
