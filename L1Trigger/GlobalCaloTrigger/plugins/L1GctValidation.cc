@@ -39,8 +39,6 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    using namespace edm;
 
-   std::cout << "Hello from L1GctValidation::analyze()" << std::endl;
-
   // Get the scales from the event setup
   ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   iSetup.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
