@@ -13,17 +13,13 @@ int main()
   int fakegains_nrlines=0;
  
   int dbgains_index;
-  float db_gainslope,db_intercpt, db_chisq;
+  float db_gainslope;
   std::vector<int> dbgains_index_id;
   std::vector<float> db_slope;
-  std::vector<float> db_intercept;
-  std::vector<float> db_chi2;
   int fakegains_index;
-  float fake_gainslope,fake_intercpt, fake_chisq;
+  float fake_gainslope;
   std::vector<int> fakegains_index_id;
   std::vector<float> fake_slope;
-  std::vector<float> fake_intercept;
-  std::vector<float> fake_chi2;
 
   //NoiseMatrix variables
   int dbmatrix_nrlines=0;
@@ -79,23 +75,19 @@ int main()
   int fakextalk_nrlines=0;
   int dbxtalk_index,fakextalk_index;
   float dbxtalk_slope_right,dbxtalk_slope_left,dbxtalk_intercept_right;
-  float dbxtalk_intercept_left, dbxtalk_chi2_right,dbxtalk_chi2_left; 
+  float dbxtalk_intercept_left; 
   float fakextalk_slope_right,fakextalk_slope_left,fakextalk_intercept_right;
-  float fakextalk_intercept_left, fakextalk_chi2_right,fakextalk_chi2_left; 
+  float fakextalk_intercept_left; 
   std::vector<int> fakextalk_index_id;
   std::vector<float> fakextalk_slope_r;
   std::vector<float> fakextalk_intercept_r;
-  std::vector<float> fakextalk_chi2_r;
   std::vector<float> fakextalk_slope_l;
   std::vector<float> fakextalk_intercept_l;
-  std::vector<float> fakextalk_chi2_l;
   std::vector<int> dbxtalk_index_id;
   std::vector<float> dbxtalk_slope_r;
   std::vector<float> dbxtalk_intercept_r;
-  std::vector<float> dbxtalk_chi2_r;
   std::vector<float> dbxtalk_slope_l;
   std::vector<float> dbxtalk_intercept_l;
-  std::vector<float> dbxtalk_chi2_l;
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   //read fakes-on-the-fly for Gains
@@ -106,11 +98,9 @@ int main()
     exit(1);
   }
   while (!fakegainsdata.eof() ) { 
-    fakegainsdata >> fakegains_index >> fake_gainslope >> fake_intercpt >> fake_chisq ; 
+    fakegainsdata >> fakegains_index >> fake_gainslope; 
     fakegains_index_id.push_back(fakegains_index);
     fake_slope.push_back(fake_gainslope);
-    fake_intercept.push_back(fake_intercpt);
-    fake_chi2.push_back(fake_chisq);
     fakegains_nrlines++;
   }
   fakegainsdata.close();
@@ -123,11 +113,9 @@ int main()
     exit(1);
   }
   while (!dbgainsdata.eof() ) { 
-    dbgainsdata >> dbgains_index >> db_gainslope >> db_intercpt >> db_chisq ; 
+    dbgainsdata >> dbgains_index >> db_gainslope; 
     dbgains_index_id.push_back(dbgains_index);
     db_slope.push_back(db_gainslope);
-    db_intercept.push_back(db_intercpt);
-    db_chi2.push_back(db_chisq);
     dbgains_nrlines++;
   }
   dbgainsdata.close();
@@ -285,14 +273,12 @@ int main()
   }
   
   while (!fakextalkdata.eof() ) { 
-    fakextalkdata >> fakextalk_index >> fakextalk_slope_right >> fakextalk_intercept_right >> fakextalk_chi2_right >> fakextalk_slope_left >> fakextalk_intercept_left >> fakextalk_chi2_left ;
+    fakextalkdata >> fakextalk_index >> fakextalk_slope_right >> fakextalk_intercept_right >> fakextalk_slope_left >> fakextalk_intercept_left;
     fakextalk_index_id.push_back(fakextalk_index);
     fakextalk_slope_r.push_back(fakextalk_slope_right);
     fakextalk_slope_l.push_back(fakextalk_slope_left);
     fakextalk_intercept_r.push_back(fakextalk_intercept_right);
     fakextalk_intercept_l.push_back(fakextalk_intercept_left);
-    fakextalk_chi2_r.push_back(fakextalk_chi2_right);
-    fakextalk_chi2_l.push_back(fakextalk_chi2_left); 
     fakextalk_nrlines++;
   }
   fakextalkdata.close();
@@ -306,14 +292,12 @@ int main()
   }
   
   while (!dbxtalkdata.eof() ) { 
-    dbxtalkdata >> dbxtalk_index >> dbxtalk_slope_right >> dbxtalk_intercept_right >> dbxtalk_chi2_right >> dbxtalk_slope_left >> dbxtalk_intercept_left >> dbxtalk_chi2_left ; 
+    dbxtalkdata >> dbxtalk_index >> dbxtalk_slope_right >> dbxtalk_intercept_right >> dbxtalk_slope_left >> dbxtalk_intercept_left ; 
     dbxtalk_index_id.push_back(dbxtalk_index);
     dbxtalk_slope_r.push_back(dbxtalk_slope_right);
     dbxtalk_slope_l.push_back(dbxtalk_slope_left);
     dbxtalk_intercept_r.push_back(dbxtalk_intercept_right);
     dbxtalk_intercept_l.push_back(dbxtalk_intercept_left);
-    dbxtalk_chi2_r.push_back(dbxtalk_chi2_right);
-    dbxtalk_chi2_l.push_back(dbxtalk_chi2_left);
     dbxtalk_nrlines++;
   }
   dbxtalkdata.close();
