@@ -98,13 +98,12 @@ namespace cms{
 		      char* xTitle="", char* yTitle="", char* zTitle="");		      
 
       void book();
-      void AllClusters();
-      void trackStudy();
+      void AllClusters( const edm::EventSetup& es);
+      void trackStudy( const edm::EventSetup& es);
 
-      void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref);
+      void RecHitInfo( const edm::EventSetup& es, const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref);
 
-      bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag, LocalVector LV );	
-      const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
+      bool clusterInfos(SiStripClusterInfo* clusterInfo, const uint32_t& detid,TString flag, LocalVector LV );	
       std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
 
       void fillTH1(float,TString,bool,float=0);
@@ -120,7 +119,6 @@ namespace cms{
       edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
       edm::ESHandle<SiStripQuality> SiStripQuality_;
 
-      edm::Handle< edm::DetSetVector<SiStripClusterInfo> >  dsv_SiStripClusterInfo;
       edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
       edm::Handle<reco::TrackCollection> trackCollection;
       edm::Handle<uint16_t> filterWord;
@@ -155,7 +153,6 @@ namespace cms{
 
       edm::InputTag Filter_src_;
       edm::InputTag Track_src_;
-      edm::InputTag ClusterInfo_src_;
       edm::InputTag Cluster_src_;
       std::vector<uint32_t> ModulesToBeExcluded_;
       int EtaAlgo_;

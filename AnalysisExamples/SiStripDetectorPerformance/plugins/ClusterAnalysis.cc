@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/12/27 15:51:35 $
- * $Revision: 1.11 $
+ * $Date: 2008/01/22 19:13:55 $
+ * $Revision: 1.12 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -34,7 +34,6 @@ namespace cms{
     psfilemode_(conf.getUntrackedParameter<int32_t>("psfilemode",1)),
     Filter_src_( conf.getParameter<edm::InputTag>( "Filter_src" ) ),
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
-    ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
     Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
     ModulesToBeExcluded_(conf.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded")),
     EtaAlgo_(conf.getParameter<int32_t>("EtaAlgo")),
@@ -468,7 +467,6 @@ namespace cms{
     }
     
     //Get input
-    e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
     
     e.getByLabel(Track_src_, trackCollection);
@@ -501,7 +499,7 @@ namespace cms{
     //Perform track study
     if (tracksCollection_in_EventTree || trackAssociatorCollection_in_EventTree) {
       LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] \n Executing trackStudy for Event = " << eventNb << std::endl; 
-      trackStudy();
+      trackStudy(es);
     }
    
     std::stringstream ss;
@@ -512,7 +510,7 @@ namespace cms{
     
 
     //Perform Cluster Study (irrespectively to tracks)
-    AllClusters();
+    AllClusters(es);
 
     if (countAll != countOn+countOff)
       edm::LogWarning("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] Counts (on, off, all) do not match" << countOn << " " << countOff << " " << countAll; 
@@ -531,7 +529,7 @@ namespace cms{
   
   //------------------------------------------------------------------------
   
-  void ClusterAnalysis::trackStudy(){
+  void ClusterAnalysis::trackStudy( const edm::EventSetup& es){
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
     
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -633,10 +631,10 @@ namespace cms{
 	    ss<<"\nMatched recHit found"<< std::endl;	  
 	    //mono side
 	    statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
-	    if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref);
+	    if(statedirection.mag() != 0)	  RecHitInfo(es, matchedhit->monoHit(),statedirection,trackref);
 	    //stereo side
 	    statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	    if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref);
+	    if(statedirection.mag() != 0)	  RecHitInfo(es, matchedhit->stereoHit(),statedirection,trackref);
 	    ss<<"\nLocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
 	  }
 	}
@@ -646,10 +644,10 @@ namespace cms{
 	  if(phit!=0){
 	    //mono side
 	    statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
-	    if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref);
+	    if(statedirection.mag() != 0) RecHitInfo(es, &(phit->originalHit()),statedirection,trackref);
 	    //stereo side
 	    statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	    if(statedirection.mag() != 0)  RecHitInfo(&(phit->originalHit()),statedirection,trackref);
+	    if(statedirection.mag() != 0)  RecHitInfo(es, &(phit->originalHit()),statedirection,trackref);
 	  }	
 	  
 	}
@@ -658,7 +656,7 @@ namespace cms{
 	  if(hit!=0){
 	    ss<<"\nSingle recHit found"<< std::endl;	  
 	    statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
-	    if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref);
+	    if(statedirection.mag() != 0) RecHitInfo(es, hit,statedirection,trackref);
 
 	  }
  	}
@@ -667,7 +665,7 @@ namespace cms{
     }
   }
 
-  void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
+  void ClusterAnalysis::RecHitInfo( const edm::EventSetup& es, const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
     
     if(!tkrecHit->isValid()){
       LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit " << std::endl;
@@ -690,15 +688,18 @@ namespace cms{
     if ( tkrecHit != NULL ){
       LogTrace("ClusterAnalysis") << "GOOD hit" << std::endl;
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
+      //const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
       
       const edm::ParameterSet pset = conf_.getParameter<edm::ParameterSet>("TrackThresholds");
       if( track_ref->normalizedChi2() < pset.getParameter<double>("maxChi2") && track_ref->recHitsSize() > pset.getParameter<double>("minRecHit") ){	  	    
 	
-	if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack", LV ) ) {
+	SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *SiStripCluster_, es);
+
+	if ( clusterInfos(clusterInfo,detid,"_onTrack", LV ) ) {
 	  vPSiStripCluster.push_back(SiStripCluster_);
 	  countOn++;
 	}
+	delete clusterInfo ; //CHECKME
       }
     }else{
       LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
@@ -707,7 +708,7 @@ namespace cms{
   
   //------------------------------------------------------------------------
   
-  void ClusterAnalysis::AllClusters(){
+  void ClusterAnalysis::AllClusters( const edm::EventSetup& es){
 
     LogTrace("ClusterAnalysis") << "Executing AllClusters" << std::endl;
     //Loop on Dets
@@ -724,52 +725,42 @@ namespace cms{
       edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
       for(; ClusIter!=DSViter->data.end(); ClusIter++) {
 
-	const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
-	if ( clusterInfos(SiStripClusterInfo_,detid,"_All", LV) ){ 
+	//const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
+        
+	SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *ClusIter, es);
+
+	if ( clusterInfos(clusterInfo,detid,"_All", LV) ){ 
 	  countAll++;
 
 	  LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
 	    "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
 
 	  if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack", LV) ) 
+	    if ( clusterInfos(clusterInfo, detid,"_offTrack", LV) ) 
 	      countOff++;
 	  }
 	}
+	delete clusterInfo; // CHECKME
       }       
     }
   }
   
   //------------------------------------------------------------------------
 
-  const SiStripClusterInfo* ClusterAnalysis::MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid){
-    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
-    edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->find(detid);
-    edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin();
-    for(; ClusIter!=DSViter->data.end(); ClusIter++) {
-      if ( 
-	  (ClusIter->firstStrip() == cluster->firstStrip())
-	  &&
-	  (ClusIter->stripAmplitudes().size() == cluster->amplitudes().size())
-	  )
-	return &(*ClusIter);
-    }
-    edm::LogError("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]\n\t" << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "<< detid << "\n\tReturning NULL pointer" <<std::endl;
-    return 0;
-  }
-
+ 
   //------------------------------------------------------------------------
   
-  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , const LocalVector LV ){
+  bool ClusterAnalysis::clusterInfos( SiStripClusterInfo* clusterInfo, const uint32_t& detid,TString flag , const LocalVector LV ){
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
     
-    if (cluster==0) 
+    if (clusterInfo==0) 
       return false;
    
+
     const  edm::ParameterSet ps_b = conf_.getParameter<edm::ParameterSet>("BadModuleStudies");
     if  ( ps_b.getParameter<bool>("Bad") ) {//it will perform Bad modules discrimination
       short n_Apv;
-      switch((int)cluster->firstStrip()/128){
+      switch((int)clusterInfo->getFirstStrip()/128){
       case 0:
 	n_Apv=0;
 	break;
@@ -807,17 +798,18 @@ namespace cms{
       }
     }
 
-    const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+    const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("clusterInfoConditions");
     if  ( ps.getParameter<bool>("On") 
 	  &&
 	  ( 
-	   cluster->charge()/cluster->noise() < ps.getParameter<double>("minStoN") 
+	   //CHECKME
+	   clusterInfo->getCharge()/clusterInfo->getNoise() < ps.getParameter<double>("minStoN") 
 	   ||
-	   cluster->charge()/cluster->noise() > ps.getParameter<double>("maxStoN") 
+	   clusterInfo->getCharge()/clusterInfo->getNoise() > ps.getParameter<double>("maxStoN") 
 	   ||
-	   cluster->width() < ps.getParameter<double>("minWidth") 
+	   clusterInfo->getWidth() < ps.getParameter<double>("minWidth") 
 	   ||
-	   cluster->width() > ps.getParameter<double>("maxWidth") 
+	   clusterInfo->getWidth() > ps.getParameter<double>("maxWidth") 
 	   )
 	  )
       return false;
@@ -830,7 +822,7 @@ namespace cms{
     
     //&&&&&&&&&&&&&&&& GLOBAL POS &&&&&&&&&&&&&&&&&&&&&&&&
     const StripTopology &topol=(StripTopology&)_StripGeomDetUnit->topology();
-    MeasurementPoint mp(cluster->position(),rnd.Uniform(-0.5,0.5));
+    MeasurementPoint mp(clusterInfo->getPosition(),rnd.Uniform(-0.5,0.5));
     LocalPoint localPos = topol.localPosition(mp);
     GlobalPoint globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -852,7 +844,8 @@ namespace cms{
     const edm::ParameterSet _mapSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
     if( _mapSet.getParameter<bool>("Map_ClusOccOn") )
       tkMap_ClusOcc[iflag]->fill(detid,1);
-
+ 
+ /* CHECKME
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
     LogTrace("ClusterAnalysis") 
@@ -861,7 +854,7 @@ namespace cms{
       << "\n\t\tcluster LocalPos "     << localPos
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
-
+*/
     long double tanXZ = -999;
     float cosRZ = -2;
     long double atanXZ = -200;
@@ -884,62 +877,84 @@ namespace cms{
 
     TString appString=SubDet[SubDet_enum]+flag;    
   
-    fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
+    fillTH1(clusterInfo->getCharge(),"cSignal"+appString,1,clusterInfo->getWidth());
 
     if (LV.mag()!=0){
       
-      fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
+      fillTH1(clusterInfo->getCharge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
       
-      fillTProfile(atanXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
+      fillTProfile(atanXZ,clusterInfo->getWidth(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
 
-      fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString,0); //Filled only for ontrack
+      fillTH1((clusterInfo->getCharge()/clusterInfo->getNoise())*cosRZ,"cStoNCorr"+appString,0); //Filled only for ontrack
     } 
        
-    fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
+    fillTH1(clusterInfo->getNoise(),"cNoise"+appString,1,clusterInfo->getWidth());
     
-    if (cluster->noise()){
-      fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
+    if (clusterInfo->getNoise()){
+      fillTH1(clusterInfo->getCharge()/clusterInfo->getNoise(),"cStoN"+appString,1,clusterInfo->getWidth());
       
     }
       
-    fillTH1(cluster->width(),"cWidth"+appString,0);
+    fillTH1(clusterInfo->getWidth(),"cWidth"+appString,0);
 
-    fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
+    fillTH1(clusterInfo->getPosition(),"cPos"+appString,1,clusterInfo->getWidth());
 
-    fillTH2(cluster->position(),cluster->charge()/cluster->noise(),"cStoNVsPos"+appString,1,cluster->width());
+    fillTH2(clusterInfo->getPosition(),clusterInfo->getCharge()/clusterInfo->getNoise(),"cStoNVsPos"+appString,1,clusterInfo->getWidth());
    
-    if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
+   /*
+    // to retrieve the (raw)digiamplitudesL and (raw)digiamplitudesR, one needs to provide
+    // the rawdigicollection via e.g. a cfg-file. An example can be developped upon request
+    // if needed by contacting the developper of SiStripClusterInfo(E.Delmeire)
+     
+    int neighbourStripNumber=3;
+    std::string rawdigiProducer = "SiStripDigis"; 
+    std::string rawdigiLabel = "VirginRaw"// "ProcessedRaw"
+    edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
+    es.getByLabel(rawdigiProducer,rawdigiLabel,rawDigiHandle);
+    
+    vector<float> amplitudesL, amplitudesR;
+    amplitudesL = clusterInfo->getRawDigiAmplitudesLR(neighbourStripNumber, 
+                                                            *rawDigiHandle, 
+                                                               dsv_SiStripCluster,
+                                                              rawDigiLabel).first;
+							      
+    amplitudesR = clusterInfo->getRawDigiAmplitudesLR(neighbourStripNumber, 
+                                                            *rawDigiHandle, 
+                                                                dsv_SiStripCluster,
+                                                              rawDigiLabel).second;
+   					      
+    if (amplitudesL.size()!=0 ||  amplitudesR.size()!=0){
 	
       float Ql=0;
       float Qr=0;
       float Qt=0;
 
       if (EtaAlgo_==1){
-	Ql=cluster->chargeL();
-	Qr=cluster->chargeR();
+	Ql=clusterInfo->getChargeLR().first;
+	Qr=clusterInfo->getChargeLR().second;
       
-  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=amplitudesL.begin(); it !=amplitudesL.end() && it-amplitudesL.begin()<NeighStrips_; it ++)
   	  { Ql += (*it);}
 
 	
-  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=amplitudesR.begin(); it !=amplitudesR.end() && it-amplitudesR.begin()<NeighStrips_; it ++)
   	  { Qr += (*it);}
 	
-	Qt=Ql+Qr+cluster->maxCharge();
+	Qt=Ql+Qr+clusterInfo->getMaxCharge();
       }
       else{
 	
-	int Nstrip=cluster->stripAmplitudes().size();
-	float pos=cluster->position()-0.5;
-	for(int is=0;is<Nstrip && cluster->firstStrip()+is<=pos;is++)
-	  Ql+=cluster->stripAmplitudes()[is];
+	int Nstrip=clusterInfo->getStripAmplitudes().size();
+	float pos=clusterInfo->getPosition()-0.5;
+	for(int is=0;is<Nstrip && clusterInfo->getFirstStrip()+is<=pos;is++)
+	  Ql+=clusterInfo->getStripAmplitudes()[is];
 	
-	Qr=cluster->charge()-Ql;
+	Qr=clusterInfo->getCharge()-Ql;
 
-  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=amplitudesL.begin(); it !=amplitudesL.end() && it-amplitudesL.begin()<NeighStrips_; it ++)
   	  { Ql += (*it);}
 	
-  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=amplitudesR.begin(); it !=amplitudesR.end() && it-amplitudesR.begin()<NeighStrips_; it ++)
   	  { Qr += (*it);}
 
 	
@@ -948,11 +963,12 @@ namespace cms{
       
       LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] \n on detid "<< detid << " Ql=" << Ql << " Qr="<< Qr << " Qt="<<Qt<< " eta="<< Ql/Qt<< std::endl;
       
-      fillTH1(Ql/Qt,"cEta"+appString,1,cluster->width());
+      fillTH1(Ql/Qt,"cEta"+appString,1,clusterInfo->getWidth());
     
-      fillTH2((Ql-Qr)/Qt,(Ql+Qr)/Qt,"cEta_scatter"+appString,1,cluster->width());
+      fillTH2((Ql-Qr)/Qt,(Ql+Qr)/Qt,"cEta_scatter"+appString,1,clusterInfo->getWidth());
+      
     }
-
+    */
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Detector Detail Plots    
     char aname[128];
@@ -975,23 +991,23 @@ namespace cms{
         
     if(flag=="_All"){
 
-      fillTH1(cluster->charge(),"cSignal"+appString,0);
+      fillTH1(clusterInfo->getCharge(),"cSignal"+appString,0);
 
-      fillTH1(cluster->noise(),"cNoise"+appString,0);
+      fillTH1(clusterInfo->getNoise(),"cNoise"+appString,0);
 
-      if (cluster->noise()){
-	fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,0);
+      if (clusterInfo->getNoise()){
+	fillTH1(clusterInfo->getCharge()/clusterInfo->getNoise(),"cStoN"+appString,0);
       }
       
-      fillTH1(cluster->width(),"cWidth"+appString,0);
+      fillTH1(clusterInfo->getWidth(),"cWidth"+appString,0);
 
-      fillTH1(cluster->position(),"cPos"+appString,0);
+      fillTH1(clusterInfo->getPosition(),"cPos"+appString,0);
 
-      fillTH2(cluster->position(),cluster->charge()/cluster->noise(),"cStoNVsPos"+appString,0);
+      fillTH2(clusterInfo->getPosition(),clusterInfo->getCharge()/clusterInfo->getNoise(),"cStoNVsPos"+appString,0);
     }
 
     if(flag=="_onTrack" && cosRZ>-2){
-      fillTProfile((int)(cluster->position()-.5)/256,cluster->charge()*cosRZ,"cSignalxFiber"+appString,0);
+      fillTProfile((int)(clusterInfo->getPosition()-.5)/256,clusterInfo->getCharge()*cosRZ,"cSignalxFiber"+appString,0);
     }
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -1000,29 +1016,29 @@ namespace cms{
     sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
     appString="_"+TString(GetSubDetAndLayer(detid).first)+cApp+flag;
 
-    fillTH1(cluster->charge(),"cSignal"+appString,0);
+    fillTH1(clusterInfo->getCharge(),"cSignal"+appString,0);
   
-    fillTH1(cluster->noise(),"cNoise"+appString,0);
+    fillTH1(clusterInfo->getNoise(),"cNoise"+appString,0);
 
-    if (cluster->noise()){
-      fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,0);
+    if (clusterInfo->getNoise()){
+      fillTH1(clusterInfo->getCharge()/clusterInfo->getNoise(),"cStoN"+appString,0);
     }
       
-    fillTH1(cluster->width(),"cWidth"+appString,0);
+    fillTH1(clusterInfo->getWidth(),"cWidth"+appString,0);
     
-    fillTH1(cluster->position(),"cPos"+appString,0);      
+    fillTH1(clusterInfo->getPosition(),"cPos"+appString,0);      
     
     if(flag=="_onTrack" && LV.mag()!=0){
-      fillTProfile(atanXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
+      fillTProfile(atanXZ,clusterInfo->getWidth(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
       
-      fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0);
+      fillTH1(clusterInfo->getCharge()*cosRZ,"cSignalCorr"+appString,0);
       
-      fillTProfile(cosRZ,cluster->charge(),"cSignalVsAngle"+appString,0);
-      fillTH2(cosRZ,cluster->charge(),"cSignalVsAngleH"+appString,0);
+      fillTProfile(cosRZ,clusterInfo->getCharge(),"cSignalVsAngle"+appString,0);
+      fillTH2(cosRZ,clusterInfo->getCharge(),"cSignalVsAngleH"+appString,0);
       
-      if (cluster->noise()){
+      if (clusterInfo->getNoise()){
 	
-	fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString,0); 
+	fillTH1((clusterInfo->getCharge()/clusterInfo->getNoise())*cosRZ,"cStoNCorr"+appString,0); 
       }
       
       
