@@ -54,9 +54,6 @@ class CSCCFEBData {
   /// makes sure each time slice has a trailer
   bool check() const;
   
-  bool trailerReached() const; ///makes sure that the read slice is not a DMBTrailer
-
-
  private:
   unsigned short theData[1600];
   /// Shows where in theData the words start.  A bad slice will 
@@ -66,7 +63,6 @@ class CSCCFEBData {
   int theSize;
   unsigned boardNumber_;
   unsigned theNumberOfSamples;
-  bool trailerReached_;
   std::vector<uint16_t> bWords;
 };
 

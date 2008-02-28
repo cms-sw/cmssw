@@ -86,58 +86,49 @@ CSCEventData::CSCEventData(unsigned short * buf){
     else  edm::LogError ("CSCEventData") <<"Error:nclct reported but no TMB data found!!!";
   }
 
-  for(int icfeb = 0; icfeb < 5; ++icfeb)  {
-    theCFEBData[icfeb] = 0;
-    int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
-    //cfeb_available cannot be trusted - need additional verification!
-    if ( cfeb_available==1 )   {
-      // Fill CFEB data and convert it into cathode digis
-      theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
-      if (theCFEBData[icfeb]->trailerReached()) break;
-      theCFEBData[icfeb]->check();
-      pos += theCFEBData[icfeb]->sizeInWords();
+  //now let's try to find and unpack the DMBTrailer
+  bool dmbTrailerReached= false;
+  for (int i=0; i<8000; ++i) {
+    dmbTrailerReached =
+      (*(i+pos) & 0xF000) == 0xF000 && (*(i+pos+1) & 0xF000) == 0xF000
+      && (*(i+pos+2) & 0xF000) == 0xF000 && (*(i+pos+3) & 0xF000) == 0xF000
+      && (*(i+pos+4) & 0xF000) == 0xE000 && (*(i+pos+5) & 0xF000) == 0xE000
+      && (*(i+pos+6) & 0xF000) == 0xE000 && (*(i+pos+7) & 0xF000) == 0xE000;
+    if (dmbTrailerReached) {
+      theDMBTrailer = *( (CSCDMBTrailer *) (pos+i) );
+      break;
     }
   }
-    
-  if(debug)    {
-    edm::LogInfo ("CSCEventData") << "ready to unpack trailer ";
-    for(unsigned i = 0; i < 8; ++i)  {
-      edm::LogInfo ("CSCEventData") << std::hex << pos[i] <<" ";
-    }
-  }
-  theDMBTrailer = *( (CSCDMBTrailer *) pos );
-  pos += theDMBTrailer.sizeInWords();
-  size_ = pos-buf;
-  unsigned int cfebTimeout = theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout;
-  
-  //check for correct cfebs being reported
-  if ( theDMBHeader.cfebAvailable() &  cfebTimeout ) {
-    edm::LogError ("CSCEventData") <<"!!!Mismatch between cfebAvailable and cfebTimeout!!!";
-    //fix the cfeb numbers if possible...
-    int currentCfeb=0;
-    for(int icfeb = 0; icfeb < 5; ++icfeb) {
+  if (dmbTrailerReached) {
+    for(int icfeb = 0; icfeb < 5; ++icfeb)  {
+      theCFEBData[icfeb] = 0;
       int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
-      if ( cfeb_available==1 ) {
-	if (currentCfeb<=icfeb) currentCfeb=icfeb;
-	if ((cfebTimeout >> currentCfeb) & 1) {
-	  //this cfeb timed out in spite of cfebAvailable==1
-	  do ++currentCfeb; while ((!theDMBHeader.cfebAvailable(currentCfeb))&&(currentCfeb<5)&&
-				  ((cfebTimeout >> currentCfeb) & 1));
+      unsigned int cfebTimeout = theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout;    
+      //cfeb_available cannot be trusted - need additional verification!
+      if ( cfeb_available==1 )   {
+	if ((cfebTimeout >> icfeb) & 1) {
+	  if (debug) edm::LogInfo ("CSCEventData") << "CFEB Timed out! ";
+	} else {
+	  // Fill CFEB data and convert it into cathode digis
+	  theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
+	  pos += theCFEBData[icfeb]->sizeInWords();
 	}
-	if (currentCfeb<5) theCFEBData[icfeb]->setBoardNumber(currentCfeb);
-	else break;
-      }  
-    }    
+      }
+    }   
+    pos += theDMBTrailer.sizeInWords();
+    size_ = pos-buf;
+  }
+  else {
+    edm::LogError ("CSCEventData") << "Critical Error: DMB Trailer was not found!!! ";
   }
 }
 
-
 bool CSCEventData::isALCT(const short unsigned int * buf) {
-  return true;  
+  return (((buf[0]&0xFFFF)==0xDB0A)||((buf[0]&0xF800)==0x6000));  
 }
 
 bool CSCEventData::isTMB(const short unsigned int * buf) {
-  return true;
+  return ((buf[0]&0xFFF)==0xB0C);
 }
 
 

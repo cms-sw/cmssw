@@ -200,9 +200,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			     1, //chamber
 			     1); //layer
 
-	      if (unpackStatusDigis) dccStatusProduct->
-				       insertDigi(layer, CSCDCCStatusDigi(dccData.dccHeader().data(),
-									  dccData.dccTrailer().data()));
+	      if (unpackStatusDigis) 
+		dccStatusProduct->insertDigi(layer, CSCDCCStatusDigi(dccData.dccHeader().data(),
+								     dccData.dccTrailer().data(),
+								     examiner->errors()));
 
 	      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) 
 		{  ///loop over DDUs
@@ -466,16 +467,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	  else 
 	    {
 	      edm::LogError("CSCDCCUnpacker") <<"ERROR! Examiner decided to reject the event!";
-              if (examiner) {
+	      if (examiner) {
                 edm::LogError("CSCDCCUnpacker")
                   << " Examiner errors:0x" << std::hex << examiner->errors() << " mask:0x" << examinerMask;
               }
-              if(instatiateDQM)  monitor->process(examiner, NULL);
+              dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
+	      if(instatiateDQM)  monitor->process(examiner, NULL);
 	    }
 	  if (examiner!=NULL) delete examiner;
 	}///end of if fed has data
     }///end of loop over DCCs
-
   // commit to the event
   e.put(wireProduct,          "MuonCSCWireDigi");
   e.put(stripProduct,         "MuonCSCStripDigi");
