@@ -175,7 +175,7 @@ void L1GctJetLeafCard::process() {
 bool L1GctJetLeafCard::setupOk() const {
   return (m_jetFinderA->setupOk() &&
           m_jetFinderB->setupOk() &&
-	  m_jetFinderC->setupOk()); }
+          m_jetFinderC->setupOk()); }
 
 // get the jet output
 L1GctJetFinderBase::JetVector
@@ -207,9 +207,9 @@ L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip, const
 L1GctJetLeafCard::etComponentType
 L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, const unsigned fact) const {
   // These factors correspond to the sine of angles from -90 degrees to
-  // 90 degrees in 10 degree steps, multiplied by 512 and written in 21 bits
-  const int factors[19] = {0x1ffe00, 0x1ffe08, 0x1ffe1f, 0x1ffe45, 0x1ffe78,
-                           0x1ffeb7, 0x1fff00, 0x1fff51, 0x1fffa7, 0x000000,
+  // 90 degrees in 10 degree steps, multiplied by 512 and written in 22 bits
+  const int factors[19] = {0x3ffe00, 0x3ffe08, 0x3ffe1f, 0x3ffe45, 0x3ffe78,
+                           0x3ffeb7, 0x3fff00, 0x3fff51, 0x3fffa7, 0x000000,
                            0x000059, 0x0000af, 0x000100, 0x000149, 0x000188,
                            0x0001bb, 0x0001e1, 0x0001f8, 0x000200};
   const int maxEt=1<<etComponentSize;
@@ -225,9 +225,9 @@ L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, con
   if (fact>18) { myFact = factors[(36-fact)]; }
   else { myFact = factors[fact]; }
 
-  // Multiply the 12-bit Et value by the 21-bit factor.
+  // Multiply the 12-bit Et value by the 22-bit factor.
   // Discard the eight LSB and interpret the result as
-  // a 13-bit twos complement integer.
+  // a 14-bit twos complement integer.
   // Adjust the value to avoid truncation errors since these
   // accumulate and cause problems for the missing Et measurement.
   myValue = (( static_cast<int>(etStrip.value()) * myFact ) + 0x80)>>8;
@@ -238,7 +238,6 @@ L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, con
 
   etComponentType temp(myValue);
   temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
-
   return temp;
 
 }

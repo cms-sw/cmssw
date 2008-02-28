@@ -40,7 +40,7 @@ public:
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
 
-  enum { etComponentSize=L1GctEtMiss::kEtMissNBits+1 };
+  enum { etComponentSize=L1GctEtMiss::kEtMissNBits+2 };
   typedef L1GctTwosComplement<etComponentSize> etComponentType;
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
