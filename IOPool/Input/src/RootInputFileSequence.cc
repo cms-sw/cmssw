@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.77 2008/01/08 06:57:39 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.1 2008/02/22 19:03:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -88,8 +88,8 @@ namespace edm {
       // The first input file has already been opened.
       firstFile_ = false;
     } else {
-      if (!nextFile()) {
-      assert(0);
+      if (!nextFile(!primary())) {
+        assert(0);
       }
     }
     if (!rootFile_) {
@@ -140,13 +140,18 @@ namespace edm {
     }
   }
 
-  bool RootInputFileSequence::nextFile() {
+  ProductRegistry const&
+  RootInputFileSequence::fileProductRegistry() const {
+    return *rootFile_->productRegistry();
+  }
+
+  bool RootInputFileSequence::nextFile(bool wrapAround) {
     if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
-      if (primary()) {
-	return false;
-      } else {
+      if (wrapAround) {
 	fileIter_ = fileIterBegin_;
+      } else {
+	return false;
       }
     }
 
@@ -157,7 +162,7 @@ namespace edm {
 
     initFile(skipBadFiles_);
 
-    if (primary() && rootFile_) {
+    if (primary() && !wrapAround && rootFile_) {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -239,8 +244,13 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id) {
-    rootFile_->setEntryAtEvent(id);
+  RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
+    bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+    while (!found) {
+      if(nextFile(exact)) {
+    	found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+      }
+    }
     return readCurrentEvent();
   }
 
@@ -291,7 +301,7 @@ namespace edm {
   RootInputFileSequence::skip(int offset) {
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile()) return;
+      if (offset > 0 && !nextFile(!primary())) return;
       if (offset < 0 && !previousFile()) return;
     }
   }
@@ -350,7 +360,7 @@ namespace edm {
       fileIter_ = fileIterBegin_ + fileSeqNumber;
       initFile(false);
     }
-    rootFile_->setEntryAtEvent(id);
+    rootFile_->setEntryAtEvent(id.run(), 0U, id.event(), false);
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {

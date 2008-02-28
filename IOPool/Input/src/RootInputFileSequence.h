@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.1 2008/02/22 19:03:51 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.2 2008/02/22 19:29:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,16 +50,17 @@ namespace edm {
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id);
+    std::auto_ptr<EventPrincipal> readIt(EventID const& id, LuminosityBlockNumber_t lumi = 0U, bool exact = false);
     void skip(int offset);
     void rewind_();
     void readMany_(int number, EventPrincipalVector& result);
     void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    ProductRegistry const& fileProductRegistry() const;
   private:
     void initFile(bool skipBadFiles);
     void updateProductRegistry() const;
-    bool nextFile();
+    bool nextFile(bool wrapAround);
     bool previousFile();
     void rewindFile();
     std::auto_ptr<EventPrincipal> readCurrentEvent();

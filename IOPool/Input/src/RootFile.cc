@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.116 2008/02/06 00:06:46 wmtan Exp $
+$Id: RootFile.cc,v 1.117 2008/02/20 19:52:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -701,14 +701,14 @@ namespace edm {
 
   
   bool
-  RootFile::setEntryAtEvent(EventID const& id) {
-    fileIndexIter_ = fileIndex_.findPosition(id.run(), 0U, id.event());
+  RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
+    fileIndexIter_ = fileIndex_.findPosition(run, lumi, event);
     while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
       ++fileIndexIter_;
     }
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
-    return true;
+    return !exact || (fileIndexIter_->run_ == run && fileIndexIter_->event_ == event);
   }
 
   void
