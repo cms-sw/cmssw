@@ -22,6 +22,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
+    std::cout<<"globalsince value "<<iovmanager.globalSince()<<std::endl;
     ioveditor->create(iovmanager.globalSince());
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
@@ -52,7 +53,7 @@ int main(){
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
     //pooldb.disconnect();
-    delete ioveditor;
+    //delete ioveditor;
     pooldb.start(false);
     ioveditor=iovmanager.newIOVEditor();
     ioveditor->create(iovmanager.globalSince());
@@ -75,8 +76,8 @@ int main(){
     ///I write different pedestals in another record
     //
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
-    anotherioveditor->create(iovmanager.globalSince());
     pooldb.start(false);
+    anotherioveditor->create(iovmanager.globalSince());
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
@@ -91,8 +92,10 @@ int main(){
       anotherioveditor->insert(cond::Time_t(2+2*i),payloadToken);
     }
     std::string anotheriovtoken=anotherioveditor->token();
+    std::cout<<"anotheriovtoken "<<anotheriovtoken<<std::endl;
     pooldb.commit();
     delete anotherioveditor;
+    
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
