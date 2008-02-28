@@ -32,15 +32,15 @@ namespace reco {
       PS1, 
       PS2, 
       ECAL, 
-      HCAL, 
-      MUON
+      HCAL 
     };
 
     enum TrackType {
       DEFAULT=0,
       T_FROM_NUCL,
       T_TO_NUCL,
-      T_FROM_GAMMACONV
+      T_FROM_GAMMACONV,
+      MUON
     };
 
     /// standard constructor
@@ -87,7 +87,7 @@ namespace reco {
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
     virtual PFNuclearInteractionRef nuclearRef() const { return PFNuclearInteractionRef(); }
 
-    bool isSecondary() const { return false; }
+    virtual bool isSecondary() const { return false; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
