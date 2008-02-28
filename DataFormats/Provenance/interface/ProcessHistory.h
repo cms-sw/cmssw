@@ -65,8 +65,7 @@ namespace edm {
   // Free swap function
   inline
   void
-  swap(ProcessHistory& a, ProcessHistory& b) 
-  {
+  swap(ProcessHistory& a, ProcessHistory& b) {
     a.swap(b);
   }
 
@@ -80,6 +79,15 @@ namespace edm {
   bool
   operator!=(ProcessHistory const& a, ProcessHistory const& b) {
     return !(a==b);
+  }
+
+  bool
+  isAncestor(ProcessHistory const& a, ProcessHistory const& b);
+
+  inline
+  bool
+  isDescendent(ProcessHistory const& a, ProcessHistory const& b) {
+    return isAncestor(b, a);
   }
 
   std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);

@@ -9,8 +9,7 @@
 
 namespace edm {
   ProcessHistoryID
-  ProcessHistory::id() const
-  {
+  ProcessHistory::id() const {
     if(id_.isValid()) {
       return id_;
     }
@@ -28,6 +27,17 @@ namespace edm {
     ProcessHistoryID tmp(md5alg.digest().toString());
     id_.swap(tmp);
     return id_;
+  }
+
+  bool
+  isAncestor(ProcessHistory const& a, ProcessHistory const& b) {
+    if (a.size() >= b.size()) return false;
+    typedef ProcessHistory::collection_type::const_iterator const_iterator;
+    const_iterator itB = b.data().begin();
+    for (const_iterator itA = a.data().begin(), itAEnd = a.data().end(); itA != itAEnd; ++itA) {
+      if (*itA != *itB) return false;
+    }
+    return true;
   }
 
   std::ostream&

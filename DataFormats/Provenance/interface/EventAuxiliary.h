@@ -84,6 +84,9 @@ namespace edm
     int storeNumber_;
   };
 
+  bool
+  isSameEvent(EventAuxiliary const& a, EventAuxiliary const& b);
+
   inline
   std::ostream&
   operator<<(std::ostream& os, const EventAuxiliary& p) {
