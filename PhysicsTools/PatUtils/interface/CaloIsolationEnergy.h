@@ -1,5 +1,5 @@
 //
-// $Id: CaloIsolationEnergy.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: CaloIsolationEnergy.h,v 1.1 2008/01/15 13:20:15 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_CaloIsolationEnergy_h
@@ -14,27 +14,24 @@
    position on the ECAL surface, as defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: CaloIsolationEnergy.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: CaloIsolationEnergy.h,v 1.1 2008/01/15 13:20:15 lowette Exp $
 */
-
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-
+#include <vector>
 
 class MagneticField;
 class TrackToEcalPropagator;
+class CaloTower;
 
+namespace reco {
+  class Track; 
+}
 
 namespace pat {
-
+  class Muon;
+  class Electron;
 
   class CaloIsolationEnergy {
-
     public:
-
       CaloIsolationEnergy();
       virtual ~CaloIsolationEnergy();
 
@@ -42,11 +39,8 @@ namespace pat {
       float calculate(const Muon & aMuon, const std::vector<CaloTower> & theTowers, float isoConeMuon = 0.3) const;
 
     private:
-
       float calculate(const reco::Track & track, const float leptonEnergy, const std::vector<CaloTower> & theTowers, float isoCone) const;
-
   };
-
 
 }
 

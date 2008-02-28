@@ -1,30 +1,26 @@
 //
-// $Id: CaloIsolationEnergy.cc,v 1.1 2008/01/07 11:48:27 lowette Exp $
+// $Id: CaloIsolationEnergy.cc,v 1.1 2008/01/15 13:21:21 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include <vector>
 
-
 using namespace pat;
-
 
 /// constructor
 CaloIsolationEnergy::CaloIsolationEnergy() {
 }
 
-
 /// destructor
 CaloIsolationEnergy::~CaloIsolationEnergy() {
 }
-
 
 /// calculate the CalIsoE from the lepton object
 float CaloIsolationEnergy::calculate(const Electron & theElectron, const std::vector<CaloTower> & theTowers, float isoConeElectron) const {

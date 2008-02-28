@@ -1,41 +1,39 @@
 //
-// $Id: TrackerIsolationPt.cc,v 1.1 2008/01/15 13:21:30 lowette Exp $
+// $Id: TrackerIsolationPt.cc,v 1.2 2008/01/21 16:26:20 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include <vector>
 
-
 using namespace pat;
-
 
 /// constructor
 TrackerIsolationPt::TrackerIsolationPt() {
 }
 
-
 /// destructor
 TrackerIsolationPt::~TrackerIsolationPt() {
 }
-
 
 /// calculate the TrackIsoPt for the lepton object
 float TrackerIsolationPt::calculate(const Electron & theElectron, const edm::View<reco::Track> & theTracks, float isoConeElectron) const {
   return this->calculate(*theElectron.gsfTrack(), theTracks, isoConeElectron);
 }
+
 float TrackerIsolationPt::calculate(const Muon & theMuon, const edm::View<reco::Track> & theTracks, float isoConeMuon) const {
   return this->calculate(*theMuon.track(), theTracks, isoConeMuon);
 }
-
 
 /// calculate the TrackIsoPt for the lepton's track
 float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const {
@@ -71,9 +69,9 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
     GlobalVector closestTrackVector(closestTrackDR->px(), closestTrackDR->py(), closestTrackDR->pz());
     isoPtLepton -= closestTrackVector.perp();
   }
-// back to normal sum - S.L. 30/10/2007
+  // back to normal sum - S.L. 30/10/2007
   if (isoPtLepton<0) isoPtLepton = 0;
-//  isoPtLepton <= 0.01 ? isoPtLepton = -1 : isoPtLepton = log(isoPtLepton);
+  //  isoPtLepton <= 0.01 ? isoPtLepton = -1 : isoPtLepton = log(isoPtLepton);
   return isoPtLepton;
 }
 

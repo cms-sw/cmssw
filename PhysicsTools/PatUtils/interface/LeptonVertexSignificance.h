@@ -1,5 +1,5 @@
 //
-// $Id: LeptonVertexSignificance.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+// $Id: LeptonVertexSignificance.h,v 1.1 2008/01/15 13:20:54 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonVertexSignificance_h
@@ -13,46 +13,37 @@
    of the lepton to a given vertex, as defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonVertexSignificance.h,v 1.1 2008/01/07 11:48:26 lowette Exp $
+  \version  $Id: LeptonVertexSignificance.h,v 1.1 2008/01/15 13:20:54 lowette Exp $
 */
-
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-
 
 class TransientTrackBuilder;
 
+namespace reco {
+  class Track;
+}
+
+namespace edm {
+  class Event;
+  class EventSetup;
+}
 
 namespace pat {
-
+  class Electron;
+  class Muon;
 
   class LeptonVertexSignificance {
-
-    public:
-
-      LeptonVertexSignificance();
-      LeptonVertexSignificance(const edm::EventSetup & iSetup);
-      ~LeptonVertexSignificance();
-
-      float calculate(const Electron & anElectron, const edm::Event & iEvent);
-      float calculate(const Muon & aMuon, const edm::Event & iEvent);
-
-    private:
-
-      float calculate(const reco::Track & track, const edm::Event & iEvent);
-
-    private:
-
-      TransientTrackBuilder * theTrackBuilder_;
-
+  public:
+    LeptonVertexSignificance();
+    LeptonVertexSignificance(const edm::EventSetup & iSetup);
+    ~LeptonVertexSignificance();
+    
+    float calculate(const Electron & anElectron, const edm::Event & iEvent);
+    float calculate(const Muon & aMuon, const edm::Event & iEvent);
+    
+  private:
+    float calculate(const reco::Track & track, const edm::Event & iEvent);
+    TransientTrackBuilder * theTrackBuilder_;
   };
-
 
 }
 
