@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.13 2008/02/20 11:26:11 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.14 2008/02/27 16:33:40 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -514,7 +514,9 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     SiStripFedKey( anal->fedKey() ).terse(ss); ss << " ";
     ss << "DcuId=" << std::hex << std::setw(8) << std::setfill('0') << anal->dcuId() << std::dec << " ";
     ss << "DetId=" << std::hex << std::setw(8) << std::setfill('0') << anal->detId() << std::dec;
-    if ( anal->isValid() ) { valid.push_back( ss.str() ); }
+    if ( anal->isValid() &&
+	 !(anal->isDirty()) &&
+	 !(anal->badTrimDac()) ) { valid.push_back( ss.str() ); }
     if ( anal->isDirty() ) { dirty.push_back( ss.str() ); }
     if ( anal->badTrimDac() ) { trimdac.push_back( ss.str() ); }
     
@@ -702,9 +704,9 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
        << " \"Good\" connections     : " << valid.size() << std::endl
        << " \"Dirty\" connections    : " << dirty.size() << std::endl
        << " \"Bad\" TrimDAQ settings : " << trimdac.size() << std::endl
-       << " \"Missing\" connections  : " << missing.size() << std::endl
-       << " \"Missing\" APV pairs    : " << missing_pairs << std::endl
-       << " \"Missing\" APVs         : " << devices.size() << std::endl;
+       << " (\"Missing\" connections : " << missing.size() << ")" << std::endl
+       << " (\"Missing\" APV pairs   : " << missing_pairs << ")" << std::endl
+       << " (\"Missing\" APVs        : " << devices.size() << ")" << std::endl;
     edm::LogVerbatim(mlCabling_) << ss.str();
   }
 
@@ -760,7 +762,7 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     std::vector<std::string>::const_iterator istr = devices.begin();
     std::vector<std::string>::const_iterator jstr = devices.end();
     for ( ; istr != jstr; ++istr ) { ss << *istr << std::endl; }
-    edm::LogWarning(mlCabling_) << ss.str();
+    edm::LogError(mlCabling_) << ss.str();
   }
 
 }
