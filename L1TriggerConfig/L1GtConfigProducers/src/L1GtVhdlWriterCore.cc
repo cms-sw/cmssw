@@ -92,7 +92,8 @@ L1GtVhdlWriterCore::~L1GtVhdlWriterCore()
 
 bool L1GtVhdlWriterCore::returnConditionsOfOneClass(
         const L1GtConditionType &type, const L1GtConditionCategory &category,
-        const L1GtObject &object, const ConditionMap &map,
+        const L1GtObject &object,
+        const ConditionMap &map,
         ConditionMap &outputMap)
 {
     bool status = false;
@@ -137,11 +138,9 @@ bool L1GtVhdlWriterCore::findObjectType(const L1GtObject &object,
     return status;
 }
 
-void L1GtVhdlWriterCore::buildMuonParameterMap(
+void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(
         const unsigned short int &condChip,
-        std::map<std::string,int> &conditionToIntegerMap_,
-        std::map<std::string,std::string> &muonParameters,
-        const std::vector<ConditionMap> &conditionMap)
+        std::map<std::string,std::string> &muonParameters)
 {
     // vector containing all relevant types for muon conditions
     std::vector<L1GtConditionType> muonConditionTypes;
@@ -159,13 +158,13 @@ void L1GtVhdlWriterCore::buildMuonParameterMap(
         ConditionMap MuonConditions1s;
 
         countCondsAndAdd2NumberVec(muonConditionTypes.at(i), CondMuon, Mu,
-                conditionMap.at(condChip-1), MuonConditions1s, condChip);
+                (*conditionMap_).at(condChip-1), MuonConditions1s, condChip);
 
         /*
          // Get the absoloute amount of conditions
          std::string initstr="CONSTANT nr_"+objType2Str_[Mu]+"_"+condType2Str_[muonConditionTypes.at(i)]+" : integer := ";
 
-         if (returnConditionsOfOneClass(muonConditionTypes.at(i),CondMuon,Mu,conditionMap.at(condChip-1), MuonConditions1s))
+         if (returnConditionsOfOneClass(muonConditionTypes.at(i),CondMuon,Mu,conditionMap_.at(condChip-1), MuonConditions1s))
          initstr+=(int2str(MuonConditions1s.size())+";");
          else
          initstr+=("0;");
@@ -314,12 +313,10 @@ void L1GtVhdlWriterCore::buildMuonParameterMap(
 
 }
 
-bool L1GtVhdlWriterCore::buildCaloParameterMap(
+bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(
         const unsigned short int &condChip,
-        std::map<std::string,int> &conditionToIntegerMap_,
         std::map<std::string,std::string> &caloParameters,
-        const L1GtObject &caloObject,
-        const std::vector<ConditionMap> &conditionMap)
+        const L1GtObject &caloObject)
 {
     // vector containing all relevant types for calo conditions
     std::vector<L1GtConditionType> caloConditionTypes;
@@ -337,7 +334,7 @@ bool L1GtVhdlWriterCore::buildCaloParameterMap(
 
         // stores all conditions of type given in the first three parameters
         countCondsAndAdd2NumberVec(caloConditionTypes.at(i), CondCalo,
-                caloObject, conditionMap.at(condChip-1), caloConditions,
+                caloObject, (*conditionMap_).at(condChip-1), caloConditions,
                 condChip);
 
         for (ConditionMap::const_iterator iterCond = caloConditions.begin(); iterCond
@@ -436,11 +433,9 @@ bool L1GtVhdlWriterCore::buildCaloParameterMap(
     return true;
 }
 
-bool L1GtVhdlWriterCore::buildEnergySumParameter(
+bool L1GtVhdlWriterCore::getEsumsSetupContentFromTriggerMenu(
         const unsigned short int &condChip, const L1GtObject &object,
-        std::map<std::string,int> &conditionToIntegerMap_,
-        std::string &energySumParameter,
-        const std::vector<ConditionMap> &conditionMap)
+        std::string &energySumParameter)
 {
 
     L1GtConditionType type;
@@ -457,7 +452,7 @@ bool L1GtVhdlWriterCore::buildEnergySumParameter(
     ConditionMap esumsConditions;
     // stores all conditions of type given in the first three parameters
     countCondsAndAdd2NumberVec(type, CondEnergySum, object,
-            conditionMap.at(condChip-1), esumsConditions, condChip);
+            (*conditionMap_).at(condChip-1), esumsConditions, condChip);
 
     for (ConditionMap::const_iterator iterCond = esumsConditions.begin(); iterCond
             != esumsConditions.end(); iterCond++)
@@ -484,9 +479,9 @@ bool L1GtVhdlWriterCore::buildEnergySumParameter(
 
 }
 
-bool L1GtVhdlWriterCore::buildCommonParameter(L1GtVhdlTemplateFile &particle,
+bool L1GtVhdlWriterCore::getSubstParamCommonFromTriggerMenu(const unsigned short int &condChip, L1GtVhdlTemplateFile &particle,
         const L1GtObject &object, const L1GtConditionCategory &category,
-        std::string &parameterStr, const ConditionMap &conditionMap)
+        std::string &parameterStr)
 {
 
     std::map<L1GtConditionType,std::string> condType2Strcopy = condType2Str_;
@@ -499,8 +494,8 @@ bool L1GtVhdlWriterCore::buildCommonParameter(L1GtVhdlTemplateFile &particle,
     {
 
         ConditionMap outputMap;
-
-        if (returnConditionsOfOneClass((*typeIterator).first, category, object, conditionMap, outputMap))
+        
+        if (returnConditionsOfOneClass((*typeIterator).first, category, object, (*conditionMap_).at(condChip-1), outputMap))
         {
 
             // special treatment for jet counts in buildCodChipParameters
@@ -530,10 +525,8 @@ bool L1GtVhdlWriterCore::buildCommonParameter(L1GtVhdlTemplateFile &particle,
     return true;
 }
 
-bool L1GtVhdlWriterCore::buildCondChipParameters(
+bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(
         const unsigned short int &condChip,
-        std::map<std::string,int> &conditionToIntegerMap_,
-        const std::vector<ConditionMap> &conditionMap,
         std::map<std::string, L1GtVhdlTemplateFile> &templates,
         std::map<std::string, std::string> &commonParams)
 {
@@ -562,8 +555,7 @@ bool L1GtVhdlWriterCore::buildCondChipParameters(
     //-------------------------------------build the common parameters-------------------------------------------
 
     // build $(muon_common)
-    buildCommonParameter(muon, Mu, CondMuon, commonParams["muon_common"],
-            conditionMap.at(condChip-1));
+    getSubstParamCommonFromTriggerMenu(condChip,muon, Mu, CondMuon, commonParams["muon_common"]);
 
     // build $(calo_common) - loop over all calo objects
     std::vector<L1GtObject>::iterator caloObjIter = caloObjects_.begin();
@@ -571,8 +563,8 @@ bool L1GtVhdlWriterCore::buildCondChipParameters(
     while (caloObjIter != caloObjects_.end())
     {
 
-        buildCommonParameter(muon, (*caloObjIter), CondCalo,
-                commonParams["calo_common"], conditionMap.at(condChip-1));
+        getSubstParamCommonFromTriggerMenu(condChip, muon, (*caloObjIter), CondCalo,
+                commonParams["calo_common"]);
         caloObjIter++;
 
     }
@@ -583,8 +575,8 @@ bool L1GtVhdlWriterCore::buildCondChipParameters(
     while (esumObjIter != esumObjects_.end())
     {
 
-        buildCommonParameter(esums, (*esumObjIter), CondEnergySum,
-                commonParams["esums_common"], conditionMap.at(condChip-1));
+        getSubstParamCommonFromTriggerMenu(condChip, esums, (*esumObjIter), CondEnergySum,
+                commonParams["esums_common"]);
         esumObjIter++;
 
     }
@@ -592,7 +584,7 @@ bool L1GtVhdlWriterCore::buildCondChipParameters(
     //--------------------------------------build the parameter maps----------------------------------------------
 
     // loop over condition map
-    for (ConditionMap::const_iterator iterCond = conditionMap.at(condChip-1).begin(); iterCond != conditionMap.at(condChip-1).end(); iterCond++)
+    for (ConditionMap::const_iterator iterCond = (*conditionMap_).at(condChip-1).begin(); iterCond != (*conditionMap_).at(condChip-1).end(); iterCond++)
     {
 
         switch ((iterCond->second)->condCategory())
@@ -824,16 +816,15 @@ bool L1GtVhdlWriterCore::buildCondChipParameters(
 
 }
 
-bool L1GtVhdlWriterCore::processAlgorithmMap(const AlgorithmMap &algorithmMap,
-        std::vector<ConditionMap> &conditionMap,
-        std::map<std::string,int> &conditionToIntegerMap_,
-        std::map<int, std::string> &algorithmsChip1,
-        std::map<int, std::string> &algorithmsChip2)
+bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::string> > &algoStrings)
 {
-    AlgorithmMap::const_iterator algoIter=algorithmMap.begin();
+    std::map<int, std::string> algorithmsChip1;
+    std::map<int, std::string> algorithmsChip2;
+    
+    AlgorithmMap::const_iterator algoIter=(*algorithmMap_).begin();
 
     // loop over algorithm map
-    while (algoIter!=algorithmMap.end())
+    while (algoIter!=(*algorithmMap_).end())
     {
         // msg(algoIter->first);
 
@@ -851,13 +842,16 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(const AlgorithmMap &algorithmMap,
         for (unsigned int i=0; i<conditions.size(); i++)
         {
             std::ostringstream newExpr;
+            
             // look for the condition on correct chip
-            L1GtCondition* cond = conditionMap.at(algoIter->second->algoChipNumber())[conditions.at(i)];
+           
+            std::vector<ConditionMap> * conditionMapCp = const_cast< std::vector<ConditionMap>* >(conditionMap_);
+            
+            L1GtCondition* cond = (*conditionMapCp).at(algoIter->second->algoChipNumber())[conditions.at(i)];
 
             // check weather condition exists
             if (cond!=NULL)
             {
-
                 newExpr<<objType2Str_[(cond->objectType()).at(0)];
 
                 newExpr <<"_" << condType2Str_[cond->condType()] << "(";
@@ -897,17 +891,19 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(const AlgorithmMap &algorithmMap,
         algoIter++;
     }
 
+    algoStrings.push_back(algorithmsChip1);
+    algoStrings.push_back(algorithmsChip2);
+    
     return true;
 
 }
 
-bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
+bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &conditionMap,
         const AlgorithmMap &algorithmMap)
 {
+    conditionMap_ = &conditionMap;
 
-    conditionMap_ = conditionMap;
-
-    algorithmMap_ = algorithmMap;
+    algorithmMap_ = &algorithmMap;
 
     //--------------------------------------build setups-------------------------------------------------------
 
@@ -917,8 +913,7 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
         // ----------------------- muon setup -------------------------------------------------------
 
         std::map<std::string,std::string> muonParameters;
-        buildMuonParameterMap(i, conditionToIntegerMap_, muonParameters,
-                conditionMap);
+        getMuonSetupContentFromTriggerMenu(i, muonParameters);
         writeMuonSetupVhdl(muonParameters, "muon", i);
 
         // ----------------------- calo setup -------------------------------------------------------
@@ -931,8 +926,8 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
         while (caloObjIter != caloObjects_.end())
         {
             std::map<std::string,std::string> caloParameters;
-            buildCaloParameterMap(i, conditionToIntegerMap_, caloParameters,
-                    (*caloObjIter), conditionMap);
+            getCaloSetupContentFromTriggerMenu(i, caloParameters,
+                    (*caloObjIter));
             writeMuonSetupVhdl(caloParameters, objType2Str_[(*caloObjIter)], i);
 
             caloObjIter++;
@@ -948,8 +943,8 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
         {
             std::string etmParameter;
 
-            buildEnergySumParameter(i, (*esumObjIter), conditionToIntegerMap_,
-                    etmParameter, conditionMap);
+            getEsumsSetupContentFromTriggerMenu(i, (*esumObjIter),
+                    etmParameter);
             writeEtmSetup(etmParameter, i);
 
             esumObjIter++;
@@ -957,7 +952,7 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
         }
 
         // add jet counts to condition 2 integer map
-        addJetCountsToCond2IntMap(i, conditionMap, conditionToIntegerMap_);
+        addJetCountsToCond2IntMap(i, (*conditionMap_), conditionToIntegerMap_);
 
         // --------------------cond chip setup---------------------------------------------------------
         // Important: all other setups have to be build BEFORE this one because it needs a
@@ -965,8 +960,7 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
 
         std::map<std::string, L1GtVhdlTemplateFile> templates;
         std::map<std::string, std::string> common;
-        buildCondChipParameters(i, conditionToIntegerMap_, conditionMap,
-                templates, common);
+        getCondChipVhdContentFromTriggerMenu(i, templates, common);
         writeConditionChipSetup(templates, common, i);
 
         // despite yet not existing they have to appear in cond_chip_pkg vhds
@@ -978,12 +972,12 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
 
         // -----------------------def val pkg -------------------------------------------------
 
-        writeDefValPkg(conditionMap, i);
+        writeDefValPkg((*conditionMap_), i);
 
         // debug
         if (debugMode_)
         {
-            //printConditionsOfCategory(CondEnergySum, conditionMap.at(i-1));
+            //printConditionsOfCategory(CondEnergySum, (*conditionMap_).at(i-1));
         }
 
     }
@@ -993,13 +987,11 @@ bool L1GtVhdlWriterCore::makeFirmware(std::vector<ConditionMap> &conditionMap,
 
     //-------------------------------process algorithms----------------------------------------------------------
 
+    std::vector< std::map<int, std::string> > algoStrings;
 
-    std::map<int, std::string> algorithmsChip1;
-    std::map<int, std::string> algorithmsChip2;
-
-    processAlgorithmMap(algorithmMap, conditionMap, conditionToIntegerMap_,
-            algorithmsChip1, algorithmsChip2);
-    writeAlgoSetup(algorithmsChip1, algorithmsChip2);
+    processAlgorithmMap(algoStrings);
+    
+    writeAlgoSetup(algoStrings);
 
     return true;
 }
@@ -1214,9 +1206,7 @@ void L1GtVhdlWriterCore::writeConditionChipSetup(
 
 }
 
-void L1GtVhdlWriterCore::writeAlgoSetup(
-        std::map<int, std::string> &algorithmsChip1,
-        std::map<int, std::string> &algorithmsChip2)
+void L1GtVhdlWriterCore::writeAlgoSetup(std::vector< std::map<int, std::string> > &algoStrings)
 {
     // loop over the two condition chips
     for (unsigned int i=1; i<=2; i++)
@@ -1232,13 +1222,15 @@ void L1GtVhdlWriterCore::writeAlgoSetup(
                 filename, outputFileName);
 
         std::ostringstream buffer;
+        
+        unsigned int algoPinsPerChip = 96;
 
-        for (unsigned int i=1; i<=96; i++)
+        for (unsigned int k=1; k<=algoPinsPerChip; k++)
         {
 
-            buffer<< stringConstantAlgo_<<"("<<i<<")";
-            if (algorithmsChip1[i]!="")
-                buffer<<" <= "<<algorithmsChip1[i]<<std::endl;
+            buffer<< stringConstantAlgo_<<"("<<k<<")";
+            if (algoStrings.at(i-1)[k]!="")
+                buffer<<" <= "<<algoStrings.at(i-1)[k]<<std::endl;
             else
                 buffer<<" <= '0';"<<std::endl;
         }
@@ -1353,7 +1345,10 @@ void L1GtVhdlWriterCore::addJetCountsToCond2IntMap(const int chip,
      }
 
      */
-    for (unsigned int i= 0; i<12; i++)
+    
+    unsigned int maxJetsCountsIndex = 11;
+    
+    for (unsigned int i= 0; i<=maxJetsCountsIndex; i++)
     {
         int counter = 0;
 
@@ -1415,7 +1410,7 @@ std::string L1GtVhdlWriterCore::getDefValsFromTriggerMenu(
     category = getCategoryFromObject(object);
 
     ConditionMap conditions;
-    returnConditionsOfOneClass(type, category, object, conditionMap_.at(0),
+    returnConditionsOfOneClass(type, category, object, (*conditionMap_).at(0),
             conditions);
 
     std::string result;
@@ -1448,7 +1443,7 @@ std::string L1GtVhdlWriterCore::getDefValsFromTriggerMenu(
         }
     }
 
-    return "0 => (\"00000000\", \"00000000\" ... )";
+    return "-- 0 => (\"00000000\", \"00000000\" ... )";
     return result;
 }
 
@@ -1571,7 +1566,7 @@ void L1GtVhdlWriterCore::writeDefValPkg(
     defValTemplate.insert(sp(substParamEsumsDefVals_), esumsDefValBuffer);
 
     // jet counts default values
-    defValTemplate.insert(sp(substParamJetsDefVals_), muonDefValuesBuffer);
+    defValTemplate.insert(sp(substParamJetsDefVals_), jetCountsDefValuesBuffer);
 
     // close and save the file
     defValTemplate.save(outputDir_+outputFile);
@@ -1625,7 +1620,7 @@ bool L1GtVhdlWriterCore::buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer,
             // $(others) have to be subsituted 
 
             /*
-             * CONSTANT $(def_val) : $(particle)_maxnr$(max_nr)vector8_arr := 
+             * CONSTANT $(def_val) : $(calo_or_muon)_maxnr$(max_nr)vector8_arr := 
              * (
              * $(content)
              * $(others)
@@ -1665,6 +1660,14 @@ bool L1GtVhdlWriterCore::buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer,
 
             internalTemplate.substitute(substParamContent_, content);
 
+            // Finally the parameter $(calo_or_muon) is left open
+            std::string caloOrMuonStr = stringConstantCalo_;
+           
+            if (object == Mu)
+                caloOrMuonStr = objType2Str_[Mu];
+            
+            internalTemplate.substitute(substParamCaloOrMuon_, caloOrMuonStr);
+            
             // The internal template has been processed and now can be added to the buffer..
             buffer.append(internalTemplate);
 

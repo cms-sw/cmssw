@@ -64,41 +64,43 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         /// \param conditionToIntegerMap is the condition is added to this conversion map
         /// \param muonParameters here the routine stores the content of the subsitution parameters
         /// \param conditionMap containing the input
-        void buildMuonParameterMap(const unsigned short int &condChip, std::map<std::string,int> &conditionToIntegerMap,
-            std::map<std::string,std::string> &muonParameters, const std::vector<ConditionMap> &conditionMap);
+        void getMuonSetupContentFromTriggerMenu(const unsigned short int &condChip, std::map<std::string,std::string> &muonParameters);
 
-        bool buildCaloParameterMap(const unsigned short int &condChip, std::map<std::string,int> &conditionToIntegerMap,
-            std::map<std::string,std::string> &muonParameters,const L1GtObject &caloObject, const std::vector<ConditionMap> &conditionMap);
+        /// builds the parameters particle_common for the cond_chip.vhd's
+        bool getSubstParamCommonFromTriggerMenu(const unsigned short int &condChip, L1GtVhdlTemplateFile &particle, const L1GtObject &object, const L1GtConditionCategory &category,
+            std::string &parameterStr);
 
-        bool buildEnergySumParameter(const unsigned short int &condChip,  const L1GtObject &object, std::map<std::string,int> &conditionToIntegerMap,
-            std::string &energySumParameter, const std::vector<ConditionMap> &conditionMap);
+        bool getCaloSetupContentFromTriggerMenu(const unsigned short int &condChip, std::map<std::string,std::string> &caloParameters,
+            const L1GtObject &caloObject);
+        
+        /// contains only one subsitution parameter which is stored in reference energySumParameter
+        bool getEsumsSetupContentFromTriggerMenu(const unsigned short int &condChip,  const L1GtObject &object, std::string &energySumParameter);
 
         /// builds the substitution parameters for the cond_chip.vhd
         /// \condChip the condition chip that will be processed
         /// \param conditionToIntegerMap this has to be a already FILLED conversion map.
         ///  therefore this routine has to be called after all those which are adding information
-        ///  to the conditionToIntegerMap map (buildMuonParameterMap, buildCaloParameterMap...)
+        ///  to the conditionToIntegerMap map (getMuonSetupContentFromTriggerMenu, buildCaloParameterMap...)
         /// \param templates in this map the final content for the subsitution parameters is stored in
         /// VHDL template file format
-        bool buildCondChipParameters(const unsigned short int &condChip, std::map<std::string,int> &conditionToIntegerMap,
-            const std::vector<ConditionMap> &conditionMap, std::map<std::string, L1GtVhdlTemplateFile> &templates, std::map<std::string, std::string> &commonParams);
+        bool getCondChipVhdContentFromTriggerMenu(const unsigned short int &condChip, std::map<std::string, L1GtVhdlTemplateFile> &templates,
+            std::map<std::string, std::string> &commonParams);
 
         std::string retNumberOfConditionsString(const std::string &typeStr, const int &number);
         
         bool findObjectType(const L1GtObject &object, ConditionMap &map);
-
-        /// builds the parameters particle_common for the cond_chip.vhd's
-        bool buildCommonParameter(L1GtVhdlTemplateFile &particle,const L1GtObject &object, const L1GtConditionCategory &category, std::string &parameterStr, const ConditionMap &conditionMap);
+        
+        // builds the parameters particle_common for the cond_chip.vhd's
+        // bool buildCommonParameter(L1GtVhdlTemplateFile &particle,const L1GtObject &object, const L1GtConditionCategory &category, std::string &parameterStr, const ConditionMap &conditionMap);
 
         /// calculates the integer value for jet counts conditions and furthermore counts
         /// how many jet counts of one type are in trigger menu
         void addJetCountsToCond2IntMap(const int chip, const std::vector<ConditionMap> &conditionMap, std::map<std::string,int> &conditionToIntegerMap);
 
         /// processes algorithm map delivered by parser, replaces condition names by types and serial numbers,
-        /// splits the map in two seperate ones for the two condition chips
-        bool processAlgorithmMap(const AlgorithmMap &algorithmMap,  std::vector<ConditionMap> &conditionMap,
-            std::map<std::string,int> &conditionToIntegerMap, std::map<int, std::string> &algorithmsChip1, std::map<int, std::string> &algorithmsChip2);
-
+        /// splits the map in a vector two seperate ones for the two condition chips
+        bool processAlgorithmMap(std::vector< std::map<int, std::string> > &algoStrings);
+        
         /// builds the common header for all files
         void buildCommonHeader(std::map<std::string,std::string> &headerParameters , const std::vector<std::string> &connectedChannels);
 
@@ -112,7 +114,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         void printCommonHeader();
 
         /// produces the firmware code
-        bool makeFirmware(std::vector<ConditionMap> &conditionMap,const AlgorithmMap &algorithmMap);
+        bool makeFirmware(const std::vector<ConditionMap> &conditionMap,const AlgorithmMap &algorithmMap);
 
         /// builds muon setup files
         void writeMuonSetupVhdl(std::map<std::string,std::string> &muonParameters, const std::string &particle, unsigned short int &condChip);
@@ -127,7 +129,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         void writeEtmSetup(std::string &etmString, const int &condChip);
 
         /// builds the prealgo_and_or setup
-        void writeAlgoSetup(std::map<int, std::string> &algorithmsChip1, std::map<int, std::string> &algorithmsChip2);
+        void writeAlgoSetup(std::vector< std::map<int, std::string> > &algoStrings);
 
         /// builds the two quartus setup files. This routine is called in buildCommonHeader!
         void writeQsfSetupFiles(const std::string &version);
@@ -189,10 +191,10 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
     private:
         
         /// condition map
-        std::vector<ConditionMap> conditionMap_;
+        const std::vector<ConditionMap> * conditionMap_;
         
         /// algorithm map
-        AlgorithmMap algorithmMap_;
+        const AlgorithmMap * algorithmMap_;
 
         /// stores to condition name to integer conversion table
         std::map<std::string,int> conditionToIntegerMap_;
