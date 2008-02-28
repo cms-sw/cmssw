@@ -7,6 +7,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <math.h>
+#include <algorithm>
 #include <iostream>
 
 using namespace std;
@@ -24,6 +25,8 @@ gctTestEnergyAlgos::~gctTestEnergyAlgos() {}
 //  Here's a random event generator. Loads isolated input regions to check the energy sums.
 std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent)
 {
+  static const unsigned MAX_ET_CENTRAL=0x3ff; 
+  static const unsigned MAX_ET_FORWARD=0x0ff; 
   std::vector<L1CaloRegion> inputRegions;
 
   for (int i=0; i<36; i++) {
@@ -38,33 +41,37 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
   // same region several times.
   for (unsigned i=0; i<(simpleEvent ? 1 : L1CaloRegionDetId::N_ETA); i++) {
     etmiss_vec etVector=randomMissingEtVector();
-//      cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
+    //cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
     // Set a single region input
     unsigned etaRegion = i;
     unsigned phiRegion = etVector.phi/4;
 
-    if (etaRegion<4 || etaRegion>=18) etVector.mag = etVector.mag >> 2; 
+    unsigned maxEtForThisEta = MAX_ET_CENTRAL;
+    if (etaRegion<4 || etaRegion>=18) {
+      etVector.mag = etVector.mag >> 2;
+      maxEtForThisEta = MAX_ET_FORWARD;
+    } 
+    //cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << endl;
 
-    L1CaloRegion temp(etVector.mag, false, true, false, false, etaRegion, phiRegion);
+    bool regionOf = etVector.mag > maxEtForThisEta;
+    L1CaloRegion temp(etVector.mag, regionOf, true, false, false, etaRegion, phiRegion);
     inputRegions.push_back(temp);
         
     // Here we fill the expected values. Et values restricted to
     // eight bits in HF and ten bits in the rest of the system.
     if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
-      if (etaRegion<4) {
-	etStripSums.at(phiRegion) += (etVector.mag & 0xff);
-	inMinusOvrFlow |= (etVector.mag>=0x100);
+      if (etVector.mag > maxEtForThisEta) {
+        etStripSums.at(phiRegion) += MAX_ET_CENTRAL;
+        inMinusOvrFlow = true;
       } else {
-	etStripSums.at(phiRegion) += (etVector.mag & 0x3ff);
-	inMinusOvrFlow |= (etVector.mag>=0x400);
+        etStripSums.at(phiRegion) += etVector.mag;
       }
     } else {
-      if (etaRegion>=18) {
-	etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI) += (etVector.mag & 0xff);
-	inPlusOverFlow |= (etVector.mag>=0x100);
+      if (etVector.mag > maxEtForThisEta) {
+        etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI) += MAX_ET_CENTRAL;
+        inPlusOverFlow = true;
       } else {
-	etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI) += (etVector.mag & 0x3ff);
-	inPlusOverFlow |= (etVector.mag>=0x400);
+        etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI) += etVector.mag;
       }
     }
   }
@@ -134,82 +141,125 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
   int exMinusVl = 0;
   int eyMinusVl = 0;
   unsigned etMinusVl = 0;
-
-  int strip = 0;
-  // Find the expected sums for the Minus end
-  for ( ; strip<18; strip++) {
-    unsigned et = etStripSums.at(strip);
-
-    unsigned rctStrip = (40-strip)%18 + 18*(strip/18);
-    L1GctJetLeafCard* jlc = gct->getJetLeafCards().at(rctStrip/6);
-    L1GctJetFinderBase* jf = ((rctStrip%6)/2==0) ? jlc->getJetFinderA() :
-      ( ((rctStrip%6)/2==1) ? jlc->getJetFinderB() : jlc->getJetFinderC() );
-    L1GctUnsignedInt<12> gctEt = ((rctStrip%2==0) ? jf->getEtStrip0() : jf->getEtStrip1() );
-
-    int ex = etComponent(et, ((2*strip+9)%36) );
-    int ey = etComponent(et, (( 2*strip )%36) );
-
-    exMinusVl += ex;
-    eyMinusVl += ey;
-    etMinusVl += et; 
-  }
-  bool exMinusOvrFlow = (exMinusVl<-2048) || (exMinusVl>=2048) || inMinusOvrFlow;
-  bool eyMinusOvrFlow = (eyMinusVl<-2048) || (eyMinusVl>=2048) || inMinusOvrFlow;
-  bool etMinusOvrFlow = (etMinusVl>=4096) || inMinusOvrFlow;
+  bool exMinusOvrFlow = inMinusOvrFlow;
+  bool eyMinusOvrFlow = inMinusOvrFlow;
+  bool etMinusOvrFlow = inMinusOvrFlow;
 
   int exPlusVal = 0;
   int eyPlusVal = 0;
   unsigned etPlusVal = 0;
+  bool exPlusOverFlow = inPlusOverFlow;
+  bool eyPlusOverFlow = inPlusOverFlow;
+  bool etPlusOverFlow = inPlusOverFlow;
 
-  // Find the expected sums for the Plus end
-  for ( ; strip<36; strip++) {
-    unsigned et = etStripSums.at(strip);
+  unsigned rctStrip = 0;
+  for (unsigned leaf=0; leaf<3; leaf++) {
+    int exMinusSm = 0;
+    int eyMinusSm = 0;
+    unsigned etMinusSm = 0;
+    int exPlusSum = 0;
+    int eyPlusSum = 0;
+    unsigned etPlusSum = 0;
 
-    unsigned rctStrip = (40-strip)%18 + 18*(strip/18);
-    L1GctJetLeafCard* jlc = gct->getJetLeafCards().at(rctStrip/6);
-    L1GctJetFinderBase* jf = ((rctStrip%6)/2==0) ? jlc->getJetFinderA() :
-      ( ((rctStrip%6)/2==1) ? jlc->getJetFinderB() : jlc->getJetFinderC() );
-    L1GctUnsignedInt<12> gctEt = ((rctStrip%2==0) ? jf->getEtStrip0() : jf->getEtStrip1() );
+    for (unsigned col=0; col<6; col++) {
 
-    int ex = etComponent(et, ((2*strip+9)%36) );
-    int ey = etComponent(et, (( 2*strip )%36) );
+      unsigned strip = (22-rctStrip)%18;
+      unsigned etm = etStripSums.at(strip);
+      int exm = etComponent(etm, ((2*strip+9)%36) );
+      int eym = etComponent(etm, (( 2*strip )%36) );
 
-    exPlusVal += ex;
-    eyPlusVal += ey;
-    etPlusVal += et; 
+      exMinusSm += exm;
+      eyMinusSm += eym;
+      etMinusSm += etm; 
+
+      unsigned etp = etStripSums.at(strip+18);
+      int exp = etComponent(etp, ((2*strip+9)%36) );
+      int eyp = etComponent(etp, (( 2*strip )%36) );
+
+      exPlusSum += exp;
+      eyPlusSum += eyp;
+      etPlusSum += etp; 
+
+      rctStrip++;
+    }
+    // Check overflow for each leaf card
+    if (exMinusSm<-8192) { exMinusSm += 16384; exMinusOvrFlow = true; }
+    if (exMinusSm>=8192) { exMinusSm -= 16384; exMinusOvrFlow = true; }
+    if (eyMinusSm<-8192) { eyMinusSm += 16384; eyMinusOvrFlow = true; }
+    if (eyMinusSm>=8192) { eyMinusSm -= 16384; eyMinusOvrFlow = true; }
+    if (etMinusSm>=4096) { etMinusSm -= 4096; etMinusOvrFlow = true; }
+    exMinusVl += exMinusSm;
+    eyMinusVl += eyMinusSm;
+    etMinusVl += etMinusSm;
+    if (exPlusSum<-8192) { exPlusSum += 16384; exPlusOverFlow = true; }
+    if (exPlusSum>=8192) { exPlusSum -= 16384; exPlusOverFlow = true; }
+    if (eyPlusSum<-8192) { eyPlusSum += 16384; eyPlusOverFlow = true; }
+    if (eyPlusSum>=8192) { eyPlusSum -= 16384; eyPlusOverFlow = true; }
+    if (etPlusSum>=4096) { etPlusSum -= 4096; etPlusOverFlow = true; }
+    exPlusVal += exPlusSum;
+    eyPlusVal += eyPlusSum;
+    etPlusVal += etPlusSum;
   }
-  bool exPlusOverFlow = (exPlusVal<-2048) || (exPlusVal>=2048) || inPlusOverFlow;
-  bool eyPlusOverFlow = (eyPlusVal<-2048) || (eyPlusVal>=2048) || inPlusOverFlow;
-  bool etPlusOverFlow = (etPlusVal>=4096) || inPlusOverFlow;
+  // Check overflow for the overall sums
+  if (exMinusVl<-8192) { exMinusVl += 16384; exMinusOvrFlow = true; }
+  if (exMinusVl>=8192) { exMinusVl -= 16384; exMinusOvrFlow = true; }
+  if (eyMinusVl<-8192) { eyMinusVl += 16384; eyMinusOvrFlow = true; }
+  if (eyMinusVl>=8192) { eyMinusVl -= 16384; eyMinusOvrFlow = true; }
+  if (etMinusVl>=4096) { etMinusVl -= 4096; etMinusOvrFlow = true; }
+
+  if (exPlusVal<-8192) { exPlusVal += 16384; exPlusOverFlow = true; }
+  if (exPlusVal>=8192) { exPlusVal -= 16384; exPlusOverFlow = true; }
+  if (eyPlusVal<-8192) { eyPlusVal += 16384; eyPlusOverFlow = true; }
+  if (eyPlusVal>=8192) { eyPlusVal -= 16384; eyPlusOverFlow = true; }
+  if (etPlusVal>=4096) { etPlusVal -= 4096; etPlusOverFlow = true; }
 
   int exTotal = exMinusVl + exPlusVal;
   int eyTotal = eyMinusVl + eyPlusVal;
-  unsigned etTotal = etMinusVl + etPlusVal;
+  unsigned etTotal = (etMinusVl + etPlusVal) & 0xfff;
+
+  bool exTotalOvrFlow = exMinusOvrFlow || exPlusOverFlow;
+  bool eyTotalOvrFlow = eyMinusOvrFlow || eyPlusOverFlow;
+  bool etTotalOvrFlow = etMinusOvrFlow || etPlusOverFlow;
+
+  if (exTotal<-8192) { exTotal += 16384; exTotalOvrFlow = true; }
+  if (exTotal>=8192) { exTotal -= 16384; exTotalOvrFlow = true; }
+  if (eyTotal<-8192) { eyTotal += 16384; eyTotalOvrFlow = true; }
+  if (eyTotal>=8192) { eyTotal -= 16384; eyTotalOvrFlow = true; }
+  if (etTotal>=4096) { etTotal -= 4096; etTotalOvrFlow = true; }
 
   etmiss_vec etResult = trueMissingEt(-exTotal/2, -eyTotal/2);
 
-  bool exTotalOvrFlow = (exTotal<-2048) || (exTotal>=2048) || exMinusOvrFlow || exPlusOverFlow;
-  bool eyTotalOvrFlow = (eyTotal<-2048) || (eyTotal>=2048) || eyMinusOvrFlow || eyPlusOverFlow;
-  bool etTotalOvrFlow = (etTotal>=4096) || etMinusOvrFlow  || etPlusOverFlow;
-
   bool etMissOverFlow = exTotalOvrFlow || eyTotalOvrFlow;
+  if (etResult.mag>=4096) { etResult.mag -= 4096; etMissOverFlow = true; }
 
   //
   // Check the input to the final GlobalEnergyAlgos is as expected
   //--------------------------------------------------------------------------------------
   //
-  if (!myGlobalEnergy->getInputExVlMinusWheel().overFlow() && !exMinusOvrFlow &&
-      (myGlobalEnergy->getInputExVlMinusWheel().value()!=exMinusVl)) { cout << "ex Minus " << exMinusVl <<endl; testPass = false; }
-  if (!myGlobalEnergy->getInputExValPlusWheel().overFlow() && !exPlusOverFlow &&
-      (myGlobalEnergy->getInputExValPlusWheel().value()!=exPlusVal)) { cout << "ex Plus " << exPlusVal <<endl; testPass = false; }
-  if (!myGlobalEnergy->getInputEyVlMinusWheel().overFlow() && !eyMinusOvrFlow &&
-      (myGlobalEnergy->getInputEyVlMinusWheel().value()!=eyMinusVl)) { cout << "ey Minus " << eyMinusVl <<endl; testPass = false; }
-  if (!myGlobalEnergy->getInputEyValPlusWheel().overFlow() && !eyPlusOverFlow &&
-      (myGlobalEnergy->getInputEyValPlusWheel().value()!=eyPlusVal)) { cout << "ey Plus " << eyPlusVal <<endl; testPass = false; }
-  if (!myGlobalEnergy->getInputEtVlMinusWheel().overFlow() && !etMinusOvrFlow &&
-      (myGlobalEnergy->getInputEtVlMinusWheel().value()!=etMinusVl)) { cout << "et Minus " << etMinusVl <<endl; testPass = false; }
-  if (!myGlobalEnergy->getInputEtValPlusWheel().overFlow() && !etPlusOverFlow &&
-      (myGlobalEnergy->getInputEtValPlusWheel().value()!=etPlusVal)) { cout << "et Plus " << etPlusVal <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputExVlMinusWheel().overFlow()!=exMinusOvrFlow) || 
+      (myGlobalEnergy->getInputExVlMinusWheel().value()!=exMinusVl)) { cout << "ex Minus " << exMinusVl 
+         << (exMinusOvrFlow ? " overflow " : "  " )
+         << " expected " << myGlobalEnergy->getInputExVlMinusWheel() <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputExValPlusWheel().overFlow()!=exPlusOverFlow) || 
+      (myGlobalEnergy->getInputExValPlusWheel().value()!=exPlusVal)) { cout << "ex Plus " << exPlusVal 
+         << (exPlusOverFlow ? " overflow " : "  " )
+         << " expected " << myGlobalEnergy->getInputExValPlusWheel() <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputEyVlMinusWheel().overFlow()!=eyMinusOvrFlow) || 
+      (myGlobalEnergy->getInputEyVlMinusWheel().value()!=eyMinusVl)) { cout << "ey Minus " << eyMinusVl 
+         << (eyMinusOvrFlow ? " overflow " : "  " )
+         << " from Gct " << myGlobalEnergy->getInputEyVlMinusWheel() <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputEyValPlusWheel().overFlow()!=eyPlusOverFlow) || 
+      (myGlobalEnergy->getInputEyValPlusWheel().value()!=eyPlusVal)) { cout << "ey Plus " << eyPlusVal 
+         << (eyPlusOverFlow ? " overflow " : "  " )
+         << " from Gct " << myGlobalEnergy->getInputEyValPlusWheel() <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputEtVlMinusWheel().overFlow()!=etMinusOvrFlow) || 
+      (myGlobalEnergy->getInputEtVlMinusWheel().value()!=etMinusVl)) { cout << "et Minus " << etMinusVl 
+         << (etMinusOvrFlow ? " overflow " : "  " )
+         << " from Gct " << myGlobalEnergy->getInputEtVlMinusWheel() <<endl; testPass = false; }
+  if ((myGlobalEnergy->getInputEtValPlusWheel().overFlow()!=etPlusOverFlow) || 
+      (myGlobalEnergy->getInputEtValPlusWheel().value()!=etPlusVal)) { cout << "et Plus " << etPlusVal 
+         << (etPlusOverFlow ? " overflow " : "  " )
+         << " from Gct " << myGlobalEnergy->getInputEtValPlusWheel() <<endl; testPass = false; }
  
   //
   // Now check the processing in the final stage GlobalEnergyAlgos
@@ -217,18 +267,22 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
   //
   // Check the missing Et calculation. Allow some margin for the
   // integer calculation of missing Et.
-  if (!etMissOverFlow && !myGlobalEnergy->getEtMiss().overFlow()) {
-    unsigned etDiff, phDiff;
-    unsigned etMargin, phMargin;
+  unsigned etDiff, phDiff;
+  unsigned etMargin, phMargin;
 
-    etDiff = (unsigned) abs((long int) etResult.mag - (long int) myGlobalEnergy->getEtMiss().value());
-    phDiff = (unsigned) abs((long int) etResult.phi - (long int) myGlobalEnergy->getEtMissPhi().value());
-    if (phDiff>60) {phDiff=72-phDiff;}
-    //
-    etMargin = max((etResult.mag/100), (unsigned) 1) + 2;
-    if (etResult.mag==0) { phMargin = 72; } else { phMargin = (30/etResult.mag) + 1; }
-    if ((etDiff > etMargin) || (phDiff > phMargin)) {cout << "Algo etMiss diff "
-							  << etDiff << " phi diff " << phDiff << endl; testPass = false;}
+  etDiff = (unsigned) abs((long int) etResult.mag - (long int) myGlobalEnergy->getEtMiss().value());
+  phDiff = (unsigned) abs((long int) etResult.phi - (long int) myGlobalEnergy->getEtMissPhi().value());
+  if (phDiff>60) {phDiff=72-phDiff;}
+  //
+  etMargin = (etMissOverFlow ? 40 : max((etResult.mag/100), (unsigned) 1) + 2);
+  if (etResult.mag==0) { phMargin = 72; } else { phMargin = (30/etResult.mag) + 1; }
+  if ((etDiff > etMargin) || (phDiff > phMargin)) {cout << "Algo etMiss diff "
+					            << etDiff << " phi diff " << phDiff << endl; testPass = false;}
+
+  if (etMissOverFlow != myGlobalEnergy->getEtMiss().overFlow()) {
+    cout << "etMiss overFlow " << (etMissOverFlow ? "expected but not found in Gct" :
+                                                    "found in Gct but not expected" ) << std::endl;
+    testPass = false;
   }
   // Check the total Et calculation
   if (!myGlobalEnergy->getEtSum().overFlow() && !etTotalOvrFlow &&
@@ -253,7 +307,7 @@ gctTestEnergyAlgos::etmiss_vec gctTestEnergyAlgos::randomMissingEtVector() const
   // of 12-bit signed integers (-2048 to 2047).
   // With sigma set to 200 we are always in the range
   // of 10-bit input region Et values.
-  const float sigma=200.;
+  const float sigma=400.;
 
   // rmax controls the magnitude range
   // Chosen as a power of two conveniently close to
