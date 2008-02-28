@@ -27,76 +27,34 @@
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							      const TransientTrackingRecHit& hit) const {
 
-  //  float tsR = ts.globalParameters().position().perp();
+  float tsR = ts.globalParameters().position().perp();
   float tsPhi = ts.globalParameters().position().phi();
   LocalPoint lp = hit.localPosition();
   GlobalPoint gp = hit.det()->surface().toGlobal( lp);
   float rhPhi = gp.phi();
   float rhR = gp.perp();
 
-//   float myZ = gp.z();
+  float myZ = gp.z();
   
-//   float rMin = theZRangeMin;
-//   float rMax = theZRangeMax;
-//   float myPhimin = thePhiRangeMin;
-//   float myPhimax = thePhiRangeMax;
+  float rMin = theZRangeMin;
+  float rMax = theZRangeMax;
+  float myPhimin = thePhiRangeMin;
+  float myPhimax = thePhiRangeMax;
 
-//   if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
-//     {
-//       rMin = rMin_;
-//       rMax = rMax_;
-//     }
-
-// replaced by (Claude) -------------------------------------
-  float zLayer = ts.globalParameters().position().z();
-  float rLayer = ts.globalParameters().position().perp();
-//  float xLayer = ts.globalParameters().position().x();
-//  float yLayer = ts.globalParameters().position().y();
-
-  // compute the limits in r from the given limits in z
-//   // estimate the vertex
-//   float rdiff = pow((xLayer-0.0322),2) + yLayer*yLayer;
-//   rdiff = sqrt(rdiff);
-//   float zVert = zLayer - rdiff/tan(ts.globalDirection().theta());
-//     std::cout << "[ForwardMeasurementEstimator] vertex original calculation " <<  zVert << " revised calculation " 
-//      << zVert2 << std::endl;
-
-  //326.5 is the estimated shower center position 320.5+6cm see ECAL TDR p 81
-  float zCluster;
-  zLayer > 0 ? zCluster = 326.5 : zCluster = -326.5; 
-  zLayer = zLayer - zVert_ ;
-  zCluster = zCluster - zVert_ ;
-  float myScale = zLayer/zCluster;
-  float rCluster = rLayer/myScale;
-  float rMin; float rMax;
-  if (zLayer > 0) {
-    rMin = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
-    rMax = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
-  } else {
-    rMin = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
-    rMax = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
-  } 
-  // end of replace ------------------------------
+  if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+    {
+      rMin = rMin_;
+      rMax = rMax_;
+    }
 
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
   
-  //  float rDiff = tsR - rhR;
+  float rDiff = tsR - rhR;
    
-  //   if ( phiDiff < myPhimax && phiDiff > myPhimin && 
-  //        rDiff < rMax && rDiff > rMin) {
-  float rDiff = rMax -rMin;
-
-  // allow 2 x wider area
-  rMin = rMin - 0.5*rDiff;
-  rMax = rMax + 0.5*rDiff;
-
- 
-
-
-  if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
-       rhR < rMax && rhR > rMin) {
+  if ( phiDiff < myPhimax && phiDiff > myPhimin && 
+       rDiff < rMax && rDiff > rMin) {
      return std::pair<bool,double>(true,1.);
    } else {
     return std::pair<bool,double>(false,0.);

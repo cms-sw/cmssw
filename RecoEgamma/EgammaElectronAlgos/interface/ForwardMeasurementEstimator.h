@@ -38,23 +38,18 @@ public:
     thePhiRangeMax = dummyphiRangeMax ; 
   }
   void setZRange (float zmin , float zmax) 
-    { 
-      theZRangeMin=zmin;
-      theZRangeMax=zmax;
-    }
-  void setRRange (float rmin , float rmax) 
-    { 
-      rMin_= rmin;
-      rMax_ = rmax;
-    }
-
-  void setVertex (float vertex)
-    {
-      zVert_=vertex;
-    }
+  { 
+    theZRangeMin=zmin;
+    theZRangeMax=zmax;
+  }
+   void setRRange (float rmin , float rmax) 
+  { 
+    rMin_= rmin;
+    rMax_ = rmax;
+  }
   
   // zero value indicates incompatible ts - hit pair
-   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 					   const TransientTrackingRecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;
@@ -74,7 +69,7 @@ public:
   float theZRangeMin;
   float theZRangeMax;
   float rMin_, rMax_;
-  float zVert_;
+
 };
 
 #endif // ForwardMeasurementEstimator_H

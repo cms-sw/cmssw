@@ -59,7 +59,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
  PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
   const GlobalPoint& vprim, float energy, float fcharge) {
   
-  vertex=vprim.z();
   float SCl_phi = xmeas.phi();
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
@@ -217,37 +216,16 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
     // compute the z vertex from the cluster point and the found pixel hit
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
 									      validMeasurements[i].recHit()->localPosition()).z();
-    //    double pxHit1r = validMeasurements[i].recHit()->det()->surface().toGlobal(
-    //									      validMeasurements[i].recHit()->localPosition()).perp();
-    double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).x();
-    double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).y();
-
+    double pxHit1r = validMeasurements[i].recHit()->det()->surface().toGlobal(
+									      validMeasurements[i].recHit()->localPosition()).perp();
        
-  //    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
-  //      (xmeas.perp()-pxHit1r);
-//    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
-//      (xmeas.perp()-pxHit1r);
-      
-//    double pxHit1phi = validMeasurements[i].recHit()->det()->surface().toGlobal(
-//									     validMeasurements[i].recHit()->localPosition()).phi();
-  
-    double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
-    r1diff=sqrt(r1diff);
-    double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
-    r2diff=sqrt(r2diff);
-    double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
-
-//    double zVertexRec = vertex;
-//    std::cout << "vertex new calculation " <<  zVertexPred << " and reco vertex " << zVertexRec << std::endl;
+    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
+      (xmeas.perp()-pxHit1r);
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
     //    GlobalPoint vertexPred(0.,0.,zVertexPred);
     
     if(i==0)vertex = zVertexPred;
     
-    // evaluated z vertex is needed for the forward estimator
-    meas2ndFLayer.setVertex(vertex);
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
 										 validMeasurements[i].recHit()->localPosition())); 
     
