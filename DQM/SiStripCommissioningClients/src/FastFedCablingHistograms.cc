@@ -121,3 +121,70 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
   }
   
 }
+
+// -----------------------------------------------------------------------------
+/** */
+void FastFedCablingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+
+    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
+    if ( !anal ) { 
+      edm::LogError(mlDqmClient_)
+	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< " NULL pointer to analysis object!";
+      continue; 
+    }
+
+    std::stringstream ss;
+    anal->print( ss ); 
+    if ( anal->isValid() &&
+	 !(anal->isDirty()) && 
+	 !(anal->badTrimDac()) ) { LogTrace(mlDqmClient_) << ss.str(); 
+    } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void FastFedCablingHistograms::printSummary() {
+
+  std::stringstream good;
+  std::stringstream bad;
+  
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) { 
+
+    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( ianal->second );
+    if ( !anal ) { 
+      edm::LogError(mlDqmClient_)
+	<< "[FastFedCablingHistograms::" << __func__ << "]"
+	<< " NULL pointer to analysis object!";
+      continue; 
+    }
+
+    if ( anal->isValid() &&
+	 !(anal->isDirty()) && 
+	 !(anal->badTrimDac()) ) { 
+      anal->summary( good ); 
+    } else { anal->summary( bad ); }
+
+  }
+
+  if ( good.str().empty() ) { good << "None found!"; }
+  LogTrace(mlDqmClient_) 
+    << "[FastFedCablingHistograms::" << __func__ << "]"
+    << " Printing summary of good analyses:" << "\n"
+    << good.str();
+  
+  if ( bad.str().empty() ) { return; } //@@ bad << "None found!"; }
+  LogTrace(mlDqmClient_) 
+    << "[FastFedCablingHistograms::" << __func__ << "]"
+    << " Printing summary of bad analyses:" << "\n"
+    << bad.str();
+  
+}

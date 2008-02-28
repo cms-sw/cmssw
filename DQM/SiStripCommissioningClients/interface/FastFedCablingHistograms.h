@@ -15,7 +15,11 @@ class FastFedCablingHistograms : public virtual CommissioningHistograms {
   virtual ~FastFedCablingHistograms();
   
   void histoAnalysis( bool debug );
-  
+
+  void printAnalyses(); // override
+
+  void printSummary(); // override
+
 };
 
 #endif // DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
