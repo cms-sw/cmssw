@@ -1,26 +1,52 @@
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
+#include "CLHEP/Vector/RotationInterfaces.h" 
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
+
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
-//using namespace edm;
-
-
-// dirty way of getting the B-Field for curvature
 
 
 TrackerValidationVariables::TrackerValidationVariables(){}
 
 
 TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
-  : conf_(iSetup)
+  : conf_(iSetup), fBfield(4.06)
 {
   es.get<TrackerDigiGeometryRecord>().get( tkgeom );
   //es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 }
 
-TrackerValidationVariables::~TrackerValidationVariables()
-{
-  //edm::LogInfo("TrackerValidationVariables") << "Calling Destructor\n";
-
-}
+TrackerValidationVariables::~TrackerValidationVariables() {}
 
 void 
 TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent, 
