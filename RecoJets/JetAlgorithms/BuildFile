@@ -12,6 +12,7 @@
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
 <export>
+ <use name=fastjet>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetReco>
  <use name=DataFormats/Candidate>
