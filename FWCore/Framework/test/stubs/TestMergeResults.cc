@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.1 2008/02/04 20:14:20 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.2 2008/02/08 17:35:50 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -74,6 +74,8 @@ namespace edmtest
 
     std::vector<std::string> expectedParents_;
 
+    std::vector<int> expectedDroppedEvent_;
+
     bool verbose_;
 
     unsigned int index0_;
@@ -107,6 +109,8 @@ namespace edmtest
 
     expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
 
+    expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
+
     verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
 
     index0_(0),
@@ -131,6 +135,12 @@ namespace edmtest
   void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&)
   {
     if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
+
+    if (expectedDroppedEvent_.size() > 0) {
+      edm::InputTag tag1("makeThingToBeDropped", "event", "PROD");
+      e.getByLabel(tag1, h_thing);
+      assert(h_thing->a == expectedDroppedEvent_[0]);
+    }
   }
 
   void TestMergeResults::beginRun(Run const& run, EventSetup const&) {

@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.26 2008/02/10 23:28:54 wmtan Exp $
+  $Id: Principal.cc,v 1.27 2008/02/12 22:52:03 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -559,19 +559,11 @@ namespace edm {
   }
 
   void
-  Principal::combine(Principal & other) {
-
-    for (Principal::const_iterator i = other.begin(), iEnd = other.end(); i != iEnd; ++i) {
-      if (!(*i)->productUnavailable()) {
-	Group * g = getExistingGroup(**i);
-	if (g == 0) {
-	  std::auto_ptr<Group> g(new Group());
-	  g->swap(**i);
-	  addGroup_(g);
-	} else if (g->productUnavailable()){
-	  g->swap(**i);
-	}
-      }
+  Principal::recombine(Principal & other, std::vector<ProductID> const& pids) {
+    for (std::vector<ProductID>::const_iterator it = pids.begin(), itEnd = pids.end(); it != itEnd; ++it) {
+      unsigned int index = Group::index(*it);
+      groups_[index].swap(other.groups_[index]);
     }
+    store_->mergeReaders(other.store());
   }
 }

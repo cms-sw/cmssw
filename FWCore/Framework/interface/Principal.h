@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.16 2008/02/06 19:41:14 wmtan Exp $
+$Id: Principal.h,v 1.17 2008/02/10 23:28:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -133,8 +133,8 @@ namespace edm {
     // current Process.
     void addToProcessHistory() const;
 
-    // merge Principals possibly containing different groups.
-    void combine(Principal & other);
+    // merge Principals containing different groups.
+    void recombine(Principal & other, std::vector<ProductID> const& pids);
 
   protected:
     // ----- Add a new Group
