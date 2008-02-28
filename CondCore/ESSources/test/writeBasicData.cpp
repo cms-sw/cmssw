@@ -24,6 +24,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
+    ioveditor->create(iovmanager.globalSince());
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
@@ -58,6 +59,7 @@ int main(){
     std::string mypedestalsiovtoken;
     cond::IOVEditor* ioveditor2=iovmanager.newIOVEditor();
     pooldb.start(false);
+    ioveditor2->create(iovmanager.globalSince());
     for(unsigned int i=0; i<2; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -82,6 +84,7 @@ int main(){
     std::string anothermytestiovtoken;
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
+    anotherioveditor->create(iovmanager.globalSince());
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
