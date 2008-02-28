@@ -349,7 +349,9 @@ c      SEED = MRPY(1)
       IF (GENMOD.EQ.2) OPEN(22,FILE=F1NAME,STATUS='UNKNOWN')
 
       IF (GENMOD.EQ.3) THEN
+         MAXLINE=0
          OPEN(22,FILE=G3FNAME,STATUS='UNKNOWN')
+         READ(22,*) MAXLINE
          NPRIME = 0.0
          NSTACK = 0.0
          COUNT = 0

@@ -18,6 +18,7 @@
       REAL ABSMOM,P_BM_2,WEIGHT,P_MASS,SUM_BS
       INTEGER ID_PDG,ACC_EV,RANFLA
       INTEGER NI,M15_ID,IORIG,KORIG
+
       REAL    EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
      &        ZORIG,XORIG,YORIG,EORIG,WORIG
 c      REAL VXP,VYP,PROP,RXY
@@ -417,9 +418,17 @@ c      REAL VXP,VYP,PROP,RXY
         WEIGHT = WEIGHT*SUM_BS
       ENDIF
 
+
       IF (GENMOD.EQ.3) THEN  ! event reading mode
 223     WEIGHT = 0.
 C        IF (N_READ.EQ.289945) RETURN
+
+        write(6,*) 'MAXLINE and LINE ',N_READ,MAXLINE
+C        IF (N_READ.GE.289945) THEN
+          IF (NINT(N_READ).GE.MAXLINE) THEN
+           iret = -1
+           return
+        endif
         READ(22,*,END=333) NI,M15_ID,EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
      &                     ZORIG,XORIG,YORIG,EORIG,WORIG,IORIG,KORIG
 C        READ(22,*) ID_PDG,WEIGHT,E_KINE,VERT_X,VERT_Y,COS_DX,COS_DY
@@ -431,8 +440,8 @@ C        READ(22,*) ID_PDG,WEIGHT,E_KINE,VERT_X,VERT_Y,COS_DX,COS_DY
         ID_PDG = IDCONVERT(M15_ID)
         WEIGHT = W*W0
         E_KINE = EF
-        VERT_X = X
-        VERT_Y = Y
+        VERT_X = -Y
+        VERT_Y = -X
         COS_DX = DCX
         COS_DY = DCY
         write(6,*) 'Here at N_READ ',N_READ,OFFSET,NI,EF,TOFF

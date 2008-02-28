@@ -110,6 +110,8 @@ bool BeamHaloSource::produce(Event & e) {
         float weight = 0;
     	call_ki_bhg_fill(iret, weight);
 
+	if( iret < 0 ) return false;
+
 	// cout << "apres fortran " << endl;
 
 
