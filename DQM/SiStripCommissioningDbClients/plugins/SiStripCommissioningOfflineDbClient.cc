@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.9 2008/02/20 21:01:07 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.10 2008/02/21 14:08:02 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -137,6 +137,15 @@ void SiStripCommissioningOfflineDbClient::createHistos() {
   if ( tmp ) { 
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
+    std::stringstream ss;
+    ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
+       << std::endl
+       << " Uploading hardware configurations?    : " 
+       << ( tmp->doUploadConf() ? "true" : "false" )
+       << std::endl
+       << " Uploading calibrations from analysis? : " 
+       << ( tmp->doUploadAnal() ? "true" : "false" );
+    edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
