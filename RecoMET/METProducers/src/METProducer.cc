@@ -47,6 +47,7 @@ namespace cms
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
+    noHF = iConfig.getParameter<bool>("noHF");
 
     if(      METtype == "CaloMET" ) 
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
@@ -104,7 +105,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(input, output) );
+      calometcoll->push_back( calo.addInfo(input, output, noHF) );
       event.put( calometcoll );
     }
     //-----------------------------------

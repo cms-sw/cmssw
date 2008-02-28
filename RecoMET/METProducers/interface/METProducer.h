@@ -47,6 +47,7 @@ namespace cms
       std::string inputType;
       std::string METtype;
       std::string alias;
+      bool noHF;
       double globalThreshold;
       //CandidateCollection tempCol;
     };
