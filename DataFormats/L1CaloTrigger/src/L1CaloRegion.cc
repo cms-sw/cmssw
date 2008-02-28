@@ -50,6 +50,11 @@ L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t 
 // destructor
 L1CaloRegion::~L1CaloRegion() { }
 
+// set BX
+void L1CaloRegion::setBx(int16_t bx) {
+  m_bx = bx;
+}
+
 // set mip bit
 void L1CaloRegion::setMip(bool mip) {
   if (mip) { m_data |= 0x1000; }

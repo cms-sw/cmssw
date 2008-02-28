@@ -68,6 +68,9 @@ public:
   /// get quiet bit
   bool quiet() const { return ((m_data>>13) & 0x1)!=0; }
 
+  /// set BX (used in RCT emulator)
+  void setBx(int16_t bx);
+
   /// set MIP bit (required for GCT emulator standalone operation)
   void setMip(bool mip);
 

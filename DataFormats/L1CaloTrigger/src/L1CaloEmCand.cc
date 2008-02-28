@@ -66,6 +66,10 @@ L1CaloEmCand::L1CaloEmCand(unsigned rank, unsigned region, unsigned card, unsign
 // destructor
 L1CaloEmCand::~L1CaloEmCand() { } 
 
+void L1CaloEmCand::setBx(int16_t bx) {
+  m_bx = bx;
+}
+
 // pretty print
 ostream& operator<<(ostream& s, const L1CaloEmCand& cand) {
   s << "L1CaloEmCand : " << hex;
