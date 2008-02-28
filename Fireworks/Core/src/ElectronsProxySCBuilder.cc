@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.3 2008/02/25 23:21:48 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.4 2008/02/26 02:25:33 dmytro Exp $
 //
 
 // system include files
@@ -33,13 +33,15 @@
 #include "Fireworks/Core/interface/ElectronsProxySCBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 //
 // constants, enums and typedefs
 //
@@ -170,7 +172,9 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 			    i->gsfTrack()->vz());
 	  t.fSign = i->gsfTrack()->charge();
 	  TEveTrack* trk = new TEveTrack(&t, propagator);
-	  trk->SetMainColor(Color_t(kGreen));
+	  const float rgba[4] = { 0, 1, 0, 1 };
+// 	  trk->SetRGBA(rgba);
+	  trk->SetLineColor((Color_t)kGreen);
 	  trk->SetLineWidth(2);
 	  TEvePathMark *mark = new TEvePathMark(TEvePathMark::kDaughter);
 	  mark->fV = TEveVector(i->TrackPositionAtCalo().x(),
@@ -180,20 +184,21 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  trk->MakeTrack();
 	  tList->AddElement(trk);
 	  assert(i->superCluster().isNonnull());
+	  TEveElementList* container = new TEveElementList("supercluster");
+	  // figure out the extent of the supercluster
+	  double min_phi = 100, max_phi = -100, min_eta = 100, max_eta = -100;
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  std::vector<DetId> seed_detids = i->superCluster()->seed()->
 	       getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
 	       double size = 0.001; // default size
-	       bool found_hit = false;
 	       if ( hits ){
 		  EcalRecHitCollection::const_iterator hit = hits->find(*k);
-		  if (hit != hits->end()) {
+		  if (hit != hits->end()) 
 		     size = hit->energy();
-		     found_hit = true;
-		  }
 	       }
+	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
 	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract(k->rawId() );
 	       assert(extract != 0);
 	       TEveTrans t = extract->GetTrans();
@@ -211,6 +216,24 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 						shape->GetH2(), shape->GetBl2(), shape->GetTl2(),
 						shape->GetAlpha2()
 						);
+		  const TVector3 v(matrix->GetTranslation()[0], 
+				   matrix->GetTranslation()[1],
+				   matrix->GetTranslation()[2]);
+		  if (k->subdetId() == EcalBarrel) {
+		       EBDetId barrel_id = *k;
+		       const double phi = v.Phi();
+		       const double eta = v.Eta();
+		       printf("eta: %e\teta index: %d\t\tphi: %e\tphi index: %d\n",
+			      v.Eta(), barrel_id.ieta(), v.Phi(), barrel_id.iphi());
+		       if (phi > max_phi)
+			    max_phi = phi;
+		       if (phi < min_phi)
+			    min_phi = phi;
+		       if (eta > max_eta)
+			    max_eta = eta;
+		       if (eta < min_eta)
+			    min_eta = eta;
+		  }
 	       }
 	       if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
 	       TEveGeoShapeExtract *extract2 = new TEveGeoShapeExtract("SC");
@@ -229,7 +252,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	       extract2->SetRnrSelf(true);
 	       extract2->SetRnrElements(true);
 	       extract2->SetShape(crystal_shape);
-	       tList->AddElement(TEveGeoShape::ImportShapeExtract(extract2,0));
+	       container->AddElement(TEveGeoShape::ImportShapeExtract(extract2,0));
 /*
 	       TGeoTrap *crystal = dynamic_cast<TGeoTrap *>(extract->GetShape());
 	       assert(crystal != 0);
@@ -250,6 +273,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	       tList->AddElement(shape);
 */
 	  }
+	  tList->AddElement(container);
 	  TEvePointSet *trackpositionAtCalo = 
 	       new TEvePointSet("sc trackpositionAtCalo", 1);
 	  trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x(),
@@ -288,7 +312,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  pinposition->SetMarkerSize(2);
 	  pinposition->SetMarkerColor(kCyan);
 	  tList->AddElement(pinposition);
-	  
-     
+	  tList->AddElement(fw::getEcalCrystals(hits, *m_item->getGeom(), 
+						sc.Eta(), sc.Phi()));
      }
 }

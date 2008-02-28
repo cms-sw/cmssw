@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "Rtypes.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 namespace reco {
    class Track;
@@ -13,6 +14,9 @@ class TEveTrack;
 class TEveGeoShapeExtract;
 class TGeoBBox;
 class TEveElement;
+class TEveElementList;
+class DetId;
+class DetIdToMatrix;
   
 namespace fw {
    std::pair<double,double> getPhiRange( const std::vector<double>& phis,
@@ -41,7 +45,14 @@ namespace fw {
 	void operator++() { ++m_index; }
 	std::string str() const;
      };
-   
+
+     TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
+				       const DetIdToMatrix &,
+				       const std::vector<DetId> &);
+     TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
+				       const DetIdToMatrix &,
+				       double eta, double phi,
+				       int n_eta = 5, int n_phi = 10);
 }
 
 #endif

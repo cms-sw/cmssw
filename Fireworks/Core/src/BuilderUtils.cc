@@ -1,10 +1,14 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include <math.h>
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
+#include "TGeoArb8.h"
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEveTrans.h"
@@ -136,4 +140,67 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
       element->SetPickable(kTRUE);
       container->AddElement(element);
    }
+}
+
+TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
+				      const DetIdToMatrix &geo,
+				      double eta, double phi,
+				      int n_eta, int n_phi)
+{
+     std::vector<DetId> v;
+     int ieta = (int)rint(eta / 1.74e-2);
+     int iphi = (int)rint(phi / 1.74e-2) + 10;  // black magic
+     if (iphi < 0)
+	  iphi = 360 - iphi;
+     for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
+	  for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
+	       if (EBDetId::validDetId(i, j % 360))
+		    v.push_back(EBDetId(i, j % 360));
+	  }
+     }
+     return getEcalCrystals(hits, geo, v);
+}
+
+TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
+				      const DetIdToMatrix &geo,
+				      const std::vector<DetId> &detids)
+{
+     TEveElementList *ret = new TEveElementList("Ecal crystals");
+     for (std::vector<DetId>::const_iterator k = detids.begin();
+	  k != detids.end(); ++k) {
+	  double size = 0 * 0.001;  // default size
+	  if (hits != 0) {
+	       EcalRecHitCollection::const_iterator hit = hits->find(*k);
+	       if (hit != hits->end())
+		    size = hit->energy();
+	  }
+	  const TGeoHMatrix *matrix = geo.getMatrix(k->rawId());
+	  TEveGeoShapeExtract* extract = geo.getExtract(k->rawId());
+	  assert(extract != 0);
+	  TEveTrans t = extract->GetTrans();
+	  t.MoveLF(3, - size / 2);
+	  // TGeoBBox *sc_box = new TGeoBBox(1.1, 1.1, size / 2, 0);
+	  TGeoShape* crystal_shape = 0;
+	  if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(extract->GetShape())) {
+	       double scale = size/2/shape->GetDz();
+	       crystal_shape = new TGeoTrap( size/2,
+					     shape->GetTheta(), shape->GetPhi(),
+					     shape->GetH1()*scale + shape->GetH2()*(1-scale),
+					     shape->GetBl1()*scale + shape->GetBl2()*(1-scale),
+					     shape->GetTl1()*scale + shape->GetTl2()*(1-scale),
+					     shape->GetAlpha1(),
+					     shape->GetH2(), shape->GetBl2(), shape->GetTl2(),
+					     shape->GetAlpha2());
+	  }
+	  if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
+	  TEveGeoShapeExtract *extract2 = new TEveGeoShapeExtract("SC");
+	  extract2->SetTrans(t.Array());
+	  Float_t rgba[4] = { 1, 0, 0, 1 };
+	  extract2->SetRGBA(rgba);
+	  extract2->SetRnrSelf(true);
+	  extract2->SetRnrElements(true);
+	  extract2->SetShape(crystal_shape);
+	  ret->AddElement(TEveGeoShape::ImportShapeExtract(extract2,0));
+     }
+     return ret;
 }
