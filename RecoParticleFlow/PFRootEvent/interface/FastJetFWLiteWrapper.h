@@ -33,6 +33,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
+#include "fastjet/ActiveAreaSpec.hh"
 
 #include <vector>
 #include <string>
@@ -40,7 +41,6 @@
 
 namespace fastjet {
   class JetDefinition;
-  class ActiveAreaSpec;
 }
 class FastJetFWLiteWrapper
 {  
