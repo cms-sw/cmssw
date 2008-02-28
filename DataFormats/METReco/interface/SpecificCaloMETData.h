@@ -27,5 +27,17 @@ struct SpecificCaloMETData
   double EtFractionHadronic; // Hadronic ET fraction
   double EtFractionEm;       // Em ET fraction
   double METSignificance;       // Em ET fraction
+  double CaloMETInpHF;         // CaloMET in HF+ 
+  double CaloMETInmHF;         // CaloMET in HF- 
+  double CaloMETInpHE;         // CaloMET in HE+ 
+  double CaloMETInmHE;         // CaloMET in HE- 
+  double CaloMETInpHB;         // CaloMET in HB+ 
+  double CaloMETInmHB;         // CaloMET in HB- 
+  double CaloMETPhiInpHF;         // CaloMET-phi in HF+ 
+  double CaloMETPhiInmHF;         // CaloMET-phi in HF- 
+  double CaloMETPhiInpHE;         // CaloMET-phi in HE+ 
+  double CaloMETPhiInmHE;         // CaloMET-phi in HE- 
+  double CaloMETPhiInpHB;         // CaloMET-phi in HB+ 
+  double CaloMETPhiInmHB;         // CaloMET-phi in HB- 
 }; //public : struct SpecificCaloMETData
 #endif
