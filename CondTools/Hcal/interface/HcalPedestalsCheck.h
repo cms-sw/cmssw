@@ -51,9 +51,11 @@ class HcalPedestalsCheck: public edm::EDAnalyzer
 
  private:
   std::string outfile;
-
+  std::string dumprefs;
+  std::string dumpupdate;
+  bool validatepedestalsflag;
+  bool checkemapflag;
+  double epsilon;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
-  
-
 };
 #endif
