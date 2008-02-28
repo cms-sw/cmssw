@@ -34,6 +34,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDeadNoisy.h"
+#include "CondFormats/DataRecord/interface/CSCDeadNoisyRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 
