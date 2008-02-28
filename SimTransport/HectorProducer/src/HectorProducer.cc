@@ -22,30 +22,56 @@ using std::endl;
 
 HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnalysed(0) {
   
-  cout << "===================================================================" << endl;  
-  cout << "=== Start create new HectorProducer                           =====" << endl;
   
   //  produces<edm::HepMCProduct>();
   
   // TransportHector
   
-  m_InTag = parameters.getParameter<std::string>("HepMCProductLabel") ;
+  m_InTag          = parameters.getParameter<std::string>("HepMCProductLabel") ;
+  m_verbosity      = parameters.getParameter<bool>("Verbosity");
+  m_FP420Transport = parameters.getParameter<bool>("FP420Transport");
+  m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
   
   produces<edm::HepMCProduct>();
-  hector = new Hector( parameters );
-  cout << "===================================================================" << endl;  
+  //  hector = new Hector( parameters );
+  hector = new Hector(parameters, 
+		      m_verbosity,
+		      m_FP420Transport,
+		      m_ZDCTransport);
+  
+  edm::LogInfo ("Hector") << "HectorProducer parameters: \n" 
+			  << "   Verbosity: " << m_verbosity << "\n"
+			  << "   m_InTag:    " <<  m_InTag<< "\n"
+			  << "   m_FP420Transport:    " << m_FP420Transport << "\n"
+			  << "   m_ZDCTransport:    " << m_ZDCTransport << "\n";
+
+  if(m_verbosity) {
+    cout << "===================================================================" << endl;  
+    cout << "=== Start create new HectorProducer                           =====" << endl;
+    cout << "=== m_InTag: " << m_InTag << endl;
+    cout << "=== You are going to transport:                               =====" << endl;
+    cout << "=== FP420: " << m_FP420Transport << endl;
+    cout << "=== ZDC: " << m_ZDCTransport << endl;
+    cout << "===================================================================" << endl;
+  }  
 }
 
 HectorProducer::~HectorProducer(){
   
   //if ( hector ) delete hector;
   
-  cout << "===================================================================" << endl;  
-  cout << "=== Start delete HectorProducer                               =====" << endl;
-  cout << "=== Number of events analysed: " << eventsAnalysed << endl;
-  delete hector;
-  cout << "===================================================================" << endl;  
-  
+  if(m_verbosity) {
+    cout << "===================================================================" << endl;  
+    cout << "=== Start delete HectorProducer                               =====" << endl;
+    cout << "=== Number of events analysed: " << eventsAnalysed << endl;
+  }
+  //  delete hector;
+
+   if(m_verbosity) {
+    cout << "=== DONE                              =====" << endl;
+    cout << "===================================================================" << endl;  
+  }
+ 
 }
 
 void HectorProducer::beginJob(const edm::EventSetup & es)
@@ -93,14 +119,21 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
   
-  hector->clear();
-  
-  hector->add( evt_ );
-  
-  hector->filterFP420();
-  
-  hector->filterZDC();
-  
+  hector->clearApertureFlags();
+  if(m_FP420Transport) {
+    hector->clear();
+    hector->add( evt_ );
+    hector->filterFP420();
+  }
+  if(m_ZDCTransport) {
+    hector->clear();
+    hector->add( evt_ );
+    hector->filterZDC();
+    
+    hector->clear();
+    hector->add( evt_ );
+    hector->filterD1();
+  }
   evt_ = hector->addPartToHepMC( evt_ );
   
   // OK, create a product and put in into edm::Event

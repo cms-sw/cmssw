@@ -2,8 +2,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 //Hector
 #include "SimTransport/HectorProducer/interface/Hector.h"
-#include "SimTransport/HectorProducer/interface/HectorGenParticle.h"
 
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -14,9 +14,10 @@
 #include <math.h>
 
 //#include <iostream>
-
-Hector::Hector(const edm::ParameterSet & param) : 
-  m_IPx(0),m_IPy(0),m_IPz(0),m_IPt(0)
+Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transport,bool ZDCTransport) : 
+  m_verbosity(verbosity), 
+  m_FP420Transport(FP420Transport),
+  m_ZDCTransport(ZDCTransport)
 {
   
   edm::LogInfo ("Hector") << "===================================================================\n"  
@@ -26,7 +27,6 @@ Hector::Hector(const edm::ParameterSet & param) :
   edm::ParameterSet hector_par = param.getParameter<edm::ParameterSet>("Hector");
   
   // User definitons
-  m_verbosity    = hector_par.getParameter<bool>("Verbosity");
   lengthfp420    = hector_par.getParameter<double>("BeamLineLengthFP420" );
   m_rpp420_f     = (float) hector_par.getParameter<double>("RP420f");
   m_rpp420_b     = (float) hector_par.getParameter<double>("RP420b");
@@ -35,56 +35,90 @@ Hector::Hector(const edm::ParameterSet & param) :
   beam1filename  = hector_par.getParameter<string>("Beam1");
   beam2filename  = hector_par.getParameter<string>("Beam2");  
   m_rppzdc       = (float) lengthzdc ;
-  m_rppd1        = (float) lengthd1 ;
+  m_rppd1       = (float) lengthd1 ;
   m_smearAng     = hector_par.getParameter<bool>("smearAng");
-  Rpipe          = hector_par.getParameter<double>("InnerPipeRadius" );
-  x0_zdc         = hector_par.getParameter<double>("XpipeCenterAtZ140" );
-  y0_zdc         = hector_par.getParameter<double>("YpipeCenterAtZ140" );
-  etacut         = hector_par.getParameter<double>("AddEtaCut" );
   
-  //  etacut = 8.2;
-  //  m_smearAng = true;
-  //  Rpipe=3.5;// inner radius of beam pipe mm
-  //  x0_zdc=0.0;// X0-coord. center of beam pipe at z=140m 
-  // y0_zdc=0.0;// Y0-coord. center of beam pipe at z=140m 
+  etacut = 8.2;
   
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
-			  << "   Verbosity: " << m_verbosity << "\n"
 			  << "   lengthfp420:    " << lengthfp420 << "\n"
 			  << "   m_rpp420_f:    " << m_rpp420_f << "\n"
 			  << "   m_rpp420_b:    " << m_rpp420_b << "\n"
 			  << "   lengthzdc:    " << lengthzdc << "\n"
 			  << "   lengthd1:    " << lengthd1 << "\n";
   
-  if(m_verbosity){
-    std::cout<<"============================================================================"<<std::endl;
-    std::cout<<"=========Hector parameters: :"
-	     << "   lengthfp420:    " << lengthfp420 << "\n"
-	     << "   m_rpp420_f:    " << m_rpp420_f << "\n"
-	     << "   m_rpp420_b:    " << m_rpp420_b << "\n"
-	     << "   lengthzdc:    " << lengthzdc << "\n"
-	     << "   lengthd1:    " << lengthd1 << "\n" <<std::endl;
-  }
+  if(m_verbosity) {
+    cout << "===================================================================" << endl;  
+    cout << "=== Hector:    m_FP420Transport=" << m_FP420Transport <<"m_ZDCTransport " << m_ZDCTransport << endl;
+    cout << "=== lengthfp420: " << lengthfp420 << endl;
+    cout << "=== m_rpp420_f: " << m_rpp420_f << endl;
+    cout << "=== m_rpp420_b: " << m_rpp420_b << endl;
+    cout << "=== lengthzdc: " << lengthzdc << endl;
+    cout << "=== lengthd1: " << lengthd1 << endl;
+    cout << "===================================================================" << endl;
+  }  
   edm::FileInPath b1(beam1filename.c_str());
   edm::FileInPath b2(beam2filename.c_str());
   
   // construct beam line for FP420:                                                                                           .
-  m_beamlineFP4201 = new H_BeamLine(  1, lengthfp420 + 0.1 ); // (direction, length)
-  m_beamlineFP4202 = new H_BeamLine( -1, lengthfp420 + 0.1 ); //
-  try {
-    m_beamlineFP4201->fill( b1.fullPath(),  1, "IP5" );
-    m_beamlineFP4202->fill( b2.fullPath(), -1, "IP5" );
-  } catch ( const edm::Exception& e ) {
-    std::string msg = e.what();
-    msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
-    edm::LogError ("DataNotFound") << msg;
+  if(m_FP420Transport && lengthfp420>0. ) {
+    m_beamlineFP4201 = new H_BeamLine(  1, lengthfp420 + 0.1 ); // (direction, length)
+    m_beamlineFP4202 = new H_BeamLine( -1, lengthfp420 + 0.1 ); //
+    try {
+      m_beamlineFP4201->fill( b1.fullPath(),  1, "IP5" );
+      m_beamlineFP4202->fill( b2.fullPath(), -1, "IP5" );
+    } catch ( const edm::Exception& e ) {
+      std::string msg = e.what();
+      msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
+      edm::LogError ("DataNotFound") << msg;
+    }
+    m_beamlineFP4201->offsetElements( 120, -0.097 );
+    m_beamlineFP4202->offsetElements( 120, +0.097 );
+    m_beamlineFP4201->calcMatrix();
+    m_beamlineFP4202->calcMatrix();
+  }  
+  else{
+    cout << "=== Hector: WARNING: lengthfp420=  " << lengthfp420 << endl;
   }
-  m_beamlineFP4201->offsetElements( 120, -0.097 );
-  m_beamlineFP4202->offsetElements( 120, +0.097 );
-  m_beamlineFP4201->calcMatrix();
-  m_beamlineFP4202->calcMatrix();
   
   
+  if (m_ZDCTransport && lengthzdc>0. && lengthd1>0.) {
+    // construct beam line for ZDC:                                                                                           .
+    m_beamlineZDC1 = new H_BeamLine(  1, lengthzdc + 0.1 ); // (direction, length)
+    m_beamlineZDC2 = new H_BeamLine( -1, lengthzdc + 0.1 ); //
+    try {
+      m_beamlineZDC1->fill( b1.fullPath(),  1, "IP5" );
+      m_beamlineZDC2->fill( b2.fullPath(), -1, "IP5" );
+    } catch ( const edm::Exception& e ) {
+      std::string msg = e.what();
+      msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
+      edm::LogError ("DataNotFound") << msg;
+    }
+    m_beamlineZDC1->offsetElements( 120, -0.097 );
+    m_beamlineZDC2->offsetElements( 120, +0.097 );
+    m_beamlineZDC1->calcMatrix();
+    m_beamlineZDC2->calcMatrix();
+    
+    
+    // construct beam line for D1:                                                                                           .
+    m_beamlineD11 = new H_BeamLine(  1, lengthd1 + 0.1 ); // (direction, length)
+    m_beamlineD12 = new H_BeamLine( -1, lengthd1 + 0.1 ); //
+    try {
+      m_beamlineD11->fill( b1.fullPath(),  1, "IP5" );
+      m_beamlineD12->fill( b2.fullPath(), -1, "IP5" );
+    } catch ( const edm::Exception& e ) {
+      std::string msg = e.what();
+      msg += " caught in Hector... \nERROR: Could not locate SimTransport/HectorData data files.";
+      edm::LogError ("DataNotFound") << msg;
+    }
+    m_beamlineD11->offsetElements( 120, -0.097 );
+    m_beamlineD12->offsetElements( 120, +0.097 );
+    m_beamlineD11->calcMatrix();
+    m_beamlineD12->calcMatrix();
+  }  
+  else{
+    cout << "=== Hector: WARNING: lengthzdc=  " << lengthzdc << "lengthd1=  " << lengthd1 << endl;
+  }
   
   edm::LogInfo ("Hector") << "===================================================================\n";
   
@@ -96,31 +130,46 @@ Hector::~Hector(){
                           << "=== Start delete Hector                                       =====\n";
   for (std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
     delete (*it).second;
-  };
+  }
   //
   delete m_beamlineFP4201;
   delete m_beamlineFP4202;
+  delete m_beamlineZDC1;
+  delete m_beamlineZDC2;
+  delete m_beamlineD11;
+  delete m_beamlineD12;
   
   edm::LogInfo ("Hector") << "===================================================================\n";  
+}
+
+void Hector::clearApertureFlags(){
+  m_isStoppedfp420.clear();
+  m_isStoppedzdc.clear();
+  m_isStoppedd1.clear();
 }
 
 void Hector::clear(){
   for ( std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
     delete (*it).second;
   };
-  
   m_beamPart.clear();
   m_direct.clear();
-  m_isStoppedfp420.clear();
-  m_isStoppedzdc.clear();
-  m_isStoppedd1.clear();
-  
-  //  m_eta.clear();
-  //  m_pdg.clear();
-  //  m_pz.clear();
-  
+  m_eta.clear();
+  m_pdg.clear();
+  m_pz.clear();
+  m_isCharged.clear();  
 }
-
+/*
+  bool Hector::isCharged(const HepMC::GenParticle * p){
+  const ParticleData * part = pdt->particle( p->pdg_id() );
+  if (part){
+  return part->charge()!=0;
+  }else{
+  // the new/improved particle table doesn't know anti-particles
+  return  pdt->particle( -p->pdg_id() )!=0;
+  }
+  }
+*/
 void Hector::add( const HepMC::GenEvent * evt ) {
   
   H_BeamParticle * h_p;
@@ -128,44 +177,55 @@ void Hector::add( const HepMC::GenEvent * evt ) {
   unsigned int line;
   
   //  unsigned int npart = ev->nStable();
-  const HectorGenParticle * part;
   
   /*  for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin();
       eventParticle != evt->particles_end();
       eventParticle = find_if(++eventParticle, evt->particles_end(), ( (*eventParticle)->status() == 1 ) ) ) {*/
+  //	for ( HepMC::GenVertex::particle_iterator  eventParticle = (*vitr)->particles_begin(HepMC::descendants);
   for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin();
        eventParticle != evt->particles_end();
        ++eventParticle ) {
+    //    if ( (*eventParticle)->status() == 1 && !(*eventParticle)->end_vertex()) {
     if ( (*eventParticle)->status() == 1 ) {
-      part = new HectorGenParticle( *(*eventParticle) );
-      //      if ( abs( part->pdg_id() ) == 2212 ) { // if it's proton
-      if ( abs( part->momentum().eta())>etacut){
-	line = part->barcode();
+      //      if ( abs( (*eventParticle)->pdg_id() ) == 2212 ) { // if it's proton
+      if ( abs( (*eventParticle)->momentum().eta())>etacut){
+	line = (*eventParticle)->barcode();
 	if ( m_beamPart.find(line) == m_beamPart.end() ) {
 	  h_p = new H_BeamParticle();
+	  px = (*eventParticle)->momentum().px();	  
+	  py = (*eventParticle)->momentum().py();	  
+	  pz = (*eventParticle)->momentum().pz();	  
 	  
-	  px = part->px();
-	  py = part->py();
-	  pz = part->pz();
+	  h_p->set4Momentum( px, py, pz, (*eventParticle)->momentum().e() );
 	  
-	  h_p->set4Momentum( px, py, pz, part->e() );
+	  pt = sqrt( (px*px) + (py*py) );
 	  
-	  //	pt = sqrt( (px*px) + (py*py) );
-	  pt = part->pt();
-	  /// Clears H_BeamParticle::positions and sets the initial one
-	    // h_p->setPosition( m_IPx + part->x(), m_IPy + part->y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + part->z() );
-	  h_p->setPosition( m_IPx + (*eventParticle)->production_vertex()->position().x(), m_IPy + (*eventParticle)->production_vertex()->position().y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + (*eventParticle)->production_vertex()->position().z() );
-	    
-	    m_beamPart[line] = h_p;
-	    m_direct[line] = ( pz > 0 ) ? 1 : -1;
-	    
-	    if (m_smearAng) {   
-	      h_p->smearAng();
-	    }
-	    //    m_eta[line] = part->momentum().eta();
-	    // m_pdg[line] = part->pdg_id();
-	    //  m_pz[line]  = part->momentum().pz();
-	    
+	  // Clears H_BeamParticle::positions and sets the initial one
+	  h_p->setPosition( (*eventParticle)->production_vertex()->position().x(), (*eventParticle)->production_vertex()->position().y(), std::atan2( px, pt ), std::atan2( py, pt ), (*eventParticle)->production_vertex()->position().z() );
+	  
+	  if (m_smearAng) {   
+	    h_p->smearAng();
+	  }
+	  m_beamPart[line] = h_p;
+	  m_direct[line] = 0;
+	  m_direct[line] = ( pz > 0 ) ? 1 : -1;
+	  
+	  m_eta[line] = (*eventParticle)->momentum().eta();
+	  m_pdg[line] = (*eventParticle)->pdg_id();
+	  m_pz[line]  = (*eventParticle)->momentum().pz();
+	  
+	  m_isCharged[line] = false;
+	  if (  abs((*eventParticle)->pdg_id()) == 211    || 
+		abs((*eventParticle)->pdg_id()) == 2212    || 
+		abs((*eventParticle)->pdg_id()) == 321   || 
+		abs((*eventParticle)->pdg_id()) == 11  || 
+		abs((*eventParticle)->pdg_id()) == 13 )      m_isCharged[line] = true;
+	  
+	  if(m_verbosity) {
+	    cout << "=== Hector:add:            pz=  "<< pz << endl;
+	    cout << "=== Hector:add:            pt=  "<<pt  << endl;
+	    cout << "=== Hector:add:   m_isCharged[line]=  "<< m_isCharged[line]  << endl;
+	  } 
 	}// if find line
       }// if 2212 or eta 8.2
     }// if status
@@ -174,12 +234,14 @@ void Hector::add( const HepMC::GenEvent * evt ) {
 }
 
 
+
+
 void Hector::filterFP420(){
   unsigned int line;
   H_BeamParticle * part;
   std::map< unsigned int, H_BeamParticle* >::iterator it;
   
-  bool is_stop=true;
+  bool is_stop;
   int direction;
   
   float x1_420;
@@ -191,30 +253,47 @@ void Hector::filterFP420(){
       line = (*it).first;
       part = (*it).second;
       
-      
-      //propagating
-      direction = (*(m_direct.find( line ))).second;
-      if ( direction == 1 ) {
-	part->computePath( m_beamlineFP4201, 1 );
-	is_stop = part->stopped( m_beamlineFP4201 );
+      if(m_verbosity) {
+	cout << "filterFP420:pdg_id=" << (*m_pdg.find( line )).second << " momentum().eta=" << (*m_eta.find( line )).second<< " pz=" << (*m_pz.find( line )).second<< endl;
       }
+      if ( (*m_isCharged.find( line )).second ) {
+	direction = (*m_direct.find( line )).second;
+	if ( direction == 1 ) {
+	  part->computePath( m_beamlineFP4201, 1 );
+	  is_stop = part->stopped( m_beamlineFP4201 );
+	  if(m_verbosity) cout << "=== Hector:filterFP420:   pos          is_stop=  "<< is_stop << endl;
+	}
+	else if ( direction == -1 ){
+	  part->computePath( m_beamlineFP4202, -1 );
+	  is_stop = part->stopped( m_beamlineFP4202 );
+	  if(m_verbosity) cout << "=== Hector:filterFP420:   neg          is_stop=  "<< is_stop << endl;
+	}
+	else {
+	  is_stop = true;
+	  if(m_verbosity) cout << "=== Hector:filterFP420:   0          is_stop=  "<< is_stop << endl;
+	}
+	
+	//propagating
+	m_isStoppedfp420[line] = is_stop;
+	if(m_verbosity) cout << "=== Hector:filterFP420:  isStopped=" << (*m_isStoppedfp420.find(line)).second <<  endl;
+	
+	if (!is_stop) {
+	  part->propagate( m_rpp420_f );
+	  x1_420 = part->getX();
+	  y1_420 = part->getY();
+	  if(m_verbosity) cout << "=== Hector:filterFP420: x=  "<< x1_420 <<" y= " << y1_420 << endl;
+	  
+	  m_xAtTrPoint[line]  = x1_420;
+	  m_yAtTrPoint[line]  = y1_420;
+	  m_TxAtTrPoint[line] = part->getTX();
+	  m_TyAtTrPoint[line] = part->getTY();
+	  m_eAtTrPoint[line]  = part->getE();
+	  
+	}
+      }// if isCharged
       else {
-	part->computePath( m_beamlineFP4202, -1 );
-	is_stop = part->stopped( m_beamlineFP4202 );
-      }
-      
-      m_isStoppedfp420[line] = is_stop;
-      if (!is_stop) {
-	part->propagate( m_rpp420_f );
-	x1_420 = part->getX();
-	y1_420 = part->getY();
-	
-	m_xAtTrPoint[line]  = x1_420;
-	m_yAtTrPoint[line]  = y1_420;
-	m_TxAtTrPoint[line] = part->getTX();
-	m_TyAtTrPoint[line] = part->getTY();
-	m_eAtTrPoint[line]  = part->getE();
-	
+	m_isStoppedfp420[line] = true;// imply that neutral particles stopped to reach 420m
+	if(m_verbosity) cout << "=== Hector:filterFP420:  isStopped=" << (*m_isStoppedfp420.find(line)).second <<  endl;
       }
       
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
@@ -227,42 +306,94 @@ void Hector::filterZDC(){
   H_BeamParticle * part;
   std::map< unsigned int, H_BeamParticle* >::iterator it;
   
-  bool is_stop_zdc=true;
-  bool is_stop_d1=true;
+  bool is_stop_zdc;
+  int direction;
+  
+  if ( m_beamPart.size() && lengthzdc>0. ) {
+    
+    for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
+      line = (*it).first;
+      part = (*it).second;
+      if(m_verbosity) cout << "=== Hector:filterZDC:  isStopped=" << (*m_isStoppedfp420.find(line)).second <<  endl;
+      if ( ((*m_isStoppedfp420.find(line)).second) && ((*m_isCharged.find(line)).second) ) {
+	
+        if(m_verbosity) cout << "filterZDC:pdg_id=" << (*m_pdg.find( line )).second << " momentum().eta=" << (*m_eta.find( line )).second<< " pz=" << (*m_pz.find( line )).second<< endl;
+	
+	direction = (*m_direct.find( line )).second;
+	if(m_verbosity) cout << "filterZDC:direction=" << direction << endl;
+	if ( direction == 1 ) {
+	  part->computePath( m_beamlineZDC1, 1 );
+	  is_stop_zdc = part->stopped( m_beamlineZDC1 );
+  	  m_isStoppedzdc[line] = is_stop_zdc;
+	  if(m_verbosity) cout << "=== Hector:filterZDC:     pos        is_stop_zdc=  "<< is_stop_zdc << endl;
+	}
+	else if ( direction == -1 ){
+	  part->computePath( m_beamlineZDC2, -1 );
+	  is_stop_zdc = part->stopped( m_beamlineZDC2 );
+	  m_isStoppedzdc[line] = is_stop_zdc;
+	  if(m_verbosity) cout << "=== Hector:filterZDC:    neg         is_stop_zdc=  "<< is_stop_zdc << endl;
+	}
+	else {
+	  m_isStoppedzdc[line] = true;
+	  if(m_verbosity) cout << "=== Hector:filterZDC:    0         is_stop_zdc=  "<< endl;
+	}
+      }// if stopfp420 charged particles
+      else if ( ((*m_isCharged.find(line)).second) ){
+	m_isStoppedzdc[line] = false;// not stopped in propagating to FP420 and therefore in  propagation to ZDC too.
+	if(m_verbosity) cout << "=== Hector:filterZDC:  isStopped=" << (*m_isStoppedzdc.find(line)).second <<  endl;
+      }
+      else {
+	m_isStoppedzdc[line] = true;// neutrals particles considered as stopped in propagating to ZDC
+	if(m_verbosity) cout << "=== Hector:filterZDC:  isStopped=" << (*m_isStoppedzdc.find(line)).second <<  endl;
+      }
+      
+    } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
+  } // if ( m_beamPart.size() )
+  
+}
+void Hector::filterD1(){
+  unsigned int line;
+  H_BeamParticle * part;
+  std::map< unsigned int, H_BeamParticle* >::iterator it;
+  
+  bool is_stop_d1;
   int direction;
   
   float x1_d1;
   float y1_d1;
   
-  if ( m_beamPart.size() && lengthzdc>0. && lengthd1>0.) {
+  if ( m_beamPart.size() && lengthd1>0.) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
       part = (*it).second;
-      if ( ((*m_isStoppedfp420.find(line)).second) ) {
+      if(m_verbosity) cout << "=== Hector:filterD1:  isStopped=" << (*m_isStoppedzdc.find(line)).second <<  endl;
+      if ( ((*m_isStoppedzdc.find(line)).second) || !((*m_isCharged.find( line )).second) ) {
 	
-       	direction = (*(m_direct.find( line ))).second;
+        if(m_verbosity) cout << "filterD1:pdg_id=" << (*m_pdg.find( line )).second << " momentum().eta=" << (*m_eta.find( line )).second<< " pz=" << (*m_pz.find( line )).second<< endl;
+	
+	direction = (*m_direct.find( line )).second;
+	if(m_verbosity) cout << "filterD1:direction=" << direction << endl;
 	if ( direction == 1 ) {
-	  part->computePath( m_beamlineFP4201, 1 );
+	  part->computePath( m_beamlineD11, 1 );
+	  is_stop_d1 = part->stopped( m_beamlineD11 );
+	  m_isStoppedd1[line] = is_stop_d1;
+	  if(m_verbosity) cout << "=== Hector:filterD1:    pos         is_stop_d1=  "<< is_stop_d1 << endl;
+	}
+	else  if ( direction == -1 ){
+	  part->computePath( m_beamlineD12, -1 );
+	  is_stop_d1 = part->stopped( m_beamlineD12 );
+	  m_isStoppedd1[line] = is_stop_d1;
+	  if(m_verbosity) cout << "=== Hector:filterD1:    neg         is_stop_d1=  "<< is_stop_d1 << endl;
 	}
 	else {
-	  part->computePath( m_beamlineFP4202, -1 );
+	  is_stop_d1 = true;
+	  m_isStoppedd1[line] = is_stop_d1;
+	  if(m_verbosity) cout << "=== Hector:filterD1:    0         is_stop_d1=  "<< endl;
 	}
-	part->propagate(  lengthzdc );
-	x1_d1 = part->getX()*0.001;
-	y1_d1 = part->getY()*0.001;
-	if(sqrt((x1_d1-x0_zdc)*(x1_d1-x0_zdc)+(y1_d1-y0_zdc)*(y1_d1-y0_zdc))< Rpipe) { is_stop_zdc=false;}
-	m_isStoppedzdc[line] = is_stop_zdc;
-	
-	part->propagate(  lengthd1 );
-	x1_d1 = part->getX()*0.001;
-	y1_d1 = part->getY()*0.001;
-	if(sqrt((x1_d1)*(x1_d1)+(y1_d1)*(y1_d1))< Rpipe) { is_stop_d1=false;}
-	m_isStoppedd1[line] = is_stop_d1;
-	
-	
-	if (!is_stop_d1 && is_stop_zdc) {
-	  part->propagate(  lengthd1);
+	//propagating
+	if (!is_stop_d1 ) {
+	  part->propagate( lengthd1 );
 	  x1_d1 = part->getX();
 	  y1_d1 = part->getY();
 	  m_xAtTrPoint[line]  = x1_d1;
@@ -271,14 +402,14 @@ void Hector::filterZDC(){
 	  m_TyAtTrPoint[line] = part->getTY();
 	  m_eAtTrPoint[line]  = part->getE();
 	}
-      }// if stopfp420
+      }// if stopzdc
       else {
-	m_isStoppedzdc[line] = is_stop_zdc;
-	m_isStoppedd1[line] = is_stop_d1;
+	m_isStoppedd1[line] = false;// not stopped in propagating to ZDC and therefore in  propagation to D1 too.
+	if(m_verbosity) cout << "=== Hector:filterD1:  isStopped=" << (*m_isStoppedd1.find(line)).second <<  endl;
       }
+      
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
   } // if ( m_beamPart.size() )
-  // cout << "=================== Hector:filterZDC end: " << endl;
   
 }
 
@@ -295,18 +426,8 @@ void Hector::print() const {
     (*it).second->printProperties();
   };
 }
-/*
-  std::vector<unsigned int> Hector::part_list() const {
-  std::vector<unsigned int> list( m_beamPart.size() );
-  std::map<unsigned int, H_BeamParticle*>::const_iterator it;
-  int ii = 0;
-  for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-  list[ii] = (*it).first;
-  ++ii;
-  };
-  return list;
-  }
-*/
+
+
 HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
   
   unsigned int line;
@@ -318,7 +439,15 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
   
   for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
     line = (*it).first;
-    if ( !((*m_isStoppedfp420.find(line)).second) || (!((*m_isStoppedd1.find(line)).second) && ((*m_isStoppedzdc.find(line)).second)) ) {
+    if(!m_FP420Transport) m_isStoppedfp420[line] = true;
+    if(!m_ZDCTransport) {m_isStoppedzdc[line] = false;m_isStoppedd1[line] = true;}
+    if(m_verbosity) {
+      cout << "=== Hector:addPartToHepMC: isStoppedfp420=" << (*m_isStoppedfp420.find(line)).second <<  endl;
+      cout << "=== Hector:addPartToHepMC: isStoppedzdc=" << (*m_isStoppedzdc.find(line)).second <<  endl;
+      cout << "=== Hector:addPartToHepMC: isStoppedd1=" << (*m_isStoppedd1.find(line)).second <<  endl;
+    }
+    if (!((*m_isStoppedfp420.find(line)).second) || (!((*m_isStoppedd1.find(line)).second) && ((*m_isStoppedzdc.find(line)).second))){
+      //  if ( !((*m_isStoppedfp420.find(line)).second) || !((*m_isStoppedd1.find(line)).second)  ) {
       gpart = evt->barcode_to_particle( line );
       if ( gpart ) {
 	tx     = (*m_TxAtTrPoint.find(line)).second / 1000000.;
@@ -326,21 +455,21 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	theta  = sqrt((tx*tx) + (ty*ty));
 	double ddd = 0.;
 	if ( !((*m_isStoppedfp420.find(line)).second)) {
-	  if( (*(m_direct.find( line ))).second >0 ) {
+	  if( (*m_direct.find( line )).second >0 ) {
 	    ddd = m_rpp420_f;
 	  }
-	  else if((*(m_direct.find( line ))).second <0 ) {
+	  else if((*m_direct.find( line )).second <0 ) {
 	    ddd = m_rpp420_b;
 	    theta= pi-theta;
 	  }
 	}
 	else {
 	  ddd = lengthd1;
-	  if((*(m_direct.find( line ))).second <0 ) theta= pi-theta;
+	  if((*m_direct.find( line )).second <0 ) theta= pi-theta;
 	}
 	
 	fi     = std::atan2(tx,ty); // tx, ty never == 0?
-	energy = (*(m_eAtTrPoint.find(line))).second;
+	energy = (*m_eAtTrPoint.find(line)).second;
 	
 	HepMC::GenEvent::vertex_iterator v_it;
 	
@@ -352,6 +481,15 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	  time = (  time > time_buf ) ? time : time_buf;
 	}
 	if(ddd != 0.) {
+	  if(m_verbosity) {
+	    std::cout<<"=========Hector:: x= "<< (*(m_xAtTrPoint.find(line))).second*0.001<<std::endl;
+	    std::cout<<"=========Hector:: y= "<< (*(m_yAtTrPoint.find(line))).second*0.001<<std::endl;
+	    std::cout<<"=========Hector:: z= "<< ddd * (*(m_direct.find( line ))).second*1000.<<std::endl;
+	    std::cout<<"=========Hector:: t= "<< time  <<std::endl;
+	  }
+	  
+	  
+	  
 	  HepMC::GenVertex * vert = new HepMC::GenVertex( HepMC::FourVector( (*(m_xAtTrPoint.find(line))).second*0.001,
 									     (*(m_yAtTrPoint.find(line))).second*0.001,
 									     ddd * (*(m_direct.find( line ))).second*1000.,
@@ -376,11 +514,11 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
   }//for 
   //  cout << "=== Hector:addPartToHepMC: end " << endl;
   
-  if(m_verbosity){
-    std::cout<<"============================================================================"<<std::endl;
-    std::cout<<"=========Hector::addPartToHepMC print:"<<std::endl;
-    evt->print();
-  }
+  //  if(m_verbosity){
+  //   std::cout<<"============================================================================"<<std::endl;
+  //  std::cout<<"=========Hector::addPartToHepMC print:"<<std::endl;
+  //  evt->print();
+  //}
   
   
   
