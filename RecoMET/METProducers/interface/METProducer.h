@@ -43,7 +43,7 @@ namespace cms
       virtual void produce(edm::Event&, const edm::EventSetup&);
     private:
       METAlgo alg_; 
-      std::string inputLabel;
+      edm::InputTag inputLabel;
       std::string inputType;
       std::string METtype;
       std::string alias;

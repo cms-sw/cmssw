@@ -42,7 +42,7 @@ namespace cms
   //-----------------------------------
   METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() 
   {
-    inputLabel = iConfig.getParameter<std::string>("src");
+    inputLabel = iConfig.getParameter<edm::InputTag>("src");
     inputType  = iConfig.getParameter<std::string>("InputType");
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
