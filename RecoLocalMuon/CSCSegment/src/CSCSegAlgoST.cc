@@ -1216,13 +1216,27 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     // do nothing;
     break;
   case 4 : 
-    hit_drop_limit =  hitDropLimit4Hits;
+    hit_drop_limit =  hitDropLimit6Hits * (1./2.) * hitDropLimit4Hits;
+    if ((best_Layer_noLx < 1) || (best_Layer_noLx > 4)) {
+      //      std::cout<<"CSCSegAlgoST: For four layers, best_Layer_noLx = "<< best_Layer_noLx << std::endl;
+    }
+    if ((best_Layer_noLx == 2) || (best_Layer_noLx == 3)) hit_drop_limit = hit_drop_limit * (1./2.); 
     break;
   case 5 : 
-    hit_drop_limit =  hitDropLimit5Hits;
+    hit_drop_limit =  hitDropLimit6Hits * (2./3.) * hitDropLimit5Hits;
+    if ((best_Layer_noLx < 1) || (best_Layer_noLx > 5)) {
+      //      std::cout<<"CSCSegAlgoST: For five layers, best_Layer_noLx = "<< best_Layer_noLx << std::endl;
+    }
+    if ((best_Layer_noLx == 2) || (best_Layer_noLx == 4)) hit_drop_limit = hit_drop_limit * (1./2.); 
+    if (best_Layer_noLx == 3) hit_drop_limit = hit_drop_limit * (1./3.); 
     break;
   case 6 : 
-    hit_drop_limit =  hitDropLimit6Hits;
+    hit_drop_limit =  hitDropLimit6Hits * (3./4.);
+    if ((best_Layer_noLx < 1) || (best_Layer_noLx > 6)) {
+      //      std::cout<<"CSCSegAlgoST: For six layers, best_Layer_noLx = "<< best_Layer_noLx << std::endl;
+    }
+    if ((best_Layer_noLx == 2) || (best_Layer_noLx == 5)) hit_drop_limit = hit_drop_limit * (1./2.); 
+    if ((best_Layer_noLx == 3) || (best_Layer_noLx == 4)) hit_drop_limit = hit_drop_limit * (1./3.); 
     break;
     
   default : 
