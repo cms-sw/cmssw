@@ -30,7 +30,7 @@ using namespace edm;
 
 PFGsfHelper::PFGsfHelper(const TrajectoryMeasurement& tm){
   
-  LogInfo("PFGsfHelper")<<" PFGsfHelper  built";
+  /* LogInfo("PFGsfHelper")<<" PFGsfHelper  built"; */
 
   
   // TrajectoryStateOnSurface theUpdateState = tm.forwardPredictedState();
