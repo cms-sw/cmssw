@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <math.h>
 
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include <iomanip>
+
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -25,7 +28,7 @@ OptoScanTask::~OptoScanTask() {
 //
 void OptoScanTask::book() {
 
-  uint16_t nbins = 51; //@@ correct?
+  uint16_t nbins = 50; //@@ correct?
   uint16_t gains = 4;
 
   std::string title;
@@ -57,8 +60,8 @@ void OptoScanTask::book() {
 
       // Book histo
       opto_[igain][ihisto].histo_ = dqm()->bookProfile( title, title, 
-							nbins, -0.5, nbins*1.-0.5,
-							1025, 0., 1025. );
+							nbins, 0.5, nbins*1.+0.5, // range is bias setting (1-50)
+							1024, -0.5, 1023.5 );
       
       opto_[igain][ihisto].vNumOfEntries_.resize(nbins,0);
       opto_[igain][ihisto].vSumOfContents_.resize(nbins,0);
@@ -91,35 +94,43 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
     // Retrieve opt bias and gain setting from SiStripEventSummary
     uint16_t gain = summary.lldGain();
     uint16_t bias = summary.lldBias();
+    
     if ( gain >= opto_.size() ) { 
       opto_.resize( gain );
       for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
-	if ( opto_[gain].size() != 2 ) { opto_[gain].resize( 2 ); }
+	if ( opto_[gain].size() != 3 ) { opto_[gain].resize( 3 ); }
       }
       edm::LogWarning(mlDqmSource_)  
 	<< "[OptoScanTask::" << __func__ << "]"
 	<< " Unexpected gain value! " << gain;
     }
+
+    if ( bias > 50 ) { return; } // only use bias settings 1-50
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
     std::pair<float,float> digital_range;
+    digital_range.first = sistrip::invalid_;
+    digital_range.second = sistrip::invalid_;
+    
     std::vector<float> baseline;
     float baseline_rms = 0;
     locateTicks( digis, digital_range, baseline, baseline_rms );
+
+    uint16_t bin = bias - 1; // fill "bins" (0-49), not bias (1-50)
     
     // Digital "0"
     if ( digital_range.first < 1. * sistrip::valid_ ) {
-      updateHistoSet( opto_[gain][0], bias, digital_range.first );
+      updateHistoSet( opto_[gain][0], bin, digital_range.first );
     }
     
     // Digital "1"
     if ( digital_range.second < 1. * sistrip::valid_ ) {
-      updateHistoSet( opto_[gain][1], bias, digital_range.second );
+      updateHistoSet( opto_[gain][1], bin, digital_range.second );
     }
     
     // Baseline rms
     if ( baseline_rms < 1. * sistrip::valid_ ) {
-      updateHistoSet( opto_[gain][2], bias, baseline_rms );
+      updateHistoSet( opto_[gain][2], bin, baseline_rms );
     }
     
   }
@@ -145,73 +156,218 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 				std::pair<float,float>& range, 
 				std::vector<float>& baseline,
 				float& baseline_rms ) {
-  
-  // Copy ADC values and sort 
-  std::vector<uint16_t> adc; 
-  adc.reserve( digis.data.size() ); 
-  for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
-  sort( adc.begin(), adc.end() );
+
+  if (0) {
+
+    // Trivial algo
     
-  // Initialization for "baseline" 
-  std::vector<float> base;
-  base.reserve( adc.size() );
-  float base_mean = 0.;
-  float base_rms = 0.;
-  float base_median = 0.;
-  
-  // Initialization for "tick marks" 
-  std::vector<float> tick;
-  tick.reserve( adc.size() );
-  float tick_mean = 0.;
-  float tick_rms = 0.;
-  float tick_median = 0.;
-  
-  // Calculate mid-range of data 
-  uint16_t mid_range = adc.front() + ( adc.back() - adc.front() ) / 2;
-  
-  // Associate ADC values with either "ticks" or "baseline"
-  std::vector<uint16_t>::const_iterator iter = adc.begin();
-  std::vector<uint16_t>::const_iterator jter = adc.end();
-  for ( ; iter != jter; iter++ ) { 
-    if ( *iter < mid_range ) {
-      base.push_back( *iter ); 
-      base_mean += *iter;
-      base_rms += (*iter) * (*iter);
-    } else {
-      tick.push_back( *iter ); 
-      tick_mean += *iter;
-      tick_rms += (*iter) * (*iter);
+    std::vector<uint16_t> adc; 
+    adc.reserve( digis.data.size() ); 
+    for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
+    sort( adc.begin(), adc.end() );
+
+    SiStripFedKey key( digis.detId() );
+
+    if ( digis.data.empty() ) {
+      LogTrace(mlDqmSource_)
+	<< "[OptoScanTask::" << __func__ << "]"
+	<< " digis empty "
+	<< " fed id/ch " 
+	<< key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
+      if ( adc.empty() ) {
+	LogTrace(mlDqmSource_)
+	  << "[OptoScanTask::" << __func__ << "]"
+	  << " adc empty   "
+	  << " fed id/ch " 
+	  << key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
+	if ( adc.size() != digis.data.size() ) {
+	  LogTrace(mlDqmSource_)
+	    << "[OptoScanTask::" << __func__ << "]"
+	    << " diff size!  "
+	    << " fed id/ch " 
+	    << key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
+	  return;
+	}
+	return;
+      }
+      return;
     }
-  }
 
-  // Calc mean and rms of baseline
-  if ( !base.empty() ) { 
-    base_mean = base_mean / base.size();
-    base_rms = base_rms / base.size();
-    base_rms = sqrt( fabs( base_rms - base_mean*base_mean ) ); 
-  } else { 
-    base_mean = 1. * sistrip::invalid_; 
-    base_rms = 1. * sistrip::invalid_; 
-    base_median = 1. * sistrip::invalid_; 
-  }
+    range.first  = adc.front();
+    range.second = adc.back();
 
-  // Calc mean and rms of tick marks
-  if ( !tick.empty() ) { 
-    tick_mean = tick_mean / tick.size();
-    tick_rms = tick_rms / tick.size();
-    tick_rms = sqrt( fabs( tick_rms - tick_mean*tick_mean ) ); 
-  } else { 
-    tick_mean = 1. * sistrip::invalid_; 
-    tick_rms = 1. * sistrip::invalid_; 
-    tick_median = 1. * sistrip::invalid_; 
-  }
+  } else {
+
+    // More complicated algo
+
+    int ttt = 1022;
+    int bbb = 50;
+
+    //   LogTrace(mlDqmSource_) << "BEGIN TEST...";
   
-  baseline.reserve( base.size() );
-  baseline.assign( base.begin(), base.end() );
-  range.first = base_mean; 
-  range.second = tick_mean; 
-  baseline_rms = base_rms;
+    // Copy ADC values and sort 
+    std::vector<uint16_t> adc; 
+    adc.reserve( digis.data.size() ); 
+    for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
+    sort( adc.begin(), adc.end() );
 
+    SiStripFedKey key( digis.detId() );
+    
+    //   if ( adc.front() < bbb && adc.back() < bbb ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 00a "  
+    //        << std::hex << key.key() << std::dec
+    //        << " size " << adc.size()
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+
+    //   if ( adc.front() > ttt && adc.back() > ttt ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 00b "  
+    //        << std::hex << key.key() << std::dec
+    //        << " size " << adc.size()
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+
+    //   if ( adc.front() < bbb && adc.back() > ttt ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 00c "  
+    //        << std::hex << key.key() << std::dec
+    //        << " size " << adc.size()
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+
+    //   if ( adc.front() < bbb || adc.back() < bbb ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 00d "  
+    //        << std::hex << key.key() << std::dec
+    //        << " size " << adc.size()
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+  
+    // Initialization for "baseline" 
+    std::vector<float> base;
+    base.reserve( adc.size() );
+    float base_mean = 0.;
+    float base_rms = 0.;
+    float base_median = 0.;
+  
+    // Initialization for "tick marks" 
+    std::vector<float> tick;
+    tick.reserve( adc.size() );
+    float tick_mean = 0.;
+    float tick_rms = 0.;
+    float tick_median = 0.;
+  
+    // Calculate mid-range of data 
+    uint16_t mid_range = adc.front() + ( adc.back() - adc.front() ) / 2;
+  
+    // Associate ADC values with either "ticks" or "baseline"
+    std::vector<uint16_t>::const_iterator iter = adc.begin();
+    std::vector<uint16_t>::const_iterator jter = adc.end();
+    for ( ; iter != jter; iter++ ) { 
+      if ( *iter < mid_range ) {
+	base.push_back( *iter ); 
+	base_mean += *iter;
+	base_rms += (*iter) * (*iter);
+      } else {
+	tick.push_back( *iter ); 
+	tick_mean += *iter;
+	tick_rms += (*iter) * (*iter);
+      }
+    }
+
+    // Calc mean and rms of baseline
+    if ( !base.empty() ) { 
+      base_mean = base_mean / base.size();
+      base_rms = base_rms / base.size();
+      base_rms = sqrt( fabs( base_rms - base_mean*base_mean ) ); 
+    } else { 
+      base_mean = 1. * sistrip::invalid_; 
+      base_rms = 1. * sistrip::invalid_; 
+      base_median = 1. * sistrip::invalid_; 
+    }
+
+    // Calc mean and rms of tick marks
+    if ( !tick.empty() ) { 
+      tick_mean = tick_mean / tick.size();
+      tick_rms = tick_rms / tick.size();
+      tick_rms = sqrt( fabs( tick_rms - tick_mean*tick_mean ) ); 
+    } else { 
+      tick_mean = 1. * sistrip::invalid_; 
+      tick_rms = 1. * sistrip::invalid_; 
+      tick_median = 1. * sistrip::invalid_; 
+    }
+  
+    baseline.reserve( base.size() );
+    baseline.assign( base.begin(), base.end() );
+    range.first = base_mean; 
+    range.second = tick_mean; 
+    baseline_rms = base_rms;
+
+    //   if ( range.first < bbb || range.second < bbb ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 0a "  
+    //        << std::hex << key.key() << std::dec
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+
+    //   if ( range.first > ttt && range.second > ttt ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 0b"  
+    //        << std::hex << key.key() << std::dec
+    //        << " front " << adc.front()
+    //        << " back " << adc.back();
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+  
+    // Check for condition where tick mark top cannot be distinguished from baseline
+    if ( !adc.empty() ) {
+      //     LogTrace(mlDqmSource_)
+      //       << "TEST 0";  
+      if ( base.empty() || tick.empty() ) {
+	//       LogTrace(mlDqmSource_)
+	// 	<< "TEST 1";  
+	range.first  = adc.front();
+	range.second = adc.back();
+	//       LogTrace(mlDqmSource_)
+	// 	<< "TEST 2"  
+	// 	<< " front " << adc.front()
+	// 	<< " back " << adc.back();
+	if ( key.key() == 0x0004c5c4 ) {
+	  // 	LogTrace(mlDqmSource_)
+	  // 	  << "TEST 3"  
+	  // 	  << " front " << adc.front()
+	  // 	  << " back " << adc.back();
+	}
+      }
+    } else {
+      edm::LogWarning(mlDqmSource_)
+	<< "[OptoScanTask::" << __func__ << "]"
+	<< " Found no ADC values!";
+    }
+
+    //   if ( range.first > ttt || range.second > ttt ) {
+    //     std::stringstream ss;
+    //     ss << "TEST 00e "  
+    //        << std::hex << key.key() << std::dec
+    //        << " first " << range.first
+    //        << " second " << range.second;
+    //     LogTrace(mlDqmSource_) << ss.str();
+    //   }    
+
+  }
+ 
 }
 
 // -----------------------------------------------------------------------------
