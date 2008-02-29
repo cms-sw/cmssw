@@ -23,6 +23,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   input_module = pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput");
   edm::ParameterSet sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
+  TMB07 = pset.getParameter<bool>("isTMB07");
   my_builder = new CSCTFTrackBuilder(sp_pset);
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
@@ -54,7 +55,30 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   e.getByLabel(input_module.label(),input_module.instance(), LCTs);
   if(useDT)e.getByType(dttrig);
 
-  my_builder->buildTracks(LCTs.product(), (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
+  const CSCCorrelatedLCTDigiCollection *lcts = LCTs.product();
+  if(TMB07){ // translate new quality codes to conventional ones
+     for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
+        CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
+        for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range.first; lct!=range.second; lct++){
+           int quality = 0;
+           if(!lct->getStrip() ) quality = 3;
+           if(!lct->getKeyWG() ) quality = 4;
+           if( lct->getStrip() && lct->getKeyWG() )
+              quality = lct->getQuality() - (lct->getPattern()<=7?4:9) + 9;
+std::cout<<"Translation quality: "<<lct->getQuality()<<" -> "<<quality<<std::endl;
+              CSCCorrelatedLCTDigi &_lct = const_cast<CSCCorrelatedLCTDigi&>(*lct);
+              _lct.setQuality(quality);
+//           *lct = CSCCorrelatedLCTDigi(
+//                    lct->getTrknmb(),lct->isValid(),    quality,
+//                    lct->getKeyWG(), lct->getStrip(),   lct->getPattern(),
+//                    lct->getBend(),  lct->getBX(),      lct->getMPCLink(),
+//                    lct->getBX0(),   lct->getSyncErr(), lct->getCSCID()
+//                  );
+        }
+     }
+  }
+
+  my_builder->buildTracks(lcts, (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
 
   e.put(track_product);
   e.put(dt_stubs);
