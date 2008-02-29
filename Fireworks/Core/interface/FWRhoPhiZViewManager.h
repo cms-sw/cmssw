@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.10 2008/02/21 16:09:54 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.11 2008/02/21 20:49:10 chrjones Exp $
 //
 
 // system include files
@@ -106,6 +106,9 @@ class TEveGeoShapeExtract;
 class FWGUIManager;
 class FWRhoPhiZView;
 class FWViewBase;
+class TEveSelection;
+class TEveElement;
+class  FWSelectionManager;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
@@ -128,6 +131,10 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       FWViewBase* createRhoPhiView(TGFrame* iParent);
       FWViewBase* createRhoZView(TGFrame* iParent);
    
+      //connect to ROOT signals
+      void selectionAdded(TEveElement*);
+      void selectionRemoved(TEveElement*);
+      void selectionCleared();
    
    protected:
       virtual void modelChangesComing() ;
@@ -151,6 +158,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
       TEveGeoShapeExtract* makeShapeExtract( const char*, double, double, double, double );
 
+      
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
@@ -165,6 +173,10 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
       bool m_itemChanged;
+   
+      TEveSelection* m_eveSelection;
+      
+      FWSelectionManager* m_selectionManager;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.18 2008/02/21 20:49:11 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.19 2008/02/26 02:27:19 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TGLEmbeddedViewer.h"
+#include "TEveSelection.h"
 
 #include <iostream>
 #include <exception>
@@ -46,6 +47,7 @@
 #include "vis_macros.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 
 #include <sstream>
 
@@ -75,7 +77,9 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   m_rhoPhiGeomProjMgr(0),
   m_rhoZGeomProjMgr(0),
   //m_pad(new TEvePad() ),
-  m_itemChanged(false)
+  m_itemChanged(false),
+  m_eveSelection(0),
+  m_selectionManager(0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f = boost::bind(&FWRhoPhiZViewManager::createRhoPhiView,
@@ -87,14 +91,19 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
 
    //setup geometry projections
    m_rhoPhiGeomProjMgr = new TEveProjectionManager;
-   gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
+   //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
    
    m_rhoZGeomProjMgr = new TEveProjectionManager;
    m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
-   gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
+   //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
    
-  //kTRUE tells it to reset the camera so we see everything 
-  //gEve->Redraw3D(kTRUE);  
+   //kTRUE tells it to reset the camera so we see everything 
+   //gEve->Redraw3D(kTRUE);  
+   m_eveSelection=gEve->GetSelection();
+   m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
+   m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
+   m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWRhoPhiZViewManager",this,"selectionRemoved(TEveElement*)");
+   m_eveSelection->Connect("SelectionCleared()","FWRhoPhiZViewManager",this,"selectionCleared()");
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -241,6 +250,10 @@ void FWRhoPhiZViewManager::addElements()
 void 
 FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
 {
+  if(0==m_selectionManager) {
+     //std::cout <<"got selection manager"<<std::endl;
+     m_selectionManager = iItem->selectionManager();
+  }
   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
   if(itFind != m_typeToBuilder.end()) {
      if(itFind->second.second) {
@@ -304,6 +317,53 @@ FWRhoPhiZViewManager::modelChangesDone()
 void 
 FWRhoPhiZViewManager::itemChanged(const FWEventItem*) {
    m_itemChanged=true;
+}
+
+void
+FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
+{
+   //std::cout <<"selection added"<<std::endl;
+   if(0!=iElement) {
+      void* userData=iElement->GetUserData();
+      //std::cout <<"  user data "<<userData<<std::endl;
+      if(0 != userData) {
+         FWModelId* id = static_cast<FWModelId*>(userData);
+         if( not id->item()->modelInfo(id->index()).isSelected() ) {
+            bool last = m_eveSelection->BlockSignals(kTRUE);
+            //std::cout <<"   selecting"<<std::endl;
+
+            id->select();
+            m_eveSelection->BlockSignals(last);
+         }
+      }
+   }
+}
+
+void
+FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
+{
+   //std::cout <<"selection removed"<<std::endl;
+   if(0!=iElement) {
+      void* userData=iElement->GetUserData();
+      if(0 != userData) {
+         FWModelId* id = static_cast<FWModelId*>(userData);
+         if( id->item()->modelInfo(id->index()).isSelected() ) {
+            bool last = m_eveSelection->BlockSignals(kTRUE);
+            //std::cout <<"   removing"<<std::endl;
+            id->unselect();
+            m_eveSelection->BlockSignals(last);
+         }
+      }
+   }
+   
+}
+
+void
+FWRhoPhiZViewManager::selectionCleared()
+{
+   if(0!= m_selectionManager) {
+      m_selectionManager->clearSelection();
+   }   
 }
 
 //
