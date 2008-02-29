@@ -144,25 +144,25 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	reco::PFRecHit* pfrh = 0;
 	  
 	switch( detid.subdet() ) {
-	case HcalBarrel:
-	  //COLIN: need to reimplement a threshold on the rechits
-// 	  if(energy > clusterAlgoHCAL_.threshBarrel() ) {
+	case HcalBarrel: 
+	  {
+	    if(energy < thresh_Barrel_ ) continue;
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
 				     PFLayer::HCAL_BARREL1, 
 				     hcalBarrelGeometry,
 				     ct.id().rawId() );
-// 	  }
+	  }
 	  break;
 	case HcalEndcap:
-	  //COLIN: need to reimplement a threshold on the rechits
-// 	  if(energy > clusterAlgoHCAL_.threshEndcap() ) {
+	  {
+	    if(energy < thresh_Endcap_ ) continue;
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
 				     PFLayer::HCAL_ENDCAP, 
 				     hcalEndcapGeometry,
 				     ct.id().rawId() );
-// 	  }
+ 	  }
 	  break;
 	default:
 	  LogError("PFRecHitProducerHCAL")
@@ -226,22 +226,22 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	const HcalDetId& detid = hit.detid();
 	switch( detid.subdet() ) {
 	case HcalBarrel:
-	  //COLIN: need to reimplement a threshold on the rechits
-// 	  if(energy > clusterAlgoHCAL_.threshBarrel() ){
+	  {
+	    if(energy < thresh_Barrel_ ) continue;
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
 				     PFLayer::HCAL_BARREL1, 
 				     hcalBarrelGeometry );
-// 	  }
+ 	  }
 	  break;
 	case HcalEndcap:
-	  //COLIN: need to reimplement a threshold on the rechits
-// 	  if(energy > clusterAlgoHCAL_.threshEndcap() ){
+	  {
+	    if(energy < thresh_Endcap_ ) continue;
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
 				     PFLayer::HCAL_ENDCAP, 
 				     hcalEndcapGeometry );	  
-// 	  }
+ 	  }
 	  break;
 	default:
 	  LogError("PFRecHitProducerHCAL")

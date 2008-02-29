@@ -21,6 +21,13 @@ PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig)
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
+  thresh_Barrel_ = 
+    iConfig.getParameter<double>("thresh_Barrel");
+  thresh_Endcap_ = 
+    iConfig.getParameter<double>("thresh_Endcap");
+    
+    
+  
   //register products
   produces<reco::PFRecHitCollection>();
   

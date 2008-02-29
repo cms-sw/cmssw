@@ -52,6 +52,9 @@ class PFRecHitProducer : public edm::EDProducer {
   /// verbose ?
   bool   verbose_;
 
+  /// rechits with E < threshold will not give rise to a PFRecHit
+  double  thresh_Barrel_;
+  double  thresh_Endcap_;
 };
 
 #endif

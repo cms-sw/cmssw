@@ -125,8 +125,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 1) continue;
 
-      //COLIN necessary to implement a threshold again ?
-      //       if(energy < clusterAlgoECAL_.threshBarrel() ) continue;
+      if(energy < thresh_Barrel_ ) continue;
           
       
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,  
@@ -166,8 +165,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       double energy = erh.energy();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
-      //COLIN necessary to implement a threshold again ?
-//       if(energy < clusterAlgoECAL_.threshEndcap() ) continue;
+      if(energy < thresh_Endcap_ ) continue;
 
       
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,

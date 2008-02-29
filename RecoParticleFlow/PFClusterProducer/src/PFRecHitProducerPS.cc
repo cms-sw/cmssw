@@ -89,8 +89,7 @@ void PFRecHitProducerPS::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& hit = *i;
       
       double energy = hit.energy();
-      //COLIN reimplement threshold on rechits
-//       if( energy < clusterAlgoPS_.threshEndcap() ) continue; 
+      if( energy < thresh_Endcap_ ) continue; 
             
       const ESDetId& detid = hit.detid();
       const CaloCellGeometry *thisCell = psGeometry->getGeometry(detid);
