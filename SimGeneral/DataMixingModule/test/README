@@ -13,4 +13,8 @@ step2: execute the DataMixingModule
   the second "background" file.
 - do cmsRun mm.cfg - you should get a TestMix.root file.
 
-step3: verify the result (not ready yet)
+step3: Run Reconstruction.
+- in the Configuration/data directory, there are a host of modified .cfg/.cfi 
+files that point Reconstruction at the modified "merged" digis or RecHits.  
+RecoExample.cfg can be used to run reconstruction on TestMix.root to see what
+you get.
