@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/02/28 18:28:48 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 22:49:09 chrjones Exp $
 //
 
 // system include files
@@ -85,7 +85,9 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    
    double r_ecal = 126;
    double scale = 2;
-   double minJetEt = 15;
+   //double minJetEt = 15;
+   double minJetEt = 0;
+   
    fw::NamedCounter counter("jet");
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
@@ -147,7 +149,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
-   double minJetEt = 15;
+   //double minJetEt = 15;
+   double minJetEt = 0;
    fw::NamedCounter counter("jet");
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
