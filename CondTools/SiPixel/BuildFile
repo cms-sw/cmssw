@@ -4,6 +4,8 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
 
+<use name=CondCore/PopCon>
+
 <export>
 <lib name=CondToolsSiPixel>
 
@@ -13,5 +15,7 @@
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
+
+<use name=CondCore/PopCon>
 
 </export>
