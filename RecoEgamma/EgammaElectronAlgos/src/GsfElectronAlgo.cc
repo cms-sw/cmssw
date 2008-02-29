@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.6 2008/02/21 09:40:13 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.9 2008/02/27 12:54:58 uberthon Exp $
 //
 //
 
@@ -84,13 +84,11 @@ using namespace reco;
 GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double minEOverPBarrel, double minEOverPEndcaps,
-                                               double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi, 
 					       bool highPtPresel, double highPtMin,
    				               bool applyEtaCorrection):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
-  hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
   highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
   applyEtaCorrection_(applyEtaCorrection)
@@ -145,14 +143,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   // get the input 
   edm::Handle<GsfTrackCollection> tracksH;
-
-  // to check existence
-  edm::Handle<HBHERecHitCollection> hbhe;
-  HBHERecHitMetaCollection *mhbhe=0;
-  if (hOverEConeSize_ > 0.) {
-    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
-  }
   e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
   
   edm::Handle<BasicClusterShapeAssociationCollection> barrelShapeAssocH;
@@ -168,7 +158,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   // create electrons 
   const BasicClusterShapeAssociationCollection *shpAssBarrel=&(*barrelShapeAssocH);
   const BasicClusterShapeAssociationCollection *shpAssEndcap=&(*endcapShapeAssocH);
-  if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,mhbhe,bsPosition,outEle);
+  if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,bsPosition,outEle);
   else {
         edm::Handle<SuperClusterCollection> superClustersBarrelH; 
        e.getByLabel("correctedHybridSuperClusters",superClustersBarrelH);
@@ -180,12 +170,10 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
           superClustersBarrelH, 
           superClustersEndcapH,   
           shpAssBarrel,shpAssEndcap   ,
-          mhbhe,  
 	  bsPosition,
           outEle);
   }
 
-  delete mhbhe;
   std::ostringstream str;
 
   str << "========== GsfElectronAlgo Info ==========";
@@ -205,7 +193,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 		        const BasicClusterShapeAssociationCollection *shpAssBarrel,
 		        const BasicClusterShapeAssociationCollection *shpAssEndcap,
-                        HBHERecHitMetaCollection *mhbhe,
 			const math::XYZPoint &bsPosition,
 		        GsfElectronCollection & outEle) {
  
@@ -232,10 +219,6 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       assert(seedShpItr != shpAssBarrel->end());
     }
     const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-
- 
-    // calculate HoE
-    hOverE(scRef,mhbhe);
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
@@ -291,10 +274,6 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
-
-  //H/E cut
-  if (HoE_ > maxHOverE_) return false; 
-  LogDebug("") << "H/E criteria is satisfied ";
 
   LogDebug("") << "electron has passed preselection criteria ";
   LogDebug("") << "=================================================";
@@ -471,21 +450,6 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       outEle.push_back(ele);
 }
 
-void GsfElectronAlgo::hOverE(const SuperClusterRef & scRef,HBHERecHitMetaCollection *mhbhe){
-  if (mhbhe) {
-    CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
-    GlobalPoint pclu((*scRef).x(),(*scRef).y(),(*scRef).z());
-    double hcalEnergy = 0.;
-    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
-    for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
-      hcalEnergy += i->energy();
-    }
-    HoE_= hcalEnergy/(*scRef).energy();
-    LogDebug("") << "H/E : " << HoE_;
-  } else HoE_=0;
-
-}
-
 const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & trackRef) {
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
@@ -528,7 +492,6 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
                             edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
                             const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	                    const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
-                            HBHERecHitMetaCollection *mhbhe,
 			    const math::XYZPoint &bsPosition,
                             GsfElectronCollection & outEle) {
   
@@ -591,9 +554,6 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       }
       const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
      
-      // calculate HoE
-      hOverE(scRef,mhbhe);
-
       // calculate Trajectory StatesOnSurface....
       if (!calculateTSOS((*trackRef),theClus,bsPosition)) continue;
 

@@ -25,6 +25,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 
 class PropagatorWithMaterial;
@@ -35,7 +36,7 @@ class NavigationSchool;
 
 class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 {
-public:
+ public:
 
   //RC
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
@@ -47,7 +48,7 @@ public:
   ~ElectronPixelSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
+  void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, reco::ElectronPixelSeedCollection&);
 
  private:
 
@@ -55,7 +56,7 @@ public:
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
   bool dynamicphiroad_;
-  double SCEtCut_;
+
   float lowPtThreshold_;
   float highPtThreshold_;
   float sizeWindowENeg_;   

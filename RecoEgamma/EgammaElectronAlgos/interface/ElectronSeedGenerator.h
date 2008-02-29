@@ -9,9 +9,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"  
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/Common/interface/Handle.h" 
 
-#include "FWCore/Framework/interface/ESHandle.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -25,7 +23,7 @@ public:
   virtual ~ElectronSeedGenerator() {;}
 
   virtual void setupES(const edm::EventSetup& setup) {;}
-  virtual void run(edm::Event&, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&) {;}
+  virtual void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, reco::ElectronPixelSeedCollection&) {;}
 
  private:
 };

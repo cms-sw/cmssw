@@ -27,7 +27,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class MultiTrajectoryStateTransform;
@@ -40,7 +39,6 @@ public:
   GsfElectronAlgo(const edm::ParameterSet& conf,
                          double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
-                         double hOverEConeSize, double maxHOverE, 
                          double maxDeltaEta, double maxDeltaPhi, 
 			 bool highPtPresel, double highPtMin,
 		         bool applyEtaCorrection);
@@ -55,7 +53,6 @@ public:
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
-	       HBHERecHitMetaCollection *mhbhe,
 	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
@@ -63,7 +60,6 @@ public:
 	       edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
-	       HBHERecHitMetaCollection *mhbhe,
 	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   
@@ -86,7 +82,6 @@ public:
     superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks);
 
   // intermediate calculations
-  void hOverE(const reco::SuperClusterRef & scRef,HBHERecHitMetaCollection *mhbhe);
   bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const math::XYZPoint & bs);
 
   //ecaleta, ecalphi: in fine to be replaced by propagators
@@ -100,10 +95,6 @@ public:
   // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double minEOverPBarrel_;   
   double minEOverPEndcaps_;     
-  // cone size for H/E
-  double hOverEConeSize_; 
-  // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
-  double maxHOverE_; 
   // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster 
   double maxDeltaEta_;
   // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster

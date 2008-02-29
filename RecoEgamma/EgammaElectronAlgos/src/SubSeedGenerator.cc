@@ -38,7 +38,7 @@ SubSeedGenerator::~SubSeedGenerator() {
 void SubSeedGenerator::setupES(const edm::EventSetup& setup) {
 }
 
-void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &superClusters, reco::ElectronPixelSeedCollection & out){
+void SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector & sclRefs, reco::ElectronPixelSeedCollection& out) {
   
   edm::ESHandle<TrackerGeometry> tracker;
   setup.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -48,8 +48,8 @@ void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const e
   e.getByLabel(initialSeedProducer_, initialSeedLabel_, theInitialSeedColl);
   
   //seeds selection
-  for(unsigned int i=0; i< superClusters->size(); ++i) {
-    reco::SuperCluster theClus = (*superClusters)[i];   
+  for(unsigned int i=0; i< sclRefs.size(); ++i) {
+    reco::SuperCluster theClus = *sclRefs[i];   
     
     std::vector<TrajectorySeed>::const_iterator seed_iter;
     for(seed_iter = theInitialSeedColl->begin(); seed_iter != theInitialSeedColl->end(); ++seed_iter) {
@@ -81,7 +81,8 @@ void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const e
         if (dPhi1 <= dphi_|| dPhi2 <= dphi_ ) {
           if (gv.perp() > pt_) {
             //if(tmpDr <= dr_) {  
-              edm::Ref<reco::SuperClusterCollection> sclRef=edm::Ref<reco::SuperClusterCollection> (superClusters,i);
+	    //              edm::Ref<reco::SuperClusterCollection> sclRef=edm::Ref<reco::SuperClusterCollection> (superClusters,i);
+              edm::Ref<reco::SuperClusterCollection> sclRef=sclRefs[i];
               out.push_back(reco::ElectronPixelSeed(sclRef,*seed_iter)); 
 	      //}
           }

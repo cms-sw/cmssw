@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.40 2008/02/27 12:54:58 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.38 2008/02/21 15:41:52 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -31,7 +31,6 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -57,7 +56,6 @@
 #include <utility>
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
-      SCEtCut_(pset.getParameter<double>("SCEtCut")),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
@@ -70,8 +68,6 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
       theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
       theNavigationSchool(0), theSetup(0), pts_(0)
 {      // Instantiate the pixel hit matchers
-  //       LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
-  // 		   << pphimin1 << ", " << pphimax1;
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"), 
 				    pset.getParameter<double>("ePhiMax1"),
 				    pset.getParameter<double>("PhiMin2"),
@@ -107,7 +103,6 @@ ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
 
 }
 
-
 void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
   theSetup= &setup;
@@ -135,7 +130,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
-void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, reco::ElectronPixelSeedCollection & out){
 
   //Getting the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -152,17 +147,16 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setu
   theSetup= &setup; 
   theMeasurementTracker->update(e); 
   
-  for  (unsigned int i=0;i<clusters->size();++i) {
-    edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
+ for  (unsigned int i=0;i<sclRefs.size();++i) {
     // Find the seeds
     recHits_.clear();
 
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
-    if (theClusB->energy()/cosh(theClusB->eta())>SCEtCut_)     seedsFromThisCluster(theClusB,out) ;
+    seedsFromThisCluster(sclRefs[i],out);
   }
   
   LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
+  LogDebug ("run") <<"Nr of superclusters after filter: "<<sclRefs.size()
    <<", no. of ElectronPixelSeeds found  = " << out.size();
 }
 
