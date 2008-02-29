@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.3 2008/02/11 19:11:18 jmuelmen Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.4 2008/02/21 16:09:54 chrjones Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@ class FWRPZ2DDataProxyBuilder
 
       std::vector<TEveElement*> m_rhoPhiProjs;
       std::vector<TEveElement*> m_rhoZProjs;
+
+      std::vector<FWModelId> m_ids;
 
 };
 

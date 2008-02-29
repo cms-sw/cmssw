@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.5 2008/02/21 16:09:59 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.6 2008/02/26 19:35:30 chrjones Exp $
 //
 
 // system include files
@@ -75,12 +75,42 @@ FWRPZDataProxyBuilder::setItem(const FWEventItem* iItem)
   }
 }
 
+static void
+setUserDataElementAndChildren(TEveElement* iElement, 
+                         void* iInfo)
+{
+   iElement->SetUserData(iInfo);
+   for(TEveElement::List_i itElement = iElement->BeginChildren(),
+       itEnd = iElement->EndChildren();
+       itElement != itEnd;
+       ++itElement) {
+      setUserDataElementAndChildren(*itElement, iInfo);
+   }
+}
+
 void
 FWRPZDataProxyBuilder::build(TEveElementList** iObject)
 {
   if(0!= m_item) {
     build(m_item, iObject);
     m_elements=*iObject;
+
+     if(m_elements &&  m_item->size() == m_elements->GetNChildren() ) {
+        int index=0;
+        int largestIndex = m_ids.size();
+        if(m_ids.size()<m_item->size()) {
+           m_ids.resize(m_item->size());
+        }
+        std::vector<FWModelId>::iterator itId = m_ids.begin();
+        for(TEveElement::List_i it = m_elements->BeginChildren(), itEnd = m_elements->EndChildren();
+            it != itEnd;
+            ++it,++itId,++index) {
+           if(largestIndex<=index) {
+              *itId=FWModelId(m_item,index);
+           }
+           setUserDataElementAndChildren(*it,&(*itId));
+        }
+     }
   }
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.3 2008/02/21 16:09:59 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.4 2008/02/26 19:35:30 chrjones Exp $
 //
 
 // system include files
@@ -75,11 +75,48 @@ FWRPZ2DDataProxyBuilder::setItem(const FWEventItem* iItem)
    }
 }
 
+static void
+setUserDataElementAndChildren(TEveElement* iElement, 
+                              void* iInfo)
+{
+   iElement->SetUserData(iInfo);
+   for(TEveElement::List_i itElement = iElement->BeginChildren(),
+       itEnd = iElement->EndChildren();
+       itElement != itEnd;
+       ++itElement) {
+      setUserDataElementAndChildren(*itElement, iInfo);
+   }
+}
+
+static
+void
+setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
+   if(iElements &&  static_cast<int>(iItem->size()) == iElements->GetNChildren() ) {
+      int index=0;
+      int largestIndex = iIds.size();
+      if(iIds.size()<iItem->size()) {
+         iIds.resize(iItem->size());
+      }
+      std::vector<FWModelId>::iterator itId = iIds.begin();
+      for(TEveElement::List_i it = iElements->BeginChildren(), itEnd = iElements->EndChildren();
+          it != itEnd;
+          ++it,++itId,++index) {
+         if(largestIndex<=index) {
+            *itId=FWModelId(iItem,index);
+         }
+         setUserDataElementAndChildren(*it,&(*itId));
+      }
+   }
+}
+
+
+
 void
 FWRPZ2DDataProxyBuilder::buildRhoPhi(TEveElementList** iObject)
 {
   if(0!= m_item) {
-    buildRhoPhi(m_item, iObject);
+     buildRhoPhi(m_item, iObject);
+     setUserData(m_item,*iObject,m_ids);
   }
 }
 
@@ -87,7 +124,8 @@ void
 FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
 {
   if(0!= m_item) {
-    buildRhoZ(m_item, iObject);
+     buildRhoZ(m_item, iObject);
+     setUserData(m_item,*iObject,m_ids);
   }
 }
 
@@ -141,8 +179,8 @@ modelChanges(const FWEventItem* iItem,
              const FWModelIds& iIds,
              TEveElement* iElements )
 {
-   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   assert(iItem && iItem->size() == iElements->GetNChildren() && "can not use default modelChanges implementation");
+   //std::cout <<"modelChanged "<<iItem->size()<<" "<<iElements->GetNChildren()<<std::endl;
+   assert(iItem && static_cast<int>(iItem->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();

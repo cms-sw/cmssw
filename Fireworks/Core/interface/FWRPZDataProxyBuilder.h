@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.4 2008/01/24 00:28:27 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.5 2008/02/21 16:09:54 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 class FWEventItem;
 class TEveElementList;
 class TEveElement;
+class FWModelId;
 
 class FWRPZDataProxyBuilder
 {
@@ -70,6 +71,7 @@ class FWRPZDataProxyBuilder
       TEveElementList* m_elements;
       std::vector<TEveElement*> m_rhoPhiProjs;
       std::vector<TEveElement*> m_rhoZProjs;
+      std::vector<FWModelId> m_ids;
 };
 
 
