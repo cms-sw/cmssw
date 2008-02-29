@@ -1,8 +1,8 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2008/02/14 16:24:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/25 22:17:48 $
+ *  $Revision: 1.5 $
  *  \author A. Everett - Purdue University
     \author A. Grelli -  Purdue University, Pavia University
  */
@@ -21,6 +21,8 @@
 //Beam Spot option & vertexing
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 using namespace std;
 
@@ -95,7 +97,30 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
     const reco::BeamSpot & bs = *bsHandle;
     GlobalPoint vertexPosBS(bs.x0(), bs.y0(), bs.z0());
     vertexPos = vertexPosBS;
-  }
+  }else{
+  // Get originZPos from list of vertices (first or all)
+    edm::Handle<reco::VertexCollection> vertexCollection;
+    theEvent->getByLabel(vertexCollName,vertexCollection);
+  // ceck if exsist a non empty vertex collection
+    if(vertexCollection->size() > 0) {
+     reco::VertexCollection::const_iterator Vtx=vertexCollection->begin();// ! only the first low lomi option
+     // const Vtx = vertexCollection->front();
+      double TheZPosition = Vtx->z();
+      double TheDealtaZatVTX;
+
+      GlobalPoint vertexPosVT(0.0,0.0,TheZPosition);
+      vertexPos = vertexPosVT;
+
+      if(!theFixedFlag) { //Region Dz from vertexing
+         TheDealtaZatVTX = (Vtx->zError())*Nsigma_Dz;
+      }
+      if(theFixedFlag) {// 15.9
+         TheDealtaZatVTX  = HalfZRegion_size;
+      }
+
+     }
+   }
+
 
   TrajectoryStateClosestToPoint tscp = tscpBuilder(muFTS,theVertexPos);
 

@@ -4,8 +4,8 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2008/02/14 16:24:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/25 22:17:47 $
+ *  $Revision: 1.4 $
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
  */
@@ -52,19 +52,21 @@ class MuonTrackingRegionBuilder {
  private:
 
   edm::InputTag theBeamSpotTag; //beam spot
-  const edm::Event* theEvent;
+  std::string vertexCollName;   // Vertexing
 
-  bool   theFixedFlag,EnableBeamSpot;
-  const  MuonServiceProxy * theService;
+  const edm::Event* theEvent;
+  const MuonServiceProxy * theService;
+
+  bool    theFixedFlag,EnableBeamSpot;
   double  TkEscapePt;
   double  Nsigma_eta,Nsigma_Dz,Nsigma_phi ;
   
-  double Eta_Region_parameter1; 
-  double Eta_Region_parameter2;
-  double Phi_Region_parameter1;
-  double Phi_Region_parameter2;
+  double  Eta_Region_parameter1; 
+  double  Eta_Region_parameter2;
+  double  Phi_Region_parameter1;
+  double  Phi_Region_parameter2;
 
-  double Phi_minimum,Eta_minimum;
+  double  Phi_minimum,Eta_minimum;
   double  Delta_R_Region,HalfZRegion_size;
   double  Phi_fixed,Eta_fixed;
 
