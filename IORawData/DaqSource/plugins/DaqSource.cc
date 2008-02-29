@@ -16,8 +16,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -132,20 +130,19 @@ namespace edm {
     // If there is no luminosity block principal, make one.
     if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
       newLumi_ = true;
-      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(),
-        luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
       setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(lumiAux,
+        new LuminosityBlockPrincipal(luminosityBlockNumber_,
+                                     timestamp(),
+                                     Timestamp::invalidTimestamp(),
                                      productRegistry(),
                                      runPrincipal(),
                                      processConfiguration())));
 
     }
     // make a brand new event
-    EventAuxiliary eventAux(eventId,
-      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventAux, productRegistry(), luminosityBlockPrincipal(), processConfiguration()));
+	new EventPrincipal(eventId, processGUID(), timestamp(),
+	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -164,6 +161,7 @@ namespace edm {
   void
   DaqSource::setRun(RunNumber_t r) {
     assert(ep_.get() == 0);
+    reset();
     newRun_ = newLumi_ = true;
     runNumber_ = r;
     noMoreEvents_ = false;
@@ -176,9 +174,10 @@ namespace edm {
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
-    RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runAux,
+	new RunPrincipal(runNumber_,
+			 timestamp(),
+			 Timestamp::invalidTimestamp(),
 			 productRegistry(),
 			 processConfiguration()));
   }
