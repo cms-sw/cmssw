@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.7 2008/01/25 04:05:36 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.8 2008/02/01 18:24:04 chrjones Exp $
 //
 
 // system include files
@@ -172,6 +172,13 @@ FWEventItem::setName(const std::string& iName)
 {
   m_name = iName;
 }
+
+void 
+FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
+{
+   m_displayProperties= iProp;
+}
+
 
 void 
 FWEventItem::unselect(int iIndex) const

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.11.2.1 2008/02/18 06:51:43 jmuelmen Exp $
+// $Id: FWEventItem.h,v 1.12 2008/02/25 22:47:43 jmuelmen Exp $
 //
 
 // system include files
@@ -125,6 +125,7 @@ class FWEventItem
 		     const std::string& iProductInstance,
 		     const std::string& iProcess);
       void setName(const std::string& iName);
+      void setDefaultDisplayProperties(const FWDisplayProperties&);
 
       void unselect(int iIndex) const;
       void select(int iIndex) const;
