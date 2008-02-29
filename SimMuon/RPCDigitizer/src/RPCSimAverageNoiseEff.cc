@@ -144,6 +144,9 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
 {
 
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  theRpcDigiSimLinks.clear();
+  theDetectorHitMap.clear();
+  theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   RPCDetId rpcId = roll->id();
   const Topology& topology=roll->specs()->topology();
@@ -210,10 +213,12 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
 	  if(flatDistribution->fire(1) < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
 	    strips.insert(digi);
+	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	  }
 	} 
 	else {
 	  std::pair<int, int> digi(*i,time_hit);
+	  theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	  strips.insert(digi);
 	}
       }

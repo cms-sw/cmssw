@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2007/11/22 15:06:11 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/06 11:19:46 $
+ *  $Revision: 1.8 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -98,11 +98,14 @@ public:
 
        for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink->data.begin();digi_iter != itlink->data.end();++digi_iter){
 	 
-	 const PSimHit* hit = digi_iter->getSimHit();
-	 float xpos = hit->localPosition().x();
-	 int strip = digi_iter->getStrip();
-	 int bx = digi_iter->getBx();
-	 std::cout<<"DetUnit: "<<hit->detUnitId()<<"  "<<"Pos X: "<<xpos<<"  "<<"Strip: "<<strip<<"  "<<"Bx: "<<bx<<std::endl;
+	  int ev = digi_iter->getEventId().event();
+	  int detid = digi_iter->getDetUnitId();
+	  float xpos =  digi_iter->getEntryPoint().x();
+	  int strip = digi_iter->getStrip();
+	  int bx = digi_iter->getBx();
+	  
+	  std::cout<<"DetUnit: "<<detid<<"  "<<"Event ID: "<<ev<<"  "<<"Pos X: "<<xpos<<"  "<<"Strip: "<<strip<<"  "<<"Bx: "<<bx<<std::endl;
+
        }
      }
 

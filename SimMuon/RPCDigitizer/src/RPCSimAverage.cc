@@ -142,6 +142,9 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits)
 {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  theRpcDigiSimLinks.clear();
+  theDetectorHitMap.clear();
+  theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology=roll->specs()->topology();
 
@@ -202,6 +205,7 @@ RPCSimAverage::simulate(const RPCRoll* roll,
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
 	std::pair<int, int> digi(*i,time_hit);
+	theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	strips.insert(digi);
       }
     }

@@ -28,7 +28,6 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   theDigitizer = new RPCDigitizer(ps);
 
   produces<RPCDigiCollection>();
-  produces<DigiSimLinks>("MuonRPCDigiSimLinks");
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 }
 
@@ -50,7 +49,6 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // Create empty output
   std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::auto_ptr<DigiSimLinks> RPCDigiSimLinks(new DigiSimLinks() );
   std::auto_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
 
   // find the geometry & conditions for this event
@@ -63,36 +61,11 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
 
-  std::cout<<"------------------PRODUCER-------------------"<<std::endl;
-  std::cout<<"RUN: "<<e.id().run()<<"  "<<"EVENTO: "<<e.id().event()<<std::endl;
-  std::cout<<"---------------------------------------------"<<std::endl;
-  std::cout<<"--------------- START DO ACTION -------------"<<std::endl;
-
   // run the digitizer
-  theDigitizer->doAction(*hits, *pDigis, *RPCDigiSimLinks, *RPCDigitSimLink);
-
-  std::cout<<"--------------- END DO ACTION -------------"<<std::endl;
-  std::cout<<"                                           "<<std::endl;
-
-  std::cout<<"------------------------------ BEGIN PRODUCER ------------------------------------------"<<std::endl;
-  for (edm::DetSetVector<RPCDigiSimLink>::const_iterator itlink = RPCDigitSimLink->begin(); itlink != RPCDigitSimLink->end(); itlink++)
-    {
-      std::cout<<"------------------------------DETSET BEGIN  ------------------------------------------"<<std::endl;
-      for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink->data.begin();digi_iter != itlink->data.end();++digi_iter){
-	const PSimHit* hit = digi_iter->getSimHit();
-	float xpos = hit->localPosition().x();
-	int strip = digi_iter->getStrip();
-	int bx = digi_iter->getBx();
-
-	std::cout<<"DetUnit: "<<hit->detUnitId()<<"  "<<"Event ID: "<<hit->eventId().event()<<"  "<<"Pos X: "<<xpos<<"  "<<"Strip: "<<strip<<"  "<<"Bx: "<<bx<<std::endl;
-      }
-      std::cout<<"------------------------------DETSET END  ------------------------------------------"<<std::endl;
-    }
-  std::cout<<"------------------------------ END PRODUCER ------------------------------------------"<<std::endl;
+  theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink);
 
   // store them in the event
   e.put(pDigis);
-  e.put(RPCDigiSimLinks,"MuonRPCDigiSimLinks");
   e.put(RPCDigitSimLink,"RPCDigiSimLink");
 }
 

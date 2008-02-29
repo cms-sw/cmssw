@@ -16,7 +16,6 @@ class RPCDigiProducer : public edm::EDProducer
 {
 public:
 
-  typedef RPCDigitizer::DigiSimLinks DigiSimLinks;
   typedef RPCDigitizer::RPCDigiSimLinks RPCDigitizerSimLinks;
 
   explicit RPCDigiProducer(const edm::ParameterSet& ps);

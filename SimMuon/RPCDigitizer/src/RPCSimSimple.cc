@@ -51,6 +51,9 @@ RPCSimSimple::simulate(const RPCRoll* roll,
 		       const edm::PSimHitContainer& rpcHits)
 {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  theRpcDigiSimLinks.clear();
+  theDetectorHitMap.clear();
+  theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
@@ -64,6 +67,8 @@ RPCSimSimple::simulate(const RPCRoll* roll,
 	
     std::pair<int, int> digi(topology.channel(entr)+1,
 			     time_hit);
+
+    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
     strips.insert(digi);
   }
 }

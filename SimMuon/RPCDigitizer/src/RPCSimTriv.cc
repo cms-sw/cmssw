@@ -47,6 +47,9 @@ RPCSimTriv::simulate(const RPCRoll* roll,
 {
 
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  theRpcDigiSimLinks.clear();
+  theDetectorHitMap.clear();
+  theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
@@ -56,8 +59,11 @@ RPCSimTriv::simulate(const RPCRoll* roll,
     if (type == 13 || type == -13){
       // Here I hould check if the RPC are up side down;
       const LocalPoint& entr=_hit->entryPoint();
+      int time_hit = _rpcSync->getSimHitBx(&(*_hit));
       std::pair<int, int> digi(topology.channel(entr)+1,
-			       _rpcSync->getSimHitBx(&(*_hit)));
+			       time_hit);
+
+      theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
       strips.insert(digi);
     }
   }

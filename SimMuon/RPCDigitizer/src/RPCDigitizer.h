@@ -27,9 +27,7 @@ class RPCSimSetUp;
 class RPCDigitizer
 {
 public:
-  typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-
   RPCDigitizer(const edm::ParameterSet& config);
 
   ~RPCDigitizer();
@@ -38,7 +36,6 @@ public:
    */
   void doAction(MixCollection<PSimHit> & simHits,
                 RPCDigiCollection & rpcDigis,
-		DigiSimLinks & RPCDigiSimLinks,
 		RPCDigiSimLinks & rpcDigiSimLink);
 
 
@@ -57,6 +54,7 @@ private:
   RPCSim* theRPCSim;
   RPCSimSetUp * theSimSetUp;
   std::string theName;
+
 };
 
 #endif
