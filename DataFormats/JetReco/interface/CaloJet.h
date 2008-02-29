@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.31 2008/02/12 23:46:28 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.32.2.1 2008/02/18 21:30:32 fedor Exp $
  ************************************************************/
 
 
@@ -126,6 +126,9 @@ class CaloJet : public Jet {
   
   /// Physics Eta (loop over constituents)
   float physicsEtaDetailed (float fZVertex) const;
+
+  /// Detector Eta (default for CaloJets)
+  float detectorEta () const {return eta();}
 
 
   /// convert generic constituent to specific type

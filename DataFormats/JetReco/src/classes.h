@@ -34,6 +34,7 @@ namespace {
     CaloJetRefVector rr1;
     CaloJetRefProd rrr1;
     edm::Wrapper<CaloJetCollection> w1;
+    edm::Wrapper<CaloJetRefVector> wrv1;
     edm::reftobase::Holder<reco::Candidate, reco::CaloJetRef> rtb1;
     JetTrackMatch<CaloJetCollection> jtm1;
     edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>,std::vector<reco::Track>,unsigned int> > amp1;
@@ -44,6 +45,7 @@ namespace {
     GenJetRefVector rr2;
     GenJetRefProd rrr2;
     edm::Wrapper<GenJetCollection> w2;
+    edm::Wrapper<GenJetRefVector> wrv2;
     edm::reftobase::Holder<reco::Candidate, reco::GenJetRef> rtb2;
     JetTrackMatch<GenJetCollection> jtm2;
 
@@ -68,6 +70,7 @@ namespace {
     PFJetRefVector rr5;
     PFJetRefProd rrr5;
     edm::Wrapper<PFJetCollection> w5;
+    edm::Wrapper<PFJetRefVector> wrv5;
     edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
     JetTrackMatch<PFJetCollection> jtm5;
 

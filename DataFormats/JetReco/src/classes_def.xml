@@ -9,6 +9,7 @@
   <class name="edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::CaloJet> >"/>
+  <class name="edm::Wrapper<reco::CaloJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::CaloJet> >"/>
   <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, std::vector<reco::Track>, unsigned int> >">
@@ -23,6 +24,7 @@
   <class name="edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
   <class name="edm::RefProd<std::vector<reco::PFJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::PFJet> >"/>
+  <class name="edm::Wrapper<reco::PFJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::PFJet> >"/>
 
@@ -33,6 +35,7 @@
   <class name="edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
   <class name="edm::RefProd<std::vector<reco::GenJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::GenJet> >"/>
+  <class name="edm::Wrapper<reco::GenJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::GenJet> >"/>
 

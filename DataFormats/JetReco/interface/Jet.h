@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.22 2008/02/12 23:46:28 fedor Exp $
+ * \version   $Id: Jet.h,v 1.23 2008/02/14 00:06:23 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -97,17 +97,6 @@ namespace reco {
     ///  number of passes taken by algorithm
     virtual int nPasses () const {return mPassNumber;}
     
-    /// temporary fix for cached valuse
-    double massUncached() const {return p4().M();}
-    double massSqrUncached() const {return p4().M2();}
-    double mtUncached() const {return p4().Mt();}
-    double mtSqrUncached() const {return p4().Mt2();}
-    double ptUncached() const {return p4().Pt();}
-    double phiUncached() const {return p4().Phi();}
-    double etaUncached() const {return p4().Eta();}
-    double rapidityUncached() const {return p4().Rapidity();}
-    double yUncached() const {return p4().Rapidity();}
-
   private:
     float mJetArea;
     float mPileupEnergy;
