@@ -25,7 +25,7 @@
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 //#include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 // ^^^^^ End
 
