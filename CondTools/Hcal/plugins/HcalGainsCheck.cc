@@ -2,9 +2,13 @@
 
 HcalGainsCheck::HcalGainsCheck(edm::ParameterSet const& ps)
 {
-  rootfile = ps.getUntrackedParameter<std::string>("rootfile");
-  outfile = ps.getUntrackedParameter<std::string>("outFile","Dump");
-
+  rootfile = ps.getUntrackedParameter<std::string>("rootfile","null");
+  outfile = ps.getUntrackedParameter<std::string>("outFile","null");
+  dumpupdate = ps.getUntrackedParameter<std::string>("dumpUpdateGainsTo","null");
+  dumprefs = ps.getUntrackedParameter<std::string>("dumpRefGainsTo","null");
+  emapflag = ps.getUntrackedParameter<bool>("checkEmap",false);
+  validategainsflag = ps.getUntrackedParameter<bool>("validateGains",false);
+  epsilon = ps.getUntrackedParameter<double>("deltaG",1000000);
 }
 
 void HcalGainsCheck::beginJob(const edm::EventSetup& es)
@@ -13,7 +17,7 @@ void HcalGainsCheck::beginJob(const edm::EventSetup& es)
 
   //book histos:
   ocMapUp = new TH2F("ocMapUp","occupancy_map_updated_gains",83,-41.5,41.5,72,0.5,72.5);
-  ocMapRef = new TH2F("ocMapUp","occupancy_map_updated_gains",83,-41.5,41.5,72,0.5,72.5);
+  ocMapRef = new TH2F("ocMapRef","occupancy_map_updated_gains",83,-41.5,41.5,72,0.5,72.5);
 //  valMapUp;
 //  valMapRef;
 
@@ -45,7 +49,8 @@ void HcalGainsCheck::beginJob(const edm::EventSetup& es)
 void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace edm::eventsetup;
-
+  bool epsilonflag = false;
+  bool notequalsflag = false;
   // get new gains
   edm::ESHandle<HcalGains> newGains;
   es.get<HcalGainsRcd>().get("update",newGains);
@@ -62,19 +67,17 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
   const HcalElectronicsMap* myRefEMap = refEMap.product();
 
 
-    // dump gains:
-//    std::ostringstream filename;
-//    filename << "test_update.txt";
-//    std::ofstream outStream(filename.str().c_str());
-//    std::cout << "--- Dumping Gains - update ---" << std::endl;
-//    HcalDbASCIIIO::dumpObject (outStream, (*myNewGains) );
-//
-//    std::ostringstream filename2;
-//    filename2 << "test_reference.txt";
-//    std::ofstream outStream2(filename2.str().c_str());
-//    std::cout << "--- Dumping Gains - reference ---" << std::endl;
-//    HcalDbASCIIIO::dumpObject (outStream2, (*myRefGains) );
-
+  // dump gains:
+   if(dumpupdate.compare("null")!=0){
+   std::ofstream outStream(dumpupdate.c_str());
+   std::cout << "--- Dumping Gains - update ---" << std::endl;
+   HcalDbASCIIIO::dumpObject (outStream, (*myNewGains) );
+   }
+   if(dumprefs.compare("null")!=0){
+    std::ofstream outStream2(dumprefs.c_str());
+    std::cout << "--- Dumping Gains - reference ---" << std::endl;
+    HcalDbASCIIIO::dumpObject (outStream2, (*myRefGains) );
+   }
     // get the list of all channels
     std::vector<DetId> listNewChan = myNewGains->getAllChannels();
     std::vector<DetId> listRefChan = myRefGains->getAllChannels();
@@ -110,6 +113,16 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	    diffUpRefCap2->Fill(valCap2up - valCap2);
 	    diffUpRefCap3->Fill(valCap3up - valCap3);
 
+	    if(fabs(valCap0up - valCap0) > epsilon) epsilonflag = true;
+            if(fabs(valCap1up - valCap1) > epsilon) epsilonflag = true;
+            if(fabs(valCap2up - valCap2) > epsilon) epsilonflag = true;
+            if(fabs(valCap3up - valCap3) > epsilon) epsilonflag = true;
+
+            if(valCap0up != valCap0) notequalsflag = true;
+            if(valCap1up != valCap1) notequalsflag = true;
+            if(valCap2up != valCap2) notequalsflag = true;
+            if(valCap3up != valCap3) notequalsflag = true;
+
 	    ratioUpRefCap0->Fill(valCap0up / valCap0);
 	    ratioUpRefCap1->Fill(valCap1up / valCap1);
 	    ratioUpRefCap2->Fill(valCap2up / valCap2);
@@ -128,10 +141,24 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	gainsUpCap2->Fill(valCap2);
 	gainsUpCap3->Fill(valCap3);
       }
+    
+    if(epsilon != 1000000){
+       if(epsilonflag) throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaG" << std::endl;
+    }else{
+       std::cout << "These gains do not differ by more than deltaG" << std::endl;
+    }
+
+    if(validategainsflag){
+       if(notequalsflag) throw cms::Exception("DataDoesNotMatch") << "Values do not match" << std::endl;
+    }else{
+       std::cout << "These gains are identical" << std::endl;
+    }
 
     // go through list of valid channels from reference, look up if conditions exist for update
     // push back into new vector the corresponding updated conditions,
     // or if it doesn't exist, the reference
+
+    if(outfile.compare("null")!=0){
     HcalGains *resultGains = new HcalGains();
     for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
@@ -152,9 +179,10 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  }
       }
     std::cout << std::endl;
-
+    
     std::vector<DetId> listResult = resultGains->getAllChannels();
     // get the e-map list of channels
+    if(emapflag){
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
     // look up if emap channels are all present in pedestals, if not then cerr
     for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
@@ -165,8 +193,8 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	    std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;
 	  }
       }
-
-
+    }
+   
     // dump the resulting list of pedestals into a file
     //    std::ostringstream filename3;
     //    filename3 << "test_combined.txt";
@@ -175,7 +203,7 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     resultGains->sort();
     HcalDbASCIIIO::dumpObject (outStream3, (*resultGains) );
 
-
+    }
     // const float* values = myped->getValues (channelID);
     //    if (values) std::cout << "pedestals for channel " << channelID << ": "
     //			  << values [0] << '/' << values [1] << '/' << values [2] << '/' << values [3] << std::endl; 
@@ -187,9 +215,9 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 void 
 HcalGainsCheck::endJob() 
 {
-
+  if(rootfile.compare("null")!=0){
   f->Write();
-
+}
   f->Close();
 
 }

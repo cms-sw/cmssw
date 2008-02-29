@@ -59,9 +59,14 @@ class HcalGainsCheck: public edm::EDAnalyzer
  private:
   //  std::string front;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
-  
+  std::string dumpupdate;
+  std::string dumprefs; 
   std::string rootfile;
   std::string outfile;
+  bool emapflag;
+  bool validategainsflag;
+  double epsilon;
+
   TFile * f;
   //plots:
   TH2F * ocMapUp;
