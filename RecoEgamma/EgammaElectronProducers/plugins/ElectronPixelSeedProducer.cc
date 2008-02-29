@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.14 2008/02/21 09:37:05 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.15 2008/02/29 12:50:48 uberthon Exp $
 //
 //
 
@@ -43,13 +43,13 @@ using namespace reco;
 ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
 
-  std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
+  algo_ = iConfig.getParameter<std::string>("SeedAlgo");
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
   maxHOverE_=pset.getParameter<double>("maxHOverE");
   hOverEConeSize_=pset.getParameter<double>("hOverEConeSize");
 
-  if (algo=="FilteredSeed") 
+  if (algo_=="FilteredSeed") 
     matcher_= new SubSeedGenerator(pset);
   else matcher_ = new ElectronPixelSeedGenerator(pset);
  
@@ -104,16 +104,19 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
     // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
     if (e.getByLabel(label_[i],instanceName_[i],clusters))   {
-      SuperClusterRefVector clusterRefs;
-      filterClusters(clusters,mhbhe,clusterRefs);
-      matcher_->run(e,iSetup,clusterRefs,*seeds);
+      if (algo_=="") {
+	SuperClusterRefVector clusterRefs;
+	filterClusters(clusters,mhbhe,clusterRefs);
+	matcher_->run(e,iSetup,clusterRefs,*seeds);
+      }
+      else  matcher_->run(e,iSetup,clusters,*seeds);
     }
   }
 
   // store the accumulated result
   pSeeds=  std::auto_ptr<ElectronPixelSeedCollection>(seeds);
   for (ElectronPixelSeedCollection::iterator is=pSeeds->begin(); is!=pSeeds->end();is++) {
-      LogDebug("ElectronPixelSeedProducer")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
+    LogDebug("ElectronPixelSeedProducer")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
   }
   e.put(pSeeds);

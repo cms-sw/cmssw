@@ -49,6 +49,7 @@ class ElectronPixelSeedProducer : public edm::EDProducer
 
   const edm::ParameterSet conf_;
   ElectronSeedGenerator *matcher_;
+  std::string algo_;
  
   const CaloSubdetectorGeometry *subDetGeometry_; 
   const HBHERecHitCollection* hithbhe_;
