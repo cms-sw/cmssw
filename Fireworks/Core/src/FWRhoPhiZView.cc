@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.2 2008/02/21 20:38:40 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.3 2008/02/26 02:27:19 chrjones Exp $
 //
 
 // system include files
@@ -23,10 +23,7 @@
 #include "TEveManager.h"
 #include "TClass.h"
 #include "TEveElement.h"
-//HACK: pure evil
-#define protected public
 #include "TEveProjectionBases.h"
-#undef protected
 #include "TEvePolygonSetProjected.h"
 
 // user include files
@@ -48,7 +45,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
       assert(0!=new_re);
       new_pr = dynamic_cast<TEveProjected*>(new_re);
       assert(0!=new_pr);
-      new_pr->SetProjection(iMgr, pble->fProjectable);
+      new_pr->SetProjection(iMgr, pble->GetProjectable());
       new_pr->SetDepth(iMgr->GetCurrentDepth());
 
       new_re->SetMainTransparency(iFrom->GetMainTransparency());
