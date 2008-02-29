@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -33,9 +33,6 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -68,7 +65,7 @@ EBStatusFlagsClient::~EBStatusFlagsClient(){
 
 }
 
-void EBStatusFlagsClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBStatusFlagsClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

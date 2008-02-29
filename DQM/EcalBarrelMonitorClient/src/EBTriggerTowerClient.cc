@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/02/21 21:31:50 $
- * $Revision: 1.91 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,7 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -34,9 +34,6 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -106,7 +103,7 @@ EBTriggerTowerClient::~EBTriggerTowerClient(){
 
 }
 
-void EBTriggerTowerClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBTriggerTowerClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

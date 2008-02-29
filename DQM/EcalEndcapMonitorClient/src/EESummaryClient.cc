@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.88 $
+ * $Date: 2008/02/23 08:50:49 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -53,9 +53,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -125,7 +122,7 @@ EESummaryClient::~EESummaryClient(){
 
 }
 
-void EESummaryClient::beginJob(DaqMonitorBEInterface* dbe){
+void EESummaryClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

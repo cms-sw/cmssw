@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.12 2008/02/15 14:28:50 dellaric Exp $
+// $Id: UtilsClient.h,v 1.13 2008/02/15 19:25:26 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.12 $
-  \date $Date: 2008/02/15 14:28:50 $
+  \version $Revision: 1.13 $
+  \date $Date: 2008/02/15 19:25:26 $
 */
 
 #ifndef UtilsClient_H
@@ -15,7 +15,6 @@
 #include <string>
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
 
 #include "TH1.h"
 #include "TProfile2D.h"
@@ -37,19 +36,19 @@ class UtilsClient {
   template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0) {
     if( me ) {
       // std::cout << "Found '" << me->getName() <<"'" << std::endl;
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
+      TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
       if( ob ) { 
 	if( clone ) {
 	  if( ret ) {
 	    delete ret;
 	  }
 	  std::string s = "ME " + me->getName();
-	  ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
+	  ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
 	  if( ret ) {
 	    ret->SetDirectory(0);
 	  }
 	} else {
-	  ret = dynamic_cast<T>(ob->operator->()); 
+	  ret = dynamic_cast<T>(ob); 
 	}
       } else {
 	ret = 0;

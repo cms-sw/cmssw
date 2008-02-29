@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.53 $
+ * $Date: 2008/02/23 08:39:23 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,7 +15,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -33,9 +33,6 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -90,7 +87,7 @@ EBBeamHodoClient::~EBBeamHodoClient(){
 
 }
 
-void EBBeamHodoClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBBeamHodoClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

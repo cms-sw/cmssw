@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2008/01/09 18:47:12 $
- * $Revision: 1.1 $
+ * $Date: 2008/01/13 18:24:26 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EEStatusFlagsTask: public edm::EDAnalyzer{
 
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

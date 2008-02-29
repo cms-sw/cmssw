@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/02/20 17:04:38 $
- * $Revision: 1.75 $
+ * $Date: 2008/02/23 08:39:26 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
@@ -49,9 +49,6 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -128,7 +125,7 @@ EETestPulseClient::~EETestPulseClient(){
 
 }
 
-void EETestPulseClient::beginJob(DaqMonitorBEInterface* dbe){
+void EETestPulseClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

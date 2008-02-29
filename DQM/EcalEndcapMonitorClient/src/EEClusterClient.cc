@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.41 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -36,9 +36,6 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -85,7 +82,7 @@ EEClusterClient::~EEClusterClient(){
 
 }
 
-void EEClusterClient::beginJob(DaqMonitorBEInterface* dbe){
+void EEClusterClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

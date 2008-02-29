@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/02/23 09:48:44 $
- * $Revision: 1.168 $
+ * $Date: 2008/02/27 16:03:08 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -20,7 +20,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -85,7 +85,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   }
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   if ( dbe_ ) {
     if ( verbose_ ) {

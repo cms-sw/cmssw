@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/01/26 22:23:59 $
- * $Revision: 1.27 $
+ * $Date: 2008/02/23 09:56:56 $
+ * $Revision: 1.28 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -14,7 +14,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -35,7 +35,7 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -109,7 +109,7 @@ void EETriggerTowerTask::setup(void){
            "EcalEndcap/EETriggerTowerTask/Emulated", true);
   }
   else {
-    LogError("EETriggerTowerTask")<<"Bad DaqMonitorBEInterface, "
+    LogError("EETriggerTowerTask")<<"Bad DQMStore, "
                                   <<"cannot book MonitorElements."<<endl;
   }
 }

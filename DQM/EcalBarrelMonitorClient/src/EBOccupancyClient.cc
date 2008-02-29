@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/23 08:50:49 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -36,9 +36,6 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -69,7 +66,7 @@ EBOccupancyClient::~EBOccupancyClient(){
 
 }
 
-void EBOccupancyClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBOccupancyClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/01/22 19:47:12 $
- * $Revision: 1.92 $
+ * $Date: 2008/02/23 09:56:55 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,7 +17,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -39,7 +39,7 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 

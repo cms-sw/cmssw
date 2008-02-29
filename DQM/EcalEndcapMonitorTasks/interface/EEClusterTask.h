@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/10/23 09:47:37 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/13 13:20:52 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
  */
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EEClusterTask: public edm::EDAnalyzer{
 
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

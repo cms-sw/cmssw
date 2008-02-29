@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.15 $
+ * $Date: 2007/11/27 10:43:22 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EBBeamHodoTask: public edm::EDAnalyzer{
 
@@ -49,7 +49,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

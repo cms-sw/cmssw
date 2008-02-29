@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.3 2007/11/13 13:20:49 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.4 2007/11/27 14:56:41 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/11/13 13:20:49 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/11/27 14:56:41 $
 */
 
 
@@ -27,7 +27,7 @@
 #include "RelationalAccess/ISessionProxy.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class MonitorElementsDb{
 
@@ -65,7 +65,7 @@ class MonitorElementsDb{
   std::vector<DB_ME>            MEinfo_;
   std::vector<MonitorElement*>  MEs_;
   int                           ievt_;
-  DaqMonitorBEInterface*        dbe_;
+  DQMStore*        dbe_;
   
 };
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/01/24 12:32:23 $
- * $Revision: 1.32 $
+ * $Date: 2008/02/23 14:49:15 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,8 +32,8 @@
 #include "TROOT.h"
 #include "TH1.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 class RunIOV;
 class MonRunIOV;
 
@@ -172,8 +172,8 @@ std::map<std::string,int> clientsStatus_;
 
 EESummaryClient* summaryClient_;
 
-MonitorUserInterface* mui_;
-DaqMonitorBEInterface* dbe_;
+DQMOldReceiver* mui_;
+DQMStore* dbe_;
  
 bool enableUpdate_;
  

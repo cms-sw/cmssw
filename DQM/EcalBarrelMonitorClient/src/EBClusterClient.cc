@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/02/16 10:17:58 $
- * $Revision: 1.54 $
+ * $Date: 2008/02/23 08:39:23 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -18,7 +18,7 @@
 #include "TStyle.h"
 #include "TGaxis.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
@@ -35,9 +35,6 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -83,7 +80,7 @@ EBClusterClient::~EBClusterClient(){
 
 }
 
-void EBClusterClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBClusterClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

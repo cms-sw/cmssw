@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2008/02/04 19:41:12 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,7 +23,7 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
@@ -44,7 +44,7 @@ virtual ~EECosmicClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DaqMonitorBEInterface* dbe);
+void beginJob(DQMStore* dbe);
 
 /// EndJob
 void endJob(void);
@@ -80,15 +80,13 @@ bool cloneME_;
 
 bool verbose_;
 
-bool enableMonitorDaemon_;
-
 std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 MonitorElement* meh01_[18];
 MonitorElement* meh02_[18];

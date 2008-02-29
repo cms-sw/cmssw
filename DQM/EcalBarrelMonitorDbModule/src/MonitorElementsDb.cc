@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.12 2008/02/15 07:11:53 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.13 2008/02/23 10:42:33 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.12 $
-  \date $Date: 2008/02/15 07:11:53 $
+  \version $Revision: 1.13 $
+  \date $Date: 2008/02/23 10:42:33 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -15,9 +15,8 @@
 #include <cmath>
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
@@ -41,7 +40,7 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string x
   xmlFile_ = xmlFile;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   if ( dbe_ ) {
 
@@ -231,14 +230,14 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
 
       const double histMax = 1.e15;
 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (MEs_[i]);
+      TObject* ob = const_cast<MonitorElement*>(MEs_[i])->getRootObject();
       if ( ob ) {
-        if( dynamic_cast<TH1F*>( ob->operator->()) ) {
-          TH1F* h = dynamic_cast<TH1F*> (ob->operator->());
+        if( dynamic_cast<TH1F*>( ob ) ) {
+          TH1F* h = dynamic_cast<TH1F*> ( ob );
           h->Draw( );
         }
-        else if( dynamic_cast<TH2F*>( ob->operator->()) ) {
-          TH2F* h = dynamic_cast<TH2F*>( ob->operator->() );
+        else if( dynamic_cast<TH2F*>( ob ) ) {
+          TH2F* h = dynamic_cast<TH2F*>( ob );
           if( h->GetMaximum(histMax) > 1.e4 ) {
             gPad->SetLogz(1);
           } else {
@@ -246,8 +245,8 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
           }
           h->Draw( "colz" );
         }
-        else if( dynamic_cast<TProfile*>( ob->operator->()) ) {
-          TProfile* h = dynamic_cast<TProfile*>( ob->operator->() );
+        else if( dynamic_cast<TProfile*>( ob ) ) {
+          TProfile* h = dynamic_cast<TProfile*>( ob );
           if( h->GetMaximum(histMax) > 1.e4 ) {
             gPad->SetLogz(1);
           } else {

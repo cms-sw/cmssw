@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.14 2008/01/18 18:04:03 dellaric Exp $
+// $Id: EBClient.h,v 1.15 2008/02/23 08:39:22 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.14 $
-  \date $Date: 2008/01/18 18:04:03 $
+  \version $Revision: 1.15 $
+  \date $Date: 2008/02/23 08:39:22 $
 */
 
 
@@ -15,7 +15,7 @@
 #include <string>
 
 class EcalCondDBInterface;
-class DaqMonitorBEInterface;
+class DQMStore;
 class RunIOV;
 class MonRunIOV;
 
@@ -28,10 +28,10 @@ class EBClient {
   */
   virtual void analyze(void)      = 0;
 
-  /*! \fn virtual void beginJob(DaqMonitorBEInterface* dbe)
+  /*! \fn virtual void beginJob(DQMStore* dbe)
     \brief Begin of job method
   */
-  virtual void beginJob(DaqMonitorBEInterface* dbe)     = 0;
+  virtual void beginJob(DQMStore* dbe)     = 0;
 
   /*! \fn virtual void endJob(void)
     \brief End of Job method

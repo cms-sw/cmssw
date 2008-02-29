@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2008/01/24 12:44:26 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/15 10:40:29 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,7 @@
 #include <cmath>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
@@ -31,7 +31,7 @@
 EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps){
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {

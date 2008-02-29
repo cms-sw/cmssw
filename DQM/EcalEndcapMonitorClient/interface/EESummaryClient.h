@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/01/18 18:04:09 $
- * $Revision: 1.17 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -21,7 +21,7 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
@@ -40,7 +40,7 @@ virtual ~EESummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DaqMonitorBEInterface* dbe);
+void beginJob(DQMStore* dbe);
 
 /// EndJob
 void endJob(void);
@@ -81,8 +81,6 @@ bool cloneME_;
 
 bool verbose_;
 
-bool enableMonitorDaemon_;
-
 bool enableCleanup_;
 
 std::string prefixME_;
@@ -91,7 +89,7 @@ std::vector<int> superModules_;
 
 std::vector<EEClient*> clients_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 MonitorElement* meIntegrity_[2];
 MonitorElement* meIntegrityErr_;

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.191 $
+ * $Date: 2008/02/23 08:50:49 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -53,9 +53,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -107,7 +104,7 @@ EBIntegrityClient::~EBIntegrityClient(){
 
 }
 
-void EBIntegrityClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBIntegrityClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

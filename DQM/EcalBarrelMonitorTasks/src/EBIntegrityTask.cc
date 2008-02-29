@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/02/15 06:55:51 $
- * $Revision: 1.62 $
+ * $Date: 2008/02/23 09:56:54 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
  */
@@ -16,7 +16,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -36,7 +36,7 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 

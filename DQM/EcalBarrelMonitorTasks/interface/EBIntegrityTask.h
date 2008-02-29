@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.21 $
+ * $Date: 2008/01/20 11:13:33 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */
@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EBIntegrityTask: public edm::EDAnalyzer{
 
@@ -49,7 +49,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

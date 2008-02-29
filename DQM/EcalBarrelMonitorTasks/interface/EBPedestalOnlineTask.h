@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2007/11/10 15:01:25 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/13 13:20:50 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EBPedestalOnlineTask: public edm::EDAnalyzer{
 
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

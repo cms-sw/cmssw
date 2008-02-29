@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2008/01/20 16:41:48 $
- * $Revision: 1.49 $
+ * $Date: 2008/02/15 10:40:26 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EcalBarrelMonitorModule: public edm::EDAnalyzer{
 
@@ -69,7 +69,7 @@ bool verbose_;
 
 bool enableEventDisplay_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

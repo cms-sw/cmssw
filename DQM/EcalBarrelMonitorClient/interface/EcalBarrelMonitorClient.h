@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/01/24 12:32:21 $
- * $Revision: 1.96 $
+ * $Date: 2008/02/23 14:49:11 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,8 +32,8 @@
 #include "TROOT.h"
 #include "TH1.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 class RunIOV;
 class MonRunIOV;
 
@@ -170,8 +170,8 @@ std::map<std::string,int> clientsStatus_;
 
 EBSummaryClient* summaryClient_;
 
-MonitorUserInterface* mui_;
-DaqMonitorBEInterface* dbe_;
+DQMOldReceiver* mui_;
+DQMStore* dbe_;
  
 bool enableUpdate_;
  

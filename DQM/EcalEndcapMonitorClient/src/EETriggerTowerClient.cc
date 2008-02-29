@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/02/21 21:30:28 $
- * $Revision: 1.58 $
+ * $Date: 2008/02/23 08:39:26 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -36,9 +36,6 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -108,7 +105,7 @@ EETriggerTowerClient::~EETriggerTowerClient(){
 
 }
 
-void EETriggerTowerClient::beginJob(DaqMonitorBEInterface* dbe){
+void EETriggerTowerClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

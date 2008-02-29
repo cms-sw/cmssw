@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/01/20 16:41:50 $
- * $Revision: 1.11 $
+ * $Date: 2008/02/15 10:40:30 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EcalEndcapMonitorModule: public edm::EDAnalyzer{
 
@@ -69,7 +69,7 @@ bool verbose_;
 
 bool enableEventDisplay_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/21 21:30:28 $
- * $Revision: 1.66 $
+ * $Date: 2008/02/23 08:39:26 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
@@ -50,9 +50,6 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -153,7 +150,7 @@ EELedClient::~EELedClient(){
 
 }
 
-void EELedClient::beginJob(DaqMonitorBEInterface* dbe){
+void EELedClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

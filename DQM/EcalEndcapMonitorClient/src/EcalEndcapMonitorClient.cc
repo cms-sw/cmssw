@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/27 09:14:11 $
- * $Revision: 1.158 $
+ * $Date: 2008/02/29 09:07:22 $
+ * $Revision: 1.159 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,8 +24,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
@@ -706,7 +706,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     // start DQM user interface instance
     // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
-    mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
+    mui_ = new DQMOldReceiver(hostName_, hostPort_, clientName_, 5);
     dbe_ = mui_->getBEInterface();
 
   } else {
@@ -714,7 +714,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     // get hold of back-end interface
 
     mui_ = 0;
-    dbe_ = Service<DaqMonitorBEInterface>().operator->();
+    dbe_ = Service<DQMStore>().operator->();
 
   }
 

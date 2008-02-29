@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2008/02/04 19:41:12 $
- * $Revision: 1.9 $
+ * $Date: 2008/02/11 08:39:53 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EECosmicTask: public edm::EDAnalyzer{
 
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 bool enableCleanup_;
 

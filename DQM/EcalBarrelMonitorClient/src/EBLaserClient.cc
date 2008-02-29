@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/02/21 21:31:50 $
- * $Revision: 1.219 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.220 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
@@ -52,9 +52,6 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -232,7 +229,7 @@ EBLaserClient::~EBLaserClient(){
 
 }
 
-void EBLaserClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBLaserClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/23 08:39:26 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -17,7 +17,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -35,9 +35,6 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -70,7 +67,7 @@ EEStatusFlagsClient::~EEStatusFlagsClient(){
 
 }
 
-void EEStatusFlagsClient::beginJob(DaqMonitorBEInterface* dbe){
+void EEStatusFlagsClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

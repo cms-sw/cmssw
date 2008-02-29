@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2008/01/18 18:04:03 $
- * $Revision: 1.30 $
+ * $Date: 2008/02/23 08:39:22 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -24,7 +24,7 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
@@ -43,7 +43,7 @@ virtual ~EBBeamCaloClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DaqMonitorBEInterface* dbe);
+void beginJob(DQMStore* dbe);
 
 /// EndJob
 void endJob(void);
@@ -83,15 +83,13 @@ bool cloneME_;
 
 bool verbose_;
 
-bool enableMonitorDaemon_;
-
 bool enableCleanup_;
 
 std::string prefixME_;
 
 std::vector<int> superModules_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 //specific task me
 std::vector<int> checkedSteps_;

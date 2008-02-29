@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.13 $
+ * $Date: 2008/02/23 08:50:49 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -40,9 +40,6 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -79,7 +76,7 @@ EEOccupancyClient::~EEOccupancyClient(){
 
 }
 
-void EEOccupancyClient::beginJob(DaqMonitorBEInterface* dbe){
+void EEOccupancyClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

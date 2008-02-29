@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/02/21 20:44:06 $
- * $Revision: 1.124 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -44,9 +44,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -91,7 +88,7 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
 }
 
-void EBPedestalOnlineClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBPedestalOnlineClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

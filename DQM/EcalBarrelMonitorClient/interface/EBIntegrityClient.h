@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2008/01/20 13:34:26 $
- * $Revision: 1.58 $
+ * $Date: 2008/02/23 08:39:22 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,7 +23,7 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
@@ -44,7 +44,7 @@ virtual ~EBIntegrityClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DaqMonitorBEInterface* mui);
+void beginJob(DQMStore* mui);
 
 /// EndJob
 void endJob(void);
@@ -80,15 +80,13 @@ bool cloneME_;
 
 bool verbose_;
 
-bool enableMonitorDaemon_;
-
 bool enableCleanup_;
 
 std::string prefixME_;
 
 std::vector<int> superModules_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 TH1F* h00_;
 

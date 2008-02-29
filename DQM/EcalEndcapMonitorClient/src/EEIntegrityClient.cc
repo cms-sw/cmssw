@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.64 $
+ * $Date: 2008/02/23 08:50:49 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -57,9 +57,6 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -111,7 +108,7 @@ EEIntegrityClient::~EEIntegrityClient(){
 
 }
 
-void EEIntegrityClient::beginJob(DaqMonitorBEInterface* dbe){
+void EEIntegrityClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

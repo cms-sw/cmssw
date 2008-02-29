@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2008/01/18 18:04:09 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,7 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
@@ -46,7 +46,7 @@ virtual ~EETriggerTowerClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DaqMonitorBEInterface* dbe);
+void beginJob(DQMStore* dbe);
 
 /// EndJob
 void endJob(void);
@@ -84,15 +84,13 @@ bool cloneME_;
 
 bool verbose_;
 
-bool enableMonitorDaemon_;
-
 bool enableCleanup_;
 
 std::string prefixME_;
 
 std::vector<int> superModules_;
 
-DaqMonitorBEInterface* dbe_;
+DQMStore* dbe_;
 
 MonitorElement* meh01_[18];
 MonitorElement* meh02_[18];

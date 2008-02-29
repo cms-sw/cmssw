@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/01/27 18:46:29 $
- * $Revision: 1.63 $
+ * $Date: 2008/02/23 09:56:55 $
+ * $Revision: 1.64 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -14,7 +14,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -33,7 +33,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -107,7 +107,7 @@ void EBTriggerTowerTask::setup(void){
            "EcalBarrel/EBTriggerTowerTask/Emulated", true);
   }
   else {
-    LogError("EBTriggerTowerTask")<<"Bad DaqMonitorBEInterface, "
+    LogError("EBTriggerTowerTask")<<"Bad DQMStore, "
                                   <<"cannot book MonitorElements."<<endl;
   }
 }

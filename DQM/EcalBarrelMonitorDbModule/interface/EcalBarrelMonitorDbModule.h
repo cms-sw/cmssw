@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2007/12/13 09:52:03 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/15 10:40:25 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -19,7 +19,7 @@
 
 #include <string>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class MonitorElementsDb;
 class coral::ISessionProxy;
@@ -49,7 +49,7 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   
   int icycle_;
  
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   std::string htmlDir_;
 

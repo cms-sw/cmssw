@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/02/16 10:18:00 $
- * $Revision: 1.49 $
+ * $Date: 2008/02/23 08:39:25 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,7 +18,7 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
@@ -41,9 +41,6 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -78,7 +75,7 @@ EECosmicClient::~EECosmicClient(){
 
 }
 
-void EECosmicClient::beginJob(DaqMonitorBEInterface* dbe){
+void EECosmicClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

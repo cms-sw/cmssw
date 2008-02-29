@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/20 17:04:37 $
- * $Revision: 1.190 $
+ * $Date: 2008/02/23 08:39:24 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
@@ -47,9 +47,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -126,7 +123,7 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 }
 
-void EBTestPulseClient::beginJob(DaqMonitorBEInterface* dbe){
+void EBTestPulseClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 

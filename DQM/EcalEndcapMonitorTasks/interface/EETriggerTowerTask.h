@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/12/30 13:36:34 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/04 15:23:03 $
+ * $Revision: 1.11 $
  * \author C. Bernet
  *
 */
@@ -19,7 +19,7 @@
 #include <vector>
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class EETriggerTowerTask : public edm::EDAnalyzer {
 
@@ -113,7 +113,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   bool init_;
 
   /// DQM back-end interface
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   /// to find the input collection of real digis 
   edm::InputTag realCollection_;
