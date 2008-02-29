@@ -1,17 +1,8 @@
 <lcgdict>
 
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>, std::vector<reco::SuperCluster>, unsigned int > >" >
-    <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackCandidate> >, edm::RefProd<std::vector<reco::SuperCluster> > >"/>
 
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>, std::vector<reco::SuperCluster>, unsigned int > >" >
-    <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<reco::SuperCluster> > >"/>
-  <class pattern="edm::KeyVal<*SuperCluster*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*SuperCluster*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*SuperCluster*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*SuperCluster*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*SuperCluster*>" />
+   <class name="std::vector<reco::SuperClusterRef>" />
+   <class name="edm::ValueMap<reco::SuperClusterRef>" />
+   <class name="edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> >" />
+
 </lcgdict>                                                                                                                                                        

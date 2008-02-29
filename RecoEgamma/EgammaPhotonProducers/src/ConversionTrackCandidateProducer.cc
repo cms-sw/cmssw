@@ -236,15 +236,18 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
  edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidate_p).size() << "\n";
  const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put( inOutTrackCandidate_p, InOutTrackCandidateCollection_ );
  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
+
+
   
 
- LogDebug("ConversionTrackCandidateProducer") << " ConversionTrackCandidateProduce Going to fill association maps  " <<  "\n";
- for (unsigned int i=0;i< vecOfSCRefForOutIn.size(); ++i) {
-   outInAssoc_p->insert(edm::Ref<TrackCandidateCollection>(refprodOutInTrackC,i), vecOfSCRefForOutIn[i]  );
- }
- for (unsigned int i=0;i< vecOfSCRefForInOut.size(); ++i) {
-   inOutAssoc_p->insert(edm::Ref<TrackCandidateCollection>(refprodInOutTrackC,i), vecOfSCRefForInOut[i]  );
- }
+ edm::ValueMap<reco::SuperClusterRef>::Filler fillerOI(*outInAssoc_p);
+ fillerOI.insert(refprodOutInTrackC, vecOfSCRefForOutIn.begin(), vecOfSCRefForOutIn.end());
+ fillerOI.fill();
+ edm::ValueMap<reco::SuperClusterRef>::Filler fillerIO(*inOutAssoc_p);
+ fillerIO.insert(refprodInOutTrackC, vecOfSCRefForInOut.begin(), vecOfSCRefForInOut.end());
+ fillerIO.fill();
+
+
  
 
   

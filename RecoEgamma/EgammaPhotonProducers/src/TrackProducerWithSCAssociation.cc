@@ -173,13 +173,18 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
     edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
-    // edm::Ref<SuperClusterCollection> scRef= assocTCSeed[trackCRef];
     reco::SuperClusterRef scRef( scTrkCandAssCollection[trackCRef] );
     vecOfSCRef.push_back( scRef );
-    scTrkAssoc_p->insert(trackRef,vecOfSCRef[itrack]);
     itrack++;
   }
-  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to put the Track-SC map in the event " << std::endl;
+
+
+  edm::ValueMap<reco::SuperClusterRef>::Filler filler(*scTrkAssoc_p);
+  filler.insert(rTracks_, vecOfSCRef.begin(), vecOfSCRef.end());
+  filler.fill();
+  
+
+  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to put the Track-SC map in the event with size  " << (*scTrkAssoc_p).size() << std::endl;
   theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
   
   LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
