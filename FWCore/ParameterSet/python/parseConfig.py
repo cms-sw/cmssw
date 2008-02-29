@@ -110,7 +110,6 @@ def _findAndHandleParameterIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            #print "EXTRACT "+l
             newValues.extend(v.extract(l, otherFiles,
                                        recurseFiles,
                                        onlyParameters.parseFile,
@@ -127,7 +126,6 @@ def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            #print "EXTREACT "+l
             newValues.extend(v.extract(l, otherFiles,
                                        recurseFiles,
                                        onlyProcessBody.parseFile,
@@ -1005,7 +1003,7 @@ class _ReplaceSetter(object):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
-        if nodots.isdigit() or (len(nodots) > 0 and nodots[0] == '-'):
+        if nodots.isdigit() or (len(nodots) > 0 and nodots[0] == '-') or (len(nodots) > 1 and (nodots[0:2] == '0x' or nodots[0:2] == '0X')):
             pass
         elif result == 'true':
             result = 'True'
