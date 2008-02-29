@@ -483,6 +483,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     if(epInitialized_)
       {
 	startMonitoringWorkLoop();
+	evtProcessor_->beginJob();
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
       }
@@ -491,7 +492,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-
+  
   return false;
 }
 
@@ -583,6 +584,22 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  ModuleWebRegistry *mwr = 0;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+  
+  if(mwr) 
+    {
+      mwr->clear();
+    }
+
   edm::event_processor::State st = evtProcessor_->getState();
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
@@ -740,8 +757,10 @@ void FUEventProcessor::initEventProcessor()
 		     "exception when trying to get service ModuleWebRegistry");
     }
 
-    if(mwr) mwr->publish(getApplicationInfoSpace());
-
+    if(mwr) 
+      {
+	mwr->publish(getApplicationInfoSpace());
+      }
     // get the prescale service
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Checking for edm::service::PrescaleService!");
@@ -1239,102 +1258,105 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</table>" << endl;
   *out << "</tr>"                                            << endl;
 
-  edm::TriggerReport tr; 
-  evtProcessor_->getTriggerReport(tr);
+  if(evtProcessor_)
+    {
+      edm::TriggerReport tr; 
+      evtProcessor_->getTriggerReport(tr);
 
-  *out << "<tr valign=\"top\">"						<< endl;
-  *out << "<td>"							<< endl;
-  //status table
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"			<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=2>"						<< endl;
-  *out << "      " << "Status"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Parameter"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "    <th>"							<< endl;
-  *out << "       Value"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >"							<< endl;
-  *out << "       EP state"						<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " << evtProcessor_->currentStateName()			<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "       edm::EP initialized"					<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " <<epInitialized_					<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >"							<< endl;
-  *out << "       Processed Events/Accepted Events"			<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " << evtProcessor_->totalEvents() << "/" 
-       << evtProcessor_->totalEventsPassed()				<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td>Endpaths State</td>"					<< endl;
-  *out << "    <td";
-  *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
-	   " bgcolor=\"red\"> disabled" );
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  /* obsolete
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >Global Input Prescale</td>"				<< endl;
-  *out << "    <td> N/A this version</td>"				<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >Global Output Prescale</td>"			<< endl;
-  *out << "    <td>N/A this version</td>"				<< endl;
-  *out << "  </tr>"							<< endl;
-  */
-  *out << "</table>"							<< endl;
+      *out << "<tr valign=\"top\">"						<< endl;
+      *out << "<td>"							<< endl;
+      //status table
+      *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
+      *out << "<colgroup> <colgroup align=\"rigth\">"			<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th colspan=2>"						<< endl;
+      *out << "      " << "Status"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th >"							<< endl;
+      *out << "       Parameter"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "    <th>"							<< endl;
+      *out << "       Value"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td >"							<< endl;
+      *out << "       EP state"						<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " << evtProcessor_->currentStateName()			<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "       edm::EP initialized"					<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " <<epInitialized_					<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td >"							<< endl;
+      *out << "       Processed Events/Accepted Events"			<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " << evtProcessor_->totalEvents() << "/" 
+	   << evtProcessor_->totalEventsPassed()				<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td>Endpaths State</td>"					<< endl;
+      *out << "    <td";
+      *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
+	       " bgcolor=\"red\"> disabled" );
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      /* obsolete
+       *out << "  <tr>"							<< endl;
+       *out << "    <td >Global Input Prescale</td>"				<< endl;
+       *out << "    <td> N/A this version</td>"				<< endl;
+       *out << "  </tr>"							<< endl;
+       *out << "  <tr>"							<< endl;
+       *out << "    <td >Global Output Prescale</td>"			<< endl;
+       *out << "    <td>N/A this version</td>"				<< endl;
+       *out << "  </tr>"							<< endl;
+       */
+      *out << "</table>"							<< endl;
 
-  *out << "<td>" << endl;
-  // trigger summary table
-  *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=5>"						<< endl;
-  *out << "      " << "Trigger Summary"					<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
+      *out << "<td>" << endl;
+      // trigger summary table
+      *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th colspan=5>"						<< endl;
+      *out << "      " << "Trigger Summary"					<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
 
-  *out << "  <tr >"							<< endl;
-  *out << "    <th >Path</th>"						<< endl;
-  *out << "    <th >Exec</th>"						<< endl;
-  *out << "    <th >Pass</th>"						<< endl;
-  *out << "    <th >Fail</th>"						<< endl;
-  *out << "    <th >Except</th>"					<< endl;
-  *out << "  </tr>"							<< endl;
+      *out << "  <tr >"							<< endl;
+      *out << "    <th >Path</th>"						<< endl;
+      *out << "    <th >Exec</th>"						<< endl;
+      *out << "    <th >Pass</th>"						<< endl;
+      *out << "    <th >Fail</th>"						<< endl;
+      *out << "    <th >Except</th>"					<< endl;
+      *out << "  </tr>"							<< endl;
 
 
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    *out << "  <tr>" << endl;
-    *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
-    *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
-    *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
-    *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
-    *out << "    <td ";
-    if(tr.trigPathSummaries[i].timesExcept !=0)
-      *out << "bgcolor=\"red\""		      					<< endl;
-    *out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< endl;
-    *out << "  </tr >"								<< endl;
-
-  }
+      for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
+	*out << "  <tr>" << endl;
+	*out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
+	*out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
+	*out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
+	*out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
+	*out << "    <td ";
+	if(tr.trigPathSummaries[i].timesExcept !=0)
+	  *out << "bgcolor=\"red\""		      					<< endl;
+	*out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< endl;
+	*out << "  </tr >"								<< endl;
+	
+      }
+    }
   *out << "</table>" << endl;
   *out << "</td>" << endl;
   *out << "</tr>" << endl;
@@ -1696,14 +1718,16 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   gettimeofday(&monEndTime,&timezone);
 
   //detect failures of edm event processor and fire failed transition
-  edm::event_processor::State st = evtProcessor_->getState();
-  if(fsm_.stateName()->toString()=="Enabled" && st != edm::event_processor::sRunning)
+  if(evtProcessor_)
     {
-      reasonForFailedState_ = "edm failure, EP state ";
-      reasonForFailedState_ += evtProcessor_->currentStateName();
-      fsm_.fireFailed(reasonForFailedState_,this);
+      edm::event_processor::State st = evtProcessor_->getState();
+      if(fsm_.stateName()->toString()=="Enabled" && st != edm::event_processor::sRunning)
+	{
+	  reasonForFailedState_ = "edm failure, EP state ";
+	  reasonForFailedState_ += evtProcessor_->currentStateName();
+	  fsm_.fireFailed(reasonForFailedState_,this);
+	}
     }
-
   edm::ServiceRegistry::Operate operate(serviceToken_);
   MicroStateService *mss = 0;
 
