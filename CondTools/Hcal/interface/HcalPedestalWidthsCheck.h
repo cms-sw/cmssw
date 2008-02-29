@@ -51,7 +51,11 @@ class HcalPedestalWidthsCheck: public edm::EDAnalyzer
 
  private:
   std::string outfile;
-
+  std::string dumprefs;
+  std::string dumpupdate;
+  bool checkemapflag;
+  bool validateflag;
+  double epsilon;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestalWidths> &);
   
 

@@ -2,7 +2,12 @@
 
 HcalPedestalWidthsCheck::HcalPedestalWidthsCheck(edm::ParameterSet const& ps)
 {
-  outfile = ps.getUntrackedParameter<std::string>("outFile","Dump");
+  outfile = ps.getUntrackedParameter<std::string>("outFile","null");
+  dumprefs = ps.getUntrackedParameter<std::string>("dumpRefWidthsTo","null");
+  dumpupdate = ps.getUntrackedParameter<std::string>("dumpUpdateWidthsTo","null");
+  checkemapflag = ps.getUntrackedParameter<bool>("checkEmap",false);
+  validateflag = ps.getUntrackedParameter<bool>("validateWidths",false);
+  epsilon = ps.getUntrackedParameter<double>("deltaW",0);
 }
 
 HcalPedestalWidthsCheck::~HcalPedestalWidthsCheck()
@@ -29,19 +34,17 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
   const HcalElectronicsMap* myRefEMap = refEMap.product();
 
 
-    // dump pedestals:
-//    std::ostringstream filename;
-//    filename << "test_update.txt";
-//    std::ofstream outStream(filename.str().c_str());
-//    std::cout << "--- Dumping PedestalWidths - update ---" << std::endl;
-//    HcalDbASCIIIO::dumpObject (outStream, (*myNewPeds) );
-//
-//    std::ostringstream filename2;
-//    filename2 << "test_reference.txt";
-//    std::ofstream outStream2(filename2.str().c_str());
-//    std::cout << "--- Dumping PedestalWidths - reference ---" << std::endl;
-//    HcalDbASCIIIO::dumpObject (outStream2, (*myRefPeds) );
-
+   // dump pedestals:
+   if(dumpupdate.compare("null")!=0){
+    std::ofstream outStream(dumpupdate.c_str());
+    std::cout << "--- Dumping PedestalWidths - update ---" << std::endl;
+    HcalDbASCIIIO::dumpObject (outStream, (*myNewPeds) );
+   }
+   if(dumprefs.compare("null")!=0){
+    std::ofstream outStream2(dumprefs.c_str());
+    std::cout << "--- Dumping PedestalWidths - reference ---" << std::endl;
+    HcalDbASCIIIO::dumpObject (outStream2, (*myRefPeds) );
+   }
     // first get the list of all channels from the update
     std::vector<DetId> listNewChan = myNewPeds->getAllChannels();
     
@@ -51,7 +54,59 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     HcalPedestalWidths *resultPeds = new HcalPedestalWidths();
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
+
+    if(validateflag){
     for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+      {
+        DetId mydetid = *it;
+        cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
+        if (cell == listNewChan.end()) // not present in new list, take old pedestals
+          {
+		throw cms::Exception("DataDoesNotMatch")<<"Value not found in reference" << std::endl;
+          }
+        else // present in new list, take new pedestals
+          {
+            const HcalPedestalWidth* first = myNewPeds->getValues( mydetid );
+            const HcalPedestalWidth* second = myRefPeds->getValues( mydetid );
+            const float* newwidth = first->getValues();
+            const float* oldwidth = second->getValues();
+            if( (*newwidth != *oldwidth) || (*(newwidth+1)!=*(oldwidth+1)) || (*(newwidth+2)!=*(oldwidth+2)) || (*(newwidth+3)!=*(oldwidth+3)) || (*(newwidth+4)!=*(oldwidth+4)) || (*(newwidth+5)!=*(oldwidth+5)) || (*(newwidth+6)!=*(oldwidth+6)) || (*(newwidth+7)!=*(oldwidth+7)) || (*(newwidth+8)!=*(oldwidth+8)) || (*(newwidth+9)!=*(oldwidth+9))){
+                 throw cms::Exception("DataDoesNotMatch") << "Values are not identical" << std::endl;
+            }
+            listNewChan.erase(cell);  // fix 25.02.08
+          }
+      }
+      std::cout << "These are identical" << std::endl;
+    }
+
+
+
+
+  if(epsilon!=0){
+    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+      {
+        DetId mydetid = *it;
+        cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
+        if (cell == listNewChan.end()) // not present in new list, take old pedestals
+          {
+                throw cms::Exception("DataDoesNotMatch")<<"Value not found in reference" << std::endl;
+          }
+        else // present in new list, take new pedestals
+          {
+            const HcalPedestalWidth* first = myNewPeds->getValues( mydetid );
+            const HcalPedestalWidth* second = myRefPeds->getValues( mydetid );
+            const float* newwidth = first->getValues();
+            const float* oldwidth = second->getValues();
+            if( fabs(*newwidth-*oldwidth)>epsilon || fabs(*(newwidth+1)-*(oldwidth+1))>epsilon || fabs(*(newwidth+2)-*(oldwidth+2))>epsilon || fabs(*(newwidth+3)-*(oldwidth+3))>epsilon || fabs(*(newwidth+4)-*(oldwidth+4))>epsilon || fabs(*(newwidth+5)-*(oldwidth+5))>epsilon || fabs(*(newwidth+6)-*(oldwidth+6))>epsilon || fabs(*(newwidth+7)-*(oldwidth+7))>epsilon || fabs(*(newwidth+8)-*(oldwidth+8))>epsilon || fabs(*(newwidth+9)-*(oldwidth+9))>epsilon){
+                 throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaW" << std::endl;
+            }
+            listNewChan.erase(cell);  // fix 25.02.08
+          }
+      }
+      std::cout << "These are identical" << std::endl;
+    }
+   if(outfile.compare("null")!=0){
+   for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
 	DetId mydetid = *it;
 	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
@@ -87,10 +142,17 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	std::cout << "N";
 	resultPeds->setWidth( *mywidth );
       }
+    // dump the resulting list of pedestals into a file
+    std::ofstream outStream3(outfile.c_str());
+    std::cout << "--- Dumping PedestalWidths - the combined ones ---" << std::endl;
+    resultPeds->sort();
+    HcalDbASCIIIO::dumpObject (outStream3, (*resultPeds) );
 
 
+
+    }
     std::cout << std::endl;
-
+    if(checkemapflag){
     std::vector<DetId> listResult = resultPeds->getAllChannels();
     // get the e-map list of channels
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
@@ -103,18 +165,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	    std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;
 	  }
       }
-
-
-    // dump the resulting list of pedestals into a file
-    std::ofstream outStream3(outfile.c_str());
-    std::cout << "--- Dumping PedestalWidths - the combined ones ---" << std::endl;
-    resultPeds->sort();
-    HcalDbASCIIIO::dumpObject (outStream3, (*resultPeds) );
-
-
-    // const float* values = myped->getValues (channelID);
-    //    if (values) std::cout << "pedestals for channel " << channelID << ": "
-    //			  << values [0] << '/' << values [1] << '/' << values [2] << '/' << values [3] << std::endl; 
+    }
 
 }
 
