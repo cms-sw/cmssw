@@ -37,7 +37,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
       virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double dR ) const ;
+							  double             dR ) const ;
 
       static std::string hitString() { return "EcalHitsEB" ; }
 

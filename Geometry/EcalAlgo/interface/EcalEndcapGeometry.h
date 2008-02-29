@@ -32,6 +32,9 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
+      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const ;
+
       void initialize();
 
       static std::string hitString() { return "EcalHitsEE" ; }

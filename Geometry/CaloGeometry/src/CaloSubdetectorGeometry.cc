@@ -91,7 +91,9 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
       if( fabs( eta - eta0 ) <= dR )
       {
 	 const double phi0 ( p.phi() ) ;
-	 if( fabs( phi - phi0 ) <= dR )
+	 double delp ( fabs( phi - phi0 ) ) ;
+	 if( delp > M_PI ) delp = 2*M_PI - delp ;
+	 if( delp <= dR )
 	 {
 	    const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
 	    if( dist2 <= dR2 ) dss.insert( i->first ) ;

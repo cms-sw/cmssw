@@ -5,8 +5,10 @@
 
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
+#include <CLHEP/Geometry/Vector3D.h>
 
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -249,50 +251,82 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 
 }
 
-#include <iostream>
-CaloSubdetectorGeometry::DetIdSet EcalBarrelGeometry::getCells(const GlobalPoint& r, double dR) const {
-  double lowEta=r.eta()-dR;
-  double highEta=r.eta()+dR;
-  
-  CaloSubdetectorGeometry::DetIdSet dis;
-  if (highEta<-2.0 || lowEta>2.0) return dis;
+CaloSubdetectorGeometry::DetIdSet 
+EcalBarrelGeometry::getCells( const GlobalPoint& r, 
+			      double             dR ) const 
+{
+   static const int maxphi ( EBDetId::MAX_IPHI ) ;
+   static const int maxeta ( EBDetId::MAX_IETA ) ;
+   CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
+   dR = fabs( dR ) ; // just in case
+   if( dR > M_PI/2. ) // this version needs "small" dR
+   {
+      dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
+   }
+   else
+   {
+      const double dR2     ( dR*dR ) ;
+      const double reta    ( r.eta() ) ;
+      const double rz      ( r.z()   ) ;
+      const double rphi    ( r.phi() ) ;
+      const double lowEta  ( reta - dR ) ;
+      const double highEta ( reta + dR ) ;
 
-  const double scale=EBDetId::MAX_IPHI/(2*M_PI);
-  int ieta_center=int(r.eta()*scale+((r.z()<0)?(-1):(1)));
-  double phi=r.phi();  if (phi<0) phi+=2*M_PI;
-  int iphi_center=int(phi*scale+0.5)+10; // -10 for current geometry!
-  if (iphi_center<=0) iphi_center+=EBDetId::MAX_IPHI;
-  if (iphi_center>EBDetId::MAX_IPHI) iphi_center-=EBDetId::MAX_IPHI;
+      if( highEta > -1.5 &&
+	  lowEta  <  1.5    ) // in barrel
+      {
+	 const double scale       ( maxphi/(2*M_PI) ) ; // angle to index
+	 const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
+	 const double phi         ( rphi<0 ? rphi + 2*M_PI : rphi ) ;
+	 const int    iphi_center ( int( phi*scale + 11. ) ) ; // phi=-9.4deg is iphi=1
 
-  double fr=dR/(2*M_PI/360);
-  int idr=int(fr+0.5)+1;
-  int idr2=int(fr*fr+4*fr+0.5);
-  int idr2m=int(fr*fr-4*fr+0.5);
-  for (int de=-idr; de<=idr; de++) {
-    int ieta=de+ieta_center;
+	 const double fr    ( dR*scale    ) ; // # crystal widths in dR
+	 const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
+	 const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
+	 const int    idr   ( frp         ) ; // integerize
+	 const int    idr2p ( frp*frp     ) ;
+	 const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
 
-    if (ieta<=0 && ieta_center>0) ieta-=1; // go a little further
-    if (ieta>=0 && ieta_center<0) ieta+=1; // go a little further
+	 for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
+	 {
+	    int ieta ( de + ieta_center ) ;
 	
-    if (ieta<-EBDetId::MAX_IETA || ieta==0 || ieta>EBDetId::MAX_IETA) continue; // not in EB
-    for (int dp=-idr; dp<=idr; dp++) {
-      int irange2=dp*dp+de*de;
-	  
-      int iphi=iphi_center+dp;
-      if (iphi<1) iphi+=EBDetId::MAX_IPHI;
-      else if (iphi>EBDetId::MAX_IPHI) iphi-=EBDetId::MAX_IPHI;
-      
-      if (irange2>idr2) continue;
+	    if( abs(ieta) <= maxeta &&
+		ieta      != 0         ) // eta is in EB
+	    {
+	       const int de2 ( de*de ) ;
+	       for( int dp ( -idr ) ; dp <= idr ; ++dp )  // over phi limits
+	       {
+		  const int irange2 ( dp*dp + de2 ) ;
 
-      EBDetId id(ieta,iphi);
-      bool ok=(irange2<idr2m);
-      if (!ok) {
-	const CaloCellGeometry* cell=getGeometry(id);
-	ok=(cell!=0 && deltaR(r,cell->getPosition())<=dR);
-	if (cell==0) std::cout << id << std::endl;	  
+		  if( irange2 <= idr2p ) // cut off corners that must be too far away
+		  {
+		     const int iphi ( ( iphi_center + dp + maxphi - 1 )%maxphi + 1 ) ;
+
+		     if( iphi != 0 )
+		     {
+			const EBDetId id ( ieta, iphi ) ;
+			
+			bool ok ( irange2 <= idr2m ) ;  // no more calculation necessary if inside this radius
+
+			if( !ok ) // if not ok, then we have to test this cell for being inside cone
+			{
+			   const CaloCellGeometry* cell ( getGeometry( id ) );
+			   if( 0 != cell )
+			   {
+			      const GlobalPoint& p   ( cell->getPosition() ) ;
+			      const double       eta ( p.eta() ) ;
+			      const double       phi ( p.phi() ) ;
+			      ok = ( reco::deltaR2( eta, phi, reta, rphi ) <= dR2 ) ;
+			   }
+			}
+			if( ok ) dis.insert( id ) ;
+		     }
+		  }
+	       }
+	    }
+	 }
       }
-      if (ok) dis.insert(id);
-    }
-  }
-  return dis;
+   }
+   return dis;
 }
