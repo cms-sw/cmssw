@@ -32,7 +32,8 @@ public:
                float tpeak,
                float posInStrip,
                float errInStrip,
-	       int quality ); 
+	       int quality,
+               short int badStrip=0, short int badWireGroup=0 ); 
 	
   ~CSCRecHit2D();
 
@@ -43,7 +44,7 @@ public:
   CSCDetId cscDetId() const { return geographicalId(); }
 
   /// Container of strip channel numbers comprising the rechit
-  const ChannelContainer& channels() const { return theChaCo; }
+  const ChannelContainer& channels() const { return theStrips; }
 
   /// Map of strip ADCs for strips comprising the rechit
   const ADCContainer& adcs() const { return theADCs; }
@@ -63,17 +64,23 @@ public:
   /// quality flag of the reconstruction
   int quality() const { return theQuality;}
 
+  /// flags for involvement of 'bad' channels
+  short int badStrip() const { return theBadStrip; }
+  short int badWireGroup() const { return theBadWireGroup; }
+
 private:
 	
   LocalPoint theLocalPosition;
   LocalError theLocalError;
-  ChannelContainer theChaCo;
+  ChannelContainer theStrips;
   ADCContainer theADCs;
   ChannelContainer theWireGroups;
   float theTpeak;
   float thePositionWithinStrip; 
   float theErrorWithinStrip;
   int theQuality;
+  short int theBadStrip;
+  short int theBadWireGroup;
  
 };
 

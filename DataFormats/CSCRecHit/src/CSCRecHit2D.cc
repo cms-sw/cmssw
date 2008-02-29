@@ -4,13 +4,13 @@
 CSCRecHit2D::CSCRecHit2D() :
   theLocalPosition(0.,0.), 
   theLocalError(0.,0.,0.),
-  theChaCo( ChannelContainer() ),
+  theStrips( ChannelContainer() ),
   theADCs( ADCContainer() ),
   theWireGroups( ChannelContainer() ),
   theTpeak( -999. ),  
   thePositionWithinStrip(-999.),
   theErrorWithinStrip(-999.),
-  theQuality( 0 )
+  theQuality( 0 ), theBadStrip( 0 ), theBadWireGroup( 0 )
 {}
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
@@ -22,17 +22,17 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
                           float tpeak, 
 			  float posInStrip, 
                           float errInStrip,
-			  int quality ):
+			  int quality, short int badStrip, short int badWireGroup ):
   RecHit2DLocalPos( id ), 
   theLocalPosition( pos ), 
   theLocalError( err ),
-  theChaCo( channels ),
+  theStrips( channels ),
   theADCs( adcs ),
   theWireGroups( wgroups ),
   theTpeak( tpeak ),
   thePositionWithinStrip( posInStrip ),
   theErrorWithinStrip( errInStrip ),
-  theQuality( quality )
+  theQuality( quality ), theBadStrip( badStrip ), theBadWireGroup( badWireGroup )
 {}
 
 CSCRecHit2D::~CSCRecHit2D() {}
