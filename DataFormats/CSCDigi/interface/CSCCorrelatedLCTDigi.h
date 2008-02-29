@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2007/09/24 10:14:47 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/15 15:08:17 $
+ * $Revision: 1.13 $
  *
  * \author L. Gray, UF
  */
@@ -80,6 +80,9 @@ class CSCCorrelatedLCTDigi
 
   /// set wiregroup number
   void setWireGroup(unsigned int wiregroup) {keywire= wiregroup;}
+
+  /// set quality code
+  void setQuality(unsigned int q) {quality=q;}
 
  private:
   uint16_t trknmb;
