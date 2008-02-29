@@ -15,10 +15,10 @@ namespace HepMC { class GenEvent; class PDFInfo;}
 class GenEventPdfInfoProducer : public edm::EDProducer {
  public:
   /// constructor
-  GenEventPdfInfoProducer( const edm::ParameterSet & );
+  GenEventPdfInfoProducer(const edm::ParameterSet &);
 
  private:
-  void produce( edm::Event& evt, const edm::EventSetup& es );
+  void produce(edm::Event& evt, const edm::EventSetup& es);
   edm::InputTag src_;
 };
 
@@ -32,27 +32,22 @@ using namespace edm;
 using namespace std;
 using namespace HepMC;
 
-GenEventPdfInfoProducer::GenEventPdfInfoProducer( const ParameterSet & p ) :
-  src_( p.getParameter<InputTag>( "src" ) ) {
+GenEventPdfInfoProducer::GenEventPdfInfoProducer(const ParameterSet & p) :
+  src_(p.getParameter<InputTag>("src")) {
   produces<reco::PdfInfo>();
 }
 
-
-void GenEventPdfInfoProducer::produce( Event& evt, const EventSetup& es ) {
-
+void GenEventPdfInfoProducer::produce(Event& evt, const EventSetup& es) {
   // get the HepMC
   Handle<HepMCProduct> mcp;
-  evt.getByLabel( src_, mcp );
+  evt.getByLabel(src_, mcp);
   const GenEvent * mc = mcp->GetEvent();
-  if( mc == 0 ) {
-    throw edm::Exception( edm::errors::InvalidReference ) 
-      << "HepMC has null pointer to GenEvent" << endl;  
+  if(mc == 0) {
+    throw edm::Exception(edm::errors::InvalidReference) 
+      << "HepMC has null pointer to GenEvent\n";
   }
-  
   PdfInfo* pdf_info = mc->pdf_info();    
-  auto_ptr<reco::PdfInfo> info( new reco::PdfInfo() );
-
-  
+  auto_ptr<reco::PdfInfo> info(new reco::PdfInfo);
   if (pdf_info != 0) {
      info->id1 = pdf_info->id1();
      info->id2 = pdf_info->id2();
@@ -61,7 +56,6 @@ void GenEventPdfInfoProducer::produce( Event& evt, const EventSetup& es ) {
      info->scalePDF = pdf_info->scalePDF();
      info->pdf1 = pdf_info->pdf1();
      info->pdf2 = pdf_info->pdf2();
-     
   } else {
      info->id1 = -99;
      info->id2 = -99;  
@@ -71,11 +65,9 @@ void GenEventPdfInfoProducer::produce( Event& evt, const EventSetup& es ) {
      info->pdf1 = -1.;
      info->pdf2 = -1.;         
   }
-
-  evt.put( info );
-  
+  evt.put(info);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( GenEventPdfInfoProducer );
+DEFINE_FWK_MODULE(GenEventPdfInfoProducer);
