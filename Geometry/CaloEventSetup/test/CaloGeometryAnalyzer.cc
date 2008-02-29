@@ -37,6 +37,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <fstream>
 #include <iomanip>
+#include <iterator>
 
 //
 // class decleration
@@ -69,6 +70,10 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
 		   unsigned int iy,
 		   unsigned int iz,
 		   const EEDetId& did ) const ;
+
+      void cmpset( const CaloSubdetectorGeometry* geom ,
+		   const GlobalPoint&             gp   ,
+		   const double                   dR     ) ;
 };
 
 //
@@ -96,6 +101,106 @@ CaloGeometryAnalyzer::~CaloGeometryAnalyzer()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
+}
+
+void 
+CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
+			      const GlobalPoint&             gp   ,
+			      const double                   dR     ) 
+{
+   typedef CaloSubdetectorGeometry::DetIdSet DetSet ;
+//   typedef std::vector< CaloSubdetectorGeometry::DetIdSet::value_type > DetVec ;
+   const DetSet base ( geom->CaloSubdetectorGeometry::getCells( gp, dR ) ) ;
+   const DetSet over ( geom->getCells( gp, dR ) ) ;
+   assert( over == base ) ;
+/*
+   if( over == base )
+   {
+      std::cout << "getCells Test dR="
+		<< dR
+		<< ", gp=" << gp 
+		<< ", gp.eta=" << gp.eta() 
+		<< ", gp.phi=" << gp.phi() 
+		<< ": base and over are equal!\n ***************************\n " 
+		<< std::endl ;
+   }
+   else
+   {
+      DetSet inBaseNotOver ;
+      DetSet inOverNotBase ;
+      std::set_difference( base.begin(), base.end(), 
+			   over.begin(), over.end(),
+			   std::inserter( inBaseNotOver,
+					  inBaseNotOver.begin() )  ) ;
+
+      if( inBaseNotOver.empty() )
+      {
+	 std::cout << "getCells Test dR="
+		   << dR
+		   << ", gp=" << gp 
+		   << ", gp.eta=" << gp.eta() 
+		   << ", gp.phi=" << gp.phi() 
+		   << ": No elements in base but not overload " 
+		   << std::endl ;
+      }
+      else
+      {
+	 std::cout << "Length of Base is "<<base.size() <<std::endl ;
+	 std::cout << "Length of Over is "<<over.size() <<std::endl ;
+	 std::cout << "There are "<<inBaseNotOver.size()
+		   << " items in Base but not in Overload"
+		   << std::endl ;
+
+	 for( DetSet::const_iterator iS ( inBaseNotOver.begin() ) ;
+	      iS != inBaseNotOver.end() ; ++iS )
+	 {
+	    std::cout<<"getCells Test dR="
+		     <<dR
+		     << ", gp=" << gp 
+		     << ": cell in base but not overload = " ;
+	    if( iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
+	    if( iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    std::cout<< std::endl ;
+	 }
+      }
+
+      std::set_difference( over.begin(), over.end(),
+			   base.begin(), base.end(), 
+			   std::inserter( inOverNotBase,
+					  inOverNotBase.begin() ) ) ;
+
+      if( inOverNotBase.empty() )
+      {
+	 std::cout << "getCells Test dR="
+		   << dR
+		   << ", gp=" << gp 
+		   << ", gp.eta=" << gp.eta() 
+		   << ", gp.phi=" << gp.phi() 
+		   << ": No elements in overload but not base " 
+		   << std::endl ;
+      }
+      else
+      {
+	 std::cout << "Length of Base is "<<base.size() <<std::endl ;
+	 std::cout << "Length of Over is "<<over.size() <<std::endl ;
+	 std::cout << "There are "<< inOverNotBase.size()
+		   << " items in Overload but not in Base"
+		   << std::endl ;
+
+	 for( DetSet::const_iterator iS ( inOverNotBase.begin() ) ;
+	      iS != inOverNotBase.end() ; ++iS )
+	 {
+	    std::cout<<"getCells Test dR="
+		     <<dR
+		     << ", gp=" << gp 
+		     << ": cell in overload but not base = " ;
+	    if( iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
+	    if( iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    std::cout << std::endl ;
+	 }
+      }
+   }
+*/
 }
 
 EEDetId
@@ -208,10 +313,10 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
 }
 
 void 
-CaloGeometryAnalyzer::build( const CaloGeometry& cg, 
-			     DetId::Detector det, 
-			     int subdetn, 
-			     const char* name) 
+CaloGeometryAnalyzer::build( const CaloGeometry& cg      , 
+			     DetId::Detector     det     , 
+			     int                 subdetn , 
+			     const char*         name     ) 
 {
    std::cout<<"Name now is "<<name<<std::endl ;
 
@@ -221,7 +326,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
    std::fstream fCtr(fnameCtr.c_str() ,std::ios_base::out);
    std::fstream fCor(fnameCor.c_str() ,std::ios_base::out);
    std::fstream f   (fnameRoot.c_str(),std::ios_base::out);
-   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
+
+   const CaloSubdetectorGeometry* geom ( cg.getSubdetectorGeometry( det, subdetn ) );
 
    f << "{" << std::endl;
    f << "  TGeoManager* geoManager = new TGeoManager(\"ROOT\", \"" << name << "\");" << std::endl;
@@ -231,10 +337,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
    f << "  geoManager->SetTopVolume(world); " << std::endl;
    f << "  TGeoVolume* box; " << std::endl;
    int n=0;
-   std::vector<DetId> ids=geom->getValidDetIds(det,subdetn);
-   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-      n++;
-      const CaloCellGeometry* cell=geom->getGeometry(*i);
+   std::vector< DetId > ids ( geom->getValidDetIds( det, subdetn ) ) ;
+
+   for( std::vector<DetId>::iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
+   {
+      ++n;
+      const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
 
       ctrcor( det,
 	      subdetn,
@@ -243,16 +351,30 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	      fCtr,
 	      fCor  ) ;
 
-      if (det == DetId::Ecal)
+      if( det == DetId::Ecal )
       {
 	 if (subdetn == EcalBarrel)
 	 {
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
-	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
-	    EBDetId closestCell = EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.))) ;
+	    const GlobalPoint gp ( dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) ) ;
+
+	    f << "  // Checking getClosestCell for position " 
+	      << gp
+	      << std::endl;
+
+	    EBDetId closestCell ( geom->getClosestCell( gp ) ) ;
+
 	    f << "  // Return position is " << closestCell << std::endl;
-	    assert (closestCell == EBDetId(*i) );
+	    assert( closestCell == EBDetId(*i) );
+
+	    // test getCells against base class version every so often
+	    if( 0 == closestCell.hashedIndex()%100 )
+	    {
+	       cmpset( geom, gp,  5*deg ) ;
+	       cmpset( geom, gp, 25*deg ) ;
+	       cmpset( geom, gp, 45*deg ) ;
+	    }
 	 }
 	 if (subdetn == EcalEndcap)
 	 {
@@ -263,9 +385,18 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
-	    const EEDetId closestCell ( geom->getClosestCell( tp->getPosition(0.) ) ) ;
+	    const GlobalPoint gp ( tp->getPosition(0.) ) ;
+	    const EEDetId closestCell ( geom->getClosestCell( gp ) ) ;
 	    f << "  // Return position is " << closestCell << std::endl;
 	    assert( closestCell == did ) ;
+	    // test getCells against base class version every so often
+	    if( 0 == closestCell.hashedIndex()%10 )
+	    {
+	       cmpset( geom, gp,  2*deg ) ;
+	       cmpset( geom, gp,  5*deg ) ;
+	       cmpset( geom, gp, 25*deg ) ;
+	       cmpset( geom, gp, 45*deg ) ;
+	    }
 
 	    const GlobalVector xx ( 2.5,   0, 0 ) ;
 	    const GlobalVector yy (   0, 2.5, 0 ) ;
