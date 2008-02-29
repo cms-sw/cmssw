@@ -5,8 +5,8 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class PerformanceAnalyzer : public edm::EDAnalyzer 
 {
@@ -20,7 +20,7 @@ class PerformanceAnalyzer : public edm::EDAnalyzer
  
 
    private:
-   DaqMonitorBEInterface*   fDBE ;
+   DQMStore*   fDBE ;
    std::string              fOutputFile ;
    MonitorElement*          fVtxSmeared ;
    MonitorElement*          fg4SimHits ;

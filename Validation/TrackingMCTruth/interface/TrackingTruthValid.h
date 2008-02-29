@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -15,6 +15,7 @@
 #include <string>
 #include <TH1F.h>
 #include <TH2F.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class TrackingTruthValid  : public edm::EDAnalyzer {
  public:
@@ -29,7 +30,7 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   void endJob();
   
  private:
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   edm::ParameterSet conf_;
   std::string outputFile;
   edm::InputTag src_;

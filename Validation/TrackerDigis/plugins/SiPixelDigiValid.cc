@@ -10,6 +10,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -21,10 +22,10 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
  src_ =  ps.getParameter<edm::InputTag>( "src" );
 
 
-   dbe_ = Service<DaqMonitorBEInterface>().operator->();
+   dbe_ = Service<DQMStore>().operator->();
   
  if ( dbe_ ) {
-    dbe_->setCurrentFolder("TrackerDigis/Pixel");
+    dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
 
    meDigiMultiLayer1Ring1_ =  dbe_->book1D("digimulti_layer1ring1","Digi Multiplicity ",30, 0., 30.);
    meDigiMultiLayer1Ring2_ =  dbe_->book1D("digimulti_layer1ring2","Digi Multiplicity ",30, 0., 30.);

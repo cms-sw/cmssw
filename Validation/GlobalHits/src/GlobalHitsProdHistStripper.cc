@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:53:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/27 18:42:30 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -194,16 +194,16 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run& iRun,
 
     if (dbe) {
       if (subhist1 == "CaloE" || subhist1 == "CaloP") {
-	dbe->setCurrentFolder("ECal");
+	dbe->setCurrentFolder("GlobalHitsV/ECal");
       } else if (subhist1 == "CaloH") {
-	dbe->setCurrentFolder("HCal");
+	dbe->setCurrentFolder("GlobalHitsV/HCal");
       } else if (subhist1 == "Geant" || subhist2 == "MCG4" ||
 		 subhist1 == "MCRGP") {
-	dbe->setCurrentFolder("MCGeant");
+	dbe->setCurrentFolder("GlobalHitsV/MCGeant");
       } else if (subhist2 == "Muon") {
-	dbe->setCurrentFolder("Muon");
+	dbe->setCurrentFolder("GlobalHitsV/Muon");
       } else if (subhist1 == "Track") {
-	dbe->setCurrentFolder("Tracker");
+	dbe->setCurrentFolder("GlobalHitsV/Tracker");
       }
      
       me[i] = dbe->book1D(histname,histogram1D->GetTitle(),

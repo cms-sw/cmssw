@@ -9,6 +9,7 @@
 #include "StatisticsTesting/ComparisonResult.h"
 #endif
 #include <iostream>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //----------------------------------------------------------------------
 MonitorElementMgr::MonitorElementMgr()

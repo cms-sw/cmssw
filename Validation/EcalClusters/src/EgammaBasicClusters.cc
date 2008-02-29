@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 {
@@ -44,7 +45,7 @@ EgammaBasicClusters::~EgammaBasicClusters() {}
 
 void EgammaBasicClusters::beginJob(edm::EventSetup const&) 
 {
-  	dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();                   
+  	dbe_ = edm::Service<DQMStore>().operator->();                   
 
   	if ( verboseDBE_ )
 	{

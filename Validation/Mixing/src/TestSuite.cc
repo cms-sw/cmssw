@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.8 2007/09/10 12:31:38 uberthon Exp $
+// $Id: TestSuite.cc,v 1.9 2007/09/28 18:04:08 dlange Exp $
 //
 //
 
@@ -33,6 +33,8 @@
 #include "Validation/Mixing/interface/TestSuite.h"
 
 #include "TFile.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace edm;
 
@@ -53,9 +55,9 @@ TestSuite::~TestSuite()
 void TestSuite::beginJob(edm::EventSetup const&iSetup) {
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->(); 
+  dbe_ = Service<DQMStore>().operator->(); 
   dbe_->showDirStructure();
-  dbe_->setCurrentFolder("Mixing");
+  dbe_->setCurrentFolder("MixingV/Mixing");
 } 
 
 void TestSuite::endJob() {

@@ -4,8 +4,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/02/10 10:20:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/07 14:47:04 $
+ *  $Revision: 1.3 $
  *  \authors: R. Bellan
  */
 #include <FWCore/Framework/interface/Event.h>
@@ -17,8 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -36,6 +35,7 @@
 #include "SimMuon/DTDigitizer/test/Histograms.h"
 
 #include<vector>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class TH1F;
 class TFile;
@@ -80,7 +80,7 @@ class MuonDTDigis : public edm::EDAnalyzer{
   bool verbose_;
 
   // DaqMonitor element
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   // Monitor elements
   MonitorElement* meDigiTimeBox_;

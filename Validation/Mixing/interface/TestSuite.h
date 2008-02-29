@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.h,v 1.1 2006/03/14 14:23:26 uberthon Exp $
+// $Id: TestSuite.h,v 1.2 2007/02/27 17:05:08 uberthon Exp $
 //
 //
 
@@ -25,8 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class TFile;
@@ -50,5 +49,5 @@ class TestSuite : public edm::EDAnalyzer {
       int bunchcr_;
       int minbunch_;
       int maxbunch_;
-      DaqMonitorBEInterface* dbe_;
+      DQMStore* dbe_;
 };

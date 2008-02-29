@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -48,10 +48,10 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     = mDeltaEta = mDeltaPhi = mEScale = mDeltaE= 0;
   //cout<<" PFJetTester -----------------------------------------------------> 1"<<endl;//////////////////////
   //cout<<"setting all variables zero -----------------------------------------------------> 2"<<endl;//////////////////////
-  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
+  DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     //cout<<" Creating the histograms -----------------------------------------------------> 3"<<endl;//////////////////////
-    dbe->setCurrentFolder("PFJetTask_" + mInputCollection.label());
+    dbe->setCurrentFolder("RecoJetsV/PFJetTask_" + mInputCollection.label());
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
     mE = dbe->book1D("E", "E", 100, 0, 500); 
@@ -130,7 +130,7 @@ void PFJetTester::beginJob(const edm::EventSetup& c){
 
 void PFJetTester::endJob() {
 
-  if (!mOutputFile.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (mOutputFile);
+  if (!mOutputFile.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (mOutputFile);
   //cout<<" endjob ----------------------------------------------------->"<<endl;//////////////////////
 }
 

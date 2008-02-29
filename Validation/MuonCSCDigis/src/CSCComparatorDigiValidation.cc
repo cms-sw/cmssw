@@ -3,9 +3,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCComparatorDigiValidation::CSCComparatorDigiValidation(DaqMonitorBEInterface* dbe, 
+CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe, 
     const edm::InputTag & inputTag, const edm::InputTag & stripDigiInputTag)
 : CSCBaseValidation(dbe, inputTag),
   theStripDigiInputTag(stripDigiInputTag),

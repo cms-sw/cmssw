@@ -12,12 +12,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class  SiStripDigiValid: public edm::EDAnalyzer {
 
@@ -178,7 +179,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
 
 
     //Back-End Interface
-    DaqMonitorBEInterface* dbe_;
+    DQMStore* dbe_;
     std::string outputFile_;
     edm::InputTag src_;
 };

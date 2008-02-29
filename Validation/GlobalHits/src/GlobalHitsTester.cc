@@ -31,7 +31,7 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
     meTestProfile2 = 0;
     Random = new TRandom3();
     
-    dbe->setCurrentFolder("GlobalTestV");
+    dbe->setCurrentFolder("GlobalHitsV/GlobalTestV");
 
     meTestString = dbe->bookString("TestString","Hello World" );
     meTestInt = dbe->bookInt("TestInt");

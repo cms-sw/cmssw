@@ -1,13 +1,14 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2007/12/18 18:43:48 $
+ * $Date: 2008/02/15 10:35:34 $
  * \author C. Rovelli
  *
  */
 
 #include <Validation/EcalRecHits/interface/EcalEndcapRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -32,7 +33,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -68,7 +69,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
    
   if ( dbe_ ) 
     {
-      dbe_->setCurrentFolder("EcalEndcapRecHitsTask");
+      dbe_->setCurrentFolder("EcalRecHitsV/EcalEndcapRecHitsTask");
       
       sprintf (histo, "EE+ Occupancy" );  
       meEEUncalibRecHitsOccupancyPlus_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);

@@ -3,11 +3,12 @@
 
 // Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: PFlowJetTester.h,v 1.2 2007/02/21 01:53:40 fedor Exp $
+// $Id: PFJetTester.h,v 1.2 2007/11/14 21:33:13 weng Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 namespace reco {
   class PFJet;
   class GenJet;

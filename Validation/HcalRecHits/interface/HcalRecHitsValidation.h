@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -38,6 +38,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class HcalRecHitsValidation : public edm::EDAnalyzer {
@@ -54,7 +55,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
   std::string outputFile_;
   std::string hcalselector_;

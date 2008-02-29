@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2007/05/10 15:06:40 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/21 13:21:51 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -32,8 +32,10 @@
 
 #include <string>
 #include <utility>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 class EBDetId;
 class EEDetId;
@@ -276,7 +278,7 @@ private:
   //@}
 
   //@{
-  /** Wrappers to the book method of the DaqMonitorBEInterface DQM
+  /** Wrappers to the book method of the DQMStore DQM
    *  histogramming interface.
    */
   MonitorElement* book1D(const std::string& name,
@@ -367,7 +369,7 @@ private:
   bool verbose_;
 
   ///Histogramming interface
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   ///Output file for histograms
   std::string outputFile_;

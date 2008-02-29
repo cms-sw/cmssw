@@ -7,14 +7,14 @@
 // date: 02.28.2007
 // note: code rewrite
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <string>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class HCALRecHitAnalyzer: public edm::EDAnalyzer {
 public:
@@ -28,7 +28,7 @@ public:
 private:
 
   // DAQ Tools
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration

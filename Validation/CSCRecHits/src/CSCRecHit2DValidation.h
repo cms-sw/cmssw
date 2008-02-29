@@ -4,11 +4,13 @@
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class CSCRecHit2DValidation : public CSCBaseValidation
 {
 public:
-  CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag);
+  CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag);
 
   // print out RMSes
   virtual ~CSCRecHit2DValidation();

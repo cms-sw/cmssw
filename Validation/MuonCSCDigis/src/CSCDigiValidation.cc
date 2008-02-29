@@ -8,9 +8,10 @@
 
 
 #include <iostream>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
-: dbe_( edm::Service<DaqMonitorBEInterface>().operator->() ),
+: dbe_( edm::Service<DQMStore>().operator->() ),
   outputFile_( ps.getParameter<std::string>("outputFile") ),
   theSimHitMap("MuonCSCHits"),
   theCSCGeometry(0),
@@ -18,7 +19,7 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   theWireDigiValidation(0),
   theComparatorDigiValidation(0)
 {
-  dbe_->setCurrentFolder("CSCDigiTask");
+  dbe_->setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
   bool doSim = ps.getParameter<bool>("doSim");
 
   theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"), doSim);

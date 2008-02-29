@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/12/18 18:12:41 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/28 17:23:42 $
+ * $Revision: 1.16 $
  * \author F. Cossutti
  *
 */
@@ -14,6 +14,8 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace cms;
 using namespace edm;
@@ -88,7 +90,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {

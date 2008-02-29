@@ -1,14 +1,15 @@
 #ifndef HcalDigis_HcalSubdetDigiMonitor_h
 #define HcalDigis_HcalSubdetDigiMonitor_h
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class HcalSubdetDigiMonitor
 {
 public:
 
-  HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe, const std::string & subdet, int noise);
+  HcalSubdetDigiMonitor(DQMStore* dbe, const std::string & subdet, int noise);
   void fillmeAmplIetaIphi(double v1, double v2, double v3)
   {fillElements(meAmplIetaIphi, v1, v2, v3);}
   
@@ -177,7 +178,7 @@ private:
   MonitorElement * bookProfile(const std::string & name, HistLim lim1, 
                                                          HistLim lim2);
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::string subdet_;
   int noise_;
 

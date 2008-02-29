@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/02/10 10:20:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/08 04:33:22 $
+ *  $Revision: 1.4 $
  *  \authors: R. Bellan
  */
 
@@ -70,7 +70,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -117,7 +117,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   Char_t histo_t[100];
 
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("DTDigiValidationTask");
+    dbe_->setCurrentFolder("MuonDTDigisV/DTDigiValidationTask");
 
     sprintf (histo_n, "DigiTimeBox" );
     sprintf (histo_t, "Digi Time Box" );
@@ -422,5 +422,6 @@ hDigis* MuonDTDigis::WheelHistos(int wheel){
 }
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_FWK_MODULE(MuonDTDigis);

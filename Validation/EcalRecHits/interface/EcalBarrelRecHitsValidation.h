@@ -4,7 +4,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.h
  *
- * $Date: 2006/10/26 08:33:10 $
+ * $Date: 2008/02/18 14:20:32 $
  * \author C. Rovelli
  *
 */
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -33,6 +33,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalBarrelRecHitsValidation: public edm::EDAnalyzer{
 
@@ -59,7 +60,7 @@ private:
 
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
 
  edm::InputTag EBdigiCollection_;
  edm::InputTag EBuncalibrechitCollection_;

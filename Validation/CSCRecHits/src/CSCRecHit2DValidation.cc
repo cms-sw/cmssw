@@ -1,9 +1,10 @@
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag)
 : CSCBaseValidation(dbe, inputTag),
   theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
 {

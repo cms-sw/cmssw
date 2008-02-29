@@ -3,11 +3,12 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.h,v 1.2 2007/08/24 17:42:36 fedor Exp $
+// $Id: CaloJetTester.h,v 1.3 2007/08/28 16:51:54 fedor Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace reco {
   class CaloJet;

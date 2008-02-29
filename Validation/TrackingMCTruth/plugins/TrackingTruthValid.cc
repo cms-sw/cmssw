@@ -9,7 +9,7 @@
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -39,9 +39,9 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   outputFile = conf.getParameter<std::string>("outputFile");
   src_ =  conf.getParameter<edm::InputTag>( "src" );
   
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_  = edm::Service<DQMStore>().operator->();
   dbe_->showDirStructure();
-  dbe_->setCurrentFolder("TrackingMCTruth/TrackingParticle");
+  dbe_->setCurrentFolder("TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
   
 
   meTPMass = dbe_->book1D("TPMass","Tracking Particle Mass",100, -1,+5.);

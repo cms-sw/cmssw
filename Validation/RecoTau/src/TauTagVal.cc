@@ -13,12 +13,13 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.13 2007/11/06 17:43:33 vasquez Exp $
+// $Id: TauTagVal.cc,v 1.14 2007/12/04 00:28:51 vasquez Exp $
 //
 //
 // user include files
 
 #include "Validation/RecoTau/interface/TauTagVal.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 using namespace std;
@@ -40,12 +41,12 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
   minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
   nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
  
-  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
+  DQMStore* dbe = &*edm::Service<DQMStore>();
  
   if(dbe) {
 
     // What kind of Taus do we originally have!
-    dbe->setCurrentFolder("TausAtGenLevel_" + jetTagSrc_.label());    
+    dbe->setCurrentFolder("RecoTauV/TausAtGenLevel_" + jetTagSrc_.label());    
 	
     ptTauMC_    = dbe->book1D("pt_Tau_GenLevel", "pt_Tau_GenLevel", 75, 0., 150.);
     etaTauMC_   = dbe->book1D("eta_Tau_GenLevel", "eta_Tau_GenLevel", 60, -3.0, 3.0 );
@@ -60,13 +61,13 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     nMCTaus_energyTauJet_ = dbe->book1D("nMC_Taus_vs_energyTauJet", "nMC_Taus_vs_energyTauJet", 45, 0., 450.0);
 
      // Leading Track Related Histograms In case the finding of the leading track is a problem ( with deltaR 0.15 and minimum pt of 1.0 GeV )
-    dbe->setCurrentFolder("LeadingTrackPtAndDeltaRStudies_"+jetTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/LeadingTrackPtAndDeltaRStudies_"+jetTagSrc_.label());
 
     deltaRLeadTk_Jet_ = dbe->book1D("DeltaR_LeadingTrack_in_RecoJet","DeltaR_LeadingTrack_in_RecoJet",30,0.,0.15);    
     ptLeadingTrack_ = dbe->book1D("Leading_track_pt_in_RecoJet", "Leading_track_pt_in_RecoJet", 10, 0., 10.);
 
     // What are the number of matched IsolatedTauTagInfoCollection with MC jet
-    dbe->setCurrentFolder("ReconstructedJet_"+jetTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/ReconstructedJet_"+jetTagSrc_.label());
 
     nRecoJet_ptTauJet_ = dbe->book1D("n_RecoJet_vs_ptTauJet", "n_RecoJet_vs_ptTauJet", 75, 0., 150.);
     nRecoJet_etaTauJet_ = dbe->book1D("n_RecoJet_vs_etaTauJet", "n_RecoJet_vs_etaTauJet",60, -3.0, 3.0 );
@@ -76,7 +77,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     nSelectedTracks_ = dbe->book1D("Number_Selected_Tracks", "Number_Selected_Tracks", 10, 0., 10.);
 
     // What are the number of RecoJets that are matched to MC Tau with a LeadingTrack of 6.0 GeV
-    dbe->setCurrentFolder("ReconstructedJetWithLeadingTrack_"+jetTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/ReconstructedJetWithLeadingTrack_"+jetTagSrc_.label());
 
     nRecoJet_LeadingTrack_ptTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_ptTauJet", "n_RecoJet+LeadingTrack_vs_ptTauJet", 75, 0., 150.);
     nRecoJet_LeadingTrack_etaTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_etaTauJet", "n_RecoJet+LeadingTrack_vs_etaTauJet",60, -3.0, 3.0 );
@@ -85,7 +86,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     nSignalTracks_ = dbe->book1D("Number_Signal_Tracks", "Number_Signal_Tracks", 10, 0., 10.); 
 
     // What are the numbers of Tagged and matched IsolatedTauTagInfoCollection with  MC Jet
-    dbe->setCurrentFolder("TauTaggedJets_"+jetTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/TauTaggedJets_"+jetTagSrc_.label());
 
     nIsolatedJet_ptTauJet_ =       dbe->book1D("n_IsolatedTauTaggedJets_vs_ptTauJet","n_IsolatedTauTaggedJets_vs_ptTauJet", 75, 0., 150.);
     nIsolatedJet_etaTauJet_ =      dbe->book1D("n_IsolatedTauTaggedJets_vs_etaTauJet","n_IsolatedTauTaggedJets_vs_etaTauJet", 60, -3.0, 3.0 );
@@ -99,7 +100,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 
 
   // What are the numbers of Tagged and matched EM IsolatedTauTagInfoCollection with  MC Jet
-    dbe->setCurrentFolder("TauEMTaggedJets_"+jetEMTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/TauEMTaggedJets_"+jetEMTagSrc_.label());
 
     nEMIsolatedJet_ptTauJet_ =       dbe->book1D("n_EMIsolatedTauTaggedJets_vs_ptTauJet","n_EMIsolatedTauTaggedJets_vs_ptTauJet", 75, 0., 150.);
     nEMIsolatedJet_etaTauJet_ =      dbe->book1D("n_EMIsolatedTauTaggedJets_vs_etaTauJet","n_EMIsolatedTauTaggedJets_vs_etaTauJet", 60, -3.0, 3.0 );
@@ -108,7 +109,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 
 
  // What is the behaviour of cone isolation size on tagging of MC Taus (CONE_MATCHING_CRITERIA) 
-    dbe->setCurrentFolder("TaggingStudies_"+ jetTagSrc_.label());
+    dbe->setCurrentFolder("RecoTauV/TaggingStudies_"+ jetTagSrc_.label());
   
     nTausTotvsConeIsolation_ = dbe->book1D("nTaus_Tot_vs_coneIsolation", "nTaus_Tot_vs_coneIsolation", 6,0.175,0.475); // six bins centered at 0.2. 0.25. 0.3, 0.35, 0.4. 0.45
     nTausTaggedvsConeIsolation_ = dbe->book1D("nTaus_Tagged_vs_coneIsolation", "nTaus_Tagged_vs_coneIsolation", 6,0.175,0.475);
@@ -449,7 +450,7 @@ void TauTagVal::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
 
 
-  if (!outPutFile_.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (outPutFile_);
+  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
   
 }
 

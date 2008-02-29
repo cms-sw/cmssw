@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2007/12/18 18:43:48 $
+ * $Date: 2008/02/15 10:35:34 $
  * \author C. Rovelli
  *
  */
@@ -9,6 +9,7 @@
 #include <Validation/EcalRecHits/interface/EcalPreshowerRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -38,7 +39,7 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -78,7 +79,7 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
   Char_t histo[200];
   if ( dbe_ ) 
     {
-      dbe_->setCurrentFolder("EcalPreshowerRecHitsTask");
+      dbe_->setCurrentFolder("EcalRecHitsV/EcalPreshowerRecHitsTask");
 
       sprintf (histo, "ES Energy" );
       meESRecHitsEnergy_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);

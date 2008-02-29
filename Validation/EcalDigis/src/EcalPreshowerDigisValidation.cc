@@ -1,13 +1,14 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2008/02/15 10:32:40 $
- * $Revision: 1.11 $
+ * $Date: 2008/02/28 17:23:42 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -29,7 +30,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {

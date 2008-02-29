@@ -1,13 +1,14 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2007/12/18 18:43:48 $
+ * $Date: 2008/02/15 10:35:34 $
  * \author C. Rovelli
  *
  */
 
 #include <Validation/EcalRecHits/interface/EcalBarrelRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -32,7 +33,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -71,7 +72,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
    
   if ( dbe_ ) 
     {
-      dbe_->setCurrentFolder("EcalBarrelRecHitsTask");
+      dbe_->setCurrentFolder("EcalRecHitsV/EcalBarrelRecHitsTask");
       
       sprintf (histo, "EB Occupancy" );  
       meEBUncalibRecHitsOccupancy_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);

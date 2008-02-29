@@ -1,4 +1,6 @@
 #include "Validation/HcalDigis/src/HcalSubdetDigiMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 struct HistLim
 {
@@ -9,7 +11,7 @@ struct HistLim
   float max;
 };
 
-HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe, 
+HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe, 
                                              const std::string & subdet, int noise)
 : dbe_(dbe),
   subdet_(subdet),
@@ -64,7 +66,7 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   Char_t histo[100];
   const char * sub = subdet_.c_str();
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("HcalDigiTask");
+    dbe_->setCurrentFolder("HcalDigisV/HcalDigiTask");
   }
 
   /*

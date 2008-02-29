@@ -20,7 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DWM histogram services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -44,6 +44,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 class SiPixelRecHitsValid : public edm::EDAnalyzer {
@@ -62,7 +63,7 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	void endJob();
 
    private:
-	DaqMonitorBEInterface* dbe_;
+	DQMStore* dbe_;
 	std::string outputFile_;
 
 	edm::ParameterSet conf_;

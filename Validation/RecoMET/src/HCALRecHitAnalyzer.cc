@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <cmath>
 #include <TLorentzVector.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #define DEBUG(X) { if (debug_) { std::cout << X << std::endl; } }
 
@@ -69,11 +70,11 @@ void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
   Nevents = 0;
   // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
 
-    dbe_->setCurrentFolder("METTask/HCAL/geometry");
+    dbe_->setCurrentFolder("RecoMETV/METTask/HCAL/geometry");
     me["hHCAL_ieta_iphi_HBMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HEMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HFMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
@@ -102,7 +103,7 @@ void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
     }
   
-    dbe_->setCurrentFolder("METTask/HCAL/data");
+    dbe_->setCurrentFolder("RecoMETV/METTask/HCAL/data");
     //--Store number of events used
     me["hHCAL_Nevents"]          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by HCAL(ieta,iphi) 

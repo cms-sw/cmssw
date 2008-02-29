@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/02/15 10:35:34 $
+ * $Date: 2008/02/15 16:14:30 $
  * \author C. Rovelli
  *
 */
@@ -11,6 +11,7 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -49,7 +50,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();                   
+  dbe_ = Service<DQMStore>().operator->();                   
   if ( dbe_ ) {
     if ( verbose_ ) {
       dbe_->setVerbose(1);
@@ -86,7 +87,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   Char_t histo[20];
    
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalRecHitsTask");
+    dbe_->setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
     
     sprintf (histo, "EcalRecHitsTask, Gun Momentum" );    
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);

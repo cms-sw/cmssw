@@ -2,9 +2,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe, 
+CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe, 
                                                const edm::InputTag & inputTag,
                                                bool doSim)
 : CSCBaseValidation(dbe, inputTag),

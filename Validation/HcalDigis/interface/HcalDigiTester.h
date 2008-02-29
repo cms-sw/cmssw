@@ -9,8 +9,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <map>
 #include "Validation/HcalDigis/src/HcalSubdetDigiMonitor.h"
 
@@ -31,7 +30,7 @@ public:
   // choose the correct subdet
   HcalSubdetDigiMonitor * monitor();
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
   edm::InputTag inputTag_;
   std::string outputFile_;

@@ -1,10 +1,11 @@
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include <algorithm>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCSegmentValidation::CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag)
 : CSCBaseValidation(dbe, inputTag),
   theLayerHitsPerChamber(),
   theChamberSegmentMap(),

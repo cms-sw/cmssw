@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -265,7 +265,7 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
   MonitorElement*  meNdigiZmDisk2PerPanel2_;
    
  
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   edm::InputTag src_;  
 
  

@@ -10,6 +10,7 @@
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/EcalHits/interface/EcalSimHitsValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -44,7 +45,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   dbe_ = 0;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();           
+  dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
     else            { dbe_->setVerbose(0); }

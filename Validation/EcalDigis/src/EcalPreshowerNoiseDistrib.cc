@@ -4,6 +4,7 @@
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerNoiseDistrib.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -24,7 +25,7 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
   dbe_ = 0;
   
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   
   if ( dbe_ ) {
     if ( verbose_ ) {

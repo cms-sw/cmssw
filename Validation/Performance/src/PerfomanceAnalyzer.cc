@@ -13,15 +13,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 PerformanceAnalyzer::PerformanceAnalyzer(const edm::ParameterSet& ps)
-   : fDBE( edm::Service<DaqMonitorBEInterface>().operator->() ),
+   : fDBE( edm::Service<DQMStore>().operator->() ),
      fOutputFile( ps.getUntrackedParameter<std::string>("outputFile", "") )
 {
    
    if ( fDBE != NULL )
    {
-      fDBE->setCurrentFolder("CPUPerformanceTask");
+      fDBE->setCurrentFolder("PerformanceV/CPUPerformanceTask");
       
       // is there any way to record CPU Info ???
       // if so, it can be done once - via beginJob() 

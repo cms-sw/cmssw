@@ -3,11 +3,13 @@
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class CSCWireDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCWireDigiValidation(DaqMonitorBEInterface* dbe, 
+  CSCWireDigiValidation(DQMStore* dbe, 
                         const edm::InputTag & inputTag,
                         bool doSim);
   ~CSCWireDigiValidation();

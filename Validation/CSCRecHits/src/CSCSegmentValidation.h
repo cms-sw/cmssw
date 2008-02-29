@@ -4,11 +4,13 @@
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class CSCSegmentValidation : public CSCBaseValidation
 {
 public:
-  CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag);
+  CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag);
 
   virtual ~CSCSegmentValidation() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

@@ -13,6 +13,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -22,10 +23,10 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "stripdigihisto.root");
     src_ =  ps.getParameter<edm::InputTag>( "src" );
 
-   dbe_ = Service<DaqMonitorBEInterface>().operator->();
+   dbe_ = Service<DQMStore>().operator->();
 
 if ( dbe_ ) {
-    dbe_->setCurrentFolder("TrackerDigis/Strip");
+    dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Strip");
 
    for(int i = 0 ;i<3 ; i++) {
      Char_t histo[200];

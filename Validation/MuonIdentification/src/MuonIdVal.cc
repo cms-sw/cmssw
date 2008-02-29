@@ -1,4 +1,5 @@
 #include "Validation/MuonIdentification/interface/MuonIdVal.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
 {
@@ -10,7 +11,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    outputFile_ = iConfig.getParameter<std::string>("outputFile");
 
    dbe_ = 0;
-   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+   dbe_ = edm::Service<DQMStore>().operator->();
 
    hNumChambers = dbe_->book1D("hNumChambers", "Number of Chambers", 20, 0., 20.);
    hNumMatches = dbe_->book1D("hNumMatches", "Number of Matches", 10, 0., 10.);

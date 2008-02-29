@@ -17,7 +17,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -358,7 +358,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
-  : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+  : dbe_(edm::Service<DQMStore>().operator->()),
     inputTag_(iConfig.getParameter<edm::InputTag>("digiLabel")),
     outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),

@@ -2,11 +2,13 @@
 #define CSCComparatorDigiValidation_H
 
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class CSCComparatorDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCComparatorDigiValidation(DaqMonitorBEInterface* dbe, 
+  CSCComparatorDigiValidation(DQMStore* dbe, 
     const edm::InputTag & inputTag, const edm::InputTag & stripDigiInputTag);
   ~CSCComparatorDigiValidation();
   void analyze(const edm::Event&, const edm::EventSetup&);

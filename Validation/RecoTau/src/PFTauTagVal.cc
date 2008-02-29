@@ -13,12 +13,13 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.4 2007/11/06 20:06:18 vasquez Exp $
+// $Id: PFTauTagVal.cc,v 1.5 2007/12/04 00:28:16 vasquez Exp $
 //
 //
 // user include files
 
 #include "Validation/RecoTau/interface/PFTauTagVal.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 using namespace std;
@@ -38,12 +39,12 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
   PFTauProducer_ = iConfig.getParameter<string>("PFTauProducer");
   PFTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<string>("PFTauDiscriminatorByIsolationProducer");
   
-  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
+  DQMStore* dbe = &*edm::Service<DQMStore>();
  
   if(dbe) {
 
     // What kind of Taus do we originally have!
-    dbe->setCurrentFolder("TausAtGenLevel_" + ExtensionName_.label());    
+    dbe->setCurrentFolder("RecoTauV/TausAtGenLevel_" + ExtensionName_.label());    
 	
     ptTauMC_    = dbe->book1D("pt_Tau_GenLevel", "pt_Tau_GenLevel", 75, 0., 150.);
     etaTauMC_   = dbe->book1D("eta_Tau_GenLevel", "eta_Tau_GenLevel", 60, -3.0, 3.0 );
@@ -58,7 +59,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     nMCTaus_energyTauJet_ = dbe->book1D("nMC_Taus_vs_energyTauJet", "nMC_Taus_vs_energyTauJet", 45, 0., 450.0);
 
     // Number of PFTau Candidates matched to MC Taus
-    dbe->setCurrentFolder("PFTauCandidatesMatched_"+ExtensionName_.label());
+    dbe->setCurrentFolder("RecoTauV/PFTauCandidatesMatched_"+ExtensionName_.label());
 
     nPFTauCand_ptTauJet_ =     dbe->book1D("n_PFTauCand_vs_ptTauJet", "n_PFTauCand_vs_ptTauJet", 75, 0., 150.);
     nPFTauCand_etaTauJet_ =    dbe->book1D("n_PFTauCand_vs_etaTauJet", "n_PFTauCand_vs_etaTauJet",60, -3.0, 3.0 );
@@ -72,7 +73,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     nPFTauCand_NeutralHadronsIsolAnnulus_=dbe->book1D("nPFTauCand_NeutralHadronsIsolAnnulus","nPFTauCand_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);   
 
     // Number of PFTau Candidates with a Leading charged hadron in it (within a cone of 0.1 avound the jet axis and a minimum pt of 6 GeV)
-    dbe->setCurrentFolder("PFTauPlusLeadingChargedHadron_"+ExtensionName_.label());
+    dbe->setCurrentFolder("RecoTauV/PFTauPlusLeadingChargedHadron_"+ExtensionName_.label());
 
     nPFTau_LeadingChargedHadron_ptTauJet_ =     dbe->book1D("n_PFTau_LeadingChargedHadron_vs_ptTauJet", "n_PFTau_LeadingChargedHadron_vs_ptTauJet", 75, 0., 150.);
     nPFTau_LeadingChargedHadron_etaTauJet_ =    dbe->book1D("n_PFTau_LeadingChargedHadron_vs_etaTauJet", "n_PFTau_LeadingChargedHadron_vs_etaTauJet",60, -3.0, 3.0 );
@@ -86,7 +87,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     nPFTau_LeadingChargedHadron_NeutralHadronsIsolAnnulus_=dbe->book1D("nPFTau_LeadingChargedHadron_NeutralHadronsIsolAnnulus","nPFTau_LeadingChargedHadron_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
     
     // Isolated PFTau with a Leading charged hadron with no Charged Hadrons inside the isolation annulus
-    dbe->setCurrentFolder("Isolated_NoChargedHadrons_"+ExtensionName_.label());
+    dbe->setCurrentFolder("RecoTauV/Isolated_NoChargedHadrons_"+ExtensionName_.label());
 
     nIsolated_NoChargedHadrons_ptTauJet_ =       dbe->book1D("n_Isolated_NoChargedHadrons_vs_ptTauJet","n_Isolated_NoChargedHadrons_vs_ptTauJet", 75, 0., 150.);
     nIsolated_NoChargedHadrons_etaTauJet_ =      dbe->book1D("n_Isolated_NoChargedHadrons_vs_etaTauJet","n_Isolated_NoChargedHadrons_vs_etaTauJet", 60, -3.0, 3.0 );
@@ -100,7 +101,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_=dbe->book1D("nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus","nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
     
     // Isolated PFTau with a Leading charge hadron with no Charged Hadron inside the isolation annulus with no Ecal/Gamma candidates in the isolation annulus
-    dbe->setCurrentFolder("Isolated_NoChargedNoGammas_"+ExtensionName_.label());
+    dbe->setCurrentFolder("RecoTauV/Isolated_NoChargedNoGammas_"+ExtensionName_.label());
 
     nIsolated_NoChargedNoGammas_ptTauJet_ =       dbe->book1D("n_Isolated_NoChargedNoGammas_vs_ptTauJet","n_Isolated_NoChargedNoGammas_vs_ptTauJet", 75, 0., 150.);
     nIsolated_NoChargedNoGammas_etaTauJet_ =      dbe->book1D("n_Isolated_NoChargedNoGammas_vs_etaTauJet","n_Isolated_NoChargedNoGammas_vs_etaTauJet", 60, -3.0, 3.0 );
@@ -113,7 +114,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     nIsolated_NoChargedNoGammas_NeutralHadronsSignal_     =dbe->book1D("nIsolated_NoChargedNoGammas_NeutralHadronsSignal","nIsolated_NoChargedNoGammas_NeutralHadronsSignal",21, -0.5, 20.5);
     nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_=dbe->book1D("nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus","nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
 
-    dbe->setCurrentFolder("PFCandidates_in_SignalOrIsolationAnnulus_"+ExtensionName_.label());
+    dbe->setCurrentFolder("RecoTauV/PFCandidates_in_SignalOrIsolationAnnulus_"+ExtensionName_.label());
 
     nChargedHadronsSignalCone_isolated_= dbe->book1D("nChargedHadronsSignalCone_isolated","nChargedHadronsSignalCone_isolated", 21,-0.5,20.5);
     nGammasSignalCone_isolated_        = dbe->book1D("nGammasSignalCone_isolated","nGammasSignalCone_isolated",21,-0.5,20.5);
@@ -403,7 +404,7 @@ void PFTauTagVal::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
   */
 
-  if (!outPutFile_.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (outPutFile_);
+  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
   
 }
 

@@ -33,13 +33,13 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   dbe_ = 0;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
    
   Char_t histo[20];
 
   if ( dbe_ ) {
     std::cout << " dbe_->setCurrentFolder" << std::endl; 
-    dbe_->setCurrentFolder("CaloTowersTask");
+    dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL" ) ;
     meEnergyHcalvsEcal    = dbe_->book2D(histo, histo, 220, -20 , 200., 220, -20., 200.);
@@ -198,6 +198,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(CaloTowersValidation);

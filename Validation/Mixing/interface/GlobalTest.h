@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.h,v 1.1 2007/02/27 17:05:08 uberthon Exp $
+// $Id: GlobalTest.h,v 1.2 2007/02/28 15:23:32 uberthon Exp $
 //
 //
 
@@ -24,9 +24,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class TFile;
 class MonitorElement;
@@ -59,6 +59,6 @@ private:
   MonitorElement * caloEnergyEBH_[nMaxH];
   MonitorElement * caloEnergyEEH_[nMaxH];
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 };
 

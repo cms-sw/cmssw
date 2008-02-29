@@ -1,14 +1,15 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2008/02/15 10:32:40 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/28 17:23:42 $
+ * $Revision: 1.17 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -30,7 +31,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {

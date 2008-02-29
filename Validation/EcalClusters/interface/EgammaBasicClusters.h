@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.2 2006/11/13 15:23:03 mabalazs Exp $
+// $Id: EgammaBasicClusters.h,v 1.3 2006/11/20 16:25:13 mabalazs Exp $
 //
 #include <string>
 
@@ -19,8 +19,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EgammaBasicClusters : public edm::EDAnalyzer
 {
@@ -37,7 +37,7 @@ class EgammaBasicClusters : public edm::EDAnalyzer
 	std::string CMSSW_Version_;
 
 	bool verboseDBE_;
-	DaqMonitorBEInterface* dbe_;
+	DQMStore* dbe_;
 
       	edm::InputTag hybridBarrelBasicClusterCollection_;
       	edm::InputTag islandBarrelBasicClusterCollection_;

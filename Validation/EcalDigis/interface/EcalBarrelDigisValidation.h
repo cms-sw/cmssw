@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2007/05/28 17:08:55 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/18 14:20:28 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -31,6 +31,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalBarrelDigisValidation: public edm::EDAnalyzer{
 
@@ -61,7 +62,7 @@ private:
 
  bool verbose_;
  
- DaqMonitorBEInterface* dbe_;
+ DQMStore* dbe_;
  
  std::string outputFile_;
 

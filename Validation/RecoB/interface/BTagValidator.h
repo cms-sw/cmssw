@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.h,v 1.4 2007/02/14 20:53:18 bazterra Exp $
+ version $Id: BTagValidator.h,v 1.5 2007/10/09 11:37:36 speer Exp $
 
 ________________________________________________________________**/
 
@@ -17,7 +17,7 @@ ________________________________________________________________**/
 #include <memory>
 
 // user include files
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

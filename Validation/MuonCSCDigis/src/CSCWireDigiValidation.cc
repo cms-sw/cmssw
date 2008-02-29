@@ -5,10 +5,11 @@
 
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag, bool doSim)
+CSCWireDigiValidation::CSCWireDigiValidation(DQMStore* dbe, const edm::InputTag & inputTag, bool doSim)
 : CSCBaseValidation(dbe, inputTag),
   theDoSimFlag(doSim),
   theTimeBinPlots(),

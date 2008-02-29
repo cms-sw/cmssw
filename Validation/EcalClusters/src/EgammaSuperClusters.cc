@@ -14,6 +14,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 {
@@ -71,7 +72,7 @@ EgammaSuperClusters::~EgammaSuperClusters() {}
 
 void EgammaSuperClusters::beginJob(edm::EventSetup const&) 
 {
-  	dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();                   
+  	dbe_ = edm::Service<DQMStore>().operator->();                   
 
   	if ( verboseDBE_ )
 	{

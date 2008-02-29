@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id$
+// $Id: MuonIdVal.h,v 1.1 2007/11/29 18:34:09 jribnik Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,6 +48,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class MuonIdVal : public edm::EDAnalyzer {
    public:
@@ -59,7 +60,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      DaqMonitorBEInterface* dbe_;
+      DQMStore* dbe_;
 
       // ----------member data ---------------------------
       edm::InputTag inputMuonCollection_;

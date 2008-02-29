@@ -4,8 +4,8 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2007/06/05 17:42:49 $
- * $Revision: 1.1 $
+ * $Date: 2008/02/15 16:30:57 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -27,7 +27,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -83,7 +83,7 @@ private:
  
  bool verbose_;
  
- DaqMonitorBEInterface* fDBE;
+ DQMStore* fDBE;
  
  std::string fOutputFile;
 

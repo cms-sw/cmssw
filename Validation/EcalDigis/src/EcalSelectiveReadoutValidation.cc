@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/02/18 14:20:30 $
- * $Revision: 1.7 $
+ * $Date: 2008/02/28 17:23:43 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -25,11 +25,12 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 #include <string.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace cms;
 using namespace edm;
@@ -76,7 +77,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   }
   
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   
   if(verbose_){
     dbe_->setVerbose(1);

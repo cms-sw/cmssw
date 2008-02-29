@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.13 2007/10/04 14:42:48 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.14 2007/10/09 11:37:37 speer Exp $
 
 ________________________________________________________________**/
 
@@ -23,6 +23,8 @@ ________________________________________________________________**/
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Validation/RecoB/interface/HistoCompare.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // constructors and destructor
@@ -78,9 +80,9 @@ BTagValidator::endJob()
 	file->cd();
 
 	// get hold of back-end interface
-	DaqMonitorBEInterface * dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+	DQMStore * dbe = edm::Service<DQMStore>().operator->();
 	
-	dbe->setCurrentFolder( algorithm_ );
+	dbe->setCurrentFolder( "RecoBV/"+algorithm_ );
    
 	for (std::size_t i=0; i<histogramList_.size(); ++i) {
 		

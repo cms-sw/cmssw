@@ -24,6 +24,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
 #include "DataFormats/Common/interface/OwnVector.h" 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -37,15 +38,15 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") ) {
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->showDirStructure();
-  dbe_->setCurrentFolder("TrackerRecHits/Strip/SISTRIP");
+  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
 
   meNumTotRphi = dbe_->book1D("NumTotRphi","Num of RecHits rphi",100, 0, 10000);
   meNumTotSas = dbe_->book1D("NumTotSas","Num of RecHits sas",100, 0, 10000);
   meNumTotMatched = dbe_->book1D("NumTotMatched","Num of RecHits rmatched",100, 0, 10000);
 
-  dbe_->setCurrentFolder("TrackerRecHits/Strip/TIB");
+  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/TIB");
   meNumRphiTIB = dbe_->book1D("NumRphiTIB","Num of RecHits rphi", 100, 0, 1000.);
   meNumSasTIB = dbe_->book1D("NumSasTIB","Num of RecHits sas", 100, 0, 1000.);
   meNumMatchedTIB = dbe_->book1D("NumMatchedTIB","Num of RecHits matched", 100, 0, 1000.);
@@ -107,7 +108,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meChi2MatchedTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
-  dbe_->setCurrentFolder("TrackerRecHits/Strip/TOB");
+  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/TOB");
   meNumRphiTOB = dbe_->book1D("NumRphiTOB","Num of RecHits rphi", 100, 0, 1000.);
   meNumSasTOB = dbe_->book1D("NumSasTOB","Num of RecHits sas", 100, 0, 1000.);
   meNumMatchedTOB = dbe_->book1D("NumMatchedTOB","Num of RecHits matched", 100, 0, 1000.);
@@ -168,7 +169,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meChi2MatchedTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
-  dbe_->setCurrentFolder("TrackerRecHits/Strip/TID");
+  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/TID");
   meNumRphiTID = dbe_->book1D("NumRphiTID","Num of RecHits rphi", 100, 0, 1000.);
   meNumSasTID = dbe_->book1D("NumSasTID","Num of RecHits sas", 100, 0, 1000.);
   meNumMatchedTID = dbe_->book1D("NumMatchedTID","Num of RecHits matched", 100, 0, 1000.);
@@ -230,7 +231,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meChi2MatchedTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
-  dbe_->setCurrentFolder("TrackerRecHits/Strip/TEC");
+  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/TEC");
   meNumRphiTEC = dbe_->book1D("NumRphiTEC","Num of RecHits rphi", 100, 0, 1000.);
   meNumSasTEC = dbe_->book1D("NumSasTEC","Num of RecHits sas", 100, 0, 1000.);
   meNumMatchedTEC = dbe_->book1D("NumMatchedTEC","Num of RecHits matched", 100, 0, 1000.);

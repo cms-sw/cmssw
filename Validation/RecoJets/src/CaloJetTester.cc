@@ -1,6 +1,6 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.cc,v 1.5 2007/08/24 17:42:36 fedor Exp $
+// $Id: CaloJetTester.cc,v 1.6 2007/08/28 16:51:54 fedor Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,7 +10,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -53,9 +53,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mDeltaEta = mDeltaPhi = mEScale = mDeltaE
     = 0;
   
-  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
+  DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
-    dbe->setCurrentFolder("CaloJetTask_" + mInputCollection.label());
+    dbe->setCurrentFolder("RecoJetsV/CaloJetTask_" + mInputCollection.label());
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
     mE = dbe->book1D("E", "E", 100, 0, 500); 
@@ -128,7 +128,7 @@ void CaloJetTester::beginJob(const edm::EventSetup& c){
 }
 
 void CaloJetTester::endJob() {
- if (!mOutputFile.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (mOutputFile);
+ if (!mOutputFile.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (mOutputFile);
 }
 
 

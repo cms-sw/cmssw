@@ -22,8 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -66,6 +65,7 @@
 #include <TH2.h>
 #include <TFile.h>
 #include <TMath.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class DetId;
 //class HcalTopology;
@@ -96,7 +96,7 @@ public:
  
  private:
   // DAQ Tools
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::map<std::string, MonitorElement*> me;
   // Inputs from Configuration
   std::string outputFile_;

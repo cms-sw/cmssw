@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include "Validation/EcalHits/interface/EcalBarrelSimHitsValidation.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
@@ -29,7 +30,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
 
   // get hold of back-end interface
   dbe_ = 0;
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();           
+  dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
     else            { dbe_->setVerbose(0); }

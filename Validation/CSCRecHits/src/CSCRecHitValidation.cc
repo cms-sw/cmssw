@@ -3,11 +3,12 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
 CSCRecHitValidation::CSCRecHitValidation(const edm::ParameterSet & ps)
-: dbe_( edm::Service<DaqMonitorBEInterface>().operator->() ),
+: dbe_( edm::Service<DQMStore>().operator->() ),
   theOutputFile( ps.getParameter<std::string>("outputFile") ),
   theSimHitMap("MuonCSCHits"),
   theCSCGeometry(0),

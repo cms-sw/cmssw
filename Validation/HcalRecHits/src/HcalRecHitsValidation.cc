@@ -13,7 +13,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
   dbe_ = 0;
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
    
   Char_t histo[20];
 
@@ -44,7 +44,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
   if ( dbe_ ) {
     std::cout << " dbe_->setCurrentFolder" << std::endl; 
-    dbe_->setCurrentFolder("HcalRecHitTask");
+    dbe_->setCurrentFolder("HcalRecHitsV/HcalRecHitTask");
 
 
     // ZS
@@ -1378,6 +1378,7 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HcalRecHitsValidation);

@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
@@ -25,7 +25,7 @@ public:
  
 
  private:
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::string outputFile_;
   PSimHitMap theSimHitMap;
   CSCGeometry * theCSCGeometry;
