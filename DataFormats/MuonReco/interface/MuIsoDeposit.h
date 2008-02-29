@@ -142,6 +142,7 @@ namespace reco {
         public:
             const const_iterator & operator++() { ++it_; cacheReady_ = false; return *this; }
             const const_iterator * operator->() const { return this; }
+	    float dR() const { return it_->first.deltaR; }
             float eta() const { if (!cacheReady_) doDir(); return cache_.eta(); }
             float phi() const { if (!cacheReady_) doDir(); return cache_.phi(); }
             float value() const { return it_->second; }
