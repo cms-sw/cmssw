@@ -31,7 +31,6 @@ int BremRecoveryPhiRoadAlgo::barrelPhiRoad(double et)
    // and compute the optimal phi road 
    // as a number of crystals
 
-   int threshold = 0;
    for (unsigned int i = 0; i < cryVec_.size(); ++i)
    {
       if (et < etVec_[i]) return cryVec_[i];
