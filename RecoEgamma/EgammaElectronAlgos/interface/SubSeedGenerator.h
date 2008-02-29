@@ -20,7 +20,7 @@ class SubSeedGenerator : public ElectronSeedGenerator {
   ~SubSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, reco::ElectronPixelSeedCollection&);
+  void run(edm::Event&, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
 
  private:
   std::string initialSeedProducer_;
