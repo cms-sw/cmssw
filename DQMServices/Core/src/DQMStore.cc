@@ -55,7 +55,7 @@ static std::string s_dqmPatchVersion = dqm::DQMPatchVersion;
 static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 static DQMStore *s_instance = 0;
 
-static const lat::Regexp s_rxmeval ("^(i|f|s|qr)=(.*)$");
+static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr  ("^st\\.(\\d+)\\.(.*)$");
 
 //////////////////////////////////////////////////////////////////////
@@ -1082,21 +1082,21 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     else if (isCollateME(me) || collateHistograms_)
       collateProfile2D(me, h);
   }
-  else if (dynamic_cast<TObjString *>(obj) || dynamic_cast<TNamed *>(obj))
+  else if (dynamic_cast<TObjString *>(obj))
   {
     std::string path;
     lat::RegexpMatch m;
-    if (! s_rxmeval.match(obj->GetTitle(), 0, 0, &m))
+    if (! s_rxmeval.match(obj->GetName(), 0, 0, &m))
     {
       std::cout << "*** DQMStore: WARNING: cannot extract object '"
-		<< obj->GetName() << "' of type '" << obj->IsA()->GetName()
-		<< "' and with title '" << obj->GetTitle() << "'\n";
+		<< obj->GetName() << "' of type '"
+		<< obj->IsA()->GetName() << "'\n";
       return false;
     }
 
-    std::string label = obj->GetName();
-    std::string kind = m.matchString(obj->GetTitle(), 1);
-    std::string value = m.matchString(obj->GetTitle(), 2);
+    std::string label = m.matchString(obj->GetName(), 1);
+    std::string kind = m.matchString(obj->GetName(), 2);
+    std::string value = m.matchString(obj->GetName(), 3);
 
     if (kind == "i")
     {
@@ -1168,10 +1168,21 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     else
     {
       std::cout << "*** DQMStore: WARNING: cannot extract object '"
-		<< obj->GetName() << "' of type '" << obj->IsA()->GetName()
-		<< "' and with title '" << obj->GetTitle() << "'\n";
+		<< obj->GetName() << "' of type '"
+		<< obj->IsA()->GetName() << "'\n";
       return false;
     }
+  }
+  else if (TNamed *n = dynamic_cast<TNamed *>(obj))
+  {
+    // For old DQM data.
+    std::string s;
+    s.reserve(6 + strlen(n->GetTitle()) + 2*strlen(n->GetName()));
+    s += '<'; s += n->GetName(); s += '>';
+    s += n->GetTitle();
+    s += '<'; s += '/'; s += n->GetName(); s += '>';
+    TObjString os(s.c_str());
+    return extract(&os, dir, overwrite);
   }
   else if (verbose_ && strstr(obj->GetName(), "CMSSW"))
     std::cout << "Input file version: " << obj->GetName() << std::endl;
