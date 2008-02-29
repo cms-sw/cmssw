@@ -8,7 +8,7 @@
  * Error/Scale factor matrix is obtained using get(GlobalVector momentum)
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -68,7 +68,7 @@ class MuonErrorMatrix{
   std::string theCategory;
 
   /// the attached root file, where the parametrization is saved
-  TFile * theF;
+  TDirectory * theD;
   /// 15 TProfile, each holding he parametrization of each term of the 5x5 
   TProfile3D * theData[15];
   TProfile3D * theData_fast[5][5];

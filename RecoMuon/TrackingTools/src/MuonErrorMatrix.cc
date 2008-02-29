@@ -13,10 +13,16 @@ using namespace std;
 
 const TString MuonErrorMatrix::vars[5]={"#frac{q}{|p|}","#lambda","#varphi_{0}","X_{T}","Y_{T}"};
 
-MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
+MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
   theCategory="MuonErrorMatrix";
   std::string action = iConfig.getParameter<std::string>("action");
-  std::string fileName = iConfig.getParameter<std::string>("rootFileName");
+
+  bool madeFromCff=iConfig.exists("errorMatrixValuesPSet");
+  edm::ParameterSet errorMatrixValuesPSet;
+
+  std::string fileName;
+  if (!madeFromCff){ fileName = iConfig.getParameter<std::string>("rootFileName");}
+  else { errorMatrixValuesPSet =iConfig.getParameter<edm::ParameterSet>("errorMatrixValuesPSet");}
   MuonErrorMatrix::action a= use;
 
    int NPt=5;
@@ -73,79 +79,127 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
     else if(get.str() =="Pi")
       { maxPhi =TMath::Pi();}
     else { get>>maxPhi;}
+  }//action!=use
+  else if (madeFromCff){
+
+    xBins = errorMatrixValuesPSet.getParameter<std::vector<double> >("xAxis");
+    NPt = xBins.size()-1;
+    xBinsArray = &(xBins.front());
+    minPt = xBins.front();
+    maxPt = xBins.back();
+    
+    yBins = errorMatrixValuesPSet.getParameter<std::vector<double> >("yAxis");
+    NEta = yBins.size()-1;
+    yBinsArray = &(yBins.front());
+    minPt = yBins.front();
+    maxPt = yBins.back();
+
+    std::vector<double> zBins = errorMatrixValuesPSet.getParameter<std::vector<double> >("zAxis");
+    NPhi=1;
+    if (zBins.size()!=2){
+      edm::LogError(theCategory)<<"please specify a zAxis with 2 entries only. more bins not implemented yet.";}
+    minPhi=zBins.front();
+    maxPhi=zBins.back();
+
   }
 
   if (a==use){
-    edm::LogInfo(theCategory)<<"using an error matrix object: "<<fileName;
-    edm::FileInPath data(fileName);
-    string fullpath = data.fullPath();
-    theF = new TFile(fullpath.c_str());
+    if (!madeFromCff){
+      edm::LogInfo(theCategory)<<"using an error matrix object from: "<<fileName;
+      edm::FileInPath data(fileName);
+      std::string fullpath = data.fullPath();
+      gROOT->cd();
+      theD = new TFile(fullpath.c_str());
+      theD->SetWritable(false);
+    }else{
+      static uint neverTheSame=0;
+      std::stringstream dirName("MuonErrorMatrixDirectory");
+      dirName<<neverTheSame++;
+      edm::LogInfo(theCategory)<<"using an error matrix object from configuration file. putting memory histograms to: "<<dirName.str();
+      gROOT->cd();
+      theD = new TDirectory(dirName.str().c_str(),"transient directory to host MuonErrorMatrix TProfile3D");
+      theD->SetWritable(false);
+    }
   }
   else{
     edm::LogInfo(theCategory)<<"creating  an error matrix object: "<<fileName;
-    theF = new TFile(fileName.c_str(),"recreate");
+    theD = new TFile(fileName.c_str(),"recreate");
   }
 
-  if (!theF->IsOpen()){
-    edm::LogError(theCategory)<<" cannot read file "<<fileName;}
-  else{
-    if (a==use){gROOT->cd();}
-    else {theF->cd();}
+  if (a==use && !madeFromCff ){gROOT->cd();}
+  else {theD->cd();}
 
-    for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
-	TString pfname(Form("pf3_V%1d%1d",i+1,j+1));
-	TProfile3D * pf =0;
-	if (a==use){
-	  edm::LogVerbatim(theCategory)<<"getting "<<pfname<<" from "<<fileName;
-	  pf = (TProfile3D *)theF->Get(pfname);
-	  //	  pf = new TProfile3D(*pf); //make a copy of it
-	  theData[Pindex(i,j)]=pf;
-	  theData_fast[i][j]=pf;	  theData_fast[j][i]=pf;
-	}
-	else{
-	  //	  curvilinear coordinate system
-	  //need to make some input parameter to be to change the number of bins
-
-	  TString pftitle;
-	  if (i==j){pftitle="#sigma_{"+vars[i]+"}";}
-	  else{pftitle="#rho("+vars[i]+","+vars[j]+")";}
-	  edm::LogVerbatim(theCategory)<<"booking "<<pfname<<" into "<<fileName;
-	  pf = new TProfile3D(pfname,pftitle,NPt,minPt,maxPt,NEta,minEta,maxEta,NPhi,minPhi,maxPhi,"S");	    
-	  pf->SetXTitle("muon p_{T} [GeV]");
-	  pf->SetYTitle("muon |#eta|");
-	  pf->SetZTitle("muon #varphi");
-
-	  //set variable size binning
-          if (xBinsArray){
-            pf->GetXaxis()->Set(NPt,xBinsArray);}
-          if (yBinsArray){
-            pf->GetYaxis()->Set(NEta,yBinsArray);}
-
-	}
-	LogDebug(theCategory)<<" index "<<i<<":"<<j<<" -> "<<Pindex(i,j);
+  for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
+      TString pfname(Form("pf3_V%1d%1d",i+1,j+1));
+      TProfile3D * pf =0;
+      if (a==use && !madeFromCff ){
+	//read from the rootfile
+	edm::LogVerbatim(theCategory)<<"getting "<<pfname<<" from "<<fileName;
+	pf = (TProfile3D *)theD->Get(pfname);
 	theData[Pindex(i,j)]=pf;
 	theData_fast[i][j]=pf;	  theData_fast[j][i]=pf;
-	if (!pf){
-	  edm::LogError(theCategory)<<" profile "<<pfname<<" in file "<<fileName<<" is not valid. exiting.";
-	  exit(1);
+      }
+      else{
+	//	  curvilinear coordinate system
+	//need to make some input parameter to be to change the number of bins
+
+	TString pftitle;
+	if (i==j){pftitle="#sigma_{"+vars[i]+"}";}
+	else{pftitle="#rho("+vars[i]+","+vars[j]+")";}
+	edm::LogVerbatim(theCategory)<<"booking "<<pfname<<" into "<<fileName;
+	pf = new TProfile3D(pfname,pftitle,NPt,minPt,maxPt,NEta,minEta,maxEta,NPhi,minPhi,maxPhi,"S");	    
+	pf->SetXTitle("muon p_{T} [GeV]");
+	pf->SetYTitle("muon |#eta|");
+	pf->SetZTitle("muon #varphi");
+
+	//set variable size binning
+	if (xBinsArray){
+	  pf->GetXaxis()->Set(NPt,xBinsArray);}
+	if (yBinsArray){
+	  pf->GetYaxis()->Set(NEta,yBinsArray);}
+
+	if (madeFromCff){
+	  edm::ParameterSet pSet = errorMatrixValuesPSet.getParameter<edm::ParameterSet>(pfname.Data());
+	  //set the values from the configuration file itself
+	  std::vector<double> values = pSet.getParameter<std::vector<double> >("values");
+	  unsigned int iX=pf->GetNbinsX();
+	  unsigned int iY=pf->GetNbinsY();
+	  unsigned int iZ=pf->GetNbinsZ();
+	  uint continuous_i=0;
+	  for(unsigned int ix=1;ix<=iX;++ix){
+	    for(unsigned int iy=1;iy<=iY;++iy){
+	      for(unsigned int iz=1;iz<=iZ;++iz){
+		pf->SetBinContent(ix,iy,iz,values[continuous_i++]);
+	      }}}
 	}
-      }}
+      }
+
+      LogDebug(theCategory)<<" index "<<i<<":"<<j<<" -> "<<Pindex(i,j);
+      theData[Pindex(i,j)]=pf;
+      theData_fast[i][j]=pf;	  theData_fast[j][i]=pf;
+      if (!pf){
+	edm::LogError(theCategory)<<" profile "<<pfname<<" in file "<<fileName<<" is not valid. exiting.";
+	exit(1);
+      }
+    }}
     
-    //verify it
-    for (int i=0;i!=15;i++){ 
-      if (theData[i]) {edm::LogVerbatim(theCategory)<<i<<" :"<<theData[i]->GetName()
-								<<" "<< theData[i]->GetTitle()<<std::endl;}}
-  }
+  //verify it
+  for (int i=0;i!=15;i++){ 
+    if (theData[i]) {edm::LogVerbatim(theCategory)<<i<<" :"<<theData[i]->GetName()
+						  <<" "<< theData[i]->GetTitle()<<std::endl;}}
+ 
 }
+
+//void MuonErrorMatrix::writeIntoCFF(){}
 
 void MuonErrorMatrix::close(){
   //close the file
-  if (theF->IsOpen()){
-    theF->cd();
+  if (theD){
+    theD->cd();
     //write to it first if constructor
-    if (theF->IsWritable()){
+    if (theD->IsWritable()){
       for (int i=0;i!=15;i++){ if (theData[i]) { theData[i]->Write();}}}
-    theF->Close();
+    theD->Close();
   }}
 
 MuonErrorMatrix::~MuonErrorMatrix()  {
