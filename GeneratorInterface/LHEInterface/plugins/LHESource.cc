@@ -25,40 +25,36 @@
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
 
+#include "LHESource.h"
+
 using namespace lhef;
-
-class LHESource : public edm::GeneratedInputSource {
-    public:
-	LHESource(const edm::ParameterSet &params,
-	          const edm::InputSourceDescription &desc);
-	virtual ~LHESource();
-
-    private:
-	virtual void endJob();
-	virtual void endRun(edm::Run &run);
-	virtual bool produce(edm::Event &event);
-
-	std::auto_ptr<LHEReader>	reader;
-	unsigned int			skipEvents;
-	unsigned int			eventsToPrint;
-	std::auto_ptr<Hadronisation>	hadronisation;
-	std::auto_ptr<JetMatching>	jetMatching;
-
-	const double			extCrossSect;
-	const double			extFilterEff;
-};
 
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	GeneratedInputSource(params, desc),
-	reader(new LHEReader(params)),
-	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
-	eventsToPrint(params.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
-	hadronisation(Hadronisation::create(
-		params.getParameter<edm::ParameterSet>("hadronisation"))),
-	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
-	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0))
+	reader(new LHEReader(params))
 {
+	init(params);
+}
+
+LHESource::LHESource(const edm::ParameterSet &params,
+                     const edm::InputSourceDescription &desc,
+                     LHEReader *reader) :
+	GeneratedInputSource(params, desc),
+	reader(reader)
+{
+	init(params);
+}
+
+void LHESource::init(const edm::ParameterSet &params)
+{
+	skipEvents = params.getUntrackedParameter<unsigned int>("skipEvents", 0);
+	eventsToPrint = params.getUntrackedParameter<unsigned int>("eventsToPrint", 0);
+	hadronisation = Hadronisation::create(
+		params.getParameter<edm::ParameterSet>("hadronisation"));
+	extCrossSect = params.getUntrackedParameter<double>("crossSection", -1.0);
+	extFilterEff = params.getUntrackedParameter<double>("filterEfficiency", -1.0);
+
 	if (params.exists("jetMatching")) {
 		edm::ParameterSet jetParams =
 			params.getUntrackedParameter<edm::ParameterSet>(

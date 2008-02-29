@@ -9,15 +9,9 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
 
-#define PYTHIA_VERSION	8070
-
 #include <Pythia.h>
 #include <LesHouches.h>
-#if PYTHIA_VERSION >= 8100
-#	include <HepMCInterface.h>
-#else
-#	include <I_Pythia8.h>
-#endif
+#include <HepMCInterface.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -46,88 +40,73 @@ class Pythia8Hadronisation : public Hadronisation {
 	const int				pythiaPylistVerbosity;
 	int					maxEventsToPrint;
 
-	class LHAinitLesHouches;
-	class LHAevntLesHouches;
+	class LHAupLesHouches;
 
 	std::auto_ptr<Pythia>			pythia;
-	std::auto_ptr<LHAinitLesHouches>	lhaInit;
-	std::auto_ptr<LHAevntLesHouches>	lhaEvent;
+	std::auto_ptr<LHAupLesHouches>		lhaUP;
 	std::auto_ptr<HepMC::I_Pythia8>		conv;
 };
 
-class Pythia8Hadronisation::LHAinitLesHouches : public LHAinit {
+class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
     public:
-	void load(const boost::shared_ptr<LHECommon> &common)
+	void loadCommon(const boost::shared_ptr<LHECommon> &common)
 	{ this->common = common; }
 
-    private:
-	bool set();
-
-	boost::shared_ptr<LHECommon>	common;
-};
-
-class Pythia8Hadronisation::LHAevntLesHouches : public LHAevnt {
-    public:
-	void load(const boost::shared_ptr<LHEEvent> &event)
+	void loadEvent(const boost::shared_ptr<LHEEvent> &event)
 	{ this->event = event; }
 
     private:
-#if PYTHIA_VERSION >= 8100
-	bool set(int dummy);
-#else
-	bool set();
-#endif
+	bool setInit();
+	bool setEvent(int idProcIn);
 
+	boost::shared_ptr<LHECommon>	common;
 	boost::shared_ptr<LHEEvent>	event;
 };
 
-bool Pythia8Hadronisation::LHAinitLesHouches::set()
+bool Pythia8Hadronisation::LHAupLesHouches::setInit()
 {
 	if (!common)
 		return false;
 	const HEPRUP &heprup = *common->getHEPRUP();
 
-	beamA(heprup.IDBMUP.first, heprup.EBMUP.first,
-	      heprup.PDFGUP.first, heprup.PDFSUP.first);
-	beamB(heprup.IDBMUP.second, heprup.EBMUP.second,
-	      heprup.PDFGUP.second, heprup.PDFSUP.second);
-	strategy(heprup.IDWTUP);
+	setBeamA(heprup.IDBMUP.first, heprup.EBMUP.first,
+	         heprup.PDFGUP.first, heprup.PDFSUP.first);
+	setBeamB(heprup.IDBMUP.second, heprup.EBMUP.second,
+	         heprup.PDFGUP.second, heprup.PDFSUP.second);
+	setStrategy(heprup.IDWTUP);
 
 	for(int i = 0; i < heprup.NPRUP; i++)
-		process(heprup.LPRUP[i], heprup.XSECUP[i],
-		        heprup.XERRUP[i], heprup.XMAXUP[i]);
+		addProcess(heprup.LPRUP[i], heprup.XSECUP[i],
+		           heprup.XERRUP[i], heprup.XMAXUP[i]);
 
 	common.reset();
 	return true;
 }
 
-#if PYTHIA_VERSION >= 8100
-bool Pythia8Hadronisation::LHAevntLesHouches::set(int dummy)
-#else
-bool Pythia8Hadronisation::LHAevntLesHouches::set()
-#endif
+bool Pythia8Hadronisation::LHAupLesHouches::setEvent(int inProcId)
 {
 	if (!event)
 		return false;
 	const HEPEUP &hepeup = *event->getHEPEUP();
 
-	process(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP,
-	        hepeup.AQEDUP, hepeup.AQCDUP);
+	setProcess(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP,
+	           hepeup.AQEDUP, hepeup.AQCDUP);
 
 	for(int i = 0; i < hepeup.NUP; i++)
-		particle(hepeup.IDUP[i], hepeup.ISTUP[i],
-		         hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
-		         hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
-		         hepeup.PUP[i][0], hepeup.PUP[i][1], hepeup.PUP[i][2],
-		         hepeup.PUP[i][3], hepeup.PUP[i][4], hepeup.VTIMUP[i],
-		         hepeup.SPINUP[i]);
+		addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
+		            hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
+		            hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
+		            hepeup.PUP[i][0], hepeup.PUP[i][1],
+		            hepeup.PUP[i][2], hepeup.PUP[i][3],
+		            hepeup.PUP[i][4], hepeup.VTIMUP[i],
+		            hepeup.SPINUP[i]);
 
 	const LHEEvent::PDF *pdf = event->getPDF();
 	if (pdf)
-		this->pdf(pdf->id.first, pdf->id.second,
-		          pdf->x.first, pdf->x.second,
-		          pdf->scalePDF,
-		          pdf->xPDF.first, pdf->xPDF.second);
+		this->setPdf(pdf->id.first, pdf->id.second,
+		             pdf->x.first, pdf->x.second,
+		             pdf->scalePDF,
+		             pdf->xPDF.first, pdf->xPDF.second);
 
 	event.reset();
 	return true;
@@ -142,8 +121,7 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 		params.getParameter<std::vector<std::string> >("parameterSets");
 
 	pythia.reset(new Pythia);
-	lhaInit.reset(new LHAinitLesHouches);
-	lhaEvent.reset(new LHAevntLesHouches);
+	lhaUP.reset(new LHAupLesHouches);
 	conv.reset(new HepMC::I_Pythia8);
 
 	for(std::vector<std::string>::const_iterator iter = setNames.begin();
@@ -157,12 +135,8 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 		for(std::vector<std::string>::const_iterator line = lines.begin();
 		    line != lines.end(); ++line ) {
-#if PYTHIA_VERSION >= 8100
 			if (line->substr(0, 14) == "Random:setSeed" ||
 			    line->substr(0, 11) == "Random:seed")
-#else
-			if (line->substr(0, 11) == "Pythia:seed")
-#endif
 				throw cms::Exception("PythiaError")
 					<< "Attempted to set random number"
 					   " using Pythia command 'MRPY(1)'."
@@ -178,14 +152,9 @@ Pythia8Hadronisation::Pythia8Hadronisation(const edm::ParameterSet &params) :
 
 	edm::Service<edm::RandomNumberGenerator> rng;
 	std::ostringstream ss;
-#if PYTHIA_VERSION >= 8100
 	ss << "Random:seed = " << rng->mySeed();
 	pythia->readString(ss.str());
 	pythia->readString("Random:setSeed = on");
-#else
-	ss << "Pythia:seed = " << rng->mySeed();
-	pythia->readString(ss.str());
-#endif
 }
 
 Pythia8Hadronisation::~Pythia8Hadronisation()
@@ -206,7 +175,7 @@ static int getStatus(const HepMC::GenParticle *p)
 
 std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::doHadronisation()
 {
-	lhaEvent->load(getRawEvent());
+	lhaUP->loadEvent(getRawEvent());
 	if (!pythia->next())
 		throw cms::Exception("PythiaError")
 			<< "Pythia did not want to process event."
@@ -238,8 +207,8 @@ double Pythia8Hadronisation::getCrossSection() const
 
 void Pythia8Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
 {
-	lhaInit->load(common);
-	pythia->init(lhaInit.get(), lhaEvent.get());
+	lhaUP->loadCommon(common);
+	pythia->init(lhaUP.get());
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Pythia8Hadronisation);

@@ -18,6 +18,8 @@ class LHEEvent;
 class LHEReader {
     public:
 	LHEReader(const edm::ParameterSet &params);
+	LHEReader(const std::vector<std::string> &fileNames,
+	          unsigned int skip = 0);
 	~LHEReader();
 
 	boost::shared_ptr<LHEEvent> next();
