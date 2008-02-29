@@ -157,7 +157,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 				std::vector<float>& baseline,
 				float& baseline_rms ) {
 
-  if (0) {
+  if (1) {
 
     // Trivial algo
     
@@ -165,33 +165,6 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     adc.reserve( digis.data.size() ); 
     for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
     sort( adc.begin(), adc.end() );
-
-    SiStripFedKey key( digis.detId() );
-
-    if ( digis.data.empty() ) {
-      LogTrace(mlDqmSource_)
-	<< "[OptoScanTask::" << __func__ << "]"
-	<< " digis empty "
-	<< " fed id/ch " 
-	<< key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
-      if ( adc.empty() ) {
-	LogTrace(mlDqmSource_)
-	  << "[OptoScanTask::" << __func__ << "]"
-	  << " adc empty   "
-	  << " fed id/ch " 
-	  << key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
-	if ( adc.size() != digis.data.size() ) {
-	  LogTrace(mlDqmSource_)
-	    << "[OptoScanTask::" << __func__ << "]"
-	    << " diff size!  "
-	    << " fed id/ch " 
-	    << key.fedId() << "/" << key.feUnit() << "/" << key.feChan() <<  "/" << key.fedChannel();
-	  return;
-	}
-	return;
-      }
-      return;
-    }
 
     range.first  = adc.front();
     range.second = adc.back();
@@ -202,8 +175,6 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 
     int ttt = 1022;
     int bbb = 50;
-
-    //   LogTrace(mlDqmSource_) << "BEGIN TEST...";
   
     // Copy ADC values and sort 
     std::vector<uint16_t> adc; 
@@ -212,46 +183,6 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     sort( adc.begin(), adc.end() );
 
     SiStripFedKey key( digis.detId() );
-    
-    //   if ( adc.front() < bbb && adc.back() < bbb ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 00a "  
-    //        << std::hex << key.key() << std::dec
-    //        << " size " << adc.size()
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
-
-    //   if ( adc.front() > ttt && adc.back() > ttt ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 00b "  
-    //        << std::hex << key.key() << std::dec
-    //        << " size " << adc.size()
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
-
-    //   if ( adc.front() < bbb && adc.back() > ttt ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 00c "  
-    //        << std::hex << key.key() << std::dec
-    //        << " size " << adc.size()
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
-
-    //   if ( adc.front() < bbb || adc.back() < bbb ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 00d "  
-    //        << std::hex << key.key() << std::dec
-    //        << " size " << adc.size()
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
   
     // Initialization for "baseline" 
     std::vector<float> base;
@@ -312,43 +243,13 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     range.first = base_mean; 
     range.second = tick_mean; 
     baseline_rms = base_rms;
-
-    //   if ( range.first < bbb || range.second < bbb ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 0a "  
-    //        << std::hex << key.key() << std::dec
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
-
-    //   if ( range.first > ttt && range.second > ttt ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 0b"  
-    //        << std::hex << key.key() << std::dec
-    //        << " front " << adc.front()
-    //        << " back " << adc.back();
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
   
     // Check for condition where tick mark top cannot be distinguished from baseline
     if ( !adc.empty() ) {
-      //     LogTrace(mlDqmSource_)
-      //       << "TEST 0";  
       if ( base.empty() || tick.empty() ) {
-	//       LogTrace(mlDqmSource_)
-	// 	<< "TEST 1";  
 	range.first  = adc.front();
 	range.second = adc.back();
-	//       LogTrace(mlDqmSource_)
-	// 	<< "TEST 2"  
-	// 	<< " front " << adc.front()
-	// 	<< " back " << adc.back();
 	if ( key.key() == 0x0004c5c4 ) {
-	  // 	LogTrace(mlDqmSource_)
-	  // 	  << "TEST 3"  
-	  // 	  << " front " << adc.front()
-	  // 	  << " back " << adc.back();
 	}
       }
     } else {
@@ -356,15 +257,6 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 	<< "[OptoScanTask::" << __func__ << "]"
 	<< " Found no ADC values!";
     }
-
-    //   if ( range.first > ttt || range.second > ttt ) {
-    //     std::stringstream ss;
-    //     ss << "TEST 00e "  
-    //        << std::hex << key.key() << std::dec
-    //        << " first " << range.first
-    //        << " second " << range.second;
-    //     LogTrace(mlDqmSource_) << ss.str();
-    //   }    
 
   }
  
