@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.4 2008/02/21 16:09:54 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.5 2008/02/21 20:49:10 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include <boost/function.hpp>
+#include "Rtypes.h"
 
 // user include files
 
@@ -40,12 +41,18 @@ class FWEventItemsManager;
 class FWEventItem;
 class FWViewBase;
 
+class TGListTree;
+class TGListTreeItem;
+class TEveGedEditor;
+class TObject;
+
 class FWGUIManager
 {
 
    public:
       FWGUIManager(FWSelectionManager*,
-                   FWEventItemsManager*);
+                   FWEventItemsManager*,
+                   bool iDebugInterface = false);
       virtual ~FWGUIManager();
 
       // ---------- const member functions ---------------------
@@ -77,6 +84,12 @@ class FWGUIManager
       void processGUIEvents();
       int allowInteraction();
 
+      void itemChecked(TObject* obj, Bool_t state);
+      void itemClicked(TGListTreeItem *entry, Int_t btn,  UInt_t mask, Int_t x, Int_t y);
+      void itemDblClicked(TGListTreeItem* item, Int_t btn);
+      void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
+      void itemBelowMouse(TGListTreeItem*, UInt_t);
+   
    private:
       FWGUIManager(const FWGUIManager&); // stop default
 
@@ -117,6 +130,11 @@ class FWGUIManager
       
       typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
       NameToViewBuilder m_nameToViewBuilder;
+   
+      TGListTree* m_listTree;
+      TEveGedEditor* m_editor;
+      TEveElementList* m_eventObjects;
+      TEveElementList* m_views;
 };
 
 

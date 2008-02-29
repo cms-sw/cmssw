@@ -8,23 +8,29 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.5 2008/02/21 20:49:11 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.6 2008/02/24 20:39:05 dmytro Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <stdexcept>
+#include <iostream>
 
 #include "TGButton.h"
 #include "TGComboBox.h"
 #include "TGTextEntry.h"
 #include "TApplication.h"
-#include "TEveManager.h"
 #include "TROOT.h"
-#include "TEveBrowser.h"
 #include "TSystem.h"
 #include "TGSplitFrame.h"
-
+#include "TGTab.h"
+#include "TGListTree.h"
+//EVIL, no accessor for the editor yet
+//#define protected public
+#include "TEveBrowser.h"
+//#undef protected
+#include "TEveManager.h"
+#include "TEveGedEditor.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -34,6 +40,9 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
+
+#include "Fireworks/Core/src/FWListEventItem.h"
+
 //
 // constants, enums and typedefs
 //
@@ -46,7 +55,9 @@
 // constructors and destructor
 //
 FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
-                           FWEventItemsManager* iEIMgr):
+                           FWEventItemsManager* iEIMgr,
+                           bool iDebugInterface
+):
 m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
 m_continueProcessingEvents(false),
@@ -137,9 +148,34 @@ m_code(0)
             
          }
          frmMain->AddFrame(hf);
+         //frmMain->SetEditable();
+         TEveGListTreeEditorFrame* ltf = new TEveGListTreeEditorFrame(frmMain);
+         //frmMain->SetEditable(kFALSE);
+         frmMain->AddFrame(ltf);
+         m_listTree = ltf->GetListTree();
+         m_eventObjects =  new TEveElementList("Physics Objects");
+         m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
+                                                              reinterpret_cast<TGListTreeItem*>(0))
+                              );
+         m_views =  new TEveElementList("Views");
+         m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
+         m_editor = ltf->GetEditor();
+         m_editor->DisplayElement(0);
+
+         {
+            //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
+              //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
+            m_listTree->Connect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)", "FWGUIManager",
+                               this, "itemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
+            m_listTree->Connect("DoubleClicked(TGListTreeItem*, Int_t)", "FWGUIManager",
+                               this, "itemDblClicked(TGListTreeItem*, Int_t)");
+            m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
+                               this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
+         }
          
          TGGroupFrame* vf = new TGGroupFrame(frmMain,"Selection",kVerticalFrame);
          {
+            
             TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
             m_selectionItemsComboBox = new TGComboBox(vf2,200);
             m_selectionItemsComboBox->Resize(200,20);
@@ -155,6 +191,7 @@ m_code(0)
             m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
             vf->AddFrame(m_unselectAllButton);
             m_unselectAllButton->SetEnabled(kFALSE);
+          
          }
          frmMain->AddFrame(vf);
          frmMain->MapSubwindows();
@@ -162,7 +199,7 @@ m_code(0)
          frmMain->MapWindow();
       }
       browser->StopEmbedding();
-      browser->SetTabTitle("Fireworks",0);
+      browser->SetTabTitle("Fireworks",TRootBrowser::kLeft);
    }
    {
       //pickup our other icons
@@ -207,9 +244,13 @@ m_code(0)
          
       }
       browser->StopEmbedding();
-      browser->SetTabTitle("Views",1);
+      browser->SetTabTitle("Views",TRootBrowser::kRight);
    }
-   
+   if(not iDebugInterface) {
+      browser->GetTabLeft()->RemoveTab(0);
+      browser->GetTabLeft()->RemoveTab(0);
+      browser->GetTabRight()->RemoveTab(0);
+   }
    
 }
 
@@ -274,6 +315,10 @@ FWGUIManager::createView(const std::string& iName)
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
    addFrameHoldingAView((itFind->second(parentForNextView()))->frame());
+   
+   TEveElementList* lst = new TEveElementList(iName.c_str(),"");
+   lst->AddIntoListTree(m_listTree,m_views);
+   
 }
 
 
@@ -351,6 +396,11 @@ FWGUIManager::newItem(const FWEventItem* iItem)
    if(iItem->id()==0) {
       m_selectionItemsComboBox->Select(0);
    }
+   //TEveElementList* lst = new TEveElementList(iItem->name().c_str(),"",kTRUE);
+   //lst->SetMainColor(iItem->defaultDisplayProperties().color());
+   //NEED TO CHANGE THE SIGNATURE OF THE SIGNAL
+   TEveElementList* lst = new FWListEventItem( const_cast<FWEventItem*>(iItem) );
+   lst->AddIntoListTree(m_listTree,m_eventObjects);
 }
 
 
@@ -412,6 +462,31 @@ FWGUIManager::allowInteraction()
       gSystem->DispatchOneEvent(kFALSE);
    }
    return m_code;
+}
+
+
+void 
+FWGUIManager::itemChecked(TObject* obj, Bool_t state)
+{
+}
+void 
+FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
+{
+   TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
+   m_editor->DisplayElement(el);
+}
+void 
+FWGUIManager::itemDblClicked(TGListTreeItem* item, Int_t btn)
+{
+}
+void 
+FWGUIManager::itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask)
+{
+}
+
+void 
+FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
+{
 }
 
 //
