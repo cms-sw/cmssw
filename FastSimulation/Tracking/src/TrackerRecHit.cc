@@ -9,7 +9,8 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
   theSubDetId(0),
   theLayerNumber(0),
   theRingNumber(0),
-  theLocalError(0.)
+  theLocalError(0.),
+  theLargerError(0.)
 { 
   const DetId& theDetId = theHit->geographicalId();
   theGeomDet = theGeometry->idToDet(theDetId);
@@ -17,23 +18,29 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
   if ( theSubDetId == StripSubdetector::TIB) { 
     TIBDetId tibid(theDetId.rawId()); 
     theLayerNumber = tibid.layer();
+    forward = false;
   } else if ( theSubDetId ==  StripSubdetector::TOB ) { 
     TOBDetId tobid(theDetId.rawId()); 
     theLayerNumber = tobid.layer();
+    forward = false;
   } else if ( theSubDetId ==  StripSubdetector::TID) { 
     TIDDetId tidid(theDetId.rawId());
     theLayerNumber = tidid.wheel();
     theRingNumber = tidid.ring();
+    forward = true;
   } else if ( theSubDetId ==  StripSubdetector::TEC ) { 
     TECDetId tecid(theDetId.rawId()); 
     theLayerNumber = tecid.wheel(); 
     theRingNumber = tecid.ring();
+    forward = true;
   } else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
     PXBDetId pxbid(theDetId.rawId()); 
     theLayerNumber = pxbid.layer();  
+    forward = false;
   } else if ( theSubDetId ==  PixelSubdetector::PixelEndcap ) { 
     PXFDetId pxfid(theDetId.rawId()); 
     theLayerNumber = pxfid.disk();  
+    forward = true;
   }
   
 }
@@ -61,7 +68,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const
       
     case 3:
       //Inner Barrel
-      isOnDet = theSubDetId==3 && theLayerNumber < 3;
+      isOnDet = theSubDetId==3 && theLayerNumber < 2;
       break;
       
     case 4:

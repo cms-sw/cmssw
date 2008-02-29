@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <vector>
 #include <string>
@@ -45,6 +46,8 @@ class TrajectorySeedProducer : public edm::EDProducer
   /// a cylinder of radius originRadius, with a decent pT.
   bool compatibleWithBeamAxis(GlobalPoint& gpos1, 
 			      GlobalPoint& gpos2,
+			      double error,
+			      bool forward,
 			      unsigned algo) const;
 
  private:
@@ -75,6 +78,12 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<double> originRadius;
   std::vector<double> originHalfLength;
   std::vector<double> originpTMin;
+
+  std::vector<edm::InputTag> primaryVertices;
+  std::vector<double> zVertexConstraint;
+
+  std::vector<const reco::VertexCollection*> vertices;
+  double x0, y0, z0;
 
 };
 

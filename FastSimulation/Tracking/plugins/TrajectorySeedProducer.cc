@@ -11,6 +11,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -181,6 +182,18 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
       << " WARNING : originpTMin does not have the proper size "
       << std::endl;
 
+  primaryVertices = conf.getParameter<std::vector<edm::InputTag> >("primaryVertices");
+  if ( primaryVertices.size() != seedingAlgo.size() ) 
+    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+      << " WARNING : primaryVertices does not have the proper size "
+      << std::endl;
+
+  zVertexConstraint = conf.getParameter<std::vector<double> >("zVertexConstraint");
+  if ( zVertexConstraint.size() != seedingAlgo.size() ) 
+    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+      << " WARNING : zVertexConstraint does not have the proper size "
+      << std::endl;
+
 }
 
   
@@ -243,16 +256,16 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByType(recoBeamSpotHandle); 
+  e.getByLabel("offlineBeamSpot",recoBeamSpotHandle); 
   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
-  //double sigmaZ=recoBeamSpotHandle->sigmaZ();
-  //double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
-  //double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  double x0 = BSPosition_.X();
-  double y0 = BSPosition_.Y();
-  double z0 = BSPosition_.Z();
+  double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+  x0 = BSPosition_.X();
+  y0 = BSPosition_.Y();
+  z0 = BSPosition_.Z();
 
-  // Input
+  // SimTracks and SimVertices
   edm::Handle<edm::SimTrackContainer> theSimTracks;
   e.getByLabel("famosSimHits",theSimTracks);
   
@@ -279,6 +292,16 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     return;
   }
   
+  // Primary vertices
+  vertices = std::vector<const reco::VertexCollection*>
+    (seedingAlgo.size(),static_cast<const reco::VertexCollection*>(0));
+  for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) { 
+    originHalfLength[ialgo] = 3.*sigmaz0; // Overrides the configuration
+    edm::Handle<reco::VertexCollection> aHandle;
+    bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
+    if (!isVertexCollection ) continue;
+    vertices[ialgo] = &(*aHandle);
+  }
   
 #ifdef FAMOS_DEBUG
   std::cout << " Step C: Loop over the RecHits, track by track " << std::endl;
@@ -369,9 +392,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       ++nTracksWithD0Z0;
       
       std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));
-      const TrackerRecHit& theSeedHits0 = theSeedHits[0];
-      const TrackerRecHit& theSeedHits1 = theSeedHits[1];
-      const TrackerRecHit& theSeedHits2 = theSeedHits[2];
+      TrackerRecHit& theSeedHits0 = theSeedHits[0];
+      TrackerRecHit& theSeedHits1 = theSeedHits[1];
+      TrackerRecHit& theSeedHits2 = theSeedHits[2];
       bool compatible = false;
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry);
@@ -416,8 +439,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 	  GlobalPoint gpos1 = theSeedHits0.globalPosition();
 	  GlobalPoint gpos2 = theSeedHits1.globalPosition();
+	  bool forward = theSeedHits0.isForward();
+	  double error = std::sqrt(theSeedHits0.largerError()+theSeedHits1.largerError());
 	  //	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
-	  compatible = compatibleWithBeamAxis(gpos1,gpos2,ialgo);
+	  compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,ialgo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
@@ -579,6 +604,8 @@ TrajectorySeedProducer::stateOnDet(const TrajectoryStateOnSurface& ts,
 bool
 TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1, 
 					       GlobalPoint& gpos2,
+					       double error,
+					       bool forward,
 					       unsigned algo) const {
 
   if ( !seedCleaning ) return true;
@@ -613,9 +640,45 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
 	    << "\t pT = " << myPart.Pt() << std::endl;
 #endif
 
-  // Check if the constraint (originpTMin, originHalfLength) is satisfied
-  return ( myPart.Pt() > originpTMin[algo] && 
-	   fabs(myPart.Z()) < originHalfLength[algo] );
+  // Check if the constraints are satisfied
+  // 1. pT at cylinder with radius originRadius
+  if ( myPart.Pt() < originpTMin[algo] ) return false;
+
+  // 2. Z compatible with beam spot size
+  if ( fabs(myPart.Z()-z0) > originHalfLength[algo] ) return false;
+
+  // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
+  const reco::VertexCollection* theVertices = vertices[algo];
+  if (!theVertices) return true;
+  unsigned nVertices = theVertices->size();
+  if ( !nVertices || zVertexConstraint[algo] < 0. ) return true;
+  // Radii of the two hits with respect to the beam spot position
+  double R1 = std::sqrt ( (thePos1.X()-x0)*(thePos1.X()-x0) 
+			+ (thePos1.Y()-y0)*(thePos1.Y()-y0) );
+  double R2 = std::sqrt ( (thePos2.X()-x0)*(thePos2.X()-x0) 
+			+ (thePos2.Y()-y0)*(thePos2.Y()-y0) );
+  // Loop on primary vertices
+  for ( unsigned iv=0; iv<nVertices; ++iv ) { 
+    // Z position of the primary vertex
+    double zV = (*theVertices)[iv].z();
+    // Constraints on the inner hit
+    double checkRZ1 = forward ?
+      (thePos1.Z()-zV+zVertexConstraint[algo]) / (thePos2.Z()-zV+zVertexConstraint[algo]) * R2 : 
+      -zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV+zVertexConstraint[algo]);
+    double checkRZ2 = forward ?
+      (thePos1.Z()-zV-zVertexConstraint[algo])/(thePos2.Z()-zV-zVertexConstraint[algo]) * R2 :
+      +zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV-zVertexConstraint[algo]);
+    double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
+    double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
+    // Check if the innerhit is within bounds
+    bool compat = forward ?
+      checkRZmin < R1 && R1 < checkRZmax : 
+      checkRZmin < thePos1.Z()-zV && thePos1.Z()-zV < checkRZmax; 
+    // If it is, just return ok
+    if ( compat ) return compat;
+  }
+  // Otherwise, return not ok
+  return false;
 
 }  
 

@@ -35,8 +35,10 @@ public:
     theGeomDet(0),
     theSubDetId(0),
     theLayerNumber(0),
-    theRingNumber(0),
-    theLocalError(0.) {}
+    theRingNumber(0), 
+    theLocalError(0.),
+    theLargerError(0.),
+    forward(false) {}
   
   /// Constructor from private members
     //  TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
@@ -56,6 +58,9 @@ public:
 
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
+
+  /// Is it a forward hit ?
+  inline bool isForward() const { return forward; }
 
   /// The GeomDet
   inline const GeomDet* geomDet() const { return theGeomDet; }
@@ -79,7 +84,7 @@ public:
       theLayerNumber == other.layerNumber();
   }
 
-  // The smallest local error
+  // The smaller local error
   double localError() { 
 
     // Check if it has been already computed
@@ -92,6 +97,22 @@ public:
     double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
     theLocalError = 0.5 * (xx+yy-delta);
     return theLocalError;
+
+  }
+  
+  // The larger local error
+  double largerError() { 
+
+    // Check if it has been already computed
+    if ( theLargerError != 0. ) return theLargerError;
+
+    // Otherwise, compute it!
+    double xx = theHit->localPositionError().xx();
+    double yy = theHit->localPositionError().yy();
+    double xy = theHit->localPositionError().xy();
+    double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
+    theLargerError = 0.5 * (xx+yy+delta);
+    return theLargerError;
 
   }
   
@@ -112,6 +133,8 @@ public:
   unsigned int theLayerNumber;
   unsigned int theRingNumber;
   double theLocalError;
+  double theLargerError;
+  bool forward;
 
 };
 #endif
