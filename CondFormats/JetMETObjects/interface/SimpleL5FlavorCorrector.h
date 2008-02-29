@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 31, 2007
-// $Id: SimpleL5FlavorCorrector.h,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleL5FlavorCorrector.h,v 1.1 2007/11/16 00:09:55 fedor Exp $
 //
 // Jet flavor dependent corrections
 //
@@ -14,7 +14,7 @@ class SimpleJetCorrectorParameters;
 class SimpleL5FlavorCorrector {
  public:
   SimpleL5FlavorCorrector ();
-  SimpleL5FlavorCorrector (const std::string& fDataFile);
+  SimpleL5FlavorCorrector (const std::string& fDataFile, const std::string& fSection);
   virtual ~SimpleL5FlavorCorrector ();
 
   virtual double correctionXYZT (double fPx, double fPy, double fPz, double fE) const;

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.h,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleJetCorrectorParameters.h,v 1.2 2007/11/16 00:14:29 fedor Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -32,7 +32,7 @@ class SimpleJetCorrectorParameters {
   };
 
   SimpleJetCorrectorParameters () {}
-  SimpleJetCorrectorParameters (const std::string& fFile);
+  SimpleJetCorrectorParameters (const std::string& fFile, const std::string& fSection = "");
   
   /// total # of bands
   unsigned size () const {return mRecords.size();}

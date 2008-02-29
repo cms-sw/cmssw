@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.h,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleJetCorrectorParameters.cc,v 1.2 2007/11/16 00:14:32 fedor Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -29,6 +29,14 @@ namespace {
       throw cms::Exception ("SimpleJetCorrectorParameters") << "can not convert token " << token << " to unsigned value";
     }
     return result;
+  }
+  std::string getSection (const std::string& token) {
+    unsigned iFirst = token.find ('[');
+    unsigned iLast = token.find (']');
+    if (iFirst != std::string::npos && iLast != std::string::npos && iFirst < iLast) {
+      return std::string (token, iFirst+1, iLast-iFirst-1);
+    } 
+    return "";
   }
 }
 
@@ -72,13 +80,21 @@ SimpleJetCorrectorParameters::Record::Record (const std::string& fLine)
   }
 }
 
-SimpleJetCorrectorParameters::SimpleJetCorrectorParameters (const std::string& fFile) {
+SimpleJetCorrectorParameters::SimpleJetCorrectorParameters (const std::string& fFile, const std::string& fSection) {
   std::ifstream input (fFile.c_str());
+  std::string currentSection = "";
   std::string line;
   while (std::getline (input, line)) {
-    Record record (line);
-    if (!(record.etaMin() == 0. && record.etaMax() == 0. && record.nParameters() == 0)) {
-      mRecords.push_back (record);
+    std::string section = getSection (line);
+    if (!section.empty ()) {
+      currentSection = section;
+      continue;
+    }
+    if (currentSection == fSection) {
+      Record record (line);
+      if (!(record.etaMin() == 0. && record.etaMax() == 0. && record.nParameters() == 0)) {
+	mRecords.push_back (record);
+      }
     }
   }
   if (mRecords.empty()) mRecords.push_back (Record ());
