@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: GflashEMShowerModelMessenger.cc,v 1.1 2007/05/15 23:15:43 syjun Exp $
-// GEANT4 tag $Name:  $
+// $Id: GflashEMShowerModelMessenger.cc,v 1.2 2007/12/07 23:01:28 dwjang Exp $
+// GEANT4 tag $Name: V00-06-02 $
 //
 //
 // ------------------------------------------------------------

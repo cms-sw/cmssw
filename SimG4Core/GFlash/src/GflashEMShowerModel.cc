@@ -57,7 +57,7 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
     gflashRegion->SetFastSimulationManager(G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld")->GetFastSimulationManager());
   }
 
-  // mininum energy cutoff to parameterize
+  // Mininum energy cutoff to parameterize
   if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 1.0*GeV) return false;
   if(excludeDetectorRegion(fastTrack)) return false;
 
@@ -66,7 +66,7 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
   if(!trigger) return false;
 
-  // this fixes the width of energy contaiment.
+  // This will be changed accordingly when the way dealing with GflashRegion changes later.
   G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if( pCurrentVolume == 0) return false;
@@ -74,11 +74,10 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
   if(lv->GetRegion()->GetName() != "GflashRegion") return false;
 
+  // The parameterization starts inside crystals
   std::size_t pos1 = lv->GetName().find("EBRY");
   std::size_t pos2 = lv->GetName().find("EFRY");
   if(pos1 == std::string::npos && pos2 == std::string::npos) return false;
-
-  //  if(fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() != "eBrem") return false;
 
   return true;
 
@@ -88,13 +87,16 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 // -----------------------------------------------------------------------------------
 void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
-  // Parameterize shower shape and get resultant energy spots
+  // Initialize energySpotList
   theProfile->clearSpotList();
-  theProfile->parameterization(fastTrack);
 
+  // Do actual parameterization. The result of parameterization is energySpotList
+  theProfile->parameterization(fastTrack);
   std::vector<GflashEnergySpot>& energySpotList = theProfile->getEnergySpotList();
 
-  // Make hits
+  // The following procedure is creating fake G4Steps from GflashEnergySpot.
+  // The time is not meaningful but G4Step requires that information to make a step unique.
+  // Uniqueness of G4Step is important otherwise hits won't be created.
   G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
 
   std::vector<GflashEnergySpot>::const_iterator spotIter    = energySpotList.begin();
@@ -113,12 +115,12 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
     theGflashStep->GetPostStepPoint()->SetPosition(spotIter->getPosition());
     theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
 
-    //put touchable for each energy spot
+    //put touchable for each energy spot so that touchable history keeps track of each step.
     theGflashNavigator->LocateGlobalPointAndUpdateTouchable(spotIter->getPosition(),theGflashTouchableHandle(), false);
     theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
     
-    // Send G4Step information to Hit/Dig if the volume is sensitive
+    // Send G4Step information to Hit/Digi if the volume is sensitive
     // Copied from G4SteppingManager.cc
     
     G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
@@ -148,23 +150,6 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) 
   //exclude regions where geometry are complicated
   G4double eta =   fastTrack.GetPrimaryTrack()->GetMomentum().pseudoRapidity() ;
   if(fabs(eta) > 1.3 && fabs(eta) < 1.57) return true;
-
-  /*
-  //exclude the region where the shower starting point is too close to the end of
-  //the hadronic envelopes (may need to be optimized further!)
-
-  GflashCalorimeterNumber kColor = theProfile->getCalorimeterNumber(fastTrack);
-
-  //@@@ need a proper scale
-  const G4double minDistantToOut = 10.;
-
-  if(kColor == kESPM || kColor == kENCA) {
-    G4double distOut = fastTrack.GetEnvelopeSolid()->
-      DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
-                    fastTrack.GetPrimaryTrackLocalDirection());
-    if (distOut < minDistantToOut ) isExcluded = true;
-  }
-  */
 
   return isExcluded;
 }

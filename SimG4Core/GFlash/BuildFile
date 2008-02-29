@@ -4,6 +4,8 @@
 <use name=FWCore/PluginManager>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/PhysicsLists>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
 <use name=geant4>
 <use name=clhep>
 <use name=boost>

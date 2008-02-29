@@ -1,12 +1,16 @@
 #ifndef SimG4Core_GFlash_GflashHistogram_H
 #define SimG4Core_GFlash_GflashHistogram_H
 
+// created by Soon Yung Jun, Dongwook Jang, 2007/12/07
+
 #include <TObject.h>
 #include <TFile.h>
+#include <TTree.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile.h>
 #include <TString.h>
+
 
 class GflashHistogram : public TObject {
 
@@ -34,13 +38,14 @@ class GflashHistogram : public TObject {
   // histograms for EM shower model in GflashEMShowerProfile
   TH1F*     incE_atEcal;
   TH2F*     dEdz;
-  TProfile* dEdz_p;
+  TH1F*     dEdz_p;
   TH1F*     dndz_spot;
   TH2F*     rxry;
   TH1F*     dx;
   TH2F*     xdz;
   TH2F*     rzSpots;
   TH1F*     rho_ssp;
+  TH1F*     rArm;
 
   // histograms for HAD shower model in GflashHadronShowerModel
 
@@ -56,12 +61,17 @@ class GflashHistogram : public TObject {
   TH1F*     lateralx;
   TH1F*     lateraly;
 
+  TH1F*     gfhlong;
+  TH1F*     gfhsll;
+  TH1F*     gfhssp;
+  TH1F*     gfheinc;
+  TH2F*     gfhlongProfile;
+
  private:
 
   static GflashHistogram* instance_;
   bool   theStoreFlag;
 
 };
-
 
 #endif

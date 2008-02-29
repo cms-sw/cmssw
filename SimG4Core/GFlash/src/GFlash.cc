@@ -1,5 +1,4 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
-#include "SimG4Core/GFlash/interface/CaloModel.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
@@ -13,19 +12,18 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
+#include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
 GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
-	       const edm::ParameterSet & p) : PhysicsList(map, p), 
-					      caloModel(0) {
+	       const edm::ParameterSet & p) : PhysicsList(map, p) {
+
   G4DataQuestionaire it(photon);
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP 3.3 + CMS GFLASH\n";
 
-  if (caloModel==0) caloModel = new CaloModel(p);
-
-  RegisterPhysics(new ParametrisedPhysics("parametrised")); 
+  RegisterPhysics(new ParametrisedPhysics("parametrised",p)); 
 
   // EM Physics
   RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
@@ -52,9 +50,20 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
   // Neutron tracking cut
   RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+
+
+  // singleton histogram object
+  theHisto = GflashHistogram::instance();
+  if(p.getParameter<bool>("GflashHistogram")) {
+    theHisto->setStoreFlag(true);
+    theHisto->bookHistogram();
+  }
+
 }
 
-GFlash::~GFlash() { if (caloModel!=0) delete caloModel; }
+GFlash::~GFlash() {
+  if(theHisto) delete theHisto;
+}
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

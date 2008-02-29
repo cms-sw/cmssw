@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModelMessenger.hh,v 1.2 2006/09/28 15:35:46 sunanda Exp $
-// GEANT4 tag $Name: CMSSW_1_2_0_g4_81 $
+// $Id: GflashEMShowerModelMessenger.h,v 1.1 2007/05/15 23:16:40 syjun Exp $
+// GEANT4 tag $Name: V00-06-02 $
 //
 //
 //---------------------------------------------------------------

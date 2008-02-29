@@ -1,4 +1,5 @@
 //
+// $Id: GflashEMShowerProfile.cc,v 1.2 2008/02/18 22:00:53, syjun, dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -8,11 +9,13 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "SimG4Core/GFlash/interface/GflashTrajectory.h"
+#include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
 GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
 {
@@ -37,131 +40,111 @@ GflashEMShowerProfile::~GflashEMShowerProfile()
 void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 {
   // This part of code is copied from the original GFlash Fortran code.
-  // Here we just ported it
+  // reference : hep-ex/0001020v1
 
   const G4double energyCutoff     = 0.01; 
-  const G4int    maxNumberOfSpots = 10000;
+  const G4int    maxNumberOfSpots = 100000;
 
   G4double incomingEnergy   = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
-  G4double radLength = 8.9;
-  G4double Z = 68.360;
-  G4double A = 170.871;
-  G4double criticalEnergy = 2.66*std::pow(radLength*Z/A,1.1);
+  const G4double radLength = 0.89; // cm
+  const G4double Z = 68.360;
+  const G4double rMoliere = 2.19; // cm
+  const G4double criticalEnergy = 8.6155/GeV; // eScale*radLength/rMoliere (in MeV) need to convert into GeV
+  G4double nSpots = 93.0 * std::log(Z) * std::pow(incomingEnergy,0.876); // total number of spots
 
-//   printf("GflashEMShowerProfile::parameterization, Step(%2d), incomingEnergy(%f), rho(%f), LV(%s)\n",
-// 	 fastTrack.GetPrimaryTrack()->GetCurrentStepNumber(),
-// 	 incomingEnergy,fastTrack.GetPrimaryTrack()->GetPosition().rho(),
-// 	 fastTrack.GetPrimaryTrack()->GetTouchable()->GetVolume()->GetLogicalVolume()->GetName().c_str());
-
-  //parameters
   G4double logEinc = std::log(incomingEnergy);
-  G4double y = incomingEnergy*GeV / criticalEnergy; // y = E/Ec, criticalEnergy is in MeV
+  G4double y = incomingEnergy / criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   G4double logY = std::log(y);
  
+  G4ThreeVector showerStartingPosition = fastTrack.GetPrimaryTrack()->GetPosition() / cm;
+  G4ThreeVector showerMomentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
+
+
+  // implementing magnetic field effects
+  const G4double bField = 4.0; // in Tesla
+  double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
+  GflashTrajectory helix(showerMomentum,showerStartingPosition,charge,bField);
+
+  //path Length from the origin to the shower starting point in cm
+  G4double pathLength0 = helix.getPathLengthAtRhoEquals(showerStartingPosition.getRho());
+  G4double pathLength = pathLength0; // this will grow along the shower development
+
+
   //--- 2.2  Fix intrinsic properties of em. showers.
-  G4double TM = std::log(logY -0.812);
-  G4double AP = std::log(0.81 +(0.458 +2.26/Z)*logY);
-  G4double STM = 1.0/( -1.4  + 1.26 * logY);
-  G4double SAP = 1.0/( -0.58 + 0.86 * logY);
-  G4double RHO = 0.705  - 0.023 * logY;
-  G4double SQRTPL = std::sqrt((1.0+RHO)/2.0);
-  G4double SQRTLE = std::sqrt((1.0-RHO)/2.0);
 
-  G4double RNORM1 = theRandGauss->fire();
-  G4double RNORM2 = theRandGauss->fire();
-  G4double TMR = TM + STM*(SQRTPL*RNORM1 + SQRTLE*RNORM2);
-  G4double APR = AP + SAP*(SQRTPL*RNORM1 - SQRTLE*RNORM2);
+  G4double fluctuatedTmax = std::log(logY - 0.7157);
+  G4double fluctuatedAlpha = std::log(0.7996 +(0.4581 + 1.8628/Z)*logY);
 
-  // actual shower parameter TMAX, ALP, BET
-  G4double TMAX = std::exp(TMR);
-  G4double ALP = std::exp(APR);
-  G4double BET = (ALP - 1.0)/TMAX;
+  G4double sigmaTmax = 1.0/( -1.4  + 1.26 * logY);
+  G4double sigmaAlpha = 1.0/( -0.58 + 0.86 * logY);
+  G4double rho = 0.705  - 0.023 * logY;
+  G4double sqrtPL = std::sqrt((1.0+rho)/2.0);
+  G4double sqrtLE = std::sqrt((1.0-rho)/2.0);
+
+  G4double norm1 = theRandGauss->fire();
+  G4double norm2 = theRandGauss->fire();
+  G4double tempTmax = fluctuatedTmax + sigmaTmax*(sqrtPL*norm1 + sqrtLE*norm2);
+  G4double tempAlpha = fluctuatedAlpha + sigmaAlpha*(sqrtPL*norm1 - sqrtLE*norm2);
+
+  // tmax, alpha, beta : parameters of gamma distribution
+  G4double tmax = std::exp(tempTmax);
+  G4double alpha = std::exp(tempAlpha);
+  G4double beta = (alpha - 1.0)/tmax;
  
-  //C spot distribution parameter TSPO, ALPSPO, BETSPO
-  G4double TMAV = logY-0.858;
-  G4double ALAV = 0.21+(0.492+2.38/Z)*logY;
-  G4double TMSPO  = TMAV * (0.698 + .00212*Z);
-  G4double ALPSPO = ALAV * (0.639 + .00334*Z);
-  G4double BETSPO = (ALPSPO-1.0)/TMSPO;
+  // spot fluctuations are added to tmax, alpha, beta
+  G4double averageTmax = logY-0.858;
+  G4double averageAlpha = 0.21+(0.492+2.38/Z)*logY;
+  G4double spotTmax  = averageTmax * (0.698 + .00212*Z);
+  G4double spotAlpha = averageAlpha * (0.639 + .00334*Z);
+  G4double spotBeta = (spotAlpha-1.0)/spotTmax;
 
 
- 
-  //C 2.3  Compute rotation matrix around particle direction to convert
-  //C      shower reference into detector reference:
-  G4ThreeVector positionShower = fastTrack.GetPrimaryTrack()->GetPosition();
-  G4ThreeVector zhatShower = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
-  G4ThreeVector xhatShower = zhatShower.orthogonal().unit();
-  G4ThreeVector yhatShower = zhatShower.cross(xhatShower).unit();
-
-  //end of initialization and parameterization
-
-  if(theHisto->getStoreFlag()) {
+   if(theHisto->getStoreFlag()) {
     theHisto->incE_atEcal->Fill(incomingEnergy);
-    theHisto->rho_ssp->Fill(positionShower.rho()/cm);
+    theHisto->rho_ssp->Fill(showerStartingPosition.rho());
   }
 
-  //C ====================================================================
-  //C 3.  FETCH VOLUME SPECIFIC CONSTANTS EVERY TIME
-  //C ====================================================================
-  //C  ------------------------------------------------------------------
-  //C 3.1 volume dependent parameters for lat. profiles.
-  //C     TSPOTS=number of spots needed for lat. shape fluctuations.
-  //C  ------------------------------------------------------------------
+  //  parameters for lateral distribution and fluctuation
+  G4double z1=0.0251+0.00319*logEinc;
+  G4double z2=0.1162-0.000381*Z;
 
+  G4double k1=0.659 - 0.00309 * Z;
+  G4double k2=0.645;
+  G4double k3=-2.59;
+  G4double k4=0.3585+ 0.0421*logEinc;
 
-  G4double eScale = 21.2;
-  G4double rMoliere = radLength * eScale / criticalEnergy;
-  G4double TSPOTS = 93.0 * std::log(Z) * std::pow(incomingEnergy,0.876);
-
-  G4double RC1=0.0251+0.00319*logEinc; //z1
-  //  G4double RC2=0.1162-0.000381*Z;  //z2
-  G4double RC2=2.0*0.1162-0.000381*Z;  //z2
-
-  G4double RT1=0.659 - 0.00309 * Z; //k1
-  G4double RT2=0.645; //k2
-  G4double RT3=-2.59; //k3 
-  G4double RT4=0.3585+ 0.0421*logEinc; //k4
-
-  G4double RP1=2.623 -0.00094*Z;  //p1
-  G4double RP2=0.401 +0.00187*Z; //p2
-  G4double RP3=1.313 -0.0686*logEinc; //p3
+  G4double p1=2.623 -0.00094*Z;
+  G4double p2=0.401 +0.00187*Z;
+  G4double p3=1.313 -0.0686*logEinc;
  
-  //C 4. LONGITUDINAL INTEGRATION OF THE SHOWER (REPEAT-UNTIL LOOP)
+  // preparation of longitudinal integration
+  G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
+									fastTrack.GetPrimaryTrackLocalDirection()) / cm;
 
-  //syjun-we should consider magnetic field - i.e., helix instead of a straight line
-  G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->
-      DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
-                    fastTrack.GetPrimaryTrackLocalDirection());
+  G4double zInX0 = 0.0; // shower depth in X0 unit
+  G4double deltaZInX0 = 0.0; // segment of depth in X0 unit
+  G4double deltaZ = 0.0; // segment of depth in cm
+  G4double stepLengthLeftInX0 = 0.0; // step length left in X0 unit
 
-  G4double zInX0 = 0.0;
-  G4double deltaZInX0 = 0.0;
-  G4double deltaZ = 0.0;
-  G4double stepLengthLeftInX0 = 0.0;
-
-  const G4double divisionStepInX0 = 1.0; //step size in the radiation lenth
-  G4double energy = incomingEnergy;
+  const G4double divisionStepInX0 = 0.1; //step size in X0 unit
+  G4double energy = incomingEnergy; // energy left in GeV
 
   Genfun::IncompleteGamma gammaDist;
-  
-  G4double ARTIMS = 0.0;
-  G4double EGAM = 0.0;
-  G4double EGOLD = 0.0;
-  G4double SGOLD = 0.0;
-  G4double SGAM  = 0.;
+
+  G4double energyInGamma = 0.0; // energy in a specific depth(z) according to Gamma distribution
+  G4double preEnergyInGamma = 0.0; // energy calculated in a previous depth
+  G4double sigmaInGamma  = 0.; // sigma of energy in a specific depth(z) according to Gamma distribution
+  G4double preSigmaInGamma = 0.0; // sigma of energy in a previous depth
 
   //energy segment in Gamma distribution of shower in each step  
-  G4double deltaEnergy =0.0 ;
-  G4int indexSpot = 0;
+  G4double deltaEnergy =0.0 ; // energy in deltaZ
+  G4int spotCounter = 0; // keep track of number of spots generated
 
   //step increment along the shower direction
   G4double deltaStep = 0.0;
 
-  // for debugging
-  G4double energyDeposited = 0.0;
-
+  // loop for longitudinal integration
   while(energy > 0.0 && stepLengthLeft > 0.0) { 
-
-  //C 5.1   Find integration width and shower depth in X0 for this step
 
     stepLengthLeftInX0 = stepLengthLeft / radLength;
 
@@ -179,115 +162,115 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
     zInX0 += deltaZInX0;
 
 
-    G4int numSpotInStep = 0;
+    G4int nSpotsInStep = 0;
 
     if ( energy > energyCutoff  ) {
-      EGOLD  = EGAM;
-      gammaDist.a().setValue(ALP);  //alpha
-      EGAM = gammaDist(BET*zInX0); //beta
-      G4double EGACT  = EGAM - EGOLD;
-      deltaEnergy   = std::min(energy,incomingEnergy*EGACT);
+      preEnergyInGamma  = energyInGamma;
+      gammaDist.a().setValue(alpha);  //alpha
+      energyInGamma = gammaDist(beta*zInX0); //beta
+      G4double energyInDeltaZ  = energyInGamma - preEnergyInGamma;
+      deltaEnergy   = std::min(energy,incomingEnergy*energyInDeltaZ);
  
-      SGOLD  = SGAM;
-      gammaDist.a().setValue(ALPSPO);  //alpha spot
-      SGAM = gammaDist(BETSPO*zInX0); //beta spot
-      numSpotInStep = std::max(1,int(TSPOTS * (SGAM - SGOLD)));
+      preSigmaInGamma  = sigmaInGamma;
+      gammaDist.a().setValue(spotAlpha);  //alpha spot
+      sigmaInGamma = gammaDist(spotBeta*zInX0); //beta spot
+      nSpotsInStep = std::max(1,int(nSpots * (sigmaInGamma - preSigmaInGamma)));
     }
     else {
       deltaEnergy = energy;
-      SGOLD  = SGAM;
-      numSpotInStep = std::max(1,int(TSPOTS * (1.0 - SGOLD)));
+      preSigmaInGamma  = sigmaInGamma;
+      nSpotsInStep = std::max(1,int(nSpots * (1.0 - preSigmaInGamma)));
     }
 
     if ( deltaEnergy > energy || (energy-deltaEnergy) < energyCutoff ) deltaEnergy = energy;
 
     energy  -= deltaEnergy;
 
-    if ( indexSpot+numSpotInStep > maxNumberOfSpots ) {
-      numSpotInStep = maxNumberOfSpots - indexSpot;
-      if ( numSpotInStep < 1 ) { // @@ check
+    if ( spotCounter+nSpotsInStep > maxNumberOfSpots ) {
+      nSpotsInStep = maxNumberOfSpots - spotCounter;
+      if ( nSpotsInStep < 1 ) { // @@ check
         std::cout << "GflashEMShowerProfile::Parameterization : Too Many Spots " << std::endl;
-        std::cout << "                       break to regenerate numSpotInStep " << std::endl;
+        std::cout << "                       break to regenerate nSpotsInStep " << std::endl;
         break;
       }
     }
 
 
-    //C 5.3  Linear transport in direction of incident particle
-
-    deltaStep      += 0.5*deltaZ;
-    positionShower += deltaStep*zhatShower;
-    deltaStep      =  0.5*deltaZ;
-
-
-    //C 5.5  lateral shape and fluctuations for  homogenous calo.
-
-    G4double TSCALE = TMAX *ALP/(ALP-1.0) * (std::exp(AP)-1.0)/std::exp(AP);
-    G4double R50 = std::min(10.0,(zInX0 - 0.5*deltaZInX0)/TSCALE);
-    G4double RCORE = RC1 + RC2 * R50; 
-    G4double RTAIL = RT1 *( std::exp(RT3*(R50-RT2)) + std::exp(RT4*(R50-RT2))); // @@ check RT3 sign
-    G4double RPDUM = (RP2 - R50)/RP3;
-    G4double RPROP = RP1 *  std::exp( RPDUM - std::exp(RPDUM) );
+    // It begins with 0.5 of deltaZ and then icreases by 1 deltaZ
+    deltaStep  += 0.5*deltaZ;
+    pathLength += deltaStep;
+    deltaStep   =  0.5*deltaZ;
 
 
-    ARTIMS += rMoliere * deltaZInX0;
-    G4double AVALAT = ARTIMS / zInX0;
+    // lateral shape and fluctuations for  homogenous calo.
+    G4double tScale = tmax *alpha/(alpha-1.0) * (std::exp(fluctuatedAlpha)-1.0)/std::exp(fluctuatedAlpha);
+    G4double tau = std::min(10.0,(zInX0 - 0.5*deltaZInX0)/tScale);
+    G4double rCore = z1 + z2 * tau; 
+    G4double rTail = k1 *( std::exp(k3*(tau-k2)) + std::exp(k4*(tau-k2))); // @@ check RT3 sign
+    G4double p23 = (p2 - tau)/p3;
+    G4double probabilityWeight = p1 *  std::exp( p23 - std::exp(p23) );
 
-    //C 5.6  Deposition of spots according to lateral distr.
 
-    G4double emSpotEnergy = deltaEnergy / numSpotInStep;
+    // Deposition of spots according to lateral distr.
+    G4double emSpotEnergy = deltaEnergy / nSpotsInStep;
     GflashEnergySpot eSpot;
-
-    // for debugging
-    energyDeposited += deltaEnergy;
 
     if(theHisto->getStoreFlag()) {
       theHisto->dEdz->Fill(zInX0-0.5,deltaEnergy);
       theHisto->dEdz_p->Fill(zInX0-0.5,deltaEnergy);
     }
 
-    for (G4int ispot = 0 ;  ispot < numSpotInStep ; ispot++) {
+    for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
+      spotCounter++;
 
-      indexSpot++;
+      G4double u1 = G4UniformRand();
+      G4double u2 = G4UniformRand();
+      G4double rInRM = 0.0;
 
-      G4double UNI1 = G4UniformRand();
-      G4double UNI2 = G4UniformRand();
-      G4double RINRM = 0.0;
-
-      if (UNI1 < RPROP) {
-	RINRM = RCORE * std::sqrt( UNI2/(1.0-UNI2) );
+      if (u1 < probabilityWeight) {
+	rInRM = rCore * std::sqrt( u2/(1.0-u2) );
       }
       else {
-	RINRM = RTAIL * std::sqrt( UNI2/(1.0-UNI2) );
+	rInRM = rTail * std::sqrt( u2/(1.0-u2) );
       }
 
-      G4double rShower =  RINRM * AVALAT;
+      G4double rShower =  rInRM * rMoliere;
 
-      //c ---  uniform smearing in phi
+      // Uniform & random rotation of spot along the azimuthal angle
       G4double azimuthalAngle = twopi*G4UniformRand();
 
-      // --- Compute space point in detector reference
-      G4ThreeVector SpotPosition = positionShower +
-	rShower*std::cos(azimuthalAngle)*xhatShower +
-	rShower*std::sin(azimuthalAngle)*yhatShower +
-	(deltaZ/numSpotInStep)*(ispot+0.5 - 0.5*numSpotInStep)*zhatShower;
+      // Compute global position of generated spots with taking into account magnetic field
+      // Divide deltaZ into nSpotsInStep and give a spot a global position
+      G4double incrementPath = (deltaZ/nSpotsInStep)*(ispot+0.5 - 0.5*nSpotsInStep);
 
+      // trajectoryPoint give a spot an imaginary point along the shower development
+      GflashTrajectoryPoint trajectoryPoint;
+      helix.getGflashTrajectoryPoint(trajectoryPoint,pathLength+incrementPath);
+
+      // actual spot position by adding a radial vector to a trajectoryPoint
+      G4ThreeVector SpotPosition = trajectoryPoint.getPosition() +
+	rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() +
+	rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
+
+      // put energy and position to a spot
       eSpot.setEnergy(emSpotEnergy*GeV);
-      eSpot.setPosition(SpotPosition);
-      
-      float zInX0_spot = std::abs((SpotPosition-fastTrack.GetPrimaryTrack()->GetPosition()).dot(zhatShower))/radLength;
-      float signedR = std::cos(azimuthalAngle) > 0.0 ? SpotPosition.r() : -SpotPosition.r();
+      eSpot.setPosition(SpotPosition*cm);
+
+      // for histogramming      
+      G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/radLength;
+      G4double signedR = std::cos(azimuthalAngle) > 0.0 ? SpotPosition.r() : -SpotPosition.r();
 
       if(theHisto->getStoreFlag()) {
 	theHisto->rxry->Fill(rShower*std::cos(azimuthalAngle)/rMoliere,rShower*std::sin(azimuthalAngle)/rMoliere);
 	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/rMoliere);
 	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/rMoliere);
 	theHisto->dndz_spot->Fill(zInX0_spot);
-	theHisto->rzSpots->Fill(SpotPosition.z()/cm,signedR/cm);
+	theHisto->rzSpots->Fill(SpotPosition.z(),signedR);
+	theHisto->rArm->Fill(rShower/rMoliere);
       }
 
+      // to be returned
       aEnergySpotList.push_back(eSpot);
-
       
     }
   }

@@ -9,10 +9,16 @@
 #include "G4BaryonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
 #include "G4IonConstructor.hh"
+#include "G4RegionStore.hh"
 
-ParametrisedPhysics::ParametrisedPhysics(std::string name) : G4VPhysicsConstructor(name) {}
 
-ParametrisedPhysics::~ParametrisedPhysics() {}
+ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet & p) :
+  G4VPhysicsConstructor(name), theParSet(p) {}
+
+ParametrisedPhysics::~ParametrisedPhysics() {
+  if(theEMShowerModel)     delete theEMShowerModel;
+  if(theHadronShowerModel) delete theHadronShowerModel;
+}
 
 void ParametrisedPhysics::ConstructParticle() 
 {
@@ -32,18 +38,28 @@ void ParametrisedPhysics::ConstructParticle()
     pConstructor.ConstructParticle();  
 }
 
-void ParametrisedPhysics::ConstructProcess() { addParametrisation(); }
+void ParametrisedPhysics::ConstructProcess() {
 
-void ParametrisedPhysics::addParametrisation()
-{
-    std::cout << " ParametrisedPhysics: adding the FastSimulationManagerProcess " << std::endl;
-    G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
-	new G4FastSimulationManagerProcess();
-    theParticleIterator->reset();
-    while ((*theParticleIterator)())
-    {
-	G4ParticleDefinition * particle = theParticleIterator->value();
-	G4ProcessManager * pmanager = particle->GetProcessManager();
-	pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
-    }
+  std::cout << " ParametrisedPhysics: adding the FastSimulationManagerProcess " << std::endl;
+  G4FastSimulationManagerProcess * theFastSimulationManagerProcess = new G4FastSimulationManagerProcess();
+  theParticleIterator->reset();
+  while ((*theParticleIterator)()) {
+    G4ParticleDefinition * particle = theParticleIterator->value();
+    G4ProcessManager * pmanager = particle->GetProcessManager();
+    pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
+  }
+
+  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld");
+
+  //Electromagnetic Shower Model
+  if(theParSet.getParameter<bool>("GflashEMShowerModel")) {
+    theEMShowerModel  = new GflashEMShowerModel("GflashEMShowerModel",aRegion);
+  }    
+
+  //Hadronic Shower Model
+  if(theParSet.getParameter<bool>("GflashHadronShowerModel")) {
+    theHadronShowerModel = new GflashHadronShowerModel("GflashHadronShowerModel",aRegion);
+  }
+
+
 }
