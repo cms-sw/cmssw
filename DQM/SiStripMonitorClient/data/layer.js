@@ -39,7 +39,7 @@ TrackerLayer.showData = function (evt) {
 	    rest = rest.substring(comma+1);
 	    var apvaddr3 = "";
    
-            var parea  = parent.parent.plotArea;
+            var parea  = parent.parent.plot_area;
             var canvas = parea.IMGC;
             var queryString = "RequestID=PlotTkMapHistogram";
             queryString+= "&ModId=" + detid;
