@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.17 2008/02/28 17:52:36 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.18 2008/02/28 21:43:27 charlot Exp $
 //
 //
 
@@ -60,6 +60,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
   const GlobalPoint& vprim, float energy, float fcharge) {
   
   float SCl_phi = xmeas.phi();
+
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;

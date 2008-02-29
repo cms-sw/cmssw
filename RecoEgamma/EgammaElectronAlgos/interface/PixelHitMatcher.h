@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.12 2008/02/27 12:54:57 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.13 2008/02/28 21:45:32 charlot Exp $
 //
 //
 
@@ -72,17 +72,17 @@ class PixelHitMatcher{
   
   PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
 		  float z2minB, float z2maxB,
-		  float z2minF, float z2maxF,
-		  float rMin, float rMax, bool searchInTIDTEC) :
+		  float r2minF, float r2maxF,
+		  float rMinI, float rMaxI, bool searchInTIDTEC) :
     //zmin1 and zmax1 are dummy at this moment, set from beamspot later
     meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2minB,z2maxB), 
-    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,z2minF,z2maxF),
+    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,r2minF,r2maxF),
     startLayers(),
     prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.),
     searchInTIDTEC_(searchInTIDTEC)
     {
-      meas1stFLayer.setRRange(rMin,rMax);
-      meas2ndFLayer.setRRange(rMin,rMax);
+      meas1stFLayer.setRRange(rMinI,rMaxI);
+      meas2ndFLayer.setRRange(rMinI,rMaxI);
     }
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
