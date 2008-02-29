@@ -8,6 +8,9 @@
 #include <SealBase/Callback.h>
 #include <map>
 #include <iostream>
+#include <sstream>
+
+#define BUF_SIZE 256
 //
 // -- Constructor
 // 
@@ -44,9 +47,6 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     }
   }    
   else if (requestID == "CheckQTResults") {
-    std::vector<uint32_t> SelectedDetIds;
-    detcabling->addActiveDetectorsRawIds(SelectedDetIds);
-    std::cout << "HHHHHHHHHHHHHH " << SelectedDetIds.size() << std::endl;
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
     infoExtractor_->readQTestSummary(bei_, infoType, detcabling, out);
     theActionFlag = NoAction;
@@ -137,6 +137,24 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
     *out << infoExtractor_->getIMGCImage(bei_, requestMap_).str();
+  }
+  else if (requestID == "GetTkMap") { 
+    theActionFlag = NoAction;    
+    
+    ifstream fin("dqmtmapviewer.xhtml");
+    char buf[BUF_SIZE];
+    std::ostringstream html_out;
+    if (!fin) {
+      std::cerr << "Input File: dqmtmapviewer.xhtml "<< " could not be opened!" << std::endl;
+      return;
+    }
+    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+      html_out << buf << std::endl;
+    }
+    fin.close();
+    
+    out->getHTTPResponseHeader().addHeader("Content-type","application/xhtml+xml");
+    *out << html_out.str();
   }
     
   performAction();

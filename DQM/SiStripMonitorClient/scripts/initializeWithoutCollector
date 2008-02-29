@@ -56,6 +56,7 @@ print "make directories ...\n";
 `mkdir -p log`;
 `mkdir -p soap`;
 `mkdir -p xml`;
+`mkdir -p TkMap`;
 
 #
 # copy cfg and config files
@@ -64,6 +65,12 @@ print "copy cfg files ...\n";
 
 copy("$dqm_dir/source_client.cfg", "$ENV{PWD}/source_client.cfg");
 copy("$dqm_dir/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/sistrip_qualitytest_config.xml");
+copy("$dqm_dir/../data/layer.js", "$ENV{PWD}/TkMap/layer.js");
+copy("$dqm_dir/../data/crate.js", "$ENV{PWD}/TkMap/crate.js");
+copy("$dqm_dir/../data/viewer.js", "$ENV{PWD}/TkMap/viewer.js");
+copy("$dqm_dir/../data/viewer.css", "$ENV{PWD}/TkMap/viewer.css");
+copy("$dqm_dir/../data/viewerHeader.xhtml", "$ENV{PWD}/TkMap/viewerHeader.xhtml");
+copy("$dqm_dir/../data/viewerTrailer.xhtml", "$ENV{PWD}/TkMap/viewerTrailer.xhtml");
 
 
 #
@@ -195,6 +202,7 @@ copy("$dqm_dir/TrackerMapPlot.html", "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
+system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/TkMap/viewerHeader.xhtml]; 
 
 system qq[cp], qq[-r], qq[$dqm_common/js_files],  qq[$ENV{PWD}/js_files];
 system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
@@ -461,7 +469,7 @@ sub makeCtlDestroy
     $result = $result . "print \"$cmd ...\\n\";\n\n";
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-    $result = $result . "`rm -rf  soap/ xml/ log/ /tmp/sm "
+    $result = $result . "`rm -rf  soap/ xml/ log/ tmp/sm TkMap/ "
           . "start configure enable halt stop gennums.txt"
           . " summaryCatalog.txt test.root`;\n\n";
     $result = $result . "`rm -rf  \*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
