@@ -3,6 +3,9 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include <vector>
 #include <map>
 
