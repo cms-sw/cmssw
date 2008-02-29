@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.9 2008/02/24 15:43:18 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.10 2008/02/24 18:33:56 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -27,7 +27,7 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
   const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry)
 {	
-	
+/*	
   // Insert the recHits into map	
   // (recHits needed as number of crystals in the seed cluster
   //  with energy above 2sigma noise required)
@@ -54,7 +54,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   {
     std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
   }
-
+*/
   // Get the constituent clusters
   reco::basicCluster_iterator cluster;
   reco::BasicClusterRefVector clusters_v;
@@ -65,6 +65,9 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     clusters_v.push_back(*cluster);
     if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
   }
+
+/*
+
   if (verbosity_ <= pINFO) std::cout << std::endl;
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
@@ -95,7 +98,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   {
     std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
   }
-
+*/
   //Create the pointer ot class SuperClusterShapeAlgo
   //which calculates phiWidth and etaWidth
   SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
@@ -108,6 +111,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   phiWidth = SCShape->phiWidth();
   etaWidth = SCShape->etaWidth();
 
+/*
   // Calculate the new supercluster energy either 
   //as a function of number of crystals in the seed basiccluster 
   //or apply new Enegry SCale correction
@@ -142,6 +146,12 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v );
+*/
+
+  reco::SuperCluster corrCl(cl.energy(), 
+    math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
+    cl.seed(), clusters_v );
+
 
   //  corrCl.setPhiWidth(cl.phiWidth());
   //  corrCl.setEtaWidth(cl.etaWidth());
