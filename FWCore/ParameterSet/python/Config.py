@@ -833,9 +833,11 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.a = EDProducer("A", a1=int32(2))
             self.assertEqual(p.a.a1.value(), 1)
             # try adding a modified module.  Should throw
+            # no longer, since the same (modified) say, geometry
+            # could come from more than one cff
             b = EDProducer("A", a1=int32(3))
             b.a1 = 4
-            self.assertRaises(RuntimeError, setattr, *(p,'a',b))
+            #self.assertRaises(RuntimeError, setattr, *(p,'a',b))
             
         def testExamples(self):
             p = Process("Test")
