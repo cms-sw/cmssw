@@ -23,7 +23,8 @@ namespace cms {
     : mInput (fConfig.getParameter <edm::InputTag> ("src")),
       mCorrectorNames (fConfig.getParameter <std::vector <std::string> > ("correctors")),
       mCorrectors (mCorrectorNames.size(), 0),
-      mCacheId (0)
+      mCacheId (0),
+      mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {
     
     std::string alias = fConfig.getUntrackedParameter <std::string> ("alias", "");
@@ -53,10 +54,20 @@ namespace cms {
     
     CaloJetCollection::const_iterator jet = jets->begin ();
     for (; jet != jets->end (); jet++) {
-      CaloJet correctedJet = *jet; 
+      CaloJet correctedJet = *jet; //copy original jet
+      if (mVerbose) {
+	std::cout << "JetCorrectionProducer::produce-> original jet: " << jet->print () << std::endl; 
+      }
       for (unsigned i = 0; i < mCorrectors.size(); i++) {
 	double scale = mCorrectors[i]->correction (correctedJet, fEvent, fSetup);
-	correctedJet.scaleEnergy (scale);
+	correctedJet.scaleEnergy (scale); // apply correction
+	if (mVerbose) {
+	  std::cout << "JetCorrectionProducer::produce-> Corrector # " << i 
+		    << ", correction factor: " << scale << std::endl;
+	}
+      }
+      if (mVerbose) {
+	std::cout << "JetCorrectionProducer::produce-> corrected jet: " << correctedJet.print () << std::endl; 
       }
       result->push_back (correctedJet);
     }

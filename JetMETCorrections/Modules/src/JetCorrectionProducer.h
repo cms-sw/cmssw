@@ -32,6 +32,7 @@ namespace cms {
     // cache
     std::vector <const JetCorrector*> mCorrectors;
     unsigned long long mCacheId;
+    bool mVerbose;
   };
 }
 
