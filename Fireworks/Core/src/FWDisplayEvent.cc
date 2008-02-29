@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.26 2008/02/21 16:09:55 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.27 2008/02/25 22:47:43 jmuelmen Exp $
 //
 
 // system include files
@@ -56,13 +56,14 @@
 //
 // constructors and destructor
 //
-FWDisplayEvent::FWDisplayEvent() :
+FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   m_changeManager(new FWModelChangeManager),
   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                       m_selectionManager.get())),
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
-                                m_eiManager.get())),
+                                m_eiManager.get(),
+                                iEnableDebug)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())) 
 {
   //connect up the managers

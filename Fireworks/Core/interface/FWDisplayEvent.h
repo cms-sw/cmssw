@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.14 2008/01/25 04:22:21 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.15 2008/02/11 20:19:33 chrjones Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ class FWDisplayEvent
 {
 
    public:
-      FWDisplayEvent();
+      FWDisplayEvent(bool iEnableDebug=false);
       virtual ~FWDisplayEvent();
 
       // ---------- const member functions ---------------------
