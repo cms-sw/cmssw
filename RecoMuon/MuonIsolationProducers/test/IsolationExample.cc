@@ -1,16 +1,18 @@
-#include "RecoMuon/MuonIsolation/interface/MuIsoByTrackPt.h"
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 
 using namespace std;
@@ -23,16 +25,22 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() { }
 private:
-  string theMuonLabel;
-  edm::ParameterSet theAlgorithmConfig;
-  MuIsoByTrackPt * theIsolation;
+  edm::InputTag theMuonTag;
+
+  edm::InputTag theTkDepMapTag;
+  edm::InputTag theEcalDepMapTag;
+  edm::InputTag theHcalDepMapTag;
+
   unsigned long theEventCount;
 };
 
 IsolationExample::IsolationExample(const edm::ParameterSet& conf)
-  : theMuonLabel(conf.getUntrackedParameter<std::string>("MuonCollectionLabel")), 
-    theAlgorithmConfig(conf.getParameter<edm::ParameterSet>("AlgorithmPSet")),
-    theIsolation(0),
+  : theMuonTag(conf.getUntrackedParameter<edm::InputTag>("MuonCollection", edm::InputTag("muons"))), 
+    theTkDepMapTag(conf.getUntrackedParameter<edm::InputTag>("TkMapCollection", edm::InputTag("muIsoDepositTk"))), 
+    theEcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("EcalMapCollection", 
+							       edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))), 
+    theHcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("HcalMapCollection",  
+                                                               edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))), 
     theEventCount(0)
 {
   LogDebug("IsolationExample") <<" CTOR"<<endl;
@@ -40,31 +48,57 @@ IsolationExample::IsolationExample(const edm::ParameterSet& conf)
 
 IsolationExample::~IsolationExample()
 {
-  delete theIsolation;
 }
 
 void IsolationExample::beginJob(const edm::EventSetup& iSetup)
 {
-  theIsolation = new MuIsoByTrackPt(theAlgorithmConfig);
 }
 
 void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
-  LogDebug("IsolationExample::analyze")<<" ============== analysis of event: "<< ++theEventCount;
-  edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel(theMuonLabel, trackCollection);
+  static const std::string metname = "IsolationExample";
+  LogDebug(metname)<<" ============== analysis of event: "<< ++theEventCount;
+  edm::Handle<edm::View<reco::Muon> > trackCollection;
+  ev.getByLabel(theMuonTag, trackCollection);
+  const edm::View<reco::Muon>& muons = *trackCollection;
 
-  const reco::TrackCollection  muons = *(trackCollection.product());
-  typedef reco::TrackCollection::const_iterator IT;
-  for (IT it=muons.begin(), itEnd = muons.end();  it < itEnd; ++it) {
-    LogTrace("") <<"muon pt="<< (*it).pt();
-    for( int i=0; i<5; ++i) {
-      float coneSize = 0.2*i;
-      theIsolation->setConeSize(coneSize);
-      float variable= theIsolation->isolation(ev,es,*it);
-      LogTrace("") <<" dR cone: "<<coneSize<<" isolationvariable: " << variable;
+  //! take iso deposits for tracks (contains (eta,phi, pt) of tracks in R<X (1.0) around each muon)
+  edm::Handle<reco::IsoDepositMap> tkMapH;
+  ev.getByLabel(theTkDepMapTag, tkMapH);
+
+  //! take iso deposits for ecal (contains (eta,phi, pt) of ecal in R<X (1.0) around each muon)
+  edm::Handle<reco::IsoDepositMap> ecalMapH;
+  ev.getByLabel(theEcalDepMapTag, ecalMapH);
+
+  //! take iso deposits for hcal (contains (eta,phi, pt) of hcal in R<X (1.0) around each muon)
+  edm::Handle<reco::IsoDepositMap> hcalMapH;
+  ev.getByLabel(theHcalDepMapTag, hcalMapH);
+  //! make a dummy veto list (used later)
+  reco::MuIsoDeposit::Vetos dVetos;
+
+  uint nMuons = muons.size();
+  for(uint iMu=0; iMu < nMuons; ++iMu){
+    LogTrace(metname) <<"muon pt="<< muons[iMu].pt();
+
+    //! let's look at sumPt in 5 different cones
+    //! pick a deposit first (change to ..sit& when it works)
+    const reco::MuIsoDeposit tkDep((*tkMapH)[muons.refAt(iMu)]);
+    for( int i=1; i<6; ++i) {
+      float coneSize = 0.1*i;
+      LogTrace(metname)<<" iso sumPt in cone "<<coneSize<<" is "<<tkDep.depositWithin(coneSize);    
     }
+    //! can count tracks too
+    LogTrace(metname)<<" N tracks in cone 0.5  is "<<tkDep.depositAndCountWithin(0.5).second;
+
+    //! now the same with pt>1.5 for each track
+    LogTrace(metname)<<" N tracks in cone 0.5  is "<<tkDep.depositAndCountWithin(0.5, dVetos, 1.5).first;
+
+    //! now the closest track
+    LogTrace(metname)<<" The closest track in dR is at "<<tkDep.begin().dR()<<" with pt "<<tkDep.begin().value();
+
+
   }
+
 }
 
 DEFINE_FWK_MODULE(IsolationExample);
