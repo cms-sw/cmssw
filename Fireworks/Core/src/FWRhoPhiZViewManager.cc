@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.19 2008/02/26 02:27:19 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.20 2008/02/29 21:21:19 chrjones Exp $
 //
 
 // system include files
@@ -388,7 +388,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 	 if ( extract ) cStation->AddElement( extract );
       }
    }
-   m_rhoPhiGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
+   el->IncDenyDestroy();
+   m_rhoPhiGeomProjMgr->ImportElements( el );
 	   
    // set background geometry visibility parameters
 	
@@ -466,7 +468,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 	 }
       }
    }
-   m_rhoZGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
+   el->IncDenyDestroy();
+   m_rhoZGeomProjMgr->ImportElements( el );
    
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
@@ -567,7 +571,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 	 }
       }
    }
-   m_rhoZGeomProjMgr->ImportElements( TEveGeoShape::ImportShapeExtract(container,0) );
+   TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
+   el->IncDenyDestroy();
+   m_rhoZGeomProjMgr->ImportElements( el );
    
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
