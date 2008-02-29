@@ -77,6 +77,9 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   uint iL1=0;
   uint iL1max=l1muon->size();
+
+  LogDebug("TSGFromL1Muon")<<iL1max<<" l1 muons to seed from.";
+
   for (; iL1!=iL1max;++iL1){
     l1extra::L1MuonParticleRef l1Ref(l1muon, iL1);
     // get the gmt extended candidate
@@ -142,7 +145,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   }//has L1 info
 
 
-  edm::LogWarning("TSGFromL1Muon")<<result->size()<<" seeds to the event.";
+  LogDebug("TSGFromL1Muon")<<result->size()<<" seeds to the event.";
 
 
   ev.put(result);
