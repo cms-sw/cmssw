@@ -30,6 +30,7 @@ namespace {
     edm::helpers::Key<edm::RefProd<std::vector<reco::Muon> > > hkrv1;
 
     std::multimap<muonisolation::Direction::Distance,float> v2b;
+    reco::MuIsoDeposit miso;
     std::vector<reco::MuIsoDeposit> v2;
     edm::Wrapper<std::vector<reco::MuIsoDeposit> > c2;
     edm::Ref<std::vector<reco::MuIsoDeposit> > r2;
@@ -123,6 +124,7 @@ namespace {
     edm::Wrapper<reco::CandIsoDepositAssociationVector> candIsoAV_w;
 
     reco::IsoDepositMap idvm;
+    reco::IsoDepositMap::const_iterator idvmci;
     edm::Wrapper<reco::IsoDepositMap> w_idvm;
   }
 }

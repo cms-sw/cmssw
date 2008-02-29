@@ -148,16 +148,16 @@ namespace reco {
             bool  operator!=(const const_iterator &it2) { return it2.it_ != it_; }
             friend class MuIsoDeposit;
         private:
-            void doDir() const { cache_ = parent_.direction() + it_->first; cacheReady_ = true; } 
-            const_iterator(const MuIsoDeposit &parent, std::multimap<muonisolation::Direction::Distance, float>::const_iterator it) : 
+            void doDir() const { cache_ = parent_->direction() + it_->first; cacheReady_ = true; } 
+            const_iterator(const MuIsoDeposit* parent, std::multimap<muonisolation::Direction::Distance, float>::const_iterator it) : 
                 parent_(parent), it_(it), cache_(), cacheReady_(false) { } 
-            const reco::MuIsoDeposit &parent_;
+            const reco::MuIsoDeposit* parent_;
             mutable std::multimap<muonisolation::Direction::Distance, float>::const_iterator it_;
             mutable Direction cache_;
             mutable bool      cacheReady_;
     };
-    const_iterator begin() const { return const_iterator(*this, theDeposits.begin()); } 
-    const_iterator end() const { return const_iterator(*this, theDeposits.end()); } 
+    const_iterator begin() const { return const_iterator(this, theDeposits.begin()); } 
+    const_iterator end() const { return const_iterator(this, theDeposits.end()); } 
   private:
 
     /// type of deposit

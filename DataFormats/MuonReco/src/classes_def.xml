@@ -25,7 +25,15 @@
   <class name="std::vector<reco::MuonSegmentMatch>"/>
 
   <class name="reco::MuIsoDeposit"/>
+  <class name="reco::MuIsoDeposit::const_iterator">
+      <field name="parent_" transient="true" />
+      <field name="it_" transient="true" />
+      <field name="cache_" transient="true" />
+      <field name="cacheReady_" transient="true" />
+  </class>
+
   <class name="std::vector<reco::MuIsoDeposit>"/>
+  <class name="std::vector<reco::MuIsoDeposit>::const_iterator"/>
   <class name="edm::Wrapper<std::vector<reco::MuIsoDeposit> >"/>
   <class name="edm::Ref<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> >"/>
   <class name="edm::RefProd<std::vector<reco::MuIsoDeposit> >"/>
@@ -96,6 +104,11 @@
   <class name="std::vector<reco::CandIsoDepositAssociationPair>" /> 
 
   <class name="reco::IsoDepositMap"/>
+  <class name="edm::ValueMap<reco::MuIsoDeposit>::const_iterator">
+    <field name="values_" transient="true"/>
+    <field name="i_" transient="true"/>
+    <field name="end_" transient="true"/>
+  </class>
   <class name="edm::Wrapper<reco::IsoDepositMap>"/>
 
 </lcgdict>
