@@ -44,6 +44,7 @@ namespace evf
 
       void clear();
       dct clm_;
+      friend class FUEventProcessor;
     };
 }
 #endif
