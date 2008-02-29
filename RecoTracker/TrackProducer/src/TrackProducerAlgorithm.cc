@@ -28,6 +28,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFitter,
@@ -50,7 +51,6 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   trajVec = theFitter->fit(seed, hits, theTSOS);
   
   LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
-  
   TrajectoryStateOnSurface innertsos;
   
   if (trajVec.size() != 0){
@@ -85,9 +85,20 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
     LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
 
+    std::string theTrackAlgo( conf_.getParameter<std::string>( "@module_label" ) );  
+    reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
+    if (theTrackAlgo == "preFilterCmsTracks")
+      Algo = reco::TrackBase::ctf;
+    else if (theTrackAlgo == "rsWithMaterialTracks")
+      Algo = reco::TrackBase::rs;
+    else if (theTrackAlgo == "ctfWithMaterialTracksBeamHaloMuon")
+      Algo = reco::TrackBase::beamhalo;
+
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
-			       pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());
+			       pos, mom, tscbl.trackStateAtPCA().charge(), 
+			       tscbl.trackStateAtPCA().curvilinearError(),
+			       Algo);
     
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
 
