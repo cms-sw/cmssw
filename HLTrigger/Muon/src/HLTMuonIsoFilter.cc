@@ -19,7 +19,6 @@
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <iostream>
 //
@@ -70,7 +69,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<TriggerFilterObjectWithRefs> mucands;
    iEvent.getByLabel (candTag_,mucands);
 
-   Handle<MuIsoAssociationMap> depMap;
+   Handle<MuIsoFlagMap> depMap;
    iEvent.getByLabel (isoTag_,depMap);
 
    // look at all mucands,  check cuts and add to filter object
@@ -80,7 +79,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (unsigned int i=0; i<vcands.size(); i++) {
      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
      TrackRef tk = candref->get<TrackRef>();
-     MuIsoAssociationMap::result_type muonIsIsolated = (*depMap)[tk];
+     MuIsoFlagMap::value_type muonIsIsolated = (*depMap)[tk];
      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
      
      if (!muonIsIsolated) continue;
