@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.9 2008/02/27 12:54:58 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.10 2008/02/29 13:01:54 uberthon Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
@@ -316,91 +317,6 @@ GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) 
 
 }
 
-
- 
-//FIXME!!
-static const float R_ECAL           = 136.5;
-static const float Z_Endcap         = 328.0;
-static const float etaBarrelEndcap  = 1.479; 
-
-float GsfElectronAlgo::ecalEta(float EtaParticle , float Zvertex, float plane_Radius)
-{
-  if (EtaParticle!= 0.)
-    {
-      float Theta = 0.0  ;
-      float ZEcal = (R_ECAL-plane_Radius)*sinh(EtaParticle)+Zvertex;
-      
-      if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
-      if(Theta<0.0) Theta = Theta+Geom::pi() ;
-
-      float ETA = - log(tan(0.5*Theta));
-      
-      if( fabs(ETA) > etaBarrelEndcap )
-	{
-	  float Zend = Z_Endcap ;
-	  if(EtaParticle<0.0 )  Zend = -Zend ;
-	  float Zlen = Zend - Zvertex ;
-	  float RR = Zlen/sinh(EtaParticle);
-	  Theta = atan((RR+plane_Radius)/Zend);
-	  if(Theta<0.0) Theta = Theta+Geom::pi() ;
-	  ETA = - log(tan(0.5*Theta));
-	}
-      return ETA;
-    }
-  else
-    {
-      edm::LogWarning("")  << "[EcalPositionFromTrack::etaTransformation] Warning: Eta equals to zero, not correcting" ;
-      return EtaParticle;
-    }
-}
-
-float GsfElectronAlgo::ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart)
-{
-  //Magnetic field
-  const float RBARM = 1.357 ;  // was 1.31 , updated on 16122003
-  const float ZENDM = 3.186 ;  // was 3.15 , updated on 16122003
-  float Rbend = RBARM-(Rstart/100.); //Assumed Rstart in cm
-  float Bend  = 0.3 * 4. * Rbend/ 2.0 ;
-
-  //---PHI correction
-  float PHI = 0.0 ;
-  if( fabs(EtaParticle) <=  etaBarrelEndcap)
-    {
-      if (fabs(Bend/PtParticle)<=1.)
-	{
-	  PHI = PhiParticle - asin(Bend/PtParticle)*ChargeParticle;
-	  if(PHI >  Geom::pi()) {PHI = PHI - Geom::twoPi();}
-	  if(PHI < -Geom::pi()) {PHI = PHI + Geom::twoPi();}
-	}
-      else
-	{
-	  edm::LogWarning("") << "[EcalPositionFromTrack::phiTransformation] Warning:Too low Pt, giving up ";
-	  return PhiParticle;
-	}
-    }
-  
-  if( fabs(EtaParticle) >  etaBarrelEndcap )
-    {
-      float Rhit = 0.0 ;
-      Rhit = ZENDM / sinh(fabs(EtaParticle));
-      if (fabs(((Rhit-(Rstart/100.))/Rbend)*Bend/PtParticle)<=1.)
-	{
-	  PHI = PhiParticle - asin(((Rhit-(Rstart/100.))/Rbend)*Bend/PtParticle)*ChargeParticle;
-	  if(PHI >  Geom::pi()) {PHI = PHI - Geom::twoPi();}
-	  if(PHI < -Geom::pi()) {PHI = PHI + Geom::twoPi();}
-	}
-      else
-	{
-	  edm::LogWarning("") <<"[EcalPositionFromTrack::phiTransformation] Warning:Too low Pt, giving up ";
-	  return PhiParticle;
-	}
-      
-    }
-  
-  //---Return the result
-  return PHI;
-}
-
 // interface to be improved...
 void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrackRef &trackRef ,const reco::ClusterShapeRef& seedShapeRef, GsfElectronCollection & outEle) {
       GlobalVector innMom=computeMode(innTSOS_);
@@ -421,18 +337,9 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
      GsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE_);
 
       //and set various properties
-      float trackEta = ecalEta(
-			       trackRef->innerMomentum().eta(),
-			       trackRef->innerPosition().z(),
-			       trackRef->innerPosition().Rho());
-
-      float trackPhi = ecalPhi(
-			       trackRef->innerMomentum().Rho(),
-			       trackRef->innerMomentum().eta(),
-			       trackRef->innerMomentum().phi(),
-			       trackRef->charge(),
-			       trackRef->innerPosition().Rho());
-
+      ECALPositionCalculator ecpc;
+      float trackEta=ecpc.ecalEta(trackRef->innerMomentum(),trackRef->innerPosition());
+      float trackPhi=ecpc.ecalPhi(trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
 
       ele.setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
       float dphi = (*scRef).position().phi() - trackPhi;

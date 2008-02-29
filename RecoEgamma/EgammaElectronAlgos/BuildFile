@@ -11,6 +11,8 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
@@ -19,11 +21,10 @@
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GsfTools>
 <use name=RecoTracker/TrackProducer>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/HcalRecHit>
 <use name=RecoCaloTools/Selectors>
 <use name=RecoCaloTools/MetaCollections>
+<use name=RecoEgamma/EgammaTools>
 <export>
    <lib name=RecoEgammaEgammaElectronAlgos>
    <use name=FWCore/Framework>
@@ -39,15 +40,16 @@
    <use name=DataFormats/EgammaCandidates>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
+   <use name=Geometry/CaloGeometry>
+   <use name=Geometry/CaloEventSetup>
    <use name=RecoTracker/MeasurementDet>
    <use name=RecoTracker/TkSeedGenerator>
    <use name=RecoTracker/TkDetLayers>
    <use name=RecoTracker/TkNavigation>
    <use name=TrackingTools/DetLayers>
    <use name=TrackingTools/GsfTools>
-   <use name=Geometry/CaloGeometry>
-   <use name=Geometry/CaloEventSetup>
    <use name=DataFormats/HcalRecHit>
    <use name=RecoCaloTools/Selectors>
    <use name=RecoCaloTools/MetaCollections>
+   <use name=RecoEgamma/EgammaTools>
 </export>
