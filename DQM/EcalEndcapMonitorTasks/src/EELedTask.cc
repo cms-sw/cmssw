@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.29 $
+ * $Date: 2008/02/29 15:08:21 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -389,7 +389,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -421,7 +421,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         mePN = mePnAmplMapG16_[ism-1];
       }
 
-      if ( mePN ) mePN->Fill(num - 0.5, 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
       if ( num == 1 ) adcA[ism-1] = xvalmax;
       if ( num == 6 ) adcB[ism-1] = xvalmax;
