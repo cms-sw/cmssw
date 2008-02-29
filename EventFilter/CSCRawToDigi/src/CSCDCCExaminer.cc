@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS){
+CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -78,11 +78,14 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   sERROR[24] = "DMB Active Error                                 ";
   sERROR[25] = "DCC Trailer Missing                              ";
   sERROR[26] = "DCC Header Missing                               ";
+  sERROR[27] = "DMB DAV vs. DMB Active mismatch Error            ";
+  sERROR[28] = "Extra words between DDU Header and first DMB header";
 
   //	sERROR[21] = "DDU Header vs. Trailer mismatch for DAV or Avtive"; // oboslete since 16.09.05
 
   sWARNING[0] = " Extra words between DDU Trailer and DDU Header ";
   sWARNING[1] = " CFEB B-Words                                   ";
+  sWARNING[2] = " DDU Header Incomplete                          ";
 
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
@@ -111,10 +114,13 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   sERROR_[24] = "DMB Active Error: 24";
   sERROR_[25] = "DCC Trailer Missing: 25";
   sERROR_[26] = "DCC Header Missing: 26";
+  sERROR_[27] = "DMB DAV vs. DMB Active mismatch Error: 27";
+  sERROR_[28] = "Extra words between DDU Header and first DMB header: 28";
   //	sERROR_[21] = "DDU Header vs. Trailer mismatch for DAV or Avtive: 21"; // oboslete since 16.09.05
 
   sWARNING_[0] = " Extra words between DDU Trailer and DDU Header: 00";
   sWARNING_[1] = " CFEB B-Words: 01";
+  sWARNING_[2] = " DDU Header Incomplete: 02";
 
   fDCC_Header  = false;
   fDCC_Trailer = false;
@@ -135,7 +141,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   DAV_ALCT = false;
   DAV_TMB  = false;
   DAV_CFEB = 0;
-  DAV_DMB  = 0;
+  DMB_Active  = 0;
 
   DDU_WordsSinceLastHeader     = 0;
   DDU_WordCount                = 0;
@@ -308,11 +314,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	fDMB_Header  = false;
 	fDMB_Trailer = false;
 
-	if( DAV_DMB ){
+	if( DMB_Active ){
 	  fERROR[24] = true;
 	  bERROR    |= 0x1000000;
 	}
-	DAV_DMB = 0;
+	DMB_Active = 0;
 
 	// Unknown chamber denoted as -2
 	// If it still remains in any of errors - put it in error 0
@@ -376,8 +382,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_SampleCount          = 0;
       CFEB_BSampleCount         = 0;
 
-      DAV_DMB = buf1[0]&0xF;
-
       if (modeDDUonly) {
          fDCC_Header  = true;
          bzero(fERROR,   sizeof(bool)*nERRORS);
@@ -393,6 +397,24 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       bDDU_ERR[sourceID] = 0;
       bDDU_WRN[sourceID] = 0;
 
+
+      DMB_Active = buf1[0]&0xF;
+      DAV_DMB    = buf1[1]&0x7FFF;
+
+      int nDAV_DMBs=0;
+      for(int bit=0; bit<15; bit++) if( DAV_DMB&(1<<bit) ) nDAV_DMBs++;
+      if(DMB_Active!=nDAV_DMBs){
+	  fERROR[27] = true;
+	  bERROR    |= 0x8000000;
+      }
+
+      if( (buf_1[3]&0xF000)!=0x5000 ){
+        fWARNING[2]=true;
+        bWARNING|=0x4;
+        cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+        cerr<<"  WARNING 2 "<<sWARNING[2]<<". What must have been Header 1: 0x"<<std::hex<<buf_1[0]<<" 0x"<<buf_1[1]<<" 0x"<<buf_1[2]<<" 0x"<<buf_1[3]<<endl;
+      }
+
       ++cntDDU_Headers;
       DDU_WordsSinceLastHeader=0; // Reset counter of DDU Words since last DDU Header
       cout<<"\n----------------------------------------------------------"<<endl;
@@ -401,6 +423,12 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // == DMB Header found
     if( (buf0[0]&0xF000)==0xA000 && (buf0[1]&0xF000)==0xA000 && (buf0[2]&0xF000)==0xA000 && (buf0[3]&0xF000)==0xA000 ){
+
+      if( DDU_WordsSinceLastHeader>3 && !fDMB_Header && !fDMB_Trailer ){
+        fERROR[28]=true;
+        bERROR|=0x10000000;;
+      }
+
       if( fDMB_Header || fDMB_Trailer ){ // F or E  DMB Trailer is missed
 	fERROR[5]=true;
 	bERROR|=0x20;
@@ -451,7 +479,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_BSampleCount         = 0;
       CFEB_CRC                  = 0;
 
-      DAV_DMB--;
+      DMB_Active--;
 
       // Print DMB_ID from DMB Header
       cout<<"DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
@@ -820,7 +848,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	bERROR   |= 0x40;
 	fCHAMB_ERR[6].insert(currentChamber);
 	bCHAMB_ERR[currentChamber] |= 0x40;
-	DAV_DMB--;
+	DMB_Active--;
       }	// DMB Header is missing
       fDMB_Header  = false;
       fDMB_Trailer = true;
@@ -873,7 +901,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // == DMB E-Trailer found
     if( (buf0[0]&0xF000)==0xE000 && (buf0[1]&0xF000)==0xE000 && (buf0[2]&0xF000)==0xE000 && (buf0[3]&0xF000)==0xE000 ){
-      if( !fDMB_Header && !fDMB_Trailer ) DAV_DMB--; // both DMB Header and DMB F-Trailer were missing
+      if( !fDMB_Header && !fDMB_Trailer ) DMB_Active--; // both DMB Header and DMB F-Trailer were missing
 
       fDMB_Header  = false;
 
@@ -1064,7 +1092,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	bERROR   |= 0x10;
       }
 
-      if( DAV_DMB ){
+      if( DMB_Active ){
 	fERROR[24] = true;
 	bERROR    |= 0x1000000;
       }
