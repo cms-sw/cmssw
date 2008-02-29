@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: dlange $
-// $Date: 2007/10/27 21:41:56 $
-// $Revision: 1.4 $
+// $Author: gpetrucc $
+// $Date: 2007/12/21 00:47:06 $
+// $Revision: 1.5 $
 //
 
 #include <memory>
@@ -347,7 +347,9 @@ namespace cms
 						 track->innerPosition(),
 						 track->innerMomentum(),
 						 track->charge(),
-						 track->innerStateCovariance());    
+						 track->innerStateCovariance(),
+						 track->algo(),
+						 track->quality());    
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
@@ -365,7 +367,9 @@ namespace cms
 						 track->innerPosition(),
 						 track->innerMomentum(),
 						 track->charge(),
-						 track->innerStateCovariance());    
+						 track->innerStateCovariance(),
+						 track->algo(),
+						 track->quality());    
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
@@ -380,5 +384,5 @@ namespace cms
     return;
 
   }//end produce
-
+xs
 }
