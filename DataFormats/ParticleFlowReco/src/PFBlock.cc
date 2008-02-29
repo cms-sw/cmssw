@@ -212,10 +212,6 @@ ostream& reco::operator<<(  ostream& out,
       iTK++;
       ss << "TK" << iTK;
       break;
-    case PFBlockElement::MUON:
-      iMU++;
-      ss << "MU" << iMU;
-      break;
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
       int layer = clusterref->layer();
