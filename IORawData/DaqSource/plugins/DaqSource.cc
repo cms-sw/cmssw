@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/01/29 21:45:26 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/01/31 04:54:45 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -130,19 +132,20 @@ namespace edm {
     // If there is no luminosity block principal, make one.
     if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
       newLumi_ = true;
+      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(),
+        luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
       setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(luminosityBlockNumber_,
-                                     timestamp(),
-                                     Timestamp::invalidTimestamp(),
+        new LuminosityBlockPrincipal(lumiAux,
                                      productRegistry(),
                                      runPrincipal(),
                                      processConfiguration())));
 
     }
     // make a brand new event
+    EventAuxiliary eventAux(eventId,
+      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventId, processGUID(), timestamp(),
-	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
+	new EventPrincipal(eventAux, productRegistry(), luminosityBlockPrincipal(), processConfiguration()));
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -174,10 +177,9 @@ namespace edm {
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
+    RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runNumber_,
-			 timestamp(),
-			 Timestamp::invalidTimestamp(),
+	new RunPrincipal(runAux,
 			 productRegistry(),
 			 processConfiguration()));
   }
