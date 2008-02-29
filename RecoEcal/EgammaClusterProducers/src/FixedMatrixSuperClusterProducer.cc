@@ -47,11 +47,13 @@ FixedMatrixSuperClusterProducer::FixedMatrixSuperClusterProducer(const edm::Para
   endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
   endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
   seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
+
+  const edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
   bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
 
   bremAlgo_p = new FixedMatrixBremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedTransverseEnergyThreshold_, dynamicPhiRoad, verbosity);
+                                         dynamicPhiRoad, bremRecoveryPset, seedTransverseEnergyThreshold_, verbosity);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);

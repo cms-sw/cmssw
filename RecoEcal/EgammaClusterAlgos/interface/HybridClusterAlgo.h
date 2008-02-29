@@ -16,6 +16,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <vector>
 #include <set>
 
@@ -37,20 +39,31 @@ class HybridClusterAlgo
   //when clustering.  Remember, uses phiSteps_ in positive direction
   //and then phiSteps_ in negative direction.
   int phiSteps_;
-  double et25(EcalBarrelNavigator &navigator, 
-                const EcalRecHitCollection *hits, 
+
+  // et in 25
+  double et25(EcalBarrelNavigator &navigator,
+                const EcalRecHitCollection *hits,
                 const CaloSubdetectorGeometry *geometry);
-  bool dynamicPhiRoad_;
+
+
   BremRecoveryPhiRoadAlgo *phiRoadAlgo_;
 
   //Threshold for basic cluster.
-  double Ethres;
+  double eThres_;
+  double eThresA_;
+  double eThresB_;
 
   //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
 
   //Threshold for adding the additional two 'wing' cells to domino. 
   double Ewing;
+
+  // do dynamic phi road
+  bool dynamicPhiRoad_;
+
+  // do dynamic ethres
+  bool dynamicEThres_;
 
   //Map of DetId, RecHit relationship.  EcalRecHit knows what DetId it is,
   //but DetId doesn't  know what EcalRecHit it is. 
@@ -92,11 +105,15 @@ class HybridClusterAlgo
   //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    int step,
-		    double ethresh, 
+		    double ethres,
+		    double eThresA,
+                    double eThresB,
 		    double eseed,
 		    double ewing,
                     const PositionCalc& posCalculator,
+                    const edm::ParameterSet &bremRecoveryPset,
                     bool dynamicPhiRoad = false,
+		    bool dynamicEThres = false,
 		    DebugLevel debugLevel = pINFO);
 
   // destructor

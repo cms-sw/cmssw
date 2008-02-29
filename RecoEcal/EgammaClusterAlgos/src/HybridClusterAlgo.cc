@@ -11,16 +11,28 @@
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
-				     double ethresh, 
+				     double ethres,
+                                     double eThresA,
+                                     double eThresB,
 				     double eseed,
 				     double ewing,
 				     const PositionCalc& posCalculator,
+ 				     const edm::ParameterSet &bremRecoveryPset,
 				     bool dynamicPhiRoad,
+				     bool dynamicEThres,
 				     DebugLevel debugLevel) :
-   eb_st(eb_str),
-   phiSteps_(step), dynamicPhiRoad_(dynamicPhiRoad), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)
+   eb_st(eb_str), phiSteps_(step), 
+   eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
+   Eseed(eseed),  Ewing(ewing), 
+   dynamicPhiRoad_(dynamicPhiRoad), dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
 {
-   if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo();
+
+  if ( debugLevel_ == pDEBUG ) {
+    //std::cout << "dynamicEThres: " << dynamicEThres_ 
+    //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
+  }
+
+   if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
    posCalculator_ = posCalculator;
 }
 
@@ -186,10 +198,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       }
     
     //
-    // If we have a dynamic phi road 
-    // then compute et5x5 and set the nmumber
-    // of phi steps
-    //std::cout << "... " << e_init << std::endl;
+    // compute the phi road length
     double phiSteps;
     if (dynamicPhiRoad_ && e_init > 0)
     {
@@ -301,14 +310,41 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     for (int i=0;i<int(dominoEnergy.size());++i) OwnerShip.push_back(-1);
     
     //Loop over peaks.  
-    for (int i=0;i<int(PeakIndex.size());++i){
+    double eThres = eThres_;
+    double e5x5 = 0.0;
+    for (int i = 0; i < int(PeakIndex.size()); ++i)
+    {
+
       int idxPeak = PeakIndex[i];
       OwnerShip[idxPeak] = i;
       double lump = dominoEnergy[idxPeak];
+
+      // compute eThres for this peak
+      // if set to dynamic (otherwise uncanged from
+      // fixed setting
+      if (dynamicEThres_) {
+         // compute e5x5 for this seed crystal
+         //std::cout << "idxPeak, phiSteps " << idxPeak << ", " << phiSteps << std::endl;
+         e5x5 = lump;
+         //std::cout << "lump " << e5x5 << std::endl;
+         if (abs(idxPeak + 1) < dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 1];
+         //std::cout << "+1 " << e5x5 << std::endl;
+         if (abs(idxPeak + 2) < dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 2];
+         //std::cout << "+2 " << e5x5 << std::endl;
+         if (abs(idxPeak - 1) > 0) e5x5 += dominoEnergy[idxPeak - 1];
+         //std::cout << "-1 " << e5x5 << std::endl;
+         if (abs(idxPeak - 2) > 0) e5x5 += dominoEnergy[idxPeak - 2];
+         //std::cout << "-2 " << e5x5 << std::endl;
+         // compute eThres
+         eThres = (eThresA_ * e5x5) + eThresB_;   
+         //std::cout << eThres << std::endl;
+         //std::cout << std::endl;
+      }
+
       //Loop over adjacent dominos at higher phi
       for (int j=idxPeak+1;j<int(dominoEnergy.size());++j){
 	if (OwnerShip[j]==-1 && 
-	    dominoEnergy[j] > Ethres
+	    dominoEnergy[j] > eThres
 	    && dominoEnergy[j] < dominoEnergy[j-1]){
 	  OwnerShip[j]= i;
 	  lump+=dominoEnergy[j];
@@ -320,7 +356,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       //loop over adjacent dominos at lower phi.  Sum up energy of lumps.
       for (int j=idxPeak-1;j>=0;--j){
 	if (OwnerShip[j]==-1 && 
-	    dominoEnergy[j] > Ethres
+	    dominoEnergy[j] > eThres
 	    && dominoEnergy[j] < dominoEnergy[j+1]){
 	  OwnerShip[j]= i;
 	  lump+=dominoEnergy[j];
@@ -582,5 +618,4 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
    return et;
 
 }
-
 

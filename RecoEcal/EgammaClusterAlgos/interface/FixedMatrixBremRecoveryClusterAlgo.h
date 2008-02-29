@@ -6,8 +6,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 
@@ -31,6 +32,7 @@ class FixedMatrixBremRecoveryClusterAlgo
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
 			  bool dynamicPhiRoad = true,
+                          const edm::ParameterSet &bremRecoveryPset,
 			  double theSeedTransverseEnergyThreshold = 0.40,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
@@ -44,7 +46,7 @@ class FixedMatrixBremRecoveryClusterAlgo
 
       seedTransverseEnergyThreshold = theSeedTransverseEnergyThreshold;
       dynamicPhiRoad_ = dynamicPhiRoad;
-      if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo();
+      if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
 
       verbosity = the_verbosity;
     }
