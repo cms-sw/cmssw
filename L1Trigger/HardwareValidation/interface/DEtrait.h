@@ -21,6 +21,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"

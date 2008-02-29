@@ -219,18 +219,32 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuRegionalCandCollection> dtf_emul;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  L1MuRegionalCandCollection const* dtf_trk_data(new L1MuRegionalCandCollection);
-  L1MuRegionalCandCollection const* dtf_trk_emul(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection const* dtf_trk_data = 0;
+  L1MuRegionalCandCollection const* dtf_trk_emul = 0;
   if(m_doSys[DTF]) {
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DT",dtf_data);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
+  } 
+  //extract the regional cands
+  typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
+  L1MuRegionalCandCollection dtf_trk_data_v, dtf_trk_emul_v;
+  dtf_trk_data_v.clear(); dtf_trk_emul_v.clear();
+  if(dtf_trk_data_.isValid()) {
+    L1MuDTTrackCandCollection *dttc = dtf_trk_data_->getContainer();
+    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
+	it!=dttc->end(); it++)
+      dtf_trk_data_v.push_back(L1MuRegionalCand(*it)); 
+  }
+  if(dtf_trk_emul_.isValid()) {
+    L1MuDTTrackCandCollection *dttc = dtf_trk_emul_->getContainer();
+    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
+	it!=dttc->end(); it++)
+      dtf_trk_emul_v.push_back(L1MuRegionalCand(*it)); 
   }  
-  if(dtf_trk_data_.isValid())
-    dtf_trk_data = dtf_trk_data_->getContainer();
-  if(dtf_trk_emul_.isValid())
-    dtf_trk_emul = dtf_trk_emul_->getContainer();
+  dtf_trk_data =&dtf_trk_data_v;
+  dtf_trk_emul =&dtf_trk_emul_v;
   
   // -- CTP [cathod strip chamber trigger primitive]
   edm::Handle<CSCALCTDigiCollection>          ctp_ano_data_;
@@ -1160,6 +1174,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> da
   return match;
 }
 
+/*following record is not produced by hardware, included for sw dump/tests only*/
 bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
 				 edm::Handle<L1GlobalTriggerObjectMapRecord> emul) {
@@ -1179,7 +1194,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
     match &= ( data_ovec.at(idx).operandTokenVector().size()==emul_ovec.at(idx).operandTokenVector().size());
     if(match) {
-      for(int i=0; i< data_ovec.at(idx).operandTokenVector().size(); i++) {
+      for(unsigned i=0; i< data_ovec.at(idx).operandTokenVector().size(); i++) {
 	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenName ==
 		   emul_ovec.at(idx).operandTokenVector().at(i).tokenName );
 	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenNumber ==
@@ -1187,10 +1202,6 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
 	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenResult ==
 		   emul_ovec.at(idx).operandTokenVector().at(i).tokenResult );
       }
-      //match &= ( data_ovec.at(idx).operandTokenVector()     == emul_ovec.at(idx).operandTokenVector()     );
-      //match &= ( data_ovec.at(idx).algoLogicalExpression()  == emul_ovec.at(idx).algoLogicalExpression()  );
-      //match &= ( data_ovec.at(idx).algoNumericalExpression()== emul_ovec.at(idx).algoNumericalExpression());
-      //match &= ( data_ovec.at(idx).objectTypeVector()       == emul_ovec.at(idx).objectTypeVector()       );
     }
   }
 
@@ -1198,7 +1209,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     return match;
   
   // dump
-  int idx = 0;//?
+  int idx = 0;
   m_dumpFile << "\n\tL1GlobalTriggerObjectMap";
   m_dumpFile << "\n\tdata: "
 	     << " algorithmName:"         << data_ovec.at(idx).algoName()
@@ -1206,18 +1217,12 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
 	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult()
 	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size()
 	     << " operandTokenVector:"    << data_ovec.at(idx).operandTokenVector().size(); 
-    //<< " objectTypeVectorSize:"  << data_ovec.at(idx).objectTypeVector().size() << "\n\t"
-    //<< " nlogicalExpression:"    << data_ovec.at(idx).algoLogicalExpression()   << "\n\t"
-    //<< " numericalExpression:"   << data_ovec.at(idx).algoNumericalExpression();
   m_dumpFile << "\n\temul: "
 	     << " algorithmName:"         << emul_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << emul_ovec.at(idx).algoBitNumber()
 	     << " GTLresult:"             << emul_ovec.at(idx).algoGtlResult()
 	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size()
 	     << " operandTokenVector:"    << emul_ovec.at(idx).operandTokenVector().size() 
-    //<< " objectTypeVectorSize:"  << emul_ovec.at(idx).objectTypeVector().size()  << "\n\t"
-    //<< " logicalExpression:"     << emul_ovec.at(idx).algoLogicalExpression()    << "\n\t"
-    //<< " numericalExpression:"   << emul_ovec.at(idx).algoNumericalExpression()
 	     << "\n" << std::endl;
 
   char ok[10];

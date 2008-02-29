@@ -225,12 +225,12 @@ L1EmulBias::ModifyCollection ( std::auto_ptr<L1MuRegionalCandCollection>& data,
 template <> inline void 
 L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTTrackContainer>& data, 
 			   const edm::Handle<L1MuDTTrackContainer> emul) {
-  typedef std::vector<L1MuRegionalCand>  TrackContainer;
+  typedef std::vector<L1MuDTTrackCand>  TrackContainer;
   typedef TrackContainer::const_iterator col_cit;
   TrackContainer* tracks_in = emul->getContainer();
   TrackContainer tracks;
   for(col_cit it = tracks_in->begin(); it!=tracks_in->end(); it++) {
-    L1MuRegionalCand cand(*it);    
+    L1MuDTTrackCand cand(*it);    
     cand.setType(it->type_idx());
     unsigned pt = it->pt_packed(); //0..31
     unsigned qua = it->quality(); //0..7

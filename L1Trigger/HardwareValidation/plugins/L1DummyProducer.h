@@ -36,6 +36,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+
 using dedefs::DEnsys;
 
 class L1DummyProducer : public edm::EDProducer {
@@ -271,14 +272,27 @@ L1DummyProducer::SimpleDigi ( std::auto_ptr<L1MuRegionalCandCollection>& data,
 template <> inline void 
 L1DummyProducer::SimpleDigi(std::auto_ptr<L1MuDTTrackContainer> & data, 
 			       int type) { 
+  assert(type==0);
+  int type_idx = type; //choose data type: 0 DT, 1 bRPC, 2 CSC, 3 fRPC 
   if(verbose())
     std::cout << "L1DummyProducer::SimpleDigi<L1MuDTTrackContainer>....\n" << std::flush;
-  std::auto_ptr<L1MuRegionalCandCollection> tracks(new L1MuRegionalCandCollection);
-  int type_idx = type; //choose data type: 0 DT, 1 bRPC, 2 CSC, 3 fRPC 
+  std::auto_ptr<L1MuRegionalCandCollection> tracks(new L1MuRegionalCandCollection());
   SimpleDigi(tracks, type_idx);
-  data->setContainer(*tracks);
+  typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
+  std::auto_ptr<L1MuDTTrackCandCollection> tracksd (new L1MuDTTrackCandCollection());
+  for(L1MuRegionalCandCollection::const_iterator it=tracks->begin(); it!=tracks->end(); it++) {
+    L1MuDTTrackCand * cnd = new L1MuDTTrackCand();
+    cnd->setDataWord(it->getDataWord());
+    cnd->setBx(it->bx());
+    tracksd->push_back(L1MuDTTrackCand());
+    tracksd->push_back(*cnd);
+  }
+  data->setContainer(*tracksd);
   if(verbose())
     std::cout << "L1DummyProducer::SimpleDigi<L1MuDTTrackContainer> end.\n" << std::flush;
+  //L1MuDTTrackCand( unsigned dataword, int bx, int uwh, int usc, int utag,
+  //                 int adr1, int adr2, int adr3, int adr4, int utc );
+
 }
 
 template <> inline void 
