@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 12:44:26 EST 2008
-// $Id$
+// $Id: FWModelId.h,v 1.1 2008/01/21 01:17:12 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ class FWModelId
       void unselect() const { if(m_item) {m_item->unselect(m_index);}}
       void select() const { if(m_item) {m_item->select(m_index);}}
       void toggleSelect() const {}
-   
+      void setIndex(int iIndex) { m_index=iIndex;}
    private:
       //FWModelId(const FWModelId&); // stop default
 
