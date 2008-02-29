@@ -1,5 +1,27 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <iostream>
+
+BremRecoveryPhiRoadAlgo::BremRecoveryPhiRoadAlgo(const edm::ParameterSet& pset)
+{
+
+   // get barrel and endcap parametersets
+   edm::ParameterSet barrelPset = pset.getParameter<edm::ParameterSet>("barrel");
+   edm::ParameterSet endcapPset = pset.getParameter<edm::ParameterSet>("endcap");
+
+   // set barrel parameters
+   etVec_ = barrelPset.getParameter<std::vector<double> >("etVec");
+   cryVec_ = barrelPset.getParameter<std::vector<int> >("cryVec");
+   cryMin_ = barrelPset.getParameter<int>("cryMin");
+
+   // set endcap parameters
+   a_ = endcapPset.getParameter<double>("a");
+   a_ = endcapPset.getParameter<double>("b");
+   c_ = endcapPset.getParameter<double>("c");
+
+}
 
 int BremRecoveryPhiRoadAlgo::barrelPhiRoad(double et)
 {
@@ -9,18 +31,12 @@ int BremRecoveryPhiRoadAlgo::barrelPhiRoad(double et)
    // and compute the optimal phi road 
    // as a number of crystals
 
-   if (et < 5) return 16;
-   else if (et < 10) return 13;
-   else if (et < 15) return 11;
-   else if (et < 20) return 10;
-   else if (et < 30) return 9;
-   else if (et < 40) return 8;
-   else if (et < 45) return 7;
-   else if (et < 55) return 6;
-   else if (et < 135) return 5;
-   else if (et < 195) return 4;
-   else if (et < 225) return 3;
-   else return 2;
+   int threshold = 0;
+   for (unsigned int i = 0; i < cryVec_.size(); ++i)
+   {
+      if (et < etVec_[i]) return cryVec_[i];
+   }
+   return cryMin_;
 
 }
 
@@ -32,10 +48,7 @@ double BremRecoveryPhiRoadAlgo::endcapPhiRoad(double energy)
    // and return the optimal phi road
    // length in radians
 
-   double A = 47.85;
-   double B = 108.8;
-   double C = 0.1201;
-   return ((A / (energy + B)) + C);
+   return ((a_ / (energy + b_)) + c_);
 
 }
 
