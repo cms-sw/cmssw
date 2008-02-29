@@ -22,10 +22,10 @@ class CSCSectorReceiverLUT
 {
  public:
 ///KK
-  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::EventSetup& c);
+  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::EventSetup& c, bool TMB07);
 ///
 
-  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset);
+  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset, bool TMB07);
   CSCSectorReceiverLUT(const CSCSectorReceiverLUT&);
   ~CSCSectorReceiverLUT();
 

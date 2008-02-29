@@ -31,6 +31,7 @@ CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf)
  station = conf.getUntrackedParameter<int>("Station",-1);
   sector = conf.getUntrackedParameter<int>("Sector",-1);
   endcap = conf.getUntrackedParameter<int>("Endcap",-1);
+  isTMB07 = conf.getUntrackedParameter<bool>("isTMB07",false);
   writeGlobalPhi = conf.getUntrackedParameter<bool>("WriteGlobalPhi",true);
   writeGlobalEta = conf.getUntrackedParameter<bool>("WriteGlobalEta",true);
   binary = conf.getUntrackedParameter<bool>("BinaryOutput",true);
@@ -44,11 +45,11 @@ CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf)
 	  if(st == 1)
 	    for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
 	      {
-		mySR[e-1][se-1][ss-1][st-1] = new CSCSectorReceiverLUT(e,se,ss,st,LUTparam);
+		mySR[e-1][se-1][ss-1][st-1] = new CSCSectorReceiverLUT(e,se,ss,st,LUTparam,isTMB07);
 	      }
 	  else
 	    {
-	      mySR[e-1][se-1][0][st-1] = new CSCSectorReceiverLUT(e,se,0,st,LUTparam);
+	      mySR[e-1][se-1][0][st-1] = new CSCSectorReceiverLUT(e,se,0,st,LUTparam,isTMB07);
 	      mySR[e-1][se-1][1][st-1] = NULL; // Save space.
 	    }
 	}

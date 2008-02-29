@@ -24,7 +24,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   edm::ParameterSet sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
   TMB07 = pset.getParameter<bool>("isTMB07");
-  my_builder = new CSCTFTrackBuilder(sp_pset);
+  my_builder = new CSCTFTrackBuilder(sp_pset,TMB07);
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
 }
@@ -65,15 +65,9 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
            if(!lct->getKeyWG() ) quality = 4;
            if( lct->getStrip() && lct->getKeyWG() )
               quality = lct->getQuality() - (lct->getPattern()<=7?4:9) + 9;
-std::cout<<"Translation quality: "<<lct->getQuality()<<" -> "<<quality<<std::endl;
+///std::cout<<"Translation quality: "<<lct->getQuality()<<" -> "<<quality<<std::endl;
               CSCCorrelatedLCTDigi &_lct = const_cast<CSCCorrelatedLCTDigi&>(*lct);
               _lct.setQuality(quality);
-//           *lct = CSCCorrelatedLCTDigi(
-//                    lct->getTrknmb(),lct->isValid(),    quality,
-//                    lct->getKeyWG(), lct->getStrip(),   lct->getPattern(),
-//                    lct->getBend(),  lct->getBX(),      lct->getMPCLink(),
-//                    lct->getBX0(),   lct->getSyncErr(), lct->getCSCID()
-//                  );
         }
      }
   }

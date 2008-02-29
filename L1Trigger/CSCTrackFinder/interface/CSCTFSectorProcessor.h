@@ -26,7 +26,7 @@
 class CSCTFSectorProcessor
 {
 public:
-  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet& pset);
+  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet& pset, bool tmb07);
 
 ///KK
   void initialize(const edm::EventSetup& c);
@@ -48,7 +48,7 @@ public:
   CSCTFSectorProcessor& operator=(const CSCTFSectorProcessor& rhs) { return *this; };
   CSCTFSectorProcessor(const CSCTFSectorProcessor& par) {}
 
-  unsigned m_endcap, m_sector;
+  unsigned m_endcap, m_sector, TMB07;
   unsigned m_bxa_on, m_extend_length;
   unsigned m_latency;
 

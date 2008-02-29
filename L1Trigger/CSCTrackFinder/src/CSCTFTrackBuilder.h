@@ -23,7 +23,7 @@ class CSCTFTrackBuilder
 
   enum { nEndcaps = 2, nSectors = 6};
 
-  CSCTFTrackBuilder(const edm::ParameterSet& pset);
+  CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07);
 
   ~CSCTFTrackBuilder();
 

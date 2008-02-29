@@ -15,7 +15,7 @@
 #include <sstream>
 #include <stdlib.h>
 
-CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset){
+CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07){
   my_dtrc = new CSCTFDTReceiver();
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
@@ -24,7 +24,7 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset){
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
           // All SPs work with the same configuration (impossible to make it more exclusive in this framework)
-	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset);
+	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset, TMB07);
 	}
     }
   // Uninitialize following parameters: 
@@ -311,7 +311,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
                   edm::LogWarning("CSCTFTrackBuilder::buildTracks()")<<" CSC digi are out of range";
                   continue;
               }
-std::cout<<"Found LCT in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<std::endl;
+///std::cout<<"Found LCT in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<std::endl;
               int mpc = ( subSector ? subSector-1 : station+1 );
               if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
                   (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
@@ -335,7 +335,7 @@ std::cout<<"Found LCT in endcap="<<endcap<<" sector="<<sector<<" station="<<stat
           int sector    = stub->sector() -1;
           int station   = stub->station()-1;
           int subSector = stub->subsector();
-std::cout<<"Found DT  in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<" mpc="<<stub->getMPCLink()<<std::endl;
+///std::cout<<"Found DT  in endcap="<<endcap<<" sector="<<sector<<" station="<<station<<" subSector="<<subSector<<" mpc="<<stub->getMPCLink()<<std::endl;
           if( sector<0 || sector>6 || station<4 || station>8 || subSector<0 || subSector>12 || endcap<0 || endcap>1 ){
               edm::LogWarning("CSCTFTrackBuilder::buildTracks()")<<" DT digi are out of range";
               continue;

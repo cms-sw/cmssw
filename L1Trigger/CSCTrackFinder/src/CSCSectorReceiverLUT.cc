@@ -29,9 +29,9 @@ bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 #include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
-					   const edm::EventSetup& c):_endcap(endcap),_sector(sector),
+					   const edm::EventSetup& c, bool TMB07):_endcap(endcap),_sector(sector),
 									   _subsector(subsector),
-									   _station(station)
+									   _station(station),isTMB07(TMB07)
 {
 	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
@@ -59,13 +59,12 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 ///
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
-					   const edm::ParameterSet & pset):_endcap(endcap),_sector(sector),
+					   const edm::ParameterSet & pset, bool TMB07):_endcap(endcap),_sector(sector),
 									   _subsector(subsector),
-									   _station(station)
+									   _station(station),isTMB07(TMB07)
 {
   LUTsFromFile = pset.getUntrackedParameter<bool>("ReadLUTs",false);
   isBinary = pset.getUntrackedParameter<bool>("Binary",false);
-  isTMB07 = pset.getUntrackedParameter<bool>("isTMB07", false);
 
   me_global_eta = NULL;
   me_global_phi = NULL;

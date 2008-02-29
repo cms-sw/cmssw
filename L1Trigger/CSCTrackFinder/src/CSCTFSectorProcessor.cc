@@ -14,10 +14,11 @@ const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1","F2","F3","F4","F5"};
 
 CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 					   const unsigned& sector,
-					   const edm::ParameterSet& pset)
+					   const edm::ParameterSet& pset, bool tmb07)
 {
   m_endcap = endcap;
   m_sector = sector;
+  TMB07    = tmb07;
   m_bxa_on = pset.getParameter<bool>("UseBXA");
   m_extend_length = pset.getParameter<unsigned>("BXAExtendLength");
   m_latency = pset.getParameter<unsigned>("CoreLatency");
@@ -93,10 +94,10 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
         if(i == 1)
           for(int j = 0; j < 2; j++)
           {
-            srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(endcap, sector, j+1, i, srLUTset);
+            srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(endcap, sector, j+1, i, srLUTset, TMB07);
 	      }
           else
-            srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset);
+            srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset, TMB07);
       }
       edm::LogInfo("CSCTFSectorProcessor") << "Using stand-alone SR LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
@@ -123,13 +124,13 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 	  {
 		  if(!srLUTs_[FPGAs[j]]){
 			  LogDebug("CSCTFSectorProcessor") << "Initializing SR LUT for endcap="<<m_endcap<<", station=1, sector="<<m_sector<<", sub_sector="<<j<<" from EventSetup";
-			  srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(m_endcap, m_sector, j+1, i, c);
+			  srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(m_endcap, m_sector, j+1, i, c, TMB07);
 		  }
 	  }
       else
 		  if(!srLUTs_[FPGAs[i]]){
 			  LogDebug("CSCTFSectorProcessor") << "Initializing SR LUT for endcap="<<m_endcap<<", station="<<i<<", sector="<<m_sector<<" from EventSetup";
-			  srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(m_endcap, m_sector, 0, i, c);
+			  srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(m_endcap, m_sector, 0, i, c, TMB07);
 		  }
     }
 
