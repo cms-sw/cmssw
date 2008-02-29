@@ -215,34 +215,34 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Bad Quality Digis");
+  sprintf(name,"DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
   badDigis_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Unmapped Digis");
+  sprintf(name,"DataFormatMonitor/Num. Unmapped Digis");
   unmappedDigis_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Unmapped Trigger Primitive Digis");
+  sprintf(name,"DataFormatMonitor/Num. Unmapped Trigger Primitive Digis");
   unmappedTPDs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/FED Error Map");
+  sprintf(name,"DataFormatMonitor/FED Error Map from Unpacker Report");
   fedErrMap_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN");
+  sprintf(name,"DataFormatMonitor/BCN from HTRs");
   BCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN Check");
+  sprintf(name,"DataFormatMonitor/BCN Differences Among Spigots of a DCC");
   BCNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/EvtN Check");
+  sprintf(name,"DataFormatMonitor/EvN Differences Among Spigots of a DCC");
   EvtNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/BCN of Fiber Orbit Message");
   FibOrbMsgBCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Evt Number Out-of-Synch");
+  sprintf(name,"DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC");
   EvtMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN Not Consistent");
+  sprintf(name,"DataFormatMonitor/BCN Not Consistent Within Spigots of DCC");
   BCNMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Firmware Version");
@@ -415,34 +415,34 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/Spigot Format Errors",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/Bad Quality Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/Unmapped Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Num. Unmapped Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/FED Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/FED Error Map from Unpacker Report",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN from HTRs",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Check",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Differences Among Spigots of a DCC",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/EvtN Check",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/EvN Differences Among Spigots of a DCC",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/FibOrbMsgBCN",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/Evt Number Out-of-Synch",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Consistent",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Consistent Within Spigots of DCC",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
@@ -573,8 +573,8 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 23, htmlFile,htmlDir);
+  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -597,8 +597,8 @@ htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,EvtNCheck_,"htr Evt # - dcc Evt #","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
  
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 92, htmlFile,htmlDir);
+  htmlFile << "<tr align=\"center\">" << endl;
+  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 30, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -788,7 +788,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
   
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Bad Quality Digis",process_.c_str());
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation",process_.c_str());
   sprintf(name,"DFMon # Bad Digis");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
@@ -802,7 +802,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Unmapped Digis"   ,process_.c_str()); 
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num. Unmapped Digis"   ,process_.c_str()); 
   sprintf(name,"DFMon # Unmapped Digis");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
@@ -816,7 +816,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str()); 
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis",process_.c_str()); 
   sprintf(name,"DFMon # Unmapped TP Digis");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
@@ -842,36 +842,35 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
 
-
   char name[150]; 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Bad Quality Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
   badDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Unmapped Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num. Unmapped Digis");
   unmappedDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Unmapped Trigger Primitive Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis");
   unmappedTPDs_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/FED Error Map");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/FED Error Map from Unpacker Report");
   fedErrMap_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN from HTRs");
   BCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Check");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Differences Among Spigots of a DCC");
   BCNCheck_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvtN Check");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvN Differences Among Spigots of a DCC");
   EvtNCheck_ = (TH1F*)infile->Get(name);
 
-sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN of Fiber Orbit Message");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN of Fiber Orbit Message");
   FibOrbMsgBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Evt Number Out-of-Synch");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC");
   EvtMap_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Consistent");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Consistent Within Spigots of DCC");
   BCNMap_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Firmware Version");
