@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/26 18:39:07 $
- * $Revision: 1.157 $
+ * $Date: 2008/02/27 09:14:11 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -265,6 +265,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   enabledClients_.push_back("Integrity");
   enabledClients_.push_back("StatusFlags");
+  enabledClients_.push_back("PedestalOnline");
   enabledClients_.push_back("PedestalOnline");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
@@ -603,18 +604,12 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     clientsNames_.push_back( "Timing" );
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-//    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
@@ -651,9 +646,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   clientsStatus_.insert(pair<string,int>( "StatusFlags",    12 ));
   clientsStatus_.insert(pair<string,int>( "Occupancy",      13 ));
 
-  summaryClient_ = new EESummaryClient(ps);
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
 
-  summaryClient_->setFriends(clients_);
+    summaryClient_ = new EESummaryClient(ps);
+
+  }
+
+  if ( summaryClient_ ) summaryClient_->setFriends(clients_);
 
   cout << endl;
 
@@ -667,7 +666,7 @@ EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
     delete clients_[i];
   }
 
-  delete summaryClient_;
+  if ( summaryClient_ ) delete summaryClient_;
 
   if ( enableMonitorDaemon_ ) delete mui_;
 
@@ -737,7 +736,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     clients_[i]->beginJob(dbe_);
   }
 
-  summaryClient_->beginJob(dbe_);
+  if ( summaryClient_ ) summaryClient_->beginJob(dbe_);
 
   Numbers::initGeometry(c);
 
@@ -773,7 +772,7 @@ void EcalEndcapMonitorClient::beginRun(void){
     }
   }
 
-  summaryClient_->beginRun();
+  if ( summaryClient_ ) summaryClient_->beginRun();
 
 }
 
@@ -823,7 +822,7 @@ void EcalEndcapMonitorClient::endJob(void) {
     clients_[i]->endJob();
   }
 
-  summaryClient_->endJob();
+  if ( summaryClient_ ) summaryClient_->endJob();
 
 }
 
@@ -854,7 +853,7 @@ void EcalEndcapMonitorClient::endRun(void) {
     }
   }
 
-  summaryClient_->endRun();
+  if ( summaryClient_ ) summaryClient_->endRun();
 
   this->cleanup();
 
@@ -1196,7 +1195,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
     }
   }
 
-  summaryClient_->writeDb(econn, &runiov_, &moniov_);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1483,7 +1482,7 @@ void EcalEndcapMonitorClient::analyze(void){
           }
         }
 
-        summaryClient_->analyze();
+        if ( summaryClient_ ) summaryClient_->analyze();
 
       }
 
@@ -1675,10 +1674,11 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     }
   }
 
-  if ( superModules_.size() > 1 ) {
+  if ( summaryClient_ ) {
 
     htmlName = "EESummaryClient.html";
     summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+
     htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
     htmlFile << "<br>" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/02/26 18:39:06 $
- * $Revision: 1.398 $
+ * $Date: 2008/02/27 09:14:08 $
+ * $Revision: 1.399 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -263,6 +263,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   enabledClients_.push_back("Integrity");
   enabledClients_.push_back("StatusFlags");
   enabledClients_.push_back("PedestalOnline");
+  enabledClients_.push_back("Summary");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
 
@@ -588,16 +589,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clientsNames_.push_back( "Timing" );
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
@@ -618,9 +615,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clientsStatus_.insert(pair<string,int>( "StatusFlags",    12 ));
   clientsStatus_.insert(pair<string,int>( "Occupancy",      13 ));
 
-  summaryClient_ = new EBSummaryClient(ps);
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
 
-  summaryClient_->setFriends(clients_);
+    summaryClient_ = new EBSummaryClient(ps);
+
+  }
+
+  if ( summaryClient_ ) summaryClient_->setFriends(clients_);
 
   cout << endl;
 
@@ -634,7 +635,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
     delete clients_[i];
   }
 
-  delete summaryClient_;
+  if ( summaryClient_ ) delete summaryClient_;
 
   if ( enableMonitorDaemon_ ) delete mui_;
 
@@ -704,7 +705,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     clients_[i]->beginJob(dbe_);
   }
 
-  summaryClient_->beginJob(dbe_);
+  if ( summaryClient_ ) summaryClient_->beginJob(dbe_);
 
   Numbers::initGeometry(c);
 
@@ -740,7 +741,7 @@ void EcalBarrelMonitorClient::beginRun(void){
     }
   }
 
-  summaryClient_->beginRun();
+  if ( summaryClient_ ) summaryClient_->beginRun();
 
 }
 
@@ -790,7 +791,7 @@ void EcalBarrelMonitorClient::endJob(void) {
     clients_[i]->endJob();
   }
 
-  summaryClient_->endJob();
+  if ( summaryClient_ ) summaryClient_->endJob();
 
 }
 
@@ -821,7 +822,7 @@ void EcalBarrelMonitorClient::endRun(void) {
     }
   }
 
-  summaryClient_->endRun();
+  if ( summaryClient_ ) summaryClient_->endRun();
 
   this->cleanup();
 
@@ -1162,7 +1163,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
 
-  summaryClient_->writeDb(econn, &runiov_, &moniov_);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1449,7 +1450,7 @@ void EcalBarrelMonitorClient::analyze(void){
           }
         }
 
-        summaryClient_->analyze();
+        if ( summaryClient_ ) summaryClient_->analyze();
 
       }
 
@@ -1640,10 +1641,11 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     }
   }
 
-  if ( superModules_.size() > 1 ) {
+  if ( summaryClient_ ) {
 
     htmlName = "EBSummaryClient.html";
     summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+
     htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
     htmlFile << "<br>" << endl;
 
