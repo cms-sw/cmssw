@@ -13,11 +13,9 @@ namespace lat { class Regexp; }
 
 class MonitorElement;
 class QCriterion;
-class QReport;
 class TFile;
 class TObject;
 class TObjString;
-class TNamed;
 class TH1F;
 class TH2F;
 class TH3F;
@@ -85,11 +83,6 @@ public:
   void				tagContents(const std::string &path, unsigned int myTag);
   void				tagAllContents(const std::string &path, unsigned int myTag);
 
-  //void			untag(MonitorElement *me, unsigned int myTag);
-  //void			untag(const std::string &fullpathname, unsigned int myTag);
-  //void			untagContents(const std::string &pathname, unsigned int myTag);
-  //void			untagAllContents(const std::string &pathname, unsigned int myTag);
-
   //-------------------------------------------------------------------------
   // ---------------------- public ME getters -------------------------------
   std::vector<std::string>	getSubdirs(void) const;
@@ -109,7 +102,6 @@ public:
   void				rmdir(const std::string &fullpath);
   void				removeContents(void);
   void				removeElement(const std::string &name);
-  //void			remove(const std::string &pathname, const std::string &name);
 
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
@@ -134,7 +126,6 @@ public:
   QCriterion *			createQTest(const std::string &algoname, const std::string &qtname);
   void				useQTest(const std::string &dir, const std::string &qtname);
   void				useQTestByMatch(const std::string &pattern, const std::string &qtname);
-  //QReport *			getQReport(MonitorElement *me, const std::string &qtname);
   void				runQTests(void);
   int				getStatus(const std::string &path = "") const;
 
@@ -164,11 +155,8 @@ private:
 					   std::string &path) const;
 
   void				getAllTags(std::vector<std::string> &into) const;
-  //void			getContents(const std::string &pathname, std::vector<MonitorElement *> &into) const;
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
   std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
-  //std::vector<MonitorElement*>getAllContents(const std::string &pathname, unsigned int tag) const;
-  //void			getAllContents (const std::string &pathname, std::vector<MonitorElement*> &into) const;
 
   // ---------------- Miscellaneous -----------------------------
   void				reset(void);
@@ -208,10 +196,6 @@ private:
   void				removeElement(const std::string &dir, const std::string &name, bool warning = true);
   void				removeContents(const std::string &dir);
 
-  // ------------------- data structures -----------------------------
-  //int				getStatus(unsigned int tag) const;
-  //int				getStatus(const std::vector<MonitorElement *> &group) const;
-  
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void				setAccumulate(MonitorElement *me, bool flag);
 
