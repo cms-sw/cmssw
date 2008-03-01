@@ -17,7 +17,8 @@
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
@@ -45,7 +46,7 @@ private:
   int ObjectNumber;
   std::string simModuleLabel_;
   // Histograms
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
   std::vector<MonitorElement*> h2;
@@ -168,7 +169,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   ObjectNumber = -1;
     
   // ... and the histograms
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h0[1] = dbe->book2D("radioFast", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h1[0] = dbe->book1D("vertexFull", "Full Nb of Vertices",20,-0.5,19.5);

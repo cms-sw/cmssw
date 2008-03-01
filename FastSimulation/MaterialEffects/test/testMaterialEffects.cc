@@ -14,7 +14,8 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
@@ -32,7 +33,7 @@ private:
   edm::ParameterSet particleFilter_;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;  
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   //  TH2F * h100;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
@@ -90,7 +91,7 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h0[1] = dbe->book2D("radioFast", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h1[0] = dbe->book1D("etaEFull", "Full Electron eta distribution",54,0.,2.7);

@@ -42,7 +42,7 @@ SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(con
   src_( ps.getParameter<edm::InputTag>( "src" ) ) 
 {
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->showDirStructure();
   dbe_->setCurrentFolder("clustBPIX");
   

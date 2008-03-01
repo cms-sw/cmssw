@@ -14,7 +14,8 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
@@ -34,7 +35,7 @@ private:
   std::vector<FSimEvent*> mySimEvent;
 
   // Histograms
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   std::vector<MonitorElement*> PIDs;
   std::vector<MonitorElement*> Energies;
 
@@ -55,7 +56,7 @@ testEvent::testEvent(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   PIDs[0] = dbe->book1D("PIDFull", "Particle ID distribution (full)",6000,-6000.,6000.);
   PIDs[1] = dbe->book1D("PIDFast", "Particle ID distribution (fast)",6000,-6000.,6000.);
   Energies[0] = dbe->book1D("EneFull", "Energy distribution (full)",20,0.,20.);

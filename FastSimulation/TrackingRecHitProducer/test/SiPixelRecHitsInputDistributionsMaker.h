@@ -21,8 +21,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DWM histogram services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Simhit stuff
@@ -65,7 +65,7 @@ class SiPixelRecHitsInputDistributionsMaker : public edm::EDAnalyzer {
 	void endJob();
 
    private:
-	DaqMonitorBEInterface* dbe_;
+	DQMStore* dbe_;
 	std::string outputFile_;
 
 	edm::ParameterSet conf_;
