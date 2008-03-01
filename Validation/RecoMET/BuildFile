@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=root>
 <use name=DataFormats/METReco>
 <use name=DataFormats/CaloTowers>
@@ -25,7 +25,7 @@
     <use name=FWCore/ParameterSet>
     <use name=FWCore/MessageLogger>
     <use name=DataFormats/METReco>
-    <use name=DQMServices/CoreROOT>
+    <use name=DQMServices/Core>
     <use name=root>
  <use name=DataFormats/DetId>
   <use name=DataFormats/HcalDigi>

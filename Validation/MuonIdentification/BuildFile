@@ -1,5 +1,5 @@
 <use name=DataFormats/MuonReco>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -14,7 +14,7 @@
 <export>
    <lib name=ValidationMuonIdentification>
    <use name=DataFormats/MuonReco>
-   <use name=DQMServices/CoreROOT>
+   <use name=DQMServices/Core>
    <use name=Foundation/PluginManager>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>

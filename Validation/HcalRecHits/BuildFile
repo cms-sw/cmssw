@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=boost>
 <use name=root>
 <use name=DataFormats/Common>
@@ -20,7 +20,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=DQMServices/CoreROOT>
+  <use name=DQMServices/Core>
   <use name=boost>
   <use name=root>
   <use name=DataFormats/HcalDetId>

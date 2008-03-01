@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/MuonDetId>
 <use name=Geometry/DTGeometry>
@@ -13,7 +13,7 @@
   <lib name=ValidationMuonDTDigis>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=DQMServices/CoreROOT>
+  <use name=DQMServices/Core>
   <use name=DataFormats/DTDigi>
   <use name=DataFormats/MuonDetId>
   <use name=Geometry/DTGeometry>

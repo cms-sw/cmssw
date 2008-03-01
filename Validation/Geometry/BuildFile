@@ -12,7 +12,7 @@
 <use name=Geometry/Records>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=FWCore/Framework>
 
 <Flags EDM_PLUGIN=1>

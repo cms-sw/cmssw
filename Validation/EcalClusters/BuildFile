@@ -14,7 +14,7 @@
 <use name=Geometry/EcalPreshowerAlgo>
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -33,7 +33,7 @@
   <use name=Geometry/CaloTopology>
   <use name=RecoEcal/EgammaClusterAlgos>
   <use name=RecoEcal/EgammaCoreTools>
-  <use name=DQMServices/CoreROOT>        
+  <use name=DQMServices/Core>        
   <use name=DataFormats/Math>
   <use name=clhep>
 </export>

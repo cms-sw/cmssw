@@ -9,7 +9,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=boost>
 <use name=root>
 
@@ -27,7 +27,7 @@
    <use name=SimDataFormats/HepMCProduct> 
    <use name=DataFormats/EcalDetId>       
    <use name=FWCore/Framework>            
-   <use name=DQMServices/CoreROOT>        
+   <use name=DQMServices/Core>        
    <use name=boost>                       
    <use name=root>                        
 </export>
