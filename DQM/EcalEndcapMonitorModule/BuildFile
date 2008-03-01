@@ -1,5 +1,5 @@
 <use name=DQM/EcalCommon>
-<use name=DQMServices/Daemon>
+<use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRawData>
