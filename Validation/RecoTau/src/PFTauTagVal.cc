@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.5 2007/12/04 00:28:16 vasquez Exp $
+// $Id: PFTauTagVal.cc,v 1.6 2008/02/29 20:49:07 ksmith Exp $
 //
 //
 // user include files
@@ -39,7 +39,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
   PFTauProducer_ = iConfig.getParameter<string>("PFTauProducer");
   PFTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<string>("PFTauDiscriminatorByIsolationProducer");
   
-  DQMStore* dbe = &*edm::Service<DQMStore>();
+  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
  
   if(dbe) {
 
@@ -404,7 +404,7 @@ void PFTauTagVal::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
   */
 
-  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
+  if (!outPutFile_.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (outPutFile_);
   
 }
 

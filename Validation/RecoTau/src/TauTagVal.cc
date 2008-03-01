@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.14 2007/12/04 00:28:51 vasquez Exp $
+// $Id: TauTagVal.cc,v 1.15 2008/02/29 20:49:07 ksmith Exp $
 //
 //
 // user include files
@@ -41,7 +41,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
   minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
   nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
  
-  DQMStore* dbe = &*edm::Service<DQMStore>();
+  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
  
   if(dbe) {
 
@@ -450,7 +450,7 @@ void TauTagVal::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
 
 
-  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
+  if (!outPutFile_.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (outPutFile_);
   
 }
 
