@@ -4,8 +4,8 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: 2007/12/04 23:54:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/15 13:54:00 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -15,6 +15,7 @@
 
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 
@@ -60,7 +61,7 @@ class LaserDQM : public edm::EDAnalyzer
   std::string theDQMFileName;
 
   // DQM Backend Interface
-  DaqMonitorBEInterface * theDaqMonitorBEI;
+  DQMStore * theDaqMonitorBEI;
 
   // DQM Monitor Elements
 

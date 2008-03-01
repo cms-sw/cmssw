@@ -1,14 +1,13 @@
 /** \file LaserDQM.cc
  *  DQM Monitors for Laser Alignment System
  *
- *  $Date: 2007/12/04 23:54:44 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/15 13:54:00 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserDQM/plugins/LaserDQM.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h" 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -52,7 +51,7 @@ void LaserDQM::analyze(edm::Event const& theEvent, edm::EventSetup const& theSet
 void LaserDQM::beginJob(const edm::EventSetup& theSetup)
 {
   // get hold of DQM Backend interface
-  theDaqMonitorBEI = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDaqMonitorBEI = edm::Service<DQMStore>().operator->();
       
   // initialize the Monitor Elements
   initMonitors();
@@ -68,8 +67,7 @@ void LaserDQM::fillAdcCounts(MonitorElement * theMonitor,
 			     edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd)
 {
   // get the ROOT object from the MonitorElement
-  MonitorElementT<TNamed>* theROOTObject = dynamic_cast<MonitorElementT<TNamed>*> (theMonitor);
-  TH1F * theMEHistogram = dynamic_cast<TH1F *> (theROOTObject->operator->());
+  TH1F * theMEHistogram = theMonitor->getTH1F();
 
   // loop over all the digis in this det
   for (; digiRangeIterator != digiRangeIteratorEnd; ++digiRangeIterator) 
