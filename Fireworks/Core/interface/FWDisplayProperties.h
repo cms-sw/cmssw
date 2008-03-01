@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWDisplayProperties.h,v 1.2 2008/01/21 01:17:09 chrjones Exp $
 //
 
 // system include files
@@ -51,10 +51,13 @@ class FWDisplayProperties
       bool operator!=(const FWDisplayProperties& iRHS) const {
          return not (*this == iRHS);
       }
+   
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-
+      void setIsVisible(bool iSet) {
+         m_isVisible = iSet;
+      }
    private:
       //FWDisplayProperties(const FWDisplayProperties&); // stop default
 
