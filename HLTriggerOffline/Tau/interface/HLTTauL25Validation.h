@@ -35,6 +35,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 //#include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -45,8 +46,6 @@
 #include "TH1F.h"
 #include <vector>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 // class declaration    

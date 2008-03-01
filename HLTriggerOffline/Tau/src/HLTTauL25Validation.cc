@@ -13,13 +13,14 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: HLTTauL25Validation.cc,v 1.13 2007/11/06 17:43:33 vasquez Exp $
+// $Id: HLTTauL25Validation.cc,v 1.1 2008/01/18 15:46:00 gennai Exp $
 //
 //
 // user include files
 
 #include "HLTriggerOffline/Tau/interface/HLTTauL25Validation.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 using namespace std;
@@ -40,7 +41,7 @@ HLTTauL25Validation::HLTTauL25Validation(const edm::ParameterSet& iConfig)
   minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
   nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
  
-  DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
+  DQMStore* dbe = &*edm::Service<DQMStore>();
  
   if(dbe) {
 
@@ -432,7 +433,7 @@ void HLTTauL25Validation::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
 
 
-  if (!outPutFile_.empty() && &*edm::Service<DaqMonitorBEInterface>()) edm::Service<DaqMonitorBEInterface>()->save (outPutFile_);
+  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
   
 }
 
