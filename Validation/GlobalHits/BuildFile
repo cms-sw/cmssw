@@ -12,7 +12,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=root>
 <use name=clhep>
 <use name=rootmath>
@@ -36,7 +36,7 @@
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/DTGeometry>
  <use name=Geometry/RPCGeometry>
- <use name=DQMServices/CoreROOT>
+ <use name=DQMServices/Core>
  <use name=root>
  <use name=clhep>
  <use name=rootmath>

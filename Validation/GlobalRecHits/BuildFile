@@ -31,7 +31,7 @@
 <use name=DataFormats/RPCRecHit>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=SimDataFormats/ValidationFormats>
 <use name=Validation/DTRecHits>
 <use name=root>
@@ -75,6 +75,6 @@
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/ValidationFormats>
  <use name=root>
- <use name=DQMServices/CoreROOT>
+ <use name=DQMServices/Core>
  <use name=Validation/DTRecHits>
 </export>
