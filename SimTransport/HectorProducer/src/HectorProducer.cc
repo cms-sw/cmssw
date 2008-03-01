@@ -118,20 +118,19 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   //   }
   
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
-  
   hector->clearApertureFlags();
   if(m_FP420Transport) {
     hector->clear();
-    hector->add( evt_ );
+    hector->add( evt_ ,es);
     hector->filterFP420();
   }
   if(m_ZDCTransport) {
     hector->clear();
-    hector->add( evt_ );
+    hector->add( evt_ ,es);
     hector->filterZDC();
     
     hector->clear();
-    hector->add( evt_ );
+    hector->add( evt_ ,es);
     hector->filterD1();
   }
   evt_ = hector->addPartToHepMC( evt_ );
