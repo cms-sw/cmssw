@@ -31,7 +31,8 @@
 
 //Member types
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Other include files
@@ -114,7 +115,7 @@ class MuIsoValidation : public edm::EDAnalyzer {
 		//---------------Dynamic Variables---------------------
 		
 		//MonitorElement
-		DaqMonitorBEInterface* dbe;
+		DQMStore* dbe;
 		
 		//The Data
 		std::vector<int> theMuonData;//[number of muons]
