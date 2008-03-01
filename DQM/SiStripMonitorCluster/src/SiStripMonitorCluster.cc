@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.33 2008/01/02 18:44:31 elmer Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.34 2008/01/22 19:15:39 muzaffar Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -27,11 +27,11 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), fill_signal_noise (false) {} 
+SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), fill_signal_noise (false) {} 
 SiStripMonitorCluster::~SiStripMonitorCluster() { }
 
 //--------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
     
     folder_organizer.setSiStripFolder();
-    charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",500,-0.5,500.5);
+    charge_of_each_cluster = dqmStore_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",500,-0.5,500.5);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
@@ -121,40 +121,40 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       if (reset_each_run) ResetModuleMEs(*detid_iterator);
       //nr. of clusters per module
       hid = hidmanager.createHistoId("NumberOfClusters","det",*detid_iterator);
-      modSingle.NumberOfClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5); dbe_->tag(modSingle.NumberOfClusters, *detid_iterator);
+      modSingle.NumberOfClusters = dqmStore_->book1D(hid, hid, 5,-0.5,4.5); dqmStore_->tag(modSingle.NumberOfClusters, *detid_iterator);
       modSingle.NumberOfClusters->setAxisTitle("number of clusters in one detector module");
       //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      modSingle.ClusterPosition = dbe_->book1D(hid, hid, 24,0.,768.); dbe_->tag(modSingle.ClusterPosition, *detid_iterator); // 6 APVs -> 768 strips
+      modSingle.ClusterPosition = dqmStore_->book1D(hid, hid, 24,0.,768.); dqmStore_->tag(modSingle.ClusterPosition, *detid_iterator); // 6 APVs -> 768 strips
       modSingle.ClusterPosition->setAxisTitle("cluster position [strip number +0.5]");
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
-      modSingle.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5); dbe_->tag(modSingle.ClusterWidth, *detid_iterator);
+      modSingle.ClusterWidth = dqmStore_->book1D(hid, hid, 11,-0.5,10.5); dqmStore_->tag(modSingle.ClusterWidth, *detid_iterator);
       modSingle.ClusterWidth->setAxisTitle("cluster width [nr strips]");
       //ClusterCharge
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      modSingle.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,300.5); dbe_->tag(modSingle.ClusterCharge, *detid_iterator);
+      modSingle.ClusterCharge = dqmStore_->book1D(hid, hid, 31,-0.5,300.5); dqmStore_->tag(modSingle.ClusterCharge, *detid_iterator);
       modSingle.ClusterCharge->setAxisTitle("cluster charge [ADC]");
       //ClusterNoise
       hid = hidmanager.createHistoId("ClusterNoise","det",*detid_iterator);
-      modSingle.ClusterNoise = dbe_->book1D(hid, hid, 80,0.,10.); dbe_->tag(modSingle.ClusterNoise, *detid_iterator);
+      modSingle.ClusterNoise = dqmStore_->book1D(hid, hid, 80,0.,10.); dqmStore_->tag(modSingle.ClusterNoise, *detid_iterator);
       modSingle.ClusterNoise->setAxisTitle("cluster noise");
       //ClusterSignal
       hid = hidmanager.createHistoId("ClusterSignal","det",*detid_iterator);
-      modSingle.ClusterSignal = dbe_->book1D(hid, hid, 100,0.,300.); dbe_->tag(modSingle.ClusterSignal, *detid_iterator);
+      modSingle.ClusterSignal = dqmStore_->book1D(hid, hid, 100,0.,300.); dqmStore_->tag(modSingle.ClusterSignal, *detid_iterator);
       modSingle.ClusterSignal->setAxisTitle("cluster signal");
       //ClusterSignalOverNoise
       hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",*detid_iterator);
-      modSingle.ClusterSignalOverNoise = dbe_->book1D(hid, hid, 100,0.,50.); dbe_->tag(modSingle.ClusterSignalOverNoise, *detid_iterator);
+      modSingle.ClusterSignalOverNoise = dqmStore_->book1D(hid, hid, 100,0.,50.); dqmStore_->tag(modSingle.ClusterSignalOverNoise, *detid_iterator);
       modSingle.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
       // occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
-      modSingle.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05); dbe_->tag(modSingle.ModuleLocalOccupancy, *detid_iterator);
+      modSingle.ModuleLocalOccupancy = dqmStore_->book1D(hid, hid, 20,-0.005,0.05); dqmStore_->tag(modSingle.ModuleLocalOccupancy, *detid_iterator);
       modSingle.ModuleLocalOccupancy->setAxisTitle("module local occupancy [% of clusterized strips]");
       //NrOfClusterizedStrips
       hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
-      modSingle.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 10,-0.5,9.5); dbe_->tag(modSingle.NrOfClusterizedStrips, *detid_iterator);
+      modSingle.NrOfClusterizedStrips = dqmStore_->book1D(hid, hid, 10,-0.5,9.5); dqmStore_->tag(modSingle.NrOfClusterizedStrips, *detid_iterator);
       modSingle.NrOfClusterizedStrips->setAxisTitle("number of clusterized strips");
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, modSingle));
@@ -299,30 +299,21 @@ void SiStripMonitorCluster::endJob(void){
     }
     monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     // save histos in a file
-     dbe_->save(outputFileName);
+     dqmStore_->save(outputFileName);
    }
-}
-
-//--------------------------------------------------------------------------------------------
-void SiStripMonitorCluster::ResetME(MonitorElement* me){
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-  if (ob) {
-    TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
-    if(root_ob)root_ob->Reset();
-  } 
 }
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = ClusterMEs.find(idet);
   ModMEs mod_me = pos->second;
 
-  ResetME( mod_me.NumberOfClusters );
-  ResetME( mod_me.ClusterPosition );
-  ResetME( mod_me.ClusterWidth );
-  ResetME( mod_me.ClusterCharge );
-  ResetME( mod_me.ClusterSignal );
-  ResetME( mod_me.ClusterNoise );
-  ResetME( mod_me.ClusterSignalOverNoise );
-  ResetME( mod_me.ModuleLocalOccupancy );
-  ResetME( mod_me.NrOfClusterizedStrips ); // can be used at client level for occupancy calculations
+  mod_me.NumberOfClusters->Reset();
+  mod_me.ClusterPosition->Reset();
+  mod_me.ClusterWidth->Reset();
+  mod_me.ClusterCharge->Reset();
+  mod_me.ClusterSignal->Reset();
+  mod_me.ClusterNoise->Reset();
+  mod_me.ClusterSignalOverNoise->Reset();
+  mod_me.ModuleLocalOccupancy->Reset();
+  mod_me.NrOfClusterizedStrips->Reset(); // can be used at client level for occupancy calculations
 }

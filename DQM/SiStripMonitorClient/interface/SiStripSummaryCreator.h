@@ -1,7 +1,6 @@
 #ifndef _SiStripSummaryCreator_h_
 #define _SiStripSummaryCreator_h_
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <map>
@@ -10,6 +9,7 @@
 
 
 class SiStripConfigWriter;
+class DQMStore;
 
 class SiStripSummaryCreator {
 
@@ -19,20 +19,20 @@ class SiStripSummaryCreator {
   virtual ~SiStripSummaryCreator();
   bool readConfiguration();
 
-  void createSummary(DaqMonitorBEInterface* bei);
+  void createSummary(DQMStore* dqm_store);
 
-  void createLayout(DaqMonitorBEInterface * bei);
-  void fillLayout(DaqMonitorBEInterface * bei);
+  void createLayout(DQMStore * dqm_store);
+  void fillLayout(DQMStore * dqm_store);
   void setSummaryMENames( std::map<std::string, std::string>& me_names);
   int getFrequency() { return summaryFrequency_;}
 
  private:
- MonitorElement* getSummaryME(DaqMonitorBEInterface* bei,
+ MonitorElement* getSummaryME(DQMStore* dqm_store,
                               std::string& name, std::string htype);
 
 
-  void fillGrandSummaryHistos(DaqMonitorBEInterface* bei);
-  void fillSummaryHistos(DaqMonitorBEInterface* bei);
+  void fillGrandSummaryHistos(DQMStore* dqm_store);
+  void fillSummaryHistos(DQMStore* dqm_store);
   void fillHistos(int ival, int istep, std::string htype, 
 		  MonitorElement* me_src, MonitorElement* me);
 

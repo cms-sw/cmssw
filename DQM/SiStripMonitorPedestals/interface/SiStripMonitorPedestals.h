@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.12 2007/08/24 19:58:36 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.13 2007/11/13 20:17:32 dutta Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@
 
 class ApvAnalysisFactory;
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class SiStripDetCabling;
 
 class SiStripMonitorPedestals : public edm::EDAnalyzer {
@@ -66,7 +66,6 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
    
  private:
 
-  void resetME(MonitorElement* me);
   void resetMEs(uint32_t idet);
   void createMEs();
   void fillCondDBMEs(edm::EventSetup const& eSetup);
@@ -93,7 +92,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
     MonitorElement* NoisyStripsDB;
   };
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> PedMEs;
   edm::ESHandle<SiStripDetCabling> detcabling;

@@ -13,19 +13,18 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.4 2007/11/13 20:17:33 dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.5 2008/01/22 18:52:44 muzaffar Exp $
 //
 //
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -43,7 +42,7 @@
 
 SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const& iConfig):
   BadFedNumber(0),
-  dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+  dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   m_cacheID_(0)
 
@@ -70,8 +69,7 @@ void SiStripMonitorRawData::beginJob(edm::EventSetup const&) {
 void SiStripMonitorRawData::beginRun(edm::Run const& run, edm::EventSetup const& eSetup){
   unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
 
-  TH1F* hist1 = ExtractTObject<TH1F>().extract(BadFedNumber);
-  hist1->Reset();
+  if (BadFedNumber) BadFedNumber->Reset();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;       
     eSetup.get<SiStripDetCablingRcd>().get( detcabling );
@@ -80,9 +78,9 @@ void SiStripMonitorRawData::beginRun(edm::Run const& run, edm::EventSetup const&
     
     edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::beginRun: " 
 					  << " Creating MEs for new Cabling ";     
-    dbe_->setCurrentFolder("Track/GlobalParameter");
+    dqmStore_->setCurrentFolder("Track/GlobalParameter");
     if (!BadFedNumber) {
-      BadFedNumber = dbe_->book1D("FaultyFedNumberAndChannel","Faulty Fed Id and Channel and Numbers", 60000, 0.5, 600.5);
+      BadFedNumber = dqmStore_->book1D("FaultyFedNumberAndChannel","Faulty Fed Id and Channel and Numbers", 60000, 0.5, 600.5);
       BadFedNumber->setAxisTitle("Fed Id and Channel numbers",1);
     }
   } 
@@ -129,8 +127,8 @@ void SiStripMonitorRawData::endRun(edm::Run const& run, edm::EventSetup const& e
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {    
-    dbe_->showDirStructure();
-    dbe_->save(outputFileName);
+    dqmStore_->showDirStructure();
+    dqmStore_->save(outputFileName);
   }
 }
 //

@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Fri Dec  7 20:49:51 CET 2007
-// $Id: SiStripMonitorQuality.h,v 1.3 2007/11/13 20:17:32 dutta Exp $
+// $Id: SiStripMonitorQuality.h,v 1.1 2007/12/10 20:28:02 dutta Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 #include <vector>
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class SiStripDetCabling;
 class SiStripQuality;
 
@@ -57,10 +57,9 @@ class SiStripMonitorQuality : public edm::EDAnalyzer {
  private:
 
   MonitorElement* getQualityME(uint32_t idet);
-  void resetME(MonitorElement* me);
   
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   edm::ESHandle< SiStripDetCabling > detCabling_;
   edm::ESHandle< SiStripQuality > stripQuality_;

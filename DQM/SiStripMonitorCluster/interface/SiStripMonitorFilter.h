@@ -20,7 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class SiStripMonitorFilter : public edm::EDAnalyzer {
    public:
@@ -32,7 +32,7 @@ class SiStripMonitorFilter : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * FilterDecision;
        // all events

@@ -3,9 +3,9 @@
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+class DQMStore;
 class SiStripActionExecutorQTest;
 class SiStripInformationExtractor;
 class SiStripDetCabling;
@@ -20,7 +20,7 @@ class SiStripWebInterface
                          PlotHistogramFromPath=7, PlotTkMapHistogram=8,
                          PlotHistogramFromLayout=9};
 
-  SiStripWebInterface(DaqMonitorBEInterface* bei);
+  SiStripWebInterface(DQMStore* dqm_store);
  ~SiStripWebInterface();
 
   
@@ -47,7 +47,7 @@ class SiStripWebInterface
 
   std::multimap<std::string, std::string> requestMap_;
 
-  DaqMonitorBEInterface* bei_;
+  DQMStore* dqmStore_;
   //  edm::ESHandle< SiStripDetCabling > detCabling_;
 
 

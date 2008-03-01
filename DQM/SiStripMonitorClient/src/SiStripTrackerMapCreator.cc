@@ -2,7 +2,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 using namespace std;
 //
@@ -53,7 +53,7 @@ int SiStripTrackerMapCreator::getMENames(vector<string>& me_names) {
 // -- Create Geometric and Fed Tracker Map
 //
 void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset, 
-           const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei) {
+           const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store) {
 
   if (meNames_.size() == 0) return;
   if (!trackerMap_)     trackerMap_    = new TrackerMap(tkmapPset, fedcabling);
@@ -71,7 +71,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
       if (detId_save != detId) {
         detId_save = detId;
         local_mes.clear();
-        vector<MonitorElement*> all_mes = bei->get(detId);
+        vector<MonitorElement*> all_mes = dqm_store->get(detId);
 	for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	     it!= all_mes.end(); it++) {
 	  if (!(*it)) continue;

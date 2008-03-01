@@ -13,19 +13,18 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.29 2007/11/16 12:39:14 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.30 2008/01/22 18:52:44 muzaffar Exp $
 //
 //
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
@@ -50,7 +49,7 @@ const std::string SiStripMonitorPedestals::RunMode2 = "CalculatedPlotsOnly";
 const std::string SiStripMonitorPedestals::RunMode3 = "AllPlots";
 
 SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfig):
-  dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+  dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   pedsPSet_(iConfig.getParameter<edm::ParameterSet>("PedestalsPSet")),
   analyzed(false),
@@ -159,80 +158,80 @@ void SiStripMonitorPedestals::createMEs() {
       if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) {
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedestalFromCondDB","det", detid);
-	local_modmes.PedsPerStripDB = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dbe_->tag(local_modmes.PedsPerStripDB, detid);
+	local_modmes.PedsPerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	dqmStore_->tag(local_modmes.PedsPerStripDB, detid);
 	(local_modmes.PedsPerStripDB)->setAxisTitle("Pedestal from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoiseFromCondDB","det", detid);
-	local_modmes.CMSubNoisePerStripDB = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dbe_->tag(local_modmes.CMSubNoisePerStripDB, detid);
+	local_modmes.CMSubNoisePerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	dqmStore_->tag(local_modmes.CMSubNoisePerStripDB, detid);
 	(local_modmes.CMSubNoisePerStripDB)->setAxisTitle("CMSubNoise from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("BadStripFlagCondDB","det", detid);
-	local_modmes.NoisyStripsDB = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dbe_->tag(local_modmes.NoisyStripsDB, detid);
+	local_modmes.NoisyStripsDB = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	dqmStore_->tag(local_modmes.NoisyStripsDB, detid);
 	(local_modmes.NoisyStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
       }
       if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedsPerStrip","det", detid);
-	local_modmes.PedsPerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dbe_->tag(local_modmes.PedsPerStrip, detid);
+	local_modmes.PedsPerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	dqmStore_->tag(local_modmes.PedsPerStrip, detid);
 	(local_modmes.PedsPerStrip)->setAxisTitle("Pedestal (ADC)  vs Strip Number ",1);
 	
 	hid = hidmanager.createHistoId("PedsDistribution","det", detid);
-	local_modmes.PedsDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
-	dbe_->tag(local_modmes.PedsDistribution, detid);
+	local_modmes.PedsDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
+	dqmStore_->tag(local_modmes.PedsDistribution, detid);
 	(local_modmes.PedsDistribution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsDistribution)->setAxisTitle("Mean Pedestal Value (ADC)",2);
 	
 	hid = hidmanager.createHistoId("PedsEvolution","det", detid);
-	local_modmes.PedsEvolution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
-	dbe_->tag(local_modmes.PedsEvolution, detid);
+	local_modmes.PedsEvolution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
+	dqmStore_->tag(local_modmes.PedsEvolution, detid);
 	(local_modmes.PedsEvolution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsEvolution)->setAxisTitle("Iteration Number",2);
 	
 	//Noise histos
 	hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", detid);
-	local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dbe_->tag(local_modmes.CMSubNoisePerStrip, detid);
+	local_modmes.CMSubNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	dqmStore_->tag(local_modmes.CMSubNoisePerStrip, detid);
 	(local_modmes.CMSubNoisePerStrip)->setAxisTitle("CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoisePerStrip","det", detid);
-	local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dbe_->tag(local_modmes.RawNoisePerStrip, detid);
+	local_modmes.RawNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	dqmStore_->tag(local_modmes.RawNoisePerStrip, detid);
 	(local_modmes.RawNoisePerStrip)->setAxisTitle("RawNoise(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("CMSubNoiseProfile","det", detid);
-	local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dbe_->tag(local_modmes.CMSubNoiseProfile, detid);
+	local_modmes.CMSubNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	dqmStore_->tag(local_modmes.CMSubNoiseProfile, detid);
 	(local_modmes.CMSubNoiseProfile)->setAxisTitle("Mean of CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoiseProfile","det", detid);
-	local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dbe_->tag(local_modmes.RawNoiseProfile, detid);
+	local_modmes.RawNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	dqmStore_->tag(local_modmes.RawNoiseProfile, detid);
 	(local_modmes.RawNoiseProfile)->setAxisTitle("Mean of RawNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoisyStrips","det", detid);
-	local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dbe_->tag(local_modmes.NoisyStrips, detid);
+	local_modmes.NoisyStrips = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	dqmStore_->tag(local_modmes.NoisyStrips, detid);
 	(local_modmes.NoisyStrips)->setAxisTitle("Strip Number",1);
 	(local_modmes.NoisyStrips)->setAxisTitle("Flag Value",2);
 	
 	hid = hidmanager.createHistoId("NoisyStripDistribution","det", detid);
-	local_modmes.NoisyStripDistribution = dbe_->book1D(hid, hid, 11, -0.5,10.5);
-	dbe_->tag(local_modmes.NoisyStripDistribution, detid);
+	local_modmes.NoisyStripDistribution = dqmStore_->book1D(hid, hid, 11, -0.5,10.5);
+	dqmStore_->tag(local_modmes.NoisyStripDistribution, detid);
 	(local_modmes.NoisyStripDistribution)->setAxisTitle("Flag Value",1);
 	
 	//Common Mode histos
 	hid = hidmanager.createHistoId("CMDistribution","det", detid);
-	local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
-	dbe_->tag(local_modmes.CMDistribution, detid);
+	local_modmes.CMDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
+	dqmStore_->tag(local_modmes.CMDistribution, detid);
 	(local_modmes.CMDistribution)->setAxisTitle("Common Mode (ADC) vs APV Number",1);
       
 	hid = hidmanager.createHistoId("CMSlopeDistribution","det", detid);
-	local_modmes.CMSlopeDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
-	dbe_->tag(local_modmes.CMSlopeDistribution, detid);
+	local_modmes.CMSlopeDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
+	dqmStore_->tag(local_modmes.CMSlopeDistribution, detid);
 	(local_modmes.CMSlopeDistribution)->setAxisTitle("Common Mode Slope vs APV Number",1);
 	
       }
@@ -432,8 +431,8 @@ void SiStripMonitorPedestals::endRun(edm::Run const& run, edm::EventSetup const&
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   if (outputMEsInRootFile) {    
     std::string outPutFileName = conf_.getParameter<std::string>("OutPutFileName");
-//    dbe_->showDirStructure();
-    dbe_->save(outPutFileName);
+//    dqmStore_->showDirStructure();
+    dqmStore_->save(outPutFileName);
   }
 }
 //
@@ -444,17 +443,6 @@ void SiStripMonitorPedestals::endJob(void){
 					  << " Finishing!! ";        
 }
 //
-// -- Reset individual Monitor Elements
-//    
-void SiStripMonitorPedestals::resetME(MonitorElement* me){
-  TProfile* prof = ExtractTObject<TProfile>().extract(me);
-  TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
-  TH2F* hist2 = ExtractTObject<TH2F>().extract(me);
-  if (prof) prof->Reset();
-  if (hist1) hist1->Reset();
-  if (hist2) hist2->Reset();
-}
-//
 // -- Reset Monitor Elements corresponding to a detetor
 //    
 void SiStripMonitorPedestals::resetMEs(uint32_t idet){
@@ -463,21 +451,21 @@ void SiStripMonitorPedestals::resetMEs(uint32_t idet){
     ModMEs mod_me = pos->second;
 
     if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) { 
-      resetME( mod_me.PedsPerStripDB);     
-      resetME( mod_me.CMSubNoisePerStripDB);     
-      resetME( mod_me.NoisyStripsDB);     
+      mod_me.PedsPerStripDB->Reset();     
+      mod_me.CMSubNoisePerStripDB->Reset();     
+      mod_me.NoisyStripsDB->Reset();     
     }
     if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
-      resetME( mod_me.PedsPerStrip);      
-      resetME( mod_me.PedsDistribution);      
-      resetME( mod_me.PedsEvolution);      
-      resetME( mod_me.CMSubNoisePerStrip);      
-      resetME( mod_me.RawNoisePerStrip);      
-      resetME( mod_me.CMSubNoiseProfile);      
-      resetME( mod_me.RawNoiseProfile);      
-      resetME( mod_me.NoisyStrips);      
-      resetME( mod_me.CMDistribution);     
-      resetME( mod_me.CMSlopeDistribution); 
+      mod_me.PedsPerStrip->Reset();      
+      mod_me.PedsDistribution->Reset();      
+      mod_me.PedsEvolution->Reset();      
+      mod_me.CMSubNoisePerStrip->Reset();      
+      mod_me.RawNoisePerStrip->Reset();      
+      mod_me.CMSubNoiseProfile->Reset();      
+      mod_me.RawNoiseProfile->Reset();      
+      mod_me.NoisyStrips->Reset();      
+      mod_me.CMDistribution->Reset();     
+      mod_me.CMSlopeDistribution->Reset(); 
     }
   }
 }

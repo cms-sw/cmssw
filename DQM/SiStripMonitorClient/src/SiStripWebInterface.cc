@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -14,7 +15,7 @@
 //
 // -- Constructor
 // 
-SiStripWebInterface::SiStripWebInterface(DaqMonitorBEInterface* bei) : bei_(bei) {
+SiStripWebInterface::SiStripWebInterface(DQMStore* dqm_store) : dqmStore_(dqm_store) {
   
   theActionFlag = NoAction;
   infoExtractor_  = 0;
@@ -48,48 +49,48 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   }    
   else if (requestID == "CheckQTResults") {
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
-    infoExtractor_->readQTestSummary(bei_, infoType, detcabling, out);
+    infoExtractor_->readQTestSummary(dqmStore_, infoType, detcabling, out);
     theActionFlag = NoAction;
   } 
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-    
-    infoExtractor_->readModuleAndHistoList(bei_, out);
+
+    infoExtractor_->readModuleAndHistoList(dqmStore_, detcabling, out);
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
-    
-    infoExtractor_->readGlobalHistoList(bei_, out);
+    std::string gname = get_from_multimap(requestMap_, "GlobalFolder");    
+    infoExtractor_->readGlobalHistoList(dqmStore_, gname, out);
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     std::string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readSummaryHistoTree(bei_, sname, out);
+    infoExtractor_->readSummaryHistoTree(dqmStore_, sname, out);
   } 
   else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     std::string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree(bei_, sname, out);
+    infoExtractor_->readAlarmTree(dqmStore_, sname, out);
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
-    infoExtractor_->readStatusMessage(bei_, requestMap_, out);
+    infoExtractor_->readStatusMessage(dqmStore_, requestMap_, out);
   } 
    else if (requestID == "PlotAsModule") {
     theActionFlag = NoAction;  
-    infoExtractor_->plotSingleModuleHistos(bei_, requestMap_, out);    
+    infoExtractor_->plotSingleModuleHistos(dqmStore_, requestMap_, out);    
   }
   else if (requestID == "PlotGlobalHisto") {
-    theActionFlag = NoAction;    
-    infoExtractor_->plotGlobalHistos(bei_, requestMap_, out);    
+    theActionFlag = NoAction;
+    infoExtractor_->plotGlobalHistos(dqmStore_, requestMap_, out);    
   }
   else if (requestID == "PlotHistogramFromPath") {
    theActionFlag = NoAction;
-   infoExtractor_->plotHistosFromPath(bei_, requestMap_, out);    
+   infoExtractor_->plotHistosFromPath(dqmStore_, requestMap_, out);    
   } 
   else if (requestID == "PlotTkMapHistogram") {
     theActionFlag = NoAction;
-    infoExtractor_->plotTrackerMapHistos(bei_, requestMap_, out);
+    infoExtractor_->plotTrackerMapHistos(dqmStore_, requestMap_, out);
   }
   else if (requestID == "PlotHistogramFromLayout") {
     theActionFlag = PlotHistogramFromLayout;
@@ -113,18 +114,18 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    bei_->cd() ;
-    bei_->cd(MEFolder) ;
-    std::vector<std::string> meList = bei_->getMEs();
-    bei_->cd() ;
+    //SDSDSD    dqmStore_->cd() ;
+    //SDSDSD    dqmStore_->cd(MEFolder) ;
+    //SDSDSD    std::vector<std::string> meList = dqmStore_->getMEs();
+    //SDSDSD    dqmStore_->cd() ;
+    std::vector<MonitorElement *> meList = dqmStore_->getContents(MEFolder);
     *out << MEFolder << " " ;
     std::cout << "SiStripWebInterface::handleAnalyserRequest "
          << "MEFolder: " << MEFolder << std::endl;
-    std::cout << "SiSitrpWebInterface::handleCustomRequest ";
-    for(std::vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
+    for(std::vector<MonitorElement *>::const_iterator it=meList.begin(); it!=meList.end(); it++)
     {
-     *out  << *it << " " ;
-      std::cout << *it << " " ;
+     *out  << (*it)->getName() << " " ;
+      std::cout << (*it)->getName() << " " ;
     }
     std::cout << std::endl;       
   }
@@ -136,7 +137,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    *out << infoExtractor_->getIMGCImage(bei_, requestMap_).str();
+    *out << infoExtractor_->getIMGCImage(dqmStore_, requestMap_).str();
   }
   else if (requestID == "GetTkMap") { 
     theActionFlag = NoAction;    
@@ -166,32 +167,32 @@ void SiStripWebInterface::performAction() {
   switch (theActionFlag) {
   case SiStripWebInterface::Summary :
     {
-      //      actionExecutor_->createSummary(bei_);
+      //      actionExecutor_->createSummary(dqmStore_);
       break;
     }
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
-//      infoExtractor_->plotSingleModuleHistos(bei_, requestMap_, out);
+//      infoExtractor_->plotSingleModuleHistos(dqmStore_, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotGlobalHistos :
     {
-//      infoExtractor_->plotGlobalHistos(bei_, requestMap_, out);
+//      infoExtractor_->plotGlobalHistos(dqmStore_, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotTkMapHistogram :
     {
-//      infoExtractor_->plotTrackerMapHistos(bei_, requestMap_, out);
+//      infoExtractor_->plotTrackerMapHistos(dqmStore_, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromPath :
     {
-//       infoExtractor_->plotHistosFromPath(bei_, requestMap_, out);
+//       infoExtractor_->plotHistosFromPath(dqmStore_, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromLayout :
     {
-      infoExtractor_->plotHistosFromLayout(bei_);
+      infoExtractor_->plotHistosFromLayout(dqmStore_);
       break;
     }
   case SiStripWebInterface::NoAction :

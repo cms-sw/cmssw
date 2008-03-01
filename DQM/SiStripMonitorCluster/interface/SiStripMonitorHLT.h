@@ -21,6 +21,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+class DQMStore;
+
 class SiStripMonitorHLT : public edm::EDAnalyzer {
    public:
       explicit SiStripMonitorHLT(const edm::ParameterSet&);
@@ -31,7 +33,7 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        MonitorElement * HLTDecision;
        // all events

@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 
@@ -61,16 +61,16 @@ bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
 //
 // -- Create and Fill Summary Monitor Elements
 //
-void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
+void SiStripActionExecutor::createSummary(DQMStore* dqm_store) {
   if (summaryCreator_) {
-    bei->cd();
-    summaryCreator_->createSummary(bei);
+    dqm_store->cd();
+    summaryCreator_->createSummary(dqm_store);
   }
 }
 //
 // -- create tracker map
 //
 void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset, 
-           const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei) {
-  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, bei);
+           const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store) {
+  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, dqm_store);
 }

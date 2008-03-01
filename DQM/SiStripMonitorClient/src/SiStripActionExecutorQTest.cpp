@@ -6,7 +6,7 @@
 #include <sstream>
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
@@ -17,55 +17,55 @@ SiStripActionExecutorQTest::SiStripActionExecutorQTest()
     bSummaryTagsNotRead_( true) {}
 
 std::string SiStripActionExecutorQTest::getQTestSummary(
-  const DaqMonitorBEInterface *poMUI) {
+  const DQMStore *poDQMStore) {
 
   std::ostringstream oSStream;
 
-  getQTestSummary_( oSStream, poMUI, dqm::XMLTag::STRING);
+  getQTestSummary_( oSStream, poDQMStore, dqm::XMLTag::STRING);
   
   return oSStream.str();
 }
 
 std::string SiStripActionExecutorQTest::getQTestSummaryLite(
-  const DaqMonitorBEInterface *poMUI) {
+  const DQMStore *poDQMStore) {
 
   std::ostringstream oSStream;
 
-  getQTestSummary_( oSStream, poMUI, dqm::XMLTag::STRING_LITE);
+  getQTestSummary_( oSStream, poDQMStore, dqm::XMLTag::STRING_LITE);
   
   return oSStream.str();
 }
 
 std::string SiStripActionExecutorQTest::getQTestSummaryXML( 
-  const DaqMonitorBEInterface *poMUI) {
+  const DQMStore *poDQMStore) {
 
   std::ostringstream oSStream;
   oSStream << "<?xml version='1.0' encoding='UTF-8'>" << std::endl;
 
-  getQTestSummary_( oSStream, poMUI, dqm::XMLTag::XML);
+  getQTestSummary_( oSStream, poDQMStore, dqm::XMLTag::XML);
   
   return oSStream.str();
 }
 
 std::string SiStripActionExecutorQTest::getQTestSummaryXMLLite( 
-  const DaqMonitorBEInterface *poBEI) {
+  const DQMStore *poDQMStore) {
 
   std::ostringstream oSStream;
 
   oSStream << "<?xml version='1.0' encoding='UTF-8'>" << std::endl;
 
-  getQTestSummary_( oSStream, poBEI, dqm::XMLTag::XML_LITE);
+  getQTestSummary_( oSStream, poDQMStore, dqm::XMLTag::XML_LITE);
   
   return oSStream.str();
 }
 
 std::ostream &SiStripActionExecutorQTest::getQTestSummary_(
   std::ostream                &roOut,
-  const DaqMonitorBEInterface  *poBEI,
+  const DQMStore  *poDQMStore,
   const dqm::XMLTag::TAG_MODE &reMODE) {
 
   if( bSummaryTagsNotRead_) {
-    createQTestSummary_( poBEI);
+    createQTestSummary_( poDQMStore);
     bSummaryTagsNotRead_ = false;
   }
 
@@ -79,13 +79,13 @@ std::ostream &SiStripActionExecutorQTest::getQTestSummary_(
 }
 
 void SiStripActionExecutorQTest::createQTestSummary_(
-  const DaqMonitorBEInterface *poBEI) {
+  const DQMStore *poDQMStore) {
 
   typedef std::vector<std::string> VContents;
   typedef std::vector<QReport *>   VReports;
 
   VContents oVContents;
-  poBEI->getContents( oVContents);
+  poDQMStore->getContents( oVContents);
 
   poXMLTagWarnings_ = std::auto_ptr<dqm::XMLTagWarnings>( 
     new dqm::XMLTagWarnings());
@@ -124,7 +124,7 @@ void SiStripActionExecutorQTest::createQTestSummary_(
          oME_ITER != oVSubContents.end();
          ++oME_ITER) {
 
-      if( MonitorElement *poME = poBEI->get( *oME_ITER)) {
+      if( MonitorElement *poME = poDQMStore->get( *oME_ITER)) {
         dqm::XMLTagModule *poXMLTagModuleWarnings = 0;
         dqm::XMLTagModule *poXMLTagModuleErrors   = 0;
 

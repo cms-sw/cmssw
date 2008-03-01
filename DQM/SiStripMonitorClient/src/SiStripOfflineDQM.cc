@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.15 2008/01/22 19:17:13 muzaffar Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.16 2008/02/21 23:17:49 dutta Exp $
 //
 //
 
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 
@@ -42,7 +42,7 @@ SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
 
-  poBei_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  poDQMStore_ = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -82,7 +82,7 @@ void SiStripOfflineDQM::analyze( const edm::Event      &roEVENT,
 }
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   if (bCreateSummary_) { 
-    oActionExecutor_.createSummary( poBei_);
+    oActionExecutor_.createSummary( poDQMStore_);
   }
 }
 void SiStripOfflineDQM::endJob() {
@@ -94,22 +94,22 @@ void SiStripOfflineDQM::endJob() {
   LogInfo( "SiStripOfflineDQM")
     << "Summary";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummary( poBei_);
+    << oActionExecutor_.getQTestSummary( poDQMStore_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryLite( poBei_);
+    << oActionExecutor_.getQTestSummaryLite( poDQMStore_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXML";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXML( poBei_);
+    << oActionExecutor_.getQTestSummaryXML( poDQMStore_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXMLLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXMLLite( poBei_);
+    << oActionExecutor_.getQTestSummaryXMLLite( poDQMStore_);
 
 
   if( bVERBOSE_) {

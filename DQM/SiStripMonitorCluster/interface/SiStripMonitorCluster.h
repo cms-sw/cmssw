@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.13 2007/11/18 18:24:07 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.14 2007/12/03 18:13:12 giordano Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class SiStripMonitorCluster : public edm::EDAnalyzer {
   public:
@@ -39,11 +39,10 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
         MonitorElement* NrOfClusterizedStrips; // can be used at client level for occupancy calculations
       };
   private:
-      void ResetME(MonitorElement* h1);
       void ResetModuleMEs(uint32_t idet);
       void createMEs(const edm::EventSetup& es);
   private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        std::map<uint32_t, ModMEs> ClusterMEs;
        MonitorElement* charge_of_each_cluster;

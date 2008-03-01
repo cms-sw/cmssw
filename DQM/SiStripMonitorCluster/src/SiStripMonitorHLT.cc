@@ -16,7 +16,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -24,7 +24,7 @@ using namespace edm;
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 {
   HLTDirectory="HLTResults";
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 }
 
@@ -32,22 +32,22 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 void SiStripMonitorHLT::beginJob(const edm::EventSetup& es){
   using namespace edm;
 
-  dbe_->setCurrentFolder(HLTDirectory);
+  dqmStore_->setCurrentFolder(HLTDirectory);
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
-  HLTDecision = dbe_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
+  HLTDecision = dqmStore_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
   // all
-  SumOfClusterCharges_all = dbe_->book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
-  ChargeOfEachClusterTIB_all = dbe_->book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_all = dbe_->book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_all = dbe_->book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_all = dbe_->book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
+  SumOfClusterCharges_all = dqmStore_->book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
+  ChargeOfEachClusterTIB_all = dqmStore_->book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_all = dqmStore_->book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_all = dqmStore_->book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_all = dqmStore_->book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
   // 31 = TIB2, 32 = TIB2, 33 = TIB3, 51 = TOB1, 52=TOB2, 60 = TEC
   // accepted from HLT
-  SumOfClusterCharges_hlt = dbe_->book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
-  ChargeOfEachClusterTIB_hlt = dbe_->book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_hlt = dbe_->book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_hlt = dbe_->book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_hlt = dbe_->book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
+  SumOfClusterCharges_hlt = dqmStore_->book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
+  ChargeOfEachClusterTIB_hlt = dqmStore_->book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_hlt = dqmStore_->book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_hlt = dqmStore_->book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_hlt = dqmStore_->book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
 }
 
 void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -107,16 +107,16 @@ void SiStripMonitorHLT::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   string outputFileName = conf_.getParameter<string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 
   // delete MEs
-//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dbe_->pwd();
-////  std::string folder_to_delete = dbe_->monitorDirName + "/" + HLTDirectory;
-//  dbe_->cd();
+//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dqmStore_->pwd();
+////  std::string folder_to_delete = dqmStore_->monitorDirName + "/" + HLTDirectory;
+//  dqmStore_->cd();
 //  std::string folder_to_delete = HLTDirectory;
 //  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<" Removing whole directory "<<folder_to_delete;
-//  dbe_->rmdir(folder_to_delete);
+//  dqmStore_->rmdir(folder_to_delete);
 
 }
 

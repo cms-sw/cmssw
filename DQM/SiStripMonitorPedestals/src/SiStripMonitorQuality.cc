@@ -13,13 +13,13 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.1 2007/12/10 20:28:02 dutta Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.2 2008/01/22 18:52:44 muzaffar Exp $
 //
 //
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -28,7 +28,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -43,7 +42,7 @@
 #include <algorithm>
 
 SiStripMonitorQuality::SiStripMonitorQuality(edm::ParameterSet const& iConfig):
-  dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+  dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   m_cacheID_(0)
 
@@ -128,8 +127,8 @@ void SiStripMonitorQuality::endRun(edm::Run const& run, edm::EventSetup const& e
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {    
-    dbe_->showDirStructure();
-    dbe_->save(outputFileName);
+    dqmStore_->showDirStructure();
+    dqmStore_->save(outputFileName);
   }
 }
 //
@@ -145,11 +144,10 @@ void SiStripMonitorQuality::endJob(void){
 MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet){
 
   std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
-
   MonitorElement* det_me;
   if (pos != QualityMEs.end()) {
     det_me = pos->second;
-    resetME(det_me);
+    det_me->Reset();
   } else {
     int nStrip =  detCabling_->nApvPairs(idet) * 256;
 
@@ -165,21 +163,13 @@ MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet){
     
     std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
 
-    det_me = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-    dbe_->tag(det_me, idet);
+    det_me = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+    dqmStore_->tag(det_me, idet);
     det_me->setAxisTitle("Strip Number",1);
     det_me->setAxisTitle("Quality Flag from CondDB ",2);
     QualityMEs.insert( std::make_pair(idet, det_me));
   }
   return det_me;
 }
-//
-// -- Reset individual Monitor Elements
-//    
-void SiStripMonitorQuality::resetME(MonitorElement* me){
-  TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
-  if (hist1) hist1->Reset();
-}
-
 DEFINE_FWK_MODULE(SiStripMonitorQuality);
 

@@ -12,7 +12,7 @@
 #include <string>
 
 class SiStripSummaryCreator;
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorUserInterface;
 class SiStripTrackerMapCreator;
 
@@ -28,10 +28,10 @@ class SiStripActionExecutor {
  bool readConfiguration(int& sum_freq);
  bool readTkMapConfiguration();
 
- void saveMEs(DaqMonitorBEInterface * bei, std::string fname);
- void createSummary(DaqMonitorBEInterface* bei);
+ void saveMEs(DQMStore * dqm_store, std::string fname);
+ void createSummary(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
-		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei);
+		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store);
  private:
 
   std::vector<std::string> tkMapMENames;

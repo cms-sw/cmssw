@@ -19,7 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-class DaqMonitorBEInterface;
+
+class DQMStore;
 
 class MonitorLTC : public edm::EDAnalyzer {
    public:
@@ -29,7 +30,7 @@ class MonitorLTC : public edm::EDAnalyzer {
        virtual void beginJob(edm::EventSetup const&) ;
        virtual void endJob() ;
    private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        // trigger decision from LTC digis
        MonitorElement * LTCTriggerDecision_all;

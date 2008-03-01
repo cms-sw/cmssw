@@ -1,7 +1,6 @@
 #ifndef _SiStripTrackerMapCreator_h_
 #define _SiStripTrackerMapCreator_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,7 +11,7 @@
 #include <vector>
 #include <string>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class TrackerMap;
 class SiStripTrackerMapCreator {
@@ -25,7 +24,7 @@ class SiStripTrackerMapCreator {
 
   void create(const edm::ParameterSet & tkmapPset, 
 	      const edm::ESHandle<SiStripFedCabling>& fedcabling, 
-              DaqMonitorBEInterface* bei);
+              DQMStore* dwm_store);
 
   int getFrequency() { return tkMapFrequency_;}
   int getMENames(std::vector< std::string>& me_names);

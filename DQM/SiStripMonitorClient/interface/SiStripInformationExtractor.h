@@ -1,7 +1,6 @@
 #ifndef _SiStripInformationExtractor_h_
 #define _SiStripInformationExtractor_h_
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -21,7 +20,8 @@
 
 class SiStripLayoutParser;
 class SiStripDetCabling;
-
+class DQMStore;
+class QReport;
 class SiStripInformationExtractor {
 
  public:
@@ -29,36 +29,36 @@ class SiStripInformationExtractor {
   SiStripInformationExtractor();
  ~SiStripInformationExtractor();
 
-  void readModuleAndHistoList(DaqMonitorBEInterface* bei,xgi::Output * out);
-  void plotSingleModuleHistos(DaqMonitorBEInterface * bei,
+  void readModuleAndHistoList(DQMStore* dqm_store,const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out);
+  void plotSingleModuleHistos(DQMStore * dqm_store,
                       std::multimap<std::string, std::string>& req_map, xgi::Output * out );
-  void plotGlobalHistos(DaqMonitorBEInterface * bei,
+  void plotGlobalHistos(DQMStore * dqm_store,
                       std::multimap<std::string, std::string>& req_map, xgi::Output * out );
-  void plotHistosFromPath(DaqMonitorBEInterface * bei,std::multimap<std::string, std::string>& req_map, xgi::Output * out);
-  void plotHistosFromLayout(DaqMonitorBEInterface * bei);
-  void plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  void plotHistosFromPath(DQMStore * dqm_store,std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  void plotHistosFromLayout(DQMStore * dqm_store);
+  void plotTrackerMapHistos(DQMStore* dqm_store, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   const std::ostringstream& getImage() const;
   const std::ostringstream& getNamedImage(std::string name);
-  void readSummaryHistoTree(DaqMonitorBEInterface* bei, std::string& str_name, 
+  void readSummaryHistoTree(DQMStore* dqm_store, std::string& str_name, 
                 xgi::Output * out);
-  void readAlarmTree(DaqMonitorBEInterface* bei, std::string& str_name, 
+  void readAlarmTree(DQMStore* dqm_store, std::string& str_name, 
                 xgi::Output * out);
  
-  void readStatusMessage(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
-  void readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out);
+  void readStatusMessage(DQMStore* dqm_store, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  void readGlobalHistoList(DQMStore* dqm_store, std::string& dname, xgi::Output * out);
   void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
-  const std::ostringstream& getIMGCImage(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map);
+  const std::ostringstream& getIMGCImage(DQMStore * dqm_store, std::multimap<std::string, std::string>& req_map);
 
-  void readQTestSummary(DaqMonitorBEInterface* bei, std::string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out);
+  void readQTestSummary(DQMStore* dqm_store, std::string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out);
 
 
  private:
 
   void readConfiguration();
-  void fillModuleAndHistoList(DaqMonitorBEInterface * bei,
+  void fillModuleAndHistoList(DQMStore * dqm_store,
         std::vector<std::string>& modules, std::vector<std::string>& histos);
-  void fillGlobalHistoList(DaqMonitorBEInterface * bei, std::vector<std::string>& histos);
-  void selectSingleModuleHistos(DaqMonitorBEInterface * bei,  std::string mid, 
+  void fillGlobalHistoList(DQMStore * dqm_store, std::vector<std::string>& histos);
+  void selectSingleModuleHistos(DQMStore * dqm_store,  std::string mid, 
           std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
   void getItemList(std::multimap<std::string, std::string>& req_map,
                    std::string item_name, std::vector<std::string>& items);
@@ -71,12 +71,13 @@ class SiStripInformationExtractor {
                   std::vector<MonitorElement*> me_list, bool sflag);
   void plotHisto(std::multimap<std::string, std::string>& req_map, 
                   MonitorElement* me, bool sflag);
-  bool goToDir(DaqMonitorBEInterface* bei, std::string& sname);
-  void printSummaryHistoList(DaqMonitorBEInterface* bei, std::ostringstream& str_val);
-  void printAlarmList(DaqMonitorBEInterface * bei, std::ostringstream& str_val);
+  bool goToDir(DQMStore* dqm_store, std::string& sname);
+  void printSummaryHistoList(DQMStore* dqm_store, std::ostringstream& str_val);
+  void printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val);
   void selectImage(std::string& name, int status);
-  void selectImage(std::string& name, dqm::qtests::QR_map& test_map);
-  void selectGlobalHistos(DaqMonitorBEInterface * bei, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
+  void selectImage(std::string& name, std::vector<QReport*> & reports);
+  void selectGlobalHistos(DQMStore * dqm_store, std::string dname, 
+             std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
   void defineZone(int nhist, int& ncol, int & now);  
   void setCanvasMessage(const std::string& error_string);
   void createDummiesFromLayout();

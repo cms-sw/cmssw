@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.5 2007/06/08 14:50:46 dkcira Exp $
+// $Id: SiStripMonitorDigi.h,v 1.6 2007/11/18 18:03:57 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,6 +16,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+
 class SiStripMonitorDigi : public edm::EDAnalyzer {
    public:
       explicit SiStripMonitorDigi(const edm::ParameterSet&);
@@ -34,13 +37,11 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
       };
   private:
       void FillStripOccupancy(MonitorElement*,  std::vector<uint16_t> &);
-      void ResetME(MonitorElement* h1);
-      void ResetModuleMEs(uint32_t idet);
       void createMEs(const edm::EventSetup& es);
-
+      void ResetModuleMEs(uint32_t idet);
 
    private:
-       DaqMonitorBEInterface* dbe_;
+       DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
        bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;

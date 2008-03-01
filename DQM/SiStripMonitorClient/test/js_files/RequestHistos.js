@@ -19,6 +19,7 @@ RequestHistos.RequestHistoList = function()
     CommonActions.ShowProgress("visible", "Module Histogram List");     
   } else if ($('global_histos').checked) {
     queryString = "RequestID=GlobalHistoList";    
+    queryString += "&GlobalFolder=Track/GlobalParameters";
     url        += queryString;
     var retVal = new Ajax.Request(url,                    
  	 	                 {			  
@@ -212,6 +213,7 @@ RequestHistos.DrawSelectedHistos = function()
     queryString += '&ModId='+value;
   } else if ($('global_histos').checked) {
     queryString  = "RequestID=PlotGlobalHisto";    
+    queryString += "&GlobalFolder=Track/GlobalParameters";
   }
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;

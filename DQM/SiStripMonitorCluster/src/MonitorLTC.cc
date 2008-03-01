@@ -14,7 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
@@ -24,14 +24,14 @@ using namespace edm;
 MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
 {
   HLTDirectory="HLTResults";
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_  = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 }
 
 
 void MonitorLTC::beginJob(const edm::EventSetup& es){
   using namespace edm;
-  dbe_->setCurrentFolder(HLTDirectory);
+  dqmStore_->setCurrentFolder(HLTDirectory);
   // 0 DT
   // 1 CSC
   // 2 RBC1 (RPC techn. cosmic trigger for wheel +1, sector 10)
@@ -42,7 +42,7 @@ void MonitorLTC::beginJob(const edm::EventSetup& es){
 //  std::string const* the_label = moduleLabel();
   std::string the_label = conf_.getParameter<std::string>("@module_label");
   std::string ltctitle = the_label + "_LTCTriggerDecision";
-  LTCTriggerDecision_all = dbe_->book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
+  LTCTriggerDecision_all = dqmStore_->book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
   LTCTriggerDecision_all->setBinLabel(1, "DT");
   LTCTriggerDecision_all->setBinLabel(2, "CSC");
   LTCTriggerDecision_all->setBinLabel(3, "RBC1");
@@ -96,7 +96,7 @@ void MonitorLTC::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   string outputFileName = conf_.getParameter<string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
 

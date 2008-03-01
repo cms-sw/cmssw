@@ -3,7 +3,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.22 2007/11/18 18:03:58 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.23 2008/01/22 19:09:42 muzaffar Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,11 +17,11 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0) {}
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0) {}
 SiStripMonitorDigi::~SiStripMonitorDigi() {}
 
 //--------------------------------------------------------------------------------------------
@@ -114,36 +114,36 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
       //      // create ADCs per strip
       //      std::string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
-      //      local_me = dbe_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
+      //      local_me = dqmStore_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
       //      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
       // create Digis per detector - not too useful - maybe can remove later
       hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
-      local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5); dbe_->tag(local_modmes.NumberOfDigis, *detid_iterator);
+      local_modmes.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, -0.5, 20.5); dqmStore_->tag(local_modmes.NumberOfDigis, *detid_iterator);
       local_modmes.NumberOfDigis->setAxisTitle("number of digis in one detector module");
       // create ADCs per "hottest" strip
       hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
-      local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
+      local_modmes.ADCsHottestStrip = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
       local_modmes.ADCsHottestStrip->setAxisTitle("number of ADCs in strip with most of them");
       // create ADCs per "coolest" strip
       hid = hidmanager.createHistoId("ADCsCoolestStrip","det",*detid_iterator);
-      local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
+      local_modmes.ADCsCoolestStrip = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
       local_modmes.ADCsCoolestStrip->setAxisTitle("number of ADCs in strip with less of them");
       // create Digi ADC count distribution
       hid = hidmanager.createHistoId("DigiADCs","det",*detid_iterator);
-      local_modmes.DigiADCs = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.DigiADCs, *detid_iterator);
+      local_modmes.DigiADCs = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.DigiADCs, *detid_iterator);
       local_modmes.DigiADCs->setAxisTitle("ADCs");
       // create Strip Occupancy histograms (if flag set to yes in configuration file)
       if(calculate_strip_occupancy){
         hid = hidmanager.createHistoId("StripOccupancy","det",*detid_iterator);
         if(tkmechstruct->nApvPairs(*detid_iterator)==3){ // ask the cabling how many APVs does this detector module have and book histogram accordingly
-          local_modmes.StripOccupancy = dbe_->bookProfile(hid, hid, 768, -0.5, 767.5, 10, 0., 1.);
+          local_modmes.StripOccupancy = dqmStore_->bookProfile(hid, hid, 768, -0.5, 767.5, 10, 0., 1.);
           local_modmes.StripOccupancy->setAxisTitle("Strips [0-767]");
         }else{
-          local_modmes.StripOccupancy = dbe_->bookProfile(hid, hid, 512, -0.5, 511.5, 10, 0., 1.);
+          local_modmes.StripOccupancy = dqmStore_->bookProfile(hid, hid, 512, -0.5, 511.5, 10, 0., 1.);
           local_modmes.StripOccupancy->setAxisTitle("Strips [0-511]");
         }
         local_modmes.StripOccupancy->setAxisTitle("Occupancy",2);
-        dbe_->tag(local_modmes.StripOccupancy, *detid_iterator);
+        dqmStore_->tag(local_modmes.StripOccupancy, *detid_iterator);
       }
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
@@ -237,7 +237,7 @@ void SiStripMonitorDigi::endJob(void){
     }
     monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     // save histograms in a file
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
 
@@ -256,22 +256,14 @@ void SiStripMonitorDigi::FillStripOccupancy(MonitorElement* StripOccupancy,  std
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::ResetME(MonitorElement* me){
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-  if (ob) {
-    TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
-    if(root_ob)root_ob->Reset();
-  }
-}
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
   ModMEs mod_me = pos->second;
-  ResetME( mod_me.NumberOfDigis );
-  ResetME( mod_me.ADCsHottestStrip );
-  ResetME( mod_me.ADCsCoolestStrip );
-  ResetME( mod_me.DigiADCs );
-  ResetME( mod_me.StripOccupancy );
+  mod_me.NumberOfDigis->Reset();
+  mod_me.ADCsHottestStrip->Reset();
+  mod_me.ADCsCoolestStrip->Reset();
+  mod_me.DigiADCs->Reset();
+  mod_me.StripOccupancy->Reset();
 }
 
 //define this as a plug-in

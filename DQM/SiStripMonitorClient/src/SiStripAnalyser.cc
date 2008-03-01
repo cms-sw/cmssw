@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/12/20 16:25:44 $
- * $Revision: 1.24 $
+ * $Date: 2008/02/21 23:17:49 $
+ * $Revision: 1.25 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -81,11 +81,11 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
 
   // get back-end interface
-  bei_ = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
 
   // instantiate web interface
-  sistripWebInterface_ = new SiStripWebInterface(bei_);
+  sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
   actionExecutor_ = new SiStripActionExecutor();
   
 }
@@ -169,12 +169,12 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
     cout << " Creating Summary " << endl;
-    actionExecutor_->createSummary(bei_);
+    actionExecutor_->createSummary(dqmStore_);
   }
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, bei_);
+    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_);
   }
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
@@ -237,7 +237,7 @@ void SiStripAnalyser::fillGlobalStatus() {
       continue;
     }
     nDetsTotal++;
-    vector<MonitorElement*> detector_mes = bei_->get(detId);
+    vector<MonitorElement*> detector_mes = dqmStore_->get(detId);
     int error_me = 0;
     for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
 	 it!= detector_mes.end(); it++) {
@@ -250,8 +250,8 @@ void SiStripAnalyser::fillGlobalStatus() {
     if (error_me > 0) nDetsWithError++;
   }
   gStatus = 1 - nDetsWithError*1.0/nDetsTotal;
-  bei_->cd();
-  MonitorElement* err_summ_me = bei_->get("SiStrip/EventInfo/errorSummary");
+  dqmStore_->cd();
+  MonitorElement* err_summ_me = dqmStore_->get("SiStrip/EventInfo/errorSummary");
   if(err_summ_me) err_summ_me->Fill(gStatus);
 }
 

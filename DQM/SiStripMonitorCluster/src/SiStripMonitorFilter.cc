@@ -13,21 +13,21 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorFilter.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 
 SiStripMonitorFilter::SiStripMonitorFilter(const edm::ParameterSet& iConfig)
 {
   FilterDirectory="FilterResults";
-  dbe_  = Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_  = Service<DQMStore>().operator->();
   conf_ = iConfig;
 }
 
 void SiStripMonitorFilter::beginJob(const edm::EventSetup& es){
-  dbe_->setCurrentFolder(FilterDirectory);
+  dqmStore_->setCurrentFolder(FilterDirectory);
   std::string FilterProducer = conf_.getParameter<std::string>("FilterProducer");
-  FilterDecision = dbe_->book1D(FilterProducer+"_Decision", FilterProducer+"Decision", 2, -0.5, 1.5);
+  FilterDecision = dqmStore_->book1D(FilterProducer+"_Decision", FilterProducer+"Decision", 2, -0.5, 1.5);
 }
 
 void SiStripMonitorFilter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -49,7 +49,7 @@ void SiStripMonitorFilter::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
 

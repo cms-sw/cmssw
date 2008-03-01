@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/12/20 16:25:43 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/21 23:17:48 $
+ *  $Revision: 1.19 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -24,8 +24,7 @@
 #include <vector>
 #include <map>
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMStore;
 class SiStripWebInterface;
 class SiStripFedCabling;
 class SiStripDetCabling;
@@ -75,7 +74,7 @@ private:
 
   void fillGlobalStatus();
 
-  DaqMonitorBEInterface* bei_;
+  DQMStore* dqmStore_;
 
   SiStripWebInterface* sistripWebInterface_;
 

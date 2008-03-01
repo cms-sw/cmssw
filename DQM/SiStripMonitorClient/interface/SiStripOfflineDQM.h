@@ -29,7 +29,7 @@
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
   public:
@@ -48,7 +48,7 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   private:
     const bool        bVERBOSE_;
     bool          bCreateSummary_;
-    DaqMonitorBEInterface       *poBei_;
+    DQMStore       *poDQMStore_;
     SiStripActionExecutorQTest  oActionExecutor_;
 };
 

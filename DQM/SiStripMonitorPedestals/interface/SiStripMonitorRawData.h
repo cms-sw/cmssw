@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.2 2007/08/24 19:58:36 dutta Exp $
+// $Id: SiStripMonitorRawData.h,v 1.3 2007/11/13 20:17:32 dutta Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 #include <vector>
 
 class MonitorElement;
-class DaqMonitorBEInterface;
+class DQMStore;
 class SiStripDetCabling;
 
 class SiStripMonitorRawData : public edm::EDAnalyzer {
@@ -56,7 +56,7 @@ class SiStripMonitorRawData : public edm::EDAnalyzer {
  private:
   MonitorElement* BadFedNumber;
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   edm::ESHandle< SiStripDetCabling > detcabling;
   std::vector<uint32_t> SelectedDetIds;
