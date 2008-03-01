@@ -18,7 +18,7 @@ DigiCheck::DigiCheck(const edm::ParameterSet&){;}
 DigiCheck::~DigiCheck(){;}
 typedef math::XYZVector XYZPoint;
 void  DigiCheck::beginJob(const edm::EventSetup & c){
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
   h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
   h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);

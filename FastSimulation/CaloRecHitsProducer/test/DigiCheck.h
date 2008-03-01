@@ -10,7 +10,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 
@@ -24,7 +25,7 @@ public:
   virtual void beginJob(const edm::EventSetup & c);
   virtual void endJob();
 private:
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   MonitorElement* h0b;
   MonitorElement* h0e;
   MonitorElement* h1b;
