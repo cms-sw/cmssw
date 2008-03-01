@@ -5,8 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQMServices/Core/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -18,8 +18,8 @@
 #include <vector>
 #include <map>
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 class SiPixelWebInterface;
 class SiPixelTrackerMapCreator;
  
@@ -59,8 +59,8 @@ private:
 
   int nLumiBlock;
 
-  DaqMonitorBEInterface* bei_;  
-  MonitorUserInterface* mui_;
+  DQMStore* bei_;  
+  DQMOldReceiver* mui_;
 
   edm::ParameterSet parameters;
   SiPixelWebInterface* sipixelWebInterface_;

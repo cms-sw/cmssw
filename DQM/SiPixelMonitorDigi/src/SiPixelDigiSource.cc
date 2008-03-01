@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.16 2007/11/09 16:18:10 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.17 2008/01/22 18:54:58 muzaffar Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -22,6 +22,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -42,7 +43,7 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) )
 {
-   theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
 }
 

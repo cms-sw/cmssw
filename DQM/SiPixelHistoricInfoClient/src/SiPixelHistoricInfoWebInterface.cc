@@ -13,7 +13,7 @@
 
 SiPixelHistoricInfoWebInterface::SiPixelHistoricInfoWebInterface(std::string theContextURL, 
                                                                  std::string theApplicationURL, 
-								 MonitorUserInterface** _mui_p)
+								 DQMOldReceiver** _mui_p)
                                : WebInterface(theContextURL, theApplicationURL, _mui_p) {
   ContentViewer* cv = new ContentViewer(getApplicationURL(),"20px","10px"); 
   Button* sb = new Button(getApplicationURL(),"300px","10px","SaveToFile","Save To File");

@@ -1,6 +1,6 @@
 /// DQM and Framework services
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 /// Data Formats
@@ -13,7 +13,7 @@
 SiPixelFolderOrganizer::SiPixelFolderOrganizer() :
   rootFolder("Pixel"),
   slash("/"),
-  dbe_(edm::Service<DaqMonitorBEInterface>().operator->())
+  dbe_(edm::Service<DQMStore>().operator->())
 {  
 }
 

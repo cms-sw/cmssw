@@ -12,9 +12,6 @@
 <lib name=GeometryTrackerGeometryBuilder>
 <use name=TrackingTools/TrackFitters>
 <use name=DQMServices/Core>
-<use name=DQMServices/NodeROOT>
-<use name=DQMServices/Daemon>
-<use name=DQMServices/UI>
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQM/SiPixelCommon>
@@ -38,9 +35,6 @@
   <lib name=GeometryTrackerGeometryBuilder>
   <use name=TrackingTools/TrackFitters>
   <use name=DQMServices/Core>
-  <use name=DQMServices/NodeROOT>
-  <use name=DQMServices/Daemon>
-  <use name=DQMServices/UI>
   <use name=DQMServices/Components>
   <use name=DQMServices/WebComponents>
   <use name=DQM/SiPixelCommon>
@@ -48,4 +42,3 @@
   <use name=xerces-c>
   <use name=oracle>
 </export>
-

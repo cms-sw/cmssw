@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.4 2007/09/04 18:21:59 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.5 2008/01/22 19:03:18 muzaffar Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
@@ -22,6 +22,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -41,7 +42,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) )
 {
-   theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
 }
 

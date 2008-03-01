@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.1 2007/10/10 03:37:27 krose Exp $
+// $Id: SiPixelRecHitSource.h,v 1.2 2007/11/13 21:46:15 krose Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorRecHit/interface/SiPixelRecHitModule.h"
 
@@ -68,7 +68,7 @@
        edm::ParameterSet conf_;
        edm::InputTag src_;
        int eventNo;
-       DaqMonitorBEInterface* theDMBE;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
        std::map<uint32_t,int> rechit_count;
  };

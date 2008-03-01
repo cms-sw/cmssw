@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=DQM/SiPixelCommon>
 <use name=AnalysisDataFormats/TrackInfo>
 <use name=DataFormats/TrackerRecHit2D>
@@ -16,7 +16,7 @@
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=DQMServices/CoreROOT>
+   <use name=DQMServices/Core>
    <use name=DQM/SiPixelCommon>
    <use name=AnalysisDataFormats/TrackInfo>
    <use name=DataFormats/TrackerRecHit2D>

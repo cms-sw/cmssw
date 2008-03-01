@@ -1,9 +1,9 @@
 #ifndef _SiPixelActionExecutor_h_
 #define _SiPixelActionExecutor_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
@@ -21,11 +21,11 @@ class SiPixelActionExecutor {
   SiPixelActionExecutor();
  ~SiPixelActionExecutor();
 
- void createSummary(    	    DaqMonitorBEInterface    	 * bei);
+ void createSummary(    	    DQMStore    		 * bei);
 
- void setupQTests(      	    DaqMonitorBEInterface    	 * bei);
- void checkQTestResults(	    DaqMonitorBEInterface    	 * bei);
- void createTkMap(      	    DaqMonitorBEInterface    	 * bei, 
+ void setupQTests(      	    DQMStore    		 * bei);
+ void checkQTestResults(	    DQMStore    		 * bei);
+ void createTkMap(      	    DQMStore    		 * bei, 
                         	    std::string 	    	   mEName,
 				    std::string 	    	   theTKType);
  bool readConfiguration(	    int 			 & tkmap_freq, 
@@ -38,36 +38,36 @@ class SiPixelActionExecutor {
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & summary_freq);
  void readConfiguration(	    );
- void createLayout(     	    DaqMonitorBEInterface    	 * bei);
- void fillLayout(       	    DaqMonitorBEInterface    	 * bei);
+ void createLayout(     	    DQMStore    		 * bei);
+ void fillLayout(       	    DQMStore    		 * bei);
  int getTkMapMENames(               std::vector<std::string>	 & names);
- void dumpModIds(                   DaqMonitorBEInterface     	 * bei);
- void dumpBarrelModIds(             DaqMonitorBEInterface     	 * bei);
- void dumpEndcapModIds(             DaqMonitorBEInterface     	 * bei);
+ void dumpModIds(                   DQMStore     		 * bei);
+ void dumpBarrelModIds(             DQMStore     		 * bei);
+ void dumpEndcapModIds(             DQMStore     		 * bei);
  
 
 
 private:
   
   
-  MonitorElement* getSummaryME(     DaqMonitorBEInterface     	 * bei, 
+  MonitorElement* getSummaryME(     DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
-  MonitorElement* getFEDSummaryME(  DaqMonitorBEInterface     	 * bei, 
+  MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
-  void fillBarrelSummary(           DaqMonitorBEInterface     	 * bei, 
+  void fillBarrelSummary(           DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
-  void fillEndcapSummary(           DaqMonitorBEInterface     	 * bei, 
+  void fillEndcapSummary(           DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
-  void fillFEDErrorSummary(         DaqMonitorBEInterface     	 * bei, 
+  void fillFEDErrorSummary(         DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
-  void fillGrandBarrelSummaryHistos(DaqMonitorBEInterface     	 * bei, 
+  void fillGrandBarrelSummaryHistos(DQMStore     		 * bei, 
 			            std::vector<std::string> 	 & me_names);
-  void fillGrandEndcapSummaryHistos(DaqMonitorBEInterface     	 * bei, 
+  void fillGrandEndcapSummaryHistos(DQMStore     		 * bei, 
 			            std::vector<std::string> 	 & me_names);
-  void getGrandSummaryME(           DaqMonitorBEInterface     	 * bei,
+  void getGrandSummaryME(           DQMStore     		 * bei,
                                     int                      	   nbin, 
                                     std::string              	 & me_name, 
 				    std::vector<MonitorElement*> & mes);

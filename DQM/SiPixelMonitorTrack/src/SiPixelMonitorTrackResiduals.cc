@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.6 2008/01/22 19:13:01 muzaffar Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.7 2008/02/24 00:16:26 schuang Exp $
 
 
 #include <iostream>
@@ -34,6 +34,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelMonitorTrackResiduals.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 using namespace std;
@@ -42,7 +43,7 @@ using namespace edm;
 
 SiPixelMonitorTrackResiduals::SiPixelMonitorTrackResiduals(const edm::ParameterSet& iConfig) 
                             : conf_(iConfig), src_(conf_.getParameter<edm::InputTag>("src")) {
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   // conf_ = iConfig;
   LogInfo("PixelDQM") << "SiPixelMonitorTrackResiduals constructed" << endl;
 }

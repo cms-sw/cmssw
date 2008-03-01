@@ -1,5 +1,5 @@
 #include "DQM/SiPixelMonitorRecHit/interface/SiPixelRecHitModule.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 /// Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,7 +33,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig) {
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // XYPosition
   hid = theHistogramId->setHistoId("xypos",id_);
   //std::cout << hid << " " << theHistogramId->getDataCollection(hid) << " " << theHistogramId->getRawId(hid) << std::endl;

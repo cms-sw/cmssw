@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 
@@ -69,7 +69,7 @@
        edm::InputTag src_;
        bool saveFile;
        int eventNo;
-       DaqMonitorBEInterface* theDMBE;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
  };

@@ -1,5 +1,5 @@
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 // Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -83,7 +83,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
   meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);
@@ -136,7 +136,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
   meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);

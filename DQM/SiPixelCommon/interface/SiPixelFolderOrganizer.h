@@ -16,8 +16,8 @@ Usage:
 //
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiPixelFolderOrganizer.h,v 1.1 2007/03/28 14:01:57 chiochia Exp $
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+// $Id: SiPixelFolderOrganizer.h,v 1.2 2007/08/21 03:56:19 andrewdc Exp $
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include <string>
 
@@ -41,6 +41,6 @@ class SiPixelFolderOrganizer {
 
   std::string rootFolder;
   std::string slash;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 };
 #endif

@@ -7,9 +7,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
@@ -48,16 +48,16 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   parameters = ps;
   
-  bei_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  bei_ = edm::Service<DQMStore>().operator->();
 
   tkMapFrequency_   = -1;
   summaryFrequency_ = -1;
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
-  mui_ = new MonitorUIRoot();
+  mui_ = new DQMOldReceiver();
   // get back-end interface
-  bei_ = Service<DaqMonitorBEInterface>().operator->();
+  bei_ = Service<DQMStore>().operator->();
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface("dummy", "dummy", &mui_);
   defaultPageCreated_ = false;

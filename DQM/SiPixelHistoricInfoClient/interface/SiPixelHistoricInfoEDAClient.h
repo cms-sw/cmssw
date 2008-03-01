@@ -9,8 +9,8 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
 
@@ -47,7 +47,7 @@ private:
   bool firstEventInRun;
   int nEvents;
   edm::ParameterSet parameterSet_;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
   SiPixelPerformanceSummary* performanceSummary_;
 

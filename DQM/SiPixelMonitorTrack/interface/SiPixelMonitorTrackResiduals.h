@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.h,v 1.3 2007/06/11 18:18:05 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.h,v 1.4 2007/07/16 22:57:36 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelResidualModule.h"
 
@@ -40,7 +40,7 @@ class SiPixelMonitorTrackResiduals : public edm::EDAnalyzer {
   private:
     edm::ParameterSet conf_; 
     edm::InputTag src_;
-    DaqMonitorBEInterface* dbe_;
+    DQMStore* dbe_;
 
     std::map<uint32_t, SiPixelResidualModule*> thePixelStructure; 
 

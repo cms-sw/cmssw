@@ -13,11 +13,11 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.9 2007/05/24 17:55:09 andrewdc Exp $
+// $Id: SiPixelClusterModule.cc,v 1.10 2008/01/22 19:03:14 muzaffar Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 /// Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -61,7 +61,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // Number of clusters
   hid = theHistogramId->setHistoId("nclusters",id_);
   meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",50,0.,50.);

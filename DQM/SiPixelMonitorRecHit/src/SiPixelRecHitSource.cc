@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.4 2007/11/13 21:46:17 krose Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.5 2008/01/22 18:54:09 muzaffar Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -26,6 +26,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -46,7 +47,7 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) )
 {
-   theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
 }
 

@@ -1,9 +1,9 @@
 #ifndef _SiPixelInformationExtractor_h_
 #define _SiPixelInformationExtractor_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
@@ -36,33 +36,33 @@ class SiPixelInformationExtractor {
   SiPixelInformationExtractor();
  ~SiPixelInformationExtractor();
 
-  void readModuleAndHistoList(	DaqMonitorBEInterface			* bei,
+  void readModuleAndHistoList(	DQMStore				* bei,
                               	xgi::Output				* out);
-  void plotSingleModuleHistos(	DaqMonitorBEInterface			* bei,
+  void plotSingleModuleHistos(	DQMStore				* bei,
                               	std::multimap<std::string, std::string> & req_map);
-  void plotHistosFromPath(      DaqMonitorBEInterface                   * bei,
+  void plotHistosFromPath(      DQMStore               	                * bei,
                                 std::multimap<std::string, std::string> & req_map);  
-  void plotTkMapHistos(       	DaqMonitorBEInterface			* bei,
+  void plotTkMapHistos(       	DQMStore				* bei,
                               	std::multimap<std::string, std::string> & req_map, 
 			      	std::string				  sName);
-  void plotTkMapHisto(       	DaqMonitorBEInterface			* bei,
+  void plotTkMapHisto(       	DQMStore				* bei,
                               	std::string                               theModI, 
 			      	std::string				  theMEName);
-  void readModuleHistoTree(   	DaqMonitorBEInterface			* bei, 
+  void readModuleHistoTree(   	DQMStore				* bei, 
                               	std::string				& str_name, 
 			      	xgi::Output				* out);
-  void readSummaryHistoTree(  	DaqMonitorBEInterface			* bei, 
+  void readSummaryHistoTree(  	DQMStore				* bei, 
                               	std::string				& str_name, 
 			      	xgi::Output				* out);
-  void readAlarmTree(         	DaqMonitorBEInterface			* bei, 
+  void readAlarmTree(         	DQMStore				* bei, 
                               	std::string				& str_name, 
                               	xgi::Output				* out);
-  void plotSingleHistogram(   	DaqMonitorBEInterface			* bei,
+  void plotSingleHistogram(   	DQMStore				* bei,
                               	std::multimap<std::string, std::string> & req_map);
-  void readStatusMessage(     	DaqMonitorBEInterface			* bei, 
+  void readStatusMessage(     	DQMStore				* bei, 
                               	std::string				& path,
 			      	xgi::Output				* out);
-  void createModuleTree(      	DaqMonitorBEInterface			* bei);
+  void createModuleTree(      	DQMStore				* bei);
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
 				std::pair<double,double>                & norm) ;
@@ -73,18 +73,18 @@ class SiPixelInformationExtractor {
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
 				QString                                   theMEType) ;
-  void sendTkUpdatedStatus(     DaqMonitorBEInterface			* bei,
+  void sendTkUpdatedStatus(     DQMStore				* bei,
                               	xgi::Output                             * out,
 				std::string                             & meName,
 				std::string                             & theTKType) ;
-  void selectMEList(            DaqMonitorBEInterface                   * bei,  
+  void selectMEList(            DQMStore                                * bei,  
                                 std::string                             & name, 
 				std::vector<MonitorElement*>            & mes);
-  void getMEList(               DaqMonitorBEInterface                   * bei,  
+  void getMEList(               DQMStore                                * bei,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
   const std::ostringstream& getImage(                                     void)        const;
-  const std::ostringstream& getIMGCImage(DaqMonitorBEInterface		* bei,
+  const std::ostringstream& getIMGCImage(DQMStore			* bei,
   				std::string				  theFullPath,
 				std::string				  canvasW,
 				std::string				  canvasH);
@@ -92,30 +92,30 @@ class SiPixelInformationExtractor {
   std::string getMEType(        MonitorElement                          * mE) ;
   
   void   readLayoutNames(       xgi::Output                             * out);
-  void   plotErrorOverviewHistos(DaqMonitorBEInterface                  * bei);
+  void   plotErrorOverviewHistos(DQMStore                               * bei);
   
   void readConfiguration();
   bool readConfiguration(        std::map<std::string,std::vector< std::string> >   & layoutMap,
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  float computeGlobalQualityFlag(DaqMonitorBEInterface                   * bei);
+  float computeGlobalQualityFlag(DQMStore                               * bei);
   float qflag_;
   int allMods_;
   int errorMods_;
 
  private:
 
-  void fillBarrelList(        	DaqMonitorBEInterface			* bei, 
+  void fillBarrelList(        	DQMStore				* bei, 
                               	std::string				  dir_name,
                               	std::vector<std::string>		& me_names);
-  void fillEndcapList(        	DaqMonitorBEInterface			* bei, 
+  void fillEndcapList(        	DQMStore				* bei, 
                               	std::string				  dir_name,
                               	std::vector<std::string>		& me_names);
-  void fillModuleAndHistoList(	DaqMonitorBEInterface			* bei,
+  void fillModuleAndHistoList(	DQMStore				* bei,
                               	std::vector<std::string>		& modules, 
 			      	std::map<std::string,std::string>	& histos);
-  void selectSingleModuleHistos(DaqMonitorBEInterface                   * bei,  
+  void selectSingleModuleHistos(DQMStore                                * bei,  
                                 std::string                               mid, 
                                 std::vector<std::string>                & names, 
 				std::vector<MonitorElement*>            & mes);
@@ -128,36 +128,36 @@ class SiPixelInformationExtractor {
                                 std::string                               theName);
   void plotHistos(              std::multimap<std::string, std::string> & req_map, 
                                 std::vector<MonitorElement*>              me_list);
-  void plotHisto(               DaqMonitorBEInterface 			* bei, 
+  void plotHisto(               DQMStore 				* bei, 
                                 MonitorElement                          * theMe,
                                 std::string                               theName,
 				std::string 				  canvasW,
 				std::string 				  canvasH);
-  void printModuleHistoList(    DaqMonitorBEInterface 			* bei, 
+  void printModuleHistoList(    DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
-  void printSummaryHistoList(   DaqMonitorBEInterface 			* bei, 
+  void printSummaryHistoList(   DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
-  void printAlarmList(          DaqMonitorBEInterface 			* bei, 
+  void printAlarmList(          DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
   void selectImage(		std::string				& name, 
                                 int                                      status);
   void selectImage(		std::string				& name, 
-                                dqm::qtests::QR_map                     & test_map);
-  bool goToDir(                 DaqMonitorBEInterface                   * bei, 
+                                std::vector<QReport *>                     & test_map);
+  bool goToDir(                 DQMStore                                * bei, 
                                 std::string                             & sname);
   bool hasItem(                 std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
   std::string getItemValue(     std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
-  MonitorElement* getModuleME(  DaqMonitorBEInterface                   * bei, 
+  MonitorElement* getModuleME(  DQMStore                                * bei, 
                                 std::string                               me_name);
   void setCanvasMessage(        const std::string                       & error_string);
   void createDummiesFromLayout();  
-  void   fillErrorOverviewHistos(DaqMonitorBEInterface                  * bei,
+  void   fillErrorOverviewHistos(DQMStore                               * bei,
 				 TH1F                                   * errorHisto,
 				 string                                 & subDet,
 				 vector<int>                            & hotModuleList);
-  int    computeCode(            DaqMonitorBEInterface                  * bei,
+  int    computeCode(            DQMStore                               * bei,
 				 string                                 & path);
   int    computeSourceCode(      string                                 & source);
   void   fillPaveTextForErrorCode(TPaveText                             * pave);

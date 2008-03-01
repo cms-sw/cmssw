@@ -27,6 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -48,7 +49,7 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) )
 {
-   theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
 }
 

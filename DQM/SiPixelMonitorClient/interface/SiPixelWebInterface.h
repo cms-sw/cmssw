@@ -29,7 +29,7 @@ public:
 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 
-		      MonitorUserInterface ** _mui_p);
+		      DQMOldReceiver ** _mui_p);
   ~SiPixelWebInterface();
 
   void handleEDARequest(xgi::Input* in,

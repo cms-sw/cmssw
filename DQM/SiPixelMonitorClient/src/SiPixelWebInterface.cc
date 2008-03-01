@@ -2,7 +2,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQMServices/WebComponents/interface/ConfigBox.h"
@@ -26,7 +26,7 @@ using namespace std ;
 */
 SiPixelWebInterface::SiPixelWebInterface(std::string	      theContextURL, 
                                          std::string 	      theApplicationURL,
-					 MonitorUserInterface ** _mui_p)
+					 DQMOldReceiver ** _mui_p)
   : WebInterface(theContextURL, theApplicationURL, _mui_p)
 {
   theActionFlag = NoAction;
@@ -73,7 +73,7 @@ SiPixelWebInterface::~SiPixelWebInterface() {
 // -- Handles requests from WebElements submitting non-default requests 
 //
 void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int niter) {
-  DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
+  DQMStore* bei = (*mui_p)->getBEInterface();
   CgiReader reader(in);
   reader.read_form(requestMap_);
   // get the string that identifies the request:
@@ -227,7 +227,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 // -- Setup Quality Tests
 // 
 void SiPixelWebInterface::setupQTests() {
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  DQMStore * bei = (*mui_p)->getBEInterface();
   actionExecutor_->setupQTests(bei);
 }
 
@@ -276,7 +276,7 @@ void SiPixelWebInterface::readConfiguration(int& tkmap_freq,int& summary_freq){
 //
 void SiPixelWebInterface::performAction() {
 //cout<<"entering performAction..."<<endl;
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  DQMStore * bei = (*mui_p)->getBEInterface();
   switch (theActionFlag) {
   case SiPixelWebInterface::CreateTkMap :
     {
@@ -386,7 +386,7 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out,
 
 //____________________________________________________________________________________________________
 bool SiPixelWebInterface::createTkMap() {
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  DQMStore * bei = (*mui_p)->getBEInterface();
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
     string sname     = get_from_multimap(requestMap_, "MEName");
     string theTKType = get_from_multimap(requestMap_, "TKMapType");
@@ -402,7 +402,7 @@ bool SiPixelWebInterface::createTkMap() {
 //____________________________________________________________________________________________________
 void SiPixelWebInterface::periodicTkMapUpdate(xgi::Output * out)
 {
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  DQMStore * bei = (*mui_p)->getBEInterface();
   string sname     = get_from_multimap(requestMap_, "MEName");
   string theTKType = get_from_multimap(requestMap_, "TKMapType");
   infoExtractor_->sendTkUpdatedStatus(bei, out, sname, theTKType) ;

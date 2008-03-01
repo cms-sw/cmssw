@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/03/29 14:22:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/18 19:49:58 $
+ *  $Revision: 1.4 $
  *  \author Petra Merkel
   */
 
@@ -17,7 +17,7 @@
 #include "TH1.h"
 #include "TPaveText.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiPixelUtility
 {
@@ -35,7 +35,7 @@ class SiPixelUtility
  static int  getStatus(MonitorElement* me);
  
  static int computeHistoBin(std::string& module_path);
- static int computeErrorCode(DaqMonitorBEInterface * bei, std::string& module_path);
+ static int computeErrorCode(DQMStore * bei, std::string& module_path);
  static int computeErrorCode(int status);
  static void fillPaveText(TPaveText* pave, std::map<std::string,std::pair<int,double> > messages); 
  static void createStatusLegendMessages(std::map<std::string,std::pair<int,double> >& messages);

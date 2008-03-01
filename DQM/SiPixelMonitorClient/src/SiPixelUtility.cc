@@ -1,6 +1,8 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 //
@@ -155,7 +157,7 @@ int SiPixelUtility::computeErrorCode(int status){
 
 }
 
-int SiPixelUtility::computeErrorCode(DaqMonitorBEInterface * bei,
+int SiPixelUtility::computeErrorCode(DQMStore * bei,
 				     string                & module_path){
   int status = bei->getStatus(module_path);
   

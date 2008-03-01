@@ -9,7 +9,7 @@ class SiPixelHistoricInfoWebInterface : public WebInterface {
 public:
   SiPixelHistoricInfoWebInterface(std::string theContextURL, 
                                   std::string theApplicationURL, 
-				  MonitorUserInterface** _mui_p);
+				  DQMOldReceiver** _mui_p);
  ~SiPixelHistoricInfoWebInterface();
 
   void handleCustomRequest(xgi::Input* in, xgi::Output* out) throw (xgi::exception::Exception);

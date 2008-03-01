@@ -8,6 +8,8 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <qstring.h>
 #include <qregexp.h>
 #include <iostream>
@@ -52,7 +54,7 @@ SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator()
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelTrackerMapCreator::create(DaqMonitorBEInterface * bei) 
+void SiPixelTrackerMapCreator::create(DQMStore * bei) 
 {
 //   cout << ACYellow << ACBold
 //        << "[SiPixelTrackerMapCreator::create()] "
@@ -173,7 +175,7 @@ void SiPixelTrackerMapCreator::paintTkMap(MonitorElement * mE)
 //==============================================================================
 // -- Browse through monitorable and get values needed by TrackerMap
 //
-bool SiPixelTrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei) 
+bool SiPixelTrackerMapCreator::exploreBeiStructure(DQMStore* bei) 
 {
   cout << ACCyan << ACBold
        << "[SiPixelTrackerMapCreator::create()] "

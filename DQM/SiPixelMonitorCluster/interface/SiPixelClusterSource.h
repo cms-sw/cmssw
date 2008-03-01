@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
+// $Id: SiPixelClusterSource.h,v 1.4 2007/04/20 21:46:39 andrewdc Exp $
 //
 
 #include <memory>
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
@@ -64,7 +64,7 @@
        edm::ParameterSet conf_;
        edm::InputTag src_;
        int eventNo;
-       DaqMonitorBEInterface* theDMBE;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
  };
 

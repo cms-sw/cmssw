@@ -9,13 +9,13 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelResidualModule.cc,v 1.4 2007/07/22 23:28:22 schuang Exp $
+// $Id: SiPixelResidualModule.cc,v 1.5 2008/01/22 19:13:01 muzaffar Exp $
 
 
 #include <string>
 #include <iostream>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelResidualModule.h"
@@ -37,7 +37,7 @@ SiPixelResidualModule::~SiPixelResidualModule() {
 
 
 void SiPixelResidualModule::book(const edm::ParameterSet& iConfig) {
-  DaqMonitorBEInterface* dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = edm::Service<DQMStore>().operator->();
 
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());

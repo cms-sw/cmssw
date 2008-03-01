@@ -1,9 +1,9 @@
 #ifndef _SiPixelTrackerMapCreator_h_
 #define _SiPixelTrackerMapCreator_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
 #include <fstream>
 #include <map>
@@ -20,11 +20,11 @@ class SiPixelTrackerMapCreator {
                              std::string            theTKType);
  ~SiPixelTrackerMapCreator();
 
-  void create(               DaqMonitorBEInterface * bei);
+  void create(               DQMStore * bei);
 
  private:
 
-  MonitorElement* getTkMapMe(DaqMonitorBEInterface * bei,
+  MonitorElement* getTkMapMe(DQMStore * bei,
                              std::string          & me_name,
 			     int                    ndet);
 
@@ -36,6 +36,6 @@ class SiPixelTrackerMapCreator {
   std::string					    mEName ;
   std::string					    TKType ;
   
-  bool exploreBeiStructure(  DaqMonitorBEInterface * bei) ;
+  bool exploreBeiStructure(  DQMStore * bei) ;
 };
 #endif

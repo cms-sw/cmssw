@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.4 2007/04/03 15:35:58 chiochia Exp $
+// $Id: SiPixelDigiSource.h,v 1.5 2007/11/09 16:18:10 chiochia Exp $
 //
 
 #include <memory>
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
@@ -65,7 +65,7 @@
        edm::InputTag src_;
        bool saveFile;
        int eventNo;
-       DaqMonitorBEInterface* theDMBE;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
  };
 

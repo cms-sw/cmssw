@@ -5,6 +5,8 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <qstring.h>
 #include <qregexp.h>
@@ -113,7 +115,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq
 //=============================================================================================================
 // -- Create Tracker Map
 //
-void SiPixelActionExecutor::createTkMap(DaqMonitorBEInterface* bei, 
+void SiPixelActionExecutor::createTkMap(DQMStore* bei, 
                                         string mEName,
 					string theTKType) 
 {
@@ -131,7 +133,7 @@ void SiPixelActionExecutor::createTkMap(DaqMonitorBEInterface* bei,
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
+void SiPixelActionExecutor::createSummary(DQMStore* bei) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
@@ -173,7 +175,7 @@ void SiPixelActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
 }
 
 
-void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                                               string dir_name,
 					      vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillBarrelSummary..."<<endl;
@@ -311,7 +313,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
  // cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
-void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                                               string dir_name,
 					      vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillEndcapSummary..."<<endl;
@@ -450,7 +452,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 }
 
 
-void SiPixelActionExecutor::fillFEDErrorSummary(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
                                                 string dir_name,
 						vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
@@ -526,7 +528,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DaqMonitorBEInterface* bei,
 }
 
 
-void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                                                          vector<string>& me_names) {
 //cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
@@ -608,12 +610,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
 	   int wanted_size = me_names.size();
 	   if (dir_name=="Barrel") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
-	     MonitorElementT<TNamed>* obh1 = 
-	       dynamic_cast<MonitorElementT<TNamed>*> (me);
-	     if (obh1) {
-	       TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	       if (root_obh1) nbin = root_obh1->GetNbinsX();        
-	     } else nbin = 7777;
+	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="Barrel") nbin=768;
 	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
@@ -658,7 +655,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
 //cout<<"...leaving SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
 }
 
-void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                                                          vector<string>& me_names) {
 //cout<<"Entering SiPixelActionExecutor::fillGrandEndcapSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
@@ -739,12 +736,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
 	   int wanted_size = me_names.size();
 	   if (dir_name=="Endcap") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
-	     MonitorElementT<TNamed>* obh1 = 
-	       dynamic_cast<MonitorElementT<TNamed>*> (me);
-	     if (obh1) {
-	       TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	       if (root_obh1) nbin = root_obh1->GetNbinsX();        
-	     } else nbin = 7777;
+	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="Endcap") nbin=672;
 	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
@@ -798,7 +790,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
 //
 // -- Get Summary ME
 //
-void SiPixelActionExecutor::getGrandSummaryME(DaqMonitorBEInterface* bei,
+void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
@@ -813,13 +805,9 @@ void SiPixelActionExecutor::getGrandSummaryME(DaqMonitorBEInterface* bei,
       MonitorElement* me = bei->get(fullpathname);
       
       if (me) {
-	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
-	if (obh1) {
-	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	  if (root_obh1) root_obh1->Reset();        
-	  mes.push_back(me);
-          return;
-	}
+	me->Reset();
+	mes.push_back(me);
+	return;
       }
     }
   }
@@ -831,7 +819,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DaqMonitorBEInterface* bei,
 //
 // -- Get Summary ME
 //
-MonitorElement* SiPixelActionExecutor::getSummaryME(DaqMonitorBEInterface* bei,
+MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
   MonitorElement* me = 0;
@@ -845,11 +833,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DaqMonitorBEInterface* bei,
       me = bei->get(fullpathname);
       
       if (me) {
-	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
-	if (obh1) {
-	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	  if (root_obh1) root_obh1->Reset();        
-	}
+	me->Reset();
 	return me;
       }
     }
@@ -860,7 +844,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DaqMonitorBEInterface* bei,
 }
 
 
-MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* bei,
+MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
                                                        string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement* me = 0;
@@ -874,11 +858,7 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* be
       me = bei->get(fullpathname);
       
       if (me) {
-	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
-	if (obh1) {
-	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	  if (root_obh1) root_obh1->Reset();        
-	}
+	me->Reset();
 	return me;
       }
     }
@@ -890,7 +870,7 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* be
 //
 // -- Setup Quality Tests 
 //
-void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
+void SiPixelActionExecutor::setupQTests(DQMStore * bei) {
 //cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
 
   bei->cd();
@@ -912,7 +892,7 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
 //
 // -- Check Status of Quality Tests
 //
-void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
+void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
 //cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
 
   int messageCounter=0;
@@ -978,7 +958,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
   //cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
 
-void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
+void SiPixelActionExecutor::createLayout(DQMStore * bei){
   if (configWriter_ == 0) {
     configWriter_ = new SiPixelConfigWriter();
     if (!configWriter_->init()) return;
@@ -1000,7 +980,7 @@ void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
   }  
 }
 
-void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
+void SiPixelActionExecutor::fillLayout(DQMStore * bei){
   
   static int icount = 0;
   string currDir = bei->pwd();
@@ -1046,7 +1026,7 @@ int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
 }
 
 ///// Dump Module paths and IDs on screen:
-void SiPixelActionExecutor::dumpModIds(DaqMonitorBEInterface * bei){
+void SiPixelActionExecutor::dumpModIds(DQMStore * bei){
 
   bei->cd();
   dumpBarrelModIds(bei);
@@ -1057,7 +1037,7 @@ void SiPixelActionExecutor::dumpModIds(DaqMonitorBEInterface * bei){
 }
 
 
-void SiPixelActionExecutor::dumpBarrelModIds(DaqMonitorBEInterface * bei){
+void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
   string currDir = bei->pwd();
   string dir_name = "Ladder_";
   if (currDir.find(dir_name) != string::npos)  {
@@ -1093,7 +1073,7 @@ void SiPixelActionExecutor::dumpBarrelModIds(DaqMonitorBEInterface * bei){
   }
 }
 
-void SiPixelActionExecutor::dumpEndcapModIds(DaqMonitorBEInterface * bei){
+void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
   string currDir = bei->pwd();
   string dir_name = "Panel_";
   if (currDir.find(dir_name) != string::npos)  {

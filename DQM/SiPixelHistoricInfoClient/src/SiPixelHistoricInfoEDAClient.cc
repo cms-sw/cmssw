@@ -33,11 +33,11 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
 
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoEDAClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 using namespace std;
@@ -47,12 +47,12 @@ using namespace xcept;
 
 SiPixelHistoricInfoEDAClient::SiPixelHistoricInfoEDAClient(const edm::ParameterSet& parameterSet) { 
   parameterSet_ = parameterSet;  
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->(); 
+  dbe_ = edm::Service<DQMStore>().operator->(); 
   dbe_->setVerbose(0); 
 }
 
 
-/*// mui_ = new MonitorUIRoot();
+/*// mui_ = new DQMOldReceiver();
   // // sipixelWebInterface_ = new SiPixelWebInterface("dummy","dummy",&mui_); 
   // webInterface_ = new SiPixelHistoricInfoWebInterface(getContextURL(), getApplicationURL(), &mui_);
   // defaultWebPageCreated_ = false; 
@@ -225,19 +225,14 @@ void SiPixelHistoricInfoEDAClient::fillSummaryObjects(const edm::Run& run) const
 
 
 float SiPixelHistoricInfoEDAClient::calculatePercentOver(MonitorElement* me) const {
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-  if (ob) {
-    TH1F* root_ob = dynamic_cast<TH1F*> (ob->operator->());
-    if (root_ob) {
-      float percsum=0.0;
-      TAxis* ta = root_ob->GetXaxis();
-      unsigned int maxbins = ta->GetNbins();
-      unsigned int upperbin = root_ob->FindBin(root_ob->GetMean() + 3.0*root_ob->GetRMS()); 
-      if (upperbin<=maxbins) {
-        percsum = root_ob->Integral(upperbin, maxbins)/root_ob->Integral();
-        return percsum;
-      }
-    }
+  TH1F* root_ob = me->getTH1F();
+  float percsum=0.0;
+  TAxis* ta = root_ob->GetXaxis();
+  unsigned int maxbins = ta->GetNbins();
+  unsigned int upperbin = root_ob->FindBin(root_ob->GetMean() + 3.0*root_ob->GetRMS()); 
+  if (upperbin<=maxbins) {
+    percsum = root_ob->Integral(upperbin, maxbins)/root_ob->Integral();
+    return percsum;
   }
   return -99.9; 
 }
