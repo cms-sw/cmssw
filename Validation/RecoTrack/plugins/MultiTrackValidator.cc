@@ -494,9 +494,6 @@ void MultiTrackValidator::endJob() {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
-      TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)dxyres_vs_eta[w])));
-      h->FitSlicesY();
-
       //resolution of track params: get sigma from 2D histos
       FitSlicesYTool fsyt_dxy(dxyres_vs_eta[w]);
       fsyt_dxy.getFittedSigmaWithError(h_dxyrmsh[w]);
