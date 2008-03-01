@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.12 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: FWEventItem.h,v 1.13 2008/02/29 21:12:56 chrjones Exp $
 //
 
 // system include files
@@ -24,12 +24,15 @@
 #include <vector>
 #include "Reflex/Type.h"
 #include <boost/shared_ptr.hpp>
+#include <sigc++/connection.h>
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWItemChangeSignal.h"
+
+#include "Fireworks/Core/interface/FWModelFilter.h"
 
 // forward declarations
 class TClass;
@@ -148,6 +151,7 @@ class FWEventItem
       //const FWEventItem& operator=(const FWEventItem&); // stop default
       void setData(const void* ) const;
    
+      void runFilter();
       // ---------- member data --------------------------------
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
@@ -167,6 +171,9 @@ class FWEventItem
       const fwlite::Event* m_event;
       ROOT::Reflex::Type m_wrapperType;
       const DetIdToMatrix* m_detIdToGeo;
+   
+      FWModelFilter m_filter;
+      sigc::connection m_shouldFilterConnection;
 };
 
 

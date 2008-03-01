@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.8 2008/02/01 18:24:04 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.9 2008/02/29 21:12:56 chrjones Exp $
 //
 
 // system include files
@@ -56,7 +56,8 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
   m_moduleLabel(iModuleLabel),
   m_productInstanceLabel(iProductInstanceLabel),
   m_processName(iProcessName),
-  m_event(0)
+  m_event(0),
+m_filter("","")
 {
   assert(m_type->GetTypeInfo());
   ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -86,7 +87,8 @@ m_displayProperties(iDesc.displayProperties()),
 m_moduleLabel(iDesc.moduleLabel()),
 m_productInstanceLabel(iDesc.productInstanceLabel()),
 m_processName(iDesc.processName()),
-m_event(0)
+m_event(0),
+m_filter(iDesc.filterExpression(),"")
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -112,6 +114,11 @@ m_event(0)
          m_itemInfos.reserve(1);
       }
    }
+   m_filter.setClassName(modelType()->GetName());
+   //only want to listen to this signal when we need to run the filter
+   m_shouldFilterConnection = m_changeManager->changeSignalsAreDone_.connect(sigc::mem_fun(*this,&FWEventItem::runFilter));
+   m_shouldFilterConnection.block(true);
+
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
@@ -147,6 +154,8 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
    }
    m_itemInfos.clear();
    preItemChanged_(this);
+   //want filter to rerun after all changes have been made
+   m_shouldFilterConnection.block(false);
    m_changeManager->changed(this);
 }
 
@@ -164,6 +173,8 @@ FWEventItem::setLabels(const std::string& iModule,
    }
    m_itemInfos.clear();
    preItemChanged_(this);
+   //want filter to rerun after all changes have been made
+   m_shouldFilterConnection.block(false);
    m_changeManager->changed(this);
 }
 
@@ -179,6 +190,25 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
    m_displayProperties= iProp;
 }
 
+void
+FWEventItem::runFilter()
+{   
+   m_shouldFilterConnection.block(true);
+
+   if(not m_filter.trivialFilter() && m_colProxy.get() && m_data) {
+      std::cout <<"runFilter"<<std::endl;
+      FWChangeSentry sentry(*(this->changeManager()));
+      int size = m_colProxy->Size();
+      std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
+      for(int index = 0; index != size; ++index,++itInfo) {
+         if(not m_filter.passesFilter(m_colProxy->At(index))) {
+            itInfo->m_displayProperties.setIsVisible(false);
+            FWModelId id(this,index);
+            m_changeManager->changed(id);
+         }
+      }
+   }
+}
 
 void 
 FWEventItem::unselect(int iIndex) const
@@ -220,7 +250,7 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
       != iProps ) {
       prop = iProps;
       FWModelId id(this,iIndex);
-      m_selectionManager->select(id);
+      //m_selectionManager->select(id);
       m_changeManager->changed(id);
    }
 }
