@@ -46,6 +46,7 @@
 #include <cmath>
 #include <memory>
 #include <TLorentzVector.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
@@ -70,7 +71,7 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
   if (dbe_) {
 
-    dbe_->setCurrentFolder("METTask/CT/geometry");
+    dbe_->setCurrentFolder("RecoMETV/METTask/CT/geometry");
 
     me["hCT_ieta_iphi_etaMap"]      = dbe_->book2D("METTask_CT_ieta_iphi_etaMap","",83,-41,42, 72,1,73);
     me["hCT_ieta_iphi_phiMap"]      = dbe_->book2D("METTask_CT_ieta_iphi_phiMap","",83,-41,42, 72,1,73);
@@ -87,7 +88,7 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
       }
     }
 
-    dbe_->setCurrentFolder("METTask/CT/data");
+    dbe_->setCurrentFolder("RecoMETV/METTask/CT/data");
     //--Store number of events used
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
