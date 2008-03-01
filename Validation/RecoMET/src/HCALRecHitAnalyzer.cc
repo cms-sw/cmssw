@@ -70,7 +70,7 @@ void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
   Nevents = 0;
   // get ahold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if (dbe_) {
 

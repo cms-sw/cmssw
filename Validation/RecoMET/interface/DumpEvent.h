@@ -21,7 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"

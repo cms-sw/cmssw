@@ -58,7 +58,7 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 {
 
   // get ahold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   
   if (dbe_) {
 
