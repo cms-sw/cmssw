@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id$
+// $Id: FWPhysicsObjectDesc.cc,v 1.1 2008/01/15 22:39:41 chrjones Exp $
 //
 
 // system include files
@@ -33,13 +33,15 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          const FWDisplayProperties& iProperties,
                                          const std::string& iModuleLabel,
                                          const std::string& iProductInstanceLabel,
-                                         const std::string& iProcessName) :
+                                         const std::string& iProcessName,
+                                         const std::string& iFilterExpression) :
 m_name(iName),
 m_type(iClass),
 m_displayProperties(iProperties),
 m_moduleLabel(iModuleLabel),
 m_productInstanceLabel(iProductInstanceLabel),
-m_processName(iProcessName)
+m_processName(iProcessName),
+m_filterExpression(iFilterExpression)
 {
 }
 
@@ -121,6 +123,11 @@ FWPhysicsObjectDesc::processName() const
    return m_processName;
 }
 
+const std::string&
+FWPhysicsObjectDesc::filterExpression() const
+{
+   return m_filterExpression;
+}
 //
 // static member functions
 //

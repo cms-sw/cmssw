@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id$
+// $Id: FWPhysicsObjectDesc.h,v 1.1 2008/01/15 22:39:42 chrjones Exp $
 //
 
 // system include files
@@ -38,7 +38,8 @@ class FWPhysicsObjectDesc
                           FWDisplayProperties(),
                           const std::string& iModuleLabel = std::string(),
                           const std::string& iProductInstanceLabel = std::string(),
-                          const std::string& iProcessName = std::string());
+                          const std::string& iProcessName = std::string(),
+                          const std::string& iFilterExpression = std::string());
       //virtual ~FWPhysicsObjectDesc();
 
       // ---------- const member functions ---------------------
@@ -51,6 +52,7 @@ class FWPhysicsObjectDesc
       const std::string& productInstanceLabel() const;
       const std::string& processName() const;
    
+      const std::string& filterExpression() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -73,7 +75,8 @@ class FWPhysicsObjectDesc
       std::string m_moduleLabel;
       std::string m_productInstanceLabel;
       std::string m_processName;
-   
+      
+      std::string m_filterExpression;
 };
 
 
