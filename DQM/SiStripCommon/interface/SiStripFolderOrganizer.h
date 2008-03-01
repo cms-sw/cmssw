@@ -16,12 +16,12 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiStripFolderOrganizer.h,v 1.3 2006/04/23 13:24:20 dkcira Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.4 2008/02/21 14:03:18 bainbrid Exp $
 //
 
 #include <string>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class SiStripFolderOrganizer
 {
@@ -69,6 +69,6 @@ class SiStripFolderOrganizer
       std::string ReadoutFolderName;
       std::string ControlFolderName;
       std::string sep;
-      DaqMonitorBEInterface* dbe_;
+      DQMStore* dbe_;
 };
 #endif

@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.13 2008/01/22 19:16:55 muzaffar Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.14 2008/02/21 14:03:19 bainbrid Exp $
 //
 
 #include <iostream>
@@ -23,7 +23,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
@@ -37,8 +37,8 @@ SiStripFolderOrganizer::SiStripFolderOrganizer()
   ReadoutFolderName="ReadoutView";
   ControlFolderName="ControlView";
   sep ="/";
-  // get a pointer to DaqMonitorBEInterface
-  dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  // get a pointer to DQMStore
+  dbe_  = edm::Service<DQMStore>().operator->();
 }
 
 
