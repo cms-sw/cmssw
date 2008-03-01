@@ -1,5 +1,6 @@
 #include "Validation/Tools/interface/FitSlicesYTool.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TDirectory.h"
 
 using namespace std;
@@ -9,7 +10,7 @@ FitSlicesYTool::FitSlicesYTool(MonitorElement* me)
   const bool oldAddDir = TH1::AddDirectoryStatus();
   TH1::AddDirectory(true);
   // ... create your hists
-  TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)me)));
+  TH2F * h = me->getTH2F();
   h->FitSlicesY();
   string name(h->GetName());
   h0 = (TH1*)gDirectory->Get((name+"_0").c_str());

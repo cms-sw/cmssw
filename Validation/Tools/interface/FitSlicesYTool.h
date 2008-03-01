@@ -4,15 +4,14 @@
 /** \class FitSlicesYTool
  *  Class to fill Monitor Elements using the ROOT FitSlicesY tool
  *
- *  $Date: 2007/06/29 15:47:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/09 21:47:26 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
 #include <TH2F.h>
 #include <TH1F.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <string>
 
 class FitSlicesYTool {
