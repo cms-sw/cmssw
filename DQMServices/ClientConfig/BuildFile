@@ -1,8 +1,6 @@
-<use name=DQMServices/QualityTests>
 <use name=DQMServices/Core>
 <use name=xerces-c>
 <export>
-  <use name=DQMServices/QualityTests>
   <use name=DQMServices/Core>
   <use name=xerces-c>
   <lib name=DQMServicesClientConfig>
