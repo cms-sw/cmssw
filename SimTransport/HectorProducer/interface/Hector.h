@@ -44,7 +44,7 @@ class Hector {
   /*!Clears BeamParticle, prepares Hector for a next Aperture check or/and a next event*/
   void clear();
   /*!Adds the stable protons from the event \a ev to a beamline*/
-  void add( const HepMC::GenEvent * ev );
+  void add( const HepMC::GenEvent * ev , const edm::EventSetup & es);
   /*!propagate the particles through a beamline to FP420*/
   void filterFP420();
   /*!propagate the particles through a beamline to ZDC*/
@@ -75,9 +75,13 @@ class Hector {
     double lengthzdc ;
     double lengthd1 ;
     
-    float etacut;
+    double etacut;
     bool m_smearAng;
-    
+    double m_sig_e;
+    bool m_smearE;
+    double m_smearSTX;
+    double m_smearSTY;
+   
     float m_rpp420_f;
     float m_rpp420_b;
     float m_rppzdc;
