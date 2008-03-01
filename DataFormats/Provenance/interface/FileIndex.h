@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.1 2007/11/22 16:44:33 wmtan Exp $
+$Id: FileIndex.h,v 1.2 2007/12/01 20:34:04 elmer Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,8 @@ namespace edm {
 
       class Element {
         public:
-          Element() : run_(0U), lumi_(0U), event_(0U), entry_(-1LL) {
+	  static EntryNumber_t const invalidEntry = -1LL;
+          Element() : run_(0U), lumi_(0U), event_(0U), entry_(invalidEntry) {
 	  }
           Element(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, long long entry) :
             run_(run), lumi_(lumi), 
@@ -39,7 +40,7 @@ namespace edm {
 	    assert(lumi_ != 0U || event_ == 0U);
 	  }
           Element(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) :
-            run_(run), lumi_(lumi), event_(event), entry_(-1LL) {}
+            run_(run), lumi_(lumi), event_(event), entry_(invalidEntry) {}
           EntryType getEntryType() const {
 	    return lumi_ == 0U ? kRun : (event_ == 0U ? kLumi : kEvent);
           }
@@ -55,6 +56,14 @@ namespace edm {
 
       const_iterator
       findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
+
+      const_iterator
+      findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const;
+
+      bool
+      containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
+	return findEventPosition(run, lumi, event, exact) != entries_.end();
+      }
 
       const_iterator begin() const {return entries_.begin();}
 

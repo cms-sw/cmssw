@@ -18,7 +18,7 @@ namespace edm {
   bool FileIndex::eventsSorted() const {
     if (!sortedCached_) {
       sortedCached_ = true;
-      EntryNumber_t maxEntry = -1LL;
+      EntryNumber_t maxEntry = Element::invalidEntry;
       for (std::vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd; ++it) {
         if (it->getEntryType() == kEvent) {
 	  if (it->entry_ < maxEntry) {
@@ -42,6 +42,18 @@ namespace edm {
       const_iterator itEnd = entries_.end();
       while (it->event_ < event && it->run_ <= run && it != itEnd) ++it;
     }
+    return it;
+  }
+
+  FileIndex::const_iterator
+  FileIndex::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
+    const_iterator it = findPosition(run, lumi, event);
+    const_iterator itEnd = entries_.end();
+    while (it != itEnd && it->getEntryType() != FileIndex::kEvent) {
+      ++it;
+    }
+    if (lumi == 0) lumi = it->lumi_;
+    if (exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event)) it = entries_.end();
     return it;
   }
 
