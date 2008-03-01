@@ -70,7 +70,7 @@ class MuIsoValidation : public edm::EDAnalyzer {
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
 		virtual void endJob() ;
 		void InitStatics();
-		void RecordData(MuonIterator muon, MuIsoDepRef& ctfDep,  
+		void RecordData(MuonIterator muon, MuIsoDepRef& tkDep,  
 			MuIsoDepRef& ecalDep, MuIsoDepRef& hcalDep, 
 			MuIsoDepRef& hoDep);//Fills Histograms with info from single muon
 		void InitHistos();//adds title, bin information to member histograms
@@ -85,7 +85,7 @@ class MuIsoValidation : public edm::EDAnalyzer {
 
 		//Collection labels
 		edm::InputTag Muon_Tag;
-		edm::InputTag ctfIsoDeposit_Tag;
+		edm::InputTag tkIsoDeposit_Tag;
 		edm::InputTag hcalIsoDeposit_Tag;
 		edm::InputTag ecalIsoDeposit_Tag;
 		edm::InputTag hoIsoDeposit_Tag;

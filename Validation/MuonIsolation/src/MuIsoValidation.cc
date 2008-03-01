@@ -69,7 +69,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 
 	//--------Initialize tags-------
 	Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-	ctfIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("ctfIsoDeposit_Label");
+	tkIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("tkIsoDeposit_Label");
 	hcalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hcalIsoDeposit_Label");
 	ecalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("ecalIsoDeposit_Label");
 	hoIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hoIsoDeposit_Label");
@@ -237,11 +237,11 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	iEvent.getByLabel(Muon_Tag, muonsHandle);
 
 	// Get MuIsoDeposit Collection 
-	MuIsoDepHandle ctfIsoHandle;
+	MuIsoDepHandle tkIsoHandle;
 	MuIsoDepHandle ecalIsoHandle;
 	MuIsoDepHandle hcalIsoHandle;
 	MuIsoDepHandle hoIsoHandle;
-	iEvent.getByLabel(ctfIsoDeposit_Tag, ctfIsoHandle);
+	iEvent.getByLabel(tkIsoDeposit_Tag, tkIsoHandle);
 	iEvent.getByLabel(ecalIsoDeposit_Tag, ecalIsoHandle);
 	iEvent.getByLabel(hcalIsoDeposit_Tag, hcalIsoHandle);
 	iEvent.getByLabel(hoIsoDeposit_Tag, hoIsoHandle);
@@ -255,28 +255,28 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		++nMuons;
 		if (muon->combinedMuon().isNull()) continue;
 	
-		MuIsoDepRef& ctfDep  = ( *ctfIsoHandle)[muon->combinedMuon()];
+		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muon->combinedMuon()];
 		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muon->combinedMuon()];
 		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muon->combinedMuon()];
 		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muon->combinedMuon()];
 
-		RecordData(muon,ctfDep,ecalDep,hcalDep,hoDep);
+		RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
 	}
    
 }
 
 //---------------Record data for a signle muon's data---------------------
 void MuIsoValidation::RecordData(MuonIterator muon, 
-	MuIsoDepRef& ctfDep, MuIsoDepRef& ecalDep, 
+	MuIsoDepRef& tkDep, MuIsoDepRef& ecalDep, 
 	MuIsoDepRef& hcalDep, MuIsoDepRef& hoDep){
 
 
-	the1Ddata[0].push_back(ctfDep.depositWithin(0.3));
+	the1Ddata[0].push_back(tkDep.depositWithin(0.3));
 	the1Ddata[1].push_back(ecalDep.depositWithin(0.3));
 	the1Ddata[2].push_back(hcalDep.depositWithin(0.3));
 	the1Ddata[3].push_back(hoDep.depositWithin(0.3));
 
-	the1Ddata[4].push_back(ctfDep.depositAndCountWithin(0.3).second);
+	the1Ddata[4].push_back(tkDep.depositAndCountWithin(0.3).second);
 	the1Ddata[5].push_back(ecalDep.depositAndCountWithin(0.3).second);
 	the1Ddata[6].push_back(hcalDep.depositAndCountWithin(0.3).second);
 	the1Ddata[7].push_back(hoDep.depositAndCountWithin(0.3).second);
