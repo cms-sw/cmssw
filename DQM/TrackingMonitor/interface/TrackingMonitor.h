@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Israel Goitom (Suchandra Dutta )
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.9 2008/02/28 14:53:51 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.1 2008/02/28 22:15:40 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -20,8 +20,9 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
 
 class TrackingMonitor : public edm::EDAnalyzer {
    public:
@@ -40,7 +41,7 @@ class TrackingMonitor : public edm::EDAnalyzer {
 
   std::string histname;  //for naming the histograms according to algorithm used
 
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dqmStore_;
   edm::ParameterSet conf_;
   bool MTCCData;
 

@@ -1,10 +1,11 @@
 #include <string>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) {
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
   MTCCData = conf_.getParameter<bool>("MTCCData"); // if MTCC data certain histograms are not relevant
 }
@@ -16,14 +17,14 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
 
   std::string AlgoName = conf_.getParameter<std::string>("AlgoName");
 
-  dbe->setCurrentFolder("Track/GlobalParameters");
+  dqmStore_->setCurrentFolder("Track/GlobalParameters");
 
   //    
   int TKNoBin = conf_.getParameter<int>("TkSizeBin");
   double TKNoMin = conf_.getParameter<double>("TkSizeMin");
   double TKNoMax = conf_.getParameter<double>("TkSizeMax");
   histname = "NumberOfTracks_";
-  NumberOfTracks = dbe->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
+  NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
 
 
   int TKHitBin = conf_.getParameter<int>("RecHitBin");
@@ -43,21 +44,21 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double ThetaMax = conf_.getParameter<double>("ThetaMax");
 
   histname = "NumberOfRecHitsPerTrack_";
-  NumberOfRecHitsPerTrack = dbe->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each track");
   histname = "NumberOfMeanRecHitsPerTrack_";
-  NumberOfMeanRecHitsPerTrack = dbe->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of RecHits per track");
   histname = "NumberOfRecHitsPerTrackVsPhi_";
-  NumberOfRecHitsPerTrackVsPhi = dbe->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsPerTrackVsPhi = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Track azimuthal angle",1);
   NumberOfRecHitsPerTrackVsPhi->setAxisTitle("Number of RecHits of each track",2);
   histname = "NumberOfRecHitsPerTrackVsTheta_";
-  NumberOfRecHitsPerTrackVsTheta = dbe->book2D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsPerTrackVsTheta = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrackVsTheta->setAxisTitle("Track polar angle",1);
   NumberOfRecHitsPerTrackVsTheta->setAxisTitle("Number of RecHits of each track",2);
   histname = "NumberOfRecHitsPerTrackVsEta_";
-  NumberOfRecHitsPerTrackVsEta = dbe->book2D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsPerTrackVsEta = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrackVsEta->setAxisTitle("Track pseudorapidity",1);
   NumberOfRecHitsPerTrackVsEta->setAxisTitle("Number of RecHits of each track",2);
 
@@ -67,25 +68,25 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double Chi2Max = conf_.getParameter<double>("Chi2Max");
 
   histname = "Chi2_";
-  Chi2 = dbe->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
   Chi2->setAxisTitle("Chi2 of each track");
   histname = "Chi2overDoF_";
-  Chi2overDoF = dbe->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
   histname = "Chi2overDoFVsTheta_";
-  Chi2overDoFVsTheta = dbe->book2D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2overDoFVsTheta = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, Chi2Bin, Chi2Min, Chi2Max);
   Chi2overDoFVsTheta->setAxisTitle("Track polar angle",1);
   Chi2overDoFVsTheta->setAxisTitle("Chi2 over nr. of degrees of freedom of each track",2);
   histname = "Chi2overDoFVsPhi_";
-  Chi2overDoFVsPhi   = dbe->book2D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2overDoFVsPhi   = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax, Chi2Bin, Chi2Min, Chi2Max);
   Chi2overDoFVsPhi->setAxisTitle("Track azimuthal angle",1);
   Chi2overDoFVsPhi->setAxisTitle("Chi2 over nr. of degrees of freedom of each track",2);
   histname = "Chi2overDoFVsEta_";
-  Chi2overDoFVsEta   = dbe->book2D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2overDoFVsEta   = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax, Chi2Bin, Chi2Min, Chi2Max);
   Chi2overDoFVsEta->setAxisTitle("Track pseudorapidity",1);
   Chi2overDoFVsEta->setAxisTitle("Chi2 over nr. of degrees of freedom of each track",2);
 
-  //dbe->setCurrentFolder("Tracker/Track Parameters");
+  //dqmStore_->setCurrentFolder("Tracker/Track Parameters");
   int TrackPtBin = conf_.getParameter<int>("TrackPtBin");
   double TrackPtMin = conf_.getParameter<double>("TrackPtMin");
   double TrackPtMax = conf_.getParameter<double>("TrackPtMax");
@@ -103,54 +104,54 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double TrackPzMax = conf_.getParameter<double>("TrackPzMax");
 
   histname = "TrackPt_";
-  TrackPt = dbe->book1D(histname+AlgoName, histname+AlgoName, TrackPtBin, TrackPtMin, TrackPtMax);
+  TrackPt = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtBin, TrackPtMin, TrackPtMax);
   TrackPt->setAxisTitle("Transverse track momentum");
   histname = "TrackPx_";
-  TrackPx = dbe->book1D(histname+AlgoName, histname+AlgoName, TrackPxBin, TrackPxMin, TrackPxMax);
+  TrackPx = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPxBin, TrackPxMin, TrackPxMax);
   TrackPx->setAxisTitle("x component of track momentum");
   histname = "TrackPy_";
-  TrackPy = dbe->book1D(histname+AlgoName, histname+AlgoName, TrackPyBin, TrackPyMin, TrackPyMax);
+  TrackPy = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPyBin, TrackPyMin, TrackPyMax);
   TrackPy->setAxisTitle("y component of track momentum");
   histname = "TrackPz_";
-  TrackPz = dbe->book1D(histname+AlgoName, histname+AlgoName, TrackPzBin, TrackPzMin, TrackPzMax);
+  TrackPz = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPzBin, TrackPzMin, TrackPzMax);
   TrackPz->setAxisTitle("z component of track momentum");
 
-  //dbe->setCurrentFolder("Tracker/Track Parameters");
+  //dqmStore_->setCurrentFolder("Tracker/Track Parameters");
   histname = "TrackPhi_";
-  TrackPhi = dbe->book1D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax);
+  TrackPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax);
   TrackPhi->setAxisTitle("Track azimuthal angle");
   histname = "TrackEta_";
-  TrackEta = dbe->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
+  TrackEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
   TrackEta->setAxisTitle("Track pseudorapidity");
   histname = "TrackTheta_";
-  TrackTheta = dbe->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
+  TrackTheta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
   TrackTheta->setAxisTitle("Track polar angle");
 
   if (!MTCCData) { // followint histograms not meaningful for MTCC data
       histname = "DistanceOfClosestApproach_";
-      DistanceOfClosestApproach = dbe->book1D(histname+AlgoName,histname+AlgoName,100, -0.5, 0.5);
+      DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,100, -0.5, 0.5);
       DistanceOfClosestApproach->setAxisTitle("Track distance of closest approach");
       histname = "DistanceOfClosestApproachVsTheta_";
-      DistanceOfClosestApproachVsTheta = dbe->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, 100, -0.4, 0.4);
+      DistanceOfClosestApproachVsTheta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, 100, -0.4, 0.4);
       DistanceOfClosestApproachVsTheta->setAxisTitle("Track polar angle",1);
       DistanceOfClosestApproachVsTheta->setAxisTitle("Track distance of closest approach",2);
       histname = "DistanceOfClosestApproachVsPhi_";
-      DistanceOfClosestApproachVsPhi = dbe->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, 100, -0.5, 0.5);
+      DistanceOfClosestApproachVsPhi = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, 100, -0.5, 0.5);
       DistanceOfClosestApproachVsPhi->setAxisTitle("Track azimuthal angle",1);
       DistanceOfClosestApproachVsPhi->setAxisTitle("Track distance of closest approach",2);
       histname = "DistanceOfClosestApproachVsEta_";
-      DistanceOfClosestApproachVsEta = dbe->book2D(histname+AlgoName,histname+AlgoName, EtaBin, EtaMin, EtaMax, 100, -0.5, 0.5);
+      DistanceOfClosestApproachVsEta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, EtaBin, EtaMin, EtaMax, 100, -0.5, 0.5);
       DistanceOfClosestApproachVsEta->setAxisTitle("Track pseudorapidity",1);
       DistanceOfClosestApproachVsEta->setAxisTitle("Track distance of closest approach",2);
 
       histname = "xPointOfClosestApproach_";
-      xPointOfClosestApproach = dbe->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
+      xPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
       xPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the x-axis");
       histname = "yPointOfClosestApproach_";
-      yPointOfClosestApproach = dbe->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
+      yPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
       yPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the y-axis");
       histname = "zPointOfClosestApproach_";
-      zPointOfClosestApproach = dbe->book1D(histname+AlgoName, histname+AlgoName, 50, -100, 100);
+      zPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 50, -100, 100);
       zPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the z-axis");
     }
 }
@@ -210,10 +211,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 void TrackingMonitor::endJob(void) {
-  dbe->showDirStructure();
+  dqmStore_->showDirStructure();
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
