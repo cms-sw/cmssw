@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.89 $
+ * $Date: 2008/02/29 15:06:02 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -78,10 +78,10 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meLaserL1_[1]        = 0;
   meLaserL1PN_[0]      = 0;
   meLaserL1PN_[1]      = 0;
-  meLed_[0]            = 0;
-  meLed_[1]            = 0;
-  meLedPN_[0]          = 0;
-  meLedPN_[1]          = 0;
+  meLedL1_[0]          = 0;
+  meLedL1_[1]          = 0;
+  meLedL1PN_[0]        = 0;
+  meLedL1PN_[1]        = 0;
   mePedestal_[0]       = 0;
   mePedestal_[1]       = 0;
   mePedestalPN_[0]     = 0;
@@ -109,8 +109,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
-  meLedErr_             = 0;
-  meLedPNErr_           = 0;
+  meLedL1Err_           = 0;
+  meLedL1PNErr_         = 0;
   mePedestalErr_        = 0;
   mePedestalPNErr_      = 0;
   meTestPulseErr_       = 0;
@@ -279,42 +279,42 @@ void EESummaryClient::setup(void) {
     meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
-  sprintf(histo, "EELDT EE - led quality summary");
-  meLed_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLed_[0]->setAxisTitle("jx", 1);
-  meLed_[0]->setAxisTitle("jy", 2);
+  if ( meLedL1_[0] ) dbe_->removeElement( meLedL1_[0]->getName() );
+  sprintf(histo, "EELDT EE - led quality summary L1");
+  meLedL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[0]->setAxisTitle("jx", 1);
+  meLedL1_[0]->setAxisTitle("jy", 2);
 
-  if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
-  sprintf(histo, "EELDT EE - PN led quality summary");
-  meLedPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLedPN_[0]->setAxisTitle("jx", 1);
-  meLedPN_[0]->setAxisTitle("jy", 2);
+  if ( meLedL1PN_[0] ) dbe_->removeElement( meLedL1PN_[0]->getName() );
+  sprintf(histo, "EELDT EE - PN led quality summary L1");
+  meLedL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[0]->setAxisTitle("jx", 1);
+  meLedL1PN_[0]->setAxisTitle("jy", 2);
 
-  if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
-  sprintf(histo, "EELDT EE + led quality summary");
-  meLed_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLed_[1]->setAxisTitle("jx", 1);
-  meLed_[1]->setAxisTitle("jy", 2);
+  if ( meLedL1_[1] ) dbe_->removeElement( meLedL1_[1]->getName() );
+  sprintf(histo, "EELDT EE + led quality summary L1");
+  meLedL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[1]->setAxisTitle("jx", 1);
+  meLedL1_[1]->setAxisTitle("jy", 2);
 
-  if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
-  sprintf(histo, "EELDT EE + PN led quality summary");
-  meLedPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLedPN_[1]->setAxisTitle("jx", 1);
-  meLedPN_[1]->setAxisTitle("jy", 2);
+  if ( meLedL1PN_[1] ) dbe_->removeElement( meLedL1PN_[1]->getName() );
+  sprintf(histo, "EELDT EE + PN led quality summary L1");
+  meLedL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[1]->setAxisTitle("jx", 1);
+  meLedL1PN_[1]->setAxisTitle("jy", 2);
 
-  if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
-  sprintf(histo, "EELDT led quality errors summary");
-  meLedErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  if ( meLedL1Err_ ) dbe_->removeElement( meLedL1Err_->getName() );
+  sprintf(histo, "EELDT led quality errors summary L1");
+  meLedL1Err_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meLedErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLedPNErr_ ) dbe_->removeElement( meLedPNErr_->getName() );
-  sprintf(histo, "EELDT PN led quality errors summary");
-  meLedPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  if ( meLedL1PNErr_ ) dbe_->removeElement( meLedL1PNErr_->getName() );
+  sprintf(histo, "EELDT PN led quality errors summary L1");
+  meLedL1PNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meLedPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
@@ -515,23 +515,23 @@ void EESummaryClient::cleanup(void) {
   if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
   meLaserL1PNErr_ = 0;
 
-  if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
-  meLed_[0] = 0;
+  if ( meLedL1_[0] ) dbe_->removeElement( meLedL1_[0]->getName() );
+  meLedL1_[0] = 0;
 
-  if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
-  meLed_[1] = 0;
+  if ( meLedL1_[1] ) dbe_->removeElement( meLedL1_[1]->getName() );
+  meLedL1_[1] = 0;
 
-  if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
-  meLedErr_ = 0;
+  if ( meLedL1Err_ ) dbe_->removeElement( meLedL1Err_->getName() );
+  meLedL1Err_ = 0;
 
-  if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
-  meLedPN_[0] = 0;
+  if ( meLedL1PN_[0] ) dbe_->removeElement( meLedL1PN_[0]->getName() );
+  meLedL1PN_[0] = 0;
 
-  if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
-  meLedPN_[1] = 0;
+  if ( meLedL1PN_[1] ) dbe_->removeElement( meLedL1PN_[1]->getName() );
+  meLedL1PN_[1] = 0;
 
-  if ( meLedPNErr_ ) dbe_->removeElement( meLedPNErr_->getName() );
-  meLedPNErr_ = 0;
+  if ( meLedL1PNErr_ ) dbe_->removeElement( meLedL1PNErr_->getName() );
+  meLedL1PNErr_ = 0;
 
   if ( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   mePedestal_[0] = 0;
@@ -631,8 +631,8 @@ void EESummaryClient::analyze(void){
 
       meLaserL1_[0]->setBinContent( ix, iy, -1. );
       meLaserL1_[1]->setBinContent( ix, iy, -1. );
-      meLed_[0]->setBinContent( ix, iy, -1. );
-      meLed_[1]->setBinContent( ix, iy, -1. );
+      meLedL1_[0]->setBinContent( ix, iy, -1. );
+      meLedL1_[1]->setBinContent( ix, iy, -1. );
       mePedestal_[0]->setBinContent( ix, iy, -1. );
       mePedestal_[1]->setBinContent( ix, iy, -1. );
       meTestPulse_[0]->setBinContent( ix, iy, -1. );
@@ -690,12 +690,12 @@ void EESummaryClient::analyze(void){
   meLaserL1PN_[0]->setEntries( 0 );
   meLaserL1PN_[1]->setEntries( 0 );
   meLaserL1PNErr_->Reset();
-  meLed_[0]->setEntries( 0 );
-  meLed_[1]->setEntries( 0 );
-  meLedErr_->Reset();
-  meLedPN_[0]->setEntries( 0 );
-  meLedPN_[1]->setEntries( 0 );
-  meLedPNErr_->Reset();
+  meLedL1_[0]->setEntries( 0 );
+  meLedL1_[1]->setEntries( 0 );
+  meLedL1Err_->Reset();
+  meLedL1PN_[0]->setEntries( 0 );
+  meLedL1PN_[1]->setEntries( 0 );
+  meLedL1PNErr_->Reset();
   mePedestal_[0]->setEntries( 0 );
   mePedestal_[1]->setEntries( 0 );
   mePedestalErr_->Reset();
@@ -850,11 +850,11 @@ void EESummaryClient::analyze(void){
 
               if ( me->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLed_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( jx, jy, xval );
                 } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meLed_[1]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, jx, jy) ) meLedL1_[1]->setBinContent( jx, jy, xval );
                 }
-                if ( xval == 0 ) meLedErr_->Fill( ism );
+                if ( xval == 0 ) meLedL1Err_->Fill( ism );
               }
 
             }
@@ -1760,7 +1760,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapLD[0] = "";
 
   obj2f = 0;
-  obj2f = UtilsClient::getHisto<TH2F*>( meLed_[0] );
+  obj2f = UtilsClient::getHisto<TH2F*>( meLedL1_[0] );
 
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 
@@ -1801,7 +1801,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapLD[1] = "";
 
   obj2f = 0;
-  obj2f = UtilsClient::getHisto<TH2F*>( meLed_[1] );
+  obj2f = UtilsClient::getHisto<TH2F*>( meLedL1_[1] );
 
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 

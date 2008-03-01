@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/02/29 15:08:21 $
- * $Revision: 1.30 $
+ * $Date: 2008/02/29 15:08:18 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -48,18 +48,31 @@ EELedTask::EELedTask(const ParameterSet& ps){
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 18; i++) {
-    meShapeMapA_[i] = 0;
-    meAmplMapA_[i] = 0;
-    meTimeMapA_[i] = 0;
-    meAmplPNMapA_[i] = 0;
-    meShapeMapB_[i] = 0;
-    meAmplMapB_[i] = 0;
-    meTimeMapB_[i] = 0;
-    meAmplPNMapB_[i] = 0;
-    mePnAmplMapG01_[i] = 0;
-    mePnPedMapG01_[i] = 0;
-    mePnAmplMapG16_[i] = 0;
-    mePnPedMapG16_[i] = 0;
+    meShapeMapL1A_[i] = 0;
+    meAmplMapL1A_[i] = 0;
+    meTimeMapL1A_[i] = 0;
+    meAmplPNMapL1A_[i] = 0;
+    meShapeMapL1B_[i] = 0;
+    meAmplMapL1B_[i] = 0;
+    meTimeMapL1B_[i] = 0;
+    meAmplPNMapL1B_[i] = 0;
+    mePnAmplMapG01L1_[i] = 0;
+    mePnPedMapG01L1_[i] = 0;
+    mePnAmplMapG16L1_[i] = 0;
+    mePnPedMapG16L1_[i] = 0;
+
+    meShapeMapL2A_[i] = 0;
+    meAmplMapL2A_[i] = 0;
+    meTimeMapL2A_[i] = 0;
+    meAmplPNMapL2A_[i] = 0;
+    meShapeMapL2B_[i] = 0;
+    meAmplMapL2B_[i] = 0;
+    meTimeMapL2B_[i] = 0;
+    meAmplPNMapL2B_[i] = 0;
+    mePnAmplMapG01L2_[i] = 0;
+    mePnPedMapG01L2_[i] = 0;
+    mePnAmplMapG16L2_[i] = 0;
+    mePnPedMapG16L2_[i] = 0;
   }
 
 }
@@ -90,78 +103,158 @@ void EELedTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
 
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
-      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
-      meShapeMapA_[i]->setAxisTitle("channel", 1);
-      meShapeMapA_[i]->setAxisTitle("sample", 2);
-      meShapeMapA_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapA_[i], i+1);
-      sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
-      meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapA_[i]->setAxisTitle("jx", 1);
-      meAmplMapA_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapA_[i], i+1);
-      sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
-      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-      meTimeMapA_[i]->setAxisTitle("jx", 1);
-      meTimeMapA_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapA_[i], i+1);
-      sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplPNMapA_[i]->setAxisTitle("jx", 1);
-      meAmplPNMapA_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapA_[i], i+1);
+      sprintf(histo, "EELDT shape %s L1A", Numbers::sEE(i+1).c_str());
+      meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL1A_[i]->setAxisTitle("sample", 2);
+      meShapeMapL1A_[i]->setAxisTitle("amplitude", 3);
+      dbe_->tag(meShapeMapL1A_[i], i+1);
+      sprintf(histo, "EELDT amplitude %s L1A", Numbers::sEE(i+1).c_str());
+      meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL1A_[i]->setAxisTitle("jx", 1);
+      meAmplMapL1A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplMapL1A_[i], i+1);
+      sprintf(histo, "EELDT timing %s L1A", Numbers::sEE(i+1).c_str());
+      meTimeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL1A_[i]->setAxisTitle("jx", 1);
+      meTimeMapL1A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meTimeMapL1A_[i], i+1);
+      sprintf(histo, "EELDT amplitude over PN %s L1A", Numbers::sEE(i+1).c_str());
+      meAmplPNMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL1A_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapL1A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplPNMapL1A_[i], i+1);
 
-      sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
-      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
-      meShapeMapB_[i]->setAxisTitle("channel", 1);
-      meShapeMapB_[i]->setAxisTitle("sample", 2);
-      meShapeMapB_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapB_[i], i+1);
-      sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
-      meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapB_[i]->setAxisTitle("jx", 1);
-      meAmplMapB_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapB_[i], i+1);
-      sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
-      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-      meTimeMapB_[i]->setAxisTitle("jx", 1);
-      meTimeMapB_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapB_[i], i+1);
-      sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplPNMapB_[i]->setAxisTitle("jx", 1);
-      meAmplPNMapB_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapB_[i], i+1);
+      sprintf(histo, "EELDT shape %s L1B", Numbers::sEE(i+1).c_str());
+      meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL1B_[i]->setAxisTitle("sample", 2);
+      meShapeMapL1B_[i]->setAxisTitle("amplitude", 3);
+      dbe_->tag(meShapeMapL1B_[i], i+1);
+      sprintf(histo, "EELDT amplitude %s L1B", Numbers::sEE(i+1).c_str());
+      meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL1B_[i]->setAxisTitle("jx", 1);
+      meAmplMapL1B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplMapL1B_[i], i+1);
+      sprintf(histo, "EELDT timing %s L1B", Numbers::sEE(i+1).c_str());
+      meTimeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL1B_[i]->setAxisTitle("jx", 1);
+      meTimeMapL1B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meTimeMapL1B_[i], i+1);
+      sprintf(histo, "EELDT amplitude over PN %s L1B", Numbers::sEE(i+1).c_str());
+      meAmplPNMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL1B_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapL1B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplPNMapL1B_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
-      mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
-      mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG01_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
-      mePnPedMapG01_[i]->setAxisTitle("channel", 1);
-      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG01_[i], i+1);
+      sprintf(histo, "EELDT shape %s L2A", Numbers::sEE(i+1).c_str());
+      meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL2A_[i]->setAxisTitle("sample", 2);
+      meShapeMapL2A_[i]->setAxisTitle("amplitude", 3);
+      dbe_->tag(meShapeMapL2A_[i], i+1);
+      sprintf(histo, "EELDT amplitude %s L2A", Numbers::sEE(i+1).c_str());
+      meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL2A_[i]->setAxisTitle("jx", 1);
+      meAmplMapL2A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplMapL2A_[i], i+1);
+      sprintf(histo, "EELDT timing %s L2A", Numbers::sEE(i+1).c_str());
+      meTimeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL2A_[i]->setAxisTitle("jx", 1);
+      meTimeMapL2A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meTimeMapL2A_[i], i+1);
+      sprintf(histo, "EELDT amplitude over PN %s L2A", Numbers::sEE(i+1).c_str());
+      meAmplPNMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL2A_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapL2A_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplPNMapL2A_[i], i+1);
+
+      sprintf(histo, "EELDT shape %s L2B", Numbers::sEE(i+1).c_str());
+      meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL2B_[i]->setAxisTitle("sample", 2);
+      meShapeMapL2B_[i]->setAxisTitle("amplitude", 3);
+      dbe_->tag(meShapeMapL2B_[i], i+1);
+      sprintf(histo, "EELDT amplitude %s L2B", Numbers::sEE(i+1).c_str());
+      meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL2B_[i]->setAxisTitle("jx", 1);
+      meAmplMapL2B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplMapL2B_[i], i+1);
+      sprintf(histo, "EELDT timing %s L2B", Numbers::sEE(i+1).c_str());
+      meTimeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL2B_[i]->setAxisTitle("jx", 1);
+      meTimeMapL2B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meTimeMapL2B_[i], i+1);
+      sprintf(histo, "EELDT amplitude over PN %s L2B", Numbers::sEE(i+1).c_str());
+      meAmplPNMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL2B_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapL2B_[i]->setAxisTitle("jy", 2);
+      dbe_->tag(meAmplPNMapL2B_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
-      mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
-      mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG16_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
-      mePnPedMapG16_[i]->setAxisTitle("channel", 1);
-      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG16_[i], i+1);
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
+      mePnAmplMapG01L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
+      dbe_->tag(mePnAmplMapG01L1_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(i+1).c_str());
+      mePnPedMapG01L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
+      dbe_->tag(mePnPedMapG01L1_[i], i+1);
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    for (int i = 0; i < 18; i++) {
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
+      mePnAmplMapG16L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
+      dbe_->tag(mePnAmplMapG16L1_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
+      mePnPedMapG16L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
+      dbe_->tag(mePnPedMapG16L1_[i], i+1);
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    for (int i = 0; i < 18; i++) {
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
+      mePnAmplMapG01L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
+      mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
+      dbe_->tag(mePnAmplMapG01L2_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L2", Numbers::sEE(i+1).c_str());
+      mePnPedMapG01L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
+      dbe_->tag(mePnPedMapG01L2_[i], i+1);
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    for (int i = 0; i < 18; i++) {
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
+      mePnAmplMapG16L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
+      dbe_->tag(mePnAmplMapG16L2_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
+      mePnPedMapG16L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
+      dbe_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
   }
@@ -175,40 +268,82 @@ void EELedTask::cleanup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
 
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
-      if ( meShapeMapA_[i] )  dbe_->removeElement( meShapeMapA_[i]->getName() );
-      meShapeMapA_[i] = 0;
-      if ( meAmplMapA_[i] ) dbe_->removeElement( meAmplMapA_[i]->getName() );
-      meAmplMapA_[i] = 0;
-      if ( meTimeMapA_[i] ) dbe_->removeElement( meTimeMapA_[i]->getName() );
-      meTimeMapA_[i] = 0;
-      if ( meAmplPNMapA_[i] ) dbe_->removeElement( meAmplPNMapA_[i]->getName() );
-      meAmplPNMapA_[i] = 0;
+      if ( meShapeMapL1A_[i] )  dbe_->removeElement( meShapeMapL1A_[i]->getName() );
+      meShapeMapL1A_[i] = 0;
+      if ( meAmplMapL1A_[i] ) dbe_->removeElement( meAmplMapL1A_[i]->getName() );
+      meAmplMapL1A_[i] = 0;
+      if ( meTimeMapL1A_[i] ) dbe_->removeElement( meTimeMapL1A_[i]->getName() );
+      meTimeMapL1A_[i] = 0;
+      if ( meAmplPNMapL1A_[i] ) dbe_->removeElement( meAmplPNMapL1A_[i]->getName() );
+      meAmplPNMapL1A_[i] = 0;
 
-      if ( meShapeMapB_[i] )  dbe_->removeElement( meShapeMapB_[i]->getName() );
-      meShapeMapB_[i] = 0;
-      if ( meAmplMapB_[i] ) dbe_->removeElement( meAmplMapB_[i]->getName() );
-      meAmplMapB_[i] = 0;
-      if ( meTimeMapB_[i] ) dbe_->removeElement( meTimeMapB_[i]->getName() );
-      meTimeMapB_[i] = 0;
-      if ( meAmplPNMapB_[i] ) dbe_->removeElement( meAmplPNMapB_[i]->getName() );
-      meAmplPNMapB_[i] = 0;
+      if ( meShapeMapL1B_[i] )  dbe_->removeElement( meShapeMapL1B_[i]->getName() );
+      meShapeMapL1B_[i] = 0;
+      if ( meAmplMapL1B_[i] ) dbe_->removeElement( meAmplMapL1B_[i]->getName() );
+      meAmplMapL1B_[i] = 0;
+      if ( meTimeMapL1B_[i] ) dbe_->removeElement( meTimeMapL1B_[i]->getName() );
+      meTimeMapL1B_[i] = 0;
+      if ( meAmplPNMapL1B_[i] ) dbe_->removeElement( meAmplPNMapL1B_[i]->getName() );
+      meAmplPNMapL1B_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
-      mePnAmplMapG01_[i] = 0;
-      if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
-      mePnPedMapG01_[i] = 0;
+      if ( meShapeMapL2A_[i] )  dbe_->removeElement( meShapeMapL2A_[i]->getName() );
+      meShapeMapL2A_[i] = 0;
+      if ( meAmplMapL2A_[i] ) dbe_->removeElement( meAmplMapL2A_[i]->getName() );
+      meAmplMapL2A_[i] = 0;
+      if ( meTimeMapL2A_[i] ) dbe_->removeElement( meTimeMapL2A_[i]->getName() );
+      meTimeMapL2A_[i] = 0;
+      if ( meAmplPNMapL2A_[i] ) dbe_->removeElement( meAmplPNMapL2A_[i]->getName() );
+      meAmplPNMapL2A_[i] = 0;
+
+      if ( meShapeMapL2B_[i] )  dbe_->removeElement( meShapeMapL2B_[i]->getName() );
+      meShapeMapL2B_[i] = 0;
+      if ( meAmplMapL2B_[i] ) dbe_->removeElement( meAmplMapL2B_[i]->getName() );
+      meAmplMapL2B_[i] = 0;
+      if ( meTimeMapL2B_[i] ) dbe_->removeElement( meTimeMapL2B_[i]->getName() );
+      meTimeMapL2B_[i] = 0;
+      if ( meAmplPNMapL2B_[i] ) dbe_->removeElement( meAmplPNMapL2B_[i]->getName() );
+      meAmplPNMapL2B_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
-      mePnAmplMapG16_[i] = 0;
-      if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
-      mePnPedMapG16_[i] = 0;
+      if ( mePnAmplMapG01L1_[i] ) dbe_->removeElement( mePnAmplMapG01L1_[i]->getName() );
+      mePnAmplMapG01L1_[i] = 0;
+      if ( mePnPedMapG01L1_[i] ) dbe_->removeElement( mePnPedMapG01L1_[i]->getName() );
+      mePnPedMapG01L1_[i] = 0;
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    for (int i = 0; i < 18; i++) {
+      if ( mePnAmplMapG16L1_[i] ) dbe_->removeElement( mePnAmplMapG16L1_[i]->getName() );
+      mePnAmplMapG16L1_[i] = 0;
+      if ( mePnPedMapG16L1_[i] ) dbe_->removeElement( mePnPedMapG16L1_[i]->getName() );
+      mePnPedMapG16L1_[i] = 0;
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    for (int i = 0; i < 18; i++) {
+      if ( mePnAmplMapG01L2_[i] ) dbe_->removeElement( mePnAmplMapG01L2_[i]->getName() );
+      mePnAmplMapG01L2_[i] = 0;
+      if ( mePnPedMapG01L2_[i] ) dbe_->removeElement( mePnPedMapG01L2_[i]->getName() );
+      mePnPedMapG01L2_[i] = 0;
+    }
+
+    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    for (int i = 0; i < 18; i++) {
+      if ( mePnAmplMapG16L2_[i] ) dbe_->removeElement( mePnAmplMapG16L2_[i]->getName() );
+      mePnAmplMapG16L2_[i] = 0;
+      if ( mePnPedMapG16L2_[i] ) dbe_->removeElement( mePnPedMapG16L2_[i]->getName() );
+      mePnPedMapG16L2_[i] = 0;
     }
 
   }
@@ -278,9 +413,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
-  
+
       int ism = Numbers::iSM( id );
- 
+
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
@@ -309,11 +444,13 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
-          meShapeMap = meShapeMapA_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
 
         } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
-          meShapeMap = meShapeMapB_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
 
         } else {
 
@@ -381,10 +518,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         MonitorElement* mePNPed = 0;
 
         if ( sample.gainId() == 0 ) {
-          mePNPed = mePnPedMapG01_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
         }
         if ( sample.gainId() == 1 ) {
-          mePNPed = mePnPedMapG16_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
         }
 
         float xval = float(adc);
@@ -415,10 +554,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       xvalmax = xvalmax - xvalped;
 
       if ( pn.sample(0).gainId() == 0 ) {
-        mePN = mePnAmplMapG01_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
       }
       if ( pn.sample(0).gainId() == 1 ) {
-        mePN = mePnAmplMapG16_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
@@ -474,15 +615,29 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
-        meAmplMap = meAmplMapA_[ism-1];
-        meTimeMap = meTimeMapA_[ism-1];
-        meAmplPNMap = meAmplPNMapA_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+          meAmplMap = meAmplMapL1A_[ism-1];
+          meTimeMap = meTimeMapL1A_[ism-1];
+          meAmplPNMap = meAmplPNMapL1A_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+          meAmplMap = meAmplMapL2A_[ism-1];
+          meTimeMap = meTimeMapL2A_[ism-1];
+          meAmplPNMap = meAmplPNMapL2A_[ism-1];
+        }
 
-      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
+      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) { 
 
-        meAmplMap = meAmplMapB_[ism-1];
-        meTimeMap = meTimeMapB_[ism-1];
-        meAmplPNMap = meAmplPNMapB_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+          meAmplMap = meAmplMapL1B_[ism-1];
+          meTimeMap = meTimeMapL1B_[ism-1];
+          meAmplPNMap = meAmplPNMapL1B_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+          meAmplMap = meAmplMapL2B_[ism-1];
+          meTimeMap = meTimeMapL2B_[ism-1];
+          meAmplPNMap = meAmplPNMapL2B_[ism-1];
+        }
 
       } else {
 

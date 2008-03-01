@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.85 $
+ * $Date: 2008/02/29 15:05:48 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3075,9 +3075,9 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tbody>" << endl;
   htmlFile << "<tr>" << endl;
   htmlFile << "<td style=\"text-align: center;\">L1 = blue laser </td>" << endl;
-  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L2 =green laser </td>" << endl;
-  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L3 =red laser </td>" << endl;
-  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L4 =infrared laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L2 = green laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L3 = red laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L4 = infrared laser </td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</tbody>" << endl;
   htmlFile << "</table>" << endl;

@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.18 $
+ * $Date: 2008/02/29 15:05:30 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -103,10 +103,10 @@ MonitorElement* meLaserL1_[2];
 MonitorElement* meLaserL1Err_;
 MonitorElement* meLaserL1PN_[2];
 MonitorElement* meLaserL1PNErr_;
-MonitorElement* meLed_[2];
-MonitorElement* meLedErr_;
-MonitorElement* meLedPN_[2];
-MonitorElement* meLedPNErr_;
+MonitorElement* meLedL1_[2];
+MonitorElement* meLedL1Err_;
+MonitorElement* meLedL1PN_[2];
+MonitorElement* meLedL1PNErr_;
 MonitorElement* mePedestal_[2];
 MonitorElement* mePedestalErr_;
 MonitorElement* mePedestalPN_[2];
