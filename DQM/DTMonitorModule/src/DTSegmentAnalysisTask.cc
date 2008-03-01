@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/28 10:31:25 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/17 09:58:33 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,8 +16,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
@@ -41,9 +41,8 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
     cout << "[DTSegmentAnalysisTask] Constructor called!" << endl;
 
   // Get the DQM needed services
-  theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
-  edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask");
 
   parameters = pset;

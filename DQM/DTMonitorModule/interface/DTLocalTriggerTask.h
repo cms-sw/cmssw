@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/11/19 14:32:02 $
- * $Revision: 1.14 $
+ * $Date: 2008/01/07 14:33:38 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -21,9 +21,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <vector>
@@ -119,7 +118,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   const L1MuDTChambThDigi* ithbest[6][5][13];
   bool track_ok[6][5][15];
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;

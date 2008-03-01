@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/07/12 16:06:18 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/15 18:56:25 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
 */
@@ -22,10 +22,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // class decleration
@@ -53,7 +51,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   MonitorElement* dttpgphbx[8];  
   MonitorElement* dttpgphbxcomp;

@@ -1,13 +1,14 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/12/21 17:41:20 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/02 11:54:15 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TGT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <math.h>
 
 using namespace std;
@@ -25,17 +26,10 @@ L1TGT::L1TGT(const ParameterSet& ps)
   logFile_.open("L1TGT.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -69,8 +63,8 @@ void L1TGT::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TGT");

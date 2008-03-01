@@ -3,12 +3,14 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2007/11/21 15:48:15 $
-  * $Revision: 1.3 $
+  * $Date: 2008/01/22 22:21:45 $
+  * $Revision: 1.4 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -45,7 +47,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   HcalDeadCellMonitor(); 
   ~HcalDeadCellMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
   void processEvent(const HBHERecHitCollection& hbHits, 
 		    const HORecHitCollection& hoHits, 
@@ -63,7 +65,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void processEvent_hits(const HBHERecHitCollection& hbHits, 
 			 const HORecHitCollection& hoHits, 
 			 const HFRecHitCollection& hfHits);
-  void setupHists(DeadCellHists& hist,  DaqMonitorBEInterface* dbe);
+  void setupHists(DeadCellHists& hist,  DQMStore* dbe);
   void reset_Nevents(DeadCellHists& h);
   void reset();
 

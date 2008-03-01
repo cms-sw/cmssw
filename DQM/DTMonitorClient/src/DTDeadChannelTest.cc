@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/07 15:24:16 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/22 18:45:23 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -23,6 +23,8 @@
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdio.h>
@@ -40,7 +42,7 @@ DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -133,57 +135,49 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 
     // ME -> TH2F
     if(noise_histo && hitInTime_histo) {	  
-      MonitorElementT<TNamed>* occNoise = dynamic_cast<MonitorElementT<TNamed>*>(noise_histo);
-      MonitorElementT<TNamed>* occInTime = dynamic_cast<MonitorElementT<TNamed>*>(hitInTime_histo);
-      
-      if (occNoise && occInTime) {
-	TH2F * noise_histo_root = dynamic_cast<TH2F*> (occNoise->operator->());
-	TH2F * hitInTime_histo_root = dynamic_cast<TH2F*> (occInTime->operator->());
+      TH2F * noise_histo_root = noise_histo->getTH2F();
+      TH2F * hitInTime_histo_root = hitInTime_histo->getTH2F();
 
-	if (noise_histo_root && hitInTime_histo_root) {	      
-	  
-	  // Loop over the SuperLayers
-	  for(; sl_it != sl_end; ++sl_it) {
-	    DTSuperLayerId slID = (*sl_it)->id();
-	    vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
-	    vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+      // Loop over the SuperLayers
+      for(; sl_it != sl_end; ++sl_it) {
+	DTSuperLayerId slID = (*sl_it)->id();
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
+	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
 	    
-	    float tTrig, tTrigRMS;
-	    tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
+	float tTrig, tTrigRMS;
+	tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
       
-	    // Loop over the layers
-	    for(; l_it != l_end; ++l_it) {
-	      DTLayerId lID = (*l_it)->id();
+	// Loop over the layers
+	for(; l_it != l_end; ++l_it) {
+	  DTLayerId lID = (*l_it)->id();
 
-	      //Parameters to fill histos
-	      stringstream superLayer; superLayer << slID.superlayer();
-	      stringstream layer; layer << lID.layer();
-	      string HistoNameTest = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+	  //Parameters to fill histos
+	  stringstream superLayer; superLayer << slID.superlayer();
+	  stringstream layer; layer << lID.layer();
+	  string HistoNameTest = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
 
-	      const int firstWire = muonGeom->layer(lID)->specificTopology().firstChannel();
-	      const int lastWire = muonGeom->layer(lID)->specificTopology().lastChannel();
+	  const int firstWire = muonGeom->layer(lID)->specificTopology().firstChannel();
+	  const int lastWire = muonGeom->layer(lID)->specificTopology().lastChannel();
 
-	      int entry=-1;
-	      if(slID.superlayer() == 1) entry=0;
-	      if(slID.superlayer() == 2) entry=4;
-	      if(slID.superlayer() == 3) entry=8;
-	      int YBinNumber = entry+lID.layer();
+	  int entry=-1;
+	  if(slID.superlayer() == 1) entry=0;
+	  if(slID.superlayer() == 2) entry=4;
+	  if(slID.superlayer() == 3) entry=8;
+	  int YBinNumber = entry+lID.layer();
 	      
 
-	      // Loop over the TH2F bin and fill the ME to be used for the Quality Test
-	      for(int bin=firstWire; bin <= lastWire; bin++) {
-		if (OccupancyDiffHistos.find(HistoNameTest) == OccupancyDiffHistos.end()) bookHistos(lID, firstWire, lastWire);
-		// tMax default value
-		float tMax = 450.0;
+	  // Loop over the TH2F bin and fill the ME to be used for the Quality Test
+	  for(int bin=firstWire; bin <= lastWire; bin++) {
+	    if (OccupancyDiffHistos.find(HistoNameTest) == OccupancyDiffHistos.end()) bookHistos(lID, firstWire, lastWire);
+	    // tMax default value
+	    float tMax = 450.0;
 
-		float difference = (hitInTime_histo_root->GetBinContent(bin, YBinNumber) / tMax) 
-		                   - (noise_histo_root->GetBinContent(bin, YBinNumber) / tTrig);
-		OccupancyDiffHistos.find(HistoNameTest)->second->setBinContent(bin, difference);
-	      }
-	    } // loop on layers
-	  } // loop on superlayers
-	}
-      }
+	    float difference = (hitInTime_histo_root->GetBinContent(bin, YBinNumber) / tMax) 
+			       - (noise_histo_root->GetBinContent(bin, YBinNumber) / tTrig);
+	    OccupancyDiffHistos.find(HistoNameTest)->second->setBinContent(bin, difference);
+	  }
+	} // loop on layers
+      } // loop on superlayers
     }
   } // loop on chambers
 

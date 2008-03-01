@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2007/10/10 08:31:51 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/01/28 14:35:31 $
+ *  $Revision: 1.13 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -65,7 +65,7 @@ private:
   bool doTimeHisto;
 
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   
   DTROChainCoding coding;
 

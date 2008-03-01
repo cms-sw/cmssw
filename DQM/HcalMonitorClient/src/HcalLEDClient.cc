@@ -1,9 +1,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalLEDClient::HcalLEDClient(){}
 
-void HcalLEDClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
+void HcalLEDClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName){
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
 

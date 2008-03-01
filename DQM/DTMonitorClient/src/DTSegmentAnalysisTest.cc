@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/29 13:34:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/17 09:59:29 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,7 +19,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -27,6 +26,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -45,7 +46,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
   edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTest]: Constructor";
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -130,39 +131,33 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 
       edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the histo of the segment chi2!!";
 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(chi2_histo);
-      if (ob) {
-	TH1F * chi2_histo_root = dynamic_cast<TH1F*> (ob->operator->());
-	if (chi2_histo_root) {
-
-	  double threshold = parameters.getUntrackedParameter<double>("chi2Threshold", 5);
-	  double maximum = chi2_histo_root->GetXaxis()->GetXmax();
-	  double minimum = chi2_histo_root->GetXaxis()->GetXmin();
-	  int nbins = chi2_histo_root->GetXaxis()->GetNbins();
-	  int thresholdBin = int(threshold/((maximum-minimum)/nbins));
+      TH1F * chi2_histo_root = chi2_histo->getTH1F();
+      double threshold = parameters.getUntrackedParameter<double>("chi2Threshold", 5);
+      double maximum = chi2_histo_root->GetXaxis()->GetXmax();
+      double minimum = chi2_histo_root->GetXaxis()->GetXmin();
+      int nbins = chi2_histo_root->GetXaxis()->GetNbins();
+      int thresholdBin = int(threshold/((maximum-minimum)/nbins));
       
-	  int badSegments=0;
-	  for(int bin=thresholdBin; bin<=nbins; bin++){
-	    badSegments+=chi2_histo_root->GetBinContent(bin);
-	  }
+      int badSegments=0;
+      for(int bin=thresholdBin; bin<=nbins; bin++){
+	badSegments+=chi2_histo_root->GetBinContent(bin);
+      }
    
-	  int badSegmPercentual = parameters.getUntrackedParameter<int>("badSegmPercentual", 30);
-	  if(double(badSegments)/chi2_histo_root->GetEntries()>double(badSegmPercentual)/100){
-	    if(wheelHistos.find(chID.wheel()) == wheelHistos.end()) bookHistos(chID.wheel());
-	    wheelHistos[chID.wheel()]->Fill(chID.sector()-1,chID.station()-1);
-	    cmsHistos[make_pair(chID.wheel(),chID.sector())]++;
-	    if((chID.sector()<13 &&
-		double(cmsHistos[make_pair(chID.wheel(),chID.sector())])/4>double(badChpercentual)/100 &&
-		filled[make_pair(chID.wheel(),chID.sector())]==false) ||
-	       (chID.sector()>=13 && 
-		filled[make_pair(chID.wheel(),chID.sector())]==false)){
-	      filled[make_pair(chID.wheel(),chID.sector())]=true;
-	      wheelHistos[3]->Fill(chID.sector()-1,chID.wheel());
-	    }
-	  }
-
+      int badSegmPercentual = parameters.getUntrackedParameter<int>("badSegmPercentual", 30);
+      if(double(badSegments)/chi2_histo_root->GetEntries()>double(badSegmPercentual)/100){
+	if(wheelHistos.find(chID.wheel()) == wheelHistos.end()) bookHistos(chID.wheel());
+	wheelHistos[chID.wheel()]->Fill(chID.sector()-1,chID.station()-1);
+	cmsHistos[make_pair(chID.wheel(),chID.sector())]++;
+	if((chID.sector()<13 &&
+	    double(cmsHistos[make_pair(chID.wheel(),chID.sector())])/4>double(badChpercentual)/100 &&
+	    filled[make_pair(chID.wheel(),chID.sector())]==false) ||
+	   (chID.sector()>=13 && 
+	    filled[make_pair(chID.wheel(),chID.sector())]==false)){
+	  filled[make_pair(chID.wheel(),chID.sector())]=true;
+	  wheelHistos[3]->Fill(chID.sector()-1,chID.wheel());
 	}
       }
+
     }
 
     //summary of the number of hits per segment
@@ -171,18 +166,12 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
       
       edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the histo with the number of hit per segment!!";  
 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(nhit_histo);
-      if (ob) {
-	TH1F * nhit_histo_root = dynamic_cast<TH1F*> (ob->operator->());
-	if (nhit_histo_root) {
-	  
-	  if(wheelHistos.find(chID.wheel()+6) == wheelHistos.end()) bookHistos(chID.wheel());
-	  for(int bin=0; bin<=nhit_histo_root->GetXaxis()->GetNbins(); bin++){
-	    wheelHistos[chID.wheel()+6]->Fill(chID.sector()-1,bin-1,nhit_histo_root->GetBinContent(bin));
-	  }
-
-	}
+      TH1F * nhit_histo_root = nhit_histo->getTH1F();
+      if(wheelHistos.find(chID.wheel()+6) == wheelHistos.end()) bookHistos(chID.wheel());
+      for(int bin=0; bin<=nhit_histo_root->GetXaxis()->GetNbins(); bin++){
+	wheelHistos[chID.wheel()+6]->Fill(chID.sector()-1,bin-1,nhit_histo_root->GetBinContent(bin));
       }
+
     }
 	  
   } //loop over all the chambers

@@ -2,7 +2,7 @@
 #define DQM_HCALMONITORTASKS_HCALBASEMONITOR_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -24,8 +24,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.7 $
+  * $Date: 2007/12/01 09:55:42 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -33,7 +33,7 @@ public:
   HcalBaseMonitor(); 
   virtual ~HcalBaseMonitor(); 
 
-  virtual void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   virtual void done();
   virtual void clearME();
 
@@ -44,7 +44,7 @@ public:
 protected:
   
   int fVerbosity;
-  DaqMonitorBEInterface* m_dbe;
+  DQMStore* m_dbe;
   vector<string> hotCells_;
   string rootFolder_;
   string baseFolder_;

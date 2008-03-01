@@ -1,13 +1,14 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.4 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TLTC.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -23,17 +24,10 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
   logFile_.open("L1TLTC.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -67,8 +61,8 @@ void L1TLTC::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TLTC");

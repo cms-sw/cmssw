@@ -6,11 +6,10 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 #include <string>
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/QReport.h"
 
 #include "TROOT.h"
@@ -22,12 +21,12 @@
 
 using namespace std;
 
-void resetME(const char* name, DaqMonitorBEInterface* dbe);
+void resetME(const char* name, DQMStore* dbe);
 
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth);
 
-TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool verb=false, bool clone=false);
-TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb=false, bool clone=false);
+TH2F* getHisto2(string name, string process, DQMStore* dbe_, bool verb=false, bool clone=false);
+TH1F* getHisto(string name, string process, DQMStore* dbe_, bool verb=false, bool clone=false);
 
 TH2F* getHisto2(const MonitorElement* me, bool verb=false, bool clone=false);
 TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false);
@@ -38,13 +37,13 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
 void histoHTML(int runNo,TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
 void histoHTML2(int runNo,TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color=false);
 
-void htmlErrors(int runNo,string htmlDir, string client, string process, DaqMonitorBEInterface* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
+void htmlErrors(int runNo,string htmlDir, string client, string process, DQMStore* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
 
-void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params);
-void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params);
-void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params);
-void createH2CompTest(DaqMonitorBEInterface* dbe, vector<string>& params, TH2F* ref);
-void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params);
+void createXRangeTest(DQMStore* dbe, vector<string>& params);
+void createYRangeTest(DQMStore* dbe, vector<string>& params);
+void createMeanValueTest(DQMStore* dbe, vector<string>& params);
+void createH2CompTest(DQMStore* dbe, vector<string>& params, TH2F* ref);
+void createH2ContentTest(DQMStore* dbe, vector<string>& params);
 
 void dumpHisto(TH1F* hist, vector<string> &names, 
 	       vector<double> &meanX, vector<double> &meanY, 

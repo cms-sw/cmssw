@@ -1,4 +1,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalBaseClient.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalBaseClient::HcalBaseClient(){
   dbe_ =NULL;
@@ -7,7 +9,7 @@ HcalBaseClient::HcalBaseClient(){
 
 HcalBaseClient::~HcalBaseClient(){}
 
-void HcalBaseClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
+void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
   

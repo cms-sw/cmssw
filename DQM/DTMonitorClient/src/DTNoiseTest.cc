@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/11/07 15:29:10 $
- * $Revision: 1.14 $
+ * $Date: 2008/01/22 18:45:23 $
+ * $Revision: 1.15 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -22,6 +22,8 @@
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdio.h>
@@ -39,7 +41,7 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
 
   parameters = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
   dbe->setCurrentFolder("DT/Tests/Noise");
 
@@ -127,81 +129,75 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 	    
     MonitorElement * noiseME = dbe->get(getMEName(ch));
     if (noiseME) {
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(noiseME);
-      if (ob) {
-	TH2F * noiseHisto = dynamic_cast<TH2F*> (ob->operator->());
+      TH2F * noiseHisto = noiseME->getTH2F();
 
-	// WARNING uncorrect normalization!! TO BE PROVIDED CENTRALLY
-	double nevents = (int) noiseHisto->GetEntries();	
+      // WARNING uncorrect normalization!! TO BE PROVIDED CENTRALLY
+      double nevents = (int) noiseHisto->GetEntries();	
 	
-	double normalization =0;
+      double normalization =0;
 
-	if (noiseHisto) {
+      float average=0;
+      float nOfChannels=0;
+      float noiseStatistics=0;
+      int newNoiseChannels=0;
 
-	  float average=0;
-	  float nOfChannels=0;
-	  float noiseStatistics=0;
-	  int newNoiseChannels=0;
-
-	  for(; sl_it != sl_end; ++sl_it) {
-	    const DTSuperLayerId & slID = (*sl_it)->id();
+      for(; sl_it != sl_end; ++sl_it) {
+	const DTSuperLayerId & slID = (*sl_it)->id();
 	    
-	    tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
-	    if (tTrig==0) tTrig=1;
-	    const double ns_s = 1e9*(32/25);
-	    normalization = ns_s/float(tTrig*nevents);
+	tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
+	if (tTrig==0) tTrig=1;
+	const double ns_s = 1e9*(32/25);
+	normalization = ns_s/float(tTrig*nevents);
 	    
-	    noiseHisto->Scale(normalization);
+	noiseHisto->Scale(normalization);
 	    
-	    // loop over layers
+	// loop over layers
 	    
-	    for (int binY=(slID.superLayer()-1)*4+1 ; binY <= (slID.superLayer()-1)*4+4; binY++) {
+	for (int binY=(slID.superLayer()-1)*4+1 ; binY <= (slID.superLayer()-1)*4+4; binY++) {
 	      
-	      int Y = binY - 4*(slID.superLayer()-1);
+	  int Y = binY - 4*(slID.superLayer()-1);
 	      
-	      // the layer
+	  // the layer
 	      
-	      const DTLayerId theLayer(slID,Y);
+	  const DTLayerId theLayer(slID,Y);
 	     
-	      // loop over channels 
-	      for (int binX=1; binX <= noiseHisto->GetNbinsX(); binX++) {
+	  // loop over channels 
+	  for (int binX=1; binX <= noiseHisto->GetNbinsX(); binX++) {
 		
-		if (noiseHisto->GetBinContent(binX,binY) > parameters.getUntrackedParameter<int>("HzThreshold", 300))
-		  theNoisyChannels.push_back(DTWireId(theLayer, binX));
+	    if (noiseHisto->GetBinContent(binX,binY) > parameters.getUntrackedParameter<int>("HzThreshold", 300))
+	      theNoisyChannels.push_back(DTWireId(theLayer, binX));
 		  
-		// get rid of the dead channels
-		else {
-		  average += noiseHisto->GetBinContent(binX,binY); 
-		  nOfChannels++; 
-		}
-	      }
+	    // get rid of the dead channels
+	    else {
+	      average += noiseHisto->GetBinContent(binX,binY); 
+	      nOfChannels++; 
 	    }
-	    
-	    if (nOfChannels) noiseStatistics = average/nOfChannels;
-	    histoTag = "NoiseAverage";
-
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NoiseAverage"), histoTag );
-	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(),noiseStatistics); 
-
-	    for ( vector<DTWireId>::const_iterator nb_it = theNoisyChannels.begin();
-		  nb_it != theNoisyChannels.end(); ++nb_it) {
-	      
-	      bool isNoisy = false;
-	      bool isFEMasked = false;
-	      bool isTDCMasked = false;
-	      bool isTrigMask = false;
-	      bool isDead = false;
-	      bool isNohv = false;
-	      statusMap->cellStatus((*nb_it), isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	    	      
-	      if (!isNoisy) newNoiseChannels++;
-	    }
-	    theNoisyChannels.clear();
-	    histoTag = "NewNoisyChannels";
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NewNoisyChannels"), histoTag );
-	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), newNoiseChannels);   
 	  }
 	}
+	    
+	if (nOfChannels) noiseStatistics = average/nOfChannels;
+	histoTag = "NoiseAverage";
+
+	if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NoiseAverage"), histoTag );
+	histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(),noiseStatistics); 
+
+	for ( vector<DTWireId>::const_iterator nb_it = theNoisyChannels.begin();
+	      nb_it != theNoisyChannels.end(); ++nb_it) {
+	      
+	  bool isNoisy = false;
+	  bool isFEMasked = false;
+	  bool isTDCMasked = false;
+	  bool isTrigMask = false;
+	  bool isDead = false;
+	  bool isNohv = false;
+	  statusMap->cellStatus((*nb_it), isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	    	      
+	  if (!isNoisy) newNoiseChannels++;
+	}
+	theNoisyChannels.clear();
+	histoTag = "NewNoisyChannels";
+	if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NewNoisyChannels"), histoTag );
+	histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), newNoiseChannels);   
       }
     }
     //To compute the Noise Mean test
@@ -217,22 +213,19 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 	MonitorElement * noisePerEventME = dbe->get(getMEName(lID));
 
 	if (noisePerEventME) {
-	  MonitorElementT<TNamed>* obPerEvent = dynamic_cast<MonitorElementT<TNamed>*>(noisePerEventME);
-	  if (obPerEvent) {
-	    TH2F * noiseHistoPerEvent = dynamic_cast<TH2F*> (obPerEvent->operator->());
-	    int nWires = muonGeom->layer(lID)->specificTopology().channels();
-	    double MeanNumerator=0, MeanDenominator=0;
-	    histoTag = "MeanDigiPerEvent";
-	    for (int w=1; w<=nWires; w++){
-	      for(int numDigi=1; numDigi<=10; numDigi++){
-		MeanNumerator+=(noiseHistoPerEvent->GetBinContent(w,numDigi)*(numDigi-1));
-		MeanDenominator+=noiseHistoPerEvent->GetBinContent(w,numDigi);
-	      }
-	      double Mean=MeanNumerator/MeanDenominator;
-	      if (histos[histoTag].find((*l_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*l_it)->id(),nWires, string("MeanDigiPerEvent"), histoTag );
-	      histos[histoTag].find((*l_it)->id().rawId())->second->setBinContent(w, Mean);   
-	    } 
-	  }
+	  TH2F * noiseHistoPerEvent = noisePerEventME->getTH2F();
+	  int nWires = muonGeom->layer(lID)->specificTopology().channels();
+	  double MeanNumerator=0, MeanDenominator=0;
+	  histoTag = "MeanDigiPerEvent";
+	  for (int w=1; w<=nWires; w++){
+	    for(int numDigi=1; numDigi<=10; numDigi++){
+	      MeanNumerator+=(noiseHistoPerEvent->GetBinContent(w,numDigi)*(numDigi-1));
+	      MeanDenominator+=noiseHistoPerEvent->GetBinContent(w,numDigi);
+	    }
+	    double Mean=MeanNumerator/MeanDenominator;
+	    if (histos[histoTag].find((*l_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*l_it)->id(),nWires, string("MeanDigiPerEvent"), histoTag );
+	    histos[histoTag].find((*l_it)->id().rawId())->second->setBinContent(w, Mean);   
+	  } 
 	}
       }
     }

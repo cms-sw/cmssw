@@ -2,6 +2,7 @@
 #define HcalDeadCellClient_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 struct DeadCellHists{
   int type;
@@ -27,7 +28,7 @@ public:
   /// Destructor
   ~HcalDeadCellClient();
 
-  void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
 
   /// Analyze
   void analyze(void);

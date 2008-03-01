@@ -1,13 +1,14 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/12/03 14:24:09 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TCSCTF.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -24,17 +25,10 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   logFile_.open("L1TCSCTF.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -68,8 +62,8 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TCSCTF");

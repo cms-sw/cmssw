@@ -4,8 +4,8 @@
 /*
  * \file DTGlobalRecoTask.h
  *
- * $Date: 2006/02/15 08:24:55 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/18 18:04:26 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -18,8 +18,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
@@ -33,7 +32,7 @@ friend class DTMonitorModule;
 public:
 
 /// Constructor
-DTGlobalRecoTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
+DTGlobalRecoTask(const edm::ParameterSet& ps, DQMStore* dbe,
 		 const edm::EventSetup& context);
 
 /// Destructor

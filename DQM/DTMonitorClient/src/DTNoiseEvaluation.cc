@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulseRange.cc
  *
- * $Date: 2007/09/07 09:03:07 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/22 18:45:23 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -30,6 +30,8 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // ROOT Staff
 
@@ -46,7 +48,7 @@ DTNoiseEvaluation::DTNoiseEvaluation(const edm::ParameterSet& ps): parameters(ps
   criterionName = "noiseTest";
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
 
 
@@ -171,7 +173,7 @@ void DTNoiseEvaluation::analyze(const edm::Event& e, const edm::EventSetup& c){
 void DTNoiseEvaluation::createQualityTests() {
 
 
-  theNoiseTest = dynamic_cast<MENoisyChannelROOT*> (dbe->createQTest(NoisyChannelROOT::getAlgoName(), criterionName ));
+  theNoiseTest = dynamic_cast<NoisyChannel*> (dbe->createQTest(NoisyChannel::getAlgoName(), criterionName ));
   
   for (vector<string>::iterator n_it = histoNamesCollection.begin(); 
        n_it != histoNamesCollection.end(); n_it++) 
@@ -246,29 +248,22 @@ void DTNoiseEvaluation::runStandardTest() {
     const DTLayerId theLayer((*h_it).first);
 
     // noise average per layer
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(occupancyHistos.find(theLayer.rawId())->second);
-    if (ob) {
-      
-      TH1F * noiseT = dynamic_cast<TH1F*> (ob->operator->());
-      if (noiseT) {
-
-	noiseT->Scale(normalization);
+    TH1F * noiseT = occupancyHistos.find(theLayer.rawId())->second->getTH1F();
+    noiseT->Scale(normalization);
 	
-	float average=0;
-	float nOfChannels=0;
-	for (int i = 1; i <= noiseT->GetNbinsX(); i++){
-	  if (noiseT->GetBinContent(i) > parameters.getUntrackedParameter<int>("HzThreshold", 1000))
-	    theNoisyChannels.push_back(DTWireId(theLayer, i));
-	  // get rid of the dead channels
-	  else if (noiseT->GetBinContent(i)) {
-	    average += noiseT->GetBinContent(i); 
-	    nOfChannels++; 
-	  }
-	}
-	if (nOfChannels) noiseStatistics[theLayer] = average/nOfChannels;
+    float average=0;
+    float nOfChannels=0;
+    for (int i = 1; i <= noiseT->GetNbinsX(); i++){
+      if (noiseT->GetBinContent(i) > parameters.getUntrackedParameter<int>("HzThreshold", 1000))
+	theNoisyChannels.push_back(DTWireId(theLayer, i));
+      // get rid of the dead channels
+      else if (noiseT->GetBinContent(i)) {
+	average += noiseT->GetBinContent(i); 
+	nOfChannels++; 
       }
     }
-    
+    if (nOfChannels) noiseStatistics[theLayer] = average/nOfChannels;
+
   }
 
 }

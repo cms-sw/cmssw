@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/11/07 15:23:22 $
- * $Revision: 1.13 $
+ * $Date: 2008/01/22 18:45:23 $
+ * $Revision: 1.14 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -12,7 +12,8 @@
 
 //Framework
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -33,7 +34,7 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);

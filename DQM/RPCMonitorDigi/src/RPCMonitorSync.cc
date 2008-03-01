@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2006/11/15 15:07:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 19:11:45 $
+ *  $Revision: 1.3 $
  *
  * \author Piotr Traczyk
  */
@@ -72,11 +72,7 @@ RPCMonitorSync::RPCMonitorSync( const edm::ParameterSet& pset )
   saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("SyncEventsInterval", 10000); 
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameSync", "RPCMonitorSync.root"); 
   /// get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
-
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->showDirStructure();
 }
 

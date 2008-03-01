@@ -5,11 +5,15 @@
 /*
  * \file L1TCompare.h
  *
- * $Date: 2007/06/06 14:55:50 $
- * $Revision: 1.1 $
+ * $Date: 2007/06/08 08:37:42 $
+ * $Revision: 1.2 $
  * \author P. Wittich
- * $Id: L1TCompare.h,v 1.1 2007/06/06 14:55:50 wittich Exp $
- * $Log$
+ * $Id: L1TCompare.h,v 1.2 2007/06/08 08:37:42 wittich Exp $
+ * $Log: L1TCompare.h,v $
+ * Revision 1.2  2007/06/08 08:37:42  wittich
+ * Add ECAL TP - RCT comparisons. Lingering problems with
+ * mismatches right now - still needs work.
+ *
  *
  *
  *
@@ -39,8 +43,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 // Trigger Headers
@@ -73,7 +77,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   // ++ RCT-GCT
   // - iso

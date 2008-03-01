@@ -4,6 +4,8 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 //#include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace dedefs;
 
@@ -19,16 +21,9 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/xpert/Ecal/");
   
   dbe = NULL;
-  if (iConfig.getUntrackedParameter<bool>("DaqMonitorBEInterface", false)) { 
-    dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
+    dbe = edm::Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-  
-  monitorDaemon_ = false;
-  if(iConfig.getUntrackedParameter<bool>("MonitorDaemon", false)) {
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
   
   if(dbe!=NULL)
@@ -46,8 +41,8 @@ L1TdeECAL::beginJob(const edm::EventSetup&) {
   if(verbose())
     std::cout << "L1TdeECAL::beginJob()  start\n";
 
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
     dbe->rmdir(histFolder_);

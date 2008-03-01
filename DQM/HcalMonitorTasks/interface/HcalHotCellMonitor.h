@@ -3,12 +3,14 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <map>
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/12/07 17:57:38 $
-  * $Revision: 1.11 $
+  * $Date: 2008/01/22 22:21:45 $
+  * $Revision: 1.12 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -77,11 +79,11 @@ public:
   HcalHotCellMonitor(); 
   ~HcalHotCellMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
   void reset();
   void setupVals(HotCellHists& h, int type, HotCellHists& base, const edm::ParameterSet& ps);
-  void setupHists(HotCellHists& h, DaqMonitorBEInterface* dbe);
+  void setupHists(HotCellHists& h, DQMStore* dbe);
 
 private:  ///Monitoring elements
 

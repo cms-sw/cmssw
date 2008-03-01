@@ -1,10 +1,11 @@
 #include "DQM/RCTMonitor/interface/RCTMonitor.h"
 #include "DQM/RCTMonitor/interface/somedefinitions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 
 RCTMonitor::RCTMonitor( const edm::ParameterSet& iConfig ):
   m_nevts(0),
-  m_dbe(edm::Service<DaqMonitorBEInterface>().operator->()),
+  m_dbe(edm::Service<DQMStore>().operator->()),
   m_enableMonitorDaemon(iConfig.getUntrackedParameter<bool>("EnableMonitorDaemon")),
   m_rctSource(iConfig.getUntrackedParameter<edm::InputTag>("rctSource")),
   m_writeOutputFile(iConfig.getUntrackedParameter<bool>("WriteOutputFile")),
@@ -20,13 +21,6 @@ RCTMonitor::~RCTMonitor()
 
 void RCTMonitor::beginJob(edm::EventSetup const&)
 {
-  // If enabled start monitor daemon
-  if (m_enableMonitorDaemon){
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  }
-
- 
    BookRCT() ;
    
 }

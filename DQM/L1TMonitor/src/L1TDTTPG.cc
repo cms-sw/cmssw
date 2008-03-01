@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/12/21 17:41:20 $
- * $Revision: 1.14 $
+ * $Date: 2008/01/22 18:56:01 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.15  2008/01/22 18:56:01  muzaffar
+ * include cleanup. Only for cc/cpp files
+ *
  * Revision 1.14  2007/12/21 17:41:20  berryhil
  *
  *
@@ -40,7 +43,6 @@
 #include <fstream>
 #include <vector>
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -50,6 +52,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
@@ -66,18 +69,11 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
   logFile_.open("L1TDTTPG.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
     {
-      dbe = Service<DaqMonitorBEInterface>().operator->();
+      dbe = Service<DQMStore>().operator->();
       dbe->setVerbose(0);
     }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
-  }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
@@ -110,8 +106,8 @@ void L1TDTTPG::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TDTTPG");

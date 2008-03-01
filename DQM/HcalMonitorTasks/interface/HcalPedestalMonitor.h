@@ -4,11 +4,13 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2007/10/23 14:17:17 $
-  * $Revision: 1.12 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -16,7 +18,7 @@ public:
   HcalPedestalMonitor(); 
   ~HcalPedestalMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,

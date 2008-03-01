@@ -1,4 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalLEDMonitor::HcalLEDMonitor() {
   doPerChannel_ = false;
@@ -8,7 +10,7 @@ HcalLEDMonitor::HcalLEDMonitor() {
 
 HcalLEDMonitor::~HcalLEDMonitor() {}
 
-void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
   baseFolder_ = rootFolder_+"LEDMonitor";
@@ -245,7 +247,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   meEVT_->Fill(ievt_);
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalLEDMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; }
   float vals[10];
 

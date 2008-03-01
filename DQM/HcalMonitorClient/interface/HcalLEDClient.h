@@ -11,6 +11,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class HcalLEDClient : public HcalBaseClient {
   
@@ -21,7 +22,7 @@ public:
   /// Destructor
   ~HcalLEDClient();
 
-  void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
 
   /// Analyze
   void analyze(void);

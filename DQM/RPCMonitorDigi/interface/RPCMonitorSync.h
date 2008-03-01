@@ -5,8 +5,8 @@
  *
  * RPC Synchronization Monitoring Class
  *
- *  $Date: 2007/03/12 22:37:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/05 16:25:30 $
+ *  $Revision: 1.4 $
  *
  * \author Piotr Traczyk (SINS)
  *
@@ -19,8 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -110,7 +110,7 @@ class RPCMonitorSync : public edm::EDAnalyzer {
     std::map<uint32_t,timing> synchroMap;
     int counter;
 	/// back-end interface
-    DaqMonitorBEInterface * dbe;
+    DQMStore * dbe;
     MonitorElement * h1;
     std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
 		

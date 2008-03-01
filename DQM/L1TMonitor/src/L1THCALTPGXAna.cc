@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2008/01/02 11:54:15 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/13 17:50:14 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.9  2008/02/13 17:50:14  aurisano
+ * bugfixes
+ *
  * Revision 1.6  2008/01/02 11:54:15  elmer
  * Add missing math.h and TMath.h includes
  *
@@ -44,6 +47,7 @@
 
 #include "DQM/L1TMonitor/interface/L1THCALTPGXAna.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 //#include "DQM/L1TMonitor/interface/hcal_root_prefs.h"
 #include "TMath.h"
 
@@ -108,17 +112,10 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
   logFile_.open("L1THCALTPGXAna.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
@@ -150,8 +147,8 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
   nev_ = 0;
   
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
   if ( dbe ) 
     {
       dbe->setCurrentFolder("L1T/L1THCALTPGXAna");

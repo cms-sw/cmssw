@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2007/09/20 07:18:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/06 17:30:39 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -32,7 +32,7 @@
 #include <map>
 #include <vector>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 
@@ -71,7 +71,7 @@ private:
   void bookHistos(DTChamberId chId); 
 
 
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
   
   // Switch for verbosity
   bool debug;

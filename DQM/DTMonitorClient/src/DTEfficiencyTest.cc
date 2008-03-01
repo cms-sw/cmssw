@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/20 16:31:11 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/22 18:45:23 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -21,6 +21,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdio.h>
@@ -37,7 +39,7 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
   
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -177,37 +179,28 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	 
 	// ME -> TH1F
 	if(occupancy_histo && unassOccupancy_histo && recSegmOccupancy_histo) {	  
-	  MonitorElementT<TNamed>* occ = dynamic_cast<MonitorElementT<TNamed>*>(occupancy_histo);
-	  MonitorElementT<TNamed>* unassOcc = dynamic_cast<MonitorElementT<TNamed>*>(unassOccupancy_histo);
-	  MonitorElementT<TNamed>* recSegmOcc = dynamic_cast<MonitorElementT<TNamed>*>(recSegmOccupancy_histo);
+	  TH1F * occupancy_histo_root = occupancy_histo->getTH1F();
+	  TH1F * unassOccupancy_histo_root = unassOccupancy_histo->getTH1F();
+	  TH1F * recSegmOccupancy_histo_root = recSegmOccupancy_histo->getTH1F();
 
-	  if (occ && unassOcc && recSegmOcc) {
-	    TH1F * occupancy_histo_root = dynamic_cast<TH1F*> (occ->operator->());
-	    TH1F * unassOccupancy_histo_root = dynamic_cast<TH1F*> (unassOcc->operator->());
-	    TH1F * recSegmOccupancy_histo_root = dynamic_cast<TH1F*> (recSegmOcc->operator->());
+	  const int firstWire = muonGeom->layer(lID)->specificTopology().firstChannel();
+	  const int lastWire = muonGeom->layer(lID)->specificTopology().lastChannel();
 
-	    if (occupancy_histo_root && unassOccupancy_histo_root && recSegmOccupancy_histo_root) {	      
-	      const int firstWire = muonGeom->layer(lID)->specificTopology().firstChannel();
-	      const int lastWire = muonGeom->layer(lID)->specificTopology().lastChannel();
-
-	      // Loop over the TH1F bin and fill the ME to be used for the Quality Test
-	      for(int bin=firstWire; bin <= lastWire; bin++) {
-		if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
-		  //cout<<"book histos"<<endl;
-		  if (EfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
-		  float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
-		  float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
-		  EfficiencyHistos.find(lID)->second->setBinContent(bin, efficiency);
-		  EfficiencyHistos.find(lID)->second->setBinError(bin, errorEff);
+	  // Loop over the TH1F bin and fill the ME to be used for the Quality Test
+	  for(int bin=firstWire; bin <= lastWire; bin++) {
+	    if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
+	      //cout<<"book histos"<<endl;
+	      if (EfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
+	      float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+	      float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
+	      EfficiencyHistos.find(lID)->second->setBinContent(bin, efficiency);
+	      EfficiencyHistos.find(lID)->second->setBinError(bin, errorEff);
 		  
-		  if (UnassEfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
-		  float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
-		  float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
-		  UnassEfficiencyHistos.find(lID)->second->setBinContent(bin, unassEfficiency);	
-		  UnassEfficiencyHistos.find(lID)->second->setBinError(bin, errorUnassEff);
-		}
-	      }
-	      
+	      if (UnassEfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
+	      float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+	      float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
+	      UnassEfficiencyHistos.find(lID)->second->setBinContent(bin, unassEfficiency);	
+	      UnassEfficiencyHistos.find(lID)->second->setBinError(bin, errorUnassEff);
 	    }
 	  }
 	}

@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2007/08/27 16:39:18 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/05 09:13:25 $
+ * $Revision: 1.4 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -23,8 +23,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -63,7 +63,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   MonitorElement* dttf_nbx;
   MonitorElement* dttf_eta;

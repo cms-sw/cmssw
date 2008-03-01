@@ -13,15 +13,15 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.3 2008/02/11 17:54:13 muriel Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.4 2008/02/12 17:36:49 muriel Exp $
 //
 //
 
 
 
 #include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,16 +60,9 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   l3isolationTag_ = parameters_.getUntrackedParameter<InputTag>("l3IsolationTag",edm::InputTag("hltL3MuonIsolations"));
 
    dbe_ = 0 ;
-   if (parameters_.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-     dbe_ = Service < DaqMonitorBEInterface > ().operator->();
+   if (parameters_.getUntrackedParameter < bool > ("DQMStore", false)) {
+     dbe_ = Service < DQMStore > ().operator->();
      dbe_->setVerbose(0);
-   }
- 
-   monitorDaemon_ = false;
-   if (parameters_.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-     Service < MonitorDaemon > daemon;
-     daemon.operator->();
-     monitorDaemon_ = true;
    }
  
    outputFile_ =

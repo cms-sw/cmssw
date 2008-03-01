@@ -1,6 +1,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
@@ -17,7 +19,7 @@ void HcalDataFormatMonitor::clearME(){
 
 
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
-				  DaqMonitorBEInterface* dbe){
+				  DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
   ievt_=0;
@@ -341,7 +343,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 					 const HcalElectronicsMap& emap){
   
   if(!m_dbe) { 
-    printf("HcalDataFormatMonitor::processEvent DaqMonitorBEInterface not instantiated!!!\n");  
+    printf("HcalDataFormatMonitor::processEvent DQMStore not instantiated!!!\n");  
     return;
   }
   

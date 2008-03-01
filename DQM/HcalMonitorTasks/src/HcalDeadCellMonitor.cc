@@ -1,6 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <math.h>
-
 #include <sstream>
 using namespace std;
 
@@ -24,7 +24,7 @@ namespace HcalDeadCellCheck
 			 float Nsigma, float mincount,
 			 HcalCalibrations calibs, 
 			 HcalCalibrationWidths widths, 
-			 DaqMonitorBEInterface* dbe, string baseFolder)
+			 DQMStore* dbe, string baseFolder)
   {
     if (hist.check==0) return;
     string type;
@@ -115,7 +115,7 @@ namespace HcalDeadCellCheck
   template<class Hits>
   void CheckHits(double coolcellfrac, const Hits& hits, 
 		 DeadCellHists& hist, DeadCellHists& all, 
-		 DaqMonitorBEInterface* dbe, string baseFolder)
+		 DQMStore* dbe, string baseFolder)
   { 
     if (hist.check==false) return;
     string type;
@@ -210,7 +210,7 @@ void HcalDeadCellMonitor::reset(){}
 
 
 void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
-				DaqMonitorBEInterface* dbe){
+				DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
   baseFolder_ = rootFolder_+"DeadCellMonitor";
@@ -277,7 +277,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 }// void HcalDeadCellMonitor::setup
 
 
-void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DaqMonitorBEInterface* dbe)
+void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 {
   if (hist.check==0) return;
   if (hist.type==1)
@@ -340,7 +340,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 {
   if(!m_dbe) 
     {
-      if(fVerbosity) cout <<"<HcalDeadCellMonitor::processEvent>    DaqMonitorBEInterface not instantiated!!!\n";
+      if(fVerbosity) cout <<"<HcalDeadCellMonitor::processEvent>    DQMStore not instantiated!!!\n";
       return;
     }
   ievt_++;
@@ -439,7 +439,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
 {
   if(!m_dbe) 
     {
-      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits    DaqMonitorBEInterface not instantiated!!!\n";
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits    DQMStore not instantiated!!!\n";
       return;
     }
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;

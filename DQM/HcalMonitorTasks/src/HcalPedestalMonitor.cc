@@ -1,4 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 HcalPedestalMonitor::HcalPedestalMonitor() { doPerChannel_ = false;   shape_=NULL; }
@@ -8,7 +10,7 @@ HcalPedestalMonitor::~HcalPedestalMonitor() {
 
 void HcalPedestalMonitor::reset(){}
 
-void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"PedestalMonitor";
 
@@ -160,7 +162,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalPedestalMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
   }
 

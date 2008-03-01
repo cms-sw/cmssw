@@ -12,6 +12,7 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DQM/TrigXMonitor/interface/L1Scalers.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 
@@ -34,14 +35,8 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   if (verbose_)
     std::cout << "L1Scalers: constructor...." << std::endl;
 
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
-
-  if ( monitorDaemon_) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->(); // gross
-    monitorDaemon_ = true;
-  }
 
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");

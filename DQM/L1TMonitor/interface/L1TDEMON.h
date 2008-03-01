@@ -19,8 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm includes
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
@@ -59,7 +59,7 @@ class L1TDEMON : public edm::EDAnalyzer {
   std::string histFolder_;
 
   // dqm common
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
   bool monitorDaemon_;
  
   /// monitoring elements

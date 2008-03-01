@@ -5,9 +5,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/QReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TRandom.h"
 
 #include <TF1.h>
@@ -37,7 +37,7 @@ void L1TDTTPGClient::initialize(){
   counterEvt_=0; 
   
   // get back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   
   // base folder for the contents of this job
   monitorName_ =
@@ -57,7 +57,7 @@ void L1TDTTPGClient::beginJob(const EventSetup& context){
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
   // get backendinterface  
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   // do your thing
   dbe_->setCurrentFolder(monitorName_);
@@ -102,77 +102,62 @@ void L1TDTTPGClient::endJob(){
 }
 
 
-TH1F * L1TDTTPGClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
+TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore * dbi)
 {
 
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
-  if (!me_temp) { 
+  if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
     return NULL;
   }
-   TH1F * meHisto = dynamic_cast<TH1F*> (me_temp->operator->());
 
-  return meHisto;
+  return me_->getTH1F();
 }
 
-TH2F * L1TDTTPGClient::get2DHisto(string meName, DaqMonitorBEInterface * dbi)
+TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
-
-  if (!me_temp) { 
+  if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
     return NULL;
   }
-   TH2F * meHisto = dynamic_cast<TH2F*> (me_temp->operator->());
 
-  return meHisto;
+  return me_->getTH2F();
 }
 
 
 
-TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DaqMonitorBEInterface * dbi)
+TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
-
-  if (!me_temp) { 
+  if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
     return NULL;
   }
-   TProfile2D * meHisto = dynamic_cast<TProfile2D*> (me_temp->operator->());
 
-  return meHisto;
+  return me_->getTProfile2D();
 }
 
 
-TProfile * L1TDTTPGClient::get1DProfile(string meName, DaqMonitorBEInterface * dbi)
+TProfile * L1TDTTPGClient::get1DProfile(string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
-
-  if (!me_temp) { 
+  if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
     return NULL;
   }
-   TProfile * meHisto = dynamic_cast<TProfile*> (me_temp->operator->());
 
-  return meHisto;
+  return me_->getTProfile();
 }
 
 

@@ -8,8 +8,8 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2007/09/20 07:19:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/06 17:34:44 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -24,7 +24,7 @@
 #include <map>
 #include <vector>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 
@@ -52,7 +52,7 @@ protected:
 
 
 private:
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;

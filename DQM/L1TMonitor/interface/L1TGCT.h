@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/02/20 18:59:29 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/20 19:24:24 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.8 2008/02/20 18:59:29 tapper Exp $
+ * $Id: L1TGCT.h,v 1.9 2008/02/20 19:24:24 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.9  2008/02/20 19:24:24  tapper
+ * Removed noisy include.
+ *
  * Revision 1.8  2008/02/20 18:59:29  tapper
  * Ported GCTMonitor histograms into L1TGCT
  *
@@ -63,8 +66,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // DQM
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 
@@ -96,7 +99,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   // GCT stuff
   MonitorElement* l1GctCenJetsEtEtaPhi_; 

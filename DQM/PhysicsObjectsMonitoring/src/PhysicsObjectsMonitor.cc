@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2007/02/06 15:13:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/22 18:42:50 $
+ *  $Revision: 1.7 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -24,6 +24,8 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 using namespace std;
@@ -46,10 +48,8 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset){
   numberOfRecTracks=0;
 
   /// get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
 
 
@@ -80,17 +80,9 @@ void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
   NRPChits = dbe->book1D("NRPChits","Number of RPC hits on track",11,-.5,11.5);
 
   DTvsCSC = dbe->book2D("DTvsCSC","Number of DT vs CSC hits on track",29,-.5,28.5,29,-.5,28.5);
-  MonitorElementT<TNamed>* ob =
-               dynamic_cast<MonitorElementT<TNamed>*> (DTvsCSC);
-  if(ob)
-  {
-   TH2F * root_ob = dynamic_cast<TH2F *> (ob->operator->());
-   if(root_ob) {
-     root_ob->SetXTitle("Number of DT hits");
-     root_ob->SetYTitle("Number of CSC hits");
-   }
-  }
-
+  TH2F * root_ob = DTvsCSC->getTH2F();
+  root_ob->SetXTitle("Number of DT hits");
+  root_ob->SetYTitle("Number of CSC hits");
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTPG.h
  *
- * $Date: 2008/01/28 22:11:20 $
- * $Revision: 1.3 $
+ * $Date: 2008/01/29 20:41:21 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
 */
@@ -23,8 +23,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -77,7 +77,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   MonitorElement* rpctpgndigi[3];
   MonitorElement* rpctpgbx;

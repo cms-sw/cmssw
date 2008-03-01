@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/19 14:30:20 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/07 14:53:26 $
+ *  $Revision: 1.14 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -13,8 +13,9 @@
 
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -40,7 +41,7 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   sourceFolder = ps.getUntrackedParameter<string>("folderRoot", ""); 
   hwSource = ps.getUntrackedParameter<bool>("dataFromDDU", false) ? "DDU" : "DCC" ; 
   parameters = ps;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -434,8 +435,7 @@ void DTLocalTriggerTest::endJob(){
 
 void DTLocalTriggerTest::makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result){
   
-  MonitorElementT<TNamed>* efficiencyME = dynamic_cast<MonitorElementT<TNamed>*>(result);
-  TH1F* efficiency = dynamic_cast<TH1F*> (efficiencyME->operator->());
+  TH1F* efficiency = result->getTH1F();
   efficiency->Divide(numerator,denominator,1,1,"");
   
   int nbins = efficiency->GetNbinsX();
@@ -459,8 +459,7 @@ void DTLocalTriggerTest::makeEfficiencyME(TH1D* numerator, TH1D* denominator, Mo
 
 void DTLocalTriggerTest::makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result){
   
-  MonitorElementT<TNamed>* efficiencyME = dynamic_cast<MonitorElementT<TNamed>*>(result);
-  TH2F* efficiency = dynamic_cast<TH2F*> (efficiencyME->operator->());
+  TH2F* efficiency = result->getTH2F();
   efficiency->Divide(numerator,denominator,1,1,"");
   
   int nbinsx = efficiency->GetNbinsX();
@@ -512,14 +511,7 @@ string DTLocalTriggerTest::getMEName(string histoTag, string subfolder, const DT
 
 template <class T>
 T* DTLocalTriggerTest::getHisto(MonitorElement* me) {
-
-  if (!me)
-    return 0;
-  MonitorElementT<TNamed>* meT = dynamic_cast<MonitorElementT<TNamed>*>(me);
-  if (!meT)
-    return 0;
-  return dynamic_cast<T*> (meT->operator->());
-
+  return me ? dynamic_cast<T*>(me->getRootObject()) : 0;
 }
 
 void DTLocalTriggerTest::setLabelPh(MonitorElement* me){

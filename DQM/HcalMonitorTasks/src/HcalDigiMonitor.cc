@@ -1,4 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
@@ -10,7 +12,7 @@ HcalDigiMonitor::~HcalDigiMonitor() {}
 
 namespace HcalDigiPerChan{
   template<class Digi>
-  inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DaqMonitorBEInterface* dbe, string baseFolder) {
+  inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DQMStore* dbe, string baseFolder) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
 
@@ -105,7 +107,7 @@ namespace HcalDigiMap{
 }
 
 void HcalDigiMonitor::setup(const edm::ParameterSet& ps, 
-			    DaqMonitorBEInterface* dbe){
+			    DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"DigiMonitor";
 
@@ -291,7 +293,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HcalDbService& cond){
   
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalDigiMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
   }
   

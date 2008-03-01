@@ -3,11 +3,13 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.11 $
+  * $Date: 2007/11/20 00:34:19 $
+  * $Revision: 1.12 $
   * \author W. Fisher - FNAL
   */
   static const float LedMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -42,7 +44,7 @@ public:
   HcalLEDMonitor(); 
   ~HcalLEDMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,

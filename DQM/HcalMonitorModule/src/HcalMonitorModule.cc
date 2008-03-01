@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/12/31 18:43:08 $
- * $Revision: 1.48 $
+ * $Date: 2008/01/03 23:58:46 $
+ * $Revision: 1.49 $
  * \author W Fisher
  *
 */
@@ -35,7 +35,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   evtSel_ = new HcalMonitorSelector(ps);
   
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
 
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
@@ -470,5 +470,6 @@ bool HcalMonitorModule::prescale(){
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_FWK_MODULE(HcalMonitorModule);

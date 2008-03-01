@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/02/04 14:28:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/24 12:52:05 $
+ *  $Revision: 1.11 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -19,8 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -56,7 +56,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	
 	int counter;
 	/// back-end interface
-	DaqMonitorBEInterface * dbe;
+	DQMStore * dbe;
         MonitorElement * GlobalZYHitCoordinates;
         MonitorElement * GlobalZXHitCoordinates;
         MonitorElement * GlobalZPhiHitCoordinates;

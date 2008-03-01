@@ -11,7 +11,7 @@
 #include <set>
 #include <sstream>
 
-// #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+// #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
@@ -50,9 +50,9 @@ using namespace XERCES_CPP_NAMESPACE;
 #include <TPaletteAxis.h>
 #include <TCollection.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 
 
@@ -90,8 +90,8 @@ class CSCMonitorObject
     {return (getFullName()==s1.getFullName());};
 
 
-  int Book(DaqMonitorBEInterface* dbe);
-  int Book(DOMNode *info, DaqMonitorBEInterface* dbe);
+  int Book(DQMStore* dbe);
+  int Book(DOMNode *info, DQMStore* dbe);
   int Fill(double);
   // can be used with 2D (x,y) or 1D (x, w) histograms
   int Fill(double, double);

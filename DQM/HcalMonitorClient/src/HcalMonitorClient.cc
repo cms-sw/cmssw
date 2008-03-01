@@ -50,7 +50,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   if ( enableMonitorDaemon_ ) cout << "-->enableMonitorDaemon switch is ON" << endl;
   else cout << "-->enableMonitorDaemon switch is OFF" << endl;
 
-  mui_ = new MonitorUIRoot();
+  mui_ = new DQMOldReceiver();
   dbe_ = mui_->getBEInterface();
 
   // DQM ROOT input
@@ -772,5 +772,6 @@ bool HcalMonitorClient::prescale(){
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 DEFINE_FWK_MODULE(HcalMonitorClient);

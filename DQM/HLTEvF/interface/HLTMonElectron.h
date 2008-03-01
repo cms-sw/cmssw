@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMonElectron.h,v 1.1 2008/02/06 13:09:22 lorenzo Exp $
+// $Id: HLTMonElectron.h,v 1.2 2008/02/25 19:00:08 mmozer Exp $
 //
 //
 
@@ -35,8 +35,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,7 +62,7 @@ class HLTMonElectron : public edm::EDAnalyzer {
 
       // ----------member data --------------------------- 
       int nev_;
-      DaqMonitorBEInterface * dbe;
+      DQMStore * dbe;
       std::vector<MonitorElement *> etahist;
       std::vector<MonitorElement *> ethist;
       std::vector<MonitorElement *> etahistiso;

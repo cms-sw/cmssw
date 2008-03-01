@@ -5,11 +5,14 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2007/02/23 21:58:43 $
- * $Revision: 1.2 $
+ * $Date: 2007/09/03 15:14:42 $
+ * $Revision: 1.3 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.2 2007/02/23 21:58:43 wittich Exp $
+ * $Id: L1TRCT.h,v 1.3 2007/09/03 15:14:42 wittich Exp $
  * $Log: L1TRCT.h,v $
+ * Revision 1.3  2007/09/03 15:14:42  wittich
+ * updated RCT with more diagnostic and local coord histos
+ *
  * Revision 1.2  2007/02/23 21:58:43  wittich
  * change getByType to getByLabel and add InputTag
  *
@@ -43,8 +46,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 // Trigger Headers
@@ -77,7 +80,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   // region global coordinates
   MonitorElement* rctRegionsEtEtaPhi_;

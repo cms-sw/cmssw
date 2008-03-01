@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/27 14:40:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/18 10:47:18 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,7 +19,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -29,6 +28,8 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -48,7 +49,7 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -208,23 +209,17 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
       MonitorElement * res_histo_2D = dbe->get(getMEName2D(slID));
       if (res_histo_2D) {
-	MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(res_histo_2D);
-	if (ob) {
-	  TH2F * res_histo_2D_root = dynamic_cast<TH2F*> (ob->operator->());
-	  if (res_histo_2D_root) {
-	    int BinNumber = entry+slID.superLayer();
-	    if(BinNumber == 12) BinNumber=11;
-	    TProfile* prof = res_histo_2D_root->ProfileX();
-	    prof->GetXaxis()->SetRangeUser(0,2);
-	    prof->Fit("pol1","R");
-	    TF1 *fitting = prof->GetFunction("pol1");
-	    double slope = fitting->GetParameter(1);
-	    if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());
-	    SlopeHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, slope);	
-	  }
-	}
+	TH2F * res_histo_2D_root = res_histo_2D->getTH2F();
+	int BinNumber = entry+slID.superLayer();
+	if(BinNumber == 12) BinNumber=11;
+	TProfile* prof = res_histo_2D_root->ProfileX();
+	prof->GetXaxis()->SetRangeUser(0,2);
+	prof->Fit("pol1","R");
+	TF1 *fitting = prof->GetFunction("pol1");
+	double slope = fitting->GetParameter(1);
+	if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());
+	SlopeHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, slope);	
       }
-
     }
   }
 

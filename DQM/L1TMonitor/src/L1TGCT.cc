@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/01/22 18:56:02 $
- * $Revision: 1.17 $
+ * $Date: 2008/02/20 18:59:29 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.18  2008/02/20 18:59:29  tapper
+ * Ported GCTMonitor histograms into L1TGCT
+ *
  * Revision 1.17  2008/01/22 18:56:02  muzaffar
  * include cleanup. Only for cc/cpp files
  *
@@ -62,6 +65,7 @@
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 
@@ -107,16 +111,9 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   logFile_.open("L1TGCT.log");
 
   dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
+  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = edm::Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
@@ -150,8 +147,8 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = edm::Service < DQMStore > ().operator->();
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TGCT");

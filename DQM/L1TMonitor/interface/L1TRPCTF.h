@@ -4,7 +4,7 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/08/27 16:39:18 $
+ * $Date: 2007/09/26 14:18:03 $
  * $Revision: 1.4 $
  * \author J. Berryhill
  *
@@ -23,8 +23,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -63,7 +63,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   MonitorElement* rpctfetavalue[3];
   MonitorElement* rpctfphivalue[3];

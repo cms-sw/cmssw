@@ -4,7 +4,7 @@
 /*
  * \file L1TLTC.h
  *
- * $Date: 2007/02/22 19:43:52 $
+ * $Date: 2007/06/27 13:54:21 $
  * $Revision: 1.2 $
  * \author J. Berryhill
  *
@@ -23,8 +23,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -60,7 +60,7 @@ void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   // ----------member data ---------------------------
   MonitorElement* h1;

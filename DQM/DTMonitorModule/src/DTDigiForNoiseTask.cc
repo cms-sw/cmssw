@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/11/06 17:31:29 $
- * $Revision: 1.5 $
+ * $Date: 2008/01/22 18:46:59 $
+ * $Revision: 1.6 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -24,6 +24,9 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -40,11 +43,7 @@ DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
 
   parameters = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
-
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
 }

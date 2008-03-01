@@ -105,9 +105,7 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   hGlobalPull = new TH1F("GlobalPull","GlobalRPCPull",50,-15.,15.);
   histoMean = new TH1F("MeanEfficincy","MeanEfficiency_vs_Ch",100,20.5,120.5);
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
   Run=0;
   effres = new ofstream("EfficiencyResults.dat");

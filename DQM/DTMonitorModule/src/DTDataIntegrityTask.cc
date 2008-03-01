@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/11/06 17:31:05 $
- * $Revision: 1.32 $
+ * $Date: 2008/01/28 14:33:04 $
+ * $Revision: 1.34 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -17,8 +17,8 @@
 #include "EventFilter/DTRawToDigi/interface/DTControlData.h"
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <math.h>
 #include <fstream>
@@ -48,12 +48,8 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();  
-  
-  if (ps.getUntrackedParameter<bool>("enableMonitorDaemon", false)) {
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  }
+  dbe = edm::Service<DQMStore>().operator->();  
+
   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", true);
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file L1THCALTPGXAna.h
  *
- * $Date: 2007/02/23 22:00:16 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/28 17:39:50 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
 */
@@ -28,8 +28,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -82,7 +82,7 @@ void endJob(void);
  
  private:
 // ----------member data ---------------------------
- DaqMonitorBEInterface * dbe;
+ DQMStore * dbe;
  HcalTrigTowerGeometry theTrigTowerGeometry;
  IdtoEnergy Rec_towers;
  

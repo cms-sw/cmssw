@@ -1,10 +1,12 @@
 #include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalDeadCellClient::HcalDeadCellClient(){}
 
 
-void HcalDeadCellClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
+void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName){
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
 

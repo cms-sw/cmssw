@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <memory>
@@ -57,13 +57,13 @@ protected:
 private:
 
   void initialize();
-  TH1F * get1DHisto(string meName, DaqMonitorBEInterface * dbi);
-  TH2F * get2DHisto(string meName, DaqMonitorBEInterface * dbi);
-  TProfile2D * get2DProfile(string meName, DaqMonitorBEInterface * dbi);
-  TProfile * get1DProfile(string meName, DaqMonitorBEInterface * dbi);
+  TH1F * get1DHisto(string meName, DQMStore * dbi);
+  TH2F * get2DHisto(string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(string meName, DQMStore * dbi);
+  TProfile * get1DProfile(string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
 
-  DaqMonitorBEInterface* dbe_;  
+  DQMStore* dbe_;  
   std::string monitorName_;
   int counterLS_;      ///counter
   int counterEvt_;     ///counter

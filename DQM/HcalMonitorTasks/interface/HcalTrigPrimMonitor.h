@@ -2,12 +2,14 @@
 #define DQM_HCALMONITORTASKS_HCALTRIGPRIMMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2007/11/29 11:47:43 $
-  * $Revision: 1.5 $
+  * $Date: 2008/02/18 13:39:36 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalTrigPrimMonitor: public HcalBaseMonitor {
@@ -15,7 +17,7 @@ public:
   HcalTrigPrimMonitor(); 
   ~HcalTrigPrimMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, 
 		    const HORecHitCollection& hoHits, 
 		    const HFRecHitCollection& hfHits,

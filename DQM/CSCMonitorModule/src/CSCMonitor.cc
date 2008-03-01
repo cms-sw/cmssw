@@ -1,6 +1,5 @@
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig )
@@ -19,11 +18,7 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig )
       
   this->loadBooking();
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
-
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->showDirStructure();
   gStyle->SetPalette(1,0);
 }

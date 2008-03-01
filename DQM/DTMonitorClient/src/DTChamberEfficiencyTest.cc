@@ -3,13 +3,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/07 15:22:56 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/22 18:45:23 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
 
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // Framework
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -37,7 +39,7 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -124,48 +126,40 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     
     // ME -> TH1F
     if(GoodSegDen_histo && GoodCloseSegNum_histo) {	  
-      MonitorElementT<TNamed>* den = dynamic_cast<MonitorElementT<TNamed>*>(GoodSegDen_histo);
-      MonitorElementT<TNamed>* num = dynamic_cast<MonitorElementT<TNamed>*>(GoodCloseSegNum_histo);
-      
-      if (den && num) {
-	TH2F * GoodSegDen_histo_root = dynamic_cast<TH2F*> (den->operator->());
-	TH2F * GoodCloseSegNum_histo_root = dynamic_cast<TH2F*> (num->operator->());
+      TH2F * GoodSegDen_histo_root = GoodSegDen_histo->getTH2F();
+      TH2F * GoodCloseSegNum_histo_root = GoodCloseSegNum_histo->getTH2F();
 	
-	if (GoodSegDen_histo_root && GoodCloseSegNum_histo_root) {
-	  
-	  int lastBinX=(*GoodSegDen_histo_root).GetNbinsX();
-	  TH1D* proxN=GoodCloseSegNum_histo_root->ProjectionX();
-	  TH1D* proxD=GoodSegDen_histo_root->ProjectionX();
+      int lastBinX=(*GoodSegDen_histo_root).GetNbinsX();
+      TH1D* proxN=GoodCloseSegNum_histo_root->ProjectionX();
+      TH1D* proxD=GoodSegDen_histo_root->ProjectionX();
 
-	  int lastBinY=(*GoodSegDen_histo_root).GetNbinsY();
-	  TH1D* proyN=GoodCloseSegNum_histo_root->ProjectionY();
-	  TH1D* proyD=GoodSegDen_histo_root->ProjectionY();
+      int lastBinY=(*GoodSegDen_histo_root).GetNbinsY();
+      TH1D* proyN=GoodCloseSegNum_histo_root->ProjectionY();
+      TH1D* proyD=GoodSegDen_histo_root->ProjectionY();
 	  
 
-	  // Book Efficiency Histos
-	  if (xEfficiencyHistos.find(HistoName) == xEfficiencyHistos.end()) bookHistos(chID);
+      // Book Efficiency Histos
+      if (xEfficiencyHistos.find(HistoName) == xEfficiencyHistos.end()) bookHistos(chID);
 	  
-	  for(int xBin=1; xBin<=lastBinX; xBin++) {
-	    if(proxD->GetBinContent(xBin)!=0){
-	      float Xefficiency = proxN->GetBinContent(xBin) / proxD->GetBinContent(xBin);
-	      xEfficiencyHistos.find(HistoName)->second->setBinContent(xBin, Xefficiency);
-	    }
+      for(int xBin=1; xBin<=lastBinX; xBin++) {
+	if(proxD->GetBinContent(xBin)!=0){
+	  float Xefficiency = proxN->GetBinContent(xBin) / proxD->GetBinContent(xBin);
+	  xEfficiencyHistos.find(HistoName)->second->setBinContent(xBin, Xefficiency);
+	}
 
-	    for(int yBin=1; yBin<=lastBinY; yBin++) {
-	      if(GoodSegDen_histo_root->GetBinContent(xBin, yBin)!=0){
-		float XvsYefficiency = GoodCloseSegNum_histo_root->GetBinContent(xBin, yBin) / GoodSegDen_histo_root->GetBinContent(xBin, yBin);
-		xVSyEffHistos.find(HistoName)->second->setBinContent(xBin, yBin, XvsYefficiency);
-	      }
-	    }
+	for(int yBin=1; yBin<=lastBinY; yBin++) {
+	  if(GoodSegDen_histo_root->GetBinContent(xBin, yBin)!=0){
+	    float XvsYefficiency = GoodCloseSegNum_histo_root->GetBinContent(xBin, yBin) / GoodSegDen_histo_root->GetBinContent(xBin, yBin);
+	    xVSyEffHistos.find(HistoName)->second->setBinContent(xBin, yBin, XvsYefficiency);
+	  }
+	}
 	    
-	  }
+      }
 	  
-	  for(int yBin=1; yBin<=lastBinY; yBin++) {
-	    if(proyD->GetBinContent(yBin)!=0){
-	      float Yefficiency = proyN->GetBinContent(yBin) / proyD->GetBinContent(yBin);
-	      yEfficiencyHistos.find(HistoName)->second->setBinContent(yBin, Yefficiency);
-	    }
-	  }
+      for(int yBin=1; yBin<=lastBinY; yBin++) {
+	if(proyD->GetBinContent(yBin)!=0){
+	  float Yefficiency = proyN->GetBinContent(yBin) / proyD->GetBinContent(yBin);
+	  yEfficiencyHistos.find(HistoName)->second->setBinContent(yBin, Yefficiency);
 	}
       }
     }

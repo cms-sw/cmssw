@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/11/16 11:27:22 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/22 18:45:23 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -22,6 +22,8 @@
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // the Timebox fitter
@@ -40,7 +42,7 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
 
   parameters = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   theFitter = new DTTimeBoxFitter();
@@ -146,20 +148,15 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	
 	edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: I've got the histo!!";	
 
-	MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(tb_histo);
-	if (ob) {
-	  TH1F * tb_histo_root = dynamic_cast<TH1F*> (ob->operator->());
-	  if (tb_histo_root) {
+	TH1F * tb_histo_root = tb_histo->getTH1F();
 	    
-	    pair<double, double> meanAndSigma = theFitter->fitTimeBox(tb_histo_root);
+	pair<double, double> meanAndSigma = theFitter->fitTimeBox(tb_histo_root);
 	    
-	    tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
+	tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
 
-	    if (histos.find((*ch_it)->id().rawId()) == histos.end()) bookHistos((*ch_it)->id());
-	    histos.find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), meanAndSigma.first-tTrig);
+	if (histos.find((*ch_it)->id().rawId()) == histos.end()) bookHistos((*ch_it)->id());
+	histos.find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), meanAndSigma.first-tTrig);
 
-	  }
-	}
       }
     }
     

@@ -4,8 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -45,7 +44,7 @@ public:
 
 
 private:
-  DaqMonitorBEInterface * dbe_;
+  DQMStore * dbe_;
   edm::InputTag scalersSource_;
 //  edm::InputTag triggerScalersSource_;
 //  edm::InputTag triggerRatesSource_;

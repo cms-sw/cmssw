@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/10/30 10:15:55 $
- * $Revision: 1.15 $
+ * $Date: 2007/11/06 17:34:12 $
+ * $Revision: 1.16 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -20,9 +20,8 @@
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -95,7 +94,7 @@ private:
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

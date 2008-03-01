@@ -2,7 +2,7 @@
  *
  *  implementation of RPCMonitorEfficiency class
  *
- *  $Date: 2007/03/12 22:37:15 $
+ *  $Date: 2008/01/22 19:11:44 $
  *  Revision: 1.5 $
  *
  * \author  Camilo Carrillo
@@ -90,10 +90,8 @@ RPCMonitorEfficiency::RPCMonitorEfficiency( const edm::ParameterSet& pset ){
   EffRootFileName  = pset.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
 
   /// get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
   dbe->showDirStructure();
 

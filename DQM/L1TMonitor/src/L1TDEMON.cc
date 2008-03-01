@@ -1,4 +1,5 @@
 #include "DQM/L1TMonitor/interface/L1TDEMON.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <bitset>
 
 using namespace dedefs;
@@ -19,16 +20,9 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     deSysCount[i]=0;
   
   dbe = NULL;
-  if (iConfig.getUntrackedParameter<bool>("DaqMonitorBEInterface", false)) { 
-    dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
+    dbe = edm::Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-  
-  monitorDaemon_ = false;
-  if(iConfig.getUntrackedParameter<bool>("MonitorDaemon", false)) {
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
   
   if(dbe!=NULL)
@@ -46,8 +40,8 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   if(verbose())
     std::cout << "L1TDEMON::beginJob()  start\n" << std::flush;
 
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
     dbe->rmdir(histFolder_);

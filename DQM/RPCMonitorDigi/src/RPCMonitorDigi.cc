@@ -48,10 +48,8 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   dqmsuperexpert = pset.getUntrackedParameter<bool>("dqmsuperexpert", false);
   
   /// get hold of back-end interfacestd::cout<<"\n test"<<std::endl;
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
-  //edm::Service<MonitorDaemon> daemon;
-  //daemon.operator->();
 
   /*
 

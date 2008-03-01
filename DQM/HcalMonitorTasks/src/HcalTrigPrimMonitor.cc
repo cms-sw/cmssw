@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 HcalTrigPrimMonitor::HcalTrigPrimMonitor() {
   ievt_=0;
@@ -20,7 +21,7 @@ void HcalTrigPrimMonitor::clearME(){
 
 }
 
-void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"TrigPrimMonitor";
 
@@ -113,7 +114,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   
 
   if(!m_dbe) { 
-    printf("HcalTrigPrimMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    printf("HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
   }
 

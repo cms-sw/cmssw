@@ -1,18 +1,19 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/10/18 17:59:15 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/22 18:46:59 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include <DQM/DTMonitorModule/interface/DTGlobalRecoTask.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 using namespace std;
 
-DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
+DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, DQMStore* dbe,
 				   const edm::EventSetup& context){
 
   logFile.open("DTGlobalRecoTask.log");

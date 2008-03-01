@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/06 17:34:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/12 17:47:03 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,8 +19,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -47,9 +47,8 @@ DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
     cout << "[DTEfficiencyTask] Constructor called!" << endl;
 
   // Get the DQM needed services
-  theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
-  edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTEfficiencyTask");
 
   parameters = pset;

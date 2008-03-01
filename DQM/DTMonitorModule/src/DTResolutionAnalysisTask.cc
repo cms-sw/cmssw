@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/06 17:36:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/22 18:46:59 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -15,8 +15,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -39,9 +39,8 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
     cout << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // Get the DQM needed services
-  theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
-  edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask");
 
   parameters = pset;

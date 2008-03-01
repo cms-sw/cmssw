@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.8 2007/12/21 20:04:50 wsun Exp $
+ * $Id: L1TCompare.cc,v 1.9 2008/01/22 18:56:01 muzaffar Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.9  2008/01/22 18:56:01  muzaffar
+ * include cleanup. Only for cc/cpp files
+ *
  * Revision 1.8  2007/12/21 20:04:50  wsun
  * Migrated L1EtMissParticle -> L1EtMissParticleCollection.
  *
@@ -49,6 +52,8 @@
 
 // Ecal
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // stl
 #include <algorithm>
@@ -103,16 +108,9 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
   logFile_.open("L1TCompare.log");
 
   dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = Service < DaqMonitorBEInterface > ().operator->();
+  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    Service < MonitorDaemon > daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ =
@@ -150,8 +148,8 @@ void L1TCompare::beginJob(const EventSetup & c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = Service < DQMStore > ().operator->();
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/Compare");

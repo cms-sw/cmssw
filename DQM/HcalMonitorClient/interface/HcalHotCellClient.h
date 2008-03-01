@@ -2,6 +2,7 @@
 #define HcalHotCellClient_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 struct HotCellHists{
   int type;
@@ -44,7 +45,7 @@ class HcalHotCellClient : public HcalBaseClient{
   /// Destructor
    ~HcalHotCellClient();
 
-   void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);    
+   void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
 
   /// Analyze
   void analyze(void);

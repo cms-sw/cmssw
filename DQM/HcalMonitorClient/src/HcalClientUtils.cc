@@ -1,7 +1,9 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
-void resetME(const char* name, DaqMonitorBEInterface* dbe){
+void resetME(const char* name, DQMStore* dbe){
   if(dbe==NULL) return;
   MonitorElement* me= dbe->get(name);
   if(me) dbe->softReset(me);
@@ -192,7 +194,7 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
   return outName;
 }
 
-TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
+TH2F* getHisto2(string name, string process, DQMStore* dbe_, bool verb, bool clone){
 
   if(!dbe_) return NULL;
 
@@ -204,23 +206,18 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
 
   if ( me ) {      
     if ( verb) cout << "Found '" << title << "'" << endl;
-    // MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-
-    if ( ob ) {
-      if ( clone) {
-	char histo[150];
-	sprintf(histo, "ME %s",name.c_str());
-	out = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-      } else {
-	out = dynamic_cast<TH2F*> (ob->operator->());
-      }
+    if ( clone) {
+      char histo[150];
+      sprintf(histo, "ME %s",name.c_str());
+      out = dynamic_cast<TH2F*> (me->getTH2F()->Clone(histo));
+    } else {
+      out = me->getTH2F();
     }
   }
   return out;
 }
 
-TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
+TH1F* getHisto(string name, string process, DQMStore* dbe_, bool verb, bool clone){
   if(!dbe_) return NULL;
   
   char title[150];  
@@ -230,16 +227,12 @@ TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool ve
   const MonitorElement* me = dbe_->get(title);
   if (me){      
     if ( verb ) cout << "Found '" << title << "'" << endl;
-    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-    if ( ob ) {
-      if ( clone ) {
-	char histo[150];
-	sprintf(histo, "ME %s",name.c_str());
-	out = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-      } else {
-	out = dynamic_cast<TH1F*> (ob->operator->());
-      }
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",name.c_str());
+      out = dynamic_cast<TH1F*> (me->getTH1F()->Clone(histo));
+    } else {
+      out = me->getTH1F();
     }
   }
 
@@ -254,15 +247,12 @@ TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone){
   if ( me ) {      
     if ( verb) cout << "Found '" << me->getName() << "'" << endl;
     //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-    if ( ob ) {
-      if ( clone ) {
-	char histo[150];
-	sprintf(histo, "ME %s", ((string)(me->getName())).c_str());
-	out = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-      } else {
-	out = dynamic_cast<TH2F*> (ob->operator->());
-      }
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s", ((string)(me->getName())).c_str());
+      out = dynamic_cast<TH2F*> (me->getTH2F()->Clone(histo));
+    } else {
+      out = me->getTH2F();
     }
   }
   return out;
@@ -273,16 +263,12 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
 
   if ( me ) {      
     if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
-    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-    if ( ob ) {
-      if ( clone ) {
-	char histo[150];
-	sprintf(histo, "ME %s",((string)(me->getName())).c_str());
-	out = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-      } else {
-	out = dynamic_cast<TH1F*> (ob->operator->());
-      }
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",((string)(me->getName())).c_str());
+      out = dynamic_cast<TH1F*> (me->getTH1F()->Clone(histo));
+    } else {
+      out = me->getTH1F();
     }
  }
   return out;
@@ -321,15 +307,15 @@ void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int w
   return;
 }
 
-void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createXRangeTest(DQMStore* dbe, vector<string>& params){
   if (params.size() < 6) return;
   if(!dbe) return;
 
   QCriterion* qc = dbe->getQCriterion(params[1]);
   if(qc == NULL){
-    qc = dbe->createQTest(ContentsXRangeROOT::getAlgoName(),params[1]);
+    qc = dbe->createQTest(ContentsXRange::getAlgoName(),params[1]);
     // Contents within [Xmin, Xmax]
-    MEContentsXRangeROOT* me_qc = (MEContentsXRangeROOT*) qc;
+    ContentsXRange* me_qc = (ContentsXRange*) qc;
     //set probability limit for test warning 
     me_qc->setWarningProb(atof(params[2].c_str()));
     //set probability limit for test error 
@@ -342,15 +328,15 @@ void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
   return;
 }
 
-void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createYRangeTest(DQMStore* dbe, vector<string>& params){
   if (params.size() < 6) return;
   if(!dbe) return;
 
   QCriterion* qc = dbe->getQCriterion(params[1]);
   if(qc == NULL){
-    qc = dbe->createQTest(ContentsYRangeROOT::getAlgoName(),params[1]);
+    qc = dbe->createQTest(ContentsYRange::getAlgoName(),params[1]);
     // Contents within [Xmin, Xmax]
-    MEContentsYRangeROOT* me_qc = (MEContentsYRangeROOT*) qc;
+    ContentsYRange* me_qc = (ContentsYRange*) qc;
     //set probability limit for test warning 
     me_qc->setWarningProb(atof(params[2].c_str()));
     //set probability limit for test error 
@@ -363,7 +349,7 @@ void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
   return;
 }
 
-void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createMeanValueTest(DQMStore* dbe, vector<string>& params){
   if (params.size() < 7 ) return;
   if(!dbe) return;
 
@@ -371,7 +357,7 @@ void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params){
   if(qc == NULL){
     qc = dbe->createQTest("MeanWithinExpected",params[1]);
     // Contents within a mean value
-    MEMeanWithinExpectedROOT* me_qc = (MEMeanWithinExpectedROOT*) qc;
+    MeanWithinExpected* me_qc = (MeanWithinExpected*) qc;
     //set probability limit for test warning
     me_qc->setWarningProb(atof(params[2].c_str()));
     //set probability limit for test error
@@ -387,14 +373,14 @@ void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params){
   return;
 }
 
-void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createH2ContentTest(DQMStore* dbe, vector<string>& params){
   if (params.size() < 2 ) return;
   if(!dbe) return;
 
   QCriterion* qc = dbe->getQCriterion(params[1]);
   MonitorElement* me =  dbe->get(params[0]);
   if(me!=NULL && qc == NULL){
-    qc = dbe->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),params[1]);
+    qc = dbe->createQTest(ContentsTH2FWithinRange::getAlgoName(),params[1]);
     // Contents within a mean value     
     ContentsTH2FWithinRangeROOT* me_qc = dynamic_cast<ContentsTH2FWithinRangeROOT*> (qc);
     me_qc->setMeanRange(0,1e-10);
@@ -406,7 +392,7 @@ void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params){
   return;
 }
 
-void createH2CompTest(DaqMonitorBEInterface* dbe, vector<string>& params, TH2F* ref){
+void createH2CompTest(DQMStore* dbe, vector<string>& params, TH2F* ref){
   if (params.size() < 2 ) return;
   if(ref==NULL) return;
   if(!dbe) return;
@@ -432,7 +418,7 @@ void createH2CompTest(DaqMonitorBEInterface* dbe, vector<string>& params, TH2F* 
   return;
 }
 
-void htmlErrors(int runNo, string htmlDir, string client, string process, DaqMonitorBEInterface* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
+void htmlErrors(int runNo, string htmlDir, string client, string process, DQMStore* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
   if(!dbe) return;
 
   map<string, vector<QReport*> >::iterator mapIter;

@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/09/20 10:31:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/07 15:23:27 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -16,7 +16,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 class DTDataIntegrityTest: public edm::EDAnalyzer{
@@ -70,7 +70,7 @@ private:
   int prescaleFactor;
   int run;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

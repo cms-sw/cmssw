@@ -5,11 +5,14 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/29 14:02:45 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
+ * Revision 1.5  2007/08/29 14:02:45  wittich
+ * split into barrel and endcap
+ *
  * Revision 1.4  2007/02/22 19:43:52  berryhil
  *
  *
@@ -41,8 +44,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -77,7 +80,7 @@ protected:
 
 private:
   // ----------member data ---------------------------
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
   // what we monitor
   MonitorElement *ecalTpEtEtaPhiB_;

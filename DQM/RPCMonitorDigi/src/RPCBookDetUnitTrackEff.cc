@@ -19,6 +19,7 @@
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiencyFromTrack.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId) {
   

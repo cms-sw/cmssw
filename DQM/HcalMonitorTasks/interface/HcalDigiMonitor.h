@@ -2,11 +2,13 @@
 #define DQM_HCALMONITORTASKS_HCALDIGIMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.14 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.15 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -14,7 +16,7 @@ public:
   HcalDigiMonitor(); 
   ~HcalDigiMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,

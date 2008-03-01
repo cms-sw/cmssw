@@ -18,6 +18,8 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace edm;
 
@@ -29,16 +31,9 @@ HLTMonElectron::HLTMonElectron(const edm::ParameterSet& iConfig)
   logFile_.open("HLTMonElectron.log");
   
   dbe = NULL;
-  if (iConfig.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = Service < DaqMonitorBEInterface > ().operator->();
+  if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-  
-  monitorDaemon_ = false;
-  if (iConfig.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    Service < MonitorDaemon > daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
   
   outputFile_ =
@@ -194,8 +189,8 @@ void
 HLTMonElectron::beginJob(const edm::EventSetup&)
 {
   nev_ = 0;
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = Service < DQMStore > ().operator->();
   
   if (dbe) {
     dbe->setCurrentFolder(dirname_);

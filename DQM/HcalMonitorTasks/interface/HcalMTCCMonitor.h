@@ -3,12 +3,14 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2007/04/02 13:19:38 $
-  * $Revision: 1.8 $
+  * $Date: 2007/10/04 21:03:13 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -16,7 +18,7 @@ class HcalMTCCMonitor: public HcalBaseMonitor {
   HcalMTCCMonitor(); 
   ~HcalMTCCMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,

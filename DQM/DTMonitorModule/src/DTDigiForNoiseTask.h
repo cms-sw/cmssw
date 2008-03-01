@@ -4,8 +4,8 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2007/11/06 11:35:11 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/06 17:31:33 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -18,9 +18,8 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -69,7 +68,7 @@ private:
   bool debug;
   int nevents;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

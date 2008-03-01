@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 
 
@@ -191,7 +191,7 @@ class CSCMonitor : public CSCMonitorInterface {
   std::string xmlHistosBookingCfgFile;
 
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   // CSC Mapping
   CSCReadoutMappingFromFile cscMapping;
   std::map<std::string, int> tmap;

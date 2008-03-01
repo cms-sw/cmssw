@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/22 07:03:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/18 12:37:53 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -21,8 +21,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 

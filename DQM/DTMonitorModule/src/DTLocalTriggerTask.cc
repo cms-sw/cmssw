@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2007/11/19 14:32:05 $
- * $Revision: 1.18 $
+ * $Date: 2008/01/07 14:33:40 $
+ * $Revision: 1.19 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -28,6 +28,9 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -49,9 +52,7 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   parameters = ps;
   loadDTTFMap();
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();    
+  dbe = edm::Service<DQMStore>().operator->();
 
 }
 

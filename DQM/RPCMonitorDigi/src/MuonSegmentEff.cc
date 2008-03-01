@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.16 2008/02/11 14:16:08 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.17 2008/02/15 11:40:22 carrillo Exp $
 //
 //
 
@@ -153,9 +153,7 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 10000); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "CMSRPCEff.root"); 
   //Interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
 
   //Giuseppe

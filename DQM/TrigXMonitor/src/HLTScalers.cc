@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.6 2007/12/11 17:24:55 wittich Exp $
+// $Id: HLTScalers.cc,v 1.7 2008/01/22 19:02:43 muzaffar Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.7  2008/01/22 19:02:43  muzaffar
+// include cleanup. Only for cc/cpp files
+//
 // Revision 1.6  2007/12/11 17:24:55  wittich
 // - add extra monitoring histos (eg hlt exceptions and correlations)
 //
@@ -46,6 +49,8 @@
 
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace edm;
 
@@ -74,14 +79,8 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   if (verbose_)
     std::cout << "HLTScalers: constructor...." << std::endl;
 
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
-
-  if ( monitorDaemon_) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->(); // gross
-    monitorDaemon_ = true;
-  }
   if (dbe_ ) {
     dbe_->setCurrentFolder("L1T/HLTScalers");
   }

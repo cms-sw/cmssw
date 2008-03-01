@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2007/11/06 17:36:38 $
- * $Revision: 1.11 $
+ * $Date: 2008/01/22 18:46:59 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -28,6 +28,7 @@
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 #include <CondFormats/DTObjects/interface/DTRangeT0.h>
 #include <CondFormats/DataRecord/interface/DTRangeT0Rcd.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 using namespace edm;
@@ -46,11 +47,7 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
 
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
-
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
 }

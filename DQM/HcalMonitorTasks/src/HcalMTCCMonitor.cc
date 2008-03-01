@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 HcalMTCCMonitor::HcalMTCCMonitor() {
   occThresh_ = 1.0;
@@ -29,7 +30,7 @@ void HcalMTCCMonitor::clearME(){
   return;
 }
 
-void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"MTCCMonitor";
 
@@ -90,7 +91,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const LTCDigiCollection& ltc,
 				   const HcalDbService& cond){
   
-  if(!m_dbe) { printf("HcalMTCCMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
+  if(!m_dbe) { printf("HcalMTCCMonitor::processEvent   DQMStore not instantiated!!!\n");  return; }
   
   ievt_++;
   meEVT_->Fill(ievt_);

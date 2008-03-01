@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/19 17:43:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/07 15:24:25 $
+ *  $Revision: 1.5 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -22,8 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -83,7 +83,7 @@ private:
   int prescaleFactor;
   int run;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

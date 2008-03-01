@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/12 17:59:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/11/19 14:30:20 $
+ *  $Revision: 1.8 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -22,8 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <boost/cstdint.hpp>
@@ -101,7 +101,7 @@ protected:
   int prescaleFactor;
   int run;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
   std::string sourceFolder;
   edm::ParameterSet parameters;
   std::string hwSource;

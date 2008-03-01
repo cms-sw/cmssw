@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/12/05 16:48:53 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.8  2007/12/21 17:41:21  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.7  2007/12/05 16:48:53  berryhil
  *
  *
@@ -36,6 +41,7 @@
 
 #include "DQM/L1TMonitor/interface/L1THCALTPG.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 
@@ -66,17 +72,10 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
   logFile_.open("L1THCALTPG.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
@@ -110,8 +109,8 @@ void L1THCALTPG::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1THCALTPG");

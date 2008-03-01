@@ -29,14 +29,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
 using namespace std;
 
 
-//#include "DQMServices/Core/interface/MonitorUserInterface.h"
+//#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 //
 // class decleration
 class SubscriptionHandle;
@@ -46,8 +47,8 @@ class L1THcalClient : public edm::EDAnalyzer{
    public:
       explicit L1THcalClient(const edm::ParameterSet&);
       ~L1THcalClient();
-      TH1F * get1DHisto(string meName, DaqMonitorBEInterface * dbi);
-      TH2F * get2DHisto(string meName, DaqMonitorBEInterface * dbi);
+      TH1F * get1DHisto(string meName, DQMStore * dbi);
+      TH2F * get2DHisto(string meName, DQMStore * dbi);
 
 
    private:
@@ -60,7 +61,7 @@ class L1THcalClient : public edm::EDAnalyzer{
       // ----------member data ---------------------------
       int nevents,nupdates;
 
-      DaqMonitorBEInterface *dbe;
+      DQMStore *dbe;
       //std::string outputFile;
       //std::string qualityCriterionName;
       std::string input_dir;

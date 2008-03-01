@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and RPCRecHit.
  *
- *  $Date: 2006/10/14 10:32:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/24 05:50:06 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -18,8 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include<string>
 #include<map>
 #include<fstream>
@@ -56,7 +56,7 @@ class RPCMonitorEfficiency : public edm::EDAnalyzer {
   
   /// back-end interface
 
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   MonitorElement * h1;
 
   bool debug;

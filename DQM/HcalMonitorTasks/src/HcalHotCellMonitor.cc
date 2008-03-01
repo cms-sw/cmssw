@@ -1,5 +1,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <map>
+#include <math.h>
 
 // Use for stringstream
 #include <iostream>
@@ -361,7 +364,7 @@ HcalHotCellMonitor::~HcalHotCellMonitor() {
 }
 void HcalHotCellMonitor::reset(){}
 
-void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
   baseFolder_ = rootFolder_+"HotCellMonitor";
@@ -543,7 +546,7 @@ void HcalHotCellMonitor::setupVals(HotCellHists& h,int type,HotCellHists& base, 
   return;
 }
 
-void HcalHotCellMonitor::setupHists(HotCellHists& h, DaqMonitorBEInterface* dbe)
+void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 
 {
   string subdet = h.name;
@@ -666,7 +669,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
   if(!m_dbe) 
     { 
-      cout<<"HcalHotCellMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!"<<endl;  
+      cout<<"HcalHotCellMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
       return; 
     }
 

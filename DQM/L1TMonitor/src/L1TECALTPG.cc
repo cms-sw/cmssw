@@ -1,13 +1,18 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.8  2007/12/21 17:41:20  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.7  2007/11/19 15:08:22  lorenzo
  * changed top folder name
  *
@@ -42,6 +47,7 @@
 #include "DQM/L1TMonitor/interface/L1TECALTPG.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // end of header files 
 using namespace edm;
@@ -74,16 +80,9 @@ L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
   logFile_.open("L1TECALTPG.log");
 
   dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = Service < DaqMonitorBEInterface > ().operator->();
+  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    Service < MonitorDaemon > daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ =
@@ -120,8 +119,8 @@ void L1TECALTPG::beginJob(const EventSetup & c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = Service < DQMStore > ().operator->();
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TECALTPG");

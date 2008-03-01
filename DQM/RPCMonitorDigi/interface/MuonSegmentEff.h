@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2007/10/10 16:59:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/07 14:47:43 $
+ *  $Revision: 1.7 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -15,8 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
@@ -68,7 +68,7 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
       std::string nameInLog;
-      DaqMonitorBEInterface * dbe;
+      DQMStore * dbe;
 
       std::vector<uint32_t> _idList;
 

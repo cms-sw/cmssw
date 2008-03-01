@@ -1,13 +1,15 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2007/08/29 08:54:08 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TFED.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 using namespace edm;
@@ -23,17 +25,10 @@ L1TFED::L1TFED(const ParameterSet& ps)
   logFile_.open("L1TFED.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe = Service<DQMStore>().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -67,8 +62,8 @@ void L1TFED::beginJob(const EventSetup& c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TFED");
@@ -118,8 +113,8 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
 	 {
 	  if(hindfed[i]==0)
 	  {
-	   DaqMonitorBEInterface *dbe = 
-	   edm::Service<DaqMonitorBEInterface>().operator->();
+	   DQMStore *dbe = 
+	   edm::Service<DQMStore>().operator->();
 	   dbe->setCurrentFolder("L1T/L1TFED/Details");
 	   std::ostringstream os1;
 	   std::ostringstream os2;

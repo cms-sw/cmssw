@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/11/06 17:33:17 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 18:46:59 $
+ * $Revision: 1.35 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -33,6 +33,9 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -50,14 +53,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
 
   parameters = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  if (ps.getUntrackedParameter<bool>("enableMonitorDaemon", "false")) {
-    edm::Service<MonitorDaemon> daemon; 	 
-    daemon.operator->();
-  }
-
-
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
   syncNumTot = 0;

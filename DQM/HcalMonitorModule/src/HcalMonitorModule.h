@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/11/28 11:49:16 $
- * $Revision: 1.23 $
+ * $Date: 2007/12/19 19:02:23 $
+ * $Revision: 1.24 $
  * \author W. Fisher
  *
 */
@@ -20,8 +20,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DQMServices/Components/interface/DQMAnalyzer.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -131,7 +131,7 @@ public:
   } psTime_;    
 
   ///Connection to the DQM backend
-  DaqMonitorBEInterface* dbe_;  
+  DQMStore* dbe_;  
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;

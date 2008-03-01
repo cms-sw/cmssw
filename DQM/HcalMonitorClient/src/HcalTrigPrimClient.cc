@@ -1,10 +1,12 @@
 #include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalTrigPrimClient::HcalTrigPrimClient(){}
 
 
-void HcalTrigPrimClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
+void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
 

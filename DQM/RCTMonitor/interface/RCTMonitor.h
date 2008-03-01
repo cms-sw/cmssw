@@ -51,8 +51,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM files
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
@@ -140,7 +140,7 @@ class RCTMonitor : public edm::EDAnalyzer {
   int m_nevts;
 
   // back-end interface
-  DaqMonitorBEInterface * m_dbe;
+  DQMStore * m_dbe;
 
   // Enable the daemon
   bool m_enableMonitorDaemon;

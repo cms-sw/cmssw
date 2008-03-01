@@ -6,10 +6,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -37,7 +36,7 @@ class HcalBaseClient{
   /// Destructor
   virtual ~HcalBaseClient();
   
-  virtual void init(const ParameterSet& ps, DaqMonitorBEInterface* dbe_, string clientName);
+  virtual void init(const ParameterSet& ps, DQMStore* dbe_, string clientName);
 
   void errorOutput();
   void getTestResults(int& totalTests, 
@@ -59,7 +58,7 @@ class HcalBaseClient{
   string baseFolder_;
   string clientName_;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
   bool subDetsOn_[4];
   

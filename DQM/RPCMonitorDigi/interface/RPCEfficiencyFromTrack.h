@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -75,7 +75,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       std::string thePropagatorName;
       mutable Propagator* thePropagator;
-      DaqMonitorBEInterface * dbe;
+      DQMStore * dbe;
 
       std::vector<std::string> _idList;
       std::vector<std::map<RPCDetId, int> > counter;

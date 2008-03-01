@@ -11,8 +11,8 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <string>
@@ -20,7 +20,7 @@
 #include <vector>
 //#include <pair>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 class DTTriggerCheck: public edm::EDAnalyzer{
@@ -45,7 +45,7 @@ void endJob();
 protected:
 
 private:
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
   bool debug;
 

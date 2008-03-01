@@ -8,6 +8,7 @@
 //#include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorEfficiency.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /// Booking of MonitoringElemnt for one RPCDetId (= roll)
 

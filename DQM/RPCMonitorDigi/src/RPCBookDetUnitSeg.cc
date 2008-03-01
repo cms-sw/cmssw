@@ -7,6 +7,7 @@
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DQM/RPCMonitorDigi/interface/MuonSegmentEff.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId & detId) {
   

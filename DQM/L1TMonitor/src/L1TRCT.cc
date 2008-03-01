@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/12/21 17:41:21 $
- * $Revision: 1.8 $
+ * $Date: 2008/01/22 18:56:02 $
+ * $Revision: 1.9 $
  * \author P. Wittich
  *
  */
@@ -11,6 +11,7 @@
 
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
@@ -52,16 +53,9 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
   logFile_.open("L1TRCT.log");
 
   dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
-    dbe = Service < DaqMonitorBEInterface > ().operator->();
+  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
-  }
-
-  monitorDaemon_ = false;
-  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
-    Service < MonitorDaemon > daemon;
-    daemon.operator->();
-    monitorDaemon_ = true;
   }
 
   outputFile_ =
@@ -99,8 +93,8 @@ void L1TRCT::beginJob(const EventSetup & c)
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface *dbe = 0;
-  dbe = Service < DaqMonitorBEInterface > ().operator->();
+  DQMStore *dbe = 0;
+  dbe = Service < DQMStore > ().operator->();
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TRCT");

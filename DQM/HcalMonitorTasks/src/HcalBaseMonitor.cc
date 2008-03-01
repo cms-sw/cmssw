@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 HcalBaseMonitor::HcalBaseMonitor() {
   fVerbosity = 0;
@@ -9,7 +10,7 @@ HcalBaseMonitor::HcalBaseMonitor() {
 
 HcalBaseMonitor::~HcalBaseMonitor() {}
 
-void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 

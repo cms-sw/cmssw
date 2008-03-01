@@ -8,6 +8,7 @@
 #include <DQM/L1TMonitor/interface/L1TRPCTPG.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 

@@ -11,10 +11,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -135,8 +134,8 @@ public:
   } psTime_;    
   
   ///Connection to the DQM backend
-  DaqMonitorBEInterface* dbe_;  
-  MonitorUserInterface* mui_;
+  DQMStore* dbe_;  
+  DQMOldReceiver* mui_;
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;

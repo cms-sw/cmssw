@@ -5,11 +5,13 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/11/20 00:34:19 $
- * $Revision: 1.19 $
+ * $Date: 2008/02/22 16:49:05 $
+ * $Revision: 1.20 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -17,8 +19,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   HcalDataFormatMonitor();
   ~HcalDataFormatMonitor();
   
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  //  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,const HcalElectronicsMap& emap );
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  //  void setup(const edm::ParameterSet& ps, DQMStore* dbe,const HcalElectronicsMap& emap );
   void processEvent(const FEDRawDataCollection& rawraw, const
 		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);

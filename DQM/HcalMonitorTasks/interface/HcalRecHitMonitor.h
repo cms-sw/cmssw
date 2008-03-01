@@ -2,12 +2,14 @@
 #define DQM_HCALMONITORTASKS_HCALRECHITMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.14 $
+  * $Date: 2007/11/21 20:45:15 $
+  * $Revision: 1.15 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -15,7 +17,7 @@ public:
   HcalRecHitMonitor(); 
   ~HcalRecHitMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
   void reset();
 

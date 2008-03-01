@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.3 2007/12/04 20:24:32 wittich Exp $
+// $Id: HLTScalers.h,v 1.4 2007/12/11 17:24:54 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.4  2007/12/11 17:24:54  wittich
+// - add extra monitoring histos (eg hlt exceptions and correlations)
+//
 // Revision 1.3  2007/12/04 20:24:32  wittich
 // - make hlt histograms variable width depending on path
 // - add strings for path names
@@ -29,8 +32,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -70,7 +72,7 @@ public:
 
 
 private:
-  DaqMonitorBEInterface * dbe_;
+  DQMStore * dbe_;
   MonitorElement *scalers_;
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;

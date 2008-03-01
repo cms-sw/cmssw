@@ -11,8 +11,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2007/11/06 17:36:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/28 10:31:33 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -26,7 +26,7 @@
 #include <vector>
 //#include <pair>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 class DTSegmentAnalysisTask: public edm::EDAnalyzer{
@@ -51,7 +51,7 @@ protected:
 private:
 
   // The BE interface
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;

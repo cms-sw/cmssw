@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iterator>
 
@@ -17,11 +18,7 @@ using namespace edm;
 using namespace std;
 
 DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
- theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
-
+ theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
 
  debug = pset.getUntrackedParameter<bool>("debug","false");

@@ -4,8 +4,8 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2007/03/13 18:59:53 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/06 17:36:45 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -18,8 +18,8 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
@@ -60,7 +60,7 @@ private:
   
   int nevents;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

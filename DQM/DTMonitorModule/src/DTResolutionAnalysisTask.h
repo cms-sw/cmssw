@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2007/09/20 07:20:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/06 17:36:09 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -25,7 +25,7 @@
 #include <map>
 #include <vector>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 
@@ -52,7 +52,7 @@ public:
 protected:
 
 private:
-  DaqMonitorBEInterface* theDbe;
+  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;

@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/07 15:29:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/13 17:15:22 $
+ *  $Revision: 1.6 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -21,8 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <memory>
@@ -88,7 +88,7 @@ private:
   int run;
   int percentual;
 
-  DaqMonitorBEInterface* dbe;
+  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

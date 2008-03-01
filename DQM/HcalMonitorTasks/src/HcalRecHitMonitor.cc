@@ -1,4 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalRecHitMonitor::HcalRecHitMonitor() {
   doPerChannel_ = false;
@@ -17,7 +19,7 @@ namespace HcalRecHitPerChan{
   inline void perChanHists(int id, const RecHit& rhit, 
 			   std::map<HcalDetId, MonitorElement*> &toolE, 
 			   std::map<HcalDetId, MonitorElement*> &toolT,
-			   DaqMonitorBEInterface* dbe, string baseFolder) {
+			   DQMStore* dbe, string baseFolder) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
 
@@ -61,7 +63,7 @@ namespace HcalRecHitPerChan{
   }
 }
 
-void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"RecHitMonitor";
 
@@ -180,7 +182,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     const HFRecHitCollection& hfHits){
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalRecHitMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalRecHitMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
   }
 

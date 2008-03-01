@@ -4,8 +4,8 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -56,7 +56,7 @@ L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig)
   input_dir = "L1T/L1THCALTPGXAna/";
   output_dir = "L1T/L1THCALTPGXAna/Tests/";
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->showDirStructure();
   dbe->setVerbose(1); 
 
@@ -329,7 +329,7 @@ void L1THcalClient::calcEff(TH1F *num, TH1F *den, MonitorElement* me)
     }
 }
 
-TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
+TH1F * L1THcalClient::get1DHisto(string meName, DQMStore * dbi)
 {
 
   //  string mePath = "Collector/GlobalDQM/L1T/" + meName;
@@ -337,13 +337,11 @@ TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
   //  MonitorElement * me_ = dbi->get(mePath);
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
   TH1F * meHisto = NULL;
 
-  if (me_temp) {
+  if (me_) {
 
-    meHisto = dynamic_cast<TH1F*> (me_temp->operator->());
+    meHisto = me_->getTH1F();
   }
   else {               
                        
@@ -354,20 +352,18 @@ TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
   return meHisto;
 }
 
-TH2F * L1THcalClient::get2DHisto(string meName, DaqMonitorBEInterface * dbi)
+TH2F * L1THcalClient::get2DHisto(string meName, DQMStore * dbi)
 {
 
   //  string mePath = "Collector/GlobalDQM/L1T/" + meName;
 
   MonitorElement * me_ = dbi->get(meName);
 
-  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
-
   TH2F * meHisto = NULL;
 
-  if (me_temp) {
+  if (me_) {
 
-    meHisto = dynamic_cast<TH2F*> (me_temp->operator->());
+    meHisto = me_->getTH2F();
   }
   else {
         
