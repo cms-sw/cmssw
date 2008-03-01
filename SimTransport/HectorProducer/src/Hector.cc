@@ -10,8 +10,8 @@
 #include "HepMC/SimpleVector.h"
 
 
-
 #include <math.h>
+
 
 //#include <iostream>
 Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transport,bool ZDCTransport) : 
@@ -35,10 +35,13 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   beam1filename  = hector_par.getParameter<string>("Beam1");
   beam2filename  = hector_par.getParameter<string>("Beam2");  
   m_rppzdc       = (float) lengthzdc ;
-  m_rppd1       = (float) lengthd1 ;
+  m_rppd1        = (float) lengthd1 ;
   m_smearAng     = hector_par.getParameter<bool>("smearAng");
-  
-  etacut = 8.2;
+  m_smearSTX     = hector_par.getParameter<double>("sigmaSTX" );
+  m_smearSTY     = hector_par.getParameter<double>("sigmaSTY" );
+  m_smearE       = hector_par.getParameter<bool>("smearEnergy");
+  m_sig_e        = hector_par.getParameter<double>("sigmaEnergy");
+  etacut         = hector_par.getParameter<double>("EtaCut" );
   
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
 			  << "   lengthfp420:    " << lengthfp420 << "\n"
@@ -159,6 +162,7 @@ void Hector::clear(){
   m_pz.clear();
   m_isCharged.clear();  
 }
+
 /*
   bool Hector::isCharged(const HepMC::GenParticle * p){
   const ParticleData * part = pdt->particle( p->pdg_id() );
@@ -170,10 +174,9 @@ void Hector::clear(){
   }
   }
 */
-void Hector::add( const HepMC::GenEvent * evt ) {
+void Hector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup) {
   
   H_BeamParticle * h_p;
-  double px,py,pz,pt;
   unsigned int line;
   
   //  unsigned int npart = ev->nStable();
@@ -191,7 +194,25 @@ void Hector::add( const HepMC::GenEvent * evt ) {
       if ( abs( (*eventParticle)->momentum().eta())>etacut){
 	line = (*eventParticle)->barcode();
 	if ( m_beamPart.find(line) == m_beamPart.end() ) {
-	  h_p = new H_BeamParticle();
+	  double charge=1.;
+	  m_isCharged[line] = false;// neutrals
+	  HepMC::GenParticle * g = (*eventParticle);	
+	  iSetup.getData( pdt );
+	  const ParticleData * part = pdt->particle( g->pdg_id() );
+	  if (part){
+	    charge = part->charge();
+	    if(m_verbosity) cout <<"charge=  " << charge << endl;
+	  }
+	  if(charge !=0) m_isCharged[line] = true;//charged
+	  double mass = (*eventParticle)->generatedMass();
+	  if(m_verbosity) cout << "=== Hector:add:    status=  "<< g->status() <<"mass =  " << mass <<"charge=  " << charge << endl;
+
+	  //	  h_p = new H_BeamParticle();
+
+	  //	  H_BeamParticle myparticle(mass,charge);
+	  h_p = new H_BeamParticle(mass,charge);
+
+	  double px,py,pz,pt;
 	  px = (*eventParticle)->momentum().px();	  
 	  py = (*eventParticle)->momentum().py();	  
 	  pz = (*eventParticle)->momentum().pz();	  
@@ -203,9 +224,9 @@ void Hector::add( const HepMC::GenEvent * evt ) {
 	  // Clears H_BeamParticle::positions and sets the initial one
 	  h_p->setPosition( (*eventParticle)->production_vertex()->position().x(), (*eventParticle)->production_vertex()->position().y(), std::atan2( px, pt ), std::atan2( py, pt ), (*eventParticle)->production_vertex()->position().z() );
 	  
-	  if (m_smearAng) {   
-	    h_p->smearAng();
-	  }
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 	  m_beamPart[line] = h_p;
 	  m_direct[line] = 0;
 	  m_direct[line] = ( pz > 0 ) ? 1 : -1;
@@ -214,12 +235,6 @@ void Hector::add( const HepMC::GenEvent * evt ) {
 	  m_pdg[line] = (*eventParticle)->pdg_id();
 	  m_pz[line]  = (*eventParticle)->momentum().pz();
 	  
-	  m_isCharged[line] = false;
-	  if (  abs((*eventParticle)->pdg_id()) == 211    || 
-		abs((*eventParticle)->pdg_id()) == 2212    || 
-		abs((*eventParticle)->pdg_id()) == 321   || 
-		abs((*eventParticle)->pdg_id()) == 11  || 
-		abs((*eventParticle)->pdg_id()) == 13 )      m_isCharged[line] = true;
 	  
 	  if(m_verbosity) {
 	    cout << "=== Hector:add:            pz=  "<< pz << endl;
@@ -258,6 +273,22 @@ void Hector::filterFP420(){
       }
       if ( (*m_isCharged.find( line )).second ) {
 	direction = (*m_direct.find( line )).second;
+	if (m_smearAng) {
+	  if ( m_smearSTX>0. && m_smearSTY>0.) {
+	    part->smearAng(m_smearSTX,m_smearSTY);
+	  }
+	  else {
+	    part->smearAng(); 
+	  }
+	}
+	if (m_smearE) {
+	  if ( m_sig_e ) {
+	    part->smearE(m_sig_e);
+	  }
+	  else {
+	    part->smearE(); 
+	  }
+	}
 	if ( direction == 1 ) {
 	  part->computePath( m_beamlineFP4201, 1 );
 	  is_stop = part->stopped( m_beamlineFP4201 );
@@ -321,6 +352,22 @@ void Hector::filterZDC(){
 	
 	direction = (*m_direct.find( line )).second;
 	if(m_verbosity) cout << "filterZDC:direction=" << direction << endl;
+	if (m_smearAng) {
+	  if ( m_smearSTX>0. && m_smearSTY>0.) {
+	    part->smearAng(m_smearSTX,m_smearSTY);
+	  }
+	  else {
+	    part->smearAng(); 
+	  }
+	}
+	if (m_smearE) {
+	  if ( m_sig_e ) {
+	    part->smearE(m_sig_e);
+	  }
+	  else {
+	    part->smearE(); 
+	  }
+	}
 	if ( direction == 1 ) {
 	  part->computePath( m_beamlineZDC1, 1 );
 	  is_stop_zdc = part->stopped( m_beamlineZDC1 );
@@ -374,6 +421,22 @@ void Hector::filterD1(){
 	
 	direction = (*m_direct.find( line )).second;
 	if(m_verbosity) cout << "filterD1:direction=" << direction << endl;
+	if (m_smearAng) {
+	  if ( m_smearSTX>0. && m_smearSTY>0.) {
+	    part->smearAng(m_smearSTX,m_smearSTY);
+	  }
+	  else {
+	    part->smearAng(); 
+	  }
+	}
+	if (m_smearE) {
+	  if ( m_sig_e ) {
+	    part->smearE(m_sig_e);
+	  }
+	  else {
+	    part->smearE(); 
+	  }
+	}
 	if ( direction == 1 ) {
 	  part->computePath( m_beamlineD11, 1 );
 	  is_stop_d1 = part->stopped( m_beamlineD11 );
@@ -473,13 +536,17 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	
 	HepMC::GenEvent::vertex_iterator v_it;
 	
-	time   = ( *evt->vertices_begin() )->position().t(); // does time important?
-	
-	long double time_buf = 0;
-	for (v_it = evt->vertices_begin(); v_it != evt->vertices_end(); ++v_it)  { // since no operator--
-	  time_buf = ( *v_it )->position().t();
-	  time = (  time > time_buf ) ? time : time_buf;
-	}
+	//	time   = ( *evt->vertices_begin() )->position().t(); // does time important?
+	//long double time_buf = 0;
+	//for (v_it = evt->vertices_begin(); v_it != evt->vertices_end(); ++v_it)  { // since no operator--
+	//	  time_buf = ( *v_it )->position().t();
+	//  time = (  time > time_buf ) ? time : time_buf;
+	//	}
+
+	//	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm )/c_light;
+
+	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm )/300.; // nsec
+
 	if(ddd != 0.) {
 	  if(m_verbosity) {
 	    std::cout<<"=========Hector:: x= "<< (*(m_xAtTrPoint.find(line))).second*0.001<<std::endl;
@@ -493,7 +560,7 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	  HepMC::GenVertex * vert = new HepMC::GenVertex( HepMC::FourVector( (*(m_xAtTrPoint.find(line))).second*0.001,
 									     (*(m_yAtTrPoint.find(line))).second*0.001,
 									     ddd * (*(m_direct.find( line ))).second*1000.,
-									     time + .1*time ) );
+									     time + .001*time ) );
 	  
 	  
 	  
@@ -511,6 +578,19 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	}// ddd
       }// if gpart
     }// if !isStopped
+
+    else {
+      /*
+      gpart = evt->barcode_to_particle( line );
+      if ( gpart ) {
+	HepMC::GenVertex * vert= new HepMC::GenVertex();
+	gpart->set_status( 2 );
+	vert->add_particle_in( gpart );
+	vert->add_particle_out( gpart );
+	evt->add_vertex( vert );
+      }
+*/
+    }
   }//for 
   //  cout << "=== Hector:addPartToHepMC: end " << endl;
   
