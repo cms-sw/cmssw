@@ -12,9 +12,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) {
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 }
 
@@ -51,7 +52,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
       int ModuleID = (*DetItr);
       folder_organizer.setDetectorFolder(*DetItr); // top Mechanical View Folder
       std::string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
-      HitResidual[ModuleID] = dbe->book1D(hid, hid, 50, -5., 5.);
+      HitResidual[ModuleID] = dqmStore_->book1D(hid, hid, 50, -5., 5.);
       HitResidual[ModuleID]->setAxisTitle("Hit residuals on tracks crossing this detector module");
     }
 	
@@ -59,11 +60,11 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
 }
 
 void MonitorTrackResiduals::endJob(void) {
-  dbe->showDirStructure();
+  dqmStore_->showDirStructure();
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe->save(outputFileName);
+    dqmStore_->save(outputFileName);
   }
 }
 
@@ -112,4 +113,5 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	}
     }
 }
+DEFINE_FWK_MODULE(MonitorTrackResiduals);
 

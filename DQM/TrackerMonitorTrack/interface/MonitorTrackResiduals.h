@@ -11,7 +11,7 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.10 2007/05/19 10:35:57 dkcira Exp $
+// $Id: MonitorTrackResiduals.h,v 1.11 2008/02/15 14:53:35 dutta Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,10 +19,11 @@ Monitoring source for track residuals on each detector module
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 typedef std::map<int, MonitorElement *> HistoClass;
+
+class DQMStore;
 
 class MonitorTrackResiduals : public edm::EDAnalyzer {
    public:
@@ -35,7 +36,7 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
    private:
   std::map<uint32_t, MonitorElement *> detModules;
 //  unsigned int minTracks_;
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dqmStore_;
   edm::ParameterSet conf_;
 
   HistoClass HitResidual;
