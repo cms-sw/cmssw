@@ -24,8 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class HcalTB06Histo {
    
@@ -45,7 +45,7 @@ private:
   std::string           fileName;
   bool                  verbose;
 
-  DaqMonitorBEInterface *dbe_;
+  DQMStore              *dbe_;
   MonitorElement        *iniE,  *iEta,  *iPhi;
   MonitorElement        *edepS, *edecS, *edhcS, *edehS;
 };

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun May 21 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB02Histo.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
 //
  
 // system include files
@@ -30,7 +30,7 @@ HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) :
 			    << fileName << " verbosity " << verbose;
 
   // DQMServices
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if (dbe_) {
     if (verbose) {
       dbe_->setVerbose(1);

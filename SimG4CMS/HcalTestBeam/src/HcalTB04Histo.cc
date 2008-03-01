@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Histo.cc,v 1.1 2006/05/18 14:10:35 sunanda Exp $
+// $Id: HcalTB04Histo.cc,v 1.2 2006/06/04 13:59:38 sunanda Exp $
 //
  
 // system include files
@@ -32,7 +32,7 @@ HcalTB04Histo::HcalTB04Histo(const edm::ParameterSet& ps) :
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
 
   // DQMServices
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if (dbe_) {
     if (verbose) {
       dbe_->setVerbose(1);

@@ -29,7 +29,7 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) :
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
 
   // DQMServices
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if (dbe_) {
     if (verbose) {
       dbe_->setVerbose(1);

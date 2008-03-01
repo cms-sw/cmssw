@@ -14,7 +14,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB04Histo.h,v 1.2 2006/05/23 10:53:29 sunanda Exp $
 //
   
 // system include files
@@ -25,8 +25,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class HcalTB04Histo {
    
@@ -51,7 +51,7 @@ private:
   bool                  verbose;
   double                eTotMax, eHcalMax;
 
-  DaqMonitorBEInterface *dbe_;
+  DQMStore              *dbe_;
   MonitorElement        *iniE,  *iEta,  *iPhi;
   MonitorElement        *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
   MonitorElement        *edehS, *edehQ;
