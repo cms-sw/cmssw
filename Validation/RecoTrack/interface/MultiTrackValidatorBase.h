@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/02/19 11:28:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/21 09:36:20 $
+ *  $Revision: 1.3 $
  *  \author cerati
  */
 
@@ -20,8 +20,8 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
@@ -56,7 +56,7 @@ class MultiTrackValidatorBase {
     maxHit(pset.getParameter<double>("maxHit")),
     nintHit(pset.getParameter<int>("nintHit"))
     {
-      dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+      dbe_ = edm::Service<DQMStore>().operator->();
     }
   
   /// Destructor
@@ -75,11 +75,7 @@ class MultiTrackValidatorBase {
   }
 
   virtual void doProfileX(MonitorElement * th2m, MonitorElement* me) {
-    MonitorElementRootH2 * meh2 = dynamic_cast<MonitorElementRootH2*>(th2m);
-    if (!meh2)   {throw cms::Exception("MultiTrackValidator") << "no cast to rootH2"; }
-    TH2F * h = dynamic_cast<TH2F*>(&(**meh2));
-    if (!h)    {throw cms::Exception("MultiTrackValidator") << "no cast to h2"; }
-    doProfileX(h, me);
+    doProfileX(th2m->getTH2F(), me);
   }
 
   virtual double getEta(double eta) {
@@ -166,7 +162,7 @@ class MultiTrackValidatorBase {
 
  protected:
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   std::string sim;
   std::vector<edm::InputTag> label;

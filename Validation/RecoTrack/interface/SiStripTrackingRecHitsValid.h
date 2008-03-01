@@ -2,8 +2,8 @@
 #define Validation_RecoTrack_SiStripTrackingRecHitsValid_h
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -83,7 +83,7 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 
   edm::ParameterSet conf_;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::string outputFile_;
   //std::string src_;
   //std::string builderName_;

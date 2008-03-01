@@ -124,7 +124,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   genType_ = ps.getParameter<int>("genType");
 
   // Book histograms
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->showDirStructure();
 
   //float math_pi = 3.14159265;

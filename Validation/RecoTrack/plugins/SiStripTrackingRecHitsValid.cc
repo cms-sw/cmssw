@@ -136,7 +136,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   //builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
 
   // Book histograms
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->showDirStructure();
 
   dbe_->setCurrentFolder("TrackingRecHits/Strip/ALL");
