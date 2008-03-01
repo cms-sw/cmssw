@@ -113,11 +113,41 @@ extern globcontrol glc;
 	#define vdefault() else
 #endif
 
-#define beginmodule vbeginmodule();
+#define beginmodule vbeginmodule();	
 #define endmodule vendmodule();
+
+#ifdef VGEN
+#define modulebody
+#else
+#define modulebody \
+if (glc.getpassn() != passn) \
+{ \
+/*	cout << itern << " " << instname << endl; */\
+	itern = 0; \
+} \
+passn = glc.getpassn(); \
+if (!glc.getparent()->getchange()) \
+{ \
+	outregn = 0; \
+	return; \
+} \
+else \
+{ \
+	itern++; \
+}
+
+#endif
 
 #define beginfunction vbeginfunction();
 #define endfunction vendfunction(); return (result);
+
+#ifdef VGEN
+#define functionbody
+#else
+//#define functionbody if (!glc.getparent()->getchange()) {vendfunction(); return (result);} 
+#define functionbody
+#endif
+
 
 #if (__GNUC__==2)||defined(_MSC_VER)
 #define or ||
@@ -140,9 +170,9 @@ extern globcontrol glc;
 
 
 #ifdef VGEN
-	#define initio glc.setparent(this); glc.setFileOpen(0);
+	#define initio glc.setparent(this); glc.setFileOpen(0); 
 #else
-	#define initio glc.setparent(this);
+	#define initio glc.setparent(this); glc.getparent()->setchange(0);
 #endif
 
 // these macros are different for all possible types of initializations,
@@ -158,6 +188,7 @@ extern globcontrol glc;
 
 #define Input(cl)              cl.input(#cl)
 #define Input_(cl, h, l)       cl.input(h, l, #cl)
+#define Clock(cl)              cl.clock(#cl)
 
 #define Output(cl)             cl.output(#cl)
 #define Output_(cl, h, l)      cl.output(h, l, #cl)

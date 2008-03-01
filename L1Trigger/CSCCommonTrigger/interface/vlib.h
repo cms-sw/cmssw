@@ -1,3 +1,6 @@
+#ifndef RVALS
+#define RVALS 2 // max bits in reg/wire divided by 32
+#endif
 /**
 Verilog++ SP.
 \author A. Madorsky
@@ -10,67 +13,15 @@ Verilog++ SP.
 
 #include <iostream>
 #include <fstream>
-#ifdef VGEN
-	#include <sstream>
-#endif
+#include <sstream>
 #include <string>
 #include <time.h>
 #include <stdio.h>
 
-#ifndef RVALS
-#define RVALS 2 // maximum number of bits in the reg/wire, divided by 32. Define this in your program if you need variables longer than 32-bit.
-#endif
+#define MAXARG 2000
 
-#define MAXARG 200
-
-//typedef unsigned rval;
-//#define Sizeofrval sizeof(rval)
-
-
-
-#define Sizeofrval (RVALS*sizeof(unsigned))
-#define UMSB (1 << (sizeof(unsigned)*8-1))
-
-class rval
-{
-
-public:	
-	// some of the operators are not "fair" yet, they will process only word 0 from the value.
-	rval();
-	rval(unsigned i);
-//	rval(int i);
-	void operator=(rval arg);
-	rval operator+(rval arg);
-	rval operator-(rval arg);
-	rval operator*(rval arg);
-	rval operator/(rval arg);
-	rval operator%(rval arg);
-
-	rval operator^(rval arg);
-	rval operator&(rval arg);
-	rval operator|(rval arg);
-
-	bool operator&&(rval arg);
-	bool operator||(rval arg);
-
-	bool operator< (rval arg);
-	bool operator> (rval arg);
-	bool operator<=(rval arg);
-	bool operator>=(rval arg);
-	bool operator==(rval arg);
-	bool operator!=(rval arg);
-
-	bool operator! ();
-	rval operator~ ();
-
-	void lsh();
-	void rsh();
-
-	rval operator<<(rval arg);
-	rval operator>>(rval arg);
-
-	unsigned r[RVALS];
-};
+typedef unsigned long long int rval;
+#define Sizeofrval sizeof(rval)
 
 using namespace std;
 
@@ -94,16 +45,14 @@ public:
 	Signal ();
 	Signal (rval);
 	Signal (int);
+	Signal (unsigned int);
 	Signal (const char*);
-#ifdef VGEN
-//	Signal (Signal& arg);
-#endif
-	~Signal ();
+	Signal (int bits, rval value);
 	void create();
 	void init (int, int, const char*);
 	void init(const char* rname){init(0, 0, rname);};
 	void init(Signal* shost, int h, int l, const char* rname);
-	void makemask(int hpar, int lpar);
+	void makemask();
 #ifdef VGEN
 	string& getname(){return name;};
 	string& getorname(){return orname;};
@@ -113,7 +62,7 @@ public:
 	void setbrackets(const char* l, const char* r){lb = l; rb = r;};
 #endif
 	rval getr(){return r;};
-	int getint(){return r.r[0];};
+	int getint(){return (unsigned int)r;};
 	int getl(){return l;};
 	int geth(){return h;};
 	rval getmask(){return mask;};
@@ -179,6 +128,7 @@ public:
 
 	void input (int, int, const char*);
 	void input (const char* rname){input(0, 0, rname);};
+	void clock (const char* rname);
 
 	void output (int, int, const char*);
 	void output (const char* rname){output(0, 0, rname);};
@@ -228,7 +178,7 @@ class parameter : public Signal
 {
 public:
 	parameter (const char* rname, Signal arg);
-	operator int(){return r.r[0];};
+	operator int(){return (unsigned int)r;};
 protected:
 	void init (int, int, const char*);
 	void operator= (Signal arg);
@@ -258,7 +208,6 @@ protected:
 
 };
 
-
 class module
 {
 public:
@@ -280,16 +229,18 @@ public:
 	void popswitch () {switchn--;}
 	Signal* AddOutReg(Signal arg);
 	Signal ifelse(Signal, Signal, Signal);
+	void setchange(int c){change = c;}
+	int getchange(){return change;}
 #ifdef VGEN
 	void PrintHeader();
 #endif
 protected:
 #ifdef VGEN
 	string name;
-	string instname;
 	streambuf *outbuf;
 	ofstream vfile;
 #endif
+	string instname;
 	int OuterIndPos;
 	Signal switcharg[10];
 	int switchn;
@@ -298,6 +249,9 @@ protected:
 	int outregn;
 	void (*runperiod)();
 	module* tfixt;
+	int change;
+	int itern; // number of iterations, for diagnostics
+	rval passn; // number of pass
 
 };
 
@@ -361,6 +315,8 @@ public:
 	int setce(int c){ce = c; return 1;};
 	char* constant(int bits, char* val);
 	char* constant(int bits, int val);
+	void passn_inc(){passn++;};
+	rval getpassn(){return passn;}
 
 protected:
 #ifdef VGEN
@@ -392,6 +348,7 @@ protected:
 	int VFileOpen; // shows if the comments can be written into the file, or they need to be added to declarators
 	int ce; // clock can be processed
 	char constring[RVALS*32+32]; // string for text variables
+	rval passn; // pass number
 
 };
 
@@ -399,7 +356,7 @@ protected:
 	#define beginsystem
 	#define endsystem  exit(0);
 #else
-	#define beginsystem glc.setce(0); do { glc.setchange(0);
+	#define beginsystem glc.setce(0); glc.passn_inc(); do { glc.setchange(0);
 	#define endsystem   } while (glc.getchange() ? 1 : glc.getce() ? 0 : glc.setce(1));
 #endif
 
