@@ -103,13 +103,7 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
       dqm_store->cd(*it);
       ndet++;
       vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      //SDSDSD      vector<string> contents = dqm_store->getMEs();    
       dqm_store->goUp();
-      //SDSDSD      for (vector<string>::const_iterator im = contents.begin();
-      //SDSDSD	   im != contents.end(); im++) {
-      //SDSDSD        if ((*im).find(name) == string::npos) continue;
-      //SDSDSD	string full_path = dqm_store->pwd() + "/" +(*it)+ "/" + (*im);
-      //SDSDSD	MonitorElement * me_i = dqm_store->get(full_path);
       for (vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -153,14 +147,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
 	 it != subdirs.end(); it++) {
       dqm_store->cd(*it);
       vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      //SDSDSD      vector<string> contents = dqm_store->getMEs();    
       dqm_store->goUp();
-      //SDSDSD      for (vector<string>::const_iterator im = contents.begin();
-      //SDSDSD	   im != contents.end(); im++) {
-      //SDSDSD	if ((*im).find((name)) != string::npos) {
-      //SDSDSD	  string full_path = currDir + "/" + (*it) + "/" +(*im);
-      //SDSDSD	  MonitorElement * me_i = dqm_store->get(full_path);
-      //SDSDSD	  if (!me_i) continue;
       for (vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -200,13 +187,6 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
   string sum_name = "Summary_" + name + "_in_" 
                       + currDir.substr(currDir.find_last_of("/")+1);
   // If already booked
-  //SDSDSD  vector<string> contents = bei->getMEs();    
-  //SDSDSD  for (vector<string>::const_iterator it = contents.begin();
-  //SDSDSD       it != contents.end(); it++) {
-  //SDSDSD    if ((*it).find(sum_name) == 0) {
-  //SDSDSD      string fullpath = currDir + "/" + (*it); 
-  //SDSDSD      me = bei->get(fullpath);
-  //SDSDSD      if (me) {	
   vector<MonitorElement*> contents = dqm_store->getContents(currDir);
   for (vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
@@ -239,13 +219,6 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
       for (vector<string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
 	dqm_store->cd(*it);
-	//SDSDSDSD	vector<string> s_contents = dqm_store->getMEs();    
-	//SDSDSDSD	for (vector<string>::const_iterator iv = s_contents.begin();
-	//SDSDSDSD	     iv != s_contents.end(); iv++) {
-	//SDSDSDSD	  if ((*iv).find(name) == string::npos) continue;
-	  
-	//SDSDSDSD	  string sub_path =   dqm_store->pwd() + "/" + (*iv);
-	//SDSDSDSD	  MonitorElement* s_me = dqm_store->get(sub_path);
         string subdir_name = (*it).substr((*it).find_last_of("/")+1);
 	vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
 	for (vector<MonitorElement *>::const_iterator iv = s_contents.begin();
@@ -266,13 +239,6 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
       for (vector<string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
 	dqm_store->cd(*it);
-	//SDSDSD	vector<string> s_contents = dqm_store->getMEs();    
-	//SDSDSD	for (vector<string>::const_iterator iv = s_contents.begin();
-	//SDSDSD	     iv != s_contents.end(); iv++) {
-	//SDSDSD	  if ((*iv).find(name) == string::npos) continue;
-	  
-	//SDSDSD	  string sub_path =   dqm_store->pwd() + "/" + (*iv);
-	//SDSDSD	  MonitorElement* s_me = dqm_store->get(sub_path);
 	vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
 	dqm_store->goUp();        
 	for (vector<MonitorElement *>::const_iterator iv = s_contents.begin();

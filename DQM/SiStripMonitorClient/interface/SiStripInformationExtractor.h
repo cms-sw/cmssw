@@ -55,9 +55,6 @@ class SiStripInformationExtractor {
  private:
 
   void readConfiguration();
-  void fillModuleAndHistoList(DQMStore * dqm_store,
-        std::vector<std::string>& modules, std::vector<std::string>& histos);
-  void fillGlobalHistoList(DQMStore * dqm_store, std::vector<std::string>& histos);
   void selectSingleModuleHistos(DQMStore * dqm_store,  std::string mid, 
           std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
   void getItemList(std::multimap<std::string, std::string>& req_map,

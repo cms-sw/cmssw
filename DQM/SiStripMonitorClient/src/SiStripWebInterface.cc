@@ -114,10 +114,6 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    //SDSDSD    dqmStore_->cd() ;
-    //SDSDSD    dqmStore_->cd(MEFolder) ;
-    //SDSDSD    std::vector<std::string> meList = dqmStore_->getMEs();
-    //SDSDSD    dqmStore_->cd() ;
     std::vector<MonitorElement *> meList = dqmStore_->getContents(MEFolder);
     *out << MEFolder << " " ;
     std::cout << "SiStripWebInterface::handleAnalyserRequest "
