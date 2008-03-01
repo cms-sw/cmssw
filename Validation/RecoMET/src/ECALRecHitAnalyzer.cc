@@ -1,5 +1,4 @@
 #include "Validation/RecoMET/interface/ECALRecHitAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 // author: Bobby Scurlock, University of Florida
 // first version 11/20/2006
 
@@ -41,12 +40,12 @@ void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
 void ECALRecHitAnalyzer::BookHistos()
 {
   // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
 
   // Book Geometry Histograms
- dbe_->setCurrentFolder("RecoMETV/METTask/ECAL/geometry");
+ dbe_->setCurrentFolder("METTask/ECAL/geometry");
   // ECAL barrel
   me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
@@ -90,7 +89,7 @@ void ECALRecHitAnalyzer::BookHistos()
     }
 
   // Book Data Histograms
-  dbe_->setCurrentFolder("RecoMETV/METTask/ECAL/data");
+  dbe_->setCurrentFolder("METTask/ECAL/data");
   // Energy Histograms by logical index
   me["hEEpZ_energy_ix_iy"] = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
   me["hEEmZ_energy_ix_iy"] = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);

@@ -39,7 +39,6 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include "DQMServices/Core/interface/DQMStore.h"
 
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
@@ -58,11 +57,11 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 {
 
   // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
 
-    dbe_->setCurrentFolder("RecoMETV/METTask");
+    dbe_->setCurrentFolder("METTask");
 
     me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
 

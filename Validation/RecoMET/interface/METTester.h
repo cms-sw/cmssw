@@ -14,13 +14,13 @@
 // note: code rewrite
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <string>
 #include <map>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class METTester: public edm::EDAnalyzer {
 public:

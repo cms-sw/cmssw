@@ -23,6 +23,7 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -65,7 +66,6 @@
 #include <TH2.h>
 #include <TFile.h>
 #include <TMath.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class DetId;
 //class HcalTopology;
