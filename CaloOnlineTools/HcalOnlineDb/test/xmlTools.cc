@@ -18,6 +18,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMapLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLRBXPedestalsLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/DBlmapReader.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
@@ -43,6 +44,7 @@ int createRBXLoader( string type_, string tag_, string list_file );
 int createZSLoader( void );
 int testocci( void );
 int testDB( string _tag, string _filename );
+int lmaptest( string _param );
 int hardware( void );
 int qie_adc( void );
 int test_db_access( void );
@@ -62,6 +64,7 @@ int main( int argc, char **argv )
   bool tag_b = false;
 
   bool testdb_b = false;
+  bool lmaptest_b = false;
   bool hardware_b = false;
   bool qie_b = false;
   bool test_db_access_b = false;
@@ -71,6 +74,7 @@ int main( int argc, char **argv )
   string tag = "";
   string prefix = "";
   string rbx_type = "";
+  string aramsParameter = "";
 
   while (1) {
     int this_option_optind = optind ? optind : 1;
@@ -89,6 +93,7 @@ int main( int argc, char **argv )
       {"luts2", 0, 0, 70},
       {"testocci", 0, 0, 1000},
       {"testdb", 1, 0, 1010},
+      {"lmaptest", 1, 0, 2000},
       {"hardware", 0, 0, 1050},
       {"qie", 0, 0, 1060},
       {"test-db-access", 0, 0, 1070},
@@ -223,6 +228,20 @@ int main( int argc, char **argv )
 	}
       break;
 
+    case 2000: // lmaptest
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  aramsParameter .append( _buf );
+	  lmaptest_b = true;
+	}
+      else
+	{
+	  cout << "No parameter specified! " << endl;
+	}
+      break;
+
     case 1050: // HCAL hardware map
       hardware_b=true;
       break;
@@ -268,6 +287,11 @@ int main( int argc, char **argv )
   else if ( testdb_b && tag_b )
     {
       testDB( tag, filename );      
+    }
+
+  else if ( lmaptest_b )
+    {
+      lmaptest( aramsParameter );      
     }
   else if ( hardware_b )
     {
@@ -516,8 +540,8 @@ int createLMap( void ){
   LMapLoader::LMapRowHO bRow;
 
 
-  ifstream fcha("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHBEF_11.9.2007v2.txt");
-  ifstream fcho("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHO_11.9.2007v2.txt");
+  ifstream fcha("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHBEF_Feb.21.2008.txt");
+  ifstream fcho("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHO_Feb.21.2008.txt");
 
   //List in order HB HE HF
   //side     eta     phi     dphi       depth      det
@@ -540,6 +564,7 @@ int createLMap( void ){
 
   int sideO[NCHO], etaO[NCHO], phiO[NCHO], dphiO[NCHO], depthO[NCHO], sectorO[NCHO], crateO[NCHO], rmO[NCHO], rm_fiO[NCHO], htrO[NCHO];
   int htr_fiO[NCHO], fi_chO[NCHO], spigoO[NCHO], dccO[NCHO], dcc_slO[NCHO], fedidO[NCHO], pixelO[NCHO], qieO[NCHO], adcO[NCHO];
+  int geoO[NCHO], blockO[NCHO], lcO[NCHO];
   string detO[NCHO], rbxO[NCHO], fpgaO[NCHO], let_codeO[NCHO];
 
   int counter = 0;
@@ -598,7 +623,7 @@ int createLMap( void ){
   counter = 0;
   for (i = 0; i < NCHO; i++){
     if(i == counter){
-      for (j = 0; j < 24; j++){
+      for (j = 0; j < 27; j++){
 	fcho>>ndump;
 	ndump = "";
       }
@@ -613,7 +638,7 @@ int createLMap( void ){
     fcho>>rbxO[i]>>sectorO[i]>>rmO[i]>>pixelO[i]>>qieO[i];
     fcho>>adcO[i]>>rm_fiO[i]>>fi_chO[i]>>let_codeO[i]>>crateO[i]>>htrO[i];
     fcho>>fpgaO[i]>>htr_fiO[i]>>dcc_slO[i]>>spigoO[i]>>dccO[i];
-    fcho>>fedidO[i];
+    fcho>>fedidO[i]>>geoO[i]>>blockO[i]>>lcO[i];
 
     ncho++;
   }
@@ -709,6 +734,7 @@ int createRBXLoader( string type_, string tag_, string list_file )
     }
 
   return 0;
+
 }
 
 
@@ -793,7 +819,7 @@ int testDB( string _tag, string _filename )
 {
 
   HCALConfigDB * db = new HCALConfigDB();
-  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+  db -> connect( _filename );
 
   //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
   //vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
@@ -803,20 +829,14 @@ int testDB( string _tag, string _filename )
   struct timeval _t;
   gettimeofday( &_t, NULL );
   cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
+  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
   HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
-
+  _lut = db -> getOnlineLUT( _tag, _hcaldetid2 . rawId() );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
+  _lut = db -> getOnlineLUT( _tag, _hcaldetid . rawId() );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
@@ -833,6 +853,23 @@ int testDB( string _tag, string _filename )
   return 0;
 }
 
+int lmaptest( string _param ){
+  cout << "lmaptest() is running, param = " << _param << endl;
+
+  DBlmapReader * dbr = new DBlmapReader();
+  dbr->lrTestFunction();
+ 
+  VectorLMAP* curLMAP = dbr->GetLMAP(30);
+
+  FILE* HBEFfile = fopen ("HCALmapHBEF.txt","w");
+  FILE* HOfile   = fopen ("HCALmapHO.txt","w");
+  FILE* EMAPfile = fopen ("HCALemap.txt", "w");
+
+  dbr->PrintLMAP(HBEFfile, HOfile, curLMAP);
+  
+  dbr->PrintEMAPfromLMAP(EMAPfile, curLMAP);
+  return 0;
+}
 int hardware( void )
 {
   HcalHardwareXml _hw;
