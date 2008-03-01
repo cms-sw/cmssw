@@ -7,9 +7,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=DQMServices/NodeROOT>
-<use name=DQMServices/CoreROOT>
-<use name=DQMServices/UI>
+<use name=DQMServices/Core>
 
 <export>
   <lib name=DQMHcalMonitorTasks>
@@ -22,7 +20,5 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
-  <use name=DQMServices/NodeROOT>
-  <use name=DQMServices/CoreROOT>
-  <use name=DQMServices/UI>
+  <use name=DQMServices/Core>
 </export>

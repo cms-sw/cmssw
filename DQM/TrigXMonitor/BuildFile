@@ -2,7 +2,6 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
-<use name=DQMServices/CoreROOT>
 <use name=DataFormats/HLTReco>
 <use name=DQMServices/Components>
 <use name=DataFormats/L1GlobalTrigger>
@@ -13,7 +12,6 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQMServices/Core>
-   <use name=DQMServices/CoreROOT>
    <use name=DataFormats/HLTReco>
    <use name=DQMServices/Components>
    <use name=DataFormats/L1GlobalTrigger>

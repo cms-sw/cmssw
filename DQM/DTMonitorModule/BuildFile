@@ -1,6 +1,6 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=DQMServices/Components>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigi>
@@ -16,8 +16,9 @@
 <export>
  <lib name=DQMDTMonitorModule>
  <use name=FWCore/Framework>
- <use name=DQMServices/CoreROOT>
- <use name=EventFilter/DTRawToDigi>
+ <use name=DQMServices/Core>
+ <use name=DQMServices/Components>
+ <use name=DataFormats/FEDRawData>
  <use name=DataFormats/DTDigi>
  <use name=DataFormats/L1DTTrackFinder>
  <use name=CondFormats/DTObjects>
