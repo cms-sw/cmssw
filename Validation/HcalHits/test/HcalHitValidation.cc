@@ -27,7 +27,7 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet& ps) {
 			       << "   Output: " << outFile_ 
 			       << "   Usage of TestNumberingScheme " <<scheme_;
 
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if (dbe_) {
     if (verbose_) {
       dbe_->setVerbose(1);

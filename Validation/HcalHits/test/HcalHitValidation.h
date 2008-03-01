@@ -12,8 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -49,7 +49,7 @@ private:
   std::string            outFile_;
   bool                   verbose_, scheme_;
   bool                   checkHit_, checkLay_, checkNxN_, checkJet_;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
