@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.117 2008/02/20 19:52:46 wmtan Exp $
+$Id: RootFile.cc,v 1.118 2008/02/28 20:54:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -56,7 +56,8 @@ namespace edm {
       filePtr_(filePtr),
       fileFormatVersion_(),
       fid_(),
-      fileIndex_(),
+      fileIndexSharedPtr_(new FileIndex),
+      fileIndex_(*fileIndexSharedPtr_),
       fileIndexBegin_(fileIndex_.begin()),
       fileIndexEnd_(fileIndexBegin_),
       fileIndexIter_(fileIndexBegin_),
@@ -328,14 +329,14 @@ namespace edm {
       if (!lumiTree_.isValid()) {
 	if (lastLumi != eventAux_.luminosityBlock()) {
 	  lastLumi = eventAux_.luminosityBlock();
-          fileIndex_.addEntry(eventAux_.run(), eventAux_.luminosityBlock(), 0U, -1LL);
+          fileIndex_.addEntry(eventAux_.run(), eventAux_.luminosityBlock(), 0U, FileIndex::Element::invalidEntry);
 	}
       }
       // If the run tree is invalid, use the event tree to add run index entries.
       if (!runTree_.isValid()) {
 	if (lastRun != eventAux_.run()) {
 	  lastRun = eventAux_.run();
-          fileIndex_.addEntry(eventAux_.run(), 0U, 0U, -1LL);
+          fileIndex_.addEntry(eventAux_.run(), 0U, 0U, FileIndex::Element::invalidEntry);
         }
       }
     }
@@ -702,13 +703,10 @@ namespace edm {
   
   bool
   RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
-    fileIndexIter_ = fileIndex_.findPosition(run, lumi, event);
-    while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
-      ++fileIndexIter_;
-    }
+    fileIndexIter_ = fileIndex_.findEventPosition(run, lumi, event, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
-    return !exact || (fileIndexIter_->run_ == run && fileIndexIter_->event_ == event);
+    return true;
   }
 
   void

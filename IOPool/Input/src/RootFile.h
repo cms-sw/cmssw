@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.48 2008/02/01 20:23:21 wmtan Exp $
+$Id: RootFile.h,v 1.49 2008/02/28 20:54:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -91,6 +91,9 @@ namespace edm {
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getEntryTypeSkippingDups();
+    boost::shared_ptr<FileIndex> fileIndexSharedPtr() const {
+      return fileIndexSharedPtr_;
+    }
 
   private:
     bool setIfFastClonable(int remainingEvents) const;
@@ -113,7 +116,8 @@ namespace edm {
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
     FileID fid_;
-    FileIndex fileIndex_;
+    boost::shared_ptr<FileIndex> fileIndexSharedPtr_;
+    FileIndex & fileIndex_;
     FileIndex::const_iterator fileIndexBegin_;
     FileIndex::const_iterator fileIndexEnd_;
     FileIndex::const_iterator fileIndexIter_;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.1 2008/02/22 19:03:51 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.2 2008/02/28 20:54:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -28,10 +28,12 @@ namespace edm {
     catalog_(catalog),
     firstFile_(true),
     fileIterBegin_(fileCatalogItems().begin()),
-    fileIter_(fileCatalogItems().end()),
+    fileIterEnd_(fileCatalogItems().end()),
+    fileIter_(fileIterEnd_),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
     flatDistribution_(0),
+    fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
@@ -44,7 +46,7 @@ namespace edm {
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
-      for(fileIter_ = fileIterBegin_; fileIter_ != fileCatalogItems().end(); ++fileIter_) {
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
         if (rootFile_) break;
       }
@@ -108,6 +110,8 @@ namespace edm {
   }
 
   void RootInputFileSequence::initFile(bool skipBadFiles) {
+    // close the currently open file, any, and delete the RootFile object.
+    closeFile_();
     TTree::SetMaxTreeSize(kMaxLong64);
     boost::shared_ptr<TFile> filePtr;
     try {
@@ -120,6 +124,7 @@ namespace edm {
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, remainingEvents(),
 	  forcedRunOffset_));
+      fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
 	throw edm::Exception(edm::errors::FatalRootError) <<
@@ -146,18 +151,13 @@ namespace edm {
   }
 
   bool RootInputFileSequence::nextFile(bool wrapAround) {
-    if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
-    if(fileIter_ == fileCatalogItems().end()) {
+    if(fileIter_ != fileIterEnd_) ++fileIter_;
+    if(fileIter_ == fileIterEnd_) {
       if (wrapAround) {
 	fileIter_ = fileIterBegin_;
       } else {
 	return false;
       }
-    }
-
-    if (rootFile_) {
-      rootFile_->close(primary());
-      rootFile_.reset();
     }
 
     initFile(skipBadFiles_);
@@ -179,15 +179,10 @@ namespace edm {
       if (primary()) {
 	return false;
       } else {
-	fileIter_ = fileCatalogItems().end();
+	fileIter_ = fileIterEnd_;
       }
     }
     --fileIter_;
-
-    if (rootFile_) {
-      rootFile_->close(primary());
-      rootFile_.reset();
-    }
 
     initFile(false);
 
@@ -245,18 +240,46 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
+    // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-    while (!found) {
-      if(nextFile(exact)) {
-    	found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+    if (!found) {
+      // If only one input file, give up now, to save time.
+      if (fileIndexes_.size() == 1) {
+	return std::auto_ptr<EventPrincipal>(0);
       }
+      // Look for event in files previously opened without reopening unnecessary files.
+      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
+          // We found it. Close the currently open file, and open the correct one.
+	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(true);
+	  // Now get the event from the correct file.
+          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+	  assert (found);
+          return readCurrentEvent();
+	}
+      }
+      // Look for event in files not yet opened.
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (!*it) {
+	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(true);
+          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+	  if (found) {
+            return readCurrentEvent();
+	  }
+	}
+      }
+      // Not found
+      return std::auto_ptr<EventPrincipal>(0);
     }
     return readCurrentEvent();
   }
 
   InputSource::ItemType
   RootInputFileSequence::getNextItemType() {
-    if (fileIter_ == fileCatalogItems().end()) {
+    if (fileIter_ == fileIterEnd_) {
       return InputSource::IsStop;
     }
     if (firstFile_) {
@@ -273,7 +296,7 @@ namespace edm {
       }
       assert(entryType == FileIndex::kEnd);
     }
-    if (fileIter_ + 1 == fileCatalogItems().end()) {
+    if (fileIter_ + 1 == fileIterEnd_) {
       return InputSource::IsStop;
     }
     return InputSource::IsFile;
@@ -282,10 +305,7 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    if (rootFile_) {
-	rootFile_->close(primary());
-	rootFile_.reset();
-    }
+    closeFile_();
     fileIter_ = fileIterBegin_;
     initFile(skipBadFiles_);
   }
@@ -353,10 +373,6 @@ namespace edm {
   RootInputFileSequence::readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     if (currentSeqNumber != fileSeqNumber) {
-      if (rootFile_) {
-	rootFile_->close(primary());
-	rootFile_.reset();
-      }
       fileIter_ = fileIterBegin_ + fileSeqNumber;
       initFile(false);
     }
@@ -378,10 +394,6 @@ namespace edm {
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     skipBadFiles_ = false;
     while (eventsRemainingInFile_ < number) {
-      if (rootFile_) {
-	rootFile_->close(primary());
-	rootFile_.reset();
-      }
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
       initFile(false);
       eventsRemainingInFile_ = rootFile_->eventTree().entries();

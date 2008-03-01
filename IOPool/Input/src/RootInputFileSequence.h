@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.2 2008/02/22 19:29:34 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.3 2008/02/28 20:54:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,6 +35,7 @@ namespace edm {
   class RootFile;
   class FileCatalogItem;
   class InputFileCatalog;
+  class FileIndex;
   class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog);
@@ -77,10 +78,12 @@ namespace edm {
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
+    std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
     CLHEP::RandFlat * flatDistribution_;
+    std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
     int eventsRemainingInFile_;
     RunNumber_t startAtRun_;

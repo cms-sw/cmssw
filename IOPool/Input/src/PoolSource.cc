@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.78 2008/02/22 19:03:50 wmtan Exp $
+$Id: PoolSource.cc,v 1.79 2008/02/28 20:54:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootInputFileSequence.h"
@@ -89,8 +89,10 @@ namespace edm {
     if (secondaryFileSequence_) {
       std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_(lbp);
       std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->luminosityBlock(), true);
-      checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
-      primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+      if (secondaryPrincipal.get() != 0) {
+        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
+        primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+      }
       return primaryPrincipal;
     }
     return primaryFileSequence_->readEvent_(lbp);
@@ -101,8 +103,10 @@ namespace edm {
     if (secondaryFileSequence_) {
       std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
       std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->luminosityBlock(), true);
-      checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
-      primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+      if (secondaryPrincipal.get() != 0) {
+        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
+        primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+      }
       return primaryPrincipal;
     }
     return primaryFileSequence_->readIt(id);
