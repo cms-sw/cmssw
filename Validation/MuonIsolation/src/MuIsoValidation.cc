@@ -10,13 +10,13 @@
 
  Implementation: This code will accept a data set and generate plots of
 	various quantities relevent to the Muon Isolation module. We will 
-	be using the MuIsoDeposit class, *not* the MuonIsolation struct.
+	be using the IsoDeposit class, *not* the MuonIsolation struct.
 	 
 	The sequence of events is... 
  		* initalize statics (which variables to plot, axis limtis, etc.)
  		* run over events
  			* for each event, run over the muons in that event
- 				*record MuIsoDeposit data
+ 				*record IsoDeposit data
  		* transfer data to histograms, profile plots
  		* save histograms to a root file
  		
@@ -137,7 +137,7 @@ void MuIsoValidation::InitStatics(){
 
 	//-------Initialize Titles---------
 	title_sam = "";//"[Sample b-jet events] ";
-	title_cone = "";//" [in R=0.3 MuIsoDeposit Cone]";
+	title_cone = "";//" [in R=0.3 IsoDeposit Cone]";
 	//The above two pieces of info will be printed on the title of the whole page,
 	//not for each individual histogram
 	title_cd = "Cum Dist of ";
@@ -235,7 +235,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	edm::Handle<reco::MuonCollection> muonsHandle; //this is an instance of std:vector<muon> . It has methods begin(), end(), size(), etc.
 	iEvent.getByLabel(Muon_Tag, muonsHandle);
 
-	// Get MuIsoDeposit Collection 
+	// Get IsoDeposit Collection 
 	MuIsoDepHandle tkIsoHandle;
 	MuIsoDepHandle ecalIsoHandle;
 	MuIsoDepHandle hcalIsoHandle;

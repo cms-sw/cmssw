@@ -38,8 +38,8 @@
 //Other include files
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 //----------------------------------------
 
@@ -57,7 +57,7 @@ class MuIsoValidation : public edm::EDAnalyzer {
 	//---------namespace and typedefs--------------
 	typedef reco::MuonCollection::const_iterator MuonIterator;
 	typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
-	typedef const reco::MuIsoDeposit MuIsoDepRef;
+	typedef const reco::IsoDeposit MuIsoDepRef;
 
 	public:
 		//---------methods----------------------------
