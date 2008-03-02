@@ -54,7 +54,7 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
     if ( !thePars.zRange.inside( tZ ) ) continue; 
     if ( tPt < thePars.ptMin ) continue;
     if ( !thePars.rRange.inside( tD0Cor) ) continue;
-    if ( thePars.dir.deltaR( Direction(tEta, tPhi) ) > thePars.drMax ) continue;
+    if ( thePars.dir.deltaR( reco::isodeposit::Direction(tEta, tPhi) ) > thePars.drMax ) continue;
     if ( tChi2Ndof > thePars.chi2NdofMax ) continue;
 
     //! skip if min Hits == 0; assumes any track has at least one valid hit

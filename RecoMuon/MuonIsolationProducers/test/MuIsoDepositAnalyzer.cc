@@ -10,8 +10,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 
 using namespace std;
@@ -51,11 +51,10 @@ void MuIsoDepositAnalyzer:: analyze(const edm::Event& ev, const edm::EventSetup&
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel(theMuonLabel, trackCollection);
 
-  std::vector<edm::Handle<reco::MuIsoDepositAssociationMap> > isoDeposits;
-  for (uint iDep = 0; iDep < theIsoDepositInputTags.size(); ++iDep){
-    edm::Handle<reco::MuIsoDepositAssociationMap> hTmp;
-    ev.getByLabel(theIsoDepositInputTags[iDep], hTmp);
-    isoDeposits.push_back(hTmp);
+  uint nDeps = theIsoDepositInputTags.size();
+  std::vector<edm::Handle<reco::IsoDepositMap> > isoDeposits(nDeps);
+  for (uint iDep = 0; iDep < nDeps; ++iDep){
+    ev.getByLabel(theIsoDepositInputTags[iDep], isoDeposits[iDep]);
   }
 
   const reco::TrackCollection&  muons = *(trackCollection.product());
@@ -65,7 +64,7 @@ void MuIsoDepositAnalyzer:: analyze(const edm::Event& ev, const edm::EventSetup&
     LogTrace("") <<"muon pt="<< (*it).pt();
     reco::TrackRef muRef(trackCollection, iMu); ++iMu;
     for (uint iDep=0; iDep < isoDeposits.size();++iDep){
-      const reco::MuIsoDeposit& dep = (*isoDeposits[iDep])[muRef];
+      const reco::IsoDeposit& dep = (*isoDeposits[iDep])[muRef];
       LogTrace("") <<theIsoDepositInputTags[iDep]
 		   <<dep.print();
     }
@@ -73,11 +72,11 @@ void MuIsoDepositAnalyzer:: analyze(const edm::Event& ev, const edm::EventSetup&
       float coneSize = 0.1*i;
       LogTrace("") <<" dR cone: "<<coneSize<<" isolationvariables: ";
       for (uint iDep=0; iDep < isoDeposits.size();++iDep){
-	const reco::MuIsoDeposit& dep = (*isoDeposits[iDep])[muRef];
+	const reco::IsoDeposit& dep = (*isoDeposits[iDep])[muRef];
 	      LogTrace("") <<theIsoDepositInputTags[iDep]
 			   <<" (eta, phi)= ("<<dep.eta()<<", "<<dep.phi()
 			   <<") V(eta, phi)= ("<<dep.veto().vetoDir.eta()<<", "<<dep.veto().vetoDir.phi()
-			   <<") muE= "<<dep.muonEnergy()
+			   <<") muE= "<<dep.candEnergy()
 			   <<" "<<dep.depositWithin(coneSize);
       }
     }

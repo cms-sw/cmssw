@@ -14,14 +14,14 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "L3NominalEfficiencyConfigurator.h"
 
@@ -43,7 +43,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
   if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
-  produces<reco::MuIsoFlagMap>();
+  produces<edm::ValueMap<bool> >();
 }
   
 /// destructor
@@ -62,7 +62,7 @@ void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
   //! get min pt for the track to go into sumPt
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = MuIsoExtractorFactory::get()->create( extractorName, extractorPSet);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
   
   //
@@ -101,7 +101,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   event.getByLabel(theMuonCollectionLabel,muons);
 
   std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
-  std::auto_ptr<reco::MuIsoFlagMap> isoMap( new reco::MuIsoFlagMap());
+  std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
 
 
   //
@@ -109,9 +109,9 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   //
   uint nMuons = muons->size();
 
-  MuIsoDeposit::Vetos vetos(nMuons);
+  IsoDeposit::Vetos vetos(nMuons);
   
-  std::vector<MuIsoDeposit> deps(nMuons);
+  std::vector<IsoDeposit> deps(nMuons);
   std::vector<bool> isos(nMuons, false);
 
   for (unsigned int i=0; i<nMuons; i++) {
@@ -131,7 +131,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   for(uint iMu=0; iMu < nMuons; ++iMu){
     const reco::Track* mu = &(*muons)[iMu];
 
-    const MuIsoDeposit & deposit = deps[iMu];
+    const IsoDeposit & deposit = deps[iMu];
     LogTrace(metname)<< deposit.print();
 
     const Cuts::CutSpec & cut = theCuts( mu->eta());
@@ -153,7 +153,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     depFiller.fill();
     event.put(depMap);
   }
-  reco::MuIsoFlagMap::Filler isoFiller(*isoMap);
+  edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
   isoFiller.insert(muons, isos.begin(), isos.end());
   isoFiller.fill();
   event.put(isoMap);

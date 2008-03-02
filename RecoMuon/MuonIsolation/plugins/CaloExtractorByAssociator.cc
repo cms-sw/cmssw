@@ -28,6 +28,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
+using reco::isodeposit::Direction;
 
 CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
@@ -66,15 +67,15 @@ CaloExtractorByAssociator::~CaloExtractorByAssociator(){
 void CaloExtractorByAssociator::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {
 //   LogWarning("CaloExtractorByAssociator")
-//     <<"fillVetos does nothing now: MuIsoDeposit provides enough functionality\n"
+//     <<"fillVetos does nothing now: IsoDeposit provides enough functionality\n"
 //     <<"to remove a deposit at/around given (eta, phi)";
 
 }
 
-MuIsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+IsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-  MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
-  MuIsoDeposit dep(theDepositLabel, muonDir );
+  IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
+  IsoDeposit dep(muonDir );
 
 //   LogWarning("CaloExtractorByAssociator")
 //     <<"single deposit is not an option here\n"
@@ -86,7 +87,7 @@ MuIsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const Even
 
 
 //! Make separate deposits: for ECAL, HCAL, HO
-std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
 
   if (thePropagator == 0){
@@ -109,14 +110,14 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 			       <<"proceed at your own risk. The extractor interprets lab0=from ecal; lab1=from hcal; lab2=from ho";
   }
 
-  typedef MuIsoDeposit::Veto Veto;
+  typedef IsoDeposit::Veto Veto;
   //! this should be (eventually) set to the eta-phi of the crossing point of 
   //! a straight line tangent to a muon at IP and the calorimeter
-  MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
+  IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
   
-  MuIsoDeposit depEcal(theDepositInstanceLabels[0], muonDir);
-  MuIsoDeposit depHcal(theDepositInstanceLabels[1], muonDir);
-  MuIsoDeposit depHOcal(theDepositInstanceLabels[2], muonDir);
+  IsoDeposit depEcal(muonDir);
+  IsoDeposit depHcal(muonDir);
+  IsoDeposit depHOcal(muonDir);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -127,11 +128,11 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
   //! each deposit type veto is at the point of intersect with that detector
-  depEcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
+  depEcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
 		       theDR_Veto_E));
-  depHcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi()),
+  depHcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi()),
 		       theDR_Veto_H));
-  depHOcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtHO.eta(), mInfo.trkGlobPosAtHO.phi()),
+  depHOcal.setVeto(Veto(reco::isodeposit::Direction(mInfo.trkGlobPosAtHO.eta(), mInfo.trkGlobPosAtHO.phi()),
 			theDR_Veto_HO));
 
   if (theUseRecHitsFlag){
@@ -170,9 +171,9 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
 
       if (vetoHit ){
-	depEcal.addMuonEnergy(et);
+	depEcal.addCandEnergy(et);
       } else {
-	depEcal.addDeposit(Direction(eHitPos.eta(), eHitPos.phi()), et);      
+	depEcal.addDeposit(reco::isodeposit::Direction(eHitPos.eta(), eHitPos.phi()), et);      
       }
     }
 
@@ -206,9 +207,9 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
 
       if (vetoHit ){
-	depHcal.addMuonEnergy(et);
+	depHcal.addCandEnergy(et);
       } else {
-	depHcal.addDeposit(Direction(hHitPos.eta(), hHitPos.phi()), et);      
+	depHcal.addDeposit(reco::isodeposit::Direction(hHitPos.eta(), hHitPos.phi()), et);      
       }
     }
 
@@ -242,9 +243,9 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
 
       if (vetoHit ){
-	depHOcal.addMuonEnergy(et);
+	depHOcal.addCandEnergy(et);
       } else {
-	depHOcal.addDeposit(Direction(hoHitPos.eta(), hoHitPos.phi()), et);      	
+	depHOcal.addDeposit(reco::isodeposit::Direction(hoHitPos.eta(), hoHitPos.phi()), et);      	
       }
     }
 
@@ -312,24 +313,24 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	}
       }
 
-      Direction towerDir(calCPtr->eta(), calCPtr->phi());
+      reco::isodeposit::Direction towerDir(calCPtr->eta(), calCPtr->phi());
       //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
-	if (vetoTowerEcal) depEcal.addMuonEnergy(etecal);
+	if (vetoTowerEcal) depEcal.addCandEnergy(etecal);
 	else depEcal.addDeposit(towerDir, etecal);
       }
       if (doHcal){
-	if (vetoTowerHcal) depHcal.addMuonEnergy(ethcal);
+	if (vetoTowerHcal) depHcal.addCandEnergy(ethcal);
 	else depHcal.addDeposit(towerDir, ethcal);
       }
       if (doHOcal){
-	if (vetoTowerHOCal) depHOcal.addMuonEnergy(ethocal);
+	if (vetoTowerHOCal) depHOcal.addCandEnergy(ethocal);
 	else depHOcal.addDeposit(towerDir, ethocal);
       }
     }
   }
 
-  std::vector<MuIsoDeposit> resultDeps;    
+  std::vector<IsoDeposit> resultDeps;    
   resultDeps.push_back(depEcal);
   resultDeps.push_back(depHcal);
   resultDeps.push_back(depHOcal);

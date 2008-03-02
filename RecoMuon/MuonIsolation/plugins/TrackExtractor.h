@@ -5,14 +5,14 @@
 #include <vector>
 
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 namespace muonisolation {
 
-class TrackExtractor : public MuIsoExtractor {
+class TrackExtractor : public reco::isodeposit::IsoDepositExtractor {
 
 public:
 
@@ -24,14 +24,14 @@ public:
   virtual void fillVetos (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::TrackCollection & track) {}
 
-  virtual reco::MuIsoDeposit::Vetos vetos(const edm::Event & ev,
+  virtual reco::IsoDeposit::Vetos vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track)const;
 
-  virtual reco::MuIsoDeposit deposit (const edm::Event & ev,
+  virtual reco::IsoDeposit deposit (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & muon) const;
 
 private:
-  reco::MuIsoDeposit::Veto veto( const reco::MuIsoDeposit::Direction & dir) const;
+  reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;
 private:
   // Parameter set
   edm::InputTag theTrackCollectionTag; //! Track Collection Label

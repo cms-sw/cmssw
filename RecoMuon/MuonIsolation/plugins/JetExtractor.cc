@@ -29,6 +29,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
+using reco::isodeposit::Direction;
 
 JetExtractor::JetExtractor(const ParameterSet& par) :
   theJetCollectionLabel(par.getParameter<edm::InputTag>("JetCollectionLabel")),
@@ -55,12 +56,12 @@ JetExtractor::~JetExtractor(){
 void JetExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {
 //   LogWarning("JetExtractor")
-//     <<"fillVetos does nothing now: MuIsoDeposit provides enough functionality\n"
+//     <<"fillVetos does nothing now: IsoDeposit provides enough functionality\n"
 //     <<"to remove a deposit at/around given (eta, phi)";
 
 }
 
-MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
   if (thePropagator == 0){
     ESHandle<Propagator> prop;
@@ -69,10 +70,10 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
     theAssociator->setPropagator(thePropagator);
   }
 
-  typedef MuIsoDeposit::Veto Veto;
-  MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
+  typedef IsoDeposit::Veto Veto;
+  IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
   
-  MuIsoDeposit depJet("", muonDir);
+  IsoDeposit depJet(muonDir);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -82,7 +83,7 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
   FreeTrajectoryState iFTS = tMuon.initialFreeState();
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
-  Direction vetoDirection(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi());
+  reco::isodeposit::Direction vetoDirection(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi());
   depJet.setVeto(Veto(vetoDirection, theDR_Veto));
 
 
@@ -123,7 +124,7 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
     double depositEt = jetCI->et();
     if (theExcludeMuonVeto) depositEt = depositEt - sumEtExcluded;
 
-    Direction jetDir(jetCI->eta(), jetCI->phi());
+    reco::isodeposit::Direction jetDir(jetCI->eta(), jetCI->phi());
     depJet.addDeposit(jetDir, depositEt);
     
   }
@@ -133,7 +134,7 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
   for (; crossedCI != mInfo.crossedTowers.end(); ++crossedCI){
     muSumEt += (*crossedCI)->et();
   }
-  depJet.addMuonEnergy(muSumEt);
+  depJet.addCandEnergy(muSumEt);
 
   return depJet;
 

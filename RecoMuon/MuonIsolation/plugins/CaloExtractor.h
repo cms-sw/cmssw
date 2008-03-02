@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -15,7 +15,7 @@
 
 namespace muonisolation {
 
-class CaloExtractor : public MuIsoExtractor {
+class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
 
 public:
 
@@ -25,7 +25,7 @@ public:
   virtual ~CaloExtractor(){}
 
   virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
-  virtual reco::MuIsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+  virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   /// Extrapolate muons to calorimeter-object positions
   static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);

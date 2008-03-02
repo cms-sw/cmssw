@@ -9,8 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -74,7 +74,7 @@ void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::IsoDepositMap> hcalMapH;
   ev.getByLabel(theHcalDepMapTag, hcalMapH);
   //! make a dummy veto list (used later)
-  reco::MuIsoDeposit::Vetos dVetos;
+  reco::IsoDeposit::Vetos dVetos;
 
   uint nMuons = muons.size();
   for(uint iMu=0; iMu < nMuons; ++iMu){
@@ -82,7 +82,7 @@ void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
 
     //! let's look at sumPt in 5 different cones
     //! pick a deposit first (change to ..sit& when it works)
-    const reco::MuIsoDeposit tkDep((*tkMapH)[muons.refAt(iMu)]);
+    const reco::IsoDeposit tkDep((*tkMapH)[muons.refAt(iMu)]);
     for( int i=1; i<6; ++i) {
       float coneSize = 0.1*i;
       LogTrace(metname)<<" iso sumPt in cone "<<coneSize<<" is "<<tkDep.depositWithin(coneSize);    

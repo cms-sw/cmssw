@@ -2,7 +2,7 @@
 #define MuonIsolation_MuIsoBaseIsolator_H
 
 #include <vector>
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -10,14 +10,14 @@ namespace muonisolation {
   class MuIsoBaseIsolator {
 
   public:
-    typedef reco::MuIsoDeposit::Veto Veto;
-    typedef reco::MuIsoDeposit::Vetos Vetos;
+    typedef reco::IsoDeposit::Veto Veto;
+    typedef reco::IsoDeposit::Vetos Vetos;
 
     struct DepositAndVetos {
       DepositAndVetos(): dep(0), vetos(0) {}
-      DepositAndVetos(const reco::MuIsoDeposit* depA, const Vetos* vetosA = 0):
+      DepositAndVetos(const reco::IsoDeposit* depA, const Vetos* vetosA = 0):
 	dep(depA), vetos(vetosA) {}
-      const reco::MuIsoDeposit* dep;
+      const reco::IsoDeposit* dep;
       const Vetos* vetos;
     };
     typedef std::vector<DepositAndVetos> DepositContainer;

@@ -15,7 +15,7 @@
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
@@ -49,7 +49,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   double optOutputIsoDeposits;
 
   // MuIsoExtractor
-  muonisolation::MuIsoExtractor* theExtractor;
+  reco::isodeposit::IsoDepositExtractor* theExtractor;
 
 };
 

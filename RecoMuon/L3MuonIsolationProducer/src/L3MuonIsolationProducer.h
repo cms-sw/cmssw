@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 #include <string>
 
@@ -45,7 +45,7 @@ private:
   double optOutputIsoDeposits;
 
   // MuIsoExtractor
-  muonisolation::MuIsoExtractor * theExtractor;
+  reco::isodeposit::IsoDepositExtractor * theExtractor;
 
   //! pt cut to consider track in sumPt after extracting iso deposit
   //! better split this off into a filter

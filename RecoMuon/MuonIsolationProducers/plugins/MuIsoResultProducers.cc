@@ -2,8 +2,8 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 typedef MuIsolatorResultProducer<reco::Track> MuIsoTrackResultProducer;
 typedef MuIsolatorResultProducer<reco::Candidate> MuIsoCandidateResultProducer;

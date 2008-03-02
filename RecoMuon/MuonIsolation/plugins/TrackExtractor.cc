@@ -1,7 +1,7 @@
 #include "TrackExtractor.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -14,6 +14,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
+using reco::isodeposit::Direction;
 
 TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
@@ -31,29 +32,29 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
 {
 }
 
-reco::MuIsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
+reco::IsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track) const
 {
-  Direction dir(track.eta(),track.phi());
-  return reco::MuIsoDeposit::Vetos(1,veto(dir));
+  reco::isodeposit::Direction dir(track.eta(),track.phi());
+  return reco::IsoDeposit::Vetos(1,veto(dir));
 }
 
-reco::MuIsoDeposit::Veto TrackExtractor::veto(const reco::MuIsoDeposit::Direction & dir) const
+reco::IsoDeposit::Veto TrackExtractor::veto(const reco::IsoDeposit::Direction & dir) const
 {
-  reco::MuIsoDeposit::Veto result;
+  reco::IsoDeposit::Veto result;
   result.vetoDir = dir;
   result.dR = theDR_Veto;
   return result;
 }
 
-MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
+IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
 {
   static std::string metname = "MuonIsolation|TrackExtractor";
 
-  Direction muonDir(muon.eta(), muon.phi());
-  MuIsoDeposit deposit(theDepositLabel, muonDir );
+  reco::isodeposit::Direction muonDir(muon.eta(), muon.phi());
+  IsoDeposit deposit(muonDir );
   deposit.setVeto( veto(muonDir) );
-  deposit.addMuonEnergy(muon.pt());
+  deposit.addCandEnergy(muon.pt());
 
   Handle<View<Track> > tracksH;
   event.getByLabel(theTrackCollectionTag, tracksH);
@@ -97,7 +98,7 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
     const reco::Track* tk = *tkI;
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
         << tk->eta() <<", phi= "<<tk->phi();
-    Direction dirTrk(tk->eta(), tk->phi());
+    reco::isodeposit::Direction dirTrk(tk->eta(), tk->phi());
     deposit.addDeposit(dirTrk, tk->pt());
   }
 

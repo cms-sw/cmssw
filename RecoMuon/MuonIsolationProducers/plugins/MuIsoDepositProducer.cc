@@ -8,8 +8,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -17,10 +17,10 @@
 
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
@@ -77,7 +77,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   if (!theExtractor) {
     edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
     std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = MuIsoExtractorFactory::get()->create( extractorName, extractorPSet);
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
     LogDebug(metname)<<" Load extractor..."<<extractorName;
   }
 
@@ -123,6 +123,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   static const uint MAX_DEPS=10;
   std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
 
+  if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits";
   for (uint i =0;i<nDeps; ++i){
     depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
   }
@@ -132,7 +133,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   //! do it in case some muons are there only
   if (nMuons > 0){
     
-    std::vector<std::vector<MuIsoDeposit> > deps2D(nDeps, std::vector<MuIsoDeposit>(nMuons));
+    std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons));
     
     for (uint i=0; i<  nMuons; ++i) {
       TrackBaseRef muRef;
@@ -164,7 +165,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 	else deps2D[0][i] = theExtractor->deposit(event, eventSetup, muRef);
 	
       } else {
-	std::vector<MuIsoDeposit> deps(nDeps);
+	std::vector<IsoDeposit> deps(nDeps);
 	if (theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
 	else deps = theExtractor->deposits(event, eventSetup, muRef);
 	for (uint iDep =0; iDep<nDeps; ++iDep) {

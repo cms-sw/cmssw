@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include <string>
 
 namespace edm { class Event; }
@@ -37,7 +37,7 @@ private:
   edm::InputTag theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
-  muonisolation::MuIsoExtractor * theExtractor;
+  reco::isodeposit::IsoDepositExtractor * theExtractor;
 
 };
 #endif

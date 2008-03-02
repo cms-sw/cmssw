@@ -87,7 +87,7 @@ template <typename BT= reco::Candidate>
   
   uint initAssociation(edm::Event& event, CandMap& candMapT) const;
   
-  void initVetos(std::vector<reco::MuIsoDeposit::Vetos*>& vetos, CandMap& candMap) const;
+  void initVetos(std::vector<reco::IsoDeposit::Vetos*>& vetos, CandMap& candMap) const;
   
   template <typename RT>
   void writeOutImpl(edm::Event& event, const CandMap& candMapT, const Results& results) const;
@@ -165,14 +165,14 @@ inline void MuIsolatorResultProducer<BT>::callWhatProduces() {
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
 #include "RecoMuon/MuonIsolation/interface/IsolatorByDeposit.h"
 #include "RecoMuon/MuonIsolation/interface/IsolatorByDepositCount.h"
@@ -320,7 +320,7 @@ void MuIsolatorResultProducer<BT>::produce(Event& event, const EventSetup& event
   Results results(colSize);
 
   //! extra vetos will be filled here
-  std::vector<reco::MuIsoDeposit::Vetos*> vetoDeps(theDepositConfs.size(), 0);
+  std::vector<reco::IsoDeposit::Vetos*> vetoDeps(theDepositConfs.size(), 0);
 
   if (colSize != 0){
     if (theRemoveOtherVetos){
@@ -393,7 +393,7 @@ MuIsolatorResultProducer<BT>::initAssociation(Event& event, CandMap& candMapT) c
 }
 
 template <typename BT >
-void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::MuIsoDeposit::Vetos*>& vetos, CandMap& candMapT) const {
+void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos*>& vetos, CandMap& candMapT) const {
   std::string metname = "RecoMuon|MuonIsolationProducers";
   
 
@@ -416,7 +416,7 @@ void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::MuIsoDeposit::Vet
 	  ){
 	LogDebug(metname)<<"muon passes the cuts";
 	for (uint iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
-	  if (vetos[iDep] == 0) vetos[iDep] = new reco::MuIsoDeposit::Vetos();
+	  if (vetos[iDep] == 0) vetos[iDep] = new reco::IsoDeposit::Vetos();
 
 	  vetos[iDep]->push_back(candMapT.get()[muI].second[iDep].dep->veto());
 	}

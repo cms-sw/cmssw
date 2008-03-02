@@ -13,8 +13,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TFile.h"
@@ -178,7 +178,7 @@ void L2MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
       
       numberOfMuons++;
       tracks_type::const_pointer tk = &*tkI;
-      const MuIsoDeposit& dep = *depI;
+      const IsoDeposit& dep = *depI;
       //Puts("L2MuonIsolationAnalyzer>>> Track pt: %f, Deposit eta%f", tk->pt(), dep.eta());
       
       muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());

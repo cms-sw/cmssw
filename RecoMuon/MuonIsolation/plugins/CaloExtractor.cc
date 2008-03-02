@@ -20,6 +20,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
+using reco::isodeposit::Direction;
 
 CaloExtractor::CaloExtractor(const ParameterSet& par) :
   theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
@@ -88,9 +89,9 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
      
 }
 
-MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
-  MuIsoDeposit dep(theDepositLabel, muon.eta(), muon.phi() );
+  IsoDeposit dep(muon.eta(), muon.phi() );
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	  << " >>> Muon: pt " << muon.pt()
 	  << " eta " << muon.eta()
@@ -130,14 +131,14 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
       double deltar = reco::deltaR(muatcal,endpos);
 
       if (deltar<theDR_Veto_H) {
-	      dep.setVeto(MuIsoDeposit::Veto(Direction(muatcal.eta(), muatcal.phi()), theDR_Veto_H));
+	      dep.setVeto(IsoDeposit::Veto(reco::isodeposit::Direction(muatcal.eta(), muatcal.phi()), theDR_Veto_H));
       }
 
       if (doEcal) {
             if (deltar<theDR_Veto_E) { 
                   double calodep = theWeight_E*etecal;
                   if (doHcal) calodep += theWeight_H*ethcal;
-                  dep.addMuonEnergy(calodep);
+                  dep.addCandEnergy(calodep);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit inside veto (with ECAL): deltar " << deltar
 	            << " calodep " << calodep
@@ -149,7 +150,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
             }
       } else {
             if (deltar<theDR_Veto_H) { 
-                  dep.addMuonEnergy(theWeight_H*ethcal);
+                  dep.addCandEnergy(theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit inside veto (no ECAL): deltar " << deltar
 	            << " calodep " << theWeight_H*ethcal
@@ -171,7 +172,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
             if (deltar>theDR_Veto_E) { 
                   double calodep = theWeight_E*etecal;
                   if (doHcal) calodep += theWeight_H*ethcal;
-                  dep.addDeposit(Direction(endpos.eta(), endpos.phi()),calodep);
+                  dep.addDeposit(reco::isodeposit::Direction(endpos.eta(), endpos.phi()),calodep);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit (with ECAL): deltar " << deltar
 	            << " calodep " << calodep
@@ -182,7 +183,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
             }
       } else {
             if (deltar>theDR_Veto_H) { 
-	            dep.addDeposit(Direction(endpos.eta(), endpos.phi()),theWeight_H*ethcal);
+	            dep.addDeposit(reco::isodeposit::Direction(endpos.eta(), endpos.phi()),theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit (no ECAL): deltar " << deltar
 	            << " calodep " << theWeight_H*ethcal

@@ -4,7 +4,7 @@
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseAlgorithm.h"
 #include "RecoMuon/MuonIsolation/interface/CutsConeSizeFunction.h"
 
-namespace muonisolation { class MuIsoExtractor; }
+namespace reco { namespace isodeposit { class IsoDepositExtractor; }}
 namespace muonisolation { class IsolatorByDeposit; }
 namespace reco { class Track; }
 namespace edm { class Event; }
@@ -31,12 +31,12 @@ public:
   void setConeSize(float dr);
   void setCut(float cut) { theCut = cut; }
   
-  virtual muonisolation::MuIsoExtractor * extractor() { return theExtractor; }
+  virtual reco::isodeposit::IsoDepositExtractor * extractor() { return theExtractor; }
   virtual muonisolation::IsolatorByDeposit * isolator() { return theIsolator; }
 
 private:
   float theCut;
-  muonisolation::MuIsoExtractor * theExtractor;
+  reco::isodeposit::IsoDepositExtractor * theExtractor;
   muonisolation::IsolatorByDeposit * theIsolator;
 };
 

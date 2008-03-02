@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.7 2007/12/13 07:38:59 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.8 2008/01/22 09:51:28 bellan Exp $
 //
 //
 
@@ -45,7 +45,7 @@
 #include "Utilities/Timing/interface/TimerStack.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -117,7 +117,7 @@ class MuonIdProducer : public edm::EDProducer {
    edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
-   muonisolation::MuIsoExtractor* muIsoExtractorCalo_;
-   muonisolation::MuIsoExtractor* muIsoExtractorTrack_;
+   reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
+   reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
 };
 #endif

@@ -8,17 +8,17 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2007/07/16 21:56:36 $
- *  $Revision: 1.2 $
- *  $Id: CaloExtractorByAssociator.h,v 1.2 2007/07/16 21:56:36 slava77 Exp $
+ *  $Date: 2007/11/30 06:23:08 $
+ *  $Revision: 1.3 $
+ *  $Id: CaloExtractorByAssociator.h,v 1.3 2007/11/30 06:23:08 slava77 Exp $
  *  \author S. Krutelyov
  */
 
 #include <string>
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -33,7 +33,7 @@ class Propagator;
 
 namespace muonisolation {
   
-  class CaloExtractorByAssociator : public MuIsoExtractor {
+  class CaloExtractorByAssociator : public reco::isodeposit::IsoDepositExtractor {
 
   public:
 
@@ -47,10 +47,10 @@ namespace muonisolation {
     //! allows to set extra vetoes (in addition to the muon) -- no-op at this point
     virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
     //! no-op: by design of this extractor the deposits are pulled out all at a time
-    virtual reco::MuIsoDeposit 
+    virtual reco::IsoDeposit 
       deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
     //! return deposits for 3 calorimeter subdetectors (ecal, hcal, ho) -- in this order
-    virtual std::vector<reco::MuIsoDeposit> 
+    virtual std::vector<reco::IsoDeposit> 
       deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   private:
