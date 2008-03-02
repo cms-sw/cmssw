@@ -31,6 +31,10 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+
+
 namespace {
   namespace {
     reco::RecoChargedCandidateCollection v1;
@@ -92,5 +96,14 @@ namespace {
     edm::reftobase::RefHolder<reco::RecoEcalCandidateRef> rbe2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector> rbe3;
     edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector> rbe4;
+
+    std::multimap<reco::isodeposit::Direction::Distance,float> mumdf1;
+    reco::IsoDeposit isod1;
+    std::vector<reco::IsoDeposit> visod1;
+    reco::IsoDepositMap idvm;
+    reco::IsoDepositMap::const_iterator idvmci;
+    edm::Wrapper<reco::IsoDepositMap> w_idvm;
+    
+
   }
 }
