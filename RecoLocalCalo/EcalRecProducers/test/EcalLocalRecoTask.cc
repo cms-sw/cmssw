@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.6 2007/09/28 13:45:00 ferriff Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.8 2007/09/28 18:14:16 dlange Exp $
  *
 */
 
@@ -70,7 +70,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const ParameterSet& ps)
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -245,12 +245,12 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
   const EBUncalibratedRecHitCollection * EBUncalibRecHit = pEBUncalibRecHit.product () ;
   const EBRecHitCollection * EBRecHit = pEBRecHit.product () ;
 
-  const EEDigiCollection * EEDigi = pEEDigis.product () ;
-  const EEUncalibratedRecHitCollection * EEUncalibRecHit = pEEUncalibRecHit.product () ;
-  const EERecHitCollection * EERecHit = pEERecHit.product () ;
+  //const EEDigiCollection * EEDigi = pEEDigis.product () ;
+  //const EEUncalibratedRecHitCollection * EEUncalibRecHit = pEEUncalibRecHit.product () ;
+  //const EERecHitCollection * EERecHit = pEERecHit.product () ;
 
-  const ESDigiCollection * ESDigi = pESDigis.product () ;
-  const ESRecHitCollection * ESRecHit = pESRecHit.product () ;
+  //const ESDigiCollection * ESDigi = pESDigis.product () ;
+  //const ESRecHitCollection * ESRecHit = pESRecHit.product () ;
 
 
   // loop over uncalibRecHit
