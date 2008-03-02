@@ -23,7 +23,17 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.19 2007/07/09 07:28:49 llista Exp $
+Since CMSSW 2_0_0_pre4, it is possible to skip the automatic sorting
+when creating a DetSetVector<T> from an already sorted vector<DetSet<T>>.
+If the DSV is not modified afterwards, it will no longer be sorted when
+it is inserted in the event.
+ONE NOTE OF CAUTION: it is not sufficient to to say that the vector is 
+sorted already.  In addition the sorting must have been done with the same
+criteria and obey the rules of "strict weak ordering" as will be used to
+find things in the collection.  Not insuring this leads to undefined
+behavior (usually a core dump).
+
+$Id: DetSetVector.h,v 1.20 2007/12/21 22:44:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,6 +58,7 @@ $Id: DetSetVector.h,v 1.19 2007/07/09 07:28:49 llista Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace edm {
 
@@ -129,7 +140,14 @@ namespace edm {
     /// and then sorting the contents.
     /// N.B.: Swapping in the vector *destructively modifies the input*.
     /// Using swap here allows us to avoid copying the data.
-    explicit DetSetVector(std::vector<DetSet<T> > & input);
+    /// N.B. 2: if you set alreadySorted to true, data *must* be sorted, 
+    /// (the vector<DetSet<T>> must be ordered by detid, and each DetSet
+    /// must be ordered according to the natural "strict weak ordering" of Ts.
+    /// You *must not* modify the contents after this DSV after creation,
+    /// or you might get an undefined behavior / a core dump.
+    /// (there are some checks to assure alreadySorted is resetted if you try
+    /// to modify the DSV, but you should not count on them)
+    explicit DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted=false);
 
 
     void swap(DetSetVector& other);
@@ -191,6 +209,7 @@ namespace edm {
 
   private:
     collection_type   _sets;
+    edm::BoolCache    _alreadySorted; 
 
     /// Sort the DetSet in order of increasing DetId.
     void _sort();
@@ -205,11 +224,11 @@ namespace edm {
 
   template <class T>
   inline
-  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input) :
-    _sets()
+  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted) :
+    _sets(), _alreadySorted(alreadySorted)
   {
     _sets.swap(input);
-    _sort();
+    if (!alreadySorted) _sort();
   }
 
   template <class T>
@@ -217,6 +236,7 @@ namespace edm {
   void
   DetSetVector<T>::swap(DetSetVector<T>& other) {
     _sets.swap(other._sets);
+    bool tmp = _alreadySorted; _alreadySorted = other._alreadySorted; other._alreadySorted = tmp;
   }
 
   template <class T>
@@ -233,6 +253,7 @@ namespace edm {
   inline
   void
   DetSetVector<T>::insert(detset const& t) {
+    _alreadySorted = false; // we don't know if the DetSet we're adding is already sorted
     // Implementation provided by the Performance Task Force.
     _sets.insert(std::lower_bound(_sets.begin(),
 				  _sets.end(),
@@ -251,6 +272,8 @@ namespace edm {
   inline
   typename DetSetVector<T>::reference
   DetSetVector<T>::find_or_insert(det_id_type id) {
+    // NOTE: we don't have to clear _alreadySorted: the new DS is empty, 
+    //       and gets inserted in the correct place
     std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
 
@@ -281,6 +304,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::find(det_id_type id) {
+    _alreadySorted = false; // it's non const 
     std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
     if (p.first == p.second) return _sets.end();
@@ -313,6 +337,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::reference
   DetSetVector<T>::operator[](det_id_type i) {
+    _alreadySorted = false; // it's non const 
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     iterator it = this->find(i);
@@ -335,6 +360,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::begin() {
+    _alreadySorted = false; // it's non const 
     return _sets.begin();
   }
 
@@ -349,6 +375,7 @@ namespace edm {
   inline
   typename DetSetVector<T>::iterator
   DetSetVector<T>::end() {
+    _alreadySorted = false; // it's non const 
     return _sets.end();
   }
 
@@ -375,6 +402,7 @@ namespace edm {
   inline
   void
   DetSetVector<T>::post_insert() {
+    if (_alreadySorted) return; 
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
