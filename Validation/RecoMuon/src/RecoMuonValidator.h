@@ -21,7 +21,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/Tools/interface/FitSlicesYTool.h"
@@ -31,7 +32,7 @@
 class HResolution
 {
  public:
-  HResolution(DaqMonitorBEInterface* theDQMService, std::string name,
+  HResolution(DQMStore* theDQMService, std::string name,
               int nBinErrQPt, double widthErrQPt,
               int nBinPull, double widthPull,
               int nBinEta, double minEta, double maxEta,
@@ -110,7 +111,7 @@ class HResolution
     };
   
  protected:
-  DaqMonitorBEInterface * theDQMService_;
+  DQMStore * theDQMService_;
   
   MonitorElement * hEtaVsErrQPt_ ;
   MonitorElement * hEtaVsPullPt_ , * hPhiVsPullPt_ ;
@@ -169,7 +170,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   TFile* outputFile_;
 
   std::string subDir_;
-  DaqMonitorBEInterface * theDQMService_;
+  DQMStore * theDQMService_;
   MonitorElement * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hTkEtaVsPhi_, * hSeedEtaVsPhi_;
   MonitorElement * hSeedSim_effEta,* hStaSim_effEta,* hStaSeed_effEta,* hGlbSim_effEta,* hGlbTk_effEta,* hGlbSta_effEta,* hGlbSeed_effEta;
   MonitorElement * hEtaVsNDtSimHits_, * hEtaVsNCSCSimHits_, * hEtaVsNRPCSimHits_, * hEtaVsNSimHits_;

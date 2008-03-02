@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2008/02/25 21:48:32 $
- * $Revision: 1.4 $
+ * $Date: 2008/02/25 21:51:02 $
+ * $Revision: 1.5 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -33,7 +33,8 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TH2.h>
@@ -52,7 +53,7 @@ GlobalMuonMatchAnalyzer::GlobalMuonMatchAnalyzer(const edm::ParameterSet& iConfi
   glbName_ = iConfig.getUntrackedParameter<edm::InputTag>("glbLabel");
 
   out = iConfig.getUntrackedParameter<std::string>("out");
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 
@@ -269,10 +270,10 @@ GlobalMuonMatchAnalyzer::endJob() {
 }
 
 void GlobalMuonMatchAnalyzer::computeEfficiencyEta(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
-  TH2F * h1 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)recoTH2)));
+  TH2F * h1 = recoTH2->getTH2F();
   TH1D* reco = h1->ProjectionX();
 
-  TH2F * h2 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)simTH2)));
+  TH2F * h2 =simTH2->getTH2F();
   TH1D* sim  = h2 ->ProjectionX();
 
     
@@ -299,10 +300,10 @@ void GlobalMuonMatchAnalyzer::computeEfficiencyEta(MonitorElement *effHist, Moni
 }
 
 void GlobalMuonMatchAnalyzer::computeEfficiencyPt(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
-  TH2F * h1 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)recoTH2)));
+  TH2F * h1 = recoTH2->getTH2F();
   TH1D* reco = h1->ProjectionY();
 
-  TH2F * h2 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)simTH2)));
+  TH2F * h2 = simTH2->getTH2F();
   TH1D* sim  = h2 ->ProjectionY();
 
     

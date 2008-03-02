@@ -5,8 +5,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TMath.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "TMath.h"
 
 using namespace reco;
 using namespace edm;
@@ -66,7 +66,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   theMuonService_ = new MuonServiceProxy(serviceParameters);
 
   theDQMService_ = 0;
-  theDQMService_ = Service<DaqMonitorBEInterface>().operator->();
+  theDQMService_ = Service<DQMStore>().operator->();
 
   subDir_ = pset.getParameter<string>("subDir");
 }
@@ -344,10 +344,10 @@ int RecoMuonValidator::getNSimHits(const Event& event, string simHitLabel, unsig
 
 
 void RecoMuonValidator::computeEfficiency(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
-  TH2F * h1 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)recoTH2)));
+  TH2F * h1 = recoTH2->getTH2F();
   TH1D* reco = h1->ProjectionX();
 
-  TH2F * h2 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)simTH2)));
+  TH2F * h2 = simTH2->getTH2F();
   TH1D* sim  = h2 ->ProjectionX();
 
     

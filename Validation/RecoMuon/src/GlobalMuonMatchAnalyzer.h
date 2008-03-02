@@ -5,8 +5,8 @@
  *
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/10/20 15:54:07 $
+ *  $Revision: 1.1 $
  *
  *  \author Adam Everett        Purdue University
  */
@@ -32,7 +32,7 @@ namespace reco {class Track;}
 class InputTag;
 class MonitorElement;
 class TrackAssociatorBase;
-class  DaqMonitorBEInterface;
+class  DQMStore;
 
 //
 // class decleration
@@ -53,7 +53,7 @@ class GlobalMuonMatchAnalyzer : public edm::EDAnalyzer {
   void computeEfficiencyPt(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
       // ----------member data ---------------------------
   std::string out;
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
 
   MonitorElement *h_shouldMatch, *h_goodMatchSim, *h_tkOnlySim, *h_staOnlySim;
   MonitorElement *h_totReco, *h_goodMatch, *h_fakeMatch;
