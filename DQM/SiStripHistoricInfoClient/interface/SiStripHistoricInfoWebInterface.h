@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:40:18 CEST 2006
-// $Id$
+// $Id: SiStripHistoricInfoWebInterface.h,v 1.1 2006/08/20 19:40:29 dkcira Exp $
 //
 
 /*
@@ -32,7 +32,7 @@ class SiStripHistoricInfoWebInterface : public WebInterface
 
 public:
 
-  SiStripHistoricInfoWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
+  SiStripHistoricInfoWebInterface(std::string theContextURL, std::string theApplicationURL, DQMOldReceiver ** _mui_p);
 
   // you need to implement this function if you have widgets that invoke custom-made methods defined in your client
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);

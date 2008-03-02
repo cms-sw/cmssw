@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jun 15 09:40:22 CEST 2006
-// $Id: SiStripHistoricInfoWebInterface.cc,v 1.1 2006/08/20 19:40:30 dkcira Exp $
+// $Id: SiStripHistoricInfoWebInterface.cc,v 1.2 2007/07/03 19:10:51 andreasp Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoWebInterface.h"
@@ -24,7 +24,7 @@
 /*
   Create your widgets in the constructor of your web interface
 */
-SiStripHistoricInfoWebInterface::SiStripHistoricInfoWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p)
+SiStripHistoricInfoWebInterface::SiStripHistoricInfoWebInterface(std::string theContextURL, std::string theApplicationURL, DQMOldReceiver ** _mui_p)
   : WebInterface(theContextURL, theApplicationURL, _mui_p)
 {
   // a navigator allows you to make subscriptions:

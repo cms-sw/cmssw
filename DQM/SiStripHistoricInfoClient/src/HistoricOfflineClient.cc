@@ -8,12 +8,13 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include "TNamed.h"
 
 //---- default constructor / destructor
-HistoricOfflineClient::HistoricOfflineClient(const edm::ParameterSet& iConfig) { dbe_ = edm::Service<DaqMonitorBEInterface>().operator->(); dbe_->setVerbose(0); }
+HistoricOfflineClient::HistoricOfflineClient(const edm::ParameterSet& iConfig) { dqmStore_ = edm::Service<DQMStore>().operator->(); dqmStore_->setVerbose(0); }
 HistoricOfflineClient::~HistoricOfflineClient() {}
 
 //---- called each event
@@ -53,7 +54,7 @@ void HistoricOfflineClient::endJob() {
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ){
     std::string outputfile = parameters.getUntrackedParameter<std::string>("outputFile", "historicOffline.root");
     std::cout<<"HistoricOfflineClient::endJob() outputFile = "<<outputfile<<std::endl;
-    dbe_->save(outputfile);
+    dqmStore_->save(outputfile);
   }
 }
 
@@ -69,7 +70,7 @@ void HistoricOfflineClient::retrievePointersToModuleMEs(const edm::EventSetup& i
   /// get all MonitorElements tagged as <tag>
   ClientPointersToModuleMEs.clear();
   for(std::vector<uint32_t>::const_iterator idet = activeDets.begin(); idet != activeDets.end(); ++idet){
-    std::vector<MonitorElement *> local_mes =  dbe_->get(*idet); // get tagged MEs
+    std::vector<MonitorElement *> local_mes =  dqmStore_->get(*idet); // get tagged MEs
     ClientPointersToModuleMEs.insert(std::make_pair(*idet, local_mes));
   }
   std::cout<<"HistoricOfflineClient::retrievePointersToModuleMEs() ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<std::endl;
@@ -138,9 +139,8 @@ void HistoricOfflineClient::writeToDB(edm::EventID evid, edm::Timestamp evtime) 
 
 //-----------------------------------------------------------------------------------------------
 float HistoricOfflineClient::CalculatePercentOver(MonitorElement * me) const{
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-  if (ob) {
-    TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
+  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+    TH1F * root_ob = me->getTH1F();
     if(root_ob){
       float percsum=0.;
       TAxis * ta = root_ob->GetXaxis();

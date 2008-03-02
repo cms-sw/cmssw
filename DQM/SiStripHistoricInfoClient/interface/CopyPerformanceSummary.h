@@ -8,7 +8,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Apr 25 05:10:12 CEST 2007
-// $Id: CopyPerformanceSummary.h,v 1.1 2007/05/16 07:41:26 dkcira Exp $
+// $Id: CopyPerformanceSummary.h,v 1.2 2008/02/15 15:05:36 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 
 namespace edm {

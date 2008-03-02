@@ -8,7 +8,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Apr 25 05:10:12 CEST 2007
-// $Id: HistoricOfflineClient.h,v 1.1 2007/05/16 07:38:20 dkcira Exp $
+// $Id: HistoricOfflineClient.h,v 1.2 2008/02/15 15:05:36 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,8 +16,12 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+class MonitorElement;
 
 namespace edm {
     class ParameterSet;
@@ -45,7 +49,7 @@ class HistoricOfflineClient : public edm::EDAnalyzer {
       int nevents;
       bool firstEventInRun;
       edm::ParameterSet parameters;
-      DaqMonitorBEInterface* dbe_;
+      DQMStore* dqmStore_;
       std::map<uint32_t, std::vector<MonitorElement *> > ClientPointersToModuleMEs;
       SiStripPerformanceSummary* pSummary_;
 };

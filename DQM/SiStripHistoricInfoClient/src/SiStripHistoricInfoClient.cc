@@ -8,12 +8,12 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.18 2007/11/26 11:36:47 gbruno Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.19 2007/12/19 10:44:43 dutta Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -32,7 +32,6 @@
 #include "xdata/Boolean.h"
 #include "xdata/String.h"
 #include "xdata/TimeVal.h"
-
 #include "xdata/exdr/FixedSizeInputStreamBuffer.h"
 #include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
 #include "xdata/exdr/Serializer.h"
@@ -42,6 +41,8 @@
 
 #include "TSQLServer.h"
 #include "TSQLResult.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 
 using namespace std;
@@ -134,7 +135,7 @@ void SiStripHistoricInfoClient::onUpdate() const{
   if(firstTime){
     firstUpdate = nr_updates;
     cout<<"SiStripHistoricInfoClient::onUpdate() first time call. Subscribing. firstUpdate="<<firstUpdate<<endl;
-    mui_->subscribe("Collector/*/SiStrip/*");
+    //    mui_->subscribe("Collector/*/SiStrip/*"); // NOT Supported in DQMServices V3
     firstTime = false; // done, set flag to false again
   }
 
@@ -158,7 +159,7 @@ void SiStripHistoricInfoClient::onUpdate() const{
 //-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 // painful and dangerous string operations to extract list of pointer to MEs and avoid strings with full paths
-// uses the MonitorUserInterface and fills the data member map
+// uses the DQMOldReceiver and fills the data member map
   vector<string> listOfMEsWithFullPath;
   mui_->getBEInterface()->getContents(listOfMEsWithFullPath); // put list of MEs in vector which is passed as parameter to method
   cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs : listOfMEsWithFullPath.size() "<<listOfMEsWithFullPath.size()<<endl;
@@ -220,7 +221,7 @@ void SiStripHistoricInfoClient::printMEs() const {
        cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
      }
 /*
-     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+     DQMStore * dbe_ = mui_->getBEInterface();
      vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
      for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
        cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
