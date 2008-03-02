@@ -45,11 +45,11 @@ protected:
 
 private:
 
-  std::string            g4Label, hcalHits, layerInfo, nxNInfo, jetsInfo;
-  std::string            outFile_;
-  bool                   verbose_, scheme_;
-  bool                   checkHit_, checkLay_, checkNxN_, checkJet_;
-  DQMStore* dbe_;
+  std::string    g4Label, hcalHits, layerInfo, nxNInfo, jetsInfo;
+  std::string    outFile_;
+  bool           verbose_, scheme_;
+  bool           checkHit_, checkLay_, checkNxN_, checkJet_;
+  DQMStore       *dbe_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
