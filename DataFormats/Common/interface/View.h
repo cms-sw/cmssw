@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.5 2007/12/21 22:46:51 wmtan Exp $
+// $Id: View.h,v 1.6 2008/01/16 16:00:51 llista Exp $
 //
 
 #include <vector>
@@ -307,7 +307,7 @@ namespace edm
   View<T>::ptrAt(size_type i) const
   {
     RefToBase<T> ref = refAt(i);
-    return Ptr<T>(ref.id(), ref.key(), ref.productGetter());
+    return Ptr<T>(ref.id(), (ref.isAvailable() ? ref.get(): 0), ref.key());
   }
 
   template <typename T>
