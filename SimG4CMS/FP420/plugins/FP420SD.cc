@@ -205,7 +205,8 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   primaryID    = theTrack->GetTrackID();
   //  Position     = hitPoint;
   Pabs         = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
-  Tof          = 1400. + aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
+  //Tof          = 1400. + aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
+  Tof          = aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
   Eloss        = aStep->GetTotalEnergyDeposit()/GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();      
   ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta()/deg;
