@@ -22,11 +22,11 @@ namespace cond{
 	std::string("<!DOCTYPE PoolDatabase SYSTEM \"InMemory\">\n")+
         std::string("<PoolDatabase >\n")+
         std::string("<PoolContainer name=\"cond::IOV\" >\n")+
-	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" mapping_version=\"CONDIOV_3.0\">\n")+
+	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" mapping_version=\"CONDIOV_3.0\" >\n")+
     	std::string("<Primitive column=\"FIRSTSINCE\" name=\"firstsince\" />\n")+
 	std::string("<Primitive column=\"TIMETYPE\" name=\"timetype\" />\n")+
         std::string("<Container table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
-	std::string("<Object table=\"IOV_DATA\" id_columns=\"POS ID\" name=\"value_type\" >\n")+
+	std::string("<Object name=\"value_type\" >\n")+
         std::string("<Primitive column=\"IOV_TOKEN\" name=\"first\" />\n")+
         std::string("<Primitive column=\"IOV_TIME\" name=\"second\" />\n")+
 	std::string("</Object >\n")+
