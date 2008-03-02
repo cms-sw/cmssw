@@ -13,6 +13,13 @@
  *  Ported with an alternative interface to CMSSW by J. Alcaraz
  */
 
+#ifndef USE_MUISODEPOSIT_REQUIRED
+#error THIS FILE IS NOT SUPPOSED TO BE INCLUDED: USE "DataFormats/RecoCandidate/interface/IsoDeposit.h" instead
+#error THIS FILE IS HERE FOR BKW COMPATIBILITY ONLY
+//#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+
+#else
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
@@ -23,7 +30,8 @@
 #include <vector>
 
 
-namespace reco { namespace isodeposit {
+namespace reco { 
+  namespace muisodeposit {
     struct AbsVeto {
       virtual ~AbsVeto() { }
       /// Return "true" if a deposit at specific (eta,phi) with that value must be vetoed in the sum
@@ -44,8 +52,8 @@ namespace reco {
   public:
 
     typedef ::muonisolation::Direction Direction;
-    typedef isodeposit::AbsVeto AbsVeto;
-    typedef isodeposit::AbsVetos AbsVetos;
+    typedef muisodeposit::AbsVeto AbsVeto;
+    typedef muisodeposit::AbsVetos AbsVetos;
 
     // old style vetos
     struct Veto  { 
@@ -183,5 +191,5 @@ namespace reco {
 
 }
 
-
+#endif //USE_MUISODEPOSIT_REQUIRED
 #endif

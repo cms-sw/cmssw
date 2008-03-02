@@ -1,11 +1,18 @@
 #ifndef DataFormats_MuonReco_MuIsoDepositVetos_h
 #define DataFormats_MuonReco_MuIsoDepositVetos_h
 
+#ifndef USE_MUISODEPOSIT_REQUIRED
+#error THIS FILE IS NOT SUPPOSED TO BE INCLUDED: USE "DataFormats/RecoCandidate/interface/IsoDepositVetos.h" instead
+#error THIS FILE IS HERE FOR BKW COMPATIBILITY ONLY
+//#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
+#else
+
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 
+
 namespace reco {
-    namespace isodeposit {
+    namespace muisodeposit {
         typedef ::muonisolation::Direction Direction;
 
         class ConeVeto : public AbsVeto { 
@@ -69,4 +76,6 @@ namespace reco {
 
     } 
 }
+
+#endif //USE_MUISODEPOSIT_REQUIRED
 #endif

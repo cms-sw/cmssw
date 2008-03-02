@@ -6,12 +6,20 @@
  *  \author M. Zanetti
  */
 
+#ifndef USE_MUISODEPOSIT_REQUIRED
+#error THIS FILE IS NOT SUPPOSED TO BE INCLUDED: USE "DataFormats/RecoCandidate/interface/IsoDepositDirection.h" instead
+#error THIS FILE IS HERE FOR BKW COMPATIBILITY ONLY
+//#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+//namespace muonisolation { typedef reco::isodeposit::Direction Direction; }
+#else
+
 #include <cmath>
 #include <sstream>
 #include <iostream>
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "PhysicsTools/Utilities/interface/deltaPhi.h"
+
 
 namespace muonisolation {
 
@@ -76,4 +84,5 @@ private:
 
 }
 
+#endif //USE_MUISODEPOSIT_REQUIRED
 #endif

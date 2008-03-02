@@ -1,3 +1,4 @@
+#define USE_MUISODEPOSIT_REQUIRED 1
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/MuIsoDepositVetos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -118,7 +119,7 @@ std::pair<double,int> MuIsoDeposit::depositAndCountWithin(Direction dir, double 
 
 std::pair<double,int>  MuIsoDeposit::depositAndCountWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
 {
-  using namespace reco::isodeposit;
+  using namespace reco::muisodeposit;
   double result = 0;
   int count =  0;
   typedef AbsVetos::const_iterator IV;

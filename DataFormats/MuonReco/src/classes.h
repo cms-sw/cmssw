@@ -10,12 +10,15 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
+
+#define USE_MUISODEPOSIT_REQUIRED
+#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h" 
+
 #include <vector>
 #include <map>
 
@@ -123,9 +126,9 @@ namespace {
     std::vector<reco::CandIsoDepositAssociationVector> candIsoAPV_root_seems_to_need_this;
     edm::Wrapper<reco::CandIsoDepositAssociationVector> candIsoAV_w;
 
-    reco::IsoDepositMap idvm;
-    reco::IsoDepositMap::const_iterator idvmci;
-    edm::Wrapper<reco::IsoDepositMap> w_idvm;
+    reco::MuIsoDepositMap idvm;
+    reco::MuIsoDepositMap::const_iterator idvmci;
+    edm::Wrapper<reco::MuIsoDepositMap> w_idvm;
   }
 }
 

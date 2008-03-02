@@ -1,5 +1,14 @@
 #ifndef MuonReco_MuIsoDepositFwd_h
 #define MuonReco_MuIsoDepositFwd_h
+
+#ifndef USE_MUISODEPOSIT_REQUIRED
+#error THIS FILE IS NOT SUPPOSED TO BE INCLUDED: USE "DataFormats/RecoCandidate/interface/IsoDepositFwd.h" instead
+#error THIS FILE IS HERE FOR BKW COMPATIBILITY ONLY
+//#include  "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+
+#else
+
+
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -58,10 +67,6 @@ namespace reco {
   typedef edm::ValueMap<bool> MuIsoFlagMap; //! dictionary defined in DataFormats/Common
   typedef edm::ValueMap<reco::MuIsoDeposit> MuIsoDepositMap;
 
-  //! this one will go once we migrate
-  typedef edm::ValueMap<reco::MuIsoDeposit> IsoDepositMap; 
-
-
 }
-
+#endif
 #endif

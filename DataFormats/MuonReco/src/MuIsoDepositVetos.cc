@@ -1,3 +1,4 @@
+#define USE_MUISODEPOSIT_REQUIRED 1
 #include "DataFormats/MuonReco/interface/MuIsoDepositVetos.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 
@@ -5,7 +6,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace reco::isodeposit;
+using namespace reco::muisodeposit;
 
 bool ConeVeto::veto(double eta, double phi, float value) const {
   return ( vetoDir_.deltaR2(Direction(eta,phi)) < dR2_ );
