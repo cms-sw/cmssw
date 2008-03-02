@@ -79,8 +79,8 @@ class Hector {
     bool m_smearAng;
     double m_sig_e;
     bool m_smearE;
-    double m_smearSTX;
-    double m_smearSTY;
+    double m_sigmaSTX;
+    double m_sigmaSTY;
    
     float m_rpp420_f;
     float m_rpp420_b;
