@@ -3,7 +3,6 @@
 xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 <SpecParSection  xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
-<!-- converted for just physical chambers - no ME1A - Tim Cox 02.04.2007-->
 <!-- # =========================================================== -->
 <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
 <!-- # =========================================================== -->
@@ -78,14 +77,14 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="2.9582"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="8.0"/>
+<!--# 31 - chamber frame thickness (mm) TREAT AS ZERO SINCE THEY HAVE NO FRAME-->
+<Parameter name="upar" value="0.0"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="7.0"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.0"/>
-<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="1.0"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) = zC - (zL1+zL2)/2 -->
+<Parameter name="upar" value="1.7"/>
 
 <!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
 
@@ -155,13 +154,13 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="8.0"/>
+<Parameter name="upar" value="0.0"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="7.0"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.0"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
-<Parameter name="upar" value="1.0"/>
+<Parameter name="upar" value="1.7"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
