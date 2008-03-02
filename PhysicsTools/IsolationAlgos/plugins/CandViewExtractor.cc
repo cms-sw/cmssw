@@ -1,7 +1,7 @@
 #include "CandViewExtractor.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -25,27 +25,27 @@ CandViewExtractor::CandViewExtractor( const ParameterSet& par ) :
 {
 }
 /*
-reco::MuIsoDeposit::Vetos CandViewExtractor::vetos(const edm::Event & ev,
+reco::IsoDeposit::Vetos CandViewExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Candidate & cand) const
 {
-  Direction dir(cand.eta(),cand.phi());
-  return reco::MuIsoDeposit::Vetos(1,veto(dir));
+  reco::isodeposit::Direction dir(cand.eta(),cand.phi());
+  return reco::IsoDeposit::Vetos(1,veto(dir));
 }
 */
 
-reco::MuIsoDeposit::Veto CandViewExtractor::veto(const reco::MuIsoDeposit::Direction & dir) const
+reco::IsoDeposit::Veto CandViewExtractor::veto(const reco::IsoDeposit::Direction & dir) const
 {
-  reco::MuIsoDeposit::Veto result;
+  reco::IsoDeposit::Veto result;
   result.vetoDir = dir;
   result.dR = theDR_Veto;
   return result;
 }
-
+ 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_SEAL_MODULE();
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "CandViewExtractor.h"
-DEFINE_EDM_PLUGIN(MuIsoExtractorFactory, muonisolation::CandViewExtractor, "CandViewExtractor");
+DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::CandViewExtractor, "CandViewExtractor");

@@ -1,12 +1,12 @@
 template<typename T>
-MuIsoDeposit CandViewExtractor::depositFromObject(const Event & event, const EventSetup & eventSetup, const T & cand) const
+IsoDeposit CandViewExtractor::depositFromObject(const Event & event, const EventSetup & eventSetup, const T & cand) const
 {
     static std::string metname = "MuonIsolation|CandViewExtractor";
 
-    Direction candDir(cand.eta(), cand.phi());
-    MuIsoDeposit deposit(theDepositLabel, candDir );
+    reco::isodeposit::Direction candDir(cand.eta(), cand.phi());
+    IsoDeposit deposit(candDir );
     deposit.setVeto( veto(candDir) );
-    deposit.addMuonEnergy(cand.pt());
+    deposit.addCandEnergy(cand.pt());
 
     Handle< View<Candidate> > candViewH;
     event.getByLabel(theCandViewTag, candViewH);
@@ -19,7 +19,7 @@ MuIsoDeposit CandViewExtractor::depositFromObject(const Event & event, const Eve
                 (abs(it->vz() - cand.vz()) < theDiff_z) &&
                 ((it->vertex() - vtx).Rho() < theDR_Veto)) {
             // ok
-            Direction dirTrk(it->eta(), it->phi());
+            reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
             deposit.addDeposit(dirTrk, it->pt());
         }
     }

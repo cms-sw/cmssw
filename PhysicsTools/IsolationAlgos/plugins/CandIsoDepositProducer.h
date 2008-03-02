@@ -7,9 +7,9 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
 
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 #include <string>
 
@@ -33,7 +33,7 @@ private:
   TrackType     theTrackType;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
-  muonisolation::MuIsoExtractor * theExtractor;
+  reco::isodeposit::IsoDepositExtractor * theExtractor;
 
 };
 #endif

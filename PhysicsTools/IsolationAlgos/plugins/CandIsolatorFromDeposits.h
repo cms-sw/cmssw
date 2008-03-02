@@ -6,8 +6,10 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -34,7 +36,7 @@ private:
         void cleanup() ;
         void open(const edm::Event &iEvent) ;
         double compute(const reco::CandidateBaseRef &cand) ;
-        const reco::CandIsoDepositAssociationVector & vector() { return *hDeps_; }
+        const reco::IsoDepositMap & map() { return *hDeps_; }
     private:
         Mode mode_;
         edm::InputTag src_;
@@ -44,7 +46,7 @@ private:
         StringObjectFunction<reco::Candidate> weightExpr_;
         reco::isodeposit::AbsVetos vetos_;
         bool   skipDefaultVeto_; 
-        edm::Handle<reco::CandIsoDepositAssociationVector> hDeps_; // transient
+        edm::Handle<reco::IsoDepositMap> hDeps_; // transient
   };
   // datamembers
   std::vector<SingleDeposit> sources_;

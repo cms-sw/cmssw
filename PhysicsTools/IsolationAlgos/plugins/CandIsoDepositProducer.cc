@@ -9,17 +9,17 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
@@ -42,14 +42,14 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
 
   edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = MuIsoExtractorFactory::get()->create( extractorName, extractorPSet);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
 
-  if (! theMultipleDepositsFlag) produces<CandIsoDepositAssociationVector>();
+  if (! theMultipleDepositsFlag) produces<reco::IsoDepositMap>();
   else {
     theDepositNames = extractorPSet.getParameter<std::vector<std::string> >("DepositInstanceLabels");
     if (theDepositNames.size() > 10) throw cms::Exception("Configuration Error") << "This module supports only up to 10 deposits"; 
     for (uint iDep=0; iDep<theDepositNames.size(); ++iDep){
-      produces<CandIsoDepositAssociationVector>(theDepositNames[iDep]);
+      produces<reco::IsoDepositMap>(theDepositNames[iDep]);
     }
   }
 
@@ -95,45 +95,70 @@ inline const reco::Track * CandIsoDepositProducer::extractTrack(const reco::Cand
 
 /// build deposits
 void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
+  static const std::string metname = "CandIsoDepositProducer";
+
   edm::Handle< edm::View<reco::Candidate> > hCands;
   event.getByLabel(theCandCollectionTag, hCands);
-  edm::RefToBaseProd<reco::Candidate> refProd(hCands);
     
   uint nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
   static const uint MAX_DEPS=10; 
-  std::auto_ptr<CandIsoDepositAssociationVector> depMaps[MAX_DEPS];
+  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
   
+  if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits"; 
   for (uint i =0;i<nDeps; ++i){ // check if nDeps > 10??
-    depMaps[i] =  std::auto_ptr<CandIsoDepositAssociationVector>(new CandIsoDepositAssociationVector(refProd));
-  }
-
+    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap()); 
+  } 
+   
+  //! OK, now we know how many deps for how many muons each we will create 
+  //! might linearize this at some point (lazy) 
+  //! do it in case some muons are there only 
   size_t nMuons = hCands->size();
-  Track dummy;
-  for (size_t i=0; i<  nMuons; ++i) {
-    const Candidate &c = (*hCands)[i];
-    const Track *track = extractTrack(c, &dummy);
-    if ((theTrackType != CandidateT) && (!track)) {
+  if (nMuons > 0){ 
+    std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons)); 
+
+
+    Track dummy;
+    for (size_t i=0; i<  nMuons; ++i) {
+      const Candidate &c = (*hCands)[i];
+      const Track *track = extractTrack(c, &dummy);
+      if ((theTrackType != CandidateT) && (!track)) {
         edm::LogWarning("CandIsoDepositProducer") << "Candidate #"<<i<<" has no bestTrack(), it will produce no deposit";
-        MuIsoDeposit empty("dummy");
+	reco::IsoDeposit emptyDep;
         for (size_t iDep=0;iDep<nDeps;++iDep) {
-            depMaps[iDep]->setValue(i, empty);
+	  deps2D[iDep][i] = emptyDep; //! well, it is empty already by construction, but still
         }
         continue;
-    }
-    if (!theMultipleDepositsFlag){
-      MuIsoDeposit dep = ( ( theTrackType == CandidateT )
-                                ? theExtractor->deposit(event, eventSetup, c)
-                                : theExtractor->deposit(event, eventSetup, *track) );
-      depMaps[0]->setValue(i, dep);
-    } else {
-      std::vector<MuIsoDeposit> deps = ( ( theTrackType == CandidateT )
-                                            ? theExtractor->deposits(event, eventSetup, c)
-                                            : theExtractor->deposits(event, eventSetup, *track) );
-      for (uint iDep=0; iDep < nDeps; ++iDep){ 	depMaps[iDep]->setValue(i, deps[iDep]);  }
-    }
-  }
+      }
+      if (!theMultipleDepositsFlag){
+	IsoDeposit dep = ( ( theTrackType == CandidateT )
+			     ? theExtractor->deposit(event, eventSetup, c)
+			     : theExtractor->deposit(event, eventSetup, *track) );
+	deps2D[0][i] = dep;
+      } else {
+	std::vector<IsoDeposit> deps = ( ( theTrackType == CandidateT )
+					   ? theExtractor->deposits(event, eventSetup, c)
+					   : theExtractor->deposits(event, eventSetup, *track) );
+	for (uint iDep=0; iDep < nDeps; ++iDep){ 	deps2D[iDep][i] =  deps[iDep];  }
+      }
+    }//! for(i<nMuons)
+    
 
+    //! now fill in selectively 
+    for (uint iDep=0; iDep < nDeps; ++iDep){ 
+      //!some debugging stuff 
+      for (uint iMu = 0; iMu< nMuons; ++iMu){ 
+        LogTrace(metname)<<"Contents of "<<theDepositNames[iDep] 
+                         <<" for a muon at index "<<iMu; 
+        LogTrace(metname)<<deps2D[iDep][iMu].print(); 
+      } 
+ 
+      //! fill the maps here   
+      reco::IsoDepositMap::Filler filler(*depMaps[iDep]);      
+      filler.insert(hCands, deps2D[iDep].begin(), deps2D[iDep].end()); 
+      filler.fill();
+    }//! for(iDep<nDeps)
+  }//! if (nMuons>0)
 
   for (uint iMap = 0; iMap < nDeps; ++iMap) event.put(depMaps[iMap], theDepositNames[iMap]);
 }

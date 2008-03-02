@@ -11,10 +11,10 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/Direction.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositVetos.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,57 +35,57 @@ double toNumber(const std::string &str) {
 }
 
 CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
-    deltaR_(iConfig.getParameter<double>("deltaR")),
-    weightExpr_(iConfig.getParameter<std::string>("weight")),
-    skipDefaultVeto_(iConfig.getParameter<bool>("skipDefaultVeto"))
-	//,vetos_(new AbsVetos())
+  src_(iConfig.getParameter<edm::InputTag>("src")),
+  deltaR_(iConfig.getParameter<double>("deltaR")),
+  weightExpr_(iConfig.getParameter<std::string>("weight")),
+  skipDefaultVeto_(iConfig.getParameter<bool>("skipDefaultVeto"))
+						      //,vetos_(new AbsVetos())
 {
-    std::string mode = iConfig.getParameter<std::string>("mode");
-    if (mode == "sum") mode_ = Sum; 
-    else if (mode == "sumRelative") mode_ = SumRelative; 
-    //else if (mode == "max") mode_ = Max;                  // TODO: on request only
-    //else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
-    else if (mode == "count") mode_ = Count;
-    else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
-            "Supported modes are 'sum', 'sumRelative', 'count'." << 
-            //"Supported modes are 'sum', 'sumRelative', 'max', 'maxRelative', 'count'." << // TODO: on request only
-            "New methods can be easily implemented if requested.";
-    typedef std::vector<std::string> vstring;
-    vstring vetos = iConfig.getParameter< vstring >("vetos");
-    for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-        if (!isNumber(*it)) {
-			static boost::regex threshold("Threshold\\((\\d+\\.\\d+)\\)"), 
-							    cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
-							    angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
-							    angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)");
-			boost::cmatch match;
-			if (regex_match(it->c_str(), match, threshold)) {
-				vetos_.push_back(new ThresholdVeto(toNumber(match[1].first)));
-			} else if (regex_match(it->c_str(), match, cone)) {
-				vetos_.push_back(new ConeVeto(Direction(), toNumber(match[1].first)));
-			} else if (regex_match(it->c_str(), match, angleCone)) {
-				vetos_.push_back(new AngleCone(Direction(), toNumber(match[1].first)));
-			} else if (regex_match(it->c_str(), match, angleVeto)) {
-				vetos_.push_back(new AngleConeVeto(Direction(), toNumber(match[1].first)));
-			} else {
-				throw cms::Exception("Not Implemented") << "Veto " << it->c_str() << " not implemented yet...";
-			}
-        }  else {
-            //std::cout << "Adding veto of radius " << toNumber(*it) << std::endl;
-            vetos_.push_back(new ConeVeto(Direction(), toNumber(*it)));
-        }
+  std::string mode = iConfig.getParameter<std::string>("mode");
+  if (mode == "sum") mode_ = Sum; 
+  else if (mode == "sumRelative") mode_ = SumRelative; 
+  //else if (mode == "max") mode_ = Max;                  // TODO: on request only
+  //else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
+  else if (mode == "count") mode_ = Count;
+  else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
+    "Supported modes are 'sum', 'sumRelative', 'count'." << 
+    //"Supported modes are 'sum', 'sumRelative', 'max', 'maxRelative', 'count'." << // TODO: on request only
+    "New methods can be easily implemented if requested.";
+  typedef std::vector<std::string> vstring;
+  vstring vetos = iConfig.getParameter< vstring >("vetos");
+  for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
+    if (!isNumber(*it)) {
+      static boost::regex threshold("Threshold\\((\\d+\\.\\d+)\\)"), 
+	cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
+	angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
+	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)");
+      boost::cmatch match;
+      if (regex_match(it->c_str(), match, threshold)) {
+	vetos_.push_back(new ThresholdVeto(toNumber(match[1].first)));
+      } else if (regex_match(it->c_str(), match, cone)) {
+	vetos_.push_back(new ConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
+      } else if (regex_match(it->c_str(), match, angleCone)) {
+	vetos_.push_back(new AngleCone(reco::isodeposit::Direction(), toNumber(match[1].first)));
+      } else if (regex_match(it->c_str(), match, angleVeto)) {
+	vetos_.push_back(new AngleConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
+      } else {
+	throw cms::Exception("Not Implemented") << "Veto " << it->c_str() << " not implemented yet...";
+      }
+    }  else {
+      //std::cout << "Adding veto of radius " << toNumber(*it) << std::endl;
+      vetos_.push_back(new ConeVeto(reco::isodeposit::Direction(), toNumber(*it)));
     }
-    std::string weight = iConfig.getParameter<std::string>("weight");
-    if (isNumber(weight)) {
-        //std::cout << "Weight is a simple number, " << toNumber(weight) << std::endl;
-        weight_ = toNumber(weight);
-        usesFunction_ = false;
-    } else {
-        usesFunction_ = true;
-        //std::cout << "Weight is a function, this might slow you down... " << std::endl;
-    }
-	std::cout << "Total of " << vetos_.size() << " vetos" << std::endl;
+  }
+  std::string weight = iConfig.getParameter<std::string>("weight");
+  if (isNumber(weight)) {
+    //std::cout << "Weight is a simple number, " << toNumber(weight) << std::endl;
+    weight_ = toNumber(weight);
+    usesFunction_ = false;
+  } else {
+    usesFunction_ = true;
+    //std::cout << "Weight is a function, this might slow you down... " << std::endl;
+  }
+  std::cout << "Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
     for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
@@ -97,7 +97,7 @@ void CandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent) {
 }
 
 double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBaseRef &cand) {
-    const MuIsoDeposit &dep = (*hDeps_)[cand];
+    const IsoDeposit &dep = (*hDeps_)[cand];
     double eta = dep.eta(), phi = dep.phi(); // better to center on the deposit direction
                                              // that could be, e.g., the impact point at calo
     for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
@@ -106,7 +106,7 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
     double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
     switch (mode_) {
         case Sum: return weight * dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case SumRelative: return weight * dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.muonEnergy() ;
+        case SumRelative: return weight * dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
         case Count: return weight * dep.depositAndCountWithin(deltaR_, vetos_, skipDefaultVeto_).second ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
@@ -136,22 +136,37 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
   vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
   for (it = begin; it != end; ++it) it->open(event);
 
-  const CandIsoDepositAssociationVector & vector = begin->vector();
+  const IsoDepositMap & map = begin->map();
+  typedef edm::ValueMap<double> CandDoubleMap;
 
-  if (vector.keyProduct().isNull()) { // !!???
-        event.put(auto_ptr<CandViewDoubleAssociations>(new CandViewDoubleAssociations()));
+  if (map.size()==0) { // !!???
+        event.put(auto_ptr<CandDoubleMap>(new CandDoubleMap()));
         return;
   }
-  auto_ptr<CandViewDoubleAssociations> ret(new CandViewDoubleAssociations(vector.keyProduct()));
+  auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  CandDoubleMap::Filler filler(*ret);
 
-  for (CandIsoDepositAssociationVector::const_iterator itAV = vector.begin(), edAV = vector.end(); itAV != edAV; ++itAV) {
-      double sum = 0;
-      const CandidateBaseRef & cand = itAV->first;
-      for (it = begin; it != end; ++it) sum += it->compute(cand);
-      //ret->operator[](cand) = static_cast<float>(sum);
-      ret->operator[](cand) = (sum);
+  typedef reco::IsoDepositMap::const_iterator iterator_i; 
+  typedef reco::IsoDepositMap::container::const_iterator iterator_ii; 
+  iterator_i depI = map.begin(); 
+  iterator_i depIEnd = map.end(); 
+  for (; depI != depIEnd; ++depI){ 
+    std::vector<double> retV(depI.size(),0);
+    edm::Handle<edm::View<reco::Candidate> > candH;
+    event.get(depI.id(), candH);
+    const edm::View<reco::Candidate>& candV = *candH;
+
+    iterator_ii depII = depI.begin(); 
+    iterator_ii depIIEnd = depI.end(); 
+    size_t iRet = 0;
+    for (; depII != depIIEnd; ++depII,++iRet){ 
+      double sum=0;
+      for (it = begin; it != end; ++it) sum += it->compute(candV.refAt(iRet)); 
+      retV[iRet] = sum;
+    }
+    filler.insert(candH, retV.begin(), retV.end());
   }
-
+  filler.fill();
   event.put(ret);
 }
 
