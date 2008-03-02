@@ -38,12 +38,12 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
   birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
-  useParam         = m_HC.getUntrackedParameter<bool>("UseParametrize",false);
-  useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
+  useParam         = m_HC.getParameter<bool>("UseParametrize");
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
+  usePMTHit        = m_HC.getParameter<bool>("UsePMTHits");
+  betaThr          = m_HC.getParameter<double>("BetaThreshold");
+  useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
-  usePMTHit        = m_HC.getUntrackedParameter<bool>("UsePMTHits",false);
-  betaThr          = m_HC.getUntrackedParameter<double>("BetaThreshold",0.9);
 
   LogDebug("HcalSim") << "***************************************************" 
 		      << "\n"

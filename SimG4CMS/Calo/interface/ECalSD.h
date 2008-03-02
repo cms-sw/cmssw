@@ -37,10 +37,12 @@ private:
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
   void                              getBaseNumber(const G4Step*); 
+  double                            getBirkL3(G4Step*);
+
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight;
-  bool                              useBirk;
-  double                            birk1, birk2;
+  bool                              useBirk, useBirkL3;
+  double                            birk1, birk2, birkSlope, birkCut;
   double                            slopeLY;
   std::map<G4LogicalVolume*,double> xtalLMap;
   EcalBaseNumber                    theBaseNumber;

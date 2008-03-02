@@ -37,11 +37,14 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   //   birk2            = bk2.value()*(g/(MeV*cm2))*(g/(MeV*cm2));
 
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
-  useBirk= m_EC.getParameter<bool>("UseBirkLaw");
-  birk1  = m_EC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2  = m_EC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
-  slopeLY= m_EC.getUntrackedParameter<double>("SlopeLightYield", 0.02);
-  bool isItTB = m_EC.getUntrackedParameter<bool>("TestBeam", false);
+  useBirk    = m_EC.getParameter<bool>("UseBirkLaw");
+  useBirkL3  = m_EC.getParameter<bool>("BirkL3Parametrization");
+  birk1      = m_EC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
+  birk2      = m_EC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birkSlope  = m_EC.getParameter<double>("BirkSlope");
+  birkCut    = m_EC.getParameter<double>("BirkCut");
+  slopeLY    = m_EC.getParameter<double>("SlopeLightYield");
+  bool isItTB= m_EC.getUntrackedParameter<bool>("TestBeam", false);
   useWeight= true;
 
   EcalNumberingScheme* scheme=0;
@@ -59,6 +62,9 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   edm::LogInfo("EcalSim")  << "ECalSD:: Use of Birks law is set to      " 
 			   << useBirk << "        with the two constants C1 = "
 			   << birk1 << ", C2 = " << birk2 << "\n"
+			   << "         Use of L3 parametrization " 
+			   << useBirkL3 << " with slope " << birkSlope
+			   << " and cut off " << birkCut << "\n"
 			   << "         Slope for Light yield is set to "
 			   << slopeLY;
 
@@ -106,7 +112,10 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
     }
     if (useWeight) {
       weight *= curve_LY(aStep);
-      if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
+      if (useBirk) {
+	if (useBirkL3) weight *= getBirkL3(aStep);
+	else           weight *= getAttenuation(aStep, birk1, birk2);
+      }
     }
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
@@ -256,5 +265,26 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
                           << touch->GetReplicaNumber(ii) << "]";
     }
   }
+
+}
+
+double ECalSD::getBirkL3(G4Step* aStep) {
+
+  double weight = 1.;
+  double charge = aStep->GetPreStepPoint()->GetCharge();
+
+  if (charge != 0. && aStep->GetStepLength() > 0) {
+    G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
+    double density = mat->GetDensity();
+    double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
+    double rkb     = birk1/density;
+    weight         = 1. - birkSlope*log(rkb*dedx);
+    if (weight < birkCut) weight = birkCut;
+    LogDebug("EcalSim") << "ECalSD::getBirkL3 in " << mat->GetName()
+                        << " Charge " << charge << " dE/dx " << dedx
+                        << " Birk Const " << rkb << " Weight = " << weight 
+			<< " dE " << aStep->GetTotalEnergyDeposit();
+  }
+  return weight;
 
 }

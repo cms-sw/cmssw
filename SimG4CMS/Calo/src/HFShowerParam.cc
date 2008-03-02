@@ -19,8 +19,10 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			     edm::ParameterSet const & p) : fibre(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  pePerGeV                = m_HF.getUntrackedParameter<double>("PEPerGeV",.25);
-  edm::LogInfo("HFShower") << "HFShowerParam:: P.E. per GeV " << pePerGeV;
+  pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
+  trackEM                 = m_HF.getParameter<bool>("TrackEM");
+  edm::LogInfo("HFShower") << "HFShowerParam:: P.E. per GeV " << pePerGeV
+			   << " and Track EM Flag " << trackEM;
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -79,8 +81,13 @@ std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
   if (partType == "e-" || partType == "e+" || partType == "gamma" ) {
     // Leave out the last part
     double edep = 0.;
-    if (zz < (gpar[1]-gpar[2])) edep = pin;
-    else                        edep = (aStep->GetTotalEnergyDeposit())/GeV;
+    bool   kill = false;
+    if ((!trackEM) && (zz < (gpar[1]-gpar[2]))) {
+      edep = pin;
+      kill = true;
+    } else {
+      edep = (aStep->GetTotalEnergyDeposit())/GeV;
+    }
     if (edep > 0) {
       edep         *= 0.5*pePerGeV;
       double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
@@ -97,7 +104,7 @@ std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
 	edeps.push_back(edep);
 	hits.push_back(hit);
       }
-      track->SetTrackStatus(fStopAndKill);
+      if (kill) track->SetTrackStatus(fStopAndKill);
       LogDebug("HFShower") << "HFShowerParam: getHits kill track " 
 			   << track->GetTrackID() << " and deposit "
 			   << edep << " " << edeps.size() << " times";

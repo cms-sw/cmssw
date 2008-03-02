@@ -20,7 +20,7 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 			 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  pePerGeV                = m_HF.getUntrackedParameter<double>("PEPerGeVPMT",1.0);
+  pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
   G4String attribute = "ReadOutName";
   G4String value     = name;

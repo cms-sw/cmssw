@@ -45,6 +45,7 @@ private:
 
   HFFibre*              fibre;
   double                pePerGeV;
+  bool                  trackEM;
   std::vector<double>   gpar;
   std::vector<Hit>      hits;
 };
