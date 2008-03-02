@@ -378,15 +378,17 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
           setDrawingOption(hist1);
 	  hist1->DrawCopy();
 	  
-	  string ref_path = "SiStrip/Reference/" + it->first + "/" + path_name.substr(path_name.rfind("/")+1);
           string hname = hist1->GetTitle();
+	  string ref_path = "SiStrip/Reference/" + it->first + "/" +hname;
 	  
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
 	  MonitorElement* me_ref = dqm_store->get(ref_path);
 	  if (me_ref) {
 	    TH1* hist1_ref = me_ref->getTH1();
 	    if (hist1_ref) {
-              hist1_ref->SetLineColor(3);
+//	      cout << ref_path << " " << hist1_ref->GetEntries() << " " << 
+endl;
+	      hist1_ref->SetLineColor(3);
               hist1_ref->SetMarkerColor(3);
               if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
               else hist1_ref->DrawNormalized("same", hist1->GetEntries());

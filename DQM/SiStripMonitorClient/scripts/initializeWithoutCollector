@@ -209,7 +209,7 @@ system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
 system qq[cp], qq[-r], qq[$dqm_common/images],    qq[$ENV{PWD}/images];
 copy("$dqm_dir/js_files/CommonActions.js", "$ENV{PWD}/js_files/CommonActions.js");
 copy("$dqm_dir/js_files/RequestHistos.js", "$ENV{PWD}/js_files/RequestHistos.js");
-copy("$dqm_dir/js_files/sistrip_svgmap.js", "$ENV{PWD}/js_files/sistrip_svgmap.js");
+copy("$dqm_dir/js_files/TkMapFrame.js", "$ENV{PWD}/js_files/TkMapFrame.js");
 copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
 
 #

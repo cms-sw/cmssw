@@ -38,32 +38,7 @@ TrackerLayer.showData = function (evt) {
 	    var apvaddr2 = rest.substring(0,comma);
 	    rest = rest.substring(comma+1);
 	    var apvaddr3 = "";
-   
-            var parea  = parent.parent.plot_area;
-            var canvas = parea.IMGC;
-            var queryString = "RequestID=PlotTkMapHistogram";
-            queryString+= "&ModId=" + detid;
-            canvas.computeCanvasSize();
-            queryString += '&width='+canvas.BASE_IMAGE_WIDTH+
-                           '&height='+canvas.BASE_IMAGE_HEIGHT;
-            canvas.IMAGES_PER_ROW      = 2;
-            canvas.IMAGES_PER_COL      = 2; 
-            canvas.IMAGES_PER_PAGE     = canvas.IMAGES_PER_ROW * canvas.IMAGES_PER_COL;
-
-            var url_serv = canvas.getURL();
-              
-            var url1 = url_serv  + queryString;
-//            alert(url1);
-                             
-           var getMEURLS = new parea.Ajax.Request(url1,                    
-		         {			  
-		          method: 'get',	  
-	                  parameters: '', 
-		          onComplete: canvas.processIMGCPlots // <-- call-back function
-		         });
-
-
-
+            parent.parent.TkMapFrame.requestMPlot(detid);
 	    if (rest.length>5){comma=rest.indexOf(')');apvaddr3 = rest.substring(0,comma);}
 	    //alert(apvaddr1+" "+apvaddr2+" "+apvaddr3);
 	    if(crate!=parent.loaded){parent.loaded=crate;parent.remotewin.location.href=parent.servername+parent.tmapname+"crate"+crate+".xml";}

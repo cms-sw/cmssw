@@ -29,7 +29,7 @@ opacity=0.4;
 myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-width: 2") ;
 	    parent.document.getElementById('print2').setAttribute("src",parent.servername+parent.tmapname+"crate"+crate+".html#"+detid);
 	    //alert(top.document.getElementById('print1'));
-	    
+            parent.parent.TkMapFrame.requestMPlot(detid);	    
      }
        if (evt.type == "mouseout") {
     var myPoly = evt.currentTarget;
