@@ -61,6 +61,10 @@ namespace edm {
       virtual bool hasProductCache() const = 0;
       virtual void const * product() const = 0;
 
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const = 0;
+
     protected:
       // We want the following called only by derived classes.
       BaseHolder(BaseHolder const& other);

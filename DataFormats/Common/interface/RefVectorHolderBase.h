@@ -156,6 +156,11 @@ namespace edm {
       template <class T> RefToBase<T> getRef( size_t idx ) const;
       virtual const void * product() const = 0;
       virtual void reallyFillView( const void *, const ProductID &, std::vector<void const*> & ) = 0;
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const = 0;
+
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
     };

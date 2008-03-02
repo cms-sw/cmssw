@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.29 2007/09/17 14:15:23 llista Exp $
+// $Id: RefToBase.h,v 1.30 2007/09/19 10:55:39 llista Exp $
 //
 
 // system include files
@@ -106,6 +106,9 @@ namespace edm {
     bool hasProductCache() const;
     void const * product() const;
 
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const { return holder_->isAvailable(); }
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;
@@ -148,17 +151,15 @@ namespace edm {
   template <typename T1> 
   inline
   RefToBase<T>::RefToBase(RefToBase<T1> const& iRef) : 
-    holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  { 
-    // WARNING: the following is an hack.
-    // it is left to support the current HLT code, but
-    // should be replaced by a proper treatment of
-    // "up-casting" of RefToBase. 
-    // The implementation would be much easy if 
-    // the following simplification is adopted:
-    //
-    // https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/928.html
-    //
-    // L.L.
+        holder_(new reftobase::IndirectHolder<T> (
+            typename boost::shared_ptr<typename edm::reftobase::RefHolderBase>(iRef.holder().release())
+        ) ) 
+  {
+    // OUT: holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  { 
+    // Forcing the conversion through IndirectHolder,
+    //   as Holder<T,RefToBase<T1>> would need dictionaries we will never have.
+    // In this way we only need the IndirectHolder<T> and the RefHolder of the real type of the item
+    // This might cause a small performance penalty.
     BOOST_STATIC_ASSERT( ( boost::is_base_of<T, T1>::value ) );
   }
 

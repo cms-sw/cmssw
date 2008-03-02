@@ -2,7 +2,7 @@
 #define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.7 2007/12/21 22:42:30 wmtan Exp $
+ * $Id: RefHolderBase.h,v 1.8 2008/01/17 20:26:23 wmtan Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -42,6 +42,10 @@ namespace edm {
       virtual EDProductGetter const* productGetter() const = 0;
       virtual bool hasProductCache() const = 0;
       virtual void const * product() const = 0;
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const = 0;
 
     private:
       // "cast" the real type of the element (the T of contained Ref),

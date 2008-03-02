@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.17 2008/01/17 20:26:23 wmtan Exp $
+ * $Id: RefToBaseVector.h,v 1.18 2008/02/15 05:57:03 wmtan Exp $
  *
  */
 
@@ -66,6 +66,9 @@ namespace edm {
     std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
     const void * product() const;
  
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const { return holder_->isAvailable(); }
   private:
     holder_type * holder_;
   };

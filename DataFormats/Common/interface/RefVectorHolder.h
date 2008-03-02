@@ -73,6 +73,11 @@ namespace edm {
       virtual const void * product() const {
 	return refs_.product();
       }
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return refs_.isAvailable(); }
+
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase( size_t idx ) const;
       REFV refs_;

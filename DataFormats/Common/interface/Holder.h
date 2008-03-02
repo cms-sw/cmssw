@@ -39,6 +39,10 @@ namespace edm {
       virtual bool hasProductCache() const;
       virtual void const * product() const;
 
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return ref_.isAvailable(); }
+
     private:
       REF ref_;
     };

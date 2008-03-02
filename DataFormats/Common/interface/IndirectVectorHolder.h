@@ -45,6 +45,11 @@ namespace edm {
       virtual const void * product() const {
 	return helper_->product();
       }
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return helper_->isAvailable(); }
+
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
       RefVectorHolderBase * helper_;

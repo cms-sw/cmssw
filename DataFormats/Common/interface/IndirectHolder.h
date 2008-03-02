@@ -47,6 +47,10 @@ namespace edm {
       virtual bool hasProductCache() const;
       virtual void const * product() const;
 
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const { return helper_->isAvailable(); }
+
     private:
       friend class RefToBase<T>;
       friend class IndirectVectorHolder<T>;

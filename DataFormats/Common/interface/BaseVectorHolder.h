@@ -165,6 +165,11 @@ namespace edm {
       virtual void push_back( const BaseHolder<T> * ) = 0;
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const = 0;
       virtual const void * product() const = 0;
+
+      /// Checks if product collection is in memory or available
+      /// in the Event. No type checking is done.
+      virtual bool isAvailable() const = 0;
+
     };
 
     // Free swap function
