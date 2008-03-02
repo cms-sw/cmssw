@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2007/09/24 17:59:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/16 17:46:28 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -36,6 +36,8 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include <iostream>
 
@@ -85,9 +87,6 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
 
       edm::InputTag trackLabel_;
       edm::InputTag simTrackLabel_;
-      string fileName_;
-
-      TFile *thefile;
 
       MuonServiceProxy* theService;
 
@@ -127,7 +126,6 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
 
   trackLabel_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   simTrackLabel_ = iConfig.getParameter<edm::InputTag>("SimTrackLabel");
-  fileName_ = iConfig.getParameter<string>("OutputFile");
   theDrawOption = iConfig.getUntrackedParameter<int>("DrawOption", 1); 
 
   // service parameters
@@ -139,7 +137,6 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
   successR = 0;
   nNoSignal = 0;
   
-  thefile = new TFile(fileName_.c_str(),"recreate");
 }
 
 
@@ -325,6 +322,8 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 void CosmicMuonValidator::beginJob(const edm::EventSetup&)
 {
 
+  edm::Service<TFileService> fs;
+
   myStyle = new TStyle("myStyle","Cosmic Muon Validator Style");
 
   myStyle->SetCanvasBorderMode(0);
@@ -332,29 +331,28 @@ void CosmicMuonValidator::beginJob(const edm::EventSetup&)
   myStyle->SetOptTitle(0);
   myStyle->SetOptStat(1000010);
 
-  thefile->cd();
-  h_res = new TH1F("h_res","resolution of P_{T}",50,-5.0,5.0);
+  h_res = fs->make<TH1F>("h_res","resolution of P_{T}",50,-5.0,5.0);
 
-  h_theta = new TH1F("h_theta","theta angle ",50,-0.1,0.1);
-  h_phi = new TH1F("h_phi","phi angle ",50,-2.0,2.0);
+  h_theta = fs->make<TH1F>("h_theta","theta angle ",50,-0.1,0.1);
+  h_phi = fs->make<TH1F>("h_phi","phi angle ",50,-2.0,2.0);
 
-  hnhit = new TH1F("hnhit","Number of Hits in Track by Cos",60,0.0,60.0);
+  hnhit = fs->make<TH1F>("hnhit","Number of Hits in Track by Cos",60,0.0,60.0);
 
-  h_innerPosXY = new TH2F("h_innerPosXY", "inner x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
-  h_innerPosEP = new TH2F("h_innerPosEP", "inner #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
+  h_innerPosXY = fs->make<TH2F>("h_innerPosXY", "inner x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
+  h_innerPosEP = fs->make<TH2F>("h_innerPosEP", "inner #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
 
-  h_outerPosXY = new TH2F("h_outerPosXY", "outer x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
-  h_outerPosEP = new TH2F("h_outerPosEP", "outer #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
+  h_outerPosXY = fs->make<TH2F>("h_outerPosXY", "outer x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
+  h_outerPosEP = fs->make<TH2F>("h_outerPosEP", "outer #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
 
-  h_pt_rec_sim = new TH1F("h_pt_res_sim","diff of P_{T} at SimHit",50,-2.0,2.0);
-  h_phi_rec_sim = new TH1F("h_phi_res_sim","diff of #phi at SimHit",50,-2.0,2.0);
-  h_theta_rec_sim = new TH1F("h_theta_res_sim","diff of #theta at SimHit",50,-2.0,2.0);
-  h_Pres_inv_sim = new TH1F("h_Pres_inv_sim","resolution of P_{T} at SimHit",70,-1.0,1.0);
+  h_pt_rec_sim = fs->make<TH1F>("h_pt_res_sim","diff of P_{T} at SimHit",50,-2.0,2.0);
+  h_phi_rec_sim = fs->make<TH1F>("h_phi_res_sim","diff of #phi at SimHit",50,-2.0,2.0);
+  h_theta_rec_sim = fs->make<TH1F>("h_theta_res_sim","diff of #theta at SimHit",50,-2.0,2.0);
+  h_Pres_inv_sim = fs->make<TH1F>("h_Pres_inv_sim","resolution of P_{T} at SimHit",70,-1.0,1.0);
 
-  h_pt_sim = new TH1F("h_pt_sim","distribution of P_{T} at SimHit",100,0.0,100.0);
-  h_pt_rec = new TH1F("h_pt_rec","distribution of P_{T} at SimHit",100,0.0,100.0);
-  htotal4D = new TH1F("htotal4D","# of Segments",15,0.0,15.0);
-  htotalSeg = new TH1F("htotalSeg","# of Segments",15,0.0,15.0);
+  h_pt_sim = fs->make<TH1F>("h_pt_sim","distribution of P_{T} at SimHit",100,0.0,100.0);
+  h_pt_rec = fs->make<TH1F>("h_pt_rec","distribution of P_{T} at SimHit",100,0.0,100.0);
+  htotal4D = fs->make<TH1F>("htotal4D","# of Segments",15,0.0,15.0);
+  htotalSeg = fs->make<TH1F>("htotalSeg","# of Segments",15,0.0,15.0);
 
 }
 
@@ -367,10 +365,7 @@ void CosmicMuonValidator::endJob() {
   std::cout << successR<< " events are successfully reconstructed. "<< std::endl;
   std::cout << nNoSignal<< " events do not have good enough signals. "<< std::endl;
   std::cout << "Reconstruction efficiency is approximately "<< eff << "%. "<< std::endl;
-  std::cout << "writing information into file: " << thefile->GetName() << std::endl;
   std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
-
-  thefile->cd();
 
   myStyle->SetCanvasBorderMode(0);
   myStyle->SetPadBorderMode(1);
@@ -636,9 +631,6 @@ void CosmicMuonValidator::endJob() {
 
     csegs->Update();
     csegs->Write();
-
-    thefile->Write();
-    thefile->Close();
 
   } else {
 
