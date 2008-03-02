@@ -37,8 +37,8 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   m_rppzdc       = (float) lengthzdc ;
   m_rppd1        = (float) lengthd1 ;
   m_smearAng     = hector_par.getParameter<bool>("smearAng");
-  m_smearSTX     = hector_par.getParameter<double>("sigmaSTX" );
-  m_smearSTY     = hector_par.getParameter<double>("sigmaSTY" );
+  m_sigmaSTX     = hector_par.getParameter<double>("sigmaSTX" );
+  m_sigmaSTY     = hector_par.getParameter<double>("sigmaSTY" );
   m_smearE       = hector_par.getParameter<bool>("smearEnergy");
   m_sig_e        = hector_par.getParameter<double>("sigmaEnergy");
   etacut         = hector_par.getParameter<double>("EtaCut" );
@@ -274,8 +274,8 @@ void Hector::filterFP420(){
       if ( (*m_isCharged.find( line )).second ) {
 	direction = (*m_direct.find( line )).second;
 	if (m_smearAng) {
-	  if ( m_smearSTX>0. && m_smearSTY>0.) {
-	    part->smearAng(m_smearSTX,m_smearSTY);
+	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
 	    part->smearAng(); 
@@ -353,8 +353,8 @@ void Hector::filterZDC(){
 	direction = (*m_direct.find( line )).second;
 	if(m_verbosity) cout << "filterZDC:direction=" << direction << endl;
 	if (m_smearAng) {
-	  if ( m_smearSTX>0. && m_smearSTY>0.) {
-	    part->smearAng(m_smearSTX,m_smearSTY);
+	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
 	    part->smearAng(); 
@@ -422,8 +422,8 @@ void Hector::filterD1(){
 	direction = (*m_direct.find( line )).second;
 	if(m_verbosity) cout << "filterD1:direction=" << direction << endl;
 	if (m_smearAng) {
-	  if ( m_smearSTX>0. && m_smearSTY>0.) {
-	    part->smearAng(m_smearSTX,m_smearSTY);
+	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
 	    part->smearAng(); 
@@ -545,7 +545,9 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 
 	//	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm )/c_light;
 
-	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm )/300.; // nsec
+	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm ); // mm
+	//                               decaylength/(p.Beta()*p.Gamma()*c_light);
+	//	time = ( ddd*1000. - gpart->production_vertex()->position().z()*mm )/300.; // nsec
 
 	if(ddd != 0.) {
 	  if(m_verbosity) {
