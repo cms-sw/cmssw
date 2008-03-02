@@ -107,7 +107,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   // create SiStripFolderOrganizer
   SiStripFolderOrganizer folder_organizer;
 
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
   //get all detids
 

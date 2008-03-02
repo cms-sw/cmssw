@@ -12,7 +12,7 @@
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include <TF1.h>
@@ -32,7 +32,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   c.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
   detid_la= SiStripLorentzAngle_->getLorentzAngles();
 
-  DaqMonitorBEInterface* dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  DQMStore* dbe_ = edm::Service<DQMStore>().operator->();
   std::string inputFile_ =conf_.getUntrackedParameter<std::string>("fileName", "LorentzAngle.root");
   dbe_->open(inputFile_);
   // use SistripHistoId for producing histogram id (and title)

@@ -12,7 +12,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -44,7 +44,7 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   histomap histos;
   histomap summaryhisto;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
   detparmap detmap;
   detparmap summarydetmap;
