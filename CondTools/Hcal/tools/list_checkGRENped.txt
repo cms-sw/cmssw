@@ -6,6 +6,13 @@
 # Object = Gains/Pedestals/PedestalWidths
 #
 
+# new pedestals with qie v3 and v4
+# Pedestals      CondFormats/HcalObjects/data/GREN_peds_v2/gren_peds_v2_with30625.txt    CondFormats/HcalObjects/data/new/35666-peds_fC_withqiev3.txt    gren_peds_fC_v2_w35666.txt
+# Pedestals      CondFormats/HcalObjects/data/GREN_peds_v2/gren_peds_v2_with30625.txt    CondFormats/HcalObjects/data/new/35666-peds_fC.txt              gren_peds_fC_v2_w35666_qiev4.txt
+# PedestalWidths CondFormats/HcalObjects/data/GREN_peds_v2/gren_widths_v2_with30625.txt  CondFormats/HcalObjects/data/new/35666-widths_fC_withqiev3.txt  gren_widths_fC_v2_w35666.txt
+# PedestalWidths CondFormats/HcalObjects/data/GREN_peds_v2/gren_widths_v2_with30625.txt  CondFormats/HcalObjects/data/new/35666-widths_fC.txt            gren_widths_fC_v2_w35666_qiev4.txt
+
+
 # GREN pedestals in ADC counts
 # Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_ADC_v1.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30066-peds_ADC.txt   gren_peds_ADC_v2_w30066.txt
 # Pedestals   CondTools/Hcal/tools/gren_peds_ADC_v2_w30066.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30097-peds_ADC.txt   gren_peds_ADC_v2_w30097.txt
