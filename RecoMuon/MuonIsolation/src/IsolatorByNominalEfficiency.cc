@@ -1,6 +1,6 @@
 #include "RecoMuon/MuonIsolation/interface/IsolatorByNominalEfficiency.h"
 #include "RecoMuon/MuonIsolation/src/NominalEfficiencyThresholds.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 using namespace muonisolation;

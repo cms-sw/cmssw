@@ -1,7 +1,7 @@
 #include "RecoMuon/MuonIsolation/interface/IsolatorByDepositCount.h"
 
 using std::vector;
-using reco::MuIsoDeposit;
+using reco::IsoDeposit;
 using namespace muonisolation;
 
 IsolatorByDepositCount::IsolatorByDepositCount(float conesize, const vector<double>& dThresh) 
@@ -25,7 +25,7 @@ MuIsoBaseIsolator::Result IsolatorByDepositCount::result(DepositContainer deposi
   // calorimeter isolation), the first one is used to determine the threshold
   // value!
   float eta = deposits.front().dep->eta();
-  float pt = deposits.front().dep->muonEnergy();
+  float pt = deposits.front().dep->candEnergy();
   float dr= coneSize(eta,pt);
   DepositAndVetos depVet = deposits.front();
   std::pair<double, int> sumAndCount = depVet.dep->depositAndCountWithin(dr, *depVet.vetos, theDepThresholds.front());
