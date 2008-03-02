@@ -4,7 +4,7 @@
 /*
  * \file EcalLocalRecoTask.h
  *
- * $Id: $
+ * $Id: EcalLocalRecoTask.h,v 1.1 2006/04/07 12:38:49 meridian Exp $
  *
 */
 
@@ -19,8 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -68,7 +68,7 @@ class EcalLocalRecoTask: public EDAnalyzer
 
   bool verbose_;
   
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   
   string outputFile_;
 
