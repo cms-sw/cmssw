@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_DetSetVectorNew_h
 #define DataFormats_Common_DetSetVectorNew_h
 
+#include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
 
@@ -12,6 +13,8 @@
 
 
 #include<vector>
+
+namespace edm { namespace refhelper { template<typename T> struct FindForNewDetSetVector; } }
 
 //FIXME remove New when ready
 namespace edmNew {
@@ -82,6 +85,7 @@ namespace edmNew {
     typedef typename std::vector<data_type>::const_iterator const_DataIter;
     typedef std::pair<const_IdIter,const_DataIter> const_IterPair;
 
+    typedef typename edm::refhelper::FindForNewDetSetVector<data_type>  RefFinder;
     
     struct IterHelp {
       typedef DetSet result_type;
@@ -160,6 +164,14 @@ namespace edmNew {
       bool saveEmpty;
     };
     friend class FastFiller;
+
+    struct FindForDetSetVector : public std::binary_function<const edmNew::DetSetVector<T>&, size_t, const T*> {
+        typedef FindForDetSetVector self;
+        typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
+            return &(iContainer.m_data[iIndex]);
+        }
+    };
+    friend class FindForDetSetVector;
 
     explicit DetSetVector(int isubdet=0) :
       m_subdetId(isubdet) {}
@@ -412,6 +424,54 @@ namespace edmNew {
   }
   
 }
+
+#include "DataFormats/Common/interface/Ref.h"
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_same.hpp>
+
+//specialize behavior of edm::Ref to get access to the 'Det'
+namespace edm {
+    /* Reference to an item inside a new DetSetVector ... */
+    namespace refhelper {
+        template<typename T>
+            struct FindTrait<typename edmNew::DetSetVector<T>,T> {
+                typedef typename edmNew::DetSetVector<T>::FindForDetSetVector value;
+            };
+    }
+    /* ... as there was one for the original DetSetVector*/
+
+    /* Probably this one is not that useful .... */
+    namespace refhelper {
+        template<typename T>
+            struct FindSetForNewDetSetVector : public std::binary_function<const edmNew::DetSetVector<T>&, size_t, edmNew::DetSet<T> > {
+                typedef FindSetForNewDetSetVector<T> self;
+                typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
+                    return &(iContainer[iIndex]);
+                }
+            };
+
+        template<typename T>
+            struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T> > {
+                typedef FindSetForNewDetSetVector<T> value;
+            };
+    }
+    /* ... implementation is provided, just in case it's needed */
+}
+
+namespace edmNew {
+   //helper function to make it easier to create a edm::Ref to a new DSV
+  template<class HandleT>
+  edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+  makeRefTo(const HandleT& iHandle,
+             typename HandleT::element_type::value_type::const_iterator itIter) {
+    BOOST_MPL_ASSERT((boost::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >));
+    typename HandleT::element_type::size_type index = (itIter - &*iHandle->data().begin()); 
+    return edm::Ref<typename HandleT::element_type,
+	       typename HandleT::element_type::value_type::value_type>
+	      (iHandle,index);
+  }
+}
+
 
 #endif
   
