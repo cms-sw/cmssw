@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/02/13 11:09:16 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/26 17:43:23 $
+ * $Revision: 1.9 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -38,10 +38,9 @@ using namespace edm;
 
 //! ctor
 EcalPedOffset::EcalPedOffset (const ParameterSet& paramSet) :
-  m_barrelDigiCollection (paramSet.getParameter<std::string> ("EBdigiCollection")),
-  m_endcapDigiCollection (paramSet.getParameter<std::string> ("EEdigiCollection")),
-  m_digiProducer (paramSet.getParameter<std::string> ("digiProducer")),
-  m_headerProducer (paramSet.getParameter<std::string> ("headerProducer")),
+  m_barrelDigiCollection (paramSet.getParameter<edm::InputTag> ("EBdigiCollection")),
+  m_endcapDigiCollection (paramSet.getParameter<edm::InputTag> ("EEdigiCollection")),
+  m_headerCollection (paramSet.getParameter<edm::InputTag> ("headerCollection")),
   m_xmlFile (paramSet.getParameter<std::string> ("xmlFile")),
   m_DACmin (paramSet.getUntrackedParameter<int> ("DACmin",0)),
   m_DACmax (paramSet.getUntrackedParameter<int> ("DACmax",256)),
@@ -55,7 +54,10 @@ EcalPedOffset::EcalPedOffset (const ParameterSet& paramSet) :
   m_create_moniov (paramSet.getUntrackedParameter<bool>("createMonIOV", false)),
   m_location (paramSet.getUntrackedParameter<std::string>("location", "H4")),
   m_run(-1),
-  m_plotting (paramSet.getParameter<std::string> ("plotting"))    
+  m_plotting (paramSet.getParameter<std::string> ("plotting")),
+  m_maxSlopeAllowed_ (paramSet.getUntrackedParameter<double> ("maxSlopeAllowed",-29)),
+  m_minSlopeAllowed_ (paramSet.getUntrackedParameter<double> ("minSlopeAllowed",-18)),
+  m_maxChi2OverNDFAllowed_ (paramSet.getUntrackedParameter<double> ("maxChi2OverNDF",5))
 {
   edm::LogInfo ("EcalPedOffset") << " reading "
     << " m_DACmin: " << m_DACmin
@@ -109,7 +111,7 @@ void EcalPedOffset::analyze (Event const& event,
   // get the headers
   // (one header for each supermodule)
   edm::Handle<EcalRawDataCollection> DCCHeaders;
-  event.getByLabel(m_headerProducer, DCCHeaders);
+  event.getByLabel(m_headerCollection, DCCHeaders);
 
   std::map <int,int> DACvalues;
 
@@ -132,11 +134,11 @@ void EcalPedOffset::analyze (Event const& event,
   // get the barrel digis
   // (one digi for each crystal)
   Handle<EBDigiCollection> barrelDigis;
-  event.getByLabel(m_digiProducer, m_barrelDigiCollection, barrelDigis);
+  event.getByLabel(m_barrelDigiCollection, barrelDigis);
   if(!barrelDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
-      << m_barrelDigiCollection.c_str() << "; not reading barrel digis";
+      << m_barrelDigiCollection << "; not reading barrel digis";
     barrelDigisFound = false;
   }
 
@@ -150,11 +152,11 @@ void EcalPedOffset::analyze (Event const& event,
   // get the endcap digis
   // (one digi for each crystal)
   Handle<EEDigiCollection> endcapDigis;
-  event.getByLabel(m_digiProducer, m_endcapDigiCollection, endcapDigis);
+  event.getByLabel(m_endcapDigiCollection, endcapDigis);
   if(!endcapDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
-      << m_endcapDigiCollection.c_str() << "; not reading endcap digis";
+      << m_endcapDigiCollection << "; not reading endcap digis";
     endcapDigisFound = false;
   }
 
@@ -481,7 +483,8 @@ void EcalPedOffset::makePlots ()
     char folderName[120] ;
     sprintf (folderName,"FED%02d",smPeds->first);
     rootFile->mkdir(folderName);
-    smPeds->second->makePlots(rootFile,folderName);
+    smPeds->second->makePlots(rootFile,folderName,m_maxSlopeAllowed_,
+        m_minSlopeAllowed_,m_maxChi2OverNDFAllowed_);
   }
 
   rootFile->Close();

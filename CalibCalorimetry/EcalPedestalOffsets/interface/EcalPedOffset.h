@@ -5,8 +5,8 @@
  * \file EcalPedOffset.h
  * \class EcalPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2007/12/13 23:13:30 $
- * $Revision: 1.1 $
+ * $Date: 2008/02/13 10:27:12 $
+ * $Revision: 1.2 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -65,10 +65,9 @@ class EcalPedOffset: public edm::EDAnalyzer
     void readDACs(edm::Handle<EBDigiCollection> pDigis, std::map<int,int> DACvalues);
     void readDACs(edm::Handle<EEDigiCollection> pDigis, std::map<int,int> DACvalues);
     
-    std::string m_barrelDigiCollection; //!< secondary name given to collection of digis
-    std::string m_endcapDigiCollection; //!< secondary name given to collection of digis
-    std::string m_digiProducer;   //!< name of module/plugin/producer making digis
-    std::string m_headerProducer; //!< name of module/plugin/producer making headers
+    edm::InputTag m_barrelDigiCollection; //!< secondary name given to collection of digis
+    edm::InputTag m_endcapDigiCollection; //!< secondary name given to collection of digis
+    edm::InputTag m_headerCollection; //!< name of module/plugin/producer making headers
 
     std::string m_xmlFile;        //!< name of the xml file to be saved
 
@@ -79,7 +78,6 @@ class EcalPedOffset: public edm::EDAnalyzer
     int m_DACmax;
     double m_RMSmax;
     int m_bestPed;
-    //int m_SMnum; //! FIXME temporary until the fix in CMSSW
     
     //! database host name
     std::string m_dbHostName;
@@ -101,7 +99,13 @@ class EcalPedOffset: public edm::EDAnalyzer
     
     //! the root file where to store the detail plots
     std::string m_plotting;
-
+    //! max slope (in magnitude) allowed for linearity test
+    double m_maxSlopeAllowed_;
+    //! min slope (in magnitude) allowed for linearity test
+    double m_minSlopeAllowed_;
+    //! max chi2/ndf allowed for linearity test
+    double m_maxChi2OverNDFAllowed_;
+    
 } ; 
 
 #endif

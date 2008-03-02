@@ -168,7 +168,8 @@ int TPedValues::checkEntries (const int & DACstart, const int & DACend) const
 
 
 //! create a plot of the DAC pedestal trend
-int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const 
+int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
+     const double maxSlope, const double minSlope, const double maxChi2OverNDF) const 
 {
   using namespace std;
   // prepare the ROOT file
@@ -209,7 +210,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
         {
           int lastBin = 0;
           while(lastBin<(int)asseX.size()-1 && asseY[lastBin+1]>0
-              && (asseY[lastBin]-asseY[lastBin+1])!=0)
+              && (asseY[lastBin+1]-asseY[lastBin+2])!=0)
             lastBin++;
           
           int fitRangeEnd = (int)asseX[lastBin];
@@ -238,8 +239,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
           double slope1 = fitFunction.GetParameter(0);
           double slope2 = fitFunction.GetParameter(2);
 
-          //TODO: make slope range a parameter
-          if(fitFunction.GetChisquare()/fitFunction.GetNDF()>10 ||
+          if(fitFunction.GetChisquare()/fitFunction.GetNDF()>maxChi2OverNDF ||
               fitFunction.GetChisquare()/fitFunction.GetNDF()<0 ||
               slope1>0 || slope2>0 ||
               ((slope1<-29 || slope1>-18) && slope1<0) || 
@@ -249,8 +249,11 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
               " gain:" << gainHuman << " is not linear;" << "  slope of line1:" << 
               fitFunction.GetParameter(0) << " slope of line2:" << 
               fitFunction.GetParameter(2) << " reduced chi-squared:" << 
-              fitFunction.GetChisquare()/fitFunction.GetNDF() << endl;
+              fitFunction.GetChisquare()/fitFunction.GetNDF();
           }
+          if((asseX.back()-asseX.front()+1)!=asseX.size())
+            edm::LogError("EcalPedOffset") << "TPedValues : Pedestal average not found " <<
+              "for all DAC values scanned in channel:" << xtl+1 << " gain:" << gainHuman;
         }
       } // loop over the gains
   }     // (loop over the crystals)
@@ -260,9 +263,9 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
      
 
 //! create a plot of the DAC pedestal trend
-int TPedValues::makePlots (const std::string & rootFileName, const std::string & dirName) const 
-{
-  TFile saving (rootFileName.c_str (),"APPEND") ;
-  return makePlots (&saving,dirName) ;  
-}
+//int TPedValues::makePlots (const std::string & rootFileName, const std::string & dirName) const 
+//{
+//  TFile saving (rootFileName.c_str (),"APPEND") ;
+//  return makePlots (&saving,dirName) ;  
+//}
 
