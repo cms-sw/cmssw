@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2007/10/09 17:41:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/26 10:45:56 $
+ *  $Revision: 1.6 $
  *  \author cerati
  */
 
@@ -17,6 +17,11 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+class TrajectoryStateOnSurface;
+class Propagator;
+class TransverseImpactPointExtrapolator;
+class TSCPBuilderNoMaterial;
 
 class GsfTrackProducerBase : public TrackProducerBase<reco::GsfTrack> {
 public:
@@ -38,6 +43,10 @@ public:
 
 protected:
   void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
+  void fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
+		 const Propagator& gsfProp,
+		 const TransverseImpactPointExtrapolator& tipExtrapolator,
+		 const TSCPBuilderNoMaterial& tscpBuilder) const;
 
 private:
 bool useSplitting;

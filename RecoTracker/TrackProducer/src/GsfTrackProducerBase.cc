@@ -8,6 +8,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
+#include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -35,6 +42,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 //   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
 //   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
 //   std::map<unsigned int, unsigned int> tjTkMap;
+
+  TSCPBuilderNoMaterial tscpBuilder;
 
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
@@ -138,6 +147,12 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     selGsfTrackExtras->push_back( reco::GsfTrackExtra (outerStates, outertsos.localParameters().pzSign(),
 						       innerStates, innertsos.localParameters().pzSign()));
 
+    if ( innertsos.isValid() ) {
+      GsfPropagatorAdapter gsfProp(AnalyticalPropagator(innertsos.magneticField(),anyDirection));
+      TransverseImpactPointExtrapolator tipExtrapolator(gsfProp);
+      fillMode(track,innertsos,gsfProp,tipExtrapolator,tscpBuilder);
+    }
+
     delete theTrack;
     delete theTraj;
   }
@@ -205,4 +220,66 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
     states.push_back(reco::GsfComponent5D(i->weight(),i->localParameters().vector(),i->localError().matrix()));
   }
   //   std::cout << "end fill states" << std::endl;
+}
+
+void
+GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
+				const Propagator& gsfProp,
+				const TransverseImpactPointExtrapolator& tipExtrapolator,
+				const TSCPBuilderNoMaterial& tscpBuilder) const
+{
+  // get transverse impact parameter plane (from mean)
+  //       TrajectoryStateOnSurface vtxTsos = 
+  // 	TransverseImpactPointExtrapolator(geomProp).extrapolate(innertsos,GlobalPoint(0.,0.,0.));
+  TrajectoryStateOnSurface vtxTsos = tipExtrapolator.extrapolate(innertsos,GlobalPoint(0.,0.,0.));
+  if ( !vtxTsos.isValid() )  vtxTsos = innertsos;
+ // extrapolate mixture
+  vtxTsos = gsfProp.propagate(innertsos,vtxTsos.surface());
+  if ( vtxTsos.isValid() ) {
+    // extract mode
+    // build perigee parameters (for covariance to be stored)
+    AlgebraicVector5 modeParameters;
+    AlgebraicSymMatrix55 modeCovariance;
+    // set parameters and variances for "mode" state (local parameters)
+    for ( unsigned int iv=0; iv<5; ++iv ) {
+      MultiGaussianState1D state1D = MultiGaussianStateTransform::multiState1D(vtxTsos,iv);
+      GaussianSumUtilities1D utils(state1D);
+      modeParameters(iv) = utils.mode().mean();
+      modeCovariance(iv,iv) = utils.mode().variance();
+      if ( !utils.modeIsValid() ) {
+	// if mode calculation fails: use mean
+	modeParameters(iv) = utils.mean();
+	modeCovariance(iv,iv) = utils.variance();
+      }
+    }
+    // complete covariance matrix
+    // approximation: use correlations from mean
+    const AlgebraicSymMatrix55& meanCovariance(vtxTsos.localError().matrix());
+    for ( unsigned int iv1=0; iv1<5; ++iv1 ) {
+      for ( unsigned int iv2=0; iv2<iv1; ++iv2 ) {
+	double cov12 = meanCovariance(iv1,iv2) * 
+	  sqrt(modeCovariance(iv1,iv1)/meanCovariance(iv1,iv1)*
+	       modeCovariance(iv2,iv2)/meanCovariance(iv2,iv2));
+	modeCovariance(iv1,iv2) = modeCovariance(iv2,iv1) = cov12;
+      }
+    }
+    TrajectoryStateOnSurface modeTsos(LocalTrajectoryParameters(modeParameters,
+								vtxTsos.localParameters().pzSign()),
+				      LocalTrajectoryError(modeCovariance),
+				      vtxTsos.surface(),
+				      vtxTsos.magneticField(),
+				      vtxTsos.surfaceSide());
+    TrajectoryStateClosestToPoint tscp = tscpBuilder(*modeTsos.freeState(),GlobalPoint(0.,0.,0.));
+    GlobalVector tscpMom =  tscp.theState().momentum();
+    reco::GsfTrack::Vector mom(tscpMom.x(),tscpMom.y(),tscpMom.z());
+    reco::GsfTrack::CovarianceMatrixMode cov;
+    const AlgebraicSymMatrix55& tscpCov = tscp.perigeeError().covarianceMatrix();
+    for ( unsigned int iv1=0; iv1<reco::GsfTrack::dimensionMode; ++iv1 ) {
+      for ( unsigned int iv2=0; iv2<reco::GsfTrack::dimensionMode; ++iv2 ) {
+	cov(iv1,iv2) = tscpCov(iv1,iv2);
+      }
+    }
+      
+    track.setMode(tscp.charge(),mom,cov);
+  }
 }
