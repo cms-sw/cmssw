@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.9 2007/07/31 15:20:04 ratnik Exp $
+ * \version $Id: BasicCluster.h,v 1.11 2007/11/28 11:30:46 andreasp Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -17,7 +17,7 @@
 
 namespace reco {
   
-  enum AlgoId { island = 0, hybrid = 1 };
+  enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3 };
 
   class BasicCluster : public EcalCluster {
   public:
