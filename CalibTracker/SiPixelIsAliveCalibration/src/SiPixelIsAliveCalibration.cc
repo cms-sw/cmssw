@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.16 2008/02/22 16:56:08 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.17 2008/02/26 11:00:56 fblekman Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // class decleration
