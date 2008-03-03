@@ -1,8 +1,8 @@
 /** \file LaserAlignmentFit.cc
  *  LAS Reconstruction Program - Fitting of the Beam Profiles
  *
- *  $Date: 2007/03/18 19:00:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -60,10 +60,11 @@ void LaserAlignment::fit(edm::EventSetup const& theSetup)
 	      }
 	    }
 
-	  if ( stringRing == "4" ) { theRing = 4; }
+	  if ( stringRing == "4" )      { theRing = 4; }
 	  else if ( stringRing == "6" ) { theRing = 6; }
 
-	  if ( stringDisc == "1" ) { theDisc = 0; }
+
+	  if ( stringDisc == "1" )      { theDisc = 0; }
 	  else if ( stringDisc == "2" ) { theDisc = 1; }
 	  else if ( stringDisc == "3" ) { theDisc = 2; } 
 	  else if ( stringDisc == "4" ) { theDisc = 3; } 
@@ -75,7 +76,7 @@ void LaserAlignment::fit(edm::EventSetup const& theSetup)
 
 	  if ( theRing == 4 )
 	    {
-	      if ( stringBeam == "0" ) { theBeam = 0; } 
+	      if ( stringBeam == "0" )      { theBeam = 0; } 
 	      else if ( stringBeam == "1" ) { theBeam = 1; } 
 	      else if ( stringBeam == "2" ) { theBeam = 2; }
 	      else if ( stringBeam == "3" ) { theBeam = 3; } 
@@ -84,17 +85,16 @@ void LaserAlignment::fit(edm::EventSetup const& theSetup)
 	      else if ( stringBeam == "6" ) { theBeam = 6; } 
 	      else if ( stringBeam == "7" ) { theBeam = 7; } 
 	    }
-	  else if ( theRing == 6 )
-	    {
-	      if ( stringBeam == "0" ) { theBeam = 0 + 8; } 
-	      else if ( stringBeam == "1" ) { theBeam = 1 + 8; } 
-	      else if ( stringBeam == "2" ) { theBeam = 2 + 8; }
-	      else if ( stringBeam == "3" ) { theBeam = 3 + 8; } 
-	      else if ( stringBeam == "4" ) { theBeam = 4 + 8; }
-	      else if ( stringBeam == "5" ) { theBeam = 5 + 8; } 
-	      else if ( stringBeam == "6" ) { theBeam = 6 + 8; } 
-	      else if ( stringBeam == "7" ) { theBeam = 7 + 8; } 
-	    }
+	  else if ( theRing == 6 ) {
+	    if ( stringBeam == "0" )      { theBeam = 0 + 8; } 
+	    else if ( stringBeam == "1" ) { theBeam = 1 + 8; } 
+	    else if ( stringBeam == "2" ) { theBeam = 2 + 8; }
+	    else if ( stringBeam == "3" ) { theBeam = 3 + 8; } 
+	    else if ( stringBeam == "4" ) { theBeam = 4 + 8; }
+	    else if ( stringBeam == "5" ) { theBeam = 5 + 8; } 
+	    else if ( stringBeam == "6" ) { theBeam = 6 + 8; } 
+	    else if ( stringBeam == "7" ) { theBeam = 7 + 8; } 
+	  }
 
 	  std::vector<LASBeamProfileFit> collector;
 
@@ -109,12 +109,12 @@ void LaserAlignment::fit(edm::EventSetup const& theSetup)
 	  // if the fit succeeded, add the LASBeamProfileFit to the output collection for storage
 	  // and additionally add the LASBeamProfileFit to the map for later processing (we need
 	  // the info from the fit for the Alignment Algorithm)
-	  if (theIsGoodFit)
-	    {
-	      // add the result of the fit to the map
-	      theBeamProfileFitStore[*iHistName] = collector;
-	    }
-
+	  if (theIsGoodFit) {
+	    
+	    // add the result of the fit to the map
+	    theBeamProfileFitStore[*iHistName] = collector;
+	  }
+	  
 	  // set theIsGoodFit to false again for the next fit
 	  theIsGoodFit = false;
 	}

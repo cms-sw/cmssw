@@ -4,14 +4,15 @@
 /** \class BeamProfileFitter
  *  Fitting laser profiles from the beams in the Laser Alignment System
  *
- *  $Date: 2007/06/11 14:44:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/03 00:53:10 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
 // Framework headers
 #include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // DetId
 #include "DataFormats/DetId/interface/DetId.h"
@@ -29,24 +30,26 @@ class TH1D;
 class BeamProfileFitter {
  public:
   /// default constructor
-  BeamProfileFitter(edm::ParameterSet const& theConf);
+   BeamProfileFitter(edm::ParameterSet const& theConf, const edm::EventSetup* aSetup );
   
   /// default destructor
   ~BeamProfileFitter();
   
   /// fitting routine
-  std::vector<LASBeamProfileFit> doFit(const edm::EventSetup& theSetup, 
-				       DetId theDetUnitId, TH1D * theHistogram, 
-				       bool theSaveHistograms, 
-				       int ScalingFactor, int theBeam, 
-				       int theDisc, int theRing, 
-				       int theSide, bool isTEC2TEC, 
-				       bool & isGoodResult );
+  std::vector<LASBeamProfileFit> doFit( DetId theDetUnitId, TH1D* theHistogram, 
+				        bool theSaveHistograms, 
+				        int ScalingFactor, int theBeam, 
+				        int theDisc, int theRing, 
+				        int theSide, bool isTEC2TEC, 
+				        bool & isGoodResult );
 
   /// the peakfinder
   std::vector<double> findPeakGaus(TH1D* theHist, int theDisc, int theRing);
 
  private:
+
+  const edm::EventSetup* theSetup;
+
   bool theClearHistoAfterFit;
   bool theScaleHisto;
   double theMinSignalHeight;

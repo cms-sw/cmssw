@@ -4,10 +4,12 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/01/03 00:53:11 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/20 09:50:54 $
+ *  $Revision: 1.11 $
  *  \author Maarten Thomas
  */
+
+#include <sstream>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,7 +28,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels
@@ -34,8 +39,9 @@
 
 // LAS container & tool objects
 #include "Alignment/LaserAlignment/src/LASGlobalData.cc" // (template)
+#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
 #include "Alignment/LaserAlignment/src/LASModuleProfile.h"
-
+#include "Alignment/LaserAlignment/src/LASProfileJudge.h"
 
 // ROOT
 #include "TH1.h"
@@ -45,39 +51,50 @@ class TH1D;
 
 #include <iostream>
 
-class LaserAlignment : public edm::EDProducer, public TObject 
-{
+
+///
+///
+///
+class LaserAlignment : public edm::EDProducer, public TObject {
+
  public:
   typedef std::vector<edm::ParameterSet> Parameters;
-	/// define vector and matrix formats for easier calculation of the alignment corrections
+
+  /// define vector and matrix formats for easier calculation of the alignment corrections
   typedef LASvector<double> LASvec;
   typedef LASvector2D<double> LASvec2D;
 
-	/// constructor
+  /// constructor
   explicit LaserAlignment(edm::ParameterSet const& theConf);
-	/// destructor
+  /// destructor
   ~LaserAlignment();
   
-	/// begin job
+  /// begin job
   virtual void beginJob(const edm::EventSetup&);
-	/// produce LAS products
+
+  /// produce LAS products
   virtual void produce(edm::Event& theEvent, edm::EventSetup const& theSetup);
 
+  // end job
+  virtual void endJob();
+
  private:
-	/// return angle in radian between 0 and 2*pi
+  /// return angle in radian between 0 and 2*pi
   double angle(double theAngle);
-	/// check in which subdetector/sector/disc we currently are
-	std::vector<int> checkBeam(std::vector<std::string>::const_iterator iHistName, std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist);
-	/// write the ROOT file with histograms
+  /// check in which subdetector/sector/disc we currently are
+  std::vector<int> checkBeam(std::vector<std::string>::const_iterator iHistName, std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist);
+  /// write the ROOT file with histograms
   void closeRootFile();
   /// fill adc counts from the laser profiles into a histogram
   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
 		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
 		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
 		     LASModuleProfile& theProfile );
-	/// initialize the histograms
+  /// initialize the histograms
   void initHistograms();
-	/// search for dets which are hit by a laser beam and fill the profiles into a histogram
+  /// fill pedestals from dbase
+  void fillPedestalProfiles( edm::ESHandle<SiStripPedestals>&  );
+  /// search for dets which are hit by a laser beam and fill the profiles into a histogram
   void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
   /// do the beam profile fit
   void fit(edm::EventSetup const& theSetup);
@@ -85,7 +102,11 @@ class LaserAlignment : public edm::EDProducer, public TObject
   void alignmentAlgorithm(edm::ParameterSet const& theAlgorithmConf, 
 			  AlignableTracker * theAlignableTracker);
     
+
  private:
+
+  void fillDetectorId( void );
+
   int theEvents;
   bool theStoreToDB;
   bool theSaveHistograms;
@@ -109,13 +130,38 @@ class LaserAlignment : public edm::EDProducer, public TObject
   // digi producer
   Parameters theDigiProducersList;
 
-  // for each of the 434 profiles for data:
+  // this object can judge if 
+  // a LASModuleProfile is usable for position measurement
+  LASProfileJudge judge;
+
+  // the detector ids for all the modules
+  LASGlobalData<int> detectorId;
+
+  // all the 474 profiles for the pedestals
+  LASGlobalData<LASModuleProfile> pedestalProfiles;
+
+  // for each of the 474 profiles for data:
   // one for the current event and one for the collected data
   LASGlobalData<LASModuleProfile> currentDataProfiles;
   LASGlobalData<LASModuleProfile> collectedDataProfiles;
 
+  // 474 names for retrieving data from the branches
+  LASGlobalData<string> theProfileNames;
+
+  // number of accepted profiles for each module
+  LASGlobalData<int> numberOfAcceptedProfiles;
+
+  // histograms for the summed profiles;
+  // these are needed for the fitting procedure (done by ROOT)
+  LASGlobalData<TH1D*> summedHistograms;
+
+  // a class for easy looping over LASGlobalData objects,
+  // avoids nested for-statements
+  LASGlobalLoop moduleLoop;
+
   // Tree stuff
   TFile * theFile;
+  TDirectory* singleModulesDir;
   int theCompression;
   std::string theFileName;
 
@@ -150,11 +196,11 @@ class LaserAlignment : public edm::EDProducer, public TObject
   LaserAlignmentNegTEC * theLASAlignNegTEC;
   LaserAlignmentTEC2TEC * theLASAlignTEC2TEC;
 
-	/// Bruno's alignment algorithm
-	AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
-	/// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
-	bool theUseBSFrame;
-
+  /// Bruno's alignment algorithm
+  AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
+  /// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
+  bool theUseBSFrame;
+    
   // the map to store digis for cluster creation
   std::map<DetId, std::vector<SiStripRawDigi> > theDigiStore;
   // map to store temporary the LASBeamProfileFits

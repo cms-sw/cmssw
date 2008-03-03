@@ -1,8 +1,8 @@
 /** \file LaserAlignmentInitHistograms.cc
  *  Histograms for the Laser Alignment System
  *
- *  $Date: 2007/03/18 19:00:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 23:51:43 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -13,6 +13,8 @@ void LaserAlignment::initHistograms()
 {
   // vector to store the Histogram names
   theHistogramNames.reserve(434);
+
+  singleModulesDir = theFile->mkdir( "single modules" );
 
   // --- LaserBeams ---
   TDirectory * BeamDir = theFile->mkdir("LaserBeams");

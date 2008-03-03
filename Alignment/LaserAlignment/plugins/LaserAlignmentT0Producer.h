@@ -8,7 +8,7 @@
 //
 // Original Author:  Jan Olzem
 //         Created:  Wed Feb 13 17:30:40 CET 2008
-// $Id$
+// $Id: LaserAlignmentT0Producer.h,v 1.1 2008/02/20 09:50:54 olzem Exp $
 //
 //
 
@@ -47,6 +47,7 @@ private:
   std::vector<edm::ParameterSet> digiProducerList;
   std::string digiProducer;
   std::string digiLabel;
+  std::string digiType;
 
   // this one stores the det ids for all the 434 LAS modules
   std::vector<unsigned int> theLasDetIds;

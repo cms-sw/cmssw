@@ -4,7 +4,7 @@
 // Class:      LaserAlignmentT0Producer
 // 
 
-#include "LaserAlignmentT0Producer.h" /////////////////////////////////
+#include "Alignment/LaserAlignment/plugins/LaserAlignmentT0Producer.h"
 
 
 
@@ -24,14 +24,19 @@ LaserAlignmentT0Producer::LaserAlignmentT0Producer( const edm::ParameterSet& iCo
   for ( std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin(); aDigiProducer != digiProducerList.end(); ++aDigiProducer ) {
     std::string digiProducer = aDigiProducer->getParameter<std::string>( "DigiProducer" );
     std::string digiLabel = aDigiProducer->getParameter<std::string>( "DigiLabel" );
-
+    std::string digiType = aDigiProducer->getParameter<std::string>( "DigiType" );
+    
     // check if raw/processed digis in this collection
-    if( ( digiLabel == "VirginRaw" ) || ( digiLabel == "ScopeMode" ) || ( digiLabel == "ProcessedRaw" ) ) { // these are raw digis
+    if( digiType == "Raw" ) {
       produces<edm::DetSetVector<SiStripRawDigi> >( digiLabel ).setBranchAlias( alias + "siStripRawDigis" );
     }
-    else { // assume "ZeroSuppressed" digis (non-raw)
+    else if ( digiType == "Processed" ) { // "ZeroSuppressed" digis (non-raw)
       produces<edm::DetSetVector<SiStripDigi> >( digiLabel ).setBranchAlias( alias + "siStripDigis" );
     }
+    else {
+      throw cms::Exception("LaserAlignmentT0Producer") << "ERROR ** Unknown DigiType: " << digiType << " specified in cfg file" << std::endl;
+    }
+
   }
 
 }
@@ -62,11 +67,12 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
   for ( std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin(); aDigiProducer != digiProducerList.end(); ++aDigiProducer ) {
     std::string digiProducer = aDigiProducer->getParameter<std::string>( "DigiProducer" );
     std::string digiLabel = aDigiProducer->getParameter<std::string>( "DigiLabel" );
+    std::string digiType = aDigiProducer->getParameter<std::string>( "DigiType" );
 
     // now a distinction of cases: raw or processed digis?
 
     // first we go for raw digis => SiStripRawDigi
-    if( ( digiLabel == "VirginRaw" ) || ( digiLabel == "ScopeMode" ) || ( digiLabel == "ProcessedRaw" ) ) {
+    if( digiType == "Raw" ) {
 
       // retrieve the SiStripRawDigis collection
       edm::Handle< edm::DetSetVector<SiStripRawDigi> > theStripDigis;
@@ -111,7 +117,7 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
     
     // then we assume "ZeroSuppressed" (non-raw) => SiStripDigi
     // and do exactly the same as above
-    else {
+    else if( digiType == "Processed" ) {
 
       edm::Handle< edm::DetSetVector<SiStripDigi> > theStripDigis;
       iEvent.getByLabel( digiProducer, digiLabel, theStripDigis );
@@ -135,6 +141,11 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
       iEvent.put( theDigiOutput, digiLabel );
       
     }
+
+    else {
+      throw cms::Exception("LaserAlignmentT0Producer") << "ERROR ** Unknown DigiType: " << digiType << " specified in cfg file" << std::endl;
+    }
+    
 
   } // loop all input products
 
