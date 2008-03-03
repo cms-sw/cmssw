@@ -48,15 +48,13 @@ namespace cms
     bool TrackNumberSelector();
     bool ClusterNumberSelector();
     bool TriggerSelector();
-    bool ClusterInModuleSelector ();   
+    bool ClusterInModuleSelector (const edm::EventSetup& es);   
     
     edm::ParameterSet conf_;
 
     edm::InputTag Track_src_;
-    edm::InputTag ClusterInfo_src_;
     edm::InputTag Cluster_src_;    
 
-    edm::Handle< edm::DetSetVector<SiStripClusterInfo> >  dsv_SiStripClusterInfo;
     edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
     edm::Handle<reco::TrackCollection> trackCollection;
     edm::Handle<LTCDigiCollection> ltcdigis;

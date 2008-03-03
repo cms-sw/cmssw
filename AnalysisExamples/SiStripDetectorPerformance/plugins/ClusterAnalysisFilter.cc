@@ -2,13 +2,13 @@
 
 
 #include "AnalysisExamples/SiStripDetectorPerformance/plugins/ClusterAnalysisFilter.h"
+#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 
 namespace cms
 {
   ClusterAnalysisFilter::ClusterAnalysisFilter(const edm::ParameterSet& conf) :
     conf_(conf),
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
-    ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
     Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) )
   {  
     produces <uint16_t>();
@@ -23,7 +23,6 @@ namespace cms
   bool ClusterAnalysisFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 
     //Get input 
-    e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
 
     bool TrackNumberSelector_Decision_;
@@ -43,7 +42,7 @@ namespace cms
     }
 
     bool ClusterNumberSelector_Decision_=ClusterNumberSelector();
-    bool ClusterInModuleSelector_Decision_=ClusterInModuleSelector();
+    bool ClusterInModuleSelector_Decision_=ClusterInModuleSelector(c);
 
     bool decision = 
       ( ! conf_.getParameter<edm::ParameterSet>("TrackNumberSelector").getParameter<bool>("On") || TrackNumberSelector_Decision_ )
@@ -136,10 +135,10 @@ namespace cms
   }
 
 
-  bool ClusterAnalysisFilter::ClusterInModuleSelector (){
+  bool ClusterAnalysisFilter::ClusterInModuleSelector ( const edm::EventSetup& es){
 
     const edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterInModuleSelector");
-    const edm::ParameterSet pps = ps.getParameter<edm::ParameterSet>("ClusterConditions");
+    const edm::ParameterSet pps = ps.getParameter<edm::ParameterSet>("ClrausterConditions");
     
     std::vector<uint32_t> ModulesToLookIn_=ps.getParameter< std::vector<uint32_t> >("ModulesToLookIn");
     std::vector<uint32_t> SubDetToLookIn_=ps.getParameter< std::vector<uint32_t> >("SubDetToLookIn");
@@ -147,39 +146,44 @@ namespace cms
 
     
     for (std::vector<uint32_t>::const_iterator iter=ModulesToLookIn_.begin(); iter!=ModulesToLookIn_.end();iter++){
-      edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->find(*iter);
-      if ( DSViter != dsv_SiStripClusterInfo->end() ){	
-	for(edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++) 
+      edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->find(*iter);
+      if ( DSViter != dsv_SiStripCluster->end() ){      
+        uint32_t detid=DSViter->id;
+	for(edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end();ClusIter++){ 
+	  SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *ClusIter, es);
 	  if (
-	      ClusIter->charge()/ClusIter->noise() > pps.getParameter<double>("minStoN") 
+	      clusterInfo->getCharge()/clusterInfo->getNoise() > pps.getParameter<double>("minStoN") 
 	      &&
-	      ClusIter->charge()/ClusIter->noise() < pps.getParameter<double>("maxStoN") 
+	      clusterInfo->getCharge()/clusterInfo->getNoise() < pps.getParameter<double>("maxStoN") 
 	      &&
-	      ClusIter->width() > pps.getParameter<double>("minWidth") 
+	      clusterInfo->getWidth() > pps.getParameter<double>("minWidth") 
 	      &&
-	      ClusIter->width() < pps.getParameter<double>("maxWidth") 
+	      clusterInfo->getWidth() < pps.getParameter<double>("maxWidth") 
 	      ){
 	    return ps.getParameter<bool>("Accept");
 	  }
+	  delete clusterInfo;
       }	      
     }
 
-    for (edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->begin(); DSViter != dsv_SiStripClusterInfo->end(); DSViter++ ){	
+    for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->begin(); DSViter != dsv_SiStripCluster->end(); DSViter++ ){	
       uint32_t detid=DSViter->id;
       if (find(SkipModules_.begin(),SkipModules_.end(),detid)!=SkipModules_.end())
 	continue;
       const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
       for (std::vector<uint32_t>::const_iterator iter=SubDetToLookIn_.begin(); iter!=SubDetToLookIn_.end();iter++){	
 	if ((uint) _StripGeomDetUnit->specificType().subDetector() == *iter){
-	  for(edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++) 
+	
+	  for(edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++){
+	    SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *ClusIter, es);
 	    if (
-		ClusIter->charge()/ClusIter->noise() > pps.getParameter<double>("minStoN") 
+		clusterInfo->getCharge()/clusterInfo->getNoise() > pps.getParameter<double>("minStoN") 
 		&&
-		ClusIter->charge()/ClusIter->noise() < pps.getParameter<double>("maxStoN") 
+		clusterInfo->getCharge()/clusterInfo->getNoise() < pps.getParameter<double>("maxStoN") 
 		&&
-		ClusIter->width() > pps.getParameter<double>("minWidth") 
+		clusterInfo->getWidth() > pps.getParameter<double>("minWidth") 
 		&&
-		ClusIter->width() < pps.getParameter<double>("maxWidth") 
+		clusterInfo->getWidth() < pps.getParameter<double>("maxWidth") 
 		){
 	//       std::cout
 // 		<< "\n\t\tcluster detid "       << ClusIter->geographicalId()  
@@ -191,6 +195,7 @@ namespace cms
 // 		<< std::endl;
 	      return ps.getParameter<bool>("Accept");
 	    }
+	    delete clusterInfo;
 	}	      
       }
     }
