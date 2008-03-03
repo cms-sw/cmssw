@@ -35,6 +35,18 @@ L1DataEmulDigi::L1DataEmulDigi( int sid, int cid, double x1, double x2, double x
   m_type = n; 
 }
 
+L1DataEmulDigi::L1DataEmulDigi( int sid, int cid, double x1, double x2, double x3, int n,
+				unsigned int dw, unsigned int ew, float dr, float er, 
+				L1MonitorDigi dm, L1MonitorDigi em) {
+  reset();
+  m_sid = sid; m_cid = cid;
+  m_location[0]=x1; m_location[1]=x2; m_location[2]=x3;
+  m_type = n; 
+  m_data  [0]=dw; m_data  [1]=ew;
+  m_rank  [0]=dr; m_rank  [1]=er;
+  m_DEpair[0]=dm; m_DEpair[1]=em;
+}
+
 L1DataEmulDigi::~L1DataEmulDigi() {}
 
 std::ostream& operator<<(std::ostream& s, const L1DataEmulDigi& de) {

@@ -20,6 +20,9 @@ class L1DataEmulDigi {
 
   L1DataEmulDigi();
   L1DataEmulDigi(int sid, int cid, double x1, double x2, double x3, int n);
+  L1DataEmulDigi(int sid, int cid, double x1, double x2, double x3, int n,
+		 unsigned int dw, unsigned int ew, float dr, float er, 
+		 L1MonitorDigi dm, L1MonitorDigi em); 
   ~L1DataEmulDigi();
   
   void setSid (int sid) {m_sid = sid;}
