@@ -606,9 +606,10 @@ secsourceParameter = pp.Forward()
 block = pp.Forward()
 # need to tolerate internal blocks?
 def _makeLabeledBlock(s,loc,toks):
-    """create an untracked PSet parameter from the tokens"""
+    """create a PSet parameter from the tokens"""
     p=_makePSet(s,loc,[toks[0][2]])
-    p=cms.untracked(p)
+    # They were tracked in the old system
+    #p=cms.untracked(p)
     return (toks[0][1],p)
 
 using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
