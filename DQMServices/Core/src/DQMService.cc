@@ -2,6 +2,7 @@
 #include "DQMServices/Core/src/DQMRootBuffer.h"
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMThreadLock.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <iostream>
@@ -14,6 +15,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
     lastFlush_(0),
     publishFrequency_(5.0)
 {
+  edm::Service<DQMThreadLock>();
   ar.watchPostProcessEvent(this, &DQMService::flush);
   ar.watchPostEndJob(this, &DQMService::shutdown);
 
@@ -52,6 +54,9 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   // OK, send an update.
   if (net_)
   {
+    // Make sure the core is locked.
+    DQMThreadLock::EDMService lock;
+
     // Lock the network layer so we can modify the data.
     net_->lock();
     bool updated = false;
