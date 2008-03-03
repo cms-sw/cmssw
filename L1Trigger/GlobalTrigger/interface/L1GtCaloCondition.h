@@ -25,8 +25,6 @@
 //   base classes
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 // forward declarations
 class L1GtCondition;
 class L1GtCaloTemplate;
@@ -47,7 +45,12 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1GtCaloCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
-        const edm::EventSetup& evSetup);
+            const int nrL1NoIsoEG,
+            const int nrL1IsoEG,
+            const int nrL1CenJet,
+            const int nrL1ForJet,
+            const int nrL1TauJet,
+            const int ifCaloEtaNumberBits);
 
     // copy constructor
     L1GtCaloCondition(const L1GtCaloCondition&);

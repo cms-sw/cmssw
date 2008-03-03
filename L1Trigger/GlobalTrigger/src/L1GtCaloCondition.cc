@@ -42,9 +42,6 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
@@ -59,7 +56,12 @@ L1GtCaloCondition::L1GtCaloCondition() :
 
 //     from base template condition (from event setup usually)
 L1GtCaloCondition::L1GtCaloCondition(L1GtCondition* caloTemplate, const L1GlobalTriggerPSB* ptrPSB,
-    const edm::EventSetup& evSetup) :
+        const int nrL1NoIsoEG,
+        const int nrL1IsoEG,
+        const int nrL1CenJet,
+        const int nrL1ForJet,
+        const int nrL1TauJet,
+        const int ifCaloEtaNumberBits) :
     L1GtConditionEvaluation()
 
 {
@@ -69,35 +71,32 @@ L1GtCaloCondition::L1GtCaloCondition(L1GtCondition* caloTemplate, const L1Global
     m_gtPSB = ptrPSB;
 
     // maximum number of objects received for the evaluation of the condition
-    // retrieved from event setup
+    // retrieved before from event setup
     // for a CondCalo, all objects ar of same type, hence it is enough to get the
     // type for the first object
 
-    edm::ESHandle< L1GtStableParameters> l1GtStablePar;
-    evSetup.get< L1GtStableParametersRcd>().get(l1GtStablePar);
-
     switch ((m_gtCaloTemplate->objectType())[0]) {
         case NoIsoEG:
-            m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1NoIsoEG());
+            m_condMaxNumberObjects = nrL1NoIsoEG;
             break;
         case IsoEG:
-            m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1IsoEG());
+            m_condMaxNumberObjects = nrL1IsoEG;
             break;
         case CenJet:
-            m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1CenJet());
+            m_condMaxNumberObjects = nrL1CenJet;
             break;
         case ForJet:
-            m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1ForJet());
+            m_condMaxNumberObjects = nrL1ForJet;
             break;
         case TauJet:
-            m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1TauJet());
+            m_condMaxNumberObjects = nrL1TauJet;
             break;
         default:
             m_condMaxNumberObjects = 0;
             break;
     }
 
-    m_ifCaloEtaNumberBits = static_cast<int> (l1GtStablePar->gtIfCaloEtaNumberBits());
+    m_ifCaloEtaNumberBits = ifCaloEtaNumberBits;
 
 }
 

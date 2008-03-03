@@ -25,8 +25,6 @@
 //   base classes
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 // forward declarations
 class L1GtCondition;
 class L1GtEnergySumTemplate;
@@ -44,8 +42,7 @@ public:
     L1GtEnergySumCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtEnergySumCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
-        const edm::EventSetup& evSetup);
+    L1GtEnergySumCondition(L1GtCondition*, const L1GlobalTriggerPSB*);
 
     // copy constructor
     L1GtEnergySumCondition(const L1GtEnergySumCondition&);

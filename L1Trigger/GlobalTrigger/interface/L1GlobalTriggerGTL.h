@@ -66,11 +66,22 @@ public:
     void receiveGmtObjectData(
         edm::Event&,
         const edm::InputTag&, const int iBxInEvent,
-        const bool receiveMu, const unsigned int nrL1Mu);
+        const bool receiveMu, const int nrL1Mu);
 
     /// run the GTL
-    void run(edm::Event&, const edm::EventSetup&, const L1GlobalTriggerPSB*, 
-        const bool, const int, std::auto_ptr<L1GlobalTriggerObjectMapRecord>&, const unsigned int);
+    void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
+        const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
+        const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const unsigned int numberPhysTriggers,
+        const int nrL1Mu,
+        const int nrL1NoIsoEG,
+        const int nrL1IsoEG,
+        const int nrL1CenJet,
+        const int nrL1ForJet,
+        const int nrL1TauJet,
+        const int nrL1JetCounts,
+        const int ifMuEtaNumberBits,
+        const int ifCaloEtaNumberBits);
 
     /// clear GTL
     void reset();

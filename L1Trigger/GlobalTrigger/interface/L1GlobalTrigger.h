@@ -92,21 +92,31 @@ private:
 
     /// number of physics triggers
     unsigned int m_numberPhysTriggers;
+
+    /// number of technical triggers
+    unsigned int m_numberTechnicalTriggers;
+
+    /// number of DAQ partitions
+    unsigned int m_numberDaqPartitions;
     
     /// number of objects of each type
     ///    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
-    unsigned int m_nrL1Mu;
+    int m_nrL1Mu;
 
-    unsigned int m_nrL1NoIsoEG;
-    unsigned int m_nrL1IsoEG;
+    int m_nrL1NoIsoEG;
+    int m_nrL1IsoEG;
 
-    unsigned int m_nrL1CenJet;
-    unsigned int m_nrL1ForJet;
-    unsigned int m_nrL1TauJet;
-
+    int m_nrL1CenJet;
+    int m_nrL1ForJet;
+    int m_nrL1TauJet;
+    
+    int m_nrL1JetCounts;
+    
     // ... the rest of the objects are global
-    
-    
+
+    int m_ifMuEtaNumberBits;
+    int m_ifCaloEtaNumberBits;
+        
 
     /// parameters
     const L1GtParameters* m_l1GtPar;
@@ -124,16 +134,34 @@ private:
     unsigned long long m_l1GtBMCacheID;
     
     
-    ///prescale factors & trigger masks
-    const L1GtPrescaleFactors* m_l1GtPf;
-    unsigned long long m_l1GtPfCacheID;
-    
-    std::vector<int> m_prescaleFactors;
+    /// prescale factors
+    const L1GtPrescaleFactors* m_l1GtPfAlgo;
+    unsigned long long m_l1GtPfAlgoCacheID;
 
-    const L1GtTriggerMask* m_l1GtTm;
-    unsigned long long m_l1GtTmCacheID;
+    const L1GtPrescaleFactors* m_l1GtPfTech;
+    unsigned long long m_l1GtPfTechCacheID;
+       
+    std::vector<int> m_prescaleFactorsAlgoTrig;
+    std::vector<int> m_prescaleFactorsTechTrig;
+
+    /// trigger masks & veto masks
+    const L1GtTriggerMask* m_l1GtTmAlgo;
+    unsigned long long m_l1GtTmAlgoCacheID;
  
-    std::vector<unsigned int> m_triggerMask;
+    const L1GtTriggerMask* m_l1GtTmTech;
+    unsigned long long m_l1GtTmTechCacheID;
+    
+    const L1GtTriggerMask* m_l1GtTmVetoAlgo;
+    unsigned long long m_l1GtTmVetoAlgoCacheID;
+ 
+    const L1GtTriggerMask* m_l1GtTmVetoTech;
+    unsigned long long m_l1GtTmVetoTechCacheID;
+    
+    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskTechTrig;
+
+    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskVetoTechTrig;
 
 private:
 
@@ -148,6 +176,8 @@ private:
     /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloGctInputTag;
 
+    /// input tag for technical triggers
+    edm::InputTag m_technicalTriggersInputTag;
 
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;
@@ -158,8 +188,11 @@ private:
     /// logical flag to produce the L1 GT object map record
     bool m_produceL1GtObjectMapRecord;
 
-    // logical flag to write the PSB content in the  L1 GT DAQ record
+    /// logical flag to write the PSB content in the  L1 GT DAQ record
     bool m_writePsbL1GtDaqRecord;
+    
+    /// logical flag to read the technical trigger records
+    bool m_readTechnicalTriggerRecords;
 
 };
 

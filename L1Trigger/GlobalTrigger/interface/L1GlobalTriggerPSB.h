@@ -27,13 +27,19 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "FWCore/Framework/interface/Selector.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+
 
 // forward declarations
 class L1GctCand;
@@ -58,26 +64,36 @@ public:
     // constructor
     L1GlobalTriggerPSB();
 
+    // string for the selector label edm::ModuleLabelSelector
+    L1GlobalTriggerPSB(const std::string selLabel);
+
     // destructor
     virtual ~L1GlobalTriggerPSB();
 
 public:
 
-    typedef std::vector<L1GctCand*> L1GctCandVector;
-
-public:
+    /// initialize the class (mainly reserve)
+    void init(const int nrL1NoIsoEG, const int nrL1IsoEG, 
+            const int nrL1CenJet, const int nrL1ForJet, const int nrL1TauJet,
+            const int numberTechnicalTriggers);
 
     /// receive Global Calorimeter Trigger objects
     void receiveGctObjectData(
         edm::Event& iEvent,
         const edm::InputTag& caloGctInputTag, const int iBxInEvent,
-        const bool receiveNoIsoEG, const unsigned int nrL1NoIsoEG,
-        const bool receiveIsoEG, const unsigned int nrL1IsoEG,
-        const bool receiveCenJet, const unsigned int nrL1CenJet,
-        const bool receiveForJet, const unsigned int nrL1ForJet,
-        const bool receiveTauJet, const unsigned int nrL1TauJet,
+        const bool receiveNoIsoEG, const int nrL1NoIsoEG,
+        const bool receiveIsoEG, const int nrL1IsoEG,
+        const bool receiveCenJet, const int nrL1CenJet,
+        const bool receiveForJet, const int nrL1ForJet,
+        const bool receiveTauJet, const int nrL1TauJet,
         const bool receiveETM, const bool receiveETT, const bool receiveHTT,
         const bool receiveJetCounts);
+
+    /// receive technical trigger
+    void receiveTechnicalTriggers(edm::Event& iEvent,
+        const edm::InputTag& technicalTriggersInputTag,
+        const int iBxInEvent, const bool receiveTechTr,
+        const int nrL1TechTr);
 
     /// fill the content of active PSB boards
     void fillPsbBlock(
@@ -94,31 +110,31 @@ public:
     void printGctObjectData() const;
 
     /// pointer to NoIsoEG data list
-    inline const L1GctCandVector* getCandL1NoIsoEG() const
+    inline const std::vector<L1GctCand*>* getCandL1NoIsoEG() const
     {
         return m_candL1NoIsoEG;
     }
 
     /// pointer to IsoEG data list
-    inline const L1GctCandVector* getCandL1IsoEG() const
+    inline const std::vector<L1GctCand*>* getCandL1IsoEG() const
     {
         return m_candL1IsoEG;
     }
 
     /// pointer to CenJet data list
-    inline const L1GctCandVector* getCandL1CenJet() const
+    inline const std::vector<L1GctCand*>* getCandL1CenJet() const
     {
         return m_candL1CenJet;
     }
 
     /// pointer to ForJet data list
-    inline const L1GctCandVector* getCandL1ForJet() const
+    inline const std::vector<L1GctCand*>* getCandL1ForJet() const
     {
         return m_candL1ForJet;
     }
 
     /// pointer to TauJet data list
-    inline const L1GctCandVector* getCandL1TauJet() const
+    inline const std::vector<L1GctCand*>* getCandL1TauJet() const
     {
         return m_candL1TauJet;
     }
@@ -147,20 +163,34 @@ public:
         return m_candJetCounts;
     }
 
+    /// pointer to technical trigger bits 
+    inline const std::vector<bool>* getGtTechnicalTriggers() const
+    {
+        return &m_gtTechnicalTriggers;
+    }
+
 private:
 
-    L1GctCandVector* m_candL1NoIsoEG;
-    L1GctCandVector* m_candL1IsoEG;
-    L1GctCandVector* m_candL1CenJet;
-    L1GctCandVector* m_candL1ForJet;
-    L1GctCandVector* m_candL1TauJet;
+    std::vector<L1GctCand*>* m_candL1NoIsoEG;
+    std::vector<L1GctCand*>* m_candL1IsoEG;
+    std::vector<L1GctCand*>* m_candL1CenJet;
+    std::vector<L1GctCand*>* m_candL1ForJet;
+    std::vector<L1GctCand*>* m_candL1TauJet;
 
     L1GctEtMiss*  m_candETM;
     L1GctEtTotal* m_candETT;
     L1GctEtHad*   m_candHTT;
 
     L1GctJetCounts* m_candJetCounts;
-
+    
+    /// technical trigger bits 
+    std::vector<bool> m_gtTechnicalTriggers;
+    
+    /// handles to the technical trigger records
+    std::vector<edm::Handle<L1GtTechnicalTriggerRecord> > m_techTrigRecords; 
+    
+    /// selector for getMany methods
+    edm::Selector m_techTrigSelector;    
 
 };
 

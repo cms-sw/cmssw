@@ -104,7 +104,7 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 // receive data from Global Muon Trigger
 void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
     const edm::InputTag& muGmtInputTag, const int iBxInEvent, const bool receiveMu,
-    const unsigned int nrL1Mu) {
+    const int nrL1Mu) {
 
     //
     reset();
@@ -121,10 +121,10 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         edm::Handle<std::vector<L1MuGMTCand> > muonData;
         iEvent.getByLabel(muGmtInputTag, muonData);
 
-        for (unsigned int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
+        for (int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
 
             L1MuGMTCand muCand;
-            unsigned int nMuon = 0;
+            int nMuon = 0;
 
             std::vector< L1MuGMTCand>::const_iterator itMuon;
             for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
@@ -149,7 +149,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
             << "     All candidates empty." << "\n**** \n" << std::endl;
 
         // set all muon candidates empty
-        for (unsigned int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
+        for (int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
 
             MuonDataWord dataword = 0;
             (*m_candL1Mu)[iMuon] = new L1MuGMTCand( dataword );
@@ -167,7 +167,16 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
 void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
     const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
-    const unsigned int numberPhysTriggers) {
+    const unsigned int numberPhysTriggers,
+    const int nrL1Mu,
+    const int nrL1NoIsoEG,
+    const int nrL1IsoEG,
+    const int nrL1CenJet,
+    const int nrL1ForJet,
+    const int nrL1TauJet,
+    const int nrL1JetCounts,
+    const int ifMuEtaNumberBits,
+    const int ifCaloEtaNumberBits) {
 
 
 	// get / update the trigger menu from the EventSetup 
@@ -208,7 +217,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
             switch ((itCond->second)->condCategory()) {
                 case CondMuon: {
 
-                    L1GtMuonCondition* muCondition = new L1GtMuonCondition(itCond->second, this, evSetup);
+                    L1GtMuonCondition* muCondition = new L1GtMuonCondition(itCond->second, this,
+                            nrL1Mu, ifMuEtaNumberBits);
                     muCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = muCondition;
@@ -226,7 +236,15 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     break;
                 case CondCalo: {
 
-                    L1GtCaloCondition* caloCondition = new L1GtCaloCondition(itCond->second, ptrGtPSB, evSetup);
+                    L1GtCaloCondition* caloCondition = new L1GtCaloCondition(
+                            itCond->second, ptrGtPSB,
+                            nrL1NoIsoEG,
+                            nrL1IsoEG,
+                            nrL1CenJet,
+                            nrL1ForJet,
+                            nrL1TauJet,
+                            ifCaloEtaNumberBits);
+
                     caloCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = caloCondition;
@@ -242,7 +260,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 }
                     break;
                 case CondEnergySum: {
-                    L1GtEnergySumCondition* eSumCondition = new L1GtEnergySumCondition(itCond->second, ptrGtPSB, evSetup);
+                    L1GtEnergySumCondition* eSumCondition = new L1GtEnergySumCondition(
+                            itCond->second, ptrGtPSB);
                     eSumCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = eSumCondition;
@@ -258,7 +277,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 }
                     break;
                 case CondJetCounts: {
-                    L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(itCond->second, ptrGtPSB, evSetup);
+                    L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(
+                            itCond->second, ptrGtPSB, nrL1JetCounts);
                     jcCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = jcCondition;

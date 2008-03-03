@@ -37,6 +37,7 @@ class L1GlobalTriggerEvmReadoutRecord;
 
 class L1GtFdlWord;
 class L1GlobalTriggerGTL;
+class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GlobalTriggerFDL
@@ -53,12 +54,19 @@ public:
     /// run the FDL
     void run(
         edm::Event& iEvent,
-        const std::vector<int>& prescaleFactors,
-        const std::vector<unsigned int>& triggerMaskV,   
+        const std::vector<int>& prescaleFactorsAlgoTrig,
+        const std::vector<int>& prescaleFactorsTechTrig,
+        const std::vector<unsigned int>& triggerMaskAlgoTrig,   
+        const std::vector<unsigned int>& triggerMaskTechTrig,   
+        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,   
+        const std::vector<unsigned int>& triggerMaskVetoTechTrig,   
         const std::vector<L1GtBoard>& boardMaps,
         const int totalBxInEvent,
         const int iBxInEvent,
-        const L1GlobalTriggerGTL* ptrGTL);
+        const unsigned int numberPhysTriggers, const unsigned int numberTechnicalTriggers,
+        const unsigned int numberDaqPartitions,
+        const L1GlobalTriggerGTL* ptrGTL,
+        const L1GlobalTriggerPSB* ptrPSB);
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
     void fillDaqFdlBlock(
@@ -88,7 +96,10 @@ private:
     L1GtFdlWord* m_gtFdlWord;
 
     /// prescale counters: NumberPhysTriggers counters per bunch cross in event
-    std::vector<std::vector<int> > m_prescaleCounter;
+    std::vector<std::vector<int> > m_prescaleCounterAlgoTrig;
+
+    /// prescale counters: technical trigger counters per bunch cross in event
+    std::vector<std::vector<int> > m_prescaleCounterTechTrig;
 
     /// logical switches for
     ///    the first event

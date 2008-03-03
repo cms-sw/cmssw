@@ -46,17 +46,19 @@
 // forward declarations
 
 // constructor
+// FIXME
 L1GlobalTriggerPSB::L1GlobalTriggerPSB()
         :
-        m_candL1NoIsoEG        ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1Electrons) ),
-        m_candL1IsoEG( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons) ),
-        m_candL1CenJet      ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1CentralJets) ),
-        m_candL1ForJet      ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets) ),
-        m_candL1TauJet          ( new L1GctCandVector(L1GlobalTriggerReadoutSetup::NumberL1TauJets) ),
+        m_candL1NoIsoEG        ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1Electrons) ),
+        m_candL1IsoEG( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons) ),
+        m_candL1CenJet      ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1CentralJets) ),
+        m_candL1ForJet      ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets) ),
+        m_candL1TauJet          ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1TauJets) ),
         m_candETM(0),
         m_candETT(0),
         m_candHTT(0),
-        m_candJetCounts(0)
+        m_candJetCounts(0),
+        m_techTrigSelector(edm::Selector( edm::ModuleLabelSelector("")))
 {
 
     m_candL1NoIsoEG->reserve(L1GlobalTriggerReadoutSetup::NumberL1Electrons);
@@ -65,6 +67,26 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB()
     m_candL1ForJet->reserve(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets);
     m_candL1TauJet->reserve(L1GlobalTriggerReadoutSetup::NumberL1TauJets);
 
+    m_gtTechnicalTriggers.reserve(L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers);
+    
+}
+
+L1GlobalTriggerPSB::L1GlobalTriggerPSB(const std::string selLabel)
+        :
+        m_candL1NoIsoEG        ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1Electrons) ),
+        m_candL1IsoEG( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons) ),
+        m_candL1CenJet      ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1CentralJets) ),
+        m_candL1ForJet      ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets) ),
+        m_candL1TauJet          ( new std::vector<L1GctCand*>(L1GlobalTriggerReadoutSetup::NumberL1TauJets) ),
+        m_candETM(0),
+        m_candETT(0),
+        m_candHTT(0),
+        m_candJetCounts(0),
+        m_techTrigSelector(edm::Selector( edm::ModuleLabelSelector(selLabel)))
+{
+
+    // empty
+    
 }
 
 // destructor
@@ -77,7 +99,7 @@ L1GlobalTriggerPSB::~L1GlobalTriggerPSB()
     m_candL1CenJet->clear();
     m_candL1ForJet->clear();
     m_candL1TauJet->clear();
-
+    
     delete m_candL1NoIsoEG;
     delete m_candL1IsoEG;
     delete m_candL1CenJet;
@@ -97,17 +119,31 @@ L1GlobalTriggerPSB::~L1GlobalTriggerPSB()
 }
 
 // operations
+void L1GlobalTriggerPSB::init(const int nrL1NoIsoEG, const int nrL1IsoEG, 
+        const int nrL1CenJet, const int nrL1ForJet, const int nrL1TauJet,
+        const int numberTechnicalTriggers)
+{
+
+    m_candL1NoIsoEG->reserve(nrL1NoIsoEG);
+    m_candL1IsoEG->reserve(nrL1IsoEG);
+    m_candL1CenJet->reserve(nrL1CenJet);
+    m_candL1ForJet->reserve(nrL1ForJet);
+    m_candL1TauJet->reserve(nrL1TauJet);
+
+    m_gtTechnicalTriggers.reserve(numberTechnicalTriggers);
+    
+}
 
 // receive input data
 
 void L1GlobalTriggerPSB::receiveGctObjectData(
     edm::Event& iEvent,
     const edm::InputTag& caloGctInputTag, const int iBxInEvent,
-    const bool receiveNoIsoEG, const unsigned int nrL1NoIsoEG,
-    const bool receiveIsoEG, const unsigned int nrL1IsoEG,
-    const bool receiveCenJet, const unsigned int nrL1CenJet,
-    const bool receiveForJet, const unsigned int nrL1ForJet,
-    const bool receiveTauJet, const unsigned int nrL1TauJet,
+    const bool receiveNoIsoEG, const int nrL1NoIsoEG,
+    const bool receiveIsoEG, const int nrL1IsoEG,
+    const bool receiveCenJet, const int nrL1CenJet,
+    const bool receiveForJet, const int nrL1ForJet,
+    const bool receiveTauJet, const int nrL1TauJet,
     const bool receiveETM, const bool receiveETT, const bool receiveHTT,
     const bool receiveJetCounts)
 {
@@ -130,10 +166,10 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         edm::Handle<L1GctEmCandCollection> emCands;
         iEvent.getByLabel(caloGctInputTag.label(), "nonIsoEm", emCands);
 
-        for ( unsigned int i = 0; i < nrL1NoIsoEG; i++ ) {
+        for ( int i = 0; i < nrL1NoIsoEG; i++ ) {
 
             CaloDataWord dataword = 0;
-            unsigned int nElec = 0;
+            int nElec = 0;
 
             for (L1GctEmCandCollection::const_iterator
                     it = emCands->begin(); it != emCands->end(); it++) {
@@ -155,7 +191,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     } else {
 
         // empty GCT NoIsoEG
-        for ( unsigned int i = 0; i < nrL1NoIsoEG; i++ ) {
+        for ( int i = 0; i < nrL1NoIsoEG; i++ ) {
 
             CaloDataWord dataword = 0;
 
@@ -173,10 +209,10 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         edm::Handle<L1GctEmCandCollection> isoEmCands;
         iEvent.getByLabel(caloGctInputTag.label(), "isoEm",    isoEmCands);
 
-        for ( unsigned int i = 0; i < nrL1IsoEG; i++ ) {
+        for ( int i = 0; i < nrL1IsoEG; i++ ) {
 
             CaloDataWord dataword = 0;
-            unsigned int nElec = 0;
+            int nElec = 0;
 
             for (L1GctEmCandCollection::const_iterator
                     it = isoEmCands->begin(); it != isoEmCands->end(); it++) {
@@ -197,7 +233,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
         // empty GCT IsoEG
 
-        for ( unsigned int i = 0; i < nrL1IsoEG; i++ ) {
+        for ( int i = 0; i < nrL1IsoEG; i++ ) {
 
             CaloDataWord dataword = 0;
 
@@ -216,10 +252,10 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "cenJets", cenJets);
 
         // central jets
-        for ( unsigned int i = 0; i < nrL1CenJet; i++ ) {
+        for ( int i = 0; i < nrL1CenJet; i++ ) {
 
             CaloDataWord dataword = 0;
-            unsigned int nJet = 0;
+            int nJet = 0;
 
             for (L1GctJetCandCollection::const_iterator
                     it = cenJets->begin(); it != cenJets->end(); it++) {
@@ -240,7 +276,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     } else {
 
         // empty GCT CenJet
-        for ( unsigned int i = 0; i < nrL1CenJet; i++ ) {
+        for ( int i = 0; i < nrL1CenJet; i++ ) {
 
             CaloDataWord dataword = 0;
 
@@ -260,10 +296,10 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "forJets", forJets);
 
         // forward jets
-        for ( unsigned int i = 0; i < nrL1ForJet; i++ ) {
+        for ( int i = 0; i < nrL1ForJet; i++ ) {
 
             CaloDataWord dataword = 0;
-            unsigned int nJet = 0;
+            int nJet = 0;
 
             for (L1GctJetCandCollection::const_iterator
                     it = forJets->begin(); it != forJets->end(); it++) {
@@ -284,7 +320,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     } else {
 
         // empty GCT ForJet
-        for ( unsigned int i = 0; i < nrL1ForJet; i++ ) {
+        for ( int i = 0; i < nrL1ForJet; i++ ) {
 
             CaloDataWord dataword = 0;
 
@@ -303,10 +339,10 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         edm::Handle<L1GctJetCandCollection> tauJets;
         iEvent.getByLabel(caloGctInputTag.label(), "tauJets", tauJets);
 
-        for ( unsigned int i = 0; i < nrL1TauJet; i++ ) {
+        for ( int i = 0; i < nrL1TauJet; i++ ) {
 
             CaloDataWord dataword = 0;
-            unsigned int nJet = 0;
+            int nJet = 0;
 
             for (L1GctJetCandCollection::const_iterator
                     it = tauJets->begin(); it != tauJets->end(); it++) {
@@ -327,7 +363,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     } else {
 
         // empty GCT TauJet
-        for ( unsigned int i = 0; i < nrL1TauJet; i++ ) {
+        for ( int i = 0; i < nrL1TauJet; i++ ) {
 
             CaloDataWord dataword = 0;
 
@@ -414,6 +450,88 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
 
 }
+
+// receive technical trigger
+void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
+    const edm::InputTag& technicalTriggersInputTag, const int iBxInEvent,
+    const bool receiveTechTr, const int nrL1TechTr) {
+    
+    // reset the technical trigger bits
+    m_gtTechnicalTriggers = std::vector<bool>(nrL1TechTr, false);
+
+
+    if (receiveTechTr) {
+
+        // get the technical trigger bits, change the values
+        iEvent.getMany(m_techTrigSelector, m_techTrigRecords);
+
+        size_t recordsSize = m_techTrigRecords.size();
+        for (size_t iRec = 0; iRec < recordsSize; ++iRec) {
+
+            const L1GtTechnicalTriggerRecord& ttRecord = *m_techTrigRecords[iRec];
+            const std::vector<L1GtTechnicalTrigger>& ttVec = ttRecord.gtTechnicalTrigger(); 
+            size_t ttVecSize = ttVec.size();
+
+            for (size_t iTT = 0; iTT < ttVecSize; ++iTT) {
+
+                const L1GtTechnicalTrigger& ttBxRecord = ttVec[iTT];
+                int ttBxInEvent = ttBxRecord.bxInEvent();
+
+                if (ttBxInEvent == iBxInEvent) {
+                    int ttBitNumber = ttBxRecord.gtTechnicalTriggerBitNumber();
+                    bool ttResult = ttBxRecord.gtTechnicalTriggerResult();
+
+                    m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
+
+                    LogTrace("L1GlobalTriggerPSB")
+                        << "\n Add technical trigger with bit number " << ttBitNumber
+                        << " and result " << ttResult
+                        << std::endl;
+
+                    break;
+                    
+                }
+
+            }
+
+        }
+
+    }    
+
+    if ( edm::isDebugEnabled() ) {
+        LogDebug("L1GlobalTriggerPSB")
+            << "**** L1GlobalTriggerPSB receiving technical triggers from input tag "
+            << technicalTriggersInputTag << std::endl;
+        LogTrace("L1GlobalTriggerPSB")
+        << "**** Technical triggers (bitset style): "
+        << std::endl;
+
+        int sizeW64 = 64; // 64 bits words
+        int iBit = 0;
+        
+        std::ostringstream myCout;
+
+        for (std::vector<bool>::reverse_iterator ritBit = m_gtTechnicalTriggers.rbegin();
+                ritBit != m_gtTechnicalTriggers.rend(); ++ritBit) {
+
+            myCout << (*ritBit ? '1' : '0');
+
+            if ( (((iBit + 1)%16) == (sizeW64%16)) && (iBit != 63) ) {
+                myCout << " ";
+            }
+
+            iBit++;
+        }
+
+        LogTrace("L1GlobalTriggerPSB")
+        << myCout.str() << "\n"
+        << std::endl;
+
+    
+    }
+
+}
+
 
 // fill the content of active PSB boards
 void L1GlobalTriggerPSB::fillPsbBlock(
@@ -548,7 +666,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 void L1GlobalTriggerPSB::reset()
 {
 
-    L1GctCandVector::iterator iter;
+    std::vector<L1GctCand*>::iterator iter;
 
     for ( iter = m_candL1NoIsoEG->begin(); iter < m_candL1NoIsoEG->end(); iter++ ) {
         if (*iter) {
@@ -604,6 +722,7 @@ void L1GlobalTriggerPSB::reset()
         delete m_candJetCounts;
         m_candJetCounts = 0;
     }
+ 
 
 }
 
@@ -615,7 +734,7 @@ void L1GlobalTriggerPSB::printGctObjectData() const
     LogTrace("L1GlobalTriggerPSB")
     << "\n L1GlobalTrigger Calorimeter input data [hex] \n" << std::endl;
 
-    L1GctCandVector::const_iterator iter;
+    std::vector<L1GctCand*>::const_iterator iter;
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT NoIsoEG " << std::endl;
     for ( iter = m_candL1NoIsoEG->begin(); iter < m_candL1NoIsoEG->end(); iter++ ) {

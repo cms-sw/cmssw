@@ -39,9 +39,6 @@
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 // constructors
 //     default
 L1GtJetCountsCondition::L1GtJetCountsCondition() :
@@ -53,7 +50,7 @@ L1GtJetCountsCondition::L1GtJetCountsCondition() :
 
 //     from base template condition (from event setup usually)
 L1GtJetCountsCondition::L1GtJetCountsCondition(L1GtCondition* jcTemplate,
-    const L1GlobalTriggerPSB* ptrPSB, const edm::EventSetup& evSetup) :
+    const L1GlobalTriggerPSB* ptrPSB, const int nrL1JetCounts) :
     L1GtConditionEvaluation()
 
 {
@@ -63,15 +60,10 @@ L1GtJetCountsCondition::L1GtJetCountsCondition(L1GtCondition* jcTemplate,
     m_gtPSB = ptrPSB;
 
     /// maximum number of jet counts (from event setup)
-
-    edm::ESHandle< L1GtStableParameters> l1GtStablePar;
-    evSetup.get< L1GtStableParametersRcd>().get(l1GtStablePar);
-
-    m_numberL1JetCounts = l1GtStablePar->gtNumberL1JetCounts();
+    m_numberL1JetCounts = nrL1JetCounts;
 
     // maximum number of objects received for the evaluation of the condition
     // energy sums are global quantities - one object per event 
-
     m_condMaxNumberObjects = 1;
 
 }

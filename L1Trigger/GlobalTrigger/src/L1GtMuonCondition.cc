@@ -40,9 +40,6 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
@@ -57,7 +54,8 @@ L1GtMuonCondition::L1GtMuonCondition() :
 
 //     from base template condition (from event setup usually)
 L1GtMuonCondition::L1GtMuonCondition(L1GtCondition* muonTemplate, const L1GlobalTriggerGTL* ptrGTL,
-    const edm::EventSetup& evSetup) :
+        const int nrL1Mu,
+        const int ifMuEtaNumberBits) :
     L1GtConditionEvaluation()
 
 {
@@ -69,13 +67,10 @@ L1GtMuonCondition::L1GtMuonCondition(L1GtCondition* muonTemplate, const L1Global
     // maximum number of objects received for the evaluation of the condition
     // retrieved from event setup
 
-    edm::ESHandle< L1GtStableParameters> l1GtStablePar;
-    evSetup.get< L1GtStableParametersRcd>().get(l1GtStablePar);
-
-    m_condMaxNumberObjects = static_cast<int> (l1GtStablePar->gtNumberL1Mu());
+    m_condMaxNumberObjects = nrL1Mu;
 
     // number of bits for eta of muon objects
-    m_ifMuEtaNumberBits = static_cast<int> (l1GtStablePar->gtIfMuEtaNumberBits());
+    m_ifMuEtaNumberBits = ifMuEtaNumberBits;
 
 }
 

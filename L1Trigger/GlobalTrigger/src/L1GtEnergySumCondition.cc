@@ -37,9 +37,6 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 // constructors
 //     default
 L1GtEnergySumCondition::L1GtEnergySumCondition() :
@@ -51,7 +48,7 @@ L1GtEnergySumCondition::L1GtEnergySumCondition() :
 
 //     from base template condition (from event setup usually)
 L1GtEnergySumCondition::L1GtEnergySumCondition(L1GtCondition* eSumTemplate,
-    const L1GlobalTriggerPSB* ptrPSB, const edm::EventSetup& evSetup) :
+    const L1GlobalTriggerPSB* ptrPSB) :
     L1GtConditionEvaluation()
 
 {

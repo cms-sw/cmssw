@@ -25,8 +25,6 @@
 //   base classes
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 // forward declarations
 class L1GtCondition;
 class L1GtMuonTemplate;
@@ -47,7 +45,8 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1GtMuonCondition(L1GtCondition*, const L1GlobalTriggerGTL*,
-        const edm::EventSetup& evSetup);
+            const int nrL1Mu,
+            const int ifMuEtaNumberBits);
 
     // copy constructor
     L1GtMuonCondition(const L1GtMuonCondition&);
