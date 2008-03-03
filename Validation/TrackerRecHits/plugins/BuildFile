@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=SimTracker/TrackerHitAssociation>
 <use name=DataFormats/SiStripDetId> 
