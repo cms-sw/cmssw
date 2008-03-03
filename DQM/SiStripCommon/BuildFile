@@ -7,10 +7,5 @@
 
 <export>
   <lib name=DQMSiStripCommon>
-  <use name=DataFormats/SiStripDetId>
-  <use name=DQMServices/Core>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ServiceRegistry>
   <use name=boost>
-  <use name=root>
 </export>
