@@ -179,28 +179,29 @@ void FedChannelConnection::print( std::stringstream& ss ) const {
 // -----------------------------------------------------------------------------
 // 
 void FedChannelConnection::terse( std::stringstream& ss ) const {
-  ss << " FED:crate/slot/id/unit=" 
+  ss << " FED:cr/sl/id/fe/ch/chan=" 
      << fedCrate() << "/" 
      << fedSlot() << "/" 
      << fedId() << "/" 
      << SiStripFedKey::feUnit( fedCh() ) << "/" 
-     << SiStripFedKey::feChan( fedCh() ) << "," 
-     << " FEC:crate/slot/ring/CCU/module="
+     << SiStripFedKey::feChan( fedCh() ) << "/" 
+     << fedCh() << "," 
+     << " FEC:cr/sl/ring/ccu/mod="
      << fecCrate() << "/"
      << fecSlot() << "/" 
      << fecRing() << ","
      << ccuAddr() << "/" 
      << ccuChan() << ","
-     << " APVs=" 
+     << " apvs=" 
      << i2cAddr(0) << "/" 
      << i2cAddr(1) << "," 
-     << " DCU/DetId=" 
+     << " pair=" << apvPairNumber()+1
+     << " (from " << nApvPairs() << "),"
+     << " dcu/detid=" 
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
-     << "0x" << std::setfill('0') << std::setw(8) << detId() << ","
-     << std::dec
-     << " APVpair=" << apvPairNumber()+1
-     << " (from " << nApvPairs() << ")";
+     << "0x" << std::setfill('0') << std::setw(8) << detId() 
+     << std::dec;
 }
 
 // -----------------------------------------------------------------------------
