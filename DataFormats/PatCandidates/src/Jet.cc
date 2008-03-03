@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.6 2008/02/28 14:08:55 llista Exp $
+// $Id: Jet.cc,v 1.6.2.1 2008/03/03 16:45:27 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -141,7 +141,7 @@ Jet Jet::bCorrJet() const {
   jet.setResolutionB(bResB_);
   jet.setResolutionC(bResC_);
   jet.setResolutionD(bResD_);
-  jet.setResolutionET(bResET_);
+  jet.setResolutionEt(bResEt_);
   jet.setResolutionEta(bResEta_);
   jet.setResolutionPhi(bResPhi_);
   jet.setResolutionTheta(bResTheta_);
@@ -273,8 +273,8 @@ void Jet::setScaleCalibFactors(float noCorrF, float udsCorrF, float gluCorrF, fl
 
 
 /// method to set the resolutions under the assumption this is a b-jet
-void Jet::setBResolutions(float bResET, float bResEta, float bResPhi, float bResA, float bResB, float bResC, float bResD, float bResTheta) {
-  bResET_ = bResET;
+void Jet::setBResolutions(float bResEt, float bResEta, float bResPhi, float bResA, float bResB, float bResC, float bResD, float bResTheta) {
+  bResEt_ = bResEt;
   bResEta_ = bResEta;
   bResPhi_ = bResPhi;
   bResA_ = bResA;

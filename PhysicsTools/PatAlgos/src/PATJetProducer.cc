@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.13 2008/02/28 15:34:10 llista Exp $
+// $Id: PATJetProducer.cc,v 1.12.2.1 2008/03/03 16:45:28 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -187,7 +187,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       (*theResoCalc_)(ajet);
       Jet abjet(ajet.bCorrJet());
       (*theBResoCalc_)(abjet);
-      ajet.setBResolutions(abjet.resolutionET(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
+      ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
     }
 
     // add b-tag info if available & required
@@ -237,7 +237,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     patJets->push_back(ajet);
   }
 
-  // sort jets in ET
+  // sort jets in Et
   std::sort(patJets->begin(), patJets->end(), eTComparator_);
 
   // put genEvt  in Event

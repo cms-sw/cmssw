@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
+// $Id: Jet.h,v 1.6.2.1 2008/03/03 16:45:27 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
+  \version  $Id: Jet.h,v 1.6.2.1 2008/03/03 16:45:27 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -66,7 +66,7 @@ namespace pat {
       void            setGenJet(const reco::GenJet & gj);
       void            setPartonFlavour(int partonFl);
       void            setScaleCalibFactors(float noCorrF, float udsCorrF, float gluCorrF, float cCorrF, float bCorrF);
-      void            setBResolutions(float bResET_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
+      void            setBResolutions(float bResEt_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       void            addBDiscriminatorPair(std::pair<std::string, float> & thePair);
       //      void            addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair);
       void            setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec);
@@ -89,7 +89,7 @@ namespace pat {
       //          factors bring you from uncorrected to the desired correction
       float noCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_;
       // additional resolutions for the b-jet hypothesis
-      float bResET_, bResEta_, bResPhi_, bResA_, bResB_, bResC_, bResD_, bResTheta_;
+      float bResEt_, bResEta_, bResPhi_, bResA_, bResB_, bResC_, bResD_, bResTheta_;
       std::vector<float> bCovM_;
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
