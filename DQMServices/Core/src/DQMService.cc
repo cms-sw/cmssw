@@ -2,22 +2,84 @@
 #include "DQMServices/Core/src/DQMRootBuffer.h"
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMThreadLock.h"
+#include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <pthread.h>
 #include <iostream>
 #include <string>
 #include <memory>
 
+// -------------------------------------------------------------------
+static pthread_mutex_t	s_mutex   = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t	s_avail   = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t	s_done    = PTHREAD_COND_INITIALIZER;
+static int		s_pending = 0;
+static bool		s_run     = false;
+
+/// Acquire lock and access to the DQM core from a thread other than
+/// the "main" CMSSW processing thread, such as in extra XDAQ threads.
+DQMScope::DQMScope(void)
+{
+  // Wait until it's safe to run.
+  pthread_mutex_lock(&s_mutex);
+  ++s_pending;
+  while (! s_run)
+    pthread_cond_wait(&s_avail, &s_mutex);
+
+  // OK, run now.  We are holding the mutex until calling scope exits.
+}
+
+/// Release access lock to the DQM core.
+DQMScope::~DQMScope(void)
+{
+  // Release the mutex for someone else to use the DQM core.
+  if (--s_pending == 0)
+    pthread_cond_signal(&s_done);
+  pthread_mutex_unlock(&s_mutex);
+}
+
+/// Let other threads use the DQM.
+static void
+respondToOtherThreads(const edm::Event &, const edm::EventSetup &)
+{
+  pthread_mutex_lock(&s_mutex);
+  if (s_pending > 0)
+  {
+    s_run = true;
+    pthread_cond_broadcast(&s_avail);
+
+    while (s_pending > 0)
+      pthread_cond_wait(&s_done, &s_mutex);
+
+    s_run = false;
+  }
+
+  pthread_mutex_unlock(&s_mutex);
+}
+
+/// Release access to the DQM core for good.
+static void
+releaseDQM(void)
+{
+  pthread_mutex_lock(&s_mutex);
+  s_run = true;
+  pthread_cond_broadcast(&s_avail);
+  pthread_mutex_unlock(&s_mutex);
+}
+
+// -------------------------------------------------------------------
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
     net_(0),
     lastFlush_(0),
     publishFrequency_(5.0)
 {
-  edm::Service<DQMThreadLock>();
+  ar.watchPostProcessEvent(&respondToOtherThreads);
   ar.watchPostProcessEvent(this, &DQMService::flush);
+
   ar.watchPostEndJob(this, &DQMService::shutdown);
+  ar.watchPostEndJob(&releaseDQM);
 
   std::string host = pset.getUntrackedParameter<std::string>("collectorHost", ""); 
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
@@ -54,9 +116,6 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   // OK, send an update.
   if (net_)
   {
-    // Make sure the core is locked.
-    DQMThreadLock::EDMService lock;
-
     // Lock the network layer so we can modify the data.
     net_->lock();
     bool updated = false;
@@ -122,6 +181,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
 void
 DQMService::shutdown(void)
 {
+  // If we have a network, let it go.
   if (net_)
     net_->shutdown();
 }
