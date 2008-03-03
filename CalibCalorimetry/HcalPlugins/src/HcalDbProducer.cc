@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.17 2007/05/28 10:39:47 elmer Exp $
+// $Id: HcalDbProducer.cc,v 1.18 2007/12/20 15:50:18 mansj Exp $
 //
 //
 
@@ -28,21 +28,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
-
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h" 
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"  	 
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
@@ -62,6 +48,8 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::QIEDataCallback &
 			  &HcalDbProducer::channelQualityCallback &
+			  &HcalDbProducer::zsThresholdsCallback &
+			  &HcalDbProducer::respCorrsCallback &
 			  &HcalDbProducer::electronicsMapCallback
 			  )
 		   );
@@ -152,6 +140,26 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
+  edm::ESHandle <HcalRespCorrs> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
+  edm::ESHandle <HcalZSThresholds> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Pedestals set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }

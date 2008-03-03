@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.5.4.1 2007/05/08 21:12:09 mansj Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.6 2007/05/11 14:53:04 mansj Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -11,15 +11,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
-
-class HcalPedestals;
-class HcalPedestalWidths;
-class HcalGains;
-class HcalGainWidths;
-class HcalQIEData;
-class HcalChannelQuality;
-class HcalElectronicsMap;
 
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
@@ -28,6 +21,9 @@ class HcalGainWidthsRcd;
 class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
+class HcalRespCorrsRcd;
+class HcalZSThresholdsRcd;
+
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -50,6 +46,9 @@ protected:
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
+
+  std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
+  std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
   bool h2mode_;
 };
 

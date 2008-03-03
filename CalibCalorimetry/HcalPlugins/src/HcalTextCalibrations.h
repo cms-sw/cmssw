@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalTextCalibrations.h,v 1.1 2005/12/05 00:25:31 fedor Exp $
+// $Id: HcalTextCalibrations.h,v 1.2 2006/01/10 19:29:40 fedor Exp $
 //
 //
 #include <map>
@@ -10,15 +10,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
-
-class HcalPedestals;
-class HcalPedestalWidths;
-class HcalGains;
-class HcalGainWidths;
-class HcalQIEData;
-class HcalChannelQuality;
-class HcalElectronicsMap;
 
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
@@ -27,6 +20,8 @@ class HcalGainWidthsRcd;
 class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
+class HcalRespCorrsRcd;
+class HcalZSThresholdsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -50,6 +45,8 @@ protected:
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
 
+  std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
+  std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
 };

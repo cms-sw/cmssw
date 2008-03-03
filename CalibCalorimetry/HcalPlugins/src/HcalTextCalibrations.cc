@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.5 2007/05/28 10:39:47 elmer Exp $
+// $Id: HcalTextCalibrations.cc,v 1.6 2008/01/22 18:57:58 muzaffar Exp $
 //
 //
 
@@ -30,6 +30,8 @@
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 
 
 #include "HcalTextCalibrations.h"
@@ -72,6 +74,14 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else if (objectName == "ChannelQuality") {
       setWhatProduced (this, &HcalTextCalibrations::produceChannelQuality);
       findingRecord <HcalChannelQualityRcd> ();
+    }
+    else if (objectName == "ZSThresholds") {
+      setWhatProduced (this, &HcalTextCalibrations::produceZSThresholds);
+      findingRecord <HcalZSThresholdsRcd> ();
+    }
+    else if (objectName == "RespCorrs") {
+      setWhatProduced (this, &HcalTextCalibrations::produceRespCorrs);
+      findingRecord <HcalRespCorrsRcd> ();
     }
     else if (objectName == "ElectronicsMap") {
       setWhatProduced (this, &HcalTextCalibrations::produceElectronicsMap);
@@ -140,6 +150,14 @@ std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDa
 
 std::auto_ptr<HcalChannelQuality> HcalTextCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"]);
+}
+
+std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
+  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"]);
+}
+
+std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
+  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
