@@ -27,6 +27,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
    dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
 {
 
+  dynamicPhiRoad_ = false;
   if ( debugLevel_ == pDEBUG ) {
     //std::cout << "dynamicEThres: " << dynamicEThres_ 
     //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
