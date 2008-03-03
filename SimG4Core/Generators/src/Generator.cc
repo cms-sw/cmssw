@@ -35,7 +35,7 @@ Generator::Generator(const ParameterSet & p) :
   theMinPtCut(p.getParameter<double>("MinPtCut")),    // now operates in GeV (CMS standard)
   theMaxPtCut(p.getParameter<double>("MaxPtCut")),   
   theDecLenCut(p.getParameter<double>("DecLenCut")*cm),
-  theEtaRegionForDecLenCut(p.getParameter<double>("EtaRegionForDecLenCut")),
+  theEtaCutForHector(p.getParameter<double>("EtaCutForHector")),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
   evt_(0),
   vtx_(0) ,
@@ -169,7 +169,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 		
 	  if( (*vpitr)->status() == 1 || 
 	      ((*vpitr)->status() == 2 && decay_length > theDecLenCut && 
-	       fabs((*vpitr)->momentum().eta()) < theEtaRegionForDecLenCut ) ) {
+	       fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) ) {
 	    
 	    math::XYZTLorentzVector p((*vpitr)->momentum().px(),
 				      (*vpitr)->momentum().py(),
@@ -194,7 +194,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    
 	    g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
 	    setGenId( g4prim, (*vpitr)->barcode() ) ;
-	    if ( (*vpitr)->status() == 2 && fabs((*vpitr)->momentum().eta()) < theEtaRegionForDecLenCut ) 
+	    if ( (*vpitr)->status() == 2 && fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) 
 	      particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
             if ( verbose > 1 ) g4prim->Print();
 	    g4vtx->SetPrimary(g4prim);

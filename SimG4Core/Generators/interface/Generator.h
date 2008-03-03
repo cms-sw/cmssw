@@ -49,7 +49,7 @@ private:
   double theMinPtCut;
   double theMaxPtCut;
   double theDecLenCut;
-  double theEtaRegionForDecLenCut; 
+  double theEtaCutForHector; 
   int verbose;
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;

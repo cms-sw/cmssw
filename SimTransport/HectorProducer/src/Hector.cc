@@ -41,7 +41,7 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   m_sigmaSTY     = hector_par.getParameter<double>("sigmaSTY" );
   m_smearE       = hector_par.getParameter<bool>("smearEnergy");
   m_sig_e        = hector_par.getParameter<double>("sigmaEnergy");
-  etacut         = hector_par.getParameter<double>("EtaCut" );
+  etacut         = hector_par.getParameter<double>("EtaCutForHector" );
   
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
 			  << "   lengthfp420:    " << lengthfp420 << "\n"
